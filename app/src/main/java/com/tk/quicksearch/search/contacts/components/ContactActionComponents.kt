@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.models.ContactMethod
+import com.tk.quicksearch.shared.ui.components.AppVoiceCallIcon
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
@@ -53,19 +54,17 @@ internal fun ContactActionButton(
             is ContactMethod.Sms -> AppColors.ActionSms
 
             is ContactMethod.WhatsAppCall,
+            is ContactMethod.TelegramCall,
+            is ContactMethod.SignalCall,
+            -> callIconTint
+
             is ContactMethod.WhatsAppMessage,
             is ContactMethod.WhatsAppVideoCall,
-            -> AppColors.ActionWhatsApp
-
             is ContactMethod.TelegramMessage,
-            is ContactMethod.TelegramCall,
             is ContactMethod.TelegramVideoCall,
-            -> AppColors.ActionTelegram
-
             is ContactMethod.SignalMessage,
-            is ContactMethod.SignalCall,
             is ContactMethod.SignalVideoCall,
-            -> AppColors.ActionSignal
+            -> Color.Unspecified
 
             is ContactMethod.GoogleMeet -> Color.Unspecified
 
@@ -78,7 +77,7 @@ internal fun ContactActionButton(
             is ContactMethod.ViewInContactsApp -> AppColors.ActionView
         }
     val actionButtonBorderColor = AppColors.OnboardingBubbleBorder
-    val actionButtonContainerColor = AppColors.OverlayLow
+    val actionButtonContainerColor = Color.Transparent
     val actionButtonTextColor = AppColors.DialogText
 
     Surface(
@@ -126,7 +125,6 @@ private fun ContactActionIcon(
     tint: Color,
     usePhoneIconForCallActions: Boolean = false,
 ) {
-    val callIconTint = AppColors.CallIconTint
     if (usePhoneIconForCallActions &&
         (method is ContactMethod.Phone ||
             method is ContactMethod.VideoCall ||
@@ -137,7 +135,7 @@ private fun ContactActionIcon(
         Icon(
             imageVector = Icons.Rounded.Call,
             contentDescription = null,
-            tint = callIconTint,
+            tint = AppColors.CallIconTint,
             modifier = Modifier.size(DesignTokens.LargeIconSize),
         )
         return
@@ -162,11 +160,9 @@ private fun ContactActionIcon(
         }
 
         is ContactMethod.WhatsAppCall -> {
-            Icon(
-                painter = painterResource(id = R.drawable.whatsapp_call),
-                contentDescription = null,
-                tint = callIconTint,
-                modifier = Modifier.size(DesignTokens.LargeIconSize),
+            AppVoiceCallIcon(
+                logoPainterRes = R.drawable.whatsapp_call,
+                size = DesignTokens.LargeIconSize,
             )
         }
 
@@ -174,7 +170,7 @@ private fun ContactActionIcon(
             Icon(
                 painter = painterResource(id = R.drawable.whatsapp),
                 contentDescription = null,
-                tint = tint,
+                tint = Color.Unspecified,
                 modifier = Modifier.size(DesignTokens.LargeIconSize),
             )
         }
@@ -183,7 +179,7 @@ private fun ContactActionIcon(
             Icon(
                 painter = painterResource(id = R.drawable.whatsapp_video_call),
                 contentDescription = null,
-                tint = callIconTint,
+                tint = Color.Unspecified,
                 modifier = Modifier.size(DesignTokens.LargeIconSize),
             )
         }
@@ -192,17 +188,15 @@ private fun ContactActionIcon(
             Icon(
                 painter = painterResource(id = R.drawable.telegram),
                 contentDescription = null,
-                tint = tint,
+                tint = Color.Unspecified,
                 modifier = Modifier.size(DesignTokens.LargeIconSize),
             )
         }
 
         is ContactMethod.TelegramCall -> {
-            Icon(
-                painter = painterResource(id = R.drawable.telegram_call),
-                contentDescription = null,
-                tint = callIconTint,
-                modifier = Modifier.size(DesignTokens.LargeIconSize),
+            AppVoiceCallIcon(
+                logoPainterRes = R.drawable.telegram_call,
+                size = DesignTokens.LargeIconSize,
             )
         }
 
@@ -210,7 +204,7 @@ private fun ContactActionIcon(
             Icon(
                 painter = painterResource(id = R.drawable.telegram_video_call),
                 contentDescription = null,
-                tint = callIconTint,
+                tint = Color.Unspecified,
                 modifier = Modifier.size(DesignTokens.LargeIconSize),
             )
         }
@@ -219,17 +213,15 @@ private fun ContactActionIcon(
             Icon(
                 painter = painterResource(id = R.drawable.signal_video_call),
                 contentDescription = null,
-                tint = callIconTint,
+                tint = Color.Unspecified,
                 modifier = Modifier.size(DesignTokens.LargeIconSize),
             )
         }
 
         is ContactMethod.SignalCall -> {
-            Icon(
-                painter = painterResource(id = R.drawable.signal_call),
-                contentDescription = null,
-                tint = callIconTint,
-                modifier = Modifier.size(DesignTokens.LargeIconSize),
+            AppVoiceCallIcon(
+                logoPainterRes = R.drawable.signal_call,
+                size = DesignTokens.LargeIconSize,
             )
         }
 

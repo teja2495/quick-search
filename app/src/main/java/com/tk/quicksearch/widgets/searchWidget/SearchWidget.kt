@@ -200,7 +200,7 @@ class SearchWidget(
                 )
         val borderColor =
             if (borderWidthPx > 0) {
-                WidgetColorUtils.getBorderColor(config.borderColor, config.borderAlpha)
+                WidgetColorUtils.getBorderColor(config.borderColor, config.borderAlpha, effectiveTheme)
             } else {
                 null
             }

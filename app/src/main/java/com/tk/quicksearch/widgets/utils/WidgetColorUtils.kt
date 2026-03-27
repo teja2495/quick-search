@@ -46,15 +46,17 @@ object WidgetColorUtils {
 
     /**
      * Calculates the border color with alpha applied.
-     * Border is always white and never fully opaque.
+     * Uses white for dark theme and black for light theme.
      */
     fun getBorderColor(
         borderColor: Int,
         borderAlpha: Float,
+        effectiveTheme: WidgetTheme = WidgetTheme.DARK,
     ): Color {
         // Keep some transparency even if the user picks a fully opaque border.
         val appliedAlpha = borderAlpha.coerceAtMost(0.4f)
-        return AppColors.WidgetBorder.copy(alpha = appliedAlpha)
+        val base = if (effectiveTheme == WidgetTheme.LIGHT) AppColors.WidgetBorderDefault else AppColors.WidgetBorder
+        return base.copy(alpha = appliedAlpha)
     }
 
     /**

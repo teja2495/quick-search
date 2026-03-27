@@ -414,7 +414,7 @@ private fun AppGridItem(
                                 if (isDarkTheme) {
                                     Color.White.copy(alpha = 0.1f * indicatorAlpha)
                                 } else {
-                                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = indicatorAlpha)
+                                    Color.Black.copy(alpha = 0.1f * indicatorAlpha)
                                 },
                         shape = DesignTokens.ShapeLarge,
                     )

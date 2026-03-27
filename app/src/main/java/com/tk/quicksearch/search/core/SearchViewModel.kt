@@ -3194,10 +3194,18 @@ class SearchViewModel(
             if (backgroundSource == source) return@launch
             userPreferences.setBackgroundSource(source)
             backgroundSource = source
+            val autoTheme = if (source != BackgroundSource.THEME && appTheme != AppTheme.MONOCHROME) {
+                userPreferences.setAppTheme(AppTheme.MONOCHROME)
+                appTheme = AppTheme.MONOCHROME
+                AppTheme.MONOCHROME
+            } else {
+                null
+            }
             updateConfigState {
                 it.copy(
                         backgroundSource = source,
                         showWallpaperBackground = source != BackgroundSource.THEME,
+                        appTheme = autoTheme ?: it.appTheme,
                 )
             }
             saveStartupSurfaceSnapshotAsync(forcePreviewRefresh = true, allowDuringQuery = true)

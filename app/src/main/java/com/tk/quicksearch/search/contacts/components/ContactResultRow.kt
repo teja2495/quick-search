@@ -50,6 +50,7 @@ import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContainer
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentPadding
+import com.tk.quicksearch.shared.ui.components.AppVoiceCallIcon
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
@@ -381,33 +382,24 @@ private fun ContactActionButtons(
                                                 )
                                         }
                                         CallingApp.WHATSAPP -> {
-                                                Icon(
-                                                        painter = painterResource(id = R.drawable.whatsapp_call),
-                                                        contentDescription = null,
-                                                        tint =
-                                                                if (hasNumber) Color.Unspecified
-                                                                else MaterialTheme.colorScheme.onSurfaceVariant,
-                                                        modifier = Modifier.size(ContactUiConstants.ACTION_ICON_SIZE.dp),
+                                                AppVoiceCallIcon(
+                                                        logoPainterRes = R.drawable.whatsapp_call,
+                                                        size = ContactUiConstants.ACTION_ICON_SIZE.dp,
+                                                        enabled = hasNumber,
                                                 )
                                         }
                                         CallingApp.TELEGRAM -> {
-                                                Icon(
-                                                        painter = painterResource(id = R.drawable.telegram_call),
-                                                        contentDescription = null,
-                                                        tint =
-                                                                if (hasNumber) Color.Unspecified
-                                                                else MaterialTheme.colorScheme.onSurfaceVariant,
-                                                        modifier = Modifier.size(ContactUiConstants.ACTION_ICON_SIZE.dp),
+                                                AppVoiceCallIcon(
+                                                        logoPainterRes = R.drawable.telegram_call,
+                                                        size = ContactUiConstants.ACTION_ICON_SIZE.dp,
+                                                        enabled = hasNumber,
                                                 )
                                         }
                                         CallingApp.SIGNAL -> {
-                                                Icon(
-                                                        painter = painterResource(id = R.drawable.signal_call),
-                                                        contentDescription = null,
-                                                        tint =
-                                                                if (hasNumber) Color.Unspecified
-                                                                else MaterialTheme.colorScheme.onSurfaceVariant,
-                                                        modifier = Modifier.size(ContactUiConstants.ACTION_ICON_SIZE.dp),
+                                                AppVoiceCallIcon(
+                                                        logoPainterRes = R.drawable.signal_call,
+                                                        size = ContactUiConstants.ACTION_ICON_SIZE.dp,
+                                                        enabled = hasNumber,
                                                 )
                                         }
                                 }
@@ -570,39 +562,31 @@ private fun ContactActionIconForButton(
                                 modifier = modifier,
                         )
                 }
-                is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppCall,
-                is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppVideoCall, -> {
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppCall -> {
+                        AppVoiceCallIcon(
+                                logoPainterRes = R.drawable.whatsapp_call,
+                                size = ContactUiConstants.ACTION_ICON_SIZE.dp,
+                                enabled = enabled,
+                        )
+                }
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppVideoCall -> {
                         Icon(
-                                painter =
-                                        painterResource(
-                                                id =
-                                                        if (action is
-                                                                        com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppVideoCall
-                                                        ) {
-                                                                R.drawable.whatsapp_video_call
-                                                        } else {
-                                                                R.drawable.whatsapp_call
-                                                        },
-                                        ),
+                                painter = painterResource(id = R.drawable.whatsapp_video_call),
                                 contentDescription = null,
                                 tint = tint,
                                 modifier = modifier,
                         )
                 }
-                is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramCall,
-                is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramVideoCall, -> {
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramCall -> {
+                        AppVoiceCallIcon(
+                                logoPainterRes = R.drawable.telegram_call,
+                                size = ContactUiConstants.ACTION_ICON_SIZE.dp,
+                                enabled = enabled,
+                        )
+                }
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramVideoCall -> {
                         Icon(
-                                painter =
-                                        painterResource(
-                                                id =
-                                                        if (action is
-                                                                        com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramVideoCall
-                                                        ) {
-                                                                R.drawable.telegram_video_call
-                                                        } else {
-                                                                R.drawable.telegram_call
-                                                        },
-                                        ),
+                                painter = painterResource(id = R.drawable.telegram_video_call),
                                 contentDescription = null,
                                 tint = tint,
                                 modifier = modifier,
@@ -643,11 +627,10 @@ private fun ContactActionIconForButton(
                         )
                 }
                 is com.tk.quicksearch.search.contacts.models.ContactCardAction.SignalCall -> {
-                        Icon(
-                                painter = painterResource(id = R.drawable.signal_call),
-                                contentDescription = null,
-                                tint = Color.Unspecified,
-                                modifier = modifier,
+                        AppVoiceCallIcon(
+                                logoPainterRes = R.drawable.signal_call,
+                                size = ContactUiConstants.ACTION_ICON_SIZE.dp,
+                                enabled = enabled,
                         )
                 }
                 is com.tk.quicksearch.search.contacts.models.ContactCardAction.SignalMessage -> {

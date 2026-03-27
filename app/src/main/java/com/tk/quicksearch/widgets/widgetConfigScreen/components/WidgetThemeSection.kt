@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Edit
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import androidx.compose.material3.Icon
@@ -182,18 +184,31 @@ private fun ThemeColorOptionChip(
                         },
                     )
                     .border(
-                        width = if (selected) 2.dp else 1.dp,
-                        color =
-                            if (selected) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.outlineVariant
-                            },
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant,
                         shape = MaterialTheme.shapes.medium,
                     ).clickable(onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
-            icon?.invoke()
+            if (selected) {
+                Box(
+                    modifier =
+                        Modifier
+                            .size(22.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Check,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(14.dp),
+                    )
+                }
+            } else {
+                icon?.invoke()
+            }
         }
         Text(
             text = label,
@@ -210,6 +225,7 @@ private fun CustomBackgroundColorDialog(
     onConfirm: (String, Color) -> Unit,
 ) {
     var hexValue by rememberSaveable { mutableStateOf(initialHex) }
+    var hasTyped by rememberSaveable { mutableStateOf(initialHex.isNotEmpty()) }
     val isValidHex = hexValue.matches(Regex("^[0-9A-Fa-f]{6}$"))
 
     AppAlertDialog(
@@ -221,6 +237,7 @@ private fun CustomBackgroundColorDialog(
                     value = hexValue,
                     onValueChange = { updated ->
                         hexValue = updated.take(6).uppercase(java.util.Locale.US).filter { it.isDigit() || it in 'A'..'F' }
+                        hasTyped = true
                     },
                     singleLine = true,
                     label = { Text(stringResource(R.string.widget_background_color_custom_dialog_hint)) },
@@ -230,7 +247,7 @@ private fun CustomBackgroundColorDialog(
                             capitalization = KeyboardCapitalization.Characters,
                         ),
                 )
-                if (!isValidHex) {
+                if (hasTyped && !isValidHex) {
                     Text(
                         text = stringResource(R.string.widget_background_color_custom_invalid),
                         style = MaterialTheme.typography.bodySmall,
