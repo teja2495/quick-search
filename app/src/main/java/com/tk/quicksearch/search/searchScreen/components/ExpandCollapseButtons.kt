@@ -18,11 +18,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.searchScreen.LocalOverlayActionColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.LocalAppTheme
 
 private const val EXPAND_ICON_SIZE = 18
 
@@ -34,6 +37,12 @@ internal fun ExpandButton(
 ) {
     val overlayActionColor = LocalOverlayActionColor.current
     val moreActionColor = expandCollapseActionContentColor(overlayActionColor)
+    val moreTextStyle =
+        if (LocalAppTheme.current == AppTheme.MONOCHROME) {
+            MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold)
+        } else {
+            MaterialTheme.typography.bodySmall
+        }
 
     TextButton(
         onClick = onClick,
@@ -42,7 +51,7 @@ internal fun ExpandButton(
     ) {
         Text(
             text = stringResource(textResId),
-            style = MaterialTheme.typography.bodySmall,
+            style = moreTextStyle,
             color = moreActionColor,
         )
         Icon(
@@ -64,6 +73,12 @@ internal fun CollapseButton(
     val collapseContentColor = expandCollapseActionContentColor(overlayActionColor)
     val collapseBorderColor = collapseContentColor.copy(alpha = 0.5f)
     val cardContainerColor = resultCardContainerColor(showWallpaperBackground)
+    val collapseTextStyle =
+        if (LocalAppTheme.current == AppTheme.MONOCHROME) {
+            MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold)
+        } else {
+            MaterialTheme.typography.bodySmall
+        }
     OutlinedButton(
         onClick = onClick,
         modifier = modifier,
@@ -84,7 +99,7 @@ internal fun CollapseButton(
         Spacer(modifier = Modifier.width(6.dp))
         Text(
             text = stringResource(R.string.action_collapse),
-            style = MaterialTheme.typography.bodySmall,
+            style = collapseTextStyle,
             color = collapseContentColor,
         )
     }

@@ -187,7 +187,8 @@ internal fun SearchScreenContent(
             expandedSection == ExpandedSection.NONE &&
                     !showBottomSearchBar &&
                     !isImeVisible &&
-                    canShowOpenKeyboardPill
+                    canShowOpenKeyboardPill &&
+                    !isSearchHistoryExpanded
     val keyboardSwitchText =
             if (isToolMode) {
                 null

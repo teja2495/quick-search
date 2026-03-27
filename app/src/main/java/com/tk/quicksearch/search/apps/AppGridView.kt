@@ -57,6 +57,7 @@ import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
+import com.tk.quicksearch.shared.ui.theme.LocalImageBackgroundIsDark
 import com.tk.quicksearch.shared.util.getAppGridColumns
 import com.tk.quicksearch.shared.util.hapticConfirm
 
@@ -65,6 +66,7 @@ private val AppGridRowSpacing = DesignTokens.SpacingXSmall
 private val RegularAppIconSize = DesignTokens.IconSizeXLarge - DesignTokens.SpacingXXSmall
 private val TopResultIndicatorTopPadding = 0.dp
 private val TopResultIndicatorBottomPadding = DesignTokens.SpacingSmall
+private val TopResultIndicatorHorizontalPadding = DesignTokens.SpacingSmall
 private enum class AppIconDisplayMode {
     OVERLAY,
     REGULAR,
@@ -421,6 +423,8 @@ private fun AppGridItem(
                     .padding(
                         top = TopResultIndicatorTopPadding,
                         bottom = TopResultIndicatorBottomPadding,
+                        start = if (isPredicted) TopResultIndicatorHorizontalPadding else 0.dp,
+                        end = if (isPredicted) TopResultIndicatorHorizontalPadding else 0.dp,
                     ),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
@@ -520,6 +524,12 @@ private fun AppLabelText(
         appName: String,
         isOverlayPresentation: Boolean,
 ) {
+    val imageBackgroundIsDark = LocalImageBackgroundIsDark.current
+    val labelColor = when (imageBackgroundIsDark) {
+        true -> Color.White
+        false -> Color.Black
+        null -> MaterialTheme.colorScheme.onSurface
+    }
     Spacer(
             modifier =
                     Modifier.height(
@@ -533,7 +543,7 @@ private fun AppLabelText(
     Text(
             text = appName,
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = labelColor,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,

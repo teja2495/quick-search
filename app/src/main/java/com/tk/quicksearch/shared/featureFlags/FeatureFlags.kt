@@ -5,9 +5,7 @@ import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.data.preferences.BasePreferences
 import java.util.EnumMap
 
-enum class FeatureFlag {
-    APP_THEME_SELECTION,
-}
+enum class FeatureFlag
 
 private data class FeatureFlagDefinition(
     val enabledByDefault: Boolean,
@@ -26,13 +24,7 @@ private data class FeatureFlagDefinition(
 object FeatureFlags {
     const val PREFERENCE_KEY_PREFIX = "feature_flag_"
 
-    private val definitions: Map<FeatureFlag, FeatureFlagDefinition> =
-        mapOf(
-            FeatureFlag.APP_THEME_SELECTION to
-                FeatureFlagDefinition(
-                    enabledByDefault = false,
-                ),
-        )
+    private val definitions: Map<FeatureFlag, FeatureFlagDefinition> = emptyMap()
 
     @Volatile
     private var initialized = false
@@ -66,8 +58,6 @@ object FeatureFlags {
         if (runtimeValue != null) return runtimeValue
         return definitions[flag]?.enabledByDefault == true
     }
-
-    fun isAppThemeSelectionEnabled(): Boolean = isEnabled(FeatureFlag.APP_THEME_SELECTION)
 
     fun isSearchSectionEnabled(@Suppress("UNUSED_PARAMETER") section: SearchSection): Boolean {
         return true

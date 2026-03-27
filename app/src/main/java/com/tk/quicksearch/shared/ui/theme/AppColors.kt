@@ -132,6 +132,14 @@ val LocalAppIsDarkTheme = staticCompositionLocalOf { true }
 val LocalAppTheme = staticCompositionLocalOf { com.tk.quicksearch.search.core.AppTheme.MONOCHROME }
 
 /**
+ * Whether the current image background (custom image or system wallpaper) is dark.
+ * `true` = dark image → use light (white) text on top.
+ * `false` = light image → use dark text on top.
+ * `null` = no image background active; fall back to theme defaults.
+ */
+val LocalImageBackgroundIsDark = staticCompositionLocalOf<Boolean?> { null }
+
+/**
  * Semantic color slots for the current search UI theme.
  *
  * Bundles the background, card container, and keyboard-button colors derived from the active
@@ -207,12 +215,20 @@ object AppColors {
         get() = MaterialTheme.colorScheme.onSurfaceVariant
 
     /**
+     * Secondary accent icon tint — the grey used for neutral/secondary icons (search, settings,
+     * phone, SMS) in light mode. White in dark mode.
+     */
+    val SecondaryIconTint: Color
+        @Composable
+        get() = if (LocalAppIsDarkTheme.current) Color.White else Color(0xFF57515E)
+
+    /**
      * Tint for phone/call icons across all calling action buttons.
-     * White in dark mode, dark grey in light mode.
+     * Delegates to [SecondaryIconTint].
      */
     val CallIconTint: Color
         @Composable
-        get() = if (LocalAppIsDarkTheme.current) Color.White else Color(0xFF6B6572)
+        get() = SecondaryIconTint
 
     // Settings colors ----------------------------------------------------------------------
 

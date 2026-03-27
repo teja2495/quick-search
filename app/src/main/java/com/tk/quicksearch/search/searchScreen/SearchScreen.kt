@@ -4,9 +4,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.ui.theme.LocalImageBackgroundIsDark
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
 import com.tk.quicksearch.search.core.DirectDialOption
 import com.tk.quicksearch.search.core.SearchTarget
@@ -34,6 +39,27 @@ import com.tk.quicksearch.search.searchScreen.SearchScreenDialogLogic
 import com.tk.quicksearch.shared.ui.theme.ThemeModeFallbackBackgroundAlpha
 
 private const val STARTUP_BACKGROUND_TRANSITION_DURATION_MS = 90
+
+/**
+ * Computes whether an image background should be considered "dark" by scaling it to a single
+ * pixel and measuring relative luminance. Returns true when the image is dark (white text is
+ * appropriate) and false when it is light (dark text is appropriate).
+ */
+private fun computeImageIsDark(bitmap: ImageBitmap): Boolean =
+    try {
+        val androidBitmap = bitmap.asAndroidBitmap()
+        val scaled =
+            android.graphics.Bitmap.createScaledBitmap(androidBitmap, 1, 1, true)
+        val pixel = scaled.getPixel(0, 0)
+        scaled.recycle()
+        val r = android.graphics.Color.red(pixel) / 255f
+        val g = android.graphics.Color.green(pixel) / 255f
+        val b = android.graphics.Color.blue(pixel) / 255f
+        val luminance = 0.299f * r + 0.587f * g + 0.114f * b
+        luminance < 0.5f
+    } catch (_: Exception) {
+        true // default to dark image (white text) on failure
+    }
 
 @Composable
 fun SearchScreen(
@@ -252,6 +278,16 @@ fun SearchScreen(
             modifier.fillMaxSize()
         }
 
+    val imageBackgroundIsDark =
+        remember(stateResult.imageBitmap, stateResult.useImageBackground) {
+            if (stateResult.useImageBackground && stateResult.imageBitmap != null) {
+                computeImageIsDark(stateResult.imageBitmap)
+            } else {
+                null
+            }
+        }
+
+    CompositionLocalProvider(LocalImageBackgroundIsDark provides imageBackgroundIsDark) {
     Box(modifier = screenModifier) {
         if (!isOverlayPresentation) {
             SearchScreenBackground(
@@ -349,6 +385,7 @@ fun SearchScreen(
 //            showStartSearchingButton = state.showStartSearchingOnOnboarding,
 //        )
     }
+    } // CompositionLocalProvider(LocalImageBackgroundIsDark)
 
     // Dialogs
     SearchScreenDialogLogic(

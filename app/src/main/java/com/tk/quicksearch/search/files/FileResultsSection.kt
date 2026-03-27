@@ -54,14 +54,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.contacts.components.ContactUiConstants
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.models.FileTypeUtils
-import com.tk.quicksearch.search.searchScreen.LocalOverlayActionColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
@@ -70,6 +71,7 @@ import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContainer
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentPadding
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.LocalAppTheme
 import com.tk.quicksearch.shared.util.hapticConfirm
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -662,12 +664,12 @@ private fun ExpandButton(
         onClick: () -> Unit,
         modifier: Modifier = Modifier,
 ) {
-    val overlayActionColor = LocalOverlayActionColor.current
-    val moreActionColor =
-            if (overlayActionColor != null) {
-                MaterialTheme.colorScheme.onSurfaceVariant
+    val moreActionColor = MaterialTheme.colorScheme.primary
+    val moreTextStyle =
+            if (LocalAppTheme.current == AppTheme.MONOCHROME) {
+                MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold)
             } else {
-                MaterialTheme.colorScheme.primary
+                MaterialTheme.typography.bodySmall
             }
 
     TextButton(
@@ -681,7 +683,7 @@ private fun ExpandButton(
     ) {
         Text(
                 text = stringResource(R.string.action_expand_more_files),
-                style = MaterialTheme.typography.bodySmall,
+                style = moreTextStyle,
                 color = moreActionColor,
         )
         Icon(

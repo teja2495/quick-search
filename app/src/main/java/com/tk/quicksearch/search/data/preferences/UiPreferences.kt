@@ -6,7 +6,6 @@ import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.CallingApp
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.AppTheme
-import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 
 /** Preferences for UI-related settings such as layout, messaging app, banners, etc. */
 class UiPreferences(
@@ -161,17 +160,10 @@ class UiPreferences(
     }
 
     fun getAppThemeMode(): com.tk.quicksearch.search.core.AppThemeMode {
-        FeatureFlags.initialize(appContext)
-        val defaultMode =
-                if (FeatureFlags.isAppThemeSelectionEnabled()) {
-                    com.tk.quicksearch.search.core.AppThemeMode.SYSTEM
-                } else {
-                    com.tk.quicksearch.search.core.AppThemeMode.DARK
-                }
         val saved = prefs.getString(KEY_APP_THEME_MODE, null)
         return saved?.let {
             runCatching { com.tk.quicksearch.search.core.AppThemeMode.valueOf(it) }.getOrNull()
-        } ?: defaultMode
+        } ?: com.tk.quicksearch.search.core.AppThemeMode.SYSTEM
     }
 
     fun setAppThemeMode(theme: com.tk.quicksearch.search.core.AppThemeMode) {

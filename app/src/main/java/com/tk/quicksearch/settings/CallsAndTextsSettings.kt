@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
@@ -43,6 +44,7 @@ import com.tk.quicksearch.shared.permissions.PermissionSettingsDialog
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.shared.ui.components.AppVoiceCallIcon
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
@@ -402,16 +404,12 @@ private fun CallingOptionChip(
     val view = LocalView.current
     val borderColor =
         if (selected) {
-            MaterialTheme.colorScheme.primary
+            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
         } else {
             AppColors.SettingsDivider
         }
     val backgroundColor =
-        if (selected) {
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-        } else {
-            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
-        }
+        if (selected) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f) else Color.Transparent
 
     Column(
         modifier =
@@ -451,7 +449,7 @@ private fun CallingOptionIcon(app: CallingApp) {
             Icon(
                 imageVector = Icons.Rounded.Call,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = AppColors.SecondaryIconTint,
                 modifier = Modifier.size(MessagingSpacing.iconSize),
             )
         }
@@ -463,24 +461,21 @@ private fun CallingOptionIcon(app: CallingApp) {
             )
         }
         CallingApp.WHATSAPP -> {
-            Image(
-                painter = painterResource(id = R.drawable.whatsapp_call),
-                contentDescription = null,
-                modifier = Modifier.size(MessagingSpacing.iconSize),
+            AppVoiceCallIcon(
+                logoPainterRes = R.drawable.whatsapp_call,
+                size = MessagingSpacing.iconSize,
             )
         }
         CallingApp.TELEGRAM -> {
-            Image(
-                painter = painterResource(id = R.drawable.telegram_call),
-                contentDescription = null,
-                modifier = Modifier.size(MessagingSpacing.iconSize),
+            AppVoiceCallIcon(
+                logoPainterRes = R.drawable.telegram_call,
+                size = MessagingSpacing.iconSize,
             )
         }
         CallingApp.SIGNAL -> {
-            Image(
-                painter = painterResource(id = R.drawable.signal_call),
-                contentDescription = null,
-                modifier = Modifier.size(MessagingSpacing.iconSize),
+            AppVoiceCallIcon(
+                logoPainterRes = R.drawable.signal_call,
+                size = MessagingSpacing.iconSize,
             )
         }
     }
@@ -496,16 +491,12 @@ private fun MessagingOptionChip(
     val view = LocalView.current
     val borderColor =
         if (selected) {
-            MaterialTheme.colorScheme.primary
+            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
         } else {
             AppColors.SettingsDivider
         }
     val backgroundColor =
-        if (selected) {
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-        } else {
-            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
-        }
+        if (selected) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f) else Color.Transparent
 
     Column(
         modifier =
@@ -545,7 +536,7 @@ private fun MessagingOptionIcon(app: MessagingApp) {
             Icon(
                 imageVector = Icons.Rounded.Sms,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = AppColors.IconTintSecondary,
                 modifier = Modifier.size(MessagingSpacing.iconSize),
             )
         }

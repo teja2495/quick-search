@@ -149,7 +149,7 @@ internal fun PersistentSearchBar(
     val accentColor = AppColors.Accent
     val iconAndTextColor = AppColors.SearchBarTextAndIcon
     val isDarkTheme = LocalAppIsDarkTheme.current
-    val searchBarIconColor = if (isDarkTheme) iconAndTextColor else Color(0xFF6B6572)
+    val searchBarIconColor = AppColors.SecondaryIconTint
     val isAliasDetected =
         detectedShortcutTarget != null || detectedAliasSearchSection != null || activeToolType != null
     val aliasVisualTransformation =
