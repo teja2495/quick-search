@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.res.stringResource
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -194,7 +195,7 @@ internal fun RenderMarkdownDocument(
                         Text(
                             text = "\u2022 ${section.title}",
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = AppColors.LinkColor,
                             modifier =
                                 Modifier
                                     .padding(

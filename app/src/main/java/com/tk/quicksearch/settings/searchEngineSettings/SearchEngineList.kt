@@ -624,7 +624,7 @@ private fun AmazonDomainLink(
         Text(
             text = amazonDomain ?: stringResource(R.string.settings_amazon_domain_default),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.primary,
+            color = AppColors.LinkColor,
             modifier = Modifier.clickable { showDialog = true },
         )
     }

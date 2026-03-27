@@ -158,7 +158,7 @@ internal fun PersistentSearchBar(
             shortcutCodes = shortcutCodes,
             shortcutEnabled = shortcutEnabled,
             isSearchEngineAliasSuffixEnabled = isSearchEngineAliasSuffixEnabled && !isAliasDetected,
-            highlightColor = MaterialTheme.colorScheme.primary,
+            highlightColor = AppColors.LinkColor,
         )
     val leadingIconState =
         when {
@@ -628,7 +628,7 @@ internal fun PersistentSearchBar(
             Text(
                 text = animatedAliasText,
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
+                color = AppColors.LinkColor,
                 modifier =
                     Modifier
                         .align(Alignment.CenterStart)

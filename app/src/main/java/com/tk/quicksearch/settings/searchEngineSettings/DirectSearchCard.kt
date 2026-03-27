@@ -203,7 +203,7 @@ fun DirectSearchSetupCard(
                                     Text(
                                         text = stringResource(R.string.settings_gemini_api_key_paste_hint),
                                         style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.primary,
+                                        color = AppColors.LinkColor,
                                         modifier =
                                             Modifier
                                                 .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp)

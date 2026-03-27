@@ -268,9 +268,9 @@ internal fun SearchScreenContent(
                 modifier.fillMaxSize()
                         .safeDrawingPadding()
                         .padding(
-                                start = DesignTokens.SpacingXLarge,
-                                top = DesignTokens.SpacingLarge,
-                                end = DesignTokens.SpacingXLarge,
+                                start = DesignTokens.SpacingLarge,
+                                top = DesignTokens.SpacingSmall,
+                                end = DesignTokens.SpacingLarge,
                         )
             }
 
@@ -434,7 +434,7 @@ internal fun SearchScreenContent(
 
         // Add spacing between search bar and apps list when bottom aligned setting is off
         if (showSearchField && !showBottomSearchBar && !state.oneHandedMode) {
-            Spacer(modifier = Modifier.padding(top = DesignTokens.SpacingSmall))
+            Spacer(modifier = Modifier.padding(top = DesignTokens.SpacingXSmall))
         }
 
         // Scrollable content between search bar and search engines

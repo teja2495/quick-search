@@ -542,7 +542,7 @@ private fun InlineSearchHistoryTip(
                 addStyle(
                     style =
                         SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
+                            color = AppColors.LinkColor,
                             textDecoration = TextDecoration.Underline,
                         ),
                     start = startIndex,

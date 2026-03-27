@@ -170,7 +170,8 @@ fun AppThemeCard(
             }
 
             HorizontalDivider(
-                    color = AppColors.SettingsDivider.copy(alpha = 0.5f),
+                    color = AppColors.SettingsDivider,
+                    modifier = Modifier.padding(horizontal = 75.dp, vertical = 12.dp),
             )
 
             Row(
@@ -665,33 +666,39 @@ private fun OverlaySourceBox(
                         Modifier.fillMaxWidth()
                                 .height(52.dp)
                                 .clip(MaterialTheme.shapes.medium)
-                                .background(
-                                        if (selected) {
-                                            MaterialTheme.colorScheme.surfaceContainerHigh
-                                        } else {
-                                            Color.Transparent
-                                        },
-                                )
+                                .background(Color.Transparent)
                                 .clickable(onClick = onClick)
                                 .then(
-                                        if (hasImage && !selected) {
+                                        if (hasImage) {
                                             Modifier
                                         } else {
                                             Modifier.border(
-                                                    width = if (selected) 2.dp else 1.dp,
-                                                    color =
-                                                            if (selected) {
-                                                                MaterialTheme.colorScheme.primary
-                                                            } else {
-                                                                AppColors.SettingsDivider
-                                                            },
+                                                    width = DesignTokens.BorderWidth,
+                                                    color = AppColors.SettingsDivider,
                                                     shape = MaterialTheme.shapes.medium,
                                             )
                                         },
                                 ),
                 contentAlignment = Alignment.Center,
-                content = content,
-        )
+        ) {
+            content()
+            if (selected) {
+                Box(
+                        modifier =
+                                Modifier.size(22.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.primary),
+                        contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                            imageVector = Icons.Rounded.Check,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(14.dp),
+                    )
+                }
+            }
+        }
         Text(
                 text = label,
                 style = MaterialTheme.typography.labelSmall,

@@ -97,18 +97,18 @@ val SunsetThemeAccent = ThemeAccentColors(
 )
 
 val MonochromeThemeAccent = ThemeAccentColors(
-    lightPrimary = Color(0xFF3949AB),
+    lightPrimary = Color(0xFF212121),
     lightOnPrimary = Color(0xFFFFFFFF),
-    lightPrimaryContainer = Color(0xFFC5CAE9),
-    lightOnPrimaryContainer = Color(0xFF1A237E),
-    lightSecondaryContainer = Color(0xFFE8EAF6),
-    lightOnSecondaryContainer = Color(0xFF283593),
-    darkPrimary = Color(0xFF9FA8DA),
-    darkOnPrimary = Color(0xFF1A237E),
-    darkPrimaryContainer = Color(0xFF3949AB),
-    darkOnPrimaryContainer = Color(0xFFC5CAE9),
-    darkSecondaryContainer = Color(0xFF283593),
-    darkOnSecondaryContainer = Color(0xFFC5CAE9),
+    lightPrimaryContainer = Color(0xFFE0E0E0),
+    lightOnPrimaryContainer = Color(0xFF121212),
+    lightSecondaryContainer = Color(0xFFF0EEEB),
+    lightOnSecondaryContainer = Color(0xFF212121),
+    darkPrimary = Color(0xFFD4D0C8),
+    darkOnPrimary = Color(0xFF121212),
+    darkPrimaryContainer = Color(0xFF2C2C2C),
+    darkOnPrimaryContainer = Color(0xFFE0E0E0),
+    darkSecondaryContainer = Color(0xFF1E1E1E),
+    darkOnSecondaryContainer = Color(0xFFD0D0D0),
 )
 
 // ============================================================================

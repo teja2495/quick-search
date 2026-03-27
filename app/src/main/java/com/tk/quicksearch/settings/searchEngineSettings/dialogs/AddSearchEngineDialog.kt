@@ -14,6 +14,7 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -244,7 +245,7 @@ fun AddSearchEngineDialog(
                                         withStyle(
                                             style =
                                                 SpanStyle(
-                                                    color = MaterialTheme.colorScheme.primary,
+                                                    color = AppColors.LinkColor,
                                                 ),
                                         ) {
                                             append(CUSTOM_QUERY_PLACEHOLDER)

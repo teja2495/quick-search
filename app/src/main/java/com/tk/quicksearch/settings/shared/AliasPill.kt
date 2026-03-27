@@ -72,7 +72,11 @@ fun AliasPill(
             },
         color =
             if (showBackground) {
-                AppColors.DialogBackground.copy(alpha = PILL_BACKGROUND_ALPHA)
+                if (LocalAppIsDarkTheme.current) {
+                    Color.Black
+                } else {
+                    AppColors.DialogBackground.copy(alpha = PILL_BACKGROUND_ALPHA)
+                }
             } else {
                 AppColors.AppBackgroundTransparent
             },

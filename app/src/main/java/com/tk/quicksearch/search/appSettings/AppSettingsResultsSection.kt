@@ -35,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.contacts.components.ContactUiConstants
+import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
+import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
@@ -65,13 +67,13 @@ fun AppSettingsResultsSection(
     onExpandClick: () -> Unit,
     expandedCardMaxHeight: Dp = SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT,
     showWallpaperBackground: Boolean = false,
-    overlayCardColor: androidx.compose.ui.graphics.Color? = null,
-    dividerColor: androidx.compose.ui.graphics.Color? = null,
     predictedTarget: PredictedSubmitTarget? = null,
     fillExpandedHeight: Boolean = false,
 ) {
     if (appSettings.isEmpty()) return
 
+    val overlayCardColor = LocalOverlayResultCardColor.current
+    val overlayDividerColor = LocalOverlayDividerColor.current
     val predictedAppSettingId = (predictedTarget as? PredictedSubmitTarget.AppSetting)?.id
     val scrollState = rememberScrollState()
     val displayAsExpanded = isExpanded || showAllResults
@@ -144,7 +146,8 @@ fun AppSettingsResultsSection(
                     if (index != displayRows.lastIndex && !showPredictedOnRow) {
                         HorizontalDivider(
                             modifier = Modifier.fillMaxWidth(),
-                            color = dividerColor ?: MaterialTheme.colorScheme.outlineVariant,
+                            color = overlayDividerColor
+                                ?: MaterialTheme.colorScheme.outlineVariant,
                         )
                     }
                 }
@@ -222,7 +225,7 @@ internal fun AppSettingResultRow(
         ) {
             Text(
                 text = setting.title,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,

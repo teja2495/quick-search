@@ -56,10 +56,16 @@ import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.util.getAppGridColumns
 import com.tk.quicksearch.shared.util.hapticConfirm
 
 private const val ROW_COUNT = 2
+private val AppGridRowSpacing = DesignTokens.SpacingXSmall
+private val AppGridTopPadding = DesignTokens.SpacingXXSmall
+private val RegularAppIconSize = DesignTokens.IconSizeXLarge - DesignTokens.SpacingXXSmall
+private val TopResultIndicatorTopPadding = 0.dp
+private val TopResultIndicatorBottomPadding = DesignTokens.SpacingSmall
 private enum class AppIconDisplayMode {
     OVERLAY,
     REGULAR,
@@ -142,9 +148,9 @@ fun AppGridView(
     Column(
             modifier =
                     modifier.fillMaxWidth()
-                            .padding(top = 2.dp),
+                            .padding(top = AppGridTopPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+            verticalArrangement = Arrangement.spacedBy(AppGridRowSpacing),
     ) {
         val showAppGrid = apps.isNotEmpty() && areAppIconsLoaded
         if (isSearching) {
@@ -264,7 +270,7 @@ private fun AppGrid(
 
         Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+                verticalArrangement = Arrangement.spacedBy(AppGridRowSpacing),
         ) {
             val context = LocalContext.current
             val addToHomeHandler = remember(context) { AddToHomeHandler(context) }
@@ -372,6 +378,7 @@ private fun AppGridItem(
         appIconShape: AppIconShape = AppIconShape.DEFAULT,
 ) {
     val context = LocalContext.current
+    val isDarkTheme = LocalAppIsDarkTheme.current
     val iconResult =
             rememberAppIcon(
                     packageName = appInfo.packageName,
@@ -388,8 +395,8 @@ private fun AppGridItem(
                         AppIconDisplayMode.REGULAR
                     }
                 ) {
-                    AppIconDisplayMode.OVERLAY -> 44.dp
-                    AppIconDisplayMode.REGULAR -> DesignTokens.IconSizeXLarge - 4.dp
+                    AppIconDisplayMode.OVERLAY -> 40.dp
+                    AppIconDisplayMode.REGULAR -> RegularAppIconSize
                 }
             }
     val indicatorAlpha by animateFloatAsState(
@@ -403,14 +410,20 @@ private fun AppGridItem(
             contentAlignment = Alignment.TopCenter,
     ) {
         Column(
-                modifier = Modifier
+            modifier = Modifier
+                    .fillMaxWidth()
                     .background(
-                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f * indicatorAlpha),
+                        color =
+                                if (isDarkTheme) {
+                                    Color.White.copy(alpha = 0.1f * indicatorAlpha)
+                                } else {
+                                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = indicatorAlpha)
+                                },
                         shape = DesignTokens.ShapeLarge,
                     )
                     .padding(
-                        horizontal = DesignTokens.SpacingSmall,
-                        vertical = DesignTokens.SpacingXSmall,
+                        top = TopResultIndicatorTopPadding,
+                        bottom = TopResultIndicatorBottomPadding,
                     ),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
@@ -522,7 +535,7 @@ private fun AppLabelText(
     )
     Text(
             text = appName,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

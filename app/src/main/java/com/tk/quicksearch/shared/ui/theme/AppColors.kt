@@ -9,6 +9,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.search.core.AppTheme
 
 /** Frosted card fill in light mode (wallpaper / theme), mirrors dark mode's ~0.4f black scrim. */
 internal const val LightResultCardFrostAlpha = 0.72f
@@ -68,7 +69,7 @@ internal val DarkQuickSearchAppColorPalette =
         overlayMedium = Color.Black.copy(alpha = 0.4f),
         overlayHigh = Color.Black.copy(alpha = 0.5f),
         overlayVeryHigh = Color.Black.copy(alpha = 0.75f),
-        dialogBackground = Color.Black,
+        dialogBackground = Color(0xFF1C1C1E),
         dialogText = Color.White,
         onboardingScrimTop = Color.Black.copy(alpha = 0.7f),
         onboardingScrimMiddle = Color.Black.copy(alpha = 0.5f),
@@ -171,6 +172,21 @@ object AppColors {
     val OnAccent: Color
         @Composable
         get() = MaterialTheme.colorScheme.onPrimary
+
+    /**
+     * Color for interactive/tappable items such as links, clickable text, and alias pills.
+     *
+     * In monochrome mode the primary accent is grey/black, which doesn't signal interactivity.
+     * This token overrides to a recognisable blue in monochrome so links remain distinguishable,
+     * and falls back to [MaterialTheme.colorScheme.primary] in all other themes.
+     */
+    val LinkColor: Color
+        @Composable
+        get() = if (LocalAppTheme.current == AppTheme.MONOCHROME) {
+            if (LocalAppIsDarkTheme.current) Color(0xFF90CAF9) else Color(0xFF1565C0)
+        } else {
+            MaterialTheme.colorScheme.primary
+        }
 
     // Icon tints ---------------------------------------------------------------------------
 
@@ -610,9 +626,9 @@ object AppColors {
     @Composable
     fun getSettingsCardContainerColor(): Color =
         if (LocalAppIsDarkTheme.current) {
-            Color.White.copy(alpha = 0.08f)
+            Color.Black.copy(alpha = 0.4f)
         } else {
-            Color.White.copy(alpha = 0.8f)
+            Color.White.copy(alpha = 0.7f)
         }
 
     @Composable

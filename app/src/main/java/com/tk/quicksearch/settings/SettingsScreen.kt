@@ -249,7 +249,7 @@ fun SettingsScreen(
                             addStyle(
                                 style =
                                     SpanStyle(
-                                        color = MaterialTheme.colorScheme.primary,
+                                        color = AppColors.LinkColor,
                                         textDecoration = TextDecoration.Underline,
                                     ),
                                 start = startIndex,
@@ -758,7 +758,7 @@ fun SettingsVersionDisplay(
                 withStyle(
                     style =
                         SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
+                            color = AppColors.LinkColor,
                             fontWeight = FontWeight.Medium,
                         ),
                 ) {

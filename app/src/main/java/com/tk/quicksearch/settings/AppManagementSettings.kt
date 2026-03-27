@@ -295,12 +295,12 @@ fun AppManagementSettingsSection(
                                 R.string.settings_app_sort_by_format,
                                 stringResource(selectedSortOption.labelResId),
                             ),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = AppColors.LinkColor,
                     )
                     Icon(
                         imageVector = Icons.Rounded.ExpandMore,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = AppColors.LinkColor,
                     )
                 }
                 DropdownMenu(

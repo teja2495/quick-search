@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.settings.shared.AliasPill
 import com.tk.quicksearch.settings.searchEnginesScreen.AddEditAliasDialog
@@ -93,7 +94,7 @@ internal fun AliasCodeDisplay(
             Text(
                 text = stringResource(R.string.settings_edit_label),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary,
+                color = AppColors.LinkColor,
             )
         } else if (isEnabled && shortcutCode.isNotBlank()) {
             AliasPill(
@@ -102,7 +103,7 @@ internal fun AliasCodeDisplay(
                         append(shortcutCode)
                     },
                 textStyle = MaterialTheme.typography.bodySmall,
-                textColor = MaterialTheme.colorScheme.primary,
+                textColor = AppColors.LinkColor,
                 leadingIcon = Icons.Rounded.Bolt,
                 onClick = if (allowAliasDialog) ({ showDialog = true }) else null,
                 onClearClick =
@@ -130,7 +131,7 @@ internal fun AliasCodeDisplay(
                     } else {
                         MaterialTheme.typography.bodySmall
                     },
-                textColor = MaterialTheme.colorScheme.primary,
+                textColor = AppColors.LinkColor,
                 showBackground = false,
                 leadingIcon = Icons.Rounded.Bolt,
                 iconTextSpacing =
