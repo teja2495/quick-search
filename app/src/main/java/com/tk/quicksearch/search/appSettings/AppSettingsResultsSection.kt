@@ -44,6 +44,7 @@ import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContainer
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentPadding
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
 import com.tk.quicksearch.shared.util.hapticToggle
@@ -149,7 +150,7 @@ fun AppSettingsResultsSection(
                         HorizontalDivider(
                             modifier = Modifier.fillMaxWidth(),
                             color = overlayDividerColor
-                                ?: MaterialTheme.colorScheme.outlineVariant,
+                                ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant,
                         )
                     }
                 }

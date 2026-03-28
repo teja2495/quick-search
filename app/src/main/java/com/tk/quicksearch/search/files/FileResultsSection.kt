@@ -70,6 +70,7 @@ import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContainer
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentPadding
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.LocalAppTheme
 import com.tk.quicksearch.shared.util.hapticConfirm
@@ -302,6 +303,7 @@ private fun FilesResultCard(
             FileCardContent(
                     displayFiles = displayFiles,
                     overlayDividerColor = overlayDividerColor,
+                    showWallpaperBackground = showWallpaperBackground,
                     shouldShowExpandButton = cardState.shouldShowExpandButton,
                     onFileClick = onFileClick,
                     onOpenFolder = onOpenFolder,
@@ -337,6 +339,7 @@ private fun FileCardContent(
         modifier: Modifier = Modifier,
         displayFiles: List<DeviceFile>,
         overlayDividerColor: Color?,
+        showWallpaperBackground: Boolean = false,
         shouldShowExpandButton: Boolean,
         onFileClick: (DeviceFile) -> Unit,
         onOpenFolder: (DeviceFile) -> Unit,
@@ -388,7 +391,7 @@ private fun FileCardContent(
                 if (index != displayFiles.lastIndex && !showPredictedOnRow) {
                     HorizontalDivider(
                             modifier = Modifier.fillMaxWidth(),
-                            color = overlayDividerColor ?: MaterialTheme.colorScheme.outlineVariant,
+                            color = overlayDividerColor ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant,
                     )
                 }
             }
@@ -441,7 +444,7 @@ private fun FileCardContent(
                 if (index != displayFiles.lastIndex && !showPredictedOnRow) {
                     HorizontalDivider(
                             modifier = Modifier.fillMaxWidth(),
-                            color = overlayDividerColor ?: MaterialTheme.colorScheme.outlineVariant,
+                            color = overlayDividerColor ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant,
                     )
                 }
             }

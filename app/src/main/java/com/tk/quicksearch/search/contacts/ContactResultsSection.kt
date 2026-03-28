@@ -232,6 +232,7 @@ private fun ContactsResultCard(
                 ContactList(
                     displayContacts = displayContacts,
                     overlayDividerColor = overlayDividerColor,
+                    showWallpaperBackground = showWallpaperBackground,
                     callingApp = callingApp,
                     messagingApp = messagingApp,
                     onContactClick = onContactClick,
@@ -279,6 +280,7 @@ private fun ContactsResultCard(
 private fun ContactList(
     displayContacts: List<ContactInfo>,
     overlayDividerColor: Color?,
+    showWallpaperBackground: Boolean = false,
     callingApp: CallingApp,
     messagingApp: MessagingApp,
     onContactClick: (ContactInfo) -> Unit,
@@ -366,7 +368,7 @@ private fun ContactList(
             if (index != displayContacts.lastIndex && !showPredictedOnRow) {
                 HorizontalDivider(
                     modifier = Modifier.fillMaxWidth(),
-                    color = overlayDividerColor ?: MaterialTheme.colorScheme.outlineVariant,
+                    color = overlayDividerColor ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant,
                 )
             }
         }

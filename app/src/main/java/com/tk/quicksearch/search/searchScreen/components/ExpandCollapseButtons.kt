@@ -25,6 +25,7 @@ import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.searchScreen.LocalOverlayActionColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.ui.theme.LocalAppTheme
 
 private const val EXPAND_ICON_SIZE = 18
@@ -71,7 +72,8 @@ internal fun CollapseButton(
 ) {
     val overlayActionColor = LocalOverlayActionColor.current
     val collapseContentColor = expandCollapseActionContentColor(overlayActionColor)
-    val collapseBorderColor = collapseContentColor.copy(alpha = 0.5f)
+    val isLightWithWallpaper = showWallpaperBackground && !LocalAppIsDarkTheme.current
+    val collapseBorderColor = if (isLightWithWallpaper) Color.Transparent else collapseContentColor.copy(alpha = 0.5f)
     val cardContainerColor = resultCardContainerColor(showWallpaperBackground)
     val collapseTextStyle =
         if (LocalAppTheme.current == AppTheme.MONOCHROME) {

@@ -169,7 +169,7 @@ fun CalendarEventsSection(
                         if (index < displayEvents.lastIndex && !showPredictedOnRow) {
                             HorizontalDivider(
                                 modifier = Modifier.fillMaxWidth(),
-                                color = overlayDividerColor ?: MaterialTheme.colorScheme.outlineVariant,
+                                color = overlayDividerColor ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant,
                             )
                         }
                     }

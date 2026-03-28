@@ -133,6 +133,7 @@ fun AppShortcutResultsSection(
                                 AppShortcutsCardContent(
                                         displayShortcuts = displayShortcuts,
                                         overlayDividerColor = overlayDividerColor,
+                                        showWallpaperBackground = showWallpaperBackground,
                                         pinnedShortcutIds = pinnedShortcutIds,
                                         excludedShortcutIds = excludedShortcutIds,
                                         onShortcutClick = onShortcutClick,
@@ -163,6 +164,7 @@ fun AppShortcutResultsSection(
 private fun AppShortcutsCardContent(
         displayShortcuts: List<StaticShortcut>,
         overlayDividerColor: Color?,
+        showWallpaperBackground: Boolean = false,
         pinnedShortcutIds: Set<String>,
         excludedShortcutIds: Set<String>,
         onShortcutClick: (StaticShortcut) -> Unit,
@@ -209,7 +211,7 @@ private fun AppShortcutsCardContent(
                                         HorizontalDivider(
                                                 modifier = Modifier.fillMaxWidth(),
                                                 color = overlayDividerColor
-                                                                ?: MaterialTheme.colorScheme.outlineVariant,
+                                                                ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant,
                                         )
                                 }
                         }

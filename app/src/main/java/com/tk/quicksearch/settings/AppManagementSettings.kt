@@ -13,8 +13,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -48,6 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -347,13 +348,14 @@ fun AppManagementSettingsSection(
             }
         }
 
-        Box(modifier = Modifier.fillMaxSize()) {
+        val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+        Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
             SettingsCard(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 if (sortedApps.isEmpty()) {
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
@@ -365,7 +367,7 @@ fun AppManagementSettingsSection(
                 } else {
                     LazyColumn(
                         state = listState,
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxWidth().heightIn(max = screenHeight),
                         contentPadding = PaddingValues(bottom = if (selectedCount > 0) 96.dp else 0.dp),
                     ) {
                         itemsIndexed(
