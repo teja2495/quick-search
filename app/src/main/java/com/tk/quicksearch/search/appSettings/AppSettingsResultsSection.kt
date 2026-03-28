@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.draw.scale
@@ -30,6 +31,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
@@ -270,6 +272,9 @@ internal fun AppSettingResultRow(
                     onToggle(setting, enabled)
                 },
                 modifier = Modifier.scale(TOGGLE_SCALE),
+                colors = SwitchDefaults.colors(
+                    uncheckedTrackColor = Color.Transparent,
+                ),
             )
         } else {
             val isReloadDestination = setting.destination == AppSettingsDestination.RELOAD_APPS ||

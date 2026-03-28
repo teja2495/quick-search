@@ -414,6 +414,11 @@ object AppColors {
         @Composable
         get() = MaterialTheme.colorScheme.primary
 
+    /** Border color for keyboard operator pill chips. */
+    val KeyboardPillBorder: Color
+        @Composable
+        get() = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
+
     // Shared/static tokens -----------------------------------------------------------------
 
     val AppBackgroundTransparent: Color = Color.Transparent

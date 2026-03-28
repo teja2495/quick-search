@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -44,11 +45,13 @@ internal fun KeyboardSwitchPill(
     val backgroundColor = if (isDarkTheme) Color.Black else Color.White
     val labelColor = if (isDarkTheme) Color.White else Color.Black
     val interactionSource = remember { MutableInteractionSource() }
+    val borderColor = if (isDarkTheme) Color.White.copy(alpha = 0.15f) else Color.Black.copy(alpha = 0.1f)
     Surface(
         onClick = onClick,
         interactionSource = interactionSource,
         shape = DesignTokens.ShapeFull,
         color = backgroundColor,
+        border = BorderStroke(0.8.dp, borderColor),
         tonalElevation = DesignTokens.ElevationLevel0,
     ) {
         Row(
@@ -174,6 +177,7 @@ internal fun NumberKeyboardOperatorPills(
         }
     val operatorChipColor = AppColors.KeyboardPillBackground
     val operatorChipTextColor = AppColors.KeyboardPillText
+    val operatorChipBorderColor = AppColors.KeyboardPillBorder
 
     Surface(
         modifier = if (extendToScreenEdges) modifier.extendToScreenEdges() else modifier,
@@ -199,6 +203,7 @@ internal fun NumberKeyboardOperatorPills(
                         Modifier.weight(1f).clickable { onOperatorClick(operator) },
                     shape = DesignTokens.ShapeFull,
                     color = operatorChipColor,
+                    border = BorderStroke(0.5.dp, operatorChipBorderColor),
                     tonalElevation = DesignTokens.ElevationLevel0,
                 ) {
                     Box(
