@@ -71,6 +71,7 @@ import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.shared.util.PackageConstants
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.getAppGridColumns
+import com.tk.quicksearch.shared.util.isLowRamDevice
 import com.tk.quicksearch.tools.calculator.CalculatorHandler
 import com.tk.quicksearch.tools.dateCalculator.DateCalculatorHandler
 import com.tk.quicksearch.tools.directSearch.DirectSearchHandler
@@ -786,6 +787,7 @@ class SearchViewModel(
                 sectionManager = sectionManager,
                 uiStateUpdater = this::updateUiState,
                 currentStateProvider = { uiState.value },
+                isLowRamDevice = isLowRamDevice(appContext),
         )
     }
 

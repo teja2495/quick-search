@@ -220,6 +220,27 @@ object FuzzyMatcher {
         return (similarity * 100) / lengthSum
     }
 
+    /**
+     * Returns true if any (query token, target token) pair has Levenshtein distance ≤ maxDistance.
+     * Use this to enforce a typo cap (e.g. max 2 character edits) on top of fuzzy scoring.
+     */
+    fun hasTokenWithinEditDistance(
+        query: String,
+        target: String,
+        maxDistance: Int,
+    ): Boolean {
+        if (query.isBlank() || target.isBlank()) return false
+        val queryTokens = tokenizeUnique(query).ordered
+        val targetTokens = tokenizeUnique(target).ordered
+        if (queryTokens.isEmpty() || targetTokens.isEmpty()) return false
+        for (queryToken in queryTokens) {
+            for (targetToken in targetTokens) {
+                if (levenshteinDistance(queryToken, targetToken) <= maxDistance) return true
+            }
+        }
+        return false
+    }
+
     private fun levenshteinDistance(
         first: String,
         second: String,

@@ -21,6 +21,7 @@ class SecondarySearchOrchestrator(
     private val sectionManager: SectionManager,
     private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit,
     private val currentStateProvider: () -> SearchUiState,
+    private val isLowRamDevice: Boolean = false,
 ) {
     private var searchJob: Job? = null
     private val queryVersion = AtomicLong(0L)
@@ -182,7 +183,8 @@ class SecondarySearchOrchestrator(
                         canSearchAppShortcuts = shouldSearchAppShortcuts,
                         enableFuzzyContactSearch = false,
                         enableFuzzyFileSearch = false,
-                        enableFuzzySettingsSearch = false,
+                        enableFuzzySettingsSearch = !isLowRamDevice,
+                        enableFuzzyAppSettingsSearch = !isLowRamDevice,
                         showFolders = currentState.showFolders,
                         showSystemFiles = currentState.showSystemFiles,
                         aliasSection = null,
@@ -367,6 +369,7 @@ class SecondarySearchOrchestrator(
                         enableFuzzyContactSearch = shouldSearchContacts && useFuzzyMatching,
                         enableFuzzyFileSearch = shouldSearchFiles && useFuzzyMatching,
                         enableFuzzySettingsSearch = shouldSearchSettings && useFuzzyMatching,
+                        enableFuzzyAppSettingsSearch = shouldSearchAppSettings && useFuzzyMatching,
                         showFolders = currentState.showFolders,
                         showSystemFiles = currentState.showSystemFiles,
                         aliasSection = section,

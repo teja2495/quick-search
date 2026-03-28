@@ -81,6 +81,7 @@ class UnifiedSearchHandler(
                 enableFuzzyContactSearch: Boolean = false,
                 enableFuzzyFileSearch: Boolean = false,
                 enableFuzzySettingsSearch: Boolean = false,
+                enableFuzzyAppSettingsSearch: Boolean = false,
                 showFolders: Boolean = true,
                 showSystemFiles: Boolean = false,
                 aliasSection: SearchSection? = null,
@@ -224,6 +225,8 @@ class UnifiedSearchHandler(
                                                                 queryContext = queryContext,
                                                                 recentSettingScores =
                                                                         recencyIndex.settingScores,
+                                                                enableFuzzyMatching =
+                                                                        enableFuzzyAppSettingsSearch,
                                                         )
                                                 } else {
                                                         emptyList()

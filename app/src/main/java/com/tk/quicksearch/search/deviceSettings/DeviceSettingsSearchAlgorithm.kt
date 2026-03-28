@@ -104,7 +104,13 @@ object DeviceSettingsSearchAlgorithm {
                             primaryTarget = normalizedTitle,
                             secondaryTarget = normalizedSupportingText,
                         )
-                    if (fuzzyScore < ALIAS_FUZZY_MIN_SCORE) {
+                    if (fuzzyScore < ALIAS_FUZZY_MIN_SCORE ||
+                        !FuzzyMatcher.hasTokenWithinEditDistance(
+                            queryContext.normalizedQuery,
+                            normalizedTitle,
+                            maxDistance = 2,
+                        )
+                    ) {
                         null
                     } else {
                         setting to fuzzyScore
