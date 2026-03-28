@@ -72,7 +72,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
     val hasPinnedSettings = state.pinnedSettings.isNotEmpty()
     val hasPinnedCalendarEvents = state.pinnedCalendarEvents.isNotEmpty() && state.hasCalendarPermission
     val hasPinnedAppShortcuts = state.pinnedAppShortcuts.isNotEmpty()
-    val columns = getAppGridColumns()
+    val columns = getAppGridColumns(state.phoneAppGridColumns)
     val visibleRowCount =
         if (isSearching) {
             SearchScreenConstants.SEARCH_ROW_COUNT

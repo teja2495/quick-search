@@ -29,6 +29,7 @@ data class StartupSurfaceSnapshot(
     val fontScaleMultiplier: Float,
     val showAppLabels: Boolean,
     val appSuggestionsEnabled: Boolean,
+    val phoneAppGridColumns: Int = com.tk.quicksearch.search.data.preferences.UiPreferences.DEFAULT_PHONE_APP_GRID_COLUMNS,
     val suggestedApps: List<AppInfo>,
 )
 
@@ -51,6 +52,7 @@ internal object StartupSurfaceSnapshotJson {
     private const val KEY_FONT_SCALE = "fontScaleMultiplier"
     private const val KEY_SHOW_APP_LABELS = "showAppLabels"
     private const val KEY_APP_SUGGESTIONS = "appSuggestionsEnabled"
+    private const val KEY_PHONE_APP_GRID_COLUMNS = "phoneAppGridColumns"
     private const val KEY_SUGGESTED_APPS = "suggestedApps"
 
     private const val KEY_APP_NAME = "appName"
@@ -81,6 +83,7 @@ internal object StartupSurfaceSnapshotJson {
                 put(KEY_FONT_SCALE, snapshot.fontScaleMultiplier.toDouble())
                 put(KEY_SHOW_APP_LABELS, snapshot.showAppLabels)
                 put(KEY_APP_SUGGESTIONS, snapshot.appSuggestionsEnabled)
+                put(KEY_PHONE_APP_GRID_COLUMNS, snapshot.phoneAppGridColumns)
                 if (!snapshot.customImageUri.isNullOrBlank()) {
                     put(KEY_CUSTOM_IMAGE_URI, snapshot.customImageUri)
                 }
@@ -152,6 +155,7 @@ internal object StartupSurfaceSnapshotJson {
                 fontScaleMultiplier = root.optDouble(KEY_FONT_SCALE, 1.0).toFloat(),
                 showAppLabels = root.optBoolean(KEY_SHOW_APP_LABELS, true),
                 appSuggestionsEnabled = root.optBoolean(KEY_APP_SUGGESTIONS, true),
+                phoneAppGridColumns = root.optInt(KEY_PHONE_APP_GRID_COLUMNS, com.tk.quicksearch.search.data.preferences.UiPreferences.DEFAULT_PHONE_APP_GRID_COLUMNS),
                 suggestedApps = suggestedApps,
             )
         }.getOrNull()

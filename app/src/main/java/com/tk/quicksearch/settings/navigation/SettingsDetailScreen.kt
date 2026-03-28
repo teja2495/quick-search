@@ -250,6 +250,8 @@ internal fun SettingsDetailLevel1Screen(
                             availableIconPacks = state.availableIconPacks,
                             showAppLabels = state.showAppLabels,
                             onToggleAppLabels = callbacks.onToggleAppLabels,
+                            phoneAppGridColumns = state.phoneAppGridColumns,
+                            onSetPhoneAppGridColumns = callbacks.onSetPhoneAppGridColumns,
                             onSelectIconPack = callbacks.onSelectIconPack,
                             onRefreshIconPacks = {
                                 callbacks.onRefreshIconPacks()

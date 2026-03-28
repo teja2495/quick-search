@@ -56,6 +56,8 @@ fun AppearanceSettingsSection(
         availableIconPacks: List<IconPackInfo>,
         showAppLabels: Boolean,
         onToggleAppLabels: (Boolean) -> Unit,
+        phoneAppGridColumns: Int = com.tk.quicksearch.search.data.preferences.UiPreferences.DEFAULT_PHONE_APP_GRID_COLUMNS,
+        onSetPhoneAppGridColumns: (Int) -> Unit = {},
         onSelectIconPack: (String?) -> Unit,
         onRefreshIconPacks: () -> Unit,
         onSearchIconPacks: () -> Unit,
@@ -128,6 +130,8 @@ fun AppearanceSettingsSection(
                 onToggleOneHandedMode = onToggleOneHandedMode,
                 showAppLabels = showAppLabels,
                 onToggleAppLabels = onToggleAppLabels,
+                phoneAppGridColumns = phoneAppGridColumns,
+                onSetPhoneAppGridColumns = onSetPhoneAppGridColumns,
                 bottomSearchBarEnabled = bottomSearchBarEnabled,
                 onToggleBottomSearchBar = onToggleBottomSearchBar,
                 iconPackTitle =

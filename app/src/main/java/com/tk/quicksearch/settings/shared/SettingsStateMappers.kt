@@ -47,6 +47,7 @@ internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState =
         selectedIconPackPackage = selectedIconPackPackage,
         availableIconPacks = availableIconPacks,
         showAppLabels = showAppLabels,
+        phoneAppGridColumns = phoneAppGridColumns,
         appIconShape = appIconShape,
         directDialEnabled = directDialEnabled,
         disabledSections = disabledSections,

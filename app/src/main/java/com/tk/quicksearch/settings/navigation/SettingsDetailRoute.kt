@@ -299,6 +299,7 @@ fun SettingsDetailRoute(
                     onSearchIconPacks = viewModel::searchIconPacks,
                     onRefreshIconPacks = viewModel::refreshIconPacks,
                     onToggleAppLabels = viewModel::setShowAppLabels,
+                    onSetPhoneAppGridColumns = viewModel::setPhoneAppGridColumns,
                     onSetAppIconShape = viewModel::setAppIconShape,
                     onToggleDirectDial = viewModel::setDirectDialEnabled,
                     onToggleSection = onToggleSection,

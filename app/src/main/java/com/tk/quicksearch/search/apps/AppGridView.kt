@@ -111,6 +111,7 @@ fun AppGridView(
         disabledShortcutIds: Set<String>,
         modifier: Modifier = Modifier,
         rowCount: Int = ROW_COUNT,
+        phoneColumnOverride: Int = 5,
         iconPackPackage: String? = null,
         showAppLabels: Boolean = true,
         oneHandedMode: Boolean = false,
@@ -168,6 +169,7 @@ fun AppGridView(
                         pinnedPackageNames = pinnedPackageNames,
                         shortcutsByPackage = shortcutsByPackage,
                         rowCount = rowCount,
+                        phoneColumnOverride = phoneColumnOverride,
                         iconPackPackage = iconPackPackage,
                         showAppLabels = showAppLabels,
                         oneHandedMode = oneHandedMode,
@@ -208,6 +210,7 @@ fun AppGridView(
                         pinnedPackageNames = pinnedPackageNames,
                         shortcutsByPackage = shortcutsByPackage,
                         rowCount = rowCount,
+                        phoneColumnOverride = phoneColumnOverride,
                         iconPackPackage = iconPackPackage,
                         showAppLabels = showAppLabels,
                         oneHandedMode = oneHandedMode,
@@ -235,6 +238,7 @@ private fun AppGrid(
         pinnedPackageNames: Set<String>,
         shortcutsByPackage: Map<String, List<StaticShortcut>>,
         rowCount: Int = ROW_COUNT,
+        phoneColumnOverride: Int = 5,
         iconPackPackage: String?,
         showAppLabels: Boolean,
         oneHandedMode: Boolean,
@@ -242,7 +246,7 @@ private fun AppGrid(
         predictedTarget: PredictedSubmitTarget?,
         appIconShape: AppIconShape,
 ) {
-    val maxVisibleColumns = getAppGridColumns()
+    val maxVisibleColumns = getAppGridColumns(phoneColumnOverride)
     val columns =
             remember(apps, maxVisibleColumns) {
                 if (apps.isEmpty()) {

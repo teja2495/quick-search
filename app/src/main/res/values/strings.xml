@@ -340,6 +340,10 @@
     <string name="settings_icon_pack_option_system">System icons</string>
     <string name="settings_show_app_labels_title">App Labels</string>
     <string name="settings_show_app_labels_desc">Show app names in suggestions and results</string>
+    <string name="settings_app_columns_title">Apps Per Row</string>
+    <string name="settings_app_columns_desc">Number of apps results or suggestions shown in one row</string>
+    <string name="settings_app_columns_4">4</string>
+    <string name="settings_app_columns_5">5</string>
     <string name="settings_refresh_icon_packs">Refresh icon packs</string>
     <string name="settings_refreshing_icon_packs">Refreshing icon packs list</string>
     <string name="settings_icon_pack_picker_title">Choose Icon Pack</string>

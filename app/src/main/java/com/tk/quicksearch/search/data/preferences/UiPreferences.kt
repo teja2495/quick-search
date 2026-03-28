@@ -272,6 +272,13 @@ class UiPreferences(
         setBooleanPref(KEY_SHOW_APP_LABELS, show)
     }
 
+    fun getPhoneAppGridColumns(): Int =
+            prefs.getInt(KEY_PHONE_APP_GRID_COLUMNS, DEFAULT_PHONE_APP_GRID_COLUMNS)
+
+    fun setPhoneAppGridColumns(columns: Int) {
+        prefs.edit().putInt(KEY_PHONE_APP_GRID_COLUMNS, columns.coerceIn(4, 5)).apply()
+    }
+
     fun isDirectSearchSetupExpanded(): Boolean =
             getBooleanPref(UiPreferences.KEY_DIRECT_SEARCH_SETUP_EXPANDED, true)
 
@@ -623,6 +630,8 @@ class UiPreferences(
         const val KEY_SELECTED_ICON_PACK = "selected_icon_pack"
         const val KEY_APP_ICON_SHAPE = "app_icon_shape"
         const val KEY_SHOW_APP_LABELS = "show_app_labels"
+        const val KEY_PHONE_APP_GRID_COLUMNS = "phone_app_grid_columns"
+        const val DEFAULT_PHONE_APP_GRID_COLUMNS = 5
         const val KEY_LAST_SEEN_VERSION = "last_seen_version"
         const val KEY_DIRECT_SEARCH_SETUP_EXPANDED = "direct_search_setup_expanded"
         const val KEY_DISABLED_SEARCH_ENGINES_EXPANDED = "disabled_search_engines_expanded"

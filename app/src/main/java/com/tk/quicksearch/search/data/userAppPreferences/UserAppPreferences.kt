@@ -719,6 +719,10 @@ class UserAppPreferences(
 
     fun setShowAppLabels(show: Boolean) = uiPreferences.setShowAppLabels(show)
 
+    fun getPhoneAppGridColumns(): Int = uiPreferences.getPhoneAppGridColumns()
+
+    fun setPhoneAppGridColumns(columns: Int) = uiPreferences.setPhoneAppGridColumns(columns)
+
     fun areWebSuggestionsEnabled(): Boolean = uiPreferences.areWebSuggestionsEnabled()
 
     fun getWebSuggestionsCount(): Int = uiPreferences.getWebSuggestionsCount()

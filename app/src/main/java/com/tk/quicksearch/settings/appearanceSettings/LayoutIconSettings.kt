@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.AppearanceSettings
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -10,6 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -18,12 +21,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.util.isTablet
 
 /** Combined card for keyboard alignment and icon pack settings. */
 @Composable
@@ -32,6 +38,8 @@ fun CombinedLayoutIconCard(
         onToggleOneHandedMode: (Boolean) -> Unit,
         showAppLabels: Boolean,
         onToggleAppLabels: (Boolean) -> Unit,
+        phoneAppGridColumns: Int = 5,
+        onSetPhoneAppGridColumns: (Int) -> Unit = {},
         bottomSearchBarEnabled: Boolean,
         onToggleBottomSearchBar: (Boolean) -> Unit,
         iconPackTitle: String,
@@ -58,6 +66,14 @@ fun CombinedLayoutIconCard(
                     onCheckedChange = onToggleBottomSearchBar,
                     extraVerticalPadding = 8.dp,
             )
+
+            if (!isTablet()) {
+                AppColumnsSelector(
+                        selectedColumns = phoneAppGridColumns,
+                        onSelectColumns = onSetPhoneAppGridColumns,
+                )
+                HorizontalDivider(color = AppColors.SettingsDivider)
+            }
 
             SettingsToggleRow(
                     title = stringResource(R.string.settings_show_app_labels_title),
@@ -133,6 +149,70 @@ fun CombinedLayoutIconCard(
                                         ),
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun AppColumnsSelector(
+        selectedColumns: Int,
+        onSelectColumns: (Int) -> Unit,
+) {
+    Column(
+            modifier =
+                    Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                    start = DesignTokens.SpacingXXLarge,
+                                    top = DesignTokens.SpacingXLarge,
+                                    end = DesignTokens.SpacingXXLarge,
+                                    bottom = DesignTokens.SpacingMedium,
+                            ),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+    ) {
+        Text(
+                text = stringResource(R.string.settings_app_columns_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+        )
+        Text(
+                text = stringResource(R.string.settings_app_columns_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)) {
+            val fourSelected = selectedColumns == 4
+            AssistChip(
+                    onClick = { onSelectColumns(4) },
+                    label = { Text(stringResource(R.string.settings_app_columns_4)) },
+                    shape = DesignTokens.ShapeFull,
+                    border = if (fourSelected) null else BorderStroke(1.dp, AppColors.SettingsDivider),
+                    colors =
+                            AssistChipDefaults.assistChipColors(
+                                    containerColor =
+                                            if (fourSelected) MaterialTheme.colorScheme.primary
+                                            else Color.Transparent,
+                                    labelColor =
+                                            if (fourSelected) MaterialTheme.colorScheme.onPrimary
+                                            else MaterialTheme.colorScheme.primary,
+                            ),
+            )
+            val fiveSelected = selectedColumns != 4
+            AssistChip(
+                    onClick = { onSelectColumns(5) },
+                    label = { Text(stringResource(R.string.settings_app_columns_5)) },
+                    shape = DesignTokens.ShapeFull,
+                    border = if (fiveSelected) null else BorderStroke(1.dp, AppColors.SettingsDivider),
+                    colors =
+                            AssistChipDefaults.assistChipColors(
+                                    containerColor =
+                                            if (fiveSelected) MaterialTheme.colorScheme.primary
+                                            else Color.Transparent,
+                                    labelColor =
+                                            if (fiveSelected) MaterialTheme.colorScheme.onPrimary
+                                            else MaterialTheme.colorScheme.primary,
+                            ),
+            )
         }
     }
 }

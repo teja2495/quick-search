@@ -194,6 +194,7 @@ data class SearchUiConfigState(
         val fontScaleMultiplier: Float = UiPreferences.DEFAULT_FONT_SCALE_MULTIPLIER,
         // App display preferences
         val showAppLabels: Boolean = true,
+        val phoneAppGridColumns: Int = com.tk.quicksearch.search.data.preferences.UiPreferences.DEFAULT_PHONE_APP_GRID_COLUMNS,
         val appIconShape: AppIconShape = AppIconShape.DEFAULT,
         val appSuggestionsEnabled: Boolean = true,
         val selectedIconPackPackage: String? = null,

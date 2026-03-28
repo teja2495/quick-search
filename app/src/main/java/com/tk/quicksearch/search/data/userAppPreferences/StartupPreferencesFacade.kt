@@ -52,6 +52,7 @@ class StartupPreferencesFacade(
             val appSuggestionsEnabled: Boolean,
             val showAppLabels: Boolean,
             val appIconShape: AppIconShape,
+            val phoneAppGridColumns: Int = com.tk.quicksearch.search.data.preferences.UiPreferences.DEFAULT_PHONE_APP_GRID_COLUMNS,
     )
 
     /**
@@ -706,6 +707,13 @@ class StartupPreferencesFacade(
                                             runCatching { AppIconShape.valueOf(value) }.getOrNull()
                                         }
                                         ?: AppIconShape.DEFAULT,
+                        phoneAppGridColumns =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .KEY_PHONE_APP_GRID_COLUMNS,
+                                ] as?
+                                        Int
+                                        ?: com.tk.quicksearch.search.data.preferences.UiPreferences.DEFAULT_PHONE_APP_GRID_COLUMNS,
                 )
 
         return StartupConfig(

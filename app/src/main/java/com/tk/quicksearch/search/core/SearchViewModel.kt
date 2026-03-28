@@ -550,6 +550,7 @@ class SearchViewModel(
                     autoCloseOverlay = s.autoCloseOverlay,
                     fontScaleMultiplier = s.fontScaleMultiplier,
                     showAppLabels = s.showAppLabels,
+                    phoneAppGridColumns = s.phoneAppGridColumns,
                     appIconShape = s.appIconShape,
                     appSuggestionsEnabled = s.appSuggestionsEnabled,
                     selectedIconPackPackage = s.selectedIconPackPackage,
@@ -808,6 +809,7 @@ class SearchViewModel(
     private var hasSeenDirectDialChoice: Boolean = false
     private var appSuggestionsEnabled: Boolean = true
     private var showAppLabels: Boolean = true
+    private var phoneAppGridColumns: Int = com.tk.quicksearch.search.data.preferences.UiPreferences.DEFAULT_PHONE_APP_GRID_COLUMNS
     private var appIconShape: AppIconShape = AppIconShape.DEFAULT
     private var wallpaperBackgroundAlpha: Float = UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA
     private var wallpaperBlurRadius: Float = UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS
@@ -1131,6 +1133,7 @@ class SearchViewModel(
         hasSeenDirectDialChoice = prefs.hasSeenDirectDialChoice
         appSuggestionsEnabled = prefs.appSuggestionsEnabled
         showAppLabels = prefs.showAppLabels
+        phoneAppGridColumns = prefs.phoneAppGridColumns
         appIconShape = prefs.appIconShape
         wallpaperBackgroundAlpha = prefs.wallpaperBackgroundAlpha
         wallpaperBlurRadius = prefs.wallpaperBlurRadius
@@ -1153,6 +1156,7 @@ class SearchViewModel(
                     overlayModeEnabled = overlayModeEnabled,
                     appSuggestionsEnabled = appSuggestionsEnabled,
                     showAppLabels = showAppLabels,
+                    phoneAppGridColumns = phoneAppGridColumns,
                     appIconShape = appIconShape,
                     showWallpaperBackground = backgroundSource != BackgroundSource.THEME,
                     wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
@@ -1202,6 +1206,7 @@ class SearchViewModel(
         val suggestionsEnabled = userPreferences.areAppSuggestionsEnabled()
         val startupPrefs = startupConfig?.startupPreferences
         val labelsEnabled = startupPrefs?.showAppLabels ?: userPreferences.shouldShowAppLabels()
+        val columnsForPhone = startupPrefs?.phoneAppGridColumns ?: userPreferences.getPhoneAppGridColumns()
 
         // Just show the raw list of apps first!
         // Don't filter, don't sort, don't check pinned apps yet
@@ -1229,6 +1234,7 @@ class SearchViewModel(
                     openKeyboardOnLaunch = openKeyboardOnLaunch,
                     appSuggestionsEnabled = suggestionsEnabled,
                     showAppLabels = labelsEnabled,
+                    phoneAppGridColumns = columnsForPhone,
                     isStartupCoreSurfaceReady = true,
             )
         }
@@ -1287,6 +1293,7 @@ class SearchViewModel(
                         showSearchBarWelcomeAnimation = shouldShowSearchBarWelcome(),
                         appSuggestionsEnabled = userPreferences.areAppSuggestionsEnabled(),
                         showAppLabels = userPreferences.shouldShowAppLabels(),
+                        phoneAppGridColumns = userPreferences.getPhoneAppGridColumns(),
                         bottomSearchBarEnabled = userPreferences.isBottomSearchBarEnabled(),
                         topResultIndicatorEnabled = userPreferences.isTopResultIndicatorEnabled(),
                         openKeyboardOnLaunch = userPreferences.isOpenKeyboardOnLaunchEnabled(),
@@ -1553,6 +1560,16 @@ class SearchViewModel(
                     saveStartupSurfaceSnapshotAsync(allowDuringQuery = true)
                 },
         )
+    }
+
+    fun setPhoneAppGridColumns(columns: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setPhoneAppGridColumns(columns)
+            phoneAppGridColumns = columns
+            updateConfigState { state -> state.copy(phoneAppGridColumns = columns) }
+            refreshAppSuggestions()
+            saveStartupSurfaceSnapshotAsync(allowDuringQuery = true)
+        }
     }
 
     fun setWebSuggestionsEnabled(enabled: Boolean) = webSuggestionHandler.setEnabled(enabled)
@@ -4000,7 +4017,7 @@ class SearchViewModel(
     }
 
     private fun getGridItemCount(): Int =
-            SearchScreenConstants.ROW_COUNT * getAppGridColumns(getApplication())
+            SearchScreenConstants.ROW_COUNT * getAppGridColumns(getApplication(), phoneAppGridColumns)
 
     /**
      * Recomputes only the app-suggestions / app-search part of derived state: nickname cache,
@@ -4244,6 +4261,7 @@ class SearchViewModel(
                     fontScaleMultiplier = config.fontScaleMultiplier,
                     showAppLabels = config.showAppLabels,
                     appSuggestionsEnabled = config.appSuggestionsEnabled,
+                    phoneAppGridColumns = config.phoneAppGridColumns,
                     suggestedApps = startupSuggestions,
                 )
             startupSurfaceStore.saveSnapshot(snapshot)
