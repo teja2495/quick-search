@@ -102,8 +102,8 @@ fun SearchEngineIconsSection(
     val compactSectionShape: Shape =
         if (isOverlayPresentation && !hasBottomSearchBar) {
             RoundedCornerShape(
-                topStart = 20.dp,
-                topEnd = 20.dp,
+                topStart = 0.dp,
+                topEnd = 0.dp,
                 bottomStart = if (removeBottomCornerRadiusInOverlay) 0.dp else 28.dp,
                 bottomEnd = if (removeBottomCornerRadiusInOverlay) 0.dp else 28.dp,
             )

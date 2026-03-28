@@ -300,7 +300,7 @@ class AliasHandler(
             ) {
                 continue
             }
-            if (target !is SearchTarget.Engine && target !is SearchTarget.Browser) continue
+            if (target !is SearchTarget.Engine && target !is SearchTarget.Browser && target !is SearchTarget.Custom) continue
             if (!isAliasEnabled(target)) continue
 
             val aliasCode = getAlias(target).lowercase(Locale.getDefault())
