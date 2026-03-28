@@ -303,6 +303,8 @@ class UserAppPreferences(
     // Nickname Preferences
     // ============================================================================
 
+    fun reloadNicknameCaches() = nicknamePreferences.reloadCaches()
+
     fun getAllAppNicknames(): Map<String, String> = nicknamePreferences.getAllAppNicknames()
 
     fun getAppNickname(packageName: String): String? =

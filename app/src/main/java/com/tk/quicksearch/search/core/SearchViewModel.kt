@@ -2658,6 +2658,7 @@ class SearchViewModel(
 
     fun onSettingsImported() {
         viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.reloadNicknameCaches()
             val startupPrefs = userPreferences.getStartupPreferences()
 
             searchEngineManager.reloadFromPreferences()

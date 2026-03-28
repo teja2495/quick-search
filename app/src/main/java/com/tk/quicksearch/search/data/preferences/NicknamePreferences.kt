@@ -21,6 +21,15 @@ class NicknamePreferences(
         loadNicknameCaches()
     }
 
+    fun reloadCaches() {
+        appShortcutNicknameCache.clear()
+        contactNicknameCache.clear()
+        fileNicknameCache.clear()
+        settingNicknameCache.clear()
+        calendarEventNicknameCache.clear()
+        loadNicknameCaches()
+    }
+
     private fun loadNicknameCaches() {
         val allPrefs = prefs.all
         for ((key, value) in allPrefs) {
