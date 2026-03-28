@@ -53,6 +53,7 @@ internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState =
         isSearchEngineCompactMode = isSearchEngineCompactMode,
         searchEngineCompactRowCount = searchEngineCompactRowCount,
         isSearchEngineAliasSuffixEnabled = isSearchEngineAliasSuffixEnabled,
+        isAliasTriggerAfterSpaceEnabled = isAliasTriggerAfterSpaceEnabled,
         amazonDomain = amazonDomain,
         calculatorEnabled = calculatorEnabled,
         unitConverterEnabled = unitConverterEnabled,

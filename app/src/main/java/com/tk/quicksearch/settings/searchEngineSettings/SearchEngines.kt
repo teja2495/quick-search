@@ -1,14 +1,19 @@
 package com.tk.quicksearch.settings.searchEnginesScreen
 
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.shared.SettingsCard
@@ -54,6 +59,8 @@ fun SearchEngines(
     onOpenDirectSearchConfigure: (() -> Unit)? = null,
     isSearchEngineAliasSuffixEnabled: Boolean = true,
     onToggleSearchEngineAliasSuffixEnabled: ((Boolean) -> Unit)? = null,
+    isAliasTriggerAfterSpaceEnabled: Boolean = true,
+    onToggleAliasTriggerAfterSpaceEnabled: ((Boolean) -> Unit)? = null,
     showTitle: Boolean = true,
     directSearchAvailable: Boolean = false,
     directSearchSetupExpanded: Boolean = true,
@@ -108,6 +115,8 @@ fun SearchEngines(
             SearchEngineAliasSuffixCard(
                 enabled = isSearchEngineAliasSuffixEnabled,
                 onToggle = onToggleSearchEngineAliasSuffixEnabled,
+                triggerAfterSpaceEnabled = isAliasTriggerAfterSpaceEnabled,
+                onToggleTriggerAfterSpace = onToggleAliasTriggerAfterSpaceEnabled,
             )
             Spacer(modifier = Modifier.height(6.dp))
         }
@@ -158,6 +167,8 @@ fun SearchEngines(
             SearchEngineAliasSuffixCard(
                 enabled = isSearchEngineAliasSuffixEnabled,
                 onToggle = onToggleSearchEngineAliasSuffixEnabled,
+                triggerAfterSpaceEnabled = isAliasTriggerAfterSpaceEnabled,
+                onToggleTriggerAfterSpace = onToggleAliasTriggerAfterSpaceEnabled,
             )
         }
     }
@@ -167,6 +178,8 @@ fun SearchEngines(
 private fun SearchEngineAliasSuffixCard(
     enabled: Boolean,
     onToggle: (Boolean) -> Unit,
+    triggerAfterSpaceEnabled: Boolean = true,
+    onToggleTriggerAfterSpace: ((Boolean) -> Unit)? = null,
 ) {
     SettingsCard(
         modifier =
@@ -180,8 +193,37 @@ private fun SearchEngineAliasSuffixCard(
             checked = enabled,
             onCheckedChange = onToggle,
             isFirstItem = true,
-            isLastItem = true,
-            showDivider = false,
+            isLastItem = !enabled || onToggleTriggerAfterSpace == null,
+            showDivider = enabled && onToggleTriggerAfterSpace != null,
         )
+        if (enabled && onToggleTriggerAfterSpace != null) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .toggleable(
+                        value = triggerAfterSpaceEnabled,
+                        role = Role.Checkbox,
+                        onValueChange = onToggleTriggerAfterSpace,
+                    )
+                    .padding(
+                        start = DesignTokens.SpacingXXLarge,
+                        end = DesignTokens.SpacingXXLarge,
+                        top = DesignTokens.SpacingMedium,
+                        bottom = DesignTokens.SpacingLarge,
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Checkbox(
+                    checked = triggerAfterSpaceEnabled,
+                    onCheckedChange = null,
+                )
+                Text(
+                    text = stringResource(R.string.settings_alias_trigger_after_space),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(start = DesignTokens.SpacingMedium),
+                )
+            }
+        }
     }
 }

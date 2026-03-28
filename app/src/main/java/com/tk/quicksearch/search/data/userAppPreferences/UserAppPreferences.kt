@@ -403,6 +403,12 @@ class UserAppPreferences(
     fun setSearchEngineAliasSuffixEnabled(enabled: Boolean) =
             searchEnginePreferences.setSearchEngineAliasSuffixEnabled(enabled)
 
+    fun isAliasTriggerAfterSpaceEnabled(): Boolean =
+            searchEnginePreferences.isAliasTriggerAfterSpaceEnabled()
+
+    fun setAliasTriggerAfterSpaceEnabled(enabled: Boolean) =
+            searchEnginePreferences.setAliasTriggerAfterSpaceEnabled(enabled)
+
     fun hasSeenSearchEngineOnboarding(): Boolean =
             searchEnginePreferences.hasSeenSearchEngineOnboarding()
 

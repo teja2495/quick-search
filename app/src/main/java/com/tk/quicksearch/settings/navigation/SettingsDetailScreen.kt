@@ -165,6 +165,9 @@ internal fun SettingsDetailLevel1Screen(
                             isSearchEngineAliasSuffixEnabled = state.isSearchEngineAliasSuffixEnabled,
                             onToggleSearchEngineAliasSuffixEnabled =
                                 callbacks.onToggleSearchEngineAliasSuffixEnabled,
+                            isAliasTriggerAfterSpaceEnabled = state.isAliasTriggerAfterSpaceEnabled,
+                            onToggleAliasTriggerAfterSpaceEnabled =
+                                callbacks.onToggleAliasTriggerAfterSpaceEnabled,
                             showDirectSearchAtTop = true,
                         )
                     }

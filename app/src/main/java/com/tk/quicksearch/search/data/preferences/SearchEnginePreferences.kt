@@ -66,6 +66,13 @@ class SearchEnginePreferences(
         setBooleanPref(BasePreferences.KEY_SEARCH_ENGINE_ALIAS_SUFFIX_ENABLED, enabled)
     }
 
+    fun isAliasTriggerAfterSpaceEnabled(): Boolean =
+        getBooleanPref(BasePreferences.KEY_ALIAS_TRIGGER_AFTER_SPACE, true)
+
+    fun setAliasTriggerAfterSpaceEnabled(enabled: Boolean) {
+        setBooleanPref(BasePreferences.KEY_ALIAS_TRIGGER_AFTER_SPACE, enabled)
+    }
+
     fun hasSeenSearchEngineOnboarding(): Boolean = getBooleanPref(BasePreferences.KEY_SEARCH_ENGINE_ONBOARDING_SEEN, false)
 
     fun setHasSeenSearchEngineOnboarding(seen: Boolean) {

@@ -335,6 +335,7 @@ fun SettingsRoute(
             onToggleSearchEngineCompactMode = viewModel::setSearchEngineCompactMode,
             onSetSearchEngineCompactRowCount = viewModel::setSearchEngineCompactRowCount,
             onToggleSearchEngineAliasSuffixEnabled = viewModel::setSearchEngineAliasSuffixEnabled,
+            onToggleAliasTriggerAfterSpaceEnabled = viewModel::setAliasTriggerAfterSpaceEnabled,
             onSetAmazonDomain = viewModel::setAmazonDomain,
             onSetCalculatorAlias = { code ->
                 viewModel.setAlias(

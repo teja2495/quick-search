@@ -126,6 +126,7 @@ data class SearchFeatureState(
         val isSearchEngineCompactMode: Boolean = false,
         val searchEngineCompactRowCount: Int = 1,
         val isSearchEngineAliasSuffixEnabled: Boolean = true,
+        val isAliasTriggerAfterSpaceEnabled: Boolean = true,
         val amazonDomain: String? = null,
         // App shortcuts
         val shortcutsEnabled: Boolean = true,

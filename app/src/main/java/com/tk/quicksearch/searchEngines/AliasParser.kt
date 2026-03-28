@@ -11,11 +11,12 @@ internal object AliasParser {
     fun <T> detectSuffixAlias(
         query: String,
         aliases: Map<String, T>,
+        requireTrailingSpace: Boolean = true,
     ): ParsedAliasMatch<T>? {
         if (query.isBlank()) return null
 
-        // End aliases trigger only after the user types a trailing space.
-        if (!query.last().isWhitespace()) return null
+        // End aliases trigger only after the user types a trailing space (when enabled).
+        if (requireTrailingSpace && !query.last().isWhitespace()) return null
 
         val queryWithoutTrailingWhitespace = query.trimEnd()
         if (queryWithoutTrailingWhitespace.isEmpty()) return null

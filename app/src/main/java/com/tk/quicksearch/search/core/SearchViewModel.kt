@@ -259,6 +259,8 @@ class SearchViewModel(
                     SearchFeatureState(
                             isSearchEngineAliasSuffixEnabled =
                                     startupPreferencesReader.isSearchEngineAliasSuffixEnabled(),
+                            isAliasTriggerAfterSpaceEnabled =
+                                    startupPreferencesReader.isAliasTriggerAfterSpaceEnabled(),
                     ),
             )
     val featureState: StateFlow<SearchFeatureState> = _featureState.asStateFlow()
@@ -303,6 +305,9 @@ class SearchViewModel(
                                                             isSearchEngineAliasSuffixEnabled =
                                                                     startupPreferencesReader
                                                                             .isSearchEngineAliasSuffixEnabled(),
+                                                            isAliasTriggerAfterSpaceEnabled =
+                                                                    startupPreferencesReader
+                                                                            .isAliasTriggerAfterSpaceEnabled(),
                                                     ),
                                             config = initialConfigState,
                                     ),
@@ -495,6 +500,7 @@ class SearchViewModel(
                     isSearchEngineCompactMode = s.isSearchEngineCompactMode,
                     searchEngineCompactRowCount = s.searchEngineCompactRowCount,
                     isSearchEngineAliasSuffixEnabled = s.isSearchEngineAliasSuffixEnabled,
+                    isAliasTriggerAfterSpaceEnabled = s.isAliasTriggerAfterSpaceEnabled,
                     amazonDomain = s.amazonDomain,
                     shortcutsEnabled = s.shortcutsEnabled,
                     shortcutCodes = s.shortcutCodes,
@@ -1257,6 +1263,8 @@ class SearchViewModel(
                                 searchEngineManager.searchEngineCompactRowCount,
                         isSearchEngineAliasSuffixEnabled =
                                 userPreferences.isSearchEngineAliasSuffixEnabled(),
+                        isAliasTriggerAfterSpaceEnabled =
+                                userPreferences.isAliasTriggerAfterSpaceEnabled(),
                         webSuggestionsEnabled = webSuggestionHandler.isEnabled,
                         calculatorEnabled = userPreferences.isCalculatorEnabled(),
                         unitConverterEnabled = userPreferences.isUnitConverterEnabled(),
@@ -2657,6 +2665,8 @@ class SearchViewModel(
                                     searchEngineManager.searchEngineCompactRowCount,
                             isSearchEngineAliasSuffixEnabled =
                                     userPreferences.isSearchEngineAliasSuffixEnabled(),
+                            isAliasTriggerAfterSpaceEnabled =
+                                    userPreferences.isAliasTriggerAfterSpaceEnabled(),
                             shortcutsEnabled = shortcutsState.shortcutsEnabled,
                             shortcutCodes = shortcutsState.shortcutCodes,
                             shortcutEnabled = shortcutsState.shortcutEnabled,
@@ -3508,6 +3518,13 @@ class SearchViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             userPreferences.setSearchEngineAliasSuffixEnabled(enabled)
             updateFeatureState { it.copy(isSearchEngineAliasSuffixEnabled = enabled) }
+        }
+    }
+
+    fun setAliasTriggerAfterSpaceEnabled(enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setAliasTriggerAfterSpaceEnabled(enabled)
+            updateFeatureState { it.copy(isAliasTriggerAfterSpaceEnabled = enabled) }
         }
     }
 

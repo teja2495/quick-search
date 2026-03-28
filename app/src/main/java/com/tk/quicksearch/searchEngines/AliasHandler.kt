@@ -307,7 +307,11 @@ class AliasHandler(
             if (aliasCode.isEmpty()) continue
             aliases[aliasCode] = target
         }
-        val match = AliasParser.detectSuffixAlias(query, aliases) ?: return null
+        val match = AliasParser.detectSuffixAlias(
+            query,
+            aliases,
+            requireTrailingSpace = userPreferences.isAliasTriggerAfterSpaceEnabled(),
+        ) ?: return null
         return Pair(match.queryWithoutAlias, match.target)
     }
 
