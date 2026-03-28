@@ -1,6 +1,6 @@
 # Quick Search
 
-A fast & powerful Android app that lets you search across **apps, contacts, device files, device settings, web, and basic calculations** from a single screen. Built with Kotlin and Jetpack Compose using Material 3 design.
+A fast & powerful Android app that lets you search across **apps, app shortcuts, contacts, calendar events, device files, device settings, app settings, and the web**, plus access tools like **calculator, unit converter, etc**—all from a single search bar. Built with Kotlin and Jetpack Compose using Material 3 design.
 
 <a href="https://play.google.com/store/apps/details?id=com.tk.quicksearch"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="80"></a>
 <a href="https://github.com/teja2495/quick-search/releases/latest"><img src="https://github.com/user-attachments/assets/5d36bf7f-3386-4b0e-b7e1-892daba01343" alt="Get it on GitHub" height="80"></a>
@@ -17,12 +17,17 @@ A fast & powerful Android app that lets you search across **apps, contacts, devi
 ## ✨ Key Features
 
 ### 🔍 Unified Search
-- **Apps**: Search and launch installed applications with smart ranking. App search ignores typos and allows abbreviations. Long press apps to access their shortcuts (if available); shortcuts appear in search results too.
-- **Contacts**: Find and call/text contacts with multi-number support and WhatsApp/Telegram/Google Meet integration. Long press contact actions to customize them.
+- **Apps**: Search and launch installed applications with smart ranking. App search ignores typos and allows abbreviations. Long press apps to access their shortcuts (if available).
+- **App Shortcuts**: Find and launch app shortcuts (including custom deep links and search/browser shortcuts) alongside app results.
+- **Contacts**: Find and call/text contacts with multi-number support and integrations such as WhatsApp, Telegram, Signal, Google Meet, and more. Long press contact actions to customize them.
+- **Calendar Events**: Search your calendar events from the search bar.
 - **Files**: Search device files and folders (images, videos, documents, etc.)
 - **Device Settings**: Search Android system settings
-- **Web**: Search the web using 24+ search engines with customizable shortcuts and web suggestions. Browsers can be added as search engines.
-- **Calculator**: Built-in calculator for math expressions (+, -, *, /, brackets)
+- **App Settings**: Find and open Quick Search app settings directly from the search bar
+- **Web**: Search the web using 25 search engines with customizable shortcuts and web suggestions. Browsers can be added as search engines.
+- **Calculator**: Built-in calculator for math expressions (+, -, *, /, brackets); optional alias to open calculator mode
+- **Unit Converter**: Convert units from the search bar (length, mass, temperature, area, volume, time, speed, data, energy, power, pressure, angle, frequency, and more)
+- **Date & Time**: Natural-language date parsing, differences, offsets, and time arithmetic from the search bar (optional alias)
 - **Gemini API**: Direct search with AI-powered answers using Gemini/Gemma models and optional personal context
 - **Overlay Mode**: Enable to make the search bar appear over other apps, anywhere—changes how you access search from any screen
 - **Home Screen Widget**: Search widget and custom buttons widget with extensive customization options
@@ -52,7 +57,7 @@ Enable AI-powered answers by:
 4. Choose any Gemini/Gemma models of your choice
 
 ### Search Engines
-- **Supported** (20+): Google, ChatGPT, Perplexity, Grok, Gemini, Google Maps, Google Play, Reddit, YouTube, Amazon, Bing, Brave, DuckDuckGo, Facebook Marketplace, Google Drive, Google Meet, Google Photos, Spotify, Startpage, X/Twitter, You.com, YouTube Music, Google AI Mode, Claude.
+- **Supported** (25): Direct Search, Google, ChatGPT, Gemini, Perplexity, Grok, Google Maps, Google Drive, Google Photos, Google Play, YouTube, YouTube Music, Spotify, Reddit, Amazon, X (Twitter), Facebook Marketplace, Bing, DuckDuckGo, Brave, Startpage, You.com, AI Mode, Claude, Wikipedia—each can be reordered or disabled. You also have option to add **custom** search engines.
 - **Browsers**: Add installed browsers as search engines
 - **Direct Search**: AI answers with Gemini API integration; choose among several Gemini and Gemma models; optional personal context
 - **Style**: Choose between inline or compact styles

@@ -2,7 +2,7 @@
 
 This document highlights all the available features. It also includes details about hidden or non-obvious features that you might miss.
 
-**Version**: 2.9 (Updated March 22 2026)
+**Version**: 3.0 (Updated March 28 2026)
 
 ### Search
 
@@ -77,7 +77,7 @@ Add aliases at the start of your query to quickly let the app know what you want
   - Second word matches
   - Names containing query anywhere
 - **Recently Opened Results** - Recently opened results are prioritized in the result order.
-- **App and App Shortcut Searches** - These searches support fuzzy search to ignore typos.
+- App, App Shortcut, Device and App settings searches support fuzzy search to ignore typos.
 
 ---
 
@@ -98,12 +98,14 @@ Long-press on most results to open a context menu with quick actions.
 
 - **Overlay Mode** - Enable to make the search bar appear over other apps anywhere in the system. This defines the main experience: search from any screen without leaving what you're doing.
 - **Font Size** - Choose between small, medium, and large font sizes for all in-app text.
-- **Background Theme** - Pick among the available themes - Mono, Forest, Aurora, Sunset - and adjust their intensity. You can also choose your wallpaper or any custom image as your background theme. When using wallpaper/custom images, you can also tune transparency and blur to keep content readable.
+- **Theme** - Set base theme to Light, Dark or System (follows system theme). Then, pick among the available themes - Mono, Forest, Aurora, Sunset - and adjust their intensity. These themes will adapt to light and dark mode seamlessly.
+- **Wallpaper Background** - Use your wallpaper or any custom image as your search screen background, you can also tune transparency and blur to keep content readable.
 - **Search Engine Style** - Choose between:
   - **Inline Mode**: Search engines scroll with the content
   - **Compact Mode**: Search engines stay fixed at the bottom of the screen above the keyboard for quick access, with support for one or two rows of engines.
 - **One-Handed Mode** - Most relevant items appear at the bottom of your screen for easy access.
 - **Bottom Searchbar** - You can choose to move the search bar to the bottom.
+- **Apps Per Row** - Choose no. of apps displayed per row in results and suggestions.
 - **App Labels** - You can choose to hide app labels.
 - **Icon Packs** - Select an installed icon pack. If none of them are installed, tapping on the card will open the Play Store and search for icon packs. Once installed, come back to the app and hit the refresh button on the icon packs option to refresh the icon packs list.
 
@@ -124,7 +126,7 @@ Long-press on most results to open a context menu with quick actions.
 
 - **Enable / Disable Search Engines** - Turn individual search engines on or off and control the order in which they appear.
 - **Aliases for Engines** - Assign or edit alias codes to search engines.
-- **Alias after Query** - You can choose to disable search engine alias triggers at the end of your query.
+- **Alias after Query** - You can choose to disable search engine alias triggers at the end of your query. Also, choose whether space is required for the trigger.
 - **Amazon Domain** - Select the Amazon region/domain used when searching via the Amazon engine. Updating this will open your Amazon queries within the installed app instead of the website.
 - **Custom Search Engines** - Add your own search engines by specifying a URL template with the {{query}} placeholder. The app automatically fetches the name and icon for the website, but you can choose to edit them if needed. Tapping on {{query}} in the error hint will add this string to your URL so that you don't have to type it.
 - **Direct Search (AI)** - Connect a Gemini API key to enable AI answers directly in Quick Search, view if a key is configured, and open the dedicated Direct Search configuration screen. Gemini Flash Latest is the model which is chosen by default.

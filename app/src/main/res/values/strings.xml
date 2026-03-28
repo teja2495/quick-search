@@ -796,10 +796,10 @@
     <string name="release_notes_title">Quick Search v%1$s Release Notes</string>
     <string name="release_notes_title_no_version">Quick Search Release Notes</string>
     <string-array name="release_notes_points">
-        <item>New Tool: Date &amp; Time Calculator</item>
-        <item>Search for app settings directly from search bar</item>
-        <item>Added Quick Search to your phone\u2019s text-selection menu and share sheet.</item>
-        <item>Enhancements and bug fixes</item>
+        <item>Light themes (finally!) and UI improvements</item>
+        <item>Option to change apps per row</item>
+        <item>Fuzzy search for device and app settings</item>
+        <item>Bug fixes</item>
     </string-array>
     <string name="release_notes_action_got_it">Got it</string>
     <string name="release_notes_view_all_features">View all features</string>
