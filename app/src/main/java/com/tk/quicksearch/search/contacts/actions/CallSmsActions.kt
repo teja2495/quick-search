@@ -88,8 +88,8 @@ object CallSmsActions {
         context: Application,
         email: String,
         onShowToast: ((Int) -> Unit)? = null,
-    ) {
-        if (email.isBlank()) return
+    ): Boolean {
+        if (email.isBlank()) return false
 
         val intent =
             Intent(Intent.ACTION_SENDTO).apply {
@@ -97,10 +97,12 @@ object CallSmsActions {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
 
-        runCatching {
+        return runCatching {
             context.startActivity(intent)
-        }.onFailure {
+            true
+        }.getOrElse {
             onShowToast?.invoke(R.string.error_open_email)
+            false
         }
     }
 
@@ -111,16 +113,23 @@ object CallSmsActions {
         context: Application,
         contactInfo: ContactInfo,
         onShowToast: ((Int) -> Unit)? = null,
-    ) {
+    ): Boolean {
         val lookupUri = ContactsContract.Contacts.getLookupUri(contactInfo.contactId, contactInfo.lookupKey)
         if (lookupUri == null) {
             onShowToast?.invoke(R.string.error_open_contact)
-            return
+            return false
         }
         val intent =
             Intent(Intent.ACTION_VIEW, lookupUri).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
-        context.startActivity(intent)
+
+        return runCatching {
+            context.startActivity(intent)
+            true
+        }.getOrElse {
+            onShowToast?.invoke(R.string.error_open_contact)
+            false
+        }
     }
 }

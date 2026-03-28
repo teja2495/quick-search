@@ -1,8 +1,6 @@
 package com.tk.quicksearch.search.searchScreen
 
 import android.Manifest
-import android.os.Handler
-import android.os.Looper
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -431,19 +429,15 @@ fun SearchRoute(
             modifier.fillMaxSize()
         }
     val shouldAutoCloseApp = uiState.autoCloseOverlay
-    val mainHandler = remember { Handler(Looper.getMainLooper()) }
-    val dismissSearchSurfaceIfNeeded: () -> Unit = dismiss@{
-        if (!shouldAutoCloseApp) return@dismiss
-        if (isOverlayPresentation) {
-            onOverlayDismissRequest?.invoke()
-        } else {
-            onCloseAppRequest?.invoke()
+    LaunchedEffect(Unit) {
+        viewModel.externalNavigationEvent.collect {
+            if (!shouldAutoCloseApp) return@collect
+            if (isOverlayPresentation) {
+                onOverlayDismissRequest?.invoke()
+            } else {
+                onCloseAppRequest?.invoke()
+            }
         }
-    }
-    val runExternalNavigationFromOverlay: (() -> Unit) -> Unit = { action ->
-        action()
-        // Launch external navigation while this Activity is still foregrounded, then close.
-        mainHandler.post { dismissSearchSurfaceIfNeeded() }
     }
 
     Box(modifier = containerModifier) {
@@ -458,45 +452,43 @@ fun SearchRoute(
             onQueryChanged = viewModel::onQueryChange,
             onSelectRetainedQueryHandled = viewModel::consumeRetainedQuerySelectionRequest,
             onClearQuery = viewModel::clearQuery,
-            onRequestUsagePermission = {
-                runExternalNavigationFromOverlay { viewModel.openUsageAccessSettings() }
-            },
+            onRequestUsagePermission = { viewModel.openUsageAccessSettings() },
             onSettingsClick = onSettingsClick,
             onAppClick = { app: com.tk.quicksearch.search.models.AppInfo ->
-                runExternalNavigationFromOverlay { viewModel.launchApp(app) }
+                viewModel.launchApp(app)
             },
             onAppInfoClick = { app: com.tk.quicksearch.search.models.AppInfo ->
-                runExternalNavigationFromOverlay { viewModel.openAppInfo(app) }
+                viewModel.openAppInfo(app)
             },
             onUninstallClick = { app: com.tk.quicksearch.search.models.AppInfo ->
-                runExternalNavigationFromOverlay { viewModel.requestUninstall(app) }
+                viewModel.requestUninstall(app)
             },
             onHideApp = onHideAppWithUndo,
             onPinApp = viewModel::pinApp,
             onUnpinApp = viewModel::unpinApp,
             onContactClick = { contact: com.tk.quicksearch.search.models.ContactInfo ->
-                runExternalNavigationFromOverlay { viewModel.openContact(contact) }
+                viewModel.openContact(contact)
             },
             onShowContactMethods = showContactMethodsBottomSheet,
             onDismissContactMethods = dismissContactMethodsBottomSheet,
             onCallContact = callContactWithPermission,
             onSmsContact = { contact: com.tk.quicksearch.search.models.ContactInfo ->
-                runExternalNavigationFromOverlay { viewModel.smsContact(contact) }
+                viewModel.smsContact(contact)
             },
             onContactMethodClick = { contact, method ->
-                runExternalNavigationFromOverlay { viewModel.handleContactMethod(contact, method) }
+                viewModel.handleContactMethod(contact, method)
             },
             onFileClick = { file: com.tk.quicksearch.search.models.DeviceFile ->
-                runExternalNavigationFromOverlay { viewModel.openFile(file) }
+                viewModel.openFile(file)
             },
             onOpenFolder = { file: com.tk.quicksearch.search.models.DeviceFile ->
-                runExternalNavigationFromOverlay { viewModel.openContainingFolder(file) }
+                viewModel.openContainingFolder(file)
             },
             onPinContact = viewModel::pinContact,
             onUnpinContact = viewModel::unpinContact,
             onExcludeContact = onExcludeContactWithUndo,
             onCalendarEventClick = { event: com.tk.quicksearch.search.models.CalendarEventInfo ->
-                runExternalNavigationFromOverlay { viewModel.openCalendarEvent(event) }
+                viewModel.openCalendarEvent(event)
             },
             onPinCalendarEvent = viewModel::pinCalendarEvent,
             onUnpinCalendarEvent = viewModel::unpinCalendarEvent,
@@ -507,7 +499,7 @@ fun SearchRoute(
             onExcludeFile = onExcludeFileWithUndo,
             onExcludeFileExtension = onExcludeFileExtensionWithUndo,
             onSettingClick = { setting: com.tk.quicksearch.search.deviceSettings.DeviceSetting ->
-                runExternalNavigationFromOverlay { viewModel.openSetting(setting) }
+                viewModel.openSetting(setting)
             },
             onAppSettingClick = onAppSettingClick,
             onAppSettingToggle = onAppSettingToggle,
@@ -518,29 +510,23 @@ fun SearchRoute(
             onUnpinSetting = viewModel::unpinSetting,
             onExcludeSetting = onExcludeSettingWithUndo,
             onAppShortcutClick = { shortcut: com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut ->
-                runExternalNavigationFromOverlay { viewModel.launchAppShortcut(shortcut) }
+                viewModel.launchAppShortcut(shortcut)
             },
             onPinAppShortcut = viewModel::pinAppShortcut,
             onUnpinAppShortcut = viewModel::unpinAppShortcut,
             onExcludeAppShortcut = onExcludeAppShortcutWithUndo,
             onIncludeAppShortcut = viewModel::removeExcludedAppShortcut,
             onAppShortcutAppInfoClick = { shortcut: com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut ->
-                runExternalNavigationFromOverlay { viewModel.openAppInfo(shortcut.packageName) }
+                viewModel.openAppInfo(shortcut.packageName)
             },
             onPhoneNumberSelected = viewModel::onPhoneNumberSelected,
             onDismissPhoneNumberSelection = viewModel::dismissPhoneNumberSelection,
             onSearchTargetClick = { query: String, target: SearchTarget ->
-                val isDirectSearchTarget =
-                    target is SearchTarget.Engine && target.engine == SearchEngine.DIRECT_SEARCH
-                if (isDirectSearchTarget) {
-                    viewModel.openSearchTarget(query, target)
-                } else {
-                    runExternalNavigationFromOverlay { viewModel.openSearchTarget(query, target) }
-                }
+                viewModel.openSearchTarget(query, target)
             },
             onSearchEngineLongPress = onSearchEngineLongPress,
             onDirectSearchEmailClick = { email: String ->
-                runExternalNavigationFromOverlay { viewModel.openEmail(email) }
+                viewModel.openEmail(email)
             },
             onSetPersonalContext = viewModel::setPersonalContext,
             onSetGeminiModel = viewModel::setGeminiModel,
@@ -548,23 +534,17 @@ fun SearchRoute(
             onRefreshAvailableGeminiModels = viewModel::refreshAvailableGeminiModels,
             onOpenAppSettings = {
                 pendingPermissionSettingsType = R.string.settings_permissions_title
-                pendingPermissionSettingsAction = {
-                    runExternalNavigationFromOverlay { viewModel.openAppSettings() }
-                }
+                pendingPermissionSettingsAction = { viewModel.openAppSettings() }
                 showPermissionSettingsDialog = true
             },
             onOpenStorageAccessSettings = {
                 pendingPermissionSettingsType = R.string.settings_files_permission_title
-                pendingPermissionSettingsAction = {
-                    runExternalNavigationFromOverlay { viewModel.openAllFilesAccessSettings() }
-                }
+                pendingPermissionSettingsAction = { viewModel.openAllFilesAccessSettings() }
                 showPermissionSettingsDialog = true
             },
             onOpenCalendarPermissionSettings = {
                 pendingPermissionSettingsType = R.string.settings_calendar_permission_title
-                pendingPermissionSettingsAction = {
-                    runExternalNavigationFromOverlay { viewModel.openCalendarPermissionSettings() }
-                }
+                pendingPermissionSettingsAction = { viewModel.openCalendarPermissionSettings() }
                 showPermissionSettingsDialog = true
             },
             onAppNicknameClick = { app: com.tk.quicksearch.search.models.AppInfo ->

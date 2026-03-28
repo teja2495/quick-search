@@ -25,20 +25,24 @@ class NavigationHandler(
     private val settingsSearchHandler: DeviceSettingsSearchHandler,
     private val onRequestDirectSearch: (String, Boolean) -> Unit,
     private val onClearQuery: () -> Unit,
+    private val onExternalNavigation: () -> Unit,
     private val showToastCallback: (Int) -> Unit,
 ) {
     private val mainHandler = Handler(Looper.getMainLooper())
 
     fun openUsageAccessSettings() {
         IntentHelpers.openUsageAccessSettings(application)
+        onExternalNavigation()
     }
 
     fun openAppSettings() {
         IntentHelpers.openAppSettings(application)
+        onExternalNavigation()
     }
 
     fun openAllFilesAccessSettings() {
         IntentHelpers.openAllFilesAccessSettings(application)
+        onExternalNavigation()
     }
 
     fun openFilesPermissionSettings() {
@@ -49,14 +53,17 @@ class NavigationHandler(
                 IntentHelpers::openAppSettings
             }
         targetMethod(application)
+        onExternalNavigation()
     }
 
     fun openContactPermissionSettings() {
         IntentHelpers.openAppSettings(application)
+        onExternalNavigation()
     }
 
     fun openCalendarPermissionSettings() {
         IntentHelpers.openAppSettings(application)
+        onExternalNavigation()
     }
 
     fun launchApp(
@@ -77,10 +84,12 @@ class NavigationHandler(
 
     fun openAppInfo(appInfo: AppInfo) {
         IntentHelpers.openAppInfo(application, appInfo.packageName)
+        onExternalNavigation()
     }
 
     fun openAppInfo(packageName: String) {
         IntentHelpers.openAppInfo(application, packageName)
+        onExternalNavigation()
     }
 
     fun requestUninstall(appInfo: AppInfo) {
@@ -89,6 +98,7 @@ class NavigationHandler(
             // TODO: Consider passing formatted strings or extending the callback
             showToastCallback(stringResId)
         }
+        onExternalNavigation()
     }
 
     fun openSearchUrl(
@@ -206,8 +216,11 @@ class NavigationHandler(
     }
 
     fun openContact(contactInfo: ContactInfo) {
-        ContactIntentHelpers.openContact(application, contactInfo) { stringResId ->
+        val success = ContactIntentHelpers.openContact(application, contactInfo) { stringResId ->
             showToastCallback(stringResId)
+        }
+        if (!success) {
+            return
         }
         userPreferences.addRecentItem(RecentSearchEntry.Contact(contactInfo.contactId))
         // Always clear query after opening contact
@@ -215,8 +228,11 @@ class NavigationHandler(
     }
 
     fun openEmail(email: String) {
-        ContactIntentHelpers.composeEmail(application, email) { stringResId ->
+        val success = ContactIntentHelpers.composeEmail(application, email) { stringResId ->
             showToastCallback(stringResId)
+        }
+        if (success) {
+            onExternalNavigation()
         }
     }
 

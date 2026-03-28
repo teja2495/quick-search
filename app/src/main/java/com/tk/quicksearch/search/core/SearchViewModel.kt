@@ -84,9 +84,12 @@ import kotlin.concurrent.withLock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
@@ -263,6 +266,11 @@ class SearchViewModel(
     // Updated only when appearance/display prefs change
     private val _configState = MutableStateFlow(initialConfigState)
     val configState: StateFlow<SearchUiConfigState> = _configState.asStateFlow()
+
+    // Emits once after each external navigation action (app launch, contact open, etc.)
+    // UI collects this to trigger auto-close when the setting is enabled.
+    private val _externalNavigationEvent = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val externalNavigationEvent: SharedFlow<Unit> = _externalNavigationEvent.asSharedFlow()
 
     /**
      * Backward-compatible aggregate StateFlow. All existing consumer files (SearchRoute,
@@ -810,6 +818,7 @@ class SearchViewModel(
 
     private fun onNavigationTriggered() {
         pendingNavigationClear = true
+        _externalNavigationEvent.tryEmit(Unit)
     }
 
     private fun showToast(messageResId: Int) {
@@ -877,6 +886,7 @@ class SearchViewModel(
                             directSearchHandler.requestDirectSearch(query)
                         },
                         onClearQuery = this::onNavigationTriggered,
+                        onExternalNavigation = { _externalNavigationEvent.tryEmit(Unit) },
                         showToastCallback = this::showToast,
                 )
 
@@ -1848,6 +1858,22 @@ class SearchViewModel(
             contactInfo: ContactInfo,
             action: com.tk.quicksearch.search.contacts.models.ContactCardAction,
     ) {
+        val trackHistory = !isDirectSearchActive()
+
+        // Route baseline phone/sms card actions through the standard handlers so they preserve
+        // multi-number selection and avoid the contact-method popup-specific navigation behavior.
+        when (action) {
+            is com.tk.quicksearch.search.contacts.models.ContactCardAction.Phone -> {
+                contactActionHandler.callContact(contactInfo, trackHistory = trackHistory)
+                return
+            }
+            is com.tk.quicksearch.search.contacts.models.ContactCardAction.Sms -> {
+                contactActionHandler.smsContact(contactInfo, trackHistory = trackHistory)
+                return
+            }
+            else -> Unit
+        }
+
         viewModelScope.launch(Dispatchers.IO) {
             val appContext = getApplication<Application>()
             val contact =
@@ -1919,7 +1945,6 @@ class SearchViewModel(
                     }
 
             withContext(Dispatchers.Main) {
-                val trackHistory = !isDirectSearchActive()
                 if (matchedMethod != null) {
                     contactActionHandler.handleContactMethod(contactInfo, matchedMethod, trackHistory = trackHistory)
                 } else {

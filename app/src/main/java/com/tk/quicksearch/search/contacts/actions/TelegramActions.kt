@@ -23,13 +23,13 @@ object TelegramActions {
         context: Application,
         dataId: Long?,
         onShowToast: ((Int) -> Unit)? = null,
-    ) {
+    ): Boolean {
         if (dataId == null) {
             Log.w("TelegramActions", "No dataId provided for Telegram chat")
-            return
+            return false
         }
 
-        try {
+        return try {
             if (
                 !launchContactDataIntent(
                     context = context,
@@ -40,10 +40,14 @@ object TelegramActions {
             ) {
                 Log.w("TelegramActions", "Telegram chat intent cannot be resolved")
                 onShowToast?.invoke(R.string.error_telegram_not_installed)
+                false
+            } else {
+                true
             }
         } catch (e: Exception) {
             Log.e("TelegramActions", "Failed to open Telegram chat", e)
             onShowToast?.invoke(R.string.error_telegram_chat_failed)
+            false
         }
     }
 

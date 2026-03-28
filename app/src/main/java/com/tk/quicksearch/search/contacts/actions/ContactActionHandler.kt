@@ -240,8 +240,10 @@ class ContactActionHandler(
             }
 
             is ContactMethod.Email -> {
-                ContactIntentHelpers.composeEmail(context, method.data) { resId -> showToastCallback(resId) }
-                clearQueryIfEnabled()
+                val success = ContactIntentHelpers.composeEmail(context, method.data) { resId -> showToastCallback(resId) }
+                if (success) {
+                    clearQueryIfEnabled()
+                }
             }
 
             is ContactMethod.WhatsAppCall -> {
@@ -249,8 +251,10 @@ class ContactActionHandler(
             }
 
             is ContactMethod.WhatsAppMessage -> {
-                ContactIntentHelpers.openWhatsAppChat(context, method.dataId) { resId -> showToastCallback(resId) }
-                clearQueryIfEnabled()
+                val success = ContactIntentHelpers.openWhatsAppChat(context, method.dataId) { resId -> showToastCallback(resId) }
+                if (success) {
+                    clearQueryIfEnabled()
+                }
             }
 
             is ContactMethod.WhatsAppVideoCall -> {
@@ -258,8 +262,10 @@ class ContactActionHandler(
             }
 
             is ContactMethod.TelegramMessage -> {
-                ContactIntentHelpers.openTelegramChat(context, method.dataId) { resId -> showToastCallback(resId) }
-                clearQueryIfEnabled()
+                val success = ContactIntentHelpers.openTelegramChat(context, method.dataId) { resId -> showToastCallback(resId) }
+                if (success) {
+                    clearQueryIfEnabled()
+                }
             }
 
             is ContactMethod.TelegramCall -> {
@@ -322,8 +328,10 @@ class ContactActionHandler(
             }
 
             is ContactMethod.ViewInContactsApp -> {
-                ContactIntentHelpers.openContact(context, contactInfo) { resId -> showToastCallback(resId) }
-                clearQueryIfEnabled()
+                val success = ContactIntentHelpers.openContact(context, contactInfo) { resId -> showToastCallback(resId) }
+                if (success) {
+                    clearQueryIfEnabled()
+                }
             }
         }
     }

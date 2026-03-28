@@ -26,13 +26,13 @@ object WhatsAppActions {
         context: Application,
         dataId: Long?,
         onShowToast: ((Int) -> Unit)? = null,
-    ) {
+    ): Boolean {
         if (dataId == null) {
             Log.w("WhatsAppActions", "No dataId provided for WhatsApp chat")
-            return
+            return false
         }
 
-        try {
+        return try {
             if (
                 !launchContactDataIntent(
                     context = context,
@@ -43,10 +43,14 @@ object WhatsAppActions {
             ) {
                 Log.w("WhatsAppActions", "WhatsApp chat intent cannot be resolved")
                 onShowToast?.invoke(R.string.error_whatsapp_not_installed)
+                false
+            } else {
+                true
             }
         } catch (e: Exception) {
             Log.e("WhatsAppActions", "Failed to open WhatsApp chat", e)
             onShowToast?.invoke(R.string.error_whatsapp_chat_failed)
+            false
         }
     }
 

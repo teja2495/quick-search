@@ -18,7 +18,7 @@ object ContactIntentHelpers {
         context: android.app.Application,
         contactInfo: ContactInfo,
         onShowToast: ((Int) -> Unit)? = null,
-    ) = CallSmsActions.openContact(context, contactInfo, onShowToast)
+    ): Boolean = CallSmsActions.openContact(context, contactInfo, onShowToast)
 
     fun performDial(
         context: android.app.Application,
@@ -44,14 +44,14 @@ object ContactIntentHelpers {
         context: android.app.Application,
         email: String,
         onShowToast: ((Int) -> Unit)? = null,
-    ) = CallSmsActions.composeEmail(context, email, onShowToast)
+    ): Boolean = CallSmsActions.composeEmail(context, email, onShowToast)
 
     // ===== WHATSAPP ACTIONS =====
     fun openWhatsAppChat(
         context: android.app.Application,
         dataId: Long?,
         onShowToast: ((Int) -> Unit)? = null,
-    ) = WhatsAppActions.openWhatsAppChat(context, dataId, onShowToast)
+    ): Boolean = WhatsAppActions.openWhatsAppChat(context, dataId, onShowToast)
 
     fun openWhatsAppChat(
         context: android.app.Application,
@@ -76,7 +76,7 @@ object ContactIntentHelpers {
         context: android.app.Application,
         dataId: Long?,
         onShowToast: ((Int) -> Unit)? = null,
-    ) = TelegramActions.openTelegramChat(context, dataId, onShowToast)
+    ): Boolean = TelegramActions.openTelegramChat(context, dataId, onShowToast)
 
     fun openTelegramChat(
         context: android.app.Application,
