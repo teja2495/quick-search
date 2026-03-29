@@ -584,7 +584,7 @@ internal fun FileResultRow(
         enableLongPress: Boolean = true,
         onLongPressOverride: (() -> Unit)? = null,
         icon: ImageVector? = null,
-        iconTint: Color = MaterialTheme.colorScheme.secondary,
+        iconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
         isPredicted: Boolean = false,
 ) {
     val context = LocalContext.current
