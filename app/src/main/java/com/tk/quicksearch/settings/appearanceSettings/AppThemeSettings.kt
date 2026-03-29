@@ -618,7 +618,7 @@ fun WallpaperCard(
                     )
                 }
 
-                if (isWallpaperSourceSelected && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (isWallpaperSourceSelected || isCustomSourceSelected) {
                     SettingsToggleRow(
                             title = stringResource(R.string.settings_wallpaper_accent_title),
                             subtitle = stringResource(R.string.settings_wallpaper_accent_desc),

@@ -39,6 +39,12 @@ object WallpaperUtils {
     private var cachedOverlayCustomUri: String? = null
     @Volatile
     private var cachedOverlayCustomBitmap: Bitmap? = null
+    @Volatile
+    private var cachedWallpaperAppearance: ImageAppearance? = null
+    @Volatile
+    private var cachedOverlayCustomAppearanceUri: String? = null
+    @Volatile
+    private var cachedOverlayCustomAppearance: ImageAppearance? = null
 
     sealed class WallpaperLoadResult {
         data class Success(
@@ -78,6 +84,14 @@ object WallpaperUtils {
      * Returns null if not cached yet.
      */
     fun getCachedWallpaperBitmap(): Bitmap? = cachedBitmap
+
+    /**
+     * Clears the in-memory system wallpaper cache so the next read fetches the latest wallpaper.
+     */
+    fun invalidateWallpaperCache() {
+        cachedBitmap = null
+        cachedWallpaperAppearance = null
+    }
 
     /**
      * Gets the current wallpaper as a Bitmap.
@@ -152,9 +166,28 @@ object WallpaperUtils {
                 }.getOrNull()
             } ?: return null
 
+        if (cachedOverlayCustomUri != normalized) {
+            cachedOverlayCustomAppearanceUri = null
+            cachedOverlayCustomAppearance = null
+        }
         cachedOverlayCustomUri = normalized
         cachedOverlayCustomBitmap = bitmap
         return bitmap.asImageBitmap()
+    }
+
+    suspend fun getBackgroundAppearance(
+        context: Context,
+        backgroundSource: BackgroundSource,
+        customImageUri: String?,
+    ): ImageAppearance? {
+        return when (backgroundSource) {
+            BackgroundSource.SYSTEM_WALLPAPER -> getWallpaperAppearance(context)
+            BackgroundSource.CUSTOM_IMAGE -> {
+                val normalized = customImageUri?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+                getCustomImageAppearance(context, normalized)
+            }
+            BackgroundSource.THEME -> null
+        }
     }
 
     fun getStartupBackgroundPreviewBitmap(
@@ -218,6 +251,47 @@ object WallpaperUtils {
             val wallpaperDrawable = wallpaperManager.drawable
             wallpaperDrawable?.toBitmap()
         }.getOrNull()
+    }
+
+    private suspend fun getWallpaperAppearance(context: Context): ImageAppearance? {
+        cachedWallpaperAppearance?.let { return it }
+        val bitmap = cachedBitmap ?: getWallpaperBitmap(context) ?: return null
+        return withContext(Dispatchers.Default) {
+            ImageAppearanceUtils.analyze(bitmap)
+        }.also { appearance ->
+            cachedWallpaperAppearance = appearance
+        }
+    }
+
+    private suspend fun getCustomImageAppearance(
+        context: Context,
+        normalizedUri: String,
+    ): ImageAppearance? {
+        if (cachedOverlayCustomAppearanceUri == normalizedUri && cachedOverlayCustomAppearance != null) {
+            return cachedOverlayCustomAppearance
+        }
+        val bitmap =
+            if (cachedOverlayCustomUri == normalizedUri && cachedOverlayCustomBitmap != null) {
+                cachedOverlayCustomBitmap
+            } else {
+                withContext(Dispatchers.IO) {
+                    runCatching {
+                        decodeBitmapWithOrientation(context, Uri.parse(normalizedUri))
+                    }.getOrNull()
+                }
+            } ?: return null
+
+        if (cachedOverlayCustomUri != normalizedUri || cachedOverlayCustomBitmap == null) {
+            cachedOverlayCustomUri = normalizedUri
+            cachedOverlayCustomBitmap = bitmap
+        }
+
+        return withContext(Dispatchers.Default) {
+            ImageAppearanceUtils.analyze(bitmap)
+        }.also { appearance ->
+            cachedOverlayCustomAppearanceUri = normalizedUri
+            cachedOverlayCustomAppearance = appearance
+        }
     }
 
     private fun decodeBitmapWithOrientation(

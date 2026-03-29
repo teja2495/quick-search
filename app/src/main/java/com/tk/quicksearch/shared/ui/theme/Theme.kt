@@ -1,17 +1,30 @@
 package com.tk.quicksearch.shared.ui.theme
 
-import android.os.Build
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
+import androidx.core.content.ContextCompat
+import com.google.android.material.color.utilities.CorePalette
+import com.tk.quicksearch.search.core.BackgroundSource
+import com.tk.quicksearch.shared.util.ImageAppearance
+import com.tk.quicksearch.shared.util.WallpaperUtils
 
 // ============================================================================
 // Base Color Schemes
@@ -79,6 +92,78 @@ private fun accentForTheme(appTheme: com.tk.quicksearch.search.core.AppTheme): T
         com.tk.quicksearch.search.core.AppTheme.MONOCHROME -> MonochromeThemeAccent
     }
 
+private data class ImageAccentSlots(
+    val primary: Color,
+    val onPrimary: Color,
+    val secondary: Color,
+    val onSecondary: Color,
+    val tertiary: Color,
+    val onTertiary: Color,
+    val primaryContainer: Color,
+    val onPrimaryContainer: Color,
+    val secondaryContainer: Color,
+    val onSecondaryContainer: Color,
+    val tertiaryContainer: Color,
+    val onTertiaryContainer: Color,
+)
+
+private fun resolveImageAccentSlots(
+    baseColorArgb: Int,
+    useDarkTheme: Boolean,
+): ImageAccentSlots {
+    val palette = CorePalette.of(baseColorArgb)
+    val primaryPalette = palette.a1
+    val secondaryPalette = palette.a2
+    val tertiaryPalette = palette.a3
+
+    val primaryTone = if (useDarkTheme) 80 else 40
+    val onPrimaryTone = if (useDarkTheme) 20 else 100
+    val tertiaryTone = if (useDarkTheme) 80 else 40
+    val onTertiaryTone = if (useDarkTheme) 20 else 100
+    val primaryContainerTone = if (useDarkTheme) 30 else 90
+    val onPrimaryContainerTone = if (useDarkTheme) 90 else 10
+    val secondaryTone = if (useDarkTheme) 80 else 40
+    val onSecondaryTone = if (useDarkTheme) 20 else 100
+    val secondaryContainerTone = if (useDarkTheme) 30 else 90
+    val onSecondaryContainerTone = if (useDarkTheme) 90 else 10
+    val tertiaryContainerTone = if (useDarkTheme) 30 else 90
+    val onTertiaryContainerTone = if (useDarkTheme) 90 else 10
+
+    return ImageAccentSlots(
+        primary = Color(primaryPalette.tone(primaryTone)),
+        onPrimary = Color(primaryPalette.tone(onPrimaryTone)),
+        secondary = Color(secondaryPalette.tone(secondaryTone)),
+        onSecondary = Color(secondaryPalette.tone(onSecondaryTone)),
+        tertiary = Color(tertiaryPalette.tone(tertiaryTone)),
+        onTertiary = Color(tertiaryPalette.tone(onTertiaryTone)),
+        primaryContainer = Color(primaryPalette.tone(primaryContainerTone)),
+        onPrimaryContainer = Color(primaryPalette.tone(onPrimaryContainerTone)),
+        secondaryContainer = Color(secondaryPalette.tone(secondaryContainerTone)),
+        onSecondaryContainer = Color(secondaryPalette.tone(onSecondaryContainerTone)),
+        tertiaryContainer = Color(tertiaryPalette.tone(tertiaryContainerTone)),
+        onTertiaryContainer = Color(tertiaryPalette.tone(onTertiaryContainerTone)),
+    )
+}
+
+private fun withImageAccent(
+    baseScheme: ColorScheme,
+    slots: ImageAccentSlots,
+): ColorScheme =
+    baseScheme.copy(
+        primary = slots.primary,
+        onPrimary = slots.onPrimary,
+        secondary = slots.secondary,
+        onSecondary = slots.onSecondary,
+        tertiary = slots.tertiary,
+        onTertiary = slots.onTertiary,
+        primaryContainer = slots.primaryContainer,
+        onPrimaryContainer = slots.onPrimaryContainer,
+        secondaryContainer = slots.secondaryContainer,
+        onSecondaryContainer = slots.onSecondaryContainer,
+        tertiaryContainer = slots.tertiaryContainer,
+        onTertiaryContainer = slots.onTertiaryContainer,
+    )
+
 // ============================================================================
 // Theme Composable
 // ============================================================================
@@ -87,8 +172,8 @@ private fun accentForTheme(appTheme: com.tk.quicksearch.search.core.AppTheme): T
  * QuickSearch application theme composable.
  *
  * Provides Material 3 color schemes and app-specific semantic color tokens.
- * When [backgroundSource] is [com.tk.quicksearch.search.core.BackgroundSource.SYSTEM_WALLPAPER]
- * and the device runs API 31+, Material You dynamic colors are used automatically.
+ * When image backgrounds are active and wallpaper accent is enabled, accents are derived
+ * directly from the current wallpaper/custom image.
  *
  * @param content The composable content to be themed.
  */
@@ -98,6 +183,7 @@ fun QuickSearchTheme(
     appTheme: com.tk.quicksearch.search.core.AppTheme = com.tk.quicksearch.search.core.AppTheme.MONOCHROME,
     appThemeMode: com.tk.quicksearch.search.core.AppThemeMode = com.tk.quicksearch.search.core.AppThemeMode.SYSTEM,
     backgroundSource: com.tk.quicksearch.search.core.BackgroundSource = com.tk.quicksearch.search.core.BackgroundSource.THEME,
+    customImageUri: String? = null,
     wallpaperAccentEnabled: Boolean = true,
     content: @Composable () -> Unit,
 ) {
@@ -116,54 +202,98 @@ fun QuickSearchTheme(
         com.tk.quicksearch.search.core.AppThemeMode.SYSTEM -> isSystemDarkTheme
     }
     val context = LocalContext.current
-    val useDynamicColors = backgroundSource == com.tk.quicksearch.search.core.BackgroundSource.SYSTEM_WALLPAPER &&
-        wallpaperAccentEnabled &&
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-    val colorScheme = if (useDynamicColors) {
-        // Use only the OS accent colors; keep the rest from the monochrome base scheme
-        // so backgrounds, surfaces, and text remain neutral.
-        val dynamic = if (useDarkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        if (useDarkTheme) {
-            DarkColorScheme.copy(
-                primary = dynamic.primary,
-                onPrimary = dynamic.onPrimary,
-                primaryContainer = dynamic.primaryContainer,
-                onPrimaryContainer = dynamic.onPrimaryContainer,
-                secondaryContainer = dynamic.secondaryContainer,
-                onSecondaryContainer = dynamic.onSecondaryContainer,
-            )
+    val useImageDerivedAccent =
+        wallpaperAccentEnabled && backgroundSource != BackgroundSource.THEME
+
+    var wallpaperChangeVersion by remember { mutableIntStateOf(0) }
+    DisposableEffect(context, backgroundSource, wallpaperAccentEnabled) {
+        if (!useImageDerivedAccent || backgroundSource != BackgroundSource.SYSTEM_WALLPAPER) {
+            onDispose { }
         } else {
-            LightColorScheme.copy(
-                primary = dynamic.primary,
-                onPrimary = dynamic.onPrimary,
-                primaryContainer = dynamic.primaryContainer,
-                onPrimaryContainer = dynamic.onPrimaryContainer,
-                secondaryContainer = dynamic.secondaryContainer,
-                onSecondaryContainer = dynamic.onSecondaryContainer,
+            val appContext = context.applicationContext
+            @Suppress("DEPRECATION")
+            val wallpaperChangedAction = Intent.ACTION_WALLPAPER_CHANGED
+            val receiver =
+                object : BroadcastReceiver() {
+                    override fun onReceive(
+                        context: Context?,
+                        intent: Intent?,
+                    ) {
+                        if (intent?.action != wallpaperChangedAction) return
+                        WallpaperUtils.invalidateWallpaperCache()
+                        wallpaperChangeVersion++
+                    }
+                }
+            val filter = IntentFilter(wallpaperChangedAction)
+            ContextCompat.registerReceiver(
+                appContext,
+                receiver,
+                filter,
+                ContextCompat.RECEIVER_NOT_EXPORTED,
             )
-        }
-    } else {
-        val accent = accentForTheme(appTheme)
-        if (useDarkTheme) {
-            DarkColorScheme.copy(
-                primary = accent.darkPrimary,
-                onPrimary = accent.darkOnPrimary,
-                primaryContainer = accent.darkPrimaryContainer,
-                onPrimaryContainer = accent.darkOnPrimaryContainer,
-                secondaryContainer = accent.darkSecondaryContainer,
-                onSecondaryContainer = accent.darkOnSecondaryContainer,
-            )
-        } else {
-            LightColorScheme.copy(
-                primary = accent.lightPrimary,
-                onPrimary = accent.lightOnPrimary,
-                primaryContainer = accent.lightPrimaryContainer,
-                onPrimaryContainer = accent.lightOnPrimaryContainer,
-                secondaryContainer = accent.lightSecondaryContainer,
-                onSecondaryContainer = accent.lightOnSecondaryContainer,
-            )
+            onDispose {
+                appContext.unregisterReceiver(receiver)
+            }
         }
     }
+
+    val imageAppearance by
+        produceState<ImageAppearance?>(
+            null,
+            backgroundSource,
+            customImageUri,
+            wallpaperAccentEnabled,
+            wallpaperChangeVersion,
+        ) {
+            value =
+                if (useImageDerivedAccent) {
+                    WallpaperUtils.getBackgroundAppearance(
+                        context = context,
+                        backgroundSource = backgroundSource,
+                        customImageUri = customImageUri,
+                    )
+                } else {
+                    null
+                }
+        }
+
+    val imageAccentSlots =
+        imageAppearance?.let { appearance ->
+            resolveImageAccentSlots(
+                baseColorArgb = appearance.accentColorArgb,
+                useDarkTheme = useDarkTheme,
+            )
+        }
+
+    val colorScheme =
+        if (imageAccentSlots != null) {
+            if (useDarkTheme) {
+                withImageAccent(DarkColorScheme, imageAccentSlots)
+            } else {
+                withImageAccent(LightColorScheme, imageAccentSlots)
+            }
+        } else {
+            val accent = accentForTheme(appTheme)
+            if (useDarkTheme) {
+                DarkColorScheme.copy(
+                    primary = accent.darkPrimary,
+                    onPrimary = accent.darkOnPrimary,
+                    primaryContainer = accent.darkPrimaryContainer,
+                    onPrimaryContainer = accent.darkOnPrimaryContainer,
+                    secondaryContainer = accent.darkSecondaryContainer,
+                    onSecondaryContainer = accent.darkOnSecondaryContainer,
+                )
+            } else {
+                LightColorScheme.copy(
+                    primary = accent.lightPrimary,
+                    onPrimary = accent.lightOnPrimary,
+                    primaryContainer = accent.lightPrimaryContainer,
+                    onPrimaryContainer = accent.lightOnPrimaryContainer,
+                    secondaryContainer = accent.lightSecondaryContainer,
+                    onSecondaryContainer = accent.lightOnSecondaryContainer,
+                )
+            }
+        }
     val appPalette =
         if (useDarkTheme) {
             DarkQuickSearchAppColorPalette
@@ -176,7 +306,7 @@ fun QuickSearchTheme(
         LocalQuickSearchAppColorPalette provides appPalette,
         LocalAppIsDarkTheme provides useDarkTheme,
         LocalAppTheme provides appTheme,
-        LocalWallpaperDynamicAccentActive provides useDynamicColors,
+        LocalWallpaperDynamicAccentActive provides (imageAccentSlots != null),
     ) {
         MaterialTheme(
             colorScheme = colorScheme,

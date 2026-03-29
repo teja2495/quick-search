@@ -130,6 +130,9 @@ class OverlayActivity : ComponentActivity() {
                 fontScaleMultiplier = uiState.fontScaleMultiplier,
                 appTheme = uiState.appTheme,
                 appThemeMode = uiState.appThemeMode,
+                backgroundSource = uiState.backgroundSource,
+                customImageUri = uiState.customImageUri,
+                wallpaperAccentEnabled = uiState.wallpaperAccentEnabled,
             ) {
                 Box(
                     modifier = Modifier.fillMaxSize().background(Color.Transparent),

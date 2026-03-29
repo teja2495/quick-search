@@ -365,7 +365,7 @@
     <string name="settings_app_theme_sunset">Sunset</string>
     <string name="settings_app_theme_monochrome">Mono</string>
     <string name="settings_wallpaper_accent_title">Accent Colors</string>
-    <string name="settings_wallpaper_accent_desc">Derive accent colors from wallpaper</string>
+    <string name="settings_wallpaper_accent_desc">Derive accent colors from background image</string>
     <string name="settings_overlay_theme_tone_lighter">Lighter</string>
     <string name="settings_overlay_theme_tone_darker">Darker</string>
     <string name="settings_overlay_source_wallpaper">Wallpaper</string>

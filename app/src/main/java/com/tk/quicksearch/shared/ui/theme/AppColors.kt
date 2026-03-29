@@ -132,8 +132,8 @@ val LocalAppIsDarkTheme = staticCompositionLocalOf { true }
 val LocalAppTheme = staticCompositionLocalOf { com.tk.quicksearch.search.core.AppTheme.MONOCHROME }
 
 /**
- * True when [QuickSearchTheme] applies Material You primary colors from the system wallpaper
- * (wallpaper background + wallpaper accent enabled on API 31+).
+ * True when [QuickSearchTheme] applies an image-derived accent (from wallpaper/custom image)
+ * to the Material primary slots.
  */
 internal val LocalWallpaperDynamicAccentActive = staticCompositionLocalOf { false }
 
@@ -192,8 +192,8 @@ object AppColors {
      *
      * In monochrome mode the primary accent is grey/black, which doesn't signal interactivity.
      * This token overrides to a recognisable blue in monochrome so links remain distinguishable,
-     * unless Material You wallpaper accent is active — then [MaterialTheme.colorScheme.primary]
-     * is already the wallpaper accent and is used here.
+     * unless image-derived accent is active — then [MaterialTheme.colorScheme.primary]
+     * already reflects the current background image accent and is used here.
      */
     val LinkColor: Color
         @Composable

@@ -1,5 +1,9 @@
 package com.tk.quicksearch.overlay
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import androidx.compose.animation.animateContentSize
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
@@ -19,9 +23,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -41,6 +47,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.tk.quicksearch.app.navigation.SettingsNavigationMemory
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.AppTheme
@@ -106,6 +113,34 @@ fun OverlayRoot(
         var overlayManualNumberKeyboard by remember { mutableStateOf(false) }
         var overlayImeVisible by remember { mutableStateOf(false) }
         var overlayOperatorRowHeightPx by remember { mutableStateOf(0) }
+        var wallpaperChangeVersion by remember { mutableIntStateOf(0) }
+
+        DisposableEffect(context) {
+                val appContext = context.applicationContext
+                @Suppress("DEPRECATION")
+                val wallpaperChangedAction = Intent.ACTION_WALLPAPER_CHANGED
+                val receiver =
+                        object : BroadcastReceiver() {
+                                override fun onReceive(
+                                        context: Context?,
+                                        intent: Intent?,
+                                ) {
+                                        if (intent?.action != wallpaperChangedAction) return
+                                        WallpaperUtils.invalidateWallpaperCache()
+                                        wallpaperChangeVersion++
+                                }
+                        }
+                val filter = IntentFilter(wallpaperChangedAction)
+                ContextCompat.registerReceiver(
+                        appContext,
+                        receiver,
+                        filter,
+                        ContextCompat.RECEIVER_NOT_EXPORTED,
+                )
+                onDispose {
+                        appContext.unregisterReceiver(receiver)
+                }
+        }
 
         BoxWithConstraints(
                         modifier =
@@ -177,6 +212,7 @@ fun OverlayRoot(
                                 produceState<ImageBitmap?>(
                                         initialValue = null,
                                         key1 = uiState.backgroundSource,
+                                        key2 = wallpaperChangeVersion,
                                 ) {
                                         value =
                                                 if (

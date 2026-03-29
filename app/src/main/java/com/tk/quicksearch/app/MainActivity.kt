@@ -228,6 +228,7 @@ class MainActivity : ComponentActivity() {
                 appTheme = uiState.appTheme,
                 appThemeMode = uiState.appThemeMode,
                 backgroundSource = uiState.backgroundSource,
+                customImageUri = uiState.customImageUri,
                 wallpaperAccentEnabled = uiState.wallpaperAccentEnabled,
             ) {
                 Box(
