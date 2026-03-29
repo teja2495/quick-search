@@ -29,7 +29,6 @@ import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.LightMode
 import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -300,23 +299,15 @@ fun AppThemeCard(
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                Row(
-                        modifier =
-                                Modifier.fillMaxWidth()
-                                        .clickable { onThemedIconsToggle(!themedIconsEnabled) },
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                ) {
-                    Checkbox(
-                            checked = themedIconsEnabled,
-                            onCheckedChange = onThemedIconsToggle,
-                    )
-                    Text(
-                            text = stringResource(R.string.settings_themed_icons_title),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+                SettingsToggleRow(
+                        title = stringResource(R.string.settings_themed_icons_title),
+                        subtitle = stringResource(R.string.settings_themed_icons_desc),
+                        checked = themedIconsEnabled,
+                        onCheckedChange = onThemedIconsToggle,
+                        horizontalPadding = DesignTokens.SpacingSmall,
+                        isLastItem = true,
+                        showDivider = false,
+                )
             }
         }
     }
