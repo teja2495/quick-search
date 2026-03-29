@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -66,8 +67,8 @@ fun SearchEngines(
     directSearchSetupExpanded: Boolean = true,
     onToggleDirectSearchSetupExpanded: (() -> Unit)? = null,
     showAddSearchEngineButton: Boolean = true,
-    onAddCustomSearchEngine: ((String, String, String) -> Unit)? = null,
-    onUpdateCustomSearchEngine: ((String, String, String, String?) -> Unit)? = null,
+    onAddCustomSearchEngine: ((String, String, String, String?) -> Unit)? = null,
+    onUpdateCustomSearchEngine: ((String, String, String, String?, String?) -> Unit)? = null,
     onDeleteCustomSearchEngine: ((String) -> Unit)? = null,
     showDirectSearchAtTop: Boolean = false,
     modifier: Modifier = Modifier,
@@ -214,6 +215,7 @@ private fun SearchEngineAliasSuffixCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Checkbox(
+                    modifier = Modifier.scale(0.85f),
                     checked = triggerAfterSpaceEnabled,
                     onCheckedChange = null,
                 )

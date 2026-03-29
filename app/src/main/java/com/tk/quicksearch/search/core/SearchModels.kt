@@ -58,6 +58,7 @@ data class CustomSearchEngine(
         val name: String,
         val urlTemplate: String,
         val faviconBase64: String? = null,
+        val browserPackage: String? = null,
 )
 
 sealed class SearchTarget {

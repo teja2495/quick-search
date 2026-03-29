@@ -284,6 +284,7 @@ internal fun createSearchTargetShortcutIntent(
                 targetType = SearchTargetQueryShortcutActivity.TARGET_TYPE_CUSTOM,
                 query = query,
                 customUrlTemplate = target.custom.urlTemplate,
+                customBrowserPackage = target.custom.browserPackage,
             )
         }
     }

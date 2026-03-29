@@ -35,10 +35,7 @@ fun EditableIcon(
         modifier =
             modifier
                 .size(52.dp)
-                .background(
-                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    shape = RoundedCornerShape(14.dp),
-                ).border(
+                .border(
                     width = 1.25.dp,
                     color = AppColors.SettingsDivider,
                     shape = RoundedCornerShape(14.dp),

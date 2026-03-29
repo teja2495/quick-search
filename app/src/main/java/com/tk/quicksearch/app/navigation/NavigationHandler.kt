@@ -179,6 +179,7 @@ class NavigationHandler(
                     application,
                     trimmedQuery,
                     target.custom.urlTemplate,
+                    target.custom.browserPackage,
                 ) { stringResId, _ -> showToastCallback(stringResId) }
 
                 onClearQuery()

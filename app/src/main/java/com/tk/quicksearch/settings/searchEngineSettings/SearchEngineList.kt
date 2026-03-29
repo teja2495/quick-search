@@ -81,10 +81,13 @@ fun SearchEngineListCard(
     amazonDomain: String? = null,
     onSetAmazonDomain: ((String?) -> Unit)? = null,
     showAddSearchEngineButton: Boolean = true,
-    onAddCustomSearchEngine: ((String, String, String) -> Unit)? = null,
-    onUpdateCustomSearchEngine: ((String, String, String, String?) -> Unit)? = null,
+    onAddCustomSearchEngine: ((String, String, String, String?) -> Unit)? = null,
+    onUpdateCustomSearchEngine: ((String, String, String, String?, String?) -> Unit)? = null,
     onDeleteCustomSearchEngine: ((String) -> Unit)? = null,
 ) {
+    val availableBrowsers = remember(searchEngineOrder) {
+        searchEngineOrder.filterIsInstance<SearchTarget.Browser>().map { it.app }
+    }
     var showAddSearchEngineDialog by remember { mutableStateOf(false) }
     var customEngineToEdit by remember { mutableStateOf<CustomSearchEngine?>(null) }
     var localDisabledSectionExpanded by remember { mutableStateOf(disabledSearchEnginesExpanded) }
@@ -97,8 +100,9 @@ fun SearchEngineListCard(
 
     if (showAddSearchEngineDialog && onAddCustomSearchEngine != null) {
         AddSearchEngineDialog(
-            onSave = { name, normalizedTemplate, faviconBase64 ->
-                onAddCustomSearchEngine(name, normalizedTemplate, faviconBase64)
+            availableBrowsers = availableBrowsers,
+            onSave = { name, normalizedTemplate, faviconBase64, browserPackage ->
+                onAddCustomSearchEngine(name, normalizedTemplate, faviconBase64, browserPackage)
                 showAddSearchEngineDialog = false
             },
             onDismiss = { showAddSearchEngineDialog = false },
@@ -113,9 +117,10 @@ fun SearchEngineListCard(
             customEngine = customEngineToEdit!!,
             existingShortcuts = shortcutCodes,
             currentShortcutCode = shortcutCodes["custom:${customEngineToEdit!!.id}"].orEmpty(),
-            onSave = { name, normalizedTemplate, shortcutCode, iconBase64 ->
+            availableBrowsers = availableBrowsers,
+            onSave = { name, normalizedTemplate, shortcutCode, iconBase64, browserPackage ->
                 val editingEngine = customEngineToEdit!!
-                onUpdateCustomSearchEngine(editingEngine.id, name, normalizedTemplate, iconBase64)
+                onUpdateCustomSearchEngine(editingEngine.id, name, normalizedTemplate, iconBase64, browserPackage)
                 setAliasCode?.invoke(SearchTarget.Custom(editingEngine), shortcutCode)
                 setAliasEnabled?.invoke(SearchTarget.Custom(editingEngine), true)
                 customEngineToEdit = null

@@ -426,6 +426,8 @@
     <string name="settings_edit_search_engine_dialog_title">Edit Search Engine</string>
     <string name="settings_edit_search_engine_name_label">Name</string>
     <string name="settings_edit_search_engine_url_label">URL</string>
+    <string name="settings_search_engine_browser_label">Open in</string>
+    <string name="settings_search_engine_browser_default">Default Browser</string>
     <string name="dialog_delete">Delete</string>
     <string name="settings_search_engines_more_title">More</string>
     <string name="settings_search_engines_more_search_engines">More Search Engines</string>

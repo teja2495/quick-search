@@ -214,9 +214,14 @@ internal object SearchIntents {
         context: Application,
         query: String,
         urlTemplate: String,
+        browserPackage: String? = null,
         onShowToast: ((Int, String?) -> Unit)? = null,
     ) {
         val rawUrl = buildCustomSearchUrl(query, urlTemplate)
+        if (!browserPackage.isNullOrBlank()) {
+            openBrowserUrl(context, rawUrl, browserPackage, onShowToast)
+            return
+        }
         val url = normalizeToBrowsableUrl(rawUrl) ?: rawUrl
         val intent =
             Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {

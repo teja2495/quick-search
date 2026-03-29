@@ -9,13 +9,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Delete
-import com.tk.quicksearch.shared.ui.components.AppAlertDialog
+import com.tk.quicksearch.shared.ui.components.AppBottomSheet
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
@@ -44,13 +51,15 @@ import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
 import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
 import com.tk.quicksearch.shared.util.withoutWhitespaces
+import kotlinx.coroutines.launch
 
 @Composable
 fun EditCustomSearchEngineDialog(
     customEngine: CustomSearchEngine,
     existingShortcuts: Map<String, String>,
     currentShortcutCode: String,
-    onSave: (String, String, String, String?) -> Unit,
+    availableBrowsers: List<com.tk.quicksearch.search.core.BrowserApp> = emptyList(),
+    onSave: (String, String, String, String?, String?) -> Unit,
     onDelete: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -64,6 +73,7 @@ fun EditCustomSearchEngineDialog(
         )
     }
     var iconBase64 by remember(customEngine.id) { mutableStateOf(customEngine.faviconBase64) }
+    var selectedBrowserPackage by remember(customEngine.id) { mutableStateOf(customEngine.browserPackage) }
 
     val pickIconLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -117,33 +127,50 @@ fun EditCustomSearchEngineDialog(
             BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
         }
 
-    AppAlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-            ) {
-                Text(text = stringResource(R.string.settings_edit_search_engine_dialog_title))
-                IconButton(onClick = onDelete) {
-                    Icon(
-                        imageVector = Icons.Rounded.Delete,
-                        contentDescription = stringResource(R.string.dialog_delete),
-                        tint = MaterialTheme.colorScheme.error,
-                    )
-                }
-            }
-        },
-        text = {
+    val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
+
+    AppBottomSheet(onDismissRequest = onDismiss, swipeToDismissEnabled = false) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .imePadding(),
+        ) {
+            // Scrollable form content
             Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f, fill = false)
+                    .verticalScroll(scrollState)
+                    .padding(
+                        horizontal = DesignTokens.ContentHorizontalPadding,
+                        vertical = DesignTokens.SpacingLarge,
+                    ),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = stringResource(R.string.settings_edit_search_engine_dialog_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    IconButton(onClick = onDelete) {
+                        Icon(
+                            imageVector = Icons.Rounded.Delete,
+                            contentDescription = stringResource(R.string.dialog_delete),
+                            tint = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     EditableIcon(
                         iconBitmap = iconBitmap,
@@ -168,6 +195,7 @@ fun EditCustomSearchEngineDialog(
                         colors = dialogTextFieldColors(),
                     )
                 }
+
                 OutlinedTextField(
                     value = urlInput,
                     onValueChange = { urlInput = it.withoutWhitespaces() },
@@ -181,7 +209,7 @@ fun EditCustomSearchEngineDialog(
                         KeyboardActions(
                             onDone = {
                                 if (canSave) {
-                                    onSave(trimmedName, validTemplate!!, normalizedShortcut, iconBase64)
+                                    onSave(trimmedName, validTemplate!!, normalizedShortcut, iconBase64, selectedBrowserPackage)
                                     onDismiss()
                                 }
                             },
@@ -220,7 +248,7 @@ fun EditCustomSearchEngineDialog(
                         KeyboardActions(
                             onDone = {
                                 if (canSave) {
-                                    onSave(trimmedName, validTemplate!!, normalizedShortcut, iconBase64)
+                                    onSave(trimmedName, validTemplate!!, normalizedShortcut, iconBase64, selectedBrowserPackage)
                                     onDismiss()
                                 }
                             },
@@ -238,25 +266,41 @@ fun EditCustomSearchEngineDialog(
                     },
                     colors = dialogTextFieldColors(),
                 )
+
+                BrowserPickerField(
+                    availableBrowsers = availableBrowsers,
+                    selectedPackage = selectedBrowserPackage,
+                    onSelect = { selectedBrowserPackage = it },
+                    onExpand = { coroutineScope.launch { scrollState.animateScrollTo(Int.MAX_VALUE) } },
+                )
             }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    if (canSave) {
-                        onSave(trimmedName, validTemplate!!, normalizedShortcut, iconBase64)
-                        onDismiss()
-                    }
-                },
-                enabled = canSave,
+
+            // Pinned action buttons — always visible above keyboard
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = DesignTokens.ContentHorizontalPadding,
+                        vertical = DesignTokens.SpacingMedium,
+                    ),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(text = stringResource(R.string.dialog_save))
+                TextButton(onClick = onDismiss) {
+                    Text(text = stringResource(R.string.dialog_cancel))
+                }
+                Button(
+                    onClick = {
+                        if (canSave) {
+                            onSave(trimmedName, validTemplate!!, normalizedShortcut, iconBase64, selectedBrowserPackage)
+                            onDismiss()
+                        }
+                    },
+                    enabled = canSave,
+                ) {
+                    Text(text = stringResource(R.string.dialog_save))
+                }
             }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.dialog_cancel))
-            }
-        },
-    )
+        }
+    }
 }

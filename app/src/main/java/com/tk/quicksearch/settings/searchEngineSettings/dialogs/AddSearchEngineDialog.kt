@@ -8,14 +8,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import com.tk.quicksearch.shared.ui.components.AppAlertDialog
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.rememberCoroutineScope
+import com.tk.quicksearch.shared.ui.components.AppBottomSheet
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -28,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -47,11 +54,14 @@ import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.searchEngines.*
 import com.tk.quicksearch.shared.util.withoutWhitespaces
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
 fun AddSearchEngineDialog(
-    onSave: (String, String, String) -> Unit,
+    availableBrowsers: List<com.tk.quicksearch.search.core.BrowserApp> = emptyList(),
+    onSave: (String, String, String, String?) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -72,6 +82,7 @@ fun AddSearchEngineDialog(
         )
     }
     var iconBase64 by remember { mutableStateOf<String?>(null) }
+    var selectedBrowserPackage by remember { mutableStateOf<String?>(null) }
     var isEditingName by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
     val nameFocusRequester = remember { FocusRequester() }
@@ -87,7 +98,9 @@ fun AddSearchEngineDialog(
             iconBase64 = encoded
         }
 
+    // Delay focus so the sheet finishes its expand animation before the keyboard appears
     LaunchedEffect(Unit) {
+        delay(500)
         focusRequester.requestFocus()
     }
 
@@ -134,21 +147,38 @@ fun AddSearchEngineDialog(
             BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
         }
 
-    AppAlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(text = stringResource(R.string.settings_add_search_engine_dialog_title))
-        },
-        text = {
+    val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
+
+    AppBottomSheet(onDismissRequest = onDismiss, swipeToDismissEnabled = false) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .imePadding(),
+        ) {
+            // Scrollable form content
             Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f, fill = false)
+                    .verticalScroll(scrollState)
+                    .padding(
+                        horizontal = DesignTokens.ContentHorizontalPadding,
+                        vertical = DesignTokens.SpacingLarge,
+                    ),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
             ) {
+                Text(
+                    text = stringResource(R.string.settings_add_search_engine_dialog_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+
                 if (validTemplate != null) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         EditableIcon(
                             iconBitmap = iconBitmap,
@@ -208,7 +238,7 @@ fun AddSearchEngineDialog(
                         KeyboardActions(
                             onDone = {
                                 if (canSave) {
-                                    onSave(trimmedName, validTemplate!!, iconBase64.orEmpty())
+                                    onSave(trimmedName, validTemplate!!, iconBase64.orEmpty(), selectedBrowserPackage)
                                     onDismiss()
                                 }
                             },
@@ -288,27 +318,44 @@ fun AddSearchEngineDialog(
                             }
                         }
                     }
+                }
 
+                if (validTemplate != null) {
+                    BrowserPickerField(
+                        availableBrowsers = availableBrowsers,
+                        selectedPackage = selectedBrowserPackage,
+                        onSelect = { selectedBrowserPackage = it },
+                        onExpand = { coroutineScope.launch { scrollState.animateScrollTo(Int.MAX_VALUE) } },
+                    )
                 }
             }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    if (canSave) {
-                        onSave(trimmedName, validTemplate!!, iconBase64.orEmpty())
-                        onDismiss()
-                    }
-                },
-                enabled = canSave,
+
+            // Pinned action buttons — always visible above keyboard
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = DesignTokens.ContentHorizontalPadding,
+                        vertical = DesignTokens.SpacingMedium,
+                    ),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(text = stringResource(R.string.dialog_save))
+                TextButton(onClick = onDismiss) {
+                    Text(text = stringResource(R.string.dialog_cancel))
+                }
+                Button(
+                    onClick = {
+                        if (canSave) {
+                            onSave(trimmedName, validTemplate!!, iconBase64.orEmpty(), selectedBrowserPackage)
+                            onDismiss()
+                        }
+                    },
+                    enabled = canSave,
+                ) {
+                    Text(text = stringResource(R.string.dialog_save))
+                }
             }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.dialog_cancel))
-            }
-        },
-    )
+        }
+    }
 }

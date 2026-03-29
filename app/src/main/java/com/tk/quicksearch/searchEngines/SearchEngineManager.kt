@@ -137,6 +137,7 @@ class SearchEngineManager(
         name: String,
         normalizedTemplate: String,
         faviconBase64: String,
+        browserPackage: String? = null,
     ) {
         scope.launch(Dispatchers.IO) {
             ensureInitialized()
@@ -153,7 +154,7 @@ class SearchEngineManager(
                     name = trimmedName,
                     normalizedTemplate = normalizedTemplate,
                     faviconBase64 = resolvedFavicon.ifBlank { null },
-                ) ?: return@launch
+                )?.copy(browserPackage = browserPackage) ?: return@launch
 
             if (customSearchEngines.any { it.id == customEngine.id }) {
                 return@launch
@@ -183,6 +184,7 @@ class SearchEngineManager(
         name: String,
         urlTemplateInput: String,
         faviconBase64: String?,
+        browserPackage: String? = null,
     ) {
         scope.launch(Dispatchers.IO) {
             ensureInitialized()
@@ -201,6 +203,7 @@ class SearchEngineManager(
                     name = trimmedName,
                     urlTemplate = normalizedTemplate,
                     faviconBase64 = faviconBase64,
+                    browserPackage = browserPackage,
                 )
 
             customSearchEngines =

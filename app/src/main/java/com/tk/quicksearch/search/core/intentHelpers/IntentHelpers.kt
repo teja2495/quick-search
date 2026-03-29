@@ -84,9 +84,10 @@ object IntentHelpers {
         context: Application,
         query: String,
         urlTemplate: String,
+        browserPackage: String? = null,
         onShowToast: ((Int, String?) -> Unit)? = null,
     ) {
-        SearchIntents.openCustomSearchUrl(context, query, urlTemplate, onShowToast)
+        SearchIntents.openCustomSearchUrl(context, query, urlTemplate, browserPackage, onShowToast)
     }
 
     /** Opens the folder containing the file, or the folder itself if it is a directory. */

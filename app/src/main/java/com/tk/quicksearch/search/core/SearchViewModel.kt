@@ -3543,19 +3543,22 @@ class SearchViewModel(
             name: String,
             normalizedTemplate: String,
             faviconBase64: String,
-    ) = searchEngineManager.addCustomSearchEngine(name, normalizedTemplate, faviconBase64)
+            browserPackage: String? = null,
+    ) = searchEngineManager.addCustomSearchEngine(name, normalizedTemplate, faviconBase64, browserPackage)
 
     fun updateCustomSearchEngine(
             customId: String,
             name: String,
             urlTemplateInput: String,
             faviconBase64: String?,
+            browserPackage: String? = null,
     ) =
             searchEngineManager.updateCustomSearchEngine(
                     customId,
                     name,
                     urlTemplateInput,
-                    faviconBase64
+                    faviconBase64,
+                    browserPackage,
             )
 
     fun deleteCustomSearchEngine(customId: String) =

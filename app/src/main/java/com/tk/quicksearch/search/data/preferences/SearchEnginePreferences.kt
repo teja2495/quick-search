@@ -98,6 +98,7 @@ class SearchEnginePreferences(
                             name = name,
                             urlTemplate = urlTemplate,
                             faviconBase64 = item.optString("faviconBase64").ifBlank { null },
+                            browserPackage = item.optString("browserPackage").ifBlank { null },
                         ),
                     )
                 }
@@ -114,6 +115,7 @@ class SearchEnginePreferences(
                     put("name", engine.name)
                     put("urlTemplate", engine.urlTemplate)
                     put("faviconBase64", engine.faviconBase64 ?: "")
+                    put("browserPackage", engine.browserPackage ?: "")
                 }
             array.put(item)
         }

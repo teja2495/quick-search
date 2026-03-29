@@ -98,10 +98,11 @@ class SearchTargetQueryShortcutActivity : ComponentActivity() {
             TARGET_TYPE_CUSTOM -> {
                 val urlTemplate = intent.getStringExtra(EXTRA_CUSTOM_URL_TEMPLATE).orEmpty()
                 if (urlTemplate.isBlank()) return
+                val customBrowserPackage = intent.getStringExtra(EXTRA_CUSTOM_BROWSER_PACKAGE)?.ifBlank { null }
                 if (shouldAddQueryToHistory) {
                     userPreferences.addRecentItem(RecentSearchEntry.Query(query))
                 }
-                IntentHelpers.openCustomSearchUrl(app, query, urlTemplate, ::showToastMessage)
+                IntentHelpers.openCustomSearchUrl(app, query, urlTemplate, customBrowserPackage, ::showToastMessage)
             }
         }
     }
@@ -124,6 +125,7 @@ class SearchTargetQueryShortcutActivity : ComponentActivity() {
         const val EXTRA_BROWSER_PACKAGE = "com.tk.quicksearch.extra.SHORTCUT_BROWSER_PACKAGE"
         const val EXTRA_BROWSER_SHORTCUT_MODE = "com.tk.quicksearch.extra.SHORTCUT_BROWSER_SHORTCUT_MODE"
         const val EXTRA_CUSTOM_URL_TEMPLATE = "com.tk.quicksearch.extra.SHORTCUT_CUSTOM_URL_TEMPLATE"
+        const val EXTRA_CUSTOM_BROWSER_PACKAGE = "com.tk.quicksearch.extra.SHORTCUT_CUSTOM_BROWSER_PACKAGE"
         const val EXTRA_SKIP_QUERY_HISTORY = "com.tk.quicksearch.extra.SKIP_SHORTCUT_QUERY_HISTORY"
 
         const val TARGET_TYPE_ENGINE = "engine"
@@ -138,6 +140,7 @@ class SearchTargetQueryShortcutActivity : ComponentActivity() {
             browserPackage: String? = null,
             browserShortcutMode: String? = null,
             customUrlTemplate: String? = null,
+            customBrowserPackage: String? = null,
         ): Intent =
             Intent(context, SearchTargetQueryShortcutActivity::class.java).apply {
                 action = ACTION_LAUNCH_SEARCH_TARGET_QUERY_SHORTCUT
@@ -147,6 +150,7 @@ class SearchTargetQueryShortcutActivity : ComponentActivity() {
                 putExtra(EXTRA_BROWSER_PACKAGE, browserPackage)
                 putExtra(EXTRA_BROWSER_SHORTCUT_MODE, browserShortcutMode)
                 putExtra(EXTRA_CUSTOM_URL_TEMPLATE, customUrlTemplate)
+                putExtra(EXTRA_CUSTOM_BROWSER_PACKAGE, customBrowserPackage)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
     }
