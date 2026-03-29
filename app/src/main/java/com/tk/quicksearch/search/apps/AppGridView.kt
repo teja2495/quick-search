@@ -2,13 +2,10 @@ package com.tk.quicksearch.search.apps
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -77,6 +74,9 @@ private const val TopResultIndicatorBackgroundAlpha = 0.12f
 private const val TopResultIndicatorBorderAlpha = 0.35f
 private const val LightWallpaperAppIconShadowAmbientAlpha = 0.28f
 private const val LightWallpaperAppIconShadowSpotAlpha = 0.45f
+private const val APP_GRID_FADE_IN_DURATION_MS = 140
+private const val APP_GRID_FADE_OUT_DURATION_MS = 100
+private const val APP_GRID_FADE_IN_DELAY_MS = 70
 private enum class AppIconDisplayMode {
     OVERLAY,
     REGULAR,
@@ -165,8 +165,19 @@ fun AppGridView(
             verticalArrangement = Arrangement.spacedBy(AppGridRowSpacing),
     ) {
         val showAppGrid = apps.isNotEmpty() && areAppIconsLoaded
-        if (isSearching) {
-            if (showAppGrid) {
+        AnimatedVisibility(
+                visible = showAppGrid,
+                enter =
+                        fadeIn(
+                                animationSpec =
+                                        tween(
+                                                durationMillis = APP_GRID_FADE_IN_DURATION_MS,
+                                                delayMillis = APP_GRID_FADE_IN_DELAY_MS,
+                                        ),
+                        ),
+                exit = fadeOut(animationSpec = tween(durationMillis = APP_GRID_FADE_OUT_DURATION_MS)),
+        ) {
+            if (isSearching) {
                 AppGrid(
                         apps = apps,
                         isSearching = isSearching,
@@ -191,25 +202,7 @@ fun AppGridView(
                         themedIconsEnabled = themedIconsEnabled,
                         showWallpaperBackground = showWallpaperBackground,
                 )
-            }
-        } else {
-            val appGridVisibilityState = remember { MutableTransitionState(false) }
-            appGridVisibilityState.targetState = showAppGrid
-            AnimatedVisibility(
-                    visibleState = appGridVisibilityState,
-                    enter =
-                            fadeIn(animationSpec = tween(durationMillis = 200)) +
-                                    slideInVertically(
-                                            animationSpec =
-                                                    tween(durationMillis = 260),
-                                            initialOffsetY = { it / 10 },
-                                    ) +
-                                    scaleIn(
-                                            animationSpec = tween(durationMillis = 220),
-                                            initialScale = 0.98f,
-                                    ),
-                    exit = fadeOut(animationSpec = tween(durationMillis = 120)),
-            ) {
+            } else {
                 AppGrid(
                         apps = apps,
                         isSearching = isSearching,
@@ -537,7 +530,7 @@ private fun AppIconSurface(
 ) {
     val view = LocalView.current
     val useLightWallpaperShadow = showWallpaperBackground && !LocalAppIsDarkTheme.current
-    val showThemedIcon = themedIconsEnabled && monochromeData != null && !hasCustomIconPack &&
+    val showThemedIcon = themedIconsEnabled && !hasCustomIconPack &&
             android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU
     // Material 3-compliant themed icon roles: container/content pair from the active color scheme.
     // For wallpaper/custom-image backgrounds, the scheme itself is already image-derived.
@@ -548,7 +541,7 @@ private fun AppIconSurface(
     val themedIconContainerShape = if (appIconShape == AppIconShape.CIRCLE) {
         CircleShape
     } else {
-        DesignTokens.ShapeXLarge
+        DesignTokens.ShapeLarge
     }
 
     Surface(
@@ -614,7 +607,7 @@ private fun AppIconSurface(
                         when {
                             appIconShape == AppIconShape.CIRCLE -> CircleShape
                             iconIsLegacy -> DesignTokens.ShapeLarge
-                            else -> DesignTokens.ShapeXLarge
+                            else -> DesignTokens.ShapeLarge
                         }
                 Image(
                         bitmap = iconBitmap,

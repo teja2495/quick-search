@@ -1,10 +1,13 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -459,7 +462,21 @@ fun ContentLayout(
                 ItemPriorityConfig.ItemType.WEB_SUGGESTIONS -> {
                     val allowWebSuggestions =
                         !hideResults || state.detectedShortcutTarget != null
-                    if (allowWebSuggestions && hasQuery && showWebSuggestions) {
+                    AnimatedVisibility(
+                        visible = allowWebSuggestions && hasQuery && showWebSuggestions,
+                        enter =
+                            fadeIn(animationSpec = tween(durationMillis = 150, delayMillis = 80)) +
+                                expandVertically(
+                                    animationSpec = tween(durationMillis = 200, delayMillis = 80),
+                                    expandFrom = Alignment.Top,
+                                ),
+                        exit =
+                            fadeOut(animationSpec = tween(durationMillis = 90)) +
+                                shrinkVertically(
+                                    animationSpec = tween(durationMillis = 150),
+                                    shrinkTowards = Alignment.Top,
+                                ),
+                    ) {
                         WebSuggestionsSection(
                             suggestions = state.webSuggestions,
                             onSuggestionClick = onWebSuggestionClick,
@@ -552,9 +569,14 @@ fun ContentLayout(
                 ItemPriorityConfig.ItemType.SEARCH_ENGINES_INLINE -> {
                     // Inline search engines.
                     // Condition: Not compact mode.
-                    if (!hideResults &&
-                        hasQuery &&
-                        (!state.isSearchEngineCompactMode || isUrlQuery)
+                    val showInlineSearchEngines =
+                        !hideResults &&
+                            hasQuery &&
+                            (!state.isSearchEngineCompactMode || isUrlQuery)
+                    AnimatedVisibility(
+                        visible = showInlineSearchEngines,
+                        enter = fadeIn(animationSpec = tween(durationMillis = 140, delayMillis = 70)),
+                        exit = fadeOut(animationSpec = tween(durationMillis = 100)),
                     ) {
                         NoResultsSearchEngineCards(
                             query = state.query,

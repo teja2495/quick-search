@@ -1,11 +1,9 @@
 package com.tk.quicksearch.search.searchScreen
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
@@ -23,6 +21,11 @@ import com.tk.quicksearch.search.core.SectionRenderContext
 import com.tk.quicksearch.search.core.SectionRenderParams
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsResultsSection
 import com.tk.quicksearch.search.files.FileResultsSection
+
+private const val SECTION_ENTER_DELAY_MS = 80
+private val sectionEnterAnimation =
+    fadeIn(animationSpec = tween(durationMillis = 150, delayMillis = SECTION_ENTER_DELAY_MS))
+private val sectionExitAnimation = fadeOut(animationSpec = tween(durationMillis = 90))
 
 // ============================================================================
 // Section Rendering Functions
@@ -52,7 +55,11 @@ private fun renderFilesSection(
     params: SectionRenderParams,
     context: SectionRenderContext,
 ) {
-    if (context.shouldRenderFiles) {
+    AnimatedVisibility(
+        visible = context.shouldRenderFiles,
+        enter = sectionEnterAnimation,
+        exit = sectionExitAnimation,
+    ) {
         val filesParams =
             params.filesParams.copy(
                 files = context.filesList,
@@ -92,7 +99,11 @@ private fun renderContactsSection(
     params: SectionRenderParams,
     context: SectionRenderContext,
 ) {
-    if (context.shouldRenderContacts) {
+    AnimatedVisibility(
+        visible = context.shouldRenderContacts,
+        enter = sectionEnterAnimation,
+        exit = sectionExitAnimation,
+    ) {
         val contactsParams =
             params.contactsParams.copy(
                 contacts = context.contactsList,
@@ -149,18 +160,8 @@ private fun renderAppsSection(
     if (shouldAnimate) {
         AnimatedVisibility(
             visible = context.shouldRenderApps,
-            enter =
-                fadeIn(animationSpec = tween(durationMillis = 110)) +
-                    expandVertically(
-                        animationSpec = tween(durationMillis = 170),
-                        expandFrom = Alignment.Top,
-                    ),
-            exit =
-                fadeOut(animationSpec = tween(durationMillis = 90)) +
-                    shrinkVertically(
-                        animationSpec = tween(durationMillis = 170),
-                        shrinkTowards = Alignment.Top,
-                    ),
+            enter = fadeIn(animationSpec = tween(durationMillis = 110)),
+            exit = fadeOut(animationSpec = tween(durationMillis = 90)),
         ) {
             AppGridView(
                 apps = appsParams.apps,
@@ -191,35 +192,41 @@ private fun renderAppsSection(
                 showWallpaperBackground = appsParams.showWallpaperBackground,
             )
         }
-    } else if (context.shouldRenderApps) {
-        AppGridView(
-            apps = appsParams.apps,
-            appShortcuts = appsParams.appShortcuts,
-            isSearching = appsParams.isSearching,
-            hasAppResults = appsParams.hasAppResults,
-            onAppClick = appsParams.onAppClick,
-            onAppInfoClick = appsParams.onAppInfoClick,
-            onUninstallClick = appsParams.onUninstallClick,
-            onHideApp = appsParams.onHideApp,
-            onPinApp = appsParams.onPinApp,
-            onUnpinApp = appsParams.onUnpinApp,
-            onNicknameClick = appsParams.onNicknameClick,
-            getAppNickname = appsParams.getAppNickname,
-            pinnedPackageNames = appsParams.pinnedPackageNames,
-            disabledShortcutIds = appsParams.disabledAppShortcutIds,
-            rowCount = appsParams.rowCount,
-            phoneColumnOverride = appsParams.phoneColumnOverride,
-            iconPackPackage = appsParams.iconPackPackage,
-            appIconShape = appsParams.appIconShape,
-            themedIconsEnabled = appsParams.themedIconsEnabled,
-            showAppLabels = appsParams.showAppLabels,
-            oneHandedMode = appsParams.oneHandedMode,
-            isInitializing = appsParams.isInitializing,
-            startupPhase = appsParams.startupPhase,
-            isOverlayPresentation = appsParams.isOverlayPresentation,
-            predictedTarget = appsParams.predictedTarget,
-            showWallpaperBackground = appsParams.showWallpaperBackground,
-        )
+    } else {
+        AnimatedVisibility(
+            visible = context.shouldRenderApps,
+            enter = fadeIn(animationSpec = tween(durationMillis = 110)),
+            exit = fadeOut(animationSpec = tween(durationMillis = 90)),
+        ) {
+            AppGridView(
+                apps = appsParams.apps,
+                appShortcuts = appsParams.appShortcuts,
+                isSearching = appsParams.isSearching,
+                hasAppResults = appsParams.hasAppResults,
+                onAppClick = appsParams.onAppClick,
+                onAppInfoClick = appsParams.onAppInfoClick,
+                onUninstallClick = appsParams.onUninstallClick,
+                onHideApp = appsParams.onHideApp,
+                onPinApp = appsParams.onPinApp,
+                onUnpinApp = appsParams.onUnpinApp,
+                onNicknameClick = appsParams.onNicknameClick,
+                getAppNickname = appsParams.getAppNickname,
+                pinnedPackageNames = appsParams.pinnedPackageNames,
+                disabledShortcutIds = appsParams.disabledAppShortcutIds,
+                rowCount = appsParams.rowCount,
+                phoneColumnOverride = appsParams.phoneColumnOverride,
+                iconPackPackage = appsParams.iconPackPackage,
+                appIconShape = appsParams.appIconShape,
+                themedIconsEnabled = appsParams.themedIconsEnabled,
+                showAppLabels = appsParams.showAppLabels,
+                oneHandedMode = appsParams.oneHandedMode,
+                isInitializing = appsParams.isInitializing,
+                startupPhase = appsParams.startupPhase,
+                isOverlayPresentation = appsParams.isOverlayPresentation,
+                predictedTarget = appsParams.predictedTarget,
+                showWallpaperBackground = appsParams.showWallpaperBackground,
+            )
+        }
     }
 }
 
@@ -230,7 +237,11 @@ private fun renderAppShortcutsSection(
     context: SectionRenderContext,
 ) {
     val appShortcutsParams = params.appShortcutsParams ?: return
-    if (context.shouldRenderAppShortcuts) {
+    AnimatedVisibility(
+        visible = context.shouldRenderAppShortcuts,
+        enter = sectionEnterAnimation,
+        exit = sectionExitAnimation,
+    ) {
         AppShortcutResultsSection(
             shortcuts = context.appShortcutsList,
             isExpanded = context.isAppShortcutsExpanded,
@@ -261,8 +272,17 @@ private fun renderSettingsSection(
     params: SectionRenderParams,
     context: SectionRenderContext,
 ) {
-    if (context.shouldRenderSettings && params.settingsParams != null) {
-        if (context.settingsList.isNotEmpty() && !context.isAppSettingsExpanded) {
+    val shouldShowSettings =
+        context.shouldRenderSettings &&
+            params.settingsParams != null &&
+            context.settingsList.isNotEmpty() &&
+            !context.isAppSettingsExpanded
+    AnimatedVisibility(
+        visible = shouldShowSettings,
+        enter = sectionEnterAnimation,
+        exit = sectionExitAnimation,
+    ) {
+        if (params.settingsParams != null) {
             DeviceSettingsResultsSection(
                 settings = context.settingsList,
                 isExpanded = context.isDeviceSettingsExpanded,
@@ -290,8 +310,17 @@ private fun renderAppSettingsSection(
     params: SectionRenderParams,
     context: SectionRenderContext,
 ) {
-    if (context.shouldRenderSettings && params.settingsParams != null) {
-        if (context.appSettingsList.isNotEmpty() && !context.isDeviceSettingsExpanded) {
+    val shouldShowAppSettings =
+        context.shouldRenderSettings &&
+            params.settingsParams != null &&
+            context.appSettingsList.isNotEmpty() &&
+            !context.isDeviceSettingsExpanded
+    AnimatedVisibility(
+        visible = shouldShowAppSettings,
+        enter = sectionEnterAnimation,
+        exit = sectionExitAnimation,
+    ) {
+        if (params.settingsParams != null) {
             AppSettingsResultsSection(
                 appSettings = context.appSettingsList,
                 isExpanded = context.isAppSettingsExpanded,
@@ -321,7 +350,11 @@ private fun renderCalendarSection(
     context: SectionRenderContext,
 ) {
     val calendarParams = params.calendarParams ?: return
-    if (context.shouldRenderCalendar) {
+    AnimatedVisibility(
+        visible = context.shouldRenderCalendar,
+        enter = sectionEnterAnimation,
+        exit = sectionExitAnimation,
+    ) {
         CalendarEventsSection(
             events = context.calendarEventsList,
             hasPermission = calendarParams.hasPermission,

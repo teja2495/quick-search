@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.FileDownload
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -53,6 +54,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.settings.settingsScreen.SettingsBackupManager
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -132,7 +134,7 @@ fun ImportSettingsScreen(
                     color = when (screenState) {
                         ImportScreenState.Success -> MaterialTheme.colorScheme.primaryContainer
                         ImportScreenState.Error -> MaterialTheme.colorScheme.errorContainer
-                        else -> MaterialTheme.colorScheme.surfaceContainerHigh
+                        else -> AppColors.Accent.copy(alpha = 0.12f)
                     },
                     modifier = Modifier
                         .size(88.dp)
@@ -158,7 +160,7 @@ fun ImportSettingsScreen(
                                 tint = when (state) {
                                     ImportScreenState.Success -> MaterialTheme.colorScheme.onPrimaryContainer
                                     ImportScreenState.Error -> MaterialTheme.colorScheme.onErrorContainer
-                                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                    else -> AppColors.Accent
                                 },
                             )
                         }
@@ -222,6 +224,8 @@ fun ImportSettingsScreen(
                         onClick = { importLauncher.launch(arrayOf("*/*")) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(DesignTokens.OnboardingButtonCornerRadius),
+                        border = BorderStroke(1.dp, AppColors.Accent),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = AppColors.Accent),
                         contentPadding = PaddingValues(
                             horizontal = DesignTokens.OnboardingButtonHorizontalPadding,
                             vertical = DesignTokens.OnboardingButtonVerticalPadding,

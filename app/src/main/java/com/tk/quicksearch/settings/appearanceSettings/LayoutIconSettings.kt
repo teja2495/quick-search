@@ -81,8 +81,6 @@ fun AppIconCard(
                     isLastItem = false,
             )
 
-            HorizontalDivider(color = AppColors.SettingsDivider)
-
             // Icon Pack Section (with navigation)
             val hasIconPacks =
                     iconPackDescription != stringResource(R.string.settings_icon_pack_empty)

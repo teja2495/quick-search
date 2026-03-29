@@ -12,7 +12,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -138,6 +140,7 @@ fun PermissionItem(
                     }
                 },
                 modifier = Modifier.scale(0.85f).padding(start = DesignTokens.SpacingLarge),
+                colors = SwitchDefaults.colors(uncheckedTrackColor = Color.Transparent),
             )
         }
     }

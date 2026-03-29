@@ -240,7 +240,10 @@ class SecondarySearchOrchestrator(
                                 settingResults = unifiedResults.settingResults,
                                 calendarEvents = unifiedResults.calendarEvents,
                                 appSettingResults = unifiedResults.appSettingResults,
-                                appShortcutResults = unifiedResults.appShortcutResults,
+                                // Preserve existing results when the search was skipped via the
+                                // no-results cache; overwriting with empty would clear valid
+                                // results that were found for the current or a prior query.
+                                appShortcutResults = if (shouldSearchAppShortcuts) unifiedResults.appShortcutResults else state.appShortcutResults,
                             )
                         }
 
