@@ -590,11 +590,7 @@ private fun AppIconSurface(
     // Otherwise keep existing theme-based icon colors.
     val themedIconBackground =
             if (useWallpaperDynamicAccentForIcons) {
-                if (isDarkTheme) {
-                    MaterialTheme.colorScheme.primaryContainer
-                } else {
-                    Color.White
-                }
+                MaterialTheme.colorScheme.primaryContainer
             } else if (isDarkTheme) {
                 themeAccent.lightOnPrimaryContainer
             } else {
