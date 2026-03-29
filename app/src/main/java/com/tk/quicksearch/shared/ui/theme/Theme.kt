@@ -21,6 +21,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.android.material.color.utilities.CorePalette
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.shared.util.ImageAppearance
@@ -202,6 +205,7 @@ fun QuickSearchTheme(
         com.tk.quicksearch.search.core.AppThemeMode.SYSTEM -> isSystemDarkTheme
     }
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val useImageDerivedAccent =
         wallpaperAccentEnabled && backgroundSource != BackgroundSource.THEME
 
@@ -233,6 +237,23 @@ fun QuickSearchTheme(
             )
             onDispose {
                 appContext.unregisterReceiver(receiver)
+            }
+        }
+    }
+
+    DisposableEffect(lifecycleOwner, backgroundSource, wallpaperAccentEnabled) {
+        if (!useImageDerivedAccent || backgroundSource != BackgroundSource.SYSTEM_WALLPAPER) {
+            onDispose { }
+        } else {
+            val observer =
+                LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        wallpaperChangeVersion++
+                    }
+                }
+            lifecycleOwner.lifecycle.addObserver(observer)
+            onDispose {
+                lifecycleOwner.lifecycle.removeObserver(observer)
             }
         }
     }

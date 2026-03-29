@@ -36,6 +36,8 @@ object WallpaperUtils {
     @Volatile
     private var cachedBitmap: Bitmap? = null
     @Volatile
+    private var cachedSystemWallpaperId: Int? = null
+    @Volatile
     private var cachedOverlayCustomUri: String? = null
     @Volatile
     private var cachedOverlayCustomBitmap: Bitmap? = null
@@ -90,6 +92,7 @@ object WallpaperUtils {
      */
     fun invalidateWallpaperCache() {
         cachedBitmap = null
+        cachedSystemWallpaperId = null
         cachedWallpaperAppearance = null
     }
 
@@ -105,13 +108,27 @@ object WallpaperUtils {
         }
 
     suspend fun getWallpaperBitmapResult(context: Context): WallpaperLoadResult {
-        cachedBitmap?.let { return WallpaperLoadResult.Success(it) }
+        val currentWallpaperId = getCurrentSystemWallpaperId(context)
+        val cachedWallpaperId = cachedSystemWallpaperId
+        cachedBitmap?.let { cached ->
+            val shouldReuseCached =
+                when {
+                    currentWallpaperId == null -> true
+                    cachedWallpaperId == null -> false
+                    else -> currentWallpaperId == cachedWallpaperId
+                }
+            if (shouldReuseCached) {
+                return WallpaperLoadResult.Success(cached)
+            }
+            invalidateWallpaperCache()
+        }
 
         return withContext(Dispatchers.IO) {
             try {
                 val bitmap = loadWallpaperBitmap(context)
                 if (bitmap != null) {
                     cachedBitmap = bitmap
+                    cachedSystemWallpaperId = currentWallpaperId ?: getCurrentSystemWallpaperId(context)
                     WallpaperLoadResult.Success(bitmap)
                 } else {
                     WallpaperLoadResult.Unavailable
@@ -122,6 +139,13 @@ object WallpaperUtils {
                 WallpaperLoadResult.Unavailable
             }
         }
+    }
+
+    private fun getCurrentSystemWallpaperId(context: Context): Int? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return null
+        return runCatching {
+            WallpaperManager.getInstance(context).getWallpaperId(WallpaperManager.FLAG_SYSTEM)
+        }.getOrNull()
     }
 
     /**

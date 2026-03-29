@@ -14,6 +14,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.core.content.ContextCompat
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.SearchUiState
@@ -26,6 +29,7 @@ internal fun SearchScreenWallpaperLogic(
     isOverlayPresentation: Boolean = false,
 ): Triple<ImageBitmap?, Boolean, Boolean> {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     var wallpaperChangeVersion by remember { mutableIntStateOf(0) }
 
     DisposableEffect(context, state.backgroundSource) {
@@ -59,6 +63,23 @@ internal fun SearchScreenWallpaperLogic(
         }
     }
 
+    DisposableEffect(lifecycleOwner, state.backgroundSource) {
+        if (state.backgroundSource != BackgroundSource.SYSTEM_WALLPAPER) {
+            onDispose { }
+        } else {
+            val observer =
+                LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        wallpaperChangeVersion++
+                    }
+                }
+            lifecycleOwner.lifecycle.addObserver(observer)
+            onDispose {
+                lifecycleOwner.lifecycle.removeObserver(observer)
+            }
+        }
+    }
+
     val shouldUseStartupPreview = wallpaperChangeVersion == 0
 
     val sourceWallpaperBitmap =
@@ -69,40 +90,43 @@ internal fun SearchScreenWallpaperLogic(
             state.startupBackgroundPreviewPath,
             wallpaperChangeVersion,
         ) {
-            value =
-                if (state.backgroundSource == BackgroundSource.SYSTEM_WALLPAPER) {
-                    WallpaperUtils.getCachedWallpaperBitmap()?.asImageBitmap()?.also {
+            if (state.backgroundSource != BackgroundSource.SYSTEM_WALLPAPER) {
+                value = null
+                return@produceState
+            }
+
+            // Render quickly from cache/preview, then always fetch fresh system wallpaper.
+            WallpaperUtils.getCachedWallpaperBitmap()?.asImageBitmap()?.let {
+                value = it
+                if (!isOverlayPresentation) {
+                    onWallpaperLoaded?.invoke()
+                }
+            } ?: run {
+                if (shouldUseStartupPreview) {
+                    WallpaperUtils.getStartupBackgroundPreviewBitmap(
+                        context = context,
+                        previewPath = state.startupBackgroundPreviewPath,
+                    )?.asImageBitmap()?.let {
+                        value = it
                         if (!isOverlayPresentation) {
                             onWallpaperLoaded?.invoke()
                         }
                     }
-                        ?: if (shouldUseStartupPreview) {
-                            WallpaperUtils.getStartupBackgroundPreviewBitmap(
-                                context = context,
-                                previewPath = state.startupBackgroundPreviewPath,
-                            )?.asImageBitmap()?.also {
-                                if (!isOverlayPresentation) {
-                                    onWallpaperLoaded?.invoke()
-                                }
-                            }
-                        } else {
-                            null
-                        }
-                        ?: when (val result = WallpaperUtils.getWallpaperBitmapResult(context)) {
-                            is WallpaperUtils.WallpaperLoadResult.Success -> {
-                                if (!isOverlayPresentation) {
-                                    onWallpaperLoaded?.invoke()
-                                }
-                                result.bitmap.asImageBitmap()
-                            }
-
-                            else -> {
-                                null
-                            }
-                        }
-                } else {
-                    null
                 }
+            }
+
+            when (val result = WallpaperUtils.getWallpaperBitmapResult(context)) {
+                is WallpaperUtils.WallpaperLoadResult.Success -> {
+                    value = result.bitmap.asImageBitmap()
+                    if (!isOverlayPresentation) {
+                        onWallpaperLoaded?.invoke()
+                    }
+                }
+
+                else -> {
+                    // Keep cache/preview if available; otherwise leave null.
+                }
+            }
         }
     val sourceCustomBitmap =
         produceState<ImageBitmap?>(
