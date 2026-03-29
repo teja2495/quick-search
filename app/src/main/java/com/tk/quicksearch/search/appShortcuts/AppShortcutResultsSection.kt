@@ -42,8 +42,9 @@ import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.searchScreen.components.ExpandButton
-import com.tk.quicksearch.search.data.AppShortcutRepository.ShortcutIcon
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.AppShortcutRepository.isUserCreatedShortcut
+import com.tk.quicksearch.search.data.AppShortcutRepository.ShortcutIcon
 import com.tk.quicksearch.search.data.AppShortcutRepository.rememberShortcutIcon
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
@@ -74,6 +75,8 @@ fun AppShortcutResultsSection(
         onInclude: (StaticShortcut) -> Unit,
         onAppInfoClick: (StaticShortcut) -> Unit,
         onNicknameClick: (StaticShortcut) -> Unit,
+        onEditCustomShortcut: (StaticShortcut) -> Unit = {},
+        onEditShortcutIcon: (StaticShortcut) -> Unit = {},
         getShortcutNickname: (String) -> String?,
         showAllResults: Boolean,
         showExpandControls: Boolean,
@@ -142,6 +145,8 @@ fun AppShortcutResultsSection(
                                         onInclude = onInclude,
                                         onAppInfoClick = onAppInfoClick,
                                         onNicknameClick = onNicknameClick,
+                                        onEditCustomShortcut = onEditCustomShortcut,
+                                        onEditShortcutIcon = onEditShortcutIcon,
                                         getShortcutNickname = getShortcutNickname,
                                         iconPackPackage = iconPackPackage,
                                         shouldShowExpandButton = cardState.shouldShowExpandButton,
@@ -173,6 +178,8 @@ private fun AppShortcutsCardContent(
         onInclude: (StaticShortcut) -> Unit,
         onAppInfoClick: (StaticShortcut) -> Unit,
         onNicknameClick: (StaticShortcut) -> Unit,
+        onEditCustomShortcut: (StaticShortcut) -> Unit,
+        onEditShortcutIcon: (StaticShortcut) -> Unit,
         getShortcutNickname: (String) -> String?,
         iconPackPackage: String?,
         shouldShowExpandButton: Boolean,
@@ -204,6 +211,8 @@ private fun AppShortcutsCardContent(
                                         onInclude = onInclude,
                                         onAppInfoClick = onAppInfoClick,
                                         onNicknameClick = onNicknameClick,
+                                        onEditCustomShortcut = onEditCustomShortcut,
+                                        onEditShortcutIcon = onEditShortcutIcon,
                                         iconPackPackage = iconPackPackage,
                                         isPredicted = showPredictedOnRow,
                                 )
@@ -240,6 +249,8 @@ internal fun AppShortcutRow(
         onInclude: (StaticShortcut) -> Unit,
         onAppInfoClick: (StaticShortcut) -> Unit,
         onNicknameClick: (StaticShortcut) -> Unit,
+        onEditCustomShortcut: (StaticShortcut) -> Unit,
+        onEditShortcutIcon: (StaticShortcut) -> Unit,
         iconPackPackage: String?,
         showAppLabel: Boolean = true,
         subtitleText: String? = null,
@@ -262,8 +273,14 @@ internal fun AppShortcutRow(
                         packageName = shortcut.packageName,
                         iconPackPackage = iconPackPackage
                 )
-        val displayIcon = iconBitmap ?: appIconResult.bitmap
-        if (displayIcon == null && icon == null) return
+        val hasEmbeddedOrOverrideIcon = !shortcut.iconBase64.isNullOrBlank()
+        val displayIcon =
+                if (hasEmbeddedOrOverrideIcon) {
+                    iconBitmap
+                } else {
+                    iconBitmap ?: appIconResult.bitmap
+                }
+        if (displayIcon == null && icon == null && !hasEmbeddedOrOverrideIcon) return
 
         Row(
                 modifier =
@@ -336,6 +353,7 @@ internal fun AppShortcutRow(
 
                 if (enableLongPress && onLongPressOverride == null) {
                         AppShortcutDropdownMenu(
+                                shortcut = shortcut,
                                 expanded = showOptions,
                                 onDismissRequest = { showOptions = false },
                                 isPinned = isPinned,
@@ -346,6 +364,8 @@ internal fun AppShortcutRow(
                                 onInclude = { onInclude(shortcut) },
                                 onAppInfoClick = { onAppInfoClick(shortcut) },
                                 onNicknameClick = { onNicknameClick(shortcut) },
+                                onEditCustomShortcut = onEditCustomShortcut,
+                                onEditShortcutIcon = onEditShortcutIcon,
                                 onAddToHome = { addToHomeHandler.addAppShortcutToHome(shortcut) },
                         )
                 }
@@ -360,6 +380,7 @@ private data class AppShortcutMenuItem(
 
 @Composable
 private fun AppShortcutDropdownMenu(
+        shortcut: StaticShortcut,
         expanded: Boolean,
         onDismissRequest: () -> Unit,
         isPinned: Boolean,
@@ -370,6 +391,8 @@ private fun AppShortcutDropdownMenu(
         onInclude: () -> Unit,
         onAppInfoClick: () -> Unit,
         onNicknameClick: () -> Unit,
+        onEditCustomShortcut: (StaticShortcut) -> Unit,
+        onEditShortcutIcon: (StaticShortcut) -> Unit,
         onAddToHome: () -> Unit,
 ) {
         androidx.compose.material3.DropdownMenu(
@@ -437,6 +460,39 @@ private fun AppShortcutDropdownMenu(
                                         },
                                 ),
                         )
+                        if (isUserCreatedShortcut(shortcut)) {
+                                add(
+                                        AppShortcutMenuItem(
+                                                textResId = R.string.settings_edit_label,
+                                                icon = {
+                                                        Icon(
+                                                                imageVector = Icons.Rounded.Edit,
+                                                                contentDescription = null,
+                                                        )
+                                                },
+                                                onClick = {
+                                                        onDismissRequest()
+                                                        onEditCustomShortcut(shortcut)
+                                                },
+                                        ),
+                                )
+                        } else {
+                                add(
+                                        AppShortcutMenuItem(
+                                                textResId = R.string.action_edit_icon,
+                                                icon = {
+                                                        Icon(
+                                                                imageVector = Icons.Rounded.Edit,
+                                                                contentDescription = null,
+                                                        )
+                                                },
+                                                onClick = {
+                                                        onDismissRequest()
+                                                        onEditShortcutIcon(shortcut)
+                                                },
+                                        ),
+                                )
+                        }
                         add(
                                 AppShortcutMenuItem(
                                         textResId =

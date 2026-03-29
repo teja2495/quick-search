@@ -36,9 +36,12 @@ import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
+import com.tk.quicksearch.search.searchScreen.dialogs.AppShortcutIconEditDialog
 import com.tk.quicksearch.search.searchScreen.dialogs.NicknameDialogState
 import com.tk.quicksearch.search.searchScreen.dialogs.SearchScreenDialogs
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
+import com.tk.quicksearch.settings.AppShortcutsSettings.EditCustomShortcutDialog
 import com.tk.quicksearch.tools.directSearch.GeminiModelCatalog
 import com.tk.quicksearch.tools.directSearch.GeminiModelPickerDialog
 import com.tk.quicksearch.tools.directSearch.GeminiTextModel
@@ -81,6 +84,14 @@ internal fun SearchScreenDialogLogic(
     setShowGeminiModelDialog: (Boolean) -> Unit,
     personalContextInput: TextFieldValue,
     setPersonalContextInput: (TextFieldValue) -> Unit,
+    shortcutToEdit: StaticShortcut?,
+    onDismissShortcutToEdit: () -> Unit,
+    onUpdateCustomAppShortcut: (StaticShortcut, String, String?, String?) -> Unit,
+    onDeleteCustomAppShortcut: (StaticShortcut) -> Unit,
+    shortcutIconEdit: StaticShortcut?,
+    onDismissShortcutIconEdit: () -> Unit,
+    onSetAppShortcutIconOverride: (StaticShortcut, String?) -> Unit,
+    getAppShortcutIconOverride: (String) -> String?,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
@@ -168,6 +179,35 @@ internal fun SearchScreenDialogLogic(
             onDismiss = {
                 setShowGeminiModelDialog(false)
                 onRefreshAvailableGeminiModels()
+            },
+        )
+    }
+
+    shortcutToEdit?.let { shortcut ->
+        EditCustomShortcutDialog(
+            shortcut = shortcut,
+            iconPackPackage = state.selectedIconPackPackage,
+            onDismiss = onDismissShortcutToEdit,
+            onSave = { name, value, iconBase64 ->
+                onUpdateCustomAppShortcut(shortcut, name, value, iconBase64)
+                onDismissShortcutToEdit()
+            },
+            onDelete = {
+                onDeleteCustomAppShortcut(shortcut)
+                onDismissShortcutToEdit()
+            },
+        )
+    }
+
+    shortcutIconEdit?.let { shortcut ->
+        AppShortcutIconEditDialog(
+            shortcut = shortcut,
+            iconPackPackage = state.selectedIconPackPackage,
+            currentIconBase64 = getAppShortcutIconOverride(shortcutKey(shortcut)),
+            onDismiss = onDismissShortcutIconEdit,
+            onSave = { iconBase64 ->
+                onSetAppShortcutIconOverride(shortcut, iconBase64)
+                onDismissShortcutIconEdit()
             },
         )
     }

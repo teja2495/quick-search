@@ -299,6 +299,17 @@ class UserAppPreferences(
             enabled: Boolean,
     ): Set<String> = appShortcutPreferences.setAppShortcutEnabled(id, enabled)
 
+    fun getAppShortcutIconOverride(id: String): String? =
+            appShortcutPreferences.getAppShortcutIconOverride(id)
+
+    fun getAllAppShortcutIconOverrides(): Map<String, String> =
+            appShortcutPreferences.getAllAppShortcutIconOverrides()
+
+    fun setAppShortcutIconOverride(
+            id: String,
+            iconBase64: String?,
+    ) = appShortcutPreferences.setAppShortcutIconOverride(id, iconBase64)
+
     // ============================================================================
     // Nickname Preferences
     // ============================================================================

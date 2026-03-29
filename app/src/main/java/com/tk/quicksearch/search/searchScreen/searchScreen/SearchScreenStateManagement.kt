@@ -207,6 +207,9 @@ internal fun SearchScreenStateManagement(
     // Nickname dialog state
     var nicknameDialogState by remember { mutableStateOf<NicknameDialogState?>(null) }
 
+    var shortcutToEdit by remember { mutableStateOf<StaticShortcut?>(null) }
+    var shortcutIconEdit by remember { mutableStateOf<StaticShortcut?>(null) }
+
     // Contact Action Picker state
     var contactActionPickerDialogState by remember {
         mutableStateOf<ContactActionPickerDialogState?>(null)
@@ -359,6 +362,8 @@ internal fun SearchScreenStateManagement(
             onExcludeAppShortcut = onExcludeAppShortcut,
             onIncludeAppShortcut = onIncludeAppShortcut,
             onAppShortcutAppInfoClick = onAppShortcutAppInfoClick,
+            onEditCustomAppShortcut = { shortcutToEdit = it },
+            onEditAppShortcutIcon = { shortcutIconEdit = it },
             onContactClick = onContactClick,
             onShowContactMethods = onShowContactMethods,
             onCallContact = onCallContact,
@@ -464,6 +469,10 @@ internal fun SearchScreenStateManagement(
         scrollState = scrollState,
         showDirectSearch = showDirectSearch,
         alignResultsToBottom = alignResultsToBottom,
+        shortcutToEdit = shortcutToEdit,
+        shortcutIconEdit = shortcutIconEdit,
+        setShortcutToEdit = { shortcutToEdit = it },
+        setShortcutIconEdit = { shortcutIconEdit = it },
         nicknameDialogState = nicknameDialogState,
         contactActionPickerDialogState = contactActionPickerDialogState,
         manuallySwitchedToNumberKeyboard = manuallySwitchedToNumberKeyboard,
@@ -493,6 +502,10 @@ internal data class SearchScreenStateResult(
     val scrollState: androidx.compose.foundation.ScrollState,
     val showDirectSearch: Boolean,
     val alignResultsToBottom: Boolean,
+    val shortcutToEdit: StaticShortcut?,
+    val shortcutIconEdit: StaticShortcut?,
+    val setShortcutToEdit: (StaticShortcut?) -> Unit,
+    val setShortcutIconEdit: (StaticShortcut?) -> Unit,
     val nicknameDialogState: NicknameDialogState?,
     val contactActionPickerDialogState: ContactActionPickerDialogState?,
     val manuallySwitchedToNumberKeyboard: Boolean,

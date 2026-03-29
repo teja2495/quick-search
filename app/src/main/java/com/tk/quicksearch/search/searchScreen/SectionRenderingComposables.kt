@@ -225,6 +225,8 @@ private fun renderAppShortcutsSection(
             onInclude = appShortcutsParams.onInclude,
             onAppInfoClick = appShortcutsParams.onAppInfoClick,
             onNicknameClick = appShortcutsParams.onNicknameClick,
+            onEditCustomShortcut = appShortcutsParams.onEditCustomShortcut,
+            onEditShortcutIcon = appShortcutsParams.onEditShortcutIcon,
             getShortcutNickname = appShortcutsParams.getShortcutNickname,
             showAllResults = context.showAllAppShortcutsResults,
             showExpandControls = context.showAppShortcutsExpandControls,

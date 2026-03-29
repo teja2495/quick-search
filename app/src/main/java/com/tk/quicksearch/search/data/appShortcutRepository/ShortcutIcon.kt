@@ -89,13 +89,12 @@ private fun loadShortcutIconBitmap(
     shortcut: StaticShortcut,
     iconSizePx: Int,
 ): ImageBitmap? {
-    shortcut.iconBase64?.let { encoded ->
-        val decoded = kotlin.runCatching { Base64.decode(encoded, Base64.DEFAULT) }.getOrNull()
+    val embedded = shortcut.iconBase64?.takeIf { it.isNotBlank() }
+    if (embedded != null) {
+        val decoded = kotlin.runCatching { Base64.decode(embedded, Base64.DEFAULT) }.getOrNull()
         val bitmap =
             decoded?.let { bytes -> BitmapFactory.decodeByteArray(bytes, 0, bytes.size) }
-        if (bitmap != null) {
-            return bitmap.asImageBitmap()
-        }
+        return bitmap?.asImageBitmap()
     }
 
     val resId = shortcut.iconResId ?: return null

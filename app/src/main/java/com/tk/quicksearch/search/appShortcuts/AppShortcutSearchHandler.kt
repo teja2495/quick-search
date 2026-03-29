@@ -4,7 +4,6 @@ import com.tk.quicksearch.search.data.AppShortcutRepository.AppShortcutRepositor
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.data.AppShortcutRepository.isUserCreatedShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.isUserCreatedShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.utils.RecentResultRankingUtils
@@ -28,7 +27,7 @@ class AppShortcutSearchHandler(
 ) {
     private var availableShortcuts: List<StaticShortcut> = emptyList()
 
-    fun getAvailableShortcuts(): List<StaticShortcut> = availableShortcuts
+    fun getAvailableShortcuts(): List<StaticShortcut> = mergeIconOverrides(availableShortcuts)
 
     suspend fun loadCachedShortcutsOnly(): Boolean {
         val cached = repository.loadCachedShortcuts() ?: return false
@@ -53,9 +52,11 @@ class AppShortcutSearchHandler(
             loadShortcuts()
         }
         val disabledIds = userPreferences.getDisabledAppShortcutIds()
-        return availableShortcuts
-            .filter { keys.contains(shortcutKey(it)) && shortcutKey(it) !in disabledIds }
-            .associateBy { shortcutKey(it) }
+        val raw =
+            availableShortcuts
+                .filter { keys.contains(shortcutKey(it)) && shortcutKey(it) !in disabledIds }
+                .associateBy { shortcutKey(it) }
+        return mergeIconOverridesByKey(raw)
     }
 
     suspend fun getPinnedAndExcludedOnly(): AppShortcutSearchResults {
@@ -81,7 +82,11 @@ class AppShortcutSearchHandler(
                 shortcutDisplayName(it).lowercase(Locale.getDefault())
             }
 
-        return AppShortcutSearchResults(pinned, excluded, emptyList())
+        return AppShortcutSearchResults(
+            mergeIconOverrides(pinned),
+            mergeIconOverrides(excluded),
+            emptyList(),
+        )
     }
 
     fun getShortcutsState(
@@ -117,7 +122,11 @@ class AppShortcutSearchHandler(
                 emptyList()
             }
 
-        return AppShortcutSearchResults(pinned, excluded, results)
+        return AppShortcutSearchResults(
+            mergeIconOverrides(pinned),
+            mergeIconOverrides(excluded),
+            results,
+        )
     }
 
     fun searchShortcuts(
@@ -137,15 +146,36 @@ class AppShortcutSearchHandler(
         disabledIds: Set<String>,
         recentShortcutScores: Map<String, Int>,
     ): List<StaticShortcut> =
-        AppShortcutSearchAlgorithm.search(
-            fullList = availableShortcuts,
-            queryContext = queryContext,
-            excludedIds = excludedIds,
-            disabledIds = disabledIds,
-            shortcutNicknames = userPreferences.getAllAppShortcutNicknames(),
-            recentShortcutScores = recentShortcutScores,
-            resultLimit = RESULT_LIMIT,
+        mergeIconOverrides(
+            AppShortcutSearchAlgorithm.search(
+                fullList = availableShortcuts,
+                queryContext = queryContext,
+                excludedIds = excludedIds,
+                disabledIds = disabledIds,
+                shortcutNicknames = userPreferences.getAllAppShortcutNicknames(),
+                recentShortcutScores = recentShortcutScores,
+                resultLimit = RESULT_LIMIT,
+            ),
         )
+
+    private fun mergeIconOverrides(shortcuts: List<StaticShortcut>): List<StaticShortcut> {
+        val overrides = userPreferences.getAllAppShortcutIconOverrides()
+        if (overrides.isEmpty()) return shortcuts
+        return shortcuts.map { shortcut ->
+            val key = shortcutKey(shortcut)
+            val overrideIcon = overrides[key] ?: return@map shortcut
+            if (isUserCreatedShortcut(shortcut)) shortcut else shortcut.copy(iconBase64 = overrideIcon)
+        }
+    }
+
+    private fun mergeIconOverridesByKey(map: Map<String, StaticShortcut>): Map<String, StaticShortcut> {
+        val overrides = userPreferences.getAllAppShortcutIconOverrides()
+        if (overrides.isEmpty() || map.isEmpty()) return map
+        return map.mapValues { (key, shortcut) ->
+            val overrideIcon = overrides[key] ?: return@mapValues shortcut
+            if (isUserCreatedShortcut(shortcut)) shortcut else shortcut.copy(iconBase64 = overrideIcon)
+        }
+    }
 
     private fun getRecentShortcutScores(): Map<String, Int> =
         RecentResultRankingUtils

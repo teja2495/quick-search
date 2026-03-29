@@ -1358,12 +1358,25 @@ class SearchViewModel(
 
                 // Load pinned app shortcuts from cache (fast)
                 val pinnedAppShortcutsState = appShortcutSearchHandler.getPinnedAndExcludedOnly()
+                val iconOverrides = userPreferences.getAllAppShortcutIconOverrides()
                 updateUiState { state ->
                     state.copy(
-                            allAppShortcuts = appShortcutSearchHandler.getAvailableShortcuts(),
+                            allAppShortcuts =
+                                    applyAppShortcutIconOverrides(
+                                            appShortcutSearchHandler.getAvailableShortcuts(),
+                                            iconOverrides,
+                                    ),
                             disabledAppShortcutIds = userPreferences.getDisabledAppShortcutIds(),
-                            pinnedAppShortcuts = pinnedAppShortcutsState.pinned,
-                            excludedAppShortcuts = pinnedAppShortcutsState.excluded,
+                            pinnedAppShortcuts =
+                                    applyAppShortcutIconOverrides(
+                                            pinnedAppShortcutsState.pinned,
+                                            iconOverrides,
+                                    ),
+                            excludedAppShortcuts =
+                                    applyAppShortcutIconOverrides(
+                                            pinnedAppShortcutsState.excluded,
+                                            iconOverrides,
+                                    ),
                     )
                 }
 
@@ -2087,9 +2100,22 @@ class SearchViewModel(
         }
     }
 
+    private fun applyAppShortcutIconOverrides(
+            shortcuts: List<StaticShortcut>,
+            overrides: Map<String, String>,
+    ): List<StaticShortcut> {
+        if (overrides.isEmpty()) return shortcuts
+        return shortcuts.map { shortcut ->
+            val key = shortcutKey(shortcut)
+            val overrideIcon = overrides[key] ?: return@map shortcut
+            if (isUserCreatedShortcut(shortcut)) shortcut else shortcut.copy(iconBase64 = overrideIcon)
+        }
+    }
+
     private fun refreshAppShortcutsState(updateResults: Boolean = true) {
         val query = if (updateResults) _resultsState.value.query else ""
         val disabledShortcutIds = userPreferences.getDisabledAppShortcutIds()
+        val iconOverrides = userPreferences.getAllAppShortcutIconOverrides()
         val currentState =
                 appShortcutSearchHandler.getShortcutsState(
                         query = query,
@@ -2097,14 +2123,26 @@ class SearchViewModel(
                                 SearchSection.APP_SHORTCUTS !in sectionManager.disabledSections,
                 )
 
+        val pinned = applyAppShortcutIconOverrides(currentState.pinned, iconOverrides)
+        val excluded = applyAppShortcutIconOverrides(currentState.excluded, iconOverrides)
+        val allShortcuts =
+                applyAppShortcutIconOverrides(
+                        appShortcutSearchHandler.getAvailableShortcuts(),
+                        iconOverrides,
+                )
+
         updateUiState { state ->
             state.copy(
-                    allAppShortcuts = appShortcutSearchHandler.getAvailableShortcuts(),
+                    allAppShortcuts = allShortcuts,
                     disabledAppShortcutIds = disabledShortcutIds,
-                    pinnedAppShortcuts = currentState.pinned,
-                    excludedAppShortcuts = currentState.excluded,
+                    pinnedAppShortcuts = pinned,
+                    excludedAppShortcuts = excluded,
                     appShortcutResults =
-                            if (updateResults) currentState.results else state.appShortcutResults,
+                            if (updateResults) {
+                                applyAppShortcutIconOverrides(currentState.results, iconOverrides)
+                            } else {
+                                state.appShortcutResults
+                            },
             )
         }
     }
@@ -3015,6 +3053,23 @@ class SearchViewModel(
         }
     }
 
+    fun setAppShortcutIconOverride(
+            shortcut: StaticShortcut,
+            iconBase64: String?,
+    ) {
+        if (isUserCreatedShortcut(shortcut)) return
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setAppShortcutIconOverride(shortcutKey(shortcut), iconBase64)
+            withContext(Dispatchers.Main) {
+                refreshAppShortcutsState()
+                refreshRecentItems()
+            }
+        }
+    }
+
+    fun getAppShortcutIconOverride(shortcutId: String): String? =
+            userPreferences.getAppShortcutIconOverride(shortcutId)
+
     fun getAppShortcutNickname(shortcutId: String): String? =
             appShortcutManager.getShortcutNickname(shortcutId)
 
@@ -3173,6 +3228,7 @@ class SearchViewModel(
             userPreferences.removeExcludedAppShortcut(id)
             userPreferences.setAppShortcutEnabled(id, true)
             userPreferences.setAppShortcutNickname(id, null)
+            userPreferences.setAppShortcutIconOverride(id, null)
             appShortcutSearchHandler.loadCachedShortcutsOnly()
             withContext(Dispatchers.Main) {
                 refreshAppShortcutsState()

@@ -209,6 +209,7 @@
     <string name="action_remove">Remove</string>
     <string name="action_add_nickname">Add Nickname</string>
     <string name="action_edit_nickname">Edit Nickname</string>
+    <string name="action_edit_icon">Edit Icon</string>
     <string name="exclude_marker"> excluded from </string>
     <string name="action_expand_more">More</string>
     <string name="action_expand_more_contacts">More Contacts</string>
@@ -266,6 +267,8 @@
     <string name="dialog_nickname_title_edit">Edit nickname</string>
     <string name="dialog_nickname_message">Enter a nickname for "%1$s". You can search for it using this nickname.</string>
     <string name="dialog_nickname_hint">Nickname</string>
+    <string name="dialog_app_shortcut_icon_message">Choose an image for \"%1$s\". This only changes how the shortcut appears in Quick Search.</string>
+    <string name="action_reset_app_shortcut_icon">Reset to default icon</string>
     <string name="dialog_enjoying_app_title">Do you find this app useful?</string>
     <string name="dialog_yes">Yes</string>
     <string name="dialog_no">No</string>

@@ -479,6 +479,7 @@ abstract class BasePreferences(
         const val KEY_PINNED_APP_SHORTCUTS = "pinned_app_shortcuts"
         const val KEY_EXCLUDED_APP_SHORTCUTS = "excluded_app_shortcuts"
         const val KEY_DISABLED_APP_SHORTCUTS = "disabled_app_shortcuts"
+        const val KEY_APP_SHORTCUT_ICON_OVERRIDE_PREFIX = "app_shortcut_icon_override_"
 
         // Search engine preferences keys
         const val KEY_DISABLED_SEARCH_ENGINES = "disabled_search_engines"

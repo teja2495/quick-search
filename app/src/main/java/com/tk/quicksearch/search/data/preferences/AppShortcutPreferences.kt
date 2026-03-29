@@ -35,4 +35,35 @@ class AppShortcutPreferences(
                 disabledIds.add(id)
             }
         }
+
+    fun getAppShortcutIconOverride(id: String): String? =
+        prefs.getString(iconOverrideKey(id), null)?.takeIf { it.isNotBlank() }
+
+    fun getAllAppShortcutIconOverrides(): Map<String, String> {
+        val prefix = BasePreferences.KEY_APP_SHORTCUT_ICON_OVERRIDE_PREFIX
+        val out = mutableMapOf<String, String>()
+        for ((key, value) in prefs.all) {
+            if (!key.startsWith(prefix)) continue
+            if (value !is String || value.isBlank()) continue
+            out[key.removePrefix(prefix)] = value
+        }
+        return out
+    }
+
+    fun setAppShortcutIconOverride(
+        id: String,
+        iconBase64: String?,
+    ) {
+        val key = iconOverrideKey(id)
+        // commit() so a follow-up read (e.g. refreshAppShortcutsState) sees the new value;
+        // apply() is async and can race with immediate UI refresh.
+        if (iconBase64.isNullOrBlank()) {
+            prefs.edit().remove(key).commit()
+        } else {
+            prefs.edit().putString(key, iconBase64).commit()
+        }
+    }
+
+    private fun iconOverrideKey(id: String): String =
+        "${BasePreferences.KEY_APP_SHORTCUT_ICON_OVERRIDE_PREFIX}$id"
 }

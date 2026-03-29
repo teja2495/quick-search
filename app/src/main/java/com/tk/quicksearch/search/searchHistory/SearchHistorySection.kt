@@ -414,6 +414,8 @@ private fun RecentSearchItemRow(
                         onInclude = {},
                         onAppInfoClick = {},
                         onNicknameClick = {},
+                        onEditCustomShortcut = {},
+                        onEditShortcutIcon = {},
                         iconPackPackage = null,
                         showAppLabel = !historySubtext.isNullOrBlank(),
                         subtitleText = historySubtext,
