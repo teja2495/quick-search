@@ -323,6 +323,7 @@ private fun ContactActionButtons(
                 Box(
                         modifier =
                                 Modifier.size(ContactUiConstants.ACTION_BUTTON_SIZE.dp)
+                                        .clip(CircleShape)
                                         .then(
                                                 if (enabled) {
                                                         Modifier.combinedClickable(
