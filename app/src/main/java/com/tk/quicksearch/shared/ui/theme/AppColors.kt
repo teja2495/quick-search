@@ -14,6 +14,9 @@ import com.tk.quicksearch.search.core.AppTheme
 /** Frosted card fill for light app-theme (gradient) result surfaces; mirrors dark wallpaper scrim alpha. */
 internal const val LightResultCardFrostAlpha = 0.72f
 
+/** Alpha applied to the compact search engine strip and open-keyboard button in all scenarios. */
+internal const val CompactSectionAlpha = 0.8f
+
 /** Search result card scrim over wallpaper / custom image background in light mode. */
 internal const val LightWallpaperSearchResultCardAlpha = 0.9f
 
@@ -703,12 +706,10 @@ object AppColors {
      * black (dark) otherwise.
      */
     @Composable
-    fun getCompactSectionBackground(showWallpaperBackground: Boolean): Color =
-        when {
-            showWallpaperBackground -> CompactSectionBackground
-            !LocalAppIsDarkTheme.current -> Color.White
-            else -> Color.Black
-        }
+    fun getCompactSectionBackground(showWallpaperBackground: Boolean): Color {
+        val base = if (!LocalAppIsDarkTheme.current) Color.White else Color.Black
+        return base.copy(alpha = CompactSectionAlpha)
+    }
 
     /**
      * Background color for settings cards and the management search bar.

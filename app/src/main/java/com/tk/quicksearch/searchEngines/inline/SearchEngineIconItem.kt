@@ -3,14 +3,17 @@ package com.tk.quicksearch.searchEngines.inline
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
@@ -18,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.searchEngines.shared.IconRenderStyle
 import com.tk.quicksearch.searchEngines.shared.SearchTargetIcon
@@ -46,6 +50,18 @@ fun SearchEngineIconItem(
 ) {
     val view = LocalView.current
     val compactVisualIconSize = (iconSize - 2.dp).coerceAtLeast(18.dp)
+    val isLightMode = !LocalAppIsDarkTheme.current
+    val iconShadowModifier = if (isLightMode) {
+        Modifier.shadow(
+            elevation = 8.dp,
+            shape = CircleShape,
+            clip = false,
+            ambientColor = Color.Black.copy(alpha = 0.3f),
+            spotColor = Color.Black.copy(alpha = 0.5f),
+        )
+    } else {
+        Modifier
+    }
     val highlightExtraWidth = 8.dp
     val highlightExtraHeight = 12.dp
     val highlightShape = RoundedCornerShape(18.dp)
@@ -99,6 +115,7 @@ fun SearchEngineIconItem(
             iconSize = compactVisualIconSize,
             style = IconRenderStyle.ADVANCED,
             appIconShape = appIconShape,
+            modifier = iconShadowModifier,
         )
     }
 }

@@ -363,8 +363,9 @@ fun WallpaperCard(
     val isWallpaperSourceSelected = backgroundSource == BackgroundSource.SYSTEM_WALLPAPER
     val isCustomSourceSelected = backgroundSource == BackgroundSource.CUSTOM_IMAGE
 
+    val wallpaperAlphaDisplayValue = (wallpaperBackgroundAlpha / 0.7f).coerceIn(0f, 1f)
     var lastAlphaStep by remember {
-        mutableStateOf((wallpaperBackgroundAlpha * 9).roundToInt().coerceIn(0, 9))
+        mutableStateOf((wallpaperAlphaDisplayValue * 9).roundToInt().coerceIn(0, 9))
     }
     var lastBlurStep by remember {
         mutableStateOf(
@@ -560,21 +561,21 @@ fun WallpaperCard(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     Slider(
-                            value = wallpaperBackgroundAlpha,
+                            value = wallpaperAlphaDisplayValue,
                             onValueChange = { value ->
                                 val step = (value * 9).roundToInt().coerceIn(0, 9)
                                 if (step != lastAlphaStep) {
                                     hapticToggle(view)()
                                     lastAlphaStep = step
                                 }
-                                onWallpaperBackgroundAlphaChange(value)
+                                onWallpaperBackgroundAlphaChange(value * 0.7f)
                             },
                             valueRange = 0f..1f,
                             steps = 9,
                             modifier = Modifier.weight(1f),
                     )
                     Text(
-                            text = "${(wallpaperBackgroundAlpha * 100).toInt()}%",
+                            text = "${(wallpaperAlphaDisplayValue * 100).toInt()}%",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.End,
