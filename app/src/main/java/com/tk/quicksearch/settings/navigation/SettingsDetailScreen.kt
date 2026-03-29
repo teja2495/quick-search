@@ -263,6 +263,12 @@ internal fun SettingsDetailLevel1Screen(
                                     ).show()
                             },
                             onSearchIconPacks = callbacks.onSearchIconPacks,
+                            appIconShape = state.appIconShape,
+                            onSetAppIconShape = callbacks.onSetAppIconShape,
+                            themedIconsEnabled = state.themedIconsEnabled,
+                            onThemedIconsToggle = callbacks.onToggleThemedIcons,
+                            wallpaperAccentEnabled = state.wallpaperAccentEnabled,
+                            onWallpaperAccentToggle = callbacks.onToggleWallpaperAccent,
                             hasWallpaperPermission = state.hasWallpaperPermission,
                         )
                     }
@@ -282,10 +288,6 @@ internal fun SettingsDetailLevel1Screen(
 
                     SettingsDetailType.MORE_OPTIONS -> {
                         MoreOptionsSettings(
-                            appIconShape = state.appIconShape,
-                            onSetAppIconShape = callbacks.onSetAppIconShape,
-                            themedIconsEnabled = state.themedIconsEnabled,
-                            onThemedIconsToggle = callbacks.onToggleThemedIcons,
                             topResultIndicatorEnabled = state.topResultIndicatorEnabled,
                             onTopResultIndicatorToggle = callbacks.onToggleTopResultIndicator,
                             openKeyboardOnLaunch = state.openKeyboardOnLaunch,
@@ -294,8 +296,6 @@ internal fun SettingsDetailLevel1Screen(
                             onClearQueryOnLaunchToggle = callbacks.onToggleClearQueryOnLaunch,
                             autoCloseOverlay = state.autoCloseOverlay,
                             onAutoCloseOverlayToggle = callbacks.onToggleAutoCloseOverlay,
-                            wallpaperAccentEnabled = state.wallpaperAccentEnabled,
-                            onWallpaperAccentToggle = callbacks.onToggleWallpaperAccent,
                             modifier = Modifier,
                         )
                     }

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.AppearanceSettings
 
+import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,6 +29,7 @@ import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.LightMode
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -61,6 +63,7 @@ import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.searchScreen.AppThemeColors
 import com.tk.quicksearch.shared.ui.theme.AppColors
@@ -80,6 +83,8 @@ fun AppThemeCard(
         appThemeMode: AppThemeMode,
         onSetAppThemeMode: (AppThemeMode) -> Unit,
         hasWallpaperPermission: Boolean,
+        themedIconsEnabled: Boolean,
+        onThemedIconsToggle: (Boolean) -> Unit,
         modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
@@ -293,6 +298,26 @@ fun AppThemeCard(
                     )
                 }
             }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                Row(
+                        modifier =
+                                Modifier.fillMaxWidth()
+                                        .clickable { onThemedIconsToggle(!themedIconsEnabled) },
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                ) {
+                    Checkbox(
+                            checked = themedIconsEnabled,
+                            onCheckedChange = onThemedIconsToggle,
+                    )
+                    Text(
+                            text = stringResource(R.string.settings_themed_icons_title),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
         }
     }
 }
@@ -309,6 +334,8 @@ fun WallpaperCard(
         onPickCustomImage: () -> Unit,
         hasWallpaperPermission: Boolean,
         onRequestWallpaperPermission: () -> Unit,
+        wallpaperAccentEnabled: Boolean,
+        onWallpaperAccentToggle: (Boolean) -> Unit,
         modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
@@ -590,6 +617,19 @@ fun WallpaperCard(
                             modifier = Modifier.widthIn(min = 48.dp),
                     )
                 }
+
+                if (isWallpaperSourceSelected && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    SettingsToggleRow(
+                            title = stringResource(R.string.settings_wallpaper_accent_title),
+                            subtitle = stringResource(R.string.settings_wallpaper_accent_desc),
+                            checked = wallpaperAccentEnabled,
+                            onCheckedChange = onWallpaperAccentToggle,
+                            horizontalPadding = DesignTokens.SpacingSmall,
+                            isLastItem = true,
+                            showDivider = false,
+                    )
+                }
+
             }
         }
     }

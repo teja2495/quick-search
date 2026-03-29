@@ -1,31 +1,21 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
-import android.os.Build
-import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Keyboard
 import androidx.compose.material.icons.rounded.SearchOff
-import androidx.compose.material.icons.rounded.Style
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
-import com.tk.quicksearch.shared.ui.theme.AppColors
 
 @Composable
 fun MoreOptionsSettings(
-    appIconShape: AppIconShape,
-    onSetAppIconShape: (AppIconShape) -> Unit,
-    themedIconsEnabled: Boolean,
-    onThemedIconsToggle: (Boolean) -> Unit,
     topResultIndicatorEnabled: Boolean,
     onTopResultIndicatorToggle: (Boolean) -> Unit,
     openKeyboardOnLaunch: Boolean,
@@ -34,8 +24,6 @@ fun MoreOptionsSettings(
     onClearQueryOnLaunchToggle: (Boolean) -> Unit,
     autoCloseOverlay: Boolean,
     onAutoCloseOverlayToggle: (Boolean) -> Unit,
-    wallpaperAccentEnabled: Boolean,
-    onWallpaperAccentToggle: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     SettingsCard(
@@ -43,48 +31,12 @@ fun MoreOptionsSettings(
     ) {
         Column {
             SettingsToggleRow(
-                title = stringResource(R.string.auto_close_overlay_toggle_title),
-                subtitle = stringResource(R.string.auto_close_overlay_toggle_desc),
-                checked = autoCloseOverlay,
-                onCheckedChange = onAutoCloseOverlayToggle,
-                leadingIcon = Icons.Rounded.Close,
-                isFirstItem = true,
-                isLastItem = false,
-            )
-
-            SettingsToggleRow(
-                title = stringResource(R.string.settings_circular_app_icons_title),
-                subtitle = stringResource(R.string.settings_circular_app_icons_desc),
-                checked = appIconShape == AppIconShape.CIRCLE,
-                onCheckedChange = { enabled ->
-                    onSetAppIconShape(
-                        if (enabled) AppIconShape.CIRCLE else AppIconShape.DEFAULT,
-                    )
-                },
-                leadingIcon = Icons.Rounded.Apps,
-                isFirstItem = false,
-                isLastItem = false,
-            )
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                SettingsToggleRow(
-                    title = stringResource(R.string.settings_themed_icons_title),
-                    subtitle = stringResource(R.string.settings_themed_icons_desc),
-                    checked = themedIconsEnabled,
-                    onCheckedChange = onThemedIconsToggle,
-                    leadingIcon = Icons.Rounded.Style,
-                    isFirstItem = false,
-                    isLastItem = false,
-                )
-            }
-
-            SettingsToggleRow(
                 title = stringResource(R.string.top_result_indicator_toggle_title),
                 subtitle = stringResource(R.string.top_result_indicator_toggle_desc),
                 checked = topResultIndicatorEnabled,
                 onCheckedChange = onTopResultIndicatorToggle,
                 leadingIcon = Icons.Rounded.CheckCircle,
-                isFirstItem = false,
+                isFirstItem = true,
                 isLastItem = false,
             )
 
@@ -105,20 +57,18 @@ fun MoreOptionsSettings(
                 onCheckedChange = onClearQueryOnLaunchToggle,
                 leadingIcon = Icons.Rounded.SearchOff,
                 isFirstItem = false,
-                isLastItem = Build.VERSION.SDK_INT < Build.VERSION_CODES.S,
+                isLastItem = false,
             )
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                SettingsToggleRow(
-                    title = stringResource(R.string.settings_wallpaper_accent_title),
-                    subtitle = stringResource(R.string.settings_wallpaper_accent_desc),
-                    checked = wallpaperAccentEnabled,
-                    onCheckedChange = onWallpaperAccentToggle,
-                    leadingIcon = Icons.Rounded.Palette,
-                    isFirstItem = false,
-                    isLastItem = true,
-                )
-            }
+            SettingsToggleRow(
+                title = stringResource(R.string.auto_close_overlay_toggle_title),
+                subtitle = stringResource(R.string.auto_close_overlay_toggle_desc),
+                checked = autoCloseOverlay,
+                onCheckedChange = onAutoCloseOverlayToggle,
+                leadingIcon = Icons.Rounded.Close,
+                isFirstItem = false,
+                isLastItem = true,
+            )
         }
     }
 }

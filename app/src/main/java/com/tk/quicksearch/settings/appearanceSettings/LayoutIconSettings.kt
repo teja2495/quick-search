@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
@@ -32,42 +33,23 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.isTablet
 
-/** Combined card for keyboard alignment and icon pack settings. */
+/** Card for app grid columns, app labels, icon pack, and icon appearance settings. */
 @Composable
-fun CombinedLayoutIconCard(
-        oneHandedMode: Boolean,
-        onToggleOneHandedMode: (Boolean) -> Unit,
+fun AppIconCard(
         showAppLabels: Boolean,
         onToggleAppLabels: (Boolean) -> Unit,
         phoneAppGridColumns: Int = UiPreferences.DEFAULT_PHONE_APP_GRID_COLUMNS,
         onSetPhoneAppGridColumns: (Int) -> Unit = {},
-        bottomSearchBarEnabled: Boolean,
-        onToggleBottomSearchBar: (Boolean) -> Unit,
         iconPackTitle: String,
         iconPackDescription: String,
         onIconPackClick: () -> Unit,
         onRefreshIconPacks: () -> Unit = {},
+        appIconShape: AppIconShape,
+        onSetAppIconShape: (AppIconShape) -> Unit,
         modifier: Modifier = Modifier,
 ) {
     SettingsCard(modifier = modifier.fillMaxWidth()) {
         Column {
-            SettingsToggleRow(
-                    title = stringResource(R.string.settings_layout_option_bottom_title),
-                    subtitle = stringResource(R.string.settings_layout_option_bottom_desc),
-                    checked = oneHandedMode,
-                    onCheckedChange = onToggleOneHandedMode,
-                    isFirstItem = true,
-                    extraVerticalPadding = 8.dp,
-            )
-
-            SettingsToggleRow(
-                    title = stringResource(R.string.settings_bottom_searchbar_title),
-                    subtitle = stringResource(R.string.settings_bottom_searchbar_desc),
-                    checked = bottomSearchBarEnabled,
-                    onCheckedChange = onToggleBottomSearchBar,
-                    extraVerticalPadding = 8.dp,
-            )
-
             if (!isTablet()) {
                 AppColumnsSelector(
                         selectedColumns = phoneAppGridColumns,
@@ -82,7 +64,21 @@ fun CombinedLayoutIconCard(
                     checked = showAppLabels,
                     onCheckedChange = onToggleAppLabels,
                     extraVerticalPadding = 8.dp,
+                    isFirstItem = isTablet(),
                     showDivider = false,
+            )
+
+            HorizontalDivider(color = AppColors.SettingsDivider)
+
+            SettingsToggleRow(
+                    title = stringResource(R.string.settings_circular_app_icons_title),
+                    subtitle = stringResource(R.string.settings_circular_app_icons_desc),
+                    checked = appIconShape == AppIconShape.CIRCLE,
+                    onCheckedChange = { enabled ->
+                        onSetAppIconShape(if (enabled) AppIconShape.CIRCLE else AppIconShape.DEFAULT)
+                    },
+                    isFirstItem = false,
+                    isLastItem = false,
             )
 
             HorizontalDivider(color = AppColors.SettingsDivider)
@@ -159,7 +155,7 @@ private fun AppColumnsSelector(
         selectedColumns: Int,
         onSelectColumns: (Int) -> Unit,
 ) {
-    Column(
+    Row(
             modifier =
                     Modifier
                             .fillMaxWidth()
@@ -169,18 +165,16 @@ private fun AppColumnsSelector(
                                     end = DesignTokens.SpacingXXLarge,
                                     bottom = DesignTokens.SpacingMedium,
                             ),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-                text = stringResource(R.string.settings_app_columns_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-        )
-        Text(
-                text = stringResource(R.string.settings_app_columns_desc),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                    text = stringResource(R.string.settings_app_columns_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
         Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)) {
             val fourSelected = selectedColumns == 4
             AssistChip(

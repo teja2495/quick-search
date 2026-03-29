@@ -3,6 +3,7 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -13,14 +14,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.IconPackInfo
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.settings.AppearanceSettings.FontSizeCard
 import com.tk.quicksearch.settings.AppearanceSettings.IconPackPickerDialog
-import com.tk.quicksearch.settings.AppearanceSettings.CombinedLayoutIconCard
+import com.tk.quicksearch.settings.AppearanceSettings.AppIconCard
 import com.tk.quicksearch.settings.AppearanceSettings.AppThemeCard
 import com.tk.quicksearch.settings.AppearanceSettings.WallpaperCard
+import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineAppearanceCard
 
 /** Complete appearance settings section with all appearance-related components and dialogs. */
@@ -61,6 +65,12 @@ fun AppearanceSettingsSection(
         onSelectIconPack: (String?) -> Unit,
         onRefreshIconPacks: () -> Unit,
         onSearchIconPacks: () -> Unit,
+        appIconShape: AppIconShape,
+        onSetAppIconShape: (AppIconShape) -> Unit,
+        themedIconsEnabled: Boolean,
+        onThemedIconsToggle: (Boolean) -> Unit,
+        wallpaperAccentEnabled: Boolean,
+        onWallpaperAccentToggle: (Boolean) -> Unit,
         hasWallpaperPermission: Boolean = true,
         modifier: Modifier = Modifier,
 ) {
@@ -93,6 +103,8 @@ fun AppearanceSettingsSection(
                 appThemeMode = appThemeMode,
                 onSetAppThemeMode = onSetAppThemeMode,
                 hasWallpaperPermission = hasWallpaperPermission,
+                themedIconsEnabled = themedIconsEnabled,
+                onThemedIconsToggle = onThemedIconsToggle,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -108,6 +120,8 @@ fun AppearanceSettingsSection(
                 onPickCustomImage = onPickCustomImage,
                 hasWallpaperPermission = hasWallpaperPermission,
                 onRequestWallpaperPermission = onRequestWallpaperPermission,
+                wallpaperAccentEnabled = wallpaperAccentEnabled,
+                onWallpaperAccentToggle = onWallpaperAccentToggle,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -124,16 +138,36 @@ fun AppearanceSettingsSection(
             Spacer(modifier = Modifier.height(16.dp))
         }
 
-        // One-Handed Mode and Icon Pack Card
-        CombinedLayoutIconCard(
-                oneHandedMode = oneHandedMode,
-                onToggleOneHandedMode = onToggleOneHandedMode,
+        // One-Handed Mode and Search Bar Card
+        SettingsCard(modifier = Modifier.fillMaxWidth()) {
+            Column {
+                SettingsToggleRow(
+                        title = stringResource(R.string.settings_layout_option_bottom_title),
+                        subtitle = stringResource(R.string.settings_layout_option_bottom_desc),
+                        checked = oneHandedMode,
+                        onCheckedChange = onToggleOneHandedMode,
+                        isFirstItem = true,
+                        extraVerticalPadding = 8.dp,
+                )
+                SettingsToggleRow(
+                        title = stringResource(R.string.settings_bottom_searchbar_title),
+                        subtitle = stringResource(R.string.settings_bottom_searchbar_desc),
+                        checked = bottomSearchBarEnabled,
+                        onCheckedChange = onToggleBottomSearchBar,
+                        extraVerticalPadding = 8.dp,
+                        showDivider = false,
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // App Grid Columns, App Labels, and Icon Pack Card
+        AppIconCard(
                 showAppLabels = showAppLabels,
                 onToggleAppLabels = onToggleAppLabels,
                 phoneAppGridColumns = phoneAppGridColumns,
                 onSetPhoneAppGridColumns = onSetPhoneAppGridColumns,
-                bottomSearchBarEnabled = bottomSearchBarEnabled,
-                onToggleBottomSearchBar = onToggleBottomSearchBar,
                 iconPackTitle =
                         androidx.compose.ui.res.stringResource(R.string.settings_icon_pack_title),
                 iconPackDescription =
@@ -155,6 +189,8 @@ fun AppearanceSettingsSection(
                     }
                 },
                 onRefreshIconPacks = onRefreshIconPacks,
+                appIconShape = appIconShape,
+                onSetAppIconShape = onSetAppIconShape,
         )
     }
 

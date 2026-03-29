@@ -341,7 +341,6 @@
     <string name="settings_show_app_labels_title">App Labels</string>
     <string name="settings_show_app_labels_desc">Show app names in suggestions and results</string>
     <string name="settings_app_columns_title">Apps Per Row</string>
-    <string name="settings_app_columns_desc">Number of apps results or suggestions shown in one row</string>
     <string name="settings_app_columns_4">4</string>
     <string name="settings_app_columns_5">5</string>
     <string name="settings_refresh_icon_packs">Refresh icon packs</string>
@@ -350,7 +349,7 @@
     <string name="settings_icon_pack_search_query">Free icon packs</string>
     <string name="settings_circular_app_icons_title">Circular App Icons</string>
     <string name="settings_circular_app_icons_desc">Force circular app icons</string>
-    <string name="settings_themed_icons_title">Themed Icons</string>
+    <string name="settings_themed_icons_title">Themed App Icons</string>
     <string name="settings_themed_icons_desc">Show themed app icons when device themed icons are enabled</string>
     <string name="settings_app_theme_title">Theme</string>
     <string name="settings_app_theme_light">Light</string>
@@ -365,7 +364,7 @@
     <string name="settings_app_theme_aurora">Aurora</string>
     <string name="settings_app_theme_sunset">Sunset</string>
     <string name="settings_app_theme_monochrome">Mono</string>
-    <string name="settings_wallpaper_accent_title">Wallpaper Accent Colors</string>
+    <string name="settings_wallpaper_accent_title">Accent Colors</string>
     <string name="settings_wallpaper_accent_desc">Derive accent colors from wallpaper</string>
     <string name="settings_overlay_theme_tone_lighter">Lighter</string>
     <string name="settings_overlay_theme_tone_darker">Darker</string>
