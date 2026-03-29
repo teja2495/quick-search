@@ -800,6 +800,7 @@
     <string name="release_notes_title_no_version">Quick Search Release Notes</string>
     <string-array name="release_notes_points">
         <item>Light themes (finally!) and UI improvements</item>
+        <item>Themed app icons</item>
         <item>Option to change no. of apps per row</item>
         <item>Fuzzy search for device and app settings</item>
         <item>Bug fixes</item>

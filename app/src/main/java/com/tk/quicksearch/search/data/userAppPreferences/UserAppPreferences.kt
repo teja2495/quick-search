@@ -700,6 +700,11 @@ class UserAppPreferences(
     fun setLastSeenVersionName(versionName: String?) =
             uiPreferences.setLastSeenVersionName(versionName)
 
+    fun getLastSeenVersionCode(): Long? = uiPreferences.getLastSeenVersionCode()
+
+    fun setLastSeenVersionCode(versionCode: Long) =
+            uiPreferences.setLastSeenVersionCode(versionCode)
+
     fun getUsagePermissionBannerDismissCount(): Int =
             uiPreferences.getUsagePermissionBannerDismissCount()
 

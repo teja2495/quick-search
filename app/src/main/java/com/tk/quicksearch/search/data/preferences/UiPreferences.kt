@@ -390,6 +390,17 @@ class UiPreferences(
         editor.apply()
     }
 
+    fun getLastSeenVersionCode(): Long? =
+            if (sessionPrefs.contains(UiPreferences.KEY_LAST_SEEN_VERSION_CODE)) {
+                sessionPrefs.getLong(UiPreferences.KEY_LAST_SEEN_VERSION_CODE, 0L)
+            } else {
+                null
+            }
+
+    fun setLastSeenVersionCode(versionCode: Long) {
+        sessionPrefs.edit().putLong(UiPreferences.KEY_LAST_SEEN_VERSION_CODE, versionCode).apply()
+    }
+
     fun getUsagePermissionBannerDismissCount(): Int =
             firstLaunchPrefs.getInt(UiPreferences.KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT, 0)
 
@@ -647,6 +658,7 @@ class UiPreferences(
         const val KEY_PHONE_APP_GRID_COLUMNS = "phone_app_grid_columns"
         const val DEFAULT_PHONE_APP_GRID_COLUMNS = 4
         const val KEY_LAST_SEEN_VERSION = "last_seen_version"
+        const val KEY_LAST_SEEN_VERSION_CODE = "last_seen_version_code"
         const val KEY_DIRECT_SEARCH_SETUP_EXPANDED = "direct_search_setup_expanded"
         const val KEY_DISABLED_SEARCH_ENGINES_EXPANDED = "disabled_search_engines_expanded"
         const val KEY_INSTANT_STARTUP_SURFACE_ENABLED = "instant_startup_surface_v1"
