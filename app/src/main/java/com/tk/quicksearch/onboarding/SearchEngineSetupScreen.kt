@@ -1,6 +1,5 @@
 package com.tk.quicksearch.onboarding
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -29,10 +28,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngines
+import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 import kotlinx.coroutines.delay
 
 /**
@@ -49,11 +50,15 @@ fun SearchEngineSetupScreen(
     modifier: Modifier = Modifier,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    SettingsScreenBackground(
+        appTheme = AppTheme.MONOCHROME,
+        overlayThemeIntensity = 0.5f,
+        modifier = modifier,
+    ) {
     Column(
         modifier =
-            modifier
+            Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
                 .safeDrawingPadding()
                 .padding(horizontal = DesignTokens.OnboardingHorizontalPadding),
         horizontalAlignment = Alignment.Start,
@@ -172,4 +177,5 @@ fun SearchEngineSetupScreen(
 
         Spacer(modifier = Modifier.height(DesignTokens.OnboardingSectionSpacing))
     }
+    } // end SettingsScreenBackground
 }

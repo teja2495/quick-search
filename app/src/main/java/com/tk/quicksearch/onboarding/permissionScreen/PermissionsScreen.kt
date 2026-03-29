@@ -1,7 +1,6 @@
 package com.tk.quicksearch.onboarding.permissionScreen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,8 +15,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -36,11 +33,14 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.onboarding.OnboardingHeader
+import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.shared.permissions.PermissionCardStates
 import com.tk.quicksearch.shared.permissions.PermissionCardTexts
 import com.tk.quicksearch.shared.permissions.PermissionsCardSection
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 
 /**
  * Main permissions screen that allows users to grant optional permissions for enhanced functionality.
@@ -60,13 +60,17 @@ fun PermissionsScreen(
 
     var showPermissionReminderDialog by remember { mutableStateOf(false) }
 
-    val totalSteps = if (!permissionStates.contacts.isGranted && !permissionStates.files.isGranted) 2 else 3
+    val totalSteps = if (!permissionStates.contacts.isGranted && !permissionStates.files.isGranted) 3 else 4
 
+    SettingsScreenBackground(
+        appTheme = AppTheme.MONOCHROME,
+        overlayThemeIntensity = 0.5f,
+        modifier = modifier,
+    ) {
     Column(
         modifier =
-            modifier
+            Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
                 .safeDrawingPadding()
                 .padding(horizontal = DesignTokens.OnboardingHorizontalPadding),
         horizontalAlignment = Alignment.Start,
@@ -109,14 +113,7 @@ fun PermissionsScreen(
                 showCalendarPermission = true,
                 showCallingPermission = false,
                 cardContainer = { cardModifier, content ->
-                    Card(
-                        modifier = cardModifier,
-                        colors =
-                            CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                            ),
-                        shape = RoundedCornerShape(DesignTokens.OnboardingPermissionCardCornerRadius),
-                    ) {
+                    SettingsCard(modifier = cardModifier) {
                         content()
                     }
                 },
@@ -161,6 +158,7 @@ fun PermissionsScreen(
 
         Spacer(modifier = Modifier.height(DesignTokens.OnboardingSectionSpacing))
     }
+    } // end SettingsScreenBackground
 
     // Permission reminder dialog
     if (showPermissionReminderDialog) {

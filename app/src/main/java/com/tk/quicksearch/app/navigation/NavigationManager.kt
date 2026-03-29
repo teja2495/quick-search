@@ -24,11 +24,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.tk.quicksearch.onboarding.FinalSetupScreen
+import com.tk.quicksearch.onboarding.ImportSettingsScreen
 import com.tk.quicksearch.onboarding.SearchEngineSetupScreen
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionsScreen
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination
+import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchViewModel
+import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.searchScreen.SearchRoute
 import com.tk.quicksearch.settings.settingsDetailScreen.level
@@ -54,6 +57,7 @@ data class NavigationRequest(
 
 enum class AppScreen {
     Permissions,
+    ImportSettings,
     SearchEngineSetup,
     FinalSetup,
     Main,
@@ -132,6 +136,7 @@ fun MainContent(
             val screenOrder =
                 listOf(
                     AppScreen.Permissions,
+                    AppScreen.ImportSettings,
                     AppScreen.SearchEngineSetup,
                     AppScreen.FinalSetup,
                     AppScreen.Main,
@@ -174,6 +179,7 @@ fun MainContent(
     ) { targetScreen ->
         when (targetScreen) {
             AppScreen.Permissions -> {
+                QuickSearchTheme(appTheme = AppTheme.MONOCHROME) {
                 PermissionsScreen(
                     currentStep = 1,
                     onPermissionsComplete = {
@@ -183,14 +189,53 @@ fun MainContent(
                         if (hasCalendarPermission) {
                             searchViewModel.setSectionEnabled(SearchSection.CALENDAR, true)
                         }
-                        currentScreen = AppScreen.SearchEngineSetup
+                        currentScreen = AppScreen.ImportSettings
                         searchViewModel.handleOptionalPermissionChange()
                     },
                 )
+                }
+            }
+
+            AppScreen.ImportSettings -> {
+                BackHandler { currentScreen = AppScreen.Permissions }
+                val hasContactsPermission =
+                    context.checkSelfPermission(android.Manifest.permission.READ_CONTACTS) ==
+                        android.content.pm.PackageManager.PERMISSION_GRANTED
+                val hasFilesPermission =
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                        android.os.Environment.isExternalStorageManager()
+                    } else {
+                        context.checkSelfPermission(
+                            android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                    }
+                val hasAnyThirdPartyMessagingAppForImport =
+                    uiState.isWhatsAppInstalled || uiState.isTelegramInstalled || uiState.isSignalInstalled
+                val willShowFinalSetup =
+                    hasFilesPermission || (hasContactsPermission && hasAnyThirdPartyMessagingAppForImport)
+                val importTotalSteps = if (willShowFinalSetup) 4 else 3
+                QuickSearchTheme(appTheme = AppTheme.MONOCHROME) {
+                    ImportSettingsScreen(
+                        currentStep = 2,
+                        totalSteps = importTotalSteps,
+                        onImportSuccess = {
+                            searchViewModel.requestSearchBarWelcomeAnimationFromOnboarding()
+                            searchViewModel.setShowStartSearchingOnOnboarding(true)
+                            userPreferences.setFirstLaunchCompleted()
+                            if (userPreferences.isOverlayModeEnabled()) {
+                                onFinishActivity()
+                            } else {
+                                onFirstLaunchCompleted()
+                                currentScreen = AppScreen.Main
+                            }
+                        },
+                        onSkip = { currentScreen = AppScreen.SearchEngineSetup },
+                    )
+                }
             }
 
             AppScreen.SearchEngineSetup -> {
-                BackHandler { currentScreen = AppScreen.Permissions }
+                BackHandler { currentScreen = AppScreen.ImportSettings }
                 val hasContactsPermission =
                     context.checkSelfPermission(android.Manifest.permission.READ_CONTACTS) ==
                         android.content.pm.PackageManager.PERMISSION_GRANTED
@@ -207,9 +252,10 @@ fun MainContent(
                 val shouldShowFinalSetup =
                     hasFilesPermission || (hasContactsPermission && hasAnyThirdPartyMessagingApp)
                 val skipFinalSetup = !shouldShowFinalSetup
-                val searchEngineTotalSteps = if (skipFinalSetup) 2 else 3
+                val searchEngineTotalSteps = if (skipFinalSetup) 3 else 4
+                QuickSearchTheme(appTheme = AppTheme.MONOCHROME) {
                 SearchEngineSetupScreen(
-                    currentStep = 2,
+                    currentStep = 3,
                     totalSteps = searchEngineTotalSteps,
                     continueButtonTextRes = if (skipFinalSetup) R.string.setup_action_start else R.string.setup_action_next,
                     onContinue = {
@@ -229,6 +275,7 @@ fun MainContent(
                     },
                     viewModel = searchViewModel,
                 )
+                }
             }
 
             AppScreen.FinalSetup -> {
@@ -254,9 +301,10 @@ fun MainContent(
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                 }
 
+                QuickSearchTheme(appTheme = AppTheme.MONOCHROME) {
                 FinalSetupScreen(
-                    currentStep = 3,
-                    totalSteps = 3,
+                    currentStep = 4,
+                    totalSteps = 4,
                     onContinue = {
                         searchViewModel.requestSearchBarWelcomeAnimationFromOnboarding()
                         userPreferences.setFirstLaunchCompleted()
@@ -273,6 +321,7 @@ fun MainContent(
                     hasCallPermission = hasCallPermission,
                     onShowToast = showToast,
                 )
+                }
             }
 
             AppScreen.Main -> {

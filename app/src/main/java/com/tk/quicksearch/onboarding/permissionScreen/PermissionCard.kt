@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -136,7 +137,7 @@ fun PermissionItem(
                         onToggleChange(false)
                     }
                 },
-                modifier = Modifier.padding(start = DesignTokens.SpacingLarge),
+                modifier = Modifier.scale(0.85f).padding(start = DesignTokens.SpacingLarge),
             )
         }
     }

@@ -789,6 +789,20 @@
     <string name="setup_action_start">Start Searching!</string>
 
     <!-- ============================================================================
+         Import Settings Screen
+         ============================================================================ -->
+    <string name="setup_import_title">Restore Settings</string>
+    <string name="setup_import_description_title">Have a backup?</string>
+    <string name="setup_import_description_subtitle">Import your previous Quick Search settings using a backup file that you have exported previously.</string>
+    <string name="setup_import_button">Import Settings</string>
+    <string name="setup_import_skip">Skip</string>
+    <string name="setup_import_importing">Importing settings…</string>
+    <string name="setup_import_success_title">Settings Restored</string>
+    <string name="setup_import_success_subtitle">Your settings have been imported. Tap below to start searching.</string>
+    <string name="setup_import_error_title">Import Failed</string>
+    <string name="setup_import_error_subtitle">Could not read the backup file. Please try again.</string>
+
+    <!-- ============================================================================
          Final Setup Screen
          ============================================================================ -->
     <string name="setup_final_title">Almost Done!</string>

@@ -1,6 +1,5 @@
 package com.tk.quicksearch.onboarding
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,8 +22,8 @@ import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.VideoLibrary
 import androidx.compose.material3.Button
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.draw.scale
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -39,11 +38,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.settings.settingsDetailScreen.MessagingSection
+import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 
 /** Gets the icon for a file type. */
 private fun getFileTypeIcon(fileType: FileType): androidx.compose.ui.graphics.vector.ImageVector =
@@ -75,11 +77,15 @@ fun FinalSetupScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
+    SettingsScreenBackground(
+        appTheme = AppTheme.MONOCHROME,
+        overlayThemeIntensity = 0.5f,
+        modifier = modifier,
+    ) {
     Column(
         modifier =
-            modifier
+            Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
                 .safeDrawingPadding()
                 .padding(horizontal = DesignTokens.OnboardingHorizontalPadding),
         horizontalAlignment = Alignment.Start,
@@ -195,10 +201,7 @@ fun FinalSetupScreen(
                     )
 
                     // Folders toggle
-                    ElevatedCard(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = MaterialTheme.shapes.extraLarge,
-                    ) {
+                    SettingsCard(modifier = Modifier.fillMaxWidth()) {
                         Row(
                             modifier =
                                 Modifier
@@ -254,16 +257,14 @@ fun FinalSetupScreen(
                                         enabled,
                                     )
                                 },
+                                modifier = Modifier.scale(0.85f),
                             )
                         }
                     }
 
                     Spacer(modifier = Modifier.height(DesignTokens.SpacingMedium))
 
-                    ElevatedCard(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = MaterialTheme.shapes.extraLarge,
-                    ) {
+                    SettingsCard(modifier = Modifier.fillMaxWidth()) {
                         Column {
                             val fileTypes = FileType.values()
                             val lastIndex = fileTypes.lastIndex
@@ -382,6 +383,7 @@ fun FinalSetupScreen(
                                                     enabled,
                                                 )
                                         },
+                                        modifier = Modifier.scale(0.85f),
                                     )
                                 }
 
@@ -425,4 +427,5 @@ fun FinalSetupScreen(
 
         Spacer(modifier = Modifier.height(DesignTokens.OnboardingSectionSpacing))
     }
+    } // end SettingsScreenBackground
 }

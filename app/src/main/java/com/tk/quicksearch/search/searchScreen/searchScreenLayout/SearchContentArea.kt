@@ -126,7 +126,6 @@ fun SearchContentArea(
                 shouldShowSettingsSection(renderingState) ||
                 shouldShowCalendarSection(renderingState, calendarParams)
     val alignResultsToBottom = useOneHandedMode && !showDirectSearch && !showCalculator
-    val edgeFadeHeight = 32.dp
     val expandedSectionBottomInset = 80.dp
     val aliasExpandedSectionBottomInset = 12.dp
     val footerBottomPadding = 28.dp
@@ -154,6 +153,8 @@ fun SearchContentArea(
     val isSectionAliasMode = state.detectedAliasSearchSection != null
     val useOverlayThemeTints = state.backgroundSource == BackgroundSource.THEME
     val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val edgeFadeHeight = if (isDarkMode) 32.dp else 16.dp
+    val edgeFadeMinAlpha = if (isDarkMode) 0f else 0.4f
     val overlayCardColor =
         if (useOverlayThemeTints) {
             appThemeResultCardColor(
@@ -278,7 +279,7 @@ fun SearchContentArea(
                                             Brush.verticalGradient(
                                                 colors =
                                                     listOf(
-                                                        Color.Black.copy(alpha = topEdgeAlpha),
+                                                        Color.Black.copy(alpha = topEdgeAlpha.coerceAtLeast(edgeFadeMinAlpha)),
                                                         Color.Black,
                                                     ),
                                                 startY = 0f,
@@ -295,7 +296,7 @@ fun SearchContentArea(
                                                 colors =
                                                     listOf(
                                                         Color.Black,
-                                                        Color.Black.copy(alpha = bottomEdgeAlpha),
+                                                        Color.Black.copy(alpha = bottomEdgeAlpha.coerceAtLeast(edgeFadeMinAlpha)),
                                                     ),
                                                 startY = size.height - fadePx,
                                                 endY = size.height,
