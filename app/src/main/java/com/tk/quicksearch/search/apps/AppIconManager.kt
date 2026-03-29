@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.LauncherApps
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
@@ -32,6 +33,12 @@ private data class AppIconEntry(
 )
 
 private val appIconCacheEpoch = AtomicLong(0L)
+
+/**
+ * Zoom factor when rasterizing adaptive icons for a circular mask. The foreground/background
+ * safe zone is smaller than the full canvas, so without scaling the glyph looks small in the circle.
+ */
+private const val CircularAdaptiveIconContentScale = 1.2f
 
 /**
  * In-memory cache for app icons to avoid repeated loading.
@@ -233,7 +240,16 @@ private fun adaptiveToBitmap(
     val radius = targetSize / 2f
     outputCanvas.drawCircle(radius, radius, radius, paint)
     paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
-    outputCanvas.drawBitmap(composed, 0f, 0f, paint)
+    val matrix =
+        Matrix().apply {
+            postScale(
+                CircularAdaptiveIconContentScale,
+                CircularAdaptiveIconContentScale,
+                radius,
+                radius,
+            )
+        }
+    outputCanvas.drawBitmap(composed, matrix, paint)
     composed.recycle()
 
     return output
