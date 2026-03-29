@@ -60,7 +60,6 @@ import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.ui.theme.LocalImageBackgroundIsDark
-import com.tk.quicksearch.shared.ui.theme.LocalIsSystemWallpaperActive
 import com.tk.quicksearch.shared.util.getAppGridColumns
 import com.tk.quicksearch.shared.util.hapticConfirm
 
@@ -498,44 +497,14 @@ private fun AppIconSurface(
         themedIconsEnabled: Boolean = true,
 ) {
     val view = LocalView.current
-    val context = LocalContext.current
-    val isDarkTheme = LocalAppIsDarkTheme.current
-    val isSystemWallpaper = LocalIsSystemWallpaperActive.current
     val showThemedIcon = themedIconsEnabled && monochromeData != null && !hasCustomIconPack &&
             android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU
-    // Always read both color sources unconditionally (Compose rules require no conditional remember).
+    // Material 3-compliant themed icon roles: container/content pair from the active color scheme.
+    // For wallpaper/custom-image backgrounds, the scheme itself is already image-derived.
     val materialIconBackground = MaterialTheme.colorScheme.primaryContainer
     val materialIconForeground = MaterialTheme.colorScheme.onPrimaryContainer
-    val systemIconBackground = remember(isDarkTheme) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-            if (isDarkTheme) {
-                Color(context.getColor(android.R.color.system_accent1_700))
-            } else {
-                Color(context.getColor(android.R.color.system_accent2_100))
-            }
-        } else null
-    }
-    val systemIconForeground = remember(isDarkTheme) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-            if (isDarkTheme) {
-                Color(context.getColor(android.R.color.system_accent1_100))
-            } else {
-                Color(context.getColor(android.R.color.system_accent1_700))
-            }
-        } else null
-    }
-    // When system wallpaper is active, use Android's dynamic system palette (same source the
-    // launcher uses) so themed icon colors match the rest of the system UI.
-    val themedIconBackground = if (isSystemWallpaper && systemIconBackground != null) {
-        systemIconBackground
-    } else {
-        materialIconBackground
-    }
-    val themedIconForeground = if (isSystemWallpaper && systemIconForeground != null) {
-        systemIconForeground
-    } else {
-        materialIconForeground
-    }
+    val themedIconBackground = materialIconBackground
+    val themedIconForeground = materialIconForeground
     val themedIconContainerShape = if (appIconShape == AppIconShape.CIRCLE) {
         androidx.compose.foundation.shape.CircleShape
     } else {
