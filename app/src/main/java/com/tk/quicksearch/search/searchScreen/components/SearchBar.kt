@@ -577,7 +577,7 @@ internal fun PersistentSearchBar(
                                         R.string
                                             .desc_clear_search,
                                     ),
-                                tint = searchBarIconColor,
+                                tint = accentColor,
                             )
                         }
                     } else {
