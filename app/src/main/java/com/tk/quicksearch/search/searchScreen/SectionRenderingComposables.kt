@@ -2,8 +2,10 @@ package com.tk.quicksearch.search.searchScreen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
@@ -155,78 +157,48 @@ private fun renderAppsSection(
     context: SectionRenderContext,
 ) {
     val appsParams = params.appsParams ?: return
-    val shouldAnimate = !appsParams.isSearching
 
-    if (shouldAnimate) {
-        AnimatedVisibility(
-            visible = context.shouldRenderApps,
-            enter = fadeIn(animationSpec = tween(durationMillis = 110)),
-            exit = fadeOut(animationSpec = tween(durationMillis = 90)),
-        ) {
-            AppGridView(
-                apps = appsParams.apps,
-                appShortcuts = appsParams.appShortcuts,
-                isSearching = appsParams.isSearching,
-                hasAppResults = appsParams.hasAppResults,
-                onAppClick = appsParams.onAppClick,
-                onAppInfoClick = appsParams.onAppInfoClick,
-                onUninstallClick = appsParams.onUninstallClick,
-                onHideApp = appsParams.onHideApp,
-                onPinApp = appsParams.onPinApp,
-                onUnpinApp = appsParams.onUnpinApp,
-                onNicknameClick = appsParams.onNicknameClick,
-                getAppNickname = appsParams.getAppNickname,
-                pinnedPackageNames = appsParams.pinnedPackageNames,
-                disabledShortcutIds = appsParams.disabledAppShortcutIds,
-                rowCount = appsParams.rowCount,
-                phoneColumnOverride = appsParams.phoneColumnOverride,
-                iconPackPackage = appsParams.iconPackPackage,
-                appIconShape = appsParams.appIconShape,
-                themedIconsEnabled = appsParams.themedIconsEnabled,
-                showAppLabels = appsParams.showAppLabels,
-                oneHandedMode = appsParams.oneHandedMode,
-                isInitializing = appsParams.isInitializing,
-                startupPhase = appsParams.startupPhase,
-                isOverlayPresentation = appsParams.isOverlayPresentation,
-                predictedTarget = appsParams.predictedTarget,
-                showWallpaperBackground = appsParams.showWallpaperBackground,
-            )
-        }
-    } else {
-        AnimatedVisibility(
-            visible = context.shouldRenderApps,
-            enter = fadeIn(animationSpec = tween(durationMillis = 110)),
-            exit = fadeOut(animationSpec = tween(durationMillis = 90)),
-        ) {
-            AppGridView(
-                apps = appsParams.apps,
-                appShortcuts = appsParams.appShortcuts,
-                isSearching = appsParams.isSearching,
-                hasAppResults = appsParams.hasAppResults,
-                onAppClick = appsParams.onAppClick,
-                onAppInfoClick = appsParams.onAppInfoClick,
-                onUninstallClick = appsParams.onUninstallClick,
-                onHideApp = appsParams.onHideApp,
-                onPinApp = appsParams.onPinApp,
-                onUnpinApp = appsParams.onUnpinApp,
-                onNicknameClick = appsParams.onNicknameClick,
-                getAppNickname = appsParams.getAppNickname,
-                pinnedPackageNames = appsParams.pinnedPackageNames,
-                disabledShortcutIds = appsParams.disabledAppShortcutIds,
-                rowCount = appsParams.rowCount,
-                phoneColumnOverride = appsParams.phoneColumnOverride,
-                iconPackPackage = appsParams.iconPackPackage,
-                appIconShape = appsParams.appIconShape,
-                themedIconsEnabled = appsParams.themedIconsEnabled,
-                showAppLabels = appsParams.showAppLabels,
-                oneHandedMode = appsParams.oneHandedMode,
-                isInitializing = appsParams.isInitializing,
-                startupPhase = appsParams.startupPhase,
-                isOverlayPresentation = appsParams.isOverlayPresentation,
-                predictedTarget = appsParams.predictedTarget,
-                showWallpaperBackground = appsParams.showWallpaperBackground,
-            )
-        }
+    AnimatedVisibility(
+        visible = context.shouldRenderApps,
+        enter = fadeIn(animationSpec = tween(durationMillis = 110, delayMillis = 30)) +
+            expandVertically(
+                animationSpec = tween(durationMillis = 220),
+                expandFrom = Alignment.Top,
+            ),
+        exit = fadeOut(animationSpec = tween(durationMillis = 90)) +
+            shrinkVertically(
+                animationSpec = tween(durationMillis = 180),
+                shrinkTowards = Alignment.Top,
+            ),
+    ) {
+        AppGridView(
+            apps = appsParams.apps,
+            appShortcuts = appsParams.appShortcuts,
+            isSearching = appsParams.isSearching,
+            hasAppResults = appsParams.hasAppResults,
+            onAppClick = appsParams.onAppClick,
+            onAppInfoClick = appsParams.onAppInfoClick,
+            onUninstallClick = appsParams.onUninstallClick,
+            onHideApp = appsParams.onHideApp,
+            onPinApp = appsParams.onPinApp,
+            onUnpinApp = appsParams.onUnpinApp,
+            onNicknameClick = appsParams.onNicknameClick,
+            getAppNickname = appsParams.getAppNickname,
+            pinnedPackageNames = appsParams.pinnedPackageNames,
+            disabledShortcutIds = appsParams.disabledAppShortcutIds,
+            rowCount = appsParams.rowCount,
+            phoneColumnOverride = appsParams.phoneColumnOverride,
+            iconPackPackage = appsParams.iconPackPackage,
+            appIconShape = appsParams.appIconShape,
+            themedIconsEnabled = appsParams.themedIconsEnabled,
+            showAppLabels = appsParams.showAppLabels,
+            oneHandedMode = appsParams.oneHandedMode,
+            isInitializing = appsParams.isInitializing,
+            startupPhase = appsParams.startupPhase,
+            isOverlayPresentation = appsParams.isOverlayPresentation,
+            predictedTarget = appsParams.predictedTarget,
+            showWallpaperBackground = appsParams.showWallpaperBackground,
+        )
     }
 }
 
