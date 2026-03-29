@@ -93,7 +93,7 @@ fun rememberAppIcon(
     val iconState =
         produceState<AppIconResult>(
             initialValue =
-                cachedInitial?.let { AppIconResult(it.bitmap, it.isLegacy) }
+                cachedInitial?.let { AppIconResult(it.bitmap, it.isLegacy, it.monochromeData) }
                     ?: AppIconResult(null, false),
             key1 = cacheKey,
         ) {

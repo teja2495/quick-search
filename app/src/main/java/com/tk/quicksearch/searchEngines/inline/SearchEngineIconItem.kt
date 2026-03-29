@@ -45,6 +45,7 @@ fun SearchEngineIconItem(
     modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
+    val compactVisualIconSize = (iconSize - 2.dp).coerceAtLeast(18.dp)
     val highlightExtraWidth = 8.dp
     val highlightExtraHeight = 12.dp
     val highlightShape = RoundedCornerShape(18.dp)
@@ -95,7 +96,7 @@ fun SearchEngineIconItem(
     ) {
         SearchTargetIcon(
             target = engine,
-            iconSize = iconSize,
+            iconSize = compactVisualIconSize,
             style = IconRenderStyle.ADVANCED,
             appIconShape = appIconShape,
         )
