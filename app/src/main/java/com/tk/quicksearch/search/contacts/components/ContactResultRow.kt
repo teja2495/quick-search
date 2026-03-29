@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.Sms
@@ -23,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -320,12 +322,16 @@ private fun ContactActionButtons(
                 onLongClick: () -> Unit,
                 enabled: Boolean = true,
         ) {
+                val interactionSource = remember { MutableInteractionSource() }
                 Box(
                         modifier =
                                 Modifier.size(ContactUiConstants.ACTION_BUTTON_SIZE.dp)
+                                        .clip(CircleShape)
                                         .then(
                                                 if (enabled) {
                                                         Modifier.combinedClickable(
+                                                                interactionSource = interactionSource,
+                                                                indication = ripple(bounded = true),
                                                                 onClick = {
                                                                         hapticConfirm(view)()
                                                                         onClick()
