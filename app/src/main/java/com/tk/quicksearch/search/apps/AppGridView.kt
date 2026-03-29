@@ -591,24 +591,24 @@ private fun AppIconSurface(
     val themedIconBackground =
             if (useWallpaperDynamicAccentForIcons) {
                 if (isDarkTheme) {
-                    MaterialTheme.colorScheme.onPrimaryContainer
+                    MaterialTheme.colorScheme.primaryContainer
                 } else {
                     Color.White
                 }
             } else if (isDarkTheme) {
-                themeAccent.lightPrimaryContainer
+                themeAccent.lightOnPrimaryContainer
             } else {
                 Color.White
             }
     val themedIconForeground =
             if (useWallpaperDynamicAccentForIcons) {
                 if (isDarkTheme) {
-                    MaterialTheme.colorScheme.primaryContainer
+                    MaterialTheme.colorScheme.onPrimaryContainer
                 } else {
                     MaterialTheme.colorScheme.primary
                 }
             } else if (isDarkTheme) {
-                themeAccent.lightOnPrimaryContainer
+                themeAccent.lightPrimaryContainer
             } else {
                 lightModePalette.foreground
             }

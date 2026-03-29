@@ -118,6 +118,9 @@ class AppSearchManager(
 
     fun shouldSkipDueToNoMatchPrefix(normalizedQuery: String): Boolean {
         val prefix = noMatchPrefix ?: return false
+        // Always evaluate single-character queries to avoid stale no-match prefixes
+        // suppressing legitimate first-letter app searches.
+        if (normalizedQuery.length <= 1) return false
         if (normalizedQuery.length >= fuzzySearchStrategy.config.minQueryLength) return false
         return normalizedQuery.length >= prefix.length && normalizedQuery.startsWith(prefix)
     }

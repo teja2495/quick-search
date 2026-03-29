@@ -40,7 +40,6 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.Upload
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.ButtonDefaults
 import com.tk.quicksearch.settings.shared.SettingsCard
 import androidx.compose.material3.HorizontalDivider
@@ -675,11 +674,6 @@ private fun BackupRestoreRow(
             OutlinedButton(
                 onClick = onImportClick,
                 modifier = Modifier.weight(1f),
-                border = BorderStroke(1.dp, AppColors.Accent),
-                colors =
-                    ButtonDefaults.outlinedButtonColors(
-                        contentColor = AppColors.Accent,
-                    ),
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Download,
@@ -691,11 +685,6 @@ private fun BackupRestoreRow(
             OutlinedButton(
                 onClick = onExportClick,
                 modifier = Modifier.weight(1f),
-                border = BorderStroke(1.dp, AppColors.Accent),
-                colors =
-                    ButtonDefaults.outlinedButtonColors(
-                        contentColor = AppColors.Accent,
-                    ),
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Upload,

@@ -15,7 +15,7 @@ object AppShortcutSearchAlgorithm {
         disabledIds: Set<String>,
         shortcutNicknames: Map<String, String>,
         recentShortcutScores: Map<String, Int> = emptyMap(),
-        minQueryLength: Int = 2,
+        minQueryLength: Int = 1,
         resultLimit: Int = 25,
     ): List<StaticShortcut> {
         if (fullList.isEmpty()) return emptyList()

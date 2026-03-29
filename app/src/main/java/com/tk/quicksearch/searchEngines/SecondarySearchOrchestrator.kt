@@ -111,6 +111,11 @@ class SecondarySearchOrchestrator(
         }
 
         val isSingleCharacterQuery = trimmedQuery.length == 1
+        if (isSingleCharacterQuery) {
+            // Keep first-letter app shortcut searches responsive even if a previous
+            // single-letter query was cached as "no results" before data finished loading.
+            lastQueryWithNoAppShortcuts = null
+        }
         val currentState = currentStateProvider()
         val canSearchContacts =
             !isSingleCharacterQuery &&
@@ -153,7 +158,8 @@ class SecondarySearchOrchestrator(
                 lastQueryWithNoAppSettings != null &&
                 trimmedQuery.startsWith(lastQueryWithNoAppSettings!!)
         val shouldSkipAppShortcuts =
-            !isBackspacing &&
+            !isSingleCharacterQuery &&
+                !isBackspacing &&
                 lastQueryWithNoAppShortcuts != null &&
                 trimmedQuery.startsWith(lastQueryWithNoAppShortcuts!!)
         val shouldSearchContacts = canSearchContacts && !shouldSkipContacts

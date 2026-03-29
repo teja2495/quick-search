@@ -2535,6 +2535,10 @@ class SearchViewModel(
                 detectedAliasSearchSection != null && !shouldOnlySearchApps
         val shouldClearSecondaryResults =
                 detectedAliasSearchSection != null || _resultsState.value.query != newQuery
+        val shouldClearAppShortcutResults =
+                detectedTarget != null ||
+                        (detectedAliasSearchSection != null &&
+                                detectedAliasSearchSection != SearchSection.APP_SHORTCUTS)
         updateUiState { state ->
             state.copy(
                     query = newQuery,
@@ -2568,7 +2572,7 @@ class SearchViewModel(
                             if (showingTool || shouldClearSecondaryResults) emptyList()
                             else state.appSettingResults,
                     appShortcutResults =
-                            if (showingTool || shouldClearSecondaryResults) emptyList()
+                            if (showingTool || shouldClearAppShortcutResults) emptyList()
                             else appShortcutSearchHandler.getShortcutsState(
                                 query = trimmedQuery,
                                 isSectionEnabled = SearchSection.APP_SHORTCUTS !in sectionManager.disabledSections,
