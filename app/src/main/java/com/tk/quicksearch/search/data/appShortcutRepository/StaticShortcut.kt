@@ -12,6 +12,7 @@ import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.searchEngines.SearchTargetQueryShortcutActivity
+import com.tk.quicksearch.searchEngines.isInAppBrowserPackage
 import com.tk.quicksearch.searchEngines.getDisplayNameResId
 import com.tk.quicksearch.searchEngines.getDrawableResId
 import com.tk.quicksearch.searchEngines.getAppPackageCandidates
@@ -310,7 +311,13 @@ internal fun resolveSearchTargetIconBase64(context: Context, target: SearchTarge
         }
 
         is SearchTarget.Browser -> {
-            loadAppIconBase64(context, target.app.packageName)
+            val pkg =
+                if (isInAppBrowserPackage(target.app.packageName)) {
+                    context.packageName
+                } else {
+                    target.app.packageName
+                }
+            loadAppIconBase64(context, pkg)
         }
 
         is SearchTarget.Custom -> {

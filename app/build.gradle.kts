@@ -73,6 +73,7 @@ dependencies {
     implementation(libs.play.app.update.ktx)
     implementation(libs.libphonenumber)
     implementation(libs.reorderable)
+    implementation(libs.androidx.browser)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

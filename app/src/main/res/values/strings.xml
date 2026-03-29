@@ -841,6 +841,7 @@
          ============================================================================ -->
     <string name="search_engine_google">Google</string>
     <string name="browser_brave_name">Brave Browser</string>
+    <string name="browser_in_app_name">In-App Browser</string>
     <string name="search_engine_chatgpt">ChatGPT</string>
     <string name="search_engine_perplexity">Perplexity</string>
     <string name="search_engine_grok">Grok</string>

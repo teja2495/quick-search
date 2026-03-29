@@ -26,6 +26,7 @@ import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.searchEngines.getAppPackageCandidates
 import com.tk.quicksearch.searchEngines.getContentDescription
+import com.tk.quicksearch.searchEngines.isInAppBrowserPackage
 import com.tk.quicksearch.searchEngines.getContentDescriptionResId
 import com.tk.quicksearch.searchEngines.getDisplayName
 import com.tk.quicksearch.searchEngines.getDrawableResId
@@ -186,6 +187,15 @@ fun SearchTargetIcon(
         }
 
         is SearchTarget.Browser -> {
+            if (isInAppBrowserPackage(target.app.packageName)) {
+                Icon(
+                    imageVector = Icons.Rounded.Public,
+                    contentDescription = target.app.label,
+                    modifier = modifier.size(iconSize),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                return
+            }
             val iconResult =
                 rememberAppIcon(
                     packageName = target.app.packageName,

@@ -646,7 +646,11 @@ class SearchEngineManager(
                         else -> label
                     }
                 displayLabel?.let { BrowserApp(packageName = packageName, label = it) }
-            }.sortedBy { it.label.lowercase() }
+            }.sortedBy { it.label.lowercase() } +
+            BrowserApp(
+                packageName = IN_APP_BROWSER_PACKAGE,
+                label = context.getString(R.string.browser_in_app_name),
+            )
     }
 
     private fun queryActivityPackages(

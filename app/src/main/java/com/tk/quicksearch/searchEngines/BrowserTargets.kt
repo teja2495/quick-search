@@ -29,12 +29,25 @@ fun orderedBrowserTargets(
     defaultBrowserPackage: String?,
 ): List<SearchTarget.Browser> {
     val browsers = targets.filterIsInstance<SearchTarget.Browser>()
-    if (defaultBrowserPackage == null) return browsers
+    val inApp = browsers.firstOrNull { isInAppBrowserPackage(it.app.packageName) }
+    val withoutInApp = browsers.filterNot { isInAppBrowserPackage(it.app.packageName) }
 
-    val default = browsers.firstOrNull { it.app.packageName == defaultBrowserPackage }
-    if (default == null) return browsers
+    if (defaultBrowserPackage == null) {
+        return listOfNotNull(inApp) + withoutInApp
+    }
 
-    return listOf(default) + browsers.filterNot { it.app.packageName == defaultBrowserPackage }
+    val default = withoutInApp.firstOrNull { it.app.packageName == defaultBrowserPackage }
+    if (default == null) {
+        return browsers
+    }
+
+    val tail = withoutInApp.filterNot { it.app.packageName == defaultBrowserPackage }
+
+    return buildList {
+        add(default)
+        inApp?.let { add(it) }
+        addAll(tail)
+    }
 }
 
 fun defaultBrowserTarget(

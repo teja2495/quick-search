@@ -5,8 +5,10 @@ import android.app.SearchManager
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
+import androidx.browser.customtabs.CustomTabsIntent
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.searchEngines.IN_APP_BROWSER_PACKAGE
 import com.tk.quicksearch.searchEngines.buildCustomSearchUrl
 import com.tk.quicksearch.searchEngines.buildSearchUrl
 import com.tk.quicksearch.searchEngines.getDisplayNameResId
@@ -113,6 +115,17 @@ internal object SearchIntents {
         browserPackageName: String,
         onShowToast: ((Int, String?) -> Unit)? = null,
     ) {
+        if (browserPackageName == IN_APP_BROWSER_PACKAGE) {
+            val trimmedQuery = query.trim()
+            if (trimmedQuery.isBlank()) {
+                openUrlInCustomTabsOrFallback(context, "https://www.google.com", onShowToast)
+                return
+            }
+            val searchUrl = buildSearchUrl(trimmedQuery, SearchEngine.GOOGLE)
+            openUrlInCustomTabsOrFallback(context, searchUrl, onShowToast)
+            return
+        }
+
         val browserLabel = resolveAppLabel(context, browserPackageName)
         val trimmedQuery = query.trim()
         if (trimmedQuery.isBlank()) {
@@ -159,6 +172,19 @@ internal object SearchIntents {
         browserPackageName: String,
         onShowToast: ((Int, String?) -> Unit)? = null,
     ) {
+        if (browserPackageName == IN_APP_BROWSER_PACKAGE) {
+            val normalizedUrl = normalizeToBrowsableUrl(url)
+            if (normalizedUrl == null) {
+                onShowToast?.invoke(
+                    R.string.error_open_search_engine,
+                    context.getString(R.string.browser_in_app_name),
+                )
+                return
+            }
+            openUrlInCustomTabsOrFallback(context, normalizedUrl, onShowToast)
+            return
+        }
+
         val browserLabel = resolveAppLabel(context, browserPackageName)
         val normalizedUrl = normalizeToBrowsableUrl(url)
         if (normalizedUrl == null) {
@@ -211,6 +237,34 @@ internal object SearchIntents {
             trimmedUrl.matches(Regex("^[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}(/.*)?$")) -> "https://$trimmedUrl"
             else -> "https://www.google.com/search?q=${Uri.encode(trimmedUrl)}"
         }
+    }
+
+    private fun openUrlInCustomTabsOrFallback(
+        context: Application,
+        url: String,
+        onShowToast: ((Int, String?) -> Unit)?,
+    ) {
+        try {
+            val customTabsIntent = CustomTabsIntent.Builder().build().apply {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            customTabsIntent.launchUrl(context, Uri.parse(url))
+            return
+        } catch (_: ActivityNotFoundException) {
+        } catch (_: SecurityException) {
+        }
+
+        val fallback =
+            Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+                addCategory(Intent.CATEGORY_BROWSABLE)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        if (tryStartIntent(context, fallback)) return
+
+        onShowToast?.invoke(
+            R.string.error_open_search_engine,
+            context.getString(R.string.browser_in_app_name),
+        )
     }
 
     private fun tryStartIntent(
