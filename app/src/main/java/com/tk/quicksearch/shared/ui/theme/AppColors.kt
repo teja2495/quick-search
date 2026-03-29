@@ -712,6 +712,18 @@ object AppColors {
     }
 
     /**
+     * Background color for the custom search engine section strip.
+     * In light mode with wallpaper/custom image, uses a slightly stronger scrim for readability.
+     */
+    @Composable
+    fun getSearchEngineSectionBackground(showWallpaperBackground: Boolean): Color {
+        val isLightWithWallpaper = !LocalAppIsDarkTheme.current && showWallpaperBackground
+        val base = if (!LocalAppIsDarkTheme.current) Color.White else Color.Black
+        val alpha = if (isLightWithWallpaper) LightWallpaperSearchResultCardAlpha else CompactSectionAlpha
+        return base.copy(alpha = alpha)
+    }
+
+    /**
      * Background color for settings cards and the management search bar.
      * Mono dark theme matches result cards (surfaceContainer). All other themes use
      * plain White (light) or Black (dark) with the same alpha as result cards.

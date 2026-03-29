@@ -59,6 +59,8 @@ import com.tk.quicksearch.search.searchScreen.resolveSearchColorTheme
 import com.tk.quicksearch.shared.ui.theme.LocalSearchColorTheme
 import kotlinx.coroutines.delay
 
+private const val OPEN_KEYBOARD_ACTION_APPEAR_DELAY_MS = 500L
+
 @Composable
 internal fun SearchScreenContent(
         state: SearchUiState,
@@ -106,6 +108,7 @@ internal fun SearchScreenContent(
     val density = LocalDensity.current
     var canShowOpenKeyboardPill by
             remember(isOverlayPresentation) { mutableStateOf(!isOverlayPresentation) }
+    var delayedOpenKeyboardActionVisible by remember { mutableStateOf(false) }
     var isSearchHistoryExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(isOverlayPresentation) {
@@ -183,12 +186,23 @@ internal fun SearchScreenContent(
     val shouldRenderInlineNumberKeyboardOperators =
             shouldShowNumberKeyboardOperators && !isOverlayPresentation
     val openKeyboardText = stringResource(R.string.action_open_keyboard)
-    val showOpenKeyboardAction =
+    val shouldShowOpenKeyboardAction =
             expandedSection == ExpandedSection.NONE &&
                     !showBottomSearchBar &&
                     !isImeVisible &&
                     canShowOpenKeyboardPill &&
                     !isSearchHistoryExpanded
+
+    LaunchedEffect(shouldShowOpenKeyboardAction) {
+        if (!shouldShowOpenKeyboardAction) {
+            delayedOpenKeyboardActionVisible = false
+            return@LaunchedEffect
+        }
+
+        delayedOpenKeyboardActionVisible = false
+        delay(OPEN_KEYBOARD_ACTION_APPEAR_DELAY_MS)
+        delayedOpenKeyboardActionVisible = true
+    }
     val keyboardSwitchText =
             if (isToolMode) {
                 null
@@ -359,6 +373,7 @@ internal fun SearchScreenContent(
                 autoFocusOnStart = state.openKeyboardOnLaunch,
                 onClearDetectedShortcut = onClearDetectedShortcut,
                 onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
+                forceRestingOutline = showBottomSearchBar,
                 modifier = searchFieldModifier,
                 onSearchAction = {
                     val trimmedQuery = state.query.trim()
@@ -654,7 +669,7 @@ internal fun SearchScreenContent(
                                                         .background(
                                                                 AppColors.getCompactSectionBackground(
                                                                         state.showWallpaperBackground
-                                                                )
+                                                                ).copy(alpha = 0.9f)
                                                         )
                                             } else {
                                                 Modifier
@@ -711,7 +726,7 @@ internal fun SearchScreenContent(
 
         Box(modifier = Modifier.fillMaxWidth().extendToScreenEdges()) {
             androidx.compose.animation.AnimatedVisibility(
-                    visible = showOpenKeyboardAction,
+                    visible = shouldShowOpenKeyboardAction && delayedOpenKeyboardActionVisible,
                     modifier = Modifier.fillMaxWidth(),
                     enter =
                             fadeIn(animationSpec = tween(durationMillis = 180)) +

@@ -95,7 +95,7 @@ fun SearchEngineIconsSection(
     val scrollState = externalScrollState ?: rememberLazyListState()
 
     // Match compact section background with the persistent search bar for visual consistency.
-    val backgroundColor = AppColors.getCompactSectionBackground(showWallpaperBackground)
+    val backgroundColor = AppColors.getSearchEngineSectionBackground(showWallpaperBackground)
 
     if (detectedShortcutTarget != null) {
         // Check if query starts with the shortcut and remove it

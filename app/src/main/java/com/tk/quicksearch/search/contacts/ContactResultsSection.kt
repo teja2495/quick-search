@@ -28,6 +28,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -398,7 +399,8 @@ private fun ContactActionHintBubble(
     val cornerRadius = 16.dp
     val arrowInset =
         ContactUiConstants.ACTION_BUTTON_SIZE.dp * 0.5f + DesignTokens.SpacingSmall + 24.dp
-    val backgroundColor = MaterialTheme.colorScheme.secondaryContainer
+    val backgroundColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
+    val borderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
 
     Box(
         modifier =
@@ -509,6 +511,11 @@ private fun ContactActionHintBubble(
                         }
 
                     drawPath(path = path, color = backgroundColor)
+                    drawPath(
+                        path = path,
+                        color = borderColor,
+                        style = Stroke(width = 1.dp.toPx()),
+                    )
                 },
     ) {
         Box(
@@ -525,7 +532,7 @@ private fun ContactActionHintBubble(
             Text(
                 text = stringResource(R.string.contacts_action_hint_message),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                color = MaterialTheme.colorScheme.onSurface,
                 lineHeight = MaterialTheme.typography.bodySmall.lineHeight * 1.2f,
                 modifier =
                     Modifier.align(Alignment.CenterStart).padding(end = 28.dp),

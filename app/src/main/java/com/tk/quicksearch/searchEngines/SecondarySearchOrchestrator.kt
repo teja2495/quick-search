@@ -70,6 +70,7 @@ class SecondarySearchOrchestrator(
                     calendarEvents = emptyList(),
                     appSettingResults = emptyList(),
                     appShortcutResults = emptyList(),
+                    isSecondarySearchInProgress = false,
                 )
             }
             return
@@ -164,6 +165,7 @@ class SecondarySearchOrchestrator(
 
         val currentVersion = queryVersion.incrementAndGet()
         lastQueryLength = trimmedQuery.length
+        uiStateUpdater { it.copy(isSecondarySearchInProgress = true) }
 
         searchJob =
             scope.launch(Dispatchers.IO) {
@@ -244,6 +246,7 @@ class SecondarySearchOrchestrator(
                                 // no-results cache; overwriting with empty would clear valid
                                 // results that were found for the current or a prior query.
                                 appShortcutResults = if (shouldSearchAppShortcuts) unifiedResults.appShortcutResults else state.appShortcutResults,
+                                isSecondarySearchInProgress = false,
                             )
                         }
 
@@ -314,6 +317,7 @@ class SecondarySearchOrchestrator(
                     appSettingResults = emptyList(),
                     appShortcutResults = emptyList(),
                     webSuggestions = emptyList(),
+                    isSecondarySearchInProgress = false,
                 )
             }
             return
@@ -354,6 +358,7 @@ class SecondarySearchOrchestrator(
             section == SearchSection.APP_SHORTCUTS && isAppShortcutsEnabled
 
         val currentVersion = queryVersion.incrementAndGet()
+        uiStateUpdater { it.copy(isSecondarySearchInProgress = true) }
         searchJob =
             scope.launch(Dispatchers.IO) {
                 delay(SECONDARY_SEARCH_DEBOUNCE_MS)
@@ -389,6 +394,7 @@ class SecondarySearchOrchestrator(
                             appSettingResults = unifiedResults.appSettingResults,
                             appShortcutResults = unifiedResults.appShortcutResults,
                             webSuggestions = emptyList(),
+                            isSecondarySearchInProgress = false,
                         )
                     }
                 }
@@ -430,6 +436,7 @@ class SecondarySearchOrchestrator(
         val trimmedQuery = query.trim()
         val currentVersion = queryVersion.incrementAndGet()
         lastQueryLength = trimmedQuery.length
+        uiStateUpdater { it.copy(isSecondarySearchInProgress = false) }
 
         searchJob =
             scope.launch(Dispatchers.IO) {
@@ -447,6 +454,7 @@ class SecondarySearchOrchestrator(
                             calendarEvents = emptyList(),
                             appSettingResults = emptyList(),
                             appShortcutResults = emptyList(),
+                            isSecondarySearchInProgress = false,
                         )
                     }
 
@@ -474,10 +482,12 @@ class SecondarySearchOrchestrator(
         if (!isOnMainThread()) {
             scope.launch(Dispatchers.Main.immediate) {
                 searchJob?.cancel()
+                uiStateUpdater { it.copy(isSecondarySearchInProgress = false) }
             }
             return
         }
         searchJob?.cancel()
+        uiStateUpdater { it.copy(isSecondarySearchInProgress = false) }
     }
 
     private fun isOnMainThread(): Boolean = Looper.myLooper() == Looper.getMainLooper()

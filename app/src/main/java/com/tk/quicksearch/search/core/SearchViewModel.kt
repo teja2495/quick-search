@@ -469,6 +469,7 @@ class SearchViewModel(
                     DirectSearchState = s.DirectSearchState,
                     webSuggestions = s.webSuggestions,
                     webSuggestionWasSelected = s.webSuggestionWasSelected,
+                    isSecondarySearchInProgress = s.isSecondarySearchInProgress,
                     detectedShortcutTarget = s.detectedShortcutTarget,
                     detectedAliasSearchSection = s.detectedAliasSearchSection,
                     recentItems = s.recentItems,
@@ -2548,6 +2549,10 @@ class SearchViewModel(
                             else state.searchResults,
                     calculatorState = calculatorResult,
                     webSuggestions = emptyList(),
+                    isSecondarySearchInProgress =
+                            !showingTool &&
+                                    detectedTarget == null &&
+                                    detectedAliasSearchSection != SearchSection.APPS,
                     detectedShortcutTarget = detectedTarget,
                     detectedAliasSearchSection = detectedAliasSearchSection,
                     contactResults =

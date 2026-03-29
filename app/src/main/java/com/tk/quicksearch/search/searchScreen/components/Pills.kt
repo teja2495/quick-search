@@ -87,7 +87,7 @@ internal fun OpenKeyboardAction(
     modifier: Modifier = Modifier,
 ) {
     val isDarkTheme = LocalAppIsDarkTheme.current
-    val backgroundColor = AppColors.getCompactSectionBackground(showWallpaperBackground)
+    val backgroundColor = AppColors.getSearchEngineSectionBackground(showWallpaperBackground)
     val labelColor = if (isDarkTheme) Color.White else Color.Black
     Surface(
         modifier = modifier.fillMaxWidth().clickable(onClick = onClick),

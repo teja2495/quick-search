@@ -572,6 +572,7 @@ fun ContentLayout(
                     val showInlineSearchEngines =
                         !hideResults &&
                             hasQuery &&
+                            !state.isSecondarySearchInProgress &&
                             (!state.isSearchEngineCompactMode || isUrlQuery)
                     AnimatedVisibility(
                         visible = showInlineSearchEngines,

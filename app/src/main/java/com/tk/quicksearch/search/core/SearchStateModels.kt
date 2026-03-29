@@ -83,6 +83,7 @@ data class SearchResultsState(
         val DirectSearchState: DirectSearchState = DirectSearchState(),
         val webSuggestions: List<String> = emptyList(),
         val webSuggestionWasSelected: Boolean = false,
+        val isSecondarySearchInProgress: Boolean = false,
         val detectedShortcutTarget: SearchTarget? = null,
         val detectedAliasSearchSection: SearchSection? = null,
         // Recent items (shown when query is blank)

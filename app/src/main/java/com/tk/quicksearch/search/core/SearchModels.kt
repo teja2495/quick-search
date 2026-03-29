@@ -461,6 +461,7 @@ data class SearchUiState(
         // Transient search state
         val calculatorState: CalculatorState = CalculatorState(),
         val webSuggestions: List<String> = emptyList(),
+        val isSecondarySearchInProgress: Boolean = false,
         val detectedShortcutTarget: SearchTarget? = null,
         val detectedAliasSearchSection: SearchSection? = null,
         val webSuggestionWasSelected: Boolean = false,
@@ -534,6 +535,7 @@ fun SearchUiState(
                 calculatorState = results.calculatorState,
                 DirectSearchState = results.DirectSearchState,
                 webSuggestions = results.webSuggestions,
+                isSecondarySearchInProgress = results.isSecondarySearchInProgress,
                 webSuggestionWasSelected = results.webSuggestionWasSelected,
                 detectedShortcutTarget = results.detectedShortcutTarget,
                 detectedAliasSearchSection = results.detectedAliasSearchSection,

@@ -52,15 +52,21 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.common.AddToHomeHandler
 import com.tk.quicksearch.search.core.AppIconShape
+import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.StartupPhase
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.launchStaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
+import com.tk.quicksearch.shared.ui.theme.AuroraThemeAccent
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.ForestThemeAccent
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
+import com.tk.quicksearch.shared.ui.theme.LocalAppTheme
 import com.tk.quicksearch.shared.ui.theme.LocalImageBackgroundIsDark
+import com.tk.quicksearch.shared.ui.theme.MonochromeThemeAccent
+import com.tk.quicksearch.shared.ui.theme.SunsetThemeAccent
 import com.tk.quicksearch.shared.util.getAppGridColumns
 import com.tk.quicksearch.shared.util.hapticConfirm
 
@@ -81,6 +87,35 @@ private enum class AppIconDisplayMode {
     OVERLAY,
     REGULAR,
 }
+
+private data class LightModeThemedIconPalette(
+        val background: Color,
+        val foreground: Color,
+)
+
+private fun themedIconPaletteForLightMode(theme: AppTheme): LightModeThemedIconPalette =
+        when (theme) {
+            AppTheme.FOREST ->
+                    LightModeThemedIconPalette(
+                            background = Color(0xFFDDF3D9),
+                            foreground = Color(0xFF1F6A31),
+                    )
+            AppTheme.AURORA ->
+                    LightModeThemedIconPalette(
+                            background = Color(0xFFD9ECFF),
+                            foreground = Color(0xFF0E5AAE),
+                    )
+            AppTheme.SUNSET ->
+                    LightModeThemedIconPalette(
+                            background = Color(0xFFFFE3D6),
+                            foreground = Color(0xFFAA3008),
+                    )
+            AppTheme.MONOCHROME ->
+                    LightModeThemedIconPalette(
+                            background = Color(0xFFE8E6E2),
+                            foreground = Color(0xFF1F1F1F),
+                    )
+        }
 
 /** Data class containing all app actions to reduce parameter count in composables. */
 private data class AppActions(
@@ -272,6 +307,8 @@ private fun AppGrid(
                 val chunked = apps.chunked(columns)
                 if (oneHandedMode) chunked.reversed() else chunked
             }
+    val firstResultKey = remember(apps) { apps.firstOrNull()?.launchCountKey() }
+    val shouldHighlightTopApp = predictedTarget != null
 
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val horizontalSpacing = DesignTokens.SpacingMedium
@@ -334,7 +371,9 @@ private fun AppGrid(
                         iconPackPackage = iconPackPackage,
                         createAppActions = createAppActions,
                         createAppState = createAppState,
-                        predictedTarget = predictedTarget,
+                        firstResultKey = firstResultKey,
+                        shouldHighlightTopApp = shouldHighlightTopApp,
+                        oneHandedMode = oneHandedMode,
                         appIconShape = appIconShape,
                         themedIconsEnabled = themedIconsEnabled,
                         showWallpaperBackground = showWallpaperBackground,
@@ -352,7 +391,9 @@ private fun AppGridRow(
         iconPackPackage: String?,
         createAppActions: (AppInfo) -> AppActions,
         createAppState: (AppInfo) -> AppState,
-        predictedTarget: PredictedSubmitTarget?,
+        firstResultKey: String?,
+        shouldHighlightTopApp: Boolean,
+        oneHandedMode: Boolean,
         appIconShape: AppIconShape,
         themedIconsEnabled: Boolean = true,
         showWallpaperBackground: Boolean = false,
@@ -371,11 +412,8 @@ private fun AppGridRow(
                         appActions = createAppActions(app),
                         appState = createAppState(app),
                         iconPackPackage = iconPackPackage,
-                        isPredicted =
-                                (predictedTarget as? PredictedSubmitTarget.App)?.let {
-                                    it.packageName == app.packageName &&
-                                            it.userHandleId == app.userHandleId
-                                } == true,
+                        isPredicted = shouldHighlightTopApp && app.launchCountKey() == firstResultKey,
+                        oneHandedMode = oneHandedMode,
                         appIconShape = appIconShape,
                         themedIconsEnabled = themedIconsEnabled,
                         showWallpaperBackground = showWallpaperBackground,
@@ -395,6 +433,7 @@ private fun AppGridItem(
         appState: AppState,
         iconPackPackage: String?,
         isPredicted: Boolean = false,
+        oneHandedMode: Boolean = false,
         appIconShape: AppIconShape = AppIconShape.DEFAULT,
         themedIconsEnabled: Boolean = true,
         showWallpaperBackground: Boolean = false,
@@ -483,6 +522,7 @@ private fun AppGridItem(
                     appIconSize = appIconSize,
                     appIconShape = appIconShape,
                     hasCustomIconPack = iconPackPackage != null,
+                    oneHandedMode = oneHandedMode,
                     themedIconsEnabled = themedIconsEnabled,
                     showWallpaperBackground = showWallpaperBackground,
             )
@@ -525,6 +565,7 @@ private fun AppIconSurface(
         appIconSize: Dp,
         appIconShape: AppIconShape = AppIconShape.DEFAULT,
         hasCustomIconPack: Boolean = false,
+        oneHandedMode: Boolean = false,
         themedIconsEnabled: Boolean = true,
         showWallpaperBackground: Boolean = false,
 ) {
@@ -532,12 +573,29 @@ private fun AppIconSurface(
     val useLightWallpaperShadow = showWallpaperBackground && !LocalAppIsDarkTheme.current
     val showThemedIcon = themedIconsEnabled && !hasCustomIconPack &&
             android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU
-    // Material 3-compliant themed icon roles: container/content pair from the active color scheme.
-    // For wallpaper/custom-image backgrounds, the scheme itself is already image-derived.
-    val materialIconBackground = MaterialTheme.colorScheme.primaryContainer
-    val materialIconForeground = MaterialTheme.colorScheme.onPrimaryContainer
-    val themedIconBackground = materialIconBackground
-    val themedIconForeground = materialIconForeground
+    val appTheme = LocalAppTheme.current
+    val lightModePalette = themedIconPaletteForLightMode(appTheme)
+    val themeAccent =
+            when (appTheme) {
+                AppTheme.FOREST -> ForestThemeAccent
+                AppTheme.AURORA -> AuroraThemeAccent
+                AppTheme.SUNSET -> SunsetThemeAccent
+                AppTheme.MONOCHROME -> MonochromeThemeAccent
+            }
+    // Keep dark mode tied to existing theme accent tokens; apply a custom per-theme palette
+    // only for light mode so icons read clearer over bright surfaces.
+    val themedIconBackground =
+            if (LocalAppIsDarkTheme.current) {
+                themeAccent.lightPrimaryContainer
+            } else {
+                lightModePalette.background
+            }
+    val themedIconForeground =
+            if (LocalAppIsDarkTheme.current) {
+                themeAccent.lightOnPrimaryContainer
+            } else {
+                lightModePalette.foreground
+            }
     val themedIconContainerShape = CircleShape
 
     Surface(

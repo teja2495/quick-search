@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import androidx.compose.animation.animateContentSize
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -57,6 +58,7 @@ import com.tk.quicksearch.search.searchScreen.SearchRoute
 import com.tk.quicksearch.search.searchScreen.SearchScreenBackground
 import com.tk.quicksearch.search.searchScreen.components.NumberKeyboardOperatorPills
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.isLandscape
 import com.tk.quicksearch.shared.util.isTablet
@@ -73,6 +75,7 @@ private const val OVERLAY_ENTER_ANIMATION_MS = 420
 private const val OVERLAY_EXIT_ANIMATION_MS = 220
 private const val OVERLAY_ENTER_START_DELAY_MS = 32
 private const val OVERLAY_ENTER_START_SCALE = 0.9f
+private val OVERLAY_BORDER_WIDTH = 1.25.dp
 private val OVERLAY_OPERATOR_ROW_ESTIMATED_HEIGHT = 48.dp
 private val OVERLAY_TOP_OFFSET = 16.dp
 private val OVERLAY_ENTER_START_OFFSET = 56.dp
@@ -316,6 +319,11 @@ fun OverlayRoot(
                                                                                         overlayEntryProgress)
                                                         }
                                                         .clip(DesignTokens.ExtraLargeCardShape)
+                                                        .border(
+                                                                width = OVERLAY_BORDER_WIDTH,
+                                                                color = AppColors.SearchChromeOutlineBorder,
+                                                                shape = DesignTokens.ExtraLargeCardShape,
+                                                        )
                                                         .clickable(
                                                                 interactionSource =
                                                                         remember {

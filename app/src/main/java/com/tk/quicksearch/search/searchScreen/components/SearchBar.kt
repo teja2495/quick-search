@@ -131,6 +131,7 @@ internal fun PersistentSearchBar(
     showWelcomeAnimation: Boolean = false,
     showWallpaperBackground: Boolean = false,
     opaqueBackground: Boolean = false,
+    forceRestingOutline: Boolean = false,
     autoFocusOnStart: Boolean = false,
     onClearDetectedShortcut: () -> Unit = {},
     onWelcomeAnimationCompleted: (() -> Unit)? = null,
@@ -437,7 +438,7 @@ internal fun PersistentSearchBar(
                         )
                     }
                 }.then(
-                    if (lightWallpaperSearchBar) {
+                    if (lightWallpaperSearchBar && !forceRestingOutline) {
                         Modifier
                     } else {
                         Modifier.border(
