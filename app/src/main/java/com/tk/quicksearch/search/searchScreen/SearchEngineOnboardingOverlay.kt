@@ -258,7 +258,7 @@ private fun OnboardingContent(
             ) {
                 // Title
                 Text(
-                        text = stringResource(R.string.search_engine_onboarding_title),
+                        text = stringResource(R.string.setup_search_engines_title),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = AppColors.DialogText,

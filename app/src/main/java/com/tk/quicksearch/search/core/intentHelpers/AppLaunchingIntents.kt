@@ -27,7 +27,7 @@ internal object AppLaunchingIntents {
 
         val launchIntent = context.packageManager.getLaunchIntentForPackage(appInfo.packageName)
         if (launchIntent == null) {
-            onShowToast?.invoke(R.string.error_launch_app, appInfo.appName)
+            onShowToast?.invoke(R.string.common_error_unable_to_open, appInfo.appName)
             return
         }
         launchIntent.addFlags(
@@ -36,7 +36,7 @@ internal object AppLaunchingIntents {
         runCatching { context.startActivity(launchIntent) }
             .onFailure { throwable ->
                 Log.w(TAG, "Failed to launch ${appInfo.packageName}", throwable)
-                onShowToast?.invoke(R.string.error_launch_app, appInfo.appName)
+                onShowToast?.invoke(R.string.common_error_unable_to_open, appInfo.appName)
             }
     }
 

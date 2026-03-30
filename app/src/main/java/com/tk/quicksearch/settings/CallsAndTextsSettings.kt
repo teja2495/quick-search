@@ -162,7 +162,7 @@ fun MessagingSection(
         if (showTitle) {
             Column {
                 Text(
-                    text = stringResource(R.string.settings_messaging_title),
+                    text = stringResource(R.string.settings_calls_texts_title),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding),

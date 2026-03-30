@@ -28,19 +28,19 @@ fun ThemeChoiceSegmentedButtonRow(
             onClick = { onSelectionChange(WidgetTheme.LIGHT) },
             shape = SegmentedButtonDefaults.itemShape(index = 0, count = 3),
             icon = {},
-        ) { Text(stringResource(R.string.widget_theme_light)) }
+        ) { Text(stringResource(R.string.common_theme_light)) }
         SegmentedButton(
             selected = selectedTheme === WidgetTheme.DARK,
             onClick = { onSelectionChange(WidgetTheme.DARK) },
             shape = SegmentedButtonDefaults.itemShape(index = 1, count = 3),
             icon = {},
-        ) { Text(stringResource(R.string.widget_theme_dark)) }
+        ) { Text(stringResource(R.string.common_theme_dark)) }
         SegmentedButton(
             selected = selectedTheme === WidgetTheme.SYSTEM,
             onClick = { onSelectionChange(WidgetTheme.SYSTEM) },
             shape = SegmentedButtonDefaults.itemShape(index = 2, count = 3),
             icon = {},
-        ) { Text(stringResource(R.string.widget_theme_system)) }
+        ) { Text(stringResource(R.string.common_theme_system)) }
     }
 }
 

@@ -86,7 +86,8 @@ fun WidgetMicIconSection(
                 stringResource(
                     R.string.widget_mic_action_digital_assistant_limitation,
                 )
-            val linkText = "digital assistant app"
+            val linkText =
+                stringResource(R.string.widget_mic_action_digital_assistant_link_phrase)
 
             val annotatedString =
                 createClickableText(

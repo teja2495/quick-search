@@ -75,7 +75,7 @@ object CustomAppActions {
             context.startActivity(intent)
         } catch (e: Exception) {
             Log.e("MessagingService", "Failed to open custom app", e)
-            onShowToast?.invoke(R.string.error_launch_app)
+            onShowToast?.invoke(R.string.common_error_unable_to_open)
         }
     }
 }

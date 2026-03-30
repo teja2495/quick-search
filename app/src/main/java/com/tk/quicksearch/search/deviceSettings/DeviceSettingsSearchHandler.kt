@@ -138,7 +138,7 @@ class DeviceSettingsSearchHandler(
         runCatching {
             val intent = repository.buildIntent(setting)
             context.startActivity(intent)
-        }.onFailure { showToastCallback(R.string.error_open_setting) }
+        }.onFailure { showToastCallback(R.string.common_error_unable_to_open) }
     }
 
     private fun getRecentSettingScores(): Map<String, Int> =

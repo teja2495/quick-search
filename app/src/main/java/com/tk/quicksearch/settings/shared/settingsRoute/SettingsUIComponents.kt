@@ -55,7 +55,7 @@ fun SectionSettingsSection(
 ) {
     if (showTitle) {
         Text(
-            text = stringResource(R.string.settings_sections_title),
+            text = stringResource(R.string.settings_search_results_title),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding),

@@ -194,7 +194,7 @@ class SearchWidgetConfigureActivity : ComponentActivity() {
             widgetVariant = widgetVariant,
             titleResId =
                 if (widgetVariant == WidgetVariant.CUSTOM_BUTTONS_ONLY) {
-                    R.string.widget_custom_buttons_widget_settings_title
+                    R.string.widget_custom_buttons_widget_title
                 } else {
                     R.string.widget_settings_title
                 },

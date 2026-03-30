@@ -52,21 +52,21 @@ fun AppThemeModeCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 AppThemeModeOption(
-                    label = stringResource(R.string.settings_app_theme_light),
+                    label = stringResource(R.string.common_theme_light),
                     icon = Icons.Rounded.LightMode,
                     selected = currentThemeMode == AppThemeMode.LIGHT,
                     onClick = { onSetAppThemeMode(AppThemeMode.LIGHT) },
                     modifier = Modifier.weight(1f),
                 )
                 AppThemeModeOption(
-                    label = stringResource(R.string.settings_app_theme_dark),
+                    label = stringResource(R.string.common_theme_dark),
                     icon = Icons.Rounded.DarkMode,
                     selected = currentThemeMode == AppThemeMode.DARK,
                     onClick = { onSetAppThemeMode(AppThemeMode.DARK) },
                     modifier = Modifier.weight(1f),
                 )
                 AppThemeModeOption(
-                    label = stringResource(R.string.settings_app_theme_system),
+                    label = stringResource(R.string.common_theme_system),
                     icon = Icons.Rounded.Settings,
                     selected = currentThemeMode == AppThemeMode.SYSTEM,
                     onClick = { onSetAppThemeMode(AppThemeMode.SYSTEM) },

@@ -303,11 +303,11 @@ class WidgetActionActivity : ComponentActivity() {
             is CustomWidgetButtonAction.Setting -> {
                 val setting = action.toDeviceSetting()
                 if (!setting.isSupported()) {
-                    showToast(R.string.error_open_setting, setting.title)
+                    showToast(R.string.common_error_unable_to_open, setting.title)
                     return
                 }
                 runCatching { startActivity(setting.toIntent(this)) }
-                    .onFailure { showToast(R.string.error_open_setting, setting.title) }
+                    .onFailure { showToast(R.string.common_error_unable_to_open, setting.title) }
             }
 
             is CustomWidgetButtonAction.AppShortcut -> {

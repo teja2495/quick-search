@@ -55,9 +55,9 @@ internal object FileIntents {
         try {
             context.startActivity(viewIntent)
         } catch (exception: ActivityNotFoundException) {
-            onShowToast?.invoke(R.string.error_open_file, deviceFile.displayName)
+            onShowToast?.invoke(R.string.common_error_unable_to_open, deviceFile.displayName)
         } catch (exception: SecurityException) {
-            onShowToast?.invoke(R.string.error_open_file, deviceFile.displayName)
+            onShowToast?.invoke(R.string.common_error_unable_to_open, deviceFile.displayName)
         }
     }
 
@@ -78,14 +78,14 @@ internal object FileIntents {
                 ?.trimStart('/')
                 ?.trimEnd('/')
         if (folderRelativePath.isNullOrBlank()) {
-            onShowToast?.invoke(R.string.error_open_file, deviceFile.displayName)
+            onShowToast?.invoke(R.string.common_error_unable_to_open, deviceFile.displayName)
             return
         }
 
         val folderName =
             folderRelativePath.substringAfterLast('/').takeIf { it.isNotBlank() }
                 ?: run {
-                    onShowToast?.invoke(R.string.error_open_file, deviceFile.displayName)
+                    onShowToast?.invoke(R.string.common_error_unable_to_open, deviceFile.displayName)
                     return
                 }
 
@@ -195,9 +195,9 @@ internal object FileIntents {
         try {
             context.startActivity(fallbackIntent)
         } catch (_: ActivityNotFoundException) {
-            onShowToast?.invoke(R.string.error_open_file, deviceFile.displayName)
+            onShowToast?.invoke(R.string.common_error_unable_to_open, deviceFile.displayName)
         } catch (_: SecurityException) {
-            onShowToast?.invoke(R.string.error_open_file, deviceFile.displayName)
+            onShowToast?.invoke(R.string.common_error_unable_to_open, deviceFile.displayName)
         }
     }
 

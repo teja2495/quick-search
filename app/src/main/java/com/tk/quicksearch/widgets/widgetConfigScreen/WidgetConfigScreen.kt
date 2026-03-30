@@ -77,7 +77,7 @@ fun WidgetConfigScreen(
                             contentDescription =
                                 stringResource(
                                     R.string
-                                        .widget_action_cancel,
+                                        .dialog_cancel,
                                 ),
                         )
                     }
