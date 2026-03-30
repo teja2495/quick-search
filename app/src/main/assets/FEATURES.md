@@ -90,6 +90,7 @@ Long-press on most results to open a context menu with quick actions.
 - **Add / Edit Nickname** - Add or edit nicknames for apps, app shortcuts, contacts, files, and device settings so you can search them using custom names.
 - **Exclude / Include** - Exclude individual contacts, app shortcuts, files, and device settings from results. You can include them again later by clearing them from Excluded Items list in Search Results settings.
 - **Add to Home Screen** - Add apps, app shortcuts, contacts, files, and device settings directly to your home screen as shortcuts for one-tap access.
+- **Edit Icons for App Shortcuts** - Option to add custom icons for app shortcuts.
 - **App Info / Uninstall / Hide** - For apps, open system app info, uninstall supported apps, or hide them from suggestions/results using the long-press menu on the app icon.
 - **File-Specific Options** - For files, long-press to open the containing folder, exclude all files with the same extension, or view a detailed file info dialog (type, size, path, last modified, etc.).
 
@@ -194,7 +195,6 @@ Long-press on most results to open a context menu with quick actions.
 - **Create Search & Browser Shortcuts** - Create query or URL shortcuts for search engines and browsers—including the in-app browser—to instantly open them when needed.
 - **Custom Deep Link Shortcuts** - Add, edit, or delete your own deep-link shortcuts that jump straight into specific screens inside apps. (Example: Add YouTube Music playlists as deep links to open them directly.)
 - **Add App Activities as Shortcuts** - See and add available app activities as shortcuts. This is not a reliable feature; apps do not always provide useful activities, but when they do, you can add them here.
-- **Custom Icons for App Shortcuts** - Option to add custom icons for app shortcuts.
 
 ---
 

@@ -732,14 +732,15 @@
     <string name="release_notes_action_all_features">All Features</string>
     <string name="release_notes_action_got_it">Got it</string>
     <string-array name="release_notes_points">
-                <item>UI design updates &amp; new light themes</item>
-                <item>Themed app icons - both for app results and quick search launcher icon</item>
-                <item>In-App Browser - option to open URLs inside the app</item>
-                <item>Option to change no. of apps per row</item>
-                <item>Fuzzy search for device and app settings</item>
-                <item>Option to add custom icons for app shortcuts</item>
-                <item>Bug fixes</item>
-            </string-array>
+        <item>UI redesign and new light themes</item>
+        <item>Themed app icons - both for app results and quick search launcher icon</item>
+        <item>Change no. of apps per row</item>
+        <item>In-App Browser - open URLs inside the app</item>
+        <item>Choose browser for custom search engines</item>
+        <item>Fuzzy search for device and app settings</item>
+        <item>Add custom icons for app shortcuts by long pressing on the result</item>
+        <item>Bug fixes</item>
+    </string-array>
     <string name="release_notes_title">Quick Search v%1$s Release Notes</string>
     <string name="release_notes_title_no_version">Quick Search Release Notes</string>
     <!-- ============================================================================
