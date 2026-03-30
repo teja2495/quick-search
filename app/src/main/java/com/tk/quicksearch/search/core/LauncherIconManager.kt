@@ -15,18 +15,22 @@ class LauncherIconManager(
     ) {
         val resolved = resolveSelection(selection, appTheme, isDarkMode)
         val packageManager = context.packageManager
+        // Enable the new alias first, then disable the rest. If the currently-active alias is
+        // disabled before the new one is enabled, Android kills the app even with DONT_KILL_APP.
+        val targetComponent = ComponentName(context, aliasMap[resolved] ?: return)
+        runCatching {
+            packageManager.setComponentEnabledSetting(
+                targetComponent,
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                PackageManager.DONT_KILL_APP,
+            )
+        }
         aliasMap.forEach { (option, componentClass) ->
-            val componentName = ComponentName(context, componentClass)
-            val desiredState =
-                if (option == resolved) {
-                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                } else {
-                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED
-                }
+            if (option == resolved) return@forEach
             runCatching {
                 packageManager.setComponentEnabledSetting(
-                    componentName,
-                    desiredState,
+                    ComponentName(context, componentClass),
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                     PackageManager.DONT_KILL_APP,
                 )
             }
