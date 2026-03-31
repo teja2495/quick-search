@@ -386,7 +386,7 @@ fun SettingsRoute(
             onSetGeminiGroundingEnabled = viewModel::setGeminiGroundingEnabled,
             onRefreshAvailableGeminiModels = viewModel::refreshAvailableGeminiModels,
             onOpenDirectSearchConfigure = {
-                onNavigateToDetail(com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType.DIRECT_SEARCH_CONFIGURE)
+                onNavigateToDetail(com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType.GEMINI_API_CONFIG)
             },
             onToggleAppShortcutEnabled = viewModel::setAppShortcutEnabled,
             onLaunchAppShortcut = viewModel::launchAppShortcut,

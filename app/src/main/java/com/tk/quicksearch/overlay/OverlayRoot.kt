@@ -431,7 +431,7 @@ fun OverlayRoot(
                                                                 openSettings = true,
                                                                 settingsDetailType =
                                                                         SettingsDetailType
-                                                                                .DIRECT_SEARCH_CONFIGURE,
+                                                                                .GEMINI_API_CONFIG,
                                                         )
                                                         handleClose()
                                                 },

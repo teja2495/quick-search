@@ -18,7 +18,7 @@ internal fun AppSettingsDestination.toSettingsDetailTypeOrNull(): SettingsDetail
         AppSettingsDestination.FILES -> SettingsDetailType.FILES
         AppSettingsDestination.DEVICE_SETTINGS -> SettingsDetailType.DEVICE_SETTINGS
         AppSettingsDestination.EXCLUDED_ITEMS -> SettingsDetailType.EXCLUDED_ITEMS
-        AppSettingsDestination.DIRECT_SEARCH_CONFIGURE -> SettingsDetailType.DIRECT_SEARCH_CONFIGURE
+        AppSettingsDestination.DIRECT_SEARCH_CONFIGURE -> SettingsDetailType.GEMINI_API_CONFIG
         AppSettingsDestination.CALENDAR_EVENTS -> SettingsDetailType.CALENDAR_EVENTS
         AppSettingsDestination.FEATURES_LIST -> SettingsDetailType.FEATURES_LIST
         AppSettingsDestination.OPEN_SOURCE_LICENSES -> SettingsDetailType.OPEN_SOURCE_LICENSES

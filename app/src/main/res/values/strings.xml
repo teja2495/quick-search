@@ -456,7 +456,6 @@
     <string name="settings_direct_dial_desc">Place calls directly without opening the dialer. </string>
     <string name="settings_direct_dial_title">Direct Dial</string>
     <string name="settings_direct_search_configure">Configure</string>
-    <string name="settings_direct_search_configure_title">Configure Gemini API</string>
     <string name="settings_direct_search_desc">Setup Gemini API key to enable AI-powered features within the app.</string>
     <string name="settings_direct_search_grounding_label">Grounding with Google Search</string>
     <string name="settings_direct_search_how_to">Get Free API Key</string>
@@ -832,7 +831,7 @@
     <string name="date_calculator_info_title">Date &amp; Time Calculator</string>
     <string name="date_calculator_invalid_date">Invalid or unrecognized date or time</string>
     <string name="date_calculator_toggle_action_desc">Toggle date &amp; time calculator on or off</string>
-    <string name="date_calculator_toggle_desc">Usage instructions and examples</string>
+    <string name="date_calculator_toggle_desc">Usage examples</string>
     <string name="date_calculator_toggle_title">Date &amp; Time Calculator</string>
     <string name="unit_converter_category_angle">Angle</string>
     <string name="unit_converter_category_area">Area</string>
@@ -851,11 +850,14 @@
     <string name="unit_converter_info_title">Unit Converter</string>
     <string name="unit_converter_invalid_or_unsupported_query">Invalid or unsupported conversion</string>
     <string name="unit_converter_toggle_action_desc">Toggle unit converter on or off</string>
-    <string name="unit_converter_toggle_desc">Usage instructions and examples</string>
+    <string name="unit_converter_toggle_desc">Usage examples</string>
     <string name="unit_converter_toggle_title">Unit Converter</string>
     <string name="search_hint_currency_converter">Convert Currencies e.g. 100 USD to INR</string>
     <string name="currency_converter_toggle_title">Currency Converter</string>
     <string name="currency_converter_toggle_desc">Example: 100 USD to INR</string>
+    <string name="currency_converter_requires_gemini_key">Requires Gemini API key</string>
+    <string name="settings_tools_gemini_api_title">Setup Gemini API</string>
+    <string name="settings_tools_gemini_api_desc">Setting up Gemini API key will enable more tools.</string>
     <!-- ============================================================================
          No Results
          ============================================================================ -->

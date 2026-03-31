@@ -179,6 +179,7 @@ internal fun SettingsDetailLevel2Screen(
                                             com.tk.quicksearch.searchEngines.AliasHandler
                                                     .DATE_CALCULATOR_ALIAS_FEATURE_ID
                                     ].orEmpty(),
+                            hasGeminiApiKey = state.hasGeminiApiKey,
                             currencyConverterEnabled = state.currencyConverterEnabled,
                             currencyConverterAlias =
                                     state.shortcutCodes[
@@ -194,6 +195,9 @@ internal fun SettingsDetailLevel2Screen(
                             onUnitConverterToggle = callbacks.onToggleUnitConverter,
                             onDateCalculatorToggle = callbacks.onToggleDateCalculator,
                             onCurrencyConverterToggle = callbacks.onToggleCurrencyConverter,
+                            onNavigateToGeminiApiSetup = {
+                                onNavigateToDetail(SettingsDetailType.GEMINI_API_CONFIG)
+                            },
                             onNavigateToUnitConverterInfo = {
                                 onNavigateToDetail(SettingsDetailType.UNIT_CONVERTER_INFO)
                             },
@@ -301,20 +305,6 @@ internal fun SettingsDetailLevel2Screen(
                                 onRemoveExcludedExtension = callbacks.onRemoveExcludedFileExtension,
                                 showTitle = false,
                                 modifier = Modifier,
-                            )
-                        }
-
-                        SettingsDetailType.DIRECT_SEARCH_CONFIGURE -> {
-                            APIKeySettingsSection(
-                                personalContext = state.personalContext,
-                                geminiModel = state.geminiModel,
-                                geminiGroundingEnabled = state.geminiGroundingEnabled,
-                                availableGeminiModels = state.availableGeminiModels,
-                                onSetPersonalContext = callbacks.onSetPersonalContext,
-                                onSetGeminiModel = callbacks.onSetGeminiModel,
-                                onSetGeminiGroundingEnabled = callbacks.onSetGeminiGroundingEnabled,
-                                onRefreshAvailableGeminiModels = callbacks.onRefreshAvailableGeminiModels,
-                                modifier = Modifier.fillMaxWidth(),
                             )
                         }
 

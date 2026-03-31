@@ -238,9 +238,6 @@ fun SettingsDetailRoute(
             if (detailType.isLevel2()) {
                 {
                     when (detailType) {
-                        SettingsDetailType.DIRECT_SEARCH_CONFIGURE -> {
-                            onNavigateToDetail(SettingsDetailType.GEMINI_API_CONFIG)
-                        }
                         SettingsDetailType.TOOLS -> {
                             onBack()
                         }
@@ -248,7 +245,7 @@ fun SettingsDetailRoute(
                             if (sourceDetailType == null) {
                                 onBack()
                             } else {
-                                onNavigateToDetail(SettingsDetailType.SEARCH_ENGINES)
+                                onNavigateToDetail(sourceDetailType)
                             }
                         }
                         SettingsDetailType.UNIT_CONVERTER_INFO,

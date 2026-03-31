@@ -540,7 +540,7 @@ private fun NavigationContent(
                         navigateToSettings(SettingsDetailType.SEARCH_ENGINES)
                     },
                     onOpenDirectSearchConfigure = {
-                        navigateToSettings(SettingsDetailType.DIRECT_SEARCH_CONFIGURE)
+                        navigateToSettings(SettingsDetailType.GEMINI_API_CONFIG)
                     },
                     onOpenReleaseNotesFeatures = {
                         navigateToSettings(SettingsDetailType.FEATURES_LIST)

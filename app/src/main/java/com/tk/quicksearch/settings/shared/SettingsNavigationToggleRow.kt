@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalView
@@ -45,6 +46,7 @@ fun SettingsNavigationToggleRow(
     title: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier,
     subtitle: String? = null,
     leadingIcon: ImageVector? = null,
@@ -62,8 +64,9 @@ fun SettingsNavigationToggleRow(
         modifier =
             modifier
                 .fillMaxWidth()
+                .alpha(if (enabled) 1f else 0.55f)
                 .let { rowModifier ->
-                    if (onRowClick != null) {
+                    if (onRowClick != null && enabled) {
                         rowModifier.clickable(
                             interactionSource = rowInteractionSource,
                             indication = if (noRippleOnRowClick) null else rowIndication,
@@ -149,6 +152,7 @@ fun SettingsNavigationToggleRow(
                 hapticToggle(view)()
                 onCheckedChange(enabled)
             },
+            enabled = enabled,
             modifier = Modifier.scale(0.85f),
             colors = SwitchDefaults.colors(
                 uncheckedTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),

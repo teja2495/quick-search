@@ -341,7 +341,6 @@ internal fun SettingsDetailLevel1Screen(
                     SettingsDetailType.CALENDAR_EVENTS,
                     SettingsDetailType.CALLS_TEXTS,
                     SettingsDetailType.FILES,
-                    SettingsDetailType.DIRECT_SEARCH_CONFIGURE,
                     SettingsDetailType.TOOLS,
                     SettingsDetailType.GEMINI_API_CONFIG,
                     SettingsDetailType.UNIT_CONVERTER_INFO,
@@ -442,7 +441,6 @@ internal fun SettingsDetailType.titleResId(): Int =
         SettingsDetailType.LAUNCH_OPTIONS -> R.string.settings_launch_options_title
         SettingsDetailType.MORE_OPTIONS -> R.string.settings_more_options_title
         SettingsDetailType.PERMISSIONS -> R.string.settings_permissions_title
-        SettingsDetailType.DIRECT_SEARCH_CONFIGURE -> R.string.settings_direct_search_configure_title
         SettingsDetailType.TOOLS -> R.string.settings_tools_title
         SettingsDetailType.GEMINI_API_CONFIG -> R.string.settings_gemini_api_config_title
         SettingsDetailType.FEATURES_LIST -> R.string.settings_all_quick_search_features
@@ -459,7 +457,6 @@ internal fun SettingsDetailType.isLevel2(): Boolean =
         this == SettingsDetailType.CALENDAR_EVENTS ||
         this == SettingsDetailType.CALLS_TEXTS ||
         this == SettingsDetailType.FILES ||
-        this == SettingsDetailType.DIRECT_SEARCH_CONFIGURE ||
         this == SettingsDetailType.TOOLS ||
         this == SettingsDetailType.GEMINI_API_CONFIG ||
         this == SettingsDetailType.UNIT_CONVERTER_INFO ||
@@ -489,7 +486,6 @@ enum class SettingsDetailType {
     LAUNCH_OPTIONS,
     MORE_OPTIONS,
     PERMISSIONS,
-    DIRECT_SEARCH_CONFIGURE,
     TOOLS,
     GEMINI_API_CONFIG,
     FEATURES_LIST,

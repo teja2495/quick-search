@@ -2,6 +2,7 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,6 +21,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.tk.quicksearch.R
 import com.tk.quicksearch.searchEngines.AliasHandler
+import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.settings.shared.SettingsCardItem
+import com.tk.quicksearch.settings.shared.SettingsNavigationRow
 import com.tk.quicksearch.settings.shared.ToolToggleCardModel
 import com.tk.quicksearch.settings.shared.ToolToggleRows
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -32,6 +36,7 @@ fun ToolsSettingsSection(
         unitConverterAlias: String,
         dateCalculatorEnabled: Boolean,
         dateCalculatorAlias: String,
+        hasGeminiApiKey: Boolean,
         currencyConverterEnabled: Boolean,
         currencyConverterAlias: String,
         existingShortcuts: Map<String, String>,
@@ -43,6 +48,7 @@ fun ToolsSettingsSection(
         onUnitConverterToggle: (Boolean) -> Unit,
         onDateCalculatorToggle: (Boolean) -> Unit,
         onCurrencyConverterToggle: (Boolean) -> Unit,
+        onNavigateToGeminiApiSetup: () -> Unit = {},
         onNavigateToUnitConverterInfo: () -> Unit = {},
         onNavigateToDateCalculatorInfo: () -> Unit = {},
         modifier: Modifier = Modifier,
@@ -61,6 +67,25 @@ fun ToolsSettingsSection(
                                 .padding(horizontal = DesignTokens.SpacingSmall),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
         ) {
+            SettingsCard(modifier = Modifier.fillMaxWidth()) {
+                SettingsNavigationRow(
+                        item =
+                                SettingsCardItem(
+                                        title = stringResource(R.string.settings_tools_gemini_api_title),
+                                        description =
+                                                stringResource(
+                                                        R.string.settings_tools_gemini_api_desc
+                                                ),
+                                        iconResId = R.drawable.direct_search,
+                                        actionOnPress = onNavigateToGeminiApiSetup,
+                                ),
+                        contentPadding =
+                                PaddingValues(
+                                        horizontal = DesignTokens.CardHorizontalPadding,
+                                        vertical = DesignTokens.CardVerticalPadding,
+                                ),
+                )
+            }
             ToolToggleRows(
                     tools =
                             buildList {
@@ -134,12 +159,22 @@ fun ToolsSettingsSection(
                                                         ),
                                                 subtitle =
                                                         stringResource(
-                                                                R.string.currency_converter_toggle_desc
+                                                                if (hasGeminiApiKey) {
+                                                                    R.string.currency_converter_toggle_desc
+                                                                } else {
+                                                                    R.string.currency_converter_requires_gemini_key
+                                                                }
                                                         ),
-                                                checked = currencyConverterEnabled,
+                                                enabled = hasGeminiApiKey,
+                                                checked = currencyConverterEnabled && hasGeminiApiKey,
                                                 onCheckedChange = onCurrencyConverterToggle,
                                                 leadingIcon = Icons.Rounded.CurrencyExchange,
-                                                aliasCode = currencyConverterAlias,
+                                                aliasCode =
+                                                        if (hasGeminiApiKey) {
+                                                            currencyConverterAlias
+                                                        } else {
+                                                            null
+                                                        },
                                                 onAliasCodeChange = onSetCurrencyConverterAlias,
                                                 existingShortcuts = existingShortcuts,
                                                 aliasFeatureId =
