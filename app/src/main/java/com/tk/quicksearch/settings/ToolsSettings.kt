@@ -2,11 +2,15 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material.icons.rounded.CalendarMonth
+import androidx.compose.material.icons.rounded.CurrencyExchange
 import androidx.compose.material.icons.rounded.Straighten
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,87 +26,142 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 @Composable
 fun ToolsSettingsSection(
-    calculatorEnabled: Boolean,
-    calculatorAlias: String,
-    unitConverterEnabled: Boolean,
-    unitConverterAlias: String,
-    dateCalculatorEnabled: Boolean,
-    dateCalculatorAlias: String,
-    existingShortcuts: Map<String, String>,
-    onSetCalculatorAlias: (String) -> Unit,
-    onSetUnitConverterAlias: (String) -> Unit,
-    onSetDateCalculatorAlias: (String) -> Unit,
-    onCalculatorToggle: (Boolean) -> Unit,
-    onUnitConverterToggle: (Boolean) -> Unit,
-    onDateCalculatorToggle: (Boolean) -> Unit,
-    onNavigateToUnitConverterInfo: () -> Unit = {},
-    onNavigateToDateCalculatorInfo: () -> Unit = {},
-    modifier: Modifier = Modifier,
+        calculatorEnabled: Boolean,
+        calculatorAlias: String,
+        unitConverterEnabled: Boolean,
+        unitConverterAlias: String,
+        dateCalculatorEnabled: Boolean,
+        dateCalculatorAlias: String,
+        currencyConverterEnabled: Boolean,
+        currencyConverterAlias: String,
+        existingShortcuts: Map<String, String>,
+        onSetCalculatorAlias: (String) -> Unit,
+        onSetUnitConverterAlias: (String) -> Unit,
+        onSetDateCalculatorAlias: (String) -> Unit,
+        onSetCurrencyConverterAlias: (String) -> Unit,
+        onCalculatorToggle: (Boolean) -> Unit,
+        onUnitConverterToggle: (Boolean) -> Unit,
+        onDateCalculatorToggle: (Boolean) -> Unit,
+        onCurrencyConverterToggle: (Boolean) -> Unit,
+        onNavigateToUnitConverterInfo: () -> Unit = {},
+        onNavigateToDateCalculatorInfo: () -> Unit = {},
+        modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-    ) {
-        ToolToggleRows(
-            tools =
-                buildList {
-                    add(
-                        ToolToggleCardModel(
-                            title = stringResource(R.string.calculator_toggle_title),
-                            subtitle = stringResource(R.string.calculator_toggle_desc),
-                            checked = calculatorEnabled,
-                            onCheckedChange = onCalculatorToggle,
-                            leadingIcon = Icons.Rounded.Calculate,
-                            aliasCode = calculatorAlias,
-                            onAliasCodeChange = onSetCalculatorAlias,
-                            existingShortcuts = existingShortcuts,
-                            aliasFeatureId = AliasHandler.CALCULATOR_ALIAS_FEATURE_ID,
-                        ),
-                    )
-                    add(
-                        ToolToggleCardModel(
-                            title = stringResource(R.string.unit_converter_toggle_title),
-                            subtitle = stringResource(R.string.unit_converter_toggle_desc),
-                            checked = unitConverterEnabled,
-                            onCheckedChange = onUnitConverterToggle,
-                            leadingIcon = Icons.Rounded.Straighten,
-                            aliasCode = unitConverterAlias,
-                            onAliasCodeChange = onSetUnitConverterAlias,
-                            existingShortcuts = existingShortcuts,
-                            aliasFeatureId = AliasHandler.UNIT_CONVERTER_ALIAS_FEATURE_ID,
-                            onRowClick = onNavigateToUnitConverterInfo,
-                        )
-                    )
-                    add(
-                        ToolToggleCardModel(
-                            title = stringResource(R.string.date_calculator_toggle_title),
-                            subtitle = stringResource(R.string.date_calculator_toggle_desc),
-                            checked = dateCalculatorEnabled,
-                            onCheckedChange = onDateCalculatorToggle,
-                            leadingIcon = Icons.Rounded.CalendarMonth,
-                            aliasCode = dateCalculatorAlias,
-                            onAliasCodeChange = onSetDateCalculatorAlias,
-                            existingShortcuts = existingShortcuts,
-                            aliasFeatureId = AliasHandler.DATE_CALCULATOR_ALIAS_FEATURE_ID,
-                            onRowClick = onNavigateToDateCalculatorInfo,
-                        )
-                    )
-                },
-        )
+    val scrollState = rememberScrollState()
 
-        Text(
-            text = stringResource(R.string.settings_tools_more_coming_soon),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
+    Column(
             modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        top = DesignTokens.SpacingMedium,
-                        start = DesignTokens.SpacingSmall,
-                        end = DesignTokens.SpacingSmall,
-                    ),
-        )
+                    modifier.fillMaxSize()
+                            .verticalScroll(scrollState)
+                            .padding(bottom = DesignTokens.SpacingSmall),
+    ) {
+        Column(
+                modifier =
+                        Modifier.fillMaxWidth()
+                                .padding(horizontal = DesignTokens.SpacingSmall),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+        ) {
+            ToolToggleRows(
+                    tools =
+                            buildList {
+                                add(
+                                        ToolToggleCardModel(
+                                                title =
+                                                        stringResource(
+                                                                R.string.calculator_toggle_title
+                                                        ),
+                                                subtitle =
+                                                        stringResource(
+                                                                R.string.calculator_toggle_desc
+                                                        ),
+                                                checked = calculatorEnabled,
+                                                onCheckedChange = onCalculatorToggle,
+                                                leadingIcon = Icons.Rounded.Calculate,
+                                                aliasCode = calculatorAlias,
+                                                onAliasCodeChange = onSetCalculatorAlias,
+                                                existingShortcuts = existingShortcuts,
+                                                aliasFeatureId =
+                                                        AliasHandler.CALCULATOR_ALIAS_FEATURE_ID,
+                                        ),
+                                )
+                                add(
+                                        ToolToggleCardModel(
+                                                title =
+                                                        stringResource(
+                                                                R.string.unit_converter_toggle_title
+                                                        ),
+                                                subtitle =
+                                                        stringResource(
+                                                                R.string.unit_converter_toggle_desc
+                                                        ),
+                                                checked = unitConverterEnabled,
+                                                onCheckedChange = onUnitConverterToggle,
+                                                leadingIcon = Icons.Rounded.Straighten,
+                                                aliasCode = unitConverterAlias,
+                                                onAliasCodeChange = onSetUnitConverterAlias,
+                                                existingShortcuts = existingShortcuts,
+                                                aliasFeatureId =
+                                                        AliasHandler.UNIT_CONVERTER_ALIAS_FEATURE_ID,
+                                                onRowClick = onNavigateToUnitConverterInfo,
+                                        ),
+                                )
+                                add(
+                                        ToolToggleCardModel(
+                                                title =
+                                                        stringResource(
+                                                                R.string.date_calculator_toggle_title
+                                                        ),
+                                                subtitle =
+                                                        stringResource(
+                                                                R.string.date_calculator_toggle_desc
+                                                        ),
+                                                checked = dateCalculatorEnabled,
+                                                onCheckedChange = onDateCalculatorToggle,
+                                                leadingIcon = Icons.Rounded.CalendarMonth,
+                                                aliasCode = dateCalculatorAlias,
+                                                onAliasCodeChange = onSetDateCalculatorAlias,
+                                                existingShortcuts = existingShortcuts,
+                                                aliasFeatureId =
+                                                        AliasHandler.DATE_CALCULATOR_ALIAS_FEATURE_ID,
+                                                onRowClick = onNavigateToDateCalculatorInfo,
+                                        ),
+                                )
+                                add(
+                                        ToolToggleCardModel(
+                                                title =
+                                                        stringResource(
+                                                                R.string.currency_converter_toggle_title
+                                                        ),
+                                                subtitle =
+                                                        stringResource(
+                                                                R.string.currency_converter_toggle_desc
+                                                        ),
+                                                checked = currencyConverterEnabled,
+                                                onCheckedChange = onCurrencyConverterToggle,
+                                                leadingIcon = Icons.Rounded.CurrencyExchange,
+                                                aliasCode = currencyConverterAlias,
+                                                onAliasCodeChange = onSetCurrencyConverterAlias,
+                                                existingShortcuts = existingShortcuts,
+                                                aliasFeatureId =
+                                                        AliasHandler
+                                                                .CURRENCY_CONVERTER_ALIAS_FEATURE_ID,
+                                        ),
+                                )
+                            },
+            )
+            Text(
+                    text = stringResource(R.string.settings_tools_more_coming_soon),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier =
+                            Modifier.fillMaxWidth()
+                                    .padding(
+                                            top = DesignTokens.SpacingMedium,
+                                            start = DesignTokens.SpacingSmall,
+                                            end = DesignTokens.SpacingSmall,
+                                    ),
+            )
+        }
     }
 }

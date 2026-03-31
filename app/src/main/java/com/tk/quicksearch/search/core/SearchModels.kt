@@ -133,6 +133,13 @@ enum class DirectSearchStatus {
         Error,
 }
 
+enum class CurrencyConverterStatus {
+        Idle,
+        Loading,
+        Success,
+        Error,
+}
+
 enum class SearchToolType {
         CALCULATOR,
         UNIT_CONVERTER,
@@ -145,6 +152,18 @@ data class DirectSearchState(
         val errorMessage: String? = null,
         val activeQuery: String? = null,
         val usedModelId: String? = null,
+)
+
+data class CurrencyConverterState(
+        val status: CurrencyConverterStatus = CurrencyConverterStatus.Idle,
+        val convertedAmount: String? = null,
+        val targetCurrencyCode: String? = null,
+        val targetCurrencyName: String? = null,
+        val sourceAmount: String? = null,
+        val sourceCurrencyCode: String? = null,
+        val activeQuery: String? = null,
+        val usedModelId: String? = null,
+        val errorMessage: String? = null,
 )
 
 data class CalculatorState(
@@ -448,6 +467,7 @@ data class SearchUiState(
         val calculatorEnabled: Boolean = true,
         val unitConverterEnabled: Boolean = true,
         val dateCalculatorEnabled: Boolean = true,
+        val currencyConverterEnabled: Boolean = true,
         val DirectSearchState: DirectSearchState = DirectSearchState(),
         // Gemini
         val hasGeminiApiKey: Boolean = false,
@@ -462,10 +482,12 @@ data class SearchUiState(
         val releaseNotesVersionName: String? = null,
         // Transient search state
         val calculatorState: CalculatorState = CalculatorState(),
+        val currencyConverterState: CurrencyConverterState = CurrencyConverterState(),
         val webSuggestions: List<String> = emptyList(),
         val isSecondarySearchInProgress: Boolean = false,
         val detectedShortcutTarget: SearchTarget? = null,
         val detectedAliasSearchSection: SearchSection? = null,
+        val isCurrencyConverterAliasMode: Boolean = false,
         val webSuggestionWasSelected: Boolean = false,
         // Onboarding / hints
         val showSearchEngineOnboarding: Boolean = false,
@@ -535,12 +557,14 @@ fun SearchUiState(
                 calendarSectionState = results.calendarSectionState,
                 searchEnginesState = results.searchEnginesState,
                 calculatorState = results.calculatorState,
+                currencyConverterState = results.currencyConverterState,
                 DirectSearchState = results.DirectSearchState,
                 webSuggestions = results.webSuggestions,
                 isSecondarySearchInProgress = results.isSecondarySearchInProgress,
                 webSuggestionWasSelected = results.webSuggestionWasSelected,
                 detectedShortcutTarget = results.detectedShortcutTarget,
                 detectedAliasSearchSection = results.detectedAliasSearchSection,
+                isCurrencyConverterAliasMode = results.isCurrencyConverterAliasMode,
                 recentItems = results.recentItems,
                 aliasRecentItems = results.aliasRecentItems,
                 nicknameUpdateVersion = results.nicknameUpdateVersion,
@@ -584,6 +608,7 @@ fun SearchUiState(
                 calculatorEnabled = features.calculatorEnabled,
                 unitConverterEnabled = features.unitConverterEnabled,
                 dateCalculatorEnabled = features.dateCalculatorEnabled,
+                currencyConverterEnabled = features.currencyConverterEnabled,
                 recentQueriesEnabled = features.recentQueriesEnabled,
                 hasDismissedSearchHistoryTip = features.hasDismissedSearchHistoryTip,
                 directDialEnabled = features.directDialEnabled,

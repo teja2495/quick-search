@@ -105,6 +105,7 @@ fun SearchContentArea(
     onGeminiModelInfoClick: () -> Unit = {},
     onSearchHistoryExpandedChange: (Boolean) -> Unit = {},
     showCalculator: Boolean = false,
+    showCurrencyConverter: Boolean = false,
     showDirectSearch: Boolean = false,
     directSearchState: DirectSearchState? = null,
     isOverlayPresentation: Boolean = false,
@@ -113,10 +114,11 @@ fun SearchContentArea(
     val useOneHandedMode =
         state.oneHandedMode && renderingState.expandedSection == ExpandedSection.NONE
     val hideOtherResults =
-        showDirectSearch ||
+                showDirectSearch ||
                 showCalculator ||
                 (state.detectedShortcutTarget != null) ||
-                (state.detectedAliasSearchSection != null)
+                (state.detectedAliasSearchSection != null) ||
+                state.isCurrencyConverterAliasMode
     val hasQuery = state.query.isNotBlank()
     val isUrlQuery = remember(state.query) { isLikelyWebUrl(state.query) }
     val hasAnySearchContent =
@@ -126,7 +128,11 @@ fun SearchContentArea(
                 shouldShowFilesSection(renderingState, filesParams) ||
                 shouldShowSettingsSection(renderingState) ||
                 shouldShowCalendarSection(renderingState, calendarParams)
-    val alignResultsToBottom = useOneHandedMode && !showDirectSearch && !showCalculator
+    val alignResultsToBottom =
+            useOneHandedMode &&
+                    !showDirectSearch &&
+                    !showCalculator &&
+                    !showCurrencyConverter
     val expandedSectionBottomInset = 80.dp
     val aliasExpandedSectionBottomInset = 12.dp
     val footerBottomPadding = 28.dp
@@ -140,6 +146,7 @@ fun SearchContentArea(
             state.webSuggestions,
             state.detectedShortcutTarget,
             state.detectedAliasSearchSection,
+            state.isCurrencyConverterAliasMode,
         ) {
             computeShouldShowNoResults(state)
         }
@@ -206,6 +213,7 @@ fun SearchContentArea(
             val shouldHideScrollView =
                 shouldShowNoResults &&
                         !showCalculator &&
+                        !showCurrencyConverter &&
                         !showDirectSearch &&
                         !hasInlineSearchEngines
 
@@ -387,9 +395,11 @@ fun SearchContentArea(
                                         }
                                 )
                                     .coerceAtLeast(220.dp),
-                            isReversed = useOneHandedMode && !showDirectSearch,
+                            isReversed =
+                                    useOneHandedMode && !showDirectSearch && !showCurrencyConverter,
                             hideResults = hideOtherResults,
                             showCalculator = showCalculator,
+                            showCurrencyConverter = showCurrencyConverter,
                             showDirectSearch = showDirectSearch,
                             directSearchState = directSearchState,
                             isOverlayPresentation = isOverlayPresentation,

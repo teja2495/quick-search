@@ -781,6 +781,12 @@ class UserAppPreferences(
 
     fun setDateCalculatorEnabled(enabled: Boolean) = uiPreferences.setDateCalculatorEnabled(enabled)
 
+    fun isCurrencyConverterEnabled(): Boolean = uiPreferences.isCurrencyConverterEnabled()
+
+    fun setCurrencyConverterEnabled(enabled: Boolean) = uiPreferences.setCurrencyConverterEnabled(enabled)
+
+    fun getCurrencyConverterModel(): String = uiPreferences.getCurrencyConverterModel()
+
     // ============================================================================
     // Recent Queries Preferences
     // ============================================================================

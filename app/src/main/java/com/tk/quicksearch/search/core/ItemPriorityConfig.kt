@@ -9,7 +9,7 @@ package com.tk.quicksearch.search.core
  *
  * ### Item Types Covered
  * - **Sections**: Apps, App Shortcuts, Files, Contacts, Settings
- * - **Special Cards**: Calculator Result, Direct Search Result
+ * - **Special Cards**: Calculator Result, Currency Converter Result, Direct Search Result
  * - **Suggestions**: Web Suggestions, Recent Queries
  * - **Search Engines**: Inline/Compact search engine cards
  *
@@ -35,6 +35,7 @@ object ItemPriorityConfig {
     enum class ItemType {
         // Special result items (always evaluated first)
         CALCULATOR_RESULT,
+        CURRENCY_CONVERTER_RESULT,
         DIRECT_SEARCH_RESULT,
 
         // Section groups (contain multiple search results)
@@ -63,11 +64,12 @@ object ItemPriorityConfig {
      * Layout:
      * 1. Error banner (if present)
      * 2. Calculator result (if query matches calculation)
-     * 3. Direct search result (if available)
-     * 4. Search result sections (in priority order)
-     * 5. Web suggestions (if no results)
-     * 6. Inline search engines (if enabled)
-     * 7. No results message (if nothing found)
+     * 3. Currency converter result (if query matches conversion)
+     * 4. Direct search result (if available)
+     * 5. Search result sections (in priority order)
+     * 6. Web suggestions (if no results)
+     * 7. Inline search engines (if enabled)
+     * 8. No results message (if nothing found)
      *
      * Section priority within search results: APPS > APP_SHORTCUTS > CONTACTS > FILES > CALENDAR > SETTINGS > APP_SETTINGS
      */
@@ -75,6 +77,7 @@ object ItemPriorityConfig {
         listOf(
             ItemType.ERROR_BANNER,
             ItemType.CALCULATOR_RESULT,
+            ItemType.CURRENCY_CONVERTER_RESULT,
             ItemType.DIRECT_SEARCH_RESULT,
             // Search result sections (sub-ordered by section priority)
             ItemType.APPS_SECTION,

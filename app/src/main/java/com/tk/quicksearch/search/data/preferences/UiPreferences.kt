@@ -503,6 +503,27 @@ class UiPreferences(
         setBooleanPref(UiPreferences.KEY_DATE_CALCULATOR_ENABLED, enabled)
     }
 
+    fun isCurrencyConverterEnabled(): Boolean =
+            getBooleanPref(UiPreferences.KEY_CURRENCY_CONVERTER_ENABLED, true)
+
+    fun setCurrencyConverterEnabled(enabled: Boolean) {
+        setBooleanPref(UiPreferences.KEY_CURRENCY_CONVERTER_ENABLED, enabled)
+    }
+
+    fun getCurrencyConverterModel(): String {
+        val stored = prefs.getString(UiPreferences.KEY_CURRENCY_CONVERTER_MODEL, null)
+        if (stored != null) return stored
+        val legacy =
+                prefs.getString(UiPreferences.LEGACY_KEY_CURRENCY_CONVERTER_MODEL_PREF, "").orEmpty()
+        if (legacy.isNotEmpty()) {
+            prefs.edit()
+                    .putString(UiPreferences.KEY_CURRENCY_CONVERTER_MODEL, legacy)
+                    .remove(UiPreferences.LEGACY_KEY_CURRENCY_CONVERTER_MODEL_PREF)
+                    .apply()
+        }
+        return legacy
+    }
+
     // ============================================================================
     // Section Preferences
     // ============================================================================
@@ -730,6 +751,10 @@ class UiPreferences(
         const val KEY_CALCULATOR_ENABLED = "calculator_enabled"
         const val KEY_UNIT_CONVERTER_ENABLED = "unit_converter_enabled"
         const val KEY_DATE_CALCULATOR_ENABLED = "date_calculator_enabled"
+        const val KEY_CURRENCY_CONVERTER_ENABLED = "currency_converter_enabled"
+        const val KEY_CURRENCY_CONVERTER_MODEL = "currency_converter_model"
+        /** Previous preference key; migrated automatically on read/write. */
+        const val LEGACY_KEY_CURRENCY_CONVERTER_MODEL_PREF = "currency_converter_gemini_model"
 
         // In-app review preferences keys
         const val KEY_FIRST_APP_OPEN_TIME = "first_app_open_time"

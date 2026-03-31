@@ -25,6 +25,7 @@ class AliasHandler(
         const val CALCULATOR_ALIAS_FEATURE_ID = "calculator_mode"
         const val UNIT_CONVERTER_ALIAS_FEATURE_ID = "unit_converter_mode"
         const val DATE_CALCULATOR_ALIAS_FEATURE_ID = "date_calculator_mode"
+        const val CURRENCY_CONVERTER_ALIAS_FEATURE_ID = "currency_converter_mode"
         const val SEARCH_SECTION_APPS_ALIAS_ID = "search_section_apps"
         const val SEARCH_SECTION_APP_SHORTCUTS_ALIAS_ID = "search_section_app_shortcuts"
         const val SEARCH_SECTION_CONTACTS_ALIAS_ID = "search_section_contacts"
@@ -37,6 +38,7 @@ class AliasHandler(
                 CALCULATOR_ALIAS_FEATURE_ID,
                 UNIT_CONVERTER_ALIAS_FEATURE_ID,
                 DATE_CALCULATOR_ALIAS_FEATURE_ID,
+                CURRENCY_CONVERTER_ALIAS_FEATURE_ID,
             )
         val SEARCH_SECTION_ALIAS_IDS =
             setOf(

@@ -158,6 +158,8 @@ class DirectSearchClient(
         modelId: String = GeminiModelCatalog.DEFAULT_MODEL_ID,
         useGroundingWithGoogleSearch: Boolean = GeminiModelCatalog.DEFAULT_GROUNDING_ENABLED,
         useSystemInstruction: Boolean = true,
+        systemInstruction: String? = null,
+        responseMimeType: String = "text/plain",
     ): Result<String> =
         withContext(Dispatchers.IO) {
             var attempt = 1
@@ -172,6 +174,8 @@ class DirectSearchClient(
                         modelId = modelId,
                         useGroundingWithGoogleSearch = useGroundingWithGoogleSearch,
                         useSystemInstruction = useSystemInstruction,
+                        systemInstruction = systemInstruction,
+                        responseMimeType = responseMimeType,
                     )
                 if (result.isSuccess) return@withContext result
 
@@ -194,6 +198,8 @@ class DirectSearchClient(
         modelId: String,
         useGroundingWithGoogleSearch: Boolean,
         useSystemInstruction: Boolean,
+        systemInstruction: String? = null,
+        responseMimeType: String = "text/plain",
     ): Result<String> {
         var connection: HttpURLConnection? = null
         return try {
@@ -214,6 +220,8 @@ class DirectSearchClient(
                     personalContext = personalContext,
                     useGroundingWithGoogleSearch = useGroundingWithGoogleSearch,
                     useSystemInstruction = useSystemInstruction,
+                    systemInstructionOverride = systemInstruction,
+                    responseMimeType = responseMimeType,
                 )
             logRequestDiagnostics(
                 endpointModelId = endpointModelId,
@@ -283,12 +291,16 @@ class DirectSearchClient(
         personalContext: String?,
         useGroundingWithGoogleSearch: Boolean,
         useSystemInstruction: Boolean,
+        systemInstructionOverride: String? = null,
+        responseMimeType: String = "text/plain",
     ): String {
+        val effectiveSystemPrompt =
+            systemInstructionOverride?.trim()?.takeIf { it.isNotBlank() } ?: SYSTEM_PROMPT
         val promptPrefix =
             when {
                 useSystemInstruction -> null
                 else -> buildString {
-                    append(SYSTEM_PROMPT)
+                    append(effectiveSystemPrompt)
                     if (!personalContext.isNullOrBlank()) {
                         append("\n\nUser personal context:\n${personalContext.trim()}")
                     }
@@ -309,16 +321,16 @@ class DirectSearchClient(
             }
         val generationConfig =
             JSONObject().apply {
-                put("responseMimeType", "text/plain")
+                put("responseMimeType", responseMimeType)
                 put("temperature", 0.2)
             }
 
         val root = JSONObject()
         if (useSystemInstruction) {
-            val systemInstruction =
+            val systemInstructionJson =
                 JSONObject().apply {
                     val systemParts = JSONArray()
-                    systemParts.put(JSONObject().put("text", SYSTEM_PROMPT))
+                    systemParts.put(JSONObject().put("text", effectiveSystemPrompt))
                     if (!personalContext.isNullOrBlank()) {
                         systemParts.put(
                             JSONObject().put(
@@ -329,7 +341,7 @@ class DirectSearchClient(
                     }
                     put("parts", systemParts)
                 }
-            root.put("systemInstruction", systemInstruction)
+            root.put("systemInstruction", systemInstructionJson)
         }
         root.put("contents", JSONArray().put(content))
         if (useGroundingWithGoogleSearch) {

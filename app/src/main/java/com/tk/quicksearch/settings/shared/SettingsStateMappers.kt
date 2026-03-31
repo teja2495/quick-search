@@ -61,6 +61,7 @@ internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState =
         calculatorEnabled = calculatorEnabled,
         unitConverterEnabled = unitConverterEnabled,
         dateCalculatorEnabled = dateCalculatorEnabled,
+        currencyConverterEnabled = currencyConverterEnabled,
         appSuggestionsEnabled = appSuggestionsEnabled,
         webSuggestionsEnabled = webSuggestionsEnabled,
         webSuggestionsCount = webSuggestionsCount,

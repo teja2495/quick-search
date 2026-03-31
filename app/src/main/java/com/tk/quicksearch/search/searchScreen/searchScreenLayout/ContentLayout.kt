@@ -31,6 +31,7 @@ import com.tk.quicksearch.searchEngines.*
 import com.tk.quicksearch.searchEngines.compact.NoResultsSearchEngineCards
 import com.tk.quicksearch.search.webSuggestions.WebSuggestionsSection
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.tools.directSearch.CurrencyConverterResult
 import com.tk.quicksearch.tools.directSearch.CalculatorResult
 import com.tk.quicksearch.tools.directSearch.DirectSearchResult
 import com.tk.quicksearch.search.searchScreen.ExpandedSection
@@ -69,6 +70,7 @@ fun ContentLayout(
     isReversed: Boolean,
     hideResults: Boolean,
     showCalculator: Boolean = false,
+    showCurrencyConverter: Boolean = false,
     showDirectSearch: Boolean = false,
     directSearchState: DirectSearchState? = null,
     isOverlayPresentation: Boolean = false,
@@ -186,6 +188,7 @@ fun ContentLayout(
                 !isUrlQuery &&
                 !showDirectSearch &&
                 !showCalculator &&
+                !showCurrencyConverter &&
                 suggestionsNotEmpty &&
                 suggestionsEnabled &&
                 !suggestionWasSelected
@@ -193,7 +196,11 @@ fun ContentLayout(
     // Recent Queries Logic (for App Open State mainly, but CONFIG has RECENT_QUERIES item)
     // Suppress regular history in alias mode — alias recent items are shown in the section slot instead.
     val showRecentItems =
-        !hasQuery && state.detectedAliasSearchSection == null && state.recentQueriesEnabled && state.recentItems.isNotEmpty()
+        !hasQuery &&
+            state.detectedAliasSearchSection == null &&
+            !state.isCurrencyConverterAliasMode &&
+            state.recentQueriesEnabled &&
+            state.recentItems.isNotEmpty()
 
     var searchHistoryExpanded by remember { mutableStateOf(false) }
     LaunchedEffect(showRecentItems) {
@@ -257,6 +264,16 @@ fun ContentLayout(
                             calculatorState = state.calculatorState,
                             showWallpaperBackground =
                                 effectiveShowWallpaperBackground,
+                        )
+                    }
+                }
+
+                ItemPriorityConfig.ItemType.CURRENCY_CONVERTER_RESULT -> {
+                    if (showCurrencyConverter) {
+                        CurrencyConverterResult(
+                                currencyConverterState = state.currencyConverterState,
+                                showWallpaperBackground = effectiveShowWallpaperBackground,
+                                onGeminiModelInfoClick = onGeminiModelInfoClick,
                         )
                     }
                 }

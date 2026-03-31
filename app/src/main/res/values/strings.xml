@@ -853,6 +853,9 @@
     <string name="unit_converter_toggle_action_desc">Toggle unit converter on or off</string>
     <string name="unit_converter_toggle_desc">Usage instructions and examples</string>
     <string name="unit_converter_toggle_title">Unit Converter</string>
+    <string name="search_hint_currency_converter">Convert Currencies e.g. 100 USD to INR</string>
+    <string name="currency_converter_toggle_title">Currency Converter</string>
+    <string name="currency_converter_toggle_desc">Example: 100 USD to INR</string>
     <!-- ============================================================================
          No Results
          ============================================================================ -->

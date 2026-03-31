@@ -46,6 +46,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import java.math.BigDecimal
+import java.math.RoundingMode
 import com.tk.quicksearch.search.calendar.calendarRelativeDateLabel
 import com.tk.quicksearch.search.calendar.formatAbsoluteDate
 import com.tk.quicksearch.search.calendar.getDayOfWeekName
@@ -141,6 +143,103 @@ fun DirectSearchResult(
                     usedModelId = directSearchState.usedModelId,
                     onClick = onGeminiModelInfoClick,
                     onLongClick = onOpenDirectSearchConfigure,
+            )
+        }
+    }
+}
+
+private fun formatCurrencyAmountForDisplay(raw: String): String {
+    val normalized = raw.trim().replace(",", ".")
+    val bd = normalized.toBigDecimalOrNull() ?: return raw.trim()
+    return bd.setScale(2, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString()
+}
+
+@Composable
+fun CurrencyConverterResult(
+        currencyConverterState: CurrencyConverterState,
+        showWallpaperBackground: Boolean = false,
+        onGeminiModelInfoClick: () -> Unit = {},
+) {
+    if (currencyConverterState.status == CurrencyConverterStatus.Idle) return
+
+    val showAttribution =
+            currencyConverterState.status == CurrencyConverterStatus.Success &&
+                    !currencyConverterState.convertedAmount.isNullOrBlank()
+
+    @Suppress("DEPRECATION")
+    val clipboardManager = LocalClipboardManager.current
+    val content: @Composable () -> Unit = {
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                    modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
+                    verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+            ) {
+                when (currencyConverterState.status) {
+                    CurrencyConverterStatus.Loading -> {
+                        GeminiLoadingAnimation()
+                    }
+                    CurrencyConverterStatus.Success -> {
+                        val amount =
+                                formatCurrencyAmountForDisplay(
+                                        currencyConverterState.convertedAmount.orEmpty(),
+                                )
+                        val code = currencyConverterState.targetCurrencyCode.orEmpty()
+                        val name = currencyConverterState.targetCurrencyName.orEmpty()
+                        val line1 = "$amount $code"
+                        Column(
+                                modifier =
+                                        Modifier.fillMaxWidth().pointerInput(line1) {
+                                            detectTapGestures(
+                                                    onLongPress = {
+                                                        clipboardManager.setText(AnnotatedString(line1))
+                                                    },
+                                            )
+                                        },
+                        ) {
+                            Text(
+                                    text = line1,
+                                    style = MaterialTheme.typography.displaySmall,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            if (name.isNotBlank() && !name.equals(code, ignoreCase = true)) {
+                                Text(
+                                        text = name,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    }
+                    CurrencyConverterStatus.Error -> {
+                        Text(
+                                text =
+                                        currencyConverterState.errorMessage
+                                                ?: stringResource(R.string.direct_search_error_generic),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                    CurrencyConverterStatus.Idle -> {}
+                }
+            }
+        }
+    }
+
+    Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+    ) {
+        InformationCard(
+                modifier = Modifier.fillMaxWidth().heightIn(min = 175.dp),
+                showWallpaperBackground = showWallpaperBackground,
+        ) { content() }
+
+        if (showAttribution) {
+            GeminiAttributionRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    usedModelId = currencyConverterState.usedModelId,
+                    onClick = onGeminiModelInfoClick,
+                    onLongClick = {},
             )
         }
     }

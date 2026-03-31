@@ -80,12 +80,14 @@ data class SearchResultsState(
         val searchEnginesState: SearchEnginesVisibility = SearchEnginesVisibility.Hidden,
         // Transient search state (calculator answer, direct search, web suggestions)
         val calculatorState: CalculatorState = CalculatorState(),
+        val currencyConverterState: CurrencyConverterState = CurrencyConverterState(),
         val DirectSearchState: DirectSearchState = DirectSearchState(),
         val webSuggestions: List<String> = emptyList(),
         val webSuggestionWasSelected: Boolean = false,
         val isSecondarySearchInProgress: Boolean = false,
         val detectedShortcutTarget: SearchTarget? = null,
         val detectedAliasSearchSection: SearchSection? = null,
+        val isCurrencyConverterAliasMode: Boolean = false,
         // Recent items (shown when query is blank)
         val recentItems: List<RecentSearchItem> = emptyList(),
         // Recently opened items filtered to the active alias section (shown when alias detected + query blank)
@@ -151,6 +153,7 @@ data class SearchFeatureState(
         val calculatorEnabled: Boolean = true,
         val unitConverterEnabled: Boolean = true,
         val dateCalculatorEnabled: Boolean = true,
+        val currencyConverterEnabled: Boolean = true,
         // Search history
         val recentQueriesEnabled: Boolean = true,
         val hasDismissedSearchHistoryTip: Boolean = false,

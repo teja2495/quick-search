@@ -33,6 +33,7 @@ internal fun computeShouldShowNoResults(state: SearchUiState): Boolean {
         !hasAnySearchResults &&
         state.detectedShortcutTarget == null &&
         state.detectedAliasSearchSection == null &&
+        !state.isCurrencyConverterAliasMode &&
         (
             !state.webSuggestionsEnabled ||
                 (queryLength >= 2 && state.webSuggestions.isEmpty())
@@ -68,6 +69,7 @@ internal fun NoResultsMessage(state: SearchUiState) {
             state.webSuggestions,
             state.detectedShortcutTarget,
             state.detectedAliasSearchSection,
+            state.isCurrencyConverterAliasMode,
         ) {
             computeShouldShowNoResults(state)
         }

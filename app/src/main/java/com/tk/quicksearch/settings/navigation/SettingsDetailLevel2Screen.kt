@@ -148,6 +148,61 @@ internal fun SettingsDetailLevel2Screen(
                                 bottom = 96.dp,
                             ),
                 )
+            } else if (detailType == SettingsDetailType.TOOLS) {
+                Column(
+                        modifier =
+                                Modifier.settingsContentWidth()
+                                        .fillMaxHeight()
+                                        .align(Alignment.CenterHorizontally)
+                                        .padding(
+                                                start = DesignTokens.ContentHorizontalPadding,
+                                                end = DesignTokens.ContentHorizontalPadding,
+                                                bottom = DesignTokens.SectionTopPadding,
+                                        ),
+                ) {
+                    ToolsSettingsSection(
+                            calculatorEnabled = state.calculatorEnabled,
+                            calculatorAlias =
+                                    state.shortcutCodes[
+                                            com.tk.quicksearch.searchEngines.AliasHandler
+                                                    .CALCULATOR_ALIAS_FEATURE_ID
+                                    ].orEmpty(),
+                            unitConverterEnabled = state.unitConverterEnabled,
+                            unitConverterAlias =
+                                    state.shortcutCodes[
+                                            com.tk.quicksearch.searchEngines.AliasHandler
+                                                    .UNIT_CONVERTER_ALIAS_FEATURE_ID
+                                    ].orEmpty(),
+                            dateCalculatorEnabled = state.dateCalculatorEnabled,
+                            dateCalculatorAlias =
+                                    state.shortcutCodes[
+                                            com.tk.quicksearch.searchEngines.AliasHandler
+                                                    .DATE_CALCULATOR_ALIAS_FEATURE_ID
+                                    ].orEmpty(),
+                            currencyConverterEnabled = state.currencyConverterEnabled,
+                            currencyConverterAlias =
+                                    state.shortcutCodes[
+                                            com.tk.quicksearch.searchEngines.AliasHandler
+                                                    .CURRENCY_CONVERTER_ALIAS_FEATURE_ID
+                                    ].orEmpty(),
+                            existingShortcuts = state.shortcutCodes,
+                            onSetCalculatorAlias = callbacks.onSetCalculatorAlias,
+                            onSetUnitConverterAlias = callbacks.onSetUnitConverterAlias,
+                            onSetDateCalculatorAlias = callbacks.onSetDateCalculatorAlias,
+                            onSetCurrencyConverterAlias = callbacks.onSetCurrencyConverterAlias,
+                            onCalculatorToggle = callbacks.onToggleCalculator,
+                            onUnitConverterToggle = callbacks.onToggleUnitConverter,
+                            onDateCalculatorToggle = callbacks.onToggleDateCalculator,
+                            onCurrencyConverterToggle = callbacks.onToggleCurrencyConverter,
+                            onNavigateToUnitConverterInfo = {
+                                onNavigateToDetail(SettingsDetailType.UNIT_CONVERTER_INFO)
+                            },
+                            onNavigateToDateCalculatorInfo = {
+                                onNavigateToDetail(SettingsDetailType.DATE_CALCULATOR_INFO)
+                            },
+                            modifier = Modifier.fillMaxWidth().weight(1f),
+                    )
+                }
             } else if (detailType == SettingsDetailType.CALENDAR_EVENTS) {
                 CalendarEventsSettingsSection(
                     onEventClick = callbacks.onLaunchCalendarEvent,
@@ -286,38 +341,7 @@ internal fun SettingsDetailLevel2Screen(
                             }
                         }
 
-                        SettingsDetailType.TOOLS -> {
-                            ToolsSettingsSection(
-                                calculatorEnabled = state.calculatorEnabled,
-                                calculatorAlias =
-                                    state.shortcutCodes[
-                                        com.tk.quicksearch.searchEngines.AliasHandler.CALCULATOR_ALIAS_FEATURE_ID
-                                    ].orEmpty(),
-                                unitConverterEnabled = state.unitConverterEnabled,
-                                unitConverterAlias =
-                                    state.shortcutCodes[
-                                        com.tk.quicksearch.searchEngines.AliasHandler.UNIT_CONVERTER_ALIAS_FEATURE_ID
-                                    ].orEmpty(),
-                                dateCalculatorEnabled = state.dateCalculatorEnabled,
-                                dateCalculatorAlias =
-                                    state.shortcutCodes[
-                                        com.tk.quicksearch.searchEngines.AliasHandler.DATE_CALCULATOR_ALIAS_FEATURE_ID
-                                    ].orEmpty(),
-                                existingShortcuts = state.shortcutCodes,
-                                onSetCalculatorAlias = callbacks.onSetCalculatorAlias,
-                                onSetUnitConverterAlias = callbacks.onSetUnitConverterAlias,
-                                onSetDateCalculatorAlias = callbacks.onSetDateCalculatorAlias,
-                                onCalculatorToggle = callbacks.onToggleCalculator,
-                                onUnitConverterToggle = callbacks.onToggleUnitConverter,
-                                onDateCalculatorToggle = callbacks.onToggleDateCalculator,
-                                onNavigateToUnitConverterInfo = {
-                                    onNavigateToDetail(SettingsDetailType.UNIT_CONVERTER_INFO)
-                                },
-                                onNavigateToDateCalculatorInfo = {
-                                    onNavigateToDetail(SettingsDetailType.DATE_CALCULATOR_INFO)
-                                },
-                            )
-                        }
+                        SettingsDetailType.TOOLS -> Unit
 
                         SettingsDetailType.UNIT_CONVERTER_INFO -> {
                             UnitConverterInfoSection(modifier = Modifier.fillMaxWidth())

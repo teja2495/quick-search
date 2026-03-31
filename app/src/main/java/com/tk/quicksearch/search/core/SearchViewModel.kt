@@ -72,6 +72,9 @@ import com.tk.quicksearch.shared.util.PackageConstants
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.getAppGridColumns
 import com.tk.quicksearch.shared.util.isLowRamDevice
+import com.tk.quicksearch.tools.aiTools.CurrencyConverterHandler
+import com.tk.quicksearch.tools.aiTools.CurrencyNotRecognizedException
+import com.tk.quicksearch.tools.aiTools.CurrencyConversionIntentParser
 import com.tk.quicksearch.tools.calculator.CalculatorHandler
 import com.tk.quicksearch.tools.dateCalculator.DateCalculatorHandler
 import com.tk.quicksearch.tools.directSearch.DirectSearchHandler
@@ -324,6 +327,13 @@ class SearchViewModel(
     private var appSearchJob: Job? = null
     private var appSearchQueryVersion: Long = 0L
 
+    private var currencyConversionJob: Job? = null
+    private var currencyConversionQueryVersion: Long = 0L
+
+    private val currencyConverterHandler by lazy {
+        CurrencyConverterHandler(appContext, userPreferences)
+    }
+
     // Consolidated startup configuration loaded in single batch operation
     @Volatile private var startupConfig: StartupPreferencesFacade.StartupConfig? = null
     private val isAppShortcutsLoadInFlight = AtomicBoolean(false)
@@ -468,12 +478,14 @@ class SearchViewModel(
                     calendarSectionState = s.calendarSectionState,
                     searchEnginesState = s.searchEnginesState,
                     calculatorState = s.calculatorState,
+                    currencyConverterState = s.currencyConverterState,
                     DirectSearchState = s.DirectSearchState,
                     webSuggestions = s.webSuggestions,
                     webSuggestionWasSelected = s.webSuggestionWasSelected,
                     isSecondarySearchInProgress = s.isSecondarySearchInProgress,
                     detectedShortcutTarget = s.detectedShortcutTarget,
                     detectedAliasSearchSection = s.detectedAliasSearchSection,
+                    isCurrencyConverterAliasMode = s.isCurrencyConverterAliasMode,
                     recentItems = s.recentItems,
                     aliasRecentItems = s.aliasRecentItems,
                     nicknameUpdateVersion = s.nicknameUpdateVersion,
@@ -522,6 +534,7 @@ class SearchViewModel(
                     calculatorEnabled = s.calculatorEnabled,
                     unitConverterEnabled = s.unitConverterEnabled,
                     dateCalculatorEnabled = s.dateCalculatorEnabled,
+                    currencyConverterEnabled = s.currencyConverterEnabled,
                     recentQueriesEnabled = s.recentQueriesEnabled,
                     hasDismissedSearchHistoryTip = s.hasDismissedSearchHistoryTip,
                     directDialEnabled = s.directDialEnabled,
@@ -830,6 +843,7 @@ class SearchViewModel(
     private var lockedShortcutTarget: SearchTarget? = null
     private var lockedAliasSearchSection: SearchSection? = null
     private var lockedToolMode: SearchToolType? = null
+    private var lockedCurrencyConverterAlias: Boolean = false
     private var clearQueryOnLaunch: Boolean = initialConfigState.clearQueryOnLaunch
     private var amazonDomain: String? = null
     private var pendingNavigationClear: Boolean = false
@@ -1300,6 +1314,7 @@ class SearchViewModel(
                         calculatorEnabled = userPreferences.isCalculatorEnabled(),
                         unitConverterEnabled = userPreferences.isUnitConverterEnabled(),
                         dateCalculatorEnabled = userPreferences.isDateCalculatorEnabled(),
+                        currencyConverterEnabled = userPreferences.isCurrencyConverterEnabled(),
                         hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
                         geminiApiKeyLast4 = directSearchHandler.getGeminiApiKey()?.takeLast(4),
                         personalContext = directSearchHandler.getPersonalContext(),
@@ -1563,6 +1578,16 @@ class SearchViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             userPreferences.setDateCalculatorEnabled(enabled)
             updateFeatureState { it.copy(dateCalculatorEnabled = enabled) }
+        }
+    }
+
+    fun setCurrencyConverterEnabled(enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setCurrencyConverterEnabled(enabled)
+            updateFeatureState { it.copy(currencyConverterEnabled = enabled) }
+            if (!enabled) {
+                updateResultsState { it.copy(currencyConverterState = CurrencyConverterState()) }
+            }
         }
     }
 
@@ -2277,21 +2302,23 @@ class SearchViewModel(
     }
 
     private fun setDetectedAliasMode(
-        shortcutTarget: SearchTarget?,
-        section: SearchSection?,
-        toolMode: SearchToolType?,
+            shortcutTarget: SearchTarget?,
+            section: SearchSection?,
+            toolMode: SearchToolType?,
     ) {
         lockedShortcutTarget = shortcutTarget
         lockedAliasSearchSection = section
         lockedToolMode = toolMode
+        if (shortcutTarget != null || section != null || toolMode != null) {
+            lockedCurrencyConverterAlias = false
+        }
     }
 
     private fun clearDetectedAliasMode() {
-        setDetectedAliasMode(
-            shortcutTarget = null,
-            section = null,
-            toolMode = null,
-        )
+        lockedShortcutTarget = null
+        lockedAliasSearchSection = null
+        lockedToolMode = null
+        lockedCurrencyConverterAlias = false
     }
 
     private fun resolveAliasQueryResolution(
@@ -2324,7 +2351,11 @@ class SearchViewModel(
             return AliasQueryResolution.ReprocessQuery(queryWithoutAlias)
         }
 
-        if (lockedToolMode != null || lockedAliasSearchSection != null || lockedShortcutTarget != null) {
+        if (lockedToolMode != null ||
+                        lockedAliasSearchSection != null ||
+                        lockedShortcutTarget != null ||
+                        lockedCurrencyConverterAlias
+        ) {
             return AliasQueryResolution.None
         }
 
@@ -2338,6 +2369,20 @@ class SearchViewModel(
     }
 
     private fun applyFeatureAliasMode(featureId: String) {
+        if (featureId == AliasHandler.CURRENCY_CONVERTER_ALIAS_FEATURE_ID) {
+            if (!userPreferences.isCurrencyConverterEnabled() ||
+                            userPreferences.getGeminiApiKey().isNullOrBlank()
+            ) {
+                clearDetectedAliasMode()
+                return
+            }
+            lockedShortcutTarget = null
+            lockedAliasSearchSection = null
+            lockedToolMode = null
+            lockedCurrencyConverterAlias = true
+            return
+        }
+        lockedCurrencyConverterAlias = false
         val toolMode =
                 when (featureId) {
                     AliasHandler.CALCULATOR_ALIAS_FEATURE_ID -> SearchToolType.CALCULATOR
@@ -2386,7 +2431,11 @@ class SearchViewModel(
             trimmedQuery: String,
             detectedTarget: SearchTarget?,
             detectedAliasSearchSection: SearchSection?,
+            skipLocalTools: Boolean = false,
     ): CalculatorState {
+        if (skipLocalTools) {
+            return CalculatorState()
+        }
         val toolMode = lockedToolMode
         if (toolMode != null) {
             return when (toolMode) {
@@ -2454,11 +2503,19 @@ class SearchViewModel(
             directSearchHandler.clearDirectSearchState()
         }
 
+        val currencyState = _resultsState.value.currencyConverterState
+        if (currencyState.status != CurrencyConverterStatus.Idle &&
+                        (currencyState.activeQuery == null || currencyState.activeQuery != trimmedQuery)
+        ) {
+            updateResultsState { it.copy(currencyConverterState = CurrencyConverterState()) }
+        }
+
         if (trimmedQuery.isBlank()) {
             val hasLockedAliasMode =
                     lockedShortcutTarget != null ||
                             lockedAliasSearchSection != null ||
-                            lockedToolMode != null
+                            lockedToolMode != null ||
+                            lockedCurrencyConverterAlias
             if (clearShortcutWhenBlank && hasLockedAliasMode && newQuery.isNotEmpty()) {
                 appSearchJob?.cancel()
                 appSearchManager.setNoMatchPrefix(null)
@@ -2475,11 +2532,13 @@ class SearchViewModel(
                             appSettingResults = emptyList(),
                             calendarEvents = emptyList(),
                             DirectSearchState = DirectSearchState(),
+                            currencyConverterState = CurrencyConverterState(),
                             calculatorState =
                                     lockedToolMode?.let(::createToolModeState) ?: CalculatorState(),
                             webSuggestions = emptyList(),
                             detectedShortcutTarget = lockedShortcutTarget,
                             detectedAliasSearchSection = lockedAliasSearchSection,
+                            isCurrencyConverterAliasMode = lockedCurrencyConverterAlias,
                             webSuggestionWasSelected = false,
                     )
                 }
@@ -2504,6 +2563,7 @@ class SearchViewModel(
                         appSettingResults = emptyList(),
                         calendarEvents = emptyList(),
                         DirectSearchState = DirectSearchState(),
+                        currencyConverterState = CurrencyConverterState(),
                         calculatorState =
                                 if (clearShortcutWhenBlank || lockedMode == null) {
                                     CalculatorState()
@@ -2515,6 +2575,8 @@ class SearchViewModel(
                                 if (clearShortcutWhenBlank) null else lockedShortcutTarget,
                         detectedAliasSearchSection =
                                 if (clearShortcutWhenBlank) null else lockedAliasSearchSection,
+                        isCurrencyConverterAliasMode =
+                                !clearShortcutWhenBlank && lockedCurrencyConverterAlias,
                         webSuggestionWasSelected = false,
                 )
             }
@@ -2559,6 +2621,7 @@ class SearchViewModel(
                         trimmedQuery = trimmedQuery,
                         detectedTarget = detectedTarget,
                         detectedAliasSearchSection = detectedAliasSearchSection,
+                        skipLocalTools = lockedCurrencyConverterAlias,
                 )
 
         val normalizedQuery = SearchTextNormalizer.normalizeForSearch(trimmedQuery)
@@ -2587,11 +2650,15 @@ class SearchViewModel(
         val showingTool = calculatorResult.isToolMode || calculatorResult.result != null
         val shouldOnlySearchApps = detectedAliasSearchSection == SearchSection.APPS
         val shouldSkipAppSearchDueToAlias =
-                detectedAliasSearchSection != null && !shouldOnlySearchApps
+                lockedCurrencyConverterAlias ||
+                        (detectedAliasSearchSection != null && !shouldOnlySearchApps)
         val shouldClearSecondaryResults =
-                detectedAliasSearchSection != null || _resultsState.value.query != newQuery
+                lockedCurrencyConverterAlias ||
+                        detectedAliasSearchSection != null ||
+                        _resultsState.value.query != newQuery
         val shouldClearAppShortcutResults =
-                detectedTarget != null ||
+                lockedCurrencyConverterAlias ||
+                        detectedTarget != null ||
                         (detectedAliasSearchSection != null &&
                                 detectedAliasSearchSection != SearchSection.APP_SHORTCUTS)
         updateUiState { state ->
@@ -2611,9 +2678,11 @@ class SearchViewModel(
                     isSecondarySearchInProgress =
                             !showingTool &&
                                     detectedTarget == null &&
+                                    !lockedCurrencyConverterAlias &&
                                     detectedAliasSearchSection != SearchSection.APPS,
                     detectedShortcutTarget = detectedTarget,
                     detectedAliasSearchSection = detectedAliasSearchSection,
+                    isCurrencyConverterAliasMode = lockedCurrencyConverterAlias,
                     contactResults =
                             if (showingTool || shouldClearSecondaryResults) emptyList()
                             else state.contactResults,
@@ -2685,7 +2754,20 @@ class SearchViewModel(
 
         // Skip secondary searches if a tool result is shown
         if (!showingTool) {
-            if (detectedTarget != null) {
+            if (lockedCurrencyConverterAlias) {
+                secondarySearchOrchestrator.cancel()
+                updateResultsState {
+                    it.copy(
+                            contactResults = emptyList(),
+                            fileResults = emptyList(),
+                            settingResults = emptyList(),
+                            appSettingResults = emptyList(),
+                            appShortcutResults = emptyList(),
+                            calendarEvents = emptyList(),
+                            webSuggestions = emptyList(),
+                    )
+                }
+            } else if (detectedTarget != null) {
                 secondarySearchOrchestrator.performWebSuggestionsOnly(newQuery)
             } else if (detectedAliasSearchSection != null) {
                 if (detectedAliasSearchSection == SearchSection.APPS) {
@@ -2713,6 +2795,124 @@ class SearchViewModel(
                 secondarySearchOrchestrator.performSecondarySearches(newQuery)
             }
         }
+
+        scheduleCurrencyConversion(
+                trimmedQuery = trimmedQuery,
+                showingTool = showingTool,
+                hasGeminiApiKey = _featureState.value.hasGeminiApiKey,
+        )
+    }
+
+    private fun scheduleCurrencyConversion(
+            trimmedQuery: String,
+            showingTool: Boolean,
+            hasGeminiApiKey: Boolean,
+    ) {
+        currencyConversionJob?.cancel()
+        if (!userPreferences.isCurrencyConverterEnabled() || !hasGeminiApiKey) {
+            updateResultsState { s ->
+                if (s.currencyConverterState.status == CurrencyConverterStatus.Idle) {
+                    s
+                } else {
+                    s.copy(currencyConverterState = CurrencyConverterState())
+                }
+            }
+            return
+        }
+        if (showingTool || trimmedQuery.isBlank()) {
+            updateResultsState { s ->
+                if (s.currencyConverterState.status == CurrencyConverterStatus.Idle) {
+                    s
+                } else {
+                    s.copy(currencyConverterState = CurrencyConverterState())
+                }
+            }
+            return
+        }
+        val matchesCandidate =
+                if (lockedCurrencyConverterAlias) {
+                    trimmedQuery.isNotBlank()
+                } else {
+                    CurrencyConversionIntentParser.isCandidate(trimmedQuery)
+                }
+        if (!matchesCandidate) {
+            updateResultsState { s ->
+                if (s.currencyConverterState.status == CurrencyConverterStatus.Idle) {
+                    s
+                } else {
+                    s.copy(currencyConverterState = CurrencyConverterState())
+                }
+            }
+            return
+        }
+        val version = ++currencyConversionQueryVersion
+        val capturedTrim = trimmedQuery
+        currencyConversionJob =
+                viewModelScope.launch(Dispatchers.Default) {
+                    delay(CURRENCY_CONVERTER_DEBOUNCE_MS)
+                    if (version != currencyConversionQueryVersion) return@launch
+                    val latestTrim = _resultsState.value.query.trim()
+                    if (latestTrim != capturedTrim) return@launch
+                    val confirmed = CurrencyConversionIntentParser.parseConfirmed(latestTrim)
+                    if (confirmed == null) {
+                        updateResultsState { s ->
+                            s.copy(currencyConverterState = CurrencyConverterState())
+                        }
+                        return@launch
+                    }
+                    updateResultsState { s ->
+                        s.copy(
+                                currencyConverterState =
+                                        CurrencyConverterState(
+                                                status = CurrencyConverterStatus.Loading,
+                                                activeQuery = latestTrim,
+                                        ),
+                        )
+                    }
+                    val apiResult = currencyConverterHandler.convert(confirmed)
+                    if (version != currencyConversionQueryVersion) return@launch
+                    if (_resultsState.value.query.trim() != latestTrim) return@launch
+                    apiResult.fold(
+                            onSuccess = { (parsed, modelId) ->
+                                updateResultsState { s ->
+                                    s.copy(
+                                            currencyConverterState =
+                                                    CurrencyConverterState(
+                                                            status = CurrencyConverterStatus.Success,
+                                                            convertedAmount = parsed.convertedAmount,
+                                                            targetCurrencyCode = parsed.targetCurrencyCode,
+                                                            targetCurrencyName = parsed.targetCurrencyName,
+                                                            sourceAmount = parsed.sourceAmount,
+                                                            sourceCurrencyCode = parsed.sourceCurrencyCode,
+                                                            activeQuery = latestTrim,
+                                                            usedModelId = modelId,
+                                                    ),
+                                    )
+                                }
+                            },
+                            onFailure = { e ->
+                                if (e is CurrencyNotRecognizedException) {
+                                    updateResultsState { s ->
+                                        s.copy(currencyConverterState = CurrencyConverterState())
+                                    }
+                                    return@launch
+                                }
+                                val msg =
+                                        e.message
+                                                ?: appContext.getString(R.string.direct_search_error_generic)
+                                updateResultsState { s ->
+                                    s.copy(
+                                            currencyConverterState =
+                                                    CurrencyConverterState(
+                                                            status = CurrencyConverterStatus.Error,
+                                                            errorMessage = msg,
+                                                            activeQuery = latestTrim,
+                                                    ),
+                                    )
+                                }
+                            },
+                    )
+                }
     }
 
     fun activateSearchSectionFilter(section: SearchSection) {
@@ -2722,7 +2922,9 @@ class SearchViewModel(
             state.copy(
                 detectedShortcutTarget = null,
                 detectedAliasSearchSection = section,
+                isCurrencyConverterAliasMode = false,
                 calculatorState = CalculatorState(),
+                currencyConverterState = CurrencyConverterState(),
                 searchResults = emptyList(),
                 contactResults = emptyList(),
                 fileResults = emptyList(),
@@ -2748,7 +2950,9 @@ class SearchViewModel(
             it.copy(
                     detectedShortcutTarget = null,
                     detectedAliasSearchSection = null,
+                    isCurrencyConverterAliasMode = false,
                     calculatorState = CalculatorState(),
+                    currencyConverterState = CurrencyConverterState(),
             )
         }
     }
@@ -2801,6 +3005,8 @@ class SearchViewModel(
                             webSuggestionsEnabled = webSuggestionsEnabled,
                             calculatorEnabled = userPreferences.isCalculatorEnabled(),
                             unitConverterEnabled = userPreferences.isUnitConverterEnabled(),
+                            dateCalculatorEnabled = userPreferences.isDateCalculatorEnabled(),
+                            currencyConverterEnabled = userPreferences.isCurrencyConverterEnabled(),
                             hasGeminiApiKey = hasGeminiApiKey,
                             geminiApiKeyLast4 = geminiApiKey?.takeLast(4),
                             personalContext = personalContext,
@@ -4144,6 +4350,9 @@ class SearchViewModel(
                 state.detectedAliasSearchSection != null -> {
                     SearchEnginesVisibility.Hidden
                 }
+                state.isCurrencyConverterAliasMode -> {
+                    SearchEnginesVisibility.Hidden
+                }
                 isLikelyWebUrl(state.query) -> {
                     SearchEnginesVisibility.Hidden
                 }
@@ -4193,6 +4402,7 @@ class SearchViewModel(
         // are cheap relative to contact/file queries, but still eliminates the
         // redundant mid-word searches that occur during rapid typing.
         private const val APP_SEARCH_DEBOUNCE_MS = 60L
+        private const val CURRENCY_CONVERTER_DEBOUNCE_MS = 450L
         /** Minimum interval between browser-target refreshes triggered by onResume. */
         private const val BROWSER_REFRESH_INTERVAL_MS = 5 * 60 * 1_000L // 5 minutes
         private const val DEFERRED_APP_REFRESH_DELAY_MS = 2_000L

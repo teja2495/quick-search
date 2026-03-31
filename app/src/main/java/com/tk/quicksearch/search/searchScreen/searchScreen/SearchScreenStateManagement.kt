@@ -460,7 +460,9 @@ internal fun SearchScreenStateManagement(
             pinnedCalendarEvents = state.pinnedCalendarEvents,
             orderedSections = derivedState.orderedSections,
             shortcutDetected =
-                state.detectedShortcutTarget != null || state.detectedAliasSearchSection != null,
+                state.detectedShortcutTarget != null ||
+                    state.detectedAliasSearchSection != null ||
+                    state.isCurrencyConverterAliasMode,
         )
 
     return SearchScreenStateResult(

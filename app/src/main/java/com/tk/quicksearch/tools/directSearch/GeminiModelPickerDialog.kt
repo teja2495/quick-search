@@ -38,6 +38,7 @@ fun GeminiModelPickerDialog(
         onGroundingChange: (Boolean) -> Unit,
         onModelSelected: (String) -> Unit,
         onDismiss: () -> Unit,
+        showGroundingToggle: Boolean = true,
 ) {
         val listState = rememberLazyListState()
         val selectedModel = models.firstOrNull { it.id == selectedModelId }
@@ -93,6 +94,7 @@ fun GeminiModelPickerDialog(
                                                 }
                                         }
                                 }
+                                if (showGroundingToggle) {
                                 HorizontalDivider(
                                         modifier = Modifier.padding(vertical = 12.dp),
                                         color = MaterialTheme.colorScheme.outlineVariant
@@ -140,6 +142,7 @@ fun GeminiModelPickerDialog(
                                                         modifier = Modifier.weight(1f)
                                                 )
                                         }
+                                }
                                 }
                         }
                 },
