@@ -535,7 +535,6 @@ data class SearchUiState(
         val showStartSearchingOnOnboarding: Boolean = false,
         val showSearchBarWelcomeAnimation: Boolean = false,
         val showContactActionHint: Boolean = false,
-        val showPersonalContextHint: Boolean = false,
         val hasSeenOverlayAssistantTip: Boolean = true,
         val hasDismissedSearchHistoryTip: Boolean = false,
         // Recent items
@@ -704,7 +703,6 @@ fun SearchUiState(
                 showStartSearchingOnOnboarding = config.showStartSearchingOnOnboarding,
                 showSearchBarWelcomeAnimation = config.showSearchBarWelcomeAnimation,
                 showContactActionHint = config.showContactActionHint,
-                showPersonalContextHint = config.showPersonalContextHint,
                 hasSeenOverlayAssistantTip = config.hasSeenOverlayAssistantTip,
                 showReleaseNotesDialog = config.showReleaseNotesDialog,
                 releaseNotesVersionName = config.releaseNotesVersionName,

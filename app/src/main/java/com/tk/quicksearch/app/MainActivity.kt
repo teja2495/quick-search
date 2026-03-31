@@ -37,6 +37,7 @@ import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.overlay.OverlayModeController
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
+import com.tk.quicksearch.shared.util.CrashLogManager
 import com.tk.quicksearch.shared.util.FeedbackUtils
 import com.tk.quicksearch.widgets.searchWidget.SearchWidget
 import com.tk.quicksearch.widgets.searchWidget.MicAction
@@ -93,6 +94,7 @@ class MainActivity : ComponentActivity() {
     private var hasSuggestionsReadyTraced = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        CrashLogManager.install(this)
         Trace.beginSection(TRACE_ON_CREATE_ENTRY)
         try {
             // Must be called before super.onCreate for edge-to-edge to work correctly on all versions

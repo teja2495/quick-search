@@ -633,6 +633,8 @@
     <string name="settings_gemini_api_config_desc">Set up Gemini API for AI-powered search and tools</string>
     <string name="settings_direct_search_setup_nav_title">Direct Search</string>
     <string name="settings_direct_search_setup_nav_desc">Setup Gemini API key to enable AI-powered search</string>
+    <string name="settings_gemini_api_title">Gemini API</string>
+    <string name="settings_gemini_api_desc">Configure Gemini API</string>
     <string name="settings_tools_desc">Calculator, Unit converter, Date Converter</string>
     <string name="settings_tools_info_examples_header">Here are some examples of things you can ask in the search bar</string>
     <string name="settings_tools_more_coming_soon">More tools coming soon</string>

@@ -54,19 +54,6 @@ internal fun UsagePermissionCard(
 internal fun InfoBanner(message: String) =
     com.tk.quicksearch.search.searchScreen.components.InfoBanner(message)
 
-@Composable
-internal fun PersonalContextHintBanner(
-    onOpenPersonalContext: () -> Unit,
-    onOpenDirectSearchConfigure: () -> Unit = {},
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier,
-) = com.tk.quicksearch.search.searchScreen.components.PersonalContextHintBanner(
-    onOpenPersonalContext = onOpenPersonalContext,
-    onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
-    onDismiss = onDismiss,
-    modifier = modifier,
-)
-
 // Search Field
 @Composable
 internal fun PersistentSearchBar(

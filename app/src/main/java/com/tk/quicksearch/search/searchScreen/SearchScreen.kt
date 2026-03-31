@@ -143,7 +143,6 @@ fun SearchScreen(
     onWebSuggestionClick: (String) -> Unit = {},
     onSearchEngineOnboardingDismissed: () -> Unit = {},
     onContactActionHintDismissed: () -> Unit = {},
-    onPersonalContextHintDismissed: () -> Unit = {},
     onClearDetectedShortcut: () -> Unit = {},
     onSectionSelected: (com.tk.quicksearch.search.core.SearchSection) -> Unit = {},
     onCustomizeSearchEnginesClick: () -> Unit = {},
@@ -247,7 +246,6 @@ fun SearchScreen(
         onWebSuggestionClick = onWebSuggestionClick,
         onSearchEngineOnboardingDismissed = onSearchEngineOnboardingDismissed,
         onContactActionHintDismissed = onContactActionHintDismissed,
-        onPersonalContextHintDismissed = onPersonalContextHintDismissed,
         onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
         onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
         onDeleteRecentItem = onDeleteRecentItem,
@@ -385,7 +383,6 @@ fun SearchScreen(
             onSearchEngineLongPress = onSearchEngineLongPress,
             onDirectSearchEmailClick = onDirectSearchEmailClick,
             onOpenPersonalContextDialog = stateResult.openPersonalContextDialog,
-            onPersonalContextHintDismissed = onPersonalContextHintDismissed,
             onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
             onPhoneNumberClick = { phoneNumber ->
                 // Create a temporary ContactInfo to use the call functionality

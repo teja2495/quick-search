@@ -520,7 +520,6 @@ abstract class BasePreferences(
         const val KEY_FORCE_SEARCH_BAR_WELCOME_ON_NEXT_OPEN =
             "force_search_bar_welcome_on_next_open"
         const val KEY_HAS_SEEN_CONTACT_ACTION_HINT = "has_seen_contact_action_hint"
-        const val KEY_HAS_SEEN_PERSONAL_CONTEXT_HINT = "has_seen_personal_context_hint"
         const val KEY_HAS_SEEN_OVERLAY_ASSISTANT_TIP = "has_seen_overlay_assistant_tip"
 
         // Fresh install detection window (10 minutes)

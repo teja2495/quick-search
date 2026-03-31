@@ -52,7 +52,6 @@ object SettingsBackupManager {
             "search_engine_onboarding_seen",
             "has_seen_search_bar_welcome",
             "has_seen_contact_action_hint",
-            "has_seen_personal_context_hint",
             "recent_app_launches",
             "last_seen_version",
             "direct_search_setup_expanded",

@@ -93,7 +93,6 @@ fun SearchContentArea(
     onPhoneNumberClick: (String) -> Unit = {},
     onEmailClick: (String) -> Unit = {},
     onOpenPersonalContextDialog: () -> Unit = {},
-    onPersonalContextHintDismissed: () -> Unit = {},
     onWebSuggestionClick: (String) -> Unit = {},
     onSearchTargetClick: (String, SearchTarget) -> Unit = { _, _ -> },
     onSearchEngineLongPress: () -> Unit = {},
@@ -424,8 +423,6 @@ fun SearchContentArea(
                             onPhoneNumberClick = onPhoneNumberClick,
                             onEmailClick = onEmailClick,
                             onOpenPersonalContextDialog = onOpenPersonalContextDialog,
-                            onPersonalContextHintDismissed =
-                            onPersonalContextHintDismissed,
                             onWebSuggestionClick = onWebSuggestionClick,
                             onSearchEngineLongPress = onSearchEngineLongPress,
                             onCustomizeSearchEnginesClick =

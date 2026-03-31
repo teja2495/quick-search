@@ -38,7 +38,6 @@ import com.tk.quicksearch.tools.directSearch.DirectSearchResult
 import com.tk.quicksearch.tools.directSearch.WordClockResult
 import com.tk.quicksearch.search.searchScreen.ExpandedSection
 import com.tk.quicksearch.search.searchScreen.InfoBanner
-import com.tk.quicksearch.search.searchScreen.PersonalContextHintBanner
 import com.tk.quicksearch.search.searchScreen.hasAnySearchResults
 import com.tk.quicksearch.search.searchScreen.renderSection
 import com.tk.quicksearch.search.searchScreen.ContactsSectionParams
@@ -51,7 +50,6 @@ import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.search.searchScreen.components.SectionPermissionResultCard
 import com.tk.quicksearch.R
 import androidx.compose.ui.res.stringResource
-import kotlinx.coroutines.delay
 
 /** Unified content layout that handles both one-handed mode and top-aligned layouts. */
 @Composable
@@ -81,7 +79,6 @@ fun ContentLayout(
     onPhoneNumberClick: (String) -> Unit = {},
     onEmailClick: (String) -> Unit = {},
     onOpenPersonalContextDialog: () -> Unit = {},
-    onPersonalContextHintDismissed: () -> Unit = {},
     onWebSuggestionClick: (String) -> Unit = {},
     onSearchEngineLongPress: () -> Unit = {},
     onCustomizeSearchEnginesClick: () -> Unit = {},
@@ -308,69 +305,14 @@ fun ContentLayout(
 
                 ItemPriorityConfig.ItemType.DIRECT_SEARCH_RESULT -> {
                     if (showDirectSearch && directSearchState != null) {
-                        val shouldAllowPersonalContextHint =
-                            state.showPersonalContextHint &&
-                                    state.personalContext.isBlank() &&
-                                    directSearchState.status ==
-                                    DirectSearchStatus
-                                        .Success &&
-                                    !directSearchState.answer
-                                        .isNullOrBlank()
-                        var isPersonalContextHintVisible by
-                            remember(directSearchState.activeQuery) {
-                                mutableStateOf(false)
-                            }
-
-                        LaunchedEffect(shouldAllowPersonalContextHint) {
-                            if (shouldAllowPersonalContextHint) {
-                                delay(1000L)
-                                isPersonalContextHintVisible = true
-                            } else {
-                                isPersonalContextHintVisible = false
-                            }
-                        }
-
-                        Column {
-                            AnimatedVisibility(
-                                visible =
-                                isPersonalContextHintVisible,
-                                enter = fadeIn(),
-                                exit = fadeOut(),
-                            ) {
-                                Column {
-                                    PersonalContextHintBanner(
-                                        onOpenPersonalContext =
-                                        onOpenPersonalContextDialog,
-                                        onOpenDirectSearchConfigure =
-                                        onOpenDirectSearchConfigure,
-                                        onDismiss = {
-                                            isPersonalContextHintVisible =
-                                                false
-                                            onPersonalContextHintDismissed()
-                                        },
-                                    )
-                                    Spacer(
-                                        modifier =
-                                            Modifier.size(
-                                                DesignTokens
-                                                    .SpacingSmall,
-                                            ),
-                                    )
-                                }
-                            }
-                            DirectSearchResult(
-                                directSearchState =
-                                directSearchState,
-                                showWallpaperBackground =
-                                    effectiveShowWallpaperBackground,
-                                onGeminiModelInfoClick = onGeminiModelInfoClick,
-                                onOpenDirectSearchConfigure =
-                                onOpenDirectSearchConfigure,
-                                onPhoneNumberClick =
-                                onPhoneNumberClick,
-                                onEmailClick = onEmailClick,
-                            )
-                        }
+                        DirectSearchResult(
+                            directSearchState = directSearchState,
+                            showWallpaperBackground = effectiveShowWallpaperBackground,
+                            onGeminiModelInfoClick = onGeminiModelInfoClick,
+                            onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
+                            onPhoneNumberClick = onPhoneNumberClick,
+                            onEmailClick = onEmailClick,
+                        )
                     }
                 }
 

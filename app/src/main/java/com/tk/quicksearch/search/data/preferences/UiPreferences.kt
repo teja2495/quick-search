@@ -350,13 +350,6 @@ class UiPreferences(
         setBooleanPref(UiPreferences.KEY_HAS_SEEN_CONTACT_ACTION_HINT, seen)
     }
 
-    fun hasSeenPersonalContextHint(): Boolean =
-            getBooleanPref(UiPreferences.KEY_HAS_SEEN_PERSONAL_CONTEXT_HINT, false)
-
-    fun setHasSeenPersonalContextHint(seen: Boolean) {
-        setBooleanPref(UiPreferences.KEY_HAS_SEEN_PERSONAL_CONTEXT_HINT, seen)
-    }
-
     fun hasDismissedSearchHistoryTip(): Boolean =
             firstLaunchPrefs.getBoolean(UiPreferences.KEY_SEARCH_HISTORY_TIP_DISMISSED, false)
 
@@ -716,7 +709,6 @@ class UiPreferences(
         const val KEY_FORCE_SEARCH_BAR_WELCOME_ON_NEXT_OPEN =
                 "force_search_bar_welcome_on_next_open"
         const val KEY_HAS_SEEN_CONTACT_ACTION_HINT = "has_seen_contact_action_hint"
-        const val KEY_HAS_SEEN_PERSONAL_CONTEXT_HINT = "has_seen_personal_context_hint"
         const val KEY_SEARCH_HISTORY_TIP_DISMISSED = "search_history_tip_dismissed"
         const val KEY_HAS_SEEN_OVERLAY_ASSISTANT_TIP = "has_seen_overlay_assistant_tip"
         const val KEY_HAS_SEEN_SETTINGS_SEARCH_TIP = "has_seen_settings_search_tip"

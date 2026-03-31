@@ -692,11 +692,6 @@ class UserAppPreferences(
 
     fun setHasSeenContactActionHint(seen: Boolean) = uiPreferences.setHasSeenContactActionHint(seen)
 
-    fun hasSeenPersonalContextHint(): Boolean = uiPreferences.hasSeenPersonalContextHint()
-
-    fun setHasSeenPersonalContextHint(seen: Boolean) =
-            uiPreferences.setHasSeenPersonalContextHint(seen)
-
     fun hasDismissedSearchHistoryTip(): Boolean = uiPreferences.hasDismissedSearchHistoryTip()
 
     fun setSearchHistoryTipDismissed(dismissed: Boolean) =

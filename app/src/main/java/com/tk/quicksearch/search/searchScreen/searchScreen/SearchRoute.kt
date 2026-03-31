@@ -291,6 +291,7 @@ fun SearchRoute(
             AppSettingsToggleKey.CALCULATOR -> uiState.calculatorEnabled
             AppSettingsToggleKey.UNIT_CONVERTER -> uiState.unitConverterEnabled
             AppSettingsToggleKey.DATE_CALCULATOR -> uiState.dateCalculatorEnabled
+            AppSettingsToggleKey.DICTIONARY -> uiState.dictionaryEnabled
             AppSettingsToggleKey.APP_SUGGESTIONS -> uiState.appSuggestionsEnabled
             AppSettingsToggleKey.WEB_SUGGESTIONS -> uiState.webSuggestionsEnabled
             AppSettingsToggleKey.RECENT_QUERIES -> uiState.recentQueriesEnabled
@@ -345,6 +346,7 @@ fun SearchRoute(
             AppSettingsToggleKey.CALCULATOR -> viewModel.setCalculatorEnabled(enabled)
             AppSettingsToggleKey.UNIT_CONVERTER -> viewModel.setUnitConverterEnabled(enabled)
             AppSettingsToggleKey.DATE_CALCULATOR -> viewModel.setDateCalculatorEnabled(enabled)
+            AppSettingsToggleKey.DICTIONARY -> viewModel.setDictionaryEnabled(enabled)
             AppSettingsToggleKey.APP_SUGGESTIONS -> viewModel.setAppSuggestionsEnabled(enabled)
             AppSettingsToggleKey.WEB_SUGGESTIONS -> viewModel.setWebSuggestionsEnabled(enabled)
             AppSettingsToggleKey.RECENT_QUERIES -> viewModel.setRecentQueriesEnabled(enabled)
@@ -596,7 +598,6 @@ fun SearchRoute(
             },
             onSearchEngineOnboardingDismissed = viewModel::onSearchEngineOnboardingDismissed,
             onContactActionHintDismissed = viewModel::onContactActionHintDismissed,
-            onPersonalContextHintDismissed = viewModel::onPersonalContextHintDismissed,
             onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
             onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
             onDeleteRecentItem = viewModel::deleteRecentItem,

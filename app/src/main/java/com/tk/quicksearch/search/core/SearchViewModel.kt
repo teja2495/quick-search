@@ -604,7 +604,6 @@ class SearchViewModel(
                     showStartSearchingOnOnboarding = s.showStartSearchingOnOnboarding,
                     showSearchBarWelcomeAnimation = s.showSearchBarWelcomeAnimation,
                     showContactActionHint = s.showContactActionHint,
-                    showPersonalContextHint = s.showPersonalContextHint,
                     hasSeenOverlayAssistantTip = s.hasSeenOverlayAssistantTip,
                     showReleaseNotesDialog = s.showReleaseNotesDialog,
                     releaseNotesVersionName = s.releaseNotesVersionName,
@@ -1361,9 +1360,6 @@ class SearchViewModel(
                         openKeyboardOnLaunch = userPreferences.isOpenKeyboardOnLaunchEnabled(),
                         clearQueryOnLaunch = userPreferences.isClearQueryOnLaunchEnabled(),
                         autoCloseOverlay = userPreferences.isAutoCloseOverlayEnabled(),
-                        showPersonalContextHint =
-                                !userPreferences.hasSeenPersonalContextHint() &&
-                                        directSearchHandler.getPersonalContext().isBlank(),
                 )
             }
             updatePermissionState { state ->
@@ -3422,9 +3418,6 @@ class SearchViewModel(
                             showSearchEngineOnboarding =
                                     searchEngineManager.isSearchEngineCompactMode &&
                                             !userPreferences.hasSeenSearchEngineOnboarding(),
-                            showPersonalContextHint =
-                                    !userPreferences.hasSeenPersonalContextHint() &&
-                                            personalContext.isBlank(),
                     )
                 }
                 handleOnResume()
@@ -4222,11 +4215,6 @@ class SearchViewModel(
     fun onContactActionHintDismissed() {
         userPreferences.setHasSeenContactActionHint(true)
         updateUiState { it.copy(showContactActionHint = false) }
-    }
-
-    fun onPersonalContextHintDismissed() {
-        userPreferences.setHasSeenPersonalContextHint(true)
-        updateUiState { it.copy(showPersonalContextHint = false) }
     }
 
     // Contact Actions

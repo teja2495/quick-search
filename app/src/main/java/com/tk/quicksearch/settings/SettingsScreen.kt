@@ -10,6 +10,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -792,13 +793,13 @@ fun SettingsVersionDisplay(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier =
-                Modifier.clickable(
+                Modifier.combinedClickable(
                     interactionSource = versionTapInteractionSource,
                     indication = null,
                     onClick = {
                         versionTapCount += 1
                         if (versionTapCount < 5) {
-                            return@clickable
+                            return@combinedClickable
                         }
                         versionTapCount = 0
 
@@ -811,7 +812,7 @@ fun SettingsVersionDisplay(
                                     Toast.LENGTH_SHORT,
                                 ).show()
                             onFeatureFlagsChanged()
-                            return@clickable
+                            return@combinedClickable
                         }
 
                         if (!hasNewFeaturesAvailable) {
@@ -821,7 +822,7 @@ fun SettingsVersionDisplay(
                                     context.getString(R.string.settings_beta_features_unavailable),
                                     Toast.LENGTH_SHORT,
                                 ).show()
-                            return@clickable
+                            return@combinedClickable
                         }
 
                         FeatureFlags.setAll(context, enabled = true)
@@ -832,6 +833,9 @@ fun SettingsVersionDisplay(
                                 Toast.LENGTH_SHORT,
                             ).show()
                         onFeatureFlagsChanged()
+                    },
+                    onLongClick = {
+                        FeedbackUtils.launchFeedbackEmailWithCrashLog(context)
                     },
                 ),
         )

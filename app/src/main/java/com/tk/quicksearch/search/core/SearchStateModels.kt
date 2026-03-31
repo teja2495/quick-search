@@ -224,7 +224,6 @@ data class SearchUiConfigState(
         val showStartSearchingOnOnboarding: Boolean = false,
         val showSearchBarWelcomeAnimation: Boolean = false,
         val showContactActionHint: Boolean = false,
-        val showPersonalContextHint: Boolean = false,
         val hasSeenOverlayAssistantTip: Boolean = true,
         val showReleaseNotesDialog: Boolean = false,
         val releaseNotesVersionName: String? = null,

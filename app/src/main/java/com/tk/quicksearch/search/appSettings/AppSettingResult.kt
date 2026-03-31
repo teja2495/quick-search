@@ -38,6 +38,7 @@ enum class AppSettingsDestination {
     ADD_QUICK_SETTINGS_TILE,
     UNIT_CONVERTER_INFO,
     DATE_CALCULATOR_INFO,
+    GEMINI_API,
 }
 
 enum class AppSettingsToggleKey {
@@ -72,6 +73,7 @@ enum class AppSettingsToggleKey {
     WALLPAPER_ACCENT,
     THEMED_ICONS,
     APPS_PER_ROW,
+    DICTIONARY,
 }
 
 data class AppSettingResult(

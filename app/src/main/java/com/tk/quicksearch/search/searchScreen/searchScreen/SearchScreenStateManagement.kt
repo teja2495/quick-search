@@ -132,7 +132,6 @@ internal fun SearchScreenStateManagement(
     onWebSuggestionClick: (String) -> Unit,
     onSearchEngineOnboardingDismissed: () -> Unit,
     onContactActionHintDismissed: () -> Unit,
-    onPersonalContextHintDismissed: () -> Unit,
     onCustomizeSearchEnginesClick: () -> Unit,
     onOpenDirectSearchConfigure: () -> Unit,
     onDeleteRecentItem: (RecentSearchEntry) -> Unit,
