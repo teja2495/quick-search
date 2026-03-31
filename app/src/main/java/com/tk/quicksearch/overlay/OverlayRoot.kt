@@ -4,7 +4,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,6 +24,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -165,7 +169,7 @@ fun OverlayRoot(
                                 overlayImeVisible &&
                                         (overlayManualNumberKeyboard ||
                                                 uiState.calculatorState.isCalculatorMode)
-                        val overlayOperatorRowReservedHeight =
+                        val targetOperatorRowReservedHeight =
                                 if (shouldShowOverlayOperatorRow) {
                                         if (overlayOperatorRowHeightPx > 0) {
                                                 with(density) { overlayOperatorRowHeightPx.toDp() }
@@ -175,6 +179,15 @@ fun OverlayRoot(
                                 } else {
                                         0.dp
                                 }
+                        val overlayOperatorRowReservedHeight by animateDpAsState(
+                                targetValue = targetOperatorRowReservedHeight,
+                                animationSpec =
+                                        tween(
+                                                durationMillis = OVERLAY_CONTENT_RESIZE_ANIMATION_MS,
+                                                easing = LinearOutSlowInEasing,
+                                        ),
+                                label = "operatorRowReservedHeight",
+                        )
                         val topSafePadding = systemBarsPadding.calculateTopPadding()
                         val leftSafePadding = systemBarsPadding.calculateLeftPadding(layoutDirection)
                         val rightSafePadding =
@@ -444,11 +457,15 @@ fun OverlayRoot(
                                 }
                         }
 
-                        if (shouldShowOverlayOperatorRow) {
+                        AnimatedVisibility(
+                                visible = shouldShowOverlayOperatorRow,
+                                modifier = Modifier.align(Alignment.BottomCenter),
+                                enter = fadeIn(animationSpec = tween(durationMillis = OVERLAY_CONTENT_RESIZE_ANIMATION_MS)),
+                                exit = fadeOut(animationSpec = tween(durationMillis = OVERLAY_CONTENT_RESIZE_ANIMATION_MS)),
+                        ) {
                                 NumberKeyboardOperatorPills(
                                         modifier =
-                                                Modifier.align(Alignment.BottomCenter)
-                                                        .imePadding()
+                                                Modifier.imePadding()
                                                         .fillMaxWidth()
                                                         .onSizeChanged { size ->
                                                                 overlayOperatorRowHeightPx = size.height

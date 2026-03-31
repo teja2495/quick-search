@@ -2,6 +2,7 @@ package com.tk.quicksearch.search.core
 
 import android.content.ComponentName
 import android.content.Context
+import android.app.ActivityManager
 import android.content.pm.PackageManager
 
 /** Applies launcher icon alias state based on the selected icon option. */
@@ -15,6 +16,7 @@ class LauncherIconManager(
     ) {
         val resolved = resolveSelection(selection, appTheme, isDarkMode)
         val packageManager = context.packageManager
+        val currentTaskRootComponent = getCurrentTaskRootComponentClassName()
         // Enable the new alias first, then disable the rest. If the currently-active alias is
         // disabled before the new one is enabled, Android kills the app even with DONT_KILL_APP.
         val targetComponent = ComponentName(context, aliasMap[resolved] ?: return)
@@ -27,6 +29,7 @@ class LauncherIconManager(
         }
         aliasMap.forEach { (option, componentClass) ->
             if (option == resolved) return@forEach
+            if (componentClass == currentTaskRootComponent) return@forEach
             runCatching {
                 packageManager.setComponentEnabledSetting(
                     ComponentName(context, componentClass),
@@ -56,6 +59,12 @@ class LauncherIconManager(
                 }
             else -> selection
         }
+
+    private fun getCurrentTaskRootComponentClassName(): String? {
+        val activityManager =
+            context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager ?: return null
+        return activityManager.appTasks.firstOrNull()?.taskInfo?.baseIntent?.component?.className
+    }
 
     companion object {
         private const val DEFAULT_ALIAS = "com.tk.quicksearch.app.MainActivityAliasDefault"

@@ -422,6 +422,7 @@
     <string name="settings_backup_restore_title">Backup &amp; Restore</string>
     <string name="settings_beta_features_disabled">Beta features are disabled</string>
     <string name="settings_beta_features_enabled">New beta features are enabled</string>
+    <string name="settings_beta_features_unavailable">No new features are available</string>
     <string name="settings_beta_tag">Beta</string>
     <string name="settings_bottom_searchbar_desc">Place the search bar at the bottom of the screen</string>
     <string name="settings_bottom_searchbar_title">Bottom Searchbar</string>
@@ -717,7 +718,7 @@
          Import
          ============================================================================ -->
     <string name="setup_import_button">Import Settings</string>
-    <string name="setup_import_description_subtitle">Import your previous Quick Search settings using a backup file that you have exported previously.</string>
+    <string name="setup_import_description_subtitle">Import your Quick Search settings using a backup file that you have exported previously.</string>
     <string name="setup_import_description_title">Have a backup?</string>
     <string name="setup_import_error_subtitle">Could not read the backup file. Please try again.</string>
     <string name="setup_import_error_title">Import Failed</string>

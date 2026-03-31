@@ -38,7 +38,7 @@ private val appIconCacheEpoch = AtomicLong(0L)
  * Zoom factor when rasterizing adaptive icons for a circular mask. The foreground/background
  * safe zone is smaller than the full canvas, so without scaling the glyph looks small in the circle.
  */
-private const val CircularAdaptiveIconContentScale = 1.2f
+private const val CircularAdaptiveIconContentScale = 1.5f
 
 /**
  * In-memory cache for app icons to avoid repeated loading.

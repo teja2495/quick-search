@@ -10,7 +10,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -71,6 +71,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.preferences.GeminiPreferences
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.settings.shared.*
+import com.tk.quicksearch.shared.featureFlags.FeatureFlag
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.theme.AppColors
@@ -763,6 +764,8 @@ fun SettingsVersionDisplay(
         }
 
     var versionTapCount by remember { mutableIntStateOf(0) }
+    val versionTapInteractionSource = remember { MutableInteractionSource() }
+    val hasNewFeaturesAvailable = FeatureFlag.entries.isNotEmpty()
     Column(
         modifier =
             modifier
@@ -779,34 +782,45 @@ fun SettingsVersionDisplay(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier =
-                Modifier.combinedClickable(
+                Modifier.clickable(
+                    interactionSource = versionTapInteractionSource,
+                    indication = null,
                     onClick = {
                         versionTapCount += 1
-                        if (versionTapCount >= 5) {
-                            FeatureFlags.setAll(context, enabled = true)
+                        if (versionTapCount < 5) {
+                            return@clickable
+                        }
+                        versionTapCount = 0
+
+                        if (FeatureFlags.isAnyEnabled()) {
+                            FeatureFlags.setAll(context, enabled = false)
                             Toast
                                 .makeText(
                                     context,
-                                    context.getString(R.string.settings_beta_features_enabled),
+                                    context.getString(R.string.settings_beta_features_disabled),
                                     Toast.LENGTH_SHORT,
                                 ).show()
-                            versionTapCount = 0
                             onFeatureFlagsChanged()
+                            return@clickable
                         }
-                    },
-                    onLongClick = {
-                        if (!FeatureFlags.isAnyEnabled()) {
-                            versionTapCount = 0
-                            return@combinedClickable
+
+                        if (!hasNewFeaturesAvailable) {
+                            Toast
+                                .makeText(
+                                    context,
+                                    context.getString(R.string.settings_beta_features_unavailable),
+                                    Toast.LENGTH_SHORT,
+                                ).show()
+                            return@clickable
                         }
-                        FeatureFlags.setAll(context, enabled = false)
+
+                        FeatureFlags.setAll(context, enabled = true)
                         Toast
                             .makeText(
                                 context,
-                                context.getString(R.string.settings_beta_features_disabled),
+                                context.getString(R.string.settings_beta_features_enabled),
                                 Toast.LENGTH_SHORT,
                             ).show()
-                        versionTapCount = 0
                         onFeatureFlagsChanged()
                     },
                 ),
