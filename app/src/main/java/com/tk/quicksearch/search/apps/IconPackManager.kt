@@ -3,6 +3,11 @@ package com.tk.quicksearch.search.managers
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
 import android.content.res.Resources
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.BitmapDrawable
@@ -24,6 +29,19 @@ import java.util.concurrent.ConcurrentHashMap
  */
 object IconPackManager {
     private const val TAG = "IconPackManager"
+    private const val DEFAULT_MASK_SCALE_FACTOR = 1f
+    private const val MIN_MASK_SCALE_FACTOR = 0.4f
+    private const val MAX_MASK_SCALE_FACTOR = 1.6f
+    private const val DEFAULT_FALLBACK_ICON_SIZE = 192
+    private const val MAX_FALLBACK_ICON_SIZE = 512
+
+    private data class IconPackRenderData(
+        val packageMapping: Map<String, String>,
+        val backDrawables: List<String> = emptyList(),
+        val maskDrawable: String? = null,
+        val overlayDrawable: String? = null,
+        val scaleFactor: Float = DEFAULT_MASK_SCALE_FACTOR,
+    )
 
     // Common intents/categories used by popular icon packs (Nova, Lawnchair, etc.)
     private val ICON_PACK_ACTIONS =
@@ -40,7 +58,7 @@ object IconPackManager {
             "com.teslacoilsw.launcher.THEME",
         )
 
-    private val mappingCache = ConcurrentHashMap<String, Map<String, String>>()
+    private val renderDataCache = ConcurrentHashMap<String, IconPackRenderData>()
     private val resourcesCache = ConcurrentHashMap<String, Resources>()
 
     /**
@@ -110,15 +128,25 @@ object IconPackManager {
         targetPackage: String,
     ): ImageBitmap? {
         val resources = getIconPackResources(context, iconPackPackage) ?: return null
-        val mapping = loadAppFilterMapping(context, iconPackPackage, resources)
-        val drawableName = mapping[targetPackage] ?: return null
+        val renderData = loadAppFilterRenderData(iconPackPackage, resources)
+        val drawableName = renderData.packageMapping[targetPackage]
 
-        val drawable = loadDrawable(resources, iconPackPackage, drawableName) ?: return null
-        return drawable.toBitmapSafely()
+        if (!drawableName.isNullOrBlank()) {
+            val drawable = loadDrawable(resources, iconPackPackage, drawableName) ?: return null
+            return drawable.toBitmapSafely()
+        }
+
+        return buildMaskedFallbackIcon(
+            context = context,
+            resources = resources,
+            iconPackPackage = iconPackPackage,
+            targetPackage = targetPackage,
+            renderData = renderData,
+        )
     }
 
     fun clearAllCaches() {
-        mappingCache.clear()
+        renderDataCache.clear()
         resourcesCache.clear()
     }
 
@@ -171,16 +199,15 @@ object IconPackManager {
      * Loads and caches the appfilter mapping from the icon pack's XML file,
      * returning a map of package names to drawable names.
      */
-    private fun loadAppFilterMapping(
-        context: Context,
+    private fun loadAppFilterRenderData(
         iconPackPackage: String,
         resources: Resources,
-    ): Map<String, String> {
-        mappingCache[iconPackPackage]?.let { return it }
+    ): IconPackRenderData {
+        renderDataCache[iconPackPackage]?.let { return it }
 
-        val mapping = parseAppFilter(resources, iconPackPackage)
-        mappingCache[iconPackPackage] = mapping
-        return mapping
+        val renderData = parseAppFilter(resources, iconPackPackage)
+        renderDataCache[iconPackPackage] = renderData
+        return renderData
     }
 
     /**
@@ -190,7 +217,7 @@ object IconPackManager {
     private fun parseAppFilter(
         resources: Resources,
         packageName: String,
-    ): Map<String, String> {
+    ): IconPackRenderData {
         // Try assets/appfilter.xml first
         getAppFilterFromAssets(resources)?.let { return it }
 
@@ -201,7 +228,7 @@ object IconPackManager {
     /**
      * Attempts to parse appfilter.xml from the assets directory.
      */
-    private fun getAppFilterFromAssets(resources: Resources): Map<String, String>? =
+    private fun getAppFilterFromAssets(resources: Resources): IconPackRenderData? =
         runCatching { resources.assets.open("appfilter.xml") }
             .getOrNull()
             ?.use { stream -> parseIconPackXml(stream) }
@@ -212,23 +239,23 @@ object IconPackManager {
     private fun getAppFilterFromResources(
         resources: Resources,
         packageName: String,
-    ): Map<String, String> {
+    ): IconPackRenderData {
         val xmlResId = resources.getIdentifier("appfilter", "xml", packageName)
-        if (xmlResId == 0) return emptyMap()
+        if (xmlResId == 0) return IconPackRenderData(emptyMap())
 
         return try {
             val parser = resources.getXml(xmlResId)
-            parseIconPackXml(parser) ?: emptyMap()
+            parseIconPackXml(parser) ?: IconPackRenderData(emptyMap())
         } catch (e: Exception) {
             Log.w(TAG, "Failed to parse appfilter.xml from resources for $packageName", e)
-            emptyMap()
+            IconPackRenderData(emptyMap())
         }
     }
 
     /**
      * Parses an InputStream containing icon pack XML data.
      */
-    private fun parseIconPackXml(stream: InputStream): Map<String, String>? =
+    private fun parseIconPackXml(stream: InputStream): IconPackRenderData? =
         try {
             val parser = Xml.newPullParser()
             parser.setInput(stream, null)
@@ -242,36 +269,82 @@ object IconPackManager {
      * Parses XML using the provided XmlPullParser, extracting package-to-drawable mappings
      * from "item" elements with "component" and "drawable" attributes.
      */
-    private fun parseIconPackXml(parser: XmlPullParser): Map<String, String>? {
+    private fun parseIconPackXml(parser: XmlPullParser): IconPackRenderData? {
         val mapping = mutableMapOf<String, String>()
+        val backDrawables = mutableListOf<String>()
+        var maskDrawable: String? = null
+        var overlayDrawable: String? = null
+        var scaleFactor = DEFAULT_MASK_SCALE_FACTOR
 
         return try {
             var xmlEventType = parser.eventType
             while (xmlEventType != XmlPullParser.END_DOCUMENT) {
-                if (xmlEventType == XmlPullParser.START_TAG && parser.name == "item") {
-                    val component = parser.getAttributeValue(null, "component")
-                    val drawableName = parser.getAttributeValue(null, "drawable")
-                    val packageAttr = parser.getAttributeValue(null, "package")
+                if (xmlEventType == XmlPullParser.START_TAG) {
+                    when (parser.name) {
+                        "item" -> {
+                            val component = parser.getAttributeValue(null, "component")
+                            val drawableName = parser.getAttributeValue(null, "drawable")
+                            val packageAttr = parser.getAttributeValue(null, "package")
 
-                    val packageName =
-                        when {
-                            !packageAttr.isNullOrBlank() -> packageAttr
-                            else -> extractPackageFromComponent(component)
+                            val packageName =
+                                when {
+                                    !packageAttr.isNullOrBlank() -> packageAttr
+                                    else -> extractPackageFromComponent(component)
+                                }
+
+                            if (!packageName.isNullOrBlank() && !drawableName.isNullOrBlank()) {
+                                // Keep the first mapping we see for a package to avoid overriding with aliases.
+                                mapping.putIfAbsent(packageName, drawableName)
+                            }
                         }
-
-                    if (!packageName.isNullOrBlank() && !drawableName.isNullOrBlank()) {
-                        // Keep the first mapping we see for a package to avoid overriding with aliases.
-                        mapping.putIfAbsent(packageName, drawableName)
+                        "iconback" -> {
+                            backDrawables += extractImageAttributes(parser)
+                        }
+                        "iconmask" -> {
+                            if (maskDrawable.isNullOrBlank()) {
+                                maskDrawable = extractImageAttributes(parser).firstOrNull()
+                            }
+                        }
+                        "iconupon" -> {
+                            if (overlayDrawable.isNullOrBlank()) {
+                                overlayDrawable = extractImageAttributes(parser).firstOrNull()
+                            }
+                        }
+                        "scale" -> {
+                            val parsedScale = parser.getAttributeValue(null, "factor")?.toFloatOrNull()
+                            if (parsedScale != null && parsedScale > 0f) {
+                                scaleFactor = parsedScale.coerceIn(MIN_MASK_SCALE_FACTOR, MAX_MASK_SCALE_FACTOR)
+                            }
+                        }
                     }
                 }
                 xmlEventType = parser.next()
             }
-            mapping
+            IconPackRenderData(
+                packageMapping = mapping,
+                backDrawables = backDrawables.distinct(),
+                maskDrawable = maskDrawable,
+                overlayDrawable = overlayDrawable,
+                scaleFactor = scaleFactor,
+            )
         } catch (e: Exception) {
             Log.w(TAG, "Error parsing icon pack XML", e)
             null
         }
     }
+
+    private fun extractImageAttributes(parser: XmlPullParser): List<String> =
+        buildList {
+            for (index in 0 until parser.attributeCount) {
+                val name = parser.getAttributeName(index) ?: continue
+                if (name.startsWith("img", ignoreCase = true) || name.equals("drawable", ignoreCase = true)) {
+                    val value = parser.getAttributeValue(index)
+                    if (!value.isNullOrBlank()) {
+                        add(value)
+                    }
+                }
+            }
+        }
 
     /**
      * Extracts the package name from an Android component string like "ComponentInfo{com.package/.Activity}".
@@ -313,6 +386,91 @@ object IconPackManager {
         }.onFailure {
             Log.w(TAG, "Unable to load drawable $drawableName from $packageName", it)
         }.getOrNull()
+    }
+
+    private fun buildMaskedFallbackIcon(
+        context: Context,
+        resources: Resources,
+        iconPackPackage: String,
+        targetPackage: String,
+        renderData: IconPackRenderData,
+    ): ImageBitmap? {
+        if (
+            renderData.backDrawables.isEmpty() &&
+            renderData.maskDrawable.isNullOrBlank() &&
+            renderData.overlayDrawable.isNullOrBlank()
+        ) {
+            return null
+        }
+
+        val appDrawable =
+            runCatching { context.packageManager.getApplicationIcon(targetPackage) }
+                .onFailure { Log.w(TAG, "Unable to load base icon for $targetPackage", it) }
+                .getOrNull() ?: return null
+
+        val selectedBackName =
+            renderData
+                .backDrawables
+                .takeIf { it.isNotEmpty() }
+                ?.let { backgrounds ->
+                    backgrounds[Math.floorMod(targetPackage.hashCode(), backgrounds.size)]
+                }
+
+        val backDrawable = selectedBackName?.let { loadDrawable(resources, iconPackPackage, it) }
+        val maskDrawable = renderData.maskDrawable?.let { loadDrawable(resources, iconPackPackage, it) }
+        val overlayDrawable = renderData.overlayDrawable?.let { loadDrawable(resources, iconPackPackage, it) }
+
+        if (backDrawable == null && maskDrawable == null && overlayDrawable == null) return null
+
+        val targetSize = resolveTargetSize(appDrawable, backDrawable, maskDrawable, overlayDrawable)
+        val output = Bitmap.createBitmap(targetSize, targetSize, Bitmap.Config.ARGB_8888)
+        val outputCanvas = Canvas(output)
+
+        backDrawable?.run {
+            setBounds(0, 0, targetSize, targetSize)
+            draw(outputCanvas)
+        }
+
+        val iconLayer = Bitmap.createBitmap(targetSize, targetSize, Bitmap.Config.ARGB_8888)
+        val iconCanvas = Canvas(iconLayer)
+        val iconSize = (targetSize * renderData.scaleFactor).toInt().coerceIn(1, targetSize)
+        val iconOffset = (targetSize - iconSize) / 2
+
+        appDrawable.setBounds(iconOffset, iconOffset, iconOffset + iconSize, iconOffset + iconSize)
+        appDrawable.draw(iconCanvas)
+
+        if (maskDrawable != null) {
+            val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_IN) }
+            val maskBitmap = maskDrawable.toBitmap(width = targetSize, height = targetSize)
+            iconCanvas.drawBitmap(maskBitmap, 0f, 0f, paint)
+            paint.xfermode = null
+            if (!maskBitmap.isRecycled) {
+                maskBitmap.recycle()
+            }
+        }
+
+        outputCanvas.drawBitmap(iconLayer, 0f, 0f, null)
+        if (!iconLayer.isRecycled) {
+            iconLayer.recycle()
+        }
+
+        overlayDrawable?.run {
+            setBounds(0, 0, targetSize, targetSize)
+            draw(outputCanvas)
+        }
+
+        return output.asImageBitmap()
+    }
+
+    private fun resolveTargetSize(vararg drawables: Drawable?): Int {
+        val maxIntrinsic =
+            drawables
+                .asSequence()
+                .flatMap { drawable ->
+                    sequenceOf(drawable?.intrinsicWidth ?: 0, drawable?.intrinsicHeight ?: 0)
+                }.filter { it > 0 }
+                .maxOrNull()
+        return (maxIntrinsic ?: DEFAULT_FALLBACK_ICON_SIZE).coerceAtMost(MAX_FALLBACK_ICON_SIZE)
     }
 }
 
