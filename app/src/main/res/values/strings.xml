@@ -4,6 +4,13 @@
          ============================================================================ -->
     <string name="app_name">Quick Search</string>
     <string name="search_hint">Search Anything…</string>
+    <string name="search_hint_apps">Search Apps…</string>
+    <string name="search_hint_app_shortcuts">Search App Shortcuts…</string>
+    <string name="search_hint_contacts">Search Contacts…</string>
+    <string name="search_hint_files">Search Files…</string>
+    <string name="search_hint_settings">Search Device Settings…</string>
+    <string name="search_hint_calendar">Search Calendar Events…</string>
+    <string name="search_hint_app_settings">Search App Settings…</string>
     <!-- ============================================================================
          Common
          ============================================================================ -->

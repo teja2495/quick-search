@@ -39,6 +39,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.DirectSearchStatus
+import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.isLikelyWebUrl
@@ -138,6 +139,15 @@ internal fun SearchScreenContent(
             when {
                 isCalculatorMode -> stringResource(R.string.calculator_enter_math_expression_hint)
                 isUnitConverterMode -> stringResource(R.string.unit_converter_enter_conversion_hint)
+                state.detectedAliasSearchSection != null -> when (state.detectedAliasSearchSection) {
+                    SearchSection.APPS -> stringResource(R.string.search_hint_apps)
+                    SearchSection.APP_SHORTCUTS -> stringResource(R.string.search_hint_app_shortcuts)
+                    SearchSection.CONTACTS -> stringResource(R.string.search_hint_contacts)
+                    SearchSection.FILES -> stringResource(R.string.search_hint_files)
+                    SearchSection.SETTINGS -> stringResource(R.string.search_hint_settings)
+                    SearchSection.CALENDAR -> stringResource(R.string.search_hint_calendar)
+                    SearchSection.APP_SETTINGS -> stringResource(R.string.search_hint_app_settings)
+                }
                 else -> stringResource(R.string.search_hint)
             }
     val hideCompactSearchEnginesInToolMode =
