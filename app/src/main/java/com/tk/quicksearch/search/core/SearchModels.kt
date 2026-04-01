@@ -126,6 +126,15 @@ enum class StartupPhase {
         COMPLETE,
 }
 
+enum class ActiveInfoCard {
+        NONE,
+        CALCULATOR,
+        CURRENCY_CONVERTER,
+        WORD_CLOCK,
+        DICTIONARY,
+        DIRECT_SEARCH,
+}
+
 enum class DirectSearchStatus {
         Idle,
         Loading,
@@ -184,6 +193,7 @@ data class WordClockState(
         val status: WordClockStatus = WordClockStatus.Idle,
         val wordClockText: String? = null,
         val sourceTimeText: String? = null,
+        val timeZoneText: String? = null,
         val activeQuery: String? = null,
         val usedModelId: String? = null,
         val errorMessage: String? = null,
@@ -518,6 +528,7 @@ data class SearchUiState(
         val showReleaseNotesDialog: Boolean = false,
         val releaseNotesVersionName: String? = null,
         // Transient search state
+        val activeInfoCard: ActiveInfoCard = ActiveInfoCard.NONE,
         val calculatorState: CalculatorState = CalculatorState(),
         val currencyConverterState: CurrencyConverterState = CurrencyConverterState(),
         val wordClockState: WordClockState = WordClockState(),
@@ -596,6 +607,7 @@ fun SearchUiState(
                 settingsSectionState = results.settingsSectionState,
                 calendarSectionState = results.calendarSectionState,
                 searchEnginesState = results.searchEnginesState,
+                activeInfoCard = results.activeInfoCard,
                 calculatorState = results.calculatorState,
                 currencyConverterState = results.currencyConverterState,
                 wordClockState = results.wordClockState,

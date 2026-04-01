@@ -491,6 +491,7 @@ class SearchViewModel(
                     settingsSectionState = s.settingsSectionState,
                     calendarSectionState = s.calendarSectionState,
                     searchEnginesState = s.searchEnginesState,
+                    activeInfoCard = s.activeInfoCard,
                     calculatorState = s.calculatorState,
                     currencyConverterState = s.currencyConverterState,
                     wordClockState = s.wordClockState,
@@ -509,6 +510,22 @@ class SearchViewModel(
                     nicknameUpdateVersion = s.nicknameUpdateVersion,
                     contactActionsVersion = s.contactActionsVersion,
             )
+
+    /**
+     * Computes the new activeInfoCard after a specific card resets to Idle.
+     * Falls back to CALCULATOR if it is still active, otherwise NONE.
+     */
+    private fun activeInfoCardAfterReset(
+        state: SearchResultsState,
+        resetCard: ActiveInfoCard,
+    ): ActiveInfoCard {
+        if (state.activeInfoCard != resetCard) return state.activeInfoCard
+        val calcActive = with(state.calculatorState) {
+            isToolMode || result != null || parsedDateMillis != null ||
+                dateDiffLabel != null || timeResultLabel != null
+        }
+        return if (calcActive) ActiveInfoCard.CALCULATOR else ActiveInfoCard.NONE
+    }
 
     private fun extractPermissionState(s: SearchUiState) =
             SearchPermissionState(
@@ -1033,7 +1050,13 @@ class SearchViewModel(
                     }
                     shouldRecordPendingDirectSearchQueryInHistory = true
                 }
-                updateResultsState { it.copy(DirectSearchState = dsState) }
+                updateResultsState { it.copy(
+                    DirectSearchState = dsState,
+                    activeInfoCard = when {
+                        dsState.status != DirectSearchStatus.Idle -> ActiveInfoCard.DIRECT_SEARCH
+                        else -> activeInfoCardAfterReset(it, ActiveInfoCard.DIRECT_SEARCH)
+                    },
+                ) }
             }
         }
     }
@@ -2589,19 +2612,28 @@ class SearchViewModel(
         if (currencyState.status != CurrencyConverterStatus.Idle &&
                         (currencyState.activeQuery == null || currencyState.activeQuery != trimmedQuery)
         ) {
-            updateResultsState { it.copy(currencyConverterState = CurrencyConverterState()) }
+            updateResultsState { it.copy(
+                currencyConverterState = CurrencyConverterState(),
+                activeInfoCard = activeInfoCardAfterReset(it, ActiveInfoCard.CURRENCY_CONVERTER),
+            ) }
         }
         val wordClockState = _resultsState.value.wordClockState
         if (wordClockState.status != WordClockStatus.Idle &&
                         (wordClockState.activeQuery == null || wordClockState.activeQuery != trimmedQuery)
         ) {
-            updateResultsState { it.copy(wordClockState = WordClockState()) }
+            updateResultsState { it.copy(
+                wordClockState = WordClockState(),
+                activeInfoCard = activeInfoCardAfterReset(it, ActiveInfoCard.WORD_CLOCK),
+            ) }
         }
         val dictionaryState = _resultsState.value.dictionaryState
         if (dictionaryState.status != DictionaryStatus.Idle &&
                         (dictionaryState.activeQuery == null || dictionaryState.activeQuery != trimmedQuery)
         ) {
-            updateResultsState { it.copy(dictionaryState = DictionaryState()) }
+            updateResultsState { it.copy(
+                dictionaryState = DictionaryState(),
+                activeInfoCard = activeInfoCardAfterReset(it, ActiveInfoCard.DICTIONARY),
+            ) }
         }
 
         if (trimmedQuery.isBlank()) {
@@ -2627,6 +2659,7 @@ class SearchViewModel(
                             settingResults = emptyList(),
                             appSettingResults = emptyList(),
                             calendarEvents = emptyList(),
+                            activeInfoCard = ActiveInfoCard.NONE,
                             DirectSearchState = DirectSearchState(),
                             currencyConverterState = CurrencyConverterState(),
                             wordClockState = WordClockState(),
@@ -2662,6 +2695,7 @@ class SearchViewModel(
                         settingResults = emptyList(),
                         appSettingResults = emptyList(),
                         calendarEvents = emptyList(),
+                        activeInfoCard = ActiveInfoCard.NONE,
                         DirectSearchState = DirectSearchState(),
                         currencyConverterState = CurrencyConverterState(),
                         wordClockState = WordClockState(),
@@ -2775,6 +2809,19 @@ class SearchViewModel(
                         (detectedAliasSearchSection != null &&
                                 detectedAliasSearchSection != SearchSection.APP_SHORTCUTS)
         updateUiState { state ->
+            val prevCalcActive = with(state.calculatorState) {
+                isToolMode || result != null || parsedDateMillis != null ||
+                    dateDiffLabel != null || timeResultLabel != null
+            }
+            val newCalcActive = with(calculatorResult) {
+                isToolMode || result != null || parsedDateMillis != null ||
+                    dateDiffLabel != null || timeResultLabel != null
+            }
+            val newActiveInfoCard = when {
+                !prevCalcActive && newCalcActive -> ActiveInfoCard.CALCULATOR
+                prevCalcActive && !newCalcActive && state.activeInfoCard == ActiveInfoCard.CALCULATOR -> ActiveInfoCard.NONE
+                else -> state.activeInfoCard
+            }
             state.copy(
                     query = newQuery,
                     searchResults =
@@ -2786,6 +2833,7 @@ class SearchViewModel(
                             )
                                     emptyList()
                             else state.searchResults,
+                    activeInfoCard = newActiveInfoCard,
                     calculatorState = calculatorResult,
                     webSuggestions = emptyList(),
                     isSecondarySearchInProgress =
@@ -2985,33 +3033,39 @@ class SearchViewModel(
             }
             return
         }
+        // Candidate detected: wait for explicit user action from the UI card.
+    }
+
+    fun executeCurrencyConversion() {
+        val trimmedQuery = _resultsState.value.query.trim()
+        if (trimmedQuery.isBlank()) return
+        if (!userPreferences.isCurrencyConverterEnabled() || !_featureState.value.hasGeminiApiKey) return
+
+        val confirmed = CurrencyConversionIntentParser.parseConfirmed(trimmedQuery) ?: run {
+            updateResultsState { s -> s.copy(
+                currencyConverterState = CurrencyConverterState(),
+                activeInfoCard = activeInfoCardAfterReset(s, ActiveInfoCard.CURRENCY_CONVERTER),
+            ) }
+            return
+        }
+
         val version = ++currencyConversionQueryVersion
-        val capturedTrim = trimmedQuery
+        currencyConversionJob?.cancel()
         currencyConversionJob =
                 viewModelScope.launch(Dispatchers.Default) {
-                    delay(CURRENCY_CONVERTER_DEBOUNCE_MS)
-                    if (version != currencyConversionQueryVersion) return@launch
-                    val latestTrim = _resultsState.value.query.trim()
-                    if (latestTrim != capturedTrim) return@launch
-                    val confirmed = CurrencyConversionIntentParser.parseConfirmed(latestTrim)
-                    if (confirmed == null) {
-                        updateResultsState { s ->
-                            s.copy(currencyConverterState = CurrencyConverterState())
-                        }
-                        return@launch
-                    }
                     updateResultsState { s ->
                         s.copy(
+                                activeInfoCard = ActiveInfoCard.CURRENCY_CONVERTER,
                                 currencyConverterState =
                                         CurrencyConverterState(
                                                 status = CurrencyConverterStatus.Loading,
-                                                activeQuery = latestTrim,
+                                                activeQuery = trimmedQuery,
                                         ),
                         )
                     }
                     val apiResult = currencyConverterHandler.convert(confirmed)
                     if (version != currencyConversionQueryVersion) return@launch
-                    if (_resultsState.value.query.trim() != latestTrim) return@launch
+                    if (_resultsState.value.query.trim() != trimmedQuery) return@launch
                     apiResult.fold(
                             onSuccess = { (parsed, modelId) ->
                                 updateResultsState { s ->
@@ -3024,7 +3078,7 @@ class SearchViewModel(
                                                             targetCurrencyName = parsed.targetCurrencyName,
                                                             sourceAmount = parsed.sourceAmount,
                                                             sourceCurrencyCode = parsed.sourceCurrencyCode,
-                                                            activeQuery = latestTrim,
+                                                            activeQuery = trimmedQuery,
                                                             usedModelId = modelId,
                                                     ),
                                     )
@@ -3035,7 +3089,7 @@ class SearchViewModel(
                                     updateResultsState { s ->
                                         s.copy(currencyConverterState = CurrencyConverterState())
                                     }
-                                    return@launch
+                                    return@fold
                                 }
                                 val msg =
                                         e.message
@@ -3046,7 +3100,7 @@ class SearchViewModel(
                                                     CurrencyConverterState(
                                                             status = CurrencyConverterStatus.Error,
                                                             errorMessage = msg,
-                                                            activeQuery = latestTrim,
+                                                            activeQuery = trimmedQuery,
                                                     ),
                                     )
                                 }
@@ -3097,41 +3151,47 @@ class SearchViewModel(
             }
             return
         }
+        // Candidate detected: wait for explicit user action from the UI card.
+    }
+
+    fun executeWordClock() {
+        val trimmedQuery = _resultsState.value.query.trim()
+        if (trimmedQuery.isBlank()) return
+        if (!userPreferences.isWordClockEnabled() || !_featureState.value.hasGeminiApiKey) return
+
+        val confirmed =
+                if (lockedWordClockAlias) {
+                    ConfirmedWordClockQuery(
+                            timeExpression = trimmedQuery,
+                            originalQuery = trimmedQuery,
+                    )
+                } else {
+                    WordClockIntentParser.parseConfirmed(trimmedQuery)
+                } ?: run {
+                    updateResultsState { s -> s.copy(
+                        wordClockState = WordClockState(),
+                        activeInfoCard = activeInfoCardAfterReset(s, ActiveInfoCard.WORD_CLOCK),
+                    ) }
+                    return
+                }
+
         val version = ++wordClockQueryVersion
-        val capturedTrim = trimmedQuery
+        wordClockJob?.cancel()
         wordClockJob =
                 viewModelScope.launch(Dispatchers.Default) {
-                    delay(WORD_CLOCK_DEBOUNCE_MS)
-                    if (version != wordClockQueryVersion) return@launch
-                    val latestTrim = _resultsState.value.query.trim()
-                    if (latestTrim != capturedTrim) return@launch
-                    val confirmed =
-                            if (lockedWordClockAlias) {
-                                ConfirmedWordClockQuery(
-                                        timeExpression = latestTrim,
-                                        originalQuery = latestTrim,
-                                )
-                            } else {
-                                WordClockIntentParser.parseConfirmed(latestTrim)
-                            }
-                    if (confirmed == null) {
-                        updateResultsState { s ->
-                            s.copy(wordClockState = WordClockState())
-                        }
-                        return@launch
-                    }
                     updateResultsState { s ->
                         s.copy(
+                                activeInfoCard = ActiveInfoCard.WORD_CLOCK,
                                 wordClockState =
                                         WordClockState(
                                                 status = WordClockStatus.Loading,
-                                                activeQuery = latestTrim,
+                                                activeQuery = trimmedQuery,
                                         ),
                         )
                     }
                     val apiResult = wordClockHandler.convert(confirmed)
                     if (version != wordClockQueryVersion) return@launch
-                    if (_resultsState.value.query.trim() != latestTrim) return@launch
+                    if (_resultsState.value.query.trim() != trimmedQuery) return@launch
                     apiResult.fold(
                             onSuccess = { (parsed, modelId) ->
                                 updateResultsState { s ->
@@ -3141,7 +3201,8 @@ class SearchViewModel(
                                                             status = WordClockStatus.Success,
                                                             wordClockText = parsed.wordClockText,
                                                             sourceTimeText = parsed.sourceTimeText,
-                                                            activeQuery = latestTrim,
+                                                            timeZoneText = parsed.timeZoneText,
+                                                            activeQuery = trimmedQuery,
                                                             usedModelId = modelId,
                                                     ),
                                     )
@@ -3159,11 +3220,11 @@ class SearchViewModel(
                                                         WordClockState(
                                                                 status = WordClockStatus.Error,
                                                                 errorMessage = msg,
-                                                                activeQuery = latestTrim,
+                                                                activeQuery = trimmedQuery,
                                                         ),
                                         )
                                     }
-                                    return@launch
+                                    return@fold
                                 }
                                 val msg =
                                         e.message
@@ -3174,7 +3235,7 @@ class SearchViewModel(
                                                     WordClockState(
                                                             status = WordClockStatus.Error,
                                                             errorMessage = msg,
-                                                            activeQuery = latestTrim,
+                                                            activeQuery = trimmedQuery,
                                                     ),
                                     )
                                 }
@@ -3242,7 +3303,10 @@ class SearchViewModel(
             } else {
                 DictionaryIntentParser.parseConfirmed(trimmedQuery)
             } ?: run {
-                updateResultsState { s -> s.copy(dictionaryState = DictionaryState()) }
+                updateResultsState { s -> s.copy(
+                    dictionaryState = DictionaryState(),
+                    activeInfoCard = activeInfoCardAfterReset(s, ActiveInfoCard.DICTIONARY),
+                ) }
                 return
             }
 
@@ -3252,6 +3316,7 @@ class SearchViewModel(
             viewModelScope.launch(Dispatchers.Default) {
                 updateResultsState { s ->
                     s.copy(
+                        activeInfoCard = ActiveInfoCard.DICTIONARY,
                         dictionaryState =
                             DictionaryState(
                                 status = DictionaryStatus.Loading,
@@ -3314,6 +3379,7 @@ class SearchViewModel(
                 isCurrencyConverterAliasMode = false,
                 isWordClockAliasMode = false,
                 isDictionaryAliasMode = false,
+                activeInfoCard = ActiveInfoCard.NONE,
                 calculatorState = CalculatorState(),
                 currencyConverterState = CurrencyConverterState(),
                 wordClockState = WordClockState(),
@@ -3346,6 +3412,7 @@ class SearchViewModel(
                     isCurrencyConverterAliasMode = false,
                     isWordClockAliasMode = false,
                     isDictionaryAliasMode = false,
+                    activeInfoCard = ActiveInfoCard.NONE,
                     calculatorState = CalculatorState(),
                     currencyConverterState = CurrencyConverterState(),
                     wordClockState = WordClockState(),
@@ -4796,8 +4863,6 @@ class SearchViewModel(
         // are cheap relative to contact/file queries, but still eliminates the
         // redundant mid-word searches that occur during rapid typing.
         private const val APP_SEARCH_DEBOUNCE_MS = 60L
-        private const val CURRENCY_CONVERTER_DEBOUNCE_MS = 450L
-        private const val WORD_CLOCK_DEBOUNCE_MS = 450L
         /** Minimum interval between browser-target refreshes triggered by onResume. */
         private const val BROWSER_REFRESH_INTERVAL_MS = 5 * 60 * 1_000L // 5 minutes
         private const val DEFERRED_APP_REFRESH_DELAY_MS = 2_000L

@@ -860,13 +860,15 @@
     <string name="currency_converter_toggle_desc">Example: 100 USD to INR</string>
     <string name="currency_converter_requires_gemini_key">Requires Gemini API key</string>
     <string name="word_clock_toggle_title">Word Clock</string>
-    <string name="word_clock_toggle_desc">Example: word clock for 3:45 PM</string>
+    <string name="word_clock_toggle_desc">Example: Time in UK</string>
     <string name="word_clock_requires_gemini_key">Requires Gemini API key</string>
     <string name="word_clock_error_not_recognized">Couldn’t resolve that time request. Try a city, country, timezone, or explicit time.</string>
     <string name="dictionary_toggle_title">Dictionary</string>
     <string name="dictionary_toggle_desc">Example: define serendipity</string>
     <string name="dictionary_requires_gemini_key">Requires Gemini API key</string>
     <string name="search_in_dictionary">Search in Dictionary</string>
+    <string name="get_currency_value">Get Currency Value</string>
+    <string name="get_time">Get Time</string>
     <string name="dictionary_example_label">Example: %1$s</string>
     <string name="dictionary_synonyms_label">Synonyms: %1$s</string>
     <string name="settings_tools_gemini_api_title">Setup Gemini API</string>

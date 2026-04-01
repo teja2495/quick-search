@@ -12,9 +12,11 @@ class WordClockNotRecognizedException : Exception()
 private const val WORD_CLOCK_SYSTEM_INSTRUCTION =
         "You are a world-clock and word-clock formatter. " +
                 "Respond with ONLY a single JSON object (no markdown, no code fences). " +
-                "Schema: {\"word_clock_text\":\"<text>\",\"time_text\":\"<normalized input time>\"}. " +
+                "Schema: {\"word_clock_text\":\"<text>\",\"time_text\":\"<normalized input time>\",\"timezone_name\":\"<full timezone name>\",\"timezone_abbr\":\"<abbreviation>\"}. " +
                 "Set word_clock_text to the resolved local CLOCK TIME in 12-hour format with AM/PM (example: \"2:58 PM\"). " +
                 "Set time_text to the resolved local DATE (example: \"Tuesday, March 31, 2026\"). " +
+                "Set timezone_name to the full timezone name (example: \"Indian Standard Time\"). " +
+                "Set timezone_abbr to the timezone abbreviation (example: \"IST\"). " +
                 "Treat location-based requests as valid (e.g., city, country, timezone like \"India\", \"Tokyo\", \"UTC+5:30\"). " +
                 "For location requests, resolve the CURRENT local time at that location before formatting. " +
                 "If the user query is not a word clock request, respond exactly: {\"error\":\"not_word_clock\"}."
@@ -33,10 +35,19 @@ class WordClockHandler(
             }
             val wordClockText = obj.getString("word_clock_text").trim()
             val timeText = obj.optString("time_text").trim()
+            val timezoneName = obj.optString("timezone_name").trim()
+            val timezoneAbbr = obj.optString("timezone_abbr").trim()
             if (wordClockText.isBlank()) error("invalid")
+            val timeZoneText = when {
+                timezoneName.isNotBlank() && timezoneAbbr.isNotBlank() -> "$timezoneName ($timezoneAbbr)"
+                timezoneName.isNotBlank() -> timezoneName
+                timezoneAbbr.isNotBlank() -> timezoneAbbr
+                else -> null
+            }
             WordClockModelResult(
                     wordClockText = wordClockText,
                     sourceTimeText = timeText,
+                    timeZoneText = timeZoneText,
             )
         }
     }
@@ -79,4 +90,5 @@ class WordClockHandler(
 data class WordClockModelResult(
         val wordClockText: String,
         val sourceTimeText: String,
+        val timeZoneText: String? = null,
 )

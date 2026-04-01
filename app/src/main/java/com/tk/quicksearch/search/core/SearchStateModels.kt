@@ -79,6 +79,7 @@ data class SearchResultsState(
         val calendarSectionState: CalendarSectionVisibility = CalendarSectionVisibility.Hidden,
         val searchEnginesState: SearchEnginesVisibility = SearchEnginesVisibility.Hidden,
         // Transient search state (calculator answer, direct search, web suggestions)
+        val activeInfoCard: ActiveInfoCard = ActiveInfoCard.NONE,
         val calculatorState: CalculatorState = CalculatorState(),
         val currencyConverterState: CurrencyConverterState = CurrencyConverterState(),
         val wordClockState: WordClockState = WordClockState(),

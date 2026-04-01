@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.CurrencyConverterStatus
 import com.tk.quicksearch.search.core.DictionaryStatus
+import com.tk.quicksearch.search.core.ActiveInfoCard
 import com.tk.quicksearch.search.core.DirectSearchStatus
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchTarget
@@ -59,10 +60,14 @@ import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SearchContentAr
 import com.tk.quicksearch.search.searchScreen.appThemeActionColor
 import com.tk.quicksearch.search.searchScreen.appThemeDividerColor
 import com.tk.quicksearch.search.searchScreen.appThemeResultCardColor
+import com.tk.quicksearch.search.searchScreen.components.CurrencyConverterSearchCard
 import com.tk.quicksearch.search.searchScreen.components.DictionarySearchCard
+import com.tk.quicksearch.search.searchScreen.components.WorldClockSearchCard
 import com.tk.quicksearch.search.searchScreen.resolveSearchColorTheme
 import com.tk.quicksearch.shared.ui.theme.LocalSearchColorTheme
+import com.tk.quicksearch.tools.aiTools.CurrencyConversionIntentParser
 import com.tk.quicksearch.tools.aiTools.DictionaryIntentParser
+import com.tk.quicksearch.tools.aiTools.WordClockIntentParser
 import kotlinx.coroutines.delay
 
 private const val OPEN_KEYBOARD_ACTION_APPEAR_DELAY_MS = 500L
@@ -96,6 +101,8 @@ internal fun SearchScreenContent(
         onDismissSearchHistoryTip: () -> Unit = {},
         onGeminiModelInfoClick: () -> Unit = {},
         onDictionarySearchClick: () -> Unit = {},
+        onCurrencyConverterSearchClick: () -> Unit = {},
+        onWorldClockSearchClick: () -> Unit = {},
         onKeyboardSwitchToggle: () -> Unit,
         onOverlayNumberKeyboardUiChanged: ((Boolean, Boolean) -> Unit)? = null,
         onOverlayExpandRequest: () -> Unit = {},
@@ -163,30 +170,59 @@ internal fun SearchScreenContent(
                 }
                 else -> stringResource(R.string.search_hint)
             }
-    val showCurrencyConverter =
-            state.currencyConverterEnabled &&
-                    state.currencyConverterState.status != CurrencyConverterStatus.Idle
-    val showWordClock =
-            state.wordClockEnabled &&
-                    state.wordClockState.status != WordClockStatus.Idle
-    val showDictionary =
-            state.dictionaryEnabled &&
-                    state.dictionaryState.status != DictionaryStatus.Idle
+    val activeInfoCard = state.activeInfoCard
     val showCalculatorResult =
-            state.calculatorState.isToolMode ||
+            activeInfoCard == ActiveInfoCard.CALCULATOR &&
+                    (state.calculatorState.isToolMode ||
                     state.calculatorState.result != null ||
                     state.calculatorState.parsedDateMillis != null ||
                     state.calculatorState.dateDiffLabel != null ||
-                    state.calculatorState.timeResultLabel != null
+                    state.calculatorState.timeResultLabel != null)
+    val showDirectSearch =
+            activeInfoCard == ActiveInfoCard.DIRECT_SEARCH &&
+                    state.DirectSearchState.status != DirectSearchStatus.Idle
+    val showCurrencyConverter =
+            activeInfoCard == ActiveInfoCard.CURRENCY_CONVERTER &&
+                    state.currencyConverterEnabled &&
+                    state.currencyConverterState.status != CurrencyConverterStatus.Idle
+    val showWordClock =
+            activeInfoCard == ActiveInfoCard.WORD_CLOCK &&
+                    state.wordClockEnabled &&
+                    state.wordClockState.status != WordClockStatus.Idle
+    val showDictionary =
+            activeInfoCard == ActiveInfoCard.DICTIONARY &&
+                    state.dictionaryEnabled &&
+                    state.dictionaryState.status != DictionaryStatus.Idle
     val trimmedQuery = state.query.trim()
-    val showDictionarySearchCard =
-            state.dictionaryEnabled &&
+    val noInfoCardActive = activeInfoCard == ActiveInfoCard.NONE
+    val showCurrencyConverterSearchCard =
+            noInfoCardActive &&
+                    state.currencyConverterEnabled &&
                     state.hasGeminiApiKey &&
                     trimmedQuery.isNotBlank() &&
-                    !showCalculatorResult &&
-                    !showCurrencyConverter &&
-                    !showWordClock &&
-                    !showDictionary &&
+                    if (isCurrencyConverterAliasMode) {
+                        true
+                    } else {
+                        CurrencyConversionIntentParser.parseConfirmed(trimmedQuery) != null
+                    }
+    val showWorldClockSearchCard =
+            noInfoCardActive &&
+                    state.wordClockEnabled &&
+                    state.hasGeminiApiKey &&
+                    trimmedQuery.isNotBlank() &&
+                    !showCurrencyConverterSearchCard &&
+                    if (isWordClockAliasMode) {
+                        true
+                    } else {
+                        WordClockIntentParser.parseConfirmed(trimmedQuery) != null
+                    }
+    val showDictionarySearchCard =
+            noInfoCardActive &&
+                    state.dictionaryEnabled &&
+                    state.hasGeminiApiKey &&
+                    trimmedQuery.isNotBlank() &&
+                    !showCurrencyConverterSearchCard &&
+                    !showWorldClockSearchCard &&
                     if (isDictionaryAliasMode) {
                         true
                     } else {
@@ -583,11 +619,11 @@ internal fun SearchScreenContent(
                 onGeminiModelInfoClick = onGeminiModelInfoClick,
                 onSearchHistoryExpandedChange = { isSearchHistoryExpanded = it },
                 onOpenPermissionsSettings = onOpenPermissionsSettings,
-                showCalculator = state.calculatorState.isToolMode || state.calculatorState.result != null || state.calculatorState.parsedDateMillis != null || state.calculatorState.dateDiffLabel != null || state.calculatorState.timeResultLabel != null,
+                showCalculator = showCalculatorResult,
                 showCurrencyConverter = showCurrencyConverter,
                 showWordClock = showWordClock,
                 showDictionary = showDictionary,
-                showDirectSearch = state.DirectSearchState.status != DirectSearchStatus.Idle,
+                showDirectSearch = showDirectSearch,
                 directSearchState = state.DirectSearchState,
                 isOverlayPresentation = isOverlayPresentation,
         )
@@ -623,6 +659,34 @@ internal fun SearchScreenContent(
             }
 
             if (!hideCompactSearchEnginesInToolMode && !isSearchHistoryExpanded) {
+                AnimatedVisibility(
+                        visible = showCurrencyConverterSearchCard,
+                        enter = fadeIn(animationSpec = tween(durationMillis = 140, delayMillis = 50)),
+                        exit = fadeOut(animationSpec = tween(durationMillis = 100)),
+                ) {
+                    CurrencyConverterSearchCard(
+                            modifier =
+                                    Modifier
+                                            .fillMaxWidth()
+                                            .padding(bottom = DesignTokens.SpacingXSmall),
+                            onClick = onCurrencyConverterSearchClick,
+                            showWallpaperBackground = state.showWallpaperBackground,
+                    )
+                }
+                AnimatedVisibility(
+                        visible = showWorldClockSearchCard,
+                        enter = fadeIn(animationSpec = tween(durationMillis = 140, delayMillis = 50)),
+                        exit = fadeOut(animationSpec = tween(durationMillis = 100)),
+                ) {
+                    WorldClockSearchCard(
+                            modifier =
+                                    Modifier
+                                            .fillMaxWidth()
+                                            .padding(bottom = DesignTokens.SpacingXSmall),
+                            onClick = onWorldClockSearchClick,
+                            showWallpaperBackground = state.showWallpaperBackground,
+                    )
+                }
                 AnimatedVisibility(
                         visible = showDictionarySearchCard,
                         enter = fadeIn(animationSpec = tween(durationMillis = 140, delayMillis = 50)),

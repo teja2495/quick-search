@@ -191,6 +191,9 @@ fun CurrencyConverterResult(
                         val code = currencyConverterState.targetCurrencyCode.orEmpty()
                         val name = currencyConverterState.targetCurrencyName.orEmpty()
                         val line1 = "$amount $code"
+                        val currencySymbol = runCatching {
+                            java.util.Currency.getInstance(code).symbol.takeIf { it != code }
+                        }.getOrNull()
                         Column(
                                 modifier =
                                         Modifier.fillMaxWidth().pointerInput(line1) {
@@ -207,8 +210,9 @@ fun CurrencyConverterResult(
                                     color = MaterialTheme.colorScheme.onSurface,
                             )
                             if (name.isNotBlank() && !name.equals(code, ignoreCase = true)) {
+                                val nameWithSymbol = if (currencySymbol != null) "$name ($currencySymbol)" else name
                                 Text(
-                                        text = name,
+                                        text = nameWithSymbol,
                                         style = MaterialTheme.typography.titleMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -296,6 +300,14 @@ fun WordClockResult(
                                         text = source,
                                         style = MaterialTheme.typography.titleMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                            wordClockState.timeZoneText?.takeIf { it.isNotBlank() }?.let { tz ->
+                                Text(
+                                        text = tz,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(top = DesignTokens.SpacingHuge),
                                 )
                             }
                         }
