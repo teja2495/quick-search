@@ -40,7 +40,7 @@ object FeedbackUtils {
         val androidVersion = Build.VERSION.RELEASE
         val deviceModel = "${Build.MANUFACTURER} ${Build.MODEL}"
         val emailBody = buildFeedbackBody(null, androidVersion, deviceModel)
-        val subject = "Quick Search Crash Report - v$versionName"
+        val subject = "Quick Search Logs - v$versionName"
 
         val crashLogFile = CrashLogManager.getOrCreateLogFile(context)
         val crashLogUri = FileProvider.getUriForFile(
