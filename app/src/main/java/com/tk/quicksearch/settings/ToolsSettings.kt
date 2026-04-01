@@ -258,19 +258,6 @@ fun ToolsSettingsSection(
                                 )
                             },
             )
-            Text(
-                    text = stringResource(R.string.settings_tools_more_coming_soon),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    modifier =
-                            Modifier.fillMaxWidth()
-                                    .padding(
-                                            top = DesignTokens.SpacingMedium,
-                                            start = DesignTokens.SpacingSmall,
-                                            end = DesignTokens.SpacingSmall,
-                                    ),
-            )
         }
     }
 }

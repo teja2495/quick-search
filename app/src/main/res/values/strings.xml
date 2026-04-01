@@ -637,7 +637,6 @@
     <string name="settings_gemini_api_desc">Configure Gemini API</string>
     <string name="settings_tools_desc">Calculator, Unit converter, Date Converter</string>
     <string name="settings_tools_info_examples_header">Here are some examples of things you can ask in the search bar</string>
-    <string name="settings_tools_more_coming_soon">More tools coming soon</string>
     <string name="settings_tools_title">Tools</string>
     <string name="settings_unable_to_open_settings">Unable to open settings</string>
     <string name="settings_usage_access_title">Usage Access</string>
