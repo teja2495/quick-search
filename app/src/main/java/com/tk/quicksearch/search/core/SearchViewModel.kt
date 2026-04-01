@@ -72,6 +72,7 @@ import com.tk.quicksearch.shared.util.PackageConstants
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.getAppGridColumns
 import com.tk.quicksearch.shared.util.isLowRamDevice
+import com.tk.quicksearch.tools.aiTools.CurrencyConversionModelResult
 import com.tk.quicksearch.tools.aiTools.CurrencyConverterHandler
 import com.tk.quicksearch.tools.aiTools.CurrencyNotRecognizedException
 import com.tk.quicksearch.tools.aiTools.CurrencyConversionIntentParser
@@ -2985,33 +2986,47 @@ class SearchViewModel(
             }
             return
         }
+        // Candidate detected: wait for explicit user action from the UI card.
+    }
+
+    fun executeCurrencyConversion() {
+        val trimmedQuery = _resultsState.value.query.trim()
+        if (trimmedQuery.isBlank()) return
+        if (!userPreferences.isCurrencyConverterEnabled() || !_featureState.value.hasGeminiApiKey) return
+
+        val confirmed =
+                if (lockedCurrencyConverterAlias) {
+                    null // alias mode: skip parsing, use raw query
+                } else {
+                    CurrencyConversionIntentParser.parseConfirmed(trimmedQuery)
+                }
+        // In non-alias mode, if we can't parse the query at all, bail out
+        if (!lockedCurrencyConverterAlias && confirmed == null) {
+            updateResultsState { s -> s.copy(currencyConverterState = CurrencyConverterState()) }
+            return
+        }
+
         val version = ++currencyConversionQueryVersion
-        val capturedTrim = trimmedQuery
+        currencyConversionJob?.cancel()
         currencyConversionJob =
                 viewModelScope.launch(Dispatchers.Default) {
-                    delay(CURRENCY_CONVERTER_DEBOUNCE_MS)
-                    if (version != currencyConversionQueryVersion) return@launch
-                    val latestTrim = _resultsState.value.query.trim()
-                    if (latestTrim != capturedTrim) return@launch
-                    val confirmed = CurrencyConversionIntentParser.parseConfirmed(latestTrim)
-                    if (confirmed == null) {
-                        updateResultsState { s ->
-                            s.copy(currencyConverterState = CurrencyConverterState())
-                        }
-                        return@launch
-                    }
                     updateResultsState { s ->
                         s.copy(
                                 currencyConverterState =
                                         CurrencyConverterState(
                                                 status = CurrencyConverterStatus.Loading,
-                                                activeQuery = latestTrim,
+                                                activeQuery = trimmedQuery,
                                         ),
                         )
                     }
-                    val apiResult = currencyConverterHandler.convert(confirmed)
+                    val apiResult: Result<Pair<CurrencyConversionModelResult, String>> =
+                            if (confirmed != null) {
+                                currencyConverterHandler.convert(confirmed)
+                            } else {
+                                currencyConverterHandler.convertRaw(trimmedQuery)
+                            }
                     if (version != currencyConversionQueryVersion) return@launch
-                    if (_resultsState.value.query.trim() != latestTrim) return@launch
+                    if (_resultsState.value.query.trim() != trimmedQuery) return@launch
                     apiResult.fold(
                             onSuccess = { (parsed, modelId) ->
                                 updateResultsState { s ->
@@ -3024,7 +3039,7 @@ class SearchViewModel(
                                                             targetCurrencyName = parsed.targetCurrencyName,
                                                             sourceAmount = parsed.sourceAmount,
                                                             sourceCurrencyCode = parsed.sourceCurrencyCode,
-                                                            activeQuery = latestTrim,
+                                                            activeQuery = trimmedQuery,
                                                             usedModelId = modelId,
                                                     ),
                                     )
@@ -3046,7 +3061,7 @@ class SearchViewModel(
                                                     CurrencyConverterState(
                                                             status = CurrencyConverterStatus.Error,
                                                             errorMessage = msg,
-                                                            activeQuery = latestTrim,
+                                                            activeQuery = trimmedQuery,
                                                     ),
                                     )
                                 }

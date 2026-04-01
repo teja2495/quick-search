@@ -59,9 +59,11 @@ import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SearchContentAr
 import com.tk.quicksearch.search.searchScreen.appThemeActionColor
 import com.tk.quicksearch.search.searchScreen.appThemeDividerColor
 import com.tk.quicksearch.search.searchScreen.appThemeResultCardColor
+import com.tk.quicksearch.search.searchScreen.components.CurrencyConverterSearchCard
 import com.tk.quicksearch.search.searchScreen.components.DictionarySearchCard
 import com.tk.quicksearch.search.searchScreen.resolveSearchColorTheme
 import com.tk.quicksearch.shared.ui.theme.LocalSearchColorTheme
+import com.tk.quicksearch.tools.aiTools.CurrencyConversionIntentParser
 import com.tk.quicksearch.tools.aiTools.DictionaryIntentParser
 import kotlinx.coroutines.delay
 
@@ -95,6 +97,7 @@ internal fun SearchScreenContent(
         onOpenSearchHistorySettings: () -> Unit = {},
         onDismissSearchHistoryTip: () -> Unit = {},
         onGeminiModelInfoClick: () -> Unit = {},
+        onCurrencyConversionClick: () -> Unit = {},
         onDictionarySearchClick: () -> Unit = {},
         onKeyboardSwitchToggle: () -> Unit,
         onOverlayNumberKeyboardUiChanged: ((Boolean, Boolean) -> Unit)? = null,
@@ -179,6 +182,19 @@ internal fun SearchScreenContent(
                     state.calculatorState.dateDiffLabel != null ||
                     state.calculatorState.timeResultLabel != null
     val trimmedQuery = state.query.trim()
+    val showCurrencyConverterSearchCard =
+            state.currencyConverterEnabled &&
+                    state.hasGeminiApiKey &&
+                    !showCalculatorResult &&
+                    !showCurrencyConverter &&
+                    !showWordClock &&
+                    !showDictionary &&
+                    if (isCurrencyConverterAliasMode) {
+                        true // always show when alias mode is active
+                    } else {
+                        trimmedQuery.isNotBlank() &&
+                                CurrencyConversionIntentParser.parseConfirmed(trimmedQuery) != null
+                    }
     val showDictionarySearchCard =
             state.dictionaryEnabled &&
                     state.hasGeminiApiKey &&
@@ -309,7 +325,11 @@ internal fun SearchScreenContent(
                 }
             }
     val predictedTargetForIndicator =
-            if (state.topResultIndicatorEnabled) predictedTarget else null
+            if (state.topResultIndicatorEnabled &&
+                    !showCurrencyConverterSearchCard &&
+                    !showDictionarySearchCard) {
+                predictedTarget
+            } else null
 
     // Search engine scroll state for auto-scroll during onboarding
     val searchEngineScrollState = rememberLazyListState()
@@ -442,6 +462,17 @@ internal fun SearchScreenContent(
                 forceRestingOutline = showBottomSearchBar,
                 modifier = searchFieldModifier,
                 onSearchAction = {
+                    // Tool prompt cards take priority: Done triggers the card action.
+                    // When no card is visible, fall through to the search engine.
+                    if (showCurrencyConverterSearchCard) {
+                        onCurrencyConversionClick()
+                        return@PersistentSearchBar true // keep keyboard open
+                    }
+                    if (showDictionarySearchCard) {
+                        onDictionarySearchClick()
+                        return@PersistentSearchBar true // keep keyboard open
+                    }
+
                     val trimmedQuery = state.query.trim()
                     val isUrlQuery = isLikelyWebUrl(trimmedQuery)
                     val defaultBrowserPackage = resolveDefaultBrowserPackage(context)
@@ -619,6 +650,25 @@ internal fun SearchScreenContent(
                                 onClick = onKeyboardSwitchToggle,
                         )
                     }
+                }
+            }
+
+            // Currency card is independent of compact-mode gating so it always appears
+            // in alias mode regardless of whether compact search engines are hidden.
+            if (!isSearchHistoryExpanded) {
+                AnimatedVisibility(
+                        visible = showCurrencyConverterSearchCard,
+                        enter = fadeIn(animationSpec = tween(durationMillis = 140, delayMillis = 50)),
+                        exit = fadeOut(animationSpec = tween(durationMillis = 100)),
+                ) {
+                    CurrencyConverterSearchCard(
+                            modifier =
+                                    Modifier
+                                            .fillMaxWidth()
+                                            .padding(bottom = DesignTokens.SpacingXSmall),
+                            onClick = onCurrencyConversionClick,
+                            showWallpaperBackground = state.showWallpaperBackground,
+                    )
                 }
             }
 

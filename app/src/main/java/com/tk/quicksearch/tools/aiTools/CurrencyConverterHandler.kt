@@ -74,6 +74,33 @@ class CurrencyConverterHandler(
             parsed to modelId
         }
     }
+
+    /** Used in alias mode — sends the raw query to the AI without pre-parsing. */
+    suspend fun convertRaw(rawQuery: String): Result<Pair<CurrencyConversionModelResult, String>> {
+        val apiKey = userPreferences.getGeminiApiKey()?.trim().orEmpty()
+        if (apiKey.isEmpty()) {
+            return Result.failure(IllegalStateException(context.getString(R.string.direct_search_error_no_key)))
+        }
+        val modelId =
+                userPreferences.getCurrencyConverterModel().trim().ifBlank {
+                    GeminiModelCatalog.DEFAULT_MODEL_ID
+                }
+        val client = DirectSearchClient(apiKey, context)
+        val result =
+                client.fetchAnswer(
+                        query = "Currency conversion: $rawQuery",
+                        personalContext = null,
+                        modelId = modelId,
+                        useGroundingWithGoogleSearch = true,
+                        useSystemInstruction = true,
+                        systemInstruction = CURRENCY_SYSTEM_INSTRUCTION,
+                        responseMimeType = "application/json",
+                )
+        return result.mapCatching { text ->
+            val parsed = parseModelResponse(text).getOrElse { throw it }
+            parsed to modelId
+        }
+    }
 }
 
 data class CurrencyConversionModelResult(

@@ -603,6 +603,7 @@ fun SearchRoute(
             onDeleteRecentItem = viewModel::deleteRecentItem,
             onOpenSearchHistorySettings = onOpenSearchHistorySettings,
             onDismissSearchHistoryTip = viewModel::dismissSearchHistoryTip,
+            onCurrencyConversionClick = viewModel::executeCurrencyConversion,
             onDictionarySearchClick = viewModel::executeDictionaryLookup,
             onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
             onCustomAction = viewModel::onCustomAction,
