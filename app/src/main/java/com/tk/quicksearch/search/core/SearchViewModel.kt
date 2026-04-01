@@ -343,6 +343,14 @@ class SearchViewModel(
     private var dictionaryJob: Job? = null
     private var dictionaryQueryVersion: Long = 0L
 
+    private enum class ActiveInformationCard {
+        DIRECT_SEARCH,
+        CALCULATOR,
+        CURRENCY_CONVERTER,
+        WORD_CLOCK,
+        DICTIONARY,
+    }
+
     private val currencyConverterHandler by lazy {
         CurrencyConverterHandler(appContext, userPreferences)
     }
@@ -1024,6 +1032,59 @@ class SearchViewModel(
         }
     }
 
+    private fun clearInformationCardsExcept(activeCard: ActiveInformationCard) {
+        if (activeCard != ActiveInformationCard.CURRENCY_CONVERTER) {
+            currencyConversionJob?.cancel()
+        }
+        if (activeCard != ActiveInformationCard.WORD_CLOCK) {
+            wordClockJob?.cancel()
+        }
+        if (activeCard != ActiveInformationCard.DICTIONARY) {
+            dictionaryJob?.cancel()
+        }
+        if (
+            activeCard != ActiveInformationCard.DIRECT_SEARCH &&
+                _resultsState.value.DirectSearchState.status != DirectSearchStatus.Idle
+        ) {
+            directSearchHandler.clearDirectSearchState()
+        }
+
+        updateResultsState { state ->
+            state.copy(
+                DirectSearchState =
+                    if (activeCard == ActiveInformationCard.DIRECT_SEARCH) {
+                        state.DirectSearchState
+                    } else {
+                        DirectSearchState()
+                    },
+                calculatorState =
+                    if (activeCard == ActiveInformationCard.CALCULATOR) {
+                        state.calculatorState
+                    } else {
+                        CalculatorState()
+                    },
+                currencyConverterState =
+                    if (activeCard == ActiveInformationCard.CURRENCY_CONVERTER) {
+                        state.currencyConverterState
+                    } else {
+                        CurrencyConverterState()
+                    },
+                wordClockState =
+                    if (activeCard == ActiveInformationCard.WORD_CLOCK) {
+                        state.wordClockState
+                    } else {
+                        WordClockState()
+                    },
+                dictionaryState =
+                    if (activeCard == ActiveInformationCard.DICTIONARY) {
+                        state.dictionaryState
+                    } else {
+                        DictionaryState()
+                    },
+            )
+        }
+    }
+
     private fun setupDirectSearchStateListener() {
         viewModelScope.launch {
             directSearchHandler.directSearchState.collect { dsState ->
@@ -1033,6 +1094,9 @@ class SearchViewModel(
                         userPreferences.addRecentItem(RecentSearchEntry.Query(activeQuery))
                     }
                     shouldRecordPendingDirectSearchQueryInHistory = true
+                }
+                if (dsState.status != DirectSearchStatus.Idle) {
+                    clearInformationCardsExcept(ActiveInformationCard.DIRECT_SEARCH)
                 }
                 updateResultsState { it.copy(DirectSearchState = dsState) }
             }
@@ -2756,6 +2820,9 @@ class SearchViewModel(
         // responsive on every keystroke.  searchResults will be filled in by the
         // async job below (or cleared right away if we know there are no matches).
         val showingTool = calculatorResult.isToolMode || calculatorResult.result != null
+        if (showingTool) {
+            clearInformationCardsExcept(ActiveInformationCard.CALCULATOR)
+        }
         val shouldOnlySearchApps = detectedAliasSearchSection == SearchSection.APPS
         val shouldSkipAppSearchDueToAlias =
                 lockedCurrencyConverterAlias ||
@@ -2994,18 +3061,14 @@ class SearchViewModel(
         if (trimmedQuery.isBlank()) return
         if (!userPreferences.isCurrencyConverterEnabled() || !_featureState.value.hasGeminiApiKey) return
 
-        val confirmed =
-                if (lockedCurrencyConverterAlias) {
-                    null // alias mode: skip parsing, use raw query
-                } else {
-                    CurrencyConversionIntentParser.parseConfirmed(trimmedQuery)
-                }
-        // In non-alias mode, if we can't parse the query at all, bail out
-        if (!lockedCurrencyConverterAlias && confirmed == null) {
+        val confirmed = CurrencyConversionIntentParser.parseConfirmed(trimmedQuery)
+        if (confirmed == null) {
             updateResultsState { s -> s.copy(currencyConverterState = CurrencyConverterState()) }
+            showToast(R.string.currency_converter_invalid_input)
             return
         }
 
+        clearInformationCardsExcept(ActiveInformationCard.CURRENCY_CONVERTER)
         val version = ++currencyConversionQueryVersion
         currencyConversionJob?.cancel()
         currencyConversionJob =
@@ -3020,11 +3083,7 @@ class SearchViewModel(
                         )
                     }
                     val apiResult: Result<Pair<CurrencyConversionModelResult, String>> =
-                            if (confirmed != null) {
-                                currencyConverterHandler.convert(confirmed)
-                            } else {
-                                currencyConverterHandler.convertRaw(trimmedQuery)
-                            }
+                            currencyConverterHandler.convert(confirmed)
                     if (version != currencyConversionQueryVersion) return@launch
                     if (_resultsState.value.query.trim() != trimmedQuery) return@launch
                     apiResult.fold(
@@ -3135,6 +3194,7 @@ class SearchViewModel(
                         }
                         return@launch
                     }
+                    clearInformationCardsExcept(ActiveInformationCard.WORD_CLOCK)
                     updateResultsState { s ->
                         s.copy(
                                 wordClockState =
@@ -3261,6 +3321,7 @@ class SearchViewModel(
                 return
             }
 
+        clearInformationCardsExcept(ActiveInformationCard.DICTIONARY)
         val version = ++dictionaryQueryVersion
         dictionaryJob?.cancel()
         dictionaryJob =

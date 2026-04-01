@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.util.Currency
 import java.util.Locale
 import com.tk.quicksearch.search.calendar.calendarRelativeDateLabel
 import com.tk.quicksearch.search.calendar.formatAbsoluteDate
@@ -146,6 +147,7 @@ fun DirectSearchResult(
             GeminiAttributionRow(
                     modifier = Modifier.fillMaxWidth(),
                     usedModelId = directSearchState.usedModelId,
+                    isClickable = true,
                     onClick = onGeminiModelInfoClick,
                     onLongClick = onOpenDirectSearchConfigure,
             )
@@ -157,6 +159,15 @@ private fun formatCurrencyAmountForDisplay(raw: String): String {
     val normalized = raw.trim().replace(",", ".")
     val bd = normalized.toBigDecimalOrNull() ?: return raw.trim()
     return bd.setScale(2, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString()
+}
+
+private fun getCurrencySymbolForCode(code: String): String? {
+    val normalizedCode = code.trim().uppercase(Locale.ROOT)
+    if (normalizedCode.length != 3) return null
+    return runCatching { Currency.getInstance(normalizedCode).getSymbol(Locale.getDefault()) }
+            .getOrNull()
+            ?.trim()
+            ?.takeIf { it.isNotBlank() && !it.equals(normalizedCode, ignoreCase = true) }
 }
 
 @Composable
@@ -190,7 +201,14 @@ fun CurrencyConverterResult(
                                 )
                         val code = currencyConverterState.targetCurrencyCode.orEmpty()
                         val name = currencyConverterState.targetCurrencyName.orEmpty()
+                        val symbol = getCurrencySymbolForCode(code)
                         val line1 = "$amount $code"
+                        val subtitle =
+                                if (name.isNotBlank() && !name.equals(code, ignoreCase = true)) {
+                                    if (symbol != null) "$name ($symbol)" else name
+                                } else {
+                                    null
+                                }
                         Column(
                                 modifier =
                                         Modifier.fillMaxWidth().pointerInput(line1) {
@@ -206,9 +224,9 @@ fun CurrencyConverterResult(
                                     style = MaterialTheme.typography.displaySmall,
                                     color = MaterialTheme.colorScheme.onSurface,
                             )
-                            if (name.isNotBlank() && !name.equals(code, ignoreCase = true)) {
+                            if (subtitle != null) {
                                 Text(
-                                        text = name,
+                                        text = subtitle,
                                         style = MaterialTheme.typography.titleMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -784,6 +802,7 @@ private fun informationAttributionContentColor(): Color {
 private fun GeminiAttributionRow(
         modifier: Modifier = Modifier,
         usedModelId: String? = null,
+        isClickable: Boolean = false,
         onClick: () -> Unit = {},
         onLongClick: () -> Unit = {},
 ) {
@@ -793,15 +812,21 @@ private fun GeminiAttributionRow(
     val logoRes = if (isGemma) R.drawable.gemma_logo else R.drawable.gemini_logo
     val logoAspectRatio = if (isGemma) 250f / 64f else 288f / 65f
     val logoHeight = if (isGemma) 20.dp else DesignTokens.SpacingLarge
+    val rowModifier =
+            if (isClickable) {
+                modifier
+                        .padding(horizontal = DesignTokens.SpacingLarge)
+                        .combinedClickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick = onClick,
+                                onLongClick = onLongClick,
+                        )
+            } else {
+                modifier.padding(horizontal = DesignTokens.SpacingLarge)
+            }
     Row(
-            modifier = modifier
-                    .padding(horizontal = DesignTokens.SpacingLarge)
-                    .combinedClickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                            onClick = onClick,
-                            onLongClick = onLongClick,
-                    ),
+            modifier = rowModifier,
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {

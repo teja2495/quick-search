@@ -857,6 +857,7 @@
     <string name="search_hint_word_clock">Convert time to words e.g. word clock for 3:45 PM</string>
     <string name="search_hint_dictionary">Define words e.g. define serendipity</string>
     <string name="get_currency_value">Get Currency Value</string>
+    <string name="currency_converter_invalid_input">Invalid currency conversion input</string>
     <string name="currency_converter_toggle_title">Currency Converter</string>
     <string name="currency_converter_toggle_desc">Example: 100 USD to INR</string>
     <string name="currency_converter_requires_gemini_key">Requires Gemini API key</string>
