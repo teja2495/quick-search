@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -50,7 +51,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.tk.quicksearch.app.navigation.SettingsNavigationMemory
@@ -65,6 +68,7 @@ import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.isLandscape
+import com.tk.quicksearch.shared.util.isCrossWindowBlurEnabled
 import com.tk.quicksearch.shared.util.isTablet
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import kotlinx.coroutines.delay
@@ -74,6 +78,8 @@ private const val OVERLAY_TABLET_PORTRAIT_WIDTH_PERCENT = 0.85f
 private const val OVERLAY_TABLET_WIDTH_PERCENT = 0.65f
 private const val OVERLAY_MAX_HEIGHT_PERCENT = 0.95f
 private const val OVERLAY_FALLBACK_GRADIENT_ALPHA = 0.98f
+private const val OVERLAY_BLUR_FALLBACK_ALPHA_DARK = 0.2f
+private const val OVERLAY_BLUR_FALLBACK_ALPHA_LIGHT = 0.24f
 private const val OVERLAY_CONTENT_RESIZE_ANIMATION_MS = 140
 private const val OVERLAY_ENTER_ANIMATION_MS = 420
 private const val OVERLAY_EXIT_ANIMATION_MS = 220
@@ -116,6 +122,7 @@ fun OverlayRoot(
         BackHandler(enabled = isVisible) { handleClose() }
 
         val context = LocalContext.current
+        val isCrossWindowBlurCurrentlyEnabled = isCrossWindowBlurEnabled(context)
         val overlaySnackbarHostState = remember { SnackbarHostState() }
         var overlayManualNumberKeyboard by remember { mutableStateOf(false) }
         var overlayImeVisible by remember { mutableStateOf(false) }
@@ -223,6 +230,30 @@ fun OverlayRoot(
                         val targetOverlayWidth =
                                 (availableWidth * overlayWidthPercent).coerceAtLeast(0.dp)
                         val overlayWidth = targetOverlayWidth
+                        val isDarkMode =
+                                MaterialTheme.colorScheme.background.luminance() < 0.5f
+                        val useCrossWindowBlur =
+                                uiState.overlayBlurEffectEnabled && isCrossWindowBlurCurrentlyEnabled
+                        val fallbackAlpha =
+                                if (useCrossWindowBlur) {
+                                        if (isDarkMode) {
+                                                OVERLAY_BLUR_FALLBACK_ALPHA_DARK
+                                        } else {
+                                                OVERLAY_BLUR_FALLBACK_ALPHA_LIGHT
+                                        }
+                                } else {
+                                        OVERLAY_FALLBACK_GRADIENT_ALPHA
+                                }
+                        val overlayBorderColor =
+                                if (useCrossWindowBlur) {
+                                        if (isDarkMode) {
+                                                Color.White.copy(alpha = 0.14f)
+                                        } else {
+                                                Color.Black.copy(alpha = 0.1f)
+                                        }
+                                } else {
+                                        AppColors.SearchChromeOutlineBorder
+                                }
 
                         val overlayWallpaperBitmap by
                                 produceState<ImageBitmap?>(
@@ -334,7 +365,7 @@ fun OverlayRoot(
                                                         .clip(DesignTokens.ExtraLargeCardShape)
                                                         .border(
                                                                 width = OVERLAY_BORDER_WIDTH,
-                                                                color = AppColors.SearchChromeOutlineBorder,
+                                                                color = overlayBorderColor,
                                                                 shape = DesignTokens.ExtraLargeCardShape,
                                                         )
                                                         .clickable(
@@ -346,7 +377,9 @@ fun OverlayRoot(
                                                         ) {},
                                 ) {
                                         SearchScreenBackground(
-                                                showWallpaperBackground = useImageBackground,
+                                                showWallpaperBackground =
+                                                        useImageBackground &&
+                                                                !useCrossWindowBlur,
                                                 wallpaperBitmap = overlayImageBitmap,
                                                 wallpaperBackgroundAlpha =
                                                         uiState.wallpaperBackgroundAlpha,
@@ -354,12 +387,13 @@ fun OverlayRoot(
                                                 backgroundTransitionDurationMillis =
                                                         DesignTokens.WallpaperFadeInDuration + 220,
                                                 animateBlurRadius = false,
-                                                fallbackBackgroundAlpha =
-                                                        OVERLAY_FALLBACK_GRADIENT_ALPHA,
+                                                fallbackBackgroundAlpha = fallbackAlpha,
                                                 useGradientFallback =
-                                                        uiState.backgroundSource ==
-                                                                        BackgroundSource.THEME ||
-                                                                useMonoThemeFallback,
+                                                        !useCrossWindowBlur &&
+                                                                (uiState.backgroundSource ==
+                                                                                BackgroundSource
+                                                                                        .THEME ||
+                                                                        useMonoThemeFallback),
                                                 appTheme =
                                                         if (useMonoThemeFallback) {
                                                                 AppTheme.MONOCHROME

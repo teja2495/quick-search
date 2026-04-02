@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.AppearanceSettings
 
+import android.widget.Toast
 import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -42,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -69,6 +71,7 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.hapticToggle
+import com.tk.quicksearch.shared.util.supportsCrossWindowBlur
 import kotlin.math.roundToInt
 
 @Composable
@@ -84,6 +87,9 @@ fun AppThemeCard(
         hasWallpaperPermission: Boolean,
         themedIconsEnabled: Boolean,
         onThemedIconsToggle: (Boolean) -> Unit,
+        overlayModeEnabled: Boolean,
+        overlayBlurEffectEnabled: Boolean,
+        onOverlayBlurEffectToggle: (Boolean) -> Unit,
         modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
@@ -298,12 +304,24 @@ fun AppThemeCard(
                 }
             }
 
+            val shouldShowOverlayBlurToggle = overlayModeEnabled && supportsCrossWindowBlur()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 SettingsToggleRow(
                         title = stringResource(R.string.settings_themed_icons_title),
                         subtitle = stringResource(R.string.settings_themed_icons_desc),
                         checked = themedIconsEnabled,
                         onCheckedChange = onThemedIconsToggle,
+                        horizontalPadding = DesignTokens.SpacingSmall,
+                        isLastItem = !shouldShowOverlayBlurToggle,
+                        showDivider = shouldShowOverlayBlurToggle,
+                )
+            }
+            if (shouldShowOverlayBlurToggle) {
+                SettingsToggleRow(
+                        title = stringResource(R.string.settings_overlay_blur_effect_title),
+                        checked = overlayBlurEffectEnabled,
+                        onCheckedChange = onOverlayBlurEffectToggle,
+                        subtitle = null,
                         horizontalPadding = DesignTokens.SpacingSmall,
                         isLastItem = true,
                         showDivider = false,
@@ -327,6 +345,8 @@ fun WallpaperCard(
         onRequestWallpaperPermission: () -> Unit,
         wallpaperAccentEnabled: Boolean,
         onWallpaperAccentToggle: (Boolean) -> Unit,
+        overlayModeEnabled: Boolean,
+        overlayBlurEffectEnabled: Boolean,
         modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
@@ -353,6 +373,8 @@ fun WallpaperCard(
 
     val isWallpaperSourceSelected = backgroundSource == BackgroundSource.SYSTEM_WALLPAPER
     val isCustomSourceSelected = backgroundSource == BackgroundSource.CUSTOM_IMAGE
+    val isWallpaperSelectionDisabled = overlayModeEnabled && overlayBlurEffectEnabled
+    val overlayBlurRestrictionToast = stringResource(R.string.settings_wallpaper_overlay_blur_restriction_toast)
 
     val wallpaperAlphaDisplayValue = (wallpaperBackgroundAlpha / 0.7f).coerceIn(0f, 1f)
     var lastAlphaStep by remember {
@@ -387,10 +409,20 @@ fun WallpaperCard(
                 OverlaySourceBox(
                         modifier = Modifier.weight(1f),
                         selected = isWallpaperSourceSelected,
+                        enabled = !isWallpaperSelectionDisabled,
                         hasImage = wallpaperPreviewBitmap != null,
                         onClick = {
-                            hapticToggle(view)()
-                            onRequestWallpaperPermission()
+                            if (isWallpaperSelectionDisabled) {
+                                Toast.makeText(
+                                                context,
+                                                overlayBlurRestrictionToast,
+                                                Toast.LENGTH_SHORT,
+                                        )
+                                        .show()
+                            } else {
+                                hapticToggle(view)()
+                                onRequestWallpaperPermission()
+                            }
                         },
                         label = stringResource(R.string.settings_overlay_source_wallpaper),
                 ) {
@@ -459,13 +491,23 @@ fun WallpaperCard(
                 OverlaySourceBox(
                         modifier = Modifier.weight(1f),
                         selected = isCustomSourceSelected,
+                        enabled = !isWallpaperSelectionDisabled,
                         hasImage = customPreviewBitmap != null,
                         onClick = {
-                            hapticToggle(view)()
-                            if (customPreviewBitmap != null) {
-                                onSetBackgroundSource(BackgroundSource.CUSTOM_IMAGE)
+                            if (isWallpaperSelectionDisabled) {
+                                Toast.makeText(
+                                                context,
+                                                overlayBlurRestrictionToast,
+                                                Toast.LENGTH_SHORT,
+                                        )
+                                        .show()
                             } else {
-                                onPickCustomImage()
+                                hapticToggle(view)()
+                                if (customPreviewBitmap != null) {
+                                    onSetBackgroundSource(BackgroundSource.CUSTOM_IMAGE)
+                                } else {
+                                    onPickCustomImage()
+                                }
                             }
                         },
                         label = stringResource(R.string.settings_overlay_source_custom),
@@ -514,6 +556,15 @@ fun WallpaperCard(
                                                 .clip(CircleShape)
                                                 .background(Color.Black)
                                                 .clickable {
+                                                    if (isWallpaperSelectionDisabled) {
+                                                        Toast.makeText(
+                                                                        context,
+                                                                        overlayBlurRestrictionToast,
+                                                                        Toast.LENGTH_SHORT,
+                                                                )
+                                                                .show()
+                                                        return@clickable
+                                                    }
                                                     hapticToggle(view)()
                                                     onPickCustomImage()
                                                 },
@@ -684,6 +735,7 @@ private fun OverlaySourceBox(
         modifier: Modifier = Modifier,
         selected: Boolean,
         label: String,
+        enabled: Boolean = true,
         hasImage: Boolean = false,
         onClick: () -> Unit,
         content: @Composable BoxScope.() -> Unit,
@@ -702,6 +754,13 @@ private fun OverlaySourceBox(
                                 .clip(MaterialTheme.shapes.medium)
                                 .background(Color.Transparent)
                                 .clickable(onClick = onClick)
+                                .then(
+                                        if (!enabled) {
+                                            Modifier.alpha(0.45f)
+                                        } else {
+                                            Modifier
+                                        },
+                                )
                                 .then(
                                         if (!hasImage || isDarkMode) {
                                             Modifier.border(
@@ -736,7 +795,12 @@ private fun OverlaySourceBox(
         Text(
                 text = label,
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color =
+                        if (enabled) {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                        },
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
         )

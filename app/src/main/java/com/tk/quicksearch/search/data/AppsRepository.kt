@@ -76,8 +76,12 @@ class AppsRepository(
                 activityInfos
                     .distinctBy { "${it.applicationInfo.packageName}_${UserHandleUtils.getIdentifier(it.user)}" }
                     .filter {
-                        it.applicationInfo.packageName != currentPackageName &&
-                            it.applicationInfo.packageName != defaultLauncherPackageName
+                        val packageName = it.applicationInfo.packageName
+                        shouldIncludeInSearch(
+                            packageName = packageName,
+                            currentPackageName = currentPackageName,
+                            defaultLauncherPackageName = defaultLauncherPackageName,
+                        )
                     }
                     .map { createAppInfo(it, usageMap, launchCounts) }
             } else {
@@ -86,7 +90,11 @@ class AppsRepository(
                     .distinctBy { it.activityInfo.packageName }
                     .filter {
                         val pkg = it.activityInfo.packageName
-                        pkg != currentPackageName && pkg != defaultLauncherPackageName
+                        shouldIncludeInSearch(
+                            packageName = pkg,
+                            currentPackageName = currentPackageName,
+                            defaultLauncherPackageName = defaultLauncherPackageName,
+                        )
                     }
                     .map { createAppInfo(it, usageMap, launchCounts) }
             }
@@ -174,6 +182,23 @@ class AppsRepository(
 
         val packageName = resolveInfo?.activityInfo?.packageName
         return packageName?.takeIf { it.isNotBlank() && it != "android" }
+    }
+
+    private fun shouldIncludeInSearch(
+        packageName: String,
+        currentPackageName: String,
+        defaultLauncherPackageName: String?,
+    ): Boolean {
+        if (packageName == currentPackageName || packageName == defaultLauncherPackageName) {
+            return false
+        }
+
+        // Hide internal benchmark/test companion targets from normal app search results.
+        if (packageName == "$currentPackageName.benchmark") {
+            return false
+        }
+
+        return true
     }
 
     private fun createAppInfo(

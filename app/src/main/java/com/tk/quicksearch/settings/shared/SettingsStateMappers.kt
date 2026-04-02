@@ -21,6 +21,7 @@ internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState =
         oneHandedMode = oneHandedMode,
         bottomSearchBarEnabled = bottomSearchBarEnabled,
         overlayModeEnabled = overlayModeEnabled,
+        overlayBlurEffectEnabled = overlayBlurEffectEnabled,
         hasSeenOverlayAssistantTip = hasSeenOverlayAssistantTip,
         shortcutCodes = shortcutCodes,
         shortcutEnabled = shortcutEnabled,

@@ -312,6 +312,7 @@ fun SettingsRoute(
             onToggleOneHandedMode = viewModel::setOneHandedMode,
             onToggleBottomSearchBar = viewModel::setBottomSearchBarEnabled,
             onToggleOverlayMode = onToggleOverlayMode,
+            onToggleOverlayBlurEffect = viewModel::setOverlayBlurEffectEnabled,
             onDismissOverlayAssistantTip = viewModel::dismissOverlayAssistantTip,
             setAliasCode = viewModel::setAlias,
             setAliasEnabled = viewModel::setAliasEnabled,

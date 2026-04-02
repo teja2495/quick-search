@@ -194,6 +194,7 @@ data class SearchUiConfigState(
         val startupBackgroundPreviewPath: String? = null,
         // Layout preferences
         val overlayModeEnabled: Boolean = false,
+        val overlayBlurEffectEnabled: Boolean = false,
         val oneHandedMode: Boolean = false,
         val bottomSearchBarEnabled: Boolean = false,
         val topResultIndicatorEnabled: Boolean = true,

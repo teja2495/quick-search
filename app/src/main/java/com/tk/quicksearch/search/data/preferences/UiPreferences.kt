@@ -64,6 +64,13 @@ class UiPreferences(
         setBooleanPref(UiPreferences.KEY_OVERLAY_MODE_ENABLED, enabled)
     }
 
+    fun isOverlayBlurEffectEnabled(): Boolean =
+            getBooleanPref(UiPreferences.KEY_OVERLAY_BLUR_EFFECT_ENABLED, false)
+
+    fun setOverlayBlurEffectEnabled(enabled: Boolean) {
+        setBooleanPref(UiPreferences.KEY_OVERLAY_BLUR_EFFECT_ENABLED, enabled)
+    }
+
     fun getMessagingApp(): MessagingApp {
         val appName = prefs.getString(UiPreferences.KEY_MESSAGING_APP, null)
         return if (appName != null) {
@@ -668,6 +675,7 @@ class UiPreferences(
         const val KEY_CLEAR_QUERY_ON_LAUNCH = "clear_query_on_launch"
         const val KEY_AUTO_CLOSE_OVERLAY = "auto_close_overlay"
         const val KEY_OVERLAY_MODE_ENABLED = "overlay_mode_enabled"
+        const val KEY_OVERLAY_BLUR_EFFECT_ENABLED = "overlay_blur_effect_enabled"
         const val KEY_USE_WHATSAPP_FOR_MESSAGES =
                 "use_whatsapp_for_messages" // Deprecated, kept for migration
         const val KEY_MESSAGING_APP = "messaging_app"

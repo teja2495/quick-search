@@ -635,6 +635,7 @@
     <string name="settings_system_files_toggle">System Files</string>
     <string name="settings_themed_icons_desc">Tint app icons to match your theme</string>
     <string name="settings_themed_icons_title">Themed App Icons</string>
+    <string name="settings_overlay_blur_effect_title">Overlay Blur Effect</string>
     <string name="settings_title">Settings</string>
     <string name="settings_gemini_api_config_title">Gemini API</string>
     <string name="settings_gemini_api_config_desc">Set up Gemini API for AI-powered search and tools</string>
@@ -652,6 +653,7 @@
     <string name="settings_wallpaper_accent_title">Accent Colors</string>
     <string name="settings_wallpaper_blur_label">Blur</string>
     <string name="settings_wallpaper_card_title">Wallpaper Background</string>
+    <string name="settings_wallpaper_overlay_blur_restriction_toast">Turn off Overlay Blur Effect to select wallpaper backgrounds</string>
     <string name="settings_wallpaper_transparency_label">Transparency</string>
     <string name="shortcut_song_search_label">Song Search</string>
     <string name="shortcut_watch_later_label">Watch Later</string>

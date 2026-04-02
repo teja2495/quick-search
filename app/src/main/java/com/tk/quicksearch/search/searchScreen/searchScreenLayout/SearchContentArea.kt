@@ -57,6 +57,9 @@ import com.tk.quicksearch.search.searchScreen.hasAnySearchResults
 import com.tk.quicksearch.search.searchScreen.appThemeResultCardColor
 import com.tk.quicksearch.search.searchScreen.appThemeDividerColor
 import com.tk.quicksearch.search.searchScreen.appThemeActionColor
+import com.tk.quicksearch.search.searchScreen.overlayBlurResultCardColor
+import com.tk.quicksearch.search.searchScreen.overlayBlurDividerColor
+import com.tk.quicksearch.search.searchScreen.overlayBlurActionColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayActionColor
@@ -71,6 +74,7 @@ import com.tk.quicksearch.searchEngines.*
 import com.tk.quicksearch.searchEngines.compact.NoResultsSearchEngineCards
 import com.tk.quicksearch.search.webSuggestions.WebSuggestionsSection
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.util.isCrossWindowBlurEnabled
 import com.tk.quicksearch.tools.directSearch.CalculatorResult
 import com.tk.quicksearch.tools.directSearch.DirectSearchResult
 import kotlin.math.min
@@ -168,12 +172,19 @@ fun SearchContentArea(
                 !directSearchState.activeQuery.isNullOrBlank() &&
                 renderingState.expandedSection == ExpandedSection.NONE
     val isSectionAliasMode = state.detectedAliasSearchSection != null
+    val context = LocalContext.current
     val useOverlayThemeTints = state.backgroundSource == BackgroundSource.THEME
     val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val useOverlayBlurCardStyle =
+        isOverlayPresentation &&
+            state.overlayBlurEffectEnabled &&
+            isCrossWindowBlurEnabled(context)
     val edgeFadeHeight = if (isDarkMode) 32.dp else 16.dp
     val edgeFadeMinAlpha = if (isDarkMode) 0f else 0.4f
     val overlayCardColor =
-        if (useOverlayThemeTints) {
+        if (useOverlayBlurCardStyle) {
+            overlayBlurResultCardColor(isDarkMode)
+        } else if (useOverlayThemeTints) {
             appThemeResultCardColor(
                 theme = state.appTheme,
                 isDarkMode = isDarkMode,
@@ -183,7 +194,9 @@ fun SearchContentArea(
             null
         }
     val overlayDividerTint =
-        if (useOverlayThemeTints) {
+        if (useOverlayBlurCardStyle) {
+            overlayBlurDividerColor(isDarkMode)
+        } else if (useOverlayThemeTints) {
             appThemeDividerColor(
                 theme = state.appTheme,
                 isDarkMode = isDarkMode,
@@ -193,7 +206,9 @@ fun SearchContentArea(
             null
         }
     val overlayActionTint =
-        if (useOverlayThemeTints) {
+        if (useOverlayBlurCardStyle) {
+            overlayBlurActionColor(isDarkMode)
+        } else if (useOverlayThemeTints) {
             appThemeActionColor(
                 theme = state.appTheme,
                 isDarkMode = isDarkMode,
