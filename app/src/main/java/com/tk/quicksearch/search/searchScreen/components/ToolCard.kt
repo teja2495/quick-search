@@ -18,8 +18,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
+import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.searchEngines.shared.SearchTargetConstants
-import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
 
 @Composable
@@ -35,7 +35,7 @@ internal fun ToolCard(
         modifier =
             modifier
                 .fillMaxWidth()
-                .clip(DesignTokens.SearchResultCardShape)
+                .clip(SearchResultCardDefaults.shape)
                 .combinedClickable(
                     onClick = {
                         hapticConfirm(view)()

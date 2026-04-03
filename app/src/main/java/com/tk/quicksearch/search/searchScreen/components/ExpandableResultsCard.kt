@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
+import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 internal data class ExpandableResultsCardState(
@@ -62,11 +63,11 @@ internal fun ExpandableResultsCard(
     val cardModifier =
         modifier
             .fillMaxWidth()
-            .predictedSubmitHighlight(
-                isPredicted = isTopPredicted,
-                shape = DesignTokens.SearchResultCardShape,
-                opaqueCardTopResultBorder = true,
-            )
+                .predictedSubmitHighlight(
+                    isPredicted = isTopPredicted,
+                    shape = SearchResultCardDefaults.shape,
+                    opaqueCardTopResultBorder = true,
+                )
 
     SearchResultCard(
         modifier = cardModifier,
@@ -83,7 +84,7 @@ internal fun topResultIndicator(isTopPredicted: Boolean): Shape =
     if (isTopPredicted) {
         DesignTokens.ShapeLarge
     } else {
-        DesignTokens.CardShape
+        SearchResultCardDefaults.shape
     }
 
 internal fun Modifier.topPredictedRowContainer(
