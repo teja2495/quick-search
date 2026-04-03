@@ -6,7 +6,7 @@ import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.LauncherAppIcon
-import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.search.core.SearchSectionRegistry
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
 
@@ -48,6 +48,11 @@ sealed interface SettingsCommand {
 internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
     when (command) {
         is SettingsCommand.Toggle -> {
+            val sectionToggle = SearchSectionRegistry.sectionForToggle(command.key)
+            if (sectionToggle != null) {
+                setSectionEnabled(sectionToggle, command.enabled)
+                return
+            }
             when (command.key) {
                 AppSettingsToggleKey.OVERLAY_MODE -> setOverlayModeEnabled(command.enabled)
                 AppSettingsToggleKey.ONE_HANDED_MODE -> setOneHandedMode(command.enabled)
@@ -80,20 +85,6 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
                 AppSettingsToggleKey.SHOW_FOLDERS -> setShowFolders(command.enabled)
                 AppSettingsToggleKey.SHOW_SYSTEM_FILES -> setShowSystemFiles(command.enabled)
                 AppSettingsToggleKey.DIRECT_DIAL -> setDirectDialEnabled(command.enabled)
-                AppSettingsToggleKey.SEARCH_APPS ->
-                    setSectionEnabled(SearchSection.APPS, command.enabled)
-                AppSettingsToggleKey.SEARCH_APP_SHORTCUTS ->
-                    setSectionEnabled(SearchSection.APP_SHORTCUTS, command.enabled)
-                AppSettingsToggleKey.SEARCH_CONTACTS ->
-                    setSectionEnabled(SearchSection.CONTACTS, command.enabled)
-                AppSettingsToggleKey.SEARCH_FILES ->
-                    setSectionEnabled(SearchSection.FILES, command.enabled)
-                AppSettingsToggleKey.SEARCH_DEVICE_SETTINGS ->
-                    setSectionEnabled(SearchSection.SETTINGS, command.enabled)
-                AppSettingsToggleKey.SEARCH_CALENDAR ->
-                    setSectionEnabled(SearchSection.CALENDAR, command.enabled)
-                AppSettingsToggleKey.SEARCH_APP_SETTINGS ->
-                    setSectionEnabled(SearchSection.APP_SETTINGS, command.enabled)
                 AppSettingsToggleKey.ASSISTANT_LAUNCH_VOICE_MODE ->
                     setAssistantLaunchVoiceModeEnabled(command.enabled)
                 AppSettingsToggleKey.WALLPAPER_ACCENT ->
@@ -101,6 +92,14 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
                 AppSettingsToggleKey.THEMED_ICONS -> setThemedIconsEnabled(command.enabled)
                 AppSettingsToggleKey.DICTIONARY -> setDictionaryEnabled(command.enabled)
                 AppSettingsToggleKey.APPS_PER_ROW -> Unit
+                AppSettingsToggleKey.SEARCH_APPS,
+                AppSettingsToggleKey.SEARCH_APP_SHORTCUTS,
+                AppSettingsToggleKey.SEARCH_CONTACTS,
+                AppSettingsToggleKey.SEARCH_FILES,
+                AppSettingsToggleKey.SEARCH_DEVICE_SETTINGS,
+                AppSettingsToggleKey.SEARCH_CALENDAR,
+                AppSettingsToggleKey.SEARCH_APP_SETTINGS,
+                -> Unit
             }
         }
 
@@ -122,8 +121,12 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
     }
 }
 
-internal fun SearchUiState.isAppSettingToggleEnabled(toggleKey: AppSettingsToggleKey): Boolean =
-    when (toggleKey) {
+internal fun SearchUiState.isAppSettingToggleEnabled(toggleKey: AppSettingsToggleKey): Boolean {
+    SearchSectionRegistry.sectionForToggle(toggleKey)?.let { section ->
+        return !disabledSections.contains(section)
+    }
+
+    return when (toggleKey) {
         AppSettingsToggleKey.OVERLAY_MODE -> overlayModeEnabled
         AppSettingsToggleKey.ONE_HANDED_MODE -> oneHandedMode
         AppSettingsToggleKey.BOTTOM_SEARCHBAR -> bottomSearchBarEnabled
@@ -144,19 +147,18 @@ internal fun SearchUiState.isAppSettingToggleEnabled(toggleKey: AppSettingsToggl
         AppSettingsToggleKey.SHOW_FOLDERS -> showFolders
         AppSettingsToggleKey.SHOW_SYSTEM_FILES -> showSystemFiles
         AppSettingsToggleKey.DIRECT_DIAL -> directDialEnabled
-        AppSettingsToggleKey.SEARCH_APPS -> !disabledSections.contains(SearchSection.APPS)
-        AppSettingsToggleKey.SEARCH_APP_SHORTCUTS ->
-            !disabledSections.contains(SearchSection.APP_SHORTCUTS)
-        AppSettingsToggleKey.SEARCH_CONTACTS -> !disabledSections.contains(SearchSection.CONTACTS)
-        AppSettingsToggleKey.SEARCH_FILES -> !disabledSections.contains(SearchSection.FILES)
-        AppSettingsToggleKey.SEARCH_DEVICE_SETTINGS ->
-            !disabledSections.contains(SearchSection.SETTINGS)
-        AppSettingsToggleKey.SEARCH_CALENDAR -> !disabledSections.contains(SearchSection.CALENDAR)
-        AppSettingsToggleKey.SEARCH_APP_SETTINGS ->
-            !disabledSections.contains(SearchSection.APP_SETTINGS)
         AppSettingsToggleKey.ASSISTANT_LAUNCH_VOICE_MODE -> assistantLaunchVoiceModeEnabled
         AppSettingsToggleKey.WALLPAPER_ACCENT -> wallpaperAccentEnabled
         AppSettingsToggleKey.THEMED_ICONS -> themedIconsEnabled
         AppSettingsToggleKey.DICTIONARY -> dictionaryEnabled
         AppSettingsToggleKey.APPS_PER_ROW -> false
+        AppSettingsToggleKey.SEARCH_APPS,
+        AppSettingsToggleKey.SEARCH_APP_SHORTCUTS,
+        AppSettingsToggleKey.SEARCH_CONTACTS,
+        AppSettingsToggleKey.SEARCH_FILES,
+        AppSettingsToggleKey.SEARCH_DEVICE_SETTINGS,
+        AppSettingsToggleKey.SEARCH_CALENDAR,
+        AppSettingsToggleKey.SEARCH_APP_SETTINGS,
+        -> false
     }
+}

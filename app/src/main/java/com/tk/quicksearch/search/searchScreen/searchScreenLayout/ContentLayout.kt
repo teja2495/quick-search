@@ -545,16 +545,7 @@ private val ALIAS_RECENT_ELIGIBLE_SECTIONS =
     )
 
 private fun ItemPriorityConfig.ItemType.toSearchSectionOrNull(): SearchSection? =
-    when (this) {
-        ItemPriorityConfig.ItemType.APPS_SECTION -> SearchSection.APPS
-        ItemPriorityConfig.ItemType.APP_SHORTCUTS_SECTION -> SearchSection.APP_SHORTCUTS
-        ItemPriorityConfig.ItemType.FILES_SECTION -> SearchSection.FILES
-        ItemPriorityConfig.ItemType.CONTACTS_SECTION -> SearchSection.CONTACTS
-        ItemPriorityConfig.ItemType.SETTINGS_SECTION -> SearchSection.SETTINGS
-        ItemPriorityConfig.ItemType.CALENDAR_SECTION -> SearchSection.CALENDAR
-        ItemPriorityConfig.ItemType.APP_SETTINGS_SECTION -> SearchSection.APP_SETTINGS
-        else -> null
-    }
+    SearchSectionRegistry.sectionForItemType(this)
 
 private fun sectionAliasPermissionMessageRes(
     state: SearchUiState,

@@ -29,6 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.search.core.SearchSectionRegistry
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.core.SearchEngine
@@ -292,7 +293,10 @@ fun SearchRoute(
 
     val onAppSettingToggle: (AppSettingResult, Boolean) -> Unit = { setting, enabled ->
         viewModel.trackRecentAppSettingTap(setting.id)
-        when (setting.toggleKey) {
+        val toggleKey = setting.toggleKey
+        if (toggleKey != null && SearchSectionRegistry.sectionForToggle(toggleKey) != null) {
+            viewModel.applySettingsCommand(SettingsCommand.Toggle(toggleKey, enabled))
+        } else when (toggleKey) {
             AppSettingsToggleKey.OVERLAY_MODE -> {
                 viewModel.setOverlayModeEnabled(enabled)
                 if (enabled) {
@@ -339,7 +343,7 @@ fun SearchRoute(
             AppSettingsToggleKey.WALLPAPER_ACCENT,
             AppSettingsToggleKey.THEMED_ICONS,
             AppSettingsToggleKey.APPS_PER_ROW,
-            -> viewModel.applySettingsCommand(SettingsCommand.Toggle(setting.toggleKey, enabled))
+            -> viewModel.applySettingsCommand(SettingsCommand.Toggle(toggleKey, enabled))
             AppSettingsToggleKey.DIRECT_DIAL -> {
                 if (enabled) {
                     if (uiState.hasCallPermission) {

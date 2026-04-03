@@ -8,13 +8,14 @@ enum class SearchSectionPermissionRequirement {
 
 object SearchSectionPermissionRequirements {
     private val requirementBySection: Map<SearchSection, SearchSectionPermissionRequirement> =
-        mapOf(
-            SearchSection.CONTACTS to SearchSectionPermissionRequirement.CONTACTS,
-            SearchSection.FILES to SearchSectionPermissionRequirement.FILES,
-            SearchSection.CALENDAR to SearchSectionPermissionRequirement.CALENDAR,
-        )
+        SearchSectionRegistry.orderedDefinitions
+            .mapNotNull { definition ->
+                definition.permissionRequirement?.let { requirement ->
+                    definition.section to requirement
+                }
+            }
+            .toMap()
 
     fun requirementFor(section: SearchSection): SearchSectionPermissionRequirement? =
         requirementBySection[section]
 }
-

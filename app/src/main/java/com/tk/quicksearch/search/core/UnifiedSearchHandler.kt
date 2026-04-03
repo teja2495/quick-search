@@ -42,6 +42,11 @@ data class UnifiedSearchResults(
         val appShortcutResults: List<StaticShortcut> = emptyList(),
 )
 
+data class UnifiedSectionSearchConfig(
+        val shouldSearch: Boolean = false,
+        val enableFuzzyMatching: Boolean = false,
+)
+
 class UnifiedSearchHandler(
         private val context: Context,
         private val contactRepository: ContactRepository,
@@ -73,16 +78,7 @@ class UnifiedSearchHandler(
         suspend fun performSearch(
                 query: String,
                 enabledFileTypes: Set<FileType>,
-                canSearchContacts: Boolean,
-                canSearchFiles: Boolean,
-                canSearchSettings: Boolean,
-                canSearchCalendar: Boolean,
-                canSearchAppSettings: Boolean,
-                canSearchAppShortcuts: Boolean,
-                enableFuzzyContactSearch: Boolean = false,
-                enableFuzzyFileSearch: Boolean = false,
-                enableFuzzySettingsSearch: Boolean = false,
-                enableFuzzyAppSettingsSearch: Boolean = false,
+                sectionSearchConfig: Map<SearchSection, UnifiedSectionSearchConfig>,
                 showFolders: Boolean = true,
                 showSystemFiles: Boolean = false,
                 aliasSection: SearchSection? = null,
@@ -94,6 +90,35 @@ class UnifiedSearchHandler(
                         }
 
                         val queryContext = SearchQueryContext.fromRawQuery(trimmedQuery)
+                        val contactsConfig =
+                                sectionSearchConfig[SearchSection.CONTACTS]
+                                        ?: UnifiedSectionSearchConfig()
+                        val filesConfig =
+                                sectionSearchConfig[SearchSection.FILES]
+                                        ?: UnifiedSectionSearchConfig()
+                        val settingsConfig =
+                                sectionSearchConfig[SearchSection.SETTINGS]
+                                        ?: UnifiedSectionSearchConfig()
+                        val calendarConfig =
+                                sectionSearchConfig[SearchSection.CALENDAR]
+                                        ?: UnifiedSectionSearchConfig()
+                        val appSettingsConfig =
+                                sectionSearchConfig[SearchSection.APP_SETTINGS]
+                                        ?: UnifiedSectionSearchConfig()
+                        val appShortcutsConfig =
+                                sectionSearchConfig[SearchSection.APP_SHORTCUTS]
+                                        ?: UnifiedSectionSearchConfig()
+
+                        val canSearchContacts = contactsConfig.shouldSearch
+                        val canSearchFiles = filesConfig.shouldSearch
+                        val canSearchSettings = settingsConfig.shouldSearch
+                        val canSearchCalendar = calendarConfig.shouldSearch
+                        val canSearchAppSettings = appSettingsConfig.shouldSearch
+                        val canSearchAppShortcuts = appShortcutsConfig.shouldSearch
+                        val enableFuzzyContactSearch = contactsConfig.enableFuzzyMatching
+                        val enableFuzzyFileSearch = filesConfig.enableFuzzyMatching
+                        val enableFuzzySettingsSearch = settingsConfig.enableFuzzyMatching
+                        val enableFuzzyAppSettingsSearch = appSettingsConfig.enableFuzzyMatching
                         val isContactsAliasSearch = aliasSection == SearchSection.CONTACTS
                         val isFilesAliasSearch = aliasSection == SearchSection.FILES
                         val isCalendarAliasSearch = aliasSection == SearchSection.CALENDAR
@@ -171,148 +196,160 @@ class UnifiedSearchHandler(
                         var appShortcutMatches: List<StaticShortcut> = emptyList()
 
                         coroutineScope {
-                                val sectionSearchSpecs =
-                                        listOf(
-                                                SectionSearchSpec(
-                                                        section = SearchSection.CONTACTS,
-                                                        shouldSearch = canSearchContacts,
-                                                        search = {
-                                                                SectionSearchResultPayload.Contacts(
-                                                                        searchOperations.searchContacts(
-                                                                                queryContext,
-                                                                                excludedContactIds,
-                                                                                limit =
-                                                                                        contactResultLimit,
-                                                                                enableFuzzyMatching =
-                                                                                        enableFuzzyContactSearch,
-                                                                                fuzzyCandidateLimit =
-                                                                                        contactFuzzyCandidateLimit,
-                                                                        )
-                                                                )
-                                                        },
-                                                        applyResult = { payload ->
-                                                                if (payload is SectionSearchResultPayload.Contacts) {
-                                                                        contactResults =
-                                                                                payload.results
-                                                                }
-                                                        },
-                                                ),
-                                                SectionSearchSpec(
-                                                        section = SearchSection.FILES,
-                                                        shouldSearch = canSearchFiles,
-                                                        search = {
-                                                                SectionSearchResultPayload.Files(
-                                                                        fileSearchHandler.searchFiles(
-                                                                                queryContext,
-                                                                                enabledFileTypes,
-                                                                                excludedFileUris,
-                                                                                excludedFileExtensions,
-                                                                                folderWhitelistPatterns,
-                                                                                folderBlacklistPatterns,
-                                                                                showFolders,
-                                                                                showSystemFiles,
-                                                                                recencyIndex.fileScores,
-                                                                                includeFuzzyCandidates =
-                                                                                        enableFuzzyFileSearch,
-                                                                                resultLimit =
-                                                                                        fileResultLimit,
-                                                                                fuzzyCandidateLimit =
-                                                                                        fileFuzzyCandidateLimit,
-                                                                        )
-                                                                )
-                                                        },
-                                                        applyResult = { payload ->
-                                                                if (payload is SectionSearchResultPayload.Files) {
-                                                                        fileResults = payload.results
-                                                                }
-                                                        },
-                                                ),
-                                                SectionSearchSpec(
-                                                        section = SearchSection.SETTINGS,
-                                                        shouldSearch = canSearchSettings,
-                                                        search = {
-                                                                SectionSearchResultPayload.Settings(
-                                                                        settingsSearchHandler.searchSettings(
-                                                                                queryContext,
-                                                                                recencyIndex.settingScores,
-                                                                                enableFuzzyMatching =
-                                                                                        enableFuzzySettingsSearch,
-                                                                        )
-                                                                )
-                                                        },
-                                                        applyResult = { payload ->
-                                                                if (payload is SectionSearchResultPayload.Settings) {
-                                                                        settingsMatches =
-                                                                                payload.results
-                                                                }
-                                                        },
-                                                ),
-                                                SectionSearchSpec(
-                                                        section = SearchSection.CALENDAR,
-                                                        shouldSearch = canSearchCalendar,
-                                                        search = {
-                                                                SectionSearchResultPayload.Calendar(
-                                                                        calendarRepository.searchFutureEventsByTitle(
-                                                                                query =
-                                                                                        queryContext.normalizedQuery,
-                                                                                limit =
-                                                                                        calendarResultLimit *
-                                                                                                4,
-                                                                        ).filterNot {
-                                                                                excludedCalendarEventIds.contains(
-                                                                                        it.eventId
-                                                                                )
-                                                                        }
-                                                                )
-                                                        },
-                                                        applyResult = { payload ->
-                                                                if (payload is SectionSearchResultPayload.Calendar) {
-                                                                        calendarMatches =
-                                                                                payload.results
-                                                                }
-                                                        },
-                                                ),
-                                                SectionSearchSpec(
-                                                        section = SearchSection.APP_SETTINGS,
-                                                        shouldSearch = canSearchAppSettings,
-                                                        search = {
-                                                                SectionSearchResultPayload.AppSettings(
-                                                                        appSettingsSearchHandler.searchSettings(
-                                                                                queryContext =
+                                val sectionSearchSpecBySection =
+                                        mapOf(
+                                                SearchSection.CONTACTS to
+                                                        SectionSearchSpec(
+                                                                section = SearchSection.CONTACTS,
+                                                                shouldSearch = canSearchContacts,
+                                                                search = {
+                                                                        SectionSearchResultPayload.Contacts(
+                                                                                searchOperations.searchContacts(
                                                                                         queryContext,
-                                                                                recentSettingScores =
+                                                                                        excludedContactIds,
+                                                                                        limit =
+                                                                                                contactResultLimit,
+                                                                                        enableFuzzyMatching =
+                                                                                                enableFuzzyContactSearch,
+                                                                                        fuzzyCandidateLimit =
+                                                                                                contactFuzzyCandidateLimit,
+                                                                                )
+                                                                        )
+                                                                },
+                                                                applyResult = { payload ->
+                                                                        if (payload is SectionSearchResultPayload.Contacts) {
+                                                                                contactResults =
+                                                                                        payload.results
+                                                                        }
+                                                                },
+                                                        ),
+                                                SearchSection.FILES to
+                                                        SectionSearchSpec(
+                                                                section = SearchSection.FILES,
+                                                                shouldSearch = canSearchFiles,
+                                                                search = {
+                                                                        SectionSearchResultPayload.Files(
+                                                                                fileSearchHandler.searchFiles(
+                                                                                        queryContext,
+                                                                                        enabledFileTypes,
+                                                                                        excludedFileUris,
+                                                                                        excludedFileExtensions,
+                                                                                        folderWhitelistPatterns,
+                                                                                        folderBlacklistPatterns,
+                                                                                        showFolders,
+                                                                                        showSystemFiles,
+                                                                                        recencyIndex.fileScores,
+                                                                                        includeFuzzyCandidates =
+                                                                                                enableFuzzyFileSearch,
+                                                                                        resultLimit =
+                                                                                                fileResultLimit,
+                                                                                        fuzzyCandidateLimit =
+                                                                                                fileFuzzyCandidateLimit,
+                                                                                )
+                                                                        )
+                                                                },
+                                                                applyResult = { payload ->
+                                                                        if (payload is SectionSearchResultPayload.Files) {
+                                                                                fileResults =
+                                                                                        payload.results
+                                                                        }
+                                                                },
+                                                        ),
+                                                SearchSection.SETTINGS to
+                                                        SectionSearchSpec(
+                                                                section = SearchSection.SETTINGS,
+                                                                shouldSearch = canSearchSettings,
+                                                                search = {
+                                                                        SectionSearchResultPayload.Settings(
+                                                                                settingsSearchHandler.searchSettings(
+                                                                                        queryContext,
                                                                                         recencyIndex.settingScores,
-                                                                                enableFuzzyMatching =
-                                                                                        enableFuzzyAppSettingsSearch,
+                                                                                        enableFuzzyMatching =
+                                                                                                enableFuzzySettingsSearch,
+                                                                                )
                                                                         )
-                                                                )
-                                                        },
-                                                        applyResult = { payload ->
-                                                                if (payload is SectionSearchResultPayload.AppSettings) {
-                                                                        appSettingsMatches =
-                                                                                payload.results
-                                                                }
-                                                        },
-                                                ),
-                                                SectionSearchSpec(
-                                                        section = SearchSection.APP_SHORTCUTS,
-                                                        shouldSearch = canSearchAppShortcuts,
-                                                        search = {
-                                                                SectionSearchResultPayload.AppShortcuts(
-                                                                        appShortcutSearchHandler.searchShortcuts(
-                                                                                queryContext,
-                                                                                recencyIndex.appShortcutScores,
+                                                                },
+                                                                applyResult = { payload ->
+                                                                        if (payload is SectionSearchResultPayload.Settings) {
+                                                                                settingsMatches =
+                                                                                        payload.results
+                                                                        }
+                                                                },
+                                                        ),
+                                                SearchSection.CALENDAR to
+                                                        SectionSearchSpec(
+                                                                section = SearchSection.CALENDAR,
+                                                                shouldSearch = canSearchCalendar,
+                                                                search = {
+                                                                        SectionSearchResultPayload.Calendar(
+                                                                                calendarRepository.searchFutureEventsByTitle(
+                                                                                        query =
+                                                                                                queryContext.normalizedQuery,
+                                                                                        limit =
+                                                                                                calendarResultLimit *
+                                                                                                        4,
+                                                                                ).filterNot {
+                                                                                        excludedCalendarEventIds.contains(
+                                                                                                it.eventId
+                                                                                        )
+                                                                                }
                                                                         )
-                                                                )
-                                                        },
-                                                        applyResult = { payload ->
-                                                                if (payload is SectionSearchResultPayload.AppShortcuts) {
-                                                                        appShortcutMatches =
-                                                                                payload.results
-                                                                }
-                                                        },
-                                                ),
+                                                                },
+                                                                applyResult = { payload ->
+                                                                        if (payload is SectionSearchResultPayload.Calendar) {
+                                                                                calendarMatches =
+                                                                                        payload.results
+                                                                        }
+                                                                },
+                                                        ),
+                                                SearchSection.APP_SETTINGS to
+                                                        SectionSearchSpec(
+                                                                section = SearchSection.APP_SETTINGS,
+                                                                shouldSearch = canSearchAppSettings,
+                                                                search = {
+                                                                        SectionSearchResultPayload.AppSettings(
+                                                                                appSettingsSearchHandler.searchSettings(
+                                                                                        queryContext =
+                                                                                                queryContext,
+                                                                                        recentSettingScores =
+                                                                                                recencyIndex.settingScores,
+                                                                                        enableFuzzyMatching =
+                                                                                                enableFuzzyAppSettingsSearch,
+                                                                                )
+                                                                        )
+                                                                },
+                                                                applyResult = { payload ->
+                                                                        if (payload is SectionSearchResultPayload.AppSettings) {
+                                                                                appSettingsMatches =
+                                                                                        payload.results
+                                                                        }
+                                                                },
+                                                        ),
+                                                SearchSection.APP_SHORTCUTS to
+                                                        SectionSearchSpec(
+                                                                section = SearchSection.APP_SHORTCUTS,
+                                                                shouldSearch = canSearchAppShortcuts,
+                                                                search = {
+                                                                        SectionSearchResultPayload.AppShortcuts(
+                                                                                appShortcutSearchHandler.searchShortcuts(
+                                                                                        queryContext,
+                                                                                        recencyIndex.appShortcutScores,
+                                                                                )
+                                                                        )
+                                                                },
+                                                                applyResult = { payload ->
+                                                                        if (payload is SectionSearchResultPayload.AppShortcuts) {
+                                                                                appShortcutMatches =
+                                                                                        payload.results
+                                                                        }
+                                                                },
+                                                        ),
                                         )
+
+                                val sectionSearchSpecs =
+                                        SearchSectionRegistry.secondarySearchDefinitions.mapNotNull {
+                                                sectionSearchSpecBySection[it.section]
+                                        }
 
                                 sectionSearchSpecs
                                         .map { spec ->

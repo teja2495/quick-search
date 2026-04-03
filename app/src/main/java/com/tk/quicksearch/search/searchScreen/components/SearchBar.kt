@@ -93,6 +93,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.search.core.SearchSectionRegistry
 import com.tk.quicksearch.search.core.SearchSectionUiMetadataRegistry
 import com.tk.quicksearch.search.core.SearchToolType
 import com.tk.quicksearch.search.core.SearchTarget
@@ -123,7 +124,7 @@ private data class SectionMenuEntry(
     val section: SearchSection,
 )
 
-private val sectionMenuEntries = SearchSection.values().map(::SectionMenuEntry)
+private val sectionMenuEntries = SearchSectionRegistry.orderedSections.map(::SectionMenuEntry)
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable

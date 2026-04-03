@@ -3,6 +3,8 @@ package com.tk.quicksearch.search.appSettings
 import android.content.Context
 import android.os.Build
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.search.core.SearchSectionRegistry
 import com.tk.quicksearch.search.utils.SearchQueryContext
 import com.tk.quicksearch.shared.util.isTablet
 
@@ -341,48 +343,7 @@ class AppSettingsRepository(
                 toggleKey = AppSettingsToggleKey.DIRECT_DIAL,
                 keywords = listOf("call"),
             )
-            addToggle(
-                id = "app_toggle_search_apps",
-                titleRes = R.string.search_section_apps_toggle_title,
-                descriptionRes = R.string.search_section_apps_toggle_desc,
-                toggleKey = AppSettingsToggleKey.SEARCH_APPS,
-            )
-            addToggle(
-                id = "app_toggle_search_app_shortcuts",
-                titleRes = R.string.search_section_app_shortcuts_toggle_title,
-                descriptionRes = R.string.search_section_app_shortcuts_toggle_desc,
-                toggleKey = AppSettingsToggleKey.SEARCH_APP_SHORTCUTS,
-            )
-            addToggle(
-                id = "app_toggle_search_contacts",
-                titleRes = R.string.search_section_contacts_toggle_title,
-                descriptionRes = R.string.search_section_contacts_toggle_desc,
-                toggleKey = AppSettingsToggleKey.SEARCH_CONTACTS,
-            )
-            addToggle(
-                id = "app_toggle_search_files",
-                titleRes = R.string.search_section_files_toggle_title,
-                descriptionRes = R.string.search_section_files_toggle_desc,
-                toggleKey = AppSettingsToggleKey.SEARCH_FILES,
-            )
-            addToggle(
-                id = "app_toggle_search_device_settings",
-                titleRes = R.string.search_section_device_settings_toggle_title,
-                descriptionRes = R.string.search_section_device_settings_toggle_desc,
-                toggleKey = AppSettingsToggleKey.SEARCH_DEVICE_SETTINGS,
-            )
-            addToggle(
-                id = "app_toggle_search_calendar",
-                titleRes = R.string.search_section_calendar_toggle_title,
-                descriptionRes = R.string.search_section_calendar_toggle_desc,
-                toggleKey = AppSettingsToggleKey.SEARCH_CALENDAR,
-            )
-            addToggle(
-                id = "app_toggle_search_app_settings",
-                titleRes = R.string.search_section_app_settings_toggle_title,
-                descriptionRes = R.string.search_section_app_settings_toggle_desc,
-                toggleKey = AppSettingsToggleKey.SEARCH_APP_SETTINGS,
-            )
+            addSearchSectionToggles()
             addToggle(
                 id = "app_toggle_wallpaper_accent",
                 titleRes = R.string.settings_wallpaper_accent_title,
@@ -445,6 +406,50 @@ class AppSettingsRepository(
             ),
         )
     }
+
+    private fun MutableList<AppSettingResult>.addSearchSectionToggles() {
+        SearchSectionRegistry.orderedDefinitions.forEach { definition ->
+            addToggle(
+                id = searchSectionToggleId(definition.section),
+                titleRes = searchSectionToggleTitleRes(definition.section),
+                descriptionRes = searchSectionToggleDescriptionRes(definition.section),
+                toggleKey = definition.appSettingsToggleKey,
+            )
+        }
+    }
+
+    private fun searchSectionToggleId(section: SearchSection): String =
+        when (section) {
+            SearchSection.APPS -> "app_toggle_search_apps"
+            SearchSection.APP_SHORTCUTS -> "app_toggle_search_app_shortcuts"
+            SearchSection.CONTACTS -> "app_toggle_search_contacts"
+            SearchSection.FILES -> "app_toggle_search_files"
+            SearchSection.SETTINGS -> "app_toggle_search_device_settings"
+            SearchSection.CALENDAR -> "app_toggle_search_calendar"
+            SearchSection.APP_SETTINGS -> "app_toggle_search_app_settings"
+        }
+
+    private fun searchSectionToggleTitleRes(section: SearchSection): Int =
+        when (section) {
+            SearchSection.APPS -> R.string.search_section_apps_toggle_title
+            SearchSection.APP_SHORTCUTS -> R.string.search_section_app_shortcuts_toggle_title
+            SearchSection.CONTACTS -> R.string.search_section_contacts_toggle_title
+            SearchSection.FILES -> R.string.search_section_files_toggle_title
+            SearchSection.SETTINGS -> R.string.search_section_device_settings_toggle_title
+            SearchSection.CALENDAR -> R.string.search_section_calendar_toggle_title
+            SearchSection.APP_SETTINGS -> R.string.search_section_app_settings_toggle_title
+        }
+
+    private fun searchSectionToggleDescriptionRes(section: SearchSection): Int =
+        when (section) {
+            SearchSection.APPS -> R.string.search_section_apps_toggle_desc
+            SearchSection.APP_SHORTCUTS -> R.string.search_section_app_shortcuts_toggle_desc
+            SearchSection.CONTACTS -> R.string.search_section_contacts_toggle_desc
+            SearchSection.FILES -> R.string.search_section_files_toggle_desc
+            SearchSection.SETTINGS -> R.string.search_section_device_settings_toggle_desc
+            SearchSection.CALENDAR -> R.string.search_section_calendar_toggle_desc
+            SearchSection.APP_SETTINGS -> R.string.search_section_app_settings_toggle_desc
+        }
 
     fun resolveSearchDescription(
         setting: AppSettingResult,
