@@ -214,75 +214,44 @@ internal class SearchQueryCoordinator(
     }
 
     private fun applyFeatureAliasMode(featureId: String) {
-        when (featureId) {
-            AliasHandler.CURRENCY_CONVERTER_ALIAS_FEATURE_ID -> {
-                if (userPreferences.getGeminiApiKey().isNullOrBlank()) {
-                    clearDetectedAliasMode()
-                    return
-                }
-                val current = aliasStateProvider()
-                updateAliasState(
-                    current.copy(
-                        lockedShortcutTarget = null,
-                        lockedAliasSearchSection = null,
-                        lockedToolMode = null,
-                        lockedCurrencyConverterAlias = true,
-                        lockedWordClockAlias = false,
-                        lockedDictionaryAlias = false,
-                    ),
-                )
-                return
-            }
-            AliasHandler.WORD_CLOCK_ALIAS_FEATURE_ID -> {
-                if (userPreferences.getGeminiApiKey().isNullOrBlank()) {
-                    clearDetectedAliasMode()
-                    return
-                }
-                val current = aliasStateProvider()
-                updateAliasState(
-                    current.copy(
-                        lockedShortcutTarget = null,
-                        lockedAliasSearchSection = null,
-                        lockedToolMode = null,
-                        lockedCurrencyConverterAlias = false,
-                        lockedWordClockAlias = true,
-                        lockedDictionaryAlias = false,
-                    ),
-                )
-                return
-            }
-            AliasHandler.DICTIONARY_ALIAS_FEATURE_ID -> {
-                if (userPreferences.getGeminiApiKey().isNullOrBlank()) {
-                    clearDetectedAliasMode()
-                    return
-                }
-                val current = aliasStateProvider()
-                updateAliasState(
-                    current.copy(
-                        lockedShortcutTarget = null,
-                        lockedAliasSearchSection = null,
-                        lockedToolMode = null,
-                        lockedCurrencyConverterAlias = false,
-                        lockedWordClockAlias = false,
-                        lockedDictionaryAlias = true,
-                    ),
-                )
-                return
-            }
+        val definition = aliasHandler.getFeatureAliasDefinition(featureId)
+        if (definition == null) {
+            clearDetectedAliasMode()
+            return
         }
 
-        val current = aliasStateProvider()
-        val toolMode =
-            when (featureId) {
-                AliasHandler.CALCULATOR_ALIAS_FEATURE_ID -> SearchToolType.CALCULATOR
-                AliasHandler.UNIT_CONVERTER_ALIAS_FEATURE_ID -> SearchToolType.UNIT_CONVERTER
-                AliasHandler.DATE_CALCULATOR_ALIAS_FEATURE_ID -> SearchToolType.DATE_CALCULATOR
-                else -> null
-            }
+        if (definition.requiresGeminiApiKey && userPreferences.getGeminiApiKey().isNullOrBlank()) {
+            clearDetectedAliasMode()
+            return
+        }
+
+        val standaloneMode = definition.standaloneMode
+        if (standaloneMode != null) {
+            val current = aliasStateProvider()
+            updateAliasState(
+                current.copy(
+                    lockedShortcutTarget = null,
+                    lockedAliasSearchSection = null,
+                    lockedToolMode = null,
+                    lockedCurrencyConverterAlias =
+                        standaloneMode ==
+                            AliasHandler.StandaloneFeatureAliasMode.CURRENCY_CONVERTER,
+                    lockedWordClockAlias =
+                        standaloneMode == AliasHandler.StandaloneFeatureAliasMode.WORD_CLOCK,
+                    lockedDictionaryAlias =
+                        standaloneMode == AliasHandler.StandaloneFeatureAliasMode.DICTIONARY,
+                ),
+            )
+            return
+        }
+
+        val toolMode = definition.toolType
         if (toolMode == null) {
             clearDetectedAliasMode()
             return
         }
+
+        val current = aliasStateProvider()
         updateAliasState(
             current.copy(
                 lockedCurrencyConverterAlias = false,

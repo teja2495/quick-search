@@ -4,6 +4,7 @@ import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchSectionRegistry
 import com.tk.quicksearch.search.core.SearchTarget
+import com.tk.quicksearch.search.core.SearchToolType
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.tools.directSearch.DirectSearchHandler
@@ -22,6 +23,19 @@ class AliasHandler(
     private val directSearchHandler: DirectSearchHandler,
     private val searchTargetsProvider: () -> List<SearchTarget>,
 ) {
+    data class FeatureAliasDefinition(
+        val featureId: String,
+        val toolType: SearchToolType? = null,
+        val standaloneMode: StandaloneFeatureAliasMode? = null,
+        val requiresGeminiApiKey: Boolean = false,
+    )
+
+    enum class StandaloneFeatureAliasMode {
+        CURRENCY_CONVERTER,
+        WORD_CLOCK,
+        DICTIONARY,
+    }
+
     companion object {
         const val CALCULATOR_ALIAS_FEATURE_ID = "calculator_mode"
         const val UNIT_CONVERTER_ALIAS_FEATURE_ID = "unit_converter_mode"
@@ -41,15 +55,40 @@ class AliasHandler(
             SearchSectionRegistry.SEARCH_SECTION_CALENDAR_ALIAS_ID
         const val SEARCH_SECTION_APP_SETTINGS_ALIAS_ID =
             SearchSectionRegistry.SEARCH_SECTION_APP_SETTINGS_ALIAS_ID
-        val TOOL_ALIAS_IDS =
-            setOf(
-                CALCULATOR_ALIAS_FEATURE_ID,
-                UNIT_CONVERTER_ALIAS_FEATURE_ID,
-                DATE_CALCULATOR_ALIAS_FEATURE_ID,
-                CURRENCY_CONVERTER_ALIAS_FEATURE_ID,
-                WORD_CLOCK_ALIAS_FEATURE_ID,
-                DICTIONARY_ALIAS_FEATURE_ID,
+        // Centralized feature-alias trigger map.
+        // Add new feature aliases here so trigger behavior stays in one place.
+        val FEATURE_ALIAS_DEFINITIONS: List<FeatureAliasDefinition> =
+            listOf(
+                FeatureAliasDefinition(
+                    featureId = CALCULATOR_ALIAS_FEATURE_ID,
+                    toolType = SearchToolType.CALCULATOR,
+                ),
+                FeatureAliasDefinition(
+                    featureId = UNIT_CONVERTER_ALIAS_FEATURE_ID,
+                    toolType = SearchToolType.UNIT_CONVERTER,
+                ),
+                FeatureAliasDefinition(
+                    featureId = DATE_CALCULATOR_ALIAS_FEATURE_ID,
+                    toolType = SearchToolType.DATE_CALCULATOR,
+                ),
+                FeatureAliasDefinition(
+                    featureId = CURRENCY_CONVERTER_ALIAS_FEATURE_ID,
+                    standaloneMode = StandaloneFeatureAliasMode.CURRENCY_CONVERTER,
+                    requiresGeminiApiKey = true,
+                ),
+                FeatureAliasDefinition(
+                    featureId = WORD_CLOCK_ALIAS_FEATURE_ID,
+                    standaloneMode = StandaloneFeatureAliasMode.WORD_CLOCK,
+                    requiresGeminiApiKey = true,
+                ),
+                FeatureAliasDefinition(
+                    featureId = DICTIONARY_ALIAS_FEATURE_ID,
+                    standaloneMode = StandaloneFeatureAliasMode.DICTIONARY,
+                    requiresGeminiApiKey = true,
+                ),
             )
+
+        val TOOL_ALIAS_IDS = FEATURE_ALIAS_DEFINITIONS.mapTo(linkedSetOf()) { it.featureId }
         val SEARCH_SECTION_ALIAS_IDS = SearchSectionRegistry.searchSectionAliasIds
     }
 
@@ -273,6 +312,9 @@ class AliasHandler(
         val id = target.getId()
         return aliasEnabled[id] ?: getAlias(target).isNotEmpty()
     }
+
+    fun getFeatureAliasDefinition(featureId: String): FeatureAliasDefinition? =
+        FEATURE_ALIAS_DEFINITIONS.firstOrNull { it.featureId == featureId }
 
     fun detectAliasAtStart(query: String): Pair<String, AliasTarget>? {
         ensureInitialized()
