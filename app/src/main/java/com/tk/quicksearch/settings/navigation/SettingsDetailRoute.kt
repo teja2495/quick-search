@@ -238,24 +238,11 @@ fun SettingsDetailRoute(
     val onBackAction: () -> Unit =
             if (detailType.isLevel2()) {
                 {
-                    when (detailType) {
-                        SettingsDetailType.TOOLS -> {
-                            onBack()
-                        }
-                        SettingsDetailType.GEMINI_API_CONFIG -> {
-                            if (sourceDetailType == null) {
-                                onBack()
-                            } else {
-                                onNavigateToDetail(sourceDetailType)
-                            }
-                        }
-                        SettingsDetailType.UNIT_CONVERTER_INFO,
-                        SettingsDetailType.DATE_CALCULATOR_INFO -> {
-                            onNavigateToDetail(SettingsDetailType.TOOLS)
-                        }
-                        else -> {
-                            onNavigateToDetail(SettingsDetailType.SEARCH_RESULTS)
-                        }
+                    val destination = detailType.resolveBackDestination(sourceDetailType)
+                    if (destination == null) {
+                        onBack()
+                    } else {
+                        onNavigateToDetail(destination)
                     }
                 }
             } else {
