@@ -10,19 +10,20 @@ Use it as the primary implementation playbook for building new features and upda
 - UI: Jetpack Compose + Material 3
 - Architecture: MVVM with unidirectional data flow
 - Package: `com.tk.quicksearch`
-- Core behavior: unified search for apps, app shortcuts, contacts, files, device settings, web, and calculator
+- Core behavior: unified search for apps, app shortcuts, contacts, calendar events, files, device settings, app settings, web, and tools (calculator/unit/date/direct search)
 
 ## 2) Core Architecture (Do Not Bypass)
 
 ### Layers
 
-- **UI layer**: composables under `search/`, `settings/`, `widgets/`, `overlay/`
+- **UI layer**: composables under `search/`, `settings/`, `widgets/`, `overlay/`, `onboarding/`
 - **ViewModel layer**: orchestration and state in `search/core/`
 - **Data layer**: repositories and preferences in `search/data/`
 
 ### Single source of truth
 
 - Main state: `SearchUiState` in `search/core/SearchModels.kt`
+- Additional state models: `search/core/SearchStateModels.kt`
 - Main orchestrator: `search/core/SearchViewModel.kt`
 - State transport: `StateFlow`
 - Update pattern: always use immutable `copy(...)` through ViewModel update helpers
@@ -31,7 +32,7 @@ Use it as the primary implementation playbook for building new features and upda
 
 - Use sealed classes for visibility/loading/no-results/showing-results states.
 - Do not perform permission checks directly inside UI composables when state already exists in `SearchUiState`.
-- Prefer adding state in `SearchModels.kt` before wiring UI logic.
+- Prefer adding state in `SearchModels.kt`/`SearchStateModels.kt` before wiring UI logic.
 
 ## 3) Repository and Preference Patterns
 
@@ -40,12 +41,14 @@ Use it as the primary implementation playbook for building new features and upda
 - `AppsRepository.kt`
 - `ContactRepository.kt`
 - `FileSearchRepository.kt`
-- `AppShortcutRepository.kt`
-- `DeviceSettingsRepository.kt`
+- `CalendarRepository.kt`
+- `search/data/appShortcutRepository/AppShortcutRepository.kt`
+- `search/deviceSettings/DeviceSettingsRepository.kt`
 
 ### Preferences
 
-- Central facade: `search/data/UserAppPreferences.kt`
+- Central facade: `search/data/userAppPreferences/UserAppPreferences.kt`
+- Startup facade: `search/data/userAppPreferences/StartupPreferencesFacade.kt`
 - Specialized modules: `search/data/preferences/`
 - Keep new preferences modular; delegate through `UserAppPreferences`.
 - `SearchHistoryPreferences.kt` stays in `search/searchHistory/`.
@@ -53,7 +56,7 @@ Use it as the primary implementation playbook for building new features and upda
 ### Cache/Startup behavior
 
 - App cache: `search/data/AppCache.kt`
-- Startup strategy is phased (critical prefs -> remaining prefs -> deferred init).
+- Startup strategy is phased (critical prefs -> remaining prefs -> deferred init) via `app/startup/StartupCoordinator.kt` and `search/core/SearchStartupCoordinator.kt`.
 - Avoid expensive synchronous work on startup paths.
 
 ## 4) Key Feature Areas and Main Files
@@ -64,47 +67,55 @@ Use it as the primary implementation playbook for building new features and upda
 - `search/core/SearchViewModelSearchOperations.kt`
 - `search/core/UnifiedSearchHandler.kt`
 - `search/core/SectionManager.kt`
+- `search/core/SearchSectionRegistry.kt`
 - `search/core/SearchModels.kt`
+- `search/core/SearchStateModels.kt`
 
 ### Search UI composition
 
 - `search/searchScreen/SearchScreen.kt`
 - `search/searchScreen/SearchScreenContent.kt`
-- `search/searchScreen/SearchScreenSectionRendering.kt`
 - `search/searchScreen/SectionRenderingComposables.kt`
+- `search/searchScreen/SearchScreenLayout.kt`
+- `search/searchScreen/searchScreen/SearchRoute.kt`
 - `search/searchScreen/searchScreenLayout/`
 
 ### Feature packages
 
 - Apps: `search/apps/`
+- App settings results: `search/appSettings/`
 - App shortcuts: `search/appShortcuts/`
 - Contacts: `search/contacts/`
+- Calendar: `search/calendar/`
 - Files: `search/files/`
 - Device settings: `search/deviceSettings/`
 - Web suggestions: `search/webSuggestions/`
 - Search history: `search/searchHistory/`
 - Fuzzy search: `search/fuzzy/`
 
-### Search engines and direct search
+### Search engines and tools
 
 - Search engines: `searchEngines/`
 - Orchestration/debounce: `searchEngines/SecondarySearchOrchestrator.kt`
 - Direct Search (Gemini/Gemma): `tools/directSearch/`
+- Built-in tools: `tools/calculator/`, `tools/unitConverter/`, `tools/dateCalculator/`, `tools/aiTools/`
 
 ### Overlay mode
 
-- `search/overlay/OverlayActivity.kt`
-- `search/overlay/OverlayRoot.kt`
-- `search/overlay/OverlayModeController.kt`
+- `overlay/OverlayActivity.kt`
+- `overlay/OverlayRoot.kt`
+- `overlay/OverlayModeController.kt`
 - App theme color utils: `search/searchScreen/AppThemeUtils.kt`
 
 ### Settings
 
 - Root: `settings/SettingsScreen.kt`
 - Detail navigation: `settings/navigation/`
+- Detail sections: `settings/settingsDetailScreen/`
 - Appearance: `settings/appearanceSettings/`
 - Search engine settings: `settings/searchEngineSettings/`
 - App shortcuts settings: `settings/appShortcutsSettings/`
+- Shared settings route/state: `settings/shared/settingsRoute/`
 
 ## 5) UI Design System Rules
 
@@ -145,21 +156,21 @@ Use it as the primary implementation playbook for building new features and upda
 
 ### Secondary search
 
-- Contacts/files/settings/app shortcuts are debounced and orchestrated
+- Contacts/files/settings/app shortcuts/calendar are debounced and orchestrated
 - Preserve query version checks and no-result cache behavior to prevent regressions
 
 ## 7) Permissions and Graceful Degradation
 
 - Required baseline permission: usage stats
-- Optional permissions: contacts, files/storage, call phone, package visibility, wallpaper-related access
+- Optional permissions: contacts, calendar, files/storage, call phone, package visibility, wallpaper-related access, overlay permission
 - Rule: if permission unavailable, hide/degrade corresponding section cleanly through state
 
 ## 8) Navigation and Entry Points
 
 - Main app entry: `app/MainActivity.kt`
-- Overlay entry: `search/overlay/OverlayActivity.kt`
-- Main routing: `navigation/NavigationManager.kt`
-- Search route: `search/searchScreen/`
+- Overlay entry: `overlay/OverlayActivity.kt`
+- Main routing: `app/navigation/NavigationManager.kt`
+- Search route: `search/searchScreen/searchScreen/`
 - Settings routes: `settings/shared/` + `settings/navigation/`
 
 ## 9) Naming and Organization Conventions
@@ -180,23 +191,23 @@ Use it as the primary implementation playbook for building new features and upda
 
 1. Add/update models (`search/models/` or feature models)
 2. Add/update repository or handler logic
-3. Add/update state in `SearchUiState`
+3. Add/update state in `SearchUiState` (`SearchModels.kt`/`SearchStateModels.kt`)
 4. Wire orchestration in ViewModel/core handlers
-5. Render section composable
+5. Render section composable (typically via `SectionRenderingComposables.kt` and `SearchRoute.kt`)
 6. Integrate section rendering and ordering
 7. Add settings toggles/preferences if user-configurable
 
 ### Add a new preference
 
 1. Add preference in correct class under `search/data/preferences/`
-2. Expose through `UserAppPreferences`
+2. Expose through `search/data/userAppPreferences/UserAppPreferences.kt`
 3. Reflect in `SearchUiState` if needed for runtime UI
 4. Update settings UI and mappers
 5. Verify persistence and default handling
 
 ### Modify search UI
 
-1. Locate the correct composable in `search/searchScreen/`
+1. Locate the correct composable in `search/searchScreen/` or `search/searchScreen/searchScreen/`
 2. Use shared tokens/components
 3. Verify wallpaper mode and one-handed mode behavior
 4. Verify overlay mode if shared rendering path is used
@@ -230,9 +241,11 @@ Use it as the primary implementation playbook for building new features and upda
 
 - `search/core/SearchViewModel.kt`
 - `search/core/SearchModels.kt`
-- `search/searchScreen/SearchScreenSectionRendering.kt`
+- `search/core/SearchStateModels.kt`
+- `search/core/SearchSectionRegistry.kt`
 - `searchEngines/SecondarySearchOrchestrator.kt`
-- `search/data/UserAppPreferences.kt`
+- `search/data/userAppPreferences/UserAppPreferences.kt`
+- `search/searchScreen/searchScreen/SearchRoute.kt`
 
 When touching these files, keep changes minimal, localized, and regression-aware.
 
@@ -259,18 +272,20 @@ When touching these files, keep changes minimal, localized, and regression-aware
 ## 16) Useful File Index
 
 - `search/core/SearchModels.kt`
+- `search/core/SearchStateModels.kt`
 - `search/core/SearchViewModel.kt`
 - `search/core/SectionManager.kt`
+- `search/core/SearchSectionRegistry.kt`
 - `search/common/SearchRankingUtils.kt`
 - `search/fuzzy/FuzzySearchEngine.kt`
 - `search/searchScreen/SearchScreen.kt`
-- `search/searchScreen/SearchScreenSectionRendering.kt`
-- `search/overlay/OverlayRoot.kt`
-- `search/data/UserAppPreferences.kt`
+- `search/searchScreen/searchScreen/SearchRoute.kt`
+- `overlay/OverlayRoot.kt`
+- `search/data/userAppPreferences/UserAppPreferences.kt`
 - `shared/ui/theme/DesignTokens.kt`
 - `shared/ui/theme/AppColors.kt`
-- `navigation/NavigationManager.kt`
+- `app/navigation/NavigationManager.kt`
 
 ---
 
-Last updated: 2026-03-03
+Last updated: 2026-04-03
