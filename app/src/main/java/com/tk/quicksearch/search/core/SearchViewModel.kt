@@ -59,30 +59,19 @@ import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.search.startup.StartupSurfaceSnapshot
 import com.tk.quicksearch.search.startup.StartupSurfaceStore
 import com.tk.quicksearch.search.utils.PhoneNumberUtils
-import com.tk.quicksearch.search.utils.SearchQueryContext
-import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import com.tk.quicksearch.search.webSuggestions.WebSuggestionHandler
 import com.tk.quicksearch.searchEngines.SearchEngineManager
 import com.tk.quicksearch.searchEngines.SecondarySearchOrchestrator
 import com.tk.quicksearch.searchEngines.AliasHandler
-import com.tk.quicksearch.searchEngines.AliasTarget
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.shared.util.PackageConstants
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.getAppGridColumns
 import com.tk.quicksearch.shared.util.isLowRamDevice
-import com.tk.quicksearch.tools.aiTools.CurrencyConversionModelResult
 import com.tk.quicksearch.tools.aiTools.CurrencyConverterHandler
-import com.tk.quicksearch.tools.aiTools.CurrencyNotRecognizedException
-import com.tk.quicksearch.tools.aiTools.CurrencyConversionIntentParser
 import com.tk.quicksearch.tools.aiTools.DictionaryHandler
-import com.tk.quicksearch.tools.aiTools.ConfirmedDictionaryQuery
-import com.tk.quicksearch.tools.aiTools.DictionaryIntentParser
-import com.tk.quicksearch.tools.aiTools.DictionaryNotRecognizedException
 import com.tk.quicksearch.tools.aiTools.WordClockHandler
-import com.tk.quicksearch.tools.aiTools.WordClockIntentParser
-import com.tk.quicksearch.tools.aiTools.WordClockNotRecognizedException
 import com.tk.quicksearch.tools.calculator.CalculatorHandler
 import com.tk.quicksearch.tools.dateCalculator.DateCalculatorHandler
 import com.tk.quicksearch.tools.directSearch.DirectSearchHandler
@@ -94,7 +83,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -330,31 +318,13 @@ class SearchViewModel(
     // Cache searchable apps to avoid re-computing on every query change
     @Volatile private var cachedAllSearchableApps: List<AppInfo> = emptyList()
 
-    // Async app-search job — cancelled whenever the query changes so we never
-    // block the UI thread with fuzzy matching over all installed apps.
-    private var appSearchJob: Job? = null
-    private var appSearchQueryVersion: Long = 0L
-
-    private var currencyConversionJob: Job? = null
-    private var currencyConversionQueryVersion: Long = 0L
-    private var wordClockJob: Job? = null
-    private var wordClockQueryVersion: Long = 0L
-    private var dictionaryJob: Job? = null
-    private var dictionaryQueryVersion: Long = 0L
-
-    private enum class ActiveInformationCard {
+    internal enum class ActiveInformationCard {
         DIRECT_SEARCH,
         CALCULATOR,
         CURRENCY_CONVERTER,
         WORD_CLOCK,
         DICTIONARY,
     }
-
-    private val currencyConverterHandler by lazy {
-        CurrencyConverterHandler(appContext, userPreferences)
-    }
-    private val wordClockHandler by lazy { WordClockHandler(appContext, userPreferences) }
-    private val dictionaryHandler by lazy { DictionaryHandler(appContext, userPreferences) }
 
     // Consolidated startup configuration loaded in single batch operation
     @Volatile private var startupConfig: StartupPreferencesFacade.StartupConfig? = null
@@ -642,203 +612,145 @@ class SearchViewModel(
         }
     }
 
-    // Management handlers - lazy initialize non-critical ones
-    val appManager by lazy {
-        AppManagementService(userPreferences, viewModelScope, this::refreshAppSuggestions)
-    }
-    val contactManager by lazy {
-        ContactManagementHandler(
-                userPreferences,
-                viewModelScope,
-                this::refreshSecondarySearches,
-                this::updateUiState,
-        )
-    }
-    val fileManager by lazy {
-        FileManagementHandler(
-                userPreferences,
-                viewModelScope,
-                this::refreshSecondarySearches,
-                this::updateUiState,
-        )
-    }
-    val settingsManager by lazy {
-        DeviceSettingsManagementHandler(
-                userPreferences,
-                viewModelScope,
-                this::refreshSecondarySearches,
-                this::updateUiState,
-        )
-    }
-    val calendarManager by lazy {
-        CalendarManagementHandler(
-                userPreferences,
-                viewModelScope,
-                this::refreshSecondarySearches,
-                this::updateUiState,
-        )
-    }
-    val appShortcutManager by lazy {
-        AppShortcutManagementHandler(
-                userPreferences,
-                viewModelScope,
-                this::refreshAppShortcutsState,
-                this::updateUiState,
-        )
-    }
-    val searchEngineManager by lazy {
-        SearchEngineManager(
-                application.applicationContext,
-                userPreferences,
-                viewModelScope,
-                this::updateUiState,
-        )
-    }
-    val sectionManager by lazy {
-        SectionManager(userPreferences, permissionManager, viewModelScope, this::updateUiState)
-    }
-    val iconPackHandler by lazy {
-        IconPackService(application, userPreferences, viewModelScope, this::updateUiState)
-    }
-
-    // New Handlers - lazy initialize non-critical ones
-    val messagingHandler by lazy {
-        MessagingHandler(application, userPreferences, this::updateUiState)
-    }
-    val releaseNotesHandler by lazy {
-        ReleaseNotesHandler(application, userPreferences, this::updateUiState)
-    }
-
-    // Feature handlers (extracted)
-    private val pinningHandler by lazy {
-        PinningHandler(
-                scope = viewModelScope,
-                permissionManager = permissionManager,
-                contactRepository = contactRepository,
-                fileRepository = fileRepository,
-                userPreferences = userPreferences,
-                uiStateUpdater = this::updateUiState,
+    private val handlers by lazy {
+        SearchHandlerContainer(
+            application = application,
+            appContext = appContext,
+            userPreferences = userPreferences,
+            scope = viewModelScope,
+            repository = repository,
+            contactRepository = contactRepository,
+            fileRepository = fileRepository,
+            calendarRepository = calendarRepository,
+            appShortcutRepository = appShortcutRepository,
+            settingsShortcutRepository = settingsShortcutRepository,
+            appSettingsRepository = appSettingsRepository,
+            permissionManager = permissionManager,
+            searchOperations = searchOperations,
+            startupDispatcher = startupDispatcher,
+            updateUiState = this::updateUiState,
+            updateConfigState = this::updateConfigState,
+            refreshSecondarySearches = this::refreshSecondarySearches,
+            refreshAppShortcutsState = this::refreshAppShortcutsState,
+            refreshAppSuggestions = this::refreshAppSuggestions,
+            refreshDerivedState = this::refreshDerivedState,
+            showToast = this::showToast,
+            currentStateProvider = { uiState.value },
+            isLowRamDevice = isLowRamDevice(appContext),
         )
     }
 
-    val webSuggestionHandler by lazy {
-        WebSuggestionHandler(
-                scope = viewModelScope,
-                userPreferences = userPreferences,
-                uiStateUpdater = this::updateUiState,
+    private val startupCoordinator by lazy {
+        SearchStartupCoordinator(
+            scope = viewModelScope,
+            hasStartedStartupPhases = hasStartedStartupPhases,
+            instantStartupSurfaceEnabled = instantStartupSurfaceEnabled,
+            updateStartupPhase = { phase -> updateConfigState { it.copy(startupPhase = phase) } },
+            preloadBackgroundForInitialSearchSurface = this::preloadBackgroundForInitialSearchSurface,
+            loadCacheAndMinimalPrefsBlock = this::loadCacheAndMinimalPrefs,
+            loadRemainingStartupPreferencesBlock = this::loadRemainingStartupPreferences,
+            launchDeferredInitializationBlock = this::launchDeferredInitialization,
         )
     }
 
-    val calculatorHandler by lazy {
-        CalculatorHandler(
-                userPreferences = userPreferences,
+    private val toolCoordinator by lazy {
+        SearchToolCoordinator(
+            appContext = appContext,
+            scope = viewModelScope,
+            workerDispatcher = Dispatchers.Default,
+            userPreferences = userPreferences,
+            calculatorHandler = handlers.calculatorHandler,
+            unitConverterHandler = handlers.unitConverterHandler,
+            dateCalculatorHandler = handlers.dateCalculatorHandler,
+            currencyConverterHandler = handlers.currencyConverterHandler,
+            wordClockHandler = handlers.wordClockHandler,
+            dictionaryHandler = handlers.dictionaryHandler,
+            toolAliasStateProvider = {
+                ToolAliasState(
+                    lockedToolMode = lockedToolMode,
+                    lockedCurrencyConverterAlias = lockedCurrencyConverterAlias,
+                    lockedWordClockAlias = lockedWordClockAlias,
+                    lockedDictionaryAlias = lockedDictionaryAlias,
+                )
+            },
+            hasGeminiApiKeyProvider = { _featureState.value.hasGeminiApiKey },
+            currentQueryProvider = { _resultsState.value.query },
+            clearInformationCardsExcept = this::clearInformationCardsExcept,
+            updateResultsState = this::updateResultsState,
+            showToast = this::showToast,
         )
     }
 
-    val unitConverterHandler by lazy {
-        UnitConverterHandler(
-                userPreferences = userPreferences,
+    private val queryCoordinator by lazy {
+        SearchQueryCoordinator(
+            scope = viewModelScope,
+            workerDispatcher = Dispatchers.Default,
+            handlers = handlers,
+            toolCoordinator = toolCoordinator,
+            userPreferences = userPreferences,
+            appSearchDebounceMs = APP_SEARCH_DEBOUNCE_MS,
+            aliasStateProvider = {
+                SearchQueryAliasState(
+                    lockedShortcutTarget = lockedShortcutTarget,
+                    lockedAliasSearchSection = lockedAliasSearchSection,
+                    lockedToolMode = lockedToolMode,
+                    lockedCurrencyConverterAlias = lockedCurrencyConverterAlias,
+                    lockedWordClockAlias = lockedWordClockAlias,
+                    lockedDictionaryAlias = lockedDictionaryAlias,
+                )
+            },
+            updateAliasState = { state ->
+                lockedShortcutTarget = state.lockedShortcutTarget
+                lockedAliasSearchSection = state.lockedAliasSearchSection
+                lockedToolMode = state.lockedToolMode
+                lockedCurrencyConverterAlias = state.lockedCurrencyConverterAlias
+                lockedWordClockAlias = state.lockedWordClockAlias
+                lockedDictionaryAlias = state.lockedDictionaryAlias
+            },
+            currentResultsStateProvider = { _resultsState.value },
+            updateUiState = this::updateUiState,
+            updateResultsState = this::updateResultsState,
+            clearInformationCardsExcept = this::clearInformationCardsExcept,
+            getSearchableAppsSnapshot = this::getSearchableAppsSnapshot,
+            getGridItemCount = this::getGridItemCount,
+            loadAppShortcuts = this::loadAppShortcuts,
+            refreshRecentItems = this::refreshRecentItems,
+            refreshAliasRecentItems = this::refreshAliasRecentItems,
         )
     }
 
-    val dateCalculatorHandler by lazy {
-        DateCalculatorHandler(
-                userPreferences = userPreferences,
-        )
-    }
+    val appManager get() = handlers.appManager
+    val contactManager get() = handlers.contactManager
+    val fileManager get() = handlers.fileManager
+    val settingsManager get() = handlers.settingsManager
+    val calendarManager get() = handlers.calendarManager
+    val appShortcutManager get() = handlers.appShortcutManager
+    val searchEngineManager get() = handlers.searchEngineManager
+    val sectionManager get() = handlers.sectionManager
+    val iconPackHandler get() = handlers.iconPackHandler
+    val messagingHandler get() = handlers.messagingHandler
+    val releaseNotesHandler get() = handlers.releaseNotesHandler
+    private val pinningHandler get() = handlers.pinningHandler
+    val webSuggestionHandler get() = handlers.webSuggestionHandler
+    val calculatorHandler get() = handlers.calculatorHandler
+    val unitConverterHandler get() = handlers.unitConverterHandler
+    val dateCalculatorHandler get() = handlers.dateCalculatorHandler
+    private val currencyConverterHandler get() = handlers.currencyConverterHandler
+    private val wordClockHandler get() = handlers.wordClockHandler
+    private val dictionaryHandler get() = handlers.dictionaryHandler
+    val appSearchManager get() = handlers.appSearchManager
+    val settingsSearchHandler get() = handlers.settingsSearchHandler
+    val appShortcutSearchHandler get() = handlers.appShortcutSearchHandler
+    val appSettingsSearchHandler get() = handlers.appSettingsSearchHandler
+    val fileSearchHandler get() = handlers.fileSearchHandler
+    val directSearchHandler get() = handlers.directSearchHandler
+    val aliasHandler get() = handlers.aliasHandler
+    private val unifiedSearchHandler get() = handlers.unifiedSearchHandler
+    private val secondarySearchOrchestrator get() = handlers.secondarySearchOrchestrator
+    private val navigationHandler get() = handlers.navigationHandler
+    private val contactActionHandler get() = handlers.contactActionHandler
 
-    val appSearchManager by lazy {
-        AppSearchManager(
-                context = application.applicationContext,
-                repository = repository,
-                userPreferences = userPreferences,
-                scope = viewModelScope,
-                onAppsUpdated = {
-                    this.refreshDerivedState()
-                }, // Full refresh: apps changed, recheck messaging + secondary searches
-                onLoadingStateChanged = { isLoading, error ->
-                    updateConfigState { it.copy(isLoading = isLoading, errorMessage = error) }
-                },
-                showToastCallback = this::showToast,
-        )
-    }
-
-    val settingsSearchHandler by lazy {
-        DeviceSettingsSearchHandler(
-                context = application.applicationContext,
-                repository = settingsShortcutRepository,
-                userPreferences = userPreferences,
-                showToastCallback = this::showToast,
-        )
-    }
-
-    val appShortcutSearchHandler by lazy {
-        AppShortcutSearchHandler(
-                repository = appShortcutRepository,
-                userPreferences = userPreferences,
-        )
-    }
-
-    val appSettingsSearchHandler by lazy {
-        AppSettingsSearchHandler(
-                repository = appSettingsRepository,
-                userPreferences = userPreferences,
-        )
-    }
-
-    val fileSearchHandler by lazy {
-        FileSearchHandler(fileRepository = fileRepository, userPreferences = userPreferences)
-    }
-
-    val directSearchHandler by lazy {
-        DirectSearchHandler(
-                context = application.applicationContext,
-                userPreferences = userPreferences,
-                scope = viewModelScope,
-                showToastCallback = this::showToast,
-        )
-    }
-
-    val aliasHandler by lazy {
-        AliasHandler(
-                userPreferences = userPreferences,
-                scope = viewModelScope,
-                uiStateUpdater = this::updateUiState,
-                directSearchHandler = directSearchHandler,
-                searchTargetsProvider = { searchEngineManager.searchTargetsOrder },
-        )
-    }
-
-    // NavigationHandler is now initialized in initializeServices()
-    lateinit var navigationHandler: NavigationHandler
-
-    private val unifiedSearchHandler by lazy {
-        UnifiedSearchHandler(
-                context = appContext,
-                contactRepository = contactRepository,
-                calendarRepository = calendarRepository,
-                fileRepository = fileRepository,
-                userPreferences = userPreferences,
-                settingsSearchHandler = settingsSearchHandler,
-                appSettingsSearchHandler = appSettingsSearchHandler,
-                appShortcutSearchHandler = appShortcutSearchHandler,
-                fileSearchHandler = fileSearchHandler,
-                searchOperations = searchOperations,
-        )
-    }
-
-    private val secondarySearchOrchestrator by lazy {
-        SecondarySearchOrchestrator(
-                scope = viewModelScope,
-                unifiedSearchHandler = unifiedSearchHandler,
-                webSuggestionHandler = webSuggestionHandler,
-                sectionManager = sectionManager,
-                uiStateUpdater = this::updateUiState,
-                currentStateProvider = { uiState.value },
-                isLowRamDevice = isLowRamDevice(appContext),
-        )
-    }
-
+    private var prefCache = SearchPreferenceCache(clearQueryOnLaunch = initialConfigState.clearQueryOnLaunch)
     private var enabledFileTypes: Set<FileType> = emptySet()
     private var showFolders: Boolean = false
     private var showSystemFiles: Boolean = false
@@ -879,6 +791,47 @@ class SearchViewModel(
     private var amazonDomain: String? = null
     private var pendingNavigationClear: Boolean = false
     private var isStartupComplete: Boolean = false
+
+    private fun applyPreferenceCacheToLegacyVars() {
+        enabledFileTypes = prefCache.enabledFileTypes
+        showFolders = prefCache.showFolders
+        showSystemFiles = prefCache.showSystemFiles
+        folderWhitelistPatterns = prefCache.folderWhitelistPatterns
+        folderBlacklistPatterns = prefCache.folderBlacklistPatterns
+        excludedFileExtensions = prefCache.excludedFileExtensions
+        oneHandedMode = prefCache.oneHandedMode
+        bottomSearchBarEnabled = prefCache.bottomSearchBarEnabled
+        topResultIndicatorEnabled = prefCache.topResultIndicatorEnabled
+        wallpaperAccentEnabled = prefCache.wallpaperAccentEnabled
+        openKeyboardOnLaunch = prefCache.openKeyboardOnLaunch
+        overlayModeEnabled = prefCache.overlayModeEnabled
+        overlayBlurEffectEnabled = prefCache.overlayBlurEffectEnabled
+        autoCloseOverlay = prefCache.autoCloseOverlay
+        directDialEnabled = prefCache.directDialEnabled
+        assistantLaunchVoiceModeEnabled = prefCache.assistantLaunchVoiceModeEnabled
+        hasSeenDirectDialChoice = prefCache.hasSeenDirectDialChoice
+        appSuggestionsEnabled = prefCache.appSuggestionsEnabled
+        showAppLabels = prefCache.showAppLabels
+        phoneAppGridColumns = prefCache.phoneAppGridColumns
+        appIconShape = prefCache.appIconShape
+        launcherAppIcon = prefCache.launcherAppIcon
+        themedIconsEnabled = prefCache.themedIconsEnabled
+        wallpaperBackgroundAlpha = prefCache.wallpaperBackgroundAlpha
+        wallpaperBlurRadius = prefCache.wallpaperBlurRadius
+        appTheme = prefCache.appTheme
+        overlayThemeIntensity = prefCache.overlayThemeIntensity
+        fontScaleMultiplier = prefCache.fontScaleMultiplier
+        backgroundSource = prefCache.backgroundSource
+        customImageUri = prefCache.customImageUri
+        lockedShortcutTarget = prefCache.lockedShortcutTarget
+        lockedAliasSearchSection = prefCache.lockedAliasSearchSection
+        lockedToolMode = prefCache.lockedToolMode
+        lockedCurrencyConverterAlias = prefCache.lockedCurrencyConverterAlias
+        lockedWordClockAlias = prefCache.lockedWordClockAlias
+        lockedDictionaryAlias = prefCache.lockedDictionaryAlias
+        clearQueryOnLaunch = prefCache.clearQueryOnLaunch
+        amazonDomain = prefCache.amazonDomain
+    }
 
     private fun onNavigationTriggered() {
         pendingNavigationClear = true
@@ -945,41 +898,21 @@ class SearchViewModel(
             state.dictionaryState.status != DictionaryStatus.Idle
     }
 
-    // ContactActionHandler is initialized in initializeServices()
-    lateinit var contactActionHandler: ContactActionHandler
-
     private fun initializeServices() {
-        val app = getApplication<Application>()
-
-        // Initialize NavigationHandler
-        navigationHandler =
-                NavigationHandler(
-                        application = app,
-                        userPreferences = userPreferences,
-                        settingsSearchHandler = settingsSearchHandler,
-                        onRequestDirectSearch = { query, addToSearchHistory ->
-                            shouldRecordPendingDirectSearchQueryInHistory = addToSearchHistory
-                            directSearchHandler.requestDirectSearch(query)
-                        },
-                        onClearQuery = this::onNavigationTriggered,
-                        onExternalNavigation = { _externalNavigationEvent.tryEmit(Unit) },
-                        showToastCallback = this::showToast,
-                )
-
-        // Initialize ContactActionHandler with uiFeedbackService
-        contactActionHandler =
-                ContactActionHandler(
-                        context = app,
-                        userPreferences = userPreferences,
-                        getCallingApp = { _permissionState.value.callingApp },
-                        getMessagingApp = { messagingHandler.messagingApp },
-                        getDirectDialEnabled = { directDialEnabled },
-                        getHasSeenDirectDialChoice = { hasSeenDirectDialChoice },
-                        getCurrentState = { uiState.value },
-                        uiStateUpdater = { update -> updateUiState(update) },
-                        clearQuery = this::onNavigationTriggered,
-                        showToastCallback = this::showToast,
-                )
+        handlers.initializeServices(
+            getCallingApp = { _permissionState.value.callingApp },
+            getMessagingApp = { messagingHandler.messagingApp },
+            getDirectDialEnabled = { directDialEnabled },
+            getHasSeenDirectDialChoice = { hasSeenDirectDialChoice },
+            getCurrentState = { uiState.value },
+            clearQuery = this::onNavigationTriggered,
+            externalNavigation = { _externalNavigationEvent.tryEmit(Unit) },
+            onRequestDirectSearch = { query, addToSearchHistory ->
+                shouldRecordPendingDirectSearchQueryInHistory = addToSearchHistory
+                directSearchHandler.requestDirectSearch(query)
+            },
+            showToastText = { resId -> showToast(resId) },
+        )
     }
 
     init {
@@ -992,37 +925,7 @@ class SearchViewModel(
     }
 
     fun startStartupPhasesAfterFirstFrame() {
-        if (!hasStartedStartupPhases.compareAndSet(false, true)) return
-
-        viewModelScope.launch(Dispatchers.Main.immediate) {
-            if (!instantStartupSurfaceEnabled) {
-                withContext(Dispatchers.IO) { preloadBackgroundForInitialSearchSurface() }
-            }
-            updateConfigState { it.copy(startupPhase = StartupPhase.PHASE_1_CACHE_PREFS) }
-            Trace.beginSection("QS.Startup.Phase1.CachePrefs")
-            try {
-                withContext(Dispatchers.IO) { loadCacheAndMinimalPrefs() }
-            } finally {
-                Trace.endSection()
-            }
-
-            kotlinx.coroutines.yield()
-
-            updateConfigState { it.copy(startupPhase = StartupPhase.PHASE_2_HEAVY_FEATURES) }
-            Trace.beginSection("QS.Startup.Phase2.HeavyInit")
-            try {
-                withContext(Dispatchers.IO) { loadRemainingStartupPreferences() }
-            } finally {
-                Trace.endSection()
-            }
-
-            Trace.beginSection("QS.Startup.Phase3.DeferredInit")
-            try {
-                launchDeferredInitialization()
-            } finally {
-                Trace.endSection()
-            }
-        }
+        startupCoordinator.startStartupPhases()
     }
 
     /**
@@ -1046,15 +949,7 @@ class SearchViewModel(
     }
 
     private fun clearInformationCardsExcept(activeCard: ActiveInformationCard) {
-        if (activeCard != ActiveInformationCard.CURRENCY_CONVERTER) {
-            currencyConversionJob?.cancel()
-        }
-        if (activeCard != ActiveInformationCard.WORD_CLOCK) {
-            wordClockJob?.cancel()
-        }
-        if (activeCard != ActiveInformationCard.DICTIONARY) {
-            dictionaryJob?.cancel()
-        }
+        toolCoordinator.cancelInactive(activeCard)
         if (
             activeCard != ActiveInformationCard.DIRECT_SEARCH &&
                 _resultsState.value.DirectSearchState.status != DirectSearchStatus.Idle
@@ -1124,24 +1019,13 @@ class SearchViewModel(
         val startupConfig = userPreferences.loadStartupConfig()
         val startupPrefs = startupConfig.startupPreferences
 
-        // Extract critical data for immediate use
-        oneHandedMode = startupConfig.oneHandedMode
-        bottomSearchBarEnabled = startupPrefs.bottomSearchBarEnabled
-        topResultIndicatorEnabled = startupPrefs.topResultIndicatorEnabled
-        wallpaperAccentEnabled = userPreferences.isWallpaperAccentEnabled()
-        openKeyboardOnLaunch = startupPrefs.openKeyboardOnLaunch
-        clearQueryOnLaunch = startupPrefs.clearQueryOnLaunch
-        autoCloseOverlay = startupPrefs.autoCloseOverlay
-        overlayBlurEffectEnabled = startupPrefs.overlayBlurEffectEnabled
-        wallpaperBackgroundAlpha = startupPrefs.wallpaperBackgroundAlpha
-        wallpaperBlurRadius = startupPrefs.wallpaperBlurRadius
-        appTheme = startupPrefs.appTheme
-        overlayThemeIntensity = sanitizeOverlayThemeIntensity(startupPrefs.overlayThemeIntensity)
-        backgroundSource = startupPrefs.backgroundSource
-        customImageUri = startupPrefs.customImageUri
-        appIconShape = startupPrefs.appIconShape
-        launcherAppIcon = startupPrefs.launcherAppIcon
-        themedIconsEnabled = startupPrefs.themedIconsEnabled
+        prefCache =
+            SearchPreferenceCache.from(
+                config = startupConfig,
+                wallpaperAccentEnabled = userPreferences.isWallpaperAccentEnabled(),
+                assistantLaunchVoiceModeEnabled = userPreferences.isAssistantLaunchVoiceModeEnabled(),
+            )
+        applyPreferenceCacheToLegacyVars()
 
         // Load cached data - this is the critical path for content
         // This is just a fast JSON parse
@@ -1246,38 +1130,13 @@ class SearchViewModel(
     }
 
     private fun applyStartupPreferences(prefs: StartupPreferencesFacade.StartupPreferences) {
-        enabledFileTypes = prefs.enabledFileTypes
-        showFolders = prefs.showFolders
-        showSystemFiles = prefs.showSystemFiles
-        folderWhitelistPatterns = prefs.folderWhitelistPatterns
-        folderBlacklistPatterns = prefs.folderBlacklistPatterns
-        excludedFileExtensions = prefs.excludedFileExtensions
-        oneHandedMode = prefs.oneHandedMode
-        bottomSearchBarEnabled = prefs.bottomSearchBarEnabled
-        topResultIndicatorEnabled = prefs.topResultIndicatorEnabled
-        wallpaperAccentEnabled = userPreferences.isWallpaperAccentEnabled()
-        openKeyboardOnLaunch = prefs.openKeyboardOnLaunch
-        clearQueryOnLaunch = prefs.clearQueryOnLaunch
-        autoCloseOverlay = prefs.autoCloseOverlay
-        overlayModeEnabled = prefs.overlayModeEnabled
-        overlayBlurEffectEnabled = prefs.overlayBlurEffectEnabled
-        directDialEnabled = prefs.directDialEnabled
-        assistantLaunchVoiceModeEnabled = userPreferences.isAssistantLaunchVoiceModeEnabled()
-        hasSeenDirectDialChoice = prefs.hasSeenDirectDialChoice
-        appSuggestionsEnabled = prefs.appSuggestionsEnabled
-        showAppLabels = prefs.showAppLabels
-        phoneAppGridColumns = prefs.phoneAppGridColumns
-        appIconShape = prefs.appIconShape
-        launcherAppIcon = prefs.launcherAppIcon
-        themedIconsEnabled = prefs.themedIconsEnabled
-        wallpaperBackgroundAlpha = prefs.wallpaperBackgroundAlpha
-        wallpaperBlurRadius = prefs.wallpaperBlurRadius
-        appTheme = prefs.appTheme
-        overlayThemeIntensity = sanitizeOverlayThemeIntensity(prefs.overlayThemeIntensity)
-        fontScaleMultiplier = sanitizeFontScaleMultiplier(prefs.fontScaleMultiplier)
-        backgroundSource = prefs.backgroundSource
-        customImageUri = prefs.customImageUri
-        amazonDomain = prefs.amazonDomain
+        prefCache =
+            SearchPreferenceCache.from(
+                prefs = prefs,
+                wallpaperAccentEnabled = userPreferences.isWallpaperAccentEnabled(),
+                assistantLaunchVoiceModeEnabled = userPreferences.isAssistantLaunchVoiceModeEnabled(),
+            )
+        applyPreferenceCacheToLegacyVars()
 
         updateConfigState {
             it.copy(
@@ -2485,1032 +2344,32 @@ class SearchViewModel(
     }
 
     fun onQueryChange(newQuery: String) {
-        onQueryChangeInternal(newQuery, clearShortcutWhenBlank = false)
-    }
-
-    private sealed interface AliasQueryResolution {
-        data object None : AliasQueryResolution
-
-        data class ReprocessQuery(
-            val queryWithoutAlias: String,
-        ) : AliasQueryResolution
-
-        data class ExecuteSearchTarget(
-            val queryWithoutAlias: String,
-            val target: SearchTarget,
-        ) : AliasQueryResolution
-    }
-
-    private fun setDetectedAliasMode(
-            shortcutTarget: SearchTarget?,
-            section: SearchSection?,
-            toolMode: SearchToolType?,
-    ) {
-        lockedShortcutTarget = shortcutTarget
-        lockedAliasSearchSection = section
-        lockedToolMode = toolMode
-        if (shortcutTarget != null || section != null || toolMode != null) {
-            lockedCurrencyConverterAlias = false
-            lockedWordClockAlias = false
-            lockedDictionaryAlias = false
-        }
-    }
-
-    private fun clearDetectedAliasMode() {
-        lockedShortcutTarget = null
-        lockedAliasSearchSection = null
-        lockedToolMode = null
-        lockedCurrencyConverterAlias = false
-        lockedWordClockAlias = false
-        lockedDictionaryAlias = false
-    }
-
-    private fun resolveAliasQueryResolution(
-        newQuery: String,
-    ): AliasQueryResolution {
-        val leadingAliasMatch = aliasHandler.detectAliasAtStart(newQuery)
-        if (leadingAliasMatch != null) {
-            val (queryWithoutAlias, aliasTarget) = leadingAliasMatch
-            when (aliasTarget) {
-                is AliasTarget.Search -> {
-                    setDetectedAliasMode(
-                        shortcutTarget = aliasTarget.target,
-                        section = null,
-                        toolMode = null,
-                    )
-                }
-
-                is AliasTarget.Section -> {
-                    setDetectedAliasMode(
-                        shortcutTarget = null,
-                        section = aliasTarget.section,
-                        toolMode = null,
-                    )
-                }
-
-                is AliasTarget.Feature -> {
-                    applyFeatureAliasMode(aliasTarget.featureId)
-                }
-            }
-            return AliasQueryResolution.ReprocessQuery(queryWithoutAlias)
-        }
-
-        if (lockedToolMode != null ||
-                        lockedAliasSearchSection != null ||
-                        lockedShortcutTarget != null ||
-                        lockedCurrencyConverterAlias ||
-                        lockedWordClockAlias ||
-                        lockedDictionaryAlias
-        ) {
-            return AliasQueryResolution.None
-        }
-
-        val trailingSearchEngineAlias = aliasHandler.detectSearchEngineAliasAtEnd(newQuery)
-            ?: return AliasQueryResolution.None
-        val (queryWithoutAlias, target) = trailingSearchEngineAlias
-        return AliasQueryResolution.ExecuteSearchTarget(
-            queryWithoutAlias = queryWithoutAlias,
-            target = target,
-        )
-    }
-
-    private fun applyFeatureAliasMode(featureId: String) {
-        when (featureId) {
-            AliasHandler.CURRENCY_CONVERTER_ALIAS_FEATURE_ID -> {
-                if (userPreferences.getGeminiApiKey().isNullOrBlank()) {
-                    clearDetectedAliasMode()
-                    return
-                }
-                lockedShortcutTarget = null
-                lockedAliasSearchSection = null
-                lockedToolMode = null
-                lockedCurrencyConverterAlias = true
-                lockedWordClockAlias = false
-                lockedDictionaryAlias = false
-                return
-            }
-            AliasHandler.WORD_CLOCK_ALIAS_FEATURE_ID -> {
-                if (userPreferences.getGeminiApiKey().isNullOrBlank()) {
-                    clearDetectedAliasMode()
-                    return
-                }
-                lockedShortcutTarget = null
-                lockedAliasSearchSection = null
-                lockedToolMode = null
-                lockedCurrencyConverterAlias = false
-                lockedWordClockAlias = true
-                lockedDictionaryAlias = false
-                return
-            }
-            AliasHandler.DICTIONARY_ALIAS_FEATURE_ID -> {
-                if (userPreferences.getGeminiApiKey().isNullOrBlank()) {
-                    clearDetectedAliasMode()
-                    return
-                }
-                lockedShortcutTarget = null
-                lockedAliasSearchSection = null
-                lockedToolMode = null
-                lockedCurrencyConverterAlias = false
-                lockedWordClockAlias = false
-                lockedDictionaryAlias = true
-                return
-            }
-        }
-        lockedCurrencyConverterAlias = false
-        lockedWordClockAlias = false
-        lockedDictionaryAlias = false
-        val toolMode =
-                when (featureId) {
-                    AliasHandler.CALCULATOR_ALIAS_FEATURE_ID -> SearchToolType.CALCULATOR
-                    AliasHandler.UNIT_CONVERTER_ALIAS_FEATURE_ID -> SearchToolType.UNIT_CONVERTER
-                    AliasHandler.DATE_CALCULATOR_ALIAS_FEATURE_ID -> SearchToolType.DATE_CALCULATOR
-                    else -> null
-                }
-        if (toolMode == null) {
-            clearDetectedAliasMode()
-            return
-        }
-        setDetectedAliasMode(
-                shortcutTarget = null,
-                section = null,
-                toolMode = toolMode,
-        )
-    }
-
-    private fun createToolModeState(toolMode: SearchToolType): CalculatorState =
-            when (toolMode) {
-                SearchToolType.CALCULATOR ->
-                        CalculatorState(
-                                isCalculatorMode = true,
-                                toolType = SearchToolType.CALCULATOR,
-                        )
-                SearchToolType.UNIT_CONVERTER ->
-                        CalculatorState(
-                                isUnitConverterMode = true,
-                                toolType = SearchToolType.UNIT_CONVERTER,
-                        )
-                SearchToolType.DATE_CALCULATOR ->
-                        CalculatorState(
-                                isDateCalculatorMode = true,
-                                toolType = SearchToolType.DATE_CALCULATOR,
-                        )
-            }
-
-    private fun resolveToolState(
-            trimmedQuery: String,
-            detectedTarget: SearchTarget?,
-            detectedAliasSearchSection: SearchSection?,
-            skipLocalTools: Boolean = false,
-    ): CalculatorState {
-        if (skipLocalTools) {
-            return CalculatorState()
-        }
-        val toolMode = lockedToolMode
-        if (toolMode != null) {
-            return when (toolMode) {
-                SearchToolType.CALCULATOR ->
-                        calculatorHandler.processQuery(
-                                query = trimmedQuery,
-                                forceCalculatorMode = true,
-                        )
-                SearchToolType.UNIT_CONVERTER ->
-                        unitConverterHandler.processQuery(
-                                query = trimmedQuery,
-                                forceUnitConverterMode = true,
-                        )
-                SearchToolType.DATE_CALCULATOR ->
-                        dateCalculatorHandler.processQuery(
-                                query = trimmedQuery,
-                                forceDateCalculatorMode = true,
-                        )
-            }
-        }
-
-        if (detectedTarget != null || detectedAliasSearchSection != null) {
-            return CalculatorState()
-        }
-
-        val calculatorResult =
-                calculatorHandler.processQuery(
-                        query = trimmedQuery,
-                        forceCalculatorMode = false,
-                )
-        if (calculatorResult.result != null) {
-            return calculatorResult
-        }
-
-        val unitConverterResult =
-                unitConverterHandler.processQuery(
-                        query = trimmedQuery,
-                        forceUnitConverterMode = false,
-                )
-        if (unitConverterResult.result != null) {
-            return unitConverterResult
-        }
-
-        return dateCalculatorHandler.processQuery(
-                query = trimmedQuery,
-                forceDateCalculatorMode = false,
-        )
-    }
-
-    private fun onQueryChangeInternal(
-            newQuery: String,
-            clearShortcutWhenBlank: Boolean,
-    ) {
-        val previousQuery = _resultsState.value.query
-        // Prevent redundant updates
-        if (newQuery == previousQuery) return
         inMemoryRetainedQuery = newQuery
-
-        val trimmedQuery = newQuery.trim()
-        val DirectSearchState = _resultsState.value.DirectSearchState
-        if (DirectSearchState.status != DirectSearchStatus.Idle &&
-                        (DirectSearchState.activeQuery == null ||
-                                DirectSearchState.activeQuery != trimmedQuery)
-        ) {
-            directSearchHandler.clearDirectSearchState()
-        }
-
-        val currencyState = _resultsState.value.currencyConverterState
-        if (currencyState.status != CurrencyConverterStatus.Idle &&
-                        (currencyState.activeQuery == null || currencyState.activeQuery != trimmedQuery)
-        ) {
-            updateResultsState { it.copy(currencyConverterState = CurrencyConverterState()) }
-        }
-        val wordClockState = _resultsState.value.wordClockState
-        if (wordClockState.status != WordClockStatus.Idle &&
-                        (wordClockState.activeQuery == null || wordClockState.activeQuery != trimmedQuery)
-        ) {
-            updateResultsState { it.copy(wordClockState = WordClockState()) }
-        }
-        val dictionaryState = _resultsState.value.dictionaryState
-        if (dictionaryState.status != DictionaryStatus.Idle &&
-                        (dictionaryState.activeQuery == null || dictionaryState.activeQuery != trimmedQuery)
-        ) {
-            updateResultsState { it.copy(dictionaryState = DictionaryState()) }
-        }
-
-        if (trimmedQuery.isBlank()) {
-            val hasLockedAliasMode =
-                    lockedShortcutTarget != null ||
-                            lockedAliasSearchSection != null ||
-                            lockedToolMode != null ||
-                            lockedCurrencyConverterAlias ||
-                            lockedWordClockAlias ||
-                            lockedDictionaryAlias
-            if (clearShortcutWhenBlank && hasLockedAliasMode && newQuery.isNotEmpty()) {
-                appSearchJob?.cancel()
-                appSearchManager.setNoMatchPrefix(null)
-                secondarySearchOrchestrator.resetNoResultTracking()
-                webSuggestionHandler.cancelSuggestions()
-                updateUiState {
-                    it.copy(
-                            query = newQuery,
-                            searchResults = emptyList(),
-                            appShortcutResults = emptyList(),
-                            contactResults = emptyList(),
-                            fileResults = emptyList(),
-                            settingResults = emptyList(),
-                            appSettingResults = emptyList(),
-                            calendarEvents = emptyList(),
-                            DirectSearchState = DirectSearchState(),
-                            currencyConverterState = CurrencyConverterState(),
-                            wordClockState = WordClockState(),
-                            dictionaryState = DictionaryState(),
-                            calculatorState =
-                                    lockedToolMode?.let(::createToolModeState) ?: CalculatorState(),
-                            webSuggestions = emptyList(),
-                            detectedShortcutTarget = lockedShortcutTarget,
-                            detectedAliasSearchSection = lockedAliasSearchSection,
-                            isCurrencyConverterAliasMode = lockedCurrencyConverterAlias,
-                            isWordClockAliasMode = lockedWordClockAlias,
-                            isDictionaryAliasMode = lockedDictionaryAlias,
-                            webSuggestionWasSelected = false,
-                    )
-                }
-                return
-            }
-            if (clearShortcutWhenBlank) {
-                clearDetectedAliasMode()
-            }
-            appSearchJob?.cancel()
-            appSearchManager.setNoMatchPrefix(null)
-            secondarySearchOrchestrator.resetNoResultTracking()
-            webSuggestionHandler.cancelSuggestions()
-            val lockedMode = lockedToolMode
-            updateUiState {
-                it.copy(
-                        query = "",
-                        searchResults = emptyList(),
-                        appShortcutResults = emptyList(),
-                        contactResults = emptyList(),
-                        fileResults = emptyList(),
-                        settingResults = emptyList(),
-                        appSettingResults = emptyList(),
-                        calendarEvents = emptyList(),
-                        DirectSearchState = DirectSearchState(),
-                        currencyConverterState = CurrencyConverterState(),
-                        wordClockState = WordClockState(),
-                        dictionaryState = DictionaryState(),
-                        calculatorState =
-                                if (clearShortcutWhenBlank || lockedMode == null) {
-                                    CalculatorState()
-                                } else {
-                                    createToolModeState(lockedMode)
-                                },
-                        webSuggestions = emptyList(),
-                        detectedShortcutTarget =
-                                if (clearShortcutWhenBlank) null else lockedShortcutTarget,
-                        detectedAliasSearchSection =
-                                if (clearShortcutWhenBlank) null else lockedAliasSearchSection,
-                        isCurrencyConverterAliasMode =
-                                !clearShortcutWhenBlank && lockedCurrencyConverterAlias,
-                        isWordClockAliasMode = !clearShortcutWhenBlank && lockedWordClockAlias,
-                        isDictionaryAliasMode = !clearShortcutWhenBlank && lockedDictionaryAlias,
-                        webSuggestionWasSelected = false,
-                )
-            }
-            // Load recent queries when query is empty
-            refreshRecentItems()
-            refreshAliasRecentItems(lockedAliasSearchSection)
-            return
-        }
-
-        // Keep evaluating aliases while typing so aliases are always stripped and can retarget
-        // the currently locked mode.
-        when (val aliasResolution = resolveAliasQueryResolution(newQuery)) {
-            is AliasQueryResolution.ReprocessQuery -> {
-                onQueryChangeInternal(
-                        aliasResolution.queryWithoutAlias,
-                        clearShortcutWhenBlank = false,
-                )
-                return
-            }
-
-            is AliasQueryResolution.ExecuteSearchTarget -> {
-                navigationHandler.openSearchTarget(
-                        aliasResolution.queryWithoutAlias.trim(),
-                        aliasResolution.target,
-                )
-                if (aliasResolution.queryWithoutAlias.isBlank()) {
-                    clearQuery()
-                } else {
-                    onQueryChange(aliasResolution.queryWithoutAlias)
-                }
-                return
-            }
-
-            AliasQueryResolution.None -> Unit
-        }
-
-        val detectedTarget: SearchTarget? = lockedShortcutTarget
-        val detectedAliasSearchSection: SearchSection? = lockedAliasSearchSection
-
-        val calculatorResult =
-                resolveToolState(
-                        trimmedQuery = trimmedQuery,
-                        detectedTarget = detectedTarget,
-                        detectedAliasSearchSection = detectedAliasSearchSection,
-                        skipLocalTools =
-                                lockedCurrencyConverterAlias ||
-                                        lockedWordClockAlias ||
-                                        lockedDictionaryAlias,
-                )
-
-        val normalizedQuery = SearchTextNormalizer.normalizeForSearch(trimmedQuery)
-        // Build the query context once here so downstream consumers (app search, etc.)
-        // do not re-normalize the same string redundantly.
-        val queryContext = SearchQueryContext.fromNormalizedQuery(normalizedQuery)
-        appSearchManager.resetNoMatchPrefixIfNeeded(normalizedQuery)
-
-        val shouldSkipSearch = appSearchManager.shouldSkipDueToNoMatchPrefix(normalizedQuery)
-
-        if (trimmedQuery.isNotBlank() && appShortcutSearchHandler.getAvailableShortcuts().isEmpty()) {
-            // If shortcut loading is still racing startup, kick off cache-first hydration
-            // so first-key queries do not stay empty.
-            loadAppShortcuts()
-        }
-
-        // Cancel any in-flight app search for the previous query.
-        appSearchJob?.cancel()
-
-        // Clear web suggestions when query changes
-        webSuggestionHandler.cancelSuggestions()
-
-        // Immediately update query / calculator / shortcut state so the UI is
-        // responsive on every keystroke.  searchResults will be filled in by the
-        // async job below (or cleared right away if we know there are no matches).
-        val showingTool = calculatorResult.isToolMode || calculatorResult.result != null
-        if (showingTool) {
-            clearInformationCardsExcept(ActiveInformationCard.CALCULATOR)
-        }
-        val shouldOnlySearchApps = detectedAliasSearchSection == SearchSection.APPS
-        val shouldSkipAppSearchDueToAlias =
-                lockedCurrencyConverterAlias ||
-                        lockedWordClockAlias ||
-                        lockedDictionaryAlias ||
-                        (detectedAliasSearchSection != null && !shouldOnlySearchApps)
-        val shouldClearSecondaryResults =
-                lockedCurrencyConverterAlias ||
-                        lockedWordClockAlias ||
-                        lockedDictionaryAlias ||
-                        detectedAliasSearchSection != null ||
-                        _resultsState.value.query != newQuery
-        val shouldClearAppShortcutResults =
-                lockedCurrencyConverterAlias ||
-                        lockedWordClockAlias ||
-                        lockedDictionaryAlias ||
-                        detectedTarget != null ||
-                        (detectedAliasSearchSection != null &&
-                                detectedAliasSearchSection != SearchSection.APP_SHORTCUTS)
-        updateUiState { state ->
-            state.copy(
-                    query = newQuery,
-                    searchResults =
-                            if (
-                                    shouldSkipSearch ||
-                                            detectedTarget != null ||
-                                            showingTool ||
-                                            shouldSkipAppSearchDueToAlias
-                            )
-                                    emptyList()
-                            else state.searchResults,
-                    calculatorState = calculatorResult,
-                    webSuggestions = emptyList(),
-                    isSecondarySearchInProgress =
-                            !showingTool &&
-                                    detectedTarget == null &&
-                                    !lockedCurrencyConverterAlias &&
-                                    !lockedWordClockAlias &&
-                                    !lockedDictionaryAlias &&
-                                    detectedAliasSearchSection != SearchSection.APPS,
-                    detectedShortcutTarget = detectedTarget,
-                    detectedAliasSearchSection = detectedAliasSearchSection,
-                    isCurrencyConverterAliasMode = lockedCurrencyConverterAlias,
-                    isWordClockAliasMode = lockedWordClockAlias,
-                    isDictionaryAliasMode = lockedDictionaryAlias,
-                    contactResults =
-                            if (showingTool || shouldClearSecondaryResults) emptyList()
-                            else state.contactResults,
-                    fileResults =
-                            if (showingTool || shouldClearSecondaryResults) emptyList()
-                            else state.fileResults,
-                    settingResults =
-                            if (showingTool || shouldClearSecondaryResults) emptyList()
-                            else state.settingResults,
-                    appSettingResults =
-                            if (showingTool || shouldClearSecondaryResults) emptyList()
-                            else state.appSettingResults,
-                    appShortcutResults =
-                            if (showingTool || shouldClearAppShortcutResults) emptyList()
-                            else appShortcutSearchHandler.getShortcutsState(
-                                query = trimmedQuery,
-                                isSectionEnabled = SearchSection.APP_SHORTCUTS !in sectionManager.disabledSections,
-                            ).results,
-                    calendarEvents =
-                            if (showingTool || shouldClearSecondaryResults) emptyList()
-                            else state.calendarEvents,
-                    aliasRecentItems = emptyList(),
-            )
-        }
-
-        if (
-                !shouldSkipSearch &&
-                        detectedTarget == null &&
-                        !showingTool &&
-                        !shouldSkipAppSearchDueToAlias
-        ) {
-            // Snapshot the list reference so the background coroutine isn't racing
-            // with a potential cachedAllSearchableApps reassignment.
-            val appsSnapshot = getSearchableAppsSnapshot()
-            val gridLimit = getGridItemCount()
-            val currentVersion = ++appSearchQueryVersion
-
-            appSearchJob =
-                    viewModelScope.launch(Dispatchers.Default) {
-                        // Debounce: let rapid keystrokes settle before running the
-                        // potentially-expensive deriveMatches() pass.  The version
-                        // guard immediately after ensures stale coroutines exit
-                        // without touching state.
-                        delay(APP_SEARCH_DEBOUNCE_MS)
-                        if (currentVersion != appSearchQueryVersion) return@launch
-
-                        val results =
-                                appSearchManager.deriveMatches(
-                                        queryContext,
-                                        appsSnapshot,
-                                        gridLimit,
-                                )
-
-                        // Drop stale results if a newer query has already started.
-                        if (currentVersion != appSearchQueryVersion) return@launch
-
-                        if (results.isEmpty() && normalizedQuery.length > 1) {
-                            appSearchManager.setNoMatchPrefix(normalizedQuery)
-                        } else if (normalizedQuery.length <= 1) {
-                            appSearchManager.setNoMatchPrefix(null)
-                        }
-
-                        updateResultsState { state -> state.copy(searchResults = results) }
-                    }
-        } else if (shouldSkipSearch) {
-            // Ensure results are cleared when the no-match prefix applies.
-            updateResultsState { state -> state.copy(searchResults = emptyList()) }
-        }
-
-        // Skip secondary searches if a tool result is shown
-        if (!showingTool) {
-            if (lockedCurrencyConverterAlias) {
-                secondarySearchOrchestrator.cancel()
-                updateResultsState {
-                    it.copy(
-                            contactResults = emptyList(),
-                            fileResults = emptyList(),
-                            settingResults = emptyList(),
-                            appSettingResults = emptyList(),
-                            appShortcutResults = emptyList(),
-                            calendarEvents = emptyList(),
-                            webSuggestions = emptyList(),
-                    )
-                }
-            } else if (lockedWordClockAlias || lockedDictionaryAlias) {
-                secondarySearchOrchestrator.cancel()
-                updateResultsState {
-                    it.copy(
-                            contactResults = emptyList(),
-                            fileResults = emptyList(),
-                            settingResults = emptyList(),
-                            appSettingResults = emptyList(),
-                            appShortcutResults = emptyList(),
-                            calendarEvents = emptyList(),
-                            webSuggestions = emptyList(),
-                    )
-                }
-            } else if (detectedTarget != null) {
-                secondarySearchOrchestrator.performWebSuggestionsOnly(newQuery)
-            } else if (detectedAliasSearchSection != null) {
-                if (detectedAliasSearchSection == SearchSection.APPS) {
-                    secondarySearchOrchestrator.cancel()
-                    updateResultsState {
-                        it.copy(
-                                contactResults = emptyList(),
-                                fileResults = emptyList(),
-                                settingResults = emptyList(),
-                                appSettingResults = emptyList(),
-                                appShortcutResults = emptyList(),
-                                calendarEvents = emptyList(),
-                                webSuggestions = emptyList(),
-                        )
-                    }
-                } else {
-                    secondarySearchOrchestrator.performTargetedSecondarySearch(
-                            query = newQuery,
-                            section = detectedAliasSearchSection,
-                            useFuzzyMatching = true,
-                            ignoreSectionToggle = true,
-                    )
-                }
-            } else {
-                secondarySearchOrchestrator.performSecondarySearches(newQuery)
-            }
-        }
-
-        scheduleCurrencyConversion(
-                trimmedQuery = trimmedQuery,
-                showingTool = showingTool,
-                hasGeminiApiKey = _featureState.value.hasGeminiApiKey,
-        )
-        scheduleWordClock(
-                trimmedQuery = trimmedQuery,
-                showingTool = showingTool,
-                hasGeminiApiKey = _featureState.value.hasGeminiApiKey,
-        )
-        scheduleDictionaryLookup(
-                trimmedQuery = trimmedQuery,
-                showingTool = showingTool,
-                hasGeminiApiKey = _featureState.value.hasGeminiApiKey,
-        )
-    }
-
-    private fun scheduleCurrencyConversion(
-            trimmedQuery: String,
-            showingTool: Boolean,
-            hasGeminiApiKey: Boolean,
-    ) {
-        currencyConversionJob?.cancel()
-        if ((!userPreferences.isCurrencyConverterEnabled() && !lockedCurrencyConverterAlias) || !hasGeminiApiKey) {
-            updateResultsState { s ->
-                if (s.currencyConverterState.status == CurrencyConverterStatus.Idle) {
-                    s
-                } else {
-                    s.copy(currencyConverterState = CurrencyConverterState())
-                }
-            }
-            return
-        }
-        if (showingTool || trimmedQuery.isBlank()) {
-            updateResultsState { s ->
-                if (s.currencyConverterState.status == CurrencyConverterStatus.Idle) {
-                    s
-                } else {
-                    s.copy(currencyConverterState = CurrencyConverterState())
-                }
-            }
-            return
-        }
-        val matchesCandidate =
-                if (lockedCurrencyConverterAlias) {
-                    trimmedQuery.isNotBlank()
-                } else {
-                    CurrencyConversionIntentParser.isCandidate(trimmedQuery)
-                }
-        if (!matchesCandidate) {
-            updateResultsState { s ->
-                if (s.currencyConverterState.status == CurrencyConverterStatus.Idle) {
-                    s
-                } else {
-                    s.copy(currencyConverterState = CurrencyConverterState())
-                }
-            }
-            return
-        }
-        // Candidate detected: wait for explicit user action from the UI card.
+        queryCoordinator.onQueryChange(newQuery)
     }
 
     fun executeCurrencyConversion() {
-        val trimmedQuery = _resultsState.value.query.trim()
-        if (trimmedQuery.isBlank()) return
-        if ((!userPreferences.isCurrencyConverterEnabled() && !lockedCurrencyConverterAlias) || !_featureState.value.hasGeminiApiKey) return
-
-        val confirmed = CurrencyConversionIntentParser.parseConfirmed(trimmedQuery)
-        if (confirmed == null) {
-            updateResultsState { s -> s.copy(currencyConverterState = CurrencyConverterState()) }
-            showToast(R.string.currency_converter_invalid_input)
-            return
-        }
-
-        clearInformationCardsExcept(ActiveInformationCard.CURRENCY_CONVERTER)
-        val version = ++currencyConversionQueryVersion
-        currencyConversionJob?.cancel()
-        currencyConversionJob =
-                viewModelScope.launch(Dispatchers.Default) {
-                    updateResultsState { s ->
-                        s.copy(
-                                currencyConverterState =
-                                        CurrencyConverterState(
-                                                status = CurrencyConverterStatus.Loading,
-                                                activeQuery = trimmedQuery,
-                                        ),
-                        )
-                    }
-                    val apiResult: Result<Pair<CurrencyConversionModelResult, String>> =
-                            currencyConverterHandler.convert(confirmed)
-                    if (version != currencyConversionQueryVersion) return@launch
-                    if (_resultsState.value.query.trim() != trimmedQuery) return@launch
-                    apiResult.fold(
-                            onSuccess = { (parsed, modelId) ->
-                                updateResultsState { s ->
-                                    s.copy(
-                                            currencyConverterState =
-                                                    CurrencyConverterState(
-                                                            status = CurrencyConverterStatus.Success,
-                                                            convertedAmount = parsed.convertedAmount,
-                                                            targetCurrencyCode = parsed.targetCurrencyCode,
-                                                            targetCurrencyName = parsed.targetCurrencyName,
-                                                            sourceAmount = parsed.sourceAmount,
-                                                            sourceCurrencyCode = parsed.sourceCurrencyCode,
-                                                            activeQuery = trimmedQuery,
-                                                            usedModelId = modelId,
-                                                    ),
-                                    )
-                                }
-                            },
-                            onFailure = { e ->
-                                if (e is CurrencyNotRecognizedException) {
-                                    updateResultsState { s ->
-                                        s.copy(currencyConverterState = CurrencyConverterState())
-                                    }
-                                    return@launch
-                                }
-                                val msg =
-                                        e.message
-                                                ?: appContext.getString(R.string.direct_search_error_generic)
-                                updateResultsState { s ->
-                                    s.copy(
-                                            currencyConverterState =
-                                                    CurrencyConverterState(
-                                                            status = CurrencyConverterStatus.Error,
-                                                            errorMessage = msg,
-                                                            activeQuery = trimmedQuery,
-                                                    ),
-                                    )
-                                }
-                            },
-                    )
-                }
-    }
-
-    private fun scheduleWordClock(
-            trimmedQuery: String,
-            showingTool: Boolean,
-            hasGeminiApiKey: Boolean,
-    ) {
-        wordClockJob?.cancel()
-        if ((!userPreferences.isWordClockEnabled() && !lockedWordClockAlias) || !hasGeminiApiKey) {
-            updateResultsState { s ->
-                if (s.wordClockState.status == WordClockStatus.Idle) {
-                    s
-                } else {
-                    s.copy(wordClockState = WordClockState())
-                }
-            }
-            return
-        }
-        if (showingTool || trimmedQuery.isBlank()) {
-            updateResultsState { s ->
-                if (s.wordClockState.status == WordClockStatus.Idle) {
-                    s
-                } else {
-                    s.copy(wordClockState = WordClockState())
-                }
-            }
-            return
-        }
-        val matchesCandidate =
-                if (lockedWordClockAlias) {
-                    trimmedQuery.isNotBlank()
-                } else {
-                    WordClockIntentParser.isCandidate(trimmedQuery)
-                }
-        if (!matchesCandidate) {
-            updateResultsState { s ->
-                if (s.wordClockState.status == WordClockStatus.Idle) {
-                    s
-                } else {
-                    s.copy(wordClockState = WordClockState())
-                }
-            }
-            return
-        }
-        // Candidate detected: wait for explicit user action from the UI card.
+        toolCoordinator.executeCurrencyConversion()
     }
 
     fun executeWordClockLookup() {
-        val trimmedQuery = _resultsState.value.query.trim()
-        if (trimmedQuery.isBlank()) return
-        if ((!userPreferences.isWordClockEnabled() && !lockedWordClockAlias) || !_featureState.value.hasGeminiApiKey) return
-
-        val confirmed =
-            if (lockedWordClockAlias) {
-                WordClockIntentParser.parseAliasConfirmed(trimmedQuery)
-            } else {
-                WordClockIntentParser.parseConfirmed(trimmedQuery)
-            } ?: run {
-                updateResultsState { s -> s.copy(wordClockState = WordClockState()) }
-                return
-            }
-
-        clearInformationCardsExcept(ActiveInformationCard.WORD_CLOCK)
-        val version = ++wordClockQueryVersion
-        wordClockJob?.cancel()
-        wordClockJob =
-            viewModelScope.launch(Dispatchers.Default) {
-                updateResultsState { s ->
-                    s.copy(
-                        wordClockState =
-                            WordClockState(
-                                status = WordClockStatus.Loading,
-                                activeQuery = trimmedQuery,
-                            ),
-                    )
-                }
-                val apiResult = wordClockHandler.convert(confirmed)
-                if (version != wordClockQueryVersion) return@launch
-                if (_resultsState.value.query.trim() != trimmedQuery) return@launch
-                apiResult.fold(
-                    onSuccess = { (parsed, modelId) ->
-                        updateResultsState { s ->
-                            s.copy(
-                                wordClockState =
-                                    WordClockState(
-                                        status = WordClockStatus.Success,
-                                        wordClockText = parsed.wordClockText,
-                                        sourceTimeText = parsed.sourceTimeText,
-                                        placeText = parsed.placeText,
-                                        timeZoneText = parsed.timeZoneText,
-                                        activeQuery = trimmedQuery,
-                                        usedModelId = modelId,
-                                    ),
-                            )
-                        }
-                    },
-                    onFailure = { e ->
-                        if (e is WordClockNotRecognizedException) {
-                            val msg = appContext.getString(R.string.word_clock_error_not_recognized)
-                            updateResultsState { s ->
-                                s.copy(
-                                    wordClockState =
-                                        WordClockState(
-                                            status = WordClockStatus.Error,
-                                            errorMessage = msg,
-                                            activeQuery = trimmedQuery,
-                                        ),
-                                )
-                            }
-                            return@fold
-                        }
-                        val msg = e.message ?: appContext.getString(R.string.direct_search_error_generic)
-                        updateResultsState { s ->
-                            s.copy(
-                                wordClockState =
-                                    WordClockState(
-                                        status = WordClockStatus.Error,
-                                        errorMessage = msg,
-                                        activeQuery = trimmedQuery,
-                                    ),
-                            )
-                        }
-                    },
-                )
-            }
-    }
-
-    private fun scheduleDictionaryLookup(
-            trimmedQuery: String,
-            showingTool: Boolean,
-            hasGeminiApiKey: Boolean,
-    ) {
-        dictionaryJob?.cancel()
-        if ((!userPreferences.isDictionaryEnabled() && !lockedDictionaryAlias) || !hasGeminiApiKey) {
-            updateResultsState { s ->
-                if (s.dictionaryState.status == DictionaryStatus.Idle) {
-                    s
-                } else {
-                    s.copy(dictionaryState = DictionaryState())
-                }
-            }
-            return
-        }
-        if (showingTool || trimmedQuery.isBlank()) {
-            updateResultsState { s ->
-                if (s.dictionaryState.status == DictionaryStatus.Idle) {
-                    s
-                } else {
-                    s.copy(dictionaryState = DictionaryState())
-                }
-            }
-            return
-        }
-        val matchesCandidate =
-                if (lockedDictionaryAlias) {
-                    trimmedQuery.isNotBlank()
-                } else {
-                    DictionaryIntentParser.isCandidate(trimmedQuery)
-                }
-        if (!matchesCandidate) {
-            updateResultsState { s ->
-                if (s.dictionaryState.status == DictionaryStatus.Idle) {
-                    s
-                } else {
-                    s.copy(dictionaryState = DictionaryState())
-                }
-            }
-            return
-        }
-        // Candidate detected: wait for explicit user action from the UI card.
+        toolCoordinator.executeWordClockLookup()
     }
 
     fun executeDictionaryLookup() {
-        val trimmedQuery = _resultsState.value.query.trim()
-        if (trimmedQuery.isBlank()) return
-        if ((!userPreferences.isDictionaryEnabled() && !lockedDictionaryAlias) || !_featureState.value.hasGeminiApiKey) return
-
-        val confirmed =
-            if (lockedDictionaryAlias) {
-                ConfirmedDictionaryQuery(
-                    term = trimmedQuery,
-                    originalQuery = trimmedQuery,
-                )
-            } else {
-                DictionaryIntentParser.parseConfirmed(trimmedQuery)
-            } ?: run {
-                updateResultsState { s -> s.copy(dictionaryState = DictionaryState()) }
-                return
-            }
-
-        clearInformationCardsExcept(ActiveInformationCard.DICTIONARY)
-        val version = ++dictionaryQueryVersion
-        dictionaryJob?.cancel()
-        dictionaryJob =
-            viewModelScope.launch(Dispatchers.Default) {
-                updateResultsState { s ->
-                    s.copy(
-                        dictionaryState =
-                            DictionaryState(
-                                status = DictionaryStatus.Loading,
-                                activeQuery = trimmedQuery,
-                            ),
-                    )
-                }
-                val apiResult = dictionaryHandler.define(confirmed)
-                if (version != dictionaryQueryVersion) return@launch
-                if (_resultsState.value.query.trim() != trimmedQuery) return@launch
-                apiResult.fold(
-                    onSuccess = { (parsed, modelId) ->
-                        updateResultsState { s ->
-                            s.copy(
-                                dictionaryState =
-                                    DictionaryState(
-                                        status = DictionaryStatus.Success,
-                                        word = parsed.word,
-                                        partOfSpeech = parsed.partOfSpeech,
-                                        meaning = parsed.meaning,
-                                        example = parsed.example,
-                                        synonyms = parsed.synonyms,
-                                        activeQuery = trimmedQuery,
-                                        usedModelId = modelId,
-                                    ),
-                            )
-                        }
-                    },
-                    onFailure = { e ->
-                        if (e is DictionaryNotRecognizedException) {
-                            updateResultsState { s ->
-                                s.copy(dictionaryState = DictionaryState())
-                            }
-                            return@fold
-                        }
-                        val msg =
-                            e.message ?: appContext.getString(R.string.direct_search_error_generic)
-                        updateResultsState { s ->
-                            s.copy(
-                                dictionaryState =
-                                    DictionaryState(
-                                        status = DictionaryStatus.Error,
-                                        errorMessage = msg,
-                                        activeQuery = trimmedQuery,
-                                    ),
-                            )
-                        }
-                    },
-                )
-            }
+        toolCoordinator.executeDictionaryLookup()
     }
 
     fun activateSearchSectionFilter(section: SearchSection) {
-        setDetectedAliasMode(shortcutTarget = null, section = section, toolMode = null)
-        val currentQuery = _resultsState.value.query
-        updateUiState { state ->
-            state.copy(
-                detectedShortcutTarget = null,
-                detectedAliasSearchSection = section,
-                isCurrencyConverterAliasMode = false,
-                isWordClockAliasMode = false,
-                isDictionaryAliasMode = false,
-                calculatorState = CalculatorState(),
-                currencyConverterState = CurrencyConverterState(),
-                wordClockState = WordClockState(),
-                dictionaryState = DictionaryState(),
-                searchResults = emptyList(),
-                contactResults = emptyList(),
-                fileResults = emptyList(),
-                settingResults = emptyList(),
-                appSettingResults = emptyList(),
-                appShortcutResults = emptyList(),
-                calendarEvents = emptyList(),
-            )
-        }
-        if (currentQuery.isNotEmpty() && section != SearchSection.APPS) {
-            secondarySearchOrchestrator.performTargetedSecondarySearch(
-                query = currentQuery,
-                section = section,
-                useFuzzyMatching = true,
-                ignoreSectionToggle = true,
-            )
-        }
+        queryCoordinator.activateSearchSectionFilter(section)
     }
 
     fun clearDetectedShortcut() {
-        clearDetectedAliasMode()
-        updateUiState {
-            it.copy(
-                    detectedShortcutTarget = null,
-                    detectedAliasSearchSection = null,
-                    isCurrencyConverterAliasMode = false,
-                    isWordClockAliasMode = false,
-                    isDictionaryAliasMode = false,
-                    calculatorState = CalculatorState(),
-                    currencyConverterState = CurrencyConverterState(),
-                    wordClockState = WordClockState(),
-                    dictionaryState = DictionaryState(),
-            )
-        }
+        queryCoordinator.clearDetectedShortcut()
     }
 
     fun clearQuery() {
-        clearDetectedAliasMode()
-        onQueryChangeInternal("", clearShortcutWhenBlank = true)
+        queryCoordinator.clearQuery()
     }
 
     fun consumeRetainedQuerySelectionRequest() {
@@ -5547,6 +4406,7 @@ class SearchViewModel(
     }
 
     override fun onCleared() {
+        queryCoordinator.cancel()
         super.onCleared()
     }
 }
