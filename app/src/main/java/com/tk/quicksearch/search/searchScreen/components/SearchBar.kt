@@ -93,6 +93,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.search.core.SearchSectionUiMetadataRegistry
 import com.tk.quicksearch.search.core.SearchToolType
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.searchEngines.shared.IconRenderStyle
@@ -120,19 +121,9 @@ private val AliasMorphVerticalTravel = DesignTokens.SpacingXXSmall
 
 private data class SectionMenuEntry(
     val section: SearchSection,
-    val labelRes: Int,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector,
 )
 
-private val sectionMenuEntries = listOf(
-    SectionMenuEntry(SearchSection.APPS, R.string.section_apps, Icons.Rounded.Apps),
-    SectionMenuEntry(SearchSection.APP_SHORTCUTS, R.string.section_app_shortcuts, Icons.AutoMirrored.Rounded.Shortcut),
-    SectionMenuEntry(SearchSection.CONTACTS, R.string.section_contacts, Icons.Rounded.Person),
-    SectionMenuEntry(SearchSection.FILES, R.string.section_files, Icons.AutoMirrored.Rounded.InsertDriveFile),
-    SectionMenuEntry(SearchSection.SETTINGS, R.string.section_settings, Icons.Rounded.Settings),
-    SectionMenuEntry(SearchSection.CALENDAR, R.string.section_calendar, Icons.Rounded.CalendarMonth),
-    SectionMenuEntry(SearchSection.APP_SETTINGS, R.string.section_app_settings, Icons.Rounded.Settings),
-)
+private val sectionMenuEntries = SearchSection.values().map(::SectionMenuEntry)
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -611,13 +602,14 @@ internal fun PersistentSearchBar(
                         containerColor = AppColors.DialogBackground,
                         properties = PopupProperties(focusable = false),
                     ) {
-                        sectionMenuEntries.forEachIndexed { index, (section, labelRes, icon) ->
+                        sectionMenuEntries.forEachIndexed { index, (section) ->
+                            val metadata = SearchSectionUiMetadataRegistry.metadataFor(section)
                             if (index > 0) HorizontalDivider()
                             DropdownMenuItem(
-                                text = { Text(stringResource(labelRes)) },
+                                text = { Text(stringResource(metadata.sectionLabelRes)) },
                                 leadingIcon = {
                                     Icon(
-                                        imageVector = icon,
+                                        imageVector = metadata.searchBarIcon,
                                         contentDescription = null,
                                     )
                                 },
@@ -839,15 +831,7 @@ private fun SearchBarLeadingIcon(
             } else {
                 Icon(
                     imageVector =
-                        when (iconState.section) {
-                            SearchSection.APPS -> Icons.Rounded.Apps
-                            SearchSection.APP_SHORTCUTS -> Icons.AutoMirrored.Rounded.Shortcut
-                            SearchSection.CONTACTS -> Icons.Rounded.Person
-                            SearchSection.FILES -> Icons.AutoMirrored.Rounded.InsertDriveFile
-                            SearchSection.SETTINGS -> Icons.Rounded.Settings
-                            SearchSection.CALENDAR -> Icons.Rounded.CalendarMonth
-                            SearchSection.APP_SETTINGS -> Icons.Rounded.Settings
-                        },
+                        SearchSectionUiMetadataRegistry.metadataFor(iconState.section).searchBarIcon,
                     contentDescription = stringResource(R.string.desc_search_icon),
                     tint = iconTint,
                     modifier = Modifier.padding(start = DesignTokens.SpacingXSmall),

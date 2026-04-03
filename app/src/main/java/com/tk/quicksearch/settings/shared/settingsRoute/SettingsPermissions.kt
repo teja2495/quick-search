@@ -16,6 +16,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.search.core.SearchSectionPermissionRequirement
+import com.tk.quicksearch.search.core.SearchSectionPermissionRequirements
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.shared.permissions.PermissionSettingsDialog
 import com.tk.quicksearch.shared.permissions.PermissionHelper
@@ -41,6 +43,17 @@ fun rememberSectionToggleHandler(
         showPermissionSettingsDialog = true
     }
 
+    val openPermissionSettingsForSection: (SearchSection?) -> Unit = sectionHandler@{ section ->
+        val requirement =
+            section?.let(SearchSectionPermissionRequirements::requirementFor)
+                ?: return@sectionHandler
+        when (requirement) {
+            SearchSectionPermissionRequirement.CONTACTS -> viewModel.openContactPermissionSettings()
+            SearchSectionPermissionRequirement.FILES -> viewModel.openFilesPermissionSettings()
+            SearchSectionPermissionRequirement.CALENDAR -> viewModel.openCalendarPermissionSettings()
+        }
+    }
+
     // Launcher for runtime permissions (contacts, files on pre-R)
     val runtimePermissionsLauncher =
         rememberLauncherForActivityResult(
@@ -59,8 +72,8 @@ fun rememberSectionToggleHandler(
 
             // If permission was granted and we have a pending section, enable it
             pendingSectionEnable.value?.let { section ->
-                when (section) {
-                    SearchSection.CONTACTS -> {
+                when (SearchSectionPermissionRequirements.requirementFor(section)) {
+                    SearchSectionPermissionRequirement.CONTACTS -> {
                         contactsWasDenied.value = !contactsGranted
                         if (contactsGranted) {
                             viewModel.setSectionEnabled(section, true)
@@ -76,7 +89,7 @@ fun rememberSectionToggleHandler(
                         }
                     }
 
-                    SearchSection.FILES -> {
+                    SearchSectionPermissionRequirement.FILES -> {
                         filesWasDenied.value = !filesGranted
                         if (filesGranted ||
                             (
@@ -97,7 +110,7 @@ fun rememberSectionToggleHandler(
                         }
                     }
 
-                    SearchSection.CALENDAR -> {
+                    SearchSectionPermissionRequirement.CALENDAR -> {
                         val calendarGranted = permissions[Manifest.permission.READ_CALENDAR] == true
                         if (calendarGranted) {
                             viewModel.setSectionEnabled(section, true)
@@ -113,7 +126,7 @@ fun rememberSectionToggleHandler(
                         }
                     }
 
-                    else -> {}
+                    null -> Unit
                 }
                 pendingSectionEnable.value = null
             }
@@ -144,8 +157,8 @@ fun rememberSectionToggleHandler(
                     viewModel.setSectionEnabled(section, true)
                 } else {
                     // Request permissions based on section
-                    when (section) {
-                        SearchSection.CONTACTS -> {
+                    when (SearchSectionPermissionRequirements.requirementFor(section)) {
+                        SearchSectionPermissionRequirement.CONTACTS -> {
                             pendingSectionEnable.value = section
                             PermissionHelper.requestRuntimePermissionOrOpenSettings(
                                 context = context,
@@ -158,7 +171,7 @@ fun rememberSectionToggleHandler(
                             )
                         }
 
-                        SearchSection.FILES -> {
+                        SearchSectionPermissionRequirement.FILES -> {
                             pendingSectionEnable.value = section
                             PermissionHelper.requestFilesPermission(
                                 context = context,
@@ -171,7 +184,7 @@ fun rememberSectionToggleHandler(
                             )
                         }
 
-                        SearchSection.CALENDAR -> {
+                        SearchSectionPermissionRequirement.CALENDAR -> {
                             pendingSectionEnable.value = section
                             PermissionHelper.requestRuntimePermissionOrOpenSettings(
                                 context = context,
@@ -184,20 +197,7 @@ fun rememberSectionToggleHandler(
                             )
                         }
 
-                        SearchSection.APPS -> {
-                            // Apps section doesn't require permissions
-                            viewModel.setSectionEnabled(section, true)
-                        }
-
-                        SearchSection.APP_SHORTCUTS -> {
-                            viewModel.setSectionEnabled(section, true)
-                        }
-
-                        SearchSection.SETTINGS -> {
-                            viewModel.setSectionEnabled(section, true)
-                        }
-
-                        SearchSection.APP_SETTINGS -> {
+                        null -> {
                             viewModel.setSectionEnabled(section, true)
                         }
                     }
@@ -223,23 +223,23 @@ fun rememberSectionToggleHandler(
     }
 
     if (showPermissionSettingsDialog) {
+        val permissionRequirement =
+            settingsDialogTargetSection?.let(SearchSectionPermissionRequirements::requirementFor)
         val permissionType =
-            when (settingsDialogTargetSection) {
-                SearchSection.CONTACTS -> context.getString(R.string.settings_contacts_permission_title)
-                SearchSection.FILES -> context.getString(R.string.settings_files_permission_title)
-                SearchSection.CALENDAR -> context.getString(R.string.settings_calendar_permission_title)
-                else -> context.getString(R.string.settings_permissions_title)
+            when (permissionRequirement) {
+                SearchSectionPermissionRequirement.CONTACTS ->
+                    context.getString(R.string.settings_contacts_permission_title)
+                SearchSectionPermissionRequirement.FILES ->
+                    context.getString(R.string.settings_files_permission_title)
+                SearchSectionPermissionRequirement.CALENDAR ->
+                    context.getString(R.string.settings_calendar_permission_title)
+                null -> context.getString(R.string.settings_permissions_title)
             }
         PermissionSettingsDialog(
             permissionType = permissionType,
             onConfirm = {
                 showPermissionSettingsDialog = false
-                when (settingsDialogTargetSection) {
-                    SearchSection.CONTACTS -> viewModel.openContactPermissionSettings()
-                    SearchSection.FILES -> viewModel.openFilesPermissionSettings()
-                    SearchSection.CALENDAR -> viewModel.openCalendarPermissionSettings()
-                    else -> Unit
-                }
+                openPermissionSettingsForSection(settingsDialogTargetSection)
                 settingsDialogTargetSection = null
             },
             onDismiss = {

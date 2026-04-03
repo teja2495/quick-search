@@ -232,23 +232,53 @@ fun ContentLayout(
 
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
         finalLayoutOrder.forEach { itemType ->
-            // Check if this is a section item
-            val isSectionItem =
-                when (itemType) {
-                    ItemPriorityConfig.ItemType.APPS_SECTION,
-                    ItemPriorityConfig.ItemType.APP_SHORTCUTS_SECTION,
-                    ItemPriorityConfig.ItemType.FILES_SECTION,
-                    ItemPriorityConfig.ItemType.CONTACTS_SECTION,
-                    ItemPriorityConfig.ItemType.SETTINGS_SECTION,
-                    ItemPriorityConfig.ItemType.CALENDAR_SECTION,
-                    ItemPriorityConfig.ItemType.APP_SETTINGS_SECTION,
-                    -> true
-
-                    else -> false
-                }
+            val section = itemType.toSearchSectionOrNull()
+            val isSectionItem = section != null
 
             // If a section is expanded, we hide all OTHER non-section items.
             if (isExpanded && !isSectionItem) return@forEach
+
+            if (section != null) {
+                if (!shouldRenderSection(section)) return@forEach
+                if (section == SearchSection.APPS && isUrlQuery) return@forEach
+
+                val showAliasRecentForSection =
+                    showAliasRecentItems && section in ALIAS_RECENT_ELIGIBLE_SECTIONS
+                if (showAliasRecentForSection) {
+                    AliasRecentItemsSection(
+                        items = state.aliasRecentItems,
+                        contactsParams = effectiveContactsParams,
+                        filesParams = effectiveFilesParams,
+                        settingsParams = effectiveSettingsParams,
+                        appShortcutsParams = effectiveAppShortcutsParams,
+                        onWebSuggestionClick = onWebSuggestionClick,
+                        onDeleteRecentItem = onDeleteRecentItem,
+                        expandedCardMaxHeight = expandedCardMaxHeight,
+                        showWallpaperBackground = effectiveShowWallpaperBackground,
+                        isOverlayPresentation = isOverlayPresentation,
+                    )
+                    return@forEach
+                }
+
+                val permissionMessageRes =
+                    sectionAliasPermissionMessageRes(
+                        state = state,
+                        section = section,
+                        isSectionAliasMode = isSectionAliasMode,
+                    )
+                if (permissionMessageRes != null) {
+                    SectionPermissionResultCard(
+                        title = stringResource(R.string.permission_required_title),
+                        message = stringResource(permissionMessageRes),
+                        showWallpaperBackground = effectiveShowWallpaperBackground,
+                        onActionClick = onOpenPermissionsSettings,
+                    )
+                    return@forEach
+                }
+
+                renderSection(section, sectionParams, sectionContext)
+                return@forEach
+            }
 
             when (itemType) {
                 ItemPriorityConfig.ItemType.ERROR_BANNER -> {
@@ -331,162 +361,6 @@ fun ContentLayout(
                             onPhoneNumberClick = onPhoneNumberClick,
                             onEmailClick = onEmailClick,
                         )
-                    }
-                }
-
-                // --- Sections ---
-                // We delegate to renderSection provided by
-                // SectionRenderingComposables
-                // using the pre-calculated context.
-                // When search history is expanded, hide app suggestions and pinned items.
-                ItemPriorityConfig.ItemType.APPS_SECTION -> {
-                    if (
-                        shouldRenderSection(SearchSection.APPS) &&
-                                !isUrlQuery
-                    ) {
-                        renderSection(
-                            SearchSection.APPS,
-                            sectionParams,
-                            sectionContext,
-                        )
-                    }
-                }
-
-                ItemPriorityConfig.ItemType.APP_SHORTCUTS_SECTION -> {
-                    if (shouldRenderSection(SearchSection.APP_SHORTCUTS)) {
-                        if (showAliasRecentItems) {
-                            AliasRecentItemsSection(
-                                items = state.aliasRecentItems,
-                                contactsParams = effectiveContactsParams,
-                                filesParams = effectiveFilesParams,
-                                settingsParams = effectiveSettingsParams,
-                                appShortcutsParams = effectiveAppShortcutsParams,
-                                onWebSuggestionClick = onWebSuggestionClick,
-                                onDeleteRecentItem = onDeleteRecentItem,
-                                expandedCardMaxHeight = expandedCardMaxHeight,
-                                showWallpaperBackground = effectiveShowWallpaperBackground,
-                                isOverlayPresentation = isOverlayPresentation,
-                            )
-                        } else {
-                            renderSection(SearchSection.APP_SHORTCUTS, sectionParams, sectionContext)
-                        }
-                    }
-                }
-
-                ItemPriorityConfig.ItemType.FILES_SECTION -> {
-                    if (shouldRenderSection(SearchSection.FILES)) {
-                        if (showAliasRecentItems) {
-                            AliasRecentItemsSection(
-                                items = state.aliasRecentItems,
-                                contactsParams = effectiveContactsParams,
-                                filesParams = effectiveFilesParams,
-                                settingsParams = effectiveSettingsParams,
-                                appShortcutsParams = effectiveAppShortcutsParams,
-                                onWebSuggestionClick = onWebSuggestionClick,
-                                onDeleteRecentItem = onDeleteRecentItem,
-                                expandedCardMaxHeight = expandedCardMaxHeight,
-                                showWallpaperBackground = effectiveShowWallpaperBackground,
-                                isOverlayPresentation = isOverlayPresentation,
-                            )
-                        } else if (isSectionAliasMode && state.filesSectionState is FilesSectionVisibility.NoPermission) {
-                            SectionPermissionResultCard(
-                                title = stringResource(R.string.permission_required_title),
-                                message = stringResource(R.string.files_section_permission_subtitle),
-                                showWallpaperBackground = effectiveShowWallpaperBackground,
-                                onActionClick = onOpenPermissionsSettings,
-                            )
-                        } else {
-                            renderSection(SearchSection.FILES, sectionParams, sectionContext)
-                        }
-                    }
-                }
-
-                ItemPriorityConfig.ItemType.CONTACTS_SECTION -> {
-                    if (shouldRenderSection(SearchSection.CONTACTS)) {
-                        if (showAliasRecentItems) {
-                            AliasRecentItemsSection(
-                                items = state.aliasRecentItems,
-                                contactsParams = effectiveContactsParams,
-                                filesParams = effectiveFilesParams,
-                                settingsParams = effectiveSettingsParams,
-                                appShortcutsParams = effectiveAppShortcutsParams,
-                                onWebSuggestionClick = onWebSuggestionClick,
-                                onDeleteRecentItem = onDeleteRecentItem,
-                                expandedCardMaxHeight = expandedCardMaxHeight,
-                                showWallpaperBackground = effectiveShowWallpaperBackground,
-                                isOverlayPresentation = isOverlayPresentation,
-                            )
-                        } else if (isSectionAliasMode && state.contactsSectionState is ContactsSectionVisibility.NoPermission) {
-                            SectionPermissionResultCard(
-                                title = stringResource(R.string.permission_required_title),
-                                message = stringResource(R.string.contacts_section_permission_subtitle),
-                                showWallpaperBackground = effectiveShowWallpaperBackground,
-                                onActionClick = onOpenPermissionsSettings,
-                            )
-                        } else {
-                            renderSection(SearchSection.CONTACTS, sectionParams, sectionContext)
-                        }
-                    }
-                }
-
-                ItemPriorityConfig.ItemType.SETTINGS_SECTION -> {
-                    if (shouldRenderSection(SearchSection.SETTINGS)) {
-                        if (showAliasRecentItems) {
-                            AliasRecentItemsSection(
-                                items = state.aliasRecentItems,
-                                contactsParams = effectiveContactsParams,
-                                filesParams = effectiveFilesParams,
-                                settingsParams = effectiveSettingsParams,
-                                appShortcutsParams = effectiveAppShortcutsParams,
-                                onWebSuggestionClick = onWebSuggestionClick,
-                                onDeleteRecentItem = onDeleteRecentItem,
-                                expandedCardMaxHeight = expandedCardMaxHeight,
-                                showWallpaperBackground = effectiveShowWallpaperBackground,
-                                isOverlayPresentation = isOverlayPresentation,
-                            )
-                        } else {
-                            renderSection(SearchSection.SETTINGS, sectionParams, sectionContext)
-                        }
-                    }
-                }
-
-                ItemPriorityConfig.ItemType.CALENDAR_SECTION -> {
-                    if (shouldRenderSection(SearchSection.CALENDAR)) {
-                        if (isSectionAliasMode && state.calendarSectionState is CalendarSectionVisibility.NoPermission) {
-                            SectionPermissionResultCard(
-                                title = stringResource(R.string.permission_required_title),
-                                message = stringResource(R.string.calendar_section_permission_subtitle),
-                                showWallpaperBackground = effectiveShowWallpaperBackground,
-                                onActionClick = onOpenPermissionsSettings,
-                            )
-                        } else {
-                            renderSection(
-                                SearchSection.CALENDAR,
-                                sectionParams,
-                                sectionContext,
-                            )
-                        }
-                    }
-                }
-
-                ItemPriorityConfig.ItemType.APP_SETTINGS_SECTION -> {
-                    if (shouldRenderSection(SearchSection.APP_SETTINGS)) {
-                        if (showAliasRecentItems) {
-                            AliasRecentItemsSection(
-                                items = state.aliasRecentItems,
-                                contactsParams = effectiveContactsParams,
-                                filesParams = effectiveFilesParams,
-                                settingsParams = effectiveSettingsParams,
-                                appShortcutsParams = effectiveAppShortcutsParams,
-                                onWebSuggestionClick = onWebSuggestionClick,
-                                onDeleteRecentItem = onDeleteRecentItem,
-                                expandedCardMaxHeight = expandedCardMaxHeight,
-                                showWallpaperBackground = effectiveShowWallpaperBackground,
-                                isOverlayPresentation = isOverlayPresentation,
-                            )
-                        } else {
-                            renderSection(SearchSection.APP_SETTINGS, sectionParams, sectionContext)
-                        }
                     }
                 }
 
@@ -647,8 +521,67 @@ fun ContentLayout(
                         NoResultsMessage(state)
                     }
                 }
+
+                ItemPriorityConfig.ItemType.APPS_SECTION,
+                ItemPriorityConfig.ItemType.APP_SHORTCUTS_SECTION,
+                ItemPriorityConfig.ItemType.FILES_SECTION,
+                ItemPriorityConfig.ItemType.CONTACTS_SECTION,
+                ItemPriorityConfig.ItemType.SETTINGS_SECTION,
+                ItemPriorityConfig.ItemType.CALENDAR_SECTION,
+                ItemPriorityConfig.ItemType.APP_SETTINGS_SECTION,
+                -> Unit
             }
         }
+    }
+}
+
+private val ALIAS_RECENT_ELIGIBLE_SECTIONS =
+    setOf(
+        SearchSection.APP_SHORTCUTS,
+        SearchSection.FILES,
+        SearchSection.CONTACTS,
+        SearchSection.SETTINGS,
+        SearchSection.APP_SETTINGS,
+    )
+
+private fun ItemPriorityConfig.ItemType.toSearchSectionOrNull(): SearchSection? =
+    when (this) {
+        ItemPriorityConfig.ItemType.APPS_SECTION -> SearchSection.APPS
+        ItemPriorityConfig.ItemType.APP_SHORTCUTS_SECTION -> SearchSection.APP_SHORTCUTS
+        ItemPriorityConfig.ItemType.FILES_SECTION -> SearchSection.FILES
+        ItemPriorityConfig.ItemType.CONTACTS_SECTION -> SearchSection.CONTACTS
+        ItemPriorityConfig.ItemType.SETTINGS_SECTION -> SearchSection.SETTINGS
+        ItemPriorityConfig.ItemType.CALENDAR_SECTION -> SearchSection.CALENDAR
+        ItemPriorityConfig.ItemType.APP_SETTINGS_SECTION -> SearchSection.APP_SETTINGS
+        else -> null
+    }
+
+private fun sectionAliasPermissionMessageRes(
+    state: SearchUiState,
+    section: SearchSection,
+    isSectionAliasMode: Boolean,
+): Int? {
+    if (!isSectionAliasMode) return null
+    return when (section) {
+        SearchSection.CONTACTS ->
+            if (state.contactsSectionState is ContactsSectionVisibility.NoPermission) {
+                R.string.contacts_section_permission_subtitle
+            } else {
+                null
+            }
+        SearchSection.FILES ->
+            if (state.filesSectionState is FilesSectionVisibility.NoPermission) {
+                R.string.files_section_permission_subtitle
+            } else {
+                null
+            }
+        SearchSection.CALENDAR ->
+            if (state.calendarSectionState is CalendarSectionVisibility.NoPermission) {
+                R.string.calendar_section_permission_subtitle
+            } else {
+                null
+            }
+        else -> null
     }
 }
 

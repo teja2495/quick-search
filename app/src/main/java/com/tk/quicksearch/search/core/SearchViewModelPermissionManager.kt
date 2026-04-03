@@ -24,30 +24,14 @@ class PermissionManager(
                 .mapNotNull { name -> SearchSection.values().find { it.name == name } }
                 .toSet()
 
-        val permissionBasedDisabledSections = mutableSetOf<SearchSection>()
-        if (!hasContactPermission()) {
-            permissionBasedDisabledSections.add(SearchSection.CONTACTS)
-        }
-        if (!hasFilePermission()) {
-            permissionBasedDisabledSections.add(SearchSection.FILES)
-        }
-        if (!hasCalendarPermission()) {
-            permissionBasedDisabledSections.add(SearchSection.CALENDAR)
-        }
+        val permissionBasedDisabledSections =
+            SearchSection.values().filterNot(::hasPermissionForSection).toSet()
 
         return userDisabledSections + permissionBasedDisabledSections
     }
 
     fun canEnableSection(section: SearchSection): Boolean =
-        when (section) {
-            SearchSection.CONTACTS -> hasContactPermission()
-            SearchSection.FILES -> hasFilePermission()
-            SearchSection.CALENDAR -> hasCalendarPermission()
-            SearchSection.APPS -> true
-            SearchSection.APP_SHORTCUTS -> true
-            SearchSection.SETTINGS -> true
-            SearchSection.APP_SETTINGS -> true
-        }
+        hasPermissionForSection(section)
 
     fun enableSection(
         section: SearchSection,
@@ -82,4 +66,12 @@ class PermissionManager(
 
         return computeDisabledSections()
     }
+
+    private fun hasPermissionForSection(section: SearchSection): Boolean =
+        when (SearchSectionPermissionRequirements.requirementFor(section)) {
+            SearchSectionPermissionRequirement.CONTACTS -> hasContactPermission()
+            SearchSectionPermissionRequirement.FILES -> hasFilePermission()
+            SearchSectionPermissionRequirement.CALENDAR -> hasCalendarPermission()
+            null -> true
+        }
 }

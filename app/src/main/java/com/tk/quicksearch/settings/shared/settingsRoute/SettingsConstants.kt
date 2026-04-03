@@ -9,14 +9,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material.icons.rounded.ChevronRight
-import androidx.compose.material.icons.rounded.Contacts
-import androidx.compose.material.icons.rounded.CalendarMonth
-import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
-import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material.icons.automirrored.rounded.Shortcut
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +26,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.search.core.SearchSectionUiMetadataRegistry
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
 
@@ -52,53 +47,9 @@ internal data class SectionMetadata(
 /** Gets the display metadata for a given search section. */
 @Composable
 internal fun getSectionMetadata(section: SearchSection): SectionMetadata =
-    when (section) {
-        SearchSection.APPS -> {
-            SectionMetadata(
-                name = stringResource(R.string.section_apps),
-                icon = Icons.Rounded.Apps,
-            )
-        }
-
-        SearchSection.APP_SHORTCUTS -> {
-            SectionMetadata(
-                name = stringResource(R.string.section_app_shortcuts),
-                icon = Icons.AutoMirrored.Rounded.Shortcut,
-            )
-        }
-
-        SearchSection.CONTACTS -> {
-            SectionMetadata(
-                name = stringResource(R.string.section_contacts),
-                icon = Icons.Rounded.Contacts,
-            )
-        }
-
-        SearchSection.FILES -> {
-            SectionMetadata(
-                name = stringResource(R.string.section_files),
-                icon = Icons.AutoMirrored.Rounded.InsertDriveFile,
-            )
-        }
-
-        SearchSection.SETTINGS -> {
-            SectionMetadata(
-                name = stringResource(R.string.section_settings),
-                icon = Icons.Rounded.Settings,
-            )
-        }
-
-        SearchSection.CALENDAR -> {
-            SectionMetadata(
-                name = stringResource(R.string.section_calendar),
-                icon = Icons.Rounded.CalendarMonth,
-            )
-        }
-
-        SearchSection.APP_SETTINGS -> {
-            SectionMetadata(
-                name = stringResource(R.string.section_app_settings),
-                icon = Icons.Rounded.Settings,
-            )
-        }
+    SearchSectionUiMetadataRegistry.metadataFor(section).let { metadata ->
+        SectionMetadata(
+            name = stringResource(metadata.sectionLabelRes),
+            icon = metadata.settingsIcon,
+        )
     }

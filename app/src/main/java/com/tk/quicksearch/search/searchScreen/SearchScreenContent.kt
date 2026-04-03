@@ -46,6 +46,7 @@ import com.tk.quicksearch.search.core.CurrencyConverterStatus
 import com.tk.quicksearch.search.core.DictionaryStatus
 import com.tk.quicksearch.search.core.DirectSearchStatus
 import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.search.core.SearchSectionUiMetadataRegistry
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.WordClockStatus
 import com.tk.quicksearch.search.core.SearchUiState
@@ -161,15 +162,12 @@ internal fun SearchScreenContent(
                         stringResource(R.string.search_hint_currency_converter)
                 isWordClockAliasMode -> stringResource(R.string.search_hint_word_clock)
                 isDictionaryAliasMode -> stringResource(R.string.search_hint_dictionary)
-                state.detectedAliasSearchSection != null -> when (state.detectedAliasSearchSection) {
-                    SearchSection.APPS -> stringResource(R.string.search_hint_apps)
-                    SearchSection.APP_SHORTCUTS -> stringResource(R.string.search_hint_app_shortcuts)
-                    SearchSection.CONTACTS -> stringResource(R.string.search_hint_contacts)
-                    SearchSection.FILES -> stringResource(R.string.search_hint_files)
-                    SearchSection.SETTINGS -> stringResource(R.string.search_hint_settings)
-                    SearchSection.CALENDAR -> stringResource(R.string.search_hint_calendar)
-                    SearchSection.APP_SETTINGS -> stringResource(R.string.search_hint_app_settings)
-                }
+                state.detectedAliasSearchSection != null ->
+                    stringResource(
+                        SearchSectionUiMetadataRegistry
+                            .metadataFor(state.detectedAliasSearchSection)
+                            .searchHintRes,
+                    )
                 else -> stringResource(R.string.search_hint)
             }
     val showCurrencyConverter =
