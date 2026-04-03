@@ -429,34 +429,21 @@ class SearchEngineManager(
 
         if (!hasPreference) {
             val defaultDisabled =
-                mutableSetOf(
-                    SearchEngine.FACEBOOK_MARKETPLACE,
-                    SearchEngine.DUCKDUCKGO,
-                    SearchEngine.BRAVE,
-                    SearchEngine.BING,
-                    SearchEngine.AI_MODE,
-                    SearchEngine.GOOGLE_DRIVE,
-                    SearchEngine.GOOGLE_PHOTOS,
-                )
+                availableEngines
+                    .filter { it.isDefaultDisabledOnFirstRun() }
+                    .toMutableSet()
 
-            if (!isPackageInstalled(packageManager, PackageConstants.REDDIT_PACKAGE)) {
-                defaultDisabled.add(SearchEngine.REDDIT)
-            }
-            if (!isPackageInstalled(packageManager, PackageConstants.AMAZON_PACKAGE)) {
-                defaultDisabled.add(SearchEngine.AMAZON)
-            }
-            if (!isPackageInstalled(packageManager, PackageConstants.X_PACKAGE)) {
-                defaultDisabled.add(SearchEngine.X)
-            }
-            if (!isPackageInstalled(packageManager, PackageConstants.YOU_COM_PACKAGE_NAME)) {
-                defaultDisabled.add(SearchEngine.YOU_COM)
-            }
-            if (!isPackageInstalled(packageManager, PackageConstants.WIKIPEDIA_PACKAGE_NAME)) {
-                defaultDisabled.add(SearchEngine.WIKIPEDIA)
-            }
-            if (!isPackageInstalled(packageManager, PackageConstants.STARTPAGE_PACKAGE_NAME)) {
-                defaultDisabled.add(SearchEngine.STARTPAGE)
-            }
+            availableEngines
+                .filter { it.shouldDefaultDisableIfAppMissing() }
+                .forEach { engine ->
+                    val hasInstalledCandidate =
+                        engine
+                            .getAppPackageCandidates()
+                            .any { packageName -> isPackageInstalled(packageManager, packageName) }
+                    if (!hasInstalledCandidate) {
+                        defaultDisabled.add(engine)
+                    }
+                }
 
             val filteredDefault =
                 if (hasGemini) {

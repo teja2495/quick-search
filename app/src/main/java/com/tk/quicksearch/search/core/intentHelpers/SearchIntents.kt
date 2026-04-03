@@ -24,59 +24,9 @@ internal object SearchIntents {
         amazonDomain: String? = null,
         onShowToast: ((Int, String?) -> Unit)? = null,
     ) {
-        // Handle apps with native integrations
-        when (searchEngine) {
-            SearchEngine.GEMINI -> {
-                SearchEngineIntents.openGemini(context, query)
-                return
-            }
-
-            SearchEngine.GOOGLE_PHOTOS -> {
-                SearchEngineIntents.openGooglePhotos(context, query)
-                return
-            }
-
-            SearchEngine.YOU_COM -> {
-                SearchEngineIntents.openYouCom(context, query)
-                return
-            }
-
-            SearchEngine.WIKIPEDIA -> {
-                SearchEngineIntents.openWikipedia(context, query)
-                return
-            }
-
-            SearchEngine.STARTPAGE -> {
-                SearchEngineIntents.openStartpage(context, query)
-                return
-            }
-
-            SearchEngine.SPOTIFY -> {
-                SearchEngineIntents.openSpotify(context, query)
-                return
-            }
-
-            SearchEngine.WAZE -> {
-                SearchEngineIntents.openWaze(context, query)
-                return
-            }
-
-            SearchEngine.CLAUDE -> {
-                SearchEngineIntents.openClaude(context, query)
-                return
-            }
-
-            SearchEngine.GOOGLE -> {
-                SearchEngineIntents.openGoogle(context, query)
-                return
-            }
-
-            SearchEngine.GROK -> {
-                SearchEngineIntents.openGrok(context, query)
-                return
-            }
-
-            else -> {} // Continue to web URL
+        SearchEngineIntents.getNativeHandler(searchEngine)?.let { handler ->
+            handler(context, query)
+            return
         }
 
         val searchUrl = buildSearchUrl(query, searchEngine, amazonDomain)

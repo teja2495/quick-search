@@ -12,11 +12,29 @@ import com.tk.quicksearch.searchEngines.buildSearchUrl
 import com.tk.quicksearch.searchEngines.getAppPackageCandidates
 import com.tk.quicksearch.shared.util.PackageConstants
 
+private typealias NativeSearchHandler = (Application, String) -> Unit
+
 /** Search engine specific intent functions. */
 internal object SearchEngineIntents {
     private const val GMS_SEARCH_ACTION = "com.google.android.gms.actions.SEARCH_ACTION"
     private const val GOOGLE_SEARCH_ACTION = "com.google.android.googlequicksearchbox.GOOGLE_SEARCH"
     private const val GMS_SEARCH_EXTRA_QUERY = "query"
+
+    private val nativeHandlers: Map<SearchEngine, NativeSearchHandler> =
+        mapOf(
+            SearchEngine.GEMINI to ::openGemini,
+            SearchEngine.GOOGLE_PHOTOS to ::openGooglePhotos,
+            SearchEngine.YOU_COM to ::openYouCom,
+            SearchEngine.WIKIPEDIA to ::openWikipedia,
+            SearchEngine.STARTPAGE to ::openStartpage,
+            SearchEngine.SPOTIFY to ::openSpotify,
+            SearchEngine.WAZE to ::openWaze,
+            SearchEngine.CLAUDE to ::openClaude,
+            SearchEngine.GOOGLE to ::openGoogle,
+            SearchEngine.GROK to ::openGrok,
+        )
+
+    fun getNativeHandler(searchEngine: SearchEngine): NativeSearchHandler? = nativeHandlers[searchEngine]
 
     /**
      * Opens the Gemini app with the query using a share intent. If query is empty, just launches
