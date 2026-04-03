@@ -10,6 +10,8 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.searchEngines.buildSearchUrl
 import com.tk.quicksearch.searchEngines.getAppPackageCandidates
+import com.tk.quicksearch.searchEngines.getNativeLaunchMode
+import com.tk.quicksearch.searchEngines.SearchEngineNativeLaunchMode
 import com.tk.quicksearch.shared.util.PackageConstants
 
 private typealias NativeSearchHandler = (Application, String) -> Unit
@@ -20,21 +22,20 @@ internal object SearchEngineIntents {
     private const val GOOGLE_SEARCH_ACTION = "com.google.android.googlequicksearchbox.GOOGLE_SEARCH"
     private const val GMS_SEARCH_EXTRA_QUERY = "query"
 
-    private val nativeHandlers: Map<SearchEngine, NativeSearchHandler> =
-        mapOf(
-            SearchEngine.GEMINI to ::openGemini,
-            SearchEngine.GOOGLE_PHOTOS to ::openGooglePhotos,
-            SearchEngine.YOU_COM to ::openYouCom,
-            SearchEngine.WIKIPEDIA to ::openWikipedia,
-            SearchEngine.STARTPAGE to ::openStartpage,
-            SearchEngine.SPOTIFY to ::openSpotify,
-            SearchEngine.WAZE to ::openWaze,
-            SearchEngine.CLAUDE to ::openClaude,
-            SearchEngine.GOOGLE to ::openGoogle,
-            SearchEngine.GROK to ::openGrok,
-        )
-
-    fun getNativeHandler(searchEngine: SearchEngine): NativeSearchHandler? = nativeHandlers[searchEngine]
+    fun getNativeHandler(searchEngine: SearchEngine): NativeSearchHandler? =
+        when (searchEngine.getNativeLaunchMode()) {
+            SearchEngineNativeLaunchMode.GEMINI -> ::openGemini
+            SearchEngineNativeLaunchMode.GOOGLE -> ::openGoogle
+            SearchEngineNativeLaunchMode.GOOGLE_PHOTOS -> ::openGooglePhotos
+            SearchEngineNativeLaunchMode.YOU_COM -> ::openYouCom
+            SearchEngineNativeLaunchMode.WIKIPEDIA -> ::openWikipedia
+            SearchEngineNativeLaunchMode.STARTPAGE -> ::openStartpage
+            SearchEngineNativeLaunchMode.SPOTIFY -> ::openSpotify
+            SearchEngineNativeLaunchMode.WAZE -> ::openWaze
+            SearchEngineNativeLaunchMode.CLAUDE -> ::openClaude
+            SearchEngineNativeLaunchMode.GROK -> ::openGrok
+            SearchEngineNativeLaunchMode.NONE -> null
+        }
 
     /**
      * Opens the Gemini app with the query using a share intent. If query is empty, just launches

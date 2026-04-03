@@ -30,7 +30,9 @@ import com.tk.quicksearch.searchEngines.isInAppBrowserPackage
 import com.tk.quicksearch.searchEngines.getContentDescriptionResId
 import com.tk.quicksearch.searchEngines.getDisplayName
 import com.tk.quicksearch.searchEngines.getDrawableResId
+import com.tk.quicksearch.searchEngines.getIconColorPolicy
 import com.tk.quicksearch.searchEngines.isInstallOnlyEngine
+import com.tk.quicksearch.searchEngines.SearchEngineIconColorPolicy
 
 /**
  * Configuration for rendering search target icons with different styles.
@@ -98,14 +100,7 @@ fun SearchTargetIcon(
                     }
 
                     IconRenderStyle.ADVANCED -> {
-                        val needsColorChange =
-                            targetEngine in
-                                setOf(
-                                    SearchEngine.CHATGPT,
-                                    SearchEngine.GROK,
-                                    SearchEngine.AMAZON,
-                                    SearchEngine.WIKIPEDIA,
-                                )
+                        val colorPolicy = targetEngine.getIconColorPolicy()
 
                         val backgroundColor = MaterialTheme.colorScheme.background
                         val isLightMode =
@@ -114,65 +109,65 @@ fun SearchTargetIcon(
                                 backgroundColor.blue > 0.9f
 
                         val colorFilter =
-                            if (needsColorChange && isLightMode) {
-                                if (targetEngine == SearchEngine.AMAZON) {
-                                    ColorFilter.colorMatrix(
-                                        ColorMatrix(
-                                            floatArrayOf(
-                                                0.3f,
-                                                0f,
-                                                0f,
-                                                0f,
-                                                0f,
-                                                0f,
-                                                0.3f,
-                                                0f,
-                                                0f,
-                                                0f,
-                                                0f,
-                                                0f,
-                                                0.3f,
-                                                0f,
-                                                0f,
-                                                0f,
-                                                0f,
-                                                0f,
-                                                1f,
-                                                0f,
+                            if (isLightMode) {
+                                when (colorPolicy) {
+                                    SearchEngineIconColorPolicy.DARKEN_ON_LIGHT ->
+                                        ColorFilter.colorMatrix(
+                                            ColorMatrix(
+                                                floatArrayOf(
+                                                    0.3f,
+                                                    0f,
+                                                    0f,
+                                                    0f,
+                                                    0f,
+                                                    0f,
+                                                    0.3f,
+                                                    0f,
+                                                    0f,
+                                                    0f,
+                                                    0f,
+                                                    0f,
+                                                    0.3f,
+                                                    0f,
+                                                    0f,
+                                                    0f,
+                                                    0f,
+                                                    0f,
+                                                    1f,
+                                                    0f,
+                                                ),
                                             ),
-                                        ),
-                                    )
-                                } else {
-                                    ColorFilter.colorMatrix(
-                                        ColorMatrix(
-                                            floatArrayOf(
-                                                -1f,
-                                                0f,
-                                                0f,
-                                                0f,
-                                                255f,
-                                                0f,
-                                                -1f,
-                                                0f,
-                                                0f,
-                                                255f,
-                                                0f,
-                                                0f,
-                                                -1f,
-                                                0f,
-                                                255f,
-                                                0f,
-                                                0f,
-                                                0f,
-                                                1f,
-                                                0f,
+                                        )
+                                    SearchEngineIconColorPolicy.INVERT_ON_LIGHT ->
+                                        ColorFilter.colorMatrix(
+                                            ColorMatrix(
+                                                floatArrayOf(
+                                                    -1f,
+                                                    0f,
+                                                    0f,
+                                                    0f,
+                                                    255f,
+                                                    0f,
+                                                    -1f,
+                                                    0f,
+                                                    0f,
+                                                    255f,
+                                                    0f,
+                                                    0f,
+                                                    -1f,
+                                                    0f,
+                                                    255f,
+                                                    0f,
+                                                    0f,
+                                                    0f,
+                                                    1f,
+                                                    0f,
+                                                ),
                                             ),
-                                        ),
-                                    )
+                                        )
+                                    SearchEngineIconColorPolicy.NONE -> null
                                 }
-                            } else {
-                                null
-                            }
+                            } else null
 
                         Image(
                             painter = painterResource(id = targetEngine.getDrawableResId()),
