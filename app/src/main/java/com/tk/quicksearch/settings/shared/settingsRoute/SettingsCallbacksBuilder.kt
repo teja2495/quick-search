@@ -155,4 +155,5 @@ internal fun buildSettingsScreenCallbacks(
         onRequestCalendarPermission = handlers.onRequestCalendarPermission,
         onRequestCallPermission = handlers.onRequestCallPermission,
         onRequestWallpaperPermission = handlers.onRequestWallpaperPermission,
+        onApplySettingsCommand = viewModel::applySettingsCommand,
     )

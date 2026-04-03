@@ -33,6 +33,7 @@ import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.settings.AppShortcutsSettings.AppShortcutSource
+import com.tk.quicksearch.settings.shared.SettingsCommand
 import com.tk.quicksearch.settings.shared.SettingsScreenCallbacks
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 import com.tk.quicksearch.settings.shared.SettingsScreenState
@@ -205,12 +206,40 @@ internal fun SettingsDetailLevel2Screen(
                             onSetCurrencyConverterAlias = callbacks.onSetCurrencyConverterAlias,
                             onSetWordClockAlias = callbacks.onSetWordClockAlias,
                             onSetDictionaryAlias = callbacks.onSetDictionaryAlias,
-                            onCalculatorToggle = callbacks.onToggleCalculator,
-                            onUnitConverterToggle = callbacks.onToggleUnitConverter,
-                            onDateCalculatorToggle = callbacks.onToggleDateCalculator,
+                            onCalculatorToggle = { enabled ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.Toggle(
+                                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.CALCULATOR,
+                                        enabled = enabled,
+                                    ),
+                                )
+                            },
+                            onUnitConverterToggle = { enabled ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.Toggle(
+                                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.UNIT_CONVERTER,
+                                        enabled = enabled,
+                                    ),
+                                )
+                            },
+                            onDateCalculatorToggle = { enabled ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.Toggle(
+                                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.DATE_CALCULATOR,
+                                        enabled = enabled,
+                                    ),
+                                )
+                            },
                             onCurrencyConverterToggle = callbacks.onToggleCurrencyConverter,
                             onWordClockToggle = callbacks.onToggleWordClock,
-                            onDictionaryToggle = callbacks.onToggleDictionary,
+                            onDictionaryToggle = { enabled ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.Toggle(
+                                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.DICTIONARY,
+                                        enabled = enabled,
+                                    ),
+                                )
+                            },
                             onNavigateToGeminiApiSetup = {
                                 onNavigateToDetail(SettingsDetailType.GEMINI_API_CONFIG)
                             },
@@ -310,9 +339,23 @@ internal fun SettingsDetailLevel2Screen(
                                 enabledFileTypes = state.enabledFileTypes,
                                 onToggleFileType = callbacks.onToggleFileType,
                                 showFolders = state.showFolders,
-                                onToggleFolders = callbacks.onToggleFolders,
+                                onToggleFolders = { enabled ->
+                                    callbacks.onApplySettingsCommand(
+                                        SettingsCommand.Toggle(
+                                            key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.SHOW_FOLDERS,
+                                            enabled = enabled,
+                                        ),
+                                    )
+                                },
                                 showSystemFiles = state.showSystemFiles,
-                                onToggleSystemFiles = callbacks.onToggleSystemFiles,
+                                onToggleSystemFiles = { enabled ->
+                                    callbacks.onApplySettingsCommand(
+                                        SettingsCommand.Toggle(
+                                            key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.SHOW_SYSTEM_FILES,
+                                            enabled = enabled,
+                                        ),
+                                    )
+                                },
                                 folderWhitelistPatterns = state.folderWhitelistPatterns,
                                 onSetFolderWhitelistPatterns = callbacks.onSetFolderWhitelistPatterns,
                                 folderBlacklistPatterns = state.folderBlacklistPatterns,

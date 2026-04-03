@@ -52,6 +52,9 @@ import com.tk.quicksearch.overlay.OverlayModeController
 import com.tk.quicksearch.shared.permissions.PermissionSettingsDialog
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.settings.shared.SettingsCommand
+import com.tk.quicksearch.settings.shared.applySettingsCommand
+import com.tk.quicksearch.settings.shared.isAppSettingToggleEnabled
 import com.tk.quicksearch.search.searchScreen.SearchScreen as SearchScreenComposable
 import com.tk.quicksearch.search.searchScreen.ExcludeUndoSnackbarHost
 import kotlinx.coroutines.launch
@@ -284,42 +287,7 @@ fun SearchRoute(
         }
 
     val isAppSettingToggleChecked: (AppSettingResult) -> Boolean = { setting ->
-        when (setting.toggleKey) {
-            AppSettingsToggleKey.OVERLAY_MODE -> uiState.overlayModeEnabled
-            AppSettingsToggleKey.ONE_HANDED_MODE -> uiState.oneHandedMode
-            AppSettingsToggleKey.BOTTOM_SEARCHBAR -> uiState.bottomSearchBarEnabled
-            AppSettingsToggleKey.APP_LABELS -> uiState.showAppLabels
-            AppSettingsToggleKey.SEARCH_ENGINE_COMPACT_MODE -> uiState.isSearchEngineCompactMode
-            AppSettingsToggleKey.SEARCH_ENGINE_ALIAS_SUFFIX -> uiState.isSearchEngineAliasSuffixEnabled
-            AppSettingsToggleKey.CALCULATOR -> uiState.calculatorEnabled
-            AppSettingsToggleKey.UNIT_CONVERTER -> uiState.unitConverterEnabled
-            AppSettingsToggleKey.DATE_CALCULATOR -> uiState.dateCalculatorEnabled
-            AppSettingsToggleKey.DICTIONARY -> uiState.dictionaryEnabled
-            AppSettingsToggleKey.APP_SUGGESTIONS -> uiState.appSuggestionsEnabled
-            AppSettingsToggleKey.WEB_SUGGESTIONS -> uiState.webSuggestionsEnabled
-            AppSettingsToggleKey.RECENT_QUERIES -> uiState.recentQueriesEnabled
-            AppSettingsToggleKey.TOP_RESULT_INDICATOR -> uiState.topResultIndicatorEnabled
-            AppSettingsToggleKey.OPEN_KEYBOARD -> uiState.openKeyboardOnLaunch
-            AppSettingsToggleKey.CLEAR_QUERY -> uiState.clearQueryOnLaunch
-            AppSettingsToggleKey.AUTO_CLOSE_OVERLAY -> uiState.autoCloseOverlay
-            AppSettingsToggleKey.CIRCULAR_APP_ICONS ->
-                uiState.appIconShape == com.tk.quicksearch.search.core.AppIconShape.CIRCLE
-            AppSettingsToggleKey.SHOW_FOLDERS -> uiState.showFolders
-            AppSettingsToggleKey.SHOW_SYSTEM_FILES -> uiState.showSystemFiles
-            AppSettingsToggleKey.DIRECT_DIAL -> uiState.directDialEnabled
-            AppSettingsToggleKey.SEARCH_APPS -> !uiState.disabledSections.contains(SearchSection.APPS)
-            AppSettingsToggleKey.SEARCH_APP_SHORTCUTS -> !uiState.disabledSections.contains(SearchSection.APP_SHORTCUTS)
-            AppSettingsToggleKey.SEARCH_CONTACTS -> !uiState.disabledSections.contains(SearchSection.CONTACTS)
-            AppSettingsToggleKey.SEARCH_FILES -> !uiState.disabledSections.contains(SearchSection.FILES)
-            AppSettingsToggleKey.SEARCH_DEVICE_SETTINGS -> !uiState.disabledSections.contains(SearchSection.SETTINGS)
-            AppSettingsToggleKey.SEARCH_CALENDAR -> !uiState.disabledSections.contains(SearchSection.CALENDAR)
-            AppSettingsToggleKey.SEARCH_APP_SETTINGS -> !uiState.disabledSections.contains(SearchSection.APP_SETTINGS)
-            AppSettingsToggleKey.ASSISTANT_LAUNCH_VOICE_MODE -> uiState.assistantLaunchVoiceModeEnabled
-            AppSettingsToggleKey.WALLPAPER_ACCENT -> uiState.wallpaperAccentEnabled
-            AppSettingsToggleKey.THEMED_ICONS -> uiState.themedIconsEnabled
-            AppSettingsToggleKey.APPS_PER_ROW -> false
-            null -> false
-        }
+        setting.toggleKey?.let { toggleKey -> uiState.isAppSettingToggleEnabled(toggleKey) } ?: false
     }
 
     val onAppSettingToggle: (AppSettingResult, Boolean) -> Unit = { setting, enabled ->
@@ -341,32 +309,37 @@ fun SearchRoute(
                     (context as? android.app.Activity)?.finish()
                 }
             }
-            AppSettingsToggleKey.ONE_HANDED_MODE -> viewModel.setOneHandedMode(enabled)
-            AppSettingsToggleKey.BOTTOM_SEARCHBAR -> viewModel.setBottomSearchBarEnabled(enabled)
-            AppSettingsToggleKey.APP_LABELS -> viewModel.setShowAppLabels(enabled)
-            AppSettingsToggleKey.SEARCH_ENGINE_COMPACT_MODE -> viewModel.setSearchEngineCompactMode(enabled)
-            AppSettingsToggleKey.SEARCH_ENGINE_ALIAS_SUFFIX -> viewModel.setSearchEngineAliasSuffixEnabled(enabled)
-            AppSettingsToggleKey.CALCULATOR -> viewModel.setCalculatorEnabled(enabled)
-            AppSettingsToggleKey.UNIT_CONVERTER -> viewModel.setUnitConverterEnabled(enabled)
-            AppSettingsToggleKey.DATE_CALCULATOR -> viewModel.setDateCalculatorEnabled(enabled)
-            AppSettingsToggleKey.DICTIONARY -> viewModel.setDictionaryEnabled(enabled)
-            AppSettingsToggleKey.APP_SUGGESTIONS -> viewModel.setAppSuggestionsEnabled(enabled)
-            AppSettingsToggleKey.WEB_SUGGESTIONS -> viewModel.setWebSuggestionsEnabled(enabled)
-            AppSettingsToggleKey.RECENT_QUERIES -> viewModel.setRecentQueriesEnabled(enabled)
-            AppSettingsToggleKey.TOP_RESULT_INDICATOR -> viewModel.setTopResultIndicatorEnabled(enabled)
-            AppSettingsToggleKey.OPEN_KEYBOARD -> viewModel.setOpenKeyboardOnLaunchEnabled(enabled)
-            AppSettingsToggleKey.CLEAR_QUERY -> viewModel.setClearQueryOnLaunchEnabled(enabled)
-            AppSettingsToggleKey.AUTO_CLOSE_OVERLAY -> viewModel.setAutoCloseOverlayEnabled(enabled)
-            AppSettingsToggleKey.CIRCULAR_APP_ICONS ->
-                viewModel.setAppIconShape(
-                    if (enabled) {
-                        com.tk.quicksearch.search.core.AppIconShape.CIRCLE
-                    } else {
-                        com.tk.quicksearch.search.core.AppIconShape.DEFAULT
-                    },
-                )
-            AppSettingsToggleKey.SHOW_FOLDERS -> viewModel.setShowFolders(enabled)
-            AppSettingsToggleKey.SHOW_SYSTEM_FILES -> viewModel.setShowSystemFiles(enabled)
+            AppSettingsToggleKey.ONE_HANDED_MODE,
+            AppSettingsToggleKey.BOTTOM_SEARCHBAR,
+            AppSettingsToggleKey.APP_LABELS,
+            AppSettingsToggleKey.SEARCH_ENGINE_COMPACT_MODE,
+            AppSettingsToggleKey.SEARCH_ENGINE_ALIAS_SUFFIX,
+            AppSettingsToggleKey.CALCULATOR,
+            AppSettingsToggleKey.UNIT_CONVERTER,
+            AppSettingsToggleKey.DATE_CALCULATOR,
+            AppSettingsToggleKey.DICTIONARY,
+            AppSettingsToggleKey.APP_SUGGESTIONS,
+            AppSettingsToggleKey.WEB_SUGGESTIONS,
+            AppSettingsToggleKey.RECENT_QUERIES,
+            AppSettingsToggleKey.TOP_RESULT_INDICATOR,
+            AppSettingsToggleKey.OPEN_KEYBOARD,
+            AppSettingsToggleKey.CLEAR_QUERY,
+            AppSettingsToggleKey.AUTO_CLOSE_OVERLAY,
+            AppSettingsToggleKey.CIRCULAR_APP_ICONS,
+            AppSettingsToggleKey.SHOW_FOLDERS,
+            AppSettingsToggleKey.SHOW_SYSTEM_FILES,
+            AppSettingsToggleKey.SEARCH_APPS,
+            AppSettingsToggleKey.SEARCH_APP_SHORTCUTS,
+            AppSettingsToggleKey.SEARCH_CONTACTS,
+            AppSettingsToggleKey.SEARCH_FILES,
+            AppSettingsToggleKey.SEARCH_DEVICE_SETTINGS,
+            AppSettingsToggleKey.SEARCH_CALENDAR,
+            AppSettingsToggleKey.SEARCH_APP_SETTINGS,
+            AppSettingsToggleKey.ASSISTANT_LAUNCH_VOICE_MODE,
+            AppSettingsToggleKey.WALLPAPER_ACCENT,
+            AppSettingsToggleKey.THEMED_ICONS,
+            AppSettingsToggleKey.APPS_PER_ROW,
+            -> viewModel.applySettingsCommand(SettingsCommand.Toggle(setting.toggleKey, enabled))
             AppSettingsToggleKey.DIRECT_DIAL -> {
                 if (enabled) {
                     if (uiState.hasCallPermission) {
@@ -382,17 +355,6 @@ fun SearchRoute(
                     viewModel.setDirectDialEnabled(false)
                 }
             }
-            AppSettingsToggleKey.SEARCH_APPS -> viewModel.setSectionEnabled(SearchSection.APPS, enabled)
-            AppSettingsToggleKey.SEARCH_APP_SHORTCUTS -> viewModel.setSectionEnabled(SearchSection.APP_SHORTCUTS, enabled)
-            AppSettingsToggleKey.SEARCH_CONTACTS -> viewModel.setSectionEnabled(SearchSection.CONTACTS, enabled)
-            AppSettingsToggleKey.SEARCH_FILES -> viewModel.setSectionEnabled(SearchSection.FILES, enabled)
-            AppSettingsToggleKey.SEARCH_DEVICE_SETTINGS -> viewModel.setSectionEnabled(SearchSection.SETTINGS, enabled)
-            AppSettingsToggleKey.SEARCH_CALENDAR -> viewModel.setSectionEnabled(SearchSection.CALENDAR, enabled)
-            AppSettingsToggleKey.SEARCH_APP_SETTINGS -> viewModel.setSectionEnabled(SearchSection.APP_SETTINGS, enabled)
-            AppSettingsToggleKey.ASSISTANT_LAUNCH_VOICE_MODE -> viewModel.setAssistantLaunchVoiceModeEnabled(enabled)
-            AppSettingsToggleKey.WALLPAPER_ACCENT -> viewModel.setWallpaperAccentEnabled(enabled)
-            AppSettingsToggleKey.THEMED_ICONS -> viewModel.setThemedIconsEnabled(enabled)
-            AppSettingsToggleKey.APPS_PER_ROW -> Unit
             null -> Unit
         }
     }

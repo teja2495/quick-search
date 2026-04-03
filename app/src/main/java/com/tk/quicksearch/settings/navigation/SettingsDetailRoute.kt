@@ -72,8 +72,10 @@ fun SettingsDetailRoute(
                         .onFailure {
                             // Some providers do not support persistable permissions.
                         }
-                viewModel.setCustomImageUri(uri.toString())
-                viewModel.setBackgroundSource(BackgroundSource.CUSTOM_IMAGE)
+                viewModel.applySettingsCommand(SettingsCommand.CustomImageUriSetting(uri.toString()))
+                viewModel.applySettingsCommand(
+                    SettingsCommand.BackgroundSourceSetting(BackgroundSource.CUSTOM_IMAGE),
+                )
             }
 
     val onSelectWallpaperSource: () -> Unit = wallpaperPermissionController.onRequestPermission
@@ -390,6 +392,7 @@ fun SettingsDetailRoute(
     } else {
         SettingsDetailLevel1Screen(
                 modifier = modifier,
+                uiState = uiState,
                 state = resolvedState,
                 callbacks = callbacks,
                 detailType = detailType,
