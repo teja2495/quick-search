@@ -69,7 +69,6 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
 import com.tk.quicksearch.widgets.utils.requestAddQuickSearchWidget
 import com.tk.quicksearch.settings.AppShortcutsSettings.*
-import com.tk.quicksearch.settings.shared.SettingsScreenCallbacks
 import com.tk.quicksearch.settings.shared.SettingsScreenState
 import com.tk.quicksearch.settings.shared.SectionSettingsSection
 import com.tk.quicksearch.settings.shared.createPermissionRequestHandler
@@ -289,221 +288,102 @@ fun SettingsRoute(
     }
 
     val callbacks =
-        SettingsScreenCallbacks(
-            onBack = onBack,
-            onRemoveSuggestionExcludedApp = viewModel::unhideAppFromSuggestions,
-            onRemoveResultExcludedApp = viewModel::unhideAppFromResults,
-            onRemoveExcludedContact = viewModel::removeExcludedContact,
-            onRemoveExcludedFile = viewModel::removeExcludedFile,
-            onRemoveExcludedSetting = viewModel::removeExcludedSetting,
-            onRemoveExcludedAppShortcut = viewModel::removeExcludedAppShortcut,
-            onClearAllExclusions = viewModel::clearAllExclusions,
-            onToggleSearchEngine = viewModel::setSearchTargetEnabled,
-            onReorderSearchEngines = viewModel::reorderSearchTargets,
-            onAddCustomSearchEngine = viewModel::addCustomSearchEngine,
-            onUpdateCustomSearchEngine = viewModel::updateCustomSearchEngine,
-            onDeleteCustomSearchEngine = viewModel::deleteCustomSearchEngine,
-            onToggleFileType = viewModel::setFileTypeEnabled,
-            onToggleFolders = viewModel::setShowFolders,
-            onToggleSystemFiles = viewModel::setShowSystemFiles,
-            onSetFolderWhitelistPatterns = viewModel::setFolderWhitelistPatterns,
-            onSetFolderBlacklistPatterns = viewModel::setFolderBlacklistPatterns,
-            onRemoveExcludedFileExtension = viewModel::removeExcludedFileExtension,
-            onToggleOneHandedMode = viewModel::setOneHandedMode,
-            onToggleBottomSearchBar = viewModel::setBottomSearchBarEnabled,
-            onToggleOverlayMode = onToggleOverlayMode,
-            onToggleOverlayBlurEffect = viewModel::setOverlayBlurEffectEnabled,
-            onDismissOverlayAssistantTip = viewModel::dismissOverlayAssistantTip,
-            setAliasCode = viewModel::setAlias,
-            setAliasEnabled = viewModel::setAliasEnabled,
-                    onSetMessagingApp = viewModel::setMessagingApp,
-                    onSetCallingApp = viewModel::setCallingApp,
-            onWallpaperBackgroundAlphaChange = viewModel::setWallpaperBackgroundAlpha,
-            onWallpaperBlurRadiusChange = viewModel::setWallpaperBlurRadius,
-            onSetAppTheme = viewModel::setAppTheme,
-            onOverlayThemeIntensityChange = viewModel::setOverlayThemeIntensity,
-            onSetAppThemeMode = viewModel::setAppThemeMode,
-            onFontScaleMultiplierChange = viewModel::setFontScaleMultiplier,
-            onSetBackgroundSource = viewModel::setBackgroundSource,
-            onPickCustomImage = {},
-            onSelectIconPack = viewModel::setIconPackPackage,
-            onSearchIconPacks = viewModel::searchIconPacks,
-            onRefreshIconPacks = viewModel::refreshIconPacks,
-            onToggleAppLabels = viewModel::setShowAppLabels,
-            onSetPhoneAppGridColumns = viewModel::setPhoneAppGridColumns,
-            onSetAppIconShape = viewModel::setAppIconShape,
-            onSetLauncherAppIcon = viewModel::setLauncherAppIcon,
-            onToggleThemedIcons = viewModel::setThemedIconsEnabled,
-            onToggleDirectDial = onToggleDirectDial,
-            onToggleSection = onToggleSection,
-            onToggleSearchEngineCompactMode = viewModel::setSearchEngineCompactMode,
-            onSetSearchEngineCompactRowCount = viewModel::setSearchEngineCompactRowCount,
-            onToggleSearchEngineAliasSuffixEnabled = viewModel::setSearchEngineAliasSuffixEnabled,
-            onToggleAliasTriggerAfterSpaceEnabled = viewModel::setAliasTriggerAfterSpaceEnabled,
-            onSetAmazonDomain = viewModel::setAmazonDomain,
-            onSetCalculatorAlias = { code ->
-                viewModel.setAlias(
-                    com.tk.quicksearch.searchEngines.AliasHandler.CALCULATOR_ALIAS_FEATURE_ID,
-                    code,
-                )
-            },
-            onSetUnitConverterAlias = { code ->
-                viewModel.setAlias(
-                    com.tk.quicksearch.searchEngines.AliasHandler.UNIT_CONVERTER_ALIAS_FEATURE_ID,
-                    code,
-                )
-            },
-            onSetDateCalculatorAlias = { code ->
-                viewModel.setAlias(
-                    com.tk.quicksearch.searchEngines.AliasHandler.DATE_CALCULATOR_ALIAS_FEATURE_ID,
-                    code,
-                )
-            },
-            onSetCurrencyConverterAlias = { code ->
-                viewModel.setAlias(
-                    com.tk.quicksearch.searchEngines.AliasHandler.CURRENCY_CONVERTER_ALIAS_FEATURE_ID,
-                    code,
-                )
-            },
-            onSetWordClockAlias = { code ->
-                viewModel.setAlias(
-                    com.tk.quicksearch.searchEngines.AliasHandler.WORD_CLOCK_ALIAS_FEATURE_ID,
-                    code,
-                )
-            },
-            onSetDictionaryAlias = { code ->
-                viewModel.setAlias(
-                    com.tk.quicksearch.searchEngines.AliasHandler.DICTIONARY_ALIAS_FEATURE_ID,
-                    code,
-                )
-            },
-            onSetSearchSectionAlias = { targetId, code ->
-                viewModel.setAlias(targetId, code)
-            },
-            onToggleCalculator = viewModel::setCalculatorEnabled,
-            onToggleUnitConverter = viewModel::setUnitConverterEnabled,
-            onToggleDateCalculator = viewModel::setDateCalculatorEnabled,
-            onToggleCurrencyConverter = viewModel::setCurrencyConverterEnabled,
-            onToggleWordClock = viewModel::setWordClockEnabled,
-            onToggleDictionary = viewModel::setDictionaryEnabled,
-            onToggleAppSuggestions = viewModel::setAppSuggestionsEnabled,
-            onToggleWebSuggestions = viewModel::setWebSuggestionsEnabled,
-            onWebSuggestionsCountChange = viewModel::setWebSuggestionsCount,
-            onToggleTopResultIndicator = viewModel::setTopResultIndicatorEnabled,
-            onToggleOpenKeyboardOnLaunch = viewModel::setOpenKeyboardOnLaunchEnabled,
-            onToggleClearQueryOnLaunch = viewModel::setClearQueryOnLaunchEnabled,
-            onToggleAutoCloseOverlay = viewModel::setAutoCloseOverlayEnabled,
-            onToggleWallpaperAccent = viewModel::setWallpaperAccentEnabled,
-            onToggleRecentQueries = viewModel::setRecentQueriesEnabled,
-            onSetGeminiApiKey = viewModel::setGeminiApiKey,
-            onSetPersonalContext = viewModel::setPersonalContext,
-            onSetGeminiModel = viewModel::setGeminiModel,
-            onSetGeminiGroundingEnabled = viewModel::setGeminiGroundingEnabled,
-            onRefreshAvailableGeminiModels = viewModel::refreshAvailableGeminiModels,
-            onOpenDirectSearchConfigure = {
-                onNavigateToDetail(com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType.GEMINI_API_CONFIG)
-            },
-            onToggleAppShortcutEnabled = viewModel::setAppShortcutEnabled,
-            onLaunchAppShortcut = viewModel::launchAppShortcut,
-            onOpenAddAppShortcutDialog = appShortcutSourceFlow.openSourcePicker,
-            onAddAppShortcutFromSource = appShortcutSourceFlow.selectSource,
-            onAddAppDeepLinkShortcut = { packageName, shortcutName, deepLink, iconBase64 ->
-                viewModel.addCustomAppDeepLinkShortcut(
-                    packageName = packageName,
-                    shortcutName = shortcutName,
-                    deepLink = deepLink,
-                    iconBase64 = iconBase64,
-                )
-            },
-            onAddSearchTargetQueryShortcut = { target, shortcutName, shortcutQuery, mode ->
-                viewModel.addSearchTargetQueryShortcut(
-                    target = target,
-                    shortcutName = shortcutName,
-                    shortcutQuery = shortcutQuery,
-                    mode = mode,
-                )
-            },
-            onUpdateCustomAppShortcut = viewModel::updateCustomAppShortcut,
-            onDeleteCustomAppShortcut = viewModel::deleteCustomAppShortcut,
-            onLaunchDeviceSetting = viewModel::openSetting,
-            onLaunchCalendarEvent = viewModel::openCalendarEvent,
-            onRequestAppUninstall = viewModel::requestUninstall,
-            onOpenAppInfo = viewModel::openAppInfo,
-            onAddHomeScreenWidget = onRequestAddHomeScreenWidget,
-            onAddQuickSettingsTile = onRequestAddQuickSettingsTile,
-            onSetDefaultAssistant = {
-                try {
-                    val intent =
-                        Intent(android.provider.Settings.ACTION_VOICE_INPUT_SETTINGS)
-                    context.startActivity(intent)
-                } catch (e: Exception) {
-                    // Fallback to general settings if voice input settings not available
-                    try {
-                        val intent = Intent(android.provider.Settings.ACTION_SETTINGS)
-                        context.startActivity(intent)
-                    } catch (e: Exception) {
-                        Toast
-                            .makeText(
-                                context,
-                                context.getString(
-                                    R.string.settings_unable_to_open_settings,
-                                ),
-                                Toast.LENGTH_SHORT,
-                            ).show()
-                    }
-                }
-            },
-            onToggleAssistantLaunchVoiceMode = { enabled ->
-                userPreferences.setAssistantLaunchVoiceModeEnabled(enabled)
-            },
-            onRefreshApps = { showToast ->
-                if (SearchSection.APPS in uiState.disabledSections) {
-                    Toast
-                        .makeText(
-                            context,
-                            context.getString(
-                                R.string.settings_refresh_apps_disabled,
-                            ),
-                            Toast.LENGTH_SHORT,
-                        ).show()
-                } else {
-                    viewModel.refreshApps(showToast)
-                }
-            },
-            onRefreshContacts = { showToast ->
-                if (SearchSection.CONTACTS in uiState.disabledSections) {
-                    Toast
-                        .makeText(
-                            context,
-                            context.getString(
-                                R.string.settings_refresh_contacts_disabled,
-                            ),
-                            Toast.LENGTH_SHORT,
-                        ).show()
-                } else {
-                    viewModel.refreshContacts(showToast)
-                }
-            },
-            onRefreshFiles = { showToast ->
-                if (SearchSection.FILES in uiState.disabledSections) {
-                    Toast
-                        .makeText(
-                            context,
-                            context.getString(
-                                R.string.settings_refresh_files_disabled,
-                            ),
-                            Toast.LENGTH_SHORT,
-                        ).show()
-                } else {
-                    viewModel.refreshFiles(showToast)
-                }
-            },
-            onRequestUsagePermission = onRequestUsagePermission,
-            onRequestContactPermission = onRequestContactPermission,
-            onRequestFilePermission = onRequestFilePermission,
-            onRequestCalendarPermission = onRequestCalendarPermission,
-            onRequestCallPermission = onRequestCallPermission,
-            onRequestWallpaperPermission = onRequestWallpaperPermission,
+        buildSettingsScreenCallbacks(
+            viewModel = viewModel,
+            handlers =
+                SettingsRouteHandlers(
+                    onBack = onBack,
+                    onToggleOverlayMode = onToggleOverlayMode,
+                    onPickCustomImage = {},
+                    onToggleDirectDial = onToggleDirectDial,
+                    onToggleSection = onToggleSection,
+                    onOpenDirectSearchConfigure = {
+                        onNavigateToDetail(com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType.GEMINI_API_CONFIG)
+                    },
+                    onOpenAddAppShortcutDialog = appShortcutSourceFlow.openSourcePicker,
+                    onAddAppShortcutFromSource = appShortcutSourceFlow.selectSource,
+                    onAddAppDeepLinkShortcut = { packageName, shortcutName, deepLink, iconBase64 ->
+                        viewModel.addCustomAppDeepLinkShortcut(
+                            packageName = packageName,
+                            shortcutName = shortcutName,
+                            deepLink = deepLink,
+                            iconBase64 = iconBase64,
+                        )
+                    },
+                    onAddSearchTargetQueryShortcut = { target, shortcutName, shortcutQuery, mode ->
+                        viewModel.addSearchTargetQueryShortcut(
+                            target = target,
+                            shortcutName = shortcutName,
+                            shortcutQuery = shortcutQuery,
+                            mode = mode,
+                        )
+                    },
+                    onAddHomeScreenWidget = onRequestAddHomeScreenWidget,
+                    onAddQuickSettingsTile = onRequestAddQuickSettingsTile,
+                    onSetDefaultAssistant = {
+                        try {
+                            val intent = Intent(android.provider.Settings.ACTION_VOICE_INPUT_SETTINGS)
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            try {
+                                val intent = Intent(android.provider.Settings.ACTION_SETTINGS)
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                                Toast
+                                    .makeText(
+                                        context,
+                                        context.getString(R.string.settings_unable_to_open_settings),
+                                        Toast.LENGTH_SHORT,
+                                    ).show()
+                            }
+                        }
+                    },
+                    onToggleAssistantLaunchVoiceMode = { enabled ->
+                        userPreferences.setAssistantLaunchVoiceModeEnabled(enabled)
+                    },
+                    onRefreshApps = { showToast ->
+                        if (SearchSection.APPS in uiState.disabledSections) {
+                            Toast
+                                .makeText(
+                                    context,
+                                    context.getString(R.string.settings_refresh_apps_disabled),
+                                    Toast.LENGTH_SHORT,
+                                ).show()
+                        } else {
+                            viewModel.refreshApps(showToast)
+                        }
+                    },
+                    onRefreshContacts = { showToast ->
+                        if (SearchSection.CONTACTS in uiState.disabledSections) {
+                            Toast
+                                .makeText(
+                                    context,
+                                    context.getString(R.string.settings_refresh_contacts_disabled),
+                                    Toast.LENGTH_SHORT,
+                                ).show()
+                        } else {
+                            viewModel.refreshContacts(showToast)
+                        }
+                    },
+                    onRefreshFiles = { showToast ->
+                        if (SearchSection.FILES in uiState.disabledSections) {
+                            Toast
+                                .makeText(
+                                    context,
+                                    context.getString(R.string.settings_refresh_files_disabled),
+                                    Toast.LENGTH_SHORT,
+                                ).show()
+                        } else {
+                            viewModel.refreshFiles(showToast)
+                        }
+                    },
+                    onRequestUsagePermission = onRequestUsagePermission,
+                    onRequestContactPermission = onRequestContactPermission,
+                    onRequestFilePermission = onRequestFilePermission,
+                    onRequestCalendarPermission = onRequestCalendarPermission,
+                    onRequestCallPermission = onRequestCallPermission,
+                    onRequestWallpaperPermission = onRequestWallpaperPermission,
+                ),
         )
 
     // Refresh permission state and reset banner session dismissed flag when activity starts/resumes

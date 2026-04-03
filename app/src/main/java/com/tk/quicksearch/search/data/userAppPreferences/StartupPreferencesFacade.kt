@@ -35,7 +35,6 @@ class StartupPreferencesFacade(
             val clearQueryOnLaunch: Boolean,
             val autoCloseOverlay: Boolean,
             val overlayModeEnabled: Boolean,
-            val overlayBlurEffectEnabled: Boolean = false,
             val directDialEnabled: Boolean,
             val hasSeenDirectDialChoice: Boolean,
             val hasSeenSearchEngineOnboarding: Boolean,
@@ -212,13 +211,6 @@ class StartupPreferencesFacade(
                         allPrefs[
                                 com.tk.quicksearch.search.data.preferences.UiPreferences
                                         .KEY_OVERLAY_MODE_ENABLED,
-                        ] as?
-                                Boolean
-                                ?: false,
-                overlayBlurEffectEnabled =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.UiPreferences
-                                        .KEY_OVERLAY_BLUR_EFFECT_ENABLED,
                         ] as?
                                 Boolean
                                 ?: false,
@@ -555,13 +547,6 @@ class StartupPreferencesFacade(
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.UiPreferences
                                                 .KEY_OVERLAY_MODE_ENABLED,
-                                ] as?
-                                        Boolean
-                                        ?: false,
-                        overlayBlurEffectEnabled =
-                                allPrefs[
-                                        com.tk.quicksearch.search.data.preferences.UiPreferences
-                                                .KEY_OVERLAY_BLUR_EFFECT_ENABLED,
                                 ] as?
                                         Boolean
                                         ?: false,

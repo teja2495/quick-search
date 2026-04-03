@@ -579,11 +579,6 @@ class UserAppPreferences(
 
     fun setOverlayModeEnabled(enabled: Boolean) = uiPreferences.setOverlayModeEnabled(enabled)
 
-    fun isOverlayBlurEffectEnabled(): Boolean = uiPreferences.isOverlayBlurEffectEnabled()
-
-    fun setOverlayBlurEffectEnabled(enabled: Boolean) =
-            uiPreferences.setOverlayBlurEffectEnabled(enabled)
-
     fun getMessagingApp(): MessagingApp = uiPreferences.getMessagingApp()
 
     fun setMessagingApp(app: MessagingApp) = uiPreferences.setMessagingApp(app)

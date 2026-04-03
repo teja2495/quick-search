@@ -42,7 +42,6 @@ data class SettingsScreenState(
     val oneHandedMode: Boolean,
     val bottomSearchBarEnabled: Boolean = false,
     val overlayModeEnabled: Boolean,
-    val overlayBlurEffectEnabled: Boolean = false,
     val hasSeenOverlayAssistantTip: Boolean = true,
     val shortcutCodes: Map<String, String>,
     val shortcutEnabled: Map<String, Boolean>,
@@ -102,7 +101,113 @@ data class SettingsScreenState(
     val geminiModel: String,
     val geminiGroundingEnabled: Boolean,
     val availableGeminiModels: List<GeminiTextModel>,
-)
+) {
+    val searchResults: SearchResultsSettingsState
+        get() =
+            SearchResultsSettingsState(
+                suggestionExcludedApps = suggestionExcludedApps,
+                resultExcludedApps = resultExcludedApps,
+                excludedContacts = excludedContacts,
+                excludedFiles = excludedFiles,
+                excludedSettings = excludedSettings,
+                excludedAppShortcuts = excludedAppShortcuts,
+                disabledSections = disabledSections,
+                appSuggestionsEnabled = appSuggestionsEnabled,
+                webSuggestionsEnabled = webSuggestionsEnabled,
+                webSuggestionsCount = webSuggestionsCount,
+                topResultIndicatorEnabled = topResultIndicatorEnabled,
+                recentQueriesEnabled = recentQueriesEnabled,
+            )
+
+    val searchEngines: SearchEngineSettingsState
+        get() =
+            SearchEngineSettingsState(
+                searchEngineOrder = searchEngineOrder,
+                disabledSearchEngines = disabledSearchEngines,
+                shortcutCodes = shortcutCodes,
+                shortcutEnabled = shortcutEnabled,
+                isSearchEngineCompactMode = isSearchEngineCompactMode,
+                searchEngineCompactRowCount = searchEngineCompactRowCount,
+                isSearchEngineAliasSuffixEnabled = isSearchEngineAliasSuffixEnabled,
+                isAliasTriggerAfterSpaceEnabled = isAliasTriggerAfterSpaceEnabled,
+                amazonDomain = amazonDomain,
+                hasGeminiApiKey = hasGeminiApiKey,
+                geminiApiKeyLast4 = geminiApiKeyLast4,
+                isSavingGeminiApiKey = isSavingGeminiApiKey,
+                personalContext = personalContext,
+                geminiModel = geminiModel,
+                geminiGroundingEnabled = geminiGroundingEnabled,
+                availableGeminiModels = availableGeminiModels,
+            )
+
+    val fileSearch: FileSearchSettingsState
+        get() =
+            FileSearchSettingsState(
+                enabledFileTypes = enabledFileTypes,
+                showFolders = showFolders,
+                showSystemFiles = showSystemFiles,
+                folderWhitelistPatterns = folderWhitelistPatterns,
+                folderBlacklistPatterns = folderBlacklistPatterns,
+                excludedFileExtensions = excludedFileExtensions,
+            )
+
+    val appearance: AppearanceSettingsState
+        get() =
+            AppearanceSettingsState(
+                oneHandedMode = oneHandedMode,
+                bottomSearchBarEnabled = bottomSearchBarEnabled,
+                overlayModeEnabled = overlayModeEnabled,
+                hasSeenOverlayAssistantTip = hasSeenOverlayAssistantTip,
+                hasWallpaperPermission = hasWallpaperPermission,
+                wallpaperAvailable = wallpaperAvailable,
+                wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
+                wallpaperBlurRadius = wallpaperBlurRadius,
+                appTheme = appTheme,
+                overlayThemeIntensity = overlayThemeIntensity,
+                appThemeMode = appThemeMode,
+                fontScaleMultiplier = fontScaleMultiplier,
+                backgroundSource = backgroundSource,
+                customImageUri = customImageUri,
+                selectedIconPackPackage = selectedIconPackPackage,
+                availableIconPacks = availableIconPacks,
+                showAppLabels = showAppLabels,
+                phoneAppGridColumns = phoneAppGridColumns,
+                appIconShape = appIconShape,
+                launcherAppIcon = launcherAppIcon,
+                themedIconsEnabled = themedIconsEnabled,
+                wallpaperAccentEnabled = wallpaperAccentEnabled,
+                openKeyboardOnLaunch = openKeyboardOnLaunch,
+                clearQueryOnLaunch = clearQueryOnLaunch,
+                autoCloseOverlay = autoCloseOverlay,
+            )
+
+    val tools: ToolsSettingsState
+        get() =
+            ToolsSettingsState(
+                calculatorEnabled = calculatorEnabled,
+                unitConverterEnabled = unitConverterEnabled,
+                dateCalculatorEnabled = dateCalculatorEnabled,
+                currencyConverterEnabled = currencyConverterEnabled,
+                wordClockEnabled = wordClockEnabled,
+                dictionaryEnabled = dictionaryEnabled,
+            )
+
+    val appShortcuts: AppShortcutsSettingsState
+        get() =
+            AppShortcutsSettingsState(
+                allAppShortcuts = allAppShortcuts,
+                allDeviceSettings = allDeviceSettings,
+                allApps = allApps,
+                disabledAppShortcutIds = disabledAppShortcutIds,
+                messagingApp = messagingApp,
+                callingApp = callingApp,
+                isWhatsAppInstalled = isWhatsAppInstalled,
+                isTelegramInstalled = isTelegramInstalled,
+                isSignalInstalled = isSignalInstalled,
+                isGoogleMeetInstalled = isGoogleMeetInstalled,
+                directDialEnabled = directDialEnabled,
+            )
+}
 
 /** Data class to hold all settings screen callbacks. */
 data class SettingsScreenCallbacks(
@@ -128,7 +233,6 @@ data class SettingsScreenCallbacks(
     val onToggleOneHandedMode: (Boolean) -> Unit,
     val onToggleBottomSearchBar: (Boolean) -> Unit,
     val onToggleOverlayMode: (Boolean) -> Unit,
-    val onToggleOverlayBlurEffect: (Boolean) -> Unit,
     val onDismissOverlayAssistantTip: () -> Unit,
     val setAliasCode: (SearchTarget, String) -> Unit,
     val setAliasEnabled: (SearchTarget, Boolean) -> Unit,
@@ -209,5 +313,239 @@ data class SettingsScreenCallbacks(
     val onRequestFilePermission: () -> Unit,
     val onRequestCalendarPermission: () -> Unit,
     val onRequestCallPermission: () -> Unit,
+    val onRequestWallpaperPermission: () -> Unit,
+) {
+    val searchResults: SearchResultsSettingsCallbacks
+        get() =
+            SearchResultsSettingsCallbacks(
+                onToggleSection = onToggleSection,
+                onClearAllExclusions = onClearAllExclusions,
+                onRemoveSuggestionExcludedApp = onRemoveSuggestionExcludedApp,
+                onRemoveResultExcludedApp = onRemoveResultExcludedApp,
+                onRemoveExcludedContact = onRemoveExcludedContact,
+                onRemoveExcludedFile = onRemoveExcludedFile,
+                onRemoveExcludedSetting = onRemoveExcludedSetting,
+                onRemoveExcludedAppShortcut = onRemoveExcludedAppShortcut,
+                onRemoveExcludedFileExtension = onRemoveExcludedFileExtension,
+                onToggleAppSuggestions = onToggleAppSuggestions,
+                onToggleWebSuggestions = onToggleWebSuggestions,
+                onWebSuggestionsCountChange = onWebSuggestionsCountChange,
+                onToggleTopResultIndicator = onToggleTopResultIndicator,
+                onToggleRecentQueries = onToggleRecentQueries,
+            )
+
+    val searchEngines: SearchEngineSettingsCallbacks
+        get() =
+            SearchEngineSettingsCallbacks(
+                onToggleSearchEngine = onToggleSearchEngine,
+                onReorderSearchEngines = onReorderSearchEngines,
+                onAddCustomSearchEngine = onAddCustomSearchEngine,
+                onUpdateCustomSearchEngine = onUpdateCustomSearchEngine,
+                onDeleteCustomSearchEngine = onDeleteCustomSearchEngine,
+                setAliasCode = setAliasCode,
+                setAliasEnabled = setAliasEnabled,
+                onToggleSearchEngineCompactMode = onToggleSearchEngineCompactMode,
+                onSetSearchEngineCompactRowCount = onSetSearchEngineCompactRowCount,
+                onToggleSearchEngineAliasSuffixEnabled = onToggleSearchEngineAliasSuffixEnabled,
+                onToggleAliasTriggerAfterSpaceEnabled = onToggleAliasTriggerAfterSpaceEnabled,
+                onSetAmazonDomain = onSetAmazonDomain,
+                onSetSearchSectionAlias = onSetSearchSectionAlias,
+                onSetGeminiApiKey = onSetGeminiApiKey,
+                onSetPersonalContext = onSetPersonalContext,
+                onSetGeminiModel = onSetGeminiModel,
+                onSetGeminiGroundingEnabled = onSetGeminiGroundingEnabled,
+                onRefreshAvailableGeminiModels = onRefreshAvailableGeminiModels,
+                onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
+            )
+
+    val appearance: AppearanceSettingsCallbacks
+        get() =
+            AppearanceSettingsCallbacks(
+                onToggleOneHandedMode = onToggleOneHandedMode,
+                onToggleBottomSearchBar = onToggleBottomSearchBar,
+                onToggleOverlayMode = onToggleOverlayMode,
+                onDismissOverlayAssistantTip = onDismissOverlayAssistantTip,
+                onWallpaperBackgroundAlphaChange = onWallpaperBackgroundAlphaChange,
+                onWallpaperBlurRadiusChange = onWallpaperBlurRadiusChange,
+                onSetAppTheme = onSetAppTheme,
+                onOverlayThemeIntensityChange = onOverlayThemeIntensityChange,
+                onSetAppThemeMode = onSetAppThemeMode,
+                onFontScaleMultiplierChange = onFontScaleMultiplierChange,
+                onSetBackgroundSource = onSetBackgroundSource,
+                onPickCustomImage = onPickCustomImage,
+                onSelectIconPack = onSelectIconPack,
+                onSearchIconPacks = onSearchIconPacks,
+                onRefreshIconPacks = onRefreshIconPacks,
+                onToggleAppLabels = onToggleAppLabels,
+                onSetPhoneAppGridColumns = onSetPhoneAppGridColumns,
+                onSetAppIconShape = onSetAppIconShape,
+                onSetLauncherAppIcon = onSetLauncherAppIcon,
+                onToggleThemedIcons = onToggleThemedIcons,
+                onToggleWallpaperAccent = onToggleWallpaperAccent,
+                onToggleOpenKeyboardOnLaunch = onToggleOpenKeyboardOnLaunch,
+                onToggleClearQueryOnLaunch = onToggleClearQueryOnLaunch,
+                onToggleAutoCloseOverlay = onToggleAutoCloseOverlay,
+                onRequestWallpaperPermission = onRequestWallpaperPermission,
+            )
+}
+
+data class SearchResultsSettingsState(
+    val suggestionExcludedApps: List<AppInfo>,
+    val resultExcludedApps: List<AppInfo>,
+    val excludedContacts: List<ContactInfo>,
+    val excludedFiles: List<DeviceFile>,
+    val excludedSettings: List<DeviceSetting>,
+    val excludedAppShortcuts: List<StaticShortcut>,
+    val disabledSections: Set<SearchSection>,
+    val appSuggestionsEnabled: Boolean,
+    val webSuggestionsEnabled: Boolean,
+    val webSuggestionsCount: Int,
+    val topResultIndicatorEnabled: Boolean,
+    val recentQueriesEnabled: Boolean,
+)
+
+data class SearchEngineSettingsState(
+    val searchEngineOrder: List<SearchTarget>,
+    val disabledSearchEngines: Set<String>,
+    val shortcutCodes: Map<String, String>,
+    val shortcutEnabled: Map<String, Boolean>,
+    val isSearchEngineCompactMode: Boolean,
+    val searchEngineCompactRowCount: Int,
+    val isSearchEngineAliasSuffixEnabled: Boolean,
+    val isAliasTriggerAfterSpaceEnabled: Boolean,
+    val amazonDomain: String?,
+    val hasGeminiApiKey: Boolean,
+    val geminiApiKeyLast4: String?,
+    val isSavingGeminiApiKey: Boolean,
+    val personalContext: String,
+    val geminiModel: String,
+    val geminiGroundingEnabled: Boolean,
+    val availableGeminiModels: List<GeminiTextModel>,
+)
+
+data class FileSearchSettingsState(
+    val enabledFileTypes: Set<FileType>,
+    val showFolders: Boolean,
+    val showSystemFiles: Boolean,
+    val folderWhitelistPatterns: Set<String>,
+    val folderBlacklistPatterns: Set<String>,
+    val excludedFileExtensions: Set<String>,
+)
+
+data class AppearanceSettingsState(
+    val oneHandedMode: Boolean,
+    val bottomSearchBarEnabled: Boolean,
+    val overlayModeEnabled: Boolean,
+    val hasSeenOverlayAssistantTip: Boolean,
+    val hasWallpaperPermission: Boolean,
+    val wallpaperAvailable: Boolean,
+    val wallpaperBackgroundAlpha: Float,
+    val wallpaperBlurRadius: Float,
+    val appTheme: AppTheme,
+    val overlayThemeIntensity: Float,
+    val appThemeMode: com.tk.quicksearch.search.core.AppThemeMode,
+    val fontScaleMultiplier: Float,
+    val backgroundSource: BackgroundSource,
+    val customImageUri: String?,
+    val selectedIconPackPackage: String?,
+    val availableIconPacks: List<IconPackInfo>,
+    val showAppLabels: Boolean,
+    val phoneAppGridColumns: Int,
+    val appIconShape: AppIconShape,
+    val launcherAppIcon: LauncherAppIcon,
+    val themedIconsEnabled: Boolean,
+    val wallpaperAccentEnabled: Boolean,
+    val openKeyboardOnLaunch: Boolean,
+    val clearQueryOnLaunch: Boolean,
+    val autoCloseOverlay: Boolean,
+)
+
+data class ToolsSettingsState(
+    val calculatorEnabled: Boolean,
+    val unitConverterEnabled: Boolean,
+    val dateCalculatorEnabled: Boolean,
+    val currencyConverterEnabled: Boolean,
+    val wordClockEnabled: Boolean,
+    val dictionaryEnabled: Boolean,
+)
+
+data class AppShortcutsSettingsState(
+    val allAppShortcuts: List<StaticShortcut>,
+    val allDeviceSettings: List<DeviceSetting>,
+    val allApps: List<AppInfo>,
+    val disabledAppShortcutIds: Set<String>,
+    val messagingApp: MessagingApp,
+    val callingApp: CallingApp,
+    val isWhatsAppInstalled: Boolean,
+    val isTelegramInstalled: Boolean,
+    val isSignalInstalled: Boolean,
+    val isGoogleMeetInstalled: Boolean,
+    val directDialEnabled: Boolean,
+)
+
+data class SearchResultsSettingsCallbacks(
+    val onToggleSection: (SearchSection, Boolean) -> Unit,
+    val onClearAllExclusions: () -> Unit,
+    val onRemoveSuggestionExcludedApp: (AppInfo) -> Unit,
+    val onRemoveResultExcludedApp: (AppInfo) -> Unit,
+    val onRemoveExcludedContact: (ContactInfo) -> Unit,
+    val onRemoveExcludedFile: (DeviceFile) -> Unit,
+    val onRemoveExcludedSetting: (DeviceSetting) -> Unit,
+    val onRemoveExcludedAppShortcut: (StaticShortcut) -> Unit,
+    val onRemoveExcludedFileExtension: (String) -> Unit,
+    val onToggleAppSuggestions: (Boolean) -> Unit,
+    val onToggleWebSuggestions: (Boolean) -> Unit,
+    val onWebSuggestionsCountChange: (Int) -> Unit,
+    val onToggleTopResultIndicator: (Boolean) -> Unit,
+    val onToggleRecentQueries: (Boolean) -> Unit,
+)
+
+data class SearchEngineSettingsCallbacks(
+    val onToggleSearchEngine: (SearchTarget, Boolean) -> Unit,
+    val onReorderSearchEngines: (List<SearchTarget>) -> Unit,
+    val onAddCustomSearchEngine: (String, String, String, String?) -> Unit,
+    val onUpdateCustomSearchEngine: (String, String, String, String?, String?) -> Unit,
+    val onDeleteCustomSearchEngine: (String) -> Unit,
+    val setAliasCode: (SearchTarget, String) -> Unit,
+    val setAliasEnabled: (SearchTarget, Boolean) -> Unit,
+    val onToggleSearchEngineCompactMode: (Boolean) -> Unit,
+    val onSetSearchEngineCompactRowCount: (Int) -> Unit,
+    val onToggleSearchEngineAliasSuffixEnabled: (Boolean) -> Unit,
+    val onToggleAliasTriggerAfterSpaceEnabled: (Boolean) -> Unit,
+    val onSetAmazonDomain: (String?) -> Unit,
+    val onSetSearchSectionAlias: (String, String) -> Unit,
+    val onSetGeminiApiKey: (String?) -> Unit,
+    val onSetPersonalContext: (String?) -> Unit,
+    val onSetGeminiModel: (String?) -> Unit,
+    val onSetGeminiGroundingEnabled: (Boolean) -> Unit,
+    val onRefreshAvailableGeminiModels: () -> Unit,
+    val onOpenDirectSearchConfigure: () -> Unit,
+)
+
+data class AppearanceSettingsCallbacks(
+    val onToggleOneHandedMode: (Boolean) -> Unit,
+    val onToggleBottomSearchBar: (Boolean) -> Unit,
+    val onToggleOverlayMode: (Boolean) -> Unit,
+    val onDismissOverlayAssistantTip: () -> Unit,
+    val onWallpaperBackgroundAlphaChange: (Float) -> Unit,
+    val onWallpaperBlurRadiusChange: (Float) -> Unit,
+    val onSetAppTheme: (AppTheme) -> Unit,
+    val onOverlayThemeIntensityChange: (Float) -> Unit,
+    val onSetAppThemeMode: (com.tk.quicksearch.search.core.AppThemeMode) -> Unit,
+    val onFontScaleMultiplierChange: (Float) -> Unit,
+    val onSetBackgroundSource: (BackgroundSource) -> Unit,
+    val onPickCustomImage: () -> Unit,
+    val onSelectIconPack: (String?) -> Unit,
+    val onSearchIconPacks: () -> Unit,
+    val onRefreshIconPacks: () -> Unit,
+    val onToggleAppLabels: (Boolean) -> Unit,
+    val onSetPhoneAppGridColumns: (Int) -> Unit,
+    val onSetAppIconShape: (AppIconShape) -> Unit,
+    val onSetLauncherAppIcon: (LauncherAppIcon) -> Unit,
+    val onToggleThemedIcons: (Boolean) -> Unit,
+    val onToggleWallpaperAccent: (Boolean) -> Unit,
+    val onToggleOpenKeyboardOnLaunch: (Boolean) -> Unit,
+    val onToggleClearQueryOnLaunch: (Boolean) -> Unit,
+    val onToggleAutoCloseOverlay: (Boolean) -> Unit,
     val onRequestWallpaperPermission: () -> Unit,
 )

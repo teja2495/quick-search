@@ -28,6 +28,7 @@ import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import com.tk.quicksearch.shared.util.isLowRamDevice
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 
@@ -161,108 +162,171 @@ class UnifiedSearchHandler(
                                         userPreferences.getRecentResultOpens()
                                 )
 
-                        val (
-                                contactResults,
-                                fileResults,
-                                settingsMatches,
-                                calendarMatches,
-                                appSettingsMatches,
-                                appShortcutMatches,
-                        ) =
-                                coroutineScope {
-                                        val contactsDeferred = async {
-                                                if (canSearchContacts) {
-                                                        searchOperations.searchContacts(
-                                                                queryContext,
-                                                                excludedContactIds,
-                                                                limit = contactResultLimit,
-                                                                enableFuzzyMatching =
-                                                                        enableFuzzyContactSearch,
-                                                                fuzzyCandidateLimit =
-                                                                        contactFuzzyCandidateLimit,
-                                                        )
-                                                } else {
-                                                        emptyList()
-                                                }
-                                        }
-                                        val filesDeferred = async {
-                                                if (canSearchFiles) {
-                                                        fileSearchHandler.searchFiles(
-                                                                queryContext,
-                                                                enabledFileTypes,
-                                                                excludedFileUris,
-                                                                excludedFileExtensions,
-                                                                folderWhitelistPatterns,
-                                                                folderBlacklistPatterns,
-                                                                showFolders,
-                                                                showSystemFiles,
-                                                                recencyIndex.fileScores,
-                                                                includeFuzzyCandidates =
-                                                                        enableFuzzyFileSearch,
-                                                                resultLimit = fileResultLimit,
-                                                                fuzzyCandidateLimit =
-                                                                        fileFuzzyCandidateLimit,
-                                                        )
-                                                } else {
-                                                        emptyList()
-                                                }
-                                        }
-                                        val settingsDeferred = async {
-                                                if (canSearchSettings) {
-                                                        settingsSearchHandler.searchSettings(
-                                                                queryContext,
-                                                                recencyIndex.settingScores,
-                                                                enableFuzzyMatching =
-                                                                        enableFuzzySettingsSearch,
-                                                        )
-                                                } else {
-                                                        emptyList()
-                                                }
-                                        }
-                                        val appSettingsDeferred = async {
-                                                if (canSearchAppSettings) {
-                                                        appSettingsSearchHandler.searchSettings(
-                                                                queryContext = queryContext,
-                                                                recentSettingScores =
-                                                                        recencyIndex.settingScores,
-                                                                enableFuzzyMatching =
-                                                                        enableFuzzyAppSettingsSearch,
-                                                        )
-                                                } else {
-                                                        emptyList()
-                                                }
-                                        }
-                                        val calendarDeferred = async {
-                                                if (canSearchCalendar) {
-                                                        calendarRepository.searchFutureEventsByTitle(
-                                                                query = queryContext.normalizedQuery,
-                                                                limit = calendarResultLimit * 4,
-                                                        )
-                                                                .filterNot { excludedCalendarEventIds.contains(it.eventId) }
-                                                } else {
-                                                        emptyList()
-                                                }
-                                        }
-                                        val appShortcutsDeferred = async {
-                                                if (canSearchAppShortcuts) {
-                                                        appShortcutSearchHandler.searchShortcuts(
-                                                                queryContext,
-                                                                recencyIndex.appShortcutScores,
-                                                        )
-                                                } else {
-                                                        emptyList()
-                                                }
-                                        }
+                        var contactResults: List<ContactInfo> = emptyList()
+                        var fileResults: List<DeviceFile> = emptyList()
+                        var settingsMatches: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting> =
+                                emptyList()
+                        var calendarMatches: List<CalendarEventInfo> = emptyList()
+                        var appSettingsMatches: List<AppSettingResult> = emptyList()
+                        var appShortcutMatches: List<StaticShortcut> = emptyList()
 
-                                        SecondarySearchResults(
-                                                contactsDeferred.await(),
-                                                filesDeferred.await(),
-                                                settingsDeferred.await(),
-                                                calendarDeferred.await(),
-                                                appSettingsDeferred.await(),
-                                                appShortcutsDeferred.await(),
+                        coroutineScope {
+                                val sectionSearchSpecs =
+                                        listOf(
+                                                SectionSearchSpec(
+                                                        section = SearchSection.CONTACTS,
+                                                        shouldSearch = canSearchContacts,
+                                                        search = {
+                                                                SectionSearchResultPayload.Contacts(
+                                                                        searchOperations.searchContacts(
+                                                                                queryContext,
+                                                                                excludedContactIds,
+                                                                                limit =
+                                                                                        contactResultLimit,
+                                                                                enableFuzzyMatching =
+                                                                                        enableFuzzyContactSearch,
+                                                                                fuzzyCandidateLimit =
+                                                                                        contactFuzzyCandidateLimit,
+                                                                        )
+                                                                )
+                                                        },
+                                                        applyResult = { payload ->
+                                                                if (payload is SectionSearchResultPayload.Contacts) {
+                                                                        contactResults =
+                                                                                payload.results
+                                                                }
+                                                        },
+                                                ),
+                                                SectionSearchSpec(
+                                                        section = SearchSection.FILES,
+                                                        shouldSearch = canSearchFiles,
+                                                        search = {
+                                                                SectionSearchResultPayload.Files(
+                                                                        fileSearchHandler.searchFiles(
+                                                                                queryContext,
+                                                                                enabledFileTypes,
+                                                                                excludedFileUris,
+                                                                                excludedFileExtensions,
+                                                                                folderWhitelistPatterns,
+                                                                                folderBlacklistPatterns,
+                                                                                showFolders,
+                                                                                showSystemFiles,
+                                                                                recencyIndex.fileScores,
+                                                                                includeFuzzyCandidates =
+                                                                                        enableFuzzyFileSearch,
+                                                                                resultLimit =
+                                                                                        fileResultLimit,
+                                                                                fuzzyCandidateLimit =
+                                                                                        fileFuzzyCandidateLimit,
+                                                                        )
+                                                                )
+                                                        },
+                                                        applyResult = { payload ->
+                                                                if (payload is SectionSearchResultPayload.Files) {
+                                                                        fileResults = payload.results
+                                                                }
+                                                        },
+                                                ),
+                                                SectionSearchSpec(
+                                                        section = SearchSection.SETTINGS,
+                                                        shouldSearch = canSearchSettings,
+                                                        search = {
+                                                                SectionSearchResultPayload.Settings(
+                                                                        settingsSearchHandler.searchSettings(
+                                                                                queryContext,
+                                                                                recencyIndex.settingScores,
+                                                                                enableFuzzyMatching =
+                                                                                        enableFuzzySettingsSearch,
+                                                                        )
+                                                                )
+                                                        },
+                                                        applyResult = { payload ->
+                                                                if (payload is SectionSearchResultPayload.Settings) {
+                                                                        settingsMatches =
+                                                                                payload.results
+                                                                }
+                                                        },
+                                                ),
+                                                SectionSearchSpec(
+                                                        section = SearchSection.CALENDAR,
+                                                        shouldSearch = canSearchCalendar,
+                                                        search = {
+                                                                SectionSearchResultPayload.Calendar(
+                                                                        calendarRepository.searchFutureEventsByTitle(
+                                                                                query =
+                                                                                        queryContext.normalizedQuery,
+                                                                                limit =
+                                                                                        calendarResultLimit *
+                                                                                                4,
+                                                                        ).filterNot {
+                                                                                excludedCalendarEventIds.contains(
+                                                                                        it.eventId
+                                                                                )
+                                                                        }
+                                                                )
+                                                        },
+                                                        applyResult = { payload ->
+                                                                if (payload is SectionSearchResultPayload.Calendar) {
+                                                                        calendarMatches =
+                                                                                payload.results
+                                                                }
+                                                        },
+                                                ),
+                                                SectionSearchSpec(
+                                                        section = SearchSection.APP_SETTINGS,
+                                                        shouldSearch = canSearchAppSettings,
+                                                        search = {
+                                                                SectionSearchResultPayload.AppSettings(
+                                                                        appSettingsSearchHandler.searchSettings(
+                                                                                queryContext =
+                                                                                        queryContext,
+                                                                                recentSettingScores =
+                                                                                        recencyIndex.settingScores,
+                                                                                enableFuzzyMatching =
+                                                                                        enableFuzzyAppSettingsSearch,
+                                                                        )
+                                                                )
+                                                        },
+                                                        applyResult = { payload ->
+                                                                if (payload is SectionSearchResultPayload.AppSettings) {
+                                                                        appSettingsMatches =
+                                                                                payload.results
+                                                                }
+                                                        },
+                                                ),
+                                                SectionSearchSpec(
+                                                        section = SearchSection.APP_SHORTCUTS,
+                                                        shouldSearch = canSearchAppShortcuts,
+                                                        search = {
+                                                                SectionSearchResultPayload.AppShortcuts(
+                                                                        appShortcutSearchHandler.searchShortcuts(
+                                                                                queryContext,
+                                                                                recencyIndex.appShortcutScores,
+                                                                        )
+                                                                )
+                                                        },
+                                                        applyResult = { payload ->
+                                                                if (payload is SectionSearchResultPayload.AppShortcuts) {
+                                                                        appShortcutMatches =
+                                                                                payload.results
+                                                                }
+                                                        },
+                                                ),
                                         )
-                                }
+
+                                sectionSearchSpecs
+                                        .map { spec ->
+                                                async {
+                                                        spec to
+                                                                if (spec.shouldSearch) spec.search()
+                                                                else SectionSearchResultPayload.Skipped
+                                                }
+                                        }
+                                        .awaitAll()
+                                        .forEach { (spec, payload) ->
+                                                spec.applyResult(payload)
+                                        }
+                        }
 
                         // Add nickname matches that weren't found by display name
                         val nicknameContacts =
@@ -335,14 +399,40 @@ class UnifiedSearchHandler(
 
         private fun shouldSkipSearch(query: String): Boolean = query.isBlank()
 
-        private data class SecondarySearchResults(
-                val contactResults: List<ContactInfo>,
-                val fileResults: List<DeviceFile>,
-                val settingsResults: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting>,
-                val calendarResults: List<CalendarEventInfo>,
-                val appSettingsResults: List<AppSettingResult>,
-                val appShortcutResults: List<StaticShortcut>,
+        private data class SectionSearchSpec(
+                val section: SearchSection,
+                val shouldSearch: Boolean,
+                val search: suspend () -> SectionSearchResultPayload,
+                val applyResult: (SectionSearchResultPayload) -> Unit,
         )
+
+        private sealed interface SectionSearchResultPayload {
+                data object Skipped : SectionSearchResultPayload
+
+                data class Contacts(
+                        val results: List<ContactInfo>,
+                ) : SectionSearchResultPayload
+
+                data class Files(
+                        val results: List<DeviceFile>,
+                ) : SectionSearchResultPayload
+
+                data class Settings(
+                        val results: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting>,
+                ) : SectionSearchResultPayload
+
+                data class Calendar(
+                        val results: List<CalendarEventInfo>,
+                ) : SectionSearchResultPayload
+
+                data class AppSettings(
+                        val results: List<AppSettingResult>,
+                ) : SectionSearchResultPayload
+
+                data class AppShortcuts(
+                        val results: List<StaticShortcut>,
+                ) : SectionSearchResultPayload
+        }
 
         private suspend fun findNicknameOnlyContacts(
                 displayNameContacts: List<ContactInfo>,

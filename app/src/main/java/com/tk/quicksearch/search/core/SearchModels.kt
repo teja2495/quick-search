@@ -461,7 +461,6 @@ data class SearchUiState(
         val autoCloseOverlay: Boolean = true,
         val selectRetainedQuery: Boolean = false,
         val overlayModeEnabled: Boolean = false,
-        val overlayBlurEffectEnabled: Boolean = false,
         // Shortcuts configuration
         val shortcutsEnabled: Boolean = true,
         val shortcutCodes: Map<String, String> = emptyMap(),
@@ -687,7 +686,6 @@ fun SearchUiState(
                 clearQueryOnLaunch = config.clearQueryOnLaunch,
                 autoCloseOverlay = config.autoCloseOverlay,
                 selectRetainedQuery = config.selectRetainedQuery,
-                overlayBlurEffectEnabled = config.overlayBlurEffectEnabled,
                 fontScaleMultiplier = config.fontScaleMultiplier,
                 showAppLabels = config.showAppLabels,
                 phoneAppGridColumns = config.phoneAppGridColumns,

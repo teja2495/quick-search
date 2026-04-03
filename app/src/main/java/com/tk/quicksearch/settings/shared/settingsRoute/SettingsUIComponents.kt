@@ -12,7 +12,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchSection
-import com.tk.quicksearch.searchEngines.AliasHandler
+import com.tk.quicksearch.search.core.SearchSectionUiMetadataRegistry
 import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
 import com.tk.quicksearch.settings.searchEnginesScreen.AliasDisplayType
 import com.tk.quicksearch.settings.searchEnginesScreen.AliasCodeDisplay
@@ -74,7 +74,7 @@ fun SectionSettingsSection(
                 val isCalendarRow = section == SearchSection.CALENDAR
                 val isAppSettingsRow = section == SearchSection.APP_SETTINGS
                 val showAliasForSection = section !in sectionsWithHiddenAlias
-                val aliasTargetId = section.getAliasTargetId()
+                val aliasTargetId = SearchSectionUiMetadataRegistry.metadataFor(section).aliasTargetId
                 val metadata = getSectionMetadata(section)
 
                 SettingsNavigationToggleRow(
@@ -147,14 +147,3 @@ fun SectionSettingsSection(
         }
     }
 }
-
-private fun SearchSection.getAliasTargetId(): String =
-    when (this) {
-        SearchSection.APPS -> AliasHandler.SEARCH_SECTION_APPS_ALIAS_ID
-        SearchSection.APP_SHORTCUTS -> AliasHandler.SEARCH_SECTION_APP_SHORTCUTS_ALIAS_ID
-        SearchSection.CONTACTS -> AliasHandler.SEARCH_SECTION_CONTACTS_ALIAS_ID
-        SearchSection.FILES -> AliasHandler.SEARCH_SECTION_FILES_ALIAS_ID
-        SearchSection.SETTINGS -> AliasHandler.SEARCH_SECTION_SETTINGS_ALIAS_ID
-        SearchSection.CALENDAR -> AliasHandler.SEARCH_SECTION_CALENDAR_ALIAS_ID
-        SearchSection.APP_SETTINGS -> AliasHandler.SEARCH_SECTION_APP_SETTINGS_ALIAS_ID
-    }

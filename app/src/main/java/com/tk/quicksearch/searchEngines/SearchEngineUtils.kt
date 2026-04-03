@@ -14,6 +14,11 @@ private data class SearchEngineMetadata(
     @StringRes val contentDescriptionResId: Int,
     val urlTemplate: String,
     val defaultShortcutCode: String,
+    val homeUrl: String? = null,
+    val appPackages: List<String> = emptyList(),
+    val installOnly: Boolean = false,
+    val defaultDisabledOnFirstRun: Boolean = false,
+    val defaultDisableIfAppMissing: Boolean = false,
 )
 
 private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
@@ -31,6 +36,7 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_google,
                 urlTemplate = "https://www.google.com/search?q=%s",
                 defaultShortcutCode = "ggl",
+                appPackages = listOf(PackageConstants.GOOGLE_APP_PACKAGE),
             ),
         SearchEngine.CHATGPT to
             SearchEngineMetadata(
@@ -38,6 +44,7 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_chatgpt,
                 urlTemplate = "https://chatgpt.com/?prompt=%s",
                 defaultShortcutCode = "cgpt",
+                appPackages = listOf(PackageConstants.CHATGPT_PACKAGE),
             ),
         SearchEngine.GEMINI to
             SearchEngineMetadata(
@@ -45,6 +52,8 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_gemini,
                 urlTemplate = "https://gemini.google.com/app?text=%s",
                 defaultShortcutCode = "gmi",
+                homeUrl = "https://gemini.google.com/app",
+                appPackages = listOf(PackageConstants.GEMINI_PACKAGE_NAME),
             ),
         SearchEngine.PERPLEXITY to
             SearchEngineMetadata(
@@ -52,6 +61,7 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_perplexity,
                 urlTemplate = "https://www.perplexity.ai/search?q=%s",
                 defaultShortcutCode = "ppx",
+                appPackages = listOf(PackageConstants.PERPLEXITY_PACKAGE),
             ),
         SearchEngine.GROK to
             SearchEngineMetadata(
@@ -59,6 +69,7 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_grok,
                 urlTemplate = "https://grok.com/?q=%s",
                 defaultShortcutCode = "grk",
+                appPackages = listOf(PackageConstants.GROK_PACKAGE),
             ),
         SearchEngine.GOOGLE_MAPS to
             SearchEngineMetadata(
@@ -66,6 +77,7 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_google_maps,
                 urlTemplate = "https://maps.google.com/?q=%s",
                 defaultShortcutCode = "mps",
+                appPackages = listOf(PackageConstants.GOOGLE_MAPS_PACKAGE),
             ),
         SearchEngine.WAZE to
             SearchEngineMetadata(
@@ -73,6 +85,9 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_waze,
                 urlTemplate = "https://www.waze.com/ul?q=%s",
                 defaultShortcutCode = "wze",
+                homeUrl = "https://www.waze.com",
+                appPackages = listOf(PackageConstants.WAZE_PACKAGE),
+                installOnly = true,
             ),
         SearchEngine.GOOGLE_DRIVE to
             SearchEngineMetadata(
@@ -80,6 +95,8 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_google_drive,
                 urlTemplate = "https://drive.google.com/drive/u/0/search?q=%s",
                 defaultShortcutCode = "gdr",
+                appPackages = listOf(PackageConstants.GOOGLE_DRIVE_PACKAGE),
+                defaultDisabledOnFirstRun = true,
             ),
         SearchEngine.GOOGLE_PHOTOS to
             SearchEngineMetadata(
@@ -87,6 +104,9 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_google_photos,
                 urlTemplate = "https://photos.google.com/search/%s",
                 defaultShortcutCode = "gph",
+                homeUrl = "https://photos.google.com/",
+                appPackages = listOf(PackageConstants.GOOGLE_PHOTOS_PACKAGE_NAME),
+                defaultDisabledOnFirstRun = true,
             ),
         SearchEngine.GOOGLE_PLAY to
             SearchEngineMetadata(
@@ -94,6 +114,8 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_google_play,
                 urlTemplate = "https://play.google.com/store/search?q=%s&c=apps",
                 defaultShortcutCode = "gpl",
+                homeUrl = "https://play.google.com/store/apps",
+                appPackages = listOf(PackageConstants.GOOGLE_PLAY_PACKAGE),
             ),
         SearchEngine.REDDIT to
             SearchEngineMetadata(
@@ -101,6 +123,9 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_reddit,
                 urlTemplate = "https://www.reddit.com/search/?q=%s",
                 defaultShortcutCode = "rdt",
+                homeUrl = "https://www.reddit.com",
+                appPackages = listOf(PackageConstants.REDDIT_PACKAGE),
+                defaultDisableIfAppMissing = true,
             ),
         SearchEngine.YOUTUBE to
             SearchEngineMetadata(
@@ -108,6 +133,8 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_youtube,
                 urlTemplate = "https://www.youtube.com/results?search_query=%s",
                 defaultShortcutCode = "ytb",
+                homeUrl = "https://www.youtube.com",
+                appPackages = listOf(PackageConstants.YOUTUBE_PACKAGE),
             ),
         SearchEngine.YOUTUBE_MUSIC to
             SearchEngineMetadata(
@@ -115,6 +142,8 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_youtube_music,
                 urlTemplate = "https://music.youtube.com/search?q=%s",
                 defaultShortcutCode = "ytm",
+                appPackages = listOf(PackageConstants.YOUTUBE_MUSIC_PACKAGE),
+                installOnly = true,
             ),
         SearchEngine.SPOTIFY to
             SearchEngineMetadata(
@@ -122,6 +151,8 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_spotify,
                 urlTemplate = "https://open.spotify.com/search/%s",
                 defaultShortcutCode = "sfy",
+                appPackages = listOf(PackageConstants.SPOTIFY_PACKAGE),
+                installOnly = true,
             ),
         SearchEngine.CLAUDE to
             SearchEngineMetadata(
@@ -129,6 +160,9 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_claude,
                 urlTemplate = "https://claude.ai/search?q=%s",
                 defaultShortcutCode = "cld",
+                homeUrl = "https://claude.ai",
+                appPackages = listOf(PackageConstants.CLAUDE_PACKAGE),
+                installOnly = true,
             ),
         SearchEngine.FACEBOOK_MARKETPLACE to
             SearchEngineMetadata(
@@ -136,6 +170,9 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_facebook_marketplace,
                 urlTemplate = "https://www.facebook.com/marketplace/search/?query=%s",
                 defaultShortcutCode = "fbm",
+                homeUrl = "https://www.facebook.com/marketplace/",
+                appPackages = listOf(PackageConstants.FACEBOOK_PACKAGE),
+                defaultDisabledOnFirstRun = true,
             ),
         SearchEngine.AMAZON to
             SearchEngineMetadata(
@@ -143,6 +180,8 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_amazon,
                 urlTemplate = "https://www.amazon.com/s?k=%s",
                 defaultShortcutCode = "amz",
+                appPackages = listOf(PackageConstants.AMAZON_PACKAGE),
+                defaultDisableIfAppMissing = true,
             ),
         SearchEngine.YOU_COM to
             SearchEngineMetadata(
@@ -150,6 +189,9 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_you_com,
                 urlTemplate = "https://you.com/search?q=%s",
                 defaultShortcutCode = "yu",
+                homeUrl = "https://you.com",
+                appPackages = listOf(PackageConstants.YOU_COM_PACKAGE_NAME),
+                defaultDisableIfAppMissing = true,
             ),
         SearchEngine.WIKIPEDIA to
             SearchEngineMetadata(
@@ -157,6 +199,9 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_wikipedia,
                 urlTemplate = "https://en.wikipedia.org/wiki/%s",
                 defaultShortcutCode = "wki",
+                homeUrl = "https://en.wikipedia.org/wiki/Main_Page",
+                appPackages = listOf(PackageConstants.WIKIPEDIA_PACKAGE_NAME),
+                defaultDisableIfAppMissing = true,
             ),
         SearchEngine.DUCKDUCKGO to
             SearchEngineMetadata(
@@ -164,6 +209,7 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_duckduckgo,
                 urlTemplate = "https://duckduckgo.com/?q=%s",
                 defaultShortcutCode = "ddg",
+                defaultDisabledOnFirstRun = true,
             ),
         SearchEngine.BRAVE to
             SearchEngineMetadata(
@@ -171,6 +217,7 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_brave,
                 urlTemplate = "https://search.brave.com/search?q=%s",
                 defaultShortcutCode = "brv",
+                defaultDisabledOnFirstRun = true,
             ),
         SearchEngine.BING to
             SearchEngineMetadata(
@@ -178,6 +225,7 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_bing,
                 urlTemplate = "https://www.bing.com/search?q=%s",
                 defaultShortcutCode = "bng",
+                defaultDisabledOnFirstRun = true,
             ),
         SearchEngine.X to
             SearchEngineMetadata(
@@ -185,6 +233,8 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_x,
                 urlTemplate = "https://x.com/search?q=%s",
                 defaultShortcutCode = "twt",
+                appPackages = listOf(PackageConstants.X_PACKAGE),
+                defaultDisableIfAppMissing = true,
             ),
         SearchEngine.AI_MODE to
             SearchEngineMetadata(
@@ -192,6 +242,7 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_ai_mode,
                 urlTemplate = "https://www.google.com/search?q=%s&udm=50",
                 defaultShortcutCode = "gai",
+                defaultDisabledOnFirstRun = true,
             ),
         SearchEngine.STARTPAGE to
             SearchEngineMetadata(
@@ -199,6 +250,9 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 contentDescriptionResId = R.string.search_engine_startpage,
                 urlTemplate = "https://www.startpage.com/sp/search?query=%s",
                 defaultShortcutCode = "stp",
+                homeUrl = "https://www.startpage.com",
+                appPackages = listOf(PackageConstants.STARTPAGE_PACKAGE_NAME),
+                defaultDisableIfAppMissing = true,
             ),
     )
 
@@ -208,39 +262,16 @@ fun SearchEngine.getDrawableResId(): Int =
         ?: throw IllegalArgumentException("Unknown SearchEngine: $this")
 
 fun SearchEngine.getAppPackageCandidates(): List<String> =
-    when (this) {
-        SearchEngine.CHATGPT -> listOf(PackageConstants.CHATGPT_PACKAGE)
-        SearchEngine.PERPLEXITY -> listOf(PackageConstants.PERPLEXITY_PACKAGE)
-        SearchEngine.GROK -> listOf(PackageConstants.GROK_PACKAGE)
-        SearchEngine.GOOGLE -> listOf(PackageConstants.GOOGLE_APP_PACKAGE)
-        SearchEngine.GEMINI -> listOf(PackageConstants.GEMINI_PACKAGE_NAME)
-        SearchEngine.GOOGLE_MAPS -> listOf(PackageConstants.GOOGLE_MAPS_PACKAGE)
-        SearchEngine.WAZE -> listOf(PackageConstants.WAZE_PACKAGE)
-        SearchEngine.GOOGLE_DRIVE -> listOf(PackageConstants.GOOGLE_DRIVE_PACKAGE)
-        SearchEngine.GOOGLE_PHOTOS -> listOf(PackageConstants.GOOGLE_PHOTOS_PACKAGE_NAME)
-        SearchEngine.GOOGLE_PLAY -> listOf(PackageConstants.GOOGLE_PLAY_PACKAGE)
-        SearchEngine.REDDIT -> listOf(PackageConstants.REDDIT_PACKAGE)
-        SearchEngine.YOUTUBE -> listOf(PackageConstants.YOUTUBE_PACKAGE)
-        SearchEngine.YOUTUBE_MUSIC -> listOf(PackageConstants.YOUTUBE_MUSIC_PACKAGE)
-        SearchEngine.SPOTIFY -> listOf(PackageConstants.SPOTIFY_PACKAGE)
-        SearchEngine.CLAUDE -> listOf(PackageConstants.CLAUDE_PACKAGE)
-        SearchEngine.FACEBOOK_MARKETPLACE -> listOf(PackageConstants.FACEBOOK_PACKAGE)
-        SearchEngine.AMAZON -> listOf(PackageConstants.AMAZON_PACKAGE)
-        SearchEngine.YOU_COM -> listOf(PackageConstants.YOU_COM_PACKAGE_NAME)
-        SearchEngine.WIKIPEDIA -> listOf(PackageConstants.WIKIPEDIA_PACKAGE_NAME)
-        SearchEngine.X -> listOf(PackageConstants.X_PACKAGE)
-        SearchEngine.STARTPAGE -> listOf(PackageConstants.STARTPAGE_PACKAGE_NAME)
-        else -> emptyList()
-    }
+    SEARCH_ENGINE_METADATA[this]?.appPackages.orEmpty()
 
 fun SearchEngine.isInstallOnlyEngine(): Boolean =
-    this in
-        setOf(
-            SearchEngine.YOUTUBE_MUSIC,
-            SearchEngine.SPOTIFY,
-            SearchEngine.WAZE,
-            SearchEngine.CLAUDE,
-        )
+    SEARCH_ENGINE_METADATA[this]?.installOnly == true
+
+fun SearchEngine.isDefaultDisabledOnFirstRun(): Boolean =
+    SEARCH_ENGINE_METADATA[this]?.defaultDisabledOnFirstRun == true
+
+fun SearchEngine.shouldDefaultDisableIfAppMissing(): Boolean =
+    SEARCH_ENGINE_METADATA[this]?.defaultDisableIfAppMissing == true
 
 /**
  * Builds a search URL for the given query and search engine.
@@ -273,63 +304,12 @@ fun buildSearchUrl(
 
     // If query is blank, return home URL for specific engines that need it
     if (query.isBlank()) {
-        // Special handling for engines that should go to home page instead of search page
-        val homeUrl =
-            when (searchEngine) {
-                SearchEngine.AMAZON -> {
-                    val domain = amazonDomain ?: "amazon.com"
-                    "https://www.$domain"
-                }
+        if (searchEngine == SearchEngine.AMAZON) {
+            val domain = amazonDomain ?: "amazon.com"
+            return "https://www.$domain"
+        }
 
-                SearchEngine.YOUTUBE -> {
-                    "https://www.youtube.com"
-                }
-
-                SearchEngine.REDDIT -> {
-                    "https://www.reddit.com"
-                }
-
-                SearchEngine.GEMINI -> {
-                    "https://gemini.google.com/app"
-                }
-
-                SearchEngine.GOOGLE_PLAY -> {
-                    "https://play.google.com/store/apps"
-                }
-
-                SearchEngine.GOOGLE_PHOTOS -> {
-                    "https://photos.google.com/"
-                }
-
-                SearchEngine.FACEBOOK_MARKETPLACE -> {
-                    "https://www.facebook.com/marketplace/"
-                }
-
-                SearchEngine.YOU_COM -> {
-                    "https://you.com"
-                }
-
-                SearchEngine.WIKIPEDIA -> {
-                    "https://en.wikipedia.org/wiki/Main_Page"
-                }
-
-                SearchEngine.STARTPAGE -> {
-                    "https://www.startpage.com"
-                }
-
-                SearchEngine.CLAUDE -> {
-                    "https://claude.ai"
-                }
-
-                SearchEngine.WAZE -> {
-                    "https://www.waze.com"
-                }
-
-                else -> {
-                    null
-                }
-            }
-        if (homeUrl != null) {
+        metadata.homeUrl?.let { homeUrl ->
             return homeUrl
         }
 
@@ -380,34 +360,7 @@ fun SearchEngine.getContentDescriptionResId(): Int =
 
 @StringRes
 fun SearchEngine.getDisplayNameResId(): Int =
-    when (this) {
-        SearchEngine.DIRECT_SEARCH -> R.string.search_engine_direct_search
-        SearchEngine.GOOGLE -> R.string.search_engine_google
-        SearchEngine.CHATGPT -> R.string.search_engine_chatgpt
-        SearchEngine.PERPLEXITY -> R.string.search_engine_perplexity
-        SearchEngine.GROK -> R.string.search_engine_grok
-        SearchEngine.GEMINI -> R.string.search_engine_gemini
-        SearchEngine.GOOGLE_MAPS -> R.string.search_engine_google_maps
-        SearchEngine.WAZE -> R.string.search_engine_waze
-        SearchEngine.GOOGLE_DRIVE -> R.string.search_engine_google_drive
-        SearchEngine.GOOGLE_PHOTOS -> R.string.search_engine_google_photos
-        SearchEngine.GOOGLE_PLAY -> R.string.search_engine_google_play
-        SearchEngine.REDDIT -> R.string.search_engine_reddit
-        SearchEngine.YOUTUBE -> R.string.search_engine_youtube
-        SearchEngine.YOUTUBE_MUSIC -> R.string.search_engine_youtube_music
-        SearchEngine.SPOTIFY -> R.string.search_engine_spotify
-        SearchEngine.CLAUDE -> R.string.search_engine_claude
-        SearchEngine.FACEBOOK_MARKETPLACE -> R.string.search_engine_facebook_marketplace
-        SearchEngine.AMAZON -> R.string.search_engine_amazon
-        SearchEngine.YOU_COM -> R.string.search_engine_you_com
-        SearchEngine.WIKIPEDIA -> R.string.search_engine_wikipedia
-        SearchEngine.DUCKDUCKGO -> R.string.search_engine_duckduckgo
-        SearchEngine.BRAVE -> R.string.search_engine_brave
-        SearchEngine.BING -> R.string.search_engine_bing
-        SearchEngine.X -> R.string.search_engine_x
-        SearchEngine.AI_MODE -> R.string.search_engine_ai_mode
-        SearchEngine.STARTPAGE -> R.string.search_engine_startpage
-    }
+    getContentDescriptionResId()
 
 @Composable
 fun SearchEngine.getContentDescription(): String = stringResource(getContentDescriptionResId())

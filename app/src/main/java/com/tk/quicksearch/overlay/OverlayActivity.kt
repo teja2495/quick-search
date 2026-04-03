@@ -1,8 +1,6 @@
 package com.tk.quicksearch.overlay
 
 import android.os.Bundle
-import android.os.Build
-import android.view.WindowManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -24,13 +22,9 @@ import com.tk.quicksearch.app.startup.StartupMode
 import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.UserAppPreferences
-import com.tk.quicksearch.shared.util.isCrossWindowBlurEnabled
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.widgets.searchWidget.MicAction
 import com.tk.quicksearch.widgets.searchWidget.VoiceSearchHandler
-
-private const val OVERLAY_BACKGROUND_BLUR_RADIUS_DP = 44f
-private const val OVERLAY_BLUR_BEHIND_RADIUS_DP = 24f
 
 class OverlayActivity : ComponentActivity() {
     private val searchViewModel: SearchViewModel by viewModels()
@@ -76,7 +70,6 @@ class OverlayActivity : ComponentActivity() {
         handleVoiceIntentIfNeeded(intent)
         handleInitialQueryIfNeeded(intent)
 
-        applyOverlayWindowBlur()
         renderOverlayContent()
         startupCoordinator.scheduleAfterFirstFrame(window)
     }
@@ -98,11 +91,6 @@ class OverlayActivity : ComponentActivity() {
         searchViewModel.handleOnStop()
     }
 
-    override fun onResume() {
-        super.onResume()
-        applyOverlayWindowBlur()
-    }
-
     override fun finish() {
         super.finish()
         @Suppress("DEPRECATION")
@@ -112,27 +100,6 @@ class OverlayActivity : ComponentActivity() {
     private fun initializeVoiceSearchHandler() {
         voiceSearchHandler = VoiceSearchHandler(this, voiceInputLauncher)
     }
-
-    private fun applyOverlayWindowBlur() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
-
-        val isBlurEnabled =
-            userPreferences.isOverlayBlurEffectEnabled() && isCrossWindowBlurEnabled(this)
-        val attributes = window.attributes
-        if (isBlurEnabled) {
-            window.setBackgroundBlurRadius(dpToPx(OVERLAY_BACKGROUND_BLUR_RADIUS_DP))
-            attributes.blurBehindRadius = dpToPx(OVERLAY_BLUR_BEHIND_RADIUS_DP)
-            window.addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
-        } else {
-            window.setBackgroundBlurRadius(0)
-            attributes.blurBehindRadius = 0
-            window.clearFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
-        }
-        window.attributes = attributes
-    }
-
-    private fun dpToPx(value: Float): Int =
-        (value * resources.displayMetrics.density).toInt()
 
     private fun renderOverlayContent() {
         setContent {

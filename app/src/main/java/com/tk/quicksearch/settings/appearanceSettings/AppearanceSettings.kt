@@ -73,9 +73,6 @@ fun AppearanceSettingsSection(
         onSetLauncherAppIcon: (LauncherAppIcon) -> Unit,
         themedIconsEnabled: Boolean,
         onThemedIconsToggle: (Boolean) -> Unit,
-        overlayModeEnabled: Boolean,
-        overlayBlurEffectEnabled: Boolean,
-        onOverlayBlurEffectToggle: (Boolean) -> Unit,
         wallpaperAccentEnabled: Boolean,
         onWallpaperAccentToggle: (Boolean) -> Unit,
         hasWallpaperPermission: Boolean = true,
@@ -112,9 +109,6 @@ fun AppearanceSettingsSection(
                 hasWallpaperPermission = hasWallpaperPermission,
                 themedIconsEnabled = themedIconsEnabled,
                 onThemedIconsToggle = onThemedIconsToggle,
-                overlayModeEnabled = overlayModeEnabled,
-                overlayBlurEffectEnabled = overlayBlurEffectEnabled,
-                onOverlayBlurEffectToggle = onOverlayBlurEffectToggle,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -140,8 +134,6 @@ fun AppearanceSettingsSection(
                 onRequestWallpaperPermission = onRequestWallpaperPermission,
                 wallpaperAccentEnabled = wallpaperAccentEnabled,
                 onWallpaperAccentToggle = onWallpaperAccentToggle,
-                overlayModeEnabled = overlayModeEnabled,
-                overlayBlurEffectEnabled = overlayBlurEffectEnabled,
         )
 
         Spacer(modifier = Modifier.height(16.dp))

@@ -46,6 +46,7 @@ import com.tk.quicksearch.search.core.CurrencyConverterStatus
 import com.tk.quicksearch.search.core.DictionaryStatus
 import com.tk.quicksearch.search.core.DirectSearchStatus
 import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.search.core.SearchSectionUiMetadataRegistry
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.WordClockStatus
 import com.tk.quicksearch.search.core.SearchUiState
@@ -58,7 +59,6 @@ import com.tk.quicksearch.searchEngines.resolveDefaultBrowserPackage
 import com.tk.quicksearch.searchEngines.inline.SearchEngineIconsSection
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.util.isCrossWindowBlurEnabled
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SearchContentArea
 import com.tk.quicksearch.search.searchScreen.appThemeActionColor
@@ -161,15 +161,12 @@ internal fun SearchScreenContent(
                         stringResource(R.string.search_hint_currency_converter)
                 isWordClockAliasMode -> stringResource(R.string.search_hint_word_clock)
                 isDictionaryAliasMode -> stringResource(R.string.search_hint_dictionary)
-                state.detectedAliasSearchSection != null -> when (state.detectedAliasSearchSection) {
-                    SearchSection.APPS -> stringResource(R.string.search_hint_apps)
-                    SearchSection.APP_SHORTCUTS -> stringResource(R.string.search_hint_app_shortcuts)
-                    SearchSection.CONTACTS -> stringResource(R.string.search_hint_contacts)
-                    SearchSection.FILES -> stringResource(R.string.search_hint_files)
-                    SearchSection.SETTINGS -> stringResource(R.string.search_hint_settings)
-                    SearchSection.CALENDAR -> stringResource(R.string.search_hint_calendar)
-                    SearchSection.APP_SETTINGS -> stringResource(R.string.search_hint_app_settings)
-                }
+                state.detectedAliasSearchSection != null ->
+                    stringResource(
+                        SearchSectionUiMetadataRegistry
+                            .metadataFor(state.detectedAliasSearchSection)
+                            .searchHintRes,
+                    )
                 else -> stringResource(R.string.search_hint)
             }
     val showCurrencyConverter =
@@ -240,10 +237,6 @@ internal fun SearchScreenContent(
     val showBottomSearchBar = showSearchField && state.bottomSearchBarEnabled
     val useOverlayThemeTints = state.backgroundSource == com.tk.quicksearch.search.core.BackgroundSource.THEME
     val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
-    val useOverlayBlurCardStyle =
-            isOverlayPresentation &&
-                    state.overlayBlurEffectEnabled &&
-                    isCrossWindowBlurEnabled(context)
     val searchColorTheme =
             resolveSearchColorTheme(
                     theme = state.appTheme,
@@ -252,9 +245,7 @@ internal fun SearchScreenContent(
                     intensity = state.overlayThemeIntensity,
             )
     val overlayCardColor =
-            if (useOverlayBlurCardStyle) {
-                overlayBlurResultCardColor(isDarkMode)
-            } else if (useOverlayThemeTints) {
+            if (useOverlayThemeTints) {
                 appThemeResultCardColor(
                         theme = state.appTheme,
                         isDarkMode = isDarkMode,
@@ -264,9 +255,7 @@ internal fun SearchScreenContent(
                 null
             }
     val overlayDividerTint =
-            if (useOverlayBlurCardStyle) {
-                overlayBlurDividerColor(isDarkMode)
-            } else if (useOverlayThemeTints) {
+            if (useOverlayThemeTints) {
                 appThemeDividerColor(
                         theme = state.appTheme,
                         isDarkMode = isDarkMode,
@@ -276,9 +265,7 @@ internal fun SearchScreenContent(
                 null
             }
     val overlayActionTint =
-            if (useOverlayBlurCardStyle) {
-                overlayBlurActionColor(isDarkMode)
-            } else if (useOverlayThemeTints) {
+            if (useOverlayThemeTints) {
                 appThemeActionColor(
                         theme = state.appTheme,
                         isDarkMode = isDarkMode,
