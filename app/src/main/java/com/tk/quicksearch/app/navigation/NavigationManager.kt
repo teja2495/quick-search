@@ -1,10 +1,7 @@
 package com.tk.quicksearch.app.navigation
 
 import android.Manifest
-import android.content.ActivityNotFoundException
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -27,7 +24,6 @@ import com.tk.quicksearch.onboarding.FinalSetupScreen
 import com.tk.quicksearch.onboarding.ImportSettingsScreen
 import com.tk.quicksearch.onboarding.SearchEngineSetupScreen
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionsScreen
-import com.tk.quicksearch.search.appSettings.AppSettingsDestination
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchViewModel
@@ -48,7 +44,6 @@ enum class RootDestination {
 }
 
 private const val NAVIGATION_ANIMATION_DURATION_MS = 180
-private const val QUICK_SEARCH_DEVELOPMENT_URL = "https://github.com/teja2495/quick-search"
 
 data class NavigationRequest(
     val destination: RootDestination,
@@ -495,40 +490,35 @@ private fun NavigationContent(
                         navigateToSettings(settingsDetailType ?: lastOpenedSettingsDetail)
                     },
                     onOpenAppSettingDestination = { destination ->
-                        destination.toSettingsDetailTypeOrNull()?.let { detailType ->
-                            navigateToSettings(detailType)
-                            return@SearchRoute
-                        }
-                        when (destination) {
-                            AppSettingsDestination.RELOAD_APPS ->
-                                viewModel.refreshApps(showToast = true)
-                            AppSettingsDestination.RELOAD_CONTACTS ->
-                                viewModel.refreshContacts(showToast = true)
-                            AppSettingsDestination.RELOAD_FILES ->
-                                viewModel.refreshFiles(showToast = true)
-                            AppSettingsDestination.SEND_FEEDBACK ->
-                                FeedbackUtils.launchFeedbackEmail(context = context, feedbackText = null)
-                            AppSettingsDestination.RATE_QUICK_SEARCH ->
-                                launchRateQuickSearch(context)
-                            AppSettingsDestination.DEVELOPMENT ->
-                                launchDevelopmentPage(context)
-                            AppSettingsDestination.SET_DEFAULT_ASSISTANT -> {
-                                try {
-                                    context.startActivity(Intent(android.provider.Settings.ACTION_VOICE_INPUT_SETTINGS))
-                                } catch (e: Exception) {
-                                    try {
-                                        context.startActivity(Intent(android.provider.Settings.ACTION_SETTINGS))
-                                    } catch (e2: Exception) {
-                                        Toast.makeText(context, context.getString(R.string.settings_unable_to_open_settings), Toast.LENGTH_SHORT).show()
-                                    }
-                                }
-                            }
-                            AppSettingsDestination.ADD_HOME_SCREEN_WIDGET ->
-                                com.tk.quicksearch.widgets.utils.requestAddQuickSearchWidget(context)
-                            AppSettingsDestination.ADD_QUICK_SETTINGS_TILE ->
-                                com.tk.quicksearch.tile.requestAddQuickSearchTile(context)
-                            else -> Unit
-                        }
+                        handleAppSettingsDestination(
+                            destination = destination,
+                            handlers =
+                                AppSettingsDestinationHandlers(
+                                    onOpenSettingsDetail = { detailType ->
+                                        navigateToSettings(detailType)
+                                    },
+                                    onReloadApps = { viewModel.refreshApps(showToast = true) },
+                                    onReloadContacts = { viewModel.refreshContacts(showToast = true) },
+                                    onReloadFiles = { viewModel.refreshFiles(showToast = true) },
+                                    onSendFeedback = {
+                                        FeedbackUtils.launchFeedbackEmail(
+                                            context = context,
+                                            feedbackText = null,
+                                        )
+                                    },
+                                    onRateQuickSearch = { launchRateQuickSearch(context) },
+                                    onOpenDevelopmentPage = { launchDevelopmentPage(context) },
+                                    onSetDefaultAssistant = {
+                                        openDefaultAssistantSettings(context)
+                                    },
+                                    onAddHomeScreenWidget = {
+                                        com.tk.quicksearch.widgets.utils.requestAddQuickSearchWidget(context)
+                                    },
+                                    onAddQuickSettingsTile = {
+                                        com.tk.quicksearch.tile.requestAddQuickSearchTile(context)
+                                    },
+                                ),
+                        )
                     },
                     onOpenSearchHistorySettings = {
                         navigateToSettings(SettingsDetailType.SEARCH_RESULTS)
@@ -552,32 +542,5 @@ private fun NavigationContent(
                 )
             }
         }
-    }
-}
-
-private fun launchRateQuickSearch(context: Context) {
-    val packageName = context.packageName
-    try {
-        context.startActivity(
-            Intent(Intent.ACTION_VIEW).apply {
-                data = Uri.parse("market://details?id=$packageName")
-                setPackage("com.android.vending")
-            },
-        )
-    } catch (_: ActivityNotFoundException) {
-        runCatching {
-            context.startActivity(
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("https://play.google.com/store/apps/details?id=$packageName"),
-                ),
-            )
-        }
-    }
-}
-
-private fun launchDevelopmentPage(context: Context) {
-    runCatching {
-        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(QUICK_SEARCH_DEVELOPMENT_URL)))
     }
 }

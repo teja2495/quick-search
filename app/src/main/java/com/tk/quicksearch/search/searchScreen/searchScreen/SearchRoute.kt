@@ -29,7 +29,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchSection
-import com.tk.quicksearch.search.core.SearchSectionRegistry
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.core.SearchEngine
@@ -293,10 +292,7 @@ fun SearchRoute(
 
     val onAppSettingToggle: (AppSettingResult, Boolean) -> Unit = { setting, enabled ->
         viewModel.trackRecentAppSettingTap(setting.id)
-        val toggleKey = setting.toggleKey
-        if (toggleKey != null && SearchSectionRegistry.sectionForToggle(toggleKey) != null) {
-            viewModel.applySettingsCommand(SettingsCommand.Toggle(toggleKey, enabled))
-        } else when (toggleKey) {
+        when (val toggleKey = setting.toggleKey) {
             AppSettingsToggleKey.OVERLAY_MODE -> {
                 viewModel.setOverlayModeEnabled(enabled)
                 if (enabled) {
@@ -313,37 +309,6 @@ fun SearchRoute(
                     (context as? android.app.Activity)?.finish()
                 }
             }
-            AppSettingsToggleKey.ONE_HANDED_MODE,
-            AppSettingsToggleKey.BOTTOM_SEARCHBAR,
-            AppSettingsToggleKey.APP_LABELS,
-            AppSettingsToggleKey.SEARCH_ENGINE_COMPACT_MODE,
-            AppSettingsToggleKey.SEARCH_ENGINE_ALIAS_SUFFIX,
-            AppSettingsToggleKey.CALCULATOR,
-            AppSettingsToggleKey.UNIT_CONVERTER,
-            AppSettingsToggleKey.DATE_CALCULATOR,
-            AppSettingsToggleKey.DICTIONARY,
-            AppSettingsToggleKey.APP_SUGGESTIONS,
-            AppSettingsToggleKey.WEB_SUGGESTIONS,
-            AppSettingsToggleKey.RECENT_QUERIES,
-            AppSettingsToggleKey.TOP_RESULT_INDICATOR,
-            AppSettingsToggleKey.OPEN_KEYBOARD,
-            AppSettingsToggleKey.CLEAR_QUERY,
-            AppSettingsToggleKey.AUTO_CLOSE_OVERLAY,
-            AppSettingsToggleKey.CIRCULAR_APP_ICONS,
-            AppSettingsToggleKey.SHOW_FOLDERS,
-            AppSettingsToggleKey.SHOW_SYSTEM_FILES,
-            AppSettingsToggleKey.SEARCH_APPS,
-            AppSettingsToggleKey.SEARCH_APP_SHORTCUTS,
-            AppSettingsToggleKey.SEARCH_CONTACTS,
-            AppSettingsToggleKey.SEARCH_FILES,
-            AppSettingsToggleKey.SEARCH_DEVICE_SETTINGS,
-            AppSettingsToggleKey.SEARCH_CALENDAR,
-            AppSettingsToggleKey.SEARCH_APP_SETTINGS,
-            AppSettingsToggleKey.ASSISTANT_LAUNCH_VOICE_MODE,
-            AppSettingsToggleKey.WALLPAPER_ACCENT,
-            AppSettingsToggleKey.THEMED_ICONS,
-            AppSettingsToggleKey.APPS_PER_ROW,
-            -> viewModel.applySettingsCommand(SettingsCommand.Toggle(toggleKey, enabled))
             AppSettingsToggleKey.DIRECT_DIAL -> {
                 if (enabled) {
                     if (uiState.hasCallPermission) {
@@ -360,6 +325,7 @@ fun SearchRoute(
                 }
             }
             null -> Unit
+            else -> viewModel.applySettingsCommand(SettingsCommand.Toggle(toggleKey, enabled))
         }
     }
 
