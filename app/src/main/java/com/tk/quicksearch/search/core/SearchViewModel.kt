@@ -556,7 +556,6 @@ class SearchViewModel(
                     customImageUri = s.customImageUri,
                     startupBackgroundPreviewPath = s.startupBackgroundPreviewPath,
                     overlayModeEnabled = s.overlayModeEnabled,
-                    overlayBlurEffectEnabled = s.overlayBlurEffectEnabled,
                     oneHandedMode = s.oneHandedMode,
                     bottomSearchBarEnabled = s.bottomSearchBarEnabled,
                     topResultIndicatorEnabled = s.topResultIndicatorEnabled,
@@ -763,7 +762,6 @@ class SearchViewModel(
     private var wallpaperAccentEnabled: Boolean = true
     private var openKeyboardOnLaunch: Boolean = true
     private var overlayModeEnabled: Boolean = false
-    private var overlayBlurEffectEnabled: Boolean = false
     private var autoCloseOverlay: Boolean = true
     private var directDialEnabled: Boolean = false
     private var assistantLaunchVoiceModeEnabled: Boolean = false
@@ -805,7 +803,6 @@ class SearchViewModel(
         wallpaperAccentEnabled = prefCache.wallpaperAccentEnabled
         openKeyboardOnLaunch = prefCache.openKeyboardOnLaunch
         overlayModeEnabled = prefCache.overlayModeEnabled
-        overlayBlurEffectEnabled = prefCache.overlayBlurEffectEnabled
         autoCloseOverlay = prefCache.autoCloseOverlay
         directDialEnabled = prefCache.directDialEnabled
         assistantLaunchVoiceModeEnabled = prefCache.assistantLaunchVoiceModeEnabled
@@ -1048,7 +1045,6 @@ class SearchViewModel(
                         openKeyboardOnLaunch = openKeyboardOnLaunch,
                         clearQueryOnLaunch = clearQueryOnLaunch,
                         autoCloseOverlay = autoCloseOverlay,
-                        overlayBlurEffectEnabled = overlayBlurEffectEnabled,
                         showWallpaperBackground = backgroundSource != BackgroundSource.THEME,
                         wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
                         wallpaperBlurRadius = wallpaperBlurRadius,
@@ -1148,7 +1144,6 @@ class SearchViewModel(
                     clearQueryOnLaunch = clearQueryOnLaunch,
                     autoCloseOverlay = autoCloseOverlay,
                     overlayModeEnabled = overlayModeEnabled,
-                    overlayBlurEffectEnabled = overlayBlurEffectEnabled,
                     appSuggestionsEnabled = appSuggestionsEnabled,
                     showAppLabels = showAppLabels,
                     phoneAppGridColumns = phoneAppGridColumns,
@@ -3502,17 +3497,6 @@ class SearchViewModel(
                     if (!it) {
                         OverlayModeController.stopOverlay(getApplication())
                     }
-                },
-        )
-    }
-
-    fun setOverlayBlurEffectEnabled(enabled: Boolean) {
-        updateBooleanPreference(
-                value = enabled,
-                preferenceSetter = userPreferences::setOverlayBlurEffectEnabled,
-                stateUpdater = {
-                    overlayBlurEffectEnabled = it
-                    updateUiState { state -> state.copy(overlayBlurEffectEnabled = it) }
                 },
         )
     }

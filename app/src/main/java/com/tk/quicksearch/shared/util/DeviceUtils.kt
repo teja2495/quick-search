@@ -3,8 +3,6 @@ package com.tk.quicksearch.shared.util
 import android.app.ActivityManager
 import android.content.Context
 import android.content.res.Configuration
-import android.os.Build
-import android.view.WindowManager
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalConfiguration
 
@@ -80,20 +78,3 @@ fun isLowRamDevice(context: Context): Boolean {
     val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
     return activityManager?.isLowRamDevice == true
 }
-
-/**
- * Returns whether system-level cross-window blur is currently enabled.
- * Available on Android 12+ only; returns false on older versions.
- */
-fun isCrossWindowBlurEnabled(context: Context): Boolean {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return false
-    val windowManager = context.getSystemService(WindowManager::class.java)
-    return windowManager?.isCrossWindowBlurEnabled == true
-}
-
-/**
- * Returns whether the device platform can support cross-window blur APIs.
- * This does not reflect runtime enablement (battery saver / system toggles).
- */
-fun supportsCrossWindowBlur(): Boolean =
-    Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
