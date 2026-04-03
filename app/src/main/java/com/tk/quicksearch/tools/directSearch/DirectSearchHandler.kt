@@ -15,59 +15,122 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class DirectSearchHandler(
-        private val context: Context,
-        private val userPreferences: UserAppPreferences,
-        private val scope: CoroutineScope,
-        private val showToastCallback: (Int) -> Unit,
+    private val context: Context,
+    private val userPreferences: UserAppPreferences,
+    private val scope: CoroutineScope,
+    private val showToastCallback: (Int) -> Unit,
 ) {
     private val _directSearchState = MutableStateFlow(DirectSearchState())
     val directSearchState: StateFlow<DirectSearchState> = _directSearchState.asStateFlow()
 
-    private var geminiApiKey: String? = null
-    private var geminiClient: DirectSearchClient? = null
+    private var activeProviderId: DirectSearchLlmProviderId = DirectSearchLlmProviderId.GEMINI
+    private var activeProvider: DirectSearchLlmProvider =
+        DirectSearchLlmProviderRegistry.get(DirectSearchLlmProviderId.GEMINI, context)
+    private var llmApiKey: String? = null
     private var personalContext: String = ""
-    private var geminiModel: String = GeminiModelCatalog.DEFAULT_MODEL_ID
-    private var geminiGroundingEnabled: Boolean = GeminiModelCatalog.DEFAULT_GROUNDING_ENABLED
-    private var availableGeminiModels: List<GeminiTextModel> =
-            GeminiModelCatalog.FALLBACK_TEXT_MODELS
+    private var selectedModelId: String = GeminiModelCatalog.DEFAULT_MODEL_ID
+    private var groundingEnabled: Boolean = GeminiModelCatalog.DEFAULT_GROUNDING_ENABLED
+    private var availableGeminiModels: List<GeminiTextModel> = GeminiModelCatalog.FALLBACK_TEXT_MODELS
     private var hasLoadedGeminiModelsFromApi: Boolean = false
 
     private var isInitialized = false
+    private var directSearchJob: Job? = null
 
     private fun ensureInitialized() {
         if (!isInitialized) {
-            geminiApiKey = userPreferences.getGeminiApiKey()
-            geminiClient = geminiApiKey?.let { DirectSearchClient(it, context) }
-            personalContext = userPreferences.getPersonalContext().orEmpty()
-            geminiModel = userPreferences.getGeminiModel()
-            geminiGroundingEnabled = userPreferences.isGeminiGroundingEnabled()
-            availableGeminiModels = ensureModelExists(GeminiModelCatalog.FALLBACK_TEXT_MODELS)
+            activeProviderId = userPreferences.getDirectSearchProviderId()
+            activeProvider = DirectSearchLlmProviderRegistry.get(activeProviderId, context)
+            llmApiKey = userPreferences.getLlmApiKey(activeProviderId)
+            personalContext = userPreferences.getLlmPersonalContext(activeProviderId).orEmpty()
+            selectedModelId = userPreferences.getLlmModel(activeProviderId)
+            groundingEnabled = userPreferences.isLlmGroundingEnabled(activeProviderId)
+            availableGeminiModels = ensureModelExists(activeProvider.fallbackTextModels)
             hasLoadedGeminiModelsFromApi = false
             isInitialized = true
         }
     }
 
-    private var directSearchJob: Job? = null
-
-    fun getGeminiApiKey(): String? {
+    fun getDirectSearchProviderId(): DirectSearchLlmProviderId {
         ensureInitialized()
-        return geminiApiKey
+        return activeProviderId
     }
+
+    fun setDirectSearchProviderId(providerId: DirectSearchLlmProviderId) {
+        ensureInitialized()
+        if (providerId == activeProviderId) return
+
+        activeProviderId = providerId
+        activeProvider = DirectSearchLlmProviderRegistry.get(providerId, context)
+        userPreferences.setDirectSearchProviderId(providerId)
+
+        llmApiKey = userPreferences.getLlmApiKey(providerId)
+        personalContext = userPreferences.getLlmPersonalContext(providerId).orEmpty()
+        selectedModelId = userPreferences.getLlmModel(providerId)
+        groundingEnabled = userPreferences.isLlmGroundingEnabled(providerId)
+        availableGeminiModels = ensureModelExists(activeProvider.fallbackTextModels)
+        hasLoadedGeminiModelsFromApi = false
+        clearDirectSearchState()
+    }
+
+    fun getLlmApiKey(): String? {
+        ensureInitialized()
+        return llmApiKey
+    }
+
+    fun setLlmApiKey(apiKey: String?) {
+        ensureInitialized()
+        val normalized = apiKey?.trim().takeUnless { it.isNullOrBlank() }
+        if (normalized == llmApiKey) return
+
+        llmApiKey = normalized
+        hasLoadedGeminiModelsFromApi = false
+        userPreferences.setLlmApiKey(activeProviderId, normalized)
+
+        if (llmApiKey == null) {
+            availableGeminiModels = ensureModelExists(activeProvider.fallbackTextModels)
+            clearDirectSearchState()
+        }
+    }
+
+    fun getSelectedModelId(): String {
+        ensureInitialized()
+        return selectedModelId
+    }
+
+    fun setSelectedModelId(modelId: String?) {
+        ensureInitialized()
+        val normalized = modelId?.trim().takeUnless { it.isNullOrBlank() } ?: activeProvider.defaultModelId
+        if (normalized == selectedModelId) return
+
+        selectedModelId = normalized
+        userPreferences.setLlmModel(activeProviderId, normalized)
+        availableGeminiModels = ensureModelExists(availableGeminiModels)
+    }
+
+    fun isGroundingEnabled(): Boolean {
+        ensureInitialized()
+        return groundingEnabled
+    }
+
+    fun setGroundingEnabled(enabled: Boolean) {
+        ensureInitialized()
+        if (enabled == groundingEnabled) return
+
+        groundingEnabled = enabled
+        userPreferences.setLlmGroundingEnabled(activeProviderId, enabled)
+    }
+
+    // Backward-compatible Gemini facade methods for existing call sites.
+    fun getGeminiApiKey(): String? = getLlmApiKey()
 
     fun getPersonalContext(): String {
         ensureInitialized()
         return personalContext
     }
 
-    fun getGeminiModel(): String {
-        ensureInitialized()
-        return geminiModel
-    }
+    fun getGeminiModel(): String = getSelectedModelId()
 
-    fun isGeminiGroundingEnabled(): Boolean {
-        ensureInitialized()
-        return geminiGroundingEnabled
-    }
+    fun isGeminiGroundingEnabled(): Boolean = isGroundingEnabled()
 
     fun getAvailableGeminiModels(): List<GeminiTextModel> {
         ensureInitialized()
@@ -81,23 +144,7 @@ class DirectSearchHandler(
     }
 
     fun setGeminiApiKey(apiKey: String?) {
-        ensureInitialized()
-        val normalized = apiKey?.trim().takeUnless { it.isNullOrBlank() }
-        // We can't check against previous value easily without storing it locally in VM or here.
-        // But here we have it.
-        if (normalized == geminiApiKey) return
-
-        geminiApiKey = normalized
-        geminiClient = normalized?.let { DirectSearchClient(it, context) }
-        hasLoadedGeminiModelsFromApi = false
-        userPreferences.setGeminiApiKey(normalized)
-
-        if (geminiApiKey == null) {
-            availableGeminiModels = ensureModelExists(GeminiModelCatalog.FALLBACK_TEXT_MODELS)
-            clearDirectSearchState()
-        }
-        // SearchEngineManager update is done in VM, we can expose a flow or callback if needed
-        // But simple getter in VM is enough for init.
+        setLlmApiKey(apiKey)
     }
 
     fun setPersonalContext(context: String?) {
@@ -106,46 +153,39 @@ class DirectSearchHandler(
         if (normalized == personalContext) return
 
         personalContext = normalized
-        userPreferences.setPersonalContext(normalized.takeUnless { it.isBlank() })
+        userPreferences.setLlmPersonalContext(
+            providerId = activeProviderId,
+            context = normalized.takeUnless { it.isBlank() },
+        )
     }
 
     fun setGeminiModel(modelId: String?) {
-        ensureInitialized()
-        val normalized =
-                modelId?.trim().takeUnless { it.isNullOrBlank() }
-                        ?: GeminiModelCatalog.DEFAULT_MODEL_ID
-        if (normalized == geminiModel) return
-
-        geminiModel = normalized
-        userPreferences.setGeminiModel(normalized)
-        availableGeminiModels = ensureModelExists(availableGeminiModels)
+        setSelectedModelId(modelId)
     }
 
     fun setGeminiGroundingEnabled(enabled: Boolean) {
-        ensureInitialized()
-        if (enabled == geminiGroundingEnabled) return
-
-        geminiGroundingEnabled = enabled
-        userPreferences.setGeminiGroundingEnabled(enabled)
+        setGroundingEnabled(enabled)
     }
 
     suspend fun refreshAvailableGeminiModels(forceRefresh: Boolean = false): List<GeminiTextModel> {
         ensureInitialized()
 
-        val apiKey = geminiApiKey ?: return availableGeminiModels
+        val apiKey = llmApiKey ?: return availableGeminiModels
         if (!forceRefresh && hasLoadedGeminiModelsFromApi) {
             return availableGeminiModels
         }
 
         val fetched =
-                DirectSearchClient.fetchAvailableTextModels(apiKey, context)
-                        .getOrDefault(GeminiModelCatalog.FALLBACK_TEXT_MODELS)
+            activeProvider
+                .fetchAvailableTextModels(apiKey, context)
+                .getOrDefault(activeProvider.fallbackTextModels)
         availableGeminiModels = ensureModelExists(fetched)
         hasLoadedGeminiModelsFromApi = true
         return availableGeminiModels
     }
 
     fun requestDirectSearch(query: String) {
+        ensureInitialized()
         val trimmedQuery = query.trim()
         if (trimmedQuery.isBlank()) {
             showToastCallback(R.string.direct_search_enter_query)
@@ -153,13 +193,13 @@ class DirectSearchHandler(
             return
         }
 
-        val client = geminiClient
-        if (client == null || geminiApiKey.isNullOrBlank()) {
+        val apiKey = llmApiKey
+        if (apiKey.isNullOrBlank()) {
             _directSearchState.update {
                 DirectSearchState(
-                        status = DirectSearchStatus.Error,
-                        errorMessage = context.getString(R.string.direct_search_error_no_key),
-                        activeQuery = trimmedQuery,
+                    status = DirectSearchStatus.Error,
+                    errorMessage = context.getString(R.string.direct_search_error_no_key),
+                    activeQuery = trimmedQuery,
                 )
             }
             return
@@ -167,63 +207,79 @@ class DirectSearchHandler(
 
         directSearchJob?.cancel()
         directSearchJob =
-                scope.launch {
-                    _directSearchState.update {
-                        DirectSearchState(
-                                status = DirectSearchStatus.Loading,
-                                activeQuery = trimmedQuery,
-                        )
-                    }
-
-                    val selectedModel =
-                            availableGeminiModels.find { it.id == geminiModel }
-                    val result =
-                            client.fetchAnswer(
-                                    query = trimmedQuery,
-                                    personalContext =
-                                            if (selectedModel?.supportsSystemInstructions == false) null
-                                            else personalContext.takeIf { it.isNotBlank() },
-                                    modelId = geminiModel,
-                                    useGroundingWithGoogleSearch =
-                                            geminiGroundingEnabled &&
-                                                    (selectedModel?.supportsGrounding != false),
-                                    useSystemInstruction = selectedModel?.supportsSystemInstructions != false,
-                            )
-                    result
-                            .onSuccess { answer ->
-                                _directSearchState.update {
-                                    DirectSearchState(
-                                            status = DirectSearchStatus.Success,
-                                            answer = answer,
-                                            activeQuery = trimmedQuery,
-                                            usedModelId = geminiModel,
-                                    )
-                                }
-                            }
-                            .onFailure { error ->
-                                if (error is CancellationException) return@onFailure
-                                val message = when {
-                                    error.message?.startsWith("Request failed") == true -> {
-                                        val code = error.message?.substringAfter("Request failed (")?.substringBefore(")")?.toIntOrNull()
-                                        if (code != null) {
-                                            context.getString(R.string.error_gemini_request_failed, code)
-                                        } else {
-                                            error.message
-                                        }
-                                    }
-                                    error.message == "Unable to load Gemini models" -> context.getString(R.string.error_gemini_load_models_failed)
-                                    error.message == "Empty response from Gemini" -> context.getString(R.string.error_gemini_empty_response)
-                                    else -> error.message ?: context.getString(R.string.direct_search_error_generic)
-                                }
-                                _directSearchState.update {
-                                    DirectSearchState(
-                                            status = DirectSearchStatus.Error,
-                                            errorMessage = message,
-                                            activeQuery = trimmedQuery,
-                                    )
-                                }
-                            }
+            scope.launch {
+                _directSearchState.update {
+                    DirectSearchState(
+                        status = DirectSearchStatus.Loading,
+                        activeQuery = trimmedQuery,
+                    )
                 }
+
+                val selectedModel = availableGeminiModels.find { it.id == selectedModelId }
+                val result =
+                    activeProvider.fetchAnswer(
+                        apiKey = apiKey,
+                        context = context,
+                        request =
+                            LlmRequest(
+                                query = trimmedQuery,
+                                personalContext =
+                                    if (selectedModel?.supportsSystemInstructions == false) {
+                                        null
+                                    } else {
+                                        personalContext.takeIf { it.isNotBlank() }
+                                    },
+                                modelId = selectedModelId,
+                                useGroundingWithGoogleSearch =
+                                    groundingEnabled && (selectedModel?.supportsGrounding != false),
+                                useSystemInstruction =
+                                    selectedModel?.supportsSystemInstructions != false,
+                            ),
+                    )
+
+                result
+                    .onSuccess { answer ->
+                        _directSearchState.update {
+                            DirectSearchState(
+                                status = DirectSearchStatus.Success,
+                                answer = answer,
+                                activeQuery = trimmedQuery,
+                                usedModelId = selectedModelId,
+                            )
+                        }
+                    }
+                    .onFailure { error ->
+                        if (error is CancellationException) return@onFailure
+                        val message =
+                            when {
+                                error.message?.startsWith("Request failed") == true -> {
+                                    val code =
+                                        error.message
+                                            ?.substringAfter("Request failed (")
+                                            ?.substringBefore(")")
+                                            ?.toIntOrNull()
+                                    if (code != null) {
+                                        context.getString(R.string.error_gemini_request_failed, code)
+                                    } else {
+                                        error.message
+                                    }
+                                }
+
+                                error.message == "Unable to load Gemini models" ->
+                                    context.getString(R.string.error_gemini_load_models_failed)
+                                error.message == "Empty response from Gemini" ->
+                                    context.getString(R.string.error_gemini_empty_response)
+                                else -> error.message ?: context.getString(R.string.direct_search_error_generic)
+                            }
+                        _directSearchState.update {
+                            DirectSearchState(
+                                status = DirectSearchStatus.Error,
+                                errorMessage = message,
+                                activeQuery = trimmedQuery,
+                            )
+                        }
+                    }
+            }
     }
 
     fun clearDirectSearchState() {
@@ -233,15 +289,15 @@ class DirectSearchHandler(
     }
 
     private fun ensureModelExists(models: List<GeminiTextModel>): List<GeminiTextModel> {
-        val normalized = if (models.isEmpty()) GeminiModelCatalog.FALLBACK_TEXT_MODELS else models
-        return if (normalized.any { it.id == geminiModel }) {
+        val normalized = if (models.isEmpty()) activeProvider.fallbackTextModels else models
+        return if (normalized.any { it.id == selectedModelId }) {
             normalized
         } else {
             listOf(
-                    GeminiTextModel(
-                            id = geminiModel,
-                            displayName = geminiModel,
-                    ),
+                GeminiTextModel(
+                    id = selectedModelId,
+                    displayName = selectedModelId,
+                ),
             ) + normalized
         }
     }

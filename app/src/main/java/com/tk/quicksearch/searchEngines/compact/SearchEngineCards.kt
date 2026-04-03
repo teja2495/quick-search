@@ -34,8 +34,8 @@ import com.tk.quicksearch.searchEngines.shared.SearchTargetConstants
 import com.tk.quicksearch.searchEngines.shared.SearchTargetIcon
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
+import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.search.searchScreen.predictedSubmitHighlight
-import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
 
 /**
@@ -130,10 +130,10 @@ fun SearchEngineCard(
         modifier =
             modifier
                 .fillMaxWidth()
-                .clip(DesignTokens.SearchResultCardShape)
+                .clip(SearchResultCardDefaults.shape)
                 .predictedSubmitHighlight(
                     isPredicted = isPredicted,
-                    shape = DesignTokens.SearchResultCardShape,
+                    shape = SearchResultCardDefaults.shape,
                     opaqueCardTopResultBorder = true,
                 )
                 .combinedClickable(
@@ -215,10 +215,10 @@ private fun SearchTargetCard(
         modifier =
             modifier
                 .fillMaxWidth()
-                .clip(DesignTokens.SearchResultCardShape)
+                .clip(SearchResultCardDefaults.shape)
                 .predictedSubmitHighlight(
                     isPredicted = isPredicted,
-                    shape = DesignTokens.SearchResultCardShape,
+                    shape = SearchResultCardDefaults.shape,
                     opaqueCardTopResultBorder = true,
                 )
                 .combinedClickable(
@@ -280,7 +280,7 @@ private fun CustomizeSearchEnginesCard(
         modifier =
             modifier
                 .fillMaxWidth()
-                .clip(DesignTokens.SearchResultCardShape)
+                .clip(SearchResultCardDefaults.shape)
                 .clickable {
                     hapticConfirm(view)()
                     onClick()

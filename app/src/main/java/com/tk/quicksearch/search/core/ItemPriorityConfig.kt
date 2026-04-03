@@ -75,27 +75,22 @@ object ItemPriorityConfig {
      *
      * Section priority within search results: APPS > APP_SHORTCUTS > CONTACTS > FILES > CALENDAR > SETTINGS > APP_SETTINGS
      */
+    private val sectionItemTypes: List<ItemType> =
+        SearchSectionRegistry.orderedDefinitions.map { it.itemType }
+
     val SEARCHING_STATE_LAYOUT: List<ItemType> =
-        listOf(
-            ItemType.ERROR_BANNER,
-            ItemType.CALCULATOR_RESULT,
-            ItemType.CURRENCY_CONVERTER_RESULT,
-            ItemType.WORD_CLOCK_RESULT,
-            ItemType.DICTIONARY_RESULT,
-            ItemType.DIRECT_SEARCH_RESULT,
-            // Search result sections (sub-ordered by section priority)
-            ItemType.APPS_SECTION,
-            ItemType.APP_SHORTCUTS_SECTION,
-            ItemType.CONTACTS_SECTION,
-            ItemType.FILES_SECTION,
-            ItemType.CALENDAR_SECTION,
-            ItemType.SETTINGS_SECTION,
-            ItemType.APP_SETTINGS_SECTION,
-            // Fallback suggestions
-            ItemType.WEB_SUGGESTIONS,
-            ItemType.SEARCH_ENGINES_INLINE,
-            ItemType.NO_RESULTS_MESSAGE,
-        )
+        buildList {
+            add(ItemType.ERROR_BANNER)
+            add(ItemType.CALCULATOR_RESULT)
+            add(ItemType.CURRENCY_CONVERTER_RESULT)
+            add(ItemType.WORD_CLOCK_RESULT)
+            add(ItemType.DICTIONARY_RESULT)
+            add(ItemType.DIRECT_SEARCH_RESULT)
+            addAll(sectionItemTypes)
+            add(ItemType.WEB_SUGGESTIONS)
+            add(ItemType.SEARCH_ENGINES_INLINE)
+            add(ItemType.NO_RESULTS_MESSAGE)
+        }
 
     /**
      * Item rendering order when query is absent (app open state).
@@ -109,51 +104,25 @@ object ItemPriorityConfig {
      * Section priority: APPS > APP_SHORTCUTS > CONTACTS > FILES > CALENDAR > SETTINGS > APP_SETTINGS
      */
     val APP_OPEN_STATE_LAYOUT: List<ItemType> =
-        listOf(
-            ItemType.ERROR_BANNER,
-            // Pinned sections (in priority order)
-            ItemType.APPS_SECTION,
-            ItemType.APP_SHORTCUTS_SECTION,
-            ItemType.CONTACTS_SECTION,
-            ItemType.FILES_SECTION,
-            ItemType.CALENDAR_SECTION,
-            ItemType.SETTINGS_SECTION,
-            ItemType.APP_SETTINGS_SECTION,
-            // Recent queries/suggestions
-            ItemType.RECENT_QUERIES,
-        )
+        buildList {
+            add(ItemType.ERROR_BANNER)
+            addAll(sectionItemTypes)
+            add(ItemType.RECENT_QUERIES)
+        }
 
     /**
      * Section priority order - used within each layout for rendering sections.
      *
      * Priority (highest to lowest): APPS > APP_SHORTCUTS > CONTACTS > FILES > CALENDAR > SETTINGS > APP_SETTINGS
      */
-    val searchingStatePriority: List<SearchSection> =
-        listOf(
-            SearchSection.APPS,
-            SearchSection.APP_SHORTCUTS,
-            SearchSection.CONTACTS,
-            SearchSection.FILES,
-            SearchSection.CALENDAR,
-            SearchSection.SETTINGS,
-            SearchSection.APP_SETTINGS,
-        )
+    val searchingStatePriority: List<SearchSection> = SearchSectionRegistry.orderedSections
 
     /**
      * Section priority order for app open state (pinned items and recent apps).
      *
      * Priority (highest to lowest): APPS > APP_SHORTCUTS > CONTACTS > FILES > CALENDAR > SETTINGS > APP_SETTINGS
      */
-    val appOpenStatePriority: List<SearchSection> =
-        listOf(
-            SearchSection.APPS,
-            SearchSection.APP_SHORTCUTS,
-            SearchSection.CONTACTS,
-            SearchSection.FILES,
-            SearchSection.CALENDAR,
-            SearchSection.SETTINGS,
-            SearchSection.APP_SETTINGS,
-        )
+    val appOpenStatePriority: List<SearchSection> = SearchSectionRegistry.orderedSections
 
     /**
      * Gets the complete layout order based on the current query state.

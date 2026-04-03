@@ -22,9 +22,14 @@ HSPLcom/tk/quicksearch/search/core/SearchViewModel;-><init>(Landroid/app/Applica
 HSPLcom/tk/quicksearch/search/core/SearchViewModel;->startStartupPhasesAfterFirstFrame()V
 HSPLcom/tk/quicksearch/search/core/SearchViewModel;->markStartupCoreSurfaceReady()V
 HSPLcom/tk/quicksearch/search/core/SearchViewModel;->refreshPermissionSnapshotAtLaunch()V
-HSPLcom/tk/quicksearch/search/core/SearchViewModel;->initializeWithCacheMinimal(Ljava/util/List;Z)V
 HSPLcom/tk/quicksearch/search/core/SearchViewModel;->initializeServices()V
 HSPLcom/tk/quicksearch/search/core/SearchViewModel;->setupDirectSearchStateListener()V
+
+Lcom/tk/quicksearch/search/core/SearchStartupLifecycleDelegate;
+HSPLcom/tk/quicksearch/search/core/SearchStartupLifecycleDelegate;->startStartupPhasesAfterFirstFrame()V
+HSPLcom/tk/quicksearch/search/core/SearchStartupLifecycleDelegate;->markStartupCoreSurfaceReady()V
+HSPLcom/tk/quicksearch/search/core/SearchStartupLifecycleDelegate;->refreshPermissionSnapshotAtLaunch()V
+HSPLcom/tk/quicksearch/search/core/SearchStartupLifecycleDelegate;->initializeWithCacheMinimal(Ljava/util/List;Z)V
 
 Lcom/tk/quicksearch/search/startup/StartupSurfaceStore;
 HSPLcom/tk/quicksearch/search/startup/StartupSurfaceStore;-><init>(Landroid/content/Context;)V
@@ -83,7 +88,6 @@ HSPLcom/tk/quicksearch/search/deviceSettings/DeviceSettingsSearchHandler;-><init
 
 Lcom/tk/quicksearch/searchEngines/SearchEngineManager;
 Lcom/tk/quicksearch/searchEngines/SecondarySearchOrchestrator;
-Lcom/tk/quicksearch/searchEngines/ShortcutHandler;
 Lcom/tk/quicksearch/app/navigation/NavigationHandler;
 
 # Handlers initialized during early lifecycle

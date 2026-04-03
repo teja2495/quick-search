@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.AppThemeMode
+import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.utils.PermissionUtils
 import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.shared.permissions.PermissionHelper
@@ -45,8 +46,10 @@ import com.tk.quicksearch.settings.OpenSourceLicenseEntry
 import com.tk.quicksearch.settings.OpenSourceLicensesList
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngines
 import com.tk.quicksearch.settings.shared.SettingsScreenCallbacks
+import com.tk.quicksearch.settings.shared.SettingsCommand
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 import com.tk.quicksearch.settings.shared.SettingsScreenState
+import com.tk.quicksearch.settings.shared.isAppSettingToggleEnabled
 import com.tk.quicksearch.settings.shared.settingsContentWidth
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
@@ -56,6 +59,7 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun SettingsDetailLevel1Screen(
     modifier: Modifier = Modifier,
+    uiState: SearchUiState,
     state: SettingsScreenState,
     callbacks: SettingsScreenCallbacks,
     detailType: SettingsDetailType,
@@ -161,10 +165,23 @@ internal fun SettingsDetailLevel1Screen(
                             onToggleDirectSearchSetupExpanded = onToggleDirectSearchSetupExpanded,
                             disabledSearchEnginesExpanded = disabledSearchEnginesExpanded,
                             onToggleDisabledSearchEnginesExpanded = onToggleDisabledSearchEnginesExpanded,
-                            onToggleSearchEngineCompactMode = callbacks.onToggleSearchEngineCompactMode,
+                            onToggleSearchEngineCompactMode = { enabled ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.Toggle(
+                                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.SEARCH_ENGINE_COMPACT_MODE,
+                                        enabled = enabled,
+                                    ),
+                                )
+                            },
                             isSearchEngineAliasSuffixEnabled = state.isSearchEngineAliasSuffixEnabled,
-                            onToggleSearchEngineAliasSuffixEnabled =
-                                callbacks.onToggleSearchEngineAliasSuffixEnabled,
+                            onToggleSearchEngineAliasSuffixEnabled = { enabled ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.Toggle(
+                                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.SEARCH_ENGINE_ALIAS_SUFFIX,
+                                        enabled = enabled,
+                                    ),
+                                )
+                            },
                             isAliasTriggerAfterSpaceEnabled = state.isAliasTriggerAfterSpaceEnabled,
                             onToggleAliasTriggerAfterSpaceEnabled =
                                 callbacks.onToggleAliasTriggerAfterSpaceEnabled,
@@ -221,38 +238,106 @@ internal fun SettingsDetailLevel1Screen(
 
                         AppearanceSettingsSection(
                             oneHandedMode = state.oneHandedMode,
-                            onToggleOneHandedMode = callbacks.onToggleOneHandedMode,
+                            onToggleOneHandedMode = { enabled ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.Toggle(
+                                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.ONE_HANDED_MODE,
+                                        enabled = enabled,
+                                    ),
+                                )
+                            },
                             bottomSearchBarEnabled = state.bottomSearchBarEnabled,
-                            onToggleBottomSearchBar = callbacks.onToggleBottomSearchBar,
+                            onToggleBottomSearchBar = { enabled ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.Toggle(
+                                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.BOTTOM_SEARCHBAR,
+                                        enabled = enabled,
+                                    ),
+                                )
+                            },
                             wallpaperBackgroundAlpha = state.wallpaperBackgroundAlpha,
                             wallpaperBlurRadius = state.wallpaperBlurRadius,
-                            onWallpaperBackgroundAlphaChange = callbacks.onWallpaperBackgroundAlphaChange,
-                            onWallpaperBlurRadiusChange = callbacks.onWallpaperBlurRadiusChange,
+                            onWallpaperBackgroundAlphaChange = { alpha ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.WallpaperBackgroundAlpha(alpha),
+                                )
+                            },
+                            onWallpaperBlurRadiusChange = { radius ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.WallpaperBlurRadius(radius),
+                                )
+                            },
                             appTheme = state.appTheme,
                             overlayThemeIntensity = state.overlayThemeIntensity,
                             appThemeMode = state.appThemeMode,
                             fontScaleMultiplier = state.fontScaleMultiplier,
-                            onSetAppTheme = callbacks.onSetAppTheme,
-                            onOverlayThemeIntensityChange = callbacks.onOverlayThemeIntensityChange,
-                            onSetAppThemeMode = callbacks.onSetAppThemeMode,
-                            onFontScaleMultiplierChange = callbacks.onFontScaleMultiplierChange,
+                            onSetAppTheme = { theme ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.AppThemeSetting(theme),
+                                )
+                            },
+                            onOverlayThemeIntensityChange = { intensity ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.OverlayThemeIntensity(intensity),
+                                )
+                            },
+                            onSetAppThemeMode = { themeMode ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.AppThemeModeSetting(themeMode),
+                                )
+                            },
+                            onFontScaleMultiplierChange = { multiplier ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.FontScaleMultiplier(multiplier),
+                                )
+                            },
                             backgroundSource = state.backgroundSource,
                             customImageUri = state.customImageUri,
-                            onSetBackgroundSource = callbacks.onSetBackgroundSource,
+                            onSetBackgroundSource = { source ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.BackgroundSourceSetting(source),
+                                )
+                            },
                             onPickCustomImage = callbacks.onPickCustomImage,
                             onRequestWallpaperPermission = callbacks.onRequestWallpaperPermission,
                             isSearchEngineCompactMode = state.isSearchEngineCompactMode,
                             searchEngineCompactRowCount = state.searchEngineCompactRowCount,
                             hasEnabledSearchEngines = hasEnabledSearchEngines,
-                            onToggleSearchEngineCompactMode = callbacks.onToggleSearchEngineCompactMode,
-                            onSetSearchEngineCompactRowCount = callbacks.onSetSearchEngineCompactRowCount,
+                            onToggleSearchEngineCompactMode = { enabled ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.Toggle(
+                                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.SEARCH_ENGINE_COMPACT_MODE,
+                                        enabled = enabled,
+                                    ),
+                                )
+                            },
+                            onSetSearchEngineCompactRowCount = { rowCount ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.SearchEngineCompactRowCount(rowCount),
+                                )
+                            },
                             selectedIconPackPackage = state.selectedIconPackPackage,
                             availableIconPacks = state.availableIconPacks,
                             showAppLabels = state.showAppLabels,
-                            onToggleAppLabels = callbacks.onToggleAppLabels,
+                            onToggleAppLabels = { enabled ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.Toggle(
+                                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.APP_LABELS,
+                                        enabled = enabled,
+                                    ),
+                                )
+                            },
                             phoneAppGridColumns = state.phoneAppGridColumns,
-                            onSetPhoneAppGridColumns = callbacks.onSetPhoneAppGridColumns,
-                            onSelectIconPack = callbacks.onSelectIconPack,
+                            onSetPhoneAppGridColumns = { columns ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.PhoneAppGridColumns(columns),
+                                )
+                            },
+                            onSelectIconPack = { packageName ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.IconPackPackageSetting(packageName),
+                                )
+                            },
                             onRefreshIconPacks = {
                                 callbacks.onRefreshIconPacks()
                                 Toast
@@ -264,13 +349,35 @@ internal fun SettingsDetailLevel1Screen(
                             },
                             onSearchIconPacks = callbacks.onSearchIconPacks,
                             appIconShape = state.appIconShape,
-                            onSetAppIconShape = callbacks.onSetAppIconShape,
+                            onSetAppIconShape = { shape ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.AppIconShapeSetting(shape),
+                                )
+                            },
                             launcherAppIcon = state.launcherAppIcon,
-                            onSetLauncherAppIcon = callbacks.onSetLauncherAppIcon,
+                            onSetLauncherAppIcon = { icon ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.LauncherAppIconSetting(icon),
+                                )
+                            },
                             themedIconsEnabled = state.themedIconsEnabled,
-                            onThemedIconsToggle = callbacks.onToggleThemedIcons,
+                            onThemedIconsToggle = { enabled ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.Toggle(
+                                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.THEMED_ICONS,
+                                        enabled = enabled,
+                                    ),
+                                )
+                            },
                             wallpaperAccentEnabled = state.wallpaperAccentEnabled,
-                            onWallpaperAccentToggle = callbacks.onToggleWallpaperAccent,
+                            onWallpaperAccentToggle = { enabled ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.Toggle(
+                                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.WALLPAPER_ACCENT,
+                                        enabled = enabled,
+                                    ),
+                                )
+                            },
                             hasWallpaperPermission = state.hasWallpaperPermission,
                         )
                     }
@@ -290,14 +397,10 @@ internal fun SettingsDetailLevel1Screen(
 
                     SettingsDetailType.MORE_OPTIONS -> {
                         MoreOptionsSettings(
-                            topResultIndicatorEnabled = state.topResultIndicatorEnabled,
-                            onTopResultIndicatorToggle = callbacks.onToggleTopResultIndicator,
-                            openKeyboardOnLaunch = state.openKeyboardOnLaunch,
-                            onOpenKeyboardOnLaunchToggle = callbacks.onToggleOpenKeyboardOnLaunch,
-                            clearQueryOnLaunch = state.clearQueryOnLaunch,
-                            onClearQueryOnLaunchToggle = callbacks.onToggleClearQueryOnLaunch,
-                            autoCloseOverlay = state.autoCloseOverlay,
-                            onAutoCloseOverlayToggle = callbacks.onToggleAutoCloseOverlay,
+                            isToggleEnabled = { toggleKey ->
+                                uiState.isAppSettingToggleEnabled(toggleKey)
+                            },
+                            onApplySettingsCommand = callbacks.onApplySettingsCommand,
                             modifier = Modifier,
                         )
                     }
@@ -424,72 +527,4 @@ private fun MonoThemeWrapper(
     } else {
         content()
     }
-}
-
-internal fun SettingsDetailType.titleResId(): Int =
-    when (this) {
-        SettingsDetailType.SEARCH_ENGINES -> R.string.settings_search_engines_title
-        SettingsDetailType.EXCLUDED_ITEMS -> R.string.settings_excluded_items_title
-        SettingsDetailType.SEARCH_RESULTS -> R.string.settings_search_results_title
-        SettingsDetailType.APP_MANAGEMENT -> R.string.settings_manage_apps_title
-        SettingsDetailType.APP_SHORTCUTS -> R.string.section_app_shortcuts
-        SettingsDetailType.DEVICE_SETTINGS -> R.string.section_settings
-        SettingsDetailType.CALENDAR_EVENTS -> R.string.settings_calendar_events_title
-        SettingsDetailType.APPEARANCE -> R.string.settings_appearance_title
-        SettingsDetailType.CALLS_TEXTS -> R.string.settings_calls_texts_title
-        SettingsDetailType.FILES -> R.string.settings_file_types_title
-        SettingsDetailType.LAUNCH_OPTIONS -> R.string.settings_launch_options_title
-        SettingsDetailType.MORE_OPTIONS -> R.string.settings_more_options_title
-        SettingsDetailType.PERMISSIONS -> R.string.settings_permissions_title
-        SettingsDetailType.TOOLS -> R.string.settings_tools_title
-        SettingsDetailType.GEMINI_API_CONFIG -> R.string.settings_gemini_api_config_title
-        SettingsDetailType.FEATURES_LIST -> R.string.settings_all_quick_search_features
-        SettingsDetailType.OPEN_SOURCE_LICENSES -> R.string.settings_open_source_licenses_title
-        SettingsDetailType.UNIT_CONVERTER_INFO -> R.string.unit_converter_info_title
-        SettingsDetailType.DATE_CALCULATOR_INFO -> R.string.date_calculator_info_title
-    }
-
-internal fun SettingsDetailType.isLevel2(): Boolean =
-    this == SettingsDetailType.APP_MANAGEMENT ||
-        this == SettingsDetailType.APP_SHORTCUTS ||
-        this == SettingsDetailType.EXCLUDED_ITEMS ||
-        this == SettingsDetailType.DEVICE_SETTINGS ||
-        this == SettingsDetailType.CALENDAR_EVENTS ||
-        this == SettingsDetailType.CALLS_TEXTS ||
-        this == SettingsDetailType.FILES ||
-        this == SettingsDetailType.TOOLS ||
-        this == SettingsDetailType.GEMINI_API_CONFIG ||
-        this == SettingsDetailType.UNIT_CONVERTER_INFO ||
-        this == SettingsDetailType.DATE_CALCULATOR_INFO
-
-internal fun SettingsDetailType.level(): Int = when (this) {
-    SettingsDetailType.UNIT_CONVERTER_INFO,
-    SettingsDetailType.DATE_CALCULATOR_INFO,
-    SettingsDetailType.GEMINI_API_CONFIG -> 3
-    else -> if (isLevel2()) 2 else 1
-}
-
-/**
- * Enum to represent different types of settings detail screens.
- */
-enum class SettingsDetailType {
-    SEARCH_ENGINES,
-    EXCLUDED_ITEMS,
-    SEARCH_RESULTS,
-    APP_MANAGEMENT,
-    APP_SHORTCUTS,
-    DEVICE_SETTINGS,
-    CALENDAR_EVENTS,
-    APPEARANCE,
-    CALLS_TEXTS,
-    FILES,
-    LAUNCH_OPTIONS,
-    MORE_OPTIONS,
-    PERMISSIONS,
-    TOOLS,
-    GEMINI_API_CONFIG,
-    FEATURES_LIST,
-    OPEN_SOURCE_LICENSES,
-    UNIT_CONVERTER_INFO,
-    DATE_CALCULATOR_INFO,
 }

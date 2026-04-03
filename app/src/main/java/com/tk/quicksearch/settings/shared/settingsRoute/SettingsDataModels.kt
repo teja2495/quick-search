@@ -314,6 +314,7 @@ data class SettingsScreenCallbacks(
     val onRequestCalendarPermission: () -> Unit,
     val onRequestCallPermission: () -> Unit,
     val onRequestWallpaperPermission: () -> Unit,
+    val onApplySettingsCommand: (SettingsCommand) -> Unit,
 ) {
     val searchResults: SearchResultsSettingsCallbacks
         get() =

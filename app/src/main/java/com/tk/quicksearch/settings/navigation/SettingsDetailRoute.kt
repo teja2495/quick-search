@@ -72,8 +72,10 @@ fun SettingsDetailRoute(
                         .onFailure {
                             // Some providers do not support persistable permissions.
                         }
-                viewModel.setCustomImageUri(uri.toString())
-                viewModel.setBackgroundSource(BackgroundSource.CUSTOM_IMAGE)
+                viewModel.applySettingsCommand(SettingsCommand.CustomImageUriSetting(uri.toString()))
+                viewModel.applySettingsCommand(
+                    SettingsCommand.BackgroundSourceSetting(BackgroundSource.CUSTOM_IMAGE),
+                )
             }
 
     val onSelectWallpaperSource: () -> Unit = wallpaperPermissionController.onRequestPermission
@@ -236,24 +238,11 @@ fun SettingsDetailRoute(
     val onBackAction: () -> Unit =
             if (detailType.isLevel2()) {
                 {
-                    when (detailType) {
-                        SettingsDetailType.TOOLS -> {
-                            onBack()
-                        }
-                        SettingsDetailType.GEMINI_API_CONFIG -> {
-                            if (sourceDetailType == null) {
-                                onBack()
-                            } else {
-                                onNavigateToDetail(sourceDetailType)
-                            }
-                        }
-                        SettingsDetailType.UNIT_CONVERTER_INFO,
-                        SettingsDetailType.DATE_CALCULATOR_INFO -> {
-                            onNavigateToDetail(SettingsDetailType.TOOLS)
-                        }
-                        else -> {
-                            onNavigateToDetail(SettingsDetailType.SEARCH_RESULTS)
-                        }
+                    val destination = detailType.resolveBackDestination(sourceDetailType)
+                    if (destination == null) {
+                        onBack()
+                    } else {
+                        onNavigateToDetail(destination)
                     }
                 }
             } else {
@@ -390,6 +379,7 @@ fun SettingsDetailRoute(
     } else {
         SettingsDetailLevel1Screen(
                 modifier = modifier,
+                uiState = uiState,
                 state = resolvedState,
                 callbacks = callbacks,
                 detailType = detailType,

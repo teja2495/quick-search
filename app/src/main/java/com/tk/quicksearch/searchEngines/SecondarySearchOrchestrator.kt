@@ -2,10 +2,13 @@ package com.tk.quicksearch.searchEngines
 
 import android.os.Looper
 import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.search.core.SearchSectionPermissionRequirement
+import com.tk.quicksearch.search.core.SearchSectionRegistry
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SectionManager
 import com.tk.quicksearch.search.core.UnifiedSearchHandler
 import com.tk.quicksearch.search.core.UnifiedSearchResults
+import com.tk.quicksearch.search.core.UnifiedSectionSearchConfig
 import com.tk.quicksearch.search.webSuggestions.WebSuggestionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -73,48 +76,35 @@ class SecondarySearchOrchestrator(
             resetNoResultPrefixesForBackspace(trimmedQuery)
         }
 
-        val isSingleCharacterQuery = trimmedQuery.length == 1
-        if (isSingleCharacterQuery) {
-            // Keep first-letter app shortcut searches responsive even if a previous
-            // single-letter query was cached as "no results" before data finished loading.
-            clearNoResultTracking(SearchSection.APP_SHORTCUTS)
-        }
         val currentState = currentStateProvider()
-        val canSearchContacts =
-            !isSingleCharacterQuery &&
-                currentState.hasContactPermission &&
-                SearchSection.CONTACTS !in sectionManager.disabledSections
-        val canSearchFiles =
-            !isSingleCharacterQuery &&
-                currentState.hasFilePermission &&
-                SearchSection.FILES !in sectionManager.disabledSections
-        val canSearchSettings =
-            !isSingleCharacterQuery && SearchSection.SETTINGS !in sectionManager.disabledSections
-        val canSearchCalendar =
-            !isSingleCharacterQuery &&
-                currentState.hasCalendarPermission &&
-                SearchSection.CALENDAR !in sectionManager.disabledSections
-        val canSearchAppSettings =
-            !isSingleCharacterQuery &&
-                SearchSection.APP_SETTINGS !in sectionManager.disabledSections
-        val canSearchAppShortcuts = SearchSection.APP_SHORTCUTS !in sectionManager.disabledSections
-
-        // Skip searches if current query extends a previous no-results query
-        val shouldSkipContacts = shouldSkipSearchForSection(trimmedQuery, SearchSection.CONTACTS, isBackspacing)
-        val shouldSkipFiles = shouldSkipSearchForSection(trimmedQuery, SearchSection.FILES, isBackspacing)
-        val shouldSkipSettings = shouldSkipSearchForSection(trimmedQuery, SearchSection.SETTINGS, isBackspacing)
-        val shouldSkipCalendar = shouldSkipSearchForSection(trimmedQuery, SearchSection.CALENDAR, isBackspacing)
-        val shouldSkipAppSettings =
-            shouldSkipSearchForSection(trimmedQuery, SearchSection.APP_SETTINGS, isBackspacing)
-        val shouldSkipAppShortcuts =
-            !isSingleCharacterQuery &&
-                shouldSkipSearchForSection(trimmedQuery, SearchSection.APP_SHORTCUTS, isBackspacing)
-        val shouldSearchContacts = canSearchContacts && !shouldSkipContacts
-        val shouldSearchFiles = canSearchFiles && !shouldSkipFiles
-        val shouldSearchSettings = canSearchSettings && !shouldSkipSettings
-        val shouldSearchCalendar = canSearchCalendar && !shouldSkipCalendar
-        val shouldSearchAppSettings = canSearchAppSettings && !shouldSkipAppSettings
-        val shouldSearchAppShortcuts = canSearchAppShortcuts && !shouldSkipAppShortcuts
+        val sectionSearchConfig =
+            SearchSectionRegistry.secondarySearchDefinitions.associate { definition ->
+                val section = definition.section
+                val canSearchSection =
+                    trimmedQuery.length >= definition.minimumQueryLength &&
+                        hasPermissionForSection(currentState, section) &&
+                        section !in sectionManager.disabledSections
+                val skipNoResultsCache =
+                    definition.minimumQueryLength == 1 && trimmedQuery.length == 1
+                if (skipNoResultsCache) {
+                    // Keep first-letter section alias searches responsive even if a previous
+                    // single-letter query was cached as "no results" before data finished loading.
+                    clearNoResultTracking(section)
+                }
+                val shouldSkipSection =
+                    !skipNoResultsCache &&
+                        shouldSkipSearchForSection(trimmedQuery, section, isBackspacing)
+                val shouldSearch = canSearchSection && !shouldSkipSection
+                val enableFuzzyMatching =
+                    shouldSearch &&
+                        (section == SearchSection.SETTINGS || section == SearchSection.APP_SETTINGS) &&
+                        !isLowRamDevice
+                section to
+                    UnifiedSectionSearchConfig(
+                        shouldSearch = shouldSearch,
+                        enableFuzzyMatching = enableFuzzyMatching,
+                    )
+            }
 
         val currentVersion = queryVersion.incrementAndGet()
         lastQueryLength = trimmedQuery.length
@@ -130,16 +120,7 @@ class SecondarySearchOrchestrator(
                     unifiedSearchHandler.performSearch(
                         query = trimmedQuery,
                         enabledFileTypes = currentState.enabledFileTypes,
-                        canSearchContacts = shouldSearchContacts,
-                        canSearchFiles = shouldSearchFiles,
-                        canSearchSettings = shouldSearchSettings,
-                        canSearchCalendar = shouldSearchCalendar,
-                        canSearchAppSettings = shouldSearchAppSettings,
-                        canSearchAppShortcuts = shouldSearchAppShortcuts,
-                        enableFuzzyContactSearch = false,
-                        enableFuzzyFileSearch = false,
-                        enableFuzzySettingsSearch = !isLowRamDevice,
-                        enableFuzzyAppSettingsSearch = !isLowRamDevice,
+                        sectionSearchConfig = sectionSearchConfig,
                         showFolders = currentState.showFolders,
                         showSystemFiles = currentState.showSystemFiles,
                         aliasSection = null,
@@ -148,42 +129,16 @@ class SecondarySearchOrchestrator(
                 withContext(Dispatchers.Main) {
                     if (currentVersion == queryVersion.get()) {
                         // Update no-results tracking based on search results
-                        updateNoResultTracking(
-                            section = SearchSection.CONTACTS,
-                            shouldSearch = shouldSearchContacts,
-                            query = trimmedQuery,
-                            hadResults = unifiedResults.contactResults.isNotEmpty(),
-                        )
-                        updateNoResultTracking(
-                            section = SearchSection.FILES,
-                            shouldSearch = shouldSearchFiles,
-                            query = trimmedQuery,
-                            hadResults = unifiedResults.fileResults.isNotEmpty(),
-                        )
-                        updateNoResultTracking(
-                            section = SearchSection.SETTINGS,
-                            shouldSearch = shouldSearchSettings,
-                            query = trimmedQuery,
-                            hadResults = unifiedResults.settingResults.isNotEmpty(),
-                        )
-                        updateNoResultTracking(
-                            section = SearchSection.CALENDAR,
-                            shouldSearch = shouldSearchCalendar,
-                            query = trimmedQuery,
-                            hadResults = unifiedResults.calendarEvents.isNotEmpty(),
-                        )
-                        updateNoResultTracking(
-                            section = SearchSection.APP_SETTINGS,
-                            shouldSearch = shouldSearchAppSettings,
-                            query = trimmedQuery,
-                            hadResults = unifiedResults.appSettingResults.isNotEmpty(),
-                        )
-                        updateNoResultTracking(
-                            section = SearchSection.APP_SHORTCUTS,
-                            shouldSearch = shouldSearchAppShortcuts && !isSingleCharacterQuery,
-                            query = trimmedQuery,
-                            hadResults = unifiedResults.appShortcutResults.isNotEmpty(),
-                        )
+                        SearchSectionRegistry.secondarySearchDefinitions.forEach { definition ->
+                            val section = definition.section
+                            val shouldSearch = sectionSearchConfig[section]?.shouldSearch == true
+                            updateNoResultTracking(
+                                section = section,
+                                shouldSearch = shouldSearch,
+                                query = trimmedQuery,
+                                hadResults = hasResultsForSection(unifiedResults, section),
+                            )
+                        }
 
                         uiStateUpdater { state ->
                             state.copy(
@@ -195,7 +150,12 @@ class SecondarySearchOrchestrator(
                                 // Preserve existing results when the search was skipped via the
                                 // no-results cache; overwriting with empty would clear valid
                                 // results that were found for the current or a prior query.
-                                appShortcutResults = if (shouldSearchAppShortcuts) unifiedResults.appShortcutResults else state.appShortcutResults,
+                                appShortcutResults =
+                                    if (sectionSearchConfig[SearchSection.APP_SHORTCUTS]?.shouldSearch == true) {
+                                        unifiedResults.appShortcutResults
+                                    } else {
+                                        state.appShortcutResults
+                                    },
                                 isSecondarySearchInProgress = false,
                             )
                         }
@@ -275,61 +235,38 @@ class SecondarySearchOrchestrator(
         }
 
         val currentState = currentStateProvider()
-        val isSingleCharacterQuery = trimmedQuery.length == 1
         val isBackspacing = trimmedQuery.length < lastQueryLength
         if (isBackspacing) {
             resetNoResultPrefixesForBackspace(trimmedQuery)
         }
-        if (isSingleCharacterQuery && section == SearchSection.APP_SHORTCUTS) {
-            clearNoResultTracking(SearchSection.APP_SHORTCUTS)
+        val sectionDefinition = SearchSectionRegistry.definitionFor(section)
+        val skipNoResultsCache =
+            sectionDefinition.minimumQueryLength == 1 &&
+                trimmedQuery.length == sectionDefinition.minimumQueryLength
+        if (skipNoResultsCache) {
+            clearNoResultTracking(section)
         }
-        val isSectionEnabled =
-            { targetSection: SearchSection ->
-                ignoreSectionToggle || targetSection !in sectionManager.disabledSections
-            }
-        val isContactsEnabled =
-            !isSingleCharacterQuery &&
-                currentState.hasContactPermission &&
-                isSectionEnabled(SearchSection.CONTACTS)
-        val isFilesEnabled =
-            !isSingleCharacterQuery &&
-                currentState.hasFilePermission &&
-                isSectionEnabled(SearchSection.FILES)
-        val isSettingsEnabled =
-            !isSingleCharacterQuery && isSectionEnabled(SearchSection.SETTINGS)
-        val isCalendarEnabled =
-            !isSingleCharacterQuery &&
-                currentState.hasCalendarPermission &&
-                isSectionEnabled(SearchSection.CALENDAR)
-        val isAppSettingsEnabled =
-            !isSingleCharacterQuery &&
-                isSectionEnabled(SearchSection.APP_SETTINGS)
-        val isAppShortcutsEnabled =
-            isSectionEnabled(SearchSection.APP_SHORTCUTS)
 
-        val shouldSearchContacts = section == SearchSection.CONTACTS && isContactsEnabled
-        val shouldSearchFiles = section == SearchSection.FILES && isFilesEnabled
-        val shouldSearchSettings = section == SearchSection.SETTINGS && isSettingsEnabled
-        val shouldSearchCalendar = section == SearchSection.CALENDAR && isCalendarEnabled
-        val shouldSearchAppSettings = section == SearchSection.APP_SETTINGS && isAppSettingsEnabled
-        val shouldSearchAppShortcuts =
-            section == SearchSection.APP_SHORTCUTS && isAppShortcutsEnabled
+        val canSearchTargetSection =
+            sectionDefinition.participatesInSecondarySearch &&
+                trimmedQuery.length >= sectionDefinition.minimumQueryLength &&
+                hasPermissionForSection(currentState, section) &&
+                (ignoreSectionToggle || section !in sectionManager.disabledSections)
         val shouldSkipSection =
-            if (section == SearchSection.APP_SHORTCUTS && isSingleCharacterQuery) {
-                false
-            } else {
+            !skipNoResultsCache &&
                 shouldSkipSearchForSection(trimmedQuery, section, isBackspacing)
+        val shouldRunTargetedSearch = canSearchTargetSection && !shouldSkipSection
+
+        val sectionSearchConfig =
+            SearchSectionRegistry.secondarySearchDefinitions.associate { definition ->
+                val shouldSearch = definition.section == section && shouldRunTargetedSearch
+                val enableFuzzyMatching = shouldSearch && useFuzzyMatching
+                definition.section to
+                    UnifiedSectionSearchConfig(
+                        shouldSearch = shouldSearch,
+                        enableFuzzyMatching = enableFuzzyMatching,
+                    )
             }
-        val shouldRunTargetedSearch =
-            when (section) {
-                SearchSection.CONTACTS -> shouldSearchContacts
-                SearchSection.FILES -> shouldSearchFiles
-                SearchSection.SETTINGS -> shouldSearchSettings
-                SearchSection.CALENDAR -> shouldSearchCalendar
-                SearchSection.APP_SETTINGS -> shouldSearchAppSettings
-                SearchSection.APP_SHORTCUTS -> shouldSearchAppShortcuts
-                SearchSection.APPS -> false
-            } && !shouldSkipSection
 
         val currentVersion = queryVersion.incrementAndGet()
         lastQueryLength = trimmedQuery.length
@@ -355,16 +292,7 @@ class SecondarySearchOrchestrator(
                     unifiedSearchHandler.performSearch(
                         query = trimmedQuery,
                         enabledFileTypes = currentState.enabledFileTypes,
-                        canSearchContacts = shouldSearchContacts,
-                        canSearchFiles = shouldSearchFiles,
-                        canSearchSettings = shouldSearchSettings,
-                        canSearchCalendar = shouldSearchCalendar,
-                        canSearchAppSettings = shouldSearchAppSettings,
-                        canSearchAppShortcuts = shouldSearchAppShortcuts,
-                        enableFuzzyContactSearch = shouldSearchContacts && useFuzzyMatching,
-                        enableFuzzyFileSearch = shouldSearchFiles && useFuzzyMatching,
-                        enableFuzzySettingsSearch = shouldSearchSettings && useFuzzyMatching,
-                        enableFuzzyAppSettingsSearch = shouldSearchAppSettings && useFuzzyMatching,
+                        sectionSearchConfig = sectionSearchConfig,
                         showFolders = currentState.showFolders,
                         showSystemFiles = currentState.showSystemFiles,
                         aliasSection = section,
@@ -520,6 +448,17 @@ class SecondarySearchOrchestrator(
             lastQueryWithNoResultsBySection[section] = query
         }
     }
+
+    private fun hasPermissionForSection(
+        state: SearchUiState,
+        section: SearchSection,
+    ): Boolean =
+        when (SearchSectionRegistry.definitionFor(section).permissionRequirement) {
+            SearchSectionPermissionRequirement.CONTACTS -> state.hasContactPermission
+            SearchSectionPermissionRequirement.FILES -> state.hasFilePermission
+            SearchSectionPermissionRequirement.CALENDAR -> state.hasCalendarPermission
+            null -> true
+        }
 
     private fun hasResultsForSection(
         results: UnifiedSearchResults,

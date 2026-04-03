@@ -2,6 +2,7 @@ package com.tk.quicksearch.searchEngines
 
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.search.core.SearchSectionRegistry
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.data.UserAppPreferences
@@ -28,13 +29,18 @@ class AliasHandler(
         const val CURRENCY_CONVERTER_ALIAS_FEATURE_ID = "currency_converter_mode"
         const val WORD_CLOCK_ALIAS_FEATURE_ID = "word_clock_mode"
         const val DICTIONARY_ALIAS_FEATURE_ID = "dictionary_mode"
-        const val SEARCH_SECTION_APPS_ALIAS_ID = "search_section_apps"
-        const val SEARCH_SECTION_APP_SHORTCUTS_ALIAS_ID = "search_section_app_shortcuts"
-        const val SEARCH_SECTION_CONTACTS_ALIAS_ID = "search_section_contacts"
-        const val SEARCH_SECTION_FILES_ALIAS_ID = "search_section_files"
-        const val SEARCH_SECTION_SETTINGS_ALIAS_ID = "search_section_settings"
-        const val SEARCH_SECTION_CALENDAR_ALIAS_ID = "search_section_calendar"
-        const val SEARCH_SECTION_APP_SETTINGS_ALIAS_ID = "search_section_app_settings"
+        const val SEARCH_SECTION_APPS_ALIAS_ID = SearchSectionRegistry.SEARCH_SECTION_APPS_ALIAS_ID
+        const val SEARCH_SECTION_APP_SHORTCUTS_ALIAS_ID =
+            SearchSectionRegistry.SEARCH_SECTION_APP_SHORTCUTS_ALIAS_ID
+        const val SEARCH_SECTION_CONTACTS_ALIAS_ID =
+            SearchSectionRegistry.SEARCH_SECTION_CONTACTS_ALIAS_ID
+        const val SEARCH_SECTION_FILES_ALIAS_ID = SearchSectionRegistry.SEARCH_SECTION_FILES_ALIAS_ID
+        const val SEARCH_SECTION_SETTINGS_ALIAS_ID =
+            SearchSectionRegistry.SEARCH_SECTION_SETTINGS_ALIAS_ID
+        const val SEARCH_SECTION_CALENDAR_ALIAS_ID =
+            SearchSectionRegistry.SEARCH_SECTION_CALENDAR_ALIAS_ID
+        const val SEARCH_SECTION_APP_SETTINGS_ALIAS_ID =
+            SearchSectionRegistry.SEARCH_SECTION_APP_SETTINGS_ALIAS_ID
         val TOOL_ALIAS_IDS =
             setOf(
                 CALCULATOR_ALIAS_FEATURE_ID,
@@ -44,16 +50,7 @@ class AliasHandler(
                 WORD_CLOCK_ALIAS_FEATURE_ID,
                 DICTIONARY_ALIAS_FEATURE_ID,
             )
-        val SEARCH_SECTION_ALIAS_IDS =
-            setOf(
-                SEARCH_SECTION_APPS_ALIAS_ID,
-                SEARCH_SECTION_APP_SHORTCUTS_ALIAS_ID,
-                SEARCH_SECTION_CONTACTS_ALIAS_ID,
-                SEARCH_SECTION_FILES_ALIAS_ID,
-                SEARCH_SECTION_SETTINGS_ALIAS_ID,
-                SEARCH_SECTION_CALENDAR_ALIAS_ID,
-                SEARCH_SECTION_APP_SETTINGS_ALIAS_ID,
-            )
+        val SEARCH_SECTION_ALIAS_IDS = SearchSectionRegistry.searchSectionAliasIds
     }
 
     private var aliasCodes: Map<String, String> = emptyMap()
@@ -351,13 +348,13 @@ class AliasHandler(
     }
 
     private fun collectLeadingSectionAliases(aliases: MutableMap<String, AliasTarget>) {
-        putSectionAlias(aliases, SEARCH_SECTION_APPS_ALIAS_ID, SearchSection.APPS)
-        putSectionAlias(aliases, SEARCH_SECTION_APP_SHORTCUTS_ALIAS_ID, SearchSection.APP_SHORTCUTS)
-        putSectionAlias(aliases, SEARCH_SECTION_CONTACTS_ALIAS_ID, SearchSection.CONTACTS)
-        putSectionAlias(aliases, SEARCH_SECTION_FILES_ALIAS_ID, SearchSection.FILES)
-        putSectionAlias(aliases, SEARCH_SECTION_SETTINGS_ALIAS_ID, SearchSection.SETTINGS)
-        putSectionAlias(aliases, SEARCH_SECTION_CALENDAR_ALIAS_ID, SearchSection.CALENDAR)
-        putSectionAlias(aliases, SEARCH_SECTION_APP_SETTINGS_ALIAS_ID, SearchSection.APP_SETTINGS)
+        SearchSectionRegistry.orderedDefinitions.forEach { definition ->
+            putSectionAlias(
+                aliases = aliases,
+                aliasId = definition.aliasTargetId,
+                section = definition.section,
+            )
+        }
     }
 
     private fun putSectionAlias(

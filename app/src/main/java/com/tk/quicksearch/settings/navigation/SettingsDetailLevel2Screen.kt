@@ -33,6 +33,7 @@ import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.settings.AppShortcutsSettings.AppShortcutSource
+import com.tk.quicksearch.settings.shared.SettingsCommand
 import com.tk.quicksearch.settings.shared.SettingsScreenCallbacks
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 import com.tk.quicksearch.settings.shared.SettingsScreenState
@@ -161,64 +162,67 @@ internal fun SettingsDetailLevel2Screen(
                                         ),
                 ) {
                     ToolsSettingsSection(
-                            calculatorEnabled = state.calculatorEnabled,
-                            calculatorAlias =
-                                    state.shortcutCodes[
-                                            com.tk.quicksearch.searchEngines.AliasHandler
-                                                    .CALCULATOR_ALIAS_FEATURE_ID
-                                    ].orEmpty(),
-                            unitConverterEnabled = state.unitConverterEnabled,
-                            unitConverterAlias =
-                                    state.shortcutCodes[
-                                            com.tk.quicksearch.searchEngines.AliasHandler
-                                                    .UNIT_CONVERTER_ALIAS_FEATURE_ID
-                                    ].orEmpty(),
-                            dateCalculatorEnabled = state.dateCalculatorEnabled,
-                            dateCalculatorAlias =
-                                    state.shortcutCodes[
-                                            com.tk.quicksearch.searchEngines.AliasHandler
-                                                    .DATE_CALCULATOR_ALIAS_FEATURE_ID
-                                    ].orEmpty(),
+                            toolStates =
+                                    ToolSettingsRegistry.definitions.associate { definition ->
+                                        val enabled =
+                                                when (definition.id) {
+                                                    ToolSettingId.CALCULATOR -> state.calculatorEnabled
+                                                    ToolSettingId.UNIT_CONVERTER ->
+                                                            state.unitConverterEnabled
+                                                    ToolSettingId.DATE_CALCULATOR ->
+                                                            state.dateCalculatorEnabled
+                                                    ToolSettingId.CURRENCY_CONVERTER ->
+                                                            state.currencyConverterEnabled
+                                                    ToolSettingId.WORD_CLOCK -> state.wordClockEnabled
+                                                    ToolSettingId.DICTIONARY -> state.dictionaryEnabled
+                                                }
+                                        definition.id to
+                                                ToolSettingUiState(
+                                                        enabled = enabled,
+                                                        aliasCode =
+                                                                state.shortcutCodes[
+                                                                                definition
+                                                                                        .aliasFeatureId
+                                                                        ]
+                                                                        .orEmpty(),
+                                                )
+                                    },
                             hasGeminiApiKey = state.hasGeminiApiKey,
-                            currencyConverterEnabled = state.currencyConverterEnabled,
-                            currencyConverterAlias =
-                                    state.shortcutCodes[
-                                            com.tk.quicksearch.searchEngines.AliasHandler
-                                                    .CURRENCY_CONVERTER_ALIAS_FEATURE_ID
-                                    ].orEmpty(),
-                            wordClockEnabled = state.wordClockEnabled,
-                            wordClockAlias =
-                                    state.shortcutCodes[
-                                            com.tk.quicksearch.searchEngines.AliasHandler
-                                                    .WORD_CLOCK_ALIAS_FEATURE_ID
-                                    ].orEmpty(),
-                            dictionaryEnabled = state.dictionaryEnabled,
-                            dictionaryAlias =
-                                    state.shortcutCodes[
-                                            com.tk.quicksearch.searchEngines.AliasHandler
-                                                    .DICTIONARY_ALIAS_FEATURE_ID
-                                    ].orEmpty(),
                             existingShortcuts = state.shortcutCodes,
-                            onSetCalculatorAlias = callbacks.onSetCalculatorAlias,
-                            onSetUnitConverterAlias = callbacks.onSetUnitConverterAlias,
-                            onSetDateCalculatorAlias = callbacks.onSetDateCalculatorAlias,
-                            onSetCurrencyConverterAlias = callbacks.onSetCurrencyConverterAlias,
-                            onSetWordClockAlias = callbacks.onSetWordClockAlias,
-                            onSetDictionaryAlias = callbacks.onSetDictionaryAlias,
-                            onCalculatorToggle = callbacks.onToggleCalculator,
-                            onUnitConverterToggle = callbacks.onToggleUnitConverter,
-                            onDateCalculatorToggle = callbacks.onToggleDateCalculator,
-                            onCurrencyConverterToggle = callbacks.onToggleCurrencyConverter,
-                            onWordClockToggle = callbacks.onToggleWordClock,
-                            onDictionaryToggle = callbacks.onToggleDictionary,
+                            onToolAliasChange = { toolId, code ->
+                                val definition =
+                                        ToolSettingsRegistry.definitionFor(toolId) ?: return@ToolsSettingsSection
+                                callbacks.onSetSearchSectionAlias(definition.aliasFeatureId, code)
+                            },
+                            onToolToggle = { toolId, enabled ->
+                                when (toolId) {
+                                    ToolSettingId.CURRENCY_CONVERTER ->
+                                            callbacks.onToggleCurrencyConverter(enabled)
+                                    ToolSettingId.WORD_CLOCK -> callbacks.onToggleWordClock(enabled)
+                                    else -> {
+                                        val definition =
+                                                ToolSettingsRegistry.definitionFor(toolId)
+                                                        ?: return@ToolsSettingsSection
+                                        val toggleKey =
+                                                definition.toggleKey ?: return@ToolsSettingsSection
+                                        callbacks.onApplySettingsCommand(
+                                                SettingsCommand.Toggle(
+                                                        key = toggleKey,
+                                                        enabled = enabled,
+                                                ),
+                                        )
+                                    }
+                                }
+                            },
+                            onToolInfoClick = { toolId ->
+                                val destination =
+                                        ToolSettingsRegistry.definitionFor(toolId)?.infoDestination
+                                if (destination != null) {
+                                    onNavigateToDetail(destination)
+                                }
+                            },
                             onNavigateToGeminiApiSetup = {
                                 onNavigateToDetail(SettingsDetailType.GEMINI_API_CONFIG)
-                            },
-                            onNavigateToUnitConverterInfo = {
-                                onNavigateToDetail(SettingsDetailType.UNIT_CONVERTER_INFO)
-                            },
-                            onNavigateToDateCalculatorInfo = {
-                                onNavigateToDetail(SettingsDetailType.DATE_CALCULATOR_INFO)
                             },
                             modifier = Modifier.fillMaxWidth().weight(1f),
                     )
@@ -310,9 +314,23 @@ internal fun SettingsDetailLevel2Screen(
                                 enabledFileTypes = state.enabledFileTypes,
                                 onToggleFileType = callbacks.onToggleFileType,
                                 showFolders = state.showFolders,
-                                onToggleFolders = callbacks.onToggleFolders,
+                                onToggleFolders = { enabled ->
+                                    callbacks.onApplySettingsCommand(
+                                        SettingsCommand.Toggle(
+                                            key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.SHOW_FOLDERS,
+                                            enabled = enabled,
+                                        ),
+                                    )
+                                },
                                 showSystemFiles = state.showSystemFiles,
-                                onToggleSystemFiles = callbacks.onToggleSystemFiles,
+                                onToggleSystemFiles = { enabled ->
+                                    callbacks.onApplySettingsCommand(
+                                        SettingsCommand.Toggle(
+                                            key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.SHOW_SYSTEM_FILES,
+                                            enabled = enabled,
+                                        ),
+                                    )
+                                },
                                 folderWhitelistPatterns = state.folderWhitelistPatterns,
                                 onSetFolderWhitelistPatterns = callbacks.onSetFolderWhitelistPatterns,
                                 folderBlacklistPatterns = state.folderBlacklistPatterns,

@@ -351,47 +351,6 @@ internal fun SearchScreenContent(
     // Search engine scroll state for auto-scroll during onboarding
     val searchEngineScrollState = rememberLazyListState()
 
-    // Auto-scroll search engines during onboarding
-    // Temporarily disabled per request (keep code for quick re-enable later).
-//    LaunchedEffect(state.showSearchEngineOnboarding) {
-//        if (state.showSearchEngineOnboarding) {
-//            // Smooth continuous scroll that loops
-//            while (true) {
-//                // Check if we can scroll further
-//                val layoutInfo = searchEngineScrollState.layoutInfo
-//                val canScrollForward =
-//                        layoutInfo.visibleItemsInfo.lastOrNull()?.let { lastItem ->
-//                            lastItem.index < layoutInfo.totalItemsCount - 1 ||
-//                                    lastItem.offset + lastItem.size > layoutInfo.viewportEndOffset
-//                        }
-//                                ?: false
-//
-//                if (!canScrollForward) {
-//                    // Reached the end, scroll back to start and continue
-//                    delay(500) // Pause briefly at the end
-//                    searchEngineScrollState.animateScrollToItem(index = 0, scrollOffset = 0)
-//                    delay(500) // Pause briefly at the start
-//                    continue
-//                }
-//
-//                // Get current scroll position
-//                val currentIndex = searchEngineScrollState.firstVisibleItemIndex
-//                val currentOffset = searchEngineScrollState.firstVisibleItemScrollOffset
-//
-//                // Increment by small amount for smooth scroll
-//                val newOffset = currentOffset + 2
-//
-//                // Smooth scroll
-//                delay(30) // Small delay for smooth effect
-//
-//                searchEngineScrollState.scrollToItem(index = currentIndex, scrollOffset = newOffset)
-//            }
-//        } else {
-//            // When onboarding is dismissed, scroll back to start
-//            searchEngineScrollState.animateScrollToItem(index = 0, scrollOffset = 0)
-//        }
-//    }
-
     val contentModifier =
             if (isOverlayPresentation) {
                 modifier.fillMaxWidth()

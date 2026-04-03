@@ -3,8 +3,8 @@ package com.tk.quicksearch.tools.aiTools
 import android.content.Context
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.UserAppPreferences
-import com.tk.quicksearch.tools.directSearch.DirectSearchClient
-import com.tk.quicksearch.tools.directSearch.GeminiModelCatalog
+import com.tk.quicksearch.tools.directSearch.DirectSearchLlmProviderRegistry
+import com.tk.quicksearch.tools.directSearch.LlmRequest
 import org.json.JSONObject
 
 class CurrencyNotRecognizedException : Exception()
@@ -47,27 +47,33 @@ class CurrencyConverterHandler(
     }
 
     suspend fun convert(confirmed: ConfirmedCurrencyQuery): Result<Pair<CurrencyConversionModelResult, String>> {
-        val apiKey = userPreferences.getGeminiApiKey()?.trim().orEmpty()
+        val providerId = userPreferences.getDirectSearchProviderId()
+        val provider = DirectSearchLlmProviderRegistry.get(providerId, context)
+        val apiKey = userPreferences.getLlmApiKey(providerId)?.trim().orEmpty()
         if (apiKey.isEmpty()) {
             return Result.failure(IllegalStateException(context.getString(R.string.direct_search_error_no_key)))
         }
         val modelId =
                 userPreferences.getCurrencyConverterModel().trim().ifBlank {
-                    GeminiModelCatalog.DEFAULT_MODEL_ID
+                    provider.defaultModelId
                 }
-        val client = DirectSearchClient(apiKey, context)
         val userMessage =
                 "Convert ${confirmed.amount} ${confirmed.fromCurrency} to ${confirmed.toCurrency}. " +
                         "Original user query: ${confirmed.originalQuery}"
         val result =
-                client.fetchAnswer(
-                        query = userMessage,
-                        personalContext = null,
-                        modelId = modelId,
-                        useGroundingWithGoogleSearch = true,
-                        useSystemInstruction = true,
-                        systemInstruction = CURRENCY_SYSTEM_INSTRUCTION,
-                        responseMimeType = "application/json",
+                provider.fetchAnswer(
+                        apiKey = apiKey,
+                        context = context,
+                        request =
+                                LlmRequest(
+                                        query = userMessage,
+                                        personalContext = null,
+                                        modelId = modelId,
+                                        useGroundingWithGoogleSearch = true,
+                                        useSystemInstruction = true,
+                                        systemInstruction = CURRENCY_SYSTEM_INSTRUCTION,
+                                        responseMimeType = "application/json",
+                                ),
                 )
         return result.mapCatching { text ->
             val parsed = parseModelResponse(text).getOrElse { throw it }
@@ -77,24 +83,30 @@ class CurrencyConverterHandler(
 
     /** Used in alias mode — sends the raw query to the AI without pre-parsing. */
     suspend fun convertRaw(rawQuery: String): Result<Pair<CurrencyConversionModelResult, String>> {
-        val apiKey = userPreferences.getGeminiApiKey()?.trim().orEmpty()
+        val providerId = userPreferences.getDirectSearchProviderId()
+        val provider = DirectSearchLlmProviderRegistry.get(providerId, context)
+        val apiKey = userPreferences.getLlmApiKey(providerId)?.trim().orEmpty()
         if (apiKey.isEmpty()) {
             return Result.failure(IllegalStateException(context.getString(R.string.direct_search_error_no_key)))
         }
         val modelId =
                 userPreferences.getCurrencyConverterModel().trim().ifBlank {
-                    GeminiModelCatalog.DEFAULT_MODEL_ID
+                    provider.defaultModelId
                 }
-        val client = DirectSearchClient(apiKey, context)
         val result =
-                client.fetchAnswer(
-                        query = "Currency conversion: $rawQuery",
-                        personalContext = null,
-                        modelId = modelId,
-                        useGroundingWithGoogleSearch = true,
-                        useSystemInstruction = true,
-                        systemInstruction = CURRENCY_SYSTEM_INSTRUCTION,
-                        responseMimeType = "application/json",
+                provider.fetchAnswer(
+                        apiKey = apiKey,
+                        context = context,
+                        request =
+                                LlmRequest(
+                                        query = "Currency conversion: $rawQuery",
+                                        personalContext = null,
+                                        modelId = modelId,
+                                        useGroundingWithGoogleSearch = true,
+                                        useSystemInstruction = true,
+                                        systemInstruction = CURRENCY_SYSTEM_INSTRUCTION,
+                                        responseMimeType = "application/json",
+                                ),
                 )
         return result.mapCatching { text ->
             val parsed = parseModelResponse(text).getOrElse { throw it }

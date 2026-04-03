@@ -17,12 +17,14 @@ fun InformationCard(
     modifier: Modifier = Modifier,
     showWallpaperBackground: Boolean,
     overlayContainerColor: Color? = LocalOverlayResultCardColor.current,
+    styleOverrides: SearchResultCardStyleOverrides = SearchResultCardStyleOverrides(),
     content: @Composable ColumnScope.() -> Unit,
 ) {
     SearchResultCard(
         modifier = modifier,
         showWallpaperBackground = showWallpaperBackground,
         overlayContainerColor = overlayContainerColor,
+        styleOverrides = styleOverrides,
         content = content,
     )
 }

@@ -530,6 +530,7 @@ abstract class BasePreferences(
 
         // Amazon domain preferences keys
         const val KEY_AMAZON_DOMAIN = "amazon_domain"
+        const val KEY_DIRECT_SEARCH_LLM_PROVIDER = "direct_search_llm_provider"
         const val KEY_GEMINI_API_KEY = "gemini_api_key"
         const val KEY_GEMINI_PERSONAL_CONTEXT = "gemini_personal_context"
         const val KEY_GEMINI_MODEL = "gemini_model"

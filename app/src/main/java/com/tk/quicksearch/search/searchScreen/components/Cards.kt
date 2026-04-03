@@ -26,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
+import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
@@ -43,7 +44,7 @@ internal fun PermissionDisabledCard(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
             ),
         elevation = AppColors.getCardElevation(false),
-        shape = DesignTokens.SearchResultCardShape,
+        shape = SearchResultCardDefaults.shape,
     ) {
         Column(
             modifier =
@@ -83,7 +84,7 @@ internal fun UsagePermissionCard(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             ),
         elevation = AppColors.getCardElevation(false),
-        shape = DesignTokens.SearchResultCardShape,
+        shape = SearchResultCardDefaults.shape,
     ) {
         Column(
             modifier = Modifier.padding(DesignTokens.SpacingXLarge),

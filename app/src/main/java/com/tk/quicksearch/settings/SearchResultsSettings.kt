@@ -354,14 +354,37 @@ fun SearchResultsSettingsSection(
         SearchOptionsCard(
             appSuggestionsEnabled = state.appSuggestionsEnabled,
             hasUsagePermission = hasUsagePermission,
-            onAppSuggestionsToggle = callbacks.onToggleAppSuggestions,
+            onAppSuggestionsToggle = { enabled ->
+                callbacks.onApplySettingsCommand(
+                    SettingsCommand.Toggle(
+                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.APP_SUGGESTIONS,
+                        enabled = enabled,
+                    ),
+                )
+            },
             onRequestUsagePermission = callbacks.onRequestUsagePermission,
             webSuggestionsEnabled = state.webSuggestionsEnabled,
-            onWebSuggestionsToggle = callbacks.onToggleWebSuggestions,
+            onWebSuggestionsToggle = { enabled ->
+                callbacks.onApplySettingsCommand(
+                    SettingsCommand.Toggle(
+                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.WEB_SUGGESTIONS,
+                        enabled = enabled,
+                    ),
+                )
+            },
             webSuggestionsCount = state.webSuggestionsCount,
-            onWebSuggestionsCountChange = callbacks.onWebSuggestionsCountChange,
+            onWebSuggestionsCountChange = { count ->
+                callbacks.onApplySettingsCommand(SettingsCommand.WebSuggestionsCount(count))
+            },
             recentQueriesEnabled = state.recentQueriesEnabled,
-            onRecentQueriesToggle = callbacks.onToggleRecentQueries,
+            onRecentQueriesToggle = { enabled ->
+                callbacks.onApplySettingsCommand(
+                    SettingsCommand.Toggle(
+                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.RECENT_QUERIES,
+                        enabled = enabled,
+                    ),
+                )
+            },
             hasExcludedItems = hasExcludedItems,
             excludedItemsTitle = stringResource(R.string.settings_excluded_items_title),
             excludedItemsDescription = stringResource(R.string.settings_excluded_items_desc),

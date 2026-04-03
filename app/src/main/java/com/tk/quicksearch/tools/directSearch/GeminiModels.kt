@@ -1,12 +1,7 @@
 package com.tk.quicksearch.tools.directSearch
 
-/** Gemini model option for UI selection and request routing. */
-data class GeminiTextModel(
-        val id: String,
-        val displayName: String,
-        val supportsSystemInstructions: Boolean = true,
-        val supportsGrounding: Boolean = true,
-)
+/** Backward-compatible alias while the UI/state still references Gemini naming. */
+typealias GeminiTextModel = LlmTextModel
 
 /** Shared Gemini model configuration defaults. */
 object GeminiModelCatalog {

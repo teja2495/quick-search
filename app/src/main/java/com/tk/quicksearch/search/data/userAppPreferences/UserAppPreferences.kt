@@ -10,6 +10,7 @@ import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.data.preferences.*
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.searchHistory.SearchHistoryPreferences
+import com.tk.quicksearch.tools.directSearch.DirectSearchLlmProviderId
 
 /**
  * Stores user-driven overrides for the app grid such as hidden or pinned apps. Manages preferences
@@ -37,6 +38,7 @@ class UserAppPreferences(
     private val searchEnginePreferences by lazy { SearchEnginePreferences(context) }
     private val aliasPreferences by lazy { AliasPreferences(context) }
     private val geminiPreferences by lazy { GeminiPreferences(context) }
+    private val llmPreferences by lazy { LlmPreferences(context) }
     val uiPreferences by lazy { UiPreferences(context) }
     private val amazonPreferences by lazy { AmazonPreferences(context) }
     private val recentSearchesPreferences by lazy { SearchHistoryPreferences(context) }
@@ -525,6 +527,61 @@ class UserAppPreferences(
     // Gemini API Preferences
     // ============================================================================
 
+    fun getDirectSearchProviderId(): DirectSearchLlmProviderId =
+            llmPreferences.getDirectSearchProviderId()
+
+    fun setDirectSearchProviderId(providerId: DirectSearchLlmProviderId) =
+            llmPreferences.setDirectSearchProviderId(providerId)
+
+    /**
+     * Generic LLM API key accessor used by provider-aware callers.
+     * New providers should extend this when provider-specific credential keys are added.
+     */
+    fun getLlmApiKey(providerId: DirectSearchLlmProviderId): String? =
+            when (providerId) {
+                DirectSearchLlmProviderId.GEMINI -> geminiPreferences.getGeminiApiKey()
+            }
+
+    fun setLlmApiKey(providerId: DirectSearchLlmProviderId, key: String?) {
+        when (providerId) {
+            DirectSearchLlmProviderId.GEMINI -> geminiPreferences.setGeminiApiKey(key)
+        }
+    }
+
+    fun getLlmModel(providerId: DirectSearchLlmProviderId): String =
+            when (providerId) {
+                DirectSearchLlmProviderId.GEMINI -> geminiPreferences.getGeminiModel()
+            }
+
+    fun setLlmModel(providerId: DirectSearchLlmProviderId, modelId: String?) {
+        when (providerId) {
+            DirectSearchLlmProviderId.GEMINI -> geminiPreferences.setGeminiModel(modelId)
+        }
+    }
+
+    fun isLlmGroundingEnabled(providerId: DirectSearchLlmProviderId): Boolean =
+            when (providerId) {
+                DirectSearchLlmProviderId.GEMINI -> geminiPreferences.isGeminiGroundingEnabled()
+            }
+
+    fun setLlmGroundingEnabled(providerId: DirectSearchLlmProviderId, enabled: Boolean) {
+        when (providerId) {
+            DirectSearchLlmProviderId.GEMINI -> geminiPreferences.setGeminiGroundingEnabled(enabled)
+        }
+    }
+
+    fun getLlmPersonalContext(providerId: DirectSearchLlmProviderId): String? =
+            when (providerId) {
+                DirectSearchLlmProviderId.GEMINI -> geminiPreferences.getPersonalContext()
+            }
+
+    fun setLlmPersonalContext(providerId: DirectSearchLlmProviderId, context: String?) {
+        when (providerId) {
+            DirectSearchLlmProviderId.GEMINI -> geminiPreferences.setPersonalContext(context)
+        }
+    }
+
+    // Backward-compatible Gemini facade methods kept for existing call sites.
     fun getGeminiApiKey(): String? = geminiPreferences.getGeminiApiKey()
 
     fun setGeminiApiKey(key: String?) = geminiPreferences.setGeminiApiKey(key)
