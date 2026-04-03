@@ -424,14 +424,6 @@ fun SearchScreen(
             onOpenPermissionsSettings = onOpenPermissionsSettings,
         )
 
-        // Search engine onboarding overlay
-        // Temporarily disabled per request (keep code for quick re-enable later).
-//        SearchEngineOnboardingOverlay(
-//            visible = state.showSearchEngineOnboarding,
-//            onDismiss = onSearchEngineOnboardingDismissed,
-//            isOverlayPresentation = isOverlayPresentation,
-//            showStartSearchingButton = state.showStartSearchingOnOnboarding,
-//        )
     }
     } // CompositionLocalProvider(LocalImageBackgroundIsDark)
 
