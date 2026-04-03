@@ -355,11 +355,11 @@ private fun ContactActionIcon(
 internal fun getActionButtonLabel(method: ContactMethod): String =
     when (method) {
         is ContactMethod.Phone -> {
-            stringResource(R.string.contacts_action_button_call)
+            stringResource(R.string.contact_method_call_label)
         }
 
         is ContactMethod.Sms -> {
-            stringResource(R.string.contacts_action_button_message)
+            stringResource(R.string.contact_method_message_label)
         }
 
         is ContactMethod.WhatsAppCall -> {
@@ -403,7 +403,7 @@ internal fun getActionButtonLabel(method: ContactMethod): String =
         }
 
         is ContactMethod.Email -> {
-            stringResource(R.string.contacts_action_button_email)
+            stringResource(R.string.contact_method_email_label)
         }
 
         is ContactMethod.VideoCall -> {

@@ -64,7 +64,7 @@ fun SearchEngineSetupScreen(
         horizontalAlignment = Alignment.Start,
     ) {
         OnboardingHeader(
-            title = stringResource(R.string.setup_search_engines_title),
+            title = stringResource(R.string.settings_app_shortcuts_filter_search_engines),
             currentStep = currentStep,
             totalSteps = totalSteps,
         )

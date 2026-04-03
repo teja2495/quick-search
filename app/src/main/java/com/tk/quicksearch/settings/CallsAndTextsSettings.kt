@@ -132,29 +132,29 @@ fun MessagingSection(
         buildList {
             add(MessagingOption(MessagingApp.MESSAGES, R.string.settings_messaging_option_messages))
             if (isWhatsAppInstalled) {
-                add(MessagingOption(MessagingApp.WHATSAPP, R.string.settings_messaging_option_whatsapp))
+                add(MessagingOption(MessagingApp.WHATSAPP, R.string.contact_method_whatsapp_message_label))
             }
             if (isTelegramInstalled) {
-                add(MessagingOption(MessagingApp.TELEGRAM, R.string.settings_messaging_option_telegram))
+                add(MessagingOption(MessagingApp.TELEGRAM, R.string.contact_method_telegram_message_label))
             }
             if (isSignalInstalled) {
-                add(MessagingOption(MessagingApp.SIGNAL, R.string.settings_messaging_option_signal))
+                add(MessagingOption(MessagingApp.SIGNAL, R.string.contact_method_signal_message_label))
             }
         }
     val callingOptions =
         buildList {
-            add(CallingOption(CallingApp.CALL, R.string.settings_calling_option_call))
+            add(CallingOption(CallingApp.CALL, R.string.contact_method_call_label))
             if (isGoogleMeetInstalled) {
-                add(CallingOption(CallingApp.GOOGLE_MEET, R.string.settings_calling_option_google_meet))
+                add(CallingOption(CallingApp.GOOGLE_MEET, R.string.contact_method_google_meet_label))
             }
             if (isWhatsAppInstalled) {
-                add(CallingOption(CallingApp.WHATSAPP, R.string.settings_calling_option_whatsapp))
+                add(CallingOption(CallingApp.WHATSAPP, R.string.contact_method_whatsapp_message_label))
             }
             if (isTelegramInstalled) {
-                add(CallingOption(CallingApp.TELEGRAM, R.string.settings_calling_option_telegram))
+                add(CallingOption(CallingApp.TELEGRAM, R.string.contact_method_telegram_message_label))
             }
             if (isSignalInstalled) {
-                add(CallingOption(CallingApp.SIGNAL, R.string.settings_calling_option_signal))
+                add(CallingOption(CallingApp.SIGNAL, R.string.contact_method_signal_message_label))
             }
         }
 
@@ -640,11 +640,11 @@ fun CallsTextsSettingsSection(
         } else {
             val appName =
                 when (app) {
-                    CallingApp.CALL -> context.getString(R.string.settings_calling_option_call)
-                    CallingApp.GOOGLE_MEET -> context.getString(R.string.settings_calling_option_google_meet)
-                    CallingApp.WHATSAPP -> context.getString(R.string.settings_calling_option_whatsapp)
-                    CallingApp.TELEGRAM -> context.getString(R.string.settings_calling_option_telegram)
-                    CallingApp.SIGNAL -> context.getString(R.string.settings_calling_option_signal)
+                    CallingApp.CALL -> context.getString(R.string.contact_method_call_label)
+                    CallingApp.GOOGLE_MEET -> context.getString(R.string.contact_method_google_meet_label)
+                    CallingApp.WHATSAPP -> context.getString(R.string.contact_method_whatsapp_message_label)
+                    CallingApp.TELEGRAM -> context.getString(R.string.contact_method_telegram_message_label)
+                    CallingApp.SIGNAL -> context.getString(R.string.contact_method_signal_message_label)
                 }
             Toast
                 .makeText(
@@ -679,15 +679,15 @@ fun CallsTextsSettingsSection(
             val appName =
                 when (app) {
                     MessagingApp.WHATSAPP -> {
-                        context.getString(R.string.settings_messaging_option_whatsapp)
+                        context.getString(R.string.contact_method_whatsapp_message_label)
                     }
 
                     MessagingApp.TELEGRAM -> {
-                        context.getString(R.string.settings_messaging_option_telegram)
+                        context.getString(R.string.contact_method_telegram_message_label)
                     }
 
                     MessagingApp.SIGNAL -> {
-                        context.getString(R.string.settings_messaging_option_signal)
+                        context.getString(R.string.contact_method_signal_message_label)
                     }
 
                     MessagingApp.MESSAGES -> {

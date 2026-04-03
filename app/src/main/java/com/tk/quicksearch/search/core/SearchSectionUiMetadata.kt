@@ -42,7 +42,7 @@ object SearchSectionUiMetadataRegistry {
             ),
             SearchSectionUiMetadata(
                 section = SearchSection.CONTACTS,
-                sectionLabelRes = R.string.section_contacts,
+                sectionLabelRes = R.string.contacts_action_button_contacts,
                 searchHintRes = R.string.search_hint_contacts,
                 searchBarIcon = Icons.Rounded.Person,
                 settingsIcon = Icons.Rounded.Contacts,

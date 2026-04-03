@@ -153,21 +153,21 @@ fun FinalSetupScreen(
                                         MessagingApp.WHATSAPP -> {
                                             context.getString(
                                                 R.string
-                                                    .settings_messaging_option_whatsapp,
+                                                    .contact_method_whatsapp_message_label,
                                             )
                                         }
 
                                         MessagingApp.TELEGRAM -> {
                                             context.getString(
                                                 R.string
-                                                    .settings_messaging_option_telegram,
+                                                    .contact_method_telegram_message_label,
                                             )
                                         }
 
                                         MessagingApp.SIGNAL -> {
                                             context.getString(
                                                 R.string
-                                                    .settings_messaging_option_signal,
+                                                    .contact_method_signal_message_label,
                                             )
                                         }
 
@@ -361,7 +361,7 @@ fun FinalSetupScreen(
                                                     FileType.OTHER -> {
                                                         stringResource(
                                                             R.string
-                                                                .file_type_other,
+                                                                .contact_method_fallback_label,
                                                         )
                                                     }
                                                 },

@@ -131,7 +131,7 @@ fun SettingsRoute(
                 permission = Manifest.permission.READ_CONTACTS,
                 onPermanentlyDenied = {
                     requestSettingsPermissionConfirmation(
-                        context.getString(R.string.settings_contacts_permission_title),
+                        context.getString(R.string.contacts_action_button_contacts),
                         viewModel::openContactPermissionSettings,
                     )
                 },
@@ -146,7 +146,7 @@ fun SettingsRoute(
             permission = Manifest.permission.READ_CONTACTS,
             fallbackAction = {
                 requestSettingsPermissionConfirmation(
-                    context.getString(R.string.settings_contacts_permission_title),
+                    context.getString(R.string.contacts_action_button_contacts),
                     viewModel::openContactPermissionSettings,
                 )
             },
@@ -270,13 +270,13 @@ fun SettingsRoute(
     // Define permission request handlers
     val onRequestUsagePermission = {
         requestSettingsPermissionConfirmation(
-            context.getString(R.string.settings_usage_access_title),
+            context.getString(R.string.settings_shortcut_usage_access),
             viewModel::openUsageAccessSettings,
         )
     }
     val onRequestFilePermission = {
         requestSettingsPermissionConfirmation(
-            context.getString(R.string.settings_files_permission_title),
+            context.getString(R.string.section_files),
             viewModel::openFilesPermissionSettings,
         )
     }

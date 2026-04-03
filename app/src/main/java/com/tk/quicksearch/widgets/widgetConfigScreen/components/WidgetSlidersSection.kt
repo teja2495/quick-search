@@ -49,7 +49,7 @@ fun WidgetSlidersSection(
             onValueChange = { onStateChange(state.copy(borderWidthDp = it)) },
         )
         Text(
-            text = stringResource(R.string.widget_slider_transparency),
+            text = stringResource(R.string.settings_wallpaper_transparency_label),
             style = MaterialTheme.typography.titleSmall,
         )
         SliderRow(

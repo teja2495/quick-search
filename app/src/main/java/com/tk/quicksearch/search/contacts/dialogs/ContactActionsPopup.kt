@@ -140,8 +140,8 @@ internal fun ContactActionsPopup(
         if (state is ContactActionsPopupState.ReplaceAction) {
                 val actionDisplayName =
                 when (val action = state.currentAction) {
-                    is ContactCardAction.Phone -> stringResource(R.string.contacts_action_button_call)
-                    is ContactCardAction.Sms -> stringResource(R.string.contacts_action_button_message)
+                    is ContactCardAction.Phone -> stringResource(R.string.contact_method_call_label)
+                    is ContactCardAction.Sms -> stringResource(R.string.contact_method_message_label)
                     is ContactCardAction.WhatsAppCall -> stringResource(R.string.contact_method_whatsapp_voice_call_label)
                     is ContactCardAction.WhatsAppMessage -> stringResource(R.string.contact_method_whatsapp_message_label)
                     is ContactCardAction.WhatsAppVideoCall -> stringResource(R.string.contact_method_whatsapp_video_call_label)
@@ -152,7 +152,7 @@ internal fun ContactActionsPopup(
                     is ContactCardAction.SignalCall -> stringResource(R.string.contact_method_signal_voice_call_label)
                     is ContactCardAction.SignalVideoCall -> stringResource(R.string.contact_method_signal_video_call_label)
                     is ContactCardAction.GoogleMeet -> stringResource(R.string.contact_method_google_meet_label)
-                    is ContactCardAction.Email -> stringResource(R.string.contacts_action_button_email)
+                    is ContactCardAction.Email -> stringResource(R.string.contact_method_email_label)
                     is ContactCardAction.VideoCall -> stringResource(R.string.contacts_action_button_video_call)
                     is ContactCardAction.CustomApp -> action.displayLabel
                     is ContactCardAction.ViewInContactsApp -> stringResource(R.string.contacts_action_button_contacts)

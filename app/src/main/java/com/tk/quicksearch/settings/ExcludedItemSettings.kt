@@ -233,7 +233,7 @@ private fun ExcludedItemRow(
         IconButton(onClick = onRemove) {
             Icon(
                 imageVector = Icons.Rounded.Close,
-                contentDescription = stringResource(R.string.settings_action_remove),
+                contentDescription = stringResource(R.string.action_remove),
                 tint = MaterialTheme.colorScheme.primary,
             )
         }

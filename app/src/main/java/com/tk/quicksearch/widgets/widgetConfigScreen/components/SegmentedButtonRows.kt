@@ -96,7 +96,7 @@ fun MicActionChoiceSegmentedButtonRow(
             onClick = { onSelectionChange(MicAction.OFF) },
             shape = SegmentedButtonDefaults.itemShape(index = 2, count = 3),
             icon = {},
-        ) { Text(stringResource(R.string.widget_mic_action_off)) }
+        ) { Text(stringResource(R.string.widget_icon_off)) }
     }
 }
 
@@ -112,7 +112,7 @@ fun TextIconColorChoiceSegmentedButtonRow(
             onClick = { onSelectionChange(TextIconColorOverride.THEME) },
             shape = SegmentedButtonDefaults.itemShape(index = 0, count = 3),
             icon = {},
-        ) { Text(stringResource(R.string.widget_text_icon_color_theme)) }
+        ) { Text(stringResource(R.string.settings_app_theme_title)) }
         SegmentedButton(
             selected = selectedOverride == TextIconColorOverride.WHITE,
             onClick = { onSelectionChange(TextIconColorOverride.WHITE) },

@@ -152,8 +152,8 @@ internal fun CalculatorAttributionRow(
     val contentColor = informationAttributionContentColor()
     val titleRes =
             when (toolType) {
-                SearchToolType.UNIT_CONVERTER -> R.string.unit_converter_toggle_title
-                SearchToolType.DATE_CALCULATOR -> R.string.date_calculator_toggle_title
+                SearchToolType.UNIT_CONVERTER -> R.string.unit_converter_info_title
+                SearchToolType.DATE_CALCULATOR -> R.string.date_calculator_info_title
                 else -> R.string.calculator_toggle_title
             }
     val icon =

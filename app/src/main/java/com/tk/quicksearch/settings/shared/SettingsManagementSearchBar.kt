@@ -62,7 +62,7 @@ fun SettingsManagementSearchBar(
                 null
             },
         placeholder = {
-            Text(text = stringResource(R.string.settings_app_shortcuts_search_hint))
+            Text(text = stringResource(R.string.desc_search_icon))
         },
         colors =
             TextFieldDefaults.colors(

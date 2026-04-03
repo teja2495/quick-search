@@ -205,7 +205,7 @@ internal class SearchContactActionsDelegate(
                             contactActionHandler.handleContactMethod(
                                 contactInfo,
                                 ContactMethod.Email(
-                                    displayLabel = appContext.getString(R.string.contacts_action_button_email),
+                                    displayLabel = appContext.getString(R.string.contact_method_email_label),
                                     data = action.phoneNumber,
                                 ),
                                 trackHistory = trackHistory,

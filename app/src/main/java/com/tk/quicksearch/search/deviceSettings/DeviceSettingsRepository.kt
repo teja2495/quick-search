@@ -248,7 +248,7 @@ class DeviceSettingsRepository(
         add(
             createShortcut(
                 id = "apps_list",
-                titleRes = R.string.settings_shortcut_apps_list,
+                titleRes = R.string.section_apps,
                 descriptionRes = R.string.device_settings_category_apps_permissions,
                 keywords = listOf("manage", "permissions", "default"),
                 action = Settings.ACTION_APPLICATION_SETTINGS,
@@ -349,7 +349,7 @@ class DeviceSettingsRepository(
         add(
             createShortcut(
                 id = "language_input",
-                titleRes = R.string.settings_shortcut_language_input,
+                titleRes = R.string.device_settings_category_language_input,
                 descriptionRes = R.string.device_settings_category_language_input,
                 keywords = listOf("keyboard", "ime", "typing"),
                 action = Settings.ACTION_INPUT_METHOD_SETTINGS,

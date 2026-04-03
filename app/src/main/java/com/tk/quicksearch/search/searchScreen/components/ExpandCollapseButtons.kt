@@ -100,7 +100,7 @@ internal fun CollapseButton(
         )
         Spacer(modifier = Modifier.width(6.dp))
         Text(
-            text = stringResource(R.string.action_collapse),
+            text = stringResource(R.string.desc_collapse),
             style = collapseTextStyle,
             color = collapseContentColor,
         )

@@ -116,7 +116,7 @@ internal fun SearchScreenDialogLogic(
         AppAlertDialog(
             onDismissRequest = { setShowPersonalContextDialog(false) },
             title = {
-                Text(text = stringResource(R.string.settings_direct_search_personal_context_title))
+                Text(text = stringResource(R.string.settings_direct_search_personal_context))
             },
             text = {
                 OutlinedTextField(

@@ -43,14 +43,14 @@ class AppSettingsRepository(
             )
             addNavigation(
                 id = "app_settings_search_engines",
-                titleRes = R.string.settings_search_engines_title,
+                titleRes = R.string.settings_app_shortcuts_filter_search_engines,
                 descriptionRes = R.string.settings_search_engines_desc,
                 destination = AppSettingsDestination.SEARCH_ENGINES,
                 keywords = listOf("direct search", "alias"),
             )
             addNavigation(
                 id = "app_settings_gemini_api",
-                titleRes = R.string.settings_gemini_api_title,
+                titleRes = R.string.settings_backup_export_option_gemini_title,
                 descriptionRes = R.string.settings_gemini_api_desc,
                 destination = AppSettingsDestination.GEMINI_API,
                 keywords = listOf("direct search", "ai"),
@@ -183,7 +183,7 @@ class AppSettingsRepository(
             )
             addNavigation(
                 id = "app_settings_calendar_events",
-                titleRes = R.string.settings_calendar_events_title,
+                titleRes = R.string.section_calendar,
                 descriptionRes = R.string.settings_calendar_view_all_events_desc,
                 destination = AppSettingsDestination.CALENDAR_EVENTS,
             )
@@ -255,27 +255,27 @@ class AppSettingsRepository(
             )
             addToggle(
                 id = "app_toggle_unit_converter",
-                titleRes = R.string.unit_converter_toggle_title,
+                titleRes = R.string.unit_converter_info_title,
                 descriptionRes = R.string.unit_converter_toggle_action_desc,
                 toggleKey = AppSettingsToggleKey.UNIT_CONVERTER,
                 keywords = listOf("conversion"),
             )
             addNavigation(
                 id = "app_nav_unit_converter_info",
-                titleRes = R.string.unit_converter_toggle_title,
-                descriptionRes = R.string.unit_converter_toggle_desc,
+                titleRes = R.string.unit_converter_info_title,
+                descriptionRes = R.string.date_calculator_toggle_desc,
                 destination = AppSettingsDestination.UNIT_CONVERTER_INFO,
                 keywords = listOf("conversion", "examples"),
             )
             addToggle(
                 id = "app_toggle_date_calculator",
-                titleRes = R.string.date_calculator_toggle_title,
+                titleRes = R.string.date_calculator_info_title,
                 descriptionRes = R.string.date_calculator_toggle_action_desc,
                 toggleKey = AppSettingsToggleKey.DATE_CALCULATOR,
             )
             addNavigation(
                 id = "app_nav_date_calculator_info",
-                titleRes = R.string.date_calculator_toggle_title,
+                titleRes = R.string.date_calculator_info_title,
                 descriptionRes = R.string.date_calculator_toggle_desc,
                 destination = AppSettingsDestination.DATE_CALCULATOR_INFO,
                 keywords = listOf("examples"),
@@ -313,7 +313,7 @@ class AppSettingsRepository(
             )
             addToggle(
                 id = "app_toggle_open_keyboard",
-                titleRes = R.string.open_keyboard_toggle_title,
+                titleRes = R.string.action_open_keyboard,
                 descriptionRes = R.string.open_keyboard_toggle_desc,
                 toggleKey = AppSettingsToggleKey.OPEN_KEYBOARD,
             )

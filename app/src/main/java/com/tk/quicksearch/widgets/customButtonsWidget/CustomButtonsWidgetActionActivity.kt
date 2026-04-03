@@ -170,7 +170,7 @@ class WidgetActionActivity : ComponentActivity() {
                 handleContactMethod(ContactMethod.Sms(getString(R.string.contact_method_message_label), action.phoneNumber))
             }
             is ContactCardAction.Email -> {
-                handleContactMethod(ContactMethod.Email(getString(R.string.contacts_action_button_email), action.phoneNumber))
+                handleContactMethod(ContactMethod.Email(getString(R.string.contact_method_email_label), action.phoneNumber))
             }
             is ContactCardAction.ViewInContactsApp -> {
                 handleContactMethod(ContactMethod.ViewInContactsApp(getString(R.string.contacts_action_button_contacts)))

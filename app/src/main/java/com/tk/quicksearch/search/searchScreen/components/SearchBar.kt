@@ -753,7 +753,7 @@ private fun SearchBarLeadingIcon(
         LeadingIconState.UnitConverter -> {
             Icon(
                 imageVector = Icons.Rounded.Straighten,
-                contentDescription = stringResource(R.string.unit_converter_toggle_title),
+                contentDescription = stringResource(R.string.unit_converter_info_title),
                 tint = iconTint,
                 modifier = Modifier.padding(start = DesignTokens.SpacingXSmall),
             )

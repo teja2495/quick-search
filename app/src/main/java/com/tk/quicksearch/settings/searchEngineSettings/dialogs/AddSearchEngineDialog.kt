@@ -169,7 +169,7 @@ fun AddSearchEngineDialog(
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
             ) {
                 Text(
-                    text = stringResource(R.string.settings_add_search_engine_dialog_title),
+                    text = stringResource(R.string.settings_add_search_engine_button),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
@@ -195,7 +195,7 @@ fun AddSearchEngineDialog(
                                         .weight(1f)
                                         .focusRequester(nameFocusRequester),
                                 label = {
-                                    Text(text = stringResource(R.string.settings_edit_search_engine_name_label))
+                                    Text(text = stringResource(R.string.settings_app_sort_name))
                                 },
                                 singleLine = true,
                                 maxLines = 1,

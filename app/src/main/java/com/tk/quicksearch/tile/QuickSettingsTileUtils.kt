@@ -29,7 +29,7 @@ private fun requestTileForAndroid13Plus(context: Context) {
             val statusBarManager = context.getSystemService(StatusBarManager::class.java)
             statusBarManager?.requestAddTileService(
                 tileComponent,
-                context.getString(R.string.quick_settings_tile_label),
+                context.getString(R.string.app_name),
                 icon,
                 ContextCompat.getMainExecutor(context),
             ) { result -> handleTileAddResult(context, result) } ?: showErrorToast(context)

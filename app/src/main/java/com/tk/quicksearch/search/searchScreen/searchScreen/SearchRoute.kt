@@ -501,7 +501,7 @@ fun SearchRoute(
                 showPermissionSettingsDialog = true
             },
             onOpenStorageAccessSettings = {
-                pendingPermissionSettingsType = R.string.settings_files_permission_title
+                pendingPermissionSettingsType = R.string.section_files
                 pendingPermissionSettingsAction = { viewModel.openAllFilesAccessSettings() }
                 showPermissionSettingsDialog = true
             },

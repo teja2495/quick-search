@@ -48,8 +48,8 @@ fun ContactDropdownMenu(
             add(
                     ContactMenuItem(
                             textResId =
-                                    if (isPinned) R.string.action_unpin_generic
-                                    else R.string.action_pin_generic,
+                                    if (isPinned) R.string.action_unpin_app
+                                    else R.string.action_pin_app,
                             icon = {
                                 Icon(
                                         painter =

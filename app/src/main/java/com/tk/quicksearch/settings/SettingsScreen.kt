@@ -312,7 +312,7 @@ fun SettingsScreen(
                     )
                     add(
                         SettingsCardItem(
-                            title = stringResource(R.string.settings_search_engines_title),
+                            title = stringResource(R.string.settings_app_shortcuts_filter_search_engines),
                             description = stringResource(R.string.settings_search_engines_desc),
                             icon = Icons.AutoMirrored.Rounded.ManageSearch,
                             actionOnPress = {
@@ -332,7 +332,7 @@ fun SettingsScreen(
                     )
                     add(
                         SettingsCardItem(
-                            title = stringResource(R.string.settings_gemini_api_config_title),
+                            title = stringResource(R.string.settings_backup_export_option_gemini_title),
                             description = stringResource(R.string.settings_gemini_api_config_desc),
                             iconResId = R.drawable.direct_search,
                             actionOnPress = {
@@ -733,7 +733,7 @@ fun SettingsHeader(onBack: () -> Unit) {
         androidx.compose.foundation.layout
             .Spacer(modifier = Modifier.width(DesignTokens.HeaderIconSpacing))
         Text(
-            text = stringResource(R.string.settings_title),
+            text = stringResource(R.string.settings_backup_export_option_settings_title),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurface,
         )

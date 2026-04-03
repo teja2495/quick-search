@@ -76,7 +76,7 @@ fun PermissionsScreen(
         horizontalAlignment = Alignment.Start,
     ) {
         OnboardingHeader(
-            title = stringResource(R.string.permissions_screen_title),
+            title = stringResource(R.string.settings_permissions_title),
             currentStep = currentStep,
             totalSteps = totalSteps,
         )
@@ -98,15 +98,15 @@ fun PermissionsScreen(
             PermissionsCardSection(
                 texts =
                     PermissionCardTexts(
-                        usageTitle = stringResource(R.string.permissions_usage_title),
+                        usageTitle = stringResource(R.string.settings_shortcut_usage_access),
                         usageDescription = stringResource(R.string.permissions_usage_desc),
-                        contactsTitle = stringResource(R.string.permissions_contacts_title),
+                        contactsTitle = stringResource(R.string.contacts_action_button_contacts),
                         contactsDescription = stringResource(R.string.permissions_contacts_desc),
                         filesTitle = stringResource(R.string.permissions_files_title),
                         filesDescription = stringResource(R.string.permissions_files_desc),
-                        calendarTitle = stringResource(R.string.permissions_calendar_title),
+                        calendarTitle = stringResource(R.string.settings_calendar_permission_title),
                         calendarDescription = stringResource(R.string.permissions_calendar_desc),
-                        callingTitle = stringResource(R.string.permissions_calling_title),
+                        callingTitle = stringResource(R.string.settings_call_permission_title),
                         callingDescription = stringResource(R.string.permissions_calling_desc),
                 ),
                 modifier = Modifier.fillMaxWidth(),
@@ -192,11 +192,11 @@ private fun PermissionReminderDialog(
 ) {
     val permissionsList =
         listOfNotNull(
-            stringResource(R.string.permissions_usage_title).takeIf { !usagePermissionState.isGranted },
-            stringResource(R.string.permissions_contacts_title).takeIf { !contactsPermissionState.isGranted },
+            stringResource(R.string.settings_shortcut_usage_access).takeIf { !usagePermissionState.isGranted },
+            stringResource(R.string.contacts_action_button_contacts).takeIf { !contactsPermissionState.isGranted },
             stringResource(R.string.permissions_files_title).takeIf { !filesPermissionState.isGranted },
-            stringResource(R.string.permissions_calendar_title).takeIf { !calendarPermissionState.isGranted },
-            stringResource(R.string.permissions_calling_title).takeIf { !callingPermissionState.isGranted },
+            stringResource(R.string.settings_calendar_permission_title).takeIf { !calendarPermissionState.isGranted },
+            stringResource(R.string.settings_call_permission_title).takeIf { !callingPermissionState.isGranted },
         ).joinToString(", ")
 
     Dialog(

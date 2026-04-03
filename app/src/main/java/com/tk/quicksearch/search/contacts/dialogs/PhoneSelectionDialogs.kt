@@ -123,9 +123,9 @@ fun PhoneNumberSelectionDialog(
                 Text(
                     text =
                         if (isCall) {
-                            stringResource(R.string.dialog_call)
+                            stringResource(R.string.contact_method_call_label)
                         } else {
-                            stringResource(R.string.dialog_sms)
+                            stringResource(R.string.contact_method_message_label)
                         },
                 )
             }

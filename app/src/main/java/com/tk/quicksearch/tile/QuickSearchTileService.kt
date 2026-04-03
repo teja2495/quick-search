@@ -69,7 +69,7 @@ class QuickSearchTileService : TileService() {
 
     private fun updateTileState() {
         qsTile?.let { tile ->
-            tile.label = getString(R.string.quick_settings_tile_label)
+            tile.label = getString(R.string.app_name)
             tile.state = Tile.STATE_ACTIVE
             tile.icon = Icon.createWithResource(this, R.drawable.ic_widget_search)
             tile.updateTile()

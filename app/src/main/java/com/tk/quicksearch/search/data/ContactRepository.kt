@@ -486,7 +486,7 @@ class ContactRepository(
                             if (isGoogleMeetInstalled) {
                                 val meetMethod =
                                     ContactMethod.GoogleMeet(
-                                        displayLabel = context.getString(R.string.settings_calling_option_google_meet),
+                                        displayLabel = context.getString(R.string.contact_method_google_meet_label),
                                         data = data1,
                                         dataId = dataId,
                                         isPrimary = isPrimary,

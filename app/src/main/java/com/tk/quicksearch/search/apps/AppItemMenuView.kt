@@ -101,7 +101,7 @@ fun AppItemDropdownMenu(
             )
             add(
                     AppMenuItem(
-                            textResId = R.string.action_hide_app,
+                            textResId = R.string.action_exclude_generic,
                             icon = {
                                 Icon(
                                         imageVector = Icons.Rounded.VisibilityOff,

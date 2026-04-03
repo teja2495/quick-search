@@ -448,7 +448,7 @@ private fun WidgetContent(
                     // Text is always centered
                     if (showLabel) {
                         Text(
-                            text = context.getString(R.string.widget_label_text),
+                            text = context.getString(R.string.app_name),
                             style =
                                 TextStyle(
                                     color = ColorProvider(textIconColor),
@@ -494,7 +494,7 @@ private fun WidgetContent(
                     }
                     if (showLabel) {
                         Text(
-                            text = context.getString(R.string.widget_label_text),
+                            text = context.getString(R.string.app_name),
                             modifier = GlanceModifier.padding(start = if (showSearchIcon) 8.dp else 0.dp),
                             style =
                                 TextStyle(

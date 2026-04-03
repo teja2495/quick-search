@@ -218,8 +218,8 @@ internal fun methodShortcutLabel(
     method: ContactMethod,
 ): String? =
     when (method) {
-        is ContactMethod.Phone -> context.getString(R.string.contacts_action_button_call)
-        is ContactMethod.Sms -> context.getString(R.string.contacts_action_button_message)
+        is ContactMethod.Phone -> context.getString(R.string.contact_method_call_label)
+        is ContactMethod.Sms -> context.getString(R.string.contact_method_message_label)
         is ContactMethod.WhatsAppCall,
         is ContactMethod.TelegramCall,
         is ContactMethod.SignalCall,
@@ -234,6 +234,6 @@ internal fun methodShortcutLabel(
         -> context.getString(R.string.contacts_action_button_video_call)
         is ContactMethod.GoogleMeet -> context.getString(R.string.contacts_action_button_meet)
         is ContactMethod.CustomApp -> method.displayLabel
-        is ContactMethod.Email -> context.getString(R.string.contacts_action_button_email)
+        is ContactMethod.Email -> context.getString(R.string.contact_method_email_label)
         else -> null
     }

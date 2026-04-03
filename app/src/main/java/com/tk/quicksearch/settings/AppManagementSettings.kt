@@ -77,8 +77,8 @@ private enum class AppSortOption(
     APK_SIZE(R.string.settings_app_sort_apk_size),
     MOST_USED(R.string.settings_app_sort_most_used, requiresUsagePermission = true),
     LEAST_USED(R.string.settings_app_sort_least_used, requiresUsagePermission = true),
-    INSTALLATION_DATE(R.string.settings_app_sort_installation_date),
-    LAST_UPDATE(R.string.settings_app_sort_last_update),
+    INSTALLATION_DATE(R.string.settings_app_info_install_date),
+    LAST_UPDATE(R.string.settings_app_info_last_update),
     API_LEVEL(R.string.settings_app_sort_api_level),
 }
 
@@ -612,7 +612,7 @@ private fun AppDetailsDialog(
         },
         confirmButton = {
             androidx.compose.material3.TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.dialog_close))
+                Text(text = stringResource(R.string.desc_close))
             }
         },
         dismissButton = {

@@ -441,7 +441,7 @@ fun WallpaperCard(
                                     imageVector = Icons.Rounded.Info,
                                     contentDescription =
                                             stringResource(
-                                                    R.string.settings_overlay_source_permission_required,
+                                                    R.string.permission_required_title,
                                             ),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.size(14.dp),

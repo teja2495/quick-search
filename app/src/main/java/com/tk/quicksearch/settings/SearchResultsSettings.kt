@@ -201,7 +201,7 @@ private fun LaunchOptionsCard(
                             modifier = Modifier.size(DesignTokens.IconSizeSmall),
                         )
                         Text(
-                            text = stringResource(R.string.settings_refresh_apps_button),
+                            text = stringResource(R.string.section_apps),
                             style = MaterialTheme.typography.labelSmall,
                             textAlign = TextAlign.Center,
                         )
@@ -227,7 +227,7 @@ private fun LaunchOptionsCard(
                                 modifier = Modifier.size(DesignTokens.IconSizeSmall),
                             )
                             Text(
-                                text = stringResource(R.string.settings_refresh_contacts_button),
+                                text = stringResource(R.string.contacts_action_button_contacts),
                                 style = MaterialTheme.typography.labelSmall,
                                 textAlign = TextAlign.Center,
                             )
@@ -254,7 +254,7 @@ private fun LaunchOptionsCard(
                                 modifier = Modifier.size(DesignTokens.IconSizeSmall),
                             )
                             Text(
-                                text = stringResource(R.string.settings_refresh_files_button),
+                                text = stringResource(R.string.section_files),
                                 style = MaterialTheme.typography.labelSmall,
                                 textAlign = TextAlign.Center,
                             )
@@ -314,7 +314,7 @@ fun SearchResultsSettingsSection(
                 if (hasContactPermission) {
                     stringResource(R.string.settings_manage_calls_texts_contacts_desc)
                 } else {
-                    stringResource(R.string.settings_overlay_source_permission_required)
+                    stringResource(R.string.permission_required_title)
                 },
             onContactsClick = if (hasContactPermission) onNavigateToCallsTexts else null,
             onContactsClickNoRipple = hasContactPermission,
@@ -322,7 +322,7 @@ fun SearchResultsSettingsSection(
                 if (hasFilePermission) {
                     stringResource(R.string.settings_manage_files_desc)
                 } else {
-                    stringResource(R.string.settings_overlay_source_permission_required)
+                    stringResource(R.string.permission_required_title)
                 },
             onFilesClick = if (hasFilePermission) onNavigateToFiles else null,
             onFilesClickNoRipple = hasFilePermission,
@@ -334,7 +334,7 @@ fun SearchResultsSettingsSection(
                 if (hasCalendarPermission) {
                     stringResource(R.string.settings_calendar_view_all_events_desc)
                 } else {
-                    stringResource(R.string.settings_overlay_source_permission_required)
+                    stringResource(R.string.permission_required_title)
                 },
             onCalendarClick =
                 if (hasCalendarPermission) {

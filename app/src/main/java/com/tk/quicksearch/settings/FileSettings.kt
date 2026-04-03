@@ -107,7 +107,7 @@ private fun getFileTypeDisplayName(fileType: FileType): String =
         FileType.VIDEOS -> stringResource(R.string.file_type_videos)
         FileType.AUDIO -> stringResource(R.string.file_type_audio)
         FileType.APKS -> stringResource(R.string.file_type_apks)
-        FileType.OTHER -> stringResource(R.string.file_type_other)
+        FileType.OTHER -> stringResource(R.string.contact_method_fallback_label)
     }
 
 /** Gets the icon for a file type. */

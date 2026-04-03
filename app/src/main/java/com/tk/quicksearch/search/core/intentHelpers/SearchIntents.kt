@@ -38,7 +38,7 @@ internal object SearchIntents {
 
         if (!IntentUtils.canResolveIntent(context, intent)) {
             onShowToast?.invoke(
-                R.string.error_open_search_engine,
+                R.string.common_error_unable_to_open,
                 context.getString(searchEngine.getDisplayNameResId()),
             )
             return
@@ -48,12 +48,12 @@ internal object SearchIntents {
             context.startActivity(intent)
         } catch (exception: ActivityNotFoundException) {
             onShowToast?.invoke(
-                R.string.error_open_search_engine,
+                R.string.common_error_unable_to_open,
                 context.getString(searchEngine.getDisplayNameResId()),
             )
         } catch (exception: SecurityException) {
             onShowToast?.invoke(
-                R.string.error_open_search_engine,
+                R.string.common_error_unable_to_open,
                 context.getString(searchEngine.getDisplayNameResId()),
             )
         }
@@ -89,7 +89,7 @@ internal object SearchIntents {
                 } catch (_: SecurityException) {
                 }
             }
-            onShowToast?.invoke(R.string.error_open_search_engine, browserLabel)
+            onShowToast?.invoke(R.string.common_error_unable_to_open, browserLabel)
             return
         }
 
@@ -126,7 +126,7 @@ internal object SearchIntents {
             val normalizedUrl = normalizeToBrowsableUrl(url)
             if (normalizedUrl == null) {
                 onShowToast?.invoke(
-                    R.string.error_open_search_engine,
+                    R.string.common_error_unable_to_open,
                     context.getString(R.string.browser_in_app_name),
                 )
                 return
@@ -138,7 +138,7 @@ internal object SearchIntents {
         val browserLabel = resolveAppLabel(context, browserPackageName)
         val normalizedUrl = normalizeToBrowsableUrl(url)
         if (normalizedUrl == null) {
-            onShowToast?.invoke(R.string.error_open_search_engine, browserLabel)
+            onShowToast?.invoke(R.string.common_error_unable_to_open, browserLabel)
             return
         }
 
@@ -157,7 +157,7 @@ internal object SearchIntents {
             }
         if (tryStartIntent(context, fallbackIntent)) return
 
-        onShowToast?.invoke(R.string.error_open_search_engine, browserLabel ?: inferDisplayLabelFromUrl(normalizedUrl))
+        onShowToast?.invoke(R.string.common_error_unable_to_open, browserLabel ?: inferDisplayLabelFromUrl(normalizedUrl))
     }
 
     fun openCustomSearchUrl(
@@ -180,7 +180,7 @@ internal object SearchIntents {
             }
         if (tryStartIntent(context, intent)) return
 
-        onShowToast?.invoke(R.string.error_open_search_engine, inferDisplayLabelFromUrl(url))
+        onShowToast?.invoke(R.string.common_error_unable_to_open, inferDisplayLabelFromUrl(url))
     }
 
     private fun normalizeToBrowsableUrl(url: String): String? {
@@ -217,7 +217,7 @@ internal object SearchIntents {
         if (tryStartIntent(context, fallback)) return
 
         onShowToast?.invoke(
-            R.string.error_open_search_engine,
+            R.string.common_error_unable_to_open,
             context.getString(R.string.browser_in_app_name),
         )
     }

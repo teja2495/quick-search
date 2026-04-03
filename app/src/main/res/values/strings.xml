@@ -50,7 +50,6 @@
     <string name="error_gemini_request_failed">Request failed (%1$d)</string>
     <string name="error_open_calendar_event">Unable to open calendar event</string>
     <string name="error_open_email">No email app found to send mail.</string>
-    <string name="error_open_search_engine">Unable to open %1$s</string>
     <string name="error_unknown">Unknown error</string>
     <string name="gemini_feature_grounding">grounding</string>
     <string name="gemini_feature_personal_context">personal context</string>
@@ -84,12 +83,9 @@
     <string name="contact_method_whatsapp_message_label">WhatsApp</string>
     <string name="contact_method_whatsapp_video_call_label">WhatsApp video call</string>
     <string name="contact_method_whatsapp_voice_call_label">WhatsApp voice call</string>
-    <string name="contacts_action_button_call">Call</string>
     <string name="contacts_action_button_chat">Chat</string>
     <string name="contacts_action_button_contacts">Contacts</string>
-    <string name="contacts_action_button_email">Email</string>
     <string name="contacts_action_button_meet">Meet</string>
-    <string name="contacts_action_button_message">Message</string>
     <string name="contacts_action_button_video_call">Video Call</string>
     <string name="contacts_action_button_voice_call">Voice Call</string>
     <string name="contacts_action_call">Call contact</string>
@@ -103,7 +99,6 @@
     <string name="contacts_no_methods_available">No contact methods available</string>
     <string name="contacts_section_permission_subtitle">Contacts permission is required to perform contact search</string>
     <string name="dialog_choose_contact_action_title">Choose an Action to Replace %1$s</string>
-    <string name="direct_search_personal_context_tip">Tip: Add details to your %1$s for personalized results.</string>
     <string name="error_call_permission_required">Phone permission is required for this action</string>
     <string name="error_google_meet_call_failed">Google Meet call failed - app may not support this method</string>
     <string name="error_google_meet_no_phone">Cannot make Google Meet call - no phone number found</string>
@@ -155,7 +150,6 @@
     <string name="action_add_nickname">Add Nickname</string>
     <string name="action_add_to_home">Add to Home</string>
     <string name="action_app_info">App Info</string>
-    <string name="action_collapse">Collapse</string>
     <string name="action_edit_icon">Edit Icon</string>
     <string name="action_edit_nickname">Edit Nickname</string>
     <string name="action_exclude_extension">Exclude .%s files</string>
@@ -166,13 +160,11 @@
     <string name="action_expand_more_events">More Events</string>
     <string name="action_expand_more_files">More Files</string>
     <string name="action_expand_more_shortcuts">More Shortcuts</string>
-    <string name="action_hide_app">Exclude</string>
     <string name="action_include_generic">Include</string>
     <string name="action_more_search_history">More History</string>
     <string name="action_open_keyboard">Open Keyboard</string>
     <string name="action_open_settings">Open settings</string>
     <string name="action_pin_app">Pin</string>
-    <string name="action_pin_generic">Pin</string>
     <string name="action_remove">Remove</string>
     <string name="action_remove_from_history">Remove From History</string>
     <string name="action_reset_app_shortcut_icon">Reset to default icon</string>
@@ -180,7 +172,6 @@
     <string name="action_undo">Undo</string>
     <string name="action_uninstall_app">Uninstall</string>
     <string name="action_unpin_app">Unpin</string>
-    <string name="action_unpin_generic">Unpin</string>
     <string name="exclude_marker"> excluded from </string>
     <string name="permission_action_manage_android">Manage in Android settings</string>
     <string name="search_history_tip_link">settings</string>
@@ -206,9 +197,7 @@
     <string name="dialog_alias_info_search_type">Type this alias at the start of your query to trigger the %1$s search.</string>
     <string name="dialog_alias_info_tool">Type this alias at the start of your query to enter into %1$s mode.</string>
     <string name="dialog_app_shortcut_icon_message">Choose an image for \"%1$s\". This only changes how the shortcut appears in Quick Search.</string>
-    <string name="dialog_call">Call</string>
     <string name="dialog_cancel">Cancel</string>
-    <string name="dialog_close">Close</string>
     <string name="dialog_delete">Delete</string>
     <string name="dialog_direct_dial_change_later">You can change this anytime in Settings.</string>
     <string name="dialog_direct_dial_option_dialer">Open Dialer</string>
@@ -241,7 +230,6 @@
     <string name="dialog_select_phone_number_message">Choose a number for %1$s</string>
     <string name="dialog_select_phone_number_title">Select phone number</string>
     <string name="dialog_send">Send</string>
-    <string name="dialog_sms">Message</string>
     <string name="dialog_yes">Yes</string>
     <string name="permission_settings_dialog_message">This action requires %1$s permission. You will be taken to system settings to grant it.</string>
     <string name="permission_settings_dialog_title">%1$s Permission Required</string>
@@ -302,7 +290,6 @@
     <string name="file_type_apks">APKs</string>
     <string name="file_type_audio">Audio</string>
     <string name="file_type_documents">Documents</string>
-    <string name="file_type_other">Other</string>
     <string name="file_type_pictures">Pictures</string>
     <string name="file_type_videos">Videos</string>
     <string name="files_refreshed_successfully">Files refreshed successfully</string>
@@ -311,25 +298,21 @@
     <string name="quick_settings_tile_added">Quick Search tile added</string>
     <string name="quick_settings_tile_already_added">Quick Search tile is already added</string>
     <string name="quick_settings_tile_error">Unable to request the Quick Settings tile. Try again.</string>
-    <string name="quick_settings_tile_label">Quick Search</string>
     <string name="quick_settings_tile_not_added">Tile not added</string>
     <string name="quick_settings_tile_not_supported">Direct tile requests aren\'t supported on this Android version. Use Quick Settings edit to add it.</string>
     <string name="section_app_settings">App Settings</string>
     <string name="section_app_shortcuts">App Shortcuts</string>
     <string name="section_apps">Apps</string>
     <string name="section_calendar">Calendar Events</string>
-    <string name="section_contacts">Contacts</string>
     <string name="section_files">Files</string>
     <string name="section_settings">Device Settings</string>
     <string name="settings_action_clear_all">Clear All</string>
     <string name="settings_action_move_down">Move to bottom</string>
     <string name="settings_action_move_up">Move to top</string>
-    <string name="settings_action_remove">Remove</string>
     <string name="settings_action_reorder">Drag to reorder</string>
     <string name="settings_add_alias">Setup Alias</string>
     <string name="settings_add_search_engine_button">Add Search Engine</string>
     <string name="settings_add_search_engine_dialog_message">Enter URL or an Android intent template with query placeholder.\n\nExample:\nwww.google.com/search?q={{query}}</string>
-    <string name="settings_add_search_engine_dialog_title">Add Search Engine</string>
     <string name="settings_add_search_engine_error_multiple_placeholders">Use {{query}} only once.</string>
     <string name="settings_add_search_engine_error_placeholder">URL must include {{query}}</string>
     <string name="settings_add_search_engine_error_required">Please enter a URL template.</string>
@@ -385,7 +368,6 @@
     <string name="settings_app_shortcuts_filter_browsers">Browsers</string>
     <string name="settings_app_shortcuts_filter_search_engines">Search Engines</string>
     <string name="settings_app_shortcuts_query_label">Query</string>
-    <string name="settings_app_shortcuts_search_hint">Search</string>
     <string name="settings_app_shortcuts_shortcut_name_label">Shortcut Name</string>
     <string name="settings_app_shortcuts_update_failed">Unable to update shortcut.</string>
     <string name="settings_app_shortcuts_update_success">Shortcut updated.</string>
@@ -395,8 +377,6 @@
     <string name="settings_app_sort_ascending">Sort ascending</string>
     <string name="settings_app_sort_by_format">Sort by: %1$s</string>
     <string name="settings_app_sort_descending">Sort descending</string>
-    <string name="settings_app_sort_installation_date">Install Date</string>
-    <string name="settings_app_sort_last_update">Last Update</string>
     <string name="settings_app_sort_least_used">Least Used</string>
     <string name="settings_app_sort_most_used">Most Used</string>
     <string name="settings_app_sort_name">Name</string>
@@ -412,19 +392,15 @@
     <string name="settings_assistant_voice_mode_desc">Launch voice typing when launched as digital assistant</string>
     <string name="settings_assistant_voice_mode_title">Assistant Voice Mode</string>
     <string name="settings_backup_export_api_key_warning_message">Proceed at your own risk. Exported API key is not encrypted and can be accessed by anyone who has access to your backup file.</string>
-    <string name="settings_backup_export_api_key_warning_title">Export Gemini API key too?</string>
     <string name="settings_backup_export_button">Export</string>
     <string name="settings_backup_export_selection_title">Export Data</string>
     <string name="settings_backup_export_option_settings_title">Settings</string>
     <string name="settings_backup_export_option_search_history_title">Search history</string>
     <string name="settings_backup_export_option_pinned_items_title">Pinned items</string>
-    <string name="settings_backup_export_option_shortcuts_title">App Shortcuts</string>
     <string name="settings_backup_export_option_search_engines_title">Search engines</string>
     <string name="settings_backup_export_option_gemini_title">Gemini API</string>
     <string name="settings_backup_export_failed">Unable to export settings.</string>
     <string name="settings_backup_export_success">Settings exported successfully.</string>
-    <string name="settings_backup_export_with_api_key">Yes, backup API key</string>
-    <string name="settings_backup_export_without_api_key">No, don\'t backup API key</string>
     <string name="settings_backup_import_button">Import</string>
     <string name="settings_backup_import_failed">Unable to import settings.</string>
     <string name="settings_backup_import_success">Settings imported successfully.</string>
@@ -440,22 +416,15 @@
     <string name="settings_bottom_searchbar_title">Bottom Searchbar</string>
     <string name="settings_cache_cleared_toast">Cache cleared. Rebuilding app index\u2026</string>
     <string name="settings_calendar_events_empty">No calendar events available.</string>
-    <string name="settings_calendar_events_title">Calendar Events</string>
     <string name="settings_calendar_permission_title">Calendar</string>
     <string name="settings_calendar_view_all_events_desc">View all events</string>
     <string name="settings_call_permission_title">Phone</string>
     <string name="settings_calling_card_title">Default Calling App</string>
-    <string name="settings_calling_option_call">Call</string>
-    <string name="settings_calling_option_google_meet">Google Meet</string>
-    <string name="settings_calling_option_signal">Signal</string>
-    <string name="settings_calling_option_telegram">Telegram</string>
-    <string name="settings_calling_option_whatsapp">WhatsApp</string>
     <string name="settings_calls_texts_title">Calls &amp; Texts</string>
     <string name="settings_circular_app_icons_desc">Force circular app icons</string>
     <string name="settings_circular_app_icons_title">Circular App Icons</string>
     <string name="settings_compact_rows_one_row">One Row</string>
     <string name="settings_compact_rows_two_rows">Two Rows</string>
-    <string name="settings_contacts_permission_title">Contacts</string>
     <string name="settings_default_assistant_desc">Set this app as your default digital assistant app.</string>
     <string name="settings_default_assistant_desc_change">Change your default digital assistant app.</string>
     <string name="settings_default_assistant_title">Default Assistant</string>
@@ -469,12 +438,9 @@
     <string name="settings_direct_search_model_label">Model</string>
     <string name="settings_direct_search_personal_context">Personal Context</string>
     <string name="settings_direct_search_personal_context_hint">Add any context you want Gemini to use when generating answers.</string>
-    <string name="settings_direct_search_personal_context_title">Personal Context</string>
     <string name="settings_direct_search_toggle">API Key Setup</string>
     <string name="settings_edit_label">Edit</string>
     <string name="settings_edit_search_engine_dialog_title">Edit Search Engine</string>
-    <string name="settings_edit_search_engine_name_label">Name</string>
-    <string name="settings_edit_search_engine_url_label">URL</string>
     <string name="settings_excluded_extensions_title">Excluded File Extensions</string>
     <string name="settings_excluded_items_clear_all">Clear all exclusions</string>
     <string name="settings_excluded_items_clear_all_confirmation">Are you sure you want to clear all excluded items? This action cannot be undone.</string>
@@ -493,7 +459,6 @@
     <string name="settings_feedback_send_desc">Report bugs or request features</string>
     <string name="settings_feedback_send_title">Send Feedback</string>
     <string name="settings_file_types_title">Files &amp; Folders</string>
-    <string name="settings_files_permission_title">Files</string>
     <string name="settings_folder_blacklist_helper">These paths will be ignored when searching</string>
     <string name="settings_folder_blacklist_title">Blacklist</string>
     <string name="settings_folder_filter_helper">Enter one or more folder paths separated by commas. They will be converted to the internal pattern format.\n\nExample: /Downloads/Pictures</string>
@@ -534,9 +499,6 @@
     <string name="settings_messaging_app_not_installed">%s is not installed on your device</string>
     <string name="settings_messaging_card_title">Default Messaging App</string>
     <string name="settings_messaging_option_messages">Messages</string>
-    <string name="settings_messaging_option_signal">Signal</string>
-    <string name="settings_messaging_option_telegram">Telegram</string>
-    <string name="settings_messaging_option_whatsapp">WhatsApp</string>
     <string name="settings_more_options_desc">Miscellaneous customisation options</string>
     <string name="settings_more_options_title">More Options</string>
     <string name="settings_open_source_licenses_load_failed">Unable to load licenses.</string>
@@ -551,7 +513,6 @@
     <string name="settings_overlay_source_custom">Custom</string>
     <string name="settings_overlay_source_edit_custom">Edit custom image</string>
     <string name="settings_overlay_source_needs_permission">Needs permission</string>
-    <string name="settings_overlay_source_permission_required">Permission required</string>
     <string name="settings_overlay_source_wallpaper">Wallpaper</string>
     <string name="settings_overlay_theme_tone_darker">Darker</string>
     <string name="settings_overlay_theme_tone_lighter">Lighter</string>
@@ -559,14 +520,11 @@
     <string name="settings_permissions_title">Permissions</string>
     <string name="settings_quick_settings_tile_desc">Add Quick Search to Quick Settings tiles.</string>
     <string name="settings_quick_settings_tile_title">Quick Settings Tile</string>
-    <string name="settings_refresh_apps_button">Apps</string>
     <string name="settings_refresh_apps_disabled">App search is disabled, cannot refresh apps data</string>
     <string name="settings_refresh_apps_title">Reload Apps</string>
-    <string name="settings_refresh_contacts_button">Contacts</string>
     <string name="settings_refresh_contacts_disabled">Contacts search is disabled, cannot refresh contacts data</string>
     <string name="settings_refresh_contacts_title">Reload Contacts</string>
     <string name="settings_refresh_data_title">Refresh Data</string>
-    <string name="settings_refresh_files_button">Files</string>
     <string name="settings_refresh_files_disabled">Files search is disabled, cannot refresh files data</string>
     <string name="settings_refresh_files_title">Reload Files</string>
     <string name="settings_refresh_icon_packs">Refresh icon packs</string>
@@ -589,8 +547,6 @@
     <string name="settings_search_engine_display_title">Search Engines Style</string>
     <string name="settings_search_engines_desc">Manage and reorder search engines</string>
     <string name="settings_search_engines_more_search_engines">More Search Engines</string>
-    <string name="settings_search_engines_more_title">More</string>
-    <string name="settings_search_engines_title">Search Engines</string>
     <string name="settings_search_results_desc">Manage result types, web suggestions, and search history</string>
     <string name="settings_search_results_title">Search Results</string>
     <string name="settings_search_tip_banner_message">Tip: You can search for settings directly from the search bar.</string>
@@ -599,7 +555,6 @@
     <string name="settings_shortcut_accessibility">Accessibility</string>
     <string name="settings_shortcut_airplane">Airplane Mode</string>
     <string name="settings_shortcut_all_files">All Files Access</string>
-    <string name="settings_shortcut_apps_list">Apps</string>
     <string name="settings_shortcut_battery_optimization">Battery Optimization</string>
     <string name="settings_shortcut_battery_saver">Battery Saver</string>
     <string name="settings_shortcut_battery_usage">Battery Usage</string>
@@ -613,7 +568,6 @@
     <string name="settings_shortcut_do_not_disturb">Do Not Disturb</string>
     <string name="settings_shortcut_home">Default Launcher</string>
     <string name="settings_shortcut_hotspot">Hotspot &amp; Tethering</string>
-    <string name="settings_shortcut_language_input">Language &amp; Input</string>
     <string name="settings_shortcut_locale">Language</string>
     <string name="settings_shortcut_location">Location</string>
     <string name="settings_shortcut_mobile_data">Mobile Data</string>
@@ -630,23 +584,21 @@
     <string name="settings_shortcut_voice_input">Digital Assistant</string>
     <string name="settings_shortcut_vpn">VPN</string>
     <string name="settings_shortcut_wifi">Wi\u2011Fi</string>
+    <string name="settings_direct_search_setup_nav_desc">Setup Gemini API key to enable AI-powered search</string>
+    <string name="settings_direct_search_setup_nav_title">Direct Search</string>
+    <string name="settings_gemini_api_config_desc">Set up Gemini API for AI-powered search and tools</string>
+    <string name="settings_gemini_api_desc">Configure Gemini API</string>
     <string name="settings_show_app_labels_desc">Show app names in suggestions and results</string>
     <string name="settings_show_app_labels_title">App Labels</string>
     <string name="settings_system_files_toggle">System Files</string>
     <string name="settings_themed_icons_desc">Tint app icons to match your theme</string>
     <string name="settings_themed_icons_title">Themed App Icons</string>
-    <string name="settings_title">Settings</string>
-    <string name="settings_gemini_api_config_title">Gemini API</string>
-    <string name="settings_gemini_api_config_desc">Set up Gemini API for AI-powered search and tools</string>
-    <string name="settings_direct_search_setup_nav_title">Direct Search</string>
-    <string name="settings_direct_search_setup_nav_desc">Setup Gemini API key to enable AI-powered search</string>
-    <string name="settings_gemini_api_title">Gemini API</string>
-    <string name="settings_gemini_api_desc">Configure Gemini API</string>
     <string name="settings_tools_desc">Calculator, Unit converter, Date Converter</string>
+    <string name="settings_tools_gemini_api_desc">Setting up Gemini API key will enable more tools.</string>
+    <string name="settings_tools_gemini_api_title">Setup Gemini API</string>
     <string name="settings_tools_info_examples_header">Here are some examples of things you can ask in the search bar</string>
     <string name="settings_tools_title">Tools</string>
     <string name="settings_unable_to_open_settings">Unable to open settings</string>
-    <string name="settings_usage_access_title">Usage Access</string>
     <string name="settings_view_all_desc">View all settings</string>
     <string name="settings_wallpaper_accent_desc">Derive accent colors from background image</string>
     <string name="settings_wallpaper_accent_title">Accent Colors</string>
@@ -664,7 +616,6 @@
     <string name="shortcut_voice_search_long_label">Open Voice Search</string>
     <string name="shortcut_voice_search_short_label">Voice Search</string>
     <string name="voice_input_not_available">Voice typing isn’t available right now.</string>
-    <string name="widget_background_color_custom">Custom</string>
     <string name="widget_background_color_custom_dialog_hint">Hex Color (RRGGBB)</string>
     <string name="widget_background_color_custom_dialog_title">Custom Color</string>
     <string name="widget_background_color_custom_invalid">Enter a valid 6-digit hex color.</string>
@@ -679,13 +630,11 @@
     <string name="widget_icon_center">Center</string>
     <string name="widget_icon_left">Left</string>
     <string name="widget_icon_off">Off</string>
-    <string name="widget_label_text">Quick Search</string>
     <string name="widget_loading_state">Loading widget settings…</string>
     <string name="widget_mic_action_default">Default</string>
     <string name="widget_mic_action_digital_assistant">Assistant</string>
     <string name="widget_mic_action_digital_assistant_limitation">Due to Android\'s limitations, you cannot trigger the assistant unless Google is set as the digital assistant app.</string>
     <string name="widget_mic_action_digital_assistant_link_phrase">digital assistant app</string>
-    <string name="widget_mic_action_off">Off</string>
     <string name="widget_mic_icon">Mic Icon</string>
     <string name="widget_search_icon">Search Icon</string>
     <string name="widget_settings_title">Search Widget</string>
@@ -694,24 +643,18 @@
     <string name="widget_slider_internal_padding_horizontal">Horizontal</string>
     <string name="widget_slider_internal_padding_vertical">Vertical</string>
     <string name="widget_slider_radius">Corner Radius</string>
-    <string name="widget_slider_transparency">Transparency</string>
     <string name="widget_slider_transparency_background">Background</string>
     <string name="widget_slider_transparency_border">Border</string>
     <string name="widget_text_icon_color">Text &amp; Icon Color</string>
     <string name="widget_text_icon_color_black">Black</string>
-    <string name="widget_text_icon_color_theme">Theme</string>
     <string name="widget_text_icon_color_white">White</string>
-    <string name="widget_theme">Theme</string>
     <string name="widget_toggle_show_label">Quick Search Text</string>
     <!-- ============================================================================
          Permissions
          ============================================================================ -->
     <string name="permissions_calendar_desc">Required to search your calendar events.</string>
-    <string name="permissions_calendar_title">Calendar</string>
     <string name="permissions_calling_desc">Required to call your contacts directly without opening the dialer.</string>
-    <string name="permissions_calling_title">Phone</string>
     <string name="permissions_contacts_desc">Required to search your contacts.</string>
-    <string name="permissions_contacts_title">Contacts</string>
     <string name="permissions_files_desc">Required to search through your documents and other files.</string>
     <string name="permissions_files_title">Files Access</string>
     <string name="permissions_granted">Granted</string>
@@ -719,9 +662,7 @@
     <string name="permissions_reminder_dialog_message">If you later change your mind about %1$s permission, you can grant the permission from app settings.</string>
     <string name="permissions_reminder_dialog_title">Permissions Not Granted</string>
     <string name="permissions_screen_subtitle">These permissions unlock additional features. They are optional. Your data stays on your device.</string>
-    <string name="permissions_screen_title">Permissions</string>
     <string name="permissions_usage_desc">Required to show your recently used apps in suggestions.</string>
-    <string name="permissions_usage_title">Usage Access</string>
     <!-- ============================================================================
          Onboarding
          ============================================================================ -->
@@ -729,7 +670,6 @@
     <string name="setup_action_start">Start Searching!</string>
     <string name="setup_final_title">Almost Done!</string>
     <string name="setup_search_engines_subtitle">Enable search engines you need and reorder them as you like.</string>
-    <string name="setup_search_engines_title">Search Engines</string>
     <!-- ============================================================================
          Import
          ============================================================================ -->
@@ -762,7 +702,6 @@
     <string name="search_engine_chatgpt">ChatGPT</string>
     <string name="search_engine_claude">Claude</string>
     <string name="search_engine_custom">Custom Search</string>
-    <string name="search_engine_direct_search">Direct Search</string>
     <string name="search_engine_duckduckgo">DuckDuckGo</string>
     <string name="search_engine_facebook_marketplace">Facebook Marketplace</string>
     <string name="search_engine_gemini">Gemini</string>
@@ -816,7 +755,6 @@
     <string name="clear_query_toggle_desc">Automatically clear old query when the app launches</string>
     <string name="clear_query_toggle_title">Clear Query</string>
     <string name="open_keyboard_toggle_desc">Automatically open keyboard when the app launches</string>
-    <string name="open_keyboard_toggle_title">Open Keyboard</string>
     <string name="recent_queries_toggle_desc">Show your search history in the home screen.</string>
     <string name="recent_queries_toggle_title">Search History</string>
     <string name="top_result_indicator_toggle_desc">Highlight the top result that can be opened with the keyboard.</string>
@@ -840,7 +778,6 @@
     <string name="date_calculator_invalid_date">Invalid or unrecognized date or time</string>
     <string name="date_calculator_toggle_action_desc">Toggle date &amp; time calculator on or off</string>
     <string name="date_calculator_toggle_desc">Usage examples</string>
-    <string name="date_calculator_toggle_title">Date &amp; Time Calculator</string>
     <string name="unit_converter_category_angle">Angle</string>
     <string name="unit_converter_category_area">Area</string>
     <string name="unit_converter_category_data">Data</string>
@@ -858,8 +795,6 @@
     <string name="unit_converter_info_title">Unit Converter</string>
     <string name="unit_converter_invalid_or_unsupported_query">Invalid or unsupported conversion</string>
     <string name="unit_converter_toggle_action_desc">Toggle unit converter on or off</string>
-    <string name="unit_converter_toggle_desc">Usage examples</string>
-    <string name="unit_converter_toggle_title">Unit Converter</string>
     <string name="search_hint_currency_converter">Convert Currencies e.g. 100 USD to INR</string>
     <string name="search_hint_word_clock">Enter any place to get their local time</string>
     <string name="search_hint_dictionary">Enter any word</string>
@@ -871,16 +806,12 @@
     <string name="currency_converter_requires_gemini_key">Requires Gemini API key</string>
     <string name="word_clock_toggle_title">Word Clock</string>
     <string name="word_clock_toggle_desc">Example: Time in Tokyo</string>
-    <string name="word_clock_requires_gemini_key">Requires Gemini API key</string>
     <string name="word_clock_error_not_recognized">Couldn’t resolve that time request. Try a city, country, timezone, or explicit time.</string>
     <string name="dictionary_toggle_title">Dictionary</string>
     <string name="dictionary_toggle_desc">Example: define serendipity</string>
-    <string name="dictionary_requires_gemini_key">Requires Gemini API key</string>
     <string name="search_in_dictionary">Search in Dictionary</string>
     <string name="dictionary_example_label">Example: %1$s</string>
     <string name="dictionary_synonyms_label">Synonyms: %1$s</string>
-    <string name="settings_tools_gemini_api_title">Setup Gemini API</string>
-    <string name="settings_tools_gemini_api_desc">Setting up Gemini API key will enable more tools.</string>
     <!-- ============================================================================
          No Results
          ============================================================================ -->

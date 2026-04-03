@@ -38,11 +38,11 @@ fun PermissionsSettings(
         PermissionsCardSection(
             texts =
                 PermissionCardTexts(
-                    usageTitle = stringResource(R.string.settings_usage_access_title),
+                    usageTitle = stringResource(R.string.settings_shortcut_usage_access),
                     usageDescription = stringResource(R.string.permissions_usage_desc),
-                    contactsTitle = stringResource(R.string.settings_contacts_permission_title),
+                    contactsTitle = stringResource(R.string.contacts_action_button_contacts),
                     contactsDescription = stringResource(R.string.permissions_contacts_desc),
-                    filesTitle = stringResource(R.string.settings_files_permission_title),
+                    filesTitle = stringResource(R.string.section_files),
                     filesDescription = stringResource(R.string.permissions_files_desc),
                     calendarTitle = stringResource(R.string.settings_calendar_permission_title),
                     calendarDescription = stringResource(R.string.permissions_calendar_desc),

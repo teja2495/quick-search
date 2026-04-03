@@ -52,8 +52,8 @@ object ToolSettingsRegistry {
             ToolSettingDefinition(
                 id = ToolSettingId.UNIT_CONVERTER,
                 aliasFeatureId = AliasHandler.UNIT_CONVERTER_ALIAS_FEATURE_ID,
-                titleResId = R.string.unit_converter_toggle_title,
-                defaultDescriptionResId = R.string.unit_converter_toggle_desc,
+                titleResId = R.string.unit_converter_info_title,
+                defaultDescriptionResId = R.string.date_calculator_toggle_desc,
                 icon = Icons.Rounded.Straighten,
                 toggleKey = AppSettingsToggleKey.UNIT_CONVERTER,
                 infoDestination = SettingsDetailType.UNIT_CONVERTER_INFO,
@@ -61,7 +61,7 @@ object ToolSettingsRegistry {
             ToolSettingDefinition(
                 id = ToolSettingId.DATE_CALCULATOR,
                 aliasFeatureId = AliasHandler.DATE_CALCULATOR_ALIAS_FEATURE_ID,
-                titleResId = R.string.date_calculator_toggle_title,
+                titleResId = R.string.date_calculator_info_title,
                 defaultDescriptionResId = R.string.date_calculator_toggle_desc,
                 icon = Icons.Rounded.CalendarMonth,
                 toggleKey = AppSettingsToggleKey.DATE_CALCULATOR,
@@ -82,7 +82,7 @@ object ToolSettingsRegistry {
                 titleResId = R.string.word_clock_toggle_title,
                 defaultDescriptionResId = R.string.word_clock_toggle_desc,
                 requiresGeminiApiKey = true,
-                requiresGeminiDescriptionResId = R.string.word_clock_requires_gemini_key,
+                requiresGeminiDescriptionResId = R.string.currency_converter_requires_gemini_key,
                 icon = Icons.Rounded.AccessTime,
             ),
             ToolSettingDefinition(
@@ -91,7 +91,7 @@ object ToolSettingsRegistry {
                 titleResId = R.string.dictionary_toggle_title,
                 defaultDescriptionResId = R.string.dictionary_toggle_desc,
                 requiresGeminiApiKey = true,
-                requiresGeminiDescriptionResId = R.string.dictionary_requires_gemini_key,
+                requiresGeminiDescriptionResId = R.string.currency_converter_requires_gemini_key,
                 icon = Icons.AutoMirrored.Rounded.MenuBook,
                 toggleKey = AppSettingsToggleKey.DICTIONARY,
             ),

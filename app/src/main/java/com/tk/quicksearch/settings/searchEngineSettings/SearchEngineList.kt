@@ -281,7 +281,7 @@ fun SearchEngineListCard(
                 }
             val collapsedHeaderTextRes =
                 if (isDisabledSectionExpanded) {
-                    R.string.settings_search_engines_more_title
+                    R.string.action_expand_more
                 } else {
                     R.string.settings_search_engines_more_search_engines
                 }

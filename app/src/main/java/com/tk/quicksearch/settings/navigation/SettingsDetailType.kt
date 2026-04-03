@@ -39,7 +39,7 @@ internal object SettingsDestinationRegistry {
         mapOf(
             SettingsDetailType.SEARCH_ENGINES to
                 SettingsDestinationSpec(
-                    titleResId = R.string.settings_search_engines_title,
+                    titleResId = R.string.settings_app_shortcuts_filter_search_engines,
                     level = 1,
                 ),
             SettingsDetailType.EXCLUDED_ITEMS to
@@ -73,7 +73,7 @@ internal object SettingsDestinationRegistry {
                 ),
             SettingsDetailType.CALENDAR_EVENTS to
                 SettingsDestinationSpec(
-                    titleResId = R.string.settings_calendar_events_title,
+                    titleResId = R.string.section_calendar,
                     level = 2,
                     fallbackBackDestination = SettingsDetailType.SEARCH_RESULTS,
                 ),
@@ -116,7 +116,7 @@ internal object SettingsDestinationRegistry {
                 ),
             SettingsDetailType.GEMINI_API_CONFIG to
                 SettingsDestinationSpec(
-                    titleResId = R.string.settings_gemini_api_config_title,
+                    titleResId = R.string.settings_backup_export_option_gemini_title,
                     level = 3,
                     preferSourceBackDestination = true,
                 ),

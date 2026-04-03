@@ -32,7 +32,7 @@ fun MoreOptionsSettings(
             ),
             ToggleItem(
                 key = AppSettingsToggleKey.OPEN_KEYBOARD,
-                titleRes = R.string.open_keyboard_toggle_title,
+                titleRes = R.string.action_open_keyboard,
                 subtitleRes = R.string.open_keyboard_toggle_desc,
                 leadingIcon = Icons.Rounded.Keyboard,
             ),

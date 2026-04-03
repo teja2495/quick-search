@@ -77,7 +77,7 @@ fun SettingsExportDialog(
                     )
                 }
                 SettingsCheckboxRow(
-                    title = stringResource(R.string.settings_backup_export_option_shortcuts_title),
+                    title = stringResource(R.string.section_app_shortcuts),
                     description = "",
                     checked = selectionState.includeShortcuts,
                     onCheckedChange = {

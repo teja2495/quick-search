@@ -36,7 +36,7 @@ class VoiceSearchHandler(
         val voiceIntent =
             Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                putExtra(RecognizerIntent.EXTRA_PROMPT, context.getString(R.string.widget_label_text))
+                putExtra(RecognizerIntent.EXTRA_PROMPT, context.getString(R.string.app_name))
             }
         try {
             voiceInputLauncher.launch(voiceIntent)

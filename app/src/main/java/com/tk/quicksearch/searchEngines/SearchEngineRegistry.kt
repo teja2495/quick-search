@@ -53,7 +53,7 @@ object SearchEngineRegistry {
             SearchEngineDefinition(
                 engine = SearchEngine.DIRECT_SEARCH,
                 drawableResId = R.drawable.direct_search,
-                contentDescriptionResId = R.string.search_engine_direct_search,
+                contentDescriptionResId = R.string.settings_direct_search_setup_nav_title,
                 urlTemplate = "",
                 defaultShortcutCode = "dsh",
             ),

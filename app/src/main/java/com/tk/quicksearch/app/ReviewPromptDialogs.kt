@@ -99,7 +99,7 @@ fun SendFeedbackDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.dialog_close))
+                Text(text = stringResource(R.string.desc_close))
             }
         },
     )

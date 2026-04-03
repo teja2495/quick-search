@@ -87,7 +87,7 @@ fun SearchEngines(
 
     if (showTitle) {
         Text(
-            text = stringResource(R.string.settings_search_engines_title),
+            text = stringResource(R.string.settings_app_shortcuts_filter_search_engines),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding),

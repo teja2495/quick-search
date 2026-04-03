@@ -93,7 +93,7 @@ fun WidgetPreviewCard(
                 ) {
                     if (previewState.showLabel) {
                         Text(
-                            text = stringResource(R.string.widget_label_text),
+                            text = stringResource(R.string.app_name),
                             color = colors.textIcon,
                             style = MaterialTheme.typography.titleMedium,
                         )
@@ -132,7 +132,7 @@ fun WidgetPreviewCard(
                     }
                     if (widgetVariant == WidgetVariant.STANDARD && previewState.showLabel) {
                         Text(
-                            text = stringResource(R.string.widget_label_text),
+                            text = stringResource(R.string.app_name),
                             modifier =
                                 Modifier.padding(
                                     start =

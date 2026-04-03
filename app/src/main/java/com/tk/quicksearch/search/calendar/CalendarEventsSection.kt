@@ -286,9 +286,9 @@ private fun CalendarEventRow(
                     CalendarMenuItem(
                         textResId =
                             if (isPinned) {
-                                R.string.action_unpin_generic
+                                R.string.action_unpin_app
                             } else {
-                                R.string.action_pin_generic
+                                R.string.action_pin_app
                             },
                         icon = {
                             Icon(

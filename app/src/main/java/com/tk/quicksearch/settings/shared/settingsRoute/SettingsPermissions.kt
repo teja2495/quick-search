@@ -228,9 +228,9 @@ fun rememberSectionToggleHandler(
         val permissionType =
             when (permissionRequirement) {
                 SearchSectionPermissionRequirement.CONTACTS ->
-                    context.getString(R.string.settings_contacts_permission_title)
+                    context.getString(R.string.contacts_action_button_contacts)
                 SearchSectionPermissionRequirement.FILES ->
-                    context.getString(R.string.settings_files_permission_title)
+                    context.getString(R.string.section_files)
                 SearchSectionPermissionRequirement.CALENDAR ->
                     context.getString(R.string.settings_calendar_permission_title)
                 null -> context.getString(R.string.settings_permissions_title)

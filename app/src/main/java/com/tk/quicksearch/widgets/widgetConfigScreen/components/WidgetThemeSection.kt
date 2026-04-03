@@ -79,7 +79,7 @@ fun WidgetThemeSection(
             Arrangement.spacedBy(WidgetConfigConstants.COLOR_SECTION_SPACING),
     ) {
         Text(
-            text = stringResource(R.string.widget_theme),
+            text = stringResource(R.string.settings_app_theme_title),
             style = MaterialTheme.typography.titleSmall,
         )
         ThemeChoiceSegmentedButtonRow(
@@ -130,7 +130,7 @@ fun WidgetThemeSection(
                     },
                 selected = isCustomSelected,
                 onClick = { showCustomColorDialog = true },
-                label = stringResource(R.string.widget_background_color_custom),
+                label = stringResource(R.string.settings_overlay_source_custom),
                 icon = {
                     Icon(
                         imageVector = Icons.Rounded.Edit,
