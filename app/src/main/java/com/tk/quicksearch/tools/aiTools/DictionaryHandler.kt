@@ -3,8 +3,8 @@ package com.tk.quicksearch.tools.aiTools
 import android.content.Context
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.UserAppPreferences
-import com.tk.quicksearch.tools.directSearch.DirectSearchClient
-import com.tk.quicksearch.tools.directSearch.GeminiModelCatalog
+import com.tk.quicksearch.tools.directSearch.DirectSearchLlmProviderRegistry
+import com.tk.quicksearch.tools.directSearch.LlmRequest
 import org.json.JSONObject
 
 class DictionaryNotRecognizedException : Exception()
@@ -53,7 +53,9 @@ class DictionaryHandler(
     suspend fun define(
             confirmed: ConfirmedDictionaryQuery,
     ): Result<Pair<DictionaryModelResult, String>> {
-        val apiKey = userPreferences.getGeminiApiKey()?.trim().orEmpty()
+        val providerId = userPreferences.getDirectSearchProviderId()
+        val provider = DirectSearchLlmProviderRegistry.get(providerId, context)
+        val apiKey = userPreferences.getLlmApiKey(providerId)?.trim().orEmpty()
         if (apiKey.isEmpty()) {
             return Result.failure(
                     IllegalStateException(context.getString(R.string.direct_search_error_no_key)),
@@ -61,21 +63,25 @@ class DictionaryHandler(
         }
         val modelId =
                 userPreferences.getCurrencyConverterModel().trim().ifBlank {
-                    GeminiModelCatalog.DEFAULT_MODEL_ID
+                    provider.defaultModelId
                 }
-        val client = DirectSearchClient(apiKey, context)
         val userMessage =
                 "Provide a dictionary entry for: ${confirmed.term}. " +
                         "Original user query: ${confirmed.originalQuery}"
         val result =
-                client.fetchAnswer(
-                        query = userMessage,
-                        personalContext = null,
-                        modelId = modelId,
-                        useGroundingWithGoogleSearch = false,
-                        useSystemInstruction = true,
-                        systemInstruction = DICTIONARY_SYSTEM_INSTRUCTION,
-                        responseMimeType = "application/json",
+                provider.fetchAnswer(
+                        apiKey = apiKey,
+                        context = context,
+                        request =
+                                LlmRequest(
+                                        query = userMessage,
+                                        personalContext = null,
+                                        modelId = modelId,
+                                        useGroundingWithGoogleSearch = false,
+                                        useSystemInstruction = true,
+                                        systemInstruction = DICTIONARY_SYSTEM_INSTRUCTION,
+                                        responseMimeType = "application/json",
+                                ),
                 )
         return result.mapCatching { text ->
             val parsed = parseModelResponse(text).getOrElse { throw it }
