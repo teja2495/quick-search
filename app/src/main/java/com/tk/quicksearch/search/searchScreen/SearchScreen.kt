@@ -31,6 +31,7 @@ import com.tk.quicksearch.search.appSettings.AppSettingResult
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.BackgroundSource
 // import com.tk.quicksearch.search.searchScreen.SearchEngineOnboardingOverlay
@@ -287,6 +288,18 @@ fun SearchScreen(
 
     val context = LocalContext.current
     val isSystemDarkTheme = isSystemInDarkTheme()
+    val effectiveBackgroundSource =
+        if (stateResult.useMonoThemeFallback) {
+            BackgroundSource.THEME
+        } else {
+            state.backgroundSource
+        }
+    val effectiveAppTheme =
+        if (stateResult.useMonoThemeFallback) {
+            AppTheme.MONOCHROME
+        } else {
+            state.appTheme
+        }
     val useDarkSystemBarsFromTheme =
             when (state.appThemeMode) {
                 AppThemeMode.LIGHT -> false
@@ -341,21 +354,23 @@ fun SearchScreen(
                 wallpaperBlurRadius = state.wallpaperBlurRadius,
                 backgroundTransitionDurationMillis =
                     if (state.isInitializing &&
-                        state.backgroundSource != com.tk.quicksearch.search.core.BackgroundSource.THEME
+                        effectiveBackgroundSource != com.tk.quicksearch.search.core.BackgroundSource.THEME
                     ) {
                         STARTUP_BACKGROUND_TRANSITION_DURATION_MS
                     } else {
                         com.tk.quicksearch.shared.ui.theme.DesignTokens.WallpaperFadeInDuration + 120
                     },
                 fallbackBackgroundAlpha =
-                    if (state.backgroundSource == com.tk.quicksearch.search.core.BackgroundSource.THEME) {
+                    if (stateResult.useMonoThemeFallback) {
+                        1f
+                    } else if (effectiveBackgroundSource == com.tk.quicksearch.search.core.BackgroundSource.THEME) {
                         ThemeModeFallbackBackgroundAlpha
                     } else {
                         1f
                     },
                 useGradientFallback =
-                    state.backgroundSource == com.tk.quicksearch.search.core.BackgroundSource.THEME || stateResult.useMonoThemeFallback,
-                appTheme = state.appTheme,
+                    effectiveBackgroundSource == com.tk.quicksearch.search.core.BackgroundSource.THEME || stateResult.useMonoThemeFallback,
+                appTheme = effectiveAppTheme,
                 overlayThemeIntensity = state.overlayThemeIntensity,
             )
         }

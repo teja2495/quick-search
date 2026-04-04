@@ -51,7 +51,9 @@ internal fun rememberWallpaperPermissionController(
     var wallpaperButtonHasPermission by
         remember { mutableStateOf(PermissionHelper.checkFilesPermission(context)) }
 
-    suspend fun tryFetchWallpaperWithFilesPermission() {
+    suspend fun tryFetchWallpaperWithFilesPermission(
+        showFallbackDialogOnSecurityError: Boolean = true,
+    ) {
         when (WallpaperUtils.getWallpaperBitmapResult(context)) {
             is WallpaperUtils.WallpaperLoadResult.Success -> {
                 requiresImagePermissionAfterSecurityError = false
@@ -64,7 +66,9 @@ internal fun rememberWallpaperPermissionController(
                 requiresImagePermissionAfterSecurityError = true
                 wallpaperButtonHasPermission = false
                 onSetWallpaperAvailable(false)
-                showWallpaperFallbackDialog = true
+                if (showFallbackDialogOnSecurityError) {
+                    showWallpaperFallbackDialog = true
+                }
             }
 
             WallpaperUtils.WallpaperLoadResult.PermissionRequired -> {
@@ -139,9 +143,17 @@ internal fun rememberWallpaperPermissionController(
         hasWallpaperPermission = wallpaperButtonHasPermission,
         onRequestPermission = onRequestWallpaperPermission,
         onRefreshPermissionState = {
-            wallpaperButtonHasPermission =
-                PermissionHelper.checkFilesPermission(context) &&
-                    !requiresImagePermissionAfterSecurityError
+            val filesPermissionGranted = PermissionHelper.checkFilesPermission(context)
+            if (!filesPermissionGranted || requiresImagePermissionAfterSecurityError) {
+                wallpaperButtonHasPermission = false
+                onSetWallpaperAvailable(false)
+            } else {
+                scope.launch {
+                    tryFetchWallpaperWithFilesPermission(
+                        showFallbackDialogOnSecurityError = false,
+                    )
+                }
+            }
         },
         showFallbackDialog = showWallpaperFallbackDialog,
         onDismissFallbackDialog = {

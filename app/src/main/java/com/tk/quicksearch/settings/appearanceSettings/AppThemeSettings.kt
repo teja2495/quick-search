@@ -352,7 +352,8 @@ fun WallpaperCard(
                 value = WallpaperUtils.getOverlayCustomImageBitmap(context, customImageUri)
             }
 
-    val isWallpaperSourceSelected = backgroundSource == BackgroundSource.SYSTEM_WALLPAPER
+    val isWallpaperSourceSelected =
+            backgroundSource == BackgroundSource.SYSTEM_WALLPAPER && hasWallpaperPermission
     val isCustomSourceSelected = backgroundSource == BackgroundSource.CUSTOM_IMAGE
 
     val wallpaperAlphaDisplayValue = (wallpaperBackgroundAlpha / 0.7f).coerceIn(0f, 1f)
@@ -396,7 +397,30 @@ fun WallpaperCard(
                         },
                         label = stringResource(R.string.settings_overlay_source_wallpaper),
                 ) {
-                    if (wallpaperPreviewBitmap != null) {
+                    if (!hasWallpaperPermission) {
+                        Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            Icon(
+                                    imageVector = Icons.Rounded.Info,
+                                    contentDescription =
+                                            stringResource(
+                                                    R.string.permission_required_title,
+                                            ),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(14.dp),
+                            )
+                            Text(
+                                    text =
+                                            stringResource(
+                                                    R.string.settings_overlay_source_needs_permission,
+                                            ),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    } else if (wallpaperPreviewBitmap != null) {
                         Box(modifier = Modifier.fillMaxSize()) {
                             Image(
                                     bitmap = wallpaperPreviewBitmap!!,
@@ -431,29 +455,6 @@ fun WallpaperCard(
                                                         ),
                                 )
                             }
-                        }
-                    } else if (!hasWallpaperPermission) {
-                        Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            Icon(
-                                    imageVector = Icons.Rounded.Info,
-                                    contentDescription =
-                                            stringResource(
-                                                    R.string.permission_required_title,
-                                            ),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(14.dp),
-                            )
-                            Text(
-                                    text =
-                                            stringResource(
-                                                    R.string.settings_overlay_source_needs_permission,
-                                            ),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
                         }
                     }
                 }

@@ -98,9 +98,6 @@ internal fun SearchScreenWallpaperLogic(
             // Render quickly from cache/preview, then always fetch fresh system wallpaper.
             WallpaperUtils.getCachedWallpaperBitmap()?.asImageBitmap()?.let {
                 value = it
-                if (!isOverlayPresentation) {
-                    onWallpaperLoaded?.invoke()
-                }
             } ?: run {
                 if (shouldUseStartupPreview) {
                     WallpaperUtils.getStartupBackgroundPreviewBitmap(
@@ -108,9 +105,6 @@ internal fun SearchScreenWallpaperLogic(
                         previewPath = state.startupBackgroundPreviewPath,
                     )?.asImageBitmap()?.let {
                         value = it
-                        if (!isOverlayPresentation) {
-                            onWallpaperLoaded?.invoke()
-                        }
                     }
                 }
             }
@@ -124,7 +118,8 @@ internal fun SearchScreenWallpaperLogic(
                 }
 
                 else -> {
-                    // Keep cache/preview if available; otherwise leave null.
+                    // Force mono/theme fallback when system wallpaper cannot be loaded.
+                    value = null
                 }
             }
         }
@@ -160,12 +155,20 @@ internal fun SearchScreenWallpaperLogic(
             BackgroundSource.CUSTOM_IMAGE -> sourceCustomBitmap
             BackgroundSource.THEME -> null
         }
+    val systemWallpaperAvailableForRendering =
+        if (state.backgroundSource == BackgroundSource.SYSTEM_WALLPAPER) {
+            state.hasWallpaperPermission && state.wallpaperAvailable
+        } else {
+            true
+        }
     val useImageBackground =
-        state.backgroundSource != BackgroundSource.THEME && imageBitmap != null
+        state.backgroundSource != BackgroundSource.THEME &&
+            imageBitmap != null &&
+            systemWallpaperAvailableForRendering
     val useMonoThemeFallback =
         !isOverlayPresentation &&
             state.backgroundSource != BackgroundSource.THEME &&
-            imageBitmap == null
+            !useImageBackground
 
     return Triple(imageBitmap?.value, useImageBackground, useMonoThemeFallback)
 }

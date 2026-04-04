@@ -329,7 +329,19 @@ internal fun SearchScreenStateManagement(
 
     val effectiveStateForCards =
         state.copy(
-            showWallpaperBackground = state.backgroundSource != BackgroundSource.THEME,
+            showWallpaperBackground = useImageBackground,
+            backgroundSource =
+                if (useMonoThemeFallback) {
+                    BackgroundSource.THEME
+                } else {
+                    state.backgroundSource
+                },
+            appTheme =
+                if (useMonoThemeFallback) {
+                    AppTheme.MONOCHROME
+                } else {
+                    state.appTheme
+                },
         )
 
     val sectionParams =

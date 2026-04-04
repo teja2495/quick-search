@@ -233,7 +233,11 @@ object WallpaperUtils {
             val sourceBitmap =
                 when (backgroundSource) {
                     BackgroundSource.SYSTEM_WALLPAPER ->
-                        cachedBitmap ?: loadWallpaperBitmap(context)
+                        cachedBitmap
+                            ?: when (val wallpaperResult = getWallpaperBitmapResult(context)) {
+                                is WallpaperLoadResult.Success -> wallpaperResult.bitmap
+                                else -> null
+                            }
                     BackgroundSource.CUSTOM_IMAGE -> {
                         val normalized = customImageUri?.trim()?.takeIf { it.isNotEmpty() }
                         if (normalized == null) {
@@ -270,11 +274,15 @@ object WallpaperUtils {
         }
 
     private fun loadWallpaperBitmap(context: Context): Bitmap? {
-        return runCatching {
+        return try {
             val wallpaperManager = WallpaperManager.getInstance(context)
             val wallpaperDrawable = wallpaperManager.drawable
             wallpaperDrawable?.toBitmap()
-        }.getOrNull()
+        } catch (exception: SecurityException) {
+            throw exception
+        } catch (_: Exception) {
+            null
+        }
     }
 
     private suspend fun getWallpaperAppearance(context: Context): ImageAppearance? {
