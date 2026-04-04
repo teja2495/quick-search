@@ -2,6 +2,10 @@
 
 Use this checklist when adding a **new built-in** search engine under `searchEngines/`.
 
+## Before you start
+
+Read `AGENTS.md` in the repo root for the full architecture playbook (state management, naming conventions, design system, high-risk files). The steps below assume you have read it.
+
 ## Scope
 
 This guide is for adding a `SearchEngine` enum-backed engine (not user-created custom engines from settings).

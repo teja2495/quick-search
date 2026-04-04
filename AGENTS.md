@@ -185,7 +185,22 @@ Use it as the primary implementation playbook for building new features and upda
 - Folder names should be lowerCamelCase.
 - If a file grows beyond ~700 lines, split it into focused files rather than adding more to the same file.
 
-## 10) Standard Implementation Workflows
+## 10) Feature-Specific Implementation Guides
+
+For the task types below, read the corresponding guide file **before** starting implementation. Each guide has a step-by-step checklist, high-risk file callouts, and validation criteria tailored to that feature area.
+
+| Task | Guide file |
+|------|-----------|
+| Add a new built-in tool (calculator, converter, etc.) | `app/src/main/java/com/tk/quicksearch/tools/new-tool.md` |
+| Add a new app setting row (toggle or navigate) | `app/src/main/java/com/tk/quicksearch/search/appSettings/new-app-setting.md` |
+| Add a new search/app preference | `app/src/main/java/com/tk/quicksearch/search/appSettings/new-app-setting.md` or `app/src/main/java/com/tk/quicksearch/settings/new-setting.md` |
+| Add a new search result type / section | `app/src/main/java/com/tk/quicksearch/search/new-search-type.md` |
+| Add a new built-in search engine | `app/src/main/java/com/tk/quicksearch/searchEngines/new-search-engine.md` |
+| Add a new general app setting (preferences/UI) | `app/src/main/java/com/tk/quicksearch/settings/new-setting.md` |
+
+Always read the guide, then follow the steps in order.
+
+## 11) Standard Implementation Workflows
 
 ### Add or update a search section
 
@@ -212,20 +227,20 @@ Use it as the primary implementation playbook for building new features and upda
 3. Verify wallpaper mode and one-handed mode behavior
 4. Verify overlay mode if shared rendering path is used
 
-## 11) Performance Guardrails
+## 12) Performance Guardrails
 
 - Keep heavy work off main thread.
 - Prefer debounced/reused search pipelines over new parallel ad-hoc searches.
 - Reuse caches where existing architecture already supports them.
 - For startup-sensitive logic, avoid adding blocking work to early initialization.
 
-## 12) Security and Privacy Constraints
+## 13) Security and Privacy Constraints
 
 - Keep local-first behavior; no unsolicited analytics/tracking additions.
 - Sensitive values (such as API keys) must use existing encrypted storage patterns.
 - Preserve intent safety and permission checks around external app integrations.
 
-## 13) Testing and Validation Checklist (Minimum)
+## 14) Testing and Validation Checklist (Minimum)
 
 - Build compiles after changes.
 - Search behavior verified for:
@@ -237,7 +252,7 @@ Use it as the primary implementation playbook for building new features and upda
 - Overlay mode sanity check if shared UI/state touched.
 - Settings persistence verified when preferences are changed.
 
-## 14) High-Risk Files (Edit Carefully)
+## 15) High-Risk Files (Edit Carefully)
 
 - `search/core/SearchViewModel.kt`
 - `search/core/SearchModels.kt`
@@ -249,7 +264,7 @@ Use it as the primary implementation playbook for building new features and upda
 
 When touching these files, keep changes minimal, localized, and regression-aware.
 
-## 15) Agent Do/Do Not
+## 16) Agent Do/Do Not
 
 ### Do
 
@@ -269,7 +284,7 @@ When touching these files, keep changes minimal, localized, and regression-aware
 - Do not mix unrelated refactors into feature changes.
 - Do not introduce unnecessary complexity or speculative architecture.
 
-## 16) Useful File Index
+## 17) Useful File Index
 
 - `search/core/SearchModels.kt`
 - `search/core/SearchStateModels.kt`

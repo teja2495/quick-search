@@ -3,6 +3,10 @@
 This document is for AI coding agents.
 Use it when implementing a new built-in tool in `tools/` that participates in search/direct-search flows.
 
+## Before you start
+
+Read `AGENTS.md` in the repo root for the full architecture playbook (state management, naming conventions, design system, high-risk files). The steps below assume you have read it.
+
 ## Agent contract
 
 - Follow existing architecture and naming patterns.

@@ -1,7 +1,7 @@
 # AI Agent Guide: Add a New Search Setting
 
 This document is for AI coding agents working in `search/`.
-Follow this sequence exactly to add a new setting safely.
+Read `AGENTS.md` in the repo root for the full architecture playbook before starting. Follow this sequence exactly to add a new setting safely.
 
 ## Scope and constraints
 
