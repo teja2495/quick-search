@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.search.core.IconPackInfo
+import com.tk.quicksearch.search.data.UserAppPreferences
 import org.xmlpull.v1.XmlPullParser
 import java.io.InputStream
 import java.util.Locale
@@ -135,6 +136,10 @@ object IconPackManager {
             val drawable = loadDrawable(resources, iconPackPackage, drawableName) ?: return null
             return drawable.toBitmapSafely()
         }
+
+        val shouldMaskUnsupportedIcons =
+            UserAppPreferences(context).isIconPackUnsupportedIconMaskEnabled()
+        if (!shouldMaskUnsupportedIcons) return null
 
         return buildMaskedFallbackIcon(
             context = context,

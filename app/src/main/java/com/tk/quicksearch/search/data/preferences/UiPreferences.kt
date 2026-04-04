@@ -257,6 +257,13 @@ class UiPreferences(
         editor.apply()
     }
 
+    fun isIconPackUnsupportedIconMaskEnabled(): Boolean =
+            getBooleanPref(UiPreferences.KEY_ICON_PACK_UNSUPPORTED_ICON_MASK_ENABLED, false)
+
+    fun setIconPackUnsupportedIconMaskEnabled(enabled: Boolean) {
+        setBooleanPref(UiPreferences.KEY_ICON_PACK_UNSUPPORTED_ICON_MASK_ENABLED, enabled)
+    }
+
     fun getAppIconShape(): AppIconShape {
         val saved = prefs.getString(KEY_APP_ICON_SHAPE, null)
         return saved?.let { runCatching { AppIconShape.valueOf(it) }.getOrNull() }
@@ -689,6 +696,8 @@ class UiPreferences(
         const val KEY_OVERLAY_BACKGROUND_SOURCE = "overlay_background_source" // Legacy only.
         const val KEY_OVERLAY_CUSTOM_IMAGE_URI = "overlay_custom_image_uri" // Legacy only.
         const val KEY_SELECTED_ICON_PACK = "selected_icon_pack"
+        const val KEY_ICON_PACK_UNSUPPORTED_ICON_MASK_ENABLED =
+                "icon_pack_unsupported_icon_mask_enabled"
         const val KEY_APP_ICON_SHAPE = "app_icon_shape"
         const val KEY_LAUNCHER_APP_ICON = "launcher_app_icon"
         const val KEY_THEMED_ICONS_ENABLED = "themed_icons_enabled"

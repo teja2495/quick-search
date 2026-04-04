@@ -212,6 +212,7 @@ data class SearchUiConfigState(
         val appSuggestionsEnabled: Boolean = true,
         val selectedIconPackPackage: String? = null,
         val availableIconPacks: List<IconPackInfo> = emptyList(),
+        val maskUnsupportedIconPackIcons: Boolean = false,
         // File display preferences
         val enabledFileTypes: Set<FileType> = FileType.values().toSet(),
         val showFolders: Boolean = false,

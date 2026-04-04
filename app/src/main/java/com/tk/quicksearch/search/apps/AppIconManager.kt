@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.search.common.UserHandleUtils
+import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.managers.IconPackManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -98,11 +99,15 @@ fun rememberAppIcon(
 ): AppIconResult {
     val context = LocalContext.current
     val densityDpi = context.resources.displayMetrics.densityDpi
+    val maskUnsupportedIconPackIcons =
+        if (iconPackPackage == null) false
+        else UserAppPreferences(context).isIconPackUnsupportedIconMaskEnabled()
     val cacheEpoch = appIconCacheEpoch.get()
     val cacheKey =
         buildCacheKey(
             packageName = packageName,
             iconPackPackage = iconPackPackage,
+            maskUnsupportedIconPackIcons = maskUnsupportedIconPackIcons,
             userHandleId = userHandleId,
             cacheEpoch = cacheEpoch,
             forceCircularMask = forceCircularMask,
@@ -279,6 +284,9 @@ suspend fun prefetchAppIcons(
     maxCount: Int = 30,
 ) {
     if (packageNames.isEmpty()) return
+    val maskUnsupportedIconPackIcons =
+        if (iconPackPackage == null) false
+        else UserAppPreferences(context).isIconPackUnsupportedIconMaskEnabled()
 
     val packagesToLoad =
         packageNames
@@ -286,7 +294,14 @@ suspend fun prefetchAppIcons(
             .map { it.trim() }
             .filter { it.isNotEmpty() }
             .distinct()
-            .map { pkg -> pkg to buildCacheKey(pkg, iconPackPackage) }
+            .map { pkg ->
+                pkg to
+                    buildCacheKey(
+                        packageName = pkg,
+                        iconPackPackage = iconPackPackage,
+                        maskUnsupportedIconPackIcons = maskUnsupportedIconPackIcons,
+                    )
+            }
             .filter { (_, cacheKey) -> AppIconCache.get(cacheKey) == null }
             .take(maxCount)
             .toList()
@@ -333,12 +348,14 @@ suspend fun prefetchAppIcons(
 private fun buildCacheKey(
     packageName: String,
     iconPackPackage: String?,
+    maskUnsupportedIconPackIcons: Boolean = false,
     userHandleId: Int? = null,
     cacheEpoch: Long = appIconCacheEpoch.get(),
     forceCircularMask: Boolean = false,
 ): String {
     val prefix = iconPackPackage ?: "system"
+    val maskSuffix = if (iconPackPackage != null) ":mask:$maskUnsupportedIconPackIcons" else ""
     val suffix = userHandleId?.let { ":work:$it" } ?: ""
     val shapeSuffix = if (forceCircularMask) ":circle" else ""
-    return "$cacheEpoch:$prefix:$packageName$suffix$shapeSuffix"
+    return "$cacheEpoch:$prefix$maskSuffix:$packageName$suffix$shapeSuffix"
 }

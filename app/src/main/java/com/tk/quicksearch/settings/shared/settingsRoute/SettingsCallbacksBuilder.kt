@@ -74,6 +74,7 @@ internal fun buildSettingsScreenCallbacks(
         onSetBackgroundSource = viewModel::setBackgroundSource,
         onPickCustomImage = handlers.onPickCustomImage,
         onSelectIconPack = viewModel::setIconPackPackage,
+        onSetMaskUnsupportedIconPackIcons = viewModel::setIconPackUnsupportedIconMaskEnabled,
         onSearchIconPacks = viewModel::searchIconPacks,
         onRefreshIconPacks = viewModel::refreshIconPacks,
         onToggleAppLabels = viewModel::setShowAppLabels,

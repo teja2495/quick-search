@@ -30,6 +30,7 @@ internal interface SearchPreferencesStateAccess {
     var appIconShape: AppIconShape
     var launcherAppIcon: LauncherAppIcon
     var themedIconsEnabled: Boolean
+    var maskUnsupportedIconPackIcons: Boolean
     var wallpaperBackgroundAlpha: Float
     var wallpaperBlurRadius: Float
     var appTheme: AppTheme
@@ -374,6 +375,16 @@ internal class SearchPreferencesDelegate(
             userPreferences.setThemedIconsEnabled(enabled)
             stateAccess.themedIconsEnabled = enabled
             updateConfigState { it.copy(themedIconsEnabled = enabled) }
+        }
+    }
+
+    fun setIconPackUnsupportedIconMaskEnabled(enabled: Boolean) {
+        scope.launch(Dispatchers.IO) {
+            if (stateAccess.maskUnsupportedIconPackIcons == enabled) return@launch
+            userPreferences.setIconPackUnsupportedIconMaskEnabled(enabled)
+            stateAccess.maskUnsupportedIconPackIcons = enabled
+            updateConfigState { it.copy(maskUnsupportedIconPackIcons = enabled) }
+            com.tk.quicksearch.search.apps.invalidateAppIconCache()
         }
     }
 

@@ -125,6 +125,12 @@ internal class SearchViewModelPreferencesStateAccess(
             state.themedIconsEnabled = value
         }
 
+    override var maskUnsupportedIconPackIcons: Boolean
+        get() = state.maskUnsupportedIconPackIcons
+        set(value) {
+            state.maskUnsupportedIconPackIcons = value
+        }
+
     override var wallpaperBackgroundAlpha: Float
         get() = state.wallpaperBackgroundAlpha
         set(value) {

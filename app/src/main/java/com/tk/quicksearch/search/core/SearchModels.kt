@@ -488,6 +488,7 @@ data class SearchUiState(
         // Icon pack
         val selectedIconPackPackage: String? = null,
         val availableIconPacks: List<IconPackInfo> = emptyList(),
+        val maskUnsupportedIconPackIcons: Boolean = false,
         // App display
         val showAppLabels: Boolean = true,
         val phoneAppGridColumns: Int = com.tk.quicksearch.search.data.preferences.UiPreferences.DEFAULT_PHONE_APP_GRID_COLUMNS,
@@ -695,6 +696,7 @@ fun SearchUiState(
                 appSuggestionsEnabled = config.appSuggestionsEnabled,
                 selectedIconPackPackage = config.selectedIconPackPackage,
                 availableIconPacks = config.availableIconPacks,
+                maskUnsupportedIconPackIcons = config.maskUnsupportedIconPackIcons,
                 enabledFileTypes = config.enabledFileTypes,
                 showFolders = config.showFolders,
                 showSystemFiles = config.showSystemFiles,

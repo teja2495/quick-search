@@ -60,11 +60,13 @@ fun AppearanceSettingsSection(
         onSetSearchEngineCompactRowCount: (Int) -> Unit,
         selectedIconPackPackage: String?,
         availableIconPacks: List<IconPackInfo>,
+        maskUnsupportedIconPackIcons: Boolean,
         showAppLabels: Boolean,
         onToggleAppLabels: (Boolean) -> Unit,
         phoneAppGridColumns: Int = com.tk.quicksearch.search.data.preferences.UiPreferences.DEFAULT_PHONE_APP_GRID_COLUMNS,
         onSetPhoneAppGridColumns: (Int) -> Unit = {},
         onSelectIconPack: (String?) -> Unit,
+        onSetMaskUnsupportedIconPackIcons: (Boolean) -> Unit,
         onRefreshIconPacks: () -> Unit,
         onSearchIconPacks: () -> Unit,
         appIconShape: AppIconShape,
@@ -211,10 +213,12 @@ fun AppearanceSettingsSection(
         IconPackPickerDialog(
                 availableIconPacks = availableIconPacks,
                 selectedPackage = selectedIconPackPackage,
+                maskUnsupportedIcons = maskUnsupportedIconPackIcons,
                 onSelect = { packageName: String? ->
                     onSelectIconPack(packageName)
                     showIconPackDialog = false
                 },
+                onMaskUnsupportedIconsChange = onSetMaskUnsupportedIconPackIcons,
                 onDismiss = { showIconPackDialog = false },
         )
     }

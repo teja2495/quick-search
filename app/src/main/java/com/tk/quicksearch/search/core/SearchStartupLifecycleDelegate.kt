@@ -43,6 +43,7 @@ internal data class SearchStartupPreferencesSnapshot(
     val appIconShape: AppIconShape,
     val launcherAppIcon: LauncherAppIcon,
     val themedIconsEnabled: Boolean,
+    val maskUnsupportedIconPackIcons: Boolean,
     val customImageUri: String?,
 )
 
@@ -61,6 +62,7 @@ internal data class SearchLoadedPreferencesSnapshot(
     val appIconShape: AppIconShape,
     val launcherAppIcon: LauncherAppIcon,
     val themedIconsEnabled: Boolean,
+    val maskUnsupportedIconPackIcons: Boolean,
     val backgroundSource: BackgroundSource,
     val wallpaperBackgroundAlpha: Float,
     val wallpaperBlurRadius: Float,
@@ -452,6 +454,7 @@ internal class SearchStartupLifecycleDelegate(
                     appIconShape = startupSnapshot.appIconShape,
                     launcherAppIcon = startupSnapshot.launcherAppIcon,
                     themedIconsEnabled = startupSnapshot.themedIconsEnabled,
+                    maskUnsupportedIconPackIcons = startupSnapshot.maskUnsupportedIconPackIcons,
                     isInitializing = true,
                 )
             }
@@ -535,6 +538,7 @@ internal class SearchStartupLifecycleDelegate(
                 appIconShape = snapshot.appIconShape,
                 launcherAppIcon = snapshot.launcherAppIcon,
                 themedIconsEnabled = snapshot.themedIconsEnabled,
+                maskUnsupportedIconPackIcons = snapshot.maskUnsupportedIconPackIcons,
                 showWallpaperBackground = snapshot.backgroundSource != BackgroundSource.THEME,
                 wallpaperBackgroundAlpha = snapshot.wallpaperBackgroundAlpha,
                 wallpaperBlurRadius = snapshot.wallpaperBlurRadius,

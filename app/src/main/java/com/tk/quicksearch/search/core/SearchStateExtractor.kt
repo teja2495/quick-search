@@ -141,6 +141,7 @@ internal object SearchStateExtractor {
             appSuggestionsEnabled = s.appSuggestionsEnabled,
             selectedIconPackPackage = s.selectedIconPackPackage,
             availableIconPacks = s.availableIconPacks,
+            maskUnsupportedIconPackIcons = s.maskUnsupportedIconPackIcons,
             enabledFileTypes = s.enabledFileTypes,
             showFolders = s.showFolders,
             showSystemFiles = s.showSystemFiles,

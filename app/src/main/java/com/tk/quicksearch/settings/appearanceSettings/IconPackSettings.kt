@@ -3,6 +3,7 @@ package com.tk.quicksearch.settings.AppearanceSettings
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Android
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,7 +38,9 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 fun IconPackPickerDialog(
         availableIconPacks: List<IconPackInfo>,
         selectedPackage: String?,
+        maskUnsupportedIcons: Boolean,
         onSelect: (String?) -> Unit,
+        onMaskUnsupportedIconsChange: (Boolean) -> Unit,
         onDismiss: () -> Unit,
 ) {
     AppAlertDialog(
@@ -51,10 +55,7 @@ fun IconPackPickerDialog(
             },
             text = {
                 Column(
-                        modifier =
-                                Modifier.fillMaxWidth()
-                                        .heightIn(max = 400.dp)
-                                        .verticalScroll(rememberScrollState()),
+                        modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     if (availableIconPacks.isEmpty()) {
@@ -68,7 +69,10 @@ fun IconPackPickerDialog(
                         )
                     } else {
                         Column(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier =
+                                        Modifier.fillMaxWidth()
+                                                .heightIn(max = 320.dp)
+                                                .verticalScroll(rememberScrollState()),
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             IconPackOptionRow(
@@ -90,6 +94,11 @@ fun IconPackPickerDialog(
                                 )
                             }
                         }
+                        HorizontalDivider(color = AppColors.SettingsDivider)
+                        IconPackMaskToggleRow(
+                                enabled = maskUnsupportedIcons,
+                                onEnabledChange = onMaskUnsupportedIconsChange,
+                        )
                     }
                 }
             },
@@ -101,6 +110,35 @@ fun IconPackPickerDialog(
                 }
             },
     )
+}
+
+@Composable
+private fun IconPackMaskToggleRow(
+        enabled: Boolean,
+        onEnabledChange: (Boolean) -> Unit,
+) {
+    Row(
+            modifier =
+                    Modifier.fillMaxWidth().clickable { onEnabledChange(!enabled) }
+                            .padding(vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Box(modifier = Modifier.offset(x = (-4).dp)) {
+            Checkbox(
+                    checked = enabled,
+                    onCheckedChange = { checked -> onEnabledChange(checked) },
+            )
+        }
+        Text(
+                text = stringResource(R.string.settings_icon_pack_mask_unsupported_icons),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+        )
+    }
 }
 
 @Composable

@@ -692,6 +692,12 @@ class UserAppPreferences(
     fun setSelectedIconPackPackage(packageName: String?) =
             uiPreferences.setSelectedIconPackPackage(packageName)
 
+    fun isIconPackUnsupportedIconMaskEnabled(): Boolean =
+            uiPreferences.isIconPackUnsupportedIconMaskEnabled()
+
+    fun setIconPackUnsupportedIconMaskEnabled(enabled: Boolean) =
+            uiPreferences.setIconPackUnsupportedIconMaskEnabled(enabled)
+
     fun getAppIconShape(): com.tk.quicksearch.search.core.AppIconShape =
             uiPreferences.getAppIconShape()
 

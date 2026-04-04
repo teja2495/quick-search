@@ -318,6 +318,7 @@ internal fun SettingsDetailLevel1Screen(
                             },
                             selectedIconPackPackage = state.selectedIconPackPackage,
                             availableIconPacks = state.availableIconPacks,
+                            maskUnsupportedIconPackIcons = state.maskUnsupportedIconPackIcons,
                             showAppLabels = state.showAppLabels,
                             onToggleAppLabels = { enabled ->
                                 callbacks.onApplySettingsCommand(
@@ -338,6 +339,8 @@ internal fun SettingsDetailLevel1Screen(
                                     SettingsCommand.IconPackPackageSetting(packageName),
                                 )
                             },
+                            onSetMaskUnsupportedIconPackIcons =
+                                    callbacks.onSetMaskUnsupportedIconPackIcons,
                             onRefreshIconPacks = {
                                 callbacks.onRefreshIconPacks()
                                 Toast

@@ -62,6 +62,9 @@ internal interface SearchViewModelPreferencesApi {
     fun setIconPackPackage(packageName: String?) =
         preferencesApiDelegate.setIconPackPackage(packageName)
 
+    fun setIconPackUnsupportedIconMaskEnabled(enabled: Boolean) =
+        preferencesApiDelegate.setIconPackUnsupportedIconMaskEnabled(enabled)
+
     fun setAppIconShape(shape: AppIconShape) = preferencesApiDelegate.setAppIconShape(shape)
 
     fun setLauncherAppIcon(selection: LauncherAppIcon) =
@@ -185,6 +188,9 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
     fun refreshIconPacks() = iconPackHandler.refreshIconPacks()
 
     fun setIconPackPackage(packageName: String?) = preferencesDelegate.setIconPackPackage(packageName)
+
+    fun setIconPackUnsupportedIconMaskEnabled(enabled: Boolean) =
+        preferencesDelegate.setIconPackUnsupportedIconMaskEnabled(enabled)
 
     fun setAppIconShape(shape: AppIconShape) = preferencesDelegate.setAppIconShape(shape)
 

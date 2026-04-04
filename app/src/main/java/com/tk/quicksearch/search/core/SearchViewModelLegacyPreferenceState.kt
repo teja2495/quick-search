@@ -28,6 +28,7 @@ internal class SearchViewModelLegacyPreferenceState(
     var appIconShape: AppIconShape = AppIconShape.DEFAULT
     var launcherAppIcon: LauncherAppIcon = LauncherAppIcon.AUTO
     var themedIconsEnabled: Boolean = false
+    var maskUnsupportedIconPackIcons: Boolean = false
     var wallpaperBackgroundAlpha: Float = UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA
     var wallpaperBlurRadius: Float = UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS
     var appTheme: AppTheme = AppTheme.MONOCHROME
@@ -67,6 +68,7 @@ internal class SearchViewModelLegacyPreferenceState(
         appIconShape = prefCache.appIconShape
         launcherAppIcon = prefCache.launcherAppIcon
         themedIconsEnabled = prefCache.themedIconsEnabled
+        maskUnsupportedIconPackIcons = prefCache.maskUnsupportedIconPackIcons
         wallpaperBackgroundAlpha = prefCache.wallpaperBackgroundAlpha
         wallpaperBlurRadius = prefCache.wallpaperBlurRadius
         appTheme = prefCache.appTheme
