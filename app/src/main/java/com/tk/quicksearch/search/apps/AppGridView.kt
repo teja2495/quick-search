@@ -311,7 +311,6 @@ private fun AppGrid(
                 if (oneHandedMode) chunked.reversed() else chunked
             }
     val firstResultKey = remember(apps) { apps.firstOrNull()?.launchCountKey() }
-    val shouldHighlightTopApp = predictedTarget != null
 
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val horizontalSpacing = DesignTokens.SpacingMedium
@@ -375,7 +374,6 @@ private fun AppGrid(
                         createAppActions = createAppActions,
                         createAppState = createAppState,
                         firstResultKey = firstResultKey,
-                        shouldHighlightTopApp = shouldHighlightTopApp,
                         oneHandedMode = oneHandedMode,
                         appIconShape = appIconShape,
                         themedIconsEnabled = themedIconsEnabled,
@@ -395,7 +393,6 @@ private fun AppGridRow(
         createAppActions: (AppInfo) -> AppActions,
         createAppState: (AppInfo) -> AppState,
         firstResultKey: String?,
-        shouldHighlightTopApp: Boolean,
         oneHandedMode: Boolean,
         appIconShape: AppIconShape,
         themedIconsEnabled: Boolean = true,
@@ -415,7 +412,7 @@ private fun AppGridRow(
                         appActions = createAppActions(app),
                         appState = createAppState(app),
                         iconPackPackage = iconPackPackage,
-                        isPredicted = shouldHighlightTopApp && app.launchCountKey() == firstResultKey,
+                        isPredicted = app.launchCountKey() == firstResultKey,
                         oneHandedMode = oneHandedMode,
                         appIconShape = appIconShape,
                         themedIconsEnabled = themedIconsEnabled,

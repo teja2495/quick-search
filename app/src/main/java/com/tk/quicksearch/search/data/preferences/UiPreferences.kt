@@ -270,7 +270,7 @@ class UiPreferences(
     fun getLauncherAppIcon(): LauncherAppIcon {
         val saved = prefs.getString(KEY_LAUNCHER_APP_ICON, null)
         return saved?.let { runCatching { LauncherAppIcon.valueOf(it) }.getOrNull() }
-                ?: LauncherAppIcon.AUTO
+                ?: LauncherAppIcon.DEFAULT
     }
 
     fun setLauncherAppIcon(selection: LauncherAppIcon) {

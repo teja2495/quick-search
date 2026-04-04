@@ -222,7 +222,6 @@ internal class SearchPreferencesDelegate(
             userPreferences.setAppTheme(theme)
             stateAccess.appTheme = theme
             updateConfigState { it.copy(appTheme = theme) }
-            stateAccess.applyLauncherIconSelection()
             stateAccess.saveStartupSurfaceSnapshotAsync(allowDuringQuery = true)
         }
     }
@@ -254,12 +253,7 @@ internal class SearchPreferencesDelegate(
                         wallpaperBlurRadius = newBlur,
                     )
                 }
-                stateAccess.applyLauncherIconSelection()
                 stateAccess.saveStartupSurfaceSnapshotAsync(allowDuringQuery = true)
-            }
-        } else {
-            scope.launch(Dispatchers.IO) {
-                stateAccess.applyLauncherIconSelection()
             }
         }
     }
@@ -372,11 +366,6 @@ internal class SearchPreferencesDelegate(
     }
 
     fun onSystemDarkModeChanged(isDarkMode: Boolean, currentAppThemeMode: AppThemeMode) {
-        if (currentAppThemeMode != AppThemeMode.SYSTEM) return
-        if (stateAccess.launcherAppIcon != LauncherAppIcon.AUTO) return
-        scope.launch(Dispatchers.IO) {
-            stateAccess.applyLauncherIconSelection()
-        }
     }
 
     fun setThemedIconsEnabled(enabled: Boolean) {
