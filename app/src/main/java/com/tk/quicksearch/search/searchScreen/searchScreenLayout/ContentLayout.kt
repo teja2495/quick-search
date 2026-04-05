@@ -217,12 +217,24 @@ fun ContentLayout(
 
     val hidePinnedAndAppsWhenSearchHistoryExpanded =
         showRecentItems && searchHistoryExpanded
+    val sectionContextForRecentHistoryExpansion =
+        if (hidePinnedAndAppsWhenSearchHistoryExpanded) {
+            sectionContext.copy(
+                shouldRenderFiles = false,
+                shouldRenderContacts = false,
+                shouldRenderApps = false,
+                shouldRenderAppShortcuts = false,
+                shouldRenderSettings = false,
+                shouldRenderCalendar = false,
+            )
+        } else {
+            sectionContext
+        }
     val activeAliasSection = state.detectedAliasSearchSection
     val isSectionAliasMode = activeAliasSection != null
     val showAliasRecentItems = isSectionAliasMode && !hasQuery && state.aliasRecentItems.isNotEmpty()
 
     fun shouldRenderSection(section: SearchSection): Boolean {
-        if (hidePinnedAndAppsWhenSearchHistoryExpanded) return false
         return if (isSectionAliasMode) {
             activeAliasSection == section
         } else {
@@ -276,7 +288,7 @@ fun ContentLayout(
                     return@forEach
                 }
 
-                renderSection(section, sectionParams, sectionContext)
+                renderSection(section, sectionParams, sectionContextForRecentHistoryExpansion)
                 return@forEach
             }
 
