@@ -83,6 +83,13 @@ private fun WebSuggestionsCard(
     isShortcutDetected: Boolean = false,
 ) {
     val overlayDividerColor = LocalOverlayDividerColor.current
+    val dividerColor =
+        overlayDividerColor
+            ?: if (showWallpaperBackground) {
+                AppColors.WallpaperDivider
+            } else {
+                MaterialTheme.colorScheme.outlineVariant
+            }
     val textColor =
         if (showWallpaperBackground) AppColors.WallpaperTextPrimary else MaterialTheme.colorScheme.onSurface
 
@@ -107,10 +114,8 @@ private fun WebSuggestionsCard(
                 // Add divider between items, but not after the last one
                 if (index < suggestions.size - 1) {
                     HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = DesignTokens.SpacingLarge),
-                        color =
-                            overlayDividerColor
-                                ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant,
+                        modifier = Modifier.fillMaxWidth(),
+                        color = dividerColor,
                     )
                 }
             }

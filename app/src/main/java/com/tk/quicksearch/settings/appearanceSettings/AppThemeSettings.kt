@@ -150,9 +150,7 @@ fun AppThemeCard(
                     modifier = Modifier.padding(start = 4.dp, end = 4.dp, bottom = 4.dp),
             )
 
-            // Disableable section: theme controls are greyed out when Device Theme is active
-            Box(modifier = Modifier.alpha(if (deviceThemeEnabled) 0.38f else 1f)) {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Row(
                             modifier = Modifier.fillMaxWidth().selectableGroup(),
                             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
@@ -191,7 +189,10 @@ fun AppThemeCard(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         themeOptions.forEach { option ->
-                            val isSelected = !deviceThemeEnabled && effectiveSelectedTheme == option.theme && isThemeSourceSelected
+                            val selectedThemeForDisplay =
+                                    if (deviceThemeEnabled) AppTheme.MONOCHROME else effectiveSelectedTheme
+                            val isSelected = selectedThemeForDisplay == option.theme && isThemeSourceSelected
+                            val showSelection = isSelected && !deviceThemeEnabled
                             val interactionSource = remember { MutableInteractionSource() }
                             Column(
                                     modifier =
@@ -200,11 +201,19 @@ fun AppThemeCard(
                                                             interactionSource = interactionSource,
                                                             indication = null,
                                                     ) {
-                                                        if (!isSelected) {
-                                                            hapticToggle(view)()
+                                                        if (deviceThemeEnabled) {
+                                                            Toast.makeText(
+                                                                    context,
+                                                                    context.getString(R.string.settings_device_theme_blocked_toast),
+                                                                    Toast.LENGTH_SHORT,
+                                                            ).show()
+                                                        } else {
+                                                            if (!isSelected) {
+                                                                hapticToggle(view)()
+                                                            }
+                                                            onThemeSelected(option.theme)
+                                                            onSetBackgroundSource(BackgroundSource.THEME)
                                                         }
-                                                        onThemeSelected(option.theme)
-                                                        onSetBackgroundSource(BackgroundSource.THEME)
                                                     },
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -231,7 +240,7 @@ fun AppThemeCard(
                                                         ),
                                         contentAlignment = Alignment.Center,
                                 ) {
-                                    if (isSelected) {
+                                    if (showSelection) {
                                         Box(
                                                 modifier =
                                                         Modifier.size(22.dp)
@@ -252,7 +261,7 @@ fun AppThemeCard(
                                         text = stringResource(option.labelRes),
                                         style = MaterialTheme.typography.labelSmall,
                                         color =
-                                                if (isSelected) {
+                                                if (showSelection) {
                                                     MaterialTheme.colorScheme.onSurface
                                                 } else {
                                                     MaterialTheme.colorScheme.onSurfaceVariant
@@ -306,25 +315,6 @@ fun AppThemeCard(
                         }
                     }
 
-                }
-
-                // Transparent overlay to block interactions when Device Theme is active
-                if (deviceThemeEnabled) {
-                    Box(
-                            modifier =
-                                    Modifier.matchParentSize()
-                                            .clickable(
-                                                    indication = null,
-                                                    interactionSource = remember { MutableInteractionSource() },
-                                            ) {
-                                                Toast.makeText(
-                                                        context,
-                                                        context.getString(R.string.settings_device_theme_blocked_toast),
-                                                        Toast.LENGTH_SHORT,
-                                                ).show()
-                                            },
-                    )
-                }
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -335,7 +325,7 @@ fun AppThemeCard(
                         onCheckedChange = onDeviceThemeToggle,
                         horizontalPadding = DesignTokens.SpacingSmall,
                         isLastItem = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU,
-                        showDivider = false,
+                        showDivider = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU,
                 )
             }
 
@@ -346,6 +336,7 @@ fun AppThemeCard(
                         checked = themedIconsEnabled,
                         onCheckedChange = onThemedIconsToggle,
                         horizontalPadding = DesignTokens.SpacingSmall,
+                        extraVerticalPadding = (-4).dp,
                         isLastItem = true,
                         showDivider = false,
                 )
@@ -434,7 +425,11 @@ fun WallpaperCard(
                         hasImage = wallpaperPreviewBitmap != null,
                         onClick = {
                             hapticToggle(view)()
-                            onRequestWallpaperPermission()
+                            if (isWallpaperSourceSelected) {
+                                onSetBackgroundSource(BackgroundSource.THEME)
+                            } else {
+                                onRequestWallpaperPermission()
+                            }
                         },
                         label = stringResource(R.string.settings_overlay_source_wallpaper),
                 ) {

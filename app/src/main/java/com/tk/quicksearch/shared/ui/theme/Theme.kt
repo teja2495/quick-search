@@ -211,15 +211,10 @@ fun QuickSearchTheme(
         }
     val isSystemDarkTheme = androidx.compose.foundation.isSystemInDarkTheme()
     val useDarkTheme =
-        if (deviceThemeEnabled) {
-            // Material You follows the device palette, so always follow system dark/light.
-            isSystemDarkTheme
-        } else {
-            when (appThemeMode) {
-                com.tk.quicksearch.search.core.AppThemeMode.LIGHT -> false
-                com.tk.quicksearch.search.core.AppThemeMode.DARK -> true
-                com.tk.quicksearch.search.core.AppThemeMode.SYSTEM -> isSystemDarkTheme
-            }
+        when (appThemeMode) {
+            com.tk.quicksearch.search.core.AppThemeMode.LIGHT -> false
+            com.tk.quicksearch.search.core.AppThemeMode.DARK -> true
+            com.tk.quicksearch.search.core.AppThemeMode.SYSTEM -> isSystemDarkTheme
         }
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
