@@ -210,11 +210,17 @@ fun QuickSearchTheme(
             )
         }
     val isSystemDarkTheme = androidx.compose.foundation.isSystemInDarkTheme()
-    val useDarkTheme = when (appThemeMode) {
-        com.tk.quicksearch.search.core.AppThemeMode.LIGHT -> false
-        com.tk.quicksearch.search.core.AppThemeMode.DARK -> true
-        com.tk.quicksearch.search.core.AppThemeMode.SYSTEM -> isSystemDarkTheme
-    }
+    val useDarkTheme =
+        if (deviceThemeEnabled) {
+            // Material You follows the device palette, so always follow system dark/light.
+            isSystemDarkTheme
+        } else {
+            when (appThemeMode) {
+                com.tk.quicksearch.search.core.AppThemeMode.LIGHT -> false
+                com.tk.quicksearch.search.core.AppThemeMode.DARK -> true
+                com.tk.quicksearch.search.core.AppThemeMode.SYSTEM -> isSystemDarkTheme
+            }
+        }
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val useDeviceDynamicColors = deviceThemeEnabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
@@ -341,6 +347,7 @@ fun QuickSearchTheme(
         LocalQuickSearchAppColorPalette provides appPalette,
         LocalAppIsDarkTheme provides useDarkTheme,
         LocalAppTheme provides appTheme,
+        LocalDeviceDynamicColorsActive provides useDeviceDynamicColors,
         LocalWallpaperDynamicAccentActive provides (imageAccentSlots != null),
         LocalIsSystemWallpaperActive provides (backgroundSource == BackgroundSource.SYSTEM_WALLPAPER),
     ) {

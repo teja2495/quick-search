@@ -161,6 +161,9 @@ internal val LocalWallpaperDynamicAccentActive = staticCompositionLocalOf { fals
  */
 val LocalIsSystemWallpaperActive = staticCompositionLocalOf { false }
 
+/** True when Material You (device dynamic colors) is active for the app theme. */
+val LocalDeviceDynamicColorsActive = staticCompositionLocalOf { false }
+
 /**
  * Whether the current image background (custom image or system wallpaper) is dark.
  * `true` = dark image → use light (white) text on top.

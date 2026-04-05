@@ -301,10 +301,14 @@ fun SearchScreen(
             state.appTheme
         }
     val useDarkSystemBarsFromTheme =
-            when (state.appThemeMode) {
-                AppThemeMode.LIGHT -> false
-                AppThemeMode.DARK -> true
-                AppThemeMode.SYSTEM -> isSystemDarkTheme
+            if (state.deviceThemeEnabled) {
+                isSystemDarkTheme
+            } else {
+                when (state.appThemeMode) {
+                    AppThemeMode.LIGHT -> false
+                    AppThemeMode.DARK -> true
+                    AppThemeMode.SYSTEM -> isSystemDarkTheme
+                }
             }
     val useDarkSystemBars = imageBackgroundIsDark ?: useDarkSystemBarsFromTheme
     val themeSystemBarsDarkState = rememberUpdatedState(useDarkSystemBarsFromTheme)

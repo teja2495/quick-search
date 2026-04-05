@@ -106,10 +106,14 @@ class OverlayActivity : ComponentActivity() {
             val uiState by searchViewModel.uiState.collectAsStateWithLifecycle()
             val isSystemDarkTheme = isSystemInDarkTheme()
             val useDarkSystemBars =
-                when (uiState.appThemeMode) {
-                    AppThemeMode.LIGHT -> false
-                    AppThemeMode.DARK -> true
-                    AppThemeMode.SYSTEM -> isSystemDarkTheme
+                if (uiState.deviceThemeEnabled) {
+                    isSystemDarkTheme
+                } else {
+                    when (uiState.appThemeMode) {
+                        AppThemeMode.LIGHT -> false
+                        AppThemeMode.DARK -> true
+                        AppThemeMode.SYSTEM -> isSystemDarkTheme
+                    }
                 }
             SideEffect {
                 val systemBarStyle =

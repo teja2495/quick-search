@@ -660,7 +660,17 @@ fun WallpaperCard(
                             title = stringResource(R.string.settings_wallpaper_accent_title),
                             subtitle = stringResource(R.string.settings_wallpaper_accent_desc),
                             checked = wallpaperAccentEnabled,
-                            onCheckedChange = onWallpaperAccentToggle,
+                            onCheckedChange = { enabled ->
+                                if (enabled && deviceThemeEnabled) {
+                                    Toast.makeText(
+                                            context,
+                                            context.getString(R.string.settings_device_theme_blocked_toast),
+                                            Toast.LENGTH_SHORT,
+                                    ).show()
+                                } else {
+                                    onWallpaperAccentToggle(enabled)
+                                }
+                            },
                             horizontalPadding = DesignTokens.SpacingSmall,
                             isLastItem = true,
                             showDivider = false,

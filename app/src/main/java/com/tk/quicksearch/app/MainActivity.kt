@@ -208,10 +208,14 @@ class MainActivity : ComponentActivity() {
                 searchViewModel.onSystemDarkModeChanged(isDarkMode = isSystemDarkTheme)
             }
             val useDarkSystemBars =
-                when (uiState.appThemeMode) {
-                    AppThemeMode.LIGHT -> false
-                    AppThemeMode.DARK -> true
-                    AppThemeMode.SYSTEM -> isSystemDarkTheme
+                if (uiState.deviceThemeEnabled) {
+                    isSystemDarkTheme
+                } else {
+                    when (uiState.appThemeMode) {
+                        AppThemeMode.LIGHT -> false
+                        AppThemeMode.DARK -> true
+                        AppThemeMode.SYSTEM -> isSystemDarkTheme
+                    }
                 }
             SideEffect {
                 val systemBarStyle =

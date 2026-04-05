@@ -63,8 +63,8 @@ import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.ui.theme.LocalAppTheme
+import com.tk.quicksearch.shared.ui.theme.LocalDeviceDynamicColorsActive
 import com.tk.quicksearch.shared.ui.theme.LocalImageBackgroundIsDark
-import com.tk.quicksearch.shared.ui.theme.LocalWallpaperDynamicAccentActive
 import com.tk.quicksearch.shared.ui.theme.ThemeColorRegistry
 import com.tk.quicksearch.shared.util.getAppGridColumns
 import com.tk.quicksearch.shared.util.hapticConfirm
@@ -540,31 +540,27 @@ private fun AppIconSurface(
 ) {
     val view = LocalView.current
     val isDarkTheme = LocalAppIsDarkTheme.current
+    val colorScheme = MaterialTheme.colorScheme
     val useLightWallpaperShadow = showWallpaperBackground && !isDarkTheme
     val showThemedIcon = themedIconsEnabled && !hasCustomIconPack &&
             android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU
-    val useWallpaperDynamicAccentForIcons =
-            showWallpaperBackground && LocalWallpaperDynamicAccentActive.current
+    val useMaterialYouIconColors = LocalDeviceDynamicColorsActive.current
     val appTheme = LocalAppTheme.current
     val lightModePalette = ThemeColorRegistry.lightModeThemedIconPalette(appTheme)
     val themeAccent = ThemeColorRegistry.accent(appTheme)
-    // Use image-derived dynamic accents for themed icons when wallpaper accent is active.
+    // Use system dynamic colors when Material You is enabled.
     // Otherwise keep existing theme-based icon colors.
     val themedIconBackground =
-            if (useWallpaperDynamicAccentForIcons) {
-                MaterialTheme.colorScheme.primaryContainer
+            if (useMaterialYouIconColors) {
+                if (isDarkTheme) colorScheme.onPrimary else colorScheme.primaryContainer
             } else if (isDarkTheme) {
                 themeAccent.lightOnPrimaryContainer
             } else {
                 Color.White
             }
     val themedIconForeground =
-            if (useWallpaperDynamicAccentForIcons) {
-                if (isDarkTheme) {
-                    MaterialTheme.colorScheme.onPrimaryContainer
-                } else {
-                    MaterialTheme.colorScheme.primary
-                }
+            if (useMaterialYouIconColors) {
+                colorScheme.primary
             } else if (isDarkTheme) {
                 themeAccent.lightPrimaryContainer
             } else {
