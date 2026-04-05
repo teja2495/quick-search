@@ -27,6 +27,8 @@ A fast & powerful Android app that lets you search across **apps, app shortcuts,
 - **Web**: Search the web using 25 search engines with customizable shortcuts and web suggestions. Browsers can be added as search engines.
 - **Calculator**: Built-in calculator for math expressions (+, -, *, /, brackets); optional alias to open calculator mode
 - **Unit Converter**: Convert units from the search bar (length, mass, temperature, area, volume, time, speed, data, energy, power, pressure, angle, frequency, and more)
+- **Currency Converter**: Convert between currencies with live exchange rates directly from the search bar
+- **World Clock**: Check the current time across different time zones by searching for city names
 - **Date & Time**: Natural-language date parsing, differences, offsets, and time arithmetic from the search bar (optional alias)
 - **Gemini API**: Direct search with AI-powered answers using Gemini/Gemma models and optional personal context
 - **Overlay Mode**: Enable to make the search bar appear over other apps, anywhere—changes how you access search from any screen
@@ -34,10 +36,11 @@ A fast & powerful Android app that lets you search across **apps, app shortcuts,
 - **Launch Options**: Widget, Quick Settings Tile & Digital Assistant
 
 ### 🎨 Customization & New Features
-- **New App Themes**: Choose from multiple visual themes for the app's appearance
+- **App Themes**: Choose from multiple visual themes (Mono, Forest, Aurora, Sunset) for the app's appearance
+- **Material You**: Use your device's color palette from Material You for the app's theme and accent colors
 - **Bottom Search Bar**: Option for bottom-positioned search bar for improved accessibility
 - **Font Size Control**: Customize font size throughout the app for better readability
-- **Custom Backgrounds**: Select any picture from your device for the app background
+- **Custom Backgrounds**: Select any picture from your device for the app background, with transparency and blur controls
 - **App Management**: View app details or bulk uninstall apps from search results settings
 - **Shortcut Management**: Enable, disable, or add custom shortcuts including search queries, URLs, and app activities
 - **Import/Export Settings**: Backup and restore your Quick Search configuration and preferences

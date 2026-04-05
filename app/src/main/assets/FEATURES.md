@@ -2,7 +2,7 @@
 
 This document highlights all the available features. It also includes details about hidden or non-obvious features that you might miss.
 
-**Version**: 3.0 (Updated March 30 2026)
+**Version**: 3.1 (Updated Apr 5 2026)
 
 ### Search
 
@@ -56,6 +56,8 @@ This document highlights all the available features. It also includes details ab
   - **Absolute time** — e.g. 5pm, 14:30, 9am
   - **Time offset from a time** — e.g. 3 hours after 5pm, 30 minutes before 9am, 1 hour after 14:00
 - **Dictionary** - Example usage: "define serendipity" or "serendipity meaning", to see search dictionary card, tapping on which will show dictionary result. This requires Gemini API key configuration.
+- **World Clock** - Check the current time across different time zones. Search for city names to see their current time instantly.
+- **Currency Converter** - Convert between currencies directly from the search bar. Example: "100 USD to EUR" to see the converted amount with the current exchange rate.
 
 ---
 
@@ -102,6 +104,7 @@ Long-press on most results to open a context menu with quick actions.
 - **Overlay Mode** - Enable to make the search bar appear over other apps anywhere in the system. This defines the main experience: search from any screen without leaving what you're doing.
 - **Font Size** - Choose between small, medium, and large font sizes for all in-app text.
 - **Theme** - Set base theme to Light, Dark or System (follows system theme). Then, pick among the available themes - Mono, Forest, Aurora, Sunset - and adjust their intensity. These themes will adapt to light and dark mode seamlessly.
+- **Material You** - Enable to use your device's color palette from Material You for the app's theme and accent colors.
 - **Themed App Icons** - Enable or disable themed app icons for app results and for the Quick Search launcher icon.
 - **Wallpaper Background** - Use your wallpaper or any custom image as your search screen background, you can also tune transparency and blur to keep content readable. Choose whether to derive accent colors from wallpaper.
 - **Search Engine Style** - Choose between:

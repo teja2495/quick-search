@@ -1,9 +1,5 @@
-- UI redesign and new light themes
-- Themed app icons - both for app results and quick search launcher icon
-- New Tool: Dictionary
-- Change no. of apps per row
-- In-App Browser - open URLs inside the app
-- Choose browser for custom search engines
-- Fuzzy search for device and app settings
-- Add custom icons for app shortcuts by long pressing on the result
-- Bug fixes
+- New Tools: Currency Converter and World Clock (requires Gemini API key)
+- Material You theming support
+- Contact actions popup now shows all available options, including emails
+- You can now choose which settings to include when exporting app data
+- Enhancements and bug fixes
