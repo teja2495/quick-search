@@ -125,6 +125,12 @@ internal class SearchViewModelPreferencesStateAccess(
             state.themedIconsEnabled = value
         }
 
+    override var deviceThemeEnabled: Boolean
+        get() = state.deviceThemeEnabled
+        set(value) {
+            state.deviceThemeEnabled = value
+        }
+
     override var maskUnsupportedIconPackIcons: Boolean
         get() = state.maskUnsupportedIconPackIcons
         set(value) {

@@ -209,6 +209,7 @@ fun SettingsScreen(
     SettingsScreenBackground(
         appTheme = state.appTheme,
         overlayThemeIntensity = state.overlayThemeIntensity,
+        deviceThemeEnabled = state.deviceThemeEnabled,
         modifier = modifier,
     ) {
     Column(

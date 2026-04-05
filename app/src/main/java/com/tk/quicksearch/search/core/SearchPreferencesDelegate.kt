@@ -30,6 +30,7 @@ internal interface SearchPreferencesStateAccess {
     var appIconShape: AppIconShape
     var launcherAppIcon: LauncherAppIcon
     var themedIconsEnabled: Boolean
+    var deviceThemeEnabled: Boolean
     var maskUnsupportedIconPackIcons: Boolean
     var wallpaperBackgroundAlpha: Float
     var wallpaperBlurRadius: Float
@@ -375,6 +376,15 @@ internal class SearchPreferencesDelegate(
             userPreferences.setThemedIconsEnabled(enabled)
             stateAccess.themedIconsEnabled = enabled
             updateConfigState { it.copy(themedIconsEnabled = enabled) }
+        }
+    }
+
+    fun setDeviceThemeEnabled(enabled: Boolean) {
+        scope.launch(Dispatchers.IO) {
+            if (stateAccess.deviceThemeEnabled == enabled) return@launch
+            userPreferences.setDeviceThemeEnabled(enabled)
+            stateAccess.deviceThemeEnabled = enabled
+            updateConfigState { it.copy(deviceThemeEnabled = enabled) }
         }
     }
 

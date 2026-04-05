@@ -72,6 +72,7 @@ enum class AppSettingsToggleKey {
     ASSISTANT_LAUNCH_VOICE_MODE,
     WALLPAPER_ACCENT,
     THEMED_ICONS,
+    DEVICE_THEME,
     APPS_PER_ROW,
     DICTIONARY,
 }

@@ -235,6 +235,7 @@ class MainActivity : ComponentActivity() {
                 backgroundSource = uiState.backgroundSource,
                 customImageUri = uiState.customImageUri,
                 wallpaperAccentEnabled = uiState.wallpaperAccentEnabled,
+                deviceThemeEnabled = uiState.deviceThemeEnabled,
             ) {
                 Box(
                     modifier =

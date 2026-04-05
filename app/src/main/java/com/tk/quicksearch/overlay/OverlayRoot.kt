@@ -370,9 +370,10 @@ fun OverlayRoot(
                                                 animateBlurRadius = false,
                                                 fallbackBackgroundAlpha = fallbackAlpha,
                                                 useGradientFallback =
-                                                        uiState.backgroundSource ==
-                                                                BackgroundSource.THEME ||
-                                                                useMonoThemeFallback,
+                                                        !uiState.deviceThemeEnabled &&
+                                                                (uiState.backgroundSource ==
+                                                                        BackgroundSource.THEME ||
+                                                                        useMonoThemeFallback),
                                                 appTheme =
                                                         if (useMonoThemeFallback) {
                                                                 AppTheme.MONOCHROME

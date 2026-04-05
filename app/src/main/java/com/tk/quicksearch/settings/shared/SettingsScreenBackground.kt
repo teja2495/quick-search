@@ -19,17 +19,22 @@ import com.tk.quicksearch.shared.ui.theme.ThemeModeFallbackBackgroundAlpha
 fun SettingsScreenBackground(
     appTheme: AppTheme,
     overlayThemeIntensity: Float,
+    deviceThemeEnabled: Boolean = false,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
     val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
-    val searchColorTheme = remember(appTheme, overlayThemeIntensity, isDarkMode) {
-        resolveSearchColorTheme(
-            theme = appTheme,
-            backgroundSource = BackgroundSource.THEME,
-            isDarkMode = isDarkMode,
-            intensity = overlayThemeIntensity,
-        )
+    val searchColorTheme = remember(appTheme, overlayThemeIntensity, isDarkMode, deviceThemeEnabled) {
+        if (deviceThemeEnabled) {
+            null
+        } else {
+            resolveSearchColorTheme(
+                theme = appTheme,
+                backgroundSource = BackgroundSource.THEME,
+                isDarkMode = isDarkMode,
+                intensity = overlayThemeIntensity,
+            )
+        }
     }
 
     CompositionLocalProvider(LocalSearchColorTheme provides searchColorTheme) {
@@ -39,8 +44,8 @@ fun SettingsScreenBackground(
                 wallpaperBitmap = null,
                 wallpaperBackgroundAlpha = 0f,
                 wallpaperBlurRadius = 0f,
-                fallbackBackgroundAlpha = ThemeModeFallbackBackgroundAlpha,
-                useGradientFallback = true,
+                fallbackBackgroundAlpha = if (deviceThemeEnabled) 1f else ThemeModeFallbackBackgroundAlpha,
+                useGradientFallback = !deviceThemeEnabled,
                 appTheme = appTheme,
                 overlayThemeIntensity = overlayThemeIntensity,
                 modifier = Modifier.fillMaxSize(),

@@ -1,6 +1,8 @@
 package com.tk.quicksearch.search.searchHistory
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -143,7 +145,12 @@ fun SearchHistorySection(
     val iconColor =
         if (showWallpaperBackground) AppColors.WallpaperTextSecondary else MaterialTheme.colorScheme.onSurfaceVariant
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .animateContentSize(animationSpec = tween(durationMillis = 220)),
+    ) {
         ExpandableResultsCard(
             resultCount = items.size,
             isExpanded = isExpanded,
@@ -155,118 +162,75 @@ fun SearchHistorySection(
             showWallpaperBackground = showWallpaperBackground,
             overlayCardColor = overlayCardColor,
         ) { contentModifier, cardState ->
-            val displayItems = if (cardState.displayAsExpanded) items else items.take(1)
-            if (cardState.displayAsExpanded) {
-                Column(
-                    modifier = contentModifier.verticalScroll(scrollState),
-                ) {
-                    displayItems.forEachIndexed { index, item ->
-                        val showTipBelowFirstItem = showSearchHistoryTip && index == 0
-                        val baseShowDivider = index < displayItems.lastIndex
-                        RecentSearchItemRow(
-                            item = item,
-                            textColor = textColor,
-                            iconColor = iconColor,
-                            callingApp = callingApp,
-                            messagingApp = messagingApp,
-                            onRecentQueryClick = onRecentQueryClick,
-                            onContactClick = onContactClick,
-                            onShowContactMethods = onShowContactMethods,
-                            onCallContact = onCallContact,
-                            onSmsContact = onSmsContact,
-                            onContactMethodClick = onContactMethodClick,
-                            getPrimaryContactCardAction = getPrimaryContactCardAction,
-                            getSecondaryContactCardAction = getSecondaryContactCardAction,
-                            onPrimaryActionLongPress = onPrimaryActionLongPress,
-                            onSecondaryActionLongPress = onSecondaryActionLongPress,
-                            onCustomAction = onCustomAction,
-                            onFileClick = onFileClick,
-                            onSettingClick = onSettingClick,
-                            onAppShortcutClick = onAppShortcutClick,
-                            onAppSettingClick = onAppSettingClick,
-                            onAppSettingToggle = onAppSettingToggle,
-                            isAppSettingToggleChecked = isAppSettingToggleChecked,
-                            appSettingPhoneAppGridColumns = appSettingPhoneAppGridColumns,
-                            onAppSettingPhoneAppGridColumnsChange = onAppSettingPhoneAppGridColumnsChange,
-                            onDeleteRecentItem = onDeleteRecentItem,
-                            showDivider = if (showTipBelowFirstItem) false else baseShowDivider,
-                            showWallpaperBackground = showWallpaperBackground,
-                            overlayDividerColor = overlayDividerColor,
+            val displayAsExpanded = cardState.displayAsExpanded
+            val displayItems = if (displayAsExpanded) items else items.take(1)
+            val listModifier =
+                if (displayAsExpanded) {
+                    contentModifier.verticalScroll(scrollState)
+                } else {
+                    contentModifier
+                }
+            Column(modifier = listModifier) {
+                displayItems.forEachIndexed { index, item ->
+                    val showTipBelowFirstItem =
+                        !displayAsExpanded &&
+                            showSearchHistoryTip &&
+                            index == 0
+                    val baseShowDivider = index < displayItems.lastIndex
+                    RecentSearchItemRow(
+                        item = item,
+                        textColor = textColor,
+                        iconColor = iconColor,
+                        callingApp = callingApp,
+                        messagingApp = messagingApp,
+                        onRecentQueryClick = onRecentQueryClick,
+                        onContactClick = onContactClick,
+                        onShowContactMethods = onShowContactMethods,
+                        onCallContact = onCallContact,
+                        onSmsContact = onSmsContact,
+                        onContactMethodClick = onContactMethodClick,
+                        getPrimaryContactCardAction = getPrimaryContactCardAction,
+                        getSecondaryContactCardAction = getSecondaryContactCardAction,
+                        onPrimaryActionLongPress = onPrimaryActionLongPress,
+                        onSecondaryActionLongPress = onSecondaryActionLongPress,
+                        onCustomAction = onCustomAction,
+                        onFileClick = onFileClick,
+                        onSettingClick = onSettingClick,
+                        onAppShortcutClick = onAppShortcutClick,
+                        onAppSettingClick = onAppSettingClick,
+                        onAppSettingToggle = onAppSettingToggle,
+                        isAppSettingToggleChecked = isAppSettingToggleChecked,
+                        appSettingPhoneAppGridColumns = appSettingPhoneAppGridColumns,
+                        onAppSettingPhoneAppGridColumnsChange = onAppSettingPhoneAppGridColumnsChange,
+                        onDeleteRecentItem = onDeleteRecentItem,
+                        showDivider = if (showTipBelowFirstItem) false else baseShowDivider,
+                        showWallpaperBackground = showWallpaperBackground,
+                        overlayDividerColor = overlayDividerColor,
+                    )
+                    if (showTipBelowFirstItem) {
+                        InlineSearchHistoryTip(
+                            onOpenSearchHistorySettings = onOpenSearchHistorySettings,
+                            onDismiss = onDismissSearchHistoryTip,
                         )
-                        if (showTipBelowFirstItem) {
-                            InlineSearchHistoryTip(
-                                onOpenSearchHistorySettings = onOpenSearchHistorySettings,
-                                onDismiss = onDismissSearchHistoryTip,
+                        if (baseShowDivider) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(horizontal = dividerPadding(item)),
+                                color = dividerColor(showWallpaperBackground, overlayDividerColor),
                             )
-                            if (baseShowDivider) {
-                                HorizontalDivider(
-                                    modifier = Modifier.padding(horizontal = dividerPadding(item)),
-                                    color = dividerColor(showWallpaperBackground, overlayDividerColor),
-                                )
-                            }
                         }
                     }
                 }
-            } else {
-                Column(modifier = contentModifier) {
-                    displayItems.forEachIndexed { index, item ->
-                        val showTipBelowFirstItem = showSearchHistoryTip && index == 0
-                        val baseShowDivider = index < displayItems.lastIndex
-                        RecentSearchItemRow(
-                            item = item,
-                            textColor = textColor,
-                            iconColor = iconColor,
-                            callingApp = callingApp,
-                            messagingApp = messagingApp,
-                            onRecentQueryClick = onRecentQueryClick,
-                            onContactClick = onContactClick,
-                            onShowContactMethods = onShowContactMethods,
-                            onCallContact = onCallContact,
-                            onSmsContact = onSmsContact,
-                            onContactMethodClick = onContactMethodClick,
-                            getPrimaryContactCardAction = getPrimaryContactCardAction,
-                            getSecondaryContactCardAction = getSecondaryContactCardAction,
-                            onPrimaryActionLongPress = onPrimaryActionLongPress,
-                            onSecondaryActionLongPress = onSecondaryActionLongPress,
-                            onCustomAction = onCustomAction,
-                            onFileClick = onFileClick,
-                            onSettingClick = onSettingClick,
-                            onAppShortcutClick = onAppShortcutClick,
-                            onAppSettingClick = onAppSettingClick,
-                            onAppSettingToggle = onAppSettingToggle,
-                            isAppSettingToggleChecked = isAppSettingToggleChecked,
-                            appSettingPhoneAppGridColumns = appSettingPhoneAppGridColumns,
-                            onAppSettingPhoneAppGridColumnsChange = onAppSettingPhoneAppGridColumnsChange,
-                            onDeleteRecentItem = onDeleteRecentItem,
-                            showDivider = if (showTipBelowFirstItem) false else baseShowDivider,
-                            showWallpaperBackground = showWallpaperBackground,
-                            overlayDividerColor = overlayDividerColor,
-                        )
-                        if (showTipBelowFirstItem) {
-                            InlineSearchHistoryTip(
-                                onOpenSearchHistorySettings = onOpenSearchHistorySettings,
-                                onDismiss = onDismissSearchHistoryTip,
-                            )
-                            if (baseShowDivider) {
-                                HorizontalDivider(
-                                    modifier = Modifier.padding(horizontal = dividerPadding(item)),
-                                    color = dividerColor(showWallpaperBackground, overlayDividerColor),
-                                )
-                            }
-                        }
-                    }
 
-                    if (canExpand) {
-                        ExpandButton(
-                            onClick = {
-                                isExpanded = true
-                                onExpandedChange(true)
-                                keyboardController?.hide()
-                            },
-                            modifier = Modifier.align(Alignment.CenterHorizontally),
-                            textResId = R.string.action_more_search_history,
-                        )
-                    }
+                if (!displayAsExpanded && canExpand) {
+                    ExpandButton(
+                        onClick = {
+                            isExpanded = true
+                            onExpandedChange(true)
+                            keyboardController?.hide()
+                        },
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        textResId = R.string.action_more_search_history,
+                    )
                 }
             }
         }

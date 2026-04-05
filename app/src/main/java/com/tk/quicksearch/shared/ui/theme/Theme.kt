@@ -4,9 +4,12 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -188,6 +191,7 @@ fun QuickSearchTheme(
     backgroundSource: com.tk.quicksearch.search.core.BackgroundSource = com.tk.quicksearch.search.core.BackgroundSource.THEME,
     customImageUri: String? = null,
     wallpaperAccentEnabled: Boolean = true,
+    deviceThemeEnabled: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val baseDensity = LocalDensity.current
@@ -206,8 +210,9 @@ fun QuickSearchTheme(
     }
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+    val useDeviceDynamicColors = deviceThemeEnabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     val useImageDerivedAccent =
-        wallpaperAccentEnabled && backgroundSource != BackgroundSource.THEME
+        !useDeviceDynamicColors && wallpaperAccentEnabled && backgroundSource != BackgroundSource.THEME
 
     var wallpaperChangeVersion by remember { mutableIntStateOf(0) }
     DisposableEffect(context, backgroundSource, wallpaperAccentEnabled) {
@@ -287,7 +292,9 @@ fun QuickSearchTheme(
         }
 
     val colorScheme =
-        if (imageAccentSlots != null) {
+        if (useDeviceDynamicColors) {
+            if (useDarkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        } else if (imageAccentSlots != null) {
             if (useDarkTheme) {
                 withImageAccent(DarkColorScheme, imageAccentSlots)
             } else {

@@ -85,6 +85,7 @@ internal fun SettingsDetailLevel2Screen(
     SettingsScreenBackground(
         appTheme = state.appTheme,
         overlayThemeIntensity = state.overlayThemeIntensity,
+        deviceThemeEnabled = state.deviceThemeEnabled,
         modifier = modifier,
     ) {
     Box(

@@ -75,6 +75,8 @@ fun AppearanceSettingsSection(
         onSetLauncherAppIcon: (LauncherAppIcon) -> Unit,
         themedIconsEnabled: Boolean,
         onThemedIconsToggle: (Boolean) -> Unit,
+        deviceThemeEnabled: Boolean,
+        onDeviceThemeToggle: (Boolean) -> Unit,
         wallpaperAccentEnabled: Boolean,
         onWallpaperAccentToggle: (Boolean) -> Unit,
         hasWallpaperPermission: Boolean = true,
@@ -111,6 +113,8 @@ fun AppearanceSettingsSection(
                 hasWallpaperPermission = hasWallpaperPermission,
                 themedIconsEnabled = themedIconsEnabled,
                 onThemedIconsToggle = onThemedIconsToggle,
+                deviceThemeEnabled = deviceThemeEnabled,
+                onDeviceThemeToggle = onDeviceThemeToggle,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -128,6 +132,7 @@ fun AppearanceSettingsSection(
                 onRequestWallpaperPermission = onRequestWallpaperPermission,
                 wallpaperAccentEnabled = wallpaperAccentEnabled,
                 onWallpaperAccentToggle = onWallpaperAccentToggle,
+                deviceThemeEnabled = deviceThemeEnabled,
         )
 
         Spacer(modifier = Modifier.height(16.dp))

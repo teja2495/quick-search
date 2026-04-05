@@ -293,15 +293,19 @@ internal fun SearchScreenContent(
     val shouldShowNumberKeyboardOperators =
             isImeVisible && (manuallySwitchedToNumberKeyboard || isCalculatorMode)
     val showBottomSearchBar = showSearchField && state.bottomSearchBarEnabled
-    val useOverlayThemeTints = state.backgroundSource == com.tk.quicksearch.search.core.BackgroundSource.THEME
+    val useOverlayThemeTints = !state.deviceThemeEnabled && state.backgroundSource == com.tk.quicksearch.search.core.BackgroundSource.THEME
     val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
     val searchColorTheme =
-            resolveSearchColorTheme(
-                    theme = state.appTheme,
-                    backgroundSource = state.backgroundSource,
-                    isDarkMode = isDarkMode,
-                    intensity = state.overlayThemeIntensity,
-            )
+            if (state.deviceThemeEnabled) {
+                null
+            } else {
+                resolveSearchColorTheme(
+                        theme = state.appTheme,
+                        backgroundSource = state.backgroundSource,
+                        isDarkMode = isDarkMode,
+                        intensity = state.overlayThemeIntensity,
+                )
+            }
     val overlayCardColor =
             if (useOverlayThemeTints) {
                 appThemeResultCardColor(

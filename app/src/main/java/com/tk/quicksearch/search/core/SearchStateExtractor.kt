@@ -138,6 +138,7 @@ internal object SearchStateExtractor {
             appIconShape = s.appIconShape,
             launcherAppIcon = s.launcherAppIcon,
             themedIconsEnabled = s.themedIconsEnabled,
+            deviceThemeEnabled = s.deviceThemeEnabled,
             appSuggestionsEnabled = s.appSuggestionsEnabled,
             selectedIconPackPackage = s.selectedIconPackPackage,
             availableIconPacks = s.availableIconPacks,

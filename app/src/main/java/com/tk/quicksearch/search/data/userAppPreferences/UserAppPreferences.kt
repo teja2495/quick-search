@@ -714,6 +714,10 @@ class UserAppPreferences(
 
     fun setThemedIconsEnabled(enabled: Boolean) = uiPreferences.setThemedIconsEnabled(enabled)
 
+    fun isDeviceThemeEnabled(): Boolean = uiPreferences.isDeviceThemeEnabled()
+
+    fun setDeviceThemeEnabled(enabled: Boolean) = uiPreferences.setDeviceThemeEnabled(enabled)
+
     fun isWallpaperAccentEnabled(): Boolean = uiPreferences.isWallpaperAccentEnabled()
 
     fun setWallpaperAccentEnabled(enabled: Boolean) = uiPreferences.setWallpaperAccentEnabled(enabled)

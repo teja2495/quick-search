@@ -167,7 +167,7 @@ fun SearchContentArea(
                 !directSearchState.activeQuery.isNullOrBlank() &&
                 renderingState.expandedSection == ExpandedSection.NONE
     val isSectionAliasMode = state.detectedAliasSearchSection != null
-    val useOverlayThemeTints = state.backgroundSource == BackgroundSource.THEME
+    val useOverlayThemeTints = !state.deviceThemeEnabled && state.backgroundSource == BackgroundSource.THEME
     val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
     val edgeFadeHeight = if (isDarkMode) 32.dp else 16.dp
     val edgeFadeMinAlpha = if (isDarkMode) 0f else 0.4f

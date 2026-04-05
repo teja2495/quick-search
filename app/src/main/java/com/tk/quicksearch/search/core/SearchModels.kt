@@ -495,6 +495,7 @@ data class SearchUiState(
         val appIconShape: AppIconShape = AppIconShape.DEFAULT,
         val launcherAppIcon: LauncherAppIcon = LauncherAppIcon.DEFAULT,
         val themedIconsEnabled: Boolean = true,
+        val deviceThemeEnabled: Boolean = false,
         val appSuggestionsEnabled: Boolean = true,
         // Section visibility preferences
         val disabledSections: Set<SearchSection> = emptySet(),
@@ -693,6 +694,7 @@ fun SearchUiState(
                 appIconShape = config.appIconShape,
                 launcherAppIcon = config.launcherAppIcon,
                 themedIconsEnabled = config.themedIconsEnabled,
+                deviceThemeEnabled = config.deviceThemeEnabled,
                 appSuggestionsEnabled = config.appSuggestionsEnabled,
                 selectedIconPackPackage = config.selectedIconPackPackage,
                 availableIconPacks = config.availableIconPacks,

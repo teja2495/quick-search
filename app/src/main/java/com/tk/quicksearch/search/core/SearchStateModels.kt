@@ -208,6 +208,7 @@ data class SearchUiConfigState(
         val appIconShape: AppIconShape = AppIconShape.DEFAULT,
         val launcherAppIcon: LauncherAppIcon = LauncherAppIcon.DEFAULT,
         val themedIconsEnabled: Boolean = true,
+        val deviceThemeEnabled: Boolean = false,
         val wallpaperAccentEnabled: Boolean = true,
         val appSuggestionsEnabled: Boolean = true,
         val selectedIconPackPackage: String? = null,

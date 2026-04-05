@@ -35,6 +35,7 @@ internal data class SearchRuntimeState(
     var appIconShape: AppIconShape = AppIconShape.DEFAULT,
     var launcherAppIcon: LauncherAppIcon = LauncherAppIcon.DEFAULT,
     var themedIconsEnabled: Boolean = false,
+    var deviceThemeEnabled: Boolean = false,
     var wallpaperBackgroundAlpha: Float,
     var wallpaperBlurRadius: Float,
     var appTheme: AppTheme = AppTheme.MONOCHROME,

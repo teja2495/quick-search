@@ -361,13 +361,14 @@ fun SearchScreen(
                         com.tk.quicksearch.shared.ui.theme.DesignTokens.WallpaperFadeInDuration + 120
                     },
                 fallbackBackgroundAlpha =
-                    if (effectiveBackgroundSource == com.tk.quicksearch.search.core.BackgroundSource.THEME) {
+                    if (!state.deviceThemeEnabled && effectiveBackgroundSource == com.tk.quicksearch.search.core.BackgroundSource.THEME) {
                         ThemeModeFallbackBackgroundAlpha
                     } else {
                         1f
                     },
                 useGradientFallback =
-                    effectiveBackgroundSource == com.tk.quicksearch.search.core.BackgroundSource.THEME || stateResult.useMonoThemeFallback,
+                    !state.deviceThemeEnabled &&
+                        (effectiveBackgroundSource == com.tk.quicksearch.search.core.BackgroundSource.THEME || stateResult.useMonoThemeFallback),
                 appTheme = effectiveAppTheme,
                 overlayThemeIntensity = state.overlayThemeIntensity,
             )

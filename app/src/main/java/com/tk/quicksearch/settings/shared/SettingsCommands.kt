@@ -90,6 +90,7 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
                 AppSettingsToggleKey.WALLPAPER_ACCENT ->
                     setWallpaperAccentEnabled(command.enabled)
                 AppSettingsToggleKey.THEMED_ICONS -> setThemedIconsEnabled(command.enabled)
+                AppSettingsToggleKey.DEVICE_THEME -> setDeviceThemeEnabled(command.enabled)
                 AppSettingsToggleKey.DICTIONARY -> setDictionaryEnabled(command.enabled)
                 AppSettingsToggleKey.APPS_PER_ROW -> Unit
                 AppSettingsToggleKey.SEARCH_APPS,
@@ -150,6 +151,7 @@ internal fun SearchUiState.isAppSettingToggleEnabled(toggleKey: AppSettingsToggl
         AppSettingsToggleKey.ASSISTANT_LAUNCH_VOICE_MODE -> assistantLaunchVoiceModeEnabled
         AppSettingsToggleKey.WALLPAPER_ACCENT -> wallpaperAccentEnabled
         AppSettingsToggleKey.THEMED_ICONS -> themedIconsEnabled
+        AppSettingsToggleKey.DEVICE_THEME -> deviceThemeEnabled
         AppSettingsToggleKey.DICTIONARY -> dictionaryEnabled
         AppSettingsToggleKey.APPS_PER_ROW -> false
         AppSettingsToggleKey.SEARCH_APPS,

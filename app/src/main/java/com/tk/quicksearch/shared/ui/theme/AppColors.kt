@@ -742,7 +742,9 @@ object AppColors {
 
     @Composable
     fun getSettingsCardContainerColor(): Color =
-        if (LocalAppIsDarkTheme.current) {
+        if (LocalSearchColorTheme.current == null) {
+            MaterialTheme.colorScheme.surfaceContainer
+        } else if (LocalAppIsDarkTheme.current) {
             Color.Black.copy(alpha = 0.4f)
         } else {
             Color.White.copy(alpha = 0.7f)

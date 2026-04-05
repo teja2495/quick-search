@@ -98,6 +98,7 @@ internal fun SettingsDetailLevel1Screen(
     SettingsScreenBackground(
         appTheme = effectiveAppTheme,
         overlayThemeIntensity = state.overlayThemeIntensity,
+        deviceThemeEnabled = state.deviceThemeEnabled,
         modifier = modifier,
     ) {
     val isDark = LocalAppIsDarkTheme.current
@@ -368,6 +369,15 @@ internal fun SettingsDetailLevel1Screen(
                                 callbacks.onApplySettingsCommand(
                                     SettingsCommand.Toggle(
                                         key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.THEMED_ICONS,
+                                        enabled = enabled,
+                                    ),
+                                )
+                            },
+                            deviceThemeEnabled = state.deviceThemeEnabled,
+                            onDeviceThemeToggle = { enabled ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.Toggle(
+                                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.DEVICE_THEME,
                                         enabled = enabled,
                                     ),
                                 )

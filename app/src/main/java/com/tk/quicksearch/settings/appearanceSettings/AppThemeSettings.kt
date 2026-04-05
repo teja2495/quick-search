@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -85,9 +86,12 @@ fun AppThemeCard(
         hasWallpaperPermission: Boolean,
         themedIconsEnabled: Boolean,
         onThemedIconsToggle: (Boolean) -> Unit,
+        deviceThemeEnabled: Boolean,
+        onDeviceThemeToggle: (Boolean) -> Unit,
         modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
+    val context = LocalContext.current
     val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
 
     val useMonoThemeFallback =
@@ -146,157 +150,193 @@ fun AppThemeCard(
                     modifier = Modifier.padding(start = 4.dp, end = 4.dp, bottom = 4.dp),
             )
 
-            Row(
-                    modifier = Modifier.fillMaxWidth().selectableGroup(),
-                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-                    verticalAlignment = Alignment.CenterVertically,
-            ) {
-                AppModeOption(
-                        label = stringResource(R.string.common_theme_light),
-                        icon = Icons.Rounded.LightMode,
-                        selected = appThemeMode == AppThemeMode.LIGHT,
-                        onClick = { onSetAppThemeMode(AppThemeMode.LIGHT) },
-                        modifier = Modifier.weight(1f),
-                )
-                AppModeOption(
-                        label = stringResource(R.string.common_theme_dark),
-                        icon = Icons.Rounded.DarkMode,
-                        selected = appThemeMode == AppThemeMode.DARK,
-                        onClick = { onSetAppThemeMode(AppThemeMode.DARK) },
-                        modifier = Modifier.weight(1f),
-                )
-                AppModeOption(
-                        label = stringResource(R.string.common_theme_system),
-                        icon = Icons.Rounded.Settings,
-                        selected = appThemeMode == AppThemeMode.SYSTEM,
-                        onClick = { onSetAppThemeMode(AppThemeMode.SYSTEM) },
-                        modifier = Modifier.weight(1f),
-                )
-            }
-
-            HorizontalDivider(
-                    color = AppColors.SettingsDivider,
-                    modifier = Modifier.padding(horizontal = 75.dp, vertical = 12.dp),
-            )
-
-            Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                themeOptions.forEach { option ->
-                    val isSelected = effectiveSelectedTheme == option.theme && isThemeSourceSelected
-                    val interactionSource = remember { MutableInteractionSource() }
-                    Column(
-                            modifier =
-                                    Modifier.weight(1f)
-                                            .clickable(
-                                                    interactionSource = interactionSource,
-                                                    indication = null,
-                                            ) {
-                                                if (!isSelected) {
-                                                    hapticToggle(view)()
-                                                }
-                                                onThemeSelected(option.theme)
-                                                onSetBackgroundSource(BackgroundSource.THEME)
-                                            },
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(6.dp),
+            // Disableable section: theme controls are greyed out when Device Theme is active
+            Box(modifier = Modifier.alpha(if (deviceThemeEnabled) 0.38f else 1f)) {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(
+                            modifier = Modifier.fillMaxWidth().selectableGroup(),
+                            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+                            verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Box(
-                                modifier =
-                                        Modifier.fillMaxWidth()
-                                                .height(44.dp)
-                                                .clip(MaterialTheme.shapes.medium)
-                                                .background(
-                                                        Brush.linearGradient(
-                                                                colors =
-                                                                        AppThemeColors(
-                                                                                theme = option.theme,
-                                                                                isDarkMode = isDarkMode,
-                                                                                intensity = overlayThemeIntensity,
-                                                                        ),
-                                                        ),
-                                                )
-                                                .border(
-                                                        width = DesignTokens.BorderWidth,
-                                                        color = AppColors.SettingsDivider,
-                                                        shape = MaterialTheme.shapes.medium,
-                                                ),
-                                contentAlignment = Alignment.Center,
-                        ) {
-                            if (isSelected) {
-                                Box(
-                                        modifier =
-                                                Modifier.size(22.dp)
-                                                        .clip(CircleShape)
-                                                        .background(MaterialTheme.colorScheme.primary),
-                                        contentAlignment = Alignment.Center,
-                                ) {
-                                    Icon(
-                                            imageVector = Icons.Rounded.Check,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.onPrimary,
-                                            modifier = Modifier.size(14.dp),
-                                    )
-                                }
-                            }
-                        }
-                        Text(
-                                text = stringResource(option.labelRes),
-                                style = MaterialTheme.typography.labelSmall,
-                                color =
-                                        if (isSelected) {
-                                            MaterialTheme.colorScheme.onSurface
-                                        } else {
-                                            MaterialTheme.colorScheme.onSurfaceVariant
-                                        },
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
+                        AppModeOption(
+                                label = stringResource(R.string.common_theme_light),
+                                icon = Icons.Rounded.LightMode,
+                                selected = appThemeMode == AppThemeMode.LIGHT,
+                                onClick = { onSetAppThemeMode(AppThemeMode.LIGHT) },
+                                modifier = Modifier.weight(1f),
+                        )
+                        AppModeOption(
+                                label = stringResource(R.string.common_theme_dark),
+                                icon = Icons.Rounded.DarkMode,
+                                selected = appThemeMode == AppThemeMode.DARK,
+                                onClick = { onSetAppThemeMode(AppThemeMode.DARK) },
+                                modifier = Modifier.weight(1f),
+                        )
+                        AppModeOption(
+                                label = stringResource(R.string.common_theme_system),
+                                icon = Icons.Rounded.Settings,
+                                selected = appThemeMode == AppThemeMode.SYSTEM,
+                                onClick = { onSetAppThemeMode(AppThemeMode.SYSTEM) },
+                                modifier = Modifier.weight(1f),
                         )
                     }
+
+                    HorizontalDivider(
+                            color = AppColors.SettingsDivider,
+                            modifier = Modifier.padding(horizontal = 75.dp, vertical = 12.dp),
+                    )
+
+                    Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        themeOptions.forEach { option ->
+                            val isSelected = !deviceThemeEnabled && effectiveSelectedTheme == option.theme && isThemeSourceSelected
+                            val interactionSource = remember { MutableInteractionSource() }
+                            Column(
+                                    modifier =
+                                            Modifier.weight(1f)
+                                                    .clickable(
+                                                            interactionSource = interactionSource,
+                                                            indication = null,
+                                                    ) {
+                                                        if (!isSelected) {
+                                                            hapticToggle(view)()
+                                                        }
+                                                        onThemeSelected(option.theme)
+                                                        onSetBackgroundSource(BackgroundSource.THEME)
+                                                    },
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                            ) {
+                                Box(
+                                        modifier =
+                                                Modifier.fillMaxWidth()
+                                                        .height(44.dp)
+                                                        .clip(MaterialTheme.shapes.medium)
+                                                        .background(
+                                                                Brush.linearGradient(
+                                                                        colors =
+                                                                                AppThemeColors(
+                                                                                        theme = option.theme,
+                                                                                        isDarkMode = isDarkMode,
+                                                                                        intensity = overlayThemeIntensity,
+                                                                                ),
+                                                                ),
+                                                        )
+                                                        .border(
+                                                                width = DesignTokens.BorderWidth,
+                                                                color = AppColors.SettingsDivider,
+                                                                shape = MaterialTheme.shapes.medium,
+                                                        ),
+                                        contentAlignment = Alignment.Center,
+                                ) {
+                                    if (isSelected) {
+                                        Box(
+                                                modifier =
+                                                        Modifier.size(22.dp)
+                                                                .clip(CircleShape)
+                                                                .background(MaterialTheme.colorScheme.primary),
+                                                contentAlignment = Alignment.Center,
+                                        ) {
+                                            Icon(
+                                                    imageVector = Icons.Rounded.Check,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                                    modifier = Modifier.size(14.dp),
+                                            )
+                                        }
+                                    }
+                                }
+                                Text(
+                                        text = stringResource(option.labelRes),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color =
+                                                if (isSelected) {
+                                                    MaterialTheme.colorScheme.onSurface
+                                                } else {
+                                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                                },
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                        }
+                    }
+
+                    if (isThemeSourceSelected && !deviceThemeEnabled) {
+                        Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            Icon(
+                                    imageVector = Icons.Rounded.LightMode,
+                                    contentDescription =
+                                            stringResource(R.string.settings_overlay_theme_tone_lighter),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Slider(
+                                    value = overlayThemeIntensity,
+                                    onValueChange = { value ->
+                                        val step =
+                                                ((value - minIntensity) / intensityStep)
+                                                        .roundToInt()
+                                                        .coerceIn(
+                                                                0,
+                                                                UiPreferences.OVERLAY_THEME_INTENSITY_DELTA_STEPS *
+                                                                        2,
+                                                        )
+                                        if (step != lastToneStep) {
+                                            hapticToggle(view)()
+                                            lastToneStep = step
+                                        }
+                                        onOverlayThemeIntensityChange(value)
+                                    },
+                                    valueRange = minIntensity..maxIntensity,
+                                    steps = intensitySteps,
+                                    modifier = Modifier.weight(1f),
+                            )
+                            Icon(
+                                    imageVector = Icons.Rounded.DarkMode,
+                                    contentDescription =
+                                            stringResource(R.string.settings_overlay_theme_tone_darker),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+
+                }
+
+                // Transparent overlay to block interactions when Device Theme is active
+                if (deviceThemeEnabled) {
+                    Box(
+                            modifier =
+                                    Modifier.matchParentSize()
+                                            .clickable(
+                                                    indication = null,
+                                                    interactionSource = remember { MutableInteractionSource() },
+                                            ) {
+                                                Toast.makeText(
+                                                        context,
+                                                        context.getString(R.string.settings_device_theme_blocked_toast),
+                                                        Toast.LENGTH_SHORT,
+                                                ).show()
+                                            },
+                    )
                 }
             }
 
-            if (isThemeSourceSelected) {
-                Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    Icon(
-                            imageVector = Icons.Rounded.LightMode,
-                            contentDescription =
-                                    stringResource(R.string.settings_overlay_theme_tone_lighter),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Slider(
-                            value = overlayThemeIntensity,
-                            onValueChange = { value ->
-                                val step =
-                                        ((value - minIntensity) / intensityStep)
-                                                .roundToInt()
-                                                .coerceIn(
-                                                        0,
-                                                        UiPreferences.OVERLAY_THEME_INTENSITY_DELTA_STEPS *
-                                                                2,
-                                                )
-                                if (step != lastToneStep) {
-                                    hapticToggle(view)()
-                                    lastToneStep = step
-                                }
-                                onOverlayThemeIntensityChange(value)
-                            },
-                            valueRange = minIntensity..maxIntensity,
-                            steps = intensitySteps,
-                            modifier = Modifier.weight(1f),
-                    )
-                    Icon(
-                            imageVector = Icons.Rounded.DarkMode,
-                            contentDescription =
-                                    stringResource(R.string.settings_overlay_theme_tone_darker),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                SettingsToggleRow(
+                        title = stringResource(R.string.settings_device_theme_title),
+                        subtitle = stringResource(R.string.settings_device_theme_desc),
+                        checked = deviceThemeEnabled,
+                        onCheckedChange = onDeviceThemeToggle,
+                        horizontalPadding = DesignTokens.SpacingSmall,
+                        isLastItem = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU,
+                        showDivider = false,
+                )
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -328,6 +368,7 @@ fun WallpaperCard(
         onRequestWallpaperPermission: () -> Unit,
         wallpaperAccentEnabled: Boolean,
         onWallpaperAccentToggle: (Boolean) -> Unit,
+        deviceThemeEnabled: Boolean = false,
         modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
@@ -462,14 +503,22 @@ fun WallpaperCard(
                 OverlaySourceBox(
                         modifier = Modifier.weight(1f),
                         selected = isCustomSourceSelected,
-                        enabled = true,
+                        enabled = !deviceThemeEnabled,
                         hasImage = customPreviewBitmap != null,
                         onClick = {
-                            hapticToggle(view)()
-                            if (customPreviewBitmap != null) {
-                                onSetBackgroundSource(BackgroundSource.CUSTOM_IMAGE)
+                            if (!deviceThemeEnabled) {
+                                hapticToggle(view)()
+                                if (customPreviewBitmap != null) {
+                                    onSetBackgroundSource(BackgroundSource.CUSTOM_IMAGE)
+                                } else {
+                                    onPickCustomImage()
+                                }
                             } else {
-                                onPickCustomImage()
+                                Toast.makeText(
+                                        context,
+                                        context.getString(R.string.settings_device_theme_blocked_toast),
+                                        Toast.LENGTH_SHORT,
+                                ).show()
                             }
                         },
                         label = stringResource(R.string.settings_overlay_source_custom),
@@ -518,8 +567,16 @@ fun WallpaperCard(
                                                 .clip(CircleShape)
                                                 .background(Color.Black)
                                                 .clickable {
-                                                    hapticToggle(view)()
-                                                    onPickCustomImage()
+                                                    if (!deviceThemeEnabled) {
+                                                        hapticToggle(view)()
+                                                        onPickCustomImage()
+                                                    } else {
+                                                        Toast.makeText(
+                                                                context,
+                                                                context.getString(R.string.settings_device_theme_blocked_toast),
+                                                                Toast.LENGTH_SHORT,
+                                                        ).show()
+                                                    }
                                                 },
                                 contentAlignment = Alignment.Center,
                         ) {
