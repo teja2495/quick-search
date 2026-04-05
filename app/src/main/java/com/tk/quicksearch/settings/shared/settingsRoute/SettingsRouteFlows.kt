@@ -53,6 +53,7 @@ internal fun rememberWallpaperPermissionController(
 
     suspend fun tryFetchWallpaperWithFilesPermission(
         showFallbackDialogOnSecurityError: Boolean = true,
+        autoSelectWallpaper: Boolean = true,
     ) {
         val accessState =
             WallpaperUtils.resolveWallpaperAccessState(
@@ -69,7 +70,7 @@ internal fun rememberWallpaperPermissionController(
         }
 
         onSetWallpaperAvailable(accessState.wallpaperAvailable)
-        if (accessState.shouldSelectSystemWallpaper) {
+        if (autoSelectWallpaper && accessState.shouldSelectSystemWallpaper) {
             onSetBackgroundSource(BackgroundSource.SYSTEM_WALLPAPER)
         }
         if (accessState.shouldShowFallbackDialog) {
@@ -146,6 +147,7 @@ internal fun rememberWallpaperPermissionController(
                 scope.launch {
                     tryFetchWallpaperWithFilesPermission(
                         showFallbackDialogOnSecurityError = false,
+                        autoSelectWallpaper = false,
                     )
                 }
             }
