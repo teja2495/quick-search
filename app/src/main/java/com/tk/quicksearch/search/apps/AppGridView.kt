@@ -62,10 +62,10 @@ import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
-import com.tk.quicksearch.shared.ui.theme.LocalAppTheme
 import com.tk.quicksearch.shared.ui.theme.LocalDeviceDynamicColorsActive
 import com.tk.quicksearch.shared.ui.theme.LocalImageBackgroundIsDark
-import com.tk.quicksearch.shared.ui.theme.ThemeColorRegistry
+import com.tk.quicksearch.shared.ui.theme.LocalIsSystemWallpaperActive
+import com.tk.quicksearch.shared.ui.theme.LocalWallpaperDynamicAccentActive
 import com.tk.quicksearch.shared.util.getAppGridColumns
 import com.tk.quicksearch.shared.util.hapticConfirm
 
@@ -82,6 +82,9 @@ private const val LightWallpaperAppIconShadowSpotAlpha = 0.45f
 private const val APP_GRID_FADE_IN_DURATION_MS = 140
 private const val APP_GRID_FADE_OUT_DURATION_MS = 100
 private const val APP_GRID_FADE_IN_DELAY_MS = 70
+private const val ThemedMonochromeGlyphScale = 1.42f
+private const val UnsupportedThemedIconGlyphScale = 0.62f
+private const val UnsupportedThemedIconGlyphAlpha = 0.72f
 private enum class AppIconDisplayMode {
     OVERLAY,
     REGULAR,
@@ -539,27 +542,51 @@ private fun AppIconSurface(
         showWallpaperBackground: Boolean = false,
 ) {
     val view = LocalView.current
+    val context = LocalContext.current
     val isDarkTheme = LocalAppIsDarkTheme.current
     val colorScheme = MaterialTheme.colorScheme
     val useLightWallpaperShadow = showWallpaperBackground && !isDarkTheme
     val showThemedIcon = themedIconsEnabled && !hasCustomIconPack &&
             android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU
-    val useMaterialYouIconColors = LocalDeviceDynamicColorsActive.current
-    val appTheme = LocalAppTheme.current
-    val themedIconPalette = ThemeColorRegistry.themedIconColors(appTheme, isDarkTheme)
-    // Use system dynamic colors when Material You is enabled.
-    // Otherwise keep existing theme-based icon colors.
+    val useSystemMaterialYouTones =
+            android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S &&
+                    (LocalDeviceDynamicColorsActive.current || LocalIsSystemWallpaperActive.current)
+    val useWallpaperDerivedAccent = LocalWallpaperDynamicAccentActive.current
+    val useCustomThemeDarkThemedIconColors =
+            isDarkTheme && !useSystemMaterialYouTones && !useWallpaperDerivedAccent
     val themedIconBackground =
-            if (useMaterialYouIconColors) {
-                if (isDarkTheme) colorScheme.onPrimary else colorScheme.primaryContainer
+            if (useSystemMaterialYouTones) {
+                Color(
+                        androidx.core.content.ContextCompat.getColor(
+                                context,
+                                if (isDarkTheme) {
+                                    android.R.color.system_accent2_800
+                                } else {
+                                    android.R.color.system_accent1_100
+                                },
+                        ),
+                )
+            } else if (useCustomThemeDarkThemedIconColors) {
+                colorScheme.secondaryContainer
             } else {
-                themedIconPalette.background
+                colorScheme.primaryContainer
             }
     val themedIconForeground =
-            if (useMaterialYouIconColors) {
-                colorScheme.primary
+            if (useSystemMaterialYouTones) {
+                Color(
+                        androidx.core.content.ContextCompat.getColor(
+                                context,
+                                if (isDarkTheme) {
+                                    android.R.color.system_accent1_200
+                                } else {
+                                    android.R.color.system_accent1_600
+                                },
+                        ),
+                )
+            } else if (useCustomThemeDarkThemedIconColors) {
+                colorScheme.onSecondaryContainer
             } else {
-                themedIconPalette.foreground
+                colorScheme.primary
             }
     val themedIconContainerShape = CircleShape
 
@@ -610,7 +637,7 @@ private fun AppIconSurface(
                     Image(
                             bitmap = monochromeData,
                             contentDescription = stringResource(R.string.desc_launch_app, appName),
-                            modifier = Modifier.requiredSize(appIconSize * 1.3f),
+                            modifier = Modifier.requiredSize(appIconSize * ThemedMonochromeGlyphScale),
                             colorFilter = ColorFilter.tint(themedIconForeground),
                     )
                 }
@@ -645,9 +672,9 @@ private fun AppIconSurface(
                         Image(
                                 bitmap = iconBitmap,
                                 contentDescription = stringResource(R.string.desc_launch_app, appName),
-                                modifier = Modifier.requiredSize(appIconSize * 0.55f),
+                                modifier = Modifier.requiredSize(appIconSize * UnsupportedThemedIconGlyphScale),
                                 colorFilter = ColorFilter.tint(
-                                        themedIconForeground.copy(alpha = 0.6f),
+                                        themedIconForeground.copy(alpha = UnsupportedThemedIconGlyphAlpha),
                                         BlendMode.SrcAtop,
                                 ),
                         )
