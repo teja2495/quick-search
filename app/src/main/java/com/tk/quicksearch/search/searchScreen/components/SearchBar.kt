@@ -526,11 +526,20 @@ internal fun PersistentSearchBar(
                     .animateContentSize(),
             shape = DesignTokens.ShapeXXLarge,
             placeholder = {
-                Text(
-                    text = placeholderText,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = iconAndTextColor.copy(alpha = DesignTokens.SearchFieldPlaceholderAlpha),
-                )
+                AnimatedContent(
+                    targetState = placeholderText,
+                    transitionSpec = {
+                        fadeIn(animationSpec = tween(durationMillis = 400)) togetherWith
+                                fadeOut(animationSpec = tween(durationMillis = 400))
+                    },
+                    label = "SearchPlaceholderHint",
+                ) { text ->
+                    Text(
+                        text = text,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = iconAndTextColor.copy(alpha = DesignTokens.SearchFieldPlaceholderAlpha),
+                    )
+                }
             },
             textStyle =
                 MaterialTheme.typography.titleMedium.copy(color = iconAndTextColor),

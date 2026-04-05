@@ -11,6 +11,21 @@
     <string name="search_hint_settings">Search Device Settings…</string>
     <string name="search_hint_calendar">Search Calendar Events…</string>
     <string name="search_hint_app_settings">Search App Settings…</string>
+    <!-- Cycling search bar hint examples -->
+    <string-array name="search_hints_cycle">
+        <item>Search Contacts</item>
+        <item>Search Files</item>
+        <item>Search Calendar Events</item>
+        <item>Search Apps</item>
+        <item>Search App Shortcuts</item>
+        <item>Search Settings</item>
+        <item>5 USD to INR</item>
+        <item>5 lbs in kgs</item>
+        <item>3 months from now</item>
+        <item>5 + 5</item>
+        <item>Time in UK</item>
+        <item>Define Serendipity</item>
+    </string-array>
     <!-- ============================================================================
          Common
          ============================================================================ -->
