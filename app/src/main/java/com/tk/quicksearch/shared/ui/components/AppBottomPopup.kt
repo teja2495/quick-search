@@ -28,7 +28,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import com.tk.quicksearch.shared.ui.theme.AppColors
-import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -116,10 +115,7 @@ fun AppBottomPopup(
                         )
                         .padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 24.dp),
                 shape = MaterialTheme.shapes.extraLarge,
-                color = if (LocalAppIsDarkTheme.current)
-                    MaterialTheme.colorScheme.surfaceContainerHigh
-                else
-                    MaterialTheme.colorScheme.primaryContainer,
+                color = AppColors.getDrawerContainerColor(),
             ) {
                 Column(
                     modifier =

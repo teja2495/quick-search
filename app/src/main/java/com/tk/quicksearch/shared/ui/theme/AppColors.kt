@@ -314,7 +314,7 @@ object AppColors {
 
     val DialogBackground: Color
         @Composable
-        get() = current.dialogBackground
+        get() = getDialogContainerColor()
 
     val DialogText: Color
         @Composable
@@ -710,6 +710,24 @@ object AppColors {
             Color.White.copy(alpha = 0.12f)
         } else {
             MaterialTheme.colorScheme.outlineVariant
+        }
+
+    @Composable
+    fun getDialogContainerColor(): Color =
+        if (LocalDeviceDynamicColorsActive.current) {
+            MaterialTheme.colorScheme.surfaceContainerHigh
+        } else {
+            current.dialogBackground
+        }
+
+    @Composable
+    fun getDrawerContainerColor(): Color =
+        if (LocalDeviceDynamicColorsActive.current) {
+            MaterialTheme.colorScheme.surfaceContainerHigh
+        } else if (LocalAppIsDarkTheme.current) {
+            MaterialTheme.colorScheme.surfaceContainerHigh
+        } else {
+            MaterialTheme.colorScheme.primaryContainer
         }
 
     @Composable
