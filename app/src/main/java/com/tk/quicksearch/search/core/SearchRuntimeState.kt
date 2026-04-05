@@ -33,7 +33,7 @@ internal data class SearchRuntimeState(
     var showAppLabels: Boolean = true,
     var phoneAppGridColumns: Int,
     var appIconShape: AppIconShape = AppIconShape.DEFAULT,
-    var launcherAppIcon: LauncherAppIcon = LauncherAppIcon.AUTO,
+    var launcherAppIcon: LauncherAppIcon = LauncherAppIcon.DEFAULT,
     var themedIconsEnabled: Boolean = false,
     var wallpaperBackgroundAlpha: Float,
     var wallpaperBlurRadius: Float,

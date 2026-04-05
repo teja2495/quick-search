@@ -53,7 +53,7 @@ class StartupPreferencesFacade(
             val appSuggestionsEnabled: Boolean,
             val showAppLabels: Boolean,
             val appIconShape: AppIconShape,
-            val launcherAppIcon: LauncherAppIcon = LauncherAppIcon.AUTO,
+            val launcherAppIcon: LauncherAppIcon = LauncherAppIcon.DEFAULT,
             val themedIconsEnabled: Boolean = true,
             val maskUnsupportedIconPackIcons: Boolean = false,
             val phoneAppGridColumns: Int = com.tk.quicksearch.search.data.preferences.UiPreferences.DEFAULT_PHONE_APP_GRID_COLUMNS,
@@ -402,7 +402,7 @@ class StartupPreferencesFacade(
                                 ?.let { value ->
                                     runCatching { LauncherAppIcon.valueOf(value) }.getOrNull()
                                 }
-                                ?: LauncherAppIcon.AUTO,
+                                ?: LauncherAppIcon.DEFAULT,
                 themedIconsEnabled =
                         allPrefs[
                                 com.tk.quicksearch.search.data.preferences.UiPreferences
@@ -748,7 +748,7 @@ class StartupPreferencesFacade(
                                         ?.let { value ->
                                             runCatching { LauncherAppIcon.valueOf(value) }.getOrNull()
                                         }
-                                        ?: LauncherAppIcon.AUTO,
+                                        ?: LauncherAppIcon.DEFAULT,
                         themedIconsEnabled =
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.UiPreferences

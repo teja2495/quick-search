@@ -206,7 +206,7 @@ data class SearchUiConfigState(
         val showAppLabels: Boolean = true,
         val phoneAppGridColumns: Int = com.tk.quicksearch.search.data.preferences.UiPreferences.DEFAULT_PHONE_APP_GRID_COLUMNS,
         val appIconShape: AppIconShape = AppIconShape.DEFAULT,
-        val launcherAppIcon: LauncherAppIcon = LauncherAppIcon.AUTO,
+        val launcherAppIcon: LauncherAppIcon = LauncherAppIcon.DEFAULT,
         val themedIconsEnabled: Boolean = true,
         val wallpaperAccentEnabled: Boolean = true,
         val appSuggestionsEnabled: Boolean = true,

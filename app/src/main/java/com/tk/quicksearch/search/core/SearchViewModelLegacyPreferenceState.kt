@@ -26,7 +26,7 @@ internal class SearchViewModelLegacyPreferenceState(
     var showAppLabels: Boolean = true
     var phoneAppGridColumns: Int = UiPreferences.DEFAULT_PHONE_APP_GRID_COLUMNS
     var appIconShape: AppIconShape = AppIconShape.DEFAULT
-    var launcherAppIcon: LauncherAppIcon = LauncherAppIcon.AUTO
+    var launcherAppIcon: LauncherAppIcon = LauncherAppIcon.DEFAULT
     var themedIconsEnabled: Boolean = false
     var maskUnsupportedIconPackIcons: Boolean = false
     var wallpaperBackgroundAlpha: Float = UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA

@@ -561,8 +561,6 @@ class SearchViewModel(
     private fun applyLauncherIconSelection(selection: LauncherAppIcon = launcherAppIcon) {
         launcherIconManager.applySelection(
                 selection = selection,
-                appTheme = appTheme,
-                isDarkMode = computeEffectiveIsDarkMode(),
         )
     }
     // Contact Actions

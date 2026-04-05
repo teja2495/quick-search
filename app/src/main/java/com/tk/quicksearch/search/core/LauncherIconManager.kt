@@ -10,10 +10,8 @@ class LauncherIconManager(
 ) {
     fun applySelection(
         selection: LauncherAppIcon,
-        appTheme: AppTheme,
-        isDarkMode: Boolean,
     ) {
-        val resolved = resolveSelection(selection, appTheme, isDarkMode)
+        val resolved = selection
         val packageManager = context.packageManager
         // Enable the new alias first, then disable the rest. Enabling before disabling ensures
         // Android does not kill the app when the previously-active alias is disabled.
@@ -36,26 +34,6 @@ class LauncherIconManager(
             }
         }
     }
-
-    private fun resolveSelection(
-        selection: LauncherAppIcon,
-        appTheme: AppTheme,
-        isDarkMode: Boolean,
-    ): LauncherAppIcon =
-        when (selection) {
-            LauncherAppIcon.AUTO ->
-                when (appTheme) {
-                    AppTheme.MONOCHROME ->
-                        if (isDarkMode) LauncherAppIcon.MONOCHROME_DARK else LauncherAppIcon.MONOCHROME_LIGHT
-                    AppTheme.FOREST ->
-                        if (isDarkMode) LauncherAppIcon.FOREST_DARK else LauncherAppIcon.FOREST_LIGHT
-                    AppTheme.AURORA ->
-                        if (isDarkMode) LauncherAppIcon.AURORA_DARK else LauncherAppIcon.AURORA_LIGHT
-                    AppTheme.SUNSET ->
-                        if (isDarkMode) LauncherAppIcon.SUNSET_DARK else LauncherAppIcon.SUNSET_LIGHT
-                }
-            else -> selection
-        }
 
     companion object {
         private const val DEFAULT_ALIAS = "com.tk.quicksearch.app.MainActivityAliasDefault"

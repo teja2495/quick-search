@@ -25,7 +25,7 @@ internal data class SearchPreferenceCache(
     val showAppLabels: Boolean = true,
     val phoneAppGridColumns: Int = UiPreferences.DEFAULT_PHONE_APP_GRID_COLUMNS,
     val appIconShape: AppIconShape = AppIconShape.DEFAULT,
-    val launcherAppIcon: LauncherAppIcon = LauncherAppIcon.AUTO,
+    val launcherAppIcon: LauncherAppIcon = LauncherAppIcon.DEFAULT,
     val themedIconsEnabled: Boolean = false,
     val maskUnsupportedIconPackIcons: Boolean = false,
     val wallpaperBackgroundAlpha: Float = UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA,

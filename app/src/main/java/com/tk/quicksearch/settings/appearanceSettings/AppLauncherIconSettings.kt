@@ -37,7 +37,6 @@ import com.tk.quicksearch.search.core.LauncherAppIcon
 import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.util.hapticConfirm
 
 private object LauncherIconPickerSpacing {
@@ -52,15 +51,13 @@ private val LauncherIconPreviewSize = DesignTokens.Spacing48
 private const val IconsPerRow = 4
 
 @Composable
+@Suppress("UNUSED_PARAMETER")
 fun AppLauncherIconCard(
     launcherAppIcon: LauncherAppIcon,
     onSetLauncherAppIcon: (LauncherAppIcon) -> Unit,
     appTheme: AppTheme,
     modifier: Modifier = Modifier,
 ) {
-    val isDarkMode = LocalAppIsDarkTheme.current
-    val themeResolvedLauncherIcon = resolveAutoIcon(appTheme = appTheme, isDarkMode = isDarkMode)
-
     val tiles = launcherIconPickerTiles()
 
     SettingsCard(modifier = modifier.fillMaxWidth()) {
@@ -92,19 +89,12 @@ fun AppLauncherIconCard(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         rowTiles.forEach { tile ->
-                            val selected =
-                                isLauncherVariantTileSelected(
-                                    stored = launcherAppIcon,
-                                    variant = tile.selection,
-                                    themeResolvedIcon = themeResolvedLauncherIcon,
-                                )
+                            val selected = launcherAppIcon == tile.selection
                             LauncherIconOptionTile(
                                 previewMipmapRes = tile.previewMipmapRes,
                                 selected = selected,
                                 onClick = {
-                                    if (launcherAppIcon != LauncherAppIcon.AUTO ||
-                                        tile.selection != themeResolvedLauncherIcon
-                                    ) {
+                                    if (launcherAppIcon != tile.selection) {
                                         onSetLauncherAppIcon(tile.selection)
                                     }
                                 },
@@ -128,17 +118,6 @@ fun AppLauncherIconCard(
         }
     }
 }
-
-private fun isLauncherVariantTileSelected(
-    stored: LauncherAppIcon,
-    variant: LauncherAppIcon,
-    themeResolvedIcon: LauncherAppIcon,
-): Boolean =
-    when (stored) {
-        LauncherAppIcon.DEFAULT -> false
-        LauncherAppIcon.AUTO -> themeResolvedIcon == variant
-        else -> stored == variant
-    }
 
 @Composable
 private fun LauncherIconOptionTile(
@@ -232,7 +211,6 @@ private fun launcherIconPickerTiles(): List<LauncherIconTile> {
 private fun launcherAppIconToPreviewMipmap(icon: LauncherAppIcon): Int =
     when (icon) {
         LauncherAppIcon.DEFAULT -> R.mipmap.ic_launcher
-        LauncherAppIcon.AUTO -> R.mipmap.ic_launcher
         LauncherAppIcon.MONOCHROME_LIGHT -> R.mipmap.ic_launcher_monochrome_light
         LauncherAppIcon.MONOCHROME_DARK -> R.mipmap.ic_launcher_monochrome_dark
         LauncherAppIcon.FOREST_LIGHT -> R.mipmap.ic_launcher_forest_light
@@ -241,19 +219,4 @@ private fun launcherAppIconToPreviewMipmap(icon: LauncherAppIcon): Int =
         LauncherAppIcon.AURORA_DARK -> R.mipmap.ic_launcher_aurora_dark
         LauncherAppIcon.SUNSET_LIGHT -> R.mipmap.ic_launcher_sunset_light
         LauncherAppIcon.SUNSET_DARK -> R.mipmap.ic_launcher_sunset_dark
-    }
-
-private fun resolveAutoIcon(
-    appTheme: AppTheme,
-    isDarkMode: Boolean,
-): LauncherAppIcon =
-    when (appTheme) {
-        AppTheme.MONOCHROME ->
-            if (isDarkMode) LauncherAppIcon.MONOCHROME_DARK else LauncherAppIcon.MONOCHROME_LIGHT
-        AppTheme.FOREST ->
-            if (isDarkMode) LauncherAppIcon.FOREST_DARK else LauncherAppIcon.FOREST_LIGHT
-        AppTheme.AURORA ->
-            if (isDarkMode) LauncherAppIcon.AURORA_DARK else LauncherAppIcon.AURORA_LIGHT
-        AppTheme.SUNSET ->
-            if (isDarkMode) LauncherAppIcon.SUNSET_DARK else LauncherAppIcon.SUNSET_LIGHT
     }
