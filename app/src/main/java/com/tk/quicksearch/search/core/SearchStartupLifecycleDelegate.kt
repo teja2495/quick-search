@@ -11,6 +11,7 @@ import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.apps.prefetchAppIcons
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.shared.util.PackageConstants
+import com.tk.quicksearch.shared.util.WallpaperUtils
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -228,7 +229,7 @@ internal class SearchStartupLifecycleDelegate(
         val hasFiles = hasFilePermission()
         val hasCalendar = hasCalendarPermission()
         val hasCall = PermissionHelper.checkCallPermission(applicationProvider())
-        val hasWallpaper = PermissionHelper.checkWallpaperPermission(applicationProvider())
+        val hasWallpaper = WallpaperUtils.hasWallpaperAccessPermission(applicationProvider())
         val previousState = permissionStateProvider()
         val changed =
             previousState.hasContactPermission != hasContacts ||
@@ -430,7 +431,7 @@ internal class SearchStartupLifecycleDelegate(
         val hasFilePermission = hasFilePermission()
         val hasCalendarPermission = hasCalendarPermission()
         val hasCallPermission = PermissionHelper.checkCallPermission(applicationProvider())
-        val hasWallpaperPermission = PermissionHelper.checkWallpaperPermission(applicationProvider())
+        val hasWallpaperPermission = WallpaperUtils.hasWallpaperAccessPermission(applicationProvider())
         val disabledAppShortcutIds = userPreferences.getDisabledAppShortcutIds()
 
         withContext(Dispatchers.Main) {

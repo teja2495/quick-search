@@ -15,6 +15,7 @@ import android.os.Build
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.tk.quicksearch.search.core.BackgroundSource
+import com.tk.quicksearch.shared.permissions.PermissionHelper
 import androidx.core.content.ContextCompat
 import java.io.File
 import java.io.FileOutputStream
@@ -60,6 +61,21 @@ object WallpaperUtils {
         object Unavailable : WallpaperLoadResult()
     }
 
+    data class WallpaperAccessState(
+        val wallpaperAvailable: Boolean,
+        val needsPermission: Boolean,
+        val requiresImagePermissionAfterSecurityError: Boolean,
+        val shouldSelectSystemWallpaper: Boolean,
+        val shouldShowFallbackDialog: Boolean,
+    )
+
+    /**
+     * Permission gate used by wallpaper background selection flows.
+     * This follows the app's files-permission model for wallpaper access.
+     */
+    fun hasWallpaperAccessPermission(context: Context): Boolean =
+        PermissionHelper.checkFilesPermission(context)
+
     /**
      * Checks if the app has permission to access wallpapers on Android 13+.
      */
@@ -80,6 +96,65 @@ object WallpaperUtils {
      */
     fun wallpaperRequiresPermission(context: Context): Boolean =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !hasWallpaperPermission(context)
+
+    fun resolveWallpaperAccessState(
+        result: WallpaperLoadResult,
+        showFallbackDialogOnSecurityError: Boolean = true,
+    ): WallpaperAccessState =
+        when (result) {
+            is WallpaperLoadResult.Success ->
+                WallpaperAccessState(
+                    wallpaperAvailable = true,
+                    needsPermission = false,
+                    requiresImagePermissionAfterSecurityError = false,
+                    shouldSelectSystemWallpaper = true,
+                    shouldShowFallbackDialog = false,
+                )
+
+            WallpaperLoadResult.SecurityError ->
+                WallpaperAccessState(
+                    wallpaperAvailable = false,
+                    needsPermission = true,
+                    requiresImagePermissionAfterSecurityError = true,
+                    shouldSelectSystemWallpaper = false,
+                    shouldShowFallbackDialog = showFallbackDialogOnSecurityError,
+                )
+
+            WallpaperLoadResult.PermissionRequired ->
+                WallpaperAccessState(
+                    wallpaperAvailable = false,
+                    needsPermission = true,
+                    requiresImagePermissionAfterSecurityError = false,
+                    shouldSelectSystemWallpaper = false,
+                    shouldShowFallbackDialog = false,
+                )
+
+            WallpaperLoadResult.Unavailable ->
+                WallpaperAccessState(
+                    wallpaperAvailable = false,
+                    needsPermission = false,
+                    requiresImagePermissionAfterSecurityError = false,
+                    shouldSelectSystemWallpaper = false,
+                    shouldShowFallbackDialog = false,
+                )
+        }
+
+    fun shouldUseImageBackground(
+        backgroundSource: BackgroundSource,
+        hasImageBitmap: Boolean,
+        wallpaperAvailable: Boolean,
+        requireWallpaperAvailableForSystemSource: Boolean = true,
+    ): Boolean {
+        if (backgroundSource == BackgroundSource.THEME || !hasImageBitmap) return false
+        if (
+            requireWallpaperAvailableForSystemSource &&
+            backgroundSource == BackgroundSource.SYSTEM_WALLPAPER &&
+            !wallpaperAvailable
+        ) {
+            return false
+        }
+        return true
+    }
 
     /**
      * Gets the cached wallpaper bitmap synchronously.

@@ -86,7 +86,7 @@ internal fun SearchScreenWallpaperLogic(
         produceState<ImageBitmap?>(
             initialValue = null,
             state.backgroundSource,
-            state.hasWallpaperPermission,
+            state.wallpaperAvailable,
             state.startupBackgroundPreviewPath,
             wallpaperChangeVersion,
         ) {
@@ -155,16 +155,12 @@ internal fun SearchScreenWallpaperLogic(
             BackgroundSource.CUSTOM_IMAGE -> sourceCustomBitmap
             BackgroundSource.THEME -> null
         }
-    val systemWallpaperAvailableForRendering =
-        if (state.backgroundSource == BackgroundSource.SYSTEM_WALLPAPER) {
-            state.hasWallpaperPermission && state.wallpaperAvailable
-        } else {
-            true
-        }
     val useImageBackground =
-        state.backgroundSource != BackgroundSource.THEME &&
-            imageBitmap != null &&
-            systemWallpaperAvailableForRendering
+        WallpaperUtils.shouldUseImageBackground(
+            backgroundSource = state.backgroundSource,
+            hasImageBitmap = imageBitmap?.value != null,
+            wallpaperAvailable = state.wallpaperAvailable,
+        )
     val useMonoThemeFallback =
         !isOverlayPresentation &&
             state.backgroundSource != BackgroundSource.THEME &&

@@ -233,6 +233,7 @@ fun OverlayRoot(
                                         initialValue = null,
                                         key1 = uiState.backgroundSource,
                                         key2 = wallpaperChangeVersion,
+                                        key3 = uiState.wallpaperAvailable,
                                 ) {
                                         value =
                                                 if (
@@ -240,11 +241,16 @@ fun OverlayRoot(
                                                                         BackgroundSource
                                                                                 .SYSTEM_WALLPAPER
                                                 ) {
-                                                        WallpaperUtils.getCachedWallpaperBitmap()
-                                                                ?.asImageBitmap()
-                                                                ?: WallpaperUtils
-                                                                        .getWallpaperBitmap(context)
-                                                                        ?.asImageBitmap()
+                                                        val bitmap =
+                                                                WallpaperUtils.getCachedWallpaperBitmap()
+                                                                        ?: WallpaperUtils
+                                                                                .getWallpaperBitmap(context)
+                                                        if (bitmap != null &&
+                                                                !uiState.wallpaperAvailable
+                                                        ) {
+                                                                viewModel.setWallpaperAvailable(true)
+                                                        }
+                                                        bitmap?.asImageBitmap()
                                                 } else {
                                                         null
                                                 }
@@ -276,11 +282,14 @@ fun OverlayRoot(
                                         BackgroundSource.THEME -> null
                                 }
                         val useImageBackground =
-                                uiState.backgroundSource != BackgroundSource.THEME &&
-                                        overlayImageBitmap != null
+                                WallpaperUtils.shouldUseImageBackground(
+                                        backgroundSource = uiState.backgroundSource,
+                                        hasImageBitmap = overlayImageBitmap != null,
+                                        wallpaperAvailable = uiState.wallpaperAvailable,
+                                )
                         val useMonoThemeFallback =
                                 uiState.backgroundSource != BackgroundSource.THEME &&
-                                        overlayImageBitmap == null
+                                        !useImageBackground
 
                         val overlayEntryProgress by animateFloatAsState(
                                 targetValue = if (canPlayEnterAnimation && isVisible) 1f else 0f,

@@ -49,36 +49,31 @@ internal fun rememberWallpaperPermissionController(
     var showWallpaperFallbackDialog by remember { mutableStateOf(false) }
     var requiresImagePermissionAfterSecurityError by remember { mutableStateOf(false) }
     var wallpaperButtonHasPermission by
-        remember { mutableStateOf(PermissionHelper.checkFilesPermission(context)) }
+        remember { mutableStateOf(WallpaperUtils.hasWallpaperAccessPermission(context)) }
 
     suspend fun tryFetchWallpaperWithFilesPermission(
         showFallbackDialogOnSecurityError: Boolean = true,
     ) {
-        when (WallpaperUtils.getWallpaperBitmapResult(context)) {
-            is WallpaperUtils.WallpaperLoadResult.Success -> {
-                requiresImagePermissionAfterSecurityError = false
-                wallpaperButtonHasPermission = true
-                onSetWallpaperAvailable(true)
-                onSetBackgroundSource(BackgroundSource.SYSTEM_WALLPAPER)
-            }
+        val accessState =
+            WallpaperUtils.resolveWallpaperAccessState(
+                result = WallpaperUtils.getWallpaperBitmapResult(context),
+                showFallbackDialogOnSecurityError = showFallbackDialogOnSecurityError,
+            )
 
-            WallpaperUtils.WallpaperLoadResult.SecurityError -> {
-                requiresImagePermissionAfterSecurityError = true
-                wallpaperButtonHasPermission = false
-                onSetWallpaperAvailable(false)
-                if (showFallbackDialogOnSecurityError) {
-                    showWallpaperFallbackDialog = true
-                }
-            }
+        requiresImagePermissionAfterSecurityError =
+            accessState.requiresImagePermissionAfterSecurityError
+        if (accessState.needsPermission) {
+            wallpaperButtonHasPermission = false
+        } else if (accessState.wallpaperAvailable) {
+            wallpaperButtonHasPermission = true
+        }
 
-            WallpaperUtils.WallpaperLoadResult.PermissionRequired -> {
-                wallpaperButtonHasPermission = false
-                onSetWallpaperAvailable(false)
-            }
-
-            WallpaperUtils.WallpaperLoadResult.Unavailable -> {
-                onSetWallpaperAvailable(false)
-            }
+        onSetWallpaperAvailable(accessState.wallpaperAvailable)
+        if (accessState.shouldSelectSystemWallpaper) {
+            onSetBackgroundSource(BackgroundSource.SYSTEM_WALLPAPER)
+        }
+        if (accessState.shouldShowFallbackDialog) {
+            showWallpaperFallbackDialog = true
         }
     }
 
@@ -86,7 +81,7 @@ internal fun rememberWallpaperPermissionController(
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.StartActivityForResult(),
         ) {
-            val filesGranted = PermissionHelper.checkFilesPermission(context)
+            val filesGranted = WallpaperUtils.hasWallpaperAccessPermission(context)
             wallpaperButtonHasPermission = filesGranted && !requiresImagePermissionAfterSecurityError
             if (filesGranted) {
                 scope.launch { tryFetchWallpaperWithFilesPermission() }
@@ -143,7 +138,7 @@ internal fun rememberWallpaperPermissionController(
         hasWallpaperPermission = wallpaperButtonHasPermission,
         onRequestPermission = onRequestWallpaperPermission,
         onRefreshPermissionState = {
-            val filesPermissionGranted = PermissionHelper.checkFilesPermission(context)
+            val filesPermissionGranted = WallpaperUtils.hasWallpaperAccessPermission(context)
             if (!filesPermissionGranted || requiresImagePermissionAfterSecurityError) {
                 wallpaperButtonHasPermission = false
                 onSetWallpaperAvailable(false)

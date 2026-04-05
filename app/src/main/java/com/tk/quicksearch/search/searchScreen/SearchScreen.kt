@@ -361,9 +361,7 @@ fun SearchScreen(
                         com.tk.quicksearch.shared.ui.theme.DesignTokens.WallpaperFadeInDuration + 120
                     },
                 fallbackBackgroundAlpha =
-                    if (stateResult.useMonoThemeFallback) {
-                        1f
-                    } else if (effectiveBackgroundSource == com.tk.quicksearch.search.core.BackgroundSource.THEME) {
+                    if (effectiveBackgroundSource == com.tk.quicksearch.search.core.BackgroundSource.THEME) {
                         ThemeModeFallbackBackgroundAlpha
                     } else {
                         1f
