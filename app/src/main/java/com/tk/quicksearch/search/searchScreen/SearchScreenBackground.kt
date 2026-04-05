@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -113,20 +112,7 @@ internal fun SearchScreenBackground(
                     .background(fallbackGradientBrush)
                     .background(
                         Brush.verticalGradient(
-                            colors =
-                                if (isDarkMode) {
-                                    listOf(
-                                        Color.Black.copy(alpha = 0.22f),
-                                        Color.Black.copy(alpha = 0.12f),
-                                        Color.Black.copy(alpha = 0.3f),
-                                    )
-                                } else {
-                                    listOf(
-                                        Color.White.copy(alpha = 0.12f),
-                                        Color.Transparent,
-                                        Color.Black.copy(alpha = 0.06f),
-                                    )
-                                },
+                            colors = AppColors.ThemeFallbackGradientScrimColors,
                         )
                     )
             } else {

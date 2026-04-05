@@ -482,17 +482,9 @@ fun WallpaperCard(
                                         modifier =
                                                 Modifier.fillMaxSize()
                                                         .background(
-                                                                if (isDarkMode) {
-                                                                    Color.Black.copy(
-                                                                            alpha =
-                                                                                    wallpaperBackgroundAlpha
-                                                                    )
-                                                                } else {
-                                                                    Color.White.copy(
-                                                                            alpha =
-                                                                                    wallpaperBackgroundAlpha
-                                                                    )
-                                                                },
+                                                                AppColors.WallpaperOverlayTint.copy(
+                                                                        alpha = wallpaperBackgroundAlpha,
+                                                                ),
                                                         ),
                                 )
                             }
@@ -544,17 +536,9 @@ fun WallpaperCard(
                                         modifier =
                                                 Modifier.fillMaxSize()
                                                         .background(
-                                                                if (isDarkMode) {
-                                                                    Color.Black.copy(
-                                                                            alpha =
-                                                                                    wallpaperBackgroundAlpha
-                                                                    )
-                                                                } else {
-                                                                    Color.White.copy(
-                                                                            alpha =
-                                                                                    wallpaperBackgroundAlpha
-                                                                    )
-                                                                },
+                                                                AppColors.WallpaperOverlayTint.copy(
+                                                                        alpha = wallpaperBackgroundAlpha,
+                                                                ),
                                                         ),
                                 )
                             }
@@ -565,7 +549,7 @@ fun WallpaperCard(
                                                 .padding(6.dp)
                                                 .size(20.dp)
                                                 .clip(CircleShape)
-                                                .background(Color.Black)
+                                                .background(AppColors.CustomImageEditButtonBackground)
                                                 .clickable {
                                                     if (!deviceThemeEnabled) {
                                                         hapticToggle(view)()
@@ -586,7 +570,7 @@ fun WallpaperCard(
                                             stringResource(
                                                     R.string.settings_overlay_source_edit_custom
                                             ),
-                                    tint = Color.White,
+                                    tint = AppColors.CustomImageEditButtonIcon,
                                     modifier = Modifier.size(12.dp),
                             )
                         }

@@ -60,15 +60,12 @@ import com.tk.quicksearch.search.data.AppShortcutRepository.launchStaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
-import com.tk.quicksearch.shared.ui.theme.AuroraThemeAccent
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.theme.ForestThemeAccent
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.ui.theme.LocalAppTheme
 import com.tk.quicksearch.shared.ui.theme.LocalImageBackgroundIsDark
 import com.tk.quicksearch.shared.ui.theme.LocalWallpaperDynamicAccentActive
-import com.tk.quicksearch.shared.ui.theme.MonochromeThemeAccent
-import com.tk.quicksearch.shared.ui.theme.SunsetThemeAccent
+import com.tk.quicksearch.shared.ui.theme.ThemeColorRegistry
 import com.tk.quicksearch.shared.util.getAppGridColumns
 import com.tk.quicksearch.shared.util.hapticConfirm
 
@@ -89,35 +86,6 @@ private enum class AppIconDisplayMode {
     OVERLAY,
     REGULAR,
 }
-
-private data class LightModeThemedIconPalette(
-        val background: Color,
-        val foreground: Color,
-)
-
-private fun themedIconPaletteForLightMode(theme: AppTheme): LightModeThemedIconPalette =
-        when (theme) {
-            AppTheme.FOREST ->
-                    LightModeThemedIconPalette(
-                            background = Color(0xFFDDF3D9),
-                            foreground = Color(0xFF1F6A31),
-                    )
-            AppTheme.AURORA ->
-                    LightModeThemedIconPalette(
-                            background = Color(0xFFD9ECFF),
-                            foreground = Color(0xFF0E5AAE),
-                    )
-            AppTheme.SUNSET ->
-                    LightModeThemedIconPalette(
-                            background = Color(0xFFFFE3D6),
-                            foreground = Color(0xFFAA3008),
-                    )
-            AppTheme.MONOCHROME ->
-                    LightModeThemedIconPalette(
-                            background = Color(0xFFE8E6E2),
-                            foreground = Color(0xFF1F1F1F),
-                    )
-        }
 
 /** Data class containing all app actions to reduce parameter count in composables. */
 private data class AppActions(
@@ -578,14 +546,8 @@ private fun AppIconSurface(
     val useWallpaperDynamicAccentForIcons =
             showWallpaperBackground && LocalWallpaperDynamicAccentActive.current
     val appTheme = LocalAppTheme.current
-    val lightModePalette = themedIconPaletteForLightMode(appTheme)
-    val themeAccent =
-            when (appTheme) {
-                AppTheme.FOREST -> ForestThemeAccent
-                AppTheme.AURORA -> AuroraThemeAccent
-                AppTheme.SUNSET -> SunsetThemeAccent
-                AppTheme.MONOCHROME -> MonochromeThemeAccent
-            }
+    val lightModePalette = ThemeColorRegistry.lightModeThemedIconPalette(appTheme)
+    val themeAccent = ThemeColorRegistry.accent(appTheme)
     // Use image-derived dynamic accents for themed icons when wallpaper accent is active.
     // Otherwise keep existing theme-based icon colors.
     val themedIconBackground =

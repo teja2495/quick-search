@@ -29,6 +29,9 @@ internal const val SearchBarBackgroundAlphaDark = 0.65f
 /** Search bar scrim fill alpha for the light palette (white). */
 internal const val SearchBarBackgroundAlphaLight = 0.9f
 
+/** Keyboard open/switch button alpha for light wallpaper/custom-image mode. */
+internal const val LightWallpaperKeyboardButtonAlpha = 0.5f
+
 /**
  * Base alpha for THEME-mode fallback background layers.
  * Shared by search and settings so both screens render the same theme-depth.
@@ -500,6 +503,8 @@ object AppColors {
     val WidgetContactAvatarDarkOnBackground: Color = md_theme_dark_onPrimaryContainer
     val WidgetContactAvatarLightBackground: Color = md_theme_light_primaryContainer
     val WidgetContactAvatarLightOnBackground: Color = md_theme_light_onPrimaryContainer
+    val CustomImageEditButtonBackground: Color = Color.Black
+    val CustomImageEditButtonIcon: Color = Color.White
 
     // ============================================================================
     // SEARCH FIELD WELCOME PALETTES
@@ -573,69 +578,33 @@ object AppColors {
     // APP THEME GRADIENT PALETTES
     // ============================================================================
 
-    val ForestDarkPalette =
-        listOf(
-            Color(0xFF27382F),
-            Color(0xFF2F4640),
-            Color(0xFF435034),
-            Color(0xFF1F3340),
-        )
+    val ForestDarkPalette
+        get() = ThemeColorRegistry.gradient(AppTheme.FOREST, isDarkMode = true)
 
-    val AuroraDarkPalette =
-        listOf(
-            Color(0xFF1F2E4A),
-            Color(0xFF1F4A5A),
-            Color(0xFF3A3E6B),
-            Color(0xFF2A3150),
-        )
+    val AuroraDarkPalette
+        get() = ThemeColorRegistry.gradient(AppTheme.AURORA, isDarkMode = true)
 
-    val SunsetDarkPalette =
-        listOf(
-            Color(0xFF4A2C34),
-            Color(0xFF5A3A2A),
-            Color(0xFF5C3046),
-            Color(0xFF3E2A3B),
-        )
+    val SunsetDarkPalette
+        get() = ThemeColorRegistry.gradient(AppTheme.SUNSET, isDarkMode = true)
 
-    val MonochromeDarkPalette =
-        listOf(
-            Color(0xFF0A0A0A),
-            Color(0xFF1E1E1E),
-            Color(0xFF2C2C2C),
-            Color(0xFF141414),
-        )
+    val MonochromeDarkPalette
+        get() = ThemeColorRegistry.gradient(AppTheme.MONOCHROME, isDarkMode = true)
 
-    val ForestLightPalette =
-        listOf(
-            Color(0xFFCDE8D8),
-            Color(0xFFD2EACC),
-            Color(0xFFDAECCA),
-            Color(0xFFC4E4D4),
-        )
+    val ForestLightPalette
+        get() = ThemeColorRegistry.gradient(AppTheme.FOREST, isDarkMode = false)
 
-    val AuroraLightPalette =
-        listOf(
-            Color(0xFFC8DEF8),
-            Color(0xFFC4E4F8),
-            Color(0xFFCECEF8),
-            Color(0xFFC0D8F4),
-        )
+    val AuroraLightPalette
+        get() = ThemeColorRegistry.gradient(AppTheme.AURORA, isDarkMode = false)
 
-    val SunsetLightPalette =
-        listOf(
-            Color(0xFFF5C8B4),
-            Color(0xFFF5D8B0),
-            Color(0xFFECC4D0),
-            Color(0xFFF0C0BC),
-        )
+    val SunsetLightPalette
+        get() = ThemeColorRegistry.gradient(AppTheme.SUNSET, isDarkMode = false)
 
-    val MonochromeLightPalette =
-        listOf(
-            Color(0xFFEDEAE4),
-            Color(0xFFE0DCD6),
-            Color(0xFFD4D0C8),
-            Color(0xFFC6C2BA),
-        )
+    val MonochromeLightPalette
+        get() = ThemeColorRegistry.gradient(AppTheme.MONOCHROME, isDarkMode = false)
+
+    val ThemeFallbackGradientScrimColors: List<Color>
+        @Composable
+        get() = if (LocalAppIsDarkTheme.current) ThemeColorRegistry.ThemeFallbackScrimDark else ThemeColorRegistry.ThemeFallbackScrimLight
 
     // ============================================================================
     // CARD THEMING UTILITIES

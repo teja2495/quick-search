@@ -51,65 +51,13 @@ data class ThemeAccentColors(
     val darkOnSecondaryContainer: Color,
 )
 
-val ForestThemeAccent = ThemeAccentColors(
-    lightPrimary = Color(0xFF2E7D32),
-    lightOnPrimary = Color(0xFFFFFFFF),
-    lightPrimaryContainer = Color(0xFFC8E6C9),
-    lightOnPrimaryContainer = Color(0xFF1B5E20),
-    lightSecondaryContainer = Color(0xFFC8E6C9),
-    lightOnSecondaryContainer = Color(0xFF1B5E20),
-    darkPrimary = Color(0xFF81C784),
-    darkOnPrimary = Color(0xFF1B3A1D),
-    darkPrimaryContainer = Color(0xFF2E7D32),
-    darkOnPrimaryContainer = Color(0xFFC8E6C9),
-    darkSecondaryContainer = Color(0xFF1B3A1D),
-    darkOnSecondaryContainer = Color(0xFFC8E6C9),
-)
+val ForestThemeAccent = ThemeColorRegistry.accent(com.tk.quicksearch.search.core.AppTheme.FOREST)
 
-val AuroraThemeAccent = ThemeAccentColors(
-    lightPrimary = Color(0xFF1565C0),
-    lightOnPrimary = Color(0xFFFFFFFF),
-    lightPrimaryContainer = Color(0xFFBBDEFB),
-    lightOnPrimaryContainer = Color(0xFF0D47A1),
-    lightSecondaryContainer = Color(0xFFBBDEFB),
-    lightOnSecondaryContainer = Color(0xFF0D47A1),
-    darkPrimary = Color(0xFF90CAF9),
-    darkOnPrimary = Color(0xFF0D2A5A),
-    darkPrimaryContainer = Color(0xFF1565C0),
-    darkOnPrimaryContainer = Color(0xFFBBDEFB),
-    darkSecondaryContainer = Color(0xFF0D2A5A),
-    darkOnSecondaryContainer = Color(0xFFBBDEFB),
-)
+val AuroraThemeAccent = ThemeColorRegistry.accent(com.tk.quicksearch.search.core.AppTheme.AURORA)
 
-val SunsetThemeAccent = ThemeAccentColors(
-    lightPrimary = Color(0xFFBF360C),
-    lightOnPrimary = Color(0xFFFFFFFF),
-    lightPrimaryContainer = Color(0xFFFFCCBC),
-    lightOnPrimaryContainer = Color(0xFF7B1E00),
-    lightSecondaryContainer = Color(0xFFFFCCBC),
-    lightOnSecondaryContainer = Color(0xFF7B1E00),
-    darkPrimary = Color(0xFFFFAB91),
-    darkOnPrimary = Color(0xFF5C1A06),
-    darkPrimaryContainer = Color(0xFFBF360C),
-    darkOnPrimaryContainer = Color(0xFFFFCCBC),
-    darkSecondaryContainer = Color(0xFF5C1A06),
-    darkOnSecondaryContainer = Color(0xFFFFCCBC),
-)
+val SunsetThemeAccent = ThemeColorRegistry.accent(com.tk.quicksearch.search.core.AppTheme.SUNSET)
 
-val MonochromeThemeAccent = ThemeAccentColors(
-    lightPrimary = Color(0xFF212121),
-    lightOnPrimary = Color(0xFFFFFFFF),
-    lightPrimaryContainer = Color(0xFFE0E0E0),
-    lightOnPrimaryContainer = Color(0xFF121212),
-    lightSecondaryContainer = Color(0xFFF0EEEB),
-    lightOnSecondaryContainer = Color(0xFF212121),
-    darkPrimary = Color(0xFFD4D0C8),
-    darkOnPrimary = Color(0xFF121212),
-    darkPrimaryContainer = Color(0xFF2C2C2C),
-    darkOnPrimaryContainer = Color(0xFFE0E0E0),
-    darkSecondaryContainer = Color(0xFF1E1E1E),
-    darkOnSecondaryContainer = Color(0xFFD0D0D0),
-)
+val MonochromeThemeAccent = ThemeColorRegistry.accent(com.tk.quicksearch.search.core.AppTheme.MONOCHROME)
 
 // ============================================================================
 // Light Theme Colors

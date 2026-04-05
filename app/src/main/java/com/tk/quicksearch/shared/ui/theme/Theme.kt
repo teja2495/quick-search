@@ -91,12 +91,7 @@ private val LightColorScheme =
     )
 
 private fun accentForTheme(appTheme: com.tk.quicksearch.search.core.AppTheme): ThemeAccentColors =
-    when (appTheme) {
-        com.tk.quicksearch.search.core.AppTheme.FOREST -> ForestThemeAccent
-        com.tk.quicksearch.search.core.AppTheme.AURORA -> AuroraThemeAccent
-        com.tk.quicksearch.search.core.AppTheme.SUNSET -> SunsetThemeAccent
-        com.tk.quicksearch.search.core.AppTheme.MONOCHROME -> MonochromeThemeAccent
-    }
+    ThemeColorRegistry.accent(appTheme)
 
 private data class ImageAccentSlots(
     val primary: Color,
@@ -122,18 +117,30 @@ private fun resolveImageAccentSlots(
     val secondaryPalette = palette.a2
     val tertiaryPalette = palette.a3
 
-    val primaryTone = if (useDarkTheme) 80 else 40
-    val onPrimaryTone = if (useDarkTheme) 20 else 100
-    val tertiaryTone = if (useDarkTheme) 80 else 40
-    val onTertiaryTone = if (useDarkTheme) 20 else 100
-    val primaryContainerTone = if (useDarkTheme) 30 else 90
-    val onPrimaryContainerTone = if (useDarkTheme) 90 else 10
-    val secondaryTone = if (useDarkTheme) 80 else 40
-    val onSecondaryTone = if (useDarkTheme) 20 else 100
-    val secondaryContainerTone = if (useDarkTheme) 30 else 90
-    val onSecondaryContainerTone = if (useDarkTheme) 90 else 10
-    val tertiaryContainerTone = if (useDarkTheme) 30 else 90
-    val onTertiaryContainerTone = if (useDarkTheme) 90 else 10
+    val primaryTone =
+        if (useDarkTheme) ThemeColorRegistry.MaterialYouPrimaryToneDark else ThemeColorRegistry.MaterialYouPrimaryToneLight
+    val onPrimaryTone =
+        if (useDarkTheme) ThemeColorRegistry.MaterialYouOnPrimaryToneDark else ThemeColorRegistry.MaterialYouOnPrimaryToneLight
+    val tertiaryTone =
+        if (useDarkTheme) ThemeColorRegistry.MaterialYouPrimaryToneDark else ThemeColorRegistry.MaterialYouPrimaryToneLight
+    val onTertiaryTone =
+        if (useDarkTheme) ThemeColorRegistry.MaterialYouOnPrimaryToneDark else ThemeColorRegistry.MaterialYouOnPrimaryToneLight
+    val primaryContainerTone =
+        if (useDarkTheme) ThemeColorRegistry.MaterialYouContainerToneDark else ThemeColorRegistry.MaterialYouContainerToneLight
+    val onPrimaryContainerTone =
+        if (useDarkTheme) ThemeColorRegistry.MaterialYouOnContainerToneDark else ThemeColorRegistry.MaterialYouOnContainerToneLight
+    val secondaryTone =
+        if (useDarkTheme) ThemeColorRegistry.MaterialYouPrimaryToneDark else ThemeColorRegistry.MaterialYouPrimaryToneLight
+    val onSecondaryTone =
+        if (useDarkTheme) ThemeColorRegistry.MaterialYouOnPrimaryToneDark else ThemeColorRegistry.MaterialYouOnPrimaryToneLight
+    val secondaryContainerTone =
+        if (useDarkTheme) ThemeColorRegistry.MaterialYouContainerToneDark else ThemeColorRegistry.MaterialYouContainerToneLight
+    val onSecondaryContainerTone =
+        if (useDarkTheme) ThemeColorRegistry.MaterialYouOnContainerToneDark else ThemeColorRegistry.MaterialYouOnContainerToneLight
+    val tertiaryContainerTone =
+        if (useDarkTheme) ThemeColorRegistry.MaterialYouContainerToneDark else ThemeColorRegistry.MaterialYouContainerToneLight
+    val onTertiaryContainerTone =
+        if (useDarkTheme) ThemeColorRegistry.MaterialYouOnContainerToneDark else ThemeColorRegistry.MaterialYouOnContainerToneLight
 
     return ImageAccentSlots(
         primary = Color(primaryPalette.tone(primaryTone)),

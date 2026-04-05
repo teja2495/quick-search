@@ -7,6 +7,7 @@ import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DarkWallpaperSearchSurfaceAlpha
 import com.tk.quicksearch.shared.ui.theme.LightResultCardFrostAlpha
+import com.tk.quicksearch.shared.ui.theme.LightWallpaperKeyboardButtonAlpha
 import com.tk.quicksearch.shared.ui.theme.LightWallpaperSearchResultCardAlpha
 import com.tk.quicksearch.shared.ui.theme.SearchColorTheme
 
@@ -129,7 +130,7 @@ internal fun resolveSearchColorTheme(
                     if (isDarkMode) {
                         Color.Black.copy(alpha = DarkWallpaperSearchSurfaceAlpha)
                     } else {
-                        Color.White.copy(alpha = 0.5f)
+                        Color.White.copy(alpha = LightWallpaperKeyboardButtonAlpha)
                     },
             )
         }
