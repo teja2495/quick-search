@@ -172,6 +172,14 @@ object PermissionHelper {
         return wasPreviouslyDenied && !shouldShowRationale
     }
 
+    fun shouldShowRuntimePermissionRationale(
+        context: Context,
+        permission: String,
+    ): Boolean {
+        val activity = findActivity(context) ?: return false
+        return ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)
+    }
+
     fun handleDeniedRuntimePermission(
         context: Context,
         permission: String,

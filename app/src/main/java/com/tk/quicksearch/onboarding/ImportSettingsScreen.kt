@@ -220,12 +220,14 @@ fun ImportSettingsScreen(
                     enter = fadeIn(tween(DesignTokens.AnimationDurationShort)),
                     exit = fadeOut(tween(DesignTokens.AnimationDurationShort)),
                 ) {
-                    OutlinedButton(
+                    Button(
                         onClick = { importLauncher.launch(arrayOf("*/*")) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(DesignTokens.OnboardingButtonCornerRadius),
-                        border = BorderStroke(1.dp, AppColors.Accent),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = AppColors.Accent),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = AppColors.Accent,
+                            contentColor = AppColors.OnAccent,
+                        ),
                         contentPadding = PaddingValues(
                             horizontal = DesignTokens.OnboardingButtonHorizontalPadding,
                             vertical = DesignTokens.OnboardingButtonVerticalPadding,
@@ -257,43 +259,45 @@ fun ImportSettingsScreen(
 
             Spacer(modifier = Modifier.height(DesignTokens.OnboardingSectionSpacing))
 
-            // Bottom CTA: "Skip" normally, "Start Searching!" after successful import
-            Button(
-                onClick = {
-                    if (screenState == ImportScreenState.Success) onImportSuccess() else onSkip()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = DesignTokens.OnboardingButtonOuterHorizontalPadding),
-                shape = RoundedCornerShape(DesignTokens.OnboardingButtonCornerRadius),
-                contentPadding = PaddingValues(
-                    horizontal = DesignTokens.OnboardingButtonHorizontalPadding,
-                    vertical = DesignTokens.OnboardingButtonVerticalPadding,
-                ),
-                colors = if (screenState == ImportScreenState.Success) {
-                    ButtonDefaults.buttonColors()
-                } else {
-                    ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                },
-                enabled = screenState != ImportScreenState.Importing,
-            ) {
-                AnimatedContent(
-                    targetState = screenState == ImportScreenState.Success,
-                    transitionSpec = {
-                        fadeIn(tween(DesignTokens.AnimationDurationMedium)) togetherWith
-                            fadeOut(tween(DesignTokens.AnimationDurationShort))
-                    },
-                    label = "buttonText",
-                ) { isSuccess ->
+            // Bottom CTA: outlined "Skip" normally, primary "Start Searching!" after successful import
+            if (screenState == ImportScreenState.Success) {
+                Button(
+                    onClick = onImportSuccess,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = DesignTokens.OnboardingButtonOuterHorizontalPadding),
+                    shape = RoundedCornerShape(DesignTokens.OnboardingButtonCornerRadius),
+                    contentPadding = PaddingValues(
+                        horizontal = DesignTokens.OnboardingButtonHorizontalPadding,
+                        vertical = DesignTokens.OnboardingButtonVerticalPadding,
+                    ),
+                    enabled = screenState != ImportScreenState.Importing,
+                ) {
                     Text(
-                        text = if (isSuccess) {
-                            stringResource(R.string.setup_action_start)
-                        } else {
-                            stringResource(R.string.setup_import_skip)
-                        },
+                        text = stringResource(R.string.setup_action_start),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
+            } else {
+                OutlinedButton(
+                    onClick = onSkip,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = DesignTokens.OnboardingButtonOuterHorizontalPadding),
+                    shape = RoundedCornerShape(DesignTokens.OnboardingButtonCornerRadius),
+                    contentPadding = PaddingValues(
+                        horizontal = DesignTokens.OnboardingButtonHorizontalPadding,
+                        vertical = DesignTokens.OnboardingButtonVerticalPadding,
+                    ),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    ),
+                    enabled = screenState != ImportScreenState.Importing,
+                ) {
+                    Text(
+                        text = stringResource(R.string.setup_import_skip),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Medium,
                     )

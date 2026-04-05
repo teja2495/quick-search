@@ -115,14 +115,6 @@ fun AppearanceSettingsSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        AppLauncherIconCard(
-                launcherAppIcon = launcherAppIcon,
-                onSetLauncherAppIcon = onSetLauncherAppIcon,
-                appTheme = appTheme,
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         WallpaperCard(
                 wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
                 wallpaperBlurRadius = wallpaperBlurRadius,
@@ -136,6 +128,14 @@ fun AppearanceSettingsSection(
                 onRequestWallpaperPermission = onRequestWallpaperPermission,
                 wallpaperAccentEnabled = wallpaperAccentEnabled,
                 onWallpaperAccentToggle = onWallpaperAccentToggle,
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        AppLauncherIconCard(
+                launcherAppIcon = launcherAppIcon,
+                onSetLauncherAppIcon = onSetLauncherAppIcon,
+                appTheme = appTheme,
         )
 
         Spacer(modifier = Modifier.height(16.dp))

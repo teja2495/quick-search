@@ -92,30 +92,87 @@ fun PermissionsCardSection(
             contract = ActivityResultContracts.RequestMultiplePermissions(),
         ) { permissions ->
             permissions[Manifest.permission.READ_CONTACTS]?.let { contactsGranted ->
+                val contactsWasPreviouslyDenied = contactsPermissionState.wasDenied
+                val shouldShowContactsRationale =
+                    PermissionHelper.shouldShowRuntimePermissionRationale(
+                        context = context,
+                        permission = Manifest.permission.READ_CONTACTS,
+                    )
+                val shouldOpenContactsSettings =
+                    !contactsGranted &&
+                        contactsWasPreviouslyDenied &&
+                        !shouldShowContactsRationale
                 contactsPermissionState =
                     updatePermissionState(
                         isGranted = contactsGranted,
                         isEnabled = contactsGranted,
-                        wasDenied = !contactsGranted,
+                        wasDenied =
+                            !contactsGranted &&
+                                (
+                                    contactsWasPreviouslyDenied ||
+                                        shouldShowContactsRationale
+                                ),
                     )
+
+                if (shouldOpenContactsSettings) {
+                    PermissionHelper.launchAppSettingsRequest(context)
+                }
             }
 
             permissions[Manifest.permission.CALL_PHONE]?.let { callingGranted ->
+                val callingWasPreviouslyDenied = callingPermissionState.wasDenied
+                val shouldShowCallingRationale =
+                    PermissionHelper.shouldShowRuntimePermissionRationale(
+                        context = context,
+                        permission = Manifest.permission.CALL_PHONE,
+                    )
+                val shouldOpenCallingSettings =
+                    !callingGranted &&
+                        callingWasPreviouslyDenied &&
+                        !shouldShowCallingRationale
                 callingPermissionState =
                     updatePermissionState(
                         isGranted = callingGranted,
                         isEnabled = callingGranted,
-                        wasDenied = !callingGranted,
+                        wasDenied =
+                            !callingGranted &&
+                                (
+                                    callingWasPreviouslyDenied ||
+                                        shouldShowCallingRationale
+                                ),
                     )
+
+                if (shouldOpenCallingSettings) {
+                    PermissionHelper.launchAppSettingsRequest(context)
+                }
             }
 
             permissions[Manifest.permission.READ_CALENDAR]?.let { calendarGranted ->
+                val calendarWasPreviouslyDenied = calendarPermissionState.wasDenied
+                val shouldShowCalendarRationale =
+                    PermissionHelper.shouldShowRuntimePermissionRationale(
+                        context = context,
+                        permission = Manifest.permission.READ_CALENDAR,
+                    )
+                val shouldOpenCalendarSettings =
+                    !calendarGranted &&
+                        calendarWasPreviouslyDenied &&
+                        !shouldShowCalendarRationale
                 calendarPermissionState =
                     updatePermissionState(
                         isGranted = calendarGranted,
                         isEnabled = calendarGranted,
-                        wasDenied = !calendarGranted,
+                        wasDenied =
+                            !calendarGranted &&
+                                (
+                                    calendarWasPreviouslyDenied ||
+                                        shouldShowCalendarRationale
+                                ),
                     )
+
+                if (shouldOpenCalendarSettings) {
+                    PermissionHelper.launchAppSettingsRequest(context)
+                }
             }
 
             if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.R) {
@@ -217,13 +274,11 @@ fun PermissionsCardSection(
                     onToggleChange = { enabled ->
                         contactsPermissionState = contactsPermissionState.copy(isEnabled = enabled)
                         if (enabled && !contactsPermissionState.isGranted) {
-                            PermissionHelper.requestRuntimePermissionOrOpenSettings(
-                                context = context,
-                                permission = Manifest.permission.READ_CONTACTS,
-                                wasPreviouslyDenied = contactsPermissionState.wasDenied,
-                                runtimeLauncher = multiplePermissionsLauncher,
-                            )
-                            onRequestContactPermission()
+                            runCatching {
+                                multiplePermissionsLauncher.launch(arrayOf(Manifest.permission.READ_CONTACTS))
+                            }.onFailure {
+                                PermissionHelper.launchAppSettingsRequest(context)
+                            }
                         }
                     },
                 ),
@@ -258,13 +313,11 @@ fun PermissionsCardSection(
                         onToggleChange = { enabled ->
                             calendarPermissionState = calendarPermissionState.copy(isEnabled = enabled)
                             if (enabled && !calendarPermissionState.isGranted) {
-                                PermissionHelper.requestRuntimePermissionOrOpenSettings(
-                                    context = context,
-                                    permission = Manifest.permission.READ_CALENDAR,
-                                    wasPreviouslyDenied = calendarPermissionState.wasDenied,
-                                    runtimeLauncher = multiplePermissionsLauncher,
-                                )
-                                onRequestCalendarPermission()
+                                runCatching {
+                                    multiplePermissionsLauncher.launch(arrayOf(Manifest.permission.READ_CALENDAR))
+                                }.onFailure {
+                                    PermissionHelper.launchAppSettingsRequest(context)
+                                }
                             }
                         },
                     ),
@@ -280,13 +333,11 @@ fun PermissionsCardSection(
                         onToggleChange = { enabled ->
                             callingPermissionState = callingPermissionState.copy(isEnabled = enabled)
                             if (enabled && !callingPermissionState.isGranted) {
-                                PermissionHelper.requestRuntimePermissionOrOpenSettings(
-                                    context = context,
-                                    permission = Manifest.permission.CALL_PHONE,
-                                    wasPreviouslyDenied = callingPermissionState.wasDenied,
-                                    runtimeLauncher = multiplePermissionsLauncher,
-                                )
-                                onRequestCallPermission()
+                                runCatching {
+                                    multiplePermissionsLauncher.launch(arrayOf(Manifest.permission.CALL_PHONE))
+                                }.onFailure {
+                                    PermissionHelper.launchAppSettingsRequest(context)
+                                }
                             }
                         },
                     ),
