@@ -48,19 +48,16 @@ internal data class SearchPreferenceCache(
     companion object {
         fun from(
             config: StartupPreferencesFacade.StartupConfig,
-            wallpaperAccentEnabled: Boolean,
             assistantLaunchVoiceModeEnabled: Boolean,
         ): SearchPreferenceCache {
             return from(
                 prefs = config.startupPreferences,
-                wallpaperAccentEnabled = wallpaperAccentEnabled,
                 assistantLaunchVoiceModeEnabled = assistantLaunchVoiceModeEnabled,
             ).copy(oneHandedMode = config.oneHandedMode)
         }
 
         fun from(
             prefs: StartupPreferencesFacade.StartupPreferences,
-            wallpaperAccentEnabled: Boolean,
             assistantLaunchVoiceModeEnabled: Boolean,
         ): SearchPreferenceCache {
             return SearchPreferenceCache(
@@ -73,7 +70,7 @@ internal data class SearchPreferenceCache(
                 oneHandedMode = prefs.oneHandedMode,
                 bottomSearchBarEnabled = prefs.bottomSearchBarEnabled,
                 topResultIndicatorEnabled = prefs.topResultIndicatorEnabled,
-                wallpaperAccentEnabled = wallpaperAccentEnabled,
+                wallpaperAccentEnabled = prefs.wallpaperAccentEnabled,
                 openKeyboardOnLaunch = prefs.openKeyboardOnLaunch,
                 overlayModeEnabled = prefs.overlayModeEnabled,
                 autoCloseOverlay = prefs.autoCloseOverlay,

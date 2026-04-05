@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Matches md_theme_light_primaryContainer (default purple accent) -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <solid android:color="#EADDFF" />
+    <solid android:color="@color/launcher_icon_brand_background" />
 </shape>

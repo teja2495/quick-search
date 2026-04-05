@@ -51,8 +51,8 @@ import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 import com.tk.quicksearch.settings.shared.SettingsScreenState
 import com.tk.quicksearch.settings.shared.isAppSettingToggleEnabled
 import com.tk.quicksearch.settings.shared.settingsContentWidth
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import kotlinx.coroutines.launch
 
@@ -94,17 +94,18 @@ internal fun SettingsDetailLevel1Screen(
             state.excludedFileExtensions.isNotEmpty() ||
             state.excludedSettings.isNotEmpty() ||
             state.excludedAppShortcuts.isNotEmpty()
-    val effectiveAppTheme = if (detailType == SettingsDetailType.FEATURES_LIST) AppTheme.MONOCHROME else state.appTheme
+    val shouldForceMonochromeTheme = detailType == SettingsDetailType.FEATURES_LIST
+    val effectiveAppTheme = if (shouldForceMonochromeTheme) AppTheme.MONOCHROME else state.appTheme
+    val effectiveDeviceThemeEnabled = if (shouldForceMonochromeTheme) false else state.deviceThemeEnabled
     SettingsScreenBackground(
         appTheme = effectiveAppTheme,
         overlayThemeIntensity = state.overlayThemeIntensity,
-        deviceThemeEnabled = state.deviceThemeEnabled,
+        deviceThemeEnabled = effectiveDeviceThemeEnabled,
         modifier = modifier,
     ) {
-    val isDark = LocalAppIsDarkTheme.current
     MonoThemeWrapper(
-        applyMono = detailType == SettingsDetailType.FEATURES_LIST,
-        isDark = isDark,
+        applyMono = shouldForceMonochromeTheme,
+        appThemeMode = state.appThemeMode,
     ) {
     Box(
         modifier =
@@ -474,8 +475,8 @@ internal fun SettingsDetailLevel1Screen(
                         .align(Alignment.BottomEnd)
                         .padding(DesignTokens.SpacingLarge)
                         .size(40.dp),
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                containerColor = AppColors.Accent,
+                contentColor = AppColors.OnAccent,
             ) {
                 Icon(
                     imageVector = Icons.Rounded.KeyboardArrowUp,
@@ -529,13 +530,13 @@ internal fun SettingsDetailHeader(
 @Composable
 private fun MonoThemeWrapper(
     applyMono: Boolean,
-    isDark: Boolean,
+    appThemeMode: AppThemeMode,
     content: @Composable () -> Unit,
 ) {
     if (applyMono) {
         QuickSearchTheme(
             appTheme = AppTheme.MONOCHROME,
-            appThemeMode = if (isDark) AppThemeMode.DARK else AppThemeMode.LIGHT,
+            appThemeMode = appThemeMode,
         ) { content() }
     } else {
         content()

@@ -114,7 +114,11 @@ private fun WebSuggestionsCard(
                 // Add divider between items, but not after the last one
                 if (index < suggestions.size - 1) {
                     HorizontalDivider(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier =
+                            Modifier.padding(
+                                start = SUGGESTION_ICON_START_PADDING.dp,
+                                end = SUGGESTION_TEXT_END_PADDING.dp,
+                            ),
                         color = dividerColor,
                     )
                 }

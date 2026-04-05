@@ -196,6 +196,17 @@ internal fun SettingsDetailLevel2Screen(
                                 callbacks.onSetSearchSectionAlias(definition.aliasFeatureId, code)
                             },
                             onToolToggle = { toolId, enabled ->
+                                val requiresGeminiApiKey =
+                                        ToolSettingsRegistry.definitionFor(toolId)?.requiresGeminiApiKey == true
+                                if (enabled && requiresGeminiApiKey && !state.hasGeminiApiKey) {
+                                    android.widget.Toast.makeText(
+                                                    context,
+                                                    context.getString(R.string.currency_converter_requires_gemini_key),
+                                                    android.widget.Toast.LENGTH_SHORT,
+                                            )
+                                            .show()
+                                    return@ToolsSettingsSection
+                                }
                                 when (toolId) {
                                     ToolSettingId.CURRENCY_CONVERTER ->
                                             callbacks.onToggleCurrencyConverter(enabled)

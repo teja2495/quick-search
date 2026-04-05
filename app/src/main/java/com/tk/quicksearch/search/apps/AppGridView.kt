@@ -546,25 +546,20 @@ private fun AppIconSurface(
             android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU
     val useMaterialYouIconColors = LocalDeviceDynamicColorsActive.current
     val appTheme = LocalAppTheme.current
-    val lightModePalette = ThemeColorRegistry.lightModeThemedIconPalette(appTheme)
-    val themeAccent = ThemeColorRegistry.accent(appTheme)
+    val themedIconPalette = ThemeColorRegistry.themedIconColors(appTheme, isDarkTheme)
     // Use system dynamic colors when Material You is enabled.
     // Otherwise keep existing theme-based icon colors.
     val themedIconBackground =
             if (useMaterialYouIconColors) {
                 if (isDarkTheme) colorScheme.onPrimary else colorScheme.primaryContainer
-            } else if (isDarkTheme) {
-                themeAccent.lightOnPrimaryContainer
             } else {
-                Color.White
+                themedIconPalette.background
             }
     val themedIconForeground =
             if (useMaterialYouIconColors) {
                 colorScheme.primary
-            } else if (isDarkTheme) {
-                themeAccent.lightPrimaryContainer
             } else {
-                lightModePalette.foreground
+                themedIconPalette.foreground
             }
     val themedIconContainerShape = CircleShape
 

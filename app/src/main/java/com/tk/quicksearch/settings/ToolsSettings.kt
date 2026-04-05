@@ -87,7 +87,7 @@ fun ToolsSettingsSection(
                                 ToolToggleCardModel(
                                         title = stringResource(definition.titleResId),
                                         subtitle = stringResource(subtitleResId),
-                                        enabled = isAvailable,
+                                        enabled = true,
                                         checked = toolState.enabled && isAvailable,
                                         onCheckedChange = { enabled ->
                                             onToolToggle(definition.id, enabled)

@@ -420,7 +420,6 @@ internal class SearchStartupLifecycleDelegate(
         setPrefCache(
             SearchPreferenceCache.from(
                 config = startupConfig,
-                wallpaperAccentEnabled = userPreferences.isWallpaperAccentEnabled(),
                 assistantLaunchVoiceModeEnabled = userPreferences.isAssistantLaunchVoiceModeEnabled(),
             ),
         )
@@ -519,7 +518,6 @@ internal class SearchStartupLifecycleDelegate(
         setPrefCache(
             SearchPreferenceCache.from(
                 prefs = prefs,
-                wallpaperAccentEnabled = userPreferences.isWallpaperAccentEnabled(),
                 assistantLaunchVoiceModeEnabled = userPreferences.isAssistantLaunchVoiceModeEnabled(),
             ),
         )

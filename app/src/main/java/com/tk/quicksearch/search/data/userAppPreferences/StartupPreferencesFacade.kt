@@ -56,6 +56,7 @@ class StartupPreferencesFacade(
             val launcherAppIcon: LauncherAppIcon = LauncherAppIcon.DEFAULT,
             val themedIconsEnabled: Boolean = true,
             val deviceThemeEnabled: Boolean = false,
+            val wallpaperAccentEnabled: Boolean = true,
             val maskUnsupportedIconPackIcons: Boolean = false,
             val phoneAppGridColumns: Int = com.tk.quicksearch.search.data.preferences.UiPreferences.DEFAULT_PHONE_APP_GRID_COLUMNS,
     )
@@ -418,6 +419,13 @@ class StartupPreferencesFacade(
                         ] as?
                                 Boolean
                                 ?: false,
+                wallpaperAccentEnabled =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.UiPreferences
+                                        .KEY_WALLPAPER_ACCENT_ENABLED,
+                        ] as?
+                                Boolean
+                                ?: true,
                 maskUnsupportedIconPackIcons =
                         allPrefs[
                                 com.tk.quicksearch.search.data.preferences.UiPreferences
@@ -771,6 +779,13 @@ class StartupPreferencesFacade(
                                 ] as?
                                         Boolean
                                         ?: false,
+                        wallpaperAccentEnabled =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .KEY_WALLPAPER_ACCENT_ENABLED,
+                                ] as?
+                                        Boolean
+                                        ?: true,
                         maskUnsupportedIconPackIcons =
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.UiPreferences

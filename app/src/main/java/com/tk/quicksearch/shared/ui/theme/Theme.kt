@@ -301,7 +301,18 @@ fun QuickSearchTheme(
 
     val colorScheme =
         if (useDeviceDynamicColors) {
-            if (useDarkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            val dynamicScheme =
+                if (useDarkTheme) {
+                    dynamicDarkColorScheme(context)
+                } else {
+                    dynamicLightColorScheme(context)
+                }
+            val baseTextScheme = if (useDarkTheme) DarkColorScheme else LightColorScheme
+            dynamicScheme.copy(
+                onBackground = baseTextScheme.onBackground,
+                onSurface = baseTextScheme.onSurface,
+                onSurfaceVariant = baseTextScheme.onSurfaceVariant,
+            )
         } else if (imageAccentSlots != null) {
             if (useDarkTheme) {
                 withImageAccent(DarkColorScheme, imageAccentSlots)

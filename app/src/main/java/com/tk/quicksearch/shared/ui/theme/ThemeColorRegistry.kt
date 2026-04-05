@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 import com.tk.quicksearch.search.core.AppTheme
 
 @Immutable
-data class LightModeThemedIconPalette(
+data class ThemedIconColors(
     val background: Color,
     val foreground: Color,
 )
@@ -15,7 +15,8 @@ data class AppThemeColorBundle(
     val accent: ThemeAccentColors,
     val lightGradient: List<Color>,
     val darkGradient: List<Color>,
-    val lightThemedIconPalette: LightModeThemedIconPalette,
+    val lightThemedIconColors: ThemedIconColors,
+    val darkThemedIconColors: ThemedIconColors,
 )
 
 object ThemeColorRegistry {
@@ -73,10 +74,15 @@ object ThemeColorRegistry {
                     Color(0xFF435034),
                     Color(0xFF1F3340),
                 ),
-            lightThemedIconPalette =
-                LightModeThemedIconPalette(
+            lightThemedIconColors =
+                ThemedIconColors(
                     background = Color(0xFFDDF3D9),
                     foreground = Color(0xFF1F6A31),
+                ),
+            darkThemedIconColors =
+                ThemedIconColors(
+                    background = Color(0xFFC8E6C9),
+                    foreground = Color(0xFF2E7D32),
                 ),
         )
 
@@ -111,10 +117,15 @@ object ThemeColorRegistry {
                     Color(0xFF3A3E6B),
                     Color(0xFF2A3150),
                 ),
-            lightThemedIconPalette =
-                LightModeThemedIconPalette(
+            lightThemedIconColors =
+                ThemedIconColors(
                     background = Color(0xFFD9ECFF),
                     foreground = Color(0xFF0E5AAE),
+                ),
+            darkThemedIconColors =
+                ThemedIconColors(
+                    background = Color(0xFFBBDEFB),
+                    foreground = Color(0xFF1565C0),
                 ),
         )
 
@@ -149,10 +160,15 @@ object ThemeColorRegistry {
                     Color(0xFF5C3046),
                     Color(0xFF3E2A3B),
                 ),
-            lightThemedIconPalette =
-                LightModeThemedIconPalette(
+            lightThemedIconColors =
+                ThemedIconColors(
                     background = Color(0xFFFFE3D6),
                     foreground = Color(0xFFAA3008),
+                ),
+            darkThemedIconColors =
+                ThemedIconColors(
+                    background = Color(0xFFFFCCBC),
+                    foreground = Color(0xFFBF360C),
                 ),
         )
 
@@ -187,10 +203,15 @@ object ThemeColorRegistry {
                     Color(0xFF2C2C2C),
                     Color(0xFF141414),
                 ),
-            lightThemedIconPalette =
-                LightModeThemedIconPalette(
+            lightThemedIconColors =
+                ThemedIconColors(
                     background = Color(0xFFE8E6E2),
                     foreground = Color(0xFF1F1F1F),
+                ),
+            darkThemedIconColors =
+                ThemedIconColors(
+                    background = Color(0xFFE0E0E0),
+                    foreground = Color(0xFF2C2C2C),
                 ),
         )
 
@@ -209,6 +230,8 @@ object ThemeColorRegistry {
         isDarkMode: Boolean,
     ): List<Color> = if (isDarkMode) bundle(theme).darkGradient else bundle(theme).lightGradient
 
-    fun lightModeThemedIconPalette(theme: AppTheme): LightModeThemedIconPalette =
-        bundle(theme).lightThemedIconPalette
+    fun themedIconColors(
+        theme: AppTheme,
+        isDarkMode: Boolean,
+    ): ThemedIconColors = if (isDarkMode) bundle(theme).darkThemedIconColors else bundle(theme).lightThemedIconColors
 }

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand/default launcher icon colors -->
+    <color name="launcher_icon_brand_background">#EADDFF</color>
+    <color name="launcher_icon_brand_foreground">#21005D</color>
+
+    <!-- Monochrome launcher icon colors -->
+    <color name="launcher_icon_monochrome_light_background">#E0E0E0</color>
+    <color name="launcher_icon_monochrome_light_foreground">#121212</color>
+    <color name="launcher_icon_monochrome_dark_background">#2C2C2C</color>
+    <color name="launcher_icon_monochrome_dark_foreground">#E0E0E0</color>
+
+    <!-- Forest launcher icon colors -->
+    <color name="launcher_icon_forest_light_background">#C8E6C9</color>
+    <color name="launcher_icon_forest_light_foreground">#1B5E20</color>
+    <color name="launcher_icon_forest_dark_background">#2E7D32</color>
+    <color name="launcher_icon_forest_dark_foreground">#C8E6C9</color>
+
+    <!-- Aurora launcher icon colors -->
+    <color name="launcher_icon_aurora_light_background">#BBDEFB</color>
+    <color name="launcher_icon_aurora_light_foreground">#0D47A1</color>
+    <color name="launcher_icon_aurora_dark_background">#1565C0</color>
+    <color name="launcher_icon_aurora_dark_foreground">#BBDEFB</color>
+
+    <!-- Sunset launcher icon colors -->
+    <color name="launcher_icon_sunset_light_background">#FFCCBC</color>
+    <color name="launcher_icon_sunset_light_foreground">#7B1E00</color>
+    <color name="launcher_icon_sunset_dark_background">#BF360C</color>
+    <color name="launcher_icon_sunset_dark_foreground">#FFCCBC</color>
+</resources>

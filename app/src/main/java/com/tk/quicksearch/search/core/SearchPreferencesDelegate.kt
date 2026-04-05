@@ -385,6 +385,7 @@ internal class SearchPreferencesDelegate(
             userPreferences.setDeviceThemeEnabled(enabled)
             stateAccess.deviceThemeEnabled = enabled
             updateConfigState { it.copy(deviceThemeEnabled = enabled) }
+            stateAccess.saveStartupSurfaceSnapshotAsync(allowDuringQuery = true)
         }
     }
 
@@ -510,14 +511,13 @@ internal class SearchPreferencesDelegate(
     }
 
     fun setWallpaperAccentEnabled(enabled: Boolean) {
-        updateBooleanPreference(
-            value = enabled,
-            preferenceSetter = userPreferences::setWallpaperAccentEnabled,
-            stateUpdater = {
-                stateAccess.wallpaperAccentEnabled = it
-                updateUiState { state -> state.copy(wallpaperAccentEnabled = it) }
-            },
-        )
+        scope.launch(Dispatchers.IO) {
+            if (stateAccess.wallpaperAccentEnabled == enabled) return@launch
+            userPreferences.setWallpaperAccentEnabled(enabled)
+            stateAccess.wallpaperAccentEnabled = enabled
+            updateConfigState { it.copy(wallpaperAccentEnabled = enabled) }
+            stateAccess.saveStartupSurfaceSnapshotAsync(allowDuringQuery = true)
+        }
     }
 
     fun setClearQueryOnLaunchEnabled(enabled: Boolean) {
