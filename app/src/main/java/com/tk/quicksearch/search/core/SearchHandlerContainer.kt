@@ -21,6 +21,7 @@ import com.tk.quicksearch.search.data.AppsRepository
 import com.tk.quicksearch.search.data.CalendarRepository
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
+import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsManagementHandler
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsRepository
@@ -50,6 +51,7 @@ internal class SearchHandlerContainer(
     private val contactRepository: ContactRepository,
     private val fileRepository: FileSearchRepository,
     private val calendarRepository: CalendarRepository,
+    private val notesRepository: NotesRepository,
     private val appShortcutRepository: AppShortcutRepository,
     private val settingsShortcutRepository: DeviceSettingsRepository,
     private val appSettingsRepository: AppSettingsRepository,
@@ -146,6 +148,7 @@ internal class SearchHandlerContainer(
             permissionManager = permissionManager,
             contactRepository = contactRepository,
             fileRepository = fileRepository,
+            notesRepository = notesRepository,
             userPreferences = userPreferences,
             uiStateUpdater = updateUiState,
         )
@@ -247,6 +250,7 @@ internal class SearchHandlerContainer(
             contactRepository = contactRepository,
             calendarRepository = calendarRepository,
             fileRepository = fileRepository,
+            notesRepository = notesRepository,
             userPreferences = userPreferences,
             settingsSearchHandler = settingsSearchHandler,
             appSettingsSearchHandler = appSettingsSearchHandler,

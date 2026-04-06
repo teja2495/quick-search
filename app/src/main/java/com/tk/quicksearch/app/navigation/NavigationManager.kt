@@ -523,6 +523,9 @@ private fun NavigationContent(
                     onOpenSearchHistorySettings = {
                         navigateToSettings(SettingsDetailType.SEARCH_RESULTS)
                     },
+                    onOpenNotesDetail = {
+                        navigateToSettings(SettingsDetailType.NOTES)
+                    },
                     onSearchEngineLongPress = {
                         navigateToSettings(SettingsDetailType.SEARCH_ENGINES)
                     },

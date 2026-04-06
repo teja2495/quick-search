@@ -37,6 +37,7 @@ internal data class DerivedState(
     val hasPinnedFiles: Boolean,
     val hasPinnedSettings: Boolean,
     val hasPinnedCalendarEvents: Boolean,
+    val hasPinnedNotes: Boolean,
     val hasPinnedAppShortcuts: Boolean,
     val visibleRowCount: Int,
     val visibleAppLimit: Int,
@@ -51,6 +52,7 @@ internal data class DerivedState(
     val hasAppSettingResults: Boolean,
     val hasAppShortcutResults: Boolean,
     val hasCalendarResults: Boolean,
+    val hasNoteResults: Boolean,
     val pinnedContactIds: Set<Long>,
     val pinnedFileUris: Set<String>,
     val hasMultipleExpandableSections: Boolean,
@@ -60,6 +62,7 @@ internal data class DerivedState(
     val shouldShowFiles: Boolean,
     val shouldShowSettings: Boolean,
     val shouldShowCalendar: Boolean,
+    val shouldShowNotes: Boolean,
     val shouldShowAppShortcuts: Boolean,
 )
 
@@ -71,6 +74,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
     val hasPinnedFiles = state.pinnedFiles.isNotEmpty() && state.hasFilePermission
     val hasPinnedSettings = state.pinnedSettings.isNotEmpty()
     val hasPinnedCalendarEvents = state.pinnedCalendarEvents.isNotEmpty() && state.hasCalendarPermission
+    val hasPinnedNotes = state.pinnedNotes.isNotEmpty()
     val hasPinnedAppShortcuts = state.pinnedAppShortcuts.isNotEmpty()
     val columns = getAppGridColumns(state.phoneAppGridColumns)
     val visibleRowCount =
@@ -112,6 +116,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
     val hasAppSettingResults = state.appSettingResults.isNotEmpty()
     val hasAppShortcutResults = state.appShortcutResults.isNotEmpty()
     val hasCalendarResults = state.calendarEvents.isNotEmpty()
+    val hasNoteResults = state.noteResults.isNotEmpty()
     val pinnedContactIds =
         remember(state.pinnedContacts) { state.pinnedContacts.map { it.contactId }.toSet() }
     val pinnedFileUris =
@@ -128,6 +133,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
             hasFileResults,
             hasSettingResults || hasAppSettingResults,
             hasCalendarResults,
+            hasNoteResults,
             hasAppShortcutResults,
         )
             .count { it } > 1
@@ -177,6 +183,12 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
                 state.detectedAliasSearchSection == SearchSection.CALENDAR
         ) &&
             (!state.hasCalendarPermission || hasCalendarResults || hasPinnedCalendarEvents)
+    val shouldShowNotes =
+        (
+            SearchSection.NOTES !in state.disabledSections ||
+                state.detectedAliasSearchSection == SearchSection.NOTES
+        ) &&
+            (hasNoteResults || hasPinnedNotes)
 
     return DerivedState(
         isSearching = isSearching,
@@ -184,6 +196,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
         hasPinnedFiles = hasPinnedFiles,
         hasPinnedSettings = hasPinnedSettings,
         hasPinnedCalendarEvents = hasPinnedCalendarEvents,
+        hasPinnedNotes = hasPinnedNotes,
         hasPinnedAppShortcuts = hasPinnedAppShortcuts,
         visibleRowCount = visibleRowCount,
         visibleAppLimit = visibleAppLimit,
@@ -198,6 +211,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
         hasAppSettingResults = hasAppSettingResults,
         hasAppShortcutResults = hasAppShortcutResults,
         hasCalendarResults = hasCalendarResults,
+        hasNoteResults = hasNoteResults,
         pinnedContactIds = pinnedContactIds,
         pinnedFileUris = pinnedFileUris,
         hasMultipleExpandableSections = hasMultipleExpandableSections,
@@ -207,6 +221,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
         shouldShowFiles = shouldShowFiles,
         shouldShowSettings = shouldShowSettings,
         shouldShowCalendar = shouldShowCalendar,
+        shouldShowNotes = shouldShowNotes,
         shouldShowAppShortcuts = shouldShowAppShortcuts,
     )
 }

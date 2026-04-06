@@ -85,6 +85,7 @@ internal fun SearchScreenContent(
         appShortcutsParams: AppShortcutsSectionParams,
         settingsParams: SettingsSectionParams,
         calendarParams: CalendarSectionParams,
+        notesParams: NotesSectionParams,
         appsParams: AppsSectionParams,
         onQueryChanged: (String) -> Unit,
         onSelectRetainedQueryHandled: () -> Unit,
@@ -574,6 +575,12 @@ internal fun SearchScreenContent(
                         return@PersistentSearchBar false
                     }
 
+                    val firstNote = renderingState.noteResults.firstOrNull()
+                    if (firstNote != null) {
+                        notesParams.onNoteClick(firstNote)
+                        return@PersistentSearchBar false
+                    }
+
                     val firstAppSetting = renderingState.appSettingResults.firstOrNull()
                     if (firstAppSetting != null) {
                         if (firstAppSetting.isToggleAction) {
@@ -639,6 +646,7 @@ internal fun SearchScreenContent(
                 appShortcutsParams = appShortcutsParams,
                 settingsParams = settingsParams,
                 calendarParams = calendarParams,
+                notesParams = notesParams,
                 appsParams = appsParams,
                 predictedTarget = predictedTargetForIndicator,
                 onRequestUsagePermission = onRequestUsagePermission,

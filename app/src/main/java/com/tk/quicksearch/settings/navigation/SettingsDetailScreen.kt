@@ -229,6 +229,9 @@ internal fun SettingsDetailLevel1Screen(
                             onNavigateToCalendarEvents = {
                                 onNavigateToDetail(SettingsDetailType.CALENDAR_EVENTS)
                             },
+                            onNavigateToNotes = {
+                                onNavigateToDetail(SettingsDetailType.NOTES)
+                            },
                         )
                     }
 
@@ -456,6 +459,7 @@ internal fun SettingsDetailLevel1Screen(
                     SettingsDetailType.APP_SHORTCUTS,
                     SettingsDetailType.DEVICE_SETTINGS,
                     SettingsDetailType.CALENDAR_EVENTS,
+                    SettingsDetailType.NOTES,
                     SettingsDetailType.CALLS_TEXTS,
                     SettingsDetailType.FILES,
                     SettingsDetailType.TOOLS,

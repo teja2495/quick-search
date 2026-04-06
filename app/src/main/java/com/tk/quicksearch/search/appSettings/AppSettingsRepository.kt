@@ -426,6 +426,7 @@ class AppSettingsRepository(
             SearchSection.FILES -> "app_toggle_search_files"
             SearchSection.SETTINGS -> "app_toggle_search_device_settings"
             SearchSection.CALENDAR -> "app_toggle_search_calendar"
+            SearchSection.NOTES -> "app_toggle_search_notes"
             SearchSection.APP_SETTINGS -> "app_toggle_search_app_settings"
         }
 
@@ -437,6 +438,7 @@ class AppSettingsRepository(
             SearchSection.FILES -> R.string.search_section_files_toggle_title
             SearchSection.SETTINGS -> R.string.search_section_device_settings_toggle_title
             SearchSection.CALENDAR -> R.string.search_section_calendar_toggle_title
+            SearchSection.NOTES -> R.string.search_section_notes_toggle_title
             SearchSection.APP_SETTINGS -> R.string.search_section_app_settings_toggle_title
         }
 
@@ -448,6 +450,7 @@ class AppSettingsRepository(
             SearchSection.FILES -> R.string.search_section_files_toggle_desc
             SearchSection.SETTINGS -> R.string.search_section_device_settings_toggle_desc
             SearchSection.CALENDAR -> R.string.search_section_calendar_toggle_desc
+            SearchSection.NOTES -> R.string.search_section_notes_toggle_desc
             SearchSection.APP_SETTINGS -> R.string.search_section_app_settings_toggle_desc
         }
 

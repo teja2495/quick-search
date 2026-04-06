@@ -27,6 +27,7 @@ import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.appSettings.AppSettingResult
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
@@ -80,6 +81,10 @@ fun SearchScreen(
     onUnpinCalendarEvent: (CalendarEventInfo) -> Unit,
     onExcludeCalendarEvent: (CalendarEventInfo) -> Unit,
     onIncludeCalendarEvent: (CalendarEventInfo) -> Unit,
+    onNoteClick: (NoteInfo) -> Unit,
+    onPinNote: (NoteInfo) -> Unit,
+    onUnpinNote: (NoteInfo) -> Unit,
+    onDeleteNote: (NoteInfo) -> Unit,
     onPinFile: (DeviceFile) -> Unit,
     onUnpinFile: (DeviceFile) -> Unit,
     onExcludeFile: (DeviceFile) -> Unit,
@@ -196,6 +201,10 @@ fun SearchScreen(
         onUnpinCalendarEvent = onUnpinCalendarEvent,
         onExcludeCalendarEvent = onExcludeCalendarEvent,
         onIncludeCalendarEvent = onIncludeCalendarEvent,
+        onNoteClick = onNoteClick,
+        onPinNote = onPinNote,
+        onUnpinNote = onUnpinNote,
+        onDeleteNote = onDeleteNote,
         onPinFile = onPinFile,
         onUnpinFile = onUnpinFile,
         onExcludeFile = onExcludeFile,
@@ -389,6 +398,7 @@ fun SearchScreen(
             appShortcutsParams = stateResult.sectionParams.appShortcutsParams,
             settingsParams = stateResult.sectionParams.settingsParams,
             calendarParams = stateResult.sectionParams.calendarParams,
+            notesParams = stateResult.sectionParams.notesParams,
             appsParams = stateResult.sectionParams.appsParams,
             onQueryChanged = onQueryChanged,
             onSelectRetainedQueryHandled = onSelectRetainedQueryHandled,

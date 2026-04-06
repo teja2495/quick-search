@@ -10,6 +10,7 @@
     <string name="search_hint_files">Search Files…</string>
     <string name="search_hint_settings">Search Device Settings…</string>
     <string name="search_hint_calendar">Search Calendar Events…</string>
+    <string name="search_hint_notes">Search Notes…</string>
     <string name="search_hint_app_settings">Search App Settings…</string>
     <!-- Cycling search bar hint examples -->
     <string-array name="search_hints_cycle">
@@ -318,6 +319,7 @@
     <string name="section_app_shortcuts">App Shortcuts</string>
     <string name="section_apps">Apps</string>
     <string name="section_calendar">Calendar Events</string>
+    <string name="section_notes">Notes</string>
     <string name="section_files">Files</string>
     <string name="section_settings">Device Settings</string>
     <string name="settings_action_clear_all">Clear All</string>
@@ -432,6 +434,7 @@
     <string name="settings_calendar_events_empty">No calendar events available.</string>
     <string name="settings_calendar_permission_title">Calendar</string>
     <string name="settings_calendar_view_all_events_desc">View all events</string>
+    <string name="settings_notes_view_all_desc">View all notes</string>
     <string name="settings_call_permission_title">Phone</string>
     <string name="settings_calling_card_title">Default Calling App</string>
     <string name="settings_calls_texts_title">Calls &amp; Texts</string>
@@ -617,6 +620,12 @@
     <string name="settings_tools_gemini_api_title">Setup Gemini API</string>
     <string name="settings_tools_info_examples_header">Here are some examples of things you can ask in the search bar</string>
     <string name="settings_tools_title">Tools</string>
+    <string name="notes_create_note_cta">Create note</string>
+    <string name="notes_empty_state">No notes yet</string>
+    <string name="notes_untitled">Untitled</string>
+    <string name="notes_title_hint">Title</string>
+    <string name="notes_body_hint">Write your note here</string>
+    <string name="notes_preview_title">Preview</string>
     <string name="settings_unable_to_open_settings">Unable to open settings</string>
     <string name="settings_view_all_desc">View all settings</string>
     <string name="settings_wallpaper_accent_desc">Derive accent colors from background image</string>
@@ -761,6 +770,8 @@
     <string name="search_section_apps_toggle_title">App Search</string>
     <string name="search_section_calendar_toggle_desc">Turn calendar search on or off</string>
     <string name="search_section_calendar_toggle_title">Calendar Search</string>
+    <string name="search_section_notes_toggle_desc">Turn notes search on or off</string>
+    <string name="search_section_notes_toggle_title">Notes Search</string>
     <string name="search_section_contacts_toggle_desc">Turn contacts search on or off</string>
     <string name="search_section_contacts_toggle_title">Contact Search</string>
     <string name="search_section_device_settings_toggle_desc">Turn device settings search on or off</string>

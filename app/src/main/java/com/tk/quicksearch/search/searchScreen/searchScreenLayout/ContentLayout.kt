@@ -46,6 +46,7 @@ import com.tk.quicksearch.search.searchScreen.AppShortcutsSectionParams
 import com.tk.quicksearch.search.searchScreen.SettingsSectionParams
 import com.tk.quicksearch.search.searchScreen.AppsSectionParams
 import com.tk.quicksearch.search.searchScreen.CalendarSectionParams
+import com.tk.quicksearch.search.searchScreen.NotesSectionParams
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.search.searchScreen.components.SectionPermissionResultCard
 import com.tk.quicksearch.R
@@ -62,6 +63,7 @@ fun ContentLayout(
     appShortcutsParams: AppShortcutsSectionParams,
     settingsParams: SettingsSectionParams,
     calendarParams: CalendarSectionParams,
+    notesParams: NotesSectionParams,
     appsParams: AppsSectionParams,
     predictedTarget: PredictedSubmitTarget? = null,
     onRequestUsagePermission: () -> Unit,
@@ -117,6 +119,7 @@ fun ContentLayout(
             predictedTarget = predictedTarget,
             expandedCardMaxHeight = expandedCardMaxHeight,
         )
+    val effectiveNotesParams = notesParams.copy(predictedTarget = predictedTarget)
     val effectiveAppsParams = appsParams.copy(predictedTarget = predictedTarget)
 
     // 1. Determine Layout Order based on ItemPriorityConfig
@@ -139,6 +142,7 @@ fun ContentLayout(
             contactsParams = effectiveContactsParams,
             settingsParams = effectiveSettingsParams,
             calendarParams = effectiveCalendarParams,
+            notesParams = effectiveNotesParams,
             appShortcutsParams = effectiveAppShortcutsParams,
             appsParams = effectiveAppsParams,
             isSearching = hasQuery,
@@ -154,6 +158,7 @@ fun ContentLayout(
             appShortcutsParams = effectiveAppShortcutsParams,
             settingsParams = effectiveSettingsParams,
             calendarParams = effectiveCalendarParams,
+            notesParams = effectiveNotesParams,
             appsParams = effectiveAppsParams,
             isReversed = isReversed,
         )
@@ -226,6 +231,7 @@ fun ContentLayout(
                 shouldRenderAppShortcuts = false,
                 shouldRenderSettings = false,
                 shouldRenderCalendar = false,
+                shouldRenderNotes = false,
             )
         } else {
             sectionContext
@@ -540,6 +546,7 @@ fun ContentLayout(
                 ItemPriorityConfig.ItemType.CONTACTS_SECTION,
                 ItemPriorityConfig.ItemType.SETTINGS_SECTION,
                 ItemPriorityConfig.ItemType.CALENDAR_SECTION,
+                ItemPriorityConfig.ItemType.NOTES_SECTION,
                 ItemPriorityConfig.ItemType.APP_SETTINGS_SECTION,
                 -> Unit
             }

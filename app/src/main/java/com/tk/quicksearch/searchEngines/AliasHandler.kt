@@ -53,6 +53,8 @@ class AliasHandler(
             SearchSectionRegistry.SEARCH_SECTION_SETTINGS_ALIAS_ID
         const val SEARCH_SECTION_CALENDAR_ALIAS_ID =
             SearchSectionRegistry.SEARCH_SECTION_CALENDAR_ALIAS_ID
+        const val SEARCH_SECTION_NOTES_ALIAS_ID =
+            SearchSectionRegistry.SEARCH_SECTION_NOTES_ALIAS_ID
         const val SEARCH_SECTION_APP_SETTINGS_ALIAS_ID =
             SearchSectionRegistry.SEARCH_SECTION_APP_SETTINGS_ALIAS_ID
         // Centralized feature-alias trigger map.

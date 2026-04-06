@@ -33,6 +33,7 @@ class UserAppPreferences(
     private val filePreferences by lazy { FilePreferences(context) }
     private val settingsPreferences by lazy { SettingsPreferences(context) }
     private val calendarPreferences by lazy { CalendarPreferences(context) }
+    private val notesPreferences by lazy { NotesPreferences(context) }
     private val appShortcutPreferences by lazy { AppShortcutPreferences(context) }
     private val nicknamePreferences by lazy { NicknamePreferences(context) }
     private val searchEnginePreferences by lazy { SearchEnginePreferences(context) }
@@ -271,6 +272,25 @@ class UserAppPreferences(
             calendarPreferences.removeExcludedEvent(eventId)
 
     fun clearAllExcludedCalendarEvents(): Set<Long> = calendarPreferences.clearAllExcludedEvents()
+
+    // ============================================================================
+    // Notes Preferences
+    // ============================================================================
+
+    fun getPinnedNoteIds(): Set<Long> = notesPreferences.getPinnedNoteIds()
+
+    fun pinNote(noteId: Long): Set<Long> = notesPreferences.pinNote(noteId)
+
+    fun unpinNote(noteId: Long): Set<Long> = notesPreferences.unpinNote(noteId)
+
+    fun getNotesJson(): String = notesPreferences.getNotesJson()
+
+    fun setNotesJson(json: String) = notesPreferences.setNotesJson(json)
+
+    fun nextNoteId(): Long = notesPreferences.nextNoteId()
+
+    fun ensureNoteIdCounterAtLeast(nextCandidate: Long) =
+            notesPreferences.ensureNoteIdCounterAtLeast(nextCandidate)
 
     // ============================================================================
     // App Shortcut Preferences

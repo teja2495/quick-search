@@ -9,6 +9,7 @@ import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.searchHistory.RecentSearchItem
 import com.tk.quicksearch.tools.directSearch.GeminiModelCatalog
 import com.tk.quicksearch.tools.directSearch.GeminiTextModel
@@ -82,6 +83,7 @@ enum class SearchSection {
         FILES,
         SETTINGS,
         CALENDAR,
+        NOTES,
         APP_SETTINGS,
 }
 
@@ -345,6 +347,16 @@ sealed class CalendarSectionVisibility {
         ) : CalendarSectionVisibility()
 }
 
+sealed class NotesSectionVisibility {
+        object Hidden : NotesSectionVisibility()
+
+        object NoResults : NotesSectionVisibility()
+
+        data class ShowingResults(
+                val hasPinned: Boolean = false,
+        ) : NotesSectionVisibility()
+}
+
 sealed class SearchEnginesVisibility {
         object Hidden : SearchEnginesVisibility()
 
@@ -388,6 +400,7 @@ data class SearchUiState(
         val filesSectionState: FilesSectionVisibility = FilesSectionVisibility.Hidden,
         val settingsSectionState: SettingsSectionVisibility = SettingsSectionVisibility.Hidden,
         val calendarSectionState: CalendarSectionVisibility = CalendarSectionVisibility.Hidden,
+        val notesSectionState: NotesSectionVisibility = NotesSectionVisibility.Hidden,
         val searchEnginesState: SearchEnginesVisibility = SearchEnginesVisibility.Hidden,
         // App results
         val recentApps: List<AppInfo> = emptyList(),
@@ -421,6 +434,9 @@ data class SearchUiState(
         val calendarEvents: List<CalendarEventInfo> = emptyList(),
         val pinnedCalendarEvents: List<CalendarEventInfo> = emptyList(),
         val excludedCalendarEvents: List<CalendarEventInfo> = emptyList(),
+        // Notes results
+        val noteResults: List<NoteInfo> = emptyList(),
+        val pinnedNotes: List<NoteInfo> = emptyList(),
         // Lifecycle / loading
         val startupPhase: StartupPhase = StartupPhase.PHASE_1_CACHE_PREFS,
         val isInitializing: Boolean = true,
@@ -592,6 +608,8 @@ fun SearchUiState(
                 calendarEvents = results.calendarEvents,
                 pinnedCalendarEvents = results.pinnedCalendarEvents,
                 excludedCalendarEvents = results.excludedCalendarEvents,
+                noteResults = results.noteResults,
+                pinnedNotes = results.pinnedNotes,
                 screenState = results.screenState,
                 appsSectionState = results.appsSectionState,
                 appShortcutsSectionState = results.appShortcutsSectionState,
@@ -599,6 +617,7 @@ fun SearchUiState(
                 filesSectionState = results.filesSectionState,
                 settingsSectionState = results.settingsSectionState,
                 calendarSectionState = results.calendarSectionState,
+                notesSectionState = results.notesSectionState,
                 searchEnginesState = results.searchEnginesState,
                 calculatorState = results.calculatorState,
                 currencyConverterState = results.currencyConverterState,

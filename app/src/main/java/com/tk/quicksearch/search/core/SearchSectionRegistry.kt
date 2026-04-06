@@ -25,6 +25,7 @@ object SearchSectionRegistry {
     const val SEARCH_SECTION_FILES_ALIAS_ID = "search_section_files"
     const val SEARCH_SECTION_SETTINGS_ALIAS_ID = "search_section_settings"
     const val SEARCH_SECTION_CALENDAR_ALIAS_ID = "search_section_calendar"
+    const val SEARCH_SECTION_NOTES_ALIAS_ID = "search_section_notes"
     const val SEARCH_SECTION_APP_SETTINGS_ALIAS_ID = "search_section_app_settings"
 
     val orderedDefinitions: List<SearchSectionDefinition> =
@@ -71,6 +72,14 @@ object SearchSectionRegistry {
                 permissionRequirement = SearchSectionPermissionRequirement.CALENDAR,
                 participatesInSecondarySearch = true,
                 minimumQueryLength = 2,
+            ),
+            SearchSectionDefinition(
+                section = SearchSection.NOTES,
+                itemType = ItemPriorityConfig.ItemType.NOTES_SECTION,
+                aliasTargetId = SEARCH_SECTION_NOTES_ALIAS_ID,
+                appSettingsToggleKey = AppSettingsToggleKey.SEARCH_NOTES,
+                participatesInSecondarySearch = true,
+                minimumQueryLength = 1,
             ),
             SearchSectionDefinition(
                 section = SearchSection.SETTINGS,

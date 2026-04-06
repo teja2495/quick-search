@@ -254,6 +254,19 @@ internal fun SettingsDetailLevel2Screen(
                                 bottom = 96.dp,
                             ),
                 )
+            } else if (detailType == SettingsDetailType.NOTES) {
+                NotesSettingsSection(
+                    modifier =
+                        Modifier
+                            .settingsContentWidth()
+                            .fillMaxHeight()
+                            .align(androidx.compose.ui.Alignment.CenterHorizontally)
+                            .padding(
+                                start = DesignTokens.ContentHorizontalPadding,
+                                end = DesignTokens.ContentHorizontalPadding,
+                                bottom = 96.dp,
+                            ),
+                )
             } else {
                 Column(
                     modifier =

@@ -287,6 +287,7 @@ fun SearchResultsSettingsSection(
     onNavigateToFiles: () -> Unit,
     onNavigateToDeviceSettings: () -> Unit,
     onNavigateToCalendarEvents: () -> Unit,
+    onNavigateToNotes: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val hasExcludedItems =
@@ -348,6 +349,9 @@ fun SearchResultsSettingsSection(
                     null
                 },
             onCalendarClickNoRipple = hasCalendarPermission,
+            notesSubtitle = stringResource(R.string.settings_notes_view_all_desc),
+            onNotesClick = onNavigateToNotes,
+            onNotesClickNoRipple = true,
             sectionsWithHiddenAlias = buildSet {
                 if (!hasContactPermission) add(SearchSection.CONTACTS)
                 if (!hasFilePermission) add(SearchSection.FILES)

@@ -12,9 +12,11 @@ import com.tk.quicksearch.search.searchScreen.ContactsSectionParams
 import com.tk.quicksearch.search.searchScreen.ExpandedSection
 import com.tk.quicksearch.search.searchScreen.FilesSectionParams
 import com.tk.quicksearch.search.searchScreen.CalendarSectionParams
+import com.tk.quicksearch.search.searchScreen.NotesSectionParams
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
 import com.tk.quicksearch.search.searchScreen.SettingsSectionParams
 import com.tk.quicksearch.search.models.CalendarEventInfo
+import com.tk.quicksearch.search.models.NoteInfo
 
 // ============================================================================
 // Section Visibility Helpers
@@ -72,6 +74,11 @@ fun shouldShowCalendarSection(
         hasPermission = calendarParams.hasPermission,
         hasResults = renderingState.hasCalendarResults,
     )
+
+fun shouldShowNotesSection(renderingState: SectionRenderingState): Boolean =
+    renderingState.hasNoteResults &&
+        renderingState.shouldShowNotes &&
+        renderingState.expandedSection == ExpandedSection.NONE
 
 /**
  * Generic helper for determining section visibility based on permission and results. Shows section
@@ -187,6 +194,7 @@ fun rememberSectionRenderContext(
     contactsParams: ContactsSectionParams,
     settingsParams: SettingsSectionParams,
     calendarParams: CalendarSectionParams,
+    notesParams: NotesSectionParams,
     appShortcutsParams: AppShortcutsSectionParams,
     appsParams: AppsSectionParams?,
     isSearching: Boolean,
@@ -206,6 +214,7 @@ fun rememberSectionRenderContext(
     val shouldRenderAppShortcuts: Boolean
     val shouldRenderSettings: Boolean
     val shouldRenderCalendar: Boolean
+    val shouldRenderNotes: Boolean
 
     if (isSearching) {
         shouldRenderApps =
@@ -290,6 +299,19 @@ fun rememberSectionRenderContext(
 
                 else -> false
             }
+        shouldRenderNotes =
+            when (state.notesSectionState) {
+                is NotesSectionVisibility.ShowingResults -> {
+                    !isFilesExpanded &&
+                        !isContactsExpanded &&
+                        !isAppShortcutsExpanded &&
+                        !isSettingsExpanded &&
+                        !isAppSettingsExpanded &&
+                        !isCalendarExpanded
+                }
+
+                else -> false
+            }
     } else {
         // Pinned state
         shouldRenderApps =
@@ -346,6 +368,15 @@ fun rememberSectionRenderContext(
 
                 else -> false
             }
+        shouldRenderNotes =
+            when (state.notesSectionState) {
+                is NotesSectionVisibility.ShowingResults -> {
+                    renderingState.hasPinnedNotes ||
+                        state.detectedAliasSearchSection == SearchSection.NOTES
+                }
+
+                else -> false
+            }
     }
 
     return SectionRenderContext(
@@ -355,6 +386,7 @@ fun rememberSectionRenderContext(
         shouldRenderAppShortcuts = shouldRenderAppShortcuts,
         shouldRenderSettings = shouldRenderSettings,
         shouldRenderCalendar = shouldRenderCalendar,
+        shouldRenderNotes = shouldRenderNotes,
         isFilesExpanded = isFilesExpanded || !isSearching,
         isContactsExpanded = isContactsExpanded || !isSearching,
         isDeviceSettingsExpanded = isSettingsExpanded || !isSearching,
@@ -417,10 +449,17 @@ fun rememberSectionRenderContext(
             } else {
                 renderingState.pinnedCalendarEvents
             },
+        notesList =
+            if (isSearching || state.detectedAliasSearchSection == SearchSection.NOTES) {
+                renderingState.noteResults
+            } else {
+                renderingState.pinnedNotes
+            },
         showAllFilesResults = !isSearching,
         showAllContactsResults = !isSearching,
         showAllSettingsResults = !isSearching,
         showAllCalendarResults = !isSearching,
+        showAllNotesResults = !isSearching,
         showAllAppShortcutsResults = !isSearching,
         showFilesExpandControls = isSearching,
         showContactsExpandControls = isSearching,
@@ -433,6 +472,7 @@ fun rememberSectionRenderContext(
         deviceSettingsExpandClick = settingsParams.onExpandClick,
         appSettingsExpandClick = settingsParams.onAppSettingExpandClick,
         calendarExpandClick = calendarParams.onExpandClick,
+        notesExpandClick = {},
         appShortcutsExpandClick = appShortcutsParams.onExpandClick,
         isSectionAliasMode = state.detectedAliasSearchSection != null,
     )
@@ -445,6 +485,7 @@ data class SectionRenderParams(
     val filesParams: FilesSectionParams,
     val settingsParams: SettingsSectionParams? = null,
     val calendarParams: CalendarSectionParams? = null,
+    val notesParams: NotesSectionParams? = null,
     val appShortcutsParams: AppShortcutsSectionParams? = null,
     val appsParams: AppsSectionParams? = null,
     val isReversed: Boolean,
@@ -457,6 +498,7 @@ data class SectionRenderContext(
     val shouldRenderApps: Boolean = false,
     val shouldRenderAppShortcuts: Boolean = false,
     val shouldRenderCalendar: Boolean = false,
+    val shouldRenderNotes: Boolean = false,
     val isFilesExpanded: Boolean = false,
     val isContactsExpanded: Boolean = false,
     val isCalendarExpanded: Boolean = false,
@@ -465,10 +507,12 @@ data class SectionRenderContext(
     val contactsList: List<ContactInfo> = emptyList(),
     val appShortcutsList: List<StaticShortcut> = emptyList(),
     val calendarEventsList: List<CalendarEventInfo> = emptyList(),
+    val notesList: List<NoteInfo> = emptyList(),
     val showAllFilesResults: Boolean = false,
     val showAllContactsResults: Boolean = false,
     val showAllAppShortcutsResults: Boolean = false,
     val showAllCalendarResults: Boolean = false,
+    val showAllNotesResults: Boolean = false,
     val showFilesExpandControls: Boolean = false,
     val showContactsExpandControls: Boolean = false,
     val showAppShortcutsExpandControls: Boolean = false,
@@ -477,6 +521,7 @@ data class SectionRenderContext(
     val contactsExpandClick: () -> Unit = {},
     val appShortcutsExpandClick: () -> Unit = {},
     val calendarExpandClick: () -> Unit = {},
+    val notesExpandClick: () -> Unit = {},
     val shouldRenderSettings: Boolean = false,
     val isDeviceSettingsExpanded: Boolean = false,
     val isAppSettingsExpanded: Boolean = false,

@@ -7,6 +7,7 @@ import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.searchScreen.ExpandedSection
 
@@ -21,17 +22,20 @@ data class SectionRenderingState(
     val hasSettingResults: Boolean,
     val hasAppSettingResults: Boolean,
     val hasCalendarResults: Boolean,
+    val hasNoteResults: Boolean,
     val hasPinnedAppShortcuts: Boolean,
     val hasPinnedContacts: Boolean,
     val hasPinnedFiles: Boolean,
     val hasPinnedSettings: Boolean,
     val hasPinnedCalendarEvents: Boolean,
+    val hasPinnedNotes: Boolean,
     val shouldShowApps: Boolean,
     val shouldShowAppShortcuts: Boolean,
     val shouldShowContacts: Boolean,
     val shouldShowFiles: Boolean,
     val shouldShowSettings: Boolean,
     val shouldShowCalendar: Boolean,
+    val shouldShowNotes: Boolean,
     val hasMultipleExpandableSections: Boolean,
     val displayApps: List<AppInfo>,
     val appShortcutResults: List<StaticShortcut>,
@@ -40,11 +44,13 @@ data class SectionRenderingState(
     val settingResults: List<DeviceSetting>,
     val appSettingResults: List<AppSettingResult>,
     val calendarEvents: List<CalendarEventInfo>,
+    val noteResults: List<NoteInfo>,
     val pinnedAppShortcuts: List<StaticShortcut>,
     val pinnedContacts: List<ContactInfo>,
     val pinnedFiles: List<DeviceFile>,
     val pinnedSettings: List<DeviceSetting>,
     val pinnedCalendarEvents: List<CalendarEventInfo>,
+    val pinnedNotes: List<NoteInfo>,
     val orderedSections: List<SearchSection>,
     val shortcutDetected: Boolean = false,
 )

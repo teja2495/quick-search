@@ -62,6 +62,7 @@ class SecondarySearchOrchestrator(
                     fileResults = emptyList(),
                     settingResults = emptyList(),
                     calendarEvents = emptyList(),
+                    noteResults = emptyList(),
                     appSettingResults = emptyList(),
                     appShortcutResults = emptyList(),
                     isSecondarySearchInProgress = false,
@@ -146,6 +147,7 @@ class SecondarySearchOrchestrator(
                                 fileResults = unifiedResults.fileResults,
                                 settingResults = unifiedResults.settingResults,
                                 calendarEvents = unifiedResults.calendarEvents,
+                                noteResults = unifiedResults.noteResults,
                                 appSettingResults = unifiedResults.appSettingResults,
                                 // Preserve existing results when the search was skipped via the
                                 // no-results cache; overwriting with empty would clear valid
@@ -225,6 +227,7 @@ class SecondarySearchOrchestrator(
                     fileResults = emptyList(),
                     settingResults = emptyList(),
                     calendarEvents = emptyList(),
+                    noteResults = emptyList(),
                     appSettingResults = emptyList(),
                     appShortcutResults = emptyList(),
                     webSuggestions = emptyList(),
@@ -312,6 +315,7 @@ class SecondarySearchOrchestrator(
                             fileResults = unifiedResults.fileResults,
                             settingResults = unifiedResults.settingResults,
                             calendarEvents = unifiedResults.calendarEvents,
+                            noteResults = unifiedResults.noteResults,
                             appSettingResults = unifiedResults.appSettingResults,
                             appShortcutResults = unifiedResults.appShortcutResults,
                             webSuggestions = emptyList(),
@@ -368,6 +372,7 @@ class SecondarySearchOrchestrator(
                             fileResults = emptyList(),
                             settingResults = emptyList(),
                             calendarEvents = emptyList(),
+                            noteResults = emptyList(),
                             appSettingResults = emptyList(),
                             appShortcutResults = emptyList(),
                             isSecondarySearchInProgress = false,
@@ -469,6 +474,7 @@ class SecondarySearchOrchestrator(
             SearchSection.FILES -> results.fileResults.isNotEmpty()
             SearchSection.SETTINGS -> results.settingResults.isNotEmpty()
             SearchSection.CALENDAR -> results.calendarEvents.isNotEmpty()
+            SearchSection.NOTES -> results.noteResults.isNotEmpty()
             SearchSection.APP_SETTINGS -> results.appSettingResults.isNotEmpty()
             SearchSection.APP_SHORTCUTS -> results.appShortcutResults.isNotEmpty()
             SearchSection.APPS -> false

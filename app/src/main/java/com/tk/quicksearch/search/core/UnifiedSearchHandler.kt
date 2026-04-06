@@ -9,6 +9,7 @@ import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.CalendarRepository
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
+import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsSearchHandler
 import com.tk.quicksearch.search.files.FileSearchHandler
@@ -18,6 +19,7 @@ import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.models.CalendarEventInfo
+import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.utils.DefaultSearchMatcher
 import com.tk.quicksearch.search.utils.FileClassifier
 import com.tk.quicksearch.search.utils.FuzzyMatcher
@@ -38,6 +40,7 @@ data class UnifiedSearchResults(
         val settingResults: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting> =
                 emptyList(),
         val calendarEvents: List<CalendarEventInfo> = emptyList(),
+        val noteResults: List<NoteInfo> = emptyList(),
         val appSettingResults: List<AppSettingResult> = emptyList(),
         val appShortcutResults: List<StaticShortcut> = emptyList(),
 )
@@ -52,6 +55,7 @@ class UnifiedSearchHandler(
         private val contactRepository: ContactRepository,
         private val calendarRepository: CalendarRepository,
         private val fileRepository: FileSearchRepository,
+        private val notesRepository: NotesRepository,
         private val userPreferences: UserAppPreferences,
         private val settingsSearchHandler: DeviceSettingsSearchHandler,
         private val appSettingsSearchHandler: AppSettingsSearchHandler,
@@ -105,6 +109,9 @@ class UnifiedSearchHandler(
                         val appSettingsConfig =
                                 sectionSearchConfig[SearchSection.APP_SETTINGS]
                                         ?: UnifiedSectionSearchConfig()
+                        val notesConfig =
+                                sectionSearchConfig[SearchSection.NOTES]
+                                        ?: UnifiedSectionSearchConfig()
                         val appShortcutsConfig =
                                 sectionSearchConfig[SearchSection.APP_SHORTCUTS]
                                         ?: UnifiedSectionSearchConfig()
@@ -114,6 +121,7 @@ class UnifiedSearchHandler(
                         val canSearchSettings = settingsConfig.shouldSearch
                         val canSearchCalendar = calendarConfig.shouldSearch
                         val canSearchAppSettings = appSettingsConfig.shouldSearch
+                        val canSearchNotes = notesConfig.shouldSearch
                         val canSearchAppShortcuts = appShortcutsConfig.shouldSearch
                         val enableFuzzyContactSearch = contactsConfig.enableFuzzyMatching
                         val enableFuzzyFileSearch = filesConfig.enableFuzzyMatching
@@ -193,6 +201,7 @@ class UnifiedSearchHandler(
                                 emptyList()
                         var calendarMatches: List<CalendarEventInfo> = emptyList()
                         var appSettingsMatches: List<AppSettingResult> = emptyList()
+                        var noteMatches: List<NoteInfo> = emptyList()
                         var appShortcutMatches: List<StaticShortcut> = emptyList()
 
                         coroutineScope {
@@ -325,6 +334,24 @@ class UnifiedSearchHandler(
                                                                         }
                                                                 },
                                                         ),
+                                                SearchSection.NOTES to
+                                                        SectionSearchSpec(
+                                                                section = SearchSection.NOTES,
+                                                                shouldSearch = canSearchNotes,
+                                                                search = {
+                                                                        SectionSearchResultPayload.Notes(
+                                                                                notesRepository.searchNotes(
+                                                                                        trimmedQuery,
+                                                                                ),
+                                                                        )
+                                                                },
+                                                                applyResult = { payload ->
+                                                                        if (payload is SectionSearchResultPayload.Notes) {
+                                                                                noteMatches =
+                                                                                        payload.results
+                                                                        }
+                                                                },
+                                                        ),
                                                 SearchSection.APP_SHORTCUTS to
                                                         SectionSearchSpec(
                                                                 section = SearchSection.APP_SHORTCUTS,
@@ -429,6 +456,7 @@ class UnifiedSearchHandler(
                                 fileResults = filteredFiles,
                                 settingResults = settingsMatches,
                                 calendarEvents = filteredCalendarEvents,
+                                noteResults = noteMatches,
                                 appSettingResults = appSettingsMatches,
                                 appShortcutResults = appShortcutMatches,
                         )
@@ -464,6 +492,10 @@ class UnifiedSearchHandler(
 
                 data class AppSettings(
                         val results: List<AppSettingResult>,
+                ) : SectionSearchResultPayload
+
+                data class Notes(
+                        val results: List<NoteInfo>,
                 ) : SectionSearchResultPayload
 
                 data class AppShortcuts(

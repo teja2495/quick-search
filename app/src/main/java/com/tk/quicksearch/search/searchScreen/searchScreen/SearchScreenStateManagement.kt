@@ -22,6 +22,7 @@ import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
@@ -44,6 +45,7 @@ private fun SearchSection.toExpandedSectionOrNone(): ExpandedSection =
         SearchSection.CONTACTS -> ExpandedSection.CONTACTS
         SearchSection.FILES -> ExpandedSection.FILES
         SearchSection.SETTINGS -> ExpandedSection.SETTINGS
+        SearchSection.NOTES -> ExpandedSection.NONE
         SearchSection.APP_SETTINGS -> ExpandedSection.APP_SETTINGS
         SearchSection.CALENDAR -> ExpandedSection.CALENDAR
         SearchSection.APPS -> ExpandedSection.NONE
@@ -78,6 +80,10 @@ internal fun SearchScreenStateManagement(
     onUnpinCalendarEvent: (CalendarEventInfo) -> Unit,
     onExcludeCalendarEvent: (CalendarEventInfo) -> Unit,
     onIncludeCalendarEvent: (CalendarEventInfo) -> Unit,
+    onNoteClick: (NoteInfo) -> Unit,
+    onPinNote: (NoteInfo) -> Unit,
+    onUnpinNote: (NoteInfo) -> Unit,
+    onDeleteNote: (NoteInfo) -> Unit,
     onPinFile: (DeviceFile) -> Unit,
     onUnpinFile: (DeviceFile) -> Unit,
     onExcludeFile: (DeviceFile) -> Unit,
@@ -388,6 +394,10 @@ internal fun SearchScreenStateManagement(
             onUnpinCalendarEvent = onUnpinCalendarEvent,
             onExcludeCalendarEvent = onExcludeCalendarEvent,
             onIncludeCalendarEvent = onIncludeCalendarEvent,
+            onNoteClick = onNoteClick,
+            onPinNote = onPinNote,
+            onUnpinNote = onUnpinNote,
+            onDeleteNote = onDeleteNote,
             onOpenAppSettings = onOpenAppSettings,
             onOpenCalendarPermissionSettings = onOpenCalendarPermissionSettings,
             onAppClick = onAppClick,
@@ -445,17 +455,20 @@ internal fun SearchScreenStateManagement(
             hasSettingResults = derivedState.hasSettingResults,
             hasAppSettingResults = derivedState.hasAppSettingResults,
             hasCalendarResults = derivedState.hasCalendarResults,
+            hasNoteResults = derivedState.hasNoteResults,
             hasPinnedAppShortcuts = derivedState.hasPinnedAppShortcuts,
             hasPinnedContacts = derivedState.hasPinnedContacts,
             hasPinnedFiles = derivedState.hasPinnedFiles,
             hasPinnedSettings = derivedState.hasPinnedSettings,
             hasPinnedCalendarEvents = derivedState.hasPinnedCalendarEvents,
+            hasPinnedNotes = derivedState.hasPinnedNotes,
             shouldShowApps = derivedState.shouldShowApps,
             shouldShowAppShortcuts = derivedState.shouldShowAppShortcuts,
             shouldShowContacts = derivedState.shouldShowContacts,
             shouldShowFiles = derivedState.shouldShowFiles,
             shouldShowSettings = derivedState.shouldShowSettings,
             shouldShowCalendar = derivedState.shouldShowCalendar,
+            shouldShowNotes = derivedState.shouldShowNotes,
             hasMultipleExpandableSections = derivedState.hasMultipleExpandableSections,
             displayApps = derivedState.displayApps,
             appShortcutResults = state.appShortcutResults,
@@ -464,11 +477,13 @@ internal fun SearchScreenStateManagement(
             settingResults = state.settingResults,
             appSettingResults = state.appSettingResults,
             calendarEvents = state.calendarEvents,
+            noteResults = state.noteResults,
             pinnedAppShortcuts = state.pinnedAppShortcuts,
             pinnedContacts = state.pinnedContacts,
             pinnedFiles = state.pinnedFiles,
             pinnedSettings = state.pinnedSettings,
             pinnedCalendarEvents = state.pinnedCalendarEvents,
+            pinnedNotes = state.pinnedNotes,
             orderedSections = derivedState.orderedSections,
             shortcutDetected =
                 state.detectedShortcutTarget != null ||

@@ -13,6 +13,7 @@ enum class SettingsDetailType {
     APP_SHORTCUTS,
     DEVICE_SETTINGS,
     CALENDAR_EVENTS,
+    NOTES,
     APPEARANCE,
     CALLS_TEXTS,
     FILES,
@@ -74,6 +75,12 @@ internal object SettingsDestinationRegistry {
             SettingsDetailType.CALENDAR_EVENTS to
                 SettingsDestinationSpec(
                     titleResId = R.string.section_calendar,
+                    level = 2,
+                    fallbackBackDestination = SettingsDetailType.SEARCH_RESULTS,
+                ),
+            SettingsDetailType.NOTES to
+                SettingsDestinationSpec(
+                    titleResId = R.string.section_notes,
                     level = 2,
                     fallbackBackDestination = SettingsDetailType.SEARCH_RESULTS,
                 ),

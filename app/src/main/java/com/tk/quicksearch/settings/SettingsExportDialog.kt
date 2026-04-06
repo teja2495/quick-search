@@ -8,6 +8,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ManageSearch
 import androidx.compose.material.icons.rounded.Apps
+import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.Tune
@@ -87,6 +88,16 @@ fun SettingsExportDialog(
                     isLastItem = false,
                 )
                 SettingsCheckboxRow(
+                    title = stringResource(R.string.section_notes),
+                    description = "",
+                    checked = selectionState.includeNotes,
+                    onCheckedChange = {
+                        onSelectionStateChange(selectionState.copy(includeNotes = it))
+                    },
+                    icon = Icons.Rounded.Description,
+                    isLastItem = false,
+                )
+                SettingsCheckboxRow(
                     title = stringResource(R.string.settings_app_shortcuts_filter_search_engines),
                     description = "",
                     checked = selectionState.includeSearchEngines,
@@ -137,6 +148,7 @@ data class ExportSelectionState(
     val includeSearchHistory: Boolean = true,
     val includePinnedItems: Boolean = true,
     val includeShortcuts: Boolean = true,
+    val includeNotes: Boolean = true,
     val includeSearchEngines: Boolean = true,
     val includeGeminiApi: Boolean = false,
     val showSearchHistoryOption: Boolean = true,
@@ -147,6 +159,7 @@ data class ExportSelectionState(
             includeSearchHistory ||
             includePinnedItems ||
             includeShortcuts ||
+            includeNotes ||
             includeSearchEngines ||
             includeGeminiApi
 
@@ -156,6 +169,7 @@ data class ExportSelectionState(
             if (includeSearchHistory) add(SettingsBackupManager.ExportItem.SEARCH_HISTORY)
             if (includePinnedItems) add(SettingsBackupManager.ExportItem.PINNED_ITEMS)
             if (includeShortcuts) add(SettingsBackupManager.ExportItem.SHORTCUTS)
+            if (includeNotes) add(SettingsBackupManager.ExportItem.NOTES)
             if (includeSearchEngines) add(SettingsBackupManager.ExportItem.SEARCH_ENGINES)
             if (includeGeminiApi) add(SettingsBackupManager.ExportItem.GEMINI_API)
         }

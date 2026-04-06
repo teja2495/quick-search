@@ -7,6 +7,7 @@ import androidx.compose.material.icons.automirrored.rounded.Shortcut
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Contacts
+import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -71,6 +72,14 @@ object SearchSectionUiMetadataRegistry {
                 searchBarIcon = Icons.Rounded.CalendarMonth,
                 settingsIcon = Icons.Rounded.CalendarMonth,
                 aliasTargetId = SearchSectionRegistry.SEARCH_SECTION_CALENDAR_ALIAS_ID,
+            ),
+            SearchSectionUiMetadata(
+                section = SearchSection.NOTES,
+                sectionLabelRes = R.string.section_notes,
+                searchHintRes = R.string.search_hint_notes,
+                searchBarIcon = Icons.Rounded.Description,
+                settingsIcon = Icons.Rounded.Description,
+                aliasTargetId = SearchSectionRegistry.SEARCH_SECTION_NOTES_ALIAS_ID,
             ),
             SearchSectionUiMetadata(
                 section = SearchSection.APP_SETTINGS,

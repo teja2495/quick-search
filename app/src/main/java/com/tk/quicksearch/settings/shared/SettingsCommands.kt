@@ -99,6 +99,7 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
                 AppSettingsToggleKey.SEARCH_FILES,
                 AppSettingsToggleKey.SEARCH_DEVICE_SETTINGS,
                 AppSettingsToggleKey.SEARCH_CALENDAR,
+                AppSettingsToggleKey.SEARCH_NOTES,
                 AppSettingsToggleKey.SEARCH_APP_SETTINGS,
                 -> Unit
             }
@@ -160,6 +161,7 @@ internal fun SearchUiState.isAppSettingToggleEnabled(toggleKey: AppSettingsToggl
         AppSettingsToggleKey.SEARCH_FILES,
         AppSettingsToggleKey.SEARCH_DEVICE_SETTINGS,
         AppSettingsToggleKey.SEARCH_CALENDAR,
+        AppSettingsToggleKey.SEARCH_NOTES,
         AppSettingsToggleKey.SEARCH_APP_SETTINGS,
         -> false
     }

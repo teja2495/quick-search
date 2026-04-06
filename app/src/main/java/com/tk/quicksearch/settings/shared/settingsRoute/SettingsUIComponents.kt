@@ -46,6 +46,9 @@ fun SectionSettingsSection(
     calendarTagLabel: String? = null,
     onCalendarClick: (() -> Unit)? = null,
     onCalendarClickNoRipple: Boolean = false,
+    notesSubtitle: String? = null,
+    onNotesClick: (() -> Unit)? = null,
+    onNotesClickNoRipple: Boolean = false,
     appSettingsSubtitle: String? = null,
     onAppSettingsClick: (() -> Unit)? = null,
     onAppSettingsClickNoRipple: Boolean = false,
@@ -72,6 +75,7 @@ fun SectionSettingsSection(
                 val isFilesRow = section == SearchSection.FILES
                 val isDeviceSettingsRow = section == SearchSection.SETTINGS
                 val isCalendarRow = section == SearchSection.CALENDAR
+                val isNotesRow = section == SearchSection.NOTES
                 val isAppSettingsRow = section == SearchSection.APP_SETTINGS
                 val showAliasForSection = section !in sectionsWithHiddenAlias
                 val aliasTargetId = SearchSectionUiMetadataRegistry.metadataFor(section).aliasTargetId
@@ -89,6 +93,7 @@ fun SectionSettingsSection(
                             isFilesRow -> filesSubtitle
                             isDeviceSettingsRow -> deviceSettingsSubtitle
                             isCalendarRow -> calendarSubtitle
+                            isNotesRow -> notesSubtitle
                             isAppSettingsRow -> appSettingsSubtitle
                             else -> null
                         },
@@ -102,6 +107,7 @@ fun SectionSettingsSection(
                             isFilesRow -> onFilesClick
                             isDeviceSettingsRow -> onDeviceSettingsClick
                             isCalendarRow -> onCalendarClick
+                            isNotesRow -> onNotesClick
                             isAppSettingsRow -> onAppSettingsClick
                             else -> null
                         },
@@ -113,6 +119,7 @@ fun SectionSettingsSection(
                             isFilesRow -> onFilesClickNoRipple
                             isDeviceSettingsRow -> onDeviceSettingsClickNoRipple
                             isCalendarRow -> onCalendarClickNoRipple
+                            isNotesRow -> onNotesClickNoRipple
                             isAppSettingsRow -> onAppSettingsClickNoRipple
                             else -> false
                         },

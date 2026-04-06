@@ -13,6 +13,7 @@ import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.searchEngines.defaultBrowserTarget
 import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.search.searchScreen.dialogs.NicknameDialogState
@@ -32,6 +33,8 @@ sealed interface PredictedSubmitTarget {
     data class AppSetting(val id: String) : PredictedSubmitTarget
 
     data class Calendar(val eventId: Long) : PredictedSubmitTarget
+
+    data class Note(val noteId: Long) : PredictedSubmitTarget
 
     data class SearchTarget(val targetId: String) : PredictedSubmitTarget
 }
@@ -83,6 +86,11 @@ internal fun resolvePredictedSubmitTarget(
     val firstCalendarEvent = renderingState.calendarEvents.firstOrNull()
     if (firstCalendarEvent != null) {
         return PredictedSubmitTarget.Calendar(firstCalendarEvent.eventId)
+    }
+
+    val firstNote = renderingState.noteResults.firstOrNull()
+    if (firstNote != null) {
+        return PredictedSubmitTarget.Note(firstNote.noteId)
     }
 
     val firstAppSetting = renderingState.appSettingResults.firstOrNull()
@@ -289,6 +297,18 @@ data class CalendarSectionParams(
     val predictedTarget: PredictedSubmitTarget? = null,
 )
 
+/** Data class for Notes section parameters */
+data class NotesSectionParams(
+    val notes: List<NoteInfo>,
+    val pinnedNoteIds: Set<Long>,
+    val onNoteClick: (NoteInfo) -> Unit,
+    val onTogglePin: (NoteInfo) -> Unit,
+    val onDelete: (NoteInfo) -> Unit,
+    val showAllResults: Boolean,
+    val showWallpaperBackground: Boolean,
+    val predictedTarget: PredictedSubmitTarget? = null,
+)
+
 /** Helper function to build all the section parameters needed by SearchScreenContent */
 @Composable
 internal fun buildSectionParams(
@@ -334,6 +354,10 @@ internal fun buildSectionParams(
     onUnpinCalendarEvent: (CalendarEventInfo) -> Unit,
     onExcludeCalendarEvent: (CalendarEventInfo) -> Unit,
     onIncludeCalendarEvent: (CalendarEventInfo) -> Unit,
+    onNoteClick: (NoteInfo) -> Unit,
+    onPinNote: (NoteInfo) -> Unit,
+    onUnpinNote: (NoteInfo) -> Unit,
+    onDeleteNote: (NoteInfo) -> Unit,
     onOpenCalendarPermissionSettings: () -> Unit,
     getPrimaryContactCardAction: (Long) -> com.tk.quicksearch.search.contacts.models.ContactCardAction?,
     getSecondaryContactCardAction: (Long) -> com.tk.quicksearch.search.contacts.models.ContactCardAction?,
@@ -751,12 +775,30 @@ internal fun buildSectionParams(
             showWallpaperBackground = state.showWallpaperBackground,
         )
 
+    val notesParams =
+        NotesSectionParams(
+            notes = state.noteResults,
+            pinnedNoteIds = state.pinnedNotes.map { it.noteId }.toSet(),
+            onNoteClick = onNoteClick,
+            onTogglePin = { note ->
+                if (state.pinnedNotes.any { it.noteId == note.noteId }) {
+                    onUnpinNote(note)
+                } else {
+                    onPinNote(note)
+                }
+            },
+            onDelete = onDeleteNote,
+            showAllResults = false,
+            showWallpaperBackground = state.showWallpaperBackground,
+        )
+
     SectionParams(
         filesParams = filesParams,
         appShortcutsParams = appShortcutParams,
         settingsParams = settingsParams,
         contactsParams = contactsParams,
         calendarParams = calendarParams,
+        notesParams = notesParams,
         appsParams = appsParams,
     )
 }
@@ -768,5 +810,6 @@ data class SectionParams(
     val settingsParams: SettingsSectionParams,
     val contactsParams: ContactsSectionParams,
     val calendarParams: CalendarSectionParams,
+    val notesParams: NotesSectionParams,
     val appsParams: AppsSectionParams,
 )

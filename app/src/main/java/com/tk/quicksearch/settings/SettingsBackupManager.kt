@@ -19,6 +19,7 @@ object SettingsBackupManager {
         SEARCH_HISTORY,
         PINNED_ITEMS,
         SHORTCUTS,
+        NOTES,
         SEARCH_ENGINES,
         GEMINI_API,
     }
@@ -30,6 +31,7 @@ object SettingsBackupManager {
                 ExportItem.SEARCH_HISTORY,
                 ExportItem.PINNED_ITEMS,
                 ExportItem.SHORTCUTS,
+                ExportItem.NOTES,
                 ExportItem.SEARCH_ENGINES,
             ),
     ) {
@@ -287,6 +289,9 @@ object SettingsBackupManager {
         if (isShortcutKey(prefName, key)) {
             return options.includes(ExportItem.SHORTCUTS)
         }
+        if (isNotesKey(prefName, key)) {
+            return options.includes(ExportItem.NOTES)
+        }
         if (isSearchEngineKey(prefName, key)) {
             return options.includes(ExportItem.SEARCH_ENGINES)
         }
@@ -348,6 +353,16 @@ object SettingsBackupManager {
             key.startsWith(BasePreferences.KEY_ALIAS_ENABLED_PREFIX) ||
             key.startsWith(BasePreferences.KEY_SHORTCUT_CODE_PREFIX) ||
             key.startsWith(BasePreferences.KEY_SHORTCUT_ENABLED_PREFIX)
+    }
+
+    private fun isNotesKey(
+        prefName: String,
+        key: String,
+    ): Boolean {
+        if (prefName != BasePreferences.PREFS_NAME) return false
+        return key == BasePreferences.KEY_NOTES_DATA ||
+            key == BasePreferences.KEY_NOTE_ID_COUNTER ||
+            key == BasePreferences.KEY_PINNED_NOTE_IDS
     }
 
     private fun isGeminiKey(

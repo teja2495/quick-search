@@ -475,6 +475,11 @@ abstract class BasePreferences(
         const val KEY_PINNED_CALENDAR_EVENT_IDS = "pinned_calendar_event_ids"
         const val KEY_EXCLUDED_CALENDAR_EVENT_IDS = "excluded_calendar_event_ids"
 
+        // Notes preferences keys
+        const val KEY_PINNED_NOTE_IDS = "pinned_note_ids"
+        const val KEY_NOTES_DATA = "notes_data"
+        const val KEY_NOTE_ID_COUNTER = "note_id_counter"
+
         // App shortcut preferences keys
         const val KEY_PINNED_APP_SHORTCUTS = "pinned_app_shortcuts"
         const val KEY_EXCLUDED_APP_SHORTCUTS = "excluded_app_shortcuts"

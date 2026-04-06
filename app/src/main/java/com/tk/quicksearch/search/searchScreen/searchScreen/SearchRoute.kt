@@ -43,6 +43,7 @@ import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.search.utils.FileUtils
 import com.tk.quicksearch.tools.aiTools.CurrencyConversionIntentParser
@@ -55,6 +56,7 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.settings.shared.SettingsCommand
 import com.tk.quicksearch.settings.shared.applySettingsCommand
 import com.tk.quicksearch.settings.shared.isAppSettingToggleEnabled
+import com.tk.quicksearch.settings.settingsDetailScreen.NotesNavigationMemory
 import com.tk.quicksearch.search.searchScreen.SearchScreen as SearchScreenComposable
 import com.tk.quicksearch.search.searchScreen.ExcludeUndoSnackbarHost
 import kotlinx.coroutines.launch
@@ -69,6 +71,7 @@ fun SearchRoute(
     onOpenDirectSearchConfigure: () -> Unit = {},
     onOpenReleaseNotesFeatures: () -> Unit = {},
     onOpenAppSettingDestination: (AppSettingsDestination) -> Unit = {},
+    onOpenNotesDetail: (Long?) -> Unit = {},
     onOverlayDismissRequest: (() -> Unit)? = null,
     onCloseAppRequest: (() -> Unit)? = null,
     onShowToast: (Int) -> Unit = {},
@@ -198,6 +201,24 @@ fun SearchRoute(
             context.getString(R.string.toast_excluded_from_results, label),
         ) {
             viewModel.removeExcludedCalendarEvent(event)
+        }
+    }
+
+    val onDeleteNoteWithUndo: (NoteInfo) -> Unit = noteDelete@{ note ->
+        val staged = viewModel.stageDeleteNote(note) ?: return@noteDelete
+        val label = staged.title.ifBlank { context.getString(R.string.notes_untitled) }
+        var wasUndone = false
+        showUndoSnackbar(
+            context.getString(R.string.toast_excluded_from_results, label),
+        ) {
+            wasUndone = true
+            viewModel.undoDeleteNote(staged.noteId)
+        }
+        snackbarScope.launch {
+            kotlinx.coroutines.delay(2_500L)
+            if (!wasUndone) {
+                viewModel.finalizeDeleteNote(staged.noteId)
+            }
         }
     }
 
@@ -437,6 +458,13 @@ fun SearchRoute(
             onUnpinCalendarEvent = viewModel::unpinCalendarEvent,
             onExcludeCalendarEvent = onExcludeCalendarEventWithUndo,
             onIncludeCalendarEvent = viewModel::removeExcludedCalendarEvent,
+            onNoteClick = { note ->
+                NotesNavigationMemory.setPendingNoteId(note.noteId)
+                onOpenNotesDetail(note.noteId)
+            },
+            onPinNote = viewModel::pinNote,
+            onUnpinNote = viewModel::unpinNote,
+            onDeleteNote = onDeleteNoteWithUndo,
             onPinFile = viewModel::pinFile,
             onUnpinFile = viewModel::unpinFile,
             onExcludeFile = onExcludeFileWithUndo,

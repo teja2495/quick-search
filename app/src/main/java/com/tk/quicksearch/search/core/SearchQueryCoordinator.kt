@@ -88,6 +88,7 @@ internal class SearchQueryCoordinator(
                 appSettingResults = emptyList(),
                 appShortcutResults = emptyList(),
                 calendarEvents = emptyList(),
+                noteResults = emptyList(),
             )
         }
         if (currentQuery.isNotEmpty() && section != SearchSection.APPS) {
@@ -357,6 +358,7 @@ internal class SearchQueryCoordinator(
                         settingResults = emptyList(),
                         appSettingResults = emptyList(),
                         calendarEvents = emptyList(),
+                        noteResults = emptyList(),
                         DirectSearchState = DirectSearchState(),
                         currencyConverterState = CurrencyConverterState(),
                         wordClockState = WordClockState(),
@@ -394,6 +396,7 @@ internal class SearchQueryCoordinator(
                     settingResults = emptyList(),
                     appSettingResults = emptyList(),
                     calendarEvents = emptyList(),
+                    noteResults = emptyList(),
                     DirectSearchState = DirectSearchState(),
                     currencyConverterState = CurrencyConverterState(),
                     wordClockState = WordClockState(),
@@ -600,6 +603,7 @@ internal class SearchQueryCoordinator(
                         appSettingResults = emptyList(),
                         appShortcutResults = emptyList(),
                         calendarEvents = emptyList(),
+                        noteResults = emptyList(),
                         webSuggestions = emptyList(),
                     )
                 }
@@ -613,6 +617,7 @@ internal class SearchQueryCoordinator(
                         appSettingResults = emptyList(),
                         appShortcutResults = emptyList(),
                         calendarEvents = emptyList(),
+                        noteResults = emptyList(),
                         webSuggestions = emptyList(),
                     )
                 }
@@ -629,6 +634,7 @@ internal class SearchQueryCoordinator(
                             appSettingResults = emptyList(),
                             appShortcutResults = emptyList(),
                             calendarEvents = emptyList(),
+                            noteResults = emptyList(),
                             webSuggestions = emptyList(),
                         )
                     }

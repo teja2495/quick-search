@@ -4,10 +4,11 @@ import com.tk.quicksearch.search.core.PermissionManager
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
+import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.models.NoteInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class PinningHandler(
@@ -15,6 +16,7 @@ class PinningHandler(
     private val permissionManager: PermissionManager,
     private val contactRepository: ContactRepository,
     private val fileRepository: FileSearchRepository,
+    private val notesRepository: NotesRepository,
     private val userPreferences: UserAppPreferences,
     private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit,
 ) {
@@ -24,11 +26,13 @@ class PinningHandler(
 
             val pinnedContacts = loadPinnedContacts(permissions.contacts)
             val pinnedFiles = loadPinnedFiles(permissions.files)
+            val pinnedNotes = loadPinnedNotes()
 
             uiStateUpdater { state ->
                 state.copy(
                     pinnedContacts = pinnedContacts,
                     pinnedFiles = pinnedFiles,
+                    pinnedNotes = pinnedNotes,
                 )
             }
         }
@@ -128,6 +132,14 @@ class PinningHandler(
         if (excludedUris.isEmpty()) return emptyList()
 
         return fileRepository.getFilesByUris(excludedUris)
+    }
+
+    private fun loadPinnedNotes(): List<NoteInfo> {
+        val pinnedIds = userPreferences.getPinnedNoteIds()
+        if (pinnedIds.isEmpty()) return emptyList()
+        return notesRepository
+            .getAllNotes()
+            .filter { pinnedIds.contains(it.noteId) }
     }
 
     private data class PermissionsState(

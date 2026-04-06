@@ -9,6 +9,7 @@ import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
+import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.searchHistory.RecentSearchItem
 import com.tk.quicksearch.tools.directSearch.GeminiModelCatalog
 import com.tk.quicksearch.tools.directSearch.GeminiTextModel
@@ -68,6 +69,9 @@ data class SearchResultsState(
         val calendarEvents: List<CalendarEventInfo> = emptyList(),
         val pinnedCalendarEvents: List<CalendarEventInfo> = emptyList(),
         val excludedCalendarEvents: List<CalendarEventInfo> = emptyList(),
+        // Notes results
+        val noteResults: List<NoteInfo> = emptyList(),
+        val pinnedNotes: List<NoteInfo> = emptyList(),
         // Computed visibility states (derived from results above)
         val screenState: ScreenVisibilityState = ScreenVisibilityState.Initializing,
         val appsSectionState: AppsSectionVisibility = AppsSectionVisibility.Hidden,
@@ -77,6 +81,7 @@ data class SearchResultsState(
         val filesSectionState: FilesSectionVisibility = FilesSectionVisibility.Hidden,
         val settingsSectionState: SettingsSectionVisibility = SettingsSectionVisibility.Hidden,
         val calendarSectionState: CalendarSectionVisibility = CalendarSectionVisibility.Hidden,
+        val notesSectionState: NotesSectionVisibility = NotesSectionVisibility.Hidden,
         val searchEnginesState: SearchEnginesVisibility = SearchEnginesVisibility.Hidden,
         // Transient search state (calculator answer, direct search, web suggestions)
         val calculatorState: CalculatorState = CalculatorState(),

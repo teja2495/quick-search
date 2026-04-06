@@ -23,6 +23,7 @@ import com.tk.quicksearch.search.core.SectionRenderContext
 import com.tk.quicksearch.search.core.SectionRenderParams
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsResultsSection
 import com.tk.quicksearch.search.files.FileResultsSection
+import com.tk.quicksearch.search.notes.NotesResultsSection
 
 private const val SECTION_ENTER_DELAY_MS = 80
 private val sectionEnterAnimation =
@@ -47,6 +48,7 @@ fun renderSection(
         SearchSection.APP_SHORTCUTS -> renderAppShortcutsSection(params, sectionContext)
         SearchSection.SETTINGS -> renderSettingsSection(params, sectionContext)
         SearchSection.CALENDAR -> renderCalendarSection(params, sectionContext)
+        SearchSection.NOTES -> renderNotesSection(params, sectionContext)
         SearchSection.APP_SETTINGS -> renderAppSettingsSection(params, sectionContext)
     }
 }
@@ -349,6 +351,31 @@ private fun renderCalendarSection(
             permissionDisabledCard = calendarParams.permissionDisabledCard,
             showWallpaperBackground = calendarParams.showWallpaperBackground,
             predictedTarget = calendarParams.predictedTarget,
+            fillExpandedHeight = context.isSectionAliasMode,
+        )
+    }
+}
+
+@Composable
+private fun renderNotesSection(
+    params: SectionRenderParams,
+    context: SectionRenderContext,
+) {
+    val notesParams = params.notesParams ?: return
+    AnimatedVisibility(
+        visible = context.shouldRenderNotes,
+        enter = sectionEnterAnimation,
+        exit = sectionExitAnimation,
+    ) {
+        NotesResultsSection(
+            notes = context.notesList,
+            pinnedNoteIds = notesParams.pinnedNoteIds,
+            onNoteClick = notesParams.onNoteClick,
+            onTogglePin = notesParams.onTogglePin,
+            onDelete = notesParams.onDelete,
+            showAllResults = context.showAllNotesResults,
+            showWallpaperBackground = notesParams.showWallpaperBackground,
+            predictedTarget = notesParams.predictedTarget,
             fillExpandedHeight = context.isSectionAliasMode,
         )
     }

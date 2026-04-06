@@ -8,6 +8,7 @@ import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -122,6 +123,16 @@ internal interface SearchViewModelManagementApi {
 
     fun getCalendarEventNickname(eventId: Long): String? =
         managementApiDelegate.getCalendarEventNickname(eventId)
+
+    fun pinNote(noteInfo: NoteInfo) = managementApiDelegate.pinNote(noteInfo)
+
+    fun unpinNote(noteInfo: NoteInfo) = managementApiDelegate.unpinNote(noteInfo)
+
+    fun stageDeleteNote(noteInfo: NoteInfo): NoteInfo? = managementApiDelegate.stageDeleteNote(noteInfo)
+
+    fun undoDeleteNote(noteId: Long) = managementApiDelegate.undoDeleteNote(noteId)
+
+    fun finalizeDeleteNote(noteId: Long) = managementApiDelegate.finalizeDeleteNote(noteId)
 
     fun pinAppShortcut(shortcut: StaticShortcut) = managementApiDelegate.pinAppShortcut(shortcut)
 
@@ -243,6 +254,7 @@ class SearchViewModelManagementApiDelegate internal constructor(
     private val settingsManager: () -> com.tk.quicksearch.search.deviceSettings.DeviceSettingsManagementHandler,
     private val calendarManager: () -> com.tk.quicksearch.search.calendar.CalendarManagementHandler,
     private val appShortcutManager: () -> com.tk.quicksearch.search.appShortcuts.AppShortcutManagementHandler,
+    private val notesRepository: () -> com.tk.quicksearch.search.data.NotesRepository,
     private val appSearchManager: () -> com.tk.quicksearch.search.apps.AppSearchManager,
     private val updateUiState: ((SearchUiState) -> SearchUiState) -> Unit,
     private val updateFeatureState: ((SearchFeatureState) -> SearchFeatureState) -> Unit,
@@ -394,6 +406,37 @@ class SearchViewModelManagementApiDelegate internal constructor(
 
     fun getCalendarEventNickname(eventId: Long): String? = userPreferences.getCalendarEventNickname(eventId)
 
+    fun pinNote(noteInfo: NoteInfo) {
+        scope.launch(Dispatchers.IO) {
+            notesRepository().pinNote(noteInfo.noteId)
+            refreshNotesState()
+        }
+    }
+
+    fun unpinNote(noteInfo: NoteInfo) {
+        scope.launch(Dispatchers.IO) {
+            notesRepository().unpinNote(noteInfo.noteId)
+            refreshNotesState()
+            refreshRecentItems()
+        }
+    }
+
+    fun stageDeleteNote(noteInfo: NoteInfo): NoteInfo? {
+        val deleted = notesRepository().stageDelete(noteInfo.noteId) ?: return null
+        refreshNotesState()
+        return deleted
+    }
+
+    fun undoDeleteNote(noteId: Long) {
+        notesRepository().undoDelete(noteId)
+        refreshNotesState()
+    }
+
+    fun finalizeDeleteNote(noteId: Long) {
+        notesRepository().finalizeDelete(noteId)
+        refreshNotesState()
+    }
+
     fun pinAppShortcut(shortcut: StaticShortcut) = appShortcutManager().pinShortcut(shortcut)
 
     fun unpinAppShortcut(shortcut: StaticShortcut) {
@@ -508,6 +551,25 @@ class SearchViewModelManagementApiDelegate internal constructor(
         iconBase64: String?,
     ) {
         staticDataDelegate.updateCustomAppShortcut(shortcut, shortcutName, shortcutValue, iconBase64)
+    }
+
+    private fun refreshNotesState() {
+        val repository = notesRepository()
+        val allNotes = repository.getAllNotes()
+        val pinnedIds = repository.getPinnedNoteIds()
+        val pinnedNotes = allNotes.filter { pinnedIds.contains(it.noteId) }
+        updateUiState { state ->
+            val refreshedResults =
+                if (state.query.isBlank()) {
+                    allNotes
+                } else {
+                    repository.searchNotes(state.query)
+                }
+            state.copy(
+                noteResults = refreshedResults,
+                pinnedNotes = pinnedNotes,
+            )
+        }
     }
 
     fun clearAllExclusions() = staticDataDelegate.clearAllExclusions()

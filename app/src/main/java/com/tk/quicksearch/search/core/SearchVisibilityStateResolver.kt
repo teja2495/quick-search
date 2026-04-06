@@ -10,6 +10,7 @@ internal class SearchVisibilityStateResolver {
             filesSectionState = computeFilesSectionVisibility(state),
             settingsSectionState = computeSettingsSectionVisibility(state),
             calendarSectionState = computeCalendarSectionVisibility(state),
+            notesSectionState = computeNotesSectionVisibility(state),
             searchEnginesState = computeSearchEnginesVisibility(state),
         )
 
@@ -136,6 +137,22 @@ internal class SearchVisibilityStateResolver {
                     CalendarSectionVisibility.ShowingResults(hasPinned = hasPinned)
                 } else {
                     CalendarSectionVisibility.NoResults
+                }
+            }
+        }
+    }
+
+    private fun computeNotesSectionVisibility(state: SearchUiState): NotesSectionVisibility {
+        val sectionEnabled = isSectionEnabledForCurrentQuery(state, SearchSection.NOTES)
+        return when {
+            !sectionEnabled -> NotesSectionVisibility.Hidden
+            else -> {
+                val hasResults = state.noteResults.isNotEmpty()
+                val hasPinned = state.pinnedNotes.isNotEmpty()
+                if (hasResults || hasPinned) {
+                    NotesSectionVisibility.ShowingResults(hasPinned = hasPinned)
+                } else {
+                    NotesSectionVisibility.NoResults
                 }
             }
         }

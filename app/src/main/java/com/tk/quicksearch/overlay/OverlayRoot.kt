@@ -419,6 +419,14 @@ fun OverlayRoot(
                                                         )
                                                         handleClose()
                                                 },
+                                                onOpenNotesDetail = {
+                                                        OverlayModeController.openMainActivity(
+                                                                context,
+                                                                openSettings = true,
+                                                                settingsDetailType = SettingsDetailType.NOTES,
+                                                        )
+                                                        handleClose()
+                                                },
                                                 onSearchEngineLongPress = {
                                                         OverlayModeController.openMainActivity(
                                                                 context,
