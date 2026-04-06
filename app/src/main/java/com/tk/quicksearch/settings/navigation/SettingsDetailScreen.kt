@@ -460,6 +460,7 @@ internal fun SettingsDetailLevel1Screen(
                     SettingsDetailType.DEVICE_SETTINGS,
                     SettingsDetailType.CALENDAR_EVENTS,
                     SettingsDetailType.NOTES,
+                    SettingsDetailType.NOTE_EDITOR,
                     SettingsDetailType.CALLS_TEXTS,
                     SettingsDetailType.FILES,
                     SettingsDetailType.TOOLS,

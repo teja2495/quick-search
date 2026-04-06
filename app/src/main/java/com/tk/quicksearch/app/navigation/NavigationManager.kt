@@ -524,7 +524,13 @@ private fun NavigationContent(
                         navigateToSettings(SettingsDetailType.SEARCH_RESULTS)
                     },
                     onOpenNotesDetail = {
-                        navigateToSettings(SettingsDetailType.NOTES)
+                        val destination =
+                            if (it != null) {
+                                SettingsDetailType.NOTE_EDITOR
+                            } else {
+                                SettingsDetailType.NOTES
+                            }
+                        navigateToSettings(destination)
                     },
                     onSearchEngineLongPress = {
                         navigateToSettings(SettingsDetailType.SEARCH_ENGINES)

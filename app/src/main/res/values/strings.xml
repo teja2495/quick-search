@@ -620,7 +620,8 @@
     <string name="settings_tools_gemini_api_title">Setup Gemini API</string>
     <string name="settings_tools_info_examples_header">Here are some examples of things you can ask in the search bar</string>
     <string name="settings_tools_title">Tools</string>
-    <string name="notes_create_note_cta">Create note</string>
+    <string name="notes_create_note_cta">New Note</string>
+    <string name="notes_editor_title">Note Editor</string>
     <string name="notes_empty_state">No notes yet</string>
     <string name="notes_untitled">Untitled</string>
     <string name="notes_title_hint">Title</string>

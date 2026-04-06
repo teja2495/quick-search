@@ -256,6 +256,10 @@ internal fun SettingsDetailLevel2Screen(
                 )
             } else if (detailType == SettingsDetailType.NOTES) {
                 NotesSettingsSection(
+                    onOpenNoteEditor = { noteId ->
+                        NotesNavigationMemory.setPendingNoteId(noteId)
+                        onNavigateToDetail(SettingsDetailType.NOTE_EDITOR)
+                    },
                     modifier =
                         Modifier
                             .settingsContentWidth()
@@ -265,6 +269,18 @@ internal fun SettingsDetailLevel2Screen(
                                 start = DesignTokens.ContentHorizontalPadding,
                                 end = DesignTokens.ContentHorizontalPadding,
                                 bottom = 96.dp,
+                            ),
+                )
+            } else if (detailType == SettingsDetailType.NOTE_EDITOR) {
+                NoteEditorSettingsSection(
+                    modifier =
+                        Modifier
+                            .settingsContentWidth()
+                            .fillMaxHeight()
+                            .align(androidx.compose.ui.Alignment.CenterHorizontally)
+                            .padding(
+                                start = DesignTokens.ContentHorizontalPadding,
+                                end = DesignTokens.ContentHorizontalPadding,
                             ),
                 )
             } else {

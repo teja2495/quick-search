@@ -420,10 +420,17 @@ fun OverlayRoot(
                                                         handleClose()
                                                 },
                                                 onOpenNotesDetail = {
+                                                        val destination =
+                                                                if (it != null) {
+                                                                        SettingsDetailType
+                                                                                .NOTE_EDITOR
+                                                                } else {
+                                                                        SettingsDetailType.NOTES
+                                                                }
                                                         OverlayModeController.openMainActivity(
                                                                 context,
                                                                 openSettings = true,
-                                                                settingsDetailType = SettingsDetailType.NOTES,
+                                                                settingsDetailType = destination,
                                                         )
                                                         handleClose()
                                                 },
