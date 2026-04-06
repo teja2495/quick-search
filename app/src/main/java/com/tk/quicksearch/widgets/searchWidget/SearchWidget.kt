@@ -61,6 +61,7 @@ import kotlin.math.floor
 import kotlin.math.roundToInt
 
 private const val MIN_RENDERABLE_WIDTH_DP = 48f
+private const val DEFAULT_FLOAT_COMPARISON_EPSILON = 0.001f
 
 class SearchWidget(
     private val variant: WidgetVariant = WidgetVariant.STANDARD,
@@ -96,21 +97,23 @@ class SearchWidget(
         val isNarrowWidth = widthDp <= WidgetLayoutUtils.TWO_COLUMN_WIDTH_DP.dp
         val displayedWidthDp = widthDp - (widgetPadding * 2)
         val displayedHeightDp = heightDp - (widgetPadding * 2)
+        val outerHorizontalPadding =
+            computeSafeOuterHorizontalPadding(
+                widthDp = widthDp,
+                requestedPaddingDp = config.internalHorizontalPaddingDp,
+            )
+        val verticalInset = config.internalVerticalPaddingDp.finiteOr(0f).dp
+        val renderedBarWidthDp = (displayedWidthDp - (outerHorizontalPadding * 2)).coerceAtLeast(1.dp)
+        val renderedBarHeightDp = (displayedHeightDp - (verticalInset * 2)).coerceAtLeast(1.dp)
 
         val density = context.resources.displayMetrics.density
-        val widthPx = (displayedWidthDp.value * density).roundToInt().coerceAtLeast(1)
-        val heightPx = (displayedHeightDp.value * density).roundToInt().coerceAtLeast(1)
+        val widthPx = (renderedBarWidthDp.value * density).roundToInt().coerceAtLeast(1)
+        val heightPx = (renderedBarHeightDp.value * density).roundToInt().coerceAtLeast(1)
         val borderWidthPx = (config.borderWidthDp * density).roundToInt()
         val cornerRadiusPx = config.borderRadiusDp * density
         val colors = calculateColors(config, borderWidthPx)
 
-        val hasDefaultBackground =
-            config.borderRadiusDp == WidgetDefaults.BORDER_RADIUS_DP &&
-                config.borderWidthDp == WidgetDefaults.BORDER_WIDTH_DP &&
-                config.backgroundAlpha == WidgetDefaults.BACKGROUND_ALPHA &&
-                config.borderAlpha == WidgetDefaults.BORDER_ALPHA &&
-                config.theme == WidgetDefaults.THEME &&
-                config.backgroundColor == WidgetDefaults.BACKGROUND_COLOR
+        val hasDefaultBackground = isDefaultBackgroundStyle(config)
 
         val backgroundBitmap =
             if (!hasDefaultBackground) {
@@ -607,5 +610,20 @@ private fun computeSafeOuterHorizontalPadding(
     val maxPadding = ((safeWidth - MIN_RENDERABLE_WIDTH_DP) / 2f).coerceAtLeast(0f)
     return requested.coerceAtMost(maxPadding).dp
 }
+
+private fun isDefaultBackgroundStyle(config: WidgetPreferences): Boolean =
+    nearlyEqual(config.borderRadiusDp, WidgetDefaults.BORDER_RADIUS_DP) &&
+        nearlyEqual(config.borderWidthDp, WidgetDefaults.BORDER_WIDTH_DP) &&
+        nearlyEqual(config.backgroundAlpha, WidgetDefaults.BACKGROUND_ALPHA) &&
+        nearlyEqual(config.borderAlpha, WidgetDefaults.BORDER_ALPHA) &&
+        config.theme == WidgetDefaults.THEME &&
+        config.backgroundColor == WidgetDefaults.BACKGROUND_COLOR &&
+        config.borderColor == WidgetDefaults.BORDER_COLOR_ARGB
+
+private fun nearlyEqual(
+    first: Float,
+    second: Float,
+    epsilon: Float = DEFAULT_FLOAT_COMPARISON_EPSILON,
+): Boolean = kotlin.math.abs(first - second) <= epsilon
 
 private fun Float.finiteOr(default: Float): Float = if (isFinite()) this else default

@@ -34,6 +34,7 @@ import com.tk.quicksearch.searchEngines.extendToScreenEdges
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
+import com.tk.quicksearch.shared.ui.theme.LocalDeviceDynamicColorsActive
 
 @Composable
 internal fun KeyboardSwitchPill(
@@ -88,7 +89,14 @@ internal fun OpenKeyboardAction(
 ) {
     val isDarkTheme = LocalAppIsDarkTheme.current
     val backgroundColor = AppColors.getSearchEngineSectionBackground(showWallpaperBackground)
-    val labelColor = if (isDarkTheme) Color.White else Color.Black
+    val labelColor =
+        if (showWallpaperBackground && LocalDeviceDynamicColorsActive.current) {
+            MaterialTheme.colorScheme.onSurface
+        } else if (isDarkTheme) {
+            Color.White
+        } else {
+            Color.Black
+        }
     Surface(
         modifier = modifier.fillMaxWidth().clickable(onClick = onClick),
         color = backgroundColor,

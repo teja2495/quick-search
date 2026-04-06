@@ -47,6 +47,7 @@ import com.tk.quicksearch.widgets.WidgetConfigScreen.components.WidgetToggleSect
 @Composable
 fun WidgetConfigScreen(
     state: WidgetPreferences,
+    showDeviceThemeOption: Boolean = false,
     isLoaded: Boolean,
     isSaveEnabled: Boolean = isLoaded,
     onStateChange: (WidgetPreferences) -> Unit,
@@ -191,7 +192,11 @@ fun WidgetConfigScreen(
                     )
                 }
 
-                WidgetThemeSection(state = constrainedState, onStateChange = onConstrainedStateChange)
+                WidgetThemeSection(
+                    state = constrainedState,
+                    showDeviceThemeOption = showDeviceThemeOption,
+                    onStateChange = onConstrainedStateChange,
+                )
 
                 WidgetSlidersSection(state = constrainedState, onStateChange = onConstrainedStateChange)
                 if (widgetVariant == WidgetVariant.STANDARD) {

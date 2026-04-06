@@ -32,6 +32,7 @@
     <string name="common_error_unable_to_open">Unable to open %1$s</string>
     <string name="common_theme_dark">Dark</string>
     <string name="common_theme_light">Light</string>
+    <string name="common_theme_device">Device</string>
     <string name="common_theme_system">System</string>
     <!-- ============================================================================
          Accessibility
@@ -541,6 +542,7 @@
     <string name="settings_refresh_contacts_disabled">Contacts search is disabled, cannot refresh contacts data</string>
     <string name="settings_refresh_contacts_title">Reload Contacts</string>
     <string name="settings_refresh_data_title">Refresh Data</string>
+    <string name="settings_refresh_data_note">Data is refreshed automatically. Use these buttons to force refresh manually.</string>
     <string name="settings_refresh_files_disabled">Files search is disabled, cannot refresh files data</string>
     <string name="settings_refresh_files_title">Reload Files</string>
     <string name="settings_refresh_icon_packs">Refresh icon packs</string>

@@ -273,6 +273,14 @@ object AppColors {
         @Composable
         get() = current.searchBarBackground
 
+    @Composable
+    fun getSearchBarBackground(showWallpaperBackground: Boolean): Color {
+        if (showWallpaperBackground && LocalDeviceDynamicColorsActive.current) {
+            return MaterialTheme.colorScheme.surfaceContainerHigh
+        }
+        return SearchBarBackground
+    }
+
     val SearchBarBorder: Color
         @Composable
         get() = current.searchBarBorder
@@ -280,6 +288,22 @@ object AppColors {
     val SearchBarTextAndIcon: Color
         @Composable
         get() = current.searchBarTextAndIcon
+
+    @Composable
+    fun getSearchBarTextAndIconColor(showWallpaperBackground: Boolean): Color {
+        if (showWallpaperBackground && LocalDeviceDynamicColorsActive.current) {
+            return MaterialTheme.colorScheme.onSurface
+        }
+        return SearchBarTextAndIcon
+    }
+
+    @Composable
+    fun getSearchBarSecondaryIconTint(showWallpaperBackground: Boolean): Color {
+        if (showWallpaperBackground && LocalDeviceDynamicColorsActive.current) {
+            return MaterialTheme.colorScheme.onSurfaceVariant
+        }
+        return SecondaryIconTint
+    }
 
     val SettingsBackground: Color = Color.Transparent
 
@@ -621,6 +645,15 @@ object AppColors {
     @Composable
     fun getResultCardContainerColor(showWallpaperBackground: Boolean): Color {
         if (showWallpaperBackground) {
+            if (LocalDeviceDynamicColorsActive.current) {
+                val alpha =
+                    if (LocalAppIsDarkTheme.current) {
+                        DarkWallpaperSearchSurfaceAlpha
+                    } else {
+                        LightWallpaperSearchResultCardAlpha
+                    }
+                return MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = alpha)
+            }
             return ResultCardWallpaperBackground
         }
         val themeCardColor = LocalSearchColorTheme.current?.cardBackground
@@ -679,6 +712,9 @@ object AppColors {
      */
     @Composable
     fun getCompactSectionBackground(showWallpaperBackground: Boolean): Color {
+        if (showWallpaperBackground && LocalDeviceDynamicColorsActive.current) {
+            return MaterialTheme.colorScheme.surfaceContainerHigh
+        }
         val base = if (!LocalAppIsDarkTheme.current) Color.White else Color.Black
         return base.copy(alpha = CompactSectionAlpha)
     }
@@ -689,6 +725,9 @@ object AppColors {
      */
     @Composable
     fun getSearchEngineSectionBackground(showWallpaperBackground: Boolean): Color {
+        if (showWallpaperBackground && LocalDeviceDynamicColorsActive.current) {
+            return MaterialTheme.colorScheme.surfaceContainerHigh
+        }
         val isLightWithWallpaper = !LocalAppIsDarkTheme.current && showWallpaperBackground
         val base = if (!LocalAppIsDarkTheme.current) Color.White else Color.Black
         val alpha = if (isLightWithWallpaper) LightWallpaperSearchResultCardAlpha else CompactSectionAlpha

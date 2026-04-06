@@ -176,6 +176,11 @@ private fun LaunchOptionsCard(
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onSurface,
             )
+            Text(
+                text = stringResource(R.string.settings_refresh_data_note),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

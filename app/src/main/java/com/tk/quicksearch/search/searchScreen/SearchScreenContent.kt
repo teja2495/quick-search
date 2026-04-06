@@ -60,6 +60,7 @@ import com.tk.quicksearch.searchEngines.resolveDefaultBrowserPackage
 import com.tk.quicksearch.searchEngines.inline.SearchEngineIconsSection
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.LocalDeviceDynamicColorsActive
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SearchContentArea
 import com.tk.quicksearch.search.searchScreen.appThemeActionColor
@@ -867,13 +868,19 @@ internal fun SearchScreenContent(
                                     .fillMaxWidth()
                                     .then(
                                             if (shouldShowCompactBottomBarBackground) {
+                                                val compactBackground =
+                                                        AppColors.getCompactSectionBackground(
+                                                                state.showWallpaperBackground
+                                                        )
+                                                val compactBackgroundColor =
+                                                        if (state.showWallpaperBackground && LocalDeviceDynamicColorsActive.current) {
+                                                            compactBackground
+                                                        } else {
+                                                            compactBackground.copy(alpha = 0.9f)
+                                                        }
                                                 Modifier
                                                         .extendToScreenEdges()
-                                                        .background(
-                                                                AppColors.getCompactSectionBackground(
-                                                                        state.showWallpaperBackground
-                                                                ).copy(alpha = 0.9f)
-                                                        )
+                                                        .background(compactBackgroundColor)
                                             } else {
                                                 Modifier
                                             }

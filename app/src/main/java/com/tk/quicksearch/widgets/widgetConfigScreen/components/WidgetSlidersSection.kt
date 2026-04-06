@@ -140,6 +140,7 @@ internal fun SliderRow(
                 onValueChange(v)
             },
             valueRange = valueRange,
+            steps = (steps - 1).coerceAtLeast(0),
         )
     }
 }

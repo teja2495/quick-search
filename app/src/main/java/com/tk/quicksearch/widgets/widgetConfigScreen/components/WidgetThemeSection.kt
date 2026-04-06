@@ -51,25 +51,72 @@ import com.tk.quicksearch.widgets.utils.WidgetTheme
 @Composable
 fun WidgetThemeSection(
     state: WidgetPreferences,
+    showDeviceThemeOption: Boolean = false,
     onStateChange: (WidgetPreferences) -> Unit,
 ) {
     val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val forestPreviewColors =
+        AppThemeColors(
+            theme = AppTheme.FOREST,
+            isDarkMode = isDarkMode,
+        )
+    val auroraPreviewColors =
+        AppThemeColors(
+            theme = AppTheme.AURORA,
+            isDarkMode = isDarkMode,
+        )
+    val sunsetPreviewColors =
+        AppThemeColors(
+            theme = AppTheme.SUNSET,
+            isDarkMode = isDarkMode,
+        )
+    val devicePrimary = MaterialTheme.colorScheme.primary
+    val deviceSecondary = MaterialTheme.colorScheme.secondary
     val themeOptions =
-        remember {
-            listOf(
-                WidgetBackgroundThemeOption(
-                    appTheme = AppTheme.FOREST,
-                    labelRes = R.string.settings_app_theme_forest,
-                ),
-                WidgetBackgroundThemeOption(
-                    appTheme = AppTheme.AURORA,
-                    labelRes = R.string.settings_app_theme_aurora,
-                ),
-                WidgetBackgroundThemeOption(
-                    appTheme = AppTheme.SUNSET,
-                    labelRes = R.string.settings_app_theme_sunset,
-                ),
-            )
+        remember(
+            showDeviceThemeOption,
+            isDarkMode,
+            devicePrimary,
+            deviceSecondary,
+        ) {
+            buildList {
+                if (showDeviceThemeOption) {
+                    add(
+                        WidgetBackgroundThemeOption(
+                            backgroundColorArgb = devicePrimary.toArgb(),
+                            labelRes = R.string.common_theme_device,
+                            brush =
+                                Brush.linearGradient(
+                                    listOf(
+                                        devicePrimary,
+                                        deviceSecondary,
+                                    ),
+                                ),
+                        ),
+                    )
+                }
+                add(
+                    WidgetBackgroundThemeOption(
+                        backgroundColorArgb = forestPreviewColors.first().toArgb(),
+                        labelRes = R.string.settings_app_theme_forest,
+                        brush = Brush.linearGradient(forestPreviewColors),
+                    ),
+                )
+                add(
+                    WidgetBackgroundThemeOption(
+                        backgroundColorArgb = auroraPreviewColors.first().toArgb(),
+                        labelRes = R.string.settings_app_theme_aurora,
+                        brush = Brush.linearGradient(auroraPreviewColors),
+                    ),
+                )
+                add(
+                    WidgetBackgroundThemeOption(
+                        backgroundColorArgb = sunsetPreviewColors.first().toArgb(),
+                        labelRes = R.string.settings_app_theme_sunset,
+                        brush = Brush.linearGradient(sunsetPreviewColors),
+                    ),
+                )
+            }
         }
     var customHexValue by rememberSaveable { mutableStateOf("") }
     var showCustomColorDialog by rememberSaveable { mutableStateOf(false) }
@@ -95,31 +142,20 @@ fun WidgetThemeSection(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             themeOptions.forEach { option ->
-                val previewColors =
-                    AppThemeColors(
-                        theme = option.appTheme,
-                        isDarkMode = isDarkMode,
-                    )
-                val selectedArgb = previewColors.first().toArgb()
                 ThemeColorOptionChip(
                     modifier = Modifier.weight(1f),
-                    brush = Brush.linearGradient(previewColors),
-                    selected = state.backgroundColor == selectedArgb,
+                    brush = option.brush,
+                    selected = state.backgroundColor == option.backgroundColorArgb,
                     label = stringResource(option.labelRes),
                     onClick = {
                         customHexValue = ""
-                        onStateChange(state.copy(backgroundColor = selectedArgb))
+                        onStateChange(state.copy(backgroundColor = option.backgroundColorArgb))
                     },
                 )
             }
             val isCustomSelected =
                 state.backgroundColor != null &&
-                    themeOptions.none { option ->
-                        AppThemeColors(
-                            theme = option.appTheme,
-                            isDarkMode = isDarkMode,
-                        ).first().toArgb() == state.backgroundColor
-                    }
+                    themeOptions.none { option -> option.backgroundColorArgb == state.backgroundColor }
             ThemeColorOptionChip(
                 modifier = Modifier.weight(1f),
                 color =
@@ -279,6 +315,7 @@ private fun CustomBackgroundColorDialog(
 }
 
 private data class WidgetBackgroundThemeOption(
-    val appTheme: AppTheme,
+    val backgroundColorArgb: Int,
     val labelRes: Int,
+    val brush: Brush,
 )
