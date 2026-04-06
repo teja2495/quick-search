@@ -54,7 +54,7 @@ fun SettingsExportDialog(
                 )
                 if (selectionState.showSearchHistoryOption) {
                     SettingsCheckboxRow(
-                        title = stringResource(R.string.settings_backup_export_option_search_history_title),
+                        title = stringResource(R.string.recent_queries_toggle_title),
                         description = "",
                         checked = selectionState.includeSearchHistory,
                         onCheckedChange = {
@@ -87,7 +87,7 @@ fun SettingsExportDialog(
                     isLastItem = false,
                 )
                 SettingsCheckboxRow(
-                    title = stringResource(R.string.settings_backup_export_option_search_engines_title),
+                    title = stringResource(R.string.settings_app_shortcuts_filter_search_engines),
                     description = "",
                     checked = selectionState.includeSearchEngines,
                     onCheckedChange = {

@@ -183,7 +183,7 @@ fun APIKeySettingsSection(
                                 ) {
                                         val unsupported = mutableListOf<String>()
                                         if (!supportsInstructions)
-                                                unsupported.add(context.getString(R.string.gemini_feature_personal_context))
+                                                unsupported.add(context.getString(R.string.settings_direct_search_personal_context))
                                         if (!supportsGrounding)
                                                 unsupported.add(context.getString(R.string.gemini_feature_grounding))
                                         context.getString(R.string.error_gemini_model_unsupported_features, selectedModelLabel, unsupported.joinToString(" or "))

@@ -68,7 +68,7 @@
     <string name="error_open_email">No email app found to send mail.</string>
     <string name="error_unknown">Unknown error</string>
     <string name="gemini_feature_grounding">grounding</string>
-    <string name="gemini_feature_personal_context">personal context</string>
+
     <string name="gemini_model_flash_latest">Gemini Flash (Latest)</string>
     <string name="keyboard_switch_back">Regular Keyboard</string>
     <string name="keyboard_switch_to_number">Number Keyboard</string>
@@ -231,13 +231,11 @@
     <string name="dialog_edit_amazon_domain_title">Edit Amazon Domain</string>
     <string name="dialog_enjoying_app_title">Do you find this app useful?</string>
     <string name="dialog_feedback_hint">Tell us what we can improve</string>
-    <string name="dialog_feedback_title">Send feedback</string>
-    <string name="dialog_gemini_model_no_grounding_info">This model does not support personal context and google search grounding</string>
+<string name="dialog_gemini_model_no_grounding_info">This model does not support personal context and google search grounding</string>
     <string name="dialog_gemini_model_picker_title">Select Model</string>
     <string name="dialog_nickname_hint">Nickname</string>
     <string name="dialog_nickname_message">Enter a nickname for "%1$s". You can search for it using this nickname.</string>
-    <string name="dialog_nickname_title">Add nickname</string>
-    <string name="dialog_nickname_title_edit">Edit nickname</string>
+
     <string name="dialog_no">No</string>
     <string name="dialog_ok">Continue</string>
     <string name="dialog_okay">Okay</string>
@@ -411,9 +409,9 @@
     <string name="settings_backup_export_button">Export</string>
     <string name="settings_backup_export_selection_title">Export Data</string>
     <string name="settings_backup_export_option_settings_title">Settings</string>
-    <string name="settings_backup_export_option_search_history_title">Search history</string>
+
     <string name="settings_backup_export_option_pinned_items_title">Pinned items</string>
-    <string name="settings_backup_export_option_search_engines_title">Search engines</string>
+
     <string name="settings_backup_export_option_gemini_title">Gemini API</string>
     <string name="settings_backup_export_failed">Unable to export settings.</string>
     <string name="settings_backup_export_success">Settings exported successfully.</string>

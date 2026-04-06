@@ -61,7 +61,7 @@ fun SendFeedbackDialog(
     AppAlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text(text = stringResource(R.string.dialog_feedback_title))
+            Text(text = stringResource(R.string.settings_feedback_send_title))
         },
         text = {
             TextField(

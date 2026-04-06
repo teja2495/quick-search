@@ -69,9 +69,9 @@ fun NicknameDialog(
                 text =
                     stringResource(
                         if (hasExistingNickname) {
-                            R.string.dialog_nickname_title_edit
+                            R.string.action_edit_nickname
                         } else {
-                            R.string.dialog_nickname_title
+                            R.string.action_add_nickname
                         },
                     ),
             )
