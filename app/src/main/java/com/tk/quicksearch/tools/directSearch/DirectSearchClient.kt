@@ -165,6 +165,7 @@ class DirectSearchClient(
             var attempt = 1
             var delayMs = INITIAL_RETRY_DELAY_MS
             var lastError: Throwable? = null
+            var groundingEnabledForAttempt = useGroundingWithGoogleSearch
 
             while (attempt <= MAX_ATTEMPTS) {
                 val result =
@@ -172,7 +173,7 @@ class DirectSearchClient(
                         query = query,
                         personalContext = personalContext,
                         modelId = modelId,
-                        useGroundingWithGoogleSearch = useGroundingWithGoogleSearch,
+                        useGroundingWithGoogleSearch = groundingEnabledForAttempt,
                         useSystemInstruction = useSystemInstruction,
                         systemInstruction = systemInstruction,
                         responseMimeType = responseMimeType,
@@ -180,6 +181,13 @@ class DirectSearchClient(
                 if (result.isSuccess) return@withContext result
 
                 lastError = result.exceptionOrNull()
+                if (shouldFallbackToUngrounded(lastError, groundingEnabledForAttempt)) {
+                    groundingEnabledForAttempt = false
+                    if (BuildConfig.DEBUG) {
+                        Log.d(LOG_TAG, "Retrying Gemini request without grounding after quota/rate-limit style error")
+                    }
+                    continue
+                }
                 if (attempt == MAX_ATTEMPTS || !shouldRetry(lastError)) {
                     return@withContext Result.failure(lastError ?: IllegalStateException("Unknown error"))
                 }
@@ -386,6 +394,19 @@ class DirectSearchClient(
             is IOException -> true
             else -> false
         }
+
+    private fun shouldFallbackToUngrounded(
+        error: Throwable?,
+        groundingEnabledForAttempt: Boolean,
+    ): Boolean {
+        if (!groundingEnabledForAttempt) return false
+        val responseError = error as? ResponseException ?: return false
+        if (responseError.code !in setOf(429, 400, 403, 503)) return false
+
+        val normalized = responseError.message.lowercase()
+        return normalized.contains("quota") ||
+            normalized.contains("rate limit")
+    }
 
     private data class ResponseException(
         val code: Int,
