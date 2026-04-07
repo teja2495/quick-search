@@ -125,7 +125,7 @@ private fun NoteRow(
     var showMenu by remember { mutableStateOf(false) }
     val rowView = LocalView.current
     val title = note.title.ifBlank { stringResource(R.string.notes_untitled) }
-    val preview = NotesMarkdownUtils.buildPreviewText(note.markdownContent)
+    val preview = NotesTextUtils.buildPreviewText(note.markdownContent)
 
     Row(
         modifier =

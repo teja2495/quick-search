@@ -626,7 +626,11 @@
     <string name="notes_untitled">Untitled</string>
     <string name="notes_title_hint">Title</string>
     <string name="notes_body_hint">Write your note here</string>
-    <string name="notes_preview_title">Preview</string>
+    <string name="notes_delete_note_desc">Delete note</string>
+    <string name="notes_delete_confirm_title">Delete this note?</string>
+    <string name="notes_delete_confirm_message">This note will be permanently deleted.</string>
+    <string name="notes_delete_selected_confirm_title">Delete selected notes?</string>
+    <string name="notes_delete_selected_confirm_message">These notes will be permanently deleted.</string>
     <string name="settings_unable_to_open_settings">Unable to open settings</string>
     <string name="settings_view_all_desc">View all settings</string>
     <string name="settings_wallpaper_accent_desc">Derive accent colors from background image</string>

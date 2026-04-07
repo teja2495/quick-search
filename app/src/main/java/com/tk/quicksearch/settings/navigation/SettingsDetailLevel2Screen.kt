@@ -15,13 +15,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.shared.permissions.PermissionHelper
@@ -41,7 +46,11 @@ import com.tk.quicksearch.settings.shared.SettingsManagementSearchBar
 import com.tk.quicksearch.settings.shared.settingsContentWidth
 import com.tk.quicksearch.settings.AppShortcutsSettings.AppShortcutsSettingsSection
 import com.tk.quicksearch.settings.searchEnginesScreen.DirectSearchSetupCard
+import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 internal fun SettingsDetailLevel2Screen(
@@ -59,14 +68,22 @@ internal fun SettingsDetailLevel2Screen(
 ) {
     if (!detailType.isLevel2()) return
 
-    BackHandler(onBack = callbacks.onBack)
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
     var showClearAllConfirmation by remember { mutableStateOf(false) }
     var appShortcutsSearchQuery by remember { mutableStateOf("") }
     var appManagementSearchQuery by remember { mutableStateOf("") }
     var calendarEventsSearchQuery by remember { mutableStateOf("") }
+    var notesSearchQuery by remember { mutableStateOf("") }
+    var notesMultiSelectActive by remember { mutableStateOf(false) }
+    var notesSelectedIds by remember { mutableStateOf(setOf<Long>()) }
+    var notesRefreshSignal by remember { mutableIntStateOf(0) }
+    var showNotesBulkDeleteConfirm by remember { mutableStateOf(false) }
     var appShortcutsCollapseAllTrigger by remember { mutableIntStateOf(0) }
+    var noteEditorCanDelete by remember { mutableStateOf(false) }
+    var noteEditorOnConfirmedDelete by remember { mutableStateOf<(() -> Unit)?>(null) }
+    var showNoteDeleteConfirm by remember { mutableStateOf(false) }
 
     val hasExcludedItems =
         state.suggestionExcludedApps.isNotEmpty() ||
@@ -79,6 +96,27 @@ internal fun SettingsDetailLevel2Screen(
 
     LaunchedEffect(detailType, hasExcludedItems) {
         if (detailType == SettingsDetailType.EXCLUDED_ITEMS && !hasExcludedItems) {
+            callbacks.onBack()
+        }
+    }
+    LaunchedEffect(detailType) {
+        if (detailType != SettingsDetailType.NOTE_EDITOR) {
+            noteEditorCanDelete = false
+            noteEditorOnConfirmedDelete = null
+            showNoteDeleteConfirm = false
+        }
+        if (detailType != SettingsDetailType.NOTES) {
+            notesMultiSelectActive = false
+            notesSelectedIds = emptySet()
+            showNotesBulkDeleteConfirm = false
+        }
+    }
+
+    BackHandler {
+        if (detailType == SettingsDetailType.NOTES && notesMultiSelectActive) {
+            notesMultiSelectActive = false
+            notesSelectedIds = emptySet()
+        } else {
             callbacks.onBack()
         }
     }
@@ -97,7 +135,29 @@ internal fun SettingsDetailLevel2Screen(
         Column(modifier = Modifier.fillMaxSize()) {
             SettingsDetailHeader(
                 title = stringResource(detailType.titleResId()),
-                onBack = callbacks.onBack,
+                onBack = {
+                    if (detailType == SettingsDetailType.NOTES && notesMultiSelectActive) {
+                        notesMultiSelectActive = false
+                        notesSelectedIds = emptySet()
+                    } else {
+                        callbacks.onBack()
+                    }
+                },
+                trailingContent =
+                    if (detailType == SettingsDetailType.NOTE_EDITOR && noteEditorCanDelete) {
+                        {
+                            IconButton(onClick = { showNoteDeleteConfirm = true }) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Delete,
+                                    contentDescription =
+                                        stringResource(R.string.notes_delete_note_desc),
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
+                        }
+                    } else {
+                        null
+                    },
             )
 
             if (detailType == SettingsDetailType.APP_MANAGEMENT) {
@@ -256,10 +316,26 @@ internal fun SettingsDetailLevel2Screen(
                 )
             } else if (detailType == SettingsDetailType.NOTES) {
                 NotesSettingsSection(
+                    searchQuery = notesSearchQuery,
                     onOpenNoteEditor = { noteId ->
                         NotesNavigationMemory.setPendingNoteId(noteId)
                         onNavigateToDetail(SettingsDetailType.NOTE_EDITOR)
                     },
+                    multiSelectActive = notesMultiSelectActive,
+                    selectedNoteIds = notesSelectedIds,
+                    onEnterMultiSelect = { noteId ->
+                        notesMultiSelectActive = true
+                        notesSelectedIds = notesSelectedIds + noteId
+                    },
+                    onToggleNoteSelected = { noteId ->
+                        notesSelectedIds =
+                            if (noteId in notesSelectedIds) {
+                                notesSelectedIds - noteId
+                            } else {
+                                notesSelectedIds + noteId
+                            }
+                    },
+                    notesRefreshSignal = notesRefreshSignal,
                     modifier =
                         Modifier
                             .settingsContentWidth()
@@ -272,7 +348,17 @@ internal fun SettingsDetailLevel2Screen(
                             ),
                 )
             } else if (detailType == SettingsDetailType.NOTE_EDITOR) {
-                NoteEditorSettingsSection(
+                NoteEditor(
+                    onNavigateToNotes = { onNavigateToDetail(SettingsDetailType.NOTES) },
+                    onDeleteToolbarState = { canDelete, onConfirmedDelete ->
+                        noteEditorCanDelete = canDelete
+                        noteEditorOnConfirmedDelete =
+                            if (canDelete) {
+                                onConfirmedDelete
+                            } else {
+                                null
+                            }
+                    },
                     modifier =
                         Modifier
                             .settingsContentWidth()
@@ -440,7 +526,24 @@ internal fun SettingsDetailLevel2Screen(
             }
         }
 
-        if (
+        if (detailType == SettingsDetailType.NOTES) {
+            NotesSettingsBottomBar(
+                query = notesSearchQuery,
+                onQueryChange = { notesSearchQuery = it },
+                onClear = { notesSearchQuery = "" },
+                onNewNote = {
+                    NotesNavigationMemory.setPendingNoteId(null)
+                    onNavigateToDetail(SettingsDetailType.NOTE_EDITOR)
+                },
+                multiSelectActive = notesMultiSelectActive,
+                selectedNoteCount = notesSelectedIds.size,
+                onDeleteSelected = { showNotesBulkDeleteConfirm = true },
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth(),
+            )
+        } else if (
             detailType == SettingsDetailType.APP_SHORTCUTS ||
                 detailType == SettingsDetailType.APP_MANAGEMENT ||
                 detailType == SettingsDetailType.CALENDAR_EVENTS
@@ -490,6 +593,72 @@ internal fun SettingsDetailLevel2Screen(
                     showClearAllConfirmation = false
                 },
                 onDismiss = { showClearAllConfirmation = false },
+            )
+        }
+
+        if (showNoteDeleteConfirm && detailType == SettingsDetailType.NOTE_EDITOR) {
+            AppAlertDialog(
+                onDismissRequest = { showNoteDeleteConfirm = false },
+                title = {
+                    Text(text = stringResource(R.string.notes_delete_confirm_title))
+                },
+                text = {
+                    Text(text = stringResource(R.string.notes_delete_confirm_message))
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            noteEditorOnConfirmedDelete?.invoke()
+                            showNoteDeleteConfirm = false
+                        },
+                    ) {
+                        Text(text = stringResource(R.string.dialog_delete))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showNoteDeleteConfirm = false }) {
+                        Text(text = stringResource(R.string.dialog_cancel))
+                    }
+                },
+            )
+        }
+
+        if (showNotesBulkDeleteConfirm && detailType == SettingsDetailType.NOTES) {
+            AppAlertDialog(
+                onDismissRequest = { showNotesBulkDeleteConfirm = false },
+                title = {
+                    Text(text = stringResource(R.string.notes_delete_selected_confirm_title))
+                },
+                text = {
+                    Text(text = stringResource(R.string.notes_delete_selected_confirm_message))
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            val ids = notesSelectedIds.toList()
+                            coroutineScope.launch {
+                                withContext(Dispatchers.IO) {
+                                    val repository = NotesRepository(context)
+                                    ids.forEach { id ->
+                                        repository.stageDelete(id)
+                                        repository.finalizeDelete(id)
+                                    }
+                                }
+                                notesRefreshSignal++
+                                notesMultiSelectActive = false
+                                notesSelectedIds = emptySet()
+                                showNotesBulkDeleteConfirm = false
+                            }
+                        },
+                    ) {
+                        Text(text = stringResource(R.string.dialog_delete))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showNotesBulkDeleteConfirm = false }) {
+                        Text(text = stringResource(R.string.dialog_cancel))
+                    }
+                },
             )
         }
     }

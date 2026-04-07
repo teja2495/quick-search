@@ -15,6 +15,10 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -27,15 +31,28 @@ fun SettingsManagementSearchBar(
     onQueryChange: (String) -> Unit,
     onClear: () -> Unit,
     modifier: Modifier = Modifier,
+    applyDefaultPadding: Boolean = true,
+    applyImePadding: Boolean = true,
+    fillMaxWidth: Boolean = true,
+    onFocusChange: ((FocusState) -> Unit)? = null,
+    focusRequester: FocusRequester? = null,
 ) {
     TextField(
         value = query,
         onValueChange = onQueryChange,
         modifier =
             modifier
-                .imePadding()
-                .padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
-                .fillMaxWidth(),
+                .then(if (applyImePadding) Modifier.imePadding() else Modifier)
+                .then(
+                    if (applyDefaultPadding) {
+                        Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
+                    } else {
+                        Modifier
+                    },
+                )
+                .then(if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier)
+                .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
+                .let { m -> if (onFocusChange != null) m.onFocusChanged(onFocusChange) else m },
         shape = RoundedCornerShape(28.dp),
         singleLine = true,
         leadingIcon = {

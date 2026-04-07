@@ -3,7 +3,7 @@ package com.tk.quicksearch.search.data
 import android.content.Context
 import com.tk.quicksearch.search.data.preferences.NotesPreferences
 import com.tk.quicksearch.search.models.NoteInfo
-import com.tk.quicksearch.search.notes.NotesMarkdownUtils
+import com.tk.quicksearch.search.notes.NotesTextUtils
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.Locale
@@ -27,15 +27,15 @@ class NotesRepository(
     fun getNoteById(noteId: Long): NoteInfo? = readNotes().firstOrNull { it.noteId == noteId }
 
     fun searchNotes(query: String): List<NoteInfo> {
-        val normalizedQuery = NotesMarkdownUtils.normalize(query)
+        val normalizedQuery = NotesTextUtils.normalize(query)
         if (normalizedQuery.isBlank()) return getAllNotes()
 
         val pinnedIds = getPinnedNoteIds()
         return readNotes()
             .mapNotNull { note ->
-                val normalizedTitle = NotesMarkdownUtils.normalize(note.title)
-                val normalizedBody = NotesMarkdownUtils.normalize(
-                    NotesMarkdownUtils.toSearchablePlainText(note.markdownContent),
+                val normalizedTitle = NotesTextUtils.normalize(note.title)
+                val normalizedBody = NotesTextUtils.normalize(
+                    NotesTextUtils.toSearchablePlainText(note.markdownContent),
                 )
                 val titleStartsWith = normalizedTitle.startsWith(normalizedQuery)
                 val titleContains = normalizedTitle.contains(normalizedQuery)

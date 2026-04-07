@@ -2,21 +2,19 @@ package com.tk.quicksearch.search.notes
 
 import java.util.Locale
 
-internal object NotesMarkdownUtils {
-    private val markdownSyntaxRegex = Regex("""[#>*_`~\[\]()\-]""")
+internal object NotesTextUtils {
     private val multiWhitespaceRegex = Regex("""\s+""")
 
-    fun toSearchablePlainText(markdown: String): String =
-        markdown
-            .replace(markdownSyntaxRegex, " ")
+    fun toSearchablePlainText(text: String): String =
+        text
             .replace(multiWhitespaceRegex, " ")
             .trim()
 
     fun buildPreviewText(
-        markdown: String,
+        text: String,
         maxChars: Int = 280,
     ): String {
-        val plain = toSearchablePlainText(markdown)
+        val plain = toSearchablePlainText(text)
         if (plain.length <= maxChars) return plain
         return plain.take(maxChars).trimEnd()
     }
