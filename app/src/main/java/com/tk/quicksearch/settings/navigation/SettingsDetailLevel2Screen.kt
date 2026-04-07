@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
@@ -50,6 +51,7 @@ import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.settings.NoteDeleteConfirmationDialog
 import com.tk.quicksearch.settings.NotesBulkDeleteConfirmationDialog
+import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -86,6 +88,16 @@ internal fun SettingsDetailLevel2Screen(
     var noteEditorCanDelete by remember { mutableStateOf(false) }
     var noteEditorOnConfirmedDelete by remember { mutableStateOf<(() -> Unit)?>(null) }
     var showNoteDeleteConfirm by remember { mutableStateOf(false) }
+    val notesEnabled = FeatureFlags.isSearchSectionEnabled(SearchSection.NOTES)
+
+    if (!notesEnabled &&
+        (detailType == SettingsDetailType.NOTES || detailType == SettingsDetailType.NOTE_EDITOR)
+    ) {
+        LaunchedEffect(detailType) {
+            callbacks.onBack()
+        }
+        return
+    }
 
     val hasExcludedItems =
         state.suggestionExcludedApps.isNotEmpty() ||

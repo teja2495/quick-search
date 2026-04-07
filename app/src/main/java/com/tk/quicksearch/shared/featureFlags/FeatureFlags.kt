@@ -8,6 +8,9 @@ import java.util.EnumMap
 // This enum is intentionally empty — the feature flag infrastructure below should NOT be removed.
 // Add entries here when new features need to be gated behind a flag.
 enum class FeatureFlag
+{
+    NOTES,
+}
 
 private data class FeatureFlagDefinition(
     val enabledByDefault: Boolean,
@@ -26,8 +29,19 @@ private data class FeatureFlagDefinition(
 object FeatureFlags {
     const val PREFERENCE_KEY_PREFIX = "feature_flag_"
 
-    // Intentionally empty — add entries here when flags are added to [FeatureFlag].
-    private val definitions: Map<FeatureFlag, FeatureFlagDefinition> = emptyMap()
+    private val definitions: Map<FeatureFlag, FeatureFlagDefinition> =
+        mapOf(
+            FeatureFlag.NOTES to
+                FeatureFlagDefinition(
+                    enabledByDefault = false,
+                    exportExcludedKeys =
+                        setOf(
+                            BasePreferences.KEY_NOTES_DATA,
+                            BasePreferences.KEY_NOTE_ID_COUNTER,
+                            BasePreferences.KEY_PINNED_NOTE_IDS,
+                        ),
+                ),
+        )
 
     @Volatile
     private var initialized = false
@@ -63,7 +77,10 @@ object FeatureFlags {
     }
 
     fun isSearchSectionEnabled(@Suppress("UNUSED_PARAMETER") section: SearchSection): Boolean {
-        return true
+        return when (section) {
+            SearchSection.NOTES -> isEnabled(FeatureFlag.NOTES)
+            else -> true
+        }
     }
 
     fun isAnyEnabled(): Boolean = FeatureFlag.entries.any { flag -> isEnabled(flag) }

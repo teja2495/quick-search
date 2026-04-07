@@ -553,6 +553,10 @@ class SearchViewModelManagementApiDelegate internal constructor(
         staticDataDelegate.updateCustomAppShortcut(shortcut, shortcutName, shortcutValue, iconBase64)
     }
 
+    fun refreshNotes() {
+        refreshNotesState()
+    }
+
     private fun refreshNotesState() {
         val repository = notesRepository()
         val allNotes = repository.getAllNotes()

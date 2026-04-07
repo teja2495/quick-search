@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.core
 
 import com.tk.quicksearch.search.appSettings.AppSettingsToggleKey
+import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 
 /**
  * Canonical definition table for every search section.
@@ -28,7 +29,7 @@ object SearchSectionRegistry {
     const val SEARCH_SECTION_NOTES_ALIAS_ID = "search_section_notes"
     const val SEARCH_SECTION_APP_SETTINGS_ALIAS_ID = "search_section_app_settings"
 
-    val orderedDefinitions: List<SearchSectionDefinition> =
+    private val allDefinitions: List<SearchSectionDefinition> =
         listOf(
             SearchSectionDefinition(
                 section = SearchSection.APPS,
@@ -99,15 +100,31 @@ object SearchSectionRegistry {
             ),
         )
 
-    private val bySection = orderedDefinitions.associateBy { it.section }
-    private val byAliasTargetId = orderedDefinitions.associateBy { it.aliasTargetId }
-    private val byToggleKey = orderedDefinitions.associateBy { it.appSettingsToggleKey }
-    private val byItemType = orderedDefinitions.associateBy { it.itemType }
+    private val bySection = allDefinitions.associateBy { it.section }
 
-    val orderedSections: List<SearchSection> = orderedDefinitions.map { it.section }
-    val searchSectionAliasIds: Set<String> = orderedDefinitions.map { it.aliasTargetId }.toSet()
-    val secondarySearchDefinitions: List<SearchSectionDefinition> =
-        orderedDefinitions.filter { it.participatesInSecondarySearch }
+    private val enabledDefinitions: List<SearchSectionDefinition>
+        get() = allDefinitions.filter { definition -> FeatureFlags.isSearchSectionEnabled(definition.section) }
+
+    private val byAliasTargetId: Map<String, SearchSectionDefinition>
+        get() = enabledDefinitions.associateBy { it.aliasTargetId }
+
+    private val byToggleKey: Map<AppSettingsToggleKey, SearchSectionDefinition>
+        get() = enabledDefinitions.associateBy { it.appSettingsToggleKey }
+
+    private val byItemType: Map<ItemPriorityConfig.ItemType, SearchSectionDefinition>
+        get() = enabledDefinitions.associateBy { it.itemType }
+
+    val orderedDefinitions: List<SearchSectionDefinition>
+        get() = enabledDefinitions
+
+    val orderedSections: List<SearchSection>
+        get() = enabledDefinitions.map { it.section }
+
+    val searchSectionAliasIds: Set<String>
+        get() = enabledDefinitions.map { it.aliasTargetId }.toSet()
+
+    val secondarySearchDefinitions: List<SearchSectionDefinition>
+        get() = enabledDefinitions.filter { it.participatesInSecondarySearch }
 
     fun definitionFor(section: SearchSection): SearchSectionDefinition = bySection.getValue(section)
 

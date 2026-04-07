@@ -18,6 +18,7 @@ import com.tk.quicksearch.searchEngines.defaultBrowserTarget
 import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.search.searchScreen.dialogs.NicknameDialogState
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
+import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 
 sealed interface PredictedSubmitTarget {
     data class App(val packageName: String, val userHandleId: Int?) : PredictedSubmitTarget
@@ -88,7 +89,12 @@ internal fun resolvePredictedSubmitTarget(
         return PredictedSubmitTarget.Calendar(firstCalendarEvent.eventId)
     }
 
-    val firstNote = renderingState.noteResults.firstOrNull()
+    val firstNote =
+        if (FeatureFlags.isSearchSectionEnabled(SearchSection.NOTES)) {
+            renderingState.noteResults.firstOrNull()
+        } else {
+            null
+        }
     if (firstNote != null) {
         return PredictedSubmitTarget.Note(firstNote.noteId)
     }

@@ -546,6 +546,7 @@ class SearchViewModel(
                 applyStartupPreferences = this::applyStartupPreferences,
                 handleOnResume = this::handleOnResume,
         )
+        managementApiDelegate.refreshNotes()
     }
     fun handleOnResume() {
         startupLifecycleDelegate.handleOnResume()

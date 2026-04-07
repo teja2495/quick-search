@@ -124,6 +124,7 @@ fun SettingsScreen(
     BackHandler(onBack = callbacks.onBack)
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    FeatureFlags.initialize(context)
     var showImportWarningDialog by remember { mutableStateOf(false) }
     var showExportSelectionDialog by remember { mutableStateOf(false) }
     var exportSelectionState by remember { mutableStateOf(ExportSelectionState()) }
@@ -150,10 +151,12 @@ fun SettingsScreen(
         }
     val hasNotesForExport =
         remember(userPrefs) {
-            val notesJson = userPrefs.getString(BasePreferences.KEY_NOTES_DATA, null).orEmpty()
-            notesJson.isNotBlank() && notesJson != "[]"
+            FeatureFlags.isSearchSectionEnabled(com.tk.quicksearch.search.core.SearchSection.NOTES) &&
+                run {
+                    val notesJson = userPrefs.getString(BasePreferences.KEY_NOTES_DATA, null).orEmpty()
+                    notesJson.isNotBlank() && notesJson != "[]"
+                }
         }
-    FeatureFlags.initialize(context)
 
     val exportLauncher =
         rememberLauncherForActivityResult(

@@ -6,6 +6,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchUiState
+import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.shared.util.getAppGridColumns
@@ -75,7 +76,8 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
     val hasPinnedFiles = state.pinnedFiles.isNotEmpty() && state.hasFilePermission
     val hasPinnedSettings = state.pinnedSettings.isNotEmpty()
     val hasPinnedCalendarEvents = state.pinnedCalendarEvents.isNotEmpty() && state.hasCalendarPermission
-    val hasPinnedNotes = state.pinnedNotes.isNotEmpty()
+    val notesEnabled = FeatureFlags.isSearchSectionEnabled(SearchSection.NOTES)
+    val hasPinnedNotes = notesEnabled && state.pinnedNotes.isNotEmpty()
     val hasPinnedAppShortcuts = state.pinnedAppShortcuts.isNotEmpty()
     val columns = getAppGridColumns(state.phoneAppGridColumns)
     val visibleRowCount =
@@ -117,7 +119,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
     val hasAppSettingResults = state.appSettingResults.isNotEmpty()
     val hasAppShortcutResults = state.appShortcutResults.isNotEmpty()
     val hasCalendarResults = state.calendarEvents.isNotEmpty()
-    val hasNoteResults = state.noteResults.isNotEmpty()
+    val hasNoteResults = notesEnabled && state.noteResults.isNotEmpty()
     val pinnedContactIds =
         remember(state.pinnedContacts) { state.pinnedContacts.map { it.contactId }.toSet() }
     val pinnedFileUris =
@@ -140,11 +142,17 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
             .count { it } > 1
 
     val orderedSections =
-        remember(state.disabledSections, state.detectedAliasSearchSection, hasAppSettingResults) {
+        remember(
+            state.disabledSections,
+            state.detectedAliasSearchSection,
+            hasAppSettingResults,
+            notesEnabled,
+        ) {
             ItemPriorityConfig.getSearchResultsPriority().filter { section ->
                 section !in state.disabledSections ||
                     state.detectedAliasSearchSection == section ||
-                    (section == SearchSection.SETTINGS && hasAppSettingResults)
+                    (section == SearchSection.SETTINGS && hasAppSettingResults) ||
+                    (section == SearchSection.NOTES && notesEnabled)
             }
         }
 
@@ -185,7 +193,8 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
         ) &&
             (!state.hasCalendarPermission || hasCalendarResults || hasPinnedCalendarEvents)
     val shouldShowNotes =
-        (
+        notesEnabled &&
+            (
             SearchSection.NOTES !in state.disabledSections ||
                 state.detectedAliasSearchSection == SearchSection.NOTES
         ) &&

@@ -69,6 +69,7 @@ import com.tk.quicksearch.search.searchScreen.appThemeResultCardColor
 import com.tk.quicksearch.search.searchScreen.components.ToolCard
 import com.tk.quicksearch.search.searchScreen.resolveSearchColorTheme
 import com.tk.quicksearch.shared.ui.theme.LocalSearchColorTheme
+import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.tools.aiTools.CurrencyConversionIntentParser
 import com.tk.quicksearch.tools.aiTools.DictionaryIntentParser
 import com.tk.quicksearch.tools.aiTools.WordClockIntentParser
@@ -575,7 +576,12 @@ internal fun SearchScreenContent(
                         return@PersistentSearchBar false
                     }
 
-                    val firstNote = renderingState.noteResults.firstOrNull()
+                    val firstNote =
+                        if (FeatureFlags.isSearchSectionEnabled(SearchSection.NOTES)) {
+                            renderingState.noteResults.firstOrNull()
+                        } else {
+                            null
+                        }
                     if (firstNote != null) {
                         notesParams.onNoteClick(firstNote)
                         return@PersistentSearchBar false

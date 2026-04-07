@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import com.tk.quicksearch.search.core.*
+import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 
 /**
  * Composable extension functions for conditional rendering based on visibility states.
@@ -81,7 +82,8 @@ fun hasAnySearchResults(state: SearchUiState): Boolean {
     val hasAppSettingResults = state.appSettingResults.isNotEmpty()
     val hasAppShortcutResults = state.appShortcutResults.isNotEmpty()
     val hasCalendarResults = state.calendarEvents.isNotEmpty()
-    val hasNoteResults = state.noteResults.isNotEmpty()
+    val hasNoteResults =
+        FeatureFlags.isSearchSectionEnabled(SearchSection.NOTES) && state.noteResults.isNotEmpty()
 
     val hasResults =
         hasAppResults ||
