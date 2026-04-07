@@ -48,6 +48,8 @@ import com.tk.quicksearch.settings.AppShortcutsSettings.AppShortcutsSettingsSect
 import com.tk.quicksearch.settings.searchEnginesScreen.DirectSearchSetupCard
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.settings.NoteDeleteConfirmationDialog
+import com.tk.quicksearch.settings.NotesBulkDeleteConfirmationDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -597,68 +599,36 @@ internal fun SettingsDetailLevel2Screen(
         }
 
         if (showNoteDeleteConfirm && detailType == SettingsDetailType.NOTE_EDITOR) {
-            AppAlertDialog(
-                onDismissRequest = { showNoteDeleteConfirm = false },
-                title = {
-                    Text(text = stringResource(R.string.notes_delete_confirm_title))
+            NoteDeleteConfirmationDialog(
+                onConfirm = {
+                    noteEditorOnConfirmedDelete?.invoke()
+                    showNoteDeleteConfirm = false
                 },
-                text = {
-                    Text(text = stringResource(R.string.notes_delete_confirm_message))
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            noteEditorOnConfirmedDelete?.invoke()
-                            showNoteDeleteConfirm = false
-                        },
-                    ) {
-                        Text(text = stringResource(R.string.dialog_delete))
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showNoteDeleteConfirm = false }) {
-                        Text(text = stringResource(R.string.dialog_cancel))
-                    }
-                },
+                onDismiss = { showNoteDeleteConfirm = false }
             )
         }
 
         if (showNotesBulkDeleteConfirm && detailType == SettingsDetailType.NOTES) {
-            AppAlertDialog(
-                onDismissRequest = { showNotesBulkDeleteConfirm = false },
-                title = {
-                    Text(text = stringResource(R.string.notes_delete_selected_confirm_title))
-                },
-                text = {
-                    Text(text = stringResource(R.string.notes_delete_selected_confirm_message))
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            val ids = notesSelectedIds.toList()
-                            coroutineScope.launch {
-                                withContext(Dispatchers.IO) {
-                                    val repository = NotesRepository(context)
-                                    ids.forEach { id ->
-                                        repository.stageDelete(id)
-                                        repository.finalizeDelete(id)
-                                    }
-                                }
-                                notesRefreshSignal++
-                                notesMultiSelectActive = false
-                                notesSelectedIds = emptySet()
-                                showNotesBulkDeleteConfirm = false
+            NotesBulkDeleteConfirmationDialog(
+                selectedCount = notesSelectedIds.size,
+                onConfirm = {
+                    val ids = notesSelectedIds.toList()
+                    coroutineScope.launch {
+                        withContext(Dispatchers.IO) {
+                            val context1 = context // captured
+                            val repository = NotesRepository(context1)
+                            ids.forEach { id ->
+                                repository.stageDelete(id)
+                                repository.finalizeDelete(id)
                             }
-                        },
-                    ) {
-                        Text(text = stringResource(R.string.dialog_delete))
+                        }
+                        notesRefreshSignal++
+                        notesMultiSelectActive = false
+                        notesSelectedIds = emptySet()
+                        showNotesBulkDeleteConfirm = false
                     }
                 },
-                dismissButton = {
-                    TextButton(onClick = { showNotesBulkDeleteConfirm = false }) {
-                        Text(text = stringResource(R.string.dialog_cancel))
-                    }
-                },
+                onDismiss = { showNotesBulkDeleteConfirm = false }
             )
         }
     }

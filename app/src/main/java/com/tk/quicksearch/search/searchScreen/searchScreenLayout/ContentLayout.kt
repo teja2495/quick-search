@@ -119,7 +119,11 @@ fun ContentLayout(
             predictedTarget = predictedTarget,
             expandedCardMaxHeight = expandedCardMaxHeight,
         )
-    val effectiveNotesParams = notesParams.copy(predictedTarget = predictedTarget)
+    val effectiveNotesParams =
+        notesParams.copy(
+            predictedTarget = predictedTarget,
+            expandedCardMaxHeight = expandedCardMaxHeight,
+        )
     val effectiveAppsParams = appsParams.copy(predictedTarget = predictedTarget)
 
     // 1. Determine Layout Order based on ItemPriorityConfig

@@ -316,10 +316,10 @@ private fun NoteListRow(
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = NotesTextUtils.buildPreviewText(note.markdownContent),
+                text = NotesTextUtils.firstLinesPreview(note.markdownContent),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 2,
+                maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
             )
             if (isPinned) {

@@ -175,6 +175,7 @@
     <string name="action_expand_more_app_settings">More App Settings</string>
     <string name="action_expand_more_device_settings">More Settings</string>
     <string name="action_expand_more_events">More Events</string>
+    <string name="action_expand_more_notes">More Notes</string>
     <string name="action_expand_more_files">More Files</string>
     <string name="action_expand_more_shortcuts">More Shortcuts</string>
     <string name="action_include_generic">Include</string>
@@ -625,7 +626,11 @@
     <string name="notes_empty_state">No notes yet</string>
     <string name="notes_untitled">Untitled</string>
     <string name="notes_title_hint">Title</string>
+    <string name="notes_editor_title_required">Note title is required</string>
     <string name="notes_body_hint">Write your note here</string>
+    <string name="notes_editor_action_call">Call</string>
+    <string name="notes_editor_action_send_email">Send email</string>
+    <string name="notes_editor_action_open_link">Open link</string>
     <string name="notes_delete_note_desc">Delete note</string>
     <string name="notes_delete_confirm_title">Delete this note?</string>
     <string name="notes_delete_confirm_message">This note will be permanently deleted.</string>

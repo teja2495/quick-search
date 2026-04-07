@@ -1,9 +1,13 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +26,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -40,6 +47,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -47,17 +56,141 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.NotesRepository
+import com.tk.quicksearch.search.notes.NotesTextUtils
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+private fun applyNoteLinkHighlighting(
+    value: TextFieldValue,
+    linkColor: Color,
+): TextFieldValue =
+    value.copy(
+        annotatedString =
+            NotesTextUtils.buildLinkHighlightedAnnotatedString(value.text, linkColor),
+    )
+
+private fun launchNoteLink(
+    context: android.content.Context,
+    url: String,
+) {
+    val uri = runCatching { Uri.parse(url) }.getOrNull() ?: return
+    val intent =
+        when {
+            uri.scheme.equals("tel", ignoreCase = true) -> Intent(Intent.ACTION_DIAL, uri)
+            uri.scheme.equals("mailto", ignoreCase = true) -> Intent(Intent.ACTION_SENDTO, uri)
+            else -> Intent(Intent.ACTION_VIEW, uri)
+        }
+    runCatching { context.startActivity(intent) }
+}
+
+@Composable
+private fun LinkStyledNoteTextField(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    modifier: Modifier = Modifier,
+    textStyle: TextStyle,
+    cursorBrush: Brush,
+    singleLine: Boolean,
+    maxLines: Int,
+    minLines: Int,
+    onTextLayout: (TextLayoutResult) -> Unit,
+    decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit,
+    focusRequester: FocusRequester,
+    density: Density,
+    context: android.content.Context,
+) {
+    var textLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
+    var linkMenu by remember { mutableStateOf<Pair<String, DpOffset>?>(null) }
+
+    Box(modifier = modifier) {
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester)
+                    .pointerInput(value.text, textLayoutResult) {
+                        detectTapGestures(
+                            onTap = { tapOffset ->
+                                val layout = textLayoutResult ?: return@detectTapGestures
+                                focusRequester.requestFocus()
+                                val charOffset = layout.getOffsetForPosition(tapOffset)
+                                val url =
+                                    NotesTextUtils.linkUrlAtCharOffset(
+                                        value.annotatedString,
+                                        charOffset,
+                                    )
+                                if (url != null) {
+                                    linkMenu =
+                                        url to
+                                            DpOffset(
+                                                x = with(density) { tapOffset.x.toDp() },
+                                                y = with(density) { tapOffset.y.toDp() },
+                                            )
+                                } else {
+                                    onValueChange(
+                                        value.copy(selection = TextRange(charOffset, charOffset)),
+                                    )
+                                }
+                            },
+                        )
+                    },
+            textStyle = textStyle,
+            cursorBrush = cursorBrush,
+            singleLine = singleLine,
+            maxLines = maxLines,
+            minLines = minLines,
+            onTextLayout = { result ->
+                textLayoutResult = result
+                onTextLayout(result)
+            },
+            decorationBox = decorationBox,
+        )
+
+        linkMenu?.let { (url, offset) ->
+            DropdownMenu(
+                expanded = true,
+                onDismissRequest = { linkMenu = null },
+                offset = offset,
+            ) {
+                val labelRes =
+                    when {
+                        url.startsWith("tel:", ignoreCase = true) ->
+                            R.string.notes_editor_action_call
+                        url.startsWith("mailto:", ignoreCase = true) ->
+                            R.string.notes_editor_action_send_email
+                        else -> R.string.notes_editor_action_open_link
+                    }
+                DropdownMenuItem(
+                    text = { Text(stringResource(labelRes)) },
+                    onClick = {
+                        linkMenu = null
+                        launchNoteLink(context, url)
+                    },
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun NoteEditor(
@@ -66,6 +199,8 @@ fun NoteEditor(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val density = LocalDensity.current
+    val linkColor = MaterialTheme.colorScheme.primary
     val repository = remember(context) { NotesRepository(context) }
 
     var activeNoteId by remember { mutableLongStateOf(-1L) }
@@ -82,8 +217,13 @@ fun NoteEditor(
             val note = withContext(Dispatchers.IO) { repository.getNoteById(pendingId) }
             if (note != null) {
                 activeNoteId = note.noteId
-                titleInput = TextFieldValue(note.title)
-                bodyInput = TextFieldValue(note.markdownContent)
+                titleInput =
+                    applyNoteLinkHighlighting(TextFieldValue(note.title), linkColor)
+                bodyInput =
+                    applyNoteLinkHighlighting(
+                        TextFieldValue(note.markdownContent),
+                        linkColor,
+                    )
             }
         } else {
             isNewNoteEntry = true
@@ -101,6 +241,16 @@ fun NoteEditor(
     val noteScrollState = rememberScrollState()
     val bodyBringIntoViewRequester = remember { BringIntoViewRequester() }
     val scrollBodyToCaretScope = rememberCoroutineScope()
+    val titleFocusRequester = remember { FocusRequester() }
+    val bodyFocusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(isNewNoteEntry, contentBaseline) {
+        if (!isNewNoteEntry || contentBaseline == null) return@LaunchedEffect
+        delay(50)
+        titleFocusRequester.requestFocus()
+        keyboardController?.show()
+    }
 
     fun persistNote() {
         val title = titleInput.text.trim()
@@ -186,9 +336,9 @@ fun NoteEditor(
                             .padding(bottom = DesignTokens.CardBottomPadding),
                     verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                 ) {
-                    BasicTextField(
+                    LinkStyledNoteTextField(
                         value = titleInput,
-                        onValueChange = { titleInput = it },
+                        onValueChange = { titleInput = applyNoteLinkHighlighting(it, linkColor) },
                         modifier =
                             Modifier
                                 .fillMaxWidth()
@@ -199,6 +349,12 @@ fun NoteEditor(
                             ),
                         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                         singleLine = true,
+                        maxLines = 1,
+                        minLines = 1,
+                        focusRequester = titleFocusRequester,
+                        density = density,
+                        context = context,
+                        onTextLayout = {},
                         decorationBox = { inner ->
                             if (titleInput.text.isBlank()) {
                                 Text(
@@ -219,12 +375,12 @@ fun NoteEditor(
                         color = AppColors.SettingsDivider,
                     )
 
-                    BasicTextField(
+                    LinkStyledNoteTextField(
                         value = bodyInput,
                         onValueChange = { newValue ->
                             val previousNewlines = bodyInput.text.count { it == '\n' }
                             val nextNewlines = newValue.text.count { it == '\n' }
-                            bodyInput = newValue
+                            bodyInput = applyNoteLinkHighlighting(newValue, linkColor)
                             if (nextNewlines > previousNewlines) {
                                 scrollBodyToCaretScope.launch {
                                     withFrameNanos { }
@@ -252,6 +408,12 @@ fun NoteEditor(
                                 color = MaterialTheme.colorScheme.onSurface,
                             ),
                         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                        singleLine = false,
+                        maxLines = Int.MAX_VALUE,
+                        minLines = 1,
+                        focusRequester = bodyFocusRequester,
+                        density = density,
+                        context = context,
                         decorationBox = { inner ->
                             if (bodyInput.text.isBlank()) {
                                 Text(
@@ -284,7 +446,7 @@ fun NoteEditor(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .padding(vertical = DesignTokens.SpacingMedium),
+                        .padding(vertical = DesignTokens.SpacingXLarge),
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             ) {
                 OutlinedButton(
@@ -294,10 +456,35 @@ fun NoteEditor(
                 ) {
                     Text(text = stringResource(R.string.dialog_cancel))
                 }
+                val canSave = titleInput.text.trim().isNotEmpty()
                 Button(
-                    onClick = ::onSaveClick,
+                    onClick = {
+                        if (!canSave) {
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.notes_editor_title_required),
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                        } else {
+                            onSaveClick()
+                        }
+                    },
                     modifier = Modifier.weight(1f).heightIn(min = DesignTokens.Spacing48),
-                    enabled = titleInput.text.trim().isNotEmpty(),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor =
+                                if (canSave) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+                                },
+                            contentColor =
+                                if (canSave) {
+                                    MaterialTheme.colorScheme.onPrimary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                                },
+                        ),
                     shape = DesignTokens.ShapeXLarge,
                 ) {
                     Text(text = stringResource(R.string.dialog_save))

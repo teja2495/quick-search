@@ -45,7 +45,7 @@ private fun SearchSection.toExpandedSectionOrNone(): ExpandedSection =
         SearchSection.CONTACTS -> ExpandedSection.CONTACTS
         SearchSection.FILES -> ExpandedSection.FILES
         SearchSection.SETTINGS -> ExpandedSection.SETTINGS
-        SearchSection.NOTES -> ExpandedSection.NONE
+        SearchSection.NOTES -> ExpandedSection.NOTES
         SearchSection.APP_SETTINGS -> ExpandedSection.APP_SETTINGS
         SearchSection.CALENDAR -> ExpandedSection.CALENDAR
         SearchSection.APPS -> ExpandedSection.NONE

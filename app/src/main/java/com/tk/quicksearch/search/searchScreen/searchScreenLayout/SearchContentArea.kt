@@ -472,6 +472,10 @@ fun SearchContentArea(
                                 calendarParams.onExpandClick()
                             }
 
+                            ExpandedSection.NOTES -> {
+                                notesParams.onExpandClick()
+                            }
+
                             else -> {}
                         }
                     },

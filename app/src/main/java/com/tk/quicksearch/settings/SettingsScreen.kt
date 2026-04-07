@@ -148,6 +148,11 @@ fun SettingsScreen(
                 userPrefs.getStringSet(key, emptySet()).orEmpty().isNotEmpty()
             }
         }
+    val hasNotesForExport =
+        remember(userPrefs) {
+            val notesJson = userPrefs.getString(BasePreferences.KEY_NOTES_DATA, null).orEmpty()
+            notesJson.isNotBlank() && notesJson != "[]"
+        }
     FeatureFlags.initialize(context)
 
     val exportLauncher =
@@ -450,10 +455,12 @@ fun SettingsScreen(
                                     includeSearchHistory = isSearchHistoryEnabledForExport,
                                     includePinnedItems = hasPinnedItemsForExport,
                                     includeShortcuts = true,
+                                    includeNotes = hasNotesForExport,
                                     includeSearchEngines = true,
                                     includeGeminiApi = false,
                                     showSearchHistoryOption = isSearchHistoryEnabledForExport,
                                     showPinnedItemsOption = hasPinnedItemsForExport,
+                                    showNotesOption = hasNotesForExport,
                                 )
                             showExportSelectionDialog = true
                         },

@@ -19,6 +19,7 @@ enum class ExpandedSection {
     SETTINGS,
     APP_SETTINGS,
     CALENDAR,
+    NOTES,
 }
 
 /** Constants for search screen layout. */

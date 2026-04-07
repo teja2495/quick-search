@@ -87,16 +87,18 @@ fun SettingsExportDialog(
                     icon = Icons.Rounded.Apps,
                     isLastItem = false,
                 )
-                SettingsCheckboxRow(
-                    title = stringResource(R.string.section_notes),
-                    description = "",
-                    checked = selectionState.includeNotes,
-                    onCheckedChange = {
-                        onSelectionStateChange(selectionState.copy(includeNotes = it))
-                    },
-                    icon = Icons.Rounded.Description,
-                    isLastItem = false,
-                )
+                if (selectionState.showNotesOption) {
+                    SettingsCheckboxRow(
+                        title = stringResource(R.string.section_notes),
+                        description = "",
+                        checked = selectionState.includeNotes,
+                        onCheckedChange = {
+                            onSelectionStateChange(selectionState.copy(includeNotes = it))
+                        },
+                        icon = Icons.Rounded.Description,
+                        isLastItem = false,
+                    )
+                }
                 SettingsCheckboxRow(
                     title = stringResource(R.string.settings_app_shortcuts_filter_search_engines),
                     description = "",
@@ -153,6 +155,7 @@ data class ExportSelectionState(
     val includeGeminiApi: Boolean = false,
     val showSearchHistoryOption: Boolean = true,
     val showPinnedItemsOption: Boolean = true,
+    val showNotesOption: Boolean = true,
 ) {
     fun hasAnySelection(): Boolean =
         includeSettings ||

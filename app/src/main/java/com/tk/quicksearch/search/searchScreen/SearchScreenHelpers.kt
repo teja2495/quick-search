@@ -299,14 +299,15 @@ data class CalendarSectionParams(
 
 /** Data class for Notes section parameters */
 data class NotesSectionParams(
-    val notes: List<NoteInfo>,
     val pinnedNoteIds: Set<Long>,
     val onNoteClick: (NoteInfo) -> Unit,
     val onTogglePin: (NoteInfo) -> Unit,
     val onDelete: (NoteInfo) -> Unit,
-    val showAllResults: Boolean,
+    val showExpandControls: Boolean,
+    val onExpandClick: () -> Unit,
     val showWallpaperBackground: Boolean,
     val predictedTarget: PredictedSubmitTarget? = null,
+    val expandedCardMaxHeight: Dp = SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT,
 )
 
 /** Helper function to build all the section parameters needed by SearchScreenContent */
@@ -777,7 +778,6 @@ internal fun buildSectionParams(
 
     val notesParams =
         NotesSectionParams(
-            notes = state.noteResults,
             pinnedNoteIds = state.pinnedNotes.map { it.noteId }.toSet(),
             onNoteClick = onNoteClick,
             onTogglePin = { note ->
@@ -788,7 +788,16 @@ internal fun buildSectionParams(
                 }
             },
             onDelete = onDeleteNote,
-            showAllResults = false,
+            showExpandControls = derivedState.isSearching,
+            onExpandClick = {
+                onUpdateExpandedSection(
+                    if (expandedSection == ExpandedSection.NOTES) {
+                        ExpandedSection.NONE
+                    } else {
+                        ExpandedSection.NOTES
+                    },
+                )
+            },
             showWallpaperBackground = state.showWallpaperBackground,
         )
 
