@@ -3,6 +3,8 @@ package com.tk.quicksearch.search.appSettings
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination.EXCLUDED_ITEMS
+import com.tk.quicksearch.shared.featureFlags.FeatureFlag
+import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 import com.tk.quicksearch.search.utils.SearchQueryContext
 import java.util.Locale
@@ -67,7 +69,12 @@ class AppSettingsSearchHandler(
             val shouldHideWallpaperAccent =
                 setting.toggleKey == AppSettingsToggleKey.WALLPAPER_ACCENT &&
                     backgroundSource == BackgroundSource.THEME
-            !shouldHideExcludedItems && !shouldHideWallpaperAccent
+            val shouldHideNotesSearchToggle =
+                setting.toggleKey == AppSettingsToggleKey.SEARCH_NOTES &&
+                    !FeatureFlags.isEnabled(FeatureFlag.NOTES)
+            !shouldHideExcludedItems &&
+                !shouldHideWallpaperAccent &&
+                !shouldHideNotesSearchToggle
         }
     }
 

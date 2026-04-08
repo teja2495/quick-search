@@ -33,5 +33,7 @@ internal fun AppSettingsDestination.toSettingsDetailTypeOrNull(): SettingsDetail
         AppSettingsDestination.DEVELOPMENT,
         AppSettingsDestination.SET_DEFAULT_ASSISTANT,
         AppSettingsDestination.ADD_HOME_SCREEN_WIDGET,
-        AppSettingsDestination.ADD_QUICK_SETTINGS_TILE -> null
+        AppSettingsDestination.ADD_QUICK_SETTINGS_TILE,
+        AppSettingsDestination.CREATE_NOTE,
+        AppSettingsDestination.NOTES_LIST -> null
     }

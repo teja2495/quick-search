@@ -7,6 +7,7 @@ import android.net.Uri
 import android.widget.Toast
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination
+import com.tk.quicksearch.settings.settingsDetailScreen.NotesNavigationMemory
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 
 private const val QUICK_SEARCH_DEVELOPMENT_URL = "https://github.com/teja2495/quick-search"
@@ -43,6 +44,11 @@ internal fun handleAppSettingsDestination(
         AppSettingsDestination.SET_DEFAULT_ASSISTANT -> handlers.onSetDefaultAssistant()
         AppSettingsDestination.ADD_HOME_SCREEN_WIDGET -> handlers.onAddHomeScreenWidget()
         AppSettingsDestination.ADD_QUICK_SETTINGS_TILE -> handlers.onAddQuickSettingsTile()
+        AppSettingsDestination.CREATE_NOTE -> {
+            NotesNavigationMemory.setPendingNoteId(null)
+            handlers.onOpenSettingsDetail(SettingsDetailType.NOTE_EDITOR)
+        }
+        AppSettingsDestination.NOTES_LIST -> handlers.onOpenSettingsDetail(SettingsDetailType.NOTES)
         else -> Unit
     }
 }

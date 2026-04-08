@@ -545,6 +545,12 @@ class SearchViewModel(
         startupLifecycleDelegate.onSettingsImported(
                 applyStartupPreferences = this::applyStartupPreferences,
                 handleOnResume = this::handleOnResume,
+                onAfterSettingsImportMain = {
+                    val q = _resultsState.value.query
+                    if (q.isNotBlank()) {
+                        queryCoordinator.onQueryChange(q)
+                    }
+                },
         )
         managementApiDelegate.refreshNotes()
     }

@@ -436,6 +436,8 @@
     <string name="settings_calendar_permission_title">Calendar</string>
     <string name="settings_calendar_view_all_events_desc">View all events</string>
     <string name="settings_notes_view_all_desc">View all notes</string>
+    <string name="app_settings_search_create_note_title">Create note</string>
+    <string name="app_settings_search_create_note_desc">Start a new note in the editor</string>
     <string name="settings_call_permission_title">Phone</string>
     <string name="settings_calling_card_title">Default Calling App</string>
     <string name="settings_calls_texts_title">Calls &amp; Texts</string>

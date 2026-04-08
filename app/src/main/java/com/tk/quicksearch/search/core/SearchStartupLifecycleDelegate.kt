@@ -583,6 +583,7 @@ internal class SearchStartupLifecycleDelegate(
     fun onSettingsImported(
         applyStartupPreferences: (StartupPreferencesFacade.StartupPreferences) -> Unit,
         handleOnResume: () -> Unit,
+        onAfterSettingsImportMain: () -> Unit = {},
     ) {
         scope.launch(Dispatchers.IO) {
             userPreferences.reloadNicknameCaches()
@@ -636,6 +637,9 @@ internal class SearchStartupLifecycleDelegate(
                     )
                 }
                 handleOnResume()
+                loadAppSettings()
+                updateUiState { applyVisibilityStates(it) }
+                onAfterSettingsImportMain()
             }
         }
     }

@@ -39,6 +39,8 @@ enum class AppSettingsDestination {
     UNIT_CONVERTER_INFO,
     DATE_CALCULATOR_INFO,
     GEMINI_API,
+    CREATE_NOTE,
+    NOTES_LIST,
 }
 
 enum class AppSettingsToggleKey {
