@@ -137,7 +137,7 @@ fun ToolsSettingsSection(
                                     val aliasCode = customToolAliases[tool.id].orEmpty()
                                     ToolToggleCardModel(
                                             title = tool.name,
-                                            subtitle = "Edit",
+                                            subtitle = stringResource(R.string.settings_edit_label),
                                             enabled = true,
                                             checked = isEnabled,
                                             onCheckedChange = { enabled ->

@@ -24,7 +24,8 @@ internal interface SearchViewModelPreferencesApi {
         modelId: String,
         groundingEnabled: Boolean = false,
         aliasCode: String = "",
-    ) = preferencesApiDelegate.addCustomTool(name, prompt, modelId, groundingEnabled, aliasCode)
+        thinkingEnabled: Boolean = false,
+    ) = preferencesApiDelegate.addCustomTool(name, prompt, modelId, groundingEnabled, aliasCode, thinkingEnabled)
 
     fun updateCustomTool(
         id: String,
@@ -32,7 +33,8 @@ internal interface SearchViewModelPreferencesApi {
         prompt: String,
         modelId: String,
         groundingEnabled: Boolean = false,
-    ) = preferencesApiDelegate.updateCustomTool(id, name, prompt, modelId, groundingEnabled)
+        thinkingEnabled: Boolean = false,
+    ) = preferencesApiDelegate.updateCustomTool(id, name, prompt, modelId, groundingEnabled, thinkingEnabled)
 
     fun deleteCustomTool(id: String) = preferencesApiDelegate.deleteCustomTool(id)
 
@@ -180,7 +182,8 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
         modelId: String,
         groundingEnabled: Boolean = false,
         aliasCode: String = "",
-    ) = preferencesDelegate.addCustomTool(name, prompt, modelId, groundingEnabled, aliasCode)
+        thinkingEnabled: Boolean = false,
+    ) = preferencesDelegate.addCustomTool(name, prompt, modelId, groundingEnabled, aliasCode, thinkingEnabled)
 
     fun updateCustomTool(
         id: String,
@@ -188,7 +191,8 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
         prompt: String,
         modelId: String,
         groundingEnabled: Boolean = false,
-    ) = preferencesDelegate.updateCustomTool(id, name, prompt, modelId, groundingEnabled)
+        thinkingEnabled: Boolean = false,
+    ) = preferencesDelegate.updateCustomTool(id, name, prompt, modelId, groundingEnabled, thinkingEnabled)
 
     fun deleteCustomTool(id: String) = preferencesDelegate.deleteCustomTool(id)
 

@@ -68,6 +68,7 @@ data class CustomTool(
         val prompt: String,
         val modelId: String,
         val groundingEnabled: Boolean = false,
+        val thinkingEnabled: Boolean = false,
 )
 
 sealed class SearchTarget {

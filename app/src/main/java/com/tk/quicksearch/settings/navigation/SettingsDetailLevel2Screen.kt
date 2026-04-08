@@ -170,6 +170,27 @@ internal fun SettingsDetailLevel2Screen(
                                 )
                             }
                         }
+                    } else if (detailType == SettingsDetailType.CUSTOM_TOOL_EDITOR) {
+                        val pendingToolIdForHeader = remember { CustomToolNavigationMemory.peekPendingToolId() }
+                        val existingToolForHeader = remember(pendingToolIdForHeader, state.customTools) {
+                            pendingToolIdForHeader?.let { id -> state.customTools.firstOrNull { it.id == id } }
+                        }
+                        if (existingToolForHeader != null) {
+                            {
+                                IconButton(onClick = {
+                                    callbacks.onDeleteCustomTool(existingToolForHeader.id)
+                                    callbacks.onBack()
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Delete,
+                                        contentDescription = stringResource(R.string.settings_custom_tool_delete_button),
+                                        tint = MaterialTheme.colorScheme.onSurface,
+                                    )
+                                }
+                            }
+                        } else {
+                            null
+                        }
                     } else {
                         null
                     },
@@ -343,22 +364,14 @@ internal fun SettingsDetailLevel2Screen(
                     existingTool = existingTool,
                     existingAlias = existingAlias,
                     availableModels = state.availableGeminiModels,
-                    onSave = { name, prompt, modelId, groundingEnabled, aliasCode ->
+                    onSave = { name, prompt, modelId, groundingEnabled, aliasCode, thinkingEnabled ->
                         if (existingTool != null) {
-                            callbacks.onUpdateCustomTool(existingTool.id, name, prompt, modelId, groundingEnabled)
+                            callbacks.onUpdateCustomTool(existingTool.id, name, prompt, modelId, groundingEnabled, thinkingEnabled)
                             callbacks.onSetSearchSectionAlias(existingTool.id, aliasCode)
                         } else {
-                            callbacks.onAddCustomTool(name, prompt, modelId, groundingEnabled, aliasCode)
+                            callbacks.onAddCustomTool(name, prompt, modelId, groundingEnabled, aliasCode, thinkingEnabled)
                         }
                         callbacks.onBack()
-                    },
-                    onDelete = if (existingTool != null) {
-                        {
-                            callbacks.onDeleteCustomTool(existingTool.id)
-                            callbacks.onBack()
-                        }
-                    } else {
-                        null
                     },
                     modifier = Modifier
                         .settingsContentWidth()

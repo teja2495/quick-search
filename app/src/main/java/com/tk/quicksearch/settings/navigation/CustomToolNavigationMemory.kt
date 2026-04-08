@@ -7,6 +7,8 @@ object CustomToolNavigationMemory {
         pendingToolId = toolId
     }
 
+    fun peekPendingToolId(): String? = pendingToolId
+
     fun consumePendingToolId(): String? {
         val value = pendingToolId
         pendingToolId = null

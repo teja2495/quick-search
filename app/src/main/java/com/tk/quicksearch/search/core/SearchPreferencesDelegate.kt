@@ -654,6 +654,7 @@ internal class SearchPreferencesDelegate(
         modelId: String,
         groundingEnabled: Boolean = false,
         aliasCode: String = "",
+        thinkingEnabled: Boolean = false,
     ) {
         scope.launch(Dispatchers.IO) {
             val trimmedName = name.trim()
@@ -665,6 +666,7 @@ internal class SearchPreferencesDelegate(
                 prompt = prompt.trim(),
                 modelId = modelId,
                 groundingEnabled = groundingEnabled,
+                thinkingEnabled = thinkingEnabled,
             )
             val existing = userPreferences.getCustomTools()
             val updated = existing + newTool
@@ -692,6 +694,7 @@ internal class SearchPreferencesDelegate(
         prompt: String,
         modelId: String,
         groundingEnabled: Boolean = false,
+        thinkingEnabled: Boolean = false,
     ) {
         scope.launch(Dispatchers.IO) {
             val trimmedName = name.trim()
@@ -705,6 +708,7 @@ internal class SearchPreferencesDelegate(
                             prompt = prompt.trim(),
                             modelId = modelId,
                             groundingEnabled = groundingEnabled,
+                            thinkingEnabled = thinkingEnabled,
                         )
                     } else {
                         tool

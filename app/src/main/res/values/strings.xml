@@ -634,6 +634,8 @@
     <string name="settings_custom_tool_grounding_label">Internet Search</string>
     <string name="settings_custom_tool_grounding_hint">Allow Google Search grounding for up-to-date results.</string>
     <string name="settings_custom_tool_delete_button">Delete Tool</string>
+    <string name="settings_custom_tool_thinking_label">Extended Thinking</string>
+    <string name="settings_custom_tool_thinking_hint">Enable deeper reasoning for complex tasks. Uses more tokens.</string>
     <string name="notes_create_note_cta">New Note</string>
     <string name="notes_editor_title">Note Editor</string>
     <string name="notes_empty_state">No notes yet</string>
