@@ -23,4 +23,16 @@ class CalendarPreferences(
     fun getIncludePastEvents(): Boolean = getBooleanPref(BasePreferences.KEY_CALENDAR_INCLUDE_PAST_EVENTS, defaultValue = false)
 
     fun setIncludePastEvents(value: Boolean) = setBooleanPref(BasePreferences.KEY_CALENDAR_INCLUDE_PAST_EVENTS, value)
+
+    fun getCustomEventsJson(): String = prefs.getString(BasePreferences.KEY_CUSTOM_CALENDAR_EVENTS_DATA, null).orEmpty()
+
+    fun setCustomEventsJson(json: String) {
+        prefs.edit().putString(BasePreferences.KEY_CUSTOM_CALENDAR_EVENTS_DATA, json).apply()
+    }
+
+    fun nextCustomEventId(): Long {
+        val counter = prefs.getLong(BasePreferences.KEY_CUSTOM_CALENDAR_EVENT_ID_COUNTER, 1L)
+        prefs.edit().putLong(BasePreferences.KEY_CUSTOM_CALENDAR_EVENT_ID_COUNTER, counter + 1L).apply()
+        return -counter
+    }
 }

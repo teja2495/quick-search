@@ -31,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -39,7 +40,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.data.CustomCalendarEventRepository
 import com.tk.quicksearch.search.models.CalendarEventInfo
+import com.tk.quicksearch.settings.settingsDetailScreen.CustomEventEditDialog
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
@@ -102,16 +105,29 @@ fun CalendarEventsSection(
     }
     if (events.isEmpty()) return
 
+    val context = LocalContext.current
+    val customRepo = remember(context) { CustomCalendarEventRepository(context) }
+    // Local overrides applied after edit/delete so display updates without waiting for re-search
+    var localOverrides by remember { mutableStateOf<Map<Long, CalendarEventInfo?>>(emptyMap()) }
+    val effectiveEvents = remember(events, localOverrides) {
+        if (localOverrides.isEmpty()) events
+        else events.mapNotNull { event ->
+            if (event.eventId in localOverrides) localOverrides[event.eventId]
+            else event
+        }
+    }
+    var editingCustomEvent by remember { mutableStateOf<CalendarEventInfo?>(null) }
+
     val predictedEventId = (predictedTarget as? PredictedSubmitTarget.Calendar)?.eventId
-    val hasPredictedEvent = predictedEventId != null && events.any { it.eventId == predictedEventId }
+    val hasPredictedEvent = predictedEventId != null && effectiveEvents.any { it.eventId == predictedEventId }
     val displayAsExpanded = isExpanded || showAllResults
-    val useCardLevelPrediction = hasPredictedEvent && (!displayAsExpanded || events.size == 1)
+    val useCardLevelPrediction = hasPredictedEvent && (!displayAsExpanded || effectiveEvents.size == 1)
     val overlayDividerColor = LocalOverlayDividerColor.current
     val overlayCardColor = LocalOverlayResultCardColor.current
     val scrollState = rememberScrollState()
 
     ExpandableResultsCard(
-        resultCount = events.size,
+        resultCount = effectiveEvents.size,
         isExpanded = isExpanded,
         showAllResults = showAllResults,
         isTopPredicted = useCardLevelPrediction,
@@ -124,9 +140,9 @@ fun CalendarEventsSection(
     ) { contentModifier, cardState ->
         val displayEvents =
             if (cardState.displayAsExpanded) {
-                events
+                effectiveEvents
             } else {
-                events.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
+                effectiveEvents.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
             }
         Column(
             modifier =
@@ -159,7 +175,13 @@ fun CalendarEventsSection(
                             isPinned = pinnedEventIds.contains(event.eventId),
                             isExcluded = excludedEventIds.contains(event.eventId),
                             hasNickname = !getEventNickname(event.eventId).isNullOrBlank(),
-                            onClick = onEventClick,
+                            onClick = { clickedEvent ->
+                                if (clickedEvent.eventId < 0) {
+                                    editingCustomEvent = clickedEvent
+                                } else {
+                                    onEventClick(clickedEvent)
+                                }
+                            },
                             onTogglePin = onTogglePin,
                             onExclude = onExclude,
                             onInclude = onInclude,
@@ -184,6 +206,23 @@ fun CalendarEventsSection(
                 }
             }
         }
+    }
+
+    editingCustomEvent?.let { event ->
+        CustomEventEditDialog(
+            event = event,
+            onDismiss = { editingCustomEvent = null },
+            onSave = { title, dateTimeMillis, allDay ->
+                val updated = customRepo.updateCustomEvent(event.eventId, title, dateTimeMillis, allDay)
+                localOverrides = localOverrides + (event.eventId to updated)
+                editingCustomEvent = null
+            },
+            onDelete = {
+                customRepo.deleteCustomEvent(event.eventId)
+                localOverrides = localOverrides + (event.eventId to null)
+                editingCustomEvent = null
+            },
+        )
     }
 }
 

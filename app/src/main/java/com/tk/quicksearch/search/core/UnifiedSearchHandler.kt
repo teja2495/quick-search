@@ -7,6 +7,7 @@ import com.tk.quicksearch.search.appSettings.AppSettingsSearchHandler
 import com.tk.quicksearch.search.contacts.ContactSearchPolicy
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.CalendarRepository
+import com.tk.quicksearch.search.data.CustomCalendarEventRepository
 import com.tk.quicksearch.search.data.preferences.CalendarPreferences
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
@@ -55,6 +56,7 @@ class UnifiedSearchHandler(
         private val context: Context,
         private val contactRepository: ContactRepository,
         private val calendarRepository: CalendarRepository,
+        private val customCalendarEventRepository: CustomCalendarEventRepository,
         private val fileRepository: FileSearchRepository,
         private val notesRepository: NotesRepository,
         private val userPreferences: UserAppPreferences,
@@ -293,7 +295,7 @@ class UnifiedSearchHandler(
                                                                 shouldSearch = canSearchCalendar,
                                                                 search = {
                                                                         SectionSearchResultPayload.Calendar(
-                                                                                calendarRepository.searchFutureEventsByTitle(
+                                                                                (calendarRepository.searchFutureEventsByTitle(
                                                                                         query =
                                                                                                 queryContext.normalizedQuery,
                                                                                         limit =
@@ -301,7 +303,10 @@ class UnifiedSearchHandler(
                                                                                                         4,
                                                                                         includePastEvents =
                                                                                                 calendarPreferences.getIncludePastEvents(),
-                                                                                ).filterNot {
+                                                                                ) + customCalendarEventRepository.searchCustomEvents(
+                                                                                        query = queryContext.normalizedQuery,
+                                                                                        includePastEvents = calendarPreferences.getIncludePastEvents(),
+                                                                                )).filterNot {
                                                                                         excludedCalendarEventIds.contains(
                                                                                                 it.eventId
                                                                                         )

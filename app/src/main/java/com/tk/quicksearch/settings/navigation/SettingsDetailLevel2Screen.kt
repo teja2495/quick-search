@@ -34,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.search.data.CustomCalendarEventRepository
 import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
@@ -80,6 +81,8 @@ internal fun SettingsDetailLevel2Screen(
     var appShortcutsSearchQuery by remember { mutableStateOf("") }
     var appManagementSearchQuery by remember { mutableStateOf("") }
     var calendarEventsSearchQuery by remember { mutableStateOf("") }
+    var calendarEventsRefreshSignal by remember { mutableIntStateOf(0) }
+    var showCreateCalendarEventDialog by remember { mutableStateOf(false) }
     var notesSearchQuery by remember { mutableStateOf("") }
     var notesMultiSelectActive by remember { mutableStateOf(false) }
     var notesSelectedIds by remember { mutableStateOf(setOf<Long>()) }
@@ -382,6 +385,7 @@ internal fun SettingsDetailLevel2Screen(
                 CalendarEventsSettingsSection(
                     onEventClick = callbacks.onLaunchCalendarEvent,
                     searchQuery = calendarEventsSearchQuery,
+                    refreshSignal = calendarEventsRefreshSignal,
                     modifier =
                         Modifier
                             .settingsContentWidth()
@@ -624,14 +628,12 @@ internal fun SettingsDetailLevel2Screen(
             )
         } else if (
             detailType == SettingsDetailType.APP_SHORTCUTS ||
-                detailType == SettingsDetailType.APP_MANAGEMENT ||
-                detailType == SettingsDetailType.CALENDAR_EVENTS
+                detailType == SettingsDetailType.APP_MANAGEMENT
         ) {
             val query =
                 when (detailType) {
                     SettingsDetailType.APP_SHORTCUTS -> appShortcutsSearchQuery
                     SettingsDetailType.APP_MANAGEMENT -> appManagementSearchQuery
-                    SettingsDetailType.CALENDAR_EVENTS -> calendarEventsSearchQuery
                     else -> ""
                 }
             SettingsManagementSearchBar(
@@ -640,10 +642,6 @@ internal fun SettingsDetailLevel2Screen(
                     when (detailType) {
                         SettingsDetailType.APP_SHORTCUTS -> appShortcutsSearchQuery = updatedQuery
                         SettingsDetailType.APP_MANAGEMENT -> appManagementSearchQuery = updatedQuery
-                        SettingsDetailType.CALENDAR_EVENTS -> {
-                            calendarEventsSearchQuery = updatedQuery
-                        }
-
                         else -> Unit
                     }
                 },
@@ -653,15 +651,21 @@ internal fun SettingsDetailLevel2Screen(
                             appShortcutsCollapseAllTrigger++
                             appShortcutsSearchQuery = ""
                         }
-
                         SettingsDetailType.APP_MANAGEMENT -> appManagementSearchQuery = ""
-                        SettingsDetailType.CALENDAR_EVENTS -> calendarEventsSearchQuery = ""
                         else -> Unit
                     }
                 },
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomEnd),
+                modifier = Modifier.align(Alignment.BottomEnd),
+            )
+        } else if (detailType == SettingsDetailType.CALENDAR_EVENTS) {
+            CalendarEventsBottomBar(
+                query = calendarEventsSearchQuery,
+                onQueryChange = { calendarEventsSearchQuery = it },
+                onClear = { calendarEventsSearchQuery = "" },
+                onNewEvent = { showCreateCalendarEventDialog = true },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth(),
             )
         }
 
@@ -706,6 +710,21 @@ internal fun SettingsDetailLevel2Screen(
                     }
                 },
                 onDismiss = { showNotesBulkDeleteConfirm = false }
+            )
+        }
+
+        if (showCreateCalendarEventDialog && detailType == SettingsDetailType.CALENDAR_EVENTS) {
+            CreateCalendarEventDialog(
+                onDismiss = { showCreateCalendarEventDialog = false },
+                onConfirm = { title, dateTimeMillis, allDay ->
+                    coroutineScope.launch {
+                        withContext(Dispatchers.IO) {
+                            CustomCalendarEventRepository(context).createCustomEvent(title, dateTimeMillis, allDay)
+                        }
+                        calendarEventsRefreshSignal++
+                        showCreateCalendarEventDialog = false
+                    }
+                },
             )
         }
     }
