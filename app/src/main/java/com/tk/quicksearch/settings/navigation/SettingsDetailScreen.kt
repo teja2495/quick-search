@@ -467,6 +467,7 @@ internal fun SettingsDetailLevel1Screen(
                     SettingsDetailType.GEMINI_API_CONFIG,
                     SettingsDetailType.UNIT_CONVERTER_INFO,
                     SettingsDetailType.DATE_CALCULATOR_INFO,
+                    SettingsDetailType.CUSTOM_TOOL_EDITOR,
                     -> Unit
                 }
             }

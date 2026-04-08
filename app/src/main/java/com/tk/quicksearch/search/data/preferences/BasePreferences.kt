@@ -495,6 +495,8 @@ abstract class BasePreferences(
         const val KEY_ALIAS_TRIGGER_AFTER_SPACE = "alias_trigger_after_space"
         const val KEY_SEARCH_ENGINE_ONBOARDING_SEEN = "search_engine_onboarding_seen"
         const val KEY_CUSTOM_SEARCH_ENGINES = "custom_search_engines"
+        const val KEY_CUSTOM_TOOLS = "custom_tools"
+        const val KEY_DISABLED_CUSTOM_TOOLS = "disabled_custom_tools"
 
         // Alias preferences keys
         const val KEY_ALIASES_ENABLED = "aliases_enabled"

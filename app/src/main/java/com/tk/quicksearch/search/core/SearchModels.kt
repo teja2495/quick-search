@@ -62,6 +62,14 @@ data class CustomSearchEngine(
         val browserPackage: String? = null,
 )
 
+data class CustomTool(
+        val id: String,
+        val name: String,
+        val prompt: String,
+        val modelId: String,
+        val groundingEnabled: Boolean = false,
+)
+
 sealed class SearchTarget {
         data class Engine(
                 val engine: SearchEngine,
@@ -525,6 +533,8 @@ data class SearchUiState(
         val currencyConverterEnabled: Boolean = true,
         val wordClockEnabled: Boolean = true,
         val dictionaryEnabled: Boolean = true,
+        val customTools: List<CustomTool> = emptyList(),
+        val disabledCustomToolIds: Set<String> = emptySet(),
         val DirectSearchState: DirectSearchState = DirectSearchState(),
         // Gemini
         val hasGeminiApiKey: Boolean = false,
@@ -549,6 +559,7 @@ data class SearchUiState(
         val isCurrencyConverterAliasMode: Boolean = false,
         val isWordClockAliasMode: Boolean = false,
         val isDictionaryAliasMode: Boolean = false,
+        val detectedCustomToolId: String? = null,
         val webSuggestionWasSelected: Boolean = false,
         // Onboarding / hints
         val showSearchEngineOnboarding: Boolean = false,
@@ -632,6 +643,7 @@ fun SearchUiState(
                 isCurrencyConverterAliasMode = results.isCurrencyConverterAliasMode,
                 isWordClockAliasMode = results.isWordClockAliasMode,
                 isDictionaryAliasMode = results.isDictionaryAliasMode,
+                detectedCustomToolId = results.detectedCustomToolId,
                 recentItems = results.recentItems,
                 aliasRecentItems = results.aliasRecentItems,
                 nicknameUpdateVersion = results.nicknameUpdateVersion,
@@ -678,6 +690,8 @@ fun SearchUiState(
                 currencyConverterEnabled = features.currencyConverterEnabled,
                 wordClockEnabled = features.wordClockEnabled,
                 dictionaryEnabled = features.dictionaryEnabled,
+                customTools = features.customTools,
+                disabledCustomToolIds = features.disabledCustomToolIds,
                 recentQueriesEnabled = features.recentQueriesEnabled,
                 hasDismissedSearchHistoryTip = features.hasDismissedSearchHistoryTip,
                 directDialEnabled = features.directDialEnabled,

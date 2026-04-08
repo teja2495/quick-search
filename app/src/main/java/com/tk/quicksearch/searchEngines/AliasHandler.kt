@@ -134,6 +134,7 @@ class AliasHandler(
                 id to enabled
             }
         TOOL_ALIAS_IDS.forEach(::loadToolAlias)
+        loadCustomToolAliases()
 
         SEARCH_SECTION_ALIAS_IDS.forEach { sectionAliasId ->
             val aliasCode = userPreferences.getAliasCodeAllowSingleChar(sectionAliasId).orEmpty()
@@ -145,6 +146,18 @@ class AliasHandler(
                 aliasEnabled.toMutableMap().apply {
                     put(sectionAliasId, aliasCode.isNotEmpty())
                 }
+        }
+    }
+
+    private fun loadCustomToolAliases() {
+        val customTools = userPreferences.getCustomTools()
+        val disabledCustomTools = userPreferences.getDisabledCustomTools()
+        customTools.forEach { tool ->
+            if (tool.id in disabledCustomTools) return@forEach
+            val alias = userPreferences.getAliasCode(tool.id).orEmpty().trim()
+            val normalized = if (isValidGeneralAliasCode(alias)) normalizeShortcutCodeInput(alias) else ""
+            aliasCodes = aliasCodes.toMutableMap().apply { put(tool.id, normalized) }
+            aliasEnabled = aliasEnabled.toMutableMap().apply { put(tool.id, normalized.isNotEmpty()) }
         }
     }
 
@@ -326,6 +339,7 @@ class AliasHandler(
         collectLeadingSearchTargetAliases(aliases)
         collectLeadingFeatureAliases(aliases)
         collectLeadingSectionAliases(aliases)
+        collectLeadingCustomToolAliases(aliases)
         val match = AliasParser.detectPrefixAlias(query, aliases) ?: return null
         return Pair(match.queryWithoutAlias, match.target)
     }
@@ -387,6 +401,14 @@ class AliasHandler(
             val aliasCode = getAlias(featureAliasId).lowercase(Locale.getDefault())
             if (aliasCode.isNotEmpty()) {
                 aliases[aliasCode] = AliasTarget.Feature(featureAliasId)
+            }
+        }
+    }
+
+    private fun collectLeadingCustomToolAliases(aliases: MutableMap<String, AliasTarget>) {
+        aliasCodes.forEach { (id, alias) ->
+            if (id.startsWith("custom_tool:") && alias.isNotEmpty() && aliasEnabled[id] == true) {
+                aliases[alias.lowercase(Locale.getDefault())] = AliasTarget.Feature(id)
             }
         }
     }

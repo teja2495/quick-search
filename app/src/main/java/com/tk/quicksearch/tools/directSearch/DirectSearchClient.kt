@@ -35,6 +35,17 @@ class DirectSearchClient(
         private const val INITIAL_RETRY_DELAY_MS = 750L
         private const val MODELS_ENDPOINT = "$BASE_API_URL/models"
 
+        /** Gemma-style thinking traces embedded in a single text part (e.g. Gemma 4 thinking mode). */
+        private val REDACTED_THINKING_BLOCK =
+            Regex(
+                "<redacted_thinking>.*?</redacted_thinking>",
+                setOf(RegexOption.DOT_MATCHES_ALL, RegexOption.IGNORE_CASE),
+            )
+
+        /** Gemma 4+ channel-delimited reasoning blocks preceding the user-visible answer. */
+        private val CHANNEL_THINKING_BLOCK =
+            Regex("""<\|channel>thought[\s\S]*?<channel\|>""")
+
         suspend fun fetchAvailableTextModels(apiKey: String, context: android.content.Context): Result<List<GeminiTextModel>> =
             withContext(Dispatchers.IO) {
                 runCatching {
@@ -331,6 +342,12 @@ class DirectSearchClient(
             JSONObject().apply {
                 put("responseMimeType", responseMimeType)
                 put("temperature", 0.2)
+                put(
+                    "thinkingConfig",
+                    JSONObject().apply {
+                        put("includeThoughts", false)
+                    },
+                )
             }
 
         val root = JSONObject()
@@ -364,6 +381,12 @@ class DirectSearchClient(
         return root.toString()
     }
 
+    private fun stripInlineThinkingMarkers(text: String): String {
+        var t = REDACTED_THINKING_BLOCK.replace(text, "")
+        t = CHANNEL_THINKING_BLOCK.replace(t, "")
+        return t.trim()
+    }
+
     private fun extractAnswer(rawResponse: String): String? {
         if (rawResponse.isBlank()) return null
         return runCatching {
@@ -374,8 +397,15 @@ class DirectSearchClient(
             val content = firstCandidate.optJSONObject("content") ?: return null
             val parts = content.optJSONArray("parts") ?: return null
             if (parts.length() == 0) return null
-            val firstPart = parts.getJSONObject(0)
-            val rawAnswer = firstPart.optString("text")
+            val textPieces = ArrayList<String>(parts.length())
+            for (i in 0 until parts.length()) {
+                val part = parts.optJSONObject(i) ?: continue
+                if (part.optBoolean("thought", false)) continue
+                val segment = part.optString("text")
+                if (segment.isNotBlank()) textPieces.add(segment)
+            }
+            if (textPieces.isEmpty()) return null
+            val rawAnswer = stripInlineThinkingMarkers(textPieces.joinToString("\n\n"))
             val sanitizedAnswer = rawAnswer.replace("*", "").trim()
             // Format temperature units properly
             val formattedAnswer =

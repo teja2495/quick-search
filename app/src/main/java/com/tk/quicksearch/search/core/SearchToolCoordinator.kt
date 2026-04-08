@@ -26,6 +26,7 @@ internal data class ToolAliasState(
     val lockedCurrencyConverterAlias: Boolean,
     val lockedWordClockAlias: Boolean,
     val lockedDictionaryAlias: Boolean,
+    val lockedCustomToolId: String? = null,
 )
 
 internal class SearchToolCoordinator(
@@ -77,7 +78,7 @@ internal class SearchToolCoordinator(
         detectedAliasSearchSection: SearchSection?,
         skipLocalTools: Boolean,
     ): CalculatorState {
-        if (skipLocalTools) {
+        if (skipLocalTools || toolAliasStateProvider().lockedCustomToolId != null) {
             return CalculatorState()
         }
 

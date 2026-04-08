@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccessTime
+import androidx.compose.material.icons.rounded.Construction
 import androidx.compose.material.icons.rounded.CurrencyExchange
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.MaterialTheme
@@ -109,6 +110,7 @@ internal fun SearchScreenContent(
         onCurrencyConversionClick: () -> Unit = {},
         onDictionarySearchClick: () -> Unit = {},
         onWordClockSearchClick: () -> Unit = {},
+        onCustomToolSearchClick: () -> Unit = {},
         onKeyboardSwitchToggle: () -> Unit,
         onOverlayNumberKeyboardUiChanged: ((Boolean, Boolean) -> Unit)? = null,
         onOverlayExpandRequest: () -> Unit = {},
@@ -157,6 +159,7 @@ internal fun SearchScreenContent(
     val isCurrencyConverterAliasMode = state.isCurrencyConverterAliasMode
     val isWordClockAliasMode = state.isWordClockAliasMode
     val isDictionaryAliasMode = state.isDictionaryAliasMode
+    val activeCustomTool = state.detectedCustomToolId?.let { id -> state.customTools.find { it.id == id } }
 
     val hintSearchAnything = stringResource(R.string.search_hint)
     val cycleHints = stringArrayResource(R.array.search_hints_cycle)
@@ -199,6 +202,7 @@ internal fun SearchScreenContent(
                     !isCurrencyConverterAliasMode &&
                     !isWordClockAliasMode &&
                     !isDictionaryAliasMode &&
+                    activeCustomTool == null &&
                     state.detectedAliasSearchSection == null
 
     var hintIndex by remember { mutableStateOf(0) }
@@ -222,6 +226,7 @@ internal fun SearchScreenContent(
                         stringResource(R.string.search_hint_currency_converter)
                 isWordClockAliasMode -> stringResource(R.string.search_hint_word_clock)
                 isDictionaryAliasMode -> stringResource(R.string.search_hint_dictionary)
+                activeCustomTool != null -> activeCustomTool.name
                 state.detectedAliasSearchSection != null ->
                     stringResource(
                         SearchSectionUiMetadataRegistry
@@ -285,6 +290,15 @@ internal fun SearchScreenContent(
                         trimmedQuery.isNotBlank() &&
                                 WordClockIntentParser.parseConfirmed(trimmedQuery) != null
                     }
+    val showCustomToolSearchCard =
+            activeCustomTool != null &&
+                    state.hasGeminiApiKey &&
+                    !showCalculatorResult &&
+                    state.DirectSearchState.status == DirectSearchStatus.Idle
+    val hideSearchEnginesForCustomTool =
+            activeCustomTool != null ||
+                    (state.detectedCustomToolId != null &&
+                            state.DirectSearchState.status != DirectSearchStatus.Idle)
     val hideCompactSearchEnginesInToolMode =
             (isToolMode ||
                     showCurrencyConverter ||
@@ -370,7 +384,8 @@ internal fun SearchScreenContent(
                             state.detectedAliasSearchSection == null &&
                             !isCurrencyConverterAliasMode &&
                             !isWordClockAliasMode &&
-                            !isDictionaryAliasMode
+                            !isDictionaryAliasMode &&
+                            activeCustomTool == null
             ) {
                 stringResource(R.string.keyboard_switch_to_number)
             } else {
@@ -511,6 +526,10 @@ internal fun SearchScreenContent(
                     }
                     if (showDictionarySearchCard) {
                         onDictionarySearchClick()
+                        return@PersistentSearchBar true // keep keyboard open
+                    }
+                    if (showCustomToolSearchCard) {
+                        onCustomToolSearchClick()
                         return@PersistentSearchBar true // keep keyboard open
                     }
                     if (showWordClockSearchCard) {
@@ -752,7 +771,27 @@ internal fun SearchScreenContent(
                 }
             }
 
-            if (!hideCompactSearchEnginesInToolMode && !isSearchHistoryExpanded) {
+            if (!isSearchHistoryExpanded) {
+                AnimatedVisibility(
+                        visible = showCustomToolSearchCard,
+                        enter = fadeIn(animationSpec = tween(durationMillis = 140, delayMillis = 50)),
+                        exit = fadeOut(animationSpec = tween(durationMillis = 160)) +
+                                shrinkVertically(animationSpec = tween(durationMillis = 200), shrinkTowards = Alignment.Top),
+                ) {
+                    ToolCard(
+                            modifier =
+                                    Modifier
+                                            .fillMaxWidth()
+                                            .padding(bottom = DesignTokens.SpacingXSmall),
+                            label = activeCustomTool?.name ?: "",
+                            icon = Icons.Rounded.Construction,
+                            onClick = onCustomToolSearchClick,
+                            showWallpaperBackground = state.showWallpaperBackground,
+                    )
+                }
+            }
+
+            if (!hideCompactSearchEnginesInToolMode && !hideSearchEnginesForCustomTool && !isSearchHistoryExpanded) {
                 AnimatedVisibility(
                         visible = showDictionarySearchCard,
                         enter = fadeIn(animationSpec = tween(durationMillis = 140, delayMillis = 50)),

@@ -97,6 +97,7 @@ data class SearchResultsState(
         val isCurrencyConverterAliasMode: Boolean = false,
         val isWordClockAliasMode: Boolean = false,
         val isDictionaryAliasMode: Boolean = false,
+        val detectedCustomToolId: String? = null,
         // Recent items (shown when query is blank)
         val recentItems: List<RecentSearchItem> = emptyList(),
         // Recently opened items filtered to the active alias section (shown when alias detected + query blank)
@@ -165,6 +166,9 @@ data class SearchFeatureState(
         val currencyConverterEnabled: Boolean = true,
         val wordClockEnabled: Boolean = true,
         val dictionaryEnabled: Boolean = true,
+        // Custom tools
+        val customTools: List<CustomTool> = emptyList(),
+        val disabledCustomToolIds: Set<String> = emptySet(),
         // Search history
         val recentQueriesEnabled: Boolean = true,
         val hasDismissedSearchHistoryTip: Boolean = false,

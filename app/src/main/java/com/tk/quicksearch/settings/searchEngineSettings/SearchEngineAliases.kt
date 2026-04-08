@@ -50,6 +50,7 @@ internal fun AliasCodeDisplay(
     conflictErrorMessage: String? = null,
     addAliasLabel: String? = null,
     allowClearAction: Boolean = true,
+    allowEmptyAlias: Boolean = true,
     aliasDisplayType: AliasDisplayType = AliasDisplayType.SEARCH_ENGINE,
     isSearchEngineAliasSuffixEnabled: Boolean = true,
     modifier: Modifier = Modifier,
@@ -81,6 +82,7 @@ internal fun AliasCodeDisplay(
             validateCode = validateCode,
             validateConflict = validateConflict,
             conflictErrorMessage = conflictErrorMessage,
+            allowEmptyAlias = allowEmptyAlias,
             onDismiss = { showDialog = false },
         )
     }

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.shared
 
+import com.tk.quicksearch.search.core.CustomTool
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.LauncherAppIcon
@@ -87,6 +88,8 @@ data class SettingsScreenState(
     val currencyConverterEnabled: Boolean,
     val wordClockEnabled: Boolean,
     val dictionaryEnabled: Boolean,
+    val customTools: List<CustomTool> = emptyList(),
+    val disabledCustomToolIds: Set<String> = emptySet(),
     val appSuggestionsEnabled: Boolean,
     val webSuggestionsEnabled: Boolean,
     val webSuggestionsCount: Int,
@@ -194,6 +197,8 @@ data class SettingsScreenState(
                 currencyConverterEnabled = currencyConverterEnabled,
                 wordClockEnabled = wordClockEnabled,
                 dictionaryEnabled = dictionaryEnabled,
+                customTools = customTools,
+                disabledCustomToolIds = disabledCustomToolIds,
             )
 
     val appShortcuts: AppShortcutsSettingsState
@@ -280,6 +285,10 @@ data class SettingsScreenCallbacks(
     val onToggleCurrencyConverter: (Boolean) -> Unit,
     val onToggleWordClock: (Boolean) -> Unit,
     val onToggleDictionary: (Boolean) -> Unit,
+    val onAddCustomTool: (name: String, prompt: String, modelId: String, groundingEnabled: Boolean, aliasCode: String) -> Unit,
+    val onUpdateCustomTool: (id: String, name: String, prompt: String, modelId: String, groundingEnabled: Boolean) -> Unit,
+    val onDeleteCustomTool: (String) -> Unit,
+    val onToggleCustomTool: (String, Boolean) -> Unit,
     val onToggleAppSuggestions: (Boolean) -> Unit,
     val onToggleWebSuggestions: (Boolean) -> Unit,
     val onWebSuggestionsCountChange: (Int) -> Unit,
@@ -478,6 +487,8 @@ data class ToolsSettingsState(
     val currencyConverterEnabled: Boolean,
     val wordClockEnabled: Boolean,
     val dictionaryEnabled: Boolean,
+    val customTools: List<CustomTool> = emptyList(),
+    val disabledCustomToolIds: Set<String> = emptySet(),
 )
 
 data class AppShortcutsSettingsState(

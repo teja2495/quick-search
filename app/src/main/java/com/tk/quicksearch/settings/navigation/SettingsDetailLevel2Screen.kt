@@ -51,6 +51,7 @@ import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.settings.NoteDeleteConfirmationDialog
 import com.tk.quicksearch.settings.NotesBulkDeleteConfirmationDialog
+import com.tk.quicksearch.settings.settingsDetailScreen.CustomToolNavigationMemory
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -310,9 +311,60 @@ internal fun SettingsDetailLevel2Screen(
                             onNavigateToGeminiApiSetup = {
                                 onNavigateToDetail(SettingsDetailType.GEMINI_API_CONFIG)
                             },
+                            customTools = state.customTools,
+                            disabledCustomToolIds = state.disabledCustomToolIds,
+                            customToolAliases = state.shortcutCodes,
+                            onCustomToolToggle = { toolId, enabled ->
+                                callbacks.onToggleCustomTool(toolId, enabled)
+                            },
+                            onCustomToolAliasChange = { toolId, code ->
+                                callbacks.onSetSearchSectionAlias(toolId, code)
+                            },
+                            onCustomToolClick = { toolId ->
+                                CustomToolNavigationMemory.setPendingToolId(toolId)
+                                onNavigateToDetail(SettingsDetailType.CUSTOM_TOOL_EDITOR)
+                            },
+                            onCreateNewTool = {
+                                CustomToolNavigationMemory.setPendingToolId(null)
+                                onNavigateToDetail(SettingsDetailType.CUSTOM_TOOL_EDITOR)
+                            },
                             modifier = Modifier.fillMaxWidth().weight(1f),
                     )
                 }
+            } else if (detailType == SettingsDetailType.CUSTOM_TOOL_EDITOR) {
+                val pendingToolId = remember { CustomToolNavigationMemory.consumePendingToolId() }
+                val existingTool = remember(pendingToolId, state.customTools) {
+                    pendingToolId?.let { id -> state.customTools.firstOrNull { it.id == id } }
+                }
+                val existingAlias = remember(existingTool?.id, state.shortcutCodes) {
+                    existingTool?.id?.let { state.shortcutCodes[it] }.orEmpty()
+                }
+                com.tk.quicksearch.settings.customTools.CustomToolEditorScreen(
+                    existingTool = existingTool,
+                    existingAlias = existingAlias,
+                    availableModels = state.availableGeminiModels,
+                    onSave = { name, prompt, modelId, groundingEnabled, aliasCode ->
+                        if (existingTool != null) {
+                            callbacks.onUpdateCustomTool(existingTool.id, name, prompt, modelId, groundingEnabled)
+                            callbacks.onSetSearchSectionAlias(existingTool.id, aliasCode)
+                        } else {
+                            callbacks.onAddCustomTool(name, prompt, modelId, groundingEnabled, aliasCode)
+                        }
+                        callbacks.onBack()
+                    },
+                    onDelete = if (existingTool != null) {
+                        {
+                            callbacks.onDeleteCustomTool(existingTool.id)
+                            callbacks.onBack()
+                        }
+                    } else {
+                        null
+                    },
+                    modifier = Modifier
+                        .settingsContentWidth()
+                        .fillMaxHeight()
+                        .align(Alignment.CenterHorizontally),
+                )
             } else if (detailType == SettingsDetailType.CALENDAR_EVENTS) {
                 CalendarEventsSettingsSection(
                     onEventClick = callbacks.onLaunchCalendarEvent,

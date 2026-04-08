@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.shared
 
+import com.tk.quicksearch.search.core.CustomTool
 import com.tk.quicksearch.search.core.SearchUiState
 
 internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState {
@@ -78,6 +79,8 @@ internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState {
         currencyConverterEnabled = tools.currencyConverterEnabled,
         wordClockEnabled = tools.wordClockEnabled,
         dictionaryEnabled = tools.dictionaryEnabled,
+        customTools = tools.customTools,
+        disabledCustomToolIds = tools.disabledCustomToolIds,
         allAppShortcuts = appShortcuts.allAppShortcuts,
         allDeviceSettings = appShortcuts.allDeviceSettings,
         allApps = appShortcuts.allApps,
@@ -249,6 +252,8 @@ private data class ToolsMapperState(
     val currencyConverterEnabled: Boolean,
     val wordClockEnabled: Boolean,
     val dictionaryEnabled: Boolean,
+    val customTools: List<CustomTool>,
+    val disabledCustomToolIds: Set<String>,
 )
 
 private fun SearchUiState.toToolsSettingsState() =
@@ -259,6 +264,8 @@ private fun SearchUiState.toToolsSettingsState() =
         currencyConverterEnabled = currencyConverterEnabled,
         wordClockEnabled = wordClockEnabled,
         dictionaryEnabled = dictionaryEnabled,
+        customTools = customTools,
+        disabledCustomToolIds = disabledCustomToolIds,
     )
 
 private data class AppShortcutsMapperState(

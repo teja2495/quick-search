@@ -31,6 +31,7 @@ data class ToolToggleCardModel(
     val existingShortcuts: Map<String, String> = emptyMap(),
     val aliasFeatureId: String? = null,
     val onRowClick: (() -> Unit)? = null,
+    val allowAliasClear: Boolean = true,
 )
 
 @Composable
@@ -84,6 +85,8 @@ fun ToolToggleRow(
                         },
                         conflictErrorMessage = stringResource(R.string.dialog_edit_alias_error_prefix),
                         aliasDisplayType = AliasDisplayType.TOOL,
+                        allowClearAction = tool.allowAliasClear,
+                        allowEmptyAlias = tool.allowAliasClear,
                         modifier = Modifier.padding(top = DesignTokens.SpacingSmall),
                     )
                 }

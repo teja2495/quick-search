@@ -623,6 +623,17 @@
     <string name="settings_tools_gemini_api_title">Setup Gemini API</string>
     <string name="settings_tools_info_examples_header">Here are some examples of things you can ask in the search bar</string>
     <string name="settings_tools_title">Tools</string>
+    <string name="settings_create_new_tool_button">Create New Tool</string>
+    <string name="settings_custom_tool_editor_title">Custom Tool</string>
+    <string name="settings_custom_tool_name_label">Tool Name</string>
+    <string name="settings_custom_tool_prompt_label">System Prompt</string>
+    <string name="settings_custom_tool_prompt_hint">Describe what this tool does. This prompt guides the AI when the tool is triggered.</string>
+    <string name="settings_custom_tool_model_label">Model</string>
+    <string name="settings_custom_tool_alias_label">Alias</string>
+    <string name="settings_custom_tool_alias_hint">Shortcut to trigger this tool (e.g. "tool").</string>
+    <string name="settings_custom_tool_grounding_label">Internet Search</string>
+    <string name="settings_custom_tool_grounding_hint">Allow Google Search grounding for up-to-date results.</string>
+    <string name="settings_custom_tool_delete_button">Delete Tool</string>
     <string name="notes_create_note_cta">New Note</string>
     <string name="notes_editor_title">Note Editor</string>
     <string name="notes_empty_state">No notes yet</string>

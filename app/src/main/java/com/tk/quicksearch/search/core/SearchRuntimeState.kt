@@ -49,6 +49,7 @@ internal data class SearchRuntimeState(
     var lockedCurrencyConverterAlias: Boolean = false,
     var lockedWordClockAlias: Boolean = false,
     var lockedDictionaryAlias: Boolean = false,
+    var lockedCustomToolId: String? = null,
     var clearQueryOnLaunch: Boolean = false,
     var amazonDomain: String? = null,
     var pendingNavigationClear: Boolean = false,

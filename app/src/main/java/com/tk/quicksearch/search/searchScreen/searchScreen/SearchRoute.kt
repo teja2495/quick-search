@@ -587,6 +587,7 @@ fun SearchRoute(
             onCurrencyConversionClick = viewModel::executeCurrencyConversion,
             onDictionarySearchClick = viewModel::executeDictionaryLookup,
             onWordClockSearchClick = viewModel::executeWordClockLookup,
+            onCustomToolSearchClick = viewModel::executeCustomToolSearch,
             onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
             onCustomAction = viewModel::onCustomAction,
             getPrimaryContactCardAction = viewModel::getPrimaryContactCardAction,

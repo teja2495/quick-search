@@ -66,6 +66,7 @@ fun AddEditAliasDialog(
         !hasExactAliasConflict(input, existing)
     },
     conflictErrorMessage: String? = null,
+    allowEmptyAlias: Boolean = true,
     onDismiss: () -> Unit,
 ) {
     val initialText = normalizeShortcutCodeInput(currentCode)
@@ -88,7 +89,11 @@ fun AddEditAliasDialog(
     val isValidConflict = validateConflict(editingCode.text, existingShortcutsForValidation)
     val showShortcutError = editingCode.text.isNotEmpty() && !isValidConflict
     val isEmptyInput = editingCode.text.isEmpty()
-    val confirmEnabled = isEmptyInput || (isValidShortcut && isValidConflict)
+    val confirmEnabled = if (allowEmptyAlias) {
+        isEmptyInput || (isValidShortcut && isValidConflict)
+    } else {
+        !isEmptyInput && isValidShortcut && isValidConflict
+    }
     val infoText =
         when (aliasInfoType) {
             AliasInfoType.SEARCH_TYPE ->

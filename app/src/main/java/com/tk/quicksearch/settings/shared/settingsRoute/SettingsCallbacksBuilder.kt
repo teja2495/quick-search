@@ -117,6 +117,14 @@ internal fun buildSettingsScreenCallbacks(
         onToggleCurrencyConverter = viewModel::setCurrencyConverterEnabled,
         onToggleWordClock = viewModel::setWordClockEnabled,
         onToggleDictionary = viewModel::setDictionaryEnabled,
+        onAddCustomTool = { name, prompt, modelId, groundingEnabled, aliasCode ->
+            viewModel.addCustomTool(name, prompt, modelId, groundingEnabled, aliasCode)
+        },
+        onUpdateCustomTool = { id, name, prompt, modelId, groundingEnabled ->
+            viewModel.updateCustomTool(id, name, prompt, modelId, groundingEnabled)
+        },
+        onDeleteCustomTool = viewModel::deleteCustomTool,
+        onToggleCustomTool = viewModel::setCustomToolEnabled,
         onToggleAppSuggestions = viewModel::setAppSuggestionsEnabled,
         onToggleWebSuggestions = viewModel::setWebSuggestionsEnabled,
         onWebSuggestionsCountChange = viewModel::setWebSuggestionsCount,

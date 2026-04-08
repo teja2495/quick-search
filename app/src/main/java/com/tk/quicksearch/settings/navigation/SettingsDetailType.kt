@@ -27,6 +27,7 @@ enum class SettingsDetailType {
     OPEN_SOURCE_LICENSES,
     UNIT_CONVERTER_INFO,
     DATE_CALCULATOR_INFO,
+    CUSTOM_TOOL_EDITOR,
 }
 
 internal data class SettingsDestinationSpec(
@@ -155,6 +156,13 @@ internal object SettingsDestinationRegistry {
                     titleResId = R.string.date_calculator_info_title,
                     level = 3,
                     fallbackBackDestination = SettingsDetailType.TOOLS,
+                ),
+            SettingsDetailType.CUSTOM_TOOL_EDITOR to
+                SettingsDestinationSpec(
+                    titleResId = R.string.settings_custom_tool_editor_title,
+                    level = 3,
+                    fallbackBackDestination = SettingsDetailType.TOOLS,
+                    preferSourceBackDestination = true,
                 ),
         )
 

@@ -43,6 +43,7 @@ internal class SearchViewModelLegacyPreferenceState(
     var lockedCurrencyConverterAlias: Boolean = false
     var lockedWordClockAlias: Boolean = false
     var lockedDictionaryAlias: Boolean = false
+    var lockedCustomToolId: String? = null
     var clearQueryOnLaunch: Boolean = clearQueryOnLaunch
     var amazonDomain: String? = null
 

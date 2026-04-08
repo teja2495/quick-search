@@ -18,6 +18,29 @@ internal interface SearchViewModelPreferencesApi {
 
     fun setDictionaryEnabled(enabled: Boolean) = preferencesApiDelegate.setDictionaryEnabled(enabled)
 
+    fun addCustomTool(
+        name: String,
+        prompt: String,
+        modelId: String,
+        groundingEnabled: Boolean = false,
+        aliasCode: String = "",
+    ) = preferencesApiDelegate.addCustomTool(name, prompt, modelId, groundingEnabled, aliasCode)
+
+    fun updateCustomTool(
+        id: String,
+        name: String,
+        prompt: String,
+        modelId: String,
+        groundingEnabled: Boolean = false,
+    ) = preferencesApiDelegate.updateCustomTool(id, name, prompt, modelId, groundingEnabled)
+
+    fun deleteCustomTool(id: String) = preferencesApiDelegate.deleteCustomTool(id)
+
+    fun setCustomToolEnabled(
+        id: String,
+        enabled: Boolean,
+    ) = preferencesApiDelegate.setCustomToolEnabled(id, enabled)
+
     fun dismissOverlayAssistantTip() = preferencesApiDelegate.dismissOverlayAssistantTip()
 
     fun setAppSuggestionsEnabled(enabled: Boolean) =
@@ -150,6 +173,29 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
     fun setWordClockEnabled(enabled: Boolean) = preferencesDelegate.setWordClockEnabled(enabled)
 
     fun setDictionaryEnabled(enabled: Boolean) = preferencesDelegate.setDictionaryEnabled(enabled)
+
+    fun addCustomTool(
+        name: String,
+        prompt: String,
+        modelId: String,
+        groundingEnabled: Boolean = false,
+        aliasCode: String = "",
+    ) = preferencesDelegate.addCustomTool(name, prompt, modelId, groundingEnabled, aliasCode)
+
+    fun updateCustomTool(
+        id: String,
+        name: String,
+        prompt: String,
+        modelId: String,
+        groundingEnabled: Boolean = false,
+    ) = preferencesDelegate.updateCustomTool(id, name, prompt, modelId, groundingEnabled)
+
+    fun deleteCustomTool(id: String) = preferencesDelegate.deleteCustomTool(id)
+
+    fun setCustomToolEnabled(
+        id: String,
+        enabled: Boolean,
+    ) = preferencesDelegate.setCustomToolEnabled(id, enabled)
 
     fun dismissOverlayAssistantTip() = preferencesDelegate.dismissOverlayAssistantTip()
 

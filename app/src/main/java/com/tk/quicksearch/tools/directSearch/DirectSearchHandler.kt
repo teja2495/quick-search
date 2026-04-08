@@ -282,6 +282,95 @@ class DirectSearchHandler(
             }
     }
 
+    fun requestCustomToolSearch(query: String, systemInstruction: String, modelId: String, groundingEnabled: Boolean) {
+        ensureInitialized()
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isBlank()) return
+
+        val apiKey = llmApiKey
+        if (apiKey.isNullOrBlank()) {
+            _directSearchState.update {
+                DirectSearchState(
+                    status = DirectSearchStatus.Error,
+                    errorMessage = context.getString(R.string.direct_search_error_no_key),
+                    activeQuery = trimmedQuery,
+                )
+            }
+            return
+        }
+
+        directSearchJob?.cancel()
+        directSearchJob =
+            scope.launch {
+                _directSearchState.update {
+                    DirectSearchState(
+                        status = DirectSearchStatus.Loading,
+                        activeQuery = trimmedQuery,
+                    )
+                }
+
+                val useSystemInstruction = modelSupportsSystemInstructions(modelId)
+                val result =
+                    activeProvider.fetchAnswer(
+                        apiKey = apiKey,
+                        context = context,
+                        request =
+                            LlmRequest(
+                                query = trimmedQuery,
+                                personalContext = null,
+                                modelId = modelId,
+                                useGroundingWithGoogleSearch =
+                                    groundingEnabled && modelSupportsGrounding(modelId),
+                                useSystemInstruction = useSystemInstruction,
+                                systemInstruction = systemInstruction,
+                            ),
+                    )
+
+                result
+                    .onSuccess { answer ->
+                        _directSearchState.update {
+                            DirectSearchState(
+                                status = DirectSearchStatus.Success,
+                                answer = answer,
+                                activeQuery = trimmedQuery,
+                                usedModelId = modelId,
+                            )
+                        }
+                    }
+                    .onFailure { error ->
+                        if (error is CancellationException) return@onFailure
+                        val message =
+                            when {
+                                error.message?.startsWith("Request failed") == true -> {
+                                    val code =
+                                        error.message
+                                            ?.substringAfter("Request failed (")
+                                            ?.substringBefore(")")
+                                            ?.toIntOrNull()
+                                    if (code != null) {
+                                        context.getString(R.string.error_gemini_request_failed, code)
+                                    } else {
+                                        error.message
+                                    }
+                                }
+
+                                error.message == "Unable to load Gemini models" ->
+                                    context.getString(R.string.error_gemini_load_models_failed)
+                                error.message == "Empty response from Gemini" ->
+                                    context.getString(R.string.error_gemini_empty_response)
+                                else -> error.message ?: context.getString(R.string.direct_search_error_generic)
+                            }
+                        _directSearchState.update {
+                            DirectSearchState(
+                                status = DirectSearchStatus.Error,
+                                errorMessage = message,
+                                activeQuery = trimmedQuery,
+                            )
+                        }
+                    }
+            }
+    }
+
     fun clearDirectSearchState() {
         directSearchJob?.cancel()
         directSearchJob = null
@@ -300,5 +389,19 @@ class DirectSearchHandler(
                 ),
             ) + normalized
         }
+    }
+
+    /**
+     * When the catalog entry is missing (e.g. stale cache), match [DirectSearchClient] Gemma
+     * heuristics so we do not send `systemInstruction` JSON for models that reject it.
+     */
+    private fun modelSupportsSystemInstructions(modelId: String): Boolean {
+        val model = availableGeminiModels.find { it.id == modelId }
+        return model?.supportsSystemInstructions ?: !modelId.lowercase().startsWith("gemma-")
+    }
+
+    private fun modelSupportsGrounding(modelId: String): Boolean {
+        val model = availableGeminiModels.find { it.id == modelId }
+        return model?.supportsGrounding ?: !modelId.lowercase().startsWith("gemma-")
     }
 }

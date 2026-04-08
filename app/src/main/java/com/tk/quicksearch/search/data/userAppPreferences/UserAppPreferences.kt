@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.data
 import android.content.Context
 import com.tk.quicksearch.search.core.CallingApp
 import com.tk.quicksearch.search.core.CustomSearchEngine
+import com.tk.quicksearch.search.core.CustomTool
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.AppTheme
@@ -455,6 +456,15 @@ class UserAppPreferences(
 
     fun setCustomSearchEngines(engines: List<CustomSearchEngine>) =
             searchEnginePreferences.setCustomSearchEngines(engines)
+
+    fun getCustomTools(): List<CustomTool> = searchEnginePreferences.getCustomTools()
+
+    fun setCustomTools(tools: List<CustomTool>) = searchEnginePreferences.setCustomTools(tools)
+
+    fun getDisabledCustomTools(): Set<String> = searchEnginePreferences.getDisabledCustomTools()
+
+    fun setDisabledCustomTools(disabled: Set<String>) =
+            searchEnginePreferences.setDisabledCustomTools(disabled)
 
     // ============================================================================
     // Alias Preferences

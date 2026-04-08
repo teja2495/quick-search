@@ -124,7 +124,8 @@ fun SearchContentArea(
                 (state.detectedAliasSearchSection != null) ||
                 state.isCurrencyConverterAliasMode ||
                 state.isWordClockAliasMode ||
-                state.isDictionaryAliasMode
+                state.isDictionaryAliasMode ||
+                state.detectedCustomToolId != null
     val hasQuery = state.query.isNotBlank()
     val isUrlQuery = remember(state.query) { isLikelyWebUrl(state.query) }
     val hasAnySearchContent =

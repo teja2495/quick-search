@@ -160,6 +160,7 @@ fun SearchScreen(
     onCurrencyConversionClick: () -> Unit = {},
     onDictionarySearchClick: () -> Unit = {},
     onWordClockSearchClick: () -> Unit = {},
+    onCustomToolSearchClick: () -> Unit = {},
     onCustomAction: (ContactInfo, ContactCardAction) -> Unit,
     getPrimaryContactCardAction: (Long) -> ContactCardAction?,
     getSecondaryContactCardAction: (Long) -> ContactCardAction?,
@@ -432,6 +433,7 @@ fun SearchScreen(
             onCurrencyConversionClick = onCurrencyConversionClick,
             onDictionarySearchClick = onDictionarySearchClick,
             onWordClockSearchClick = onWordClockSearchClick,
+            onCustomToolSearchClick = onCustomToolSearchClick,
             onKeyboardSwitchToggle = {
                 stateResult.setManuallySwitchedToNumberKeyboard(!stateResult.manuallySwitchedToNumberKeyboard)
             },

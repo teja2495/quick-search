@@ -642,6 +642,106 @@ internal class SearchPreferencesDelegate(
         }
     }
 
+    fun loadCustomToolsInitialState(): Pair<List<CustomTool>, Set<String>> {
+        val tools = userPreferences.getCustomTools()
+        val disabled = userPreferences.getDisabledCustomTools()
+        return Pair(tools, disabled)
+    }
+
+    fun addCustomTool(
+        name: String,
+        prompt: String,
+        modelId: String,
+        groundingEnabled: Boolean = false,
+        aliasCode: String = "",
+    ) {
+        scope.launch(Dispatchers.IO) {
+            val trimmedName = name.trim()
+            if (trimmedName.isBlank()) return@launch
+            val id = "custom_tool:${java.util.UUID.randomUUID()}"
+            val newTool = CustomTool(
+                id = id,
+                name = trimmedName,
+                prompt = prompt.trim(),
+                modelId = modelId,
+                groundingEnabled = groundingEnabled,
+            )
+            val existing = userPreferences.getCustomTools()
+            val updated = existing + newTool
+            userPreferences.setCustomTools(updated)
+            val normalizedAlias = aliasCode.trim()
+            if (normalizedAlias.isNotBlank()) {
+                userPreferences.setAliasCode(id, normalizedAlias)
+            }
+            updateFeatureState { state ->
+                state.copy(
+                    customTools = updated,
+                    shortcutCodes = if (normalizedAlias.isNotBlank()) {
+                        state.shortcutCodes + (id to normalizedAlias)
+                    } else {
+                        state.shortcutCodes
+                    },
+                )
+            }
+        }
+    }
+
+    fun updateCustomTool(
+        id: String,
+        name: String,
+        prompt: String,
+        modelId: String,
+        groundingEnabled: Boolean = false,
+    ) {
+        scope.launch(Dispatchers.IO) {
+            val trimmedName = name.trim()
+            if (trimmedName.isBlank()) return@launch
+            val existing = userPreferences.getCustomTools()
+            val updated =
+                existing.map { tool ->
+                    if (tool.id == id) {
+                        tool.copy(
+                            name = trimmedName,
+                            prompt = prompt.trim(),
+                            modelId = modelId,
+                            groundingEnabled = groundingEnabled,
+                        )
+                    } else {
+                        tool
+                    }
+                }
+            userPreferences.setCustomTools(updated)
+            updateFeatureState { it.copy(customTools = updated) }
+        }
+    }
+
+    fun deleteCustomTool(id: String) {
+        scope.launch(Dispatchers.IO) {
+            val existing = userPreferences.getCustomTools()
+            val updated = existing.filterNot { it.id == id }
+            userPreferences.setCustomTools(updated)
+            val disabled = userPreferences.getDisabledCustomTools() - id
+            userPreferences.setDisabledCustomTools(disabled)
+            updateFeatureState { it.copy(customTools = updated, disabledCustomToolIds = disabled) }
+        }
+    }
+
+    fun setCustomToolEnabled(
+        id: String,
+        enabled: Boolean,
+    ) {
+        scope.launch(Dispatchers.IO) {
+            val disabled = userPreferences.getDisabledCustomTools().toMutableSet()
+            if (enabled) {
+                disabled.remove(id)
+            } else {
+                disabled.add(id)
+            }
+            userPreferences.setDisabledCustomTools(disabled)
+            updateFeatureState { it.copy(disabledCustomToolIds = disabled) }
+        }
+    }
+
     private fun rerunSecondarySearchIfNeeded() {
         val query = resultsStateProvider().query
         if (query.isNotBlank()) {
