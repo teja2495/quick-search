@@ -7,6 +7,7 @@ import com.tk.quicksearch.search.appSettings.AppSettingsSearchHandler
 import com.tk.quicksearch.search.contacts.ContactSearchPolicy
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.CalendarRepository
+import com.tk.quicksearch.search.data.preferences.CalendarPreferences
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
 import com.tk.quicksearch.search.data.NotesRepository
@@ -78,6 +79,7 @@ class UnifiedSearchHandler(
         }
 
         private val isLowRamDevice by lazy { isLowRamDevice(context) }
+        private val calendarPreferences by lazy { CalendarPreferences(context) }
 
         suspend fun performSearch(
                 query: String,
@@ -297,6 +299,8 @@ class UnifiedSearchHandler(
                                                                                         limit =
                                                                                                 calendarResultLimit *
                                                                                                         4,
+                                                                                        includePastEvents =
+                                                                                                calendarPreferences.getIncludePastEvents(),
                                                                                 ).filterNot {
                                                                                         excludedCalendarEventIds.contains(
                                                                                                 it.eventId

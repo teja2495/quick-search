@@ -42,9 +42,11 @@ import com.tk.quicksearch.search.calendar.calendarRecurrenceLabel
 import com.tk.quicksearch.search.calendar.calendarRelativeDateLabel
 import com.tk.quicksearch.search.calendar.formatCalendarEventDate
 import com.tk.quicksearch.search.data.CalendarRepository
+import com.tk.quicksearch.search.data.preferences.CalendarPreferences
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.settings.AppShortcutsSettings.shortcutMatchPriority
 import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import java.util.Calendar
@@ -75,8 +77,10 @@ fun CalendarEventsSettingsSection(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val calendarRepository = remember(context) { CalendarRepository(context) }
+    val calendarPreferences = remember(context) { CalendarPreferences(context) }
     var hasPermission by remember { mutableStateOf(calendarRepository.hasPermission()) }
     var selectedEventGroupForSheet by remember { mutableStateOf<CalendarEventGroup?>(null) }
+    var includePastEvents by remember { mutableStateOf(calendarPreferences.getIncludePastEvents()) }
 
     DisposableEffect(lifecycleOwner, calendarRepository) {
         val observer =
@@ -117,15 +121,19 @@ fun CalendarEventsSettingsSection(
         }
 
     val filteredEventGroups =
-        remember(eventGroups, normalizedSearchQuery, locale, todayStartMillis) {
+        remember(eventGroups, normalizedSearchQuery, locale, todayStartMillis, includePastEvents) {
             if (normalizedSearchQuery.isBlank()) {
-                eventGroups.mapNotNull { eventGroup ->
-                    val nextInstance =
-                        firstInstanceOnOrAfter(
-                            instances = eventGroup.instances,
-                            thresholdMillis = todayStartMillis,
-                        ) ?: return@mapNotNull null
-                    eventGroup.copy(nearestInstance = nextInstance)
+                if (includePastEvents) {
+                    eventGroups
+                } else {
+                    eventGroups.mapNotNull { eventGroup ->
+                        val nextInstance =
+                            firstInstanceOnOrAfter(
+                                instances = eventGroup.instances,
+                                thresholdMillis = todayStartMillis,
+                            ) ?: return@mapNotNull null
+                        eventGroup.copy(nearestInstance = nextInstance)
+                    }
                 }
             } else {
                 eventGroups
@@ -150,6 +158,21 @@ fun CalendarEventsSettingsSection(
 
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     Column(modifier = modifier) {
+        SettingsCard(
+            modifier = Modifier.fillMaxWidth().padding(bottom = DesignTokens.SectionTopPadding),
+        ) {
+            SettingsToggleRow(
+                title = stringResource(R.string.settings_calendar_include_past_events_title),
+                subtitle = stringResource(R.string.settings_calendar_include_past_events_desc),
+                checked = includePastEvents,
+                onCheckedChange = { enabled ->
+                    includePastEvents = enabled
+                    calendarPreferences.setIncludePastEvents(enabled)
+                },
+                isFirstItem = true,
+                isLastItem = true,
+            )
+        }
         SettingsCard(
             modifier = Modifier.fillMaxWidth(),
         ) {

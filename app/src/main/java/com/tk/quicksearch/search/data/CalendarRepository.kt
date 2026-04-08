@@ -46,6 +46,7 @@ class CalendarRepository(
     fun searchFutureEventsByTitle(
         query: String,
         limit: Int,
+        includePastEvents: Boolean = false,
     ): List<CalendarEventInfo> {
         if (query.isBlank() || limit <= 0 || !hasPermission()) return emptyList()
 
@@ -54,9 +55,11 @@ class CalendarRepository(
         if (normalizedQuery.isBlank()) return emptyList()
 
         val candidates = queryEventsAroundNow(now = now, limit = MAX_EVENT_SEARCH_CANDIDATES)
+        val todayStartMillis = startOfTodayMillis()
 
         return candidates
             .asSequence()
+            .filter { event -> includePastEvents || event.startMillis >= todayStartMillis }
             .mapNotNull { event ->
                 val priority = SearchRankingUtils.calculateMatchPriority(event.title, normalizedQuery)
                 if (SearchRankingUtils.isOtherMatch(priority)) {
@@ -75,6 +78,15 @@ class CalendarRepository(
             .take(limit)
             .toList()
     }
+
+    private fun startOfTodayMillis(): Long =
+        java.util.Calendar.getInstance()
+            .apply {
+                set(java.util.Calendar.HOUR_OF_DAY, 0)
+                set(java.util.Calendar.MINUTE, 0)
+                set(java.util.Calendar.SECOND, 0)
+                set(java.util.Calendar.MILLISECOND, 0)
+            }.timeInMillis
 
     fun getEventsByIds(ids: Set<Long>): List<CalendarEventInfo> {
         if (ids.isEmpty() || !hasPermission()) return emptyList()

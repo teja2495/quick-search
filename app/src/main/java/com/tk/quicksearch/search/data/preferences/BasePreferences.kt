@@ -474,6 +474,7 @@ abstract class BasePreferences(
         // Calendar preferences keys
         const val KEY_PINNED_CALENDAR_EVENT_IDS = "pinned_calendar_event_ids"
         const val KEY_EXCLUDED_CALENDAR_EVENT_IDS = "excluded_calendar_event_ids"
+        const val KEY_CALENDAR_INCLUDE_PAST_EVENTS = "calendar_include_past_events"
 
         // Notes preferences keys
         const val KEY_PINNED_NOTE_IDS = "pinned_note_ids"
