@@ -203,7 +203,7 @@ class SearchWidget(
                 )
         val borderColor =
             if (borderWidthPx > 0) {
-                WidgetColorUtils.getBorderColor(config.borderColor, config.borderAlpha, effectiveTheme)
+                WidgetColorUtils.getBorderColor(config.borderColor, config.borderAlpha, effectiveTheme, config.borderColorOption)
             } else {
                 null
             }
@@ -618,7 +618,8 @@ private fun isDefaultBackgroundStyle(config: WidgetPreferences): Boolean =
         nearlyEqual(config.borderAlpha, WidgetDefaults.BORDER_ALPHA) &&
         config.theme == WidgetDefaults.THEME &&
         config.backgroundColor == WidgetDefaults.BACKGROUND_COLOR &&
-        config.borderColor == WidgetDefaults.BORDER_COLOR_ARGB
+        config.borderColor == WidgetDefaults.BORDER_COLOR_ARGB &&
+        config.borderColorOption == WidgetDefaults.BORDER_COLOR_OPTION
 
 private fun nearlyEqual(
     first: Float,

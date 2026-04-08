@@ -33,6 +33,15 @@ enum class TextIconColorOverride(
     THEME("theme"),
 }
 
+/** Border color options. */
+enum class BorderColorOption(
+    val value: String,
+) {
+    WHITE("white"),
+    BLACK("black"),
+    CUSTOM("custom"),
+}
+
 /** Search icon display options. */
 enum class SearchIconDisplay(
     val value: String,
@@ -56,6 +65,7 @@ internal object WidgetButtonSlotConfig {
 internal object WidgetDefaults {
     val BORDER_COLOR = AppColors.WidgetBorderDefault
     val BORDER_COLOR_ARGB = BORDER_COLOR.toArgb()
+    val BORDER_COLOR_OPTION = BorderColorOption.BLACK
     const val BORDER_RADIUS_DP = 29f
     const val BORDER_WIDTH_DP = 1.5f
     const val SHOW_LABEL = true
@@ -91,6 +101,7 @@ private object WidgetRanges {
 
 private object WidgetKeys {
     val BORDER_COLOR = intPreferencesKey("quick_search_widget_border_color")
+    val BORDER_COLOR_OPTION = stringPreferencesKey("quick_search_widget_border_color_option")
     val BORDER_RADIUS = floatPreferencesKey("quick_search_widget_border_radius")
     val BORDER_WIDTH = floatPreferencesKey("quick_search_widget_border_width")
     val SHOW_LABEL = booleanPreferencesKey("quick_search_widget_show_label")
@@ -127,6 +138,7 @@ private object WidgetKeys {
 @Parcelize
 data class WidgetPreferences(
     val borderColor: Int = WidgetDefaults.BORDER_COLOR_ARGB,
+    val borderColorOption: BorderColorOption = WidgetDefaults.BORDER_COLOR_OPTION,
     val borderRadiusDp: Float = WidgetDefaults.BORDER_RADIUS_DP,
     val borderWidthDp: Float = WidgetDefaults.BORDER_WIDTH_DP,
     val showLabel: Boolean = WidgetDefaults.SHOW_LABEL,
@@ -252,6 +264,10 @@ fun Preferences.toWidgetPreferences(): WidgetPreferences {
 
     return WidgetPreferences(
         borderColor = this[WidgetKeys.BORDER_COLOR] ?: WidgetDefaults.BORDER_COLOR_ARGB,
+        borderColorOption =
+            this[WidgetKeys.BORDER_COLOR_OPTION]?.let { optionString ->
+                BorderColorOption.entries.find { it.value == optionString }
+            } ?: WidgetDefaults.BORDER_COLOR_OPTION,
         borderRadiusDp =
             this[WidgetKeys.BORDER_RADIUS]
                 ?: WidgetDefaults.BORDER_RADIUS_DP,
@@ -323,6 +339,7 @@ fun Preferences.toWidgetPreferences(): WidgetPreferences {
 fun MutablePreferences.applyWidgetPreferences(config: WidgetPreferences) {
     val validated = config.coerceToValidRanges()
     this[WidgetKeys.BORDER_COLOR] = validated.borderColor
+    this[WidgetKeys.BORDER_COLOR_OPTION] = validated.borderColorOption.value
     this[WidgetKeys.BORDER_RADIUS] = validated.borderRadiusDp
     this[WidgetKeys.BORDER_WIDTH] = validated.borderWidthDp
     this[WidgetKeys.SHOW_LABEL] = validated.showLabel

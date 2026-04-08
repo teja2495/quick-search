@@ -44,6 +44,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.searchScreen.AppThemeColors
 import com.tk.quicksearch.widgets.WidgetConfigScreen.components.ThemeChoiceSegmentedButtonRow
+import com.tk.quicksearch.widgets.utils.BorderColorOption
 import com.tk.quicksearch.widgets.utils.WidgetConfigConstants
 import com.tk.quicksearch.widgets.utils.WidgetPreferences
 import com.tk.quicksearch.widgets.utils.WidgetTheme
@@ -118,8 +119,15 @@ fun WidgetThemeSection(
                 )
             }
         }
-    var customHexValue by rememberSaveable { mutableStateOf("") }
-    var showCustomColorDialog by rememberSaveable { mutableStateOf(false) }
+    var customBgHexValue by rememberSaveable { mutableStateOf("") }
+    var showCustomBgColorDialog by rememberSaveable { mutableStateOf(false) }
+
+    var customBorderHexValue by rememberSaveable { mutableStateOf("") }
+    var showCustomBorderColorDialog by rememberSaveable { mutableStateOf(false) }
+
+    // Resolve the custom border color, shown as a dot in the segmented button
+    val customBorderColor: Color? =
+        if (state.borderColorOption == BorderColorOption.CUSTOM) Color(state.borderColor) else null
 
     Column(
         verticalArrangement =
@@ -132,7 +140,7 @@ fun WidgetThemeSection(
         ThemeChoiceSegmentedButtonRow(
             selectedTheme = if (state.backgroundColor == null) state.theme else null,
             onSelectionChange = {
-                customHexValue = ""
+                customBgHexValue = ""
                 onStateChange(state.copy(theme = it, backgroundColor = null))
             },
         )
@@ -148,7 +156,7 @@ fun WidgetThemeSection(
                     selected = state.backgroundColor == option.backgroundColorArgb,
                     label = stringResource(option.labelRes),
                     onClick = {
-                        customHexValue = ""
+                        customBgHexValue = ""
                         onStateChange(state.copy(backgroundColor = option.backgroundColorArgb))
                     },
                 )
@@ -165,7 +173,7 @@ fun WidgetThemeSection(
                         Color.Transparent
                     },
                 selected = isCustomSelected,
-                onClick = { showCustomColorDialog = true },
+                onClick = { showCustomBgColorDialog = true },
                 label = stringResource(R.string.settings_overlay_source_custom),
                 icon = {
                     Icon(
@@ -177,16 +185,53 @@ fun WidgetThemeSection(
                 },
             )
         }
+
+        // Border color section
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = stringResource(R.string.widget_border_color),
+            style = MaterialTheme.typography.titleSmall,
+        )
+        BorderColorChoiceSegmentedButtonRow(
+            selectedOption = state.borderColorOption,
+            customColor = customBorderColor,
+            onWhiteClick = {
+                customBorderHexValue = ""
+                onStateChange(state.copy(borderColorOption = BorderColorOption.WHITE))
+            },
+            onBlackClick = {
+                customBorderHexValue = ""
+                onStateChange(state.copy(borderColorOption = BorderColorOption.BLACK))
+            },
+            onCustomClick = { showCustomBorderColorDialog = true },
+        )
     }
 
-    if (showCustomColorDialog) {
+    if (showCustomBgColorDialog) {
         CustomBackgroundColorDialog(
-            initialHex = customHexValue,
-            onDismiss = { showCustomColorDialog = false },
+            initialHex = customBgHexValue,
+            onDismiss = { showCustomBgColorDialog = false },
             onConfirm = { hex, color ->
-                customHexValue = hex
+                customBgHexValue = hex
                 onStateChange(state.copy(backgroundColor = color.toArgb()))
-                showCustomColorDialog = false
+                showCustomBgColorDialog = false
+            },
+        )
+    }
+
+    if (showCustomBorderColorDialog) {
+        CustomBackgroundColorDialog(
+            initialHex = customBorderHexValue,
+            onDismiss = { showCustomBorderColorDialog = false },
+            onConfirm = { hex, color ->
+                customBorderHexValue = hex
+                onStateChange(
+                    state.copy(
+                        borderColor = color.toArgb(),
+                        borderColorOption = BorderColorOption.CUSTOM,
+                    ),
+                )
+                showCustomBorderColorDialog = false
             },
         )
     }

@@ -3,6 +3,7 @@ package com.tk.quicksearch.widgets.utils
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.widgets.utils.BorderColorOption
 
 /**
  * Utility functions for widget color calculations.
@@ -46,16 +47,24 @@ object WidgetColorUtils {
 
     /**
      * Calculates the border color with alpha applied.
-     * Uses white for dark theme and black for light theme.
+     * Resolves the final color based on the [borderColorOption]:
+     * - WHITE: pure white
+     * - BLACK: pure black
+     * - CUSTOM: the ARGB value stored in [borderColor]
      */
     fun getBorderColor(
         borderColor: Int,
         borderAlpha: Float,
         effectiveTheme: WidgetTheme = WidgetTheme.DARK,
+        borderColorOption: BorderColorOption = BorderColorOption.BLACK,
     ): Color {
         // Keep some transparency even if the user picks a fully opaque border.
         val appliedAlpha = borderAlpha.coerceAtMost(0.4f)
-        val base = if (effectiveTheme == WidgetTheme.LIGHT) AppColors.WidgetBorderDefault else AppColors.WidgetBorder
+        val base = when (borderColorOption) {
+            BorderColorOption.WHITE -> AppColors.WidgetBorder
+            BorderColorOption.BLACK -> AppColors.WidgetBorderDefault
+            BorderColorOption.CUSTOM -> Color(borderColor)
+        }
         return base.copy(alpha = appliedAlpha)
     }
 

@@ -709,6 +709,7 @@
     <string name="widget_text_icon_color">Text &amp; Icon Color</string>
     <string name="widget_text_icon_color_black">Black</string>
     <string name="widget_text_icon_color_white">White</string>
+    <string name="widget_border_color">Border Color</string>
     <string name="widget_toggle_show_label">Quick Search Text</string>
     <!-- ============================================================================
          Permissions

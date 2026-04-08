@@ -1,6 +1,14 @@
 package com.tk.quicksearch.widgets.WidgetConfigScreen.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
@@ -8,10 +16,15 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.widgets.searchWidget.MicAction
+import com.tk.quicksearch.widgets.utils.BorderColorOption
 import com.tk.quicksearch.widgets.utils.SearchIconDisplay
 import com.tk.quicksearch.widgets.utils.TextIconColorOverride
 import com.tk.quicksearch.widgets.utils.WidgetTheme
@@ -125,5 +138,59 @@ fun TextIconColorChoiceSegmentedButtonRow(
             shape = SegmentedButtonDefaults.itemShape(index = 2, count = 3),
             icon = {},
         ) { Text(stringResource(R.string.widget_text_icon_color_black)) }
+    }
+}
+
+/**
+ * Segmented button row for border color selection.
+ * Matches the Light/Dark/System theme picker style exactly.
+ * The Custom button shows the saved custom color as a filled dot when a color is set.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BorderColorChoiceSegmentedButtonRow(
+    selectedOption: BorderColorOption,
+    customColor: Color?,
+    onWhiteClick: () -> Unit,
+    onBlackClick: () -> Unit,
+    onCustomClick: () -> Unit,
+) {
+    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+        SegmentedButton(
+            selected = selectedOption == BorderColorOption.WHITE,
+            onClick = onWhiteClick,
+            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 3),
+            icon = {},
+        ) { Text(stringResource(R.string.widget_text_icon_color_white)) }
+        SegmentedButton(
+            selected = selectedOption == BorderColorOption.BLACK,
+            onClick = onBlackClick,
+            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 3),
+            icon = {},
+        ) { Text(stringResource(R.string.widget_text_icon_color_black)) }
+        SegmentedButton(
+            selected = selectedOption == BorderColorOption.CUSTOM,
+            onClick = onCustomClick,
+            shape = SegmentedButtonDefaults.itemShape(index = 2, count = 3),
+            icon = {},
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.settings_overlay_source_custom))
+                if (customColor != null) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(10.dp)
+                            .clip(CircleShape)
+                            .background(customColor)
+                            .border(
+                                width = 0.5.dp,
+                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                                shape = CircleShape,
+                            ),
+                    )
+                }
+            }
+        }
     }
 }
