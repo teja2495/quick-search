@@ -468,7 +468,7 @@ private fun CustomWidgetButtonDialog(
                         onQueryChange(it.text)
                     },
                     modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
-                    shape = RoundedCornerShape(24.dp),
+                    shape = RoundedCornerShape(50.dp),
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Rounded.Search,
@@ -659,8 +659,10 @@ private sealed class CustomWidgetSearchResult {
             }
 
             is AppShortcut -> {
-                shortcut.shortLabel?.takeIf { it.isNotBlank() }
+                val label = shortcut.shortLabel?.takeIf { it.isNotBlank() }
                     ?: shortcut.longLabel?.takeIf { it.isNotBlank() } ?: shortcut.id
+                val appName = shortcut.appLabel.takeIf { it.isNotBlank() }
+                if (appName != null) "$label ($appName)" else label
             }
 
             is Contact -> {

@@ -97,7 +97,9 @@ fun CustomWidgetButtonIcon(
                 displayName = action.displayName,
                 onClick = null,
                 modifier = modifier.size(iconSize),
-                textStyle = MaterialTheme.typography.labelSmall,
+                textStyle = MaterialTheme.typography.labelSmall.copy(
+                    fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.7f,
+                ),
             )
         }
 
