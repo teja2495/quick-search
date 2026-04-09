@@ -26,11 +26,29 @@ enum class DirectSearchLlmProviderId(
     val storageValue: String,
 ) {
     GEMINI("gemini"),
+    OPENAI("openai"),
+    ANTHROPIC("anthropic"),
     ;
 
     companion object {
         fun fromStorageValue(value: String?): DirectSearchLlmProviderId =
             entries.firstOrNull { it.storageValue == value } ?: GEMINI
+
+        /**
+         * Detect the provider from an API key prefix.
+         * - `sk-ant-*` → ANTHROPIC
+         * - `sk-*` (not `sk-ant-`) → OPENAI
+         * - everything else → GEMINI
+         */
+        fun detectFromApiKey(apiKey: String?): DirectSearchLlmProviderId {
+            if (apiKey.isNullOrBlank()) return GEMINI
+            val trimmed = apiKey.trim()
+            return when {
+                trimmed.startsWith("sk-ant-") -> ANTHROPIC
+                trimmed.startsWith("sk-") -> OPENAI
+                else -> GEMINI
+            }
+        }
     }
 }
 
@@ -62,5 +80,7 @@ object DirectSearchLlmProviderRegistry {
     ): DirectSearchLlmProvider =
         when (id) {
             DirectSearchLlmProviderId.GEMINI -> GeminiDirectSearchLlmProvider
+            DirectSearchLlmProviderId.OPENAI -> OpenAiDirectSearchLlmProvider
+            DirectSearchLlmProviderId.ANTHROPIC -> AnthropicDirectSearchLlmProvider
         }
 }

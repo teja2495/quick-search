@@ -216,7 +216,7 @@ internal class SearchQueryCoordinator(
     private fun applyFeatureAliasMode(featureId: String) {
         // Handle custom tool aliases
         if (featureId.startsWith("custom_tool:")) {
-            if (userPreferences.getGeminiApiKey().isNullOrBlank()) {
+            if (!userPreferences.hasAnyLlmApiKey()) {
                 clearDetectedAliasMode()
                 return
             }
@@ -241,7 +241,7 @@ internal class SearchQueryCoordinator(
             return
         }
 
-        if (definition.requiresGeminiApiKey && userPreferences.getGeminiApiKey().isNullOrBlank()) {
+        if (definition.requiresGeminiApiKey && !userPreferences.hasAnyLlmApiKey()) {
             clearDetectedAliasMode()
             return
         }

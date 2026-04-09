@@ -40,6 +40,8 @@ class UserAppPreferences(
     private val searchEnginePreferences by lazy { SearchEnginePreferences(context) }
     private val aliasPreferences by lazy { AliasPreferences(context) }
     private val geminiPreferences by lazy { GeminiPreferences(context) }
+    private val openAiPreferences by lazy { OpenAiPreferences(context) }
+    private val anthropicPreferences by lazy { AnthropicPreferences(context) }
     private val llmPreferences by lazy { LlmPreferences(context) }
     val uiPreferences by lazy { UiPreferences(context) }
     private val amazonPreferences by lazy { AmazonPreferences(context) }
@@ -570,46 +572,75 @@ class UserAppPreferences(
     fun getLlmApiKey(providerId: DirectSearchLlmProviderId): String? =
             when (providerId) {
                 DirectSearchLlmProviderId.GEMINI -> geminiPreferences.getGeminiApiKey()
+                DirectSearchLlmProviderId.OPENAI -> openAiPreferences.getApiKey()
+                DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.getApiKey()
             }
 
     fun setLlmApiKey(providerId: DirectSearchLlmProviderId, key: String?) {
         when (providerId) {
             DirectSearchLlmProviderId.GEMINI -> geminiPreferences.setGeminiApiKey(key)
+            DirectSearchLlmProviderId.OPENAI -> openAiPreferences.setApiKey(key)
+            DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.setApiKey(key)
         }
+    }
+
+    /** Clear the API key for every provider (used when resetting). */
+    fun clearAllLlmApiKeys() {
+        geminiPreferences.setGeminiApiKey(null)
+        openAiPreferences.setApiKey(null)
+        anthropicPreferences.setApiKey(null)
     }
 
     fun getLlmModel(providerId: DirectSearchLlmProviderId): String =
             when (providerId) {
                 DirectSearchLlmProviderId.GEMINI -> geminiPreferences.getGeminiModel()
+                DirectSearchLlmProviderId.OPENAI -> openAiPreferences.getModel()
+                DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.getModel()
             }
 
     fun setLlmModel(providerId: DirectSearchLlmProviderId, modelId: String?) {
         when (providerId) {
             DirectSearchLlmProviderId.GEMINI -> geminiPreferences.setGeminiModel(modelId)
+            DirectSearchLlmProviderId.OPENAI -> openAiPreferences.setModel(modelId)
+            DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.setModel(modelId)
         }
     }
 
     fun isLlmGroundingEnabled(providerId: DirectSearchLlmProviderId): Boolean =
             when (providerId) {
                 DirectSearchLlmProviderId.GEMINI -> geminiPreferences.isGeminiGroundingEnabled()
+                DirectSearchLlmProviderId.OPENAI -> openAiPreferences.isGroundingEnabled()
+                DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.isGroundingEnabled()
             }
 
     fun setLlmGroundingEnabled(providerId: DirectSearchLlmProviderId, enabled: Boolean) {
         when (providerId) {
             DirectSearchLlmProviderId.GEMINI -> geminiPreferences.setGeminiGroundingEnabled(enabled)
+            DirectSearchLlmProviderId.OPENAI -> openAiPreferences.setGroundingEnabled(enabled)
+            DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.setGroundingEnabled(enabled)
         }
     }
 
     fun getLlmPersonalContext(providerId: DirectSearchLlmProviderId): String? =
             when (providerId) {
                 DirectSearchLlmProviderId.GEMINI -> geminiPreferences.getPersonalContext()
+                DirectSearchLlmProviderId.OPENAI -> openAiPreferences.getPersonalContext()
+                DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.getPersonalContext()
             }
 
     fun setLlmPersonalContext(providerId: DirectSearchLlmProviderId, context: String?) {
         when (providerId) {
             DirectSearchLlmProviderId.GEMINI -> geminiPreferences.setPersonalContext(context)
+            DirectSearchLlmProviderId.OPENAI -> openAiPreferences.setPersonalContext(context)
+            DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.setPersonalContext(context)
         }
     }
+
+    /** Returns true if any supported LLM provider has a stored API key. */
+    fun hasAnyLlmApiKey(): Boolean =
+        !geminiPreferences.getGeminiApiKey().isNullOrBlank() ||
+            !openAiPreferences.getApiKey().isNullOrBlank() ||
+            !anthropicPreferences.getApiKey().isNullOrBlank()
 
     // Backward-compatible Gemini facade methods kept for existing call sites.
     fun getGeminiApiKey(): String? = geminiPreferences.getGeminiApiKey()

@@ -546,6 +546,18 @@ abstract class BasePreferences(
         const val KEY_GEMINI_MODEL = "gemini_model"
         const val KEY_GEMINI_GROUNDING_ENABLED = "gemini_grounding_enabled"
 
+        // OpenAI preferences keys
+        const val KEY_OPENAI_API_KEY = "openai_api_key"
+        const val KEY_OPENAI_PERSONAL_CONTEXT = "openai_personal_context"
+        const val KEY_OPENAI_MODEL = "openai_model"
+        const val KEY_OPENAI_GROUNDING_ENABLED = "openai_grounding_enabled"
+
+        // Anthropic preferences keys
+        const val KEY_ANTHROPIC_API_KEY = "anthropic_api_key"
+        const val KEY_ANTHROPIC_PERSONAL_CONTEXT = "anthropic_personal_context"
+        const val KEY_ANTHROPIC_MODEL = "anthropic_model"
+        const val KEY_ANTHROPIC_GROUNDING_ENABLED = "anthropic_grounding_enabled"
+
         // Usage permission banner preferences keys
         const val KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT =
             "usage_permission_banner_dismiss_count"

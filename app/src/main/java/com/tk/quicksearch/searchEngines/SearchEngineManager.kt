@@ -45,7 +45,7 @@ class SearchEngineManager(
     private var isInitialized = false
 
     private fun loadFromPreferences() {
-        val hasGemini = !userPreferences.getGeminiApiKey().isNullOrBlank()
+        val hasGemini = userPreferences.hasAnyLlmApiKey()
         val availableEngines = getAvailableEngines(hasGemini)
         val availableBrowsers = loadInstalledBrowsers()
         customSearchEngines = userPreferences.getCustomSearchEngines()
@@ -93,7 +93,7 @@ class SearchEngineManager(
                 target.engine == SearchEngine.DIRECT_SEARCH &&
                 enabled
             ) {
-                val hasGeminiApiKey = !userPreferences.getGeminiApiKey().isNullOrBlank()
+                val hasGeminiApiKey = userPreferences.hasAnyLlmApiKey()
                 if (!hasGeminiApiKey) {
                     return@launch
                 }

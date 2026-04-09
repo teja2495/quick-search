@@ -179,6 +179,12 @@ fun DirectSearchSetupCard(
                         )
 
                         if (showInput) {
+                            Text(
+                                text = stringResource(R.string.settings_gemini_api_key_multi_provider_hint),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(bottom = 8.dp),
+                            )
                             Box(modifier = Modifier.fillMaxWidth()) {
                                 OutlinedTextField(
                                     value = apiKeyInput,

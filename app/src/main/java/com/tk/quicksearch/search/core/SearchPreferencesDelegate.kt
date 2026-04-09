@@ -6,6 +6,7 @@ import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.tools.directSearch.DirectSearchHandler
+import com.tk.quicksearch.tools.directSearch.DirectSearchLlmProviderId
 import com.tk.quicksearch.tools.directSearch.GeminiModelCatalog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -572,13 +573,34 @@ internal class SearchPreferencesDelegate(
         scope.launch(Dispatchers.IO) {
             updateFeatureState { it.copy(isSavingGeminiApiKey = true) }
             try {
+                val hasKey = !apiKey.isNullOrBlank()
+
+                if (hasKey) {
+                    // Auto-detect provider from the key prefix and switch if needed.
+                    val detectedProvider = DirectSearchLlmProviderId.detectFromApiKey(apiKey)
+                    val currentProvider = directSearchHandler.getDirectSearchProviderId()
+                    if (detectedProvider != currentProvider) {
+                        // Clear the old provider's key before switching.
+                        directSearchHandler.setLlmApiKey(null)
+                        directSearchHandler.setDirectSearchProviderId(detectedProvider)
+                        userPreferences.clearAllLlmApiKeys()
+                        // Immediately reflect the new provider's fallback models so the UI does
+                        // not show the previous provider's model list while the API refresh runs.
+                        updateFeatureState {
+                            it.copy(availableGeminiModels = directSearchHandler.getAvailableGeminiModels())
+                        }
+                    }
+                } else {
+                    // Resetting — clear all provider keys to enforce one-key-at-a-time.
+                    userPreferences.clearAllLlmApiKeys()
+                }
+
                 directSearchHandler.setGeminiApiKey(apiKey)
 
-                val hasGemini = !apiKey.isNullOrBlank()
-                searchEngineManager.updateSearchTargetsForGemini(hasGemini)
+                searchEngineManager.updateSearchTargetsForGemini(hasKey)
 
                 val availableModels =
-                    if (hasGemini) {
+                    if (hasKey) {
                         directSearchHandler.refreshAvailableGeminiModels(forceRefresh = true)
                     } else {
                         directSearchHandler.getAvailableGeminiModels()
@@ -586,7 +608,7 @@ internal class SearchPreferencesDelegate(
 
                 updateFeatureState {
                     it.copy(
-                        hasGeminiApiKey = hasGemini,
+                        hasGeminiApiKey = hasKey,
                         geminiApiKeyLast4 = apiKey?.trim()?.takeLast(4),
                         geminiModel = directSearchHandler.getGeminiModel(),
                         availableGeminiModels = availableModels,
