@@ -47,6 +47,34 @@ enum class RootDestination {
 
 private const val NAVIGATION_ANIMATION_DURATION_MS = 180
 
+private enum class SwipeAnimationDirection {
+    LEFT,
+    RIGHT,
+}
+
+private fun directionalNavigationTransition(
+    direction: SwipeAnimationDirection,
+) = when (direction) {
+    SwipeAnimationDirection.LEFT ->
+        slideInHorizontally(
+            animationSpec = androidx.compose.animation.core.tween(NAVIGATION_ANIMATION_DURATION_MS),
+            initialOffsetX = { it },
+        ) togetherWith
+            slideOutHorizontally(
+                animationSpec = androidx.compose.animation.core.tween(NAVIGATION_ANIMATION_DURATION_MS),
+                targetOffsetX = { -it },
+            )
+    SwipeAnimationDirection.RIGHT ->
+        slideInHorizontally(
+            animationSpec = androidx.compose.animation.core.tween(NAVIGATION_ANIMATION_DURATION_MS),
+            initialOffsetX = { -it },
+        ) togetherWith
+            slideOutHorizontally(
+                animationSpec = androidx.compose.animation.core.tween(NAVIGATION_ANIMATION_DURATION_MS),
+                targetOffsetX = { it },
+            )
+}
+
 data class NavigationRequest(
     val destination: RootDestination,
     val settingsDetailType: SettingsDetailType? = null,
@@ -356,12 +384,20 @@ private fun NavigationContent(
     val uiState by viewModel.uiState.collectAsState()
     val settingsScrollState = rememberScrollState()
     var showCreateCalendarEventDialog by remember { mutableStateOf(false) }
+    var rootAnimationDirectionOverride by remember { mutableStateOf<SwipeAnimationDirection?>(null) }
+    var settingsDetailAnimationDirectionOverride by
+        remember { mutableStateOf<SwipeAnimationDirection?>(null) }
     val customCalendarEventRepository = remember(context) { CustomCalendarEventRepository(context) }
 
     LaunchedEffect(destination) {
         if (destination == RootDestination.Search) {
             settingsScrollState.scrollTo(0)
         }
+        rootAnimationDirectionOverride = null
+    }
+
+    LaunchedEffect(settingsDetailType) {
+        settingsDetailAnimationDirectionOverride = null
     }
 
     AnimatedContent(
@@ -370,36 +406,14 @@ private fun NavigationContent(
             val isForward =
                 initialState == RootDestination.Search &&
                     targetState == RootDestination.Settings
-
-            if (isForward) {
-                // Forward (Search -> Settings): slide in from right, slide out to left
-                slideInHorizontally(
-                    animationSpec =
-                        androidx.compose.animation.core
-                            .tween(NAVIGATION_ANIMATION_DURATION_MS),
-                    initialOffsetX = { it },
-                ) togetherWith
-                    slideOutHorizontally(
-                        animationSpec =
-                            androidx.compose.animation.core
-                                .tween(NAVIGATION_ANIMATION_DURATION_MS),
-                        targetOffsetX = { -it },
-                    )
-            } else {
-                // Backward (Settings -> Search): slide in from left, slide out to right
-                slideInHorizontally(
-                    animationSpec =
-                        androidx.compose.animation.core
-                            .tween(NAVIGATION_ANIMATION_DURATION_MS),
-                    initialOffsetX = { -it },
-                ) togetherWith
-                    slideOutHorizontally(
-                        animationSpec =
-                            androidx.compose.animation.core
-                                .tween(NAVIGATION_ANIMATION_DURATION_MS),
-                        targetOffsetX = { it },
-                    )
-            }
+            val animationDirection =
+                rootAnimationDirectionOverride
+                    ?: if (isForward) {
+                        SwipeAnimationDirection.LEFT
+                    } else {
+                        SwipeAnimationDirection.RIGHT
+                    }
+            directionalNavigationTransition(animationDirection)
         },
         label = "NavigationTransition",
     ) { targetDestination ->
@@ -411,38 +425,14 @@ private fun NavigationContent(
                         val initialLevel = initialState?.level() ?: 0
                         val targetLevel = targetState?.level() ?: 0
                         val isForward = targetLevel > initialLevel
-
-                        if (isForward) {
-                            // Forward (Settings main -> Level 1, Level 1 -> Level 2)
-                            slideInHorizontally(
-                                animationSpec =
-                                    androidx.compose.animation.core
-                                        .tween(NAVIGATION_ANIMATION_DURATION_MS),
-                                initialOffsetX = { it },
-                            ) togetherWith
-                                slideOutHorizontally(
-                                    animationSpec =
-                                        androidx.compose.animation.core.tween(
-                                            NAVIGATION_ANIMATION_DURATION_MS,
-                                        ),
-                                    targetOffsetX = { -it },
-                                )
-                        } else {
-                            // Backward (Level 2 -> Level 1, Detail -> Settings main)
-                            slideInHorizontally(
-                                animationSpec =
-                                    androidx.compose.animation.core
-                                        .tween(NAVIGATION_ANIMATION_DURATION_MS),
-                                initialOffsetX = { -it },
-                            ) togetherWith
-                                slideOutHorizontally(
-                                    animationSpec =
-                                        androidx.compose.animation.core.tween(
-                                            NAVIGATION_ANIMATION_DURATION_MS,
-                                        ),
-                                    targetOffsetX = { it },
-                                )
-                        }
+                        val animationDirection =
+                            settingsDetailAnimationDirectionOverride
+                                ?: if (isForward) {
+                                    SwipeAnimationDirection.LEFT
+                                } else {
+                                    SwipeAnimationDirection.RIGHT
+                                }
+                        directionalNavigationTransition(animationDirection)
                     },
                     label = "SettingsDetailTransition",
                 ) { currentDetailType ->
@@ -453,6 +443,11 @@ private fun NavigationContent(
                             detailType = currentDetailType,
                             sourceDetailType = previousSettingsDetailType,
                             onNavigateToDetail = onSettingsDetailTypeChange,
+                            onNavigateToSearch = {
+                                rootAnimationDirectionOverride = SwipeAnimationDirection.LEFT
+                                onSettingsDetailTypeChange(null)
+                                onDestinationChange(RootDestination.Search)
+                            },
                             onRequestUsagePermission = {
                                 PermissionHelper.launchUsageAccessRequest(context)
                             },
@@ -485,6 +480,13 @@ private fun NavigationContent(
                 val navigateToSettings: (SettingsDetailType?) -> Unit = { detailType ->
                     onDestinationChange(RootDestination.Settings)
                     onSettingsDetailTypeChange(detailType)
+                    keyboardController?.hide()
+                }
+                val navigateToQuickNoteFromSwipeRight: (Long) -> Unit = { _ ->
+                    rootAnimationDirectionOverride = SwipeAnimationDirection.RIGHT
+                    settingsDetailAnimationDirectionOverride = SwipeAnimationDirection.RIGHT
+                    onDestinationChange(RootDestination.Settings)
+                    onSettingsDetailTypeChange(SettingsDetailType.NOTE_EDITOR)
                     keyboardController?.hide()
                 }
                 SearchRoute(
@@ -539,6 +541,7 @@ private fun NavigationContent(
                             }
                         navigateToSettings(destination)
                     },
+                    onOpenQuickNoteFromSwipe = navigateToQuickNoteFromSwipeRight,
                     onSearchEngineLongPress = {
                         navigateToSettings(SettingsDetailType.SEARCH_ENGINES)
                     },

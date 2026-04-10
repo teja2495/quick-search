@@ -23,7 +23,7 @@
         <item>5 USD to INR</item>
         <item>5 lbs in kgs</item>
         <item>3 months from now</item>
-        <item>5 + 5</item>
+        <item>225 + 456</item>
         <item>Time in UK</item>
         <item>Define Serendipity</item>
     </string-array>
@@ -651,6 +651,7 @@
     <string name="settings_custom_tool_thinking_label">Extended Thinking</string>
     <string name="settings_custom_tool_thinking_hint">Enable deeper reasoning for complex tasks. Uses more tokens.</string>
     <string name="notes_create_note_cta">New Note</string>
+    <string name="notes_quick_note_title">Quick Note</string>
     <string name="notes_editor_title">Note Editor</string>
     <string name="notes_empty_state">No notes yet</string>
     <string name="notes_untitled">Untitled</string>

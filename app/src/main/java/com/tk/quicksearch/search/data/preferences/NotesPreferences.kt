@@ -29,4 +29,10 @@ class NotesPreferences(
             prefs.edit().putLong(BasePreferences.KEY_NOTE_ID_COUNTER, nextCandidate).apply()
         }
     }
+
+    fun getQuickNoteId(): Long = prefs.getLong(BasePreferences.KEY_QUICK_NOTE_ID, -1L)
+
+    fun setQuickNoteId(noteId: Long) {
+        prefs.edit().putLong(BasePreferences.KEY_QUICK_NOTE_ID, noteId).apply()
+    }
 }

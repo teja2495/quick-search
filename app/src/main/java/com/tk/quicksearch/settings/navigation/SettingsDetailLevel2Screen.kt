@@ -71,6 +71,7 @@ internal fun SettingsDetailLevel2Screen(
     searchTargets: List<SearchTarget> = emptyList(),
     onAppShortcutFocusHandled: () -> Unit = {},
     onNavigateToDetail: (SettingsDetailType) -> Unit = {},
+    onNavigateToSearch: () -> Unit = {},
 ) {
     if (!detailType.isLevel2()) return
 
@@ -92,6 +93,14 @@ internal fun SettingsDetailLevel2Screen(
     var noteEditorCanDelete by remember { mutableStateOf(false) }
     var noteEditorOnConfirmedDelete by remember { mutableStateOf<(() -> Unit)?>(null) }
     var showNoteDeleteConfirm by remember { mutableStateOf(false) }
+    val hideNoteEditorAppBar =
+        remember(detailType) {
+            if (detailType == SettingsDetailType.NOTE_EDITOR) {
+                NotesNavigationMemory.consumeHideEditorAppBarRequest()
+            } else {
+                false
+            }
+        }
     val notesEnabled = FeatureFlags.isSearchSectionEnabled(SearchSection.NOTES)
 
     if (!notesEnabled &&
@@ -151,53 +160,55 @@ internal fun SettingsDetailLevel2Screen(
                 .safeDrawingPadding(),
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            SettingsDetailHeader(
-                title = stringResource(detailType.titleResId()),
-                onBack = {
-                    if (detailType == SettingsDetailType.NOTES && notesMultiSelectActive) {
-                        notesMultiSelectActive = false
-                        notesSelectedIds = emptySet()
-                    } else {
-                        callbacks.onBack()
-                    }
-                },
-                trailingContent =
-                    if (detailType == SettingsDetailType.NOTE_EDITOR && noteEditorCanDelete) {
-                        {
-                            IconButton(onClick = { showNoteDeleteConfirm = true }) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Delete,
-                                    contentDescription =
-                                        stringResource(R.string.notes_delete_note_desc),
-                                    tint = MaterialTheme.colorScheme.onSurface,
-                                )
-                            }
+            if (!(detailType == SettingsDetailType.NOTE_EDITOR && hideNoteEditorAppBar)) {
+                SettingsDetailHeader(
+                    title = stringResource(detailType.titleResId()),
+                    onBack = {
+                        if (detailType == SettingsDetailType.NOTES && notesMultiSelectActive) {
+                            notesMultiSelectActive = false
+                            notesSelectedIds = emptySet()
+                        } else {
+                            callbacks.onBack()
                         }
-                    } else if (detailType == SettingsDetailType.CUSTOM_TOOL_EDITOR) {
-                        val pendingToolIdForHeader = remember { CustomToolNavigationMemory.peekPendingToolId() }
-                        val existingToolForHeader = remember(pendingToolIdForHeader, state.customTools) {
-                            pendingToolIdForHeader?.let { id -> state.customTools.firstOrNull { it.id == id } }
-                        }
-                        if (existingToolForHeader != null) {
+                    },
+                    trailingContent =
+                        if (detailType == SettingsDetailType.NOTE_EDITOR && noteEditorCanDelete) {
                             {
-                                IconButton(onClick = {
-                                    callbacks.onDeleteCustomTool(existingToolForHeader.id)
-                                    callbacks.onBack()
-                                }) {
+                                IconButton(onClick = { showNoteDeleteConfirm = true }) {
                                     Icon(
                                         imageVector = Icons.Rounded.Delete,
-                                        contentDescription = stringResource(R.string.settings_custom_tool_delete_button),
+                                        contentDescription =
+                                            stringResource(R.string.notes_delete_note_desc),
                                         tint = MaterialTheme.colorScheme.onSurface,
                                     )
                                 }
                             }
+                        } else if (detailType == SettingsDetailType.CUSTOM_TOOL_EDITOR) {
+                            val pendingToolIdForHeader = remember { CustomToolNavigationMemory.peekPendingToolId() }
+                            val existingToolForHeader = remember(pendingToolIdForHeader, state.customTools) {
+                                pendingToolIdForHeader?.let { id -> state.customTools.firstOrNull { it.id == id } }
+                            }
+                            if (existingToolForHeader != null) {
+                                {
+                                    IconButton(onClick = {
+                                        callbacks.onDeleteCustomTool(existingToolForHeader.id)
+                                        callbacks.onBack()
+                                    }) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.Delete,
+                                            contentDescription = stringResource(R.string.settings_custom_tool_delete_button),
+                                            tint = MaterialTheme.colorScheme.onSurface,
+                                        )
+                                    }
+                                }
+                            } else {
+                                null
+                            }
                         } else {
                             null
-                        }
-                    } else {
-                        null
-                    },
-            )
+                        },
+                )
+            }
 
             if (detailType == SettingsDetailType.APP_MANAGEMENT) {
                 AppManagementSettingsSection(
@@ -433,6 +444,7 @@ internal fun SettingsDetailLevel2Screen(
             } else if (detailType == SettingsDetailType.NOTE_EDITOR) {
                 NoteEditor(
                     onNavigateToNotes = { onNavigateToDetail(SettingsDetailType.NOTES) },
+                    onNavigateToSearch = onNavigateToSearch,
                     onDeleteToolbarState = { canDelete, onConfirmedDelete ->
                         noteEditorCanDelete = canDelete
                         noteEditorOnConfirmedDelete =
@@ -442,6 +454,7 @@ internal fun SettingsDetailLevel2Screen(
                                 null
                             }
                     },
+                    hideTopBar = hideNoteEditorAppBar,
                     modifier =
                         Modifier
                             .settingsContentWidth()

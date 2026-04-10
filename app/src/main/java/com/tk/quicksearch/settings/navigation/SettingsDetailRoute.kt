@@ -40,6 +40,7 @@ fun SettingsDetailRoute(
         detailType: SettingsDetailType,
         sourceDetailType: SettingsDetailType? = null,
         onNavigateToDetail: (SettingsDetailType) -> Unit = {},
+        onNavigateToSearch: () -> Unit = {},
         onRequestUsagePermission: () -> Unit = {},
         onRequestContactPermission: () -> Unit = {},
         onRequestFilePermission: () -> Unit = {},
@@ -375,6 +376,7 @@ fun SettingsDetailRoute(
                     appShortcutFocusPackageName = null
                 },
                 onNavigateToDetail = onNavigateToDetail,
+                onNavigateToSearch = onNavigateToSearch,
         )
     } else {
         SettingsDetailLevel1Screen(

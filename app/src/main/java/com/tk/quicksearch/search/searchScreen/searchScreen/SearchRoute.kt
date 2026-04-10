@@ -4,6 +4,7 @@ import android.Manifest
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +21,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
@@ -38,6 +40,7 @@ import com.tk.quicksearch.search.appSettings.AppSettingResult
 import com.tk.quicksearch.search.appSettings.AppSettingResultAction
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination
 import com.tk.quicksearch.search.appSettings.AppSettingsToggleKey
+import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.CalendarEventInfo
@@ -61,7 +64,11 @@ import com.tk.quicksearch.search.data.CustomCalendarEventRepository
 import com.tk.quicksearch.settings.settingsDetailScreen.CustomEventEditDialog
 import com.tk.quicksearch.search.searchScreen.SearchScreen as SearchScreenComposable
 import com.tk.quicksearch.search.searchScreen.ExcludeUndoSnackbarHost
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+private const val QUICK_NOTE_SWIPE_THRESHOLD_PX = 140f
 
 @Composable
 fun SearchRoute(
@@ -74,6 +81,7 @@ fun SearchRoute(
     onOpenReleaseNotesFeatures: () -> Unit = {},
     onOpenAppSettingDestination: (AppSettingsDestination) -> Unit = {},
     onOpenNotesDetail: (Long?) -> Unit = {},
+    onOpenQuickNoteFromSwipe: ((Long) -> Unit)? = null,
     onOverlayDismissRequest: (() -> Unit)? = null,
     onCloseAppRequest: (() -> Unit)? = null,
     onShowToast: (Int) -> Unit = {},
@@ -90,6 +98,7 @@ fun SearchRoute(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
+    val notesRepository = remember(context) { NotesRepository(context) }
 
     val nicknameUpdateVersion = uiState.nicknameUpdateVersion
     val getAppNickname: (String) -> String? =
@@ -111,6 +120,27 @@ fun SearchRoute(
     val effectiveSnackbarHostState = overlaySnackbarHostState ?: snackbarHostState
     val snackbarScope = rememberCoroutineScope()
     val undoLabel = stringResource(R.string.action_undo)
+    var isQuickNoteNavigationInProgress by remember { mutableStateOf(false) }
+
+    val openQuickNoteEditor: () -> Unit =
+        openQuickNoteEditor@{
+            if (isQuickNoteNavigationInProgress) return@openQuickNoteEditor
+            isQuickNoteNavigationInProgress = true
+            snackbarScope.launch {
+                try {
+                    val quickNote =
+                        withContext(Dispatchers.IO) { notesRepository.getOrCreateQuickNote() }
+                    NotesNavigationMemory.setPendingNoteId(
+                        noteId = quickNote.noteId,
+                        hideEditorAppBar = true,
+                    )
+                    onOpenQuickNoteFromSwipe?.invoke(quickNote.noteId)
+                        ?: onOpenNotesDetail(quickNote.noteId)
+                } finally {
+                    isQuickNoteNavigationInProgress = false
+                }
+            }
+        }
 
     val showUndoSnackbar: (String, () -> Unit) -> Unit = { message, onUndo ->
         snackbarScope.launch {
@@ -396,6 +426,27 @@ fun SearchRoute(
         } else {
             modifier.fillMaxSize()
         }
+    val swipeNavigationModifier =
+        if (isOverlayPresentation) {
+            Modifier
+        } else {
+            Modifier.pointerInput(Unit) {
+                var totalHorizontalDrag = 0f
+                detectHorizontalDragGestures(
+                    onDragStart = { totalHorizontalDrag = 0f },
+                    onHorizontalDrag = { _, dragAmount ->
+                        totalHorizontalDrag += dragAmount
+                    },
+                    onDragEnd = {
+                        if (totalHorizontalDrag >= QUICK_NOTE_SWIPE_THRESHOLD_PX) {
+                            openQuickNoteEditor()
+                        }
+                        totalHorizontalDrag = 0f
+                    },
+                    onDragCancel = { totalHorizontalDrag = 0f },
+                )
+            }
+        }
     val shouldAutoCloseApp = uiState.autoCloseOverlay
     LaunchedEffect(Unit) {
         viewModel.externalNavigationEvent.collect {
@@ -412,9 +463,9 @@ fun SearchRoute(
         SearchScreenComposable(
             modifier =
                 if (isOverlayPresentation) {
-                    Modifier.fillMaxWidth()
+                    Modifier.fillMaxWidth().then(swipeNavigationModifier)
                 } else {
-                    Modifier.fillMaxSize()
+                    Modifier.fillMaxSize().then(swipeNavigationModifier)
                 },
             state = uiState,
             onQueryChanged = viewModel::onQueryChange,

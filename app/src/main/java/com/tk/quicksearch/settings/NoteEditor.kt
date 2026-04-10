@@ -7,6 +7,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -78,6 +79,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+private const val NOTE_EDITOR_BACK_SWIPE_THRESHOLD_PX = 140f
+
 private fun applyNoteLinkHighlighting(
     value: TextFieldValue,
     linkColor: Color,
@@ -116,6 +119,7 @@ private fun LinkStyledNoteTextField(
     focusRequester: FocusRequester,
     density: Density,
     context: android.content.Context,
+    readOnly: Boolean = false,
 ) {
     var textLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
     var linkMenu by remember { mutableStateOf<Pair<String, DpOffset>?>(null) }
@@ -156,6 +160,7 @@ private fun LinkStyledNoteTextField(
                     },
             textStyle = textStyle,
             cursorBrush = cursorBrush,
+            readOnly = readOnly,
             singleLine = singleLine,
             maxLines = maxLines,
             minLines = minLines,
@@ -195,7 +200,9 @@ private fun LinkStyledNoteTextField(
 @Composable
 fun NoteEditor(
     onNavigateToNotes: () -> Unit,
+    onNavigateToSearch: () -> Unit = {},
     onDeleteToolbarState: (canDelete: Boolean, onConfirmedDelete: () -> Unit) -> Unit = { _, _ -> },
+    hideTopBar: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -208,6 +215,7 @@ fun NoteEditor(
     var bodyInput by remember { mutableStateOf(TextFieldValue("")) }
     var contentBaseline by remember { mutableStateOf<Pair<String, String>?>(null) }
     var isNewNoteEntry by remember { mutableStateOf(false) }
+    var isQuickNote by remember { mutableStateOf(false) }
     val persistOnLeave = remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
@@ -217,16 +225,29 @@ fun NoteEditor(
             val note = withContext(Dispatchers.IO) { repository.getNoteById(pendingId) }
             if (note != null) {
                 activeNoteId = note.noteId
+                isQuickNote = repository.isQuickNote(note.noteId)
                 titleInput =
-                    applyNoteLinkHighlighting(TextFieldValue(note.title), linkColor)
-                bodyInput =
                     applyNoteLinkHighlighting(
-                        TextFieldValue(note.markdownContent),
+                        TextFieldValue(
+                            text = note.title,
+                            selection = TextRange(note.title.length),
+                        ),
                         linkColor,
                     )
+                bodyInput =
+                    applyNoteLinkHighlighting(
+                        TextFieldValue(
+                            text = note.markdownContent,
+                            selection = TextRange(note.markdownContent.length),
+                        ),
+                        linkColor,
+                    )
+            } else {
+                isQuickNote = false
             }
         } else {
             isNewNoteEntry = true
+            isQuickNote = false
         }
         contentBaseline = titleInput.text to bodyInput.text
     }
@@ -245,10 +266,16 @@ fun NoteEditor(
     val bodyFocusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    LaunchedEffect(isNewNoteEntry, contentBaseline) {
-        if (!isNewNoteEntry || contentBaseline == null) return@LaunchedEffect
+    LaunchedEffect(isNewNoteEntry, contentBaseline, hideTopBar) {
+        if (contentBaseline == null) return@LaunchedEffect
         delay(50)
-        titleFocusRequester.requestFocus()
+        if (hideTopBar) {
+            bodyFocusRequester.requestFocus()
+        } else if (isNewNoteEntry) {
+            titleFocusRequester.requestFocus()
+        } else {
+            return@LaunchedEffect
+        }
         keyboardController?.show()
     }
 
@@ -265,6 +292,13 @@ fun NoteEditor(
         }
     }
 
+    LaunchedEffect(hideTopBar, hasEdits, titleInput.text, bodyInput.text) {
+        if (!hideTopBar || !hasEdits) return@LaunchedEffect
+        delay(450)
+        persistNote()
+        contentBaseline = titleInput.text to bodyInput.text
+    }
+
     val currentPersist by rememberUpdatedState(newValue = ::persistNote)
     DisposableEffect(Unit) {
         onDispose {
@@ -274,9 +308,9 @@ fun NoteEditor(
         }
     }
 
-    LaunchedEffect(activeNoteId) {
+    LaunchedEffect(activeNoteId, isQuickNote) {
         val id = activeNoteId
-        if (id > 0L) {
+        if (id > 0L && !isQuickNote) {
             onDeleteToolbarState(true) {
                 repository.stageDelete(id)
                 repository.finalizeDelete(id)
@@ -304,9 +338,28 @@ fun NoteEditor(
         onNavigateToNotes()
     }
 
+    val noteEditorSwipeModifier =
+        Modifier.pointerInput(onNavigateToSearch) {
+            var totalHorizontalDrag = 0f
+            detectHorizontalDragGestures(
+                onDragStart = { totalHorizontalDrag = 0f },
+                onHorizontalDrag = { _, dragAmount ->
+                    totalHorizontalDrag += dragAmount
+                },
+                onDragEnd = {
+                    if (totalHorizontalDrag <= -NOTE_EDITOR_BACK_SWIPE_THRESHOLD_PX) {
+                        onNavigateToSearch()
+                    }
+                    totalHorizontalDrag = 0f
+                },
+                onDragCancel = { totalHorizontalDrag = 0f },
+            )
+        }
+
     Column(
         modifier =
             modifier
+                .then(noteEditorSwipeModifier)
                 .fillMaxSize()
                 .navigationBarsPadding()
                 .imePadding(),
@@ -316,6 +369,7 @@ fun NoteEditor(
                 Modifier
                     .weight(1f)
                     .fillMaxWidth()
+                    .padding(top = if (hideTopBar) DesignTokens.SpacingLarge else 0.dp)
                     .then(
                         if (showActionButtons) {
                             Modifier
@@ -338,7 +392,11 @@ fun NoteEditor(
                 ) {
                     LinkStyledNoteTextField(
                         value = titleInput,
-                        onValueChange = { titleInput = applyNoteLinkHighlighting(it, linkColor) },
+                        onValueChange = {
+                            if (!isQuickNote) {
+                                titleInput = applyNoteLinkHighlighting(it, linkColor)
+                            }
+                        },
                         modifier =
                             Modifier
                                 .fillMaxWidth()
@@ -354,6 +412,7 @@ fun NoteEditor(
                         focusRequester = titleFocusRequester,
                         density = density,
                         context = context,
+                        readOnly = isQuickNote,
                         onTextLayout = {},
                         decorationBox = { inner ->
                             if (titleInput.text.isBlank()) {
@@ -414,6 +473,7 @@ fun NoteEditor(
                         focusRequester = bodyFocusRequester,
                         density = density,
                         context = context,
+                        readOnly = false,
                         decorationBox = { inner ->
                             if (bodyInput.text.isBlank()) {
                                 Text(
@@ -441,7 +501,7 @@ fun NoteEditor(
             }
         }
 
-        if (showActionButtons) {
+        if (showActionButtons && !hideTopBar) {
             Row(
                 modifier =
                     Modifier
