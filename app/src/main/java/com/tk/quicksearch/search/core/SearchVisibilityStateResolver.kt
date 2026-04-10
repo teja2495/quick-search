@@ -133,7 +133,8 @@ internal class SearchVisibilityStateResolver {
             !sectionEnabled -> CalendarSectionVisibility.Hidden
             !state.hasCalendarPermission -> CalendarSectionVisibility.NoPermission
             else -> {
-                val hasResults = state.calendarEvents.isNotEmpty()
+                val hasResults = state.calendarEvents.isNotEmpty() ||
+                    (state.query.isBlank() && state.todayCalendarEvents.isNotEmpty())
                 val hasPinned = state.pinnedCalendarEvents.isNotEmpty()
                 if (hasResults || hasPinned) {
                     CalendarSectionVisibility.ShowingResults(hasPinned = hasPinned)

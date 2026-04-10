@@ -475,6 +475,7 @@ abstract class BasePreferences(
         const val KEY_PINNED_CALENDAR_EVENT_IDS = "pinned_calendar_event_ids"
         const val KEY_EXCLUDED_CALENDAR_EVENT_IDS = "excluded_calendar_event_ids"
         const val KEY_CALENDAR_INCLUDE_PAST_EVENTS = "calendar_include_past_events"
+        const val KEY_CALENDAR_SHOW_TODAY_EVENTS = "calendar_show_today_events"
         const val KEY_CUSTOM_CALENDAR_EVENTS_DATA = "custom_calendar_events_data"
         const val KEY_CUSTOM_CALENDAR_EVENT_ID_COUNTER = "custom_calendar_event_id_counter"
 

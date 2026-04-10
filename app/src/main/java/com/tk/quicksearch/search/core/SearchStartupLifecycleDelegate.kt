@@ -202,6 +202,10 @@ internal class SearchStartupLifecycleDelegate(
             refreshAppShortcutsState()
         }
 
+        if (startupComplete) {
+            loadPinnedAndExcludedCalendarEvents()
+        }
+
         val now = System.currentTimeMillis()
         if (startupComplete && now - stateAccess.lastBrowserTargetRefreshMs >= BROWSER_REFRESH_INTERVAL_MS) {
             stateAccess.lastBrowserTargetRefreshMs = now
@@ -266,6 +270,7 @@ internal class SearchStartupLifecycleDelegate(
                     calendarEvents = if (hasCalendar) state.calendarEvents else emptyList(),
                     pinnedCalendarEvents = if (hasCalendar) state.pinnedCalendarEvents else emptyList(),
                     excludedCalendarEvents = if (hasCalendar) state.excludedCalendarEvents else emptyList(),
+                    todayCalendarEvents = if (hasCalendar) state.todayCalendarEvents else emptyList(),
                 )
             }
 

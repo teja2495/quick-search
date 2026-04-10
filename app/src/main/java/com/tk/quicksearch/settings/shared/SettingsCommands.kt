@@ -58,6 +58,7 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
                 AppSettingsToggleKey.ONE_HANDED_MODE -> setOneHandedMode(command.enabled)
                 AppSettingsToggleKey.BOTTOM_SEARCHBAR -> setBottomSearchBarEnabled(command.enabled)
                 AppSettingsToggleKey.APP_LABELS -> setShowAppLabels(command.enabled)
+                AppSettingsToggleKey.SHOW_TODAY_EVENTS -> setShowTodayEvents(command.enabled)
                 AppSettingsToggleKey.SEARCH_ENGINE_COMPACT_MODE ->
                     setSearchEngineCompactMode(command.enabled)
                 AppSettingsToggleKey.SEARCH_ENGINE_ALIAS_SUFFIX ->
@@ -133,6 +134,7 @@ internal fun SearchUiState.isAppSettingToggleEnabled(toggleKey: AppSettingsToggl
         AppSettingsToggleKey.ONE_HANDED_MODE -> oneHandedMode
         AppSettingsToggleKey.BOTTOM_SEARCHBAR -> bottomSearchBarEnabled
         AppSettingsToggleKey.APP_LABELS -> showAppLabels
+        AppSettingsToggleKey.SHOW_TODAY_EVENTS -> showTodayEvents
         AppSettingsToggleKey.SEARCH_ENGINE_COMPACT_MODE -> isSearchEngineCompactMode
         AppSettingsToggleKey.SEARCH_ENGINE_ALIAS_SUFFIX -> isSearchEngineAliasSuffixEnabled
         AppSettingsToggleKey.CALCULATOR -> calculatorEnabled

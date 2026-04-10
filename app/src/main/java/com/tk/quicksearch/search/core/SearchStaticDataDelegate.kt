@@ -209,6 +209,7 @@ internal class SearchStaticDataDelegate(
                 it.copy(
                     pinnedCalendarEvents = emptyList(),
                     excludedCalendarEvents = emptyList(),
+                    todayCalendarEvents = emptyList(),
                 )
             }
             return
@@ -219,11 +220,19 @@ internal class SearchStaticDataDelegate(
             userPreferences.getPinnedCalendarEventIds().filterNot { excludedIds.contains(it) }.toSet()
         val pinned = calendarRepository.getEventsByIds(pinnedIds)
         val excluded = calendarRepository.getEventsByIds(excludedIds)
+        val showTodayEvents = userPreferences.getShowTodayEvents()
+        val today = if (showTodayEvents) {
+            calendarRepository.getTodayEvents()
+                .filterNot { excludedIds.contains(it.eventId) }
+        } else {
+            emptyList()
+        }
 
         updateResultsState {
             it.copy(
                 pinnedCalendarEvents = pinned,
                 excludedCalendarEvents = excluded,
+                todayCalendarEvents = today,
             )
         }
     }

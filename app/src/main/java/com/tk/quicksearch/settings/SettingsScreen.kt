@@ -157,6 +157,11 @@ fun SettingsScreen(
                     notesJson.isNotBlank() && notesJson != "[]"
                 }
         }
+    val hasCustomCalendarEventsForExport =
+        remember(userPrefs) {
+            val eventsJson = userPrefs.getString(BasePreferences.KEY_CUSTOM_CALENDAR_EVENTS_DATA, null).orEmpty()
+            eventsJson.isNotBlank() && eventsJson != "[]"
+        }
 
     val exportLauncher =
         rememberLauncherForActivityResult(
@@ -459,11 +464,13 @@ fun SettingsScreen(
                                     includePinnedItems = hasPinnedItemsForExport,
                                     includeShortcuts = true,
                                     includeNotes = hasNotesForExport,
+                                    includeCalendarEvents = hasCustomCalendarEventsForExport,
                                     includeSearchEngines = true,
                                     includeGeminiApi = false,
                                     showSearchHistoryOption = isSearchHistoryEnabledForExport,
                                     showPinnedItemsOption = hasPinnedItemsForExport,
                                     showNotesOption = hasNotesForExport,
+                                    showCalendarEventsOption = hasCustomCalendarEventsForExport,
                                 )
                             showExportSelectionDialog = true
                         },

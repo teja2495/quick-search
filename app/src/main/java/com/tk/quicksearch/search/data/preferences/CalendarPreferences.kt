@@ -24,6 +24,10 @@ class CalendarPreferences(
 
     fun setIncludePastEvents(value: Boolean) = setBooleanPref(BasePreferences.KEY_CALENDAR_INCLUDE_PAST_EVENTS, value)
 
+    fun getShowTodayEvents(): Boolean = getBooleanPref(BasePreferences.KEY_CALENDAR_SHOW_TODAY_EVENTS, defaultValue = true)
+
+    fun setShowTodayEvents(value: Boolean) = setBooleanPref(BasePreferences.KEY_CALENDAR_SHOW_TODAY_EVENTS, value)
+
     fun getCustomEventsJson(): String = prefs.getString(BasePreferences.KEY_CUSTOM_CALENDAR_EVENTS_DATA, null).orEmpty()
 
     fun setCustomEventsJson(json: String) {

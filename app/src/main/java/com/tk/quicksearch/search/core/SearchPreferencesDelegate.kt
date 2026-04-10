@@ -68,6 +68,7 @@ internal class SearchPreferencesDelegate(
     private val updateResultsState: ((SearchResultsState) -> SearchResultsState) -> Unit,
     private val refreshAppSuggestions: () -> Unit,
     private val refreshRecentItems: () -> Unit,
+    private val refreshCalendarEvents: () -> Unit,
     private val stateAccess: SearchPreferencesStateAccess,
 ) {
     fun setCalculatorEnabled(enabled: Boolean) {
@@ -183,6 +184,14 @@ internal class SearchPreferencesDelegate(
             if (enabled && resultsStateProvider().query.isEmpty()) {
                 refreshRecentItems()
             }
+        }
+    }
+
+    fun setShowTodayEvents(enabled: Boolean) {
+        scope.launch(Dispatchers.IO) {
+            userPreferences.setShowTodayEvents(enabled)
+            updateFeatureState { it.copy(showTodayEvents = enabled) }
+            refreshCalendarEvents()
         }
     }
 

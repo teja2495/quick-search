@@ -373,6 +373,7 @@ fun rememberSectionRenderContext(
             when (state.calendarSectionState) {
                 is CalendarSectionVisibility.ShowingResults -> {
                     renderingState.hasPinnedCalendarEvents ||
+                        state.todayCalendarEvents.isNotEmpty() ||
                         state.detectedAliasSearchSection == SearchSection.CALENDAR
                 }
 
@@ -458,7 +459,9 @@ fun rememberSectionRenderContext(
             if (isSearching || state.detectedAliasSearchSection == SearchSection.CALENDAR) {
                 renderingState.calendarEvents
             } else {
-                renderingState.pinnedCalendarEvents
+                val pinnedIds = renderingState.pinnedCalendarEvents.map { it.eventId }.toSet()
+                renderingState.pinnedCalendarEvents +
+                    state.todayCalendarEvents.filterNot { it.eventId in pinnedIds }
             },
         notesList =
             if (isSearching || state.detectedAliasSearchSection == SearchSection.NOTES) {

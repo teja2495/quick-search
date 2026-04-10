@@ -8,6 +8,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ManageSearch
 import androidx.compose.material.icons.rounded.Apps
+import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.PushPin
@@ -99,6 +100,18 @@ fun SettingsExportDialog(
                         isLastItem = false,
                     )
                 }
+                if (selectionState.showCalendarEventsOption) {
+                    SettingsCheckboxRow(
+                        title = stringResource(R.string.section_calendar),
+                        description = "",
+                        checked = selectionState.includeCalendarEvents,
+                        onCheckedChange = {
+                            onSelectionStateChange(selectionState.copy(includeCalendarEvents = it))
+                        },
+                        icon = Icons.Rounded.CalendarMonth,
+                        isLastItem = false,
+                    )
+                }
                 SettingsCheckboxRow(
                     title = stringResource(R.string.settings_app_shortcuts_filter_search_engines),
                     description = "",
@@ -151,11 +164,13 @@ data class ExportSelectionState(
     val includePinnedItems: Boolean = true,
     val includeShortcuts: Boolean = true,
     val includeNotes: Boolean = true,
+    val includeCalendarEvents: Boolean = true,
     val includeSearchEngines: Boolean = true,
     val includeGeminiApi: Boolean = false,
     val showSearchHistoryOption: Boolean = true,
     val showPinnedItemsOption: Boolean = true,
     val showNotesOption: Boolean = true,
+    val showCalendarEventsOption: Boolean = false,
 ) {
     fun hasAnySelection(): Boolean =
         includeSettings ||
@@ -163,6 +178,7 @@ data class ExportSelectionState(
             includePinnedItems ||
             includeShortcuts ||
             includeNotes ||
+            includeCalendarEvents ||
             includeSearchEngines ||
             includeGeminiApi
 
@@ -173,6 +189,7 @@ data class ExportSelectionState(
             if (includePinnedItems) add(SettingsBackupManager.ExportItem.PINNED_ITEMS)
             if (includeShortcuts) add(SettingsBackupManager.ExportItem.SHORTCUTS)
             if (includeNotes) add(SettingsBackupManager.ExportItem.NOTES)
+            if (includeCalendarEvents) add(SettingsBackupManager.ExportItem.CALENDAR_EVENTS)
             if (includeSearchEngines) add(SettingsBackupManager.ExportItem.SEARCH_ENGINES)
             if (includeGeminiApi) add(SettingsBackupManager.ExportItem.GEMINI_API)
         }

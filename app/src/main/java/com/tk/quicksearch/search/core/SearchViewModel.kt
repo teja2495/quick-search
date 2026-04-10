@@ -303,7 +303,7 @@ class SearchViewModel(
             },
             saveStartupSurfaceSnapshotCallback = this::saveStartupSurfaceSnapshotAsync,
         )
-    private val preferencesDelegate by lazy { SearchPreferencesDelegate(scope = viewModelScope, applicationProvider = { getApplication() }, userPreferences = userPreferences, directSearchHandler = handlers.directSearchHandler, searchEngineManager = handlers.searchEngineManager, iconPackHandler = handlers.iconPackHandler, secondarySearchOrchestrator = handlers.secondarySearchOrchestrator, resultsStateProvider = { _resultsState.value }, updateUiState = this::updateUiState, updateConfigState = this::updateConfigState, updateFeatureState = this::updateFeatureState, updateResultsState = this::updateResultsState, refreshAppSuggestions = { refreshAppSuggestions() }, refreshRecentItems = this::refreshRecentItems, stateAccess = preferencesStateAccess) }
+    private val preferencesDelegate by lazy { SearchPreferencesDelegate(scope = viewModelScope, applicationProvider = { getApplication() }, userPreferences = userPreferences, directSearchHandler = handlers.directSearchHandler, searchEngineManager = handlers.searchEngineManager, iconPackHandler = handlers.iconPackHandler, secondarySearchOrchestrator = handlers.secondarySearchOrchestrator, resultsStateProvider = { _resultsState.value }, updateUiState = this::updateUiState, updateConfigState = this::updateConfigState, updateFeatureState = this::updateFeatureState, updateResultsState = this::updateResultsState, refreshAppSuggestions = { refreshAppSuggestions() }, refreshRecentItems = this::refreshRecentItems, refreshCalendarEvents = this::loadPinnedAndExcludedCalendarEvents, stateAccess = preferencesStateAccess) }
     private val startupLifecycleStateAccess =
         SearchViewModelStartupLifecycleStateAccess(
             startupState = startupState,
@@ -527,6 +527,10 @@ class SearchViewModel(
     }
     private fun loadPinnedAndExcludedCalendarEvents() {
         staticDataDelegate.loadPinnedAndExcludedCalendarEvents()
+    }
+
+    fun refreshCalendarEvents() {
+        loadPinnedAndExcludedCalendarEvents()
     }
     fun onQueryChange(newQuery: String) {
         inMemoryRetainedQuery = newQuery

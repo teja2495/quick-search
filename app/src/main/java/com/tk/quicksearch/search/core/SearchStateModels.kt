@@ -69,6 +69,7 @@ data class SearchResultsState(
         val calendarEvents: List<CalendarEventInfo> = emptyList(),
         val pinnedCalendarEvents: List<CalendarEventInfo> = emptyList(),
         val excludedCalendarEvents: List<CalendarEventInfo> = emptyList(),
+        val todayCalendarEvents: List<CalendarEventInfo> = emptyList(),
         // Notes results
         val noteResults: List<NoteInfo> = emptyList(),
         val pinnedNotes: List<NoteInfo> = emptyList(),
@@ -172,6 +173,8 @@ data class SearchFeatureState(
         // Search history
         val recentQueriesEnabled: Boolean = true,
         val hasDismissedSearchHistoryTip: Boolean = false,
+        // Calendar
+        val showTodayEvents: Boolean = true,
         // Direct dial
         val directDialEnabled: Boolean = false,
         // Assistant launch voice mode

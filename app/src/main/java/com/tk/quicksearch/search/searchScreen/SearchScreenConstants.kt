@@ -118,7 +118,8 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
     val hasSettingResults = state.settingResults.isNotEmpty()
     val hasAppSettingResults = state.appSettingResults.isNotEmpty()
     val hasAppShortcutResults = state.appShortcutResults.isNotEmpty()
-    val hasCalendarResults = state.calendarEvents.isNotEmpty()
+    val hasCalendarResults = state.calendarEvents.isNotEmpty() ||
+        (!isSearching && state.todayCalendarEvents.isNotEmpty())
     val hasNoteResults = notesEnabled && state.noteResults.isNotEmpty()
     val pinnedContactIds =
         remember(state.pinnedContacts) { state.pinnedContacts.map { it.contactId }.toSet() }

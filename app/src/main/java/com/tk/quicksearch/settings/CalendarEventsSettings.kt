@@ -118,6 +118,7 @@ fun CalendarEventsSettingsSection(
     var hasPermission by remember { mutableStateOf(calendarRepository.hasPermission()) }
     var selectedEventGroupForSheet by remember { mutableStateOf<CalendarEventGroup?>(null) }
     var editingCustomEvent by remember { mutableStateOf<CalendarEventInfo?>(null) }
+    var showTodayEvents by remember { mutableStateOf(calendarPreferences.getShowTodayEvents()) }
     var includePastEvents by remember { mutableStateOf(calendarPreferences.getIncludePastEvents()) }
     var localRefreshToken by remember { mutableIntStateOf(0) }
 
@@ -203,6 +204,17 @@ fun CalendarEventsSettingsSection(
             modifier = Modifier.fillMaxWidth().padding(bottom = DesignTokens.SectionTopPadding),
         ) {
             SettingsToggleRow(
+                title = stringResource(R.string.settings_calendar_show_today_events_title),
+                subtitle = stringResource(R.string.settings_calendar_show_today_events_desc),
+                checked = showTodayEvents,
+                onCheckedChange = { enabled ->
+                    showTodayEvents = enabled
+                    calendarPreferences.setShowTodayEvents(enabled)
+                },
+                isFirstItem = true,
+                isLastItem = false,
+            )
+            SettingsToggleRow(
                 title = stringResource(R.string.settings_calendar_include_past_events_title),
                 subtitle = stringResource(R.string.settings_calendar_include_past_events_desc),
                 checked = includePastEvents,
@@ -210,7 +222,7 @@ fun CalendarEventsSettingsSection(
                     includePastEvents = enabled
                     calendarPreferences.setIncludePastEvents(enabled)
                 },
-                isFirstItem = true,
+                isFirstItem = false,
                 isLastItem = true,
             )
         }

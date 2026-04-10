@@ -443,6 +443,7 @@ data class SearchUiState(
         val calendarEvents: List<CalendarEventInfo> = emptyList(),
         val pinnedCalendarEvents: List<CalendarEventInfo> = emptyList(),
         val excludedCalendarEvents: List<CalendarEventInfo> = emptyList(),
+        val todayCalendarEvents: List<CalendarEventInfo> = emptyList(),
         // Notes results
         val noteResults: List<NoteInfo> = emptyList(),
         val pinnedNotes: List<NoteInfo> = emptyList(),
@@ -573,6 +574,8 @@ data class SearchUiState(
         val recentItems: List<RecentSearchItem> = emptyList(),
         val aliasRecentItems: List<RecentSearchItem> = emptyList(),
         val recentQueriesEnabled: Boolean = true,
+        // Calendar
+        val showTodayEvents: Boolean = true,
         // Usage permission banner
         val shouldShowUsagePermissionBanner: Boolean = false,
         // Versioning for cache invalidation
@@ -620,6 +623,7 @@ fun SearchUiState(
                 calendarEvents = results.calendarEvents,
                 pinnedCalendarEvents = results.pinnedCalendarEvents,
                 excludedCalendarEvents = results.excludedCalendarEvents,
+                todayCalendarEvents = results.todayCalendarEvents,
                 noteResults = results.noteResults,
                 pinnedNotes = results.pinnedNotes,
                 screenState = results.screenState,
@@ -694,6 +698,7 @@ fun SearchUiState(
                 customTools = features.customTools,
                 disabledCustomToolIds = features.disabledCustomToolIds,
                 recentQueriesEnabled = features.recentQueriesEnabled,
+                showTodayEvents = features.showTodayEvents,
                 hasDismissedSearchHistoryTip = features.hasDismissedSearchHistoryTip,
                 directDialEnabled = features.directDialEnabled,
                 assistantLaunchVoiceModeEnabled = features.assistantLaunchVoiceModeEnabled,

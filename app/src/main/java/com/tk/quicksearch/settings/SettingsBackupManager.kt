@@ -22,6 +22,7 @@ object SettingsBackupManager {
         NOTES,
         SEARCH_ENGINES,
         GEMINI_API,
+        CALENDAR_EVENTS,
     }
 
     data class ExportOptions(
@@ -298,6 +299,9 @@ object SettingsBackupManager {
         if (isGeminiKey(prefName, key)) {
             return options.includes(ExportItem.GEMINI_API)
         }
+        if (isCalendarEventsKey(prefName, key)) {
+            return options.includes(ExportItem.CALENDAR_EVENTS)
+        }
         if (prefName == "app_shortcut_cache") {
             return options.includes(ExportItem.SHORTCUTS)
         }
@@ -373,6 +377,14 @@ object SettingsBackupManager {
         return key == BasePreferences.KEY_GEMINI_PERSONAL_CONTEXT ||
             key == BasePreferences.KEY_GEMINI_MODEL ||
             key == BasePreferences.KEY_GEMINI_GROUNDING_ENABLED
+    }
+
+    private fun isCalendarEventsKey(
+        prefName: String,
+        key: String,
+    ): Boolean {
+        if (prefName != BasePreferences.PREFS_NAME) return false
+        return key == BasePreferences.KEY_CUSTOM_CALENDAR_EVENTS_DATA
     }
 
     private fun serializePreferenceValue(value: Any?): JSONObject? =

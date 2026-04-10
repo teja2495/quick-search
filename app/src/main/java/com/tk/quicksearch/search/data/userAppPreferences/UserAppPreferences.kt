@@ -276,6 +276,10 @@ class UserAppPreferences(
 
     fun clearAllExcludedCalendarEvents(): Set<Long> = calendarPreferences.clearAllExcludedEvents()
 
+    fun getShowTodayEvents(): Boolean = calendarPreferences.getShowTodayEvents()
+
+    fun setShowTodayEvents(show: Boolean) = calendarPreferences.setShowTodayEvents(show)
+
     // ============================================================================
     // Notes Preferences
     // ============================================================================

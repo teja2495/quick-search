@@ -11,6 +11,8 @@ import androidx.core.content.ContextCompat
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.utils.SearchRankingUtils
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
+import java.time.Instant
+import java.time.ZoneId
 import java.util.Locale
 
 class CalendarRepository(
@@ -112,6 +114,29 @@ class CalendarRepository(
             .values
             .sortedBy { it.startMillis }
             .take(limit)
+    }
+
+    fun getTodayEvents(limit: Int = 50): List<CalendarEventInfo> {
+        if (limit <= 0 || !hasPermission()) return emptyList()
+        val calendar = java.util.Calendar.getInstance()
+        calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
+        calendar.set(java.util.Calendar.MINUTE, 0)
+        calendar.set(java.util.Calendar.SECOND, 0)
+        calendar.set(java.util.Calendar.MILLISECOND, 0)
+        val startOfDay = calendar.timeInMillis
+        val endOfDay = startOfDay + 24L * 60 * 60 * 1000 - 1
+        val now = System.currentTimeMillis()
+        val cutoffMillis = now - 15L * 60 * 1000
+        return queryInstancesInWindow(startOfDay, endOfDay, limit, null)
+            .filter { event ->
+                // Exclude events that don't actually start today — the instance query can return
+                // all-day events from tomorrow when their UTC midnight falls inside the window.
+                event.startMillis in startOfDay..endOfDay &&
+                    // All-day events are valid the whole day; timed events are hidden once they are
+                    // more than 15 minutes past their start time.
+                    (event.allDay || event.startMillis >= cutoffMillis)
+            }
+            .sortedBy { it.startMillis }
     }
 
     fun getEventInstancesAroundNow(limit: Int = 2000): List<CalendarEventInfo> {
@@ -235,9 +260,14 @@ class CalendarRepository(
                 while (cursor.moveToNext() && rows.size < rawLimit) {
                     val id = cursor.getLong(idIndex)
                     val title = cursor.getString(titleIndex)?.trim().orEmpty()
-                    val startMillis = cursor.getLong(beginIndex)
-                    val endMillis = cursor.getLong(endIndex)
+                    val rawStartMillis = cursor.getLong(beginIndex)
+                    val rawEndMillis = cursor.getLong(endIndex)
                     val allDay = cursor.getInt(allDayIndex) == 1
+                    // Android Calendar stores all-day event timestamps as UTC midnight.
+                    // Normalize to local midnight so date formatting and filtering work correctly
+                    // regardless of the device timezone.
+                    val startMillis = if (allDay) utcMidnightToLocalMidnight(rawStartMillis) else rawStartMillis
+                    val endMillis = if (allDay) utcMidnightToLocalMidnight(rawEndMillis) else rawEndMillis
 
                     if (title.isNotBlank()) {
                         rows.add(
@@ -273,6 +303,13 @@ class CalendarRepository(
         startMillis: Long,
         now: Long,
     ): Long = if (startMillis >= now) startMillis - now else now - startMillis
+
+    private fun utcMidnightToLocalMidnight(utcMillis: Long): Long {
+        val localDate = Instant.ofEpochMilli(utcMillis)
+            .atZone(ZoneId.of("UTC"))
+            .toLocalDate()
+        return localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+    }
 
     private fun calendarFutureFirstGroup(
         startMillis: Long,

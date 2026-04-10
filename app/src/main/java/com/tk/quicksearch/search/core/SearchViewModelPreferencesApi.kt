@@ -60,6 +60,8 @@ internal interface SearchViewModelPreferencesApi {
     fun setRecentQueriesEnabled(enabled: Boolean) =
         preferencesApiDelegate.setRecentQueriesEnabled(enabled)
 
+    fun setShowTodayEvents(enabled: Boolean) = preferencesApiDelegate.setShowTodayEvents(enabled)
+
     fun dismissSearchHistoryTip() = preferencesApiDelegate.dismissSearchHistoryTip()
 
     fun setWallpaperBackgroundAlpha(alpha: Float) =
@@ -215,6 +217,8 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
     fun setWebSuggestionsCount(count: Int) = preferencesDelegate.setWebSuggestionsCount(count)
 
     fun setRecentQueriesEnabled(enabled: Boolean) = preferencesDelegate.setRecentQueriesEnabled(enabled)
+
+    fun setShowTodayEvents(enabled: Boolean) = preferencesDelegate.setShowTodayEvents(enabled)
 
     fun dismissSearchHistoryTip() = preferencesDelegate.dismissSearchHistoryTip()
 

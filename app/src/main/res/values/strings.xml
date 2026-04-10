@@ -442,6 +442,8 @@
     <string name="calendar_create_event_name_hint">Event name</string>
     <string name="calendar_create_event_select_date">Select date</string>
     <string name="calendar_create_event_add_time">Time</string>
+    <string name="settings_calendar_show_today_events_title">Show Today\'s Events</string>
+    <string name="settings_calendar_show_today_events_desc">Show today\'s events in home screen.</string>
     <string name="settings_calendar_include_past_events_title">Past Events</string>
     <string name="settings_calendar_include_past_events_desc">Include past events in search results.</string>
     <string name="settings_calendar_permission_title">Calendar</string>
