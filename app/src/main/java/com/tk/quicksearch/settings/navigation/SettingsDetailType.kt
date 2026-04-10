@@ -178,7 +178,11 @@ internal object SettingsDestinationRegistry {
     ): SettingsDetailType? {
         val spec = specFor(detailType)
         if (spec.level < 2) return null
-        if (spec.preferSourceBackDestination && sourceDetailType != null) {
+        if (
+            spec.preferSourceBackDestination &&
+                sourceDetailType != null &&
+                sourceDetailType != detailType
+        ) {
             return sourceDetailType
         }
         return spec.fallbackBackDestination

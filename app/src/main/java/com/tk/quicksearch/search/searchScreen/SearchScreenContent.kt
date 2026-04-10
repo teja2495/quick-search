@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.searchScreen
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -33,7 +34,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.luminance
@@ -75,6 +78,7 @@ import com.tk.quicksearch.tools.aiTools.CurrencyConversionIntentParser
 import com.tk.quicksearch.tools.aiTools.DictionaryIntentParser
 import com.tk.quicksearch.tools.aiTools.WordClockIntentParser
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 private const val OPEN_KEYBOARD_ACTION_APPEAR_DELAY_MS = 500L
 
@@ -132,7 +136,9 @@ internal fun SearchScreenContent(
     var canShowOpenKeyboardPill by
             remember(isOverlayPresentation) { mutableStateOf(!isOverlayPresentation) }
     var delayedOpenKeyboardActionVisible by remember { mutableStateOf(false) }
+    var hideOpenKeyboardActionInstantly by remember { mutableStateOf(false) }
     var isSearchHistoryExpanded by remember { mutableStateOf(false) }
+    val openKeyboardActionScope = rememberCoroutineScope()
 
     LaunchedEffect(isOverlayPresentation) {
         if (!isOverlayPresentation) {
@@ -369,6 +375,7 @@ internal fun SearchScreenContent(
             return@LaunchedEffect
         }
 
+        hideOpenKeyboardActionInstantly = false
         delayedOpenKeyboardActionVisible = false
         delay(OPEN_KEYBOARD_ACTION_APPEAR_DELAY_MS)
         delayedOpenKeyboardActionVisible = true
@@ -998,18 +1005,27 @@ internal fun SearchScreenContent(
                                             animationSpec = tween(durationMillis = 220),
                                     ),
                     exit =
-                            fadeOut(animationSpec = tween(durationMillis = 130)) +
-                                    shrinkVertically(
-                                            shrinkTowards = Alignment.Bottom,
-                                            animationSpec = tween(durationMillis = 180),
-                                    ),
+                            if (hideOpenKeyboardActionInstantly) {
+                                ExitTransition.None
+                            } else {
+                                fadeOut(animationSpec = tween(durationMillis = 130)) +
+                                        shrinkVertically(
+                                                shrinkTowards = Alignment.Bottom,
+                                                animationSpec = tween(durationMillis = 180),
+                                        )
+                            },
             ) {
                 OpenKeyboardAction(
                         text = openKeyboardText,
                         showWallpaperBackground = state.showWallpaperBackground,
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
-                            keyboardController?.show()
+                            hideOpenKeyboardActionInstantly = true
+                            delayedOpenKeyboardActionVisible = false
+                            openKeyboardActionScope.launch {
+                                withFrameNanos { }
+                                keyboardController?.show()
+                            }
                         },
                 )
             }
