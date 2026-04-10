@@ -56,6 +56,9 @@ internal fun handleOverlayAppSettingDestination(
                     com.tk.quicksearch.tile.requestAddQuickSearchTile(context)
                     closeIfNeeded()
                 },
+                onCreateCalendarEvent = {
+                    openOverlaySettingsDetail(context, SettingsDetailType.CALENDAR_EVENTS, onCloseRequested)
+                },
             ),
     )
 }

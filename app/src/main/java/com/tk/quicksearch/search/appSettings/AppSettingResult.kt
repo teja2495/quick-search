@@ -41,6 +41,7 @@ enum class AppSettingsDestination {
     GEMINI_API,
     CREATE_NOTE,
     NOTES_LIST,
+    CREATE_CALENDAR_EVENT,
 }
 
 enum class AppSettingsToggleKey {

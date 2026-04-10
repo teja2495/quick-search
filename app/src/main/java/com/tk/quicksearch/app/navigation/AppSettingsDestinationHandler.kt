@@ -23,6 +23,7 @@ internal data class AppSettingsDestinationHandlers(
     val onSetDefaultAssistant: () -> Unit = {},
     val onAddHomeScreenWidget: () -> Unit = {},
     val onAddQuickSettingsTile: () -> Unit = {},
+    val onCreateCalendarEvent: () -> Unit = {},
 )
 
 internal fun handleAppSettingsDestination(
@@ -49,6 +50,7 @@ internal fun handleAppSettingsDestination(
             handlers.onOpenSettingsDetail(SettingsDetailType.NOTE_EDITOR)
         }
         AppSettingsDestination.NOTES_LIST -> handlers.onOpenSettingsDetail(SettingsDetailType.NOTES)
+        AppSettingsDestination.CREATE_CALENDAR_EVENT -> handlers.onCreateCalendarEvent()
         else -> Unit
     }
 }

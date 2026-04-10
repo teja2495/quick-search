@@ -190,6 +190,13 @@ class AppSettingsRepository(
                 destination = AppSettingsDestination.CALENDAR_EVENTS,
             )
             addNavigation(
+                id = "app_settings_create_calendar_event",
+                titleRes = R.string.app_settings_create_calendar_event_title,
+                descriptionRes = R.string.app_settings_create_calendar_event_desc,
+                destination = AppSettingsDestination.CREATE_CALENDAR_EVENT,
+                keywords = listOf("add event", "new event", "create event"),
+            )
+            addNavigation(
                 id = "app_settings_send_feedback",
                 titleRes = R.string.settings_feedback_send_title,
                 descriptionRes = R.string.settings_feedback_send_desc,

@@ -28,8 +28,10 @@ import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
+import com.tk.quicksearch.search.data.CustomCalendarEventRepository
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.searchScreen.SearchRoute
+import com.tk.quicksearch.settings.settingsDetailScreen.CreateCalendarEventDialog
 import com.tk.quicksearch.settings.settingsDetailScreen.level
 import com.tk.quicksearch.settings.navigation.SettingsDetailRoute
 import com.tk.quicksearch.R
@@ -353,6 +355,8 @@ private fun NavigationContent(
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     val settingsScrollState = rememberScrollState()
+    var showCreateCalendarEventDialog by remember { mutableStateOf(false) }
+    val customCalendarEventRepository = remember(context) { CustomCalendarEventRepository(context) }
 
     LaunchedEffect(destination) {
         if (destination == RootDestination.Search) {
@@ -517,6 +521,9 @@ private fun NavigationContent(
                                     onAddQuickSettingsTile = {
                                         com.tk.quicksearch.tile.requestAddQuickSearchTile(context)
                                     },
+                                    onCreateCalendarEvent = {
+                                        showCreateCalendarEventDialog = true
+                                    },
                                 ),
                         )
                     },
@@ -551,5 +558,16 @@ private fun NavigationContent(
                 )
             }
         }
+    }
+
+    if (showCreateCalendarEventDialog) {
+        CreateCalendarEventDialog(
+            onDismiss = { showCreateCalendarEventDialog = false },
+            onConfirm = { title, dateTimeMillis, allDay ->
+                showCreateCalendarEventDialog = false
+                customCalendarEventRepository.createCustomEvent(title, dateTimeMillis, allDay)
+                viewModel.onQueryChange(uiState.query)
+            },
+        )
     }
 }

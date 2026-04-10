@@ -57,6 +57,8 @@ import com.tk.quicksearch.settings.shared.SettingsCommand
 import com.tk.quicksearch.settings.shared.applySettingsCommand
 import com.tk.quicksearch.settings.shared.isAppSettingToggleEnabled
 import com.tk.quicksearch.settings.settingsDetailScreen.NotesNavigationMemory
+import com.tk.quicksearch.search.data.CustomCalendarEventRepository
+import com.tk.quicksearch.settings.settingsDetailScreen.CustomEventEditDialog
 import com.tk.quicksearch.search.searchScreen.SearchScreen as SearchScreenComposable
 import com.tk.quicksearch.search.searchScreen.ExcludeUndoSnackbarHost
 import kotlinx.coroutines.launch
@@ -252,6 +254,8 @@ fun SearchRoute(
     var pendingPermissionSettingsAction by remember { mutableStateOf<(() -> Unit)?>(null) }
     var pendingPermissionSettingsType by remember { mutableStateOf<Int?>(null) }
     var pendingDirectDialToggleFromAppSetting by remember { mutableStateOf(false) }
+    var editingCustomCalendarEvent by remember { mutableStateOf<CalendarEventInfo?>(null) }
+    val customCalendarEventRepository = remember(context) { CustomCalendarEventRepository(context) }
 
     val callPermissionLauncher =
         if (context is android.app.Activity) {
@@ -452,7 +456,11 @@ fun SearchRoute(
             onUnpinContact = viewModel::unpinContact,
             onExcludeContact = onExcludeContactWithUndo,
             onCalendarEventClick = { event: com.tk.quicksearch.search.models.CalendarEventInfo ->
-                viewModel.openCalendarEvent(event)
+                if (event.eventId < 0) {
+                    editingCustomCalendarEvent = event
+                } else {
+                    viewModel.openCalendarEvent(event)
+                }
             },
             onPinCalendarEvent = viewModel::pinCalendarEvent,
             onUnpinCalendarEvent = viewModel::unpinCalendarEvent,
@@ -617,6 +625,23 @@ fun SearchRoute(
                             end = DesignTokens.SpacingLarge,
                             bottom = DesignTokens.SpacingHuge,
                         ),
+            )
+        }
+
+        editingCustomCalendarEvent?.let { event ->
+            CustomEventEditDialog(
+                event = event,
+                onDismiss = { editingCustomCalendarEvent = null },
+                onSave = { title, dateTimeMillis, allDay ->
+                    editingCustomCalendarEvent = null
+                    customCalendarEventRepository.updateCustomEvent(event.eventId, title, dateTimeMillis, allDay)
+                    viewModel.onQueryChange(uiState.query)
+                },
+                onDelete = {
+                    editingCustomCalendarEvent = null
+                    customCalendarEventRepository.deleteCustomEvent(event.eventId)
+                    viewModel.onQueryChange(uiState.query)
+                },
             )
         }
 

@@ -54,6 +54,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -162,20 +163,9 @@ fun CalendarEventsSettingsSection(
         }
 
     val filteredEventGroups =
-        remember(eventGroups, normalizedSearchQuery, locale, todayStartMillis, includePastEvents) {
+        remember(eventGroups, normalizedSearchQuery, locale) {
             if (normalizedSearchQuery.isBlank()) {
-                if (includePastEvents) {
-                    eventGroups
-                } else {
-                    eventGroups.mapNotNull { eventGroup ->
-                        val nextInstance =
-                            firstInstanceOnOrAfter(
-                                instances = eventGroup.instances,
-                                thresholdMillis = todayStartMillis,
-                            ) ?: return@mapNotNull null
-                        eventGroup.copy(nearestInstance = nextInstance)
-                    }
-                }
+                eventGroups
             } else {
                 eventGroups
                     .mapNotNull { eventGroup ->
@@ -197,17 +187,12 @@ fun CalendarEventsSettingsSection(
             )
         }
 
-    // Auto-scroll to top when past events toggle changes
-    LaunchedEffect(includePastEvents) {
-        listState.scrollToItem(0)
-    }
-
-    // Auto-scroll to the first event on or after today
+    // Auto-scroll to today or the next future event on load
     val todayIndex = remember(sortedEventGroups, todayStartMillis) {
         sortedEventGroups.indexOfFirst { it.nearestInstance.startMillis >= todayStartMillis }
     }
     LaunchedEffect(todayIndex, sortedEventGroups.size) {
-        if (todayIndex > 0 && sortedEventGroups.isNotEmpty()) {
+        if (todayIndex >= 0 && sortedEventGroups.isNotEmpty()) {
             listState.scrollToItem(todayIndex)
         }
     }
@@ -425,6 +410,7 @@ fun CreateCalendarEventDialog(
         titleResId = R.string.calendar_create_event_title,
         confirmResId = R.string.dialog_save,
         extraActions = {},
+        noticeAboveNameResId = R.string.calendar_create_event_sync_notice,
     )
 }
 
@@ -453,6 +439,7 @@ fun CustomEventEditDialog(
                 )
             }
         },
+        autoFocusTitle = false,
     )
 }
 
@@ -467,6 +454,8 @@ private fun CustomEventFormDialog(
     titleResId: Int,
     confirmResId: Int,
     extraActions: @Composable () -> Unit,
+    noticeAboveNameResId: Int? = null,
+    autoFocusTitle: Boolean = true,
 ) {
     var eventTitle by remember { mutableStateOf(initialTitle) }
     var showDatePicker by remember { mutableStateOf(false) }
@@ -502,6 +491,13 @@ private fun CustomEventFormDialog(
     var hasTime by remember { mutableStateOf(!initialAllDay) }
 
     val canSave = eventTitle.isNotBlank() && selectedDateMillis != null
+
+    val titleFocusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        if (autoFocusTitle) {
+            titleFocusRequester.requestFocus()
+        }
+    }
 
     when {
         showDatePicker -> {
@@ -563,12 +559,19 @@ private fun CustomEventFormDialog(
                 },
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium)) {
+                        noticeAboveNameResId?.let { resId ->
+                            Text(
+                                text = stringResource(resId),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                         OutlinedTextField(
                             value = eventTitle,
                             onValueChange = { eventTitle = it },
                             label = { Text(stringResource(R.string.calendar_create_event_name_hint)) },
                             singleLine = true,
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().focusRequester(titleFocusRequester),
                         )
 
                         // Date button

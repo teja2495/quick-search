@@ -433,12 +433,15 @@
     <string name="settings_bottom_searchbar_title">Bottom Searchbar</string>
     <string name="settings_cache_cleared_toast">Cache cleared. Rebuilding app index\u2026</string>
     <string name="settings_calendar_events_empty">No calendar events available.</string>
+    <string name="app_settings_create_calendar_event_title">New Calendar Event</string>
+    <string name="app_settings_create_calendar_event_desc">Create and add a new event</string>
     <string name="calendar_create_event_cta">New Event</string>
     <string name="calendar_create_event_title">New Event</string>
     <string name="calendar_edit_event_title">Edit Event</string>
+    <string name="calendar_create_event_sync_notice">This event won\'t sync to your device calendar</string>
     <string name="calendar_create_event_name_hint">Event name</string>
     <string name="calendar_create_event_select_date">Select date</string>
-    <string name="calendar_create_event_add_time">Add time</string>
+    <string name="calendar_create_event_add_time">Time</string>
     <string name="settings_calendar_include_past_events_title">Past Events</string>
     <string name="settings_calendar_include_past_events_desc">Include past events in search results.</string>
     <string name="settings_calendar_permission_title">Calendar</string>
