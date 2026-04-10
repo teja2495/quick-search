@@ -68,7 +68,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private const val QUICK_NOTE_SWIPE_THRESHOLD_PX = 140f
+private const val SWIPE_NAVIGATION_THRESHOLD_PX = 140f
 
 @Composable
 fun SearchRoute(
@@ -438,8 +438,10 @@ fun SearchRoute(
                         totalHorizontalDrag += dragAmount
                     },
                     onDragEnd = {
-                        if (totalHorizontalDrag >= QUICK_NOTE_SWIPE_THRESHOLD_PX) {
+                        if (totalHorizontalDrag >= SWIPE_NAVIGATION_THRESHOLD_PX) {
                             openQuickNoteEditor()
+                        } else if (totalHorizontalDrag <= -SWIPE_NAVIGATION_THRESHOLD_PX) {
+                            onSettingsClick()
                         }
                         totalHorizontalDrag = 0f
                     },

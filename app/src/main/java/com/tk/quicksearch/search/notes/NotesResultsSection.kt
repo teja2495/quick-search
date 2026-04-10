@@ -172,6 +172,12 @@ private fun NoteRow(
     val rowView = LocalView.current
     val title = note.title.ifBlank { stringResource(R.string.notes_untitled) }
     val preview = NotesTextUtils.firstLinesPreview(note.markdownContent)
+    val subtitle =
+        if (preview.isNotBlank()) {
+            preview
+        } else {
+            stringResource(R.string.notes_empty_note_subtext)
+        }
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -207,15 +213,13 @@ private fun NoteRow(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                if (preview.isNotBlank()) {
-                    Text(
-                        text = preview,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 3,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
 
             DropdownMenu(

@@ -11,6 +11,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -47,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -76,6 +78,8 @@ import com.tk.quicksearch.settings.shared.handlePermissionResult
 import com.tk.quicksearch.settings.shared.rememberSectionToggleHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+
+private const val SETTINGS_BACK_SWIPE_THRESHOLD_PX = 140f
 
 @Composable
 fun SettingsRoute(
@@ -420,9 +424,26 @@ fun SettingsRoute(
     }
 
     val resolvedState = state.copy(hasWallpaperPermission = wallpaperPermissionController.hasWallpaperPermission)
+    val swipeNavigationModifier =
+        Modifier.pointerInput(onBack) {
+            var totalHorizontalDrag = 0f
+            detectHorizontalDragGestures(
+                onDragStart = { totalHorizontalDrag = 0f },
+                onHorizontalDrag = { _, dragAmount ->
+                    totalHorizontalDrag += dragAmount
+                },
+                onDragEnd = {
+                    if (totalHorizontalDrag >= SETTINGS_BACK_SWIPE_THRESHOLD_PX) {
+                        onBack()
+                    }
+                    totalHorizontalDrag = 0f
+                },
+                onDragCancel = { totalHorizontalDrag = 0f },
+            )
+        }
 
     com.tk.quicksearch.settings.settingsScreen.SettingsScreen(
-        modifier = modifier,
+        modifier = modifier.then(swipeNavigationModifier),
         state = resolvedState,
         callbacks = callbacks,
         hasUsagePermission = uiState.hasUsagePermission,
