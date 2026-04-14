@@ -48,14 +48,14 @@ class AppSettingsRepository(
                 titleRes = R.string.settings_app_shortcuts_filter_search_engines,
                 descriptionRes = R.string.settings_search_engines_desc,
                 destination = AppSettingsDestination.SEARCH_ENGINES,
-                keywords = listOf("direct search", "alias"),
+                keywords = listOf("ai", "direct" "alias"),
             )
             addNavigation(
                 id = "app_settings_gemini_api",
                 titleRes = R.string.settings_backup_export_option_gemini_title,
                 descriptionRes = R.string.settings_gemini_api_desc,
                 destination = AppSettingsDestination.GEMINI_API,
-                keywords = listOf("direct search", "ai"),
+                keywords = listOf("ai provider", "gemini", "openai", "groq", "claude"),
             )
             addNavigation(
                 id = "app_settings_tools",

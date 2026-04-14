@@ -2,6 +2,7 @@ package com.tk.quicksearch.settings.shared
 
 import com.tk.quicksearch.search.core.CustomTool
 import com.tk.quicksearch.search.core.SearchUiState
+import com.tk.quicksearch.tools.directSearch.DirectSearchLlmProviderId
 
 internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState {
     val searchResults = toSearchResultsSettingsState()
@@ -35,6 +36,7 @@ internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState {
         amazonDomain = searchEngines.amazonDomain,
         hasGeminiApiKey = searchEngines.hasGeminiApiKey,
         geminiApiKeyLast4 = searchEngines.geminiApiKeyLast4,
+        directSearchLlmProviderId = searchEngines.directSearchLlmProviderId,
         isSavingGeminiApiKey = searchEngines.isSavingGeminiApiKey,
         personalContext = searchEngines.personalContext,
         geminiModel = searchEngines.geminiModel,
@@ -138,6 +140,7 @@ private data class SearchEngineMapperState(
     val amazonDomain: String?,
     val hasGeminiApiKey: Boolean,
     val geminiApiKeyLast4: String?,
+    val directSearchLlmProviderId: DirectSearchLlmProviderId,
     val isSavingGeminiApiKey: Boolean,
     val personalContext: String,
     val geminiModel: String,
@@ -158,6 +161,7 @@ private fun SearchUiState.toSearchEngineSettingsState() =
         amazonDomain = amazonDomain,
         hasGeminiApiKey = hasGeminiApiKey,
         geminiApiKeyLast4 = geminiApiKeyLast4,
+        directSearchLlmProviderId = directSearchLlmProviderId,
         isSavingGeminiApiKey = isSavingGeminiApiKey,
         personalContext = personalContext,
         geminiModel = geminiModel,

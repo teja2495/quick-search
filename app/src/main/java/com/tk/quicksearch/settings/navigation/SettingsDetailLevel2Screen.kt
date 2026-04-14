@@ -570,6 +570,7 @@ internal fun SettingsDetailLevel2Screen(
                                 directSearchEnabled = state.hasGeminiApiKey,
                                 onSetGeminiApiKey = callbacks.onSetGeminiApiKey,
                                 geminiApiKeyLast4 = state.geminiApiKeyLast4,
+                                directSearchLlmProviderId = state.directSearchLlmProviderId,
                                 isSavingGeminiApiKey = state.isSavingGeminiApiKey,
                                 onOpenDirectSearchConfigure = null,
                             )

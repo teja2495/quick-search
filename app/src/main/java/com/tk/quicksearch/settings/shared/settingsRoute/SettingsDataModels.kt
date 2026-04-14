@@ -19,6 +19,7 @@ import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.core.IconPackInfo
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.settings.AppShortcutsSettings.AppShortcutSource
+import com.tk.quicksearch.tools.directSearch.DirectSearchLlmProviderId
 import com.tk.quicksearch.tools.directSearch.GeminiTextModel
 
 /**
@@ -101,6 +102,7 @@ data class SettingsScreenState(
     val recentQueriesEnabled: Boolean,
     val hasGeminiApiKey: Boolean = false,
     val geminiApiKeyLast4: String? = null,
+    val directSearchLlmProviderId: DirectSearchLlmProviderId = DirectSearchLlmProviderId.GEMINI,
     val isSavingGeminiApiKey: Boolean = false,
     val personalContext: String = "",
     val geminiModel: String,
@@ -138,6 +140,7 @@ data class SettingsScreenState(
                 amazonDomain = amazonDomain,
                 hasGeminiApiKey = hasGeminiApiKey,
                 geminiApiKeyLast4 = geminiApiKeyLast4,
+                directSearchLlmProviderId = directSearchLlmProviderId,
                 isSavingGeminiApiKey = isSavingGeminiApiKey,
                 personalContext = personalContext,
                 geminiModel = geminiModel,
@@ -434,6 +437,7 @@ data class SearchEngineSettingsState(
     val amazonDomain: String?,
     val hasGeminiApiKey: Boolean,
     val geminiApiKeyLast4: String?,
+    val directSearchLlmProviderId: DirectSearchLlmProviderId,
     val isSavingGeminiApiKey: Boolean,
     val personalContext: String,
     val geminiModel: String,

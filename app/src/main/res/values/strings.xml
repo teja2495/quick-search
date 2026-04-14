@@ -53,10 +53,10 @@
          Search Screen
          ============================================================================ -->
     <string name="customize_search_engines">Customize Search Engines</string>
-    <string name="direct_answer_contact_name">Direct Answer</string>
+    <string name="direct_answer_contact_name">AI Answer</string>
     <string name="direct_search_enter_query">Please enter a query to search.</string>
-    <string name="direct_search_error_generic">Couldn\u2019t fetch a direct answer. Try again.</string>
-    <string name="direct_search_error_no_key">Add your Gemini API key in settings to fetch direct answers.</string>
+    <string name="direct_search_error_generic">Couldn\u2019t fetch AI answer. Try again.</string>
+    <string name="direct_search_error_no_key">Add an API key in settings (AI Provider) to fetch AI answers.</string>
     <string name="direct_search_powered_by">Powered by</string>
     <string name="empty_state_subtitle">Launch an app or refine your search to see suggestions.</string>
     <string name="empty_state_title">Nothing to show (yet)</string>
@@ -415,7 +415,7 @@
 
     <string name="settings_backup_export_option_pinned_items_title">Pinned items</string>
 
-    <string name="settings_backup_export_option_gemini_title">Gemini API</string>
+    <string name="settings_backup_export_option_gemini_title">AI Provider</string>
     <string name="settings_backup_export_failed">Unable to export settings.</string>
     <string name="settings_backup_export_success">Settings exported successfully.</string>
     <string name="settings_backup_import_button">Import</string>
@@ -465,7 +465,7 @@
     <string name="settings_direct_dial_desc">Place calls directly without opening the dialer. </string>
     <string name="settings_direct_dial_title">Direct Dial</string>
     <string name="settings_direct_search_configure">Configure</string>
-    <string name="settings_direct_search_desc">Setup Gemini API key to enable AI-powered features within the app.</string>
+    <string name="settings_direct_search_desc">Add an API key to enable AI-powered features within the app.</string>
     <string name="settings_direct_search_grounding_label">Grounding with Google Search</string>
     <string name="settings_direct_search_how_to">Get Free API Key</string>
     <string name="settings_direct_search_model_label">Model</string>
@@ -504,8 +504,11 @@
     <string name="settings_font_size_small">Small</string>
     <string name="settings_font_size_title">Font Size</string>
     <string name="settings_gemini_api_key_add">Add Key</string>
-    <string name="settings_gemini_api_key_display">Your Gemini API key:  ****%1$s</string>
-    <string name="settings_gemini_api_key_paste_hint">Paste Gemini API Key</string>
+    <string name="settings_llm_api_key_display_gemini">Your Gemini API key:  ****%1$s</string>
+    <string name="settings_llm_api_key_display_openai">Your OpenAI API key:  ****%1$s</string>
+    <string name="settings_llm_api_key_display_claude">Your Claude API key:  ****%1$s</string>
+    <string name="settings_llm_api_key_display_groq">Your Groq API key:  ****%1$s</string>
+    <string name="settings_gemini_api_key_paste_hint">Paste API key</string>
     <string name="settings_gemini_api_key_multi_provider_hint">OpenAI, Claude, and Groq API keys are also supported.</string>
     <string name="settings_gemini_api_key_reset">Reset Key</string>
     <string name="settings_gemini_api_key_saving">Saving...</string>
@@ -620,10 +623,10 @@
     <string name="settings_shortcut_voice_input">Digital Assistant</string>
     <string name="settings_shortcut_vpn">VPN</string>
     <string name="settings_shortcut_wifi">Wi\u2011Fi</string>
-    <string name="settings_direct_search_setup_nav_desc">Setup Gemini API key to enable AI-powered search</string>
-    <string name="settings_direct_search_setup_nav_title">Direct Search</string>
-    <string name="settings_gemini_api_config_desc">Set up Gemini API for AI-powered search and tools</string>
-    <string name="settings_gemini_api_desc">Configure Gemini API</string>
+    <string name="settings_direct_search_setup_nav_desc">Add an API key to enable AI-powered search</string>
+    <string name="settings_direct_search_setup_nav_title">AI Search</string>
+    <string name="settings_gemini_api_config_desc">Set up an AI provider for AI-powered search and tools</string>
+    <string name="settings_gemini_api_desc">Configure AI provider</string>
     <string name="settings_show_app_labels_desc">Show app names in suggestions and results</string>
     <string name="settings_show_app_labels_title">App Labels</string>
     <string name="settings_system_files_toggle">System Files</string>
@@ -633,8 +636,8 @@
     <string name="settings_device_theme_desc">Use your device\'s dynamic color palette as the app theme</string>
     <string name="settings_device_theme_blocked_toast">Disabled while Material You theme is enabled</string>
     <string name="settings_tools_desc">Calculator, Unit converter, Dictionary and more</string>
-    <string name="settings_tools_gemini_api_desc">Setting up Gemini API key will enable more tools.</string>
-    <string name="settings_tools_gemini_api_title">Setup Gemini API</string>
+    <string name="settings_tools_gemini_api_desc">Adding an API key enables more tools.</string>
+    <string name="settings_tools_gemini_api_title">Set up AI provider</string>
     <string name="settings_tools_info_examples_header">Here are some examples of things you can ask in the search bar</string>
     <string name="settings_tools_title">Tools</string>
     <string name="settings_create_new_tool_button">Create New Tool</string>
@@ -875,7 +878,7 @@
     <string name="currency_converter_invalid_input">Invalid currency conversion input</string>
     <string name="currency_converter_toggle_title">Currency Converter</string>
     <string name="currency_converter_toggle_desc">Example: 100 USD to INR</string>
-    <string name="currency_converter_requires_gemini_key">Requires Gemini API key</string>
+    <string name="currency_converter_requires_gemini_key">Requires an AI provider API key</string>
     <string name="word_clock_toggle_title">Word Clock</string>
     <string name="word_clock_toggle_desc">Example: Time in Tokyo</string>
     <string name="word_clock_error_not_recognized">Couldn’t resolve that time request. Try a city, country, timezone, or explicit time.</string>

@@ -11,6 +11,7 @@ import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.searchHistory.RecentSearchItem
+import com.tk.quicksearch.tools.directSearch.DirectSearchLlmProviderId
 import com.tk.quicksearch.tools.directSearch.GeminiModelCatalog
 import com.tk.quicksearch.tools.directSearch.GeminiTextModel
 
@@ -152,6 +153,7 @@ data class SearchFeatureState(
         // Gemini / Direct Search
         val hasGeminiApiKey: Boolean = false,
         val geminiApiKeyLast4: String? = null,
+        val directSearchLlmProviderId: DirectSearchLlmProviderId = DirectSearchLlmProviderId.GEMINI,
         val isSavingGeminiApiKey: Boolean = false,
         val personalContext: String = "",
         val geminiModel: String = GeminiModelCatalog.DEFAULT_MODEL_ID,

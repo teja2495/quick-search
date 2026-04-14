@@ -43,7 +43,7 @@ fun buildSearchUrl(
     amazonDomain: String? = null,
 ): String {
     if (searchEngine == SearchEngine.DIRECT_SEARCH) {
-        throw IllegalArgumentException("Direct Answer does not use a browser URL")
+        throw IllegalArgumentException("AI Search does not use a browser URL")
     }
     val metadata = SearchEngineRegistry.get(searchEngine)
 

@@ -22,8 +22,8 @@ This document highlights all the available features. It also includes details ab
 - **Multi-App Search** - Type a query and tap any "search on" card to quickly search using that search engine. If compact mode is enabled, you can just tap on any icon in the search engine section above your keyboard.
 - **Browser Integration** - Installed browsers automatically appear as search engine options
 - **In-App Browser** - Option to open URLs inside the app instead of an external browser
-- **Supported Search Engines** (25 total): Direct Search, Google, ChatGPT, Gemini, Perplexity, Grok, Google Maps, Google Drive, Google Photos, Google Play, YouTube, YouTube Music, Spotify, Reddit, Amazon, X (Twitter), Facebook Marketplace, Bing, DuckDuckGo, Brave, Startpage, You.com, AI Mode, Claude, Wikipedia
-- **Direct Search (AI-Powered)** - Configure your Gemini API key to see answers directly within Quick Search. 
+- **Supported Search Engines** (25 total): AI Search, Google, ChatGPT, Gemini, Perplexity, Grok, Google Maps, Google Drive, Google Photos, Google Play, YouTube, YouTube Music, Spotify, Reddit, Amazon, X (Twitter), Facebook Marketplace, Bing, DuckDuckGo, Brave, Startpage, You.com, AI Mode, Claude, Wikipedia
+- **AI Search** - Configure your Gemini API key to see answers directly within Quick Search. 
 - **Custom Search Engines** - Add your own search engines from the Search Engines settings screen.
 - **Web Search Suggestions** - Web suggestions automatically appear when you type your query; you can disable them or change the count in settings.
 
@@ -137,7 +137,7 @@ Long-press on most results to open a context menu with quick actions.
 - **Alias after Query** - You can choose to disable search engine alias triggers at the end of your query. Also, choose whether space is required for the trigger.
 - **Amazon Domain** - Select the Amazon region/domain used when searching via the Amazon engine. Updating this will open your Amazon queries within the installed app instead of the website.
 - **Custom Search Engines** - Add your own search engines by specifying a URL template with the {{query}} placeholder. The app automatically fetches the name and icon for the website, but you can choose to edit them if needed. Tapping on {{query}} in the error hint will add this string to your URL so that you don't have to type it. You can choose any installed browser to open custom search engine queries.
-- **Direct Search (AI)** - Connect a Gemini API key to enable AI answers directly in Quick Search, view if a key is configured, and open the dedicated Direct Search configuration screen. Gemini Flash Latest is the model which is chosen by default.
+- **AI Search** - Connect a Gemini API key to enable AI answers directly in Quick Search, view if a key is configured, and open the dedicated AI Search configuration screen. Gemini Flash Latest is the model which is chosen by default.
 
 ---
 
@@ -240,7 +240,7 @@ Long-press on most results to open a context menu with quick actions.
 - **Search Icon tap behavior** - Tap on the Search icon in search bar to narrow down your search to a specific type. 
 - **URL Detection in Search Bar** - Paste or type a URL in the search bar to open it quickly in your installed browsers of your choice.
 - **App Search** - Acronym matching is supported for app search. For example, you can search for "yt" to find "YouTube."
-- **Direct Search (Gemini API)**
+- **AI Search**
   - If the results contain emails, phone numbers, or links, you can tap them to email, call, or open them.
   - You can quickly change the model by tapping on "Powered by" text in the result.
 - **Keyboard Action Button** - Tap on keyboard action button to automatically open the top result
@@ -253,7 +253,7 @@ Long-press on most results to open a context menu with quick actions.
 - **Add Contact Action to Home** - Open any contact and long-press on any of the actions (e.g. WhatsApp call, Telegram video, etc.) to add it to your home screen as a shortcut.
 - **Contact Image Tap** - Tap on the contact photo to open the contact in the default contacts app to edit it.
 - **Access Beta Features** - Tap on version number 5 times to unlock new beta features. These features are hidden because they're not fully implemented & tested, so expect bugs. You can disable these features by long-pressing on the version number.
-- Long-press Direct Search, Calculator or any tool result to copy it to clipboard.
+- Long-press AI Search, Calculator or any tool result to copy it to clipboard.
 - You can send text to Quick Search by selecting Quick Search in phone's text-selection menu and share sheet.
 
 ---

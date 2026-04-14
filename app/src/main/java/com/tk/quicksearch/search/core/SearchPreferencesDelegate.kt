@@ -619,6 +619,7 @@ internal class SearchPreferencesDelegate(
                     it.copy(
                         hasGeminiApiKey = hasKey,
                         geminiApiKeyLast4 = apiKey?.trim()?.takeLast(4),
+                        directSearchLlmProviderId = directSearchHandler.getDirectSearchProviderId(),
                         geminiModel = directSearchHandler.getGeminiModel(),
                         availableGeminiModels = availableModels,
                     )

@@ -43,6 +43,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.tools.directSearch.DirectSearchLlmProviderId
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
@@ -54,6 +55,7 @@ fun DirectSearchSetupCard(
     directSearchEnabled: Boolean,
     onSetGeminiApiKey: (String?) -> Unit,
     geminiApiKeyLast4: String?,
+    directSearchLlmProviderId: DirectSearchLlmProviderId = DirectSearchLlmProviderId.GEMINI,
     isSavingGeminiApiKey: Boolean = false,
     onOpenDirectSearchConfigure: (() -> Unit)? = null,
     isExpanded: Boolean = true,
@@ -67,6 +69,13 @@ fun DirectSearchSetupCard(
     @Suppress("DEPRECATION")
     val clipboardManager = LocalClipboardManager.current
     val geminiGuideUrl = stringResource(R.string.settings_gemini_guide_url)
+    val apiKeyDisplayFormatRes =
+        when (directSearchLlmProviderId) {
+            DirectSearchLlmProviderId.GEMINI -> R.string.settings_llm_api_key_display_gemini
+            DirectSearchLlmProviderId.OPENAI -> R.string.settings_llm_api_key_display_openai
+            DirectSearchLlmProviderId.ANTHROPIC -> R.string.settings_llm_api_key_display_claude
+            DirectSearchLlmProviderId.GROQ -> R.string.settings_llm_api_key_display_groq
+        }
 
     SettingsCard(
         modifier =
@@ -133,7 +142,7 @@ fun DirectSearchSetupCard(
                 Column {
                     if (hasConfiguredApiKey) {
                         Text(
-                            text = stringResource(R.string.settings_gemini_api_key_display, geminiApiKeyLast4 ?: ""),
+                            text = stringResource(apiKeyDisplayFormatRes, geminiApiKeyLast4 ?: ""),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(bottom = 16.dp),

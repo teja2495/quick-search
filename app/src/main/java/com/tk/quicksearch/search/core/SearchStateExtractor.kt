@@ -95,6 +95,7 @@ internal object SearchStateExtractor {
             disabledSections = s.disabledSections,
             hasGeminiApiKey = s.hasGeminiApiKey,
             geminiApiKeyLast4 = s.geminiApiKeyLast4,
+            directSearchLlmProviderId = s.directSearchLlmProviderId,
             personalContext = s.personalContext,
             geminiModel = s.geminiModel,
             geminiGroundingEnabled = s.geminiGroundingEnabled,
