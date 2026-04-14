@@ -63,13 +63,10 @@
     <string name="error_action_not_available">Action not available</string>
     <string name="error_gemini_empty_response">Empty response from Gemini</string>
     <string name="error_gemini_load_models_failed">Unable to load Gemini models</string>
-    <string name="error_gemini_model_unsupported_features">%1$s does not support %2$s.</string>
     <string name="error_gemini_request_failed">Request failed (%1$d)</string>
     <string name="error_open_calendar_event">Unable to open calendar event</string>
     <string name="error_open_email">No email app found to send mail.</string>
     <string name="error_unknown">Unknown error</string>
-    <string name="gemini_feature_grounding">grounding</string>
-
     <string name="gemini_model_flash_latest">Gemini Flash (Latest)</string>
     <string name="keyboard_switch_back">Regular Keyboard</string>
     <string name="keyboard_switch_to_number">Number Keyboard</string>
@@ -233,7 +230,6 @@
     <string name="dialog_edit_amazon_domain_title">Edit Amazon Domain</string>
     <string name="dialog_enjoying_app_title">Do you find this app useful?</string>
     <string name="dialog_feedback_hint">Tell us what we can improve</string>
-<string name="dialog_gemini_model_no_grounding_info">This model does not support personal context and google search grounding</string>
     <string name="dialog_gemini_model_picker_title">Select Model</string>
     <string name="dialog_nickname_hint">Nickname</string>
     <string name="dialog_nickname_message">Enter a nickname for "%1$s". You can search for it using this nickname.</string>
@@ -466,11 +462,11 @@
     <string name="settings_direct_dial_title">Direct Dial</string>
     <string name="settings_direct_search_configure">Configure</string>
     <string name="settings_direct_search_desc">Add an API key to enable AI-powered features within the app.</string>
-    <string name="settings_direct_search_grounding_label">Grounding with Google Search</string>
+    <string name="settings_direct_search_grounding_label">Web search</string>
     <string name="settings_direct_search_how_to">Get Free API Key</string>
     <string name="settings_direct_search_model_label">Model</string>
     <string name="settings_direct_search_personal_context">Personal Context</string>
-    <string name="settings_direct_search_personal_context_hint">Add any context you want Gemini to use when generating answers.</string>
+    <string name="settings_direct_search_personal_context_hint">Add any context you want AI to use when generating answers.</string>
     <string name="settings_direct_search_toggle">API Key Setup</string>
     <string name="settings_edit_label">Edit</string>
     <string name="settings_edit_search_engine_dialog_title">Edit Search Engine</string>
@@ -625,7 +621,7 @@
     <string name="settings_shortcut_wifi">Wi\u2011Fi</string>
     <string name="settings_direct_search_setup_nav_desc">Add an API key to enable AI-powered search</string>
     <string name="settings_direct_search_setup_nav_title">AI Search</string>
-    <string name="settings_gemini_api_config_desc">Set up an AI provider for AI-powered search and tools</string>
+    <string name="settings_gemini_api_config_desc">Configure your AI provider for AI-powered search and tools</string>
     <string name="settings_gemini_api_desc">Configure AI provider</string>
     <string name="settings_show_app_labels_desc">Show app names in suggestions and results</string>
     <string name="settings_show_app_labels_title">App Labels</string>
@@ -648,8 +644,8 @@
     <string name="settings_custom_tool_model_label">Model</string>
     <string name="settings_custom_tool_alias_label">Alias</string>
     <string name="settings_custom_tool_alias_hint">Shortcut to trigger this tool (e.g. "tool").</string>
-    <string name="settings_custom_tool_grounding_label">Internet Search</string>
-    <string name="settings_custom_tool_grounding_hint">Allow Google Search grounding for up-to-date results.</string>
+    <string name="settings_custom_tool_grounding_label">Web search</string>
+    <string name="settings_custom_tool_grounding_hint">Allow the model to fetch up-to-date information from the web.</string>
     <string name="settings_custom_tool_delete_button">Delete Tool</string>
     <string name="settings_custom_tool_thinking_label">Extended Thinking</string>
     <string name="settings_custom_tool_thinking_hint">Enable deeper reasoning for complex tasks. Uses more tokens.</string>

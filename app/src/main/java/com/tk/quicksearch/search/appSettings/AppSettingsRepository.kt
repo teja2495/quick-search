@@ -48,7 +48,7 @@ class AppSettingsRepository(
                 titleRes = R.string.settings_app_shortcuts_filter_search_engines,
                 descriptionRes = R.string.settings_search_engines_desc,
                 destination = AppSettingsDestination.SEARCH_ENGINES,
-                keywords = listOf("ai", "direct" "alias"),
+                keywords = listOf("ai", "direct", "alias"),
             )
             addNavigation(
                 id = "app_settings_gemini_api",

@@ -11,14 +11,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Info
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -94,12 +91,11 @@ fun GeminiModelPickerDialog(
                                                 }
                                         }
                                 }
-                                if (showGroundingToggle) {
-                                HorizontalDivider(
-                                        modifier = Modifier.padding(vertical = 12.dp),
-                                        color = MaterialTheme.colorScheme.outlineVariant
-                                )
-                                if (supportsGrounding) {
+                                if (showGroundingToggle && supportsGrounding) {
+                                        HorizontalDivider(
+                                                modifier = Modifier.padding(vertical = 12.dp),
+                                                color = MaterialTheme.colorScheme.outlineVariant
+                                        )
                                         Row(
                                                 modifier =
                                                         Modifier.fillMaxWidth()
@@ -123,26 +119,6 @@ fun GeminiModelPickerDialog(
                                                         color = MaterialTheme.colorScheme.onSurface,
                                                 )
                                         }
-                                } else {
-                                        Row(
-                                                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        ) {
-                                                Icon(
-                                                        imageVector = Icons.Rounded.Info,
-                                                        contentDescription = null,
-                                                        modifier = Modifier.size(20.dp),
-                                                        tint = MaterialTheme.colorScheme.primary
-                                                )
-                                                Text(
-                                                        text = stringResource(R.string.dialog_gemini_model_no_grounding_info),
-                                                        style = MaterialTheme.typography.bodySmall,
-                                                        color = MaterialTheme.colorScheme.onSurface,
-                                                        modifier = Modifier.weight(1f)
-                                                )
-                                        }
-                                }
                                 }
                         }
                 },

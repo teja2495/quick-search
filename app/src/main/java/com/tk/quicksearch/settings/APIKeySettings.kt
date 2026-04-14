@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ExpandMore
-import androidx.compose.material.icons.rounded.Info
 import com.tk.quicksearch.settings.shared.SettingsCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -24,14 +23,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.tools.directSearch.GeminiModelCatalog
 import com.tk.quicksearch.tools.directSearch.GeminiModelPickerDialog
 import com.tk.quicksearch.tools.directSearch.GeminiTextModel
-import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 @Composable
@@ -79,7 +76,6 @@ fun APIKeySettingsSection(
         ) {
                 val selectedModel = modelOptions.firstOrNull { it.id == selectedModelInput }
                 val supportsInstructions = selectedModel?.supportsSystemInstructions != false
-                val supportsGrounding = selectedModel?.supportsGrounding != false
 
                 SettingsCard(
                         modifier = Modifier.fillMaxWidth(),
@@ -171,28 +167,6 @@ fun APIKeySettingsSection(
                                         )
                                 }
                         }
-                }
-
-                if (!supportsInstructions || !supportsGrounding) {
-                        val context = LocalContext.current
-                        val message =
-                                remember(
-                                        selectedModelLabel,
-                                        supportsInstructions,
-                                        supportsGrounding
-                                ) {
-                                        val unsupported = mutableListOf<String>()
-                                        if (!supportsInstructions)
-                                                unsupported.add(context.getString(R.string.settings_direct_search_personal_context))
-                                        if (!supportsGrounding)
-                                                unsupported.add(context.getString(R.string.gemini_feature_grounding))
-                                        context.getString(R.string.error_gemini_model_unsupported_features, selectedModelLabel, unsupported.joinToString(" or "))
-                                }
-                        TipBanner(
-                                text = message,
-                                icon = Icons.Rounded.Info,
-                                showDismissButton = false,
-                        )
                 }
 
                 if (supportsInstructions) {
