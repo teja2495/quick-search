@@ -343,6 +343,7 @@ private fun renderCalendarSection(
             onExclude = calendarParams.onExclude,
             onInclude = calendarParams.onInclude,
             onNicknameClick = calendarParams.onNicknameClick,
+            onArchiveTodayEvent = calendarParams.onArchiveTodayEvent,
             getEventNickname = calendarParams.getEventNickname,
             showAllResults = context.showAllCalendarResults,
             showExpandControls = context.showCalendarExpandControls,
@@ -352,6 +353,7 @@ private fun renderCalendarSection(
             showWallpaperBackground = calendarParams.showWallpaperBackground,
             predictedTarget = calendarParams.predictedTarget,
             fillExpandedHeight = context.isSectionAliasMode,
+            isHomeScreenMode = context.isHomeScreenCalendarMode,
         )
     }
 }

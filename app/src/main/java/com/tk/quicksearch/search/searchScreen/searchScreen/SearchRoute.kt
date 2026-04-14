@@ -519,6 +519,7 @@ fun SearchRoute(
             onUnpinCalendarEvent = viewModel::unpinCalendarEvent,
             onExcludeCalendarEvent = onExcludeCalendarEventWithUndo,
             onIncludeCalendarEvent = viewModel::removeExcludedCalendarEvent,
+            onArchiveTodayCalendarEvent = { event -> viewModel.archiveTodayCalendarEvent(event.eventId) },
             onNoteClick = { note ->
                 NotesNavigationMemory.setPendingNoteId(note.noteId)
                 onOpenNotesDetail(note.noteId)

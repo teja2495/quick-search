@@ -195,6 +195,15 @@ internal class SearchPreferencesDelegate(
         }
     }
 
+    fun archiveTodayCalendarEvent(eventId: Long) {
+        scope.launch(Dispatchers.IO) {
+            userPreferences.archiveTodayCalendarEvent(eventId)
+            updateResultsState { state ->
+                state.copy(todayCalendarEvents = state.todayCalendarEvents.filterNot { it.eventId == eventId })
+            }
+        }
+    }
+
     fun dismissSearchHistoryTip() {
         scope.launch(Dispatchers.IO) {
             userPreferences.setSearchHistoryTipDismissed(true)

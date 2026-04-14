@@ -13,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Archive
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Repeat
@@ -76,10 +77,12 @@ fun CalendarEventsSection(
     onExclude: (CalendarEventInfo) -> Unit,
     onInclude: (CalendarEventInfo) -> Unit,
     onNicknameClick: (CalendarEventInfo) -> Unit,
+    onArchiveTodayEvent: (CalendarEventInfo) -> Unit,
     getEventNickname: (Long) -> String?,
     showAllResults: Boolean,
     showExpandControls: Boolean,
     onExpandClick: () -> Unit,
+    isHomeScreenMode: Boolean = false,
     expandedCardMaxHeight: Dp = SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT,
     permissionDisabledCard:
         (
@@ -170,9 +173,10 @@ fun CalendarEventsSection(
                     key(event.eventId) {
                         val isPredicted = predictedEventId != null && event.eventId == predictedEventId
                         val showPredictedOnRow = isPredicted && !useCardLevelPrediction
+                        val isPinned = pinnedEventIds.contains(event.eventId)
                         CalendarEventRow(
                             event = event,
-                            isPinned = pinnedEventIds.contains(event.eventId),
+                            isPinned = isPinned,
                             isExcluded = excludedEventIds.contains(event.eventId),
                             hasNickname = !getEventNickname(event.eventId).isNullOrBlank(),
                             onClick = { clickedEvent ->
@@ -187,6 +191,8 @@ fun CalendarEventsSection(
                             onInclude = onInclude,
                             onNicknameClick = onNicknameClick,
                             isPredicted = showPredictedOnRow,
+                            isHomescreenTodayEvent = isHomeScreenMode && !isPinned,
+                            onArchive = onArchiveTodayEvent,
                         )
                         if (index < displayEvents.lastIndex && !showPredictedOnRow) {
                             HorizontalDivider(
@@ -239,6 +245,8 @@ private fun CalendarEventRow(
     onInclude: (CalendarEventInfo) -> Unit,
     onNicknameClick: (CalendarEventInfo) -> Unit,
     isPredicted: Boolean,
+    isHomescreenTodayEvent: Boolean = false,
+    onArchive: (CalendarEventInfo) -> Unit = {},
 ) {
     var showMenu by remember { mutableStateOf(false) }
     val rowView = androidx.compose.ui.platform.LocalView.current
@@ -320,74 +328,87 @@ private fun CalendarEventRow(
             properties = PopupProperties(focusable = false),
             containerColor = AppColors.DialogBackground,
         ) {
-            val menuItems = buildList {
-                add(
+            val menuItems = if (isHomescreenTodayEvent) {
+                listOf(
                     CalendarMenuItem(
-                        textResId =
-                            if (isPinned) {
-                                R.string.action_unpin_app
-                            } else {
-                                R.string.action_pin_app
+                        textResId = R.string.action_archive_today_event,
+                        icon = { Icon(imageVector = Icons.Rounded.Archive, contentDescription = null) },
+                        onClick = {
+                            showMenu = false
+                            onArchive(event)
+                        },
+                    ),
+                )
+            } else {
+                buildList {
+                    add(
+                        CalendarMenuItem(
+                            textResId =
+                                if (isPinned) {
+                                    R.string.action_unpin_app
+                                } else {
+                                    R.string.action_pin_app
+                                },
+                            icon = {
+                                Icon(
+                                    painter =
+                                        painterResource(
+                                            if (isPinned) {
+                                                R.drawable.ic_unpin
+                                            } else {
+                                                R.drawable.ic_pin
+                                            },
+                                        ),
+                                    contentDescription = null,
+                                )
                             },
-                        icon = {
-                            Icon(
-                                painter =
-                                    painterResource(
-                                        if (isPinned) {
-                                            R.drawable.ic_unpin
+                            onClick = {
+                                showMenu = false
+                                onTogglePin(event)
+                            },
+                        ),
+                    )
+                    add(
+                        CalendarMenuItem(
+                            textResId =
+                                if (isExcluded) {
+                                    R.string.action_include_generic
+                                } else {
+                                    R.string.action_exclude_generic
+                                },
+                            icon = {
+                                Icon(
+                                    imageVector =
+                                        if (isExcluded) {
+                                            Icons.Rounded.Visibility
                                         } else {
-                                            R.drawable.ic_pin
+                                            Icons.Rounded.VisibilityOff
                                         },
-                                    ),
-                                contentDescription = null,
-                            )
-                        },
-                        onClick = {
-                            showMenu = false
-                            onTogglePin(event)
-                        },
-                    ),
-                )
-                add(
-                    CalendarMenuItem(
-                        textResId =
-                            if (isExcluded) {
-                                R.string.action_include_generic
-                            } else {
-                                R.string.action_exclude_generic
+                                    contentDescription = null,
+                                )
                             },
-                        icon = {
-                            Icon(
-                                imageVector =
-                                    if (isExcluded) {
-                                        Icons.Rounded.Visibility
-                                    } else {
-                                        Icons.Rounded.VisibilityOff
-                                    },
-                                contentDescription = null,
-                            )
-                        },
-                        onClick = {
-                            showMenu = false
-                            if (isExcluded) onInclude(event) else onExclude(event)
-                        },
-                    ),
-                )
-                add(
-                    CalendarMenuItem(
-                        textResId =
-                            if (hasNickname) {
-                                R.string.action_edit_nickname
-                            } else {
-                                R.string.action_add_nickname
+                            onClick = {
+                                showMenu = false
+                                if (isExcluded) onInclude(event) else onExclude(event)
                             },
-                        icon = { Icon(imageVector = Icons.Rounded.Edit, contentDescription = null) },
-                        onClick = {
-                            showMenu = false
-                            onNicknameClick(event)
-                        },
-                    ),
-                )
+                        ),
+                    )
+                    add(
+                        CalendarMenuItem(
+                            textResId =
+                                if (hasNickname) {
+                                    R.string.action_edit_nickname
+                                } else {
+                                    R.string.action_add_nickname
+                                },
+                            icon = { Icon(imageVector = Icons.Rounded.Edit, contentDescription = null) },
+                            onClick = {
+                                showMenu = false
+                                onNicknameClick(event)
+                            },
+                        ),
+                    )
+                }
             }
 
             menuItems.forEachIndexed { index, item ->

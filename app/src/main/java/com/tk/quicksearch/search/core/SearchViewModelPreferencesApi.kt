@@ -157,6 +157,8 @@ internal interface SearchViewModelPreferencesApi {
         preferencesApiDelegate.setGeminiGroundingEnabled(enabled)
 
     fun refreshAvailableGeminiModels() = preferencesApiDelegate.refreshAvailableGeminiModels()
+
+    fun archiveTodayCalendarEvent(eventId: Long) = preferencesApiDelegate.archiveTodayCalendarEvent(eventId)
 }
 
 class SearchViewModelPreferencesApiDelegate internal constructor(
@@ -219,6 +221,8 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
     fun setRecentQueriesEnabled(enabled: Boolean) = preferencesDelegate.setRecentQueriesEnabled(enabled)
 
     fun setShowTodayEvents(enabled: Boolean) = preferencesDelegate.setShowTodayEvents(enabled)
+
+    fun archiveTodayCalendarEvent(eventId: Long) = preferencesDelegate.archiveTodayCalendarEvent(eventId)
 
     fun dismissSearchHistoryTip() = preferencesDelegate.dismissSearchHistoryTip()
 

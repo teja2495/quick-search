@@ -490,6 +490,7 @@ fun rememberSectionRenderContext(
         notesExpandClick = notesParams.onExpandClick,
         appShortcutsExpandClick = appShortcutsParams.onExpandClick,
         isSectionAliasMode = state.detectedAliasSearchSection != null,
+        isHomeScreenCalendarMode = !isSearching && state.detectedAliasSearchSection != SearchSection.CALENDAR,
     )
 }
 
@@ -550,4 +551,5 @@ data class SectionRenderContext(
     val deviceSettingsExpandClick: () -> Unit = {},
     val appSettingsExpandClick: () -> Unit = {},
     val isSectionAliasMode: Boolean = false,
+    val isHomeScreenCalendarMode: Boolean = false,
 )

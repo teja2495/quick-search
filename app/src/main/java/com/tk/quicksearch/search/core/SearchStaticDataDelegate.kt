@@ -221,9 +221,11 @@ internal class SearchStaticDataDelegate(
         val pinned = calendarRepository.getEventsByIds(pinnedIds)
         val excluded = calendarRepository.getEventsByIds(excludedIds)
         val showTodayEvents = userPreferences.getShowTodayEvents()
+        val archivedIds = userPreferences.getArchivedTodayEventIds()
         val today = if (showTodayEvents) {
             calendarRepository.getTodayEvents()
                 .filterNot { excludedIds.contains(it.eventId) }
+                .filterNot { archivedIds.contains(it.eventId) }
         } else {
             emptyList()
         }

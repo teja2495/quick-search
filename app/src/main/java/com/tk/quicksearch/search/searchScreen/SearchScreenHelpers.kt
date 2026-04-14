@@ -285,6 +285,7 @@ data class CalendarSectionParams(
     val onExclude: (CalendarEventInfo) -> Unit,
     val onInclude: (CalendarEventInfo) -> Unit,
     val onNicknameClick: (CalendarEventInfo) -> Unit,
+    val onArchiveTodayEvent: (CalendarEventInfo) -> Unit,
     val getEventNickname: (Long) -> String?,
     val showAllResults: Boolean,
     val showExpandControls: Boolean,
@@ -361,6 +362,7 @@ internal fun buildSectionParams(
     onUnpinCalendarEvent: (CalendarEventInfo) -> Unit,
     onExcludeCalendarEvent: (CalendarEventInfo) -> Unit,
     onIncludeCalendarEvent: (CalendarEventInfo) -> Unit,
+    onArchiveTodayCalendarEvent: (CalendarEventInfo) -> Unit,
     onNoteClick: (NoteInfo) -> Unit,
     onPinNote: (NoteInfo) -> Unit,
     onUnpinNote: (NoteInfo) -> Unit,
@@ -431,6 +433,7 @@ internal fun buildSectionParams(
     onUnpinCalendarEvent,
     onExcludeCalendarEvent,
     onIncludeCalendarEvent,
+    onArchiveTodayCalendarEvent,
     onOpenCalendarPermissionSettings,
     onOpenAppSettings,
     getPrimaryContactCardAction,
@@ -750,6 +753,7 @@ internal fun buildSectionParams(
             },
             onExclude = onExcludeCalendarEvent,
             onInclude = onIncludeCalendarEvent,
+            onArchiveTodayEvent = onArchiveTodayCalendarEvent,
             onNicknameClick = { event ->
                 onUpdateNicknameDialogState(
                     NicknameDialogState.CalendarEvent(
