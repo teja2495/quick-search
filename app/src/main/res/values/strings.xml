@@ -461,7 +461,8 @@
     <string name="settings_direct_dial_desc">Place calls directly without opening the dialer. </string>
     <string name="settings_direct_dial_title">Direct Dial</string>
     <string name="settings_direct_search_configure">Configure</string>
-    <string name="settings_direct_search_desc">Add an API key to enable AI-powered features within the app.</string>
+    <string name="settings_direct_search_desc_intro">Add an API key to enable AI-powered results within the app.</string>
+    <string name="settings_direct_search_desc">Gemini, OpenAI, Claude and Groq API keys are supported</string>
     <string name="settings_direct_search_grounding_label">Web search</string>
     <string name="settings_direct_search_how_to">Get Free API Key</string>
     <string name="settings_direct_search_model_label">Model</string>
@@ -504,8 +505,7 @@
     <string name="settings_llm_api_key_display_openai">Your OpenAI API key:  ****%1$s</string>
     <string name="settings_llm_api_key_display_claude">Your Claude API key:  ****%1$s</string>
     <string name="settings_llm_api_key_display_groq">Your Groq API key:  ****%1$s</string>
-    <string name="settings_gemini_api_key_paste_hint">Paste API key</string>
-    <string name="settings_gemini_api_key_multi_provider_hint">OpenAI, Claude, and Groq API keys are also supported.</string>
+    <string name="settings_gemini_api_key_paste_hint">Tap to paste the key</string>
     <string name="settings_gemini_api_key_reset">Reset Key</string>
     <string name="settings_gemini_api_key_saving">Saving...</string>
     <string name="settings_gemini_guide_url" translatable="false">https://medium.com/@tejakarlapudi.apps/setting-up-gemini-api-key-in-quick-search-25ee92aa4311</string>

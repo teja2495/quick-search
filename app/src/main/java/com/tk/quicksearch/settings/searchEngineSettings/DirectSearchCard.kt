@@ -77,12 +77,16 @@ fun DirectSearchSetupCard(
             DirectSearchLlmProviderId.GROQ -> R.string.settings_llm_api_key_display_groq
         }
 
-    SettingsCard(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(bottom = 12.dp),
-    ) {
+    Column(modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)) {
+        if (!hasConfiguredApiKey) {
+            Text(
+                text = stringResource(R.string.settings_direct_search_desc_intro),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
+        }
+        SettingsCard(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier =
                 Modifier.padding(
@@ -188,12 +192,6 @@ fun DirectSearchSetupCard(
                         )
 
                         if (showInput) {
-                            Text(
-                                text = stringResource(R.string.settings_gemini_api_key_multi_provider_hint),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(bottom = 8.dp),
-                            )
                             Box(modifier = Modifier.fillMaxWidth()) {
                                 OutlinedTextField(
                                     value = apiKeyInput,
@@ -350,6 +348,7 @@ fun DirectSearchSetupCard(
 
                 }
             }
+        }
         }
     }
 }
