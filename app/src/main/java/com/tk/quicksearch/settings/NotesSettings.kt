@@ -308,6 +308,13 @@ private fun NoteListRow(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall),
         ) {
+            val preview = NotesTextUtils.firstLinesPreview(note.markdownContent)
+            val subtitle =
+                if (preview.isNotBlank()) {
+                    preview
+                } else {
+                    stringResource(R.string.notes_empty_note_subtext)
+                }
             Text(
                 text = if (note.title.isBlank()) stringResource(R.string.notes_untitled) else note.title,
                 style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
@@ -316,7 +323,7 @@ private fun NoteListRow(
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = NotesTextUtils.firstLinesPreview(note.markdownContent),
+                text = subtitle,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 3,

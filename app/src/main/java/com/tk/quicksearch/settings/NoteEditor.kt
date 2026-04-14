@@ -2,7 +2,6 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 
 import android.content.Intent
 import android.net.Uri
-import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -12,7 +11,6 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,13 +24,10 @@ import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -257,8 +252,6 @@ fun NoteEditor(
             titleInput.text != t || bodyInput.text != b
         } == true
 
-    val showActionButtons = isNewNoteEntry || hasEdits
-
     val noteScrollState = rememberScrollState()
     val bodyBringIntoViewRequester = remember { BringIntoViewRequester() }
     val scrollBodyToCaretScope = rememberCoroutineScope()
@@ -292,8 +285,8 @@ fun NoteEditor(
         }
     }
 
-    LaunchedEffect(hideTopBar, hasEdits, titleInput.text, bodyInput.text) {
-        if (!hideTopBar || !hasEdits) return@LaunchedEffect
+    LaunchedEffect(hasEdits, titleInput.text, bodyInput.text) {
+        if (!hasEdits) return@LaunchedEffect
         delay(450)
         persistNote()
         contentBaseline = titleInput.text to bodyInput.text
@@ -325,17 +318,6 @@ fun NoteEditor(
         onDispose {
             onDeleteToolbarState(false) {}
         }
-    }
-
-    fun onSaveClick() {
-        persistNote()
-        persistOnLeave.value = false
-        onNavigateToNotes()
-    }
-
-    fun onCancelClick() {
-        persistOnLeave.value = false
-        onNavigateToNotes()
     }
 
     val noteEditorSwipeModifier =
@@ -370,13 +352,7 @@ fun NoteEditor(
                     .weight(1f)
                     .fillMaxWidth()
                     .padding(top = if (hideTopBar) DesignTokens.SpacingLarge else 0.dp)
-                    .then(
-                        if (showActionButtons) {
-                            Modifier
-                        } else {
-                            Modifier.padding(bottom = DesignTokens.CardBottomPadding)
-                        },
-                    ),
+                    .padding(bottom = DesignTokens.CardBottomPadding),
             shape = MaterialTheme.shapes.extraLarge,
             color = AppColors.getSettingsCardContainerColor(),
         ) {
@@ -498,57 +474,6 @@ fun NoteEditor(
                             .padding(end = DesignTokens.SpacingXSmall)
                             .width(DesignTokens.SpacingXXSmall),
                 )
-            }
-        }
-
-        if (showActionButtons && !hideTopBar) {
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = DesignTokens.SpacingXLarge),
-                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-            ) {
-                OutlinedButton(
-                    onClick = ::onCancelClick,
-                    modifier = Modifier.weight(1f).heightIn(min = DesignTokens.Spacing48),
-                    shape = DesignTokens.ShapeXLarge,
-                ) {
-                    Text(text = stringResource(R.string.dialog_cancel))
-                }
-                val canSave = titleInput.text.trim().isNotEmpty()
-                Button(
-                    onClick = {
-                        if (!canSave) {
-                            Toast.makeText(
-                                context,
-                                context.getString(R.string.notes_editor_title_required),
-                                Toast.LENGTH_SHORT,
-                            ).show()
-                        } else {
-                            onSaveClick()
-                        }
-                    },
-                    modifier = Modifier.weight(1f).heightIn(min = DesignTokens.Spacing48),
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor =
-                                if (canSave) {
-                                    MaterialTheme.colorScheme.primary
-                                } else {
-                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
-                                },
-                            contentColor =
-                                if (canSave) {
-                                    MaterialTheme.colorScheme.onPrimary
-                                } else {
-                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                                },
-                        ),
-                    shape = DesignTokens.ShapeXLarge,
-                ) {
-                    Text(text = stringResource(R.string.dialog_save))
-                }
             }
         }
     }

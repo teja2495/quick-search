@@ -654,7 +654,7 @@
     <string name="notes_quick_note_title">Quick Note</string>
     <string name="notes_editor_title">Note Editor</string>
     <string name="notes_empty_state">No notes yet</string>
-    <string name="notes_empty_note_subtext">Empty Note</string>
+    <string name="notes_empty_note_subtext">Empty note</string>
     <string name="notes_untitled">Untitled</string>
     <string name="notes_title_hint">Title</string>
     <string name="notes_editor_title_required">Note title is required</string>
