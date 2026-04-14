@@ -560,6 +560,12 @@ abstract class BasePreferences(
         const val KEY_ANTHROPIC_MODEL = "anthropic_model"
         const val KEY_ANTHROPIC_GROUNDING_ENABLED = "anthropic_grounding_enabled"
 
+        // Groq preferences keys
+        const val KEY_GROQ_API_KEY = "groq_api_key"
+        const val KEY_GROQ_PERSONAL_CONTEXT = "groq_personal_context"
+        const val KEY_GROQ_MODEL = "groq_model"
+        const val KEY_GROQ_GROUNDING_ENABLED = "groq_grounding_enabled"
+
         // Usage permission banner preferences keys
         const val KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT =
             "usage_permission_banner_dismiss_count"

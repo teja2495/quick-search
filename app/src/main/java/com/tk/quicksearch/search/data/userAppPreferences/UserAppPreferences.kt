@@ -42,6 +42,7 @@ class UserAppPreferences(
     private val geminiPreferences by lazy { GeminiPreferences(context) }
     private val openAiPreferences by lazy { OpenAiPreferences(context) }
     private val anthropicPreferences by lazy { AnthropicPreferences(context) }
+    private val groqPreferences by lazy { GroqPreferences(context) }
     private val llmPreferences by lazy { LlmPreferences(context) }
     val uiPreferences by lazy { UiPreferences(context) }
     private val amazonPreferences by lazy { AmazonPreferences(context) }
@@ -578,6 +579,7 @@ class UserAppPreferences(
                 DirectSearchLlmProviderId.GEMINI -> geminiPreferences.getGeminiApiKey()
                 DirectSearchLlmProviderId.OPENAI -> openAiPreferences.getApiKey()
                 DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.getApiKey()
+                DirectSearchLlmProviderId.GROQ -> groqPreferences.getApiKey()
             }
 
     fun setLlmApiKey(providerId: DirectSearchLlmProviderId, key: String?) {
@@ -585,6 +587,7 @@ class UserAppPreferences(
             DirectSearchLlmProviderId.GEMINI -> geminiPreferences.setGeminiApiKey(key)
             DirectSearchLlmProviderId.OPENAI -> openAiPreferences.setApiKey(key)
             DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.setApiKey(key)
+            DirectSearchLlmProviderId.GROQ -> groqPreferences.setApiKey(key)
         }
     }
 
@@ -593,6 +596,7 @@ class UserAppPreferences(
         geminiPreferences.setGeminiApiKey(null)
         openAiPreferences.setApiKey(null)
         anthropicPreferences.setApiKey(null)
+        groqPreferences.setApiKey(null)
     }
 
     fun getLlmModel(providerId: DirectSearchLlmProviderId): String =
@@ -600,6 +604,7 @@ class UserAppPreferences(
                 DirectSearchLlmProviderId.GEMINI -> geminiPreferences.getGeminiModel()
                 DirectSearchLlmProviderId.OPENAI -> openAiPreferences.getModel()
                 DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.getModel()
+                DirectSearchLlmProviderId.GROQ -> groqPreferences.getModel()
             }
 
     fun setLlmModel(providerId: DirectSearchLlmProviderId, modelId: String?) {
@@ -607,6 +612,7 @@ class UserAppPreferences(
             DirectSearchLlmProviderId.GEMINI -> geminiPreferences.setGeminiModel(modelId)
             DirectSearchLlmProviderId.OPENAI -> openAiPreferences.setModel(modelId)
             DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.setModel(modelId)
+            DirectSearchLlmProviderId.GROQ -> groqPreferences.setModel(modelId)
         }
     }
 
@@ -615,6 +621,7 @@ class UserAppPreferences(
                 DirectSearchLlmProviderId.GEMINI -> geminiPreferences.isGeminiGroundingEnabled()
                 DirectSearchLlmProviderId.OPENAI -> openAiPreferences.isGroundingEnabled()
                 DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.isGroundingEnabled()
+                DirectSearchLlmProviderId.GROQ -> groqPreferences.isGroundingEnabled()
             }
 
     fun setLlmGroundingEnabled(providerId: DirectSearchLlmProviderId, enabled: Boolean) {
@@ -622,6 +629,7 @@ class UserAppPreferences(
             DirectSearchLlmProviderId.GEMINI -> geminiPreferences.setGeminiGroundingEnabled(enabled)
             DirectSearchLlmProviderId.OPENAI -> openAiPreferences.setGroundingEnabled(enabled)
             DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.setGroundingEnabled(enabled)
+            DirectSearchLlmProviderId.GROQ -> groqPreferences.setGroundingEnabled(enabled)
         }
     }
 
@@ -630,6 +638,7 @@ class UserAppPreferences(
                 DirectSearchLlmProviderId.GEMINI -> geminiPreferences.getPersonalContext()
                 DirectSearchLlmProviderId.OPENAI -> openAiPreferences.getPersonalContext()
                 DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.getPersonalContext()
+                DirectSearchLlmProviderId.GROQ -> groqPreferences.getPersonalContext()
             }
 
     fun setLlmPersonalContext(providerId: DirectSearchLlmProviderId, context: String?) {
@@ -637,6 +646,7 @@ class UserAppPreferences(
             DirectSearchLlmProviderId.GEMINI -> geminiPreferences.setPersonalContext(context)
             DirectSearchLlmProviderId.OPENAI -> openAiPreferences.setPersonalContext(context)
             DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.setPersonalContext(context)
+            DirectSearchLlmProviderId.GROQ -> groqPreferences.setPersonalContext(context)
         }
     }
 
@@ -644,7 +654,8 @@ class UserAppPreferences(
     fun hasAnyLlmApiKey(): Boolean =
         !geminiPreferences.getGeminiApiKey().isNullOrBlank() ||
             !openAiPreferences.getApiKey().isNullOrBlank() ||
-            !anthropicPreferences.getApiKey().isNullOrBlank()
+            !anthropicPreferences.getApiKey().isNullOrBlank() ||
+            !groqPreferences.getApiKey().isNullOrBlank()
 
     // Backward-compatible Gemini facade methods kept for existing call sites.
     fun getGeminiApiKey(): String? = geminiPreferences.getGeminiApiKey()

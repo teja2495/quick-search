@@ -28,6 +28,7 @@ enum class DirectSearchLlmProviderId(
     GEMINI("gemini"),
     OPENAI("openai"),
     ANTHROPIC("anthropic"),
+    GROQ("groq"),
     ;
 
     companion object {
@@ -37,6 +38,7 @@ enum class DirectSearchLlmProviderId(
         /**
          * Detect the provider from an API key prefix.
          * - `sk-ant-*` → ANTHROPIC
+         * - `gsk_*` → GROQ
          * - `sk-*` (not `sk-ant-`) → OPENAI
          * - everything else → GEMINI
          */
@@ -45,6 +47,7 @@ enum class DirectSearchLlmProviderId(
             val trimmed = apiKey.trim()
             return when {
                 trimmed.startsWith("sk-ant-") -> ANTHROPIC
+                trimmed.startsWith("gsk_") -> GROQ
                 trimmed.startsWith("sk-") -> OPENAI
                 else -> GEMINI
             }
@@ -82,5 +85,6 @@ object DirectSearchLlmProviderRegistry {
             DirectSearchLlmProviderId.GEMINI -> GeminiDirectSearchLlmProvider
             DirectSearchLlmProviderId.OPENAI -> OpenAiDirectSearchLlmProvider
             DirectSearchLlmProviderId.ANTHROPIC -> AnthropicDirectSearchLlmProvider
+            DirectSearchLlmProviderId.GROQ -> GroqDirectSearchLlmProvider
         }
 }

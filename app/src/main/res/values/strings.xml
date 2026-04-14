@@ -506,7 +506,7 @@
     <string name="settings_gemini_api_key_add">Add Key</string>
     <string name="settings_gemini_api_key_display">Your Gemini API key:  ****%1$s</string>
     <string name="settings_gemini_api_key_paste_hint">Paste Gemini API Key</string>
-    <string name="settings_gemini_api_key_multi_provider_hint">OpenAI and Claude API keys are also supported.</string>
+    <string name="settings_gemini_api_key_multi_provider_hint">OpenAI, Claude, and Groq API keys are also supported.</string>
     <string name="settings_gemini_api_key_reset">Reset Key</string>
     <string name="settings_gemini_api_key_saving">Saving...</string>
     <string name="settings_gemini_guide_url" translatable="false">https://medium.com/@tejakarlapudi.apps/setting-up-gemini-api-key-in-quick-search-25ee92aa4311</string>
