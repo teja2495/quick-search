@@ -678,7 +678,7 @@ object AppColors {
 
     /**
      * Resolved container colors for search result cards (history, suggestions, section lists,
-     * engine cards, direct search). When [overlayContainerColor] is non-null (overlay theme),
+     * engine cards, AI search). When [overlayContainerColor] is non-null (overlay theme),
      * it wins; otherwise uses [getCardColors] for wallpaper vs standard surfaces.
      */
     @Composable

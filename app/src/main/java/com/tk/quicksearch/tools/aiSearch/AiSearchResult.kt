@@ -22,7 +22,7 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.ui.graphics.Color
 import com.tk.quicksearch.shared.util.PhoneEmailLinkifiedText
 
-/** Composable that displays direct search results with loading, success, and error states. */
+/** Composable that displays AI search results with loading, success, and error states. */
 @Composable
 fun AiSearchResult(
         aiSearchState: AiSearchState,

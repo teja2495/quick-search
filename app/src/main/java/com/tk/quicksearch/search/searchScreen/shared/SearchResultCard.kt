@@ -65,7 +65,7 @@ object SearchResultCardDefaults {
 
 /**
  * Search-screen card wrapper (counterpart to [com.tk.quicksearch.settings.shared.SettingsCard]).
- * Used only on the search result surface: sections, suggestions, engine cards, direct search, etc.
+ * Used only on the search result surface: sections, suggestions, engine cards, AI search, etc.
  * Styling is centralized via [SearchResultCardDefaults].
  */
 @Composable

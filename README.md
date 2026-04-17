@@ -31,7 +31,7 @@ A fast & powerful Android app that lets you search across **apps, app shortcuts,
 - **Currency Converter**: Convert between currencies with live exchange rates directly from the search bar
 - **World Clock**: Check the current time across different time zones by searching for city names
 - **Date & Time**: Natural-language date parsing, differences, offsets, and time arithmetic from the search bar (optional alias)
-- **Gemini API**: Direct search with AI-powered answers using Gemini/Gemma models and optional personal context
+- **AI Search**: AI search with AI-powered answers using  models and optional personal context
 - **AI Providers**: Configure API keys for OpenAI, Claude, and Groq
 - **Custom AI Tools**: Create your own AI tools (requires an API key)
 - **Overlay Mode**: Enable to make the search bar appear over other apps, anywhere—changes how you access search from any screen
@@ -55,17 +55,17 @@ Configure custom keyboard shortcuts for search engines and add them at the start
 - `mps` → Google Maps
 - And more...
 
-### Direct Search
+### AI Search
 Enable AI-powered answers by:
 1. Getting a Gemini API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Adding the key in Settings → Search Engines → Direct Search
+2. Adding the key in Settings → Search Engines → AI Search
 3. Optionally add personal context for personalized answers
-4. Choose any Gemini/Gemma models of your choice
+4. Choose any models of your choice
 
 ### Search Engines
-- **Supported** (25): Direct Search, Google, ChatGPT, Gemini, Perplexity, Grok, Google Maps, Google Drive, Google Photos, Google Play, YouTube, YouTube Music, Spotify, Reddit, Amazon, X (Twitter), Facebook Marketplace, Bing, DuckDuckGo, Brave, Startpage, You.com, AI Mode, Claude, Wikipedia—each can be reordered or disabled. You also have option to add **custom** search engines.
+- **Supported** (25): AI Search, Google, ChatGPT, Gemini, Perplexity, Grok, Google Maps, Google Drive, Google Photos, Google Play, YouTube, YouTube Music, Spotify, Reddit, Amazon, X (Twitter), Facebook Marketplace, Bing, DuckDuckGo, Brave, Startpage, You.com, AI Mode, Claude, Wikipedia—each can be reordered or disabled. You also have option to add **custom** search engines.
 - **Browsers**: Add installed browsers as search engines
-- **Direct Search**: AI answers with Gemini API integration; choose among several Gemini and Gemma models; optional personal context
+- **AI Search**: AI answers with Gemini API integration; choose among several Gemini and Gemma models; optional personal context
 - **AI Providers**: Support for OpenAI, Claude, and Groq API keys
 - **Style**: Choose between inline or compact styles
 

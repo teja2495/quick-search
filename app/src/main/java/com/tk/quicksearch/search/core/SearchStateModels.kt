@@ -85,7 +85,7 @@ data class SearchResultsState(
         val calendarSectionState: CalendarSectionVisibility = CalendarSectionVisibility.Hidden,
         val notesSectionState: NotesSectionVisibility = NotesSectionVisibility.Hidden,
         val searchEnginesState: SearchEnginesVisibility = SearchEnginesVisibility.Hidden,
-        // Transient search state (calculator answer, direct search, web suggestions)
+        // Transient search state (calculator answer, AI search, web suggestions)
         val calculatorState: CalculatorState = CalculatorState(),
         val currencyConverterState: CurrencyConverterState = CurrencyConverterState(),
         val wordClockState: WordClockState = WordClockState(),
@@ -150,7 +150,7 @@ data class SearchFeatureState(
         val disabledAppShortcutIds: Set<String> = emptySet(),
         // Section visibility preferences (which sections are enabled/disabled)
         val disabledSections: Set<SearchSection> = emptySet(),
-        // Gemini / Direct Search
+        // AI Search
         val hasGeminiApiKey: Boolean = false,
         val geminiApiKeyLast4: String? = null,
         val aiSearchLlmProviderId: AiSearchLlmProviderId = AiSearchLlmProviderId.GEMINI,

@@ -10,7 +10,7 @@ Use it as the primary implementation playbook for building new features and upda
 - UI: Jetpack Compose + Material 3
 - Architecture: MVVM with unidirectional data flow
 - Package: `com.tk.quicksearch`
-- Core behavior: unified search for apps, app shortcuts, contacts, calendar events, files, device settings, app settings, web, and tools (calculator/unit/date/direct search)
+- Core behavior: unified search for apps, app shortcuts, contacts, calendar events, files, device settings, app settings, web, and tools (calculator/unit/date/ai search)
 
 ## 2) Core Architecture (Do Not Bypass)
 

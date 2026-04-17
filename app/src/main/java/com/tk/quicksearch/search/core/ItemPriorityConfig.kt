@@ -9,7 +9,7 @@ package com.tk.quicksearch.search.core
  *
  * ### Item Types Covered
  * - **Sections**: Apps, App Shortcuts, Files, Contacts, Settings
- * - **Special Cards**: Calculator Result, Currency Converter Result, Direct Search Result
+ * - **Special Cards**: Calculator Result, Currency Converter Result, AI Search Result
  * - **Suggestions**: Web Suggestions, Recent Queries
  * - **Search Engines**: Inline/Compact search engine cards
  *
@@ -68,7 +68,7 @@ object ItemPriorityConfig {
      * 1. Error banner (if present)
      * 2. Calculator result (if query matches calculation)
      * 3. Currency converter result (if query matches conversion)
-     * 4. Direct search result (if available)
+     * 4. AI search result (if available)
      * 5. Search result sections (in priority order)
      * 6. Web suggestions (if no results)
      * 7. Inline search engines (if enabled)
