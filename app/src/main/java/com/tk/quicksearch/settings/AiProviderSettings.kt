@@ -42,7 +42,7 @@ import com.tk.quicksearch.tools.directSearch.GeminiTextModel
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 @Composable
-fun APIKeySettingsSection(
+fun AiProviderSettingsSection(
         personalContext: String,
         geminiModel: String,
         geminiGroundingEnabled: Boolean,

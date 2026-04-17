@@ -52,7 +52,7 @@ import com.tk.quicksearch.settings.shared.SettingsScreenState
 import com.tk.quicksearch.settings.shared.SettingsManagementSearchBar
 import com.tk.quicksearch.settings.shared.settingsContentWidth
 import com.tk.quicksearch.settings.AppShortcutsSettings.AppShortcutsSettingsSection
-import com.tk.quicksearch.settings.searchEnginesScreen.DirectSearchSetupCard
+import com.tk.quicksearch.settings.searchEnginesScreen.ApiKeySetupCard
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.settings.NoteDeleteConfirmationDialog
@@ -610,7 +610,7 @@ internal fun SettingsDetailLevel2Screen(
                                         )
                                     }
                                 }
-                                APIKeySettingsSection(
+                                AiProviderSettingsSection(
                                     personalContext = state.personalContext,
                                     geminiModel = state.geminiModel,
                                     geminiGroundingEnabled = state.geminiGroundingEnabled,
@@ -633,7 +633,7 @@ internal fun SettingsDetailLevel2Screen(
                                     modifier = Modifier.fillMaxWidth(),
                                 )
                             } else {
-                                DirectSearchSetupCard(
+                                ApiKeySetupCard(
                                     directSearchEnabled = state.hasGeminiApiKey,
                                     onSetGeminiApiKey = callbacks.onSetGeminiApiKey,
                                     geminiApiKeyLast4 = state.geminiApiKeyLast4,

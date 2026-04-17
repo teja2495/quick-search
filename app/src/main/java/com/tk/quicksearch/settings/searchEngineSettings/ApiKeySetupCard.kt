@@ -46,10 +46,10 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 /**
- * Setup card for direct search configuration.
+ * Card for entering and saving an API key during AI provider setup.
  */
 @Composable
-fun DirectSearchSetupCard(
+fun ApiKeySetupCard(
     directSearchEnabled: Boolean,
     onSetGeminiApiKey: (String?) -> Unit,
     geminiApiKeyLast4: String?,
