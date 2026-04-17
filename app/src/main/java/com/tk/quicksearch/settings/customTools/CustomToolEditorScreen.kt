@@ -1,12 +1,7 @@
 package com.tk.quicksearch.settings.customTools
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,11 +9,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -28,22 +19,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.CustomTool
-import com.tk.quicksearch.settings.shared.SettingsCard
-import com.tk.quicksearch.settings.shared.SettingsToggleRow
+import com.tk.quicksearch.settings.shared.ModelFeatureSettingsCard
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.tools.directSearch.GeminiModelCatalog
-import com.tk.quicksearch.tools.directSearch.GeminiModelPickerDialog
 import com.tk.quicksearch.tools.directSearch.GeminiTextModel
 
 @Composable
@@ -53,6 +39,7 @@ fun CustomToolEditorScreen(
     availableModels: List<GeminiTextModel>,
     onSave: (name: String, prompt: String, modelId: String, groundingEnabled: Boolean, aliasCode: String, thinkingEnabled: Boolean) -> Unit,
     showThinkingToggle: Boolean = true,
+    showGroundingCheckbox: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     var nameInput by remember(existingTool?.id) {
@@ -73,7 +60,6 @@ fun CustomToolEditorScreen(
     var thinkingEnabled by remember(existingTool?.id) {
         mutableStateOf(existingTool?.thinkingEnabled ?: false)
     }
-    var showModelPicker by remember { mutableStateOf(false) }
 
     val focusRequester = remember { FocusRequester() }
     val scrollState = rememberScrollState()
@@ -84,22 +70,18 @@ fun CustomToolEditorScreen(
         }
     }
 
+    LaunchedEffect(availableModels, selectedModelId) {
+        val firstAvailableModelId = availableModels.firstOrNull()?.id ?: return@LaunchedEffect
+        val hasSelectedModel = availableModels.any { it.id == selectedModelId }
+        if (!hasSelectedModel) {
+            selectedModelId = firstAvailableModelId
+        }
+    }
+
     val isNameValid = nameInput.trim().isNotBlank()
     val isPromptValid = promptInput.trim().isNotBlank()
     val isAliasValid = aliasInput.trim().isNotBlank()
     val canSave = isNameValid && isPromptValid && isAliasValid
-
-    val selectedModelName = remember(selectedModelId, availableModels) {
-        availableModels.firstOrNull { it.id == selectedModelId }?.displayName
-            ?: GeminiModelCatalog.FALLBACK_TEXT_MODELS.firstOrNull { it.id == selectedModelId }?.displayName
-            ?: selectedModelId
-    }
-
-    val modelArrowRotation by animateFloatAsState(
-        targetValue = if (showModelPicker) 180f else 0f,
-        animationSpec = tween(200),
-        label = "modelArrow",
-    )
 
     Column(
         modifier = modifier
@@ -166,62 +148,21 @@ fun CustomToolEditorScreen(
                 },
             )
 
-            SettingsCard(modifier = Modifier.fillMaxWidth()) {
-                // Model picker row
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { showModelPicker = true }
-                        .padding(
-                            horizontal = DesignTokens.CardHorizontalPadding,
-                            vertical = DesignTokens.CardVerticalPadding,
-                        ),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = stringResource(R.string.settings_custom_tool_model_label),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        Spacer(modifier = Modifier.height(DesignTokens.SpacingXXSmall))
-                        Text(
-                            text = selectedModelName,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                    }
-                    Icon(
-                        imageVector = Icons.Rounded.ArrowDropDown,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.rotate(modelArrowRotation),
-                    )
-                }
-
-                HorizontalDivider(color = AppColors.SettingsDivider)
-
-                SettingsToggleRow(
-                    title = stringResource(R.string.settings_custom_tool_grounding_label),
-                    subtitle = stringResource(R.string.settings_custom_tool_grounding_hint),
-                    checked = groundingEnabled,
-                    onCheckedChange = { groundingEnabled = it },
-                    isFirstItem = false,
-                    isLastItem = !showThinkingToggle,
-                )
-
-                if (showThinkingToggle) {
-                    SettingsToggleRow(
-                        title = stringResource(R.string.settings_custom_tool_thinking_label),
-                        subtitle = stringResource(R.string.settings_custom_tool_thinking_hint),
-                        checked = thinkingEnabled,
-                        onCheckedChange = { thinkingEnabled = it },
-                        isFirstItem = false,
-                        isLastItem = true,
-                    )
-                }
-            }
+            ModelFeatureSettingsCard(
+                modifier = Modifier.fillMaxWidth(),
+                selectedModelId = selectedModelId,
+                availableModels = availableModels,
+                modelLabel = stringResource(R.string.settings_direct_search_model_label),
+                thinkingLabel = stringResource(R.string.settings_direct_search_thinking_label),
+                webSearchLabel = stringResource(R.string.settings_direct_search_grounding_label),
+                thinkingEnabled = thinkingEnabled,
+                groundingEnabled = groundingEnabled,
+                onModelSelected = { selectedModelId = it },
+                onThinkingChange = { thinkingEnabled = it },
+                onGroundingChange = { groundingEnabled = it },
+                showThinkingCheckbox = showThinkingToggle,
+                showGroundingCheckbox = showGroundingCheckbox,
+            )
         }
 
         Column(
@@ -255,19 +196,4 @@ fun CustomToolEditorScreen(
         }
     }
 
-    if (showModelPicker) {
-        val modelsToShow = availableModels.ifEmpty { GeminiModelCatalog.FALLBACK_TEXT_MODELS }
-        GeminiModelPickerDialog(
-            selectedModelId = selectedModelId,
-            models = modelsToShow,
-            groundingEnabled = false,
-            onGroundingChange = {},
-            onModelSelected = { modelId ->
-                selectedModelId = modelId
-                showModelPicker = false
-            },
-            onDismiss = { showModelPicker = false },
-            showGroundingToggle = false,
-        )
-    }
 }

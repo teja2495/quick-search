@@ -392,6 +392,9 @@ internal fun SettingsDetailLevel2Screen(
                     existingAlias = existingAlias,
                     availableModels = state.availableGeminiModels,
                     showThinkingToggle = state.directSearchLlmProviderId != DirectSearchLlmProviderId.OPENAI,
+                    showGroundingCheckbox =
+                        state.directSearchLlmProviderId != DirectSearchLlmProviderId.OPENAI &&
+                            state.directSearchLlmProviderId != DirectSearchLlmProviderId.GROQ,
                     onSave = { name, prompt, modelId, groundingEnabled, aliasCode, thinkingEnabled ->
                         if (existingTool != null) {
                             callbacks.onUpdateCustomTool(existingTool.id, name, prompt, modelId, groundingEnabled, thinkingEnabled)

@@ -471,7 +471,6 @@
     <string name="settings_direct_search_model_label">Model</string>
     <string name="settings_direct_search_personal_context">Personal Context</string>
     <string name="settings_direct_search_personal_context_hint">Add any context you want AI to use when generating answers.</string>
-    <string name="settings_direct_search_web_search_unsupported">Web search is not available for this model.</string>
     <string name="settings_direct_search_personal_context_unsupported">Personal context is not available for this model.</string>
     <string name="settings_direct_search_toggle">API Key Setup</string>
     <string name="settings_edit_label">Edit</string>
@@ -647,14 +646,9 @@
     <string name="settings_custom_tool_name_label">Tool Name</string>
     <string name="settings_custom_tool_prompt_label">System Prompt</string>
     <string name="settings_custom_tool_prompt_hint">Describe what this tool does. This prompt guides the AI when the tool is triggered.</string>
-    <string name="settings_custom_tool_model_label">Model</string>
     <string name="settings_custom_tool_alias_label">Alias</string>
     <string name="settings_custom_tool_alias_hint">Shortcut to trigger this tool (e.g. "tool").</string>
-    <string name="settings_custom_tool_grounding_label">Web search</string>
-    <string name="settings_custom_tool_grounding_hint">Allow the model to fetch up-to-date information from the web.</string>
     <string name="settings_custom_tool_delete_button">Delete Tool</string>
-    <string name="settings_custom_tool_thinking_label">Extended Thinking</string>
-    <string name="settings_custom_tool_thinking_hint">Enable deeper reasoning for complex tasks. Uses more tokens.</string>
     <string name="notes_create_note_cta">New Note</string>
     <string name="notes_quick_note_title">Quick Note</string>
     <string name="notes_editor_title">Note Editor</string>
