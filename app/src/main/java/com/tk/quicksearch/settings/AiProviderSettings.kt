@@ -1,14 +1,13 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -17,7 +16,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -27,7 +25,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.tools.aiSearch.GeminiModelCatalog
 import com.tk.quicksearch.tools.aiSearch.GeminiTextModel
 import com.tk.quicksearch.settings.shared.ModelFeatureSettingsCard
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 @Composable
@@ -109,25 +107,11 @@ fun AiProviderSettingsSection(
                         showGroundingCheckbox = showGroundingCheckbox,
                 )
 
-                Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                                text =
-                                        stringResource(
-                                                R.string.settings_direct_search_personal_context
-                                        ),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier =
-                                        Modifier.padding(
-                                                bottom = DesignTokens.SectionTitleBottomPadding
-                                        ),
-                        )
-                        SettingsCard(
-                                modifier =
-                                        Modifier.fillMaxWidth()
-                                                .clickable(
-                                                        enabled = !supportsInstructions
-                                                ) {
+                Box(
+                        modifier =
+                                Modifier.fillMaxWidth().then(
+                                        if (!supportsInstructions) {
+                                                Modifier.clickable {
                                                         Toast.makeText(
                                                                         context,
                                                                         context.getString(
@@ -137,9 +121,13 @@ fun AiProviderSettingsSection(
                                                                         Toast.LENGTH_SHORT,
                                                                 )
                                                                 .show()
-                                                },
-                        ) {
-                                OutlinedTextField(
+                                                }
+                                        } else {
+                                                Modifier
+                                        }
+                                ),
+                ) {
+                        OutlinedTextField(
                                 value = personalContextInput,
                                 onValueChange = {
                                         personalContextInput = it
@@ -151,35 +139,42 @@ fun AiProviderSettingsSection(
                                 enabled = supportsInstructions,
                                 modifier =
                                         Modifier.fillMaxWidth()
-                                                .heightIn(min = 180.dp)
+                                                .height(160.dp)
                                                 .onFocusChanged { focusState ->
                                                         personalContextFocused = focusState.isFocused
-                                                }
-                                                .padding(
-                                                        horizontal = DesignTokens.CardHorizontalPadding,
-                                                        vertical = DesignTokens.CardVerticalPadding,
-                                                ),
-                                placeholder = {
+                                                },
+                                label = {
                                         Text(
                                                 text =
                                                         stringResource(
                                                                 R.string
-                                                                        .settings_direct_search_personal_context_hint
+                                                                        .settings_direct_search_personal_context
                                                         )
                                         )
                                 },
-                                shape = MaterialTheme.shapes.extraLarge,
-                                colors =
-                                        OutlinedTextFieldDefaults.colors(
-                                                focusedBorderColor = Color.Transparent,
-                                                unfocusedBorderColor = Color.Transparent,
-                                                disabledBorderColor = Color.Transparent,
-                                                errorBorderColor = Color.Transparent,
-                                        ),
+                                supportingText =
+                                        if (personalContextInput.isBlank()) {
+                                                {
+                                                        Text(
+                                                                text =
+                                                                        stringResource(
+                                                                                R.string
+                                                                                        .settings_direct_search_personal_context_hint
+                                                                        ),
+                                                                style = MaterialTheme.typography.bodySmall,
+                                                                color =
+                                                                        MaterialTheme.colorScheme
+                                                                                .onSurfaceVariant,
+                                                        )
+                                                }
+                                        } else {
+                                                null
+                                        },
+                                colors = dialogTextFieldColors(),
                                 singleLine = false,
-                                minLines = 5,
+                                minLines = 4,
+                                maxLines = 8,
                         )
-                        }
                 }
         }
 }

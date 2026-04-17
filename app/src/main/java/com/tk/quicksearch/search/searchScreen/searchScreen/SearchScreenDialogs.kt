@@ -1,7 +1,7 @@
 package com.tk.quicksearch.search.searchScreen
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import androidx.compose.material3.Button
@@ -126,14 +126,23 @@ internal fun SearchScreenDialogLogic(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .heightIn(min = 180.dp)
+                            .height(160.dp)
                             .focusRequester(personalContextFocusRequester),
-                    placeholder = {
-                        Text(text = stringResource(R.string.settings_direct_search_personal_context_hint))
-                    },
-                    shape = MaterialTheme.shapes.large,
+                    supportingText =
+                        if (personalContextInput.text.isBlank()) {
+                            {
+                                Text(
+                                    text = stringResource(R.string.settings_direct_search_personal_context_hint),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        } else {
+                            null
+                        },
                     singleLine = false,
-                    minLines = 5,
+                    minLines = 4,
+                    maxLines = 8,
                     colors = dialogTextFieldColors(),
                 )
             },
