@@ -377,6 +377,7 @@ fun ContentLayout(
                     if (showDirectSearch && directSearchState != null) {
                         DirectSearchResult(
                             directSearchState = directSearchState,
+                            directSearchLlmProviderId = state.directSearchLlmProviderId,
                             showWallpaperBackground = effectiveShowWallpaperBackground,
                             onGeminiModelInfoClick = onGeminiModelInfoClick,
                             onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,

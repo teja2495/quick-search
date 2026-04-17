@@ -26,6 +26,7 @@ import com.tk.quicksearch.shared.util.PhoneEmailLinkifiedText
 @Composable
 fun DirectSearchResult(
         directSearchState: DirectSearchState,
+        directSearchLlmProviderId: DirectSearchLlmProviderId,
         showWallpaperBackground: Boolean = false,
         onGeminiModelInfoClick: () -> Unit = {},
         onOpenDirectSearchConfigure: () -> Unit = {},
@@ -45,6 +46,7 @@ fun DirectSearchResult(
             showWallpaperBackground = showWallpaperBackground,
             showAttribution = showAttribution,
             usedModelId = directSearchState.usedModelId,
+            llmProviderId = directSearchLlmProviderId,
             isAttributionClickable = true,
             onGeminiModelInfoClick = onGeminiModelInfoClick,
             onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,

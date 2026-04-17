@@ -3,7 +3,9 @@ package com.tk.quicksearch.tools.directSearch
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -29,14 +32,15 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchToolType
 import com.tk.quicksearch.search.searchScreen.shared.InformationCard
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.theme.LocalImageBackgroundIsDark
 
 @Composable
 internal fun GeminiResultCard(
         showWallpaperBackground: Boolean,
         showAttribution: Boolean,
         usedModelId: String?,
+        llmProviderId: DirectSearchLlmProviderId = DirectSearchLlmProviderId.GEMINI,
         isAttributionClickable: Boolean = false,
         onGeminiModelInfoClick: () -> Unit = {},
         onOpenDirectSearchConfigure: () -> Unit = {},
@@ -47,6 +51,7 @@ internal fun GeminiResultCard(
             content = content,
             showAttribution = showAttribution,
             usedModelId = usedModelId,
+            llmProviderId = llmProviderId,
             isAttributionClickable = isAttributionClickable,
             onGeminiModelInfoClick = onGeminiModelInfoClick,
             onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
@@ -59,6 +64,7 @@ private fun ColumnWithContent(
         content: @Composable () -> Unit,
         showAttribution: Boolean,
         usedModelId: String?,
+        llmProviderId: DirectSearchLlmProviderId,
         isAttributionClickable: Boolean,
         onGeminiModelInfoClick: () -> Unit,
         onOpenDirectSearchConfigure: () -> Unit,
@@ -78,6 +84,7 @@ private fun ColumnWithContent(
             GeminiAttributionRow(
                     modifier = Modifier.fillMaxWidth(),
                     usedModelId = usedModelId,
+                    llmProviderId = llmProviderId,
                     isClickable = isAttributionClickable,
                     onClick = onGeminiModelInfoClick,
                     onLongClick = onOpenDirectSearchConfigure,
@@ -87,20 +94,39 @@ private fun ColumnWithContent(
 }
 
 @Composable
-private fun informationAttributionContentColor(): Color {
-    val imageBackgroundIsDark = LocalImageBackgroundIsDark.current
-    return when (imageBackgroundIsDark) {
-        true -> Color.White
-        false -> Color.Black
-        null -> MaterialTheme.colorScheme.onSurfaceVariant
+private fun informationAttributionContentColor(): Color =
+    AppColors.wallpaperAwareMutedSearchForeground(alpha = 1f)
+
+@Composable
+private fun AnthropicClaudeWordmark(
+        contentDescription: String,
+        modifier: Modifier = Modifier,
+        wordmarkTextColor: Color,
+) {
+    Box(modifier = modifier) {
+        Image(
+                painter = painterResource(R.drawable.claude_wordmark_mark),
+                contentDescription = contentDescription,
+                contentScale = ContentScale.Fit,
+                colorFilter = null,
+                modifier = Modifier.fillMaxSize(),
+        )
+        Image(
+                painter = painterResource(R.drawable.claude_wordmark_type),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                colorFilter = ColorFilter.tint(wordmarkTextColor),
+                modifier = Modifier.fillMaxSize(),
+        )
     }
 }
 
-/** Attribution row showing powered by Gemini or Gemma branding. */
+/** Attribution row showing powered by Gemini, Gemma, OpenAI, Claude, or Groq branding. */
 @Composable
 internal fun GeminiAttributionRow(
         modifier: Modifier = Modifier,
         usedModelId: String? = null,
+        llmProviderId: DirectSearchLlmProviderId = DirectSearchLlmProviderId.GEMINI,
         isClickable: Boolean = false,
         onClick: () -> Unit = {},
         onLongClick: () -> Unit = {},
@@ -108,9 +134,6 @@ internal fun GeminiAttributionRow(
     val contentColor = informationAttributionContentColor()
     val poweredByText = stringResource(R.string.direct_search_powered_by)
     val isGemma = usedModelId?.lowercase()?.startsWith("gemma-") == true
-    val logoRes = if (isGemma) R.drawable.gemma_logo else R.drawable.gemini_logo
-    val logoAspectRatio = if (isGemma) 250f / 64f else 288f / 65f
-    val logoHeight = if (isGemma) 20.dp else DesignTokens.SpacingLarge
     val rowModifier =
             if (isClickable) {
                 modifier
@@ -134,12 +157,49 @@ internal fun GeminiAttributionRow(
                 style = MaterialTheme.typography.labelSmall,
                 color = contentColor,
         )
-        Image(
-                painter = painterResource(id = logoRes),
-                contentDescription = poweredByText,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.height(logoHeight).aspectRatio(logoAspectRatio),
-        )
+        when (llmProviderId) {
+            DirectSearchLlmProviderId.OPENAI -> {
+                Image(
+                        painter = painterResource(R.drawable.openai_wordmark),
+                        contentDescription = poweredByText,
+                        contentScale = ContentScale.Fit,
+                        colorFilter = ColorFilter.tint(contentColor),
+                        modifier =
+                                Modifier.height(18.dp).aspectRatio(1564.3f / 428.4f),
+                )
+            }
+            DirectSearchLlmProviderId.ANTHROPIC -> {
+                AnthropicClaudeWordmark(
+                        contentDescription = poweredByText,
+                        wordmarkTextColor = contentColor,
+                        modifier =
+                                Modifier.height(18.dp)
+                                        .aspectRatio(689.97997f / 148.17999f),
+                )
+            }
+            DirectSearchLlmProviderId.GROQ -> {
+                Image(
+                        painter = painterResource(R.drawable.groq_wordmark),
+                        contentDescription = poweredByText,
+                        contentScale = ContentScale.Fit,
+                        colorFilter = ColorFilter.tint(contentColor),
+                        modifier =
+                                Modifier.height(18.dp).aspectRatio(152f / 55.5f),
+                )
+            }
+            else -> {
+                val logoRes = if (isGemma) R.drawable.gemma_logo else R.drawable.gemini_logo
+                val logoAspectRatio = if (isGemma) 250f / 64f else 288f / 65f
+                val logoHeight = if (isGemma) 18.dp else 14.dp
+                Image(
+                        painter = painterResource(id = logoRes),
+                        contentDescription = poweredByText,
+                        contentScale = ContentScale.Fit,
+                        colorFilter = null,
+                        modifier = Modifier.height(logoHeight).aspectRatio(logoAspectRatio),
+                )
+            }
+        }
     }
 }
 
