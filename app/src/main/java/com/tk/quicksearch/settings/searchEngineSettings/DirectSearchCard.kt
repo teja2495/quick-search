@@ -57,7 +57,6 @@ fun DirectSearchSetupCard(
     isExpanded: Boolean = true,
     onToggleExpanded: (() -> Unit)? = null,
 ) {
-    var showInput by remember { mutableStateOf(false) }
     var apiKeyInput by remember { mutableStateOf("") }
     val hasConfiguredApiKey = directSearchEnabled && geminiApiKeyLast4 != null
     val buttonRowBottomPadding = DesignTokens.SpacingXSmall
@@ -65,15 +64,9 @@ fun DirectSearchSetupCard(
     @Suppress("DEPRECATION")
     val clipboardManager = LocalClipboardManager.current
     val geminiGuideUrl = stringResource(R.string.settings_gemini_guide_url)
+    val trimmedKey = apiKeyInput.trim()
+    val hasKeyToSave = trimmedKey.isNotEmpty()
     Column(modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)) {
-        if (!hasConfiguredApiKey) {
-            Text(
-                text = stringResource(R.string.settings_direct_search_desc_intro),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
-        }
         SettingsCard(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier =
@@ -134,123 +127,116 @@ fun DirectSearchSetupCard(
                 Column {
                     if (!hasConfiguredApiKey) {
                         Text(
+                            text = stringResource(R.string.settings_direct_search_desc_intro),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Text(
                             text = stringResource(R.string.settings_direct_search_desc),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(bottom = 20.dp),
                         )
 
-                        if (showInput) {
-                            Box(modifier = Modifier.fillMaxWidth()) {
-                                OutlinedTextField(
-                                    value = apiKeyInput,
-                                    onValueChange = { apiKeyInput = it },
-                                    modifier =
-                                        Modifier
-                                            .fillMaxWidth()
-                                            .padding(bottom = 16.dp),
-                                    placeholder = {
-                                        Text(
-                                            text = if (apiKeyInput.isEmpty()) "" else "",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        )
-                                    },
-                                    singleLine = true,
-                                    readOnly = true, // Prevent keyboard opening
-                                )
-
-                                // Overlay clickable text when field is empty
-                                if (apiKeyInput.isEmpty()) {
-                                    Text(
-                                        text = stringResource(R.string.settings_gemini_api_key_paste_hint),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = AppColors.LinkColor,
-                                        modifier =
-                                            Modifier
-                                                .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp)
-                                                .clickable {
-                                                    clipboardManager
-                                                        .getText()
-                                                        ?.text
-                                                        ?.trim()
-                                                        ?.takeIf { it.isNotEmpty() }
-                                                        ?.let { pasted ->
-                                                            apiKeyInput = pasted
-                                                        }
-                                                },
-                                    )
-                                }
-
-                                // Tap gesture for the entire field
-                                Box(
-                                    modifier =
-                                        Modifier
-                                            .fillMaxWidth()
-                                            .height(56.dp) // Standard TextField height
-                                            .pointerInput(Unit) {
-                                                detectTapGestures(
-                                                    onTap = {
-                                                        if (apiKeyInput.isEmpty()) {
-                                                            // Handle tap to paste when field is empty
-                                                            clipboardManager
-                                                                .getText()
-                                                                ?.text
-                                                                ?.trim()
-                                                                ?.takeIf { it.isNotEmpty() }
-                                                                ?.let { pasted ->
-                                                                    apiKeyInput = pasted
-                                                                }
-                                                        } else {
-                                                            // Clear when field has content
-                                                            apiKeyInput = ""
-                                                        }
-                                                    },
-                                                    onLongPress = {
-                                                        if (apiKeyInput.isEmpty()) {
-                                                            // Handle long press to paste when field is empty (backup)
-                                                            clipboardManager
-                                                                .getText()
-                                                                ?.text
-                                                                ?.trim()
-                                                                ?.takeIf { it.isNotEmpty() }
-                                                                ?.let { pasted ->
-                                                                    apiKeyInput = pasted
-                                                                }
-                                                        } else {
-                                                            // Clear when field has content
-                                                            apiKeyInput = ""
-                                                        }
-                                                    },
-                                                )
-                                            },
-                                )
-                            }
-                            Row(
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            OutlinedTextField(
+                                value = apiKeyInput,
+                                onValueChange = { apiKeyInput = it },
                                 modifier =
                                     Modifier
                                         .fillMaxWidth()
-                                        .padding(bottom = buttonRowBottomPadding),
-                                horizontalArrangement = Arrangement.End,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
+                                        .padding(bottom = 16.dp),
+                                placeholder = {
+                                    Text(
+                                        text = if (apiKeyInput.isEmpty()) "" else "",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                },
+                                singleLine = true,
+                                readOnly = true,
+                            )
+
+                            if (apiKeyInput.isEmpty()) {
+                                Text(
+                                    text = stringResource(R.string.settings_gemini_api_key_paste_hint),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = AppColors.LinkColor,
+                                    modifier =
+                                        Modifier
+                                            .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp)
+                                            .clickable {
+                                                clipboardManager
+                                                    .getText()
+                                                    ?.text
+                                                    ?.trim()
+                                                    ?.takeIf { it.isNotEmpty() }
+                                                    ?.let { pasted ->
+                                                        apiKeyInput = pasted
+                                                    }
+                                            },
+                                )
+                            }
+
+                            Box(
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .height(56.dp)
+                                        .pointerInput(Unit) {
+                                            detectTapGestures(
+                                                onTap = {
+                                                    if (apiKeyInput.isEmpty()) {
+                                                        clipboardManager
+                                                            .getText()
+                                                            ?.text
+                                                            ?.trim()
+                                                            ?.takeIf { it.isNotEmpty() }
+                                                            ?.let { pasted ->
+                                                                apiKeyInput = pasted
+                                                            }
+                                                    } else {
+                                                        apiKeyInput = ""
+                                                    }
+                                                },
+                                                onLongPress = {
+                                                    if (apiKeyInput.isEmpty()) {
+                                                        clipboardManager
+                                                            .getText()
+                                                            ?.text
+                                                            ?.trim()
+                                                            ?.takeIf { it.isNotEmpty() }
+                                                            ?.let { pasted ->
+                                                                apiKeyInput = pasted
+                                                            }
+                                                    } else {
+                                                        apiKeyInput = ""
+                                                    }
+                                                },
+                                            )
+                                        },
+                            )
+                        }
+                        Row(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = buttonRowBottomPadding),
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            if (hasKeyToSave) {
                                 TextButton(
-                                    onClick = {
-                                        apiKeyInput = ""
-                                        showInput = false
-                                    },
+                                    enabled = !isSavingGeminiApiKey,
+                                    onClick = { apiKeyInput = "" },
                                 ) {
-                                    Text(text = stringResource(R.string.dialog_cancel))
+                                    Text(text = stringResource(R.string.settings_gemini_api_key_clear))
                                 }
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Button(
-                                    enabled = !isSavingGeminiApiKey && apiKeyInput.trim().isNotEmpty(),
-                                    onClick = {
-                                        val trimmed = apiKeyInput.trim()
-                                        if (trimmed.isNotEmpty()) {
-                                            onSetGeminiApiKey(trimmed)
-                                        }
-                                    },
+                                    enabled = !isSavingGeminiApiKey,
+                                    onClick = { onSetGeminiApiKey(trimmedKey) },
                                 ) {
                                     Text(
                                         text =
@@ -261,16 +247,7 @@ fun DirectSearchSetupCard(
                                             },
                                     )
                                 }
-                            }
-                        } else {
-                            Row(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = buttonRowBottomPadding),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.End,
-                            ) {
+                            } else {
                                 TextButton(
                                     onClick = {
                                         val intent =
@@ -282,14 +259,6 @@ fun DirectSearchSetupCard(
                                     },
                                 ) {
                                     Text(text = stringResource(R.string.settings_direct_search_how_to))
-                                }
-
-                                Spacer(modifier = Modifier.width(8.dp))
-
-                                Button(
-                                    onClick = { showInput = true },
-                                ) {
-                                    Text(text = stringResource(R.string.settings_gemini_api_key_add))
                                 }
                             }
                         }

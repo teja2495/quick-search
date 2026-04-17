@@ -621,7 +621,9 @@ internal fun SettingsDetailLevel2Screen(
                                     onSetGeminiGroundingEnabled = callbacks.onSetGeminiGroundingEnabled,
                                     onSetGeminiThinkingEnabled = callbacks.onSetGeminiThinkingEnabled,
                                     onRefreshAvailableGeminiModels = callbacks.onRefreshAvailableGeminiModels,
-                                    showGroundingCheckbox = state.directSearchLlmProviderId != DirectSearchLlmProviderId.OPENAI,
+                                    showGroundingCheckbox =
+                                        state.directSearchLlmProviderId != DirectSearchLlmProviderId.OPENAI &&
+                                            state.directSearchLlmProviderId != DirectSearchLlmProviderId.GROQ,
                                     showThinkingCheckbox = state.directSearchLlmProviderId != DirectSearchLlmProviderId.OPENAI,
                                     onRequestScrollToBottom = {
                                         coroutineScope.launch {

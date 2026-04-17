@@ -35,6 +35,22 @@ class GroqClient(
         private const val MAX_ATTEMPTS = 2
         private const val INITIAL_RETRY_DELAY_MS = 750L
 
+        /** Reasoning models may embed traces in content; strip before showing the direct answer (fallback). */
+        private val REDACTED_THINKING_BLOCK =
+            Regex(
+                "<redacted_thinking>.*?</redacted_thinking>",
+                setOf(RegexOption.DOT_MATCHES_ALL, RegexOption.IGNORE_CASE),
+            )
+
+        private val SHORT_THINKING_BLOCK =
+            Regex(
+                "<think>.*?</think>",
+                setOf(RegexOption.DOT_MATCHES_ALL, RegexOption.IGNORE_CASE),
+            )
+
+        private val CHANNEL_THINKING_BLOCK =
+            Regex("""<\|channel>thought[\s\S]*?<channel\|>""")
+
         suspend fun fetchAvailableTextModels(
             apiKey: String,
             context: Context,
@@ -223,19 +239,57 @@ class GroqClient(
         messages.put(JSONObject().put("role", "user").put("content", query))
 
         val root = JSONObject()
-        root.put("model", modelId.trim().ifBlank { GroqModelCatalog.DEFAULT_MODEL_ID })
+        val normalizedModel = modelId.trim().ifBlank { GroqModelCatalog.DEFAULT_MODEL_ID }
+        root.put("model", normalizedModel)
         root.put("messages", messages)
         root.put("temperature", 0.2)
-        if (thinkingEnabled && isLikelyReasoningModel(modelId)) {
-            root.put("reasoning_effort", "high")
-        }
+        applyGroqReasoningControls(root, normalizedModel, thinkingEnabled)
 
         return root.toString()
+    }
+
+    // Groq defaults to raw reasoning in content for Qwen 3 (`<redacted_thinking>`). See reasoning docs.
+    private fun applyGroqReasoningControls(
+        root: JSONObject,
+        modelId: String,
+        thinkingEnabled: Boolean,
+    ) {
+        val id = modelId.lowercase()
+
+        when {
+            id == "qwen/qwen3-32b" || id.endsWith("/qwen3-32b") -> {
+                root.put("reasoning_format", "hidden")
+                root.put("reasoning_effort", if (thinkingEnabled) "default" else "none")
+            }
+            id.contains("gpt-oss") -> {
+                root.put("include_reasoning", thinkingEnabled)
+            }
+            id.contains("qwq") -> {
+                root.put("reasoning_format", "hidden")
+            }
+            thinkingEnabled && isLikelyReasoningModel(modelId) -> {
+                root.put("reasoning_effort", "high")
+            }
+        }
     }
 
     private fun isLikelyReasoningModel(modelId: String): Boolean {
         val lower = modelId.lowercase()
         return lower.contains("r1") || lower.contains("reason")
+    }
+
+    private fun stripInlineThinkingMarkers(text: String): String {
+        var t = text
+        repeat(8) {
+            val next =
+                CHANNEL_THINKING_BLOCK.replace(
+                    SHORT_THINKING_BLOCK.replace(REDACTED_THINKING_BLOCK.replace(t, ""), ""),
+                    "",
+                )
+            if (next == t) return@repeat
+            t = next
+        }
+        return t.trim()
     }
 
     private fun extractAnswer(raw: String): String? {
@@ -246,7 +300,7 @@ class GroqClient(
             if (choices.length() == 0) return null
             val message = choices.getJSONObject(0).optJSONObject("message") ?: return null
             val text = message.optString("content").takeIf { it.isNotBlank() } ?: return null
-            text
+            stripInlineThinkingMarkers(text)
                 .replace("*", "")
                 .replace(Regex("degrees?\\s+Fahrenheit", RegexOption.IGNORE_CASE), "°F")
                 .replace(Regex("degrees?\\s+Celsius", RegexOption.IGNORE_CASE), "°C")

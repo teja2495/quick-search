@@ -249,18 +249,37 @@ fun APIKeySettingsSection(
                         }
                 }
 
-                SettingsCard(
-                        modifier =
-                                Modifier.fillMaxWidth().clickable(enabled = !supportsInstructions) {
-                                        Toast.makeText(
-                                                        context,
-                                                        context.getString(R.string.settings_direct_search_personal_context_unsupported),
-                                                        Toast.LENGTH_SHORT,
-                                                )
-                                                .show()
-                                },
-                ) {
-                        OutlinedTextField(
+                Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                                text =
+                                        stringResource(
+                                                R.string.settings_direct_search_personal_context
+                                        ),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier =
+                                        Modifier.padding(
+                                                bottom = DesignTokens.SectionTitleBottomPadding
+                                        ),
+                        )
+                        SettingsCard(
+                                modifier =
+                                        Modifier.fillMaxWidth()
+                                                .clickable(
+                                                        enabled = !supportsInstructions
+                                                ) {
+                                                        Toast.makeText(
+                                                                        context,
+                                                                        context.getString(
+                                                                                R.string
+                                                                                        .settings_direct_search_personal_context_unsupported
+                                                                        ),
+                                                                        Toast.LENGTH_SHORT,
+                                                                )
+                                                                .show()
+                                                },
+                        ) {
+                                OutlinedTextField(
                                 value = personalContextInput,
                                 onValueChange = {
                                         personalContextInput = it
@@ -300,6 +319,7 @@ fun APIKeySettingsSection(
                                 singleLine = false,
                                 minLines = 5,
                         )
+                        }
                 }
         }
 }

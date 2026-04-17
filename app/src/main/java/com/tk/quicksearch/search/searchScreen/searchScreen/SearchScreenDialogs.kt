@@ -181,7 +181,9 @@ internal fun SearchScreenDialogLogic(
                 setShowGeminiModelDialog(false)
                 onRefreshAvailableGeminiModels()
             },
-            showGroundingToggle = state.directSearchLlmProviderId != DirectSearchLlmProviderId.OPENAI,
+            showGroundingToggle =
+                state.directSearchLlmProviderId != DirectSearchLlmProviderId.OPENAI &&
+                    state.directSearchLlmProviderId != DirectSearchLlmProviderId.GROQ,
         )
     }
 
