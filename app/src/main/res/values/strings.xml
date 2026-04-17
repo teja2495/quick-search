@@ -464,11 +464,15 @@
     <string name="settings_direct_search_configure">Configure</string>
     <string name="settings_direct_search_desc_intro">Add an API key to enable AI-powered results within the app.</string>
     <string name="settings_direct_search_desc">Gemini, OpenAI, Claude and Groq API keys are supported</string>
-    <string name="settings_direct_search_grounding_label">Web search</string>
+    <string name="settings_direct_search_grounding_label">Web Search</string>
+    <string name="settings_direct_search_thinking_label">Thinking</string>
+    <string name="settings_direct_search_thinking_hint">Enables deeper reasoning for all AI calls. Uses more tokens.</string>
     <string name="settings_direct_search_how_to">Get Free API Key</string>
     <string name="settings_direct_search_model_label">Model</string>
     <string name="settings_direct_search_personal_context">Personal Context</string>
     <string name="settings_direct_search_personal_context_hint">Add any context you want AI to use when generating answers.</string>
+    <string name="settings_direct_search_web_search_unsupported">Web search is not available for this model.</string>
+    <string name="settings_direct_search_personal_context_unsupported">Personal context is not available for this model.</string>
     <string name="settings_direct_search_toggle">API Key Setup</string>
     <string name="settings_edit_label">Edit</string>
     <string name="settings_edit_search_engine_dialog_title">Edit Search Engine</string>

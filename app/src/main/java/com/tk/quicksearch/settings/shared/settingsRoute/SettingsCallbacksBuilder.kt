@@ -138,6 +138,7 @@ internal fun buildSettingsScreenCallbacks(
         onSetPersonalContext = viewModel::setPersonalContext,
         onSetGeminiModel = viewModel::setGeminiModel,
         onSetGeminiGroundingEnabled = viewModel::setGeminiGroundingEnabled,
+        onSetGeminiThinkingEnabled = viewModel::setGeminiThinkingEnabled,
         onRefreshAvailableGeminiModels = viewModel::refreshAvailableGeminiModels,
         onOpenDirectSearchConfigure = handlers.onOpenDirectSearchConfigure,
         onToggleAppShortcutEnabled = viewModel::setAppShortcutEnabled,

@@ -66,4 +66,11 @@ class GroqPreferences(
     fun setGroundingEnabled(enabled: Boolean) {
         prefs.edit().putBoolean(BasePreferences.KEY_GROQ_GROUNDING_ENABLED, enabled).apply()
     }
+
+    fun isThinkingEnabled(): Boolean =
+        prefs.getBoolean(BasePreferences.KEY_GROQ_THINKING_ENABLED, false)
+
+    fun setThinkingEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(BasePreferences.KEY_GROQ_THINKING_ENABLED, enabled).apply()
+    }
 }

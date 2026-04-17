@@ -99,6 +99,7 @@ internal object SearchStateExtractor {
             personalContext = s.personalContext,
             geminiModel = s.geminiModel,
             geminiGroundingEnabled = s.geminiGroundingEnabled,
+            geminiThinkingEnabled = s.geminiThinkingEnabled,
             availableGeminiModels = s.availableGeminiModels,
             webSuggestionsEnabled = s.webSuggestionsEnabled,
             webSuggestionsCount = s.webSuggestionsCount,

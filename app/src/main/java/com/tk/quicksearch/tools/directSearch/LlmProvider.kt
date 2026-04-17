@@ -16,6 +16,7 @@ data class LlmRequest(
     val personalContext: String? = null,
     val modelId: String,
     val useGroundingWithGoogleSearch: Boolean,
+    val thinkingEnabled: Boolean = false,
     val useSystemInstruction: Boolean,
     val systemInstruction: String? = null,
     val responseMimeType: String = "text/plain",

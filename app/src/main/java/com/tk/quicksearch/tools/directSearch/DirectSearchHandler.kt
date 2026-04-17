@@ -30,6 +30,7 @@ class DirectSearchHandler(
     private var personalContext: String = ""
     private var selectedModelId: String = GeminiModelCatalog.DEFAULT_MODEL_ID
     private var groundingEnabled: Boolean = GeminiModelCatalog.DEFAULT_GROUNDING_ENABLED
+    private var thinkingEnabled: Boolean = false
     private var availableGeminiModels: List<GeminiTextModel> = GeminiModelCatalog.FALLBACK_TEXT_MODELS
     private var hasLoadedGeminiModelsFromApi: Boolean = false
 
@@ -44,6 +45,7 @@ class DirectSearchHandler(
             personalContext = userPreferences.getLlmPersonalContext(activeProviderId).orEmpty()
             selectedModelId = userPreferences.getLlmModel(activeProviderId)
             groundingEnabled = userPreferences.isLlmGroundingEnabled(activeProviderId)
+            thinkingEnabled = userPreferences.isLlmThinkingEnabled(activeProviderId)
             availableGeminiModels = ensureModelExists(activeProvider.fallbackTextModels)
             hasLoadedGeminiModelsFromApi = false
             isInitialized = true
@@ -67,6 +69,7 @@ class DirectSearchHandler(
         personalContext = userPreferences.getLlmPersonalContext(providerId).orEmpty()
         selectedModelId = userPreferences.getLlmModel(providerId)
         groundingEnabled = userPreferences.isLlmGroundingEnabled(providerId)
+        thinkingEnabled = userPreferences.isLlmThinkingEnabled(providerId)
         availableGeminiModels = ensureModelExists(activeProvider.fallbackTextModels)
         hasLoadedGeminiModelsFromApi = false
         clearDirectSearchState()
@@ -120,6 +123,19 @@ class DirectSearchHandler(
         userPreferences.setLlmGroundingEnabled(activeProviderId, enabled)
     }
 
+    fun isThinkingEnabled(): Boolean {
+        ensureInitialized()
+        return thinkingEnabled
+    }
+
+    fun setThinkingEnabled(enabled: Boolean) {
+        ensureInitialized()
+        if (enabled == thinkingEnabled) return
+
+        thinkingEnabled = enabled
+        userPreferences.setLlmThinkingEnabled(activeProviderId, enabled)
+    }
+
     // Backward-compatible Gemini facade methods for existing call sites.
     fun getGeminiApiKey(): String? = getLlmApiKey()
 
@@ -131,6 +147,8 @@ class DirectSearchHandler(
     fun getGeminiModel(): String = getSelectedModelId()
 
     fun isGeminiGroundingEnabled(): Boolean = isGroundingEnabled()
+
+    fun isGeminiThinkingEnabled(): Boolean = isThinkingEnabled()
 
     fun getAvailableGeminiModels(): List<GeminiTextModel> {
         ensureInitialized()
@@ -165,6 +183,10 @@ class DirectSearchHandler(
 
     fun setGeminiGroundingEnabled(enabled: Boolean) {
         setGroundingEnabled(enabled)
+    }
+
+    fun setGeminiThinkingEnabled(enabled: Boolean) {
+        setThinkingEnabled(enabled)
     }
 
     suspend fun refreshAvailableGeminiModels(forceRefresh: Boolean = false): List<GeminiTextModel> {
@@ -232,6 +254,7 @@ class DirectSearchHandler(
                                 modelId = selectedModelId,
                                 useGroundingWithGoogleSearch =
                                     groundingEnabled && (selectedModel?.supportsGrounding != false),
+                                thinkingEnabled = thinkingEnabled,
                                 useSystemInstruction =
                                     selectedModel?.supportsSystemInstructions != false,
                             ),
@@ -282,7 +305,13 @@ class DirectSearchHandler(
             }
     }
 
-    fun requestCustomToolSearch(query: String, systemInstruction: String, modelId: String, groundingEnabled: Boolean) {
+    fun requestCustomToolSearch(
+        query: String,
+        systemInstruction: String,
+        modelId: String,
+        groundingEnabled: Boolean,
+        thinkingEnabled: Boolean = false,
+    ) {
         ensureInitialized()
         val trimmedQuery = query.trim()
         if (trimmedQuery.isBlank()) return
@@ -321,6 +350,7 @@ class DirectSearchHandler(
                                 modelId = modelId,
                                 useGroundingWithGoogleSearch =
                                     groundingEnabled && modelSupportsGrounding(modelId),
+                                thinkingEnabled = this@DirectSearchHandler.thinkingEnabled || thinkingEnabled,
                                 useSystemInstruction = useSystemInstruction,
                                 systemInstruction = systemInstruction,
                             ),

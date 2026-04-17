@@ -320,6 +320,7 @@ internal class SearchStartupLifecycleDelegate(
                     personalContext = directSearchHandler.getPersonalContext(),
                     geminiModel = directSearchHandler.getGeminiModel(),
                     geminiGroundingEnabled = directSearchHandler.isGeminiGroundingEnabled(),
+                    geminiThinkingEnabled = directSearchHandler.isGeminiThinkingEnabled(),
                     availableGeminiModels = directSearchHandler.getAvailableGeminiModels(),
                 )
             }
@@ -606,6 +607,7 @@ internal class SearchStartupLifecycleDelegate(
             val personalContext = directSearchHandler.getPersonalContext()
             val geminiModel = directSearchHandler.getGeminiModel()
             val geminiGroundingEnabled = directSearchHandler.isGeminiGroundingEnabled()
+            val geminiThinkingEnabled = directSearchHandler.isGeminiThinkingEnabled()
             val availableGeminiModels = directSearchHandler.getAvailableGeminiModels()
             val hasGeminiApiKey = !geminiApiKey.isNullOrBlank()
 
@@ -637,6 +639,7 @@ internal class SearchStartupLifecycleDelegate(
                         personalContext = personalContext,
                         geminiModel = geminiModel,
                         geminiGroundingEnabled = geminiGroundingEnabled,
+                        geminiThinkingEnabled = geminiThinkingEnabled,
                         availableGeminiModels = availableGeminiModels,
                     )
                 }

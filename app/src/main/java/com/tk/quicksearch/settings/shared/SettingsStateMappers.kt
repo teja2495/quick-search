@@ -41,6 +41,7 @@ internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState {
         personalContext = searchEngines.personalContext,
         geminiModel = searchEngines.geminiModel,
         geminiGroundingEnabled = searchEngines.geminiGroundingEnabled,
+        geminiThinkingEnabled = searchEngines.geminiThinkingEnabled,
         availableGeminiModels = searchEngines.availableGeminiModels,
         enabledFileTypes = fileSearch.enabledFileTypes,
         showFolders = fileSearch.showFolders,
@@ -145,6 +146,7 @@ private data class SearchEngineMapperState(
     val personalContext: String,
     val geminiModel: String,
     val geminiGroundingEnabled: Boolean,
+    val geminiThinkingEnabled: Boolean,
     val availableGeminiModels: List<com.tk.quicksearch.tools.directSearch.GeminiTextModel>,
 )
 
@@ -166,6 +168,7 @@ private fun SearchUiState.toSearchEngineSettingsState() =
         personalContext = personalContext,
         geminiModel = geminiModel,
         geminiGroundingEnabled = geminiGroundingEnabled,
+        geminiThinkingEnabled = geminiThinkingEnabled,
         availableGeminiModels = availableGeminiModels,
     )
 

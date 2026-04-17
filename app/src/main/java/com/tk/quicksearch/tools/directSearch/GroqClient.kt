@@ -105,6 +105,7 @@ class GroqClient(
         query: String,
         personalContext: String? = null,
         modelId: String = GroqModelCatalog.DEFAULT_MODEL_ID,
+        thinkingEnabled: Boolean = false,
         useSystemInstruction: Boolean = true,
         systemInstruction: String? = null,
     ): Result<String> =
@@ -119,6 +120,7 @@ class GroqClient(
                         query = query,
                         personalContext = personalContext,
                         modelId = modelId,
+                        thinkingEnabled = thinkingEnabled,
                         useSystemInstruction = useSystemInstruction,
                         systemInstruction = systemInstruction,
                     )
@@ -139,6 +141,7 @@ class GroqClient(
         query: String,
         personalContext: String?,
         modelId: String,
+        thinkingEnabled: Boolean,
         useSystemInstruction: Boolean,
         systemInstruction: String?,
     ): Result<String> {
@@ -159,12 +162,14 @@ class GroqClient(
                 query = query,
                 personalContext = personalContext,
                 modelId = modelId,
+                thinkingEnabled = thinkingEnabled,
                 useSystemInstruction = useSystemInstruction,
                 systemInstruction = systemInstruction,
             )
 
             if (BuildConfig.DEBUG) {
-                Log.d(LOG_TAG, "Groq request: model=$modelId")
+                Log.d(LOG_TAG, "Groq request: model=$modelId, thinking=$thinkingEnabled")
+                Log.d(LOG_TAG, "Groq request payload: $payload")
             }
 
             connection.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
@@ -196,6 +201,7 @@ class GroqClient(
         query: String,
         personalContext: String?,
         modelId: String,
+        thinkingEnabled: Boolean,
         useSystemInstruction: Boolean,
         systemInstruction: String?,
     ): String {
@@ -220,8 +226,16 @@ class GroqClient(
         root.put("model", modelId.trim().ifBlank { GroqModelCatalog.DEFAULT_MODEL_ID })
         root.put("messages", messages)
         root.put("temperature", 0.2)
+        if (thinkingEnabled && isLikelyReasoningModel(modelId)) {
+            root.put("reasoning_effort", "high")
+        }
 
         return root.toString()
+    }
+
+    private fun isLikelyReasoningModel(modelId: String): Boolean {
+        val lower = modelId.lowercase()
+        return lower.contains("r1") || lower.contains("reason")
     }
 
     private fun extractAnswer(raw: String): String? {

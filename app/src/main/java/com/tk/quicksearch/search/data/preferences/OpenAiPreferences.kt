@@ -66,4 +66,11 @@ class OpenAiPreferences(
     fun setGroundingEnabled(enabled: Boolean) {
         prefs.edit().putBoolean(BasePreferences.KEY_OPENAI_GROUNDING_ENABLED, enabled).apply()
     }
+
+    fun isThinkingEnabled(): Boolean =
+        prefs.getBoolean(BasePreferences.KEY_OPENAI_THINKING_ENABLED, false)
+
+    fun setThinkingEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(BasePreferences.KEY_OPENAI_THINKING_ENABLED, enabled).apply()
+    }
 }

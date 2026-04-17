@@ -24,6 +24,7 @@ object GroqDirectSearchLlmProvider : DirectSearchLlmProvider {
             query = request.query,
             personalContext = request.personalContext,
             modelId = request.modelId,
+            thinkingEnabled = request.thinkingEnabled,
             useSystemInstruction = request.useSystemInstruction,
             systemInstruction = request.systemInstruction,
         )

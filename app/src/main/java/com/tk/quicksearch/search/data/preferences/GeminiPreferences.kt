@@ -111,4 +111,11 @@ class GeminiPreferences(
     fun setGeminiGroundingEnabled(enabled: Boolean) {
         prefs.edit().putBoolean(BasePreferences.KEY_GEMINI_GROUNDING_ENABLED, enabled).apply()
     }
+
+    fun isThinkingEnabled(): Boolean =
+        prefs.getBoolean(BasePreferences.KEY_GEMINI_THINKING_ENABLED, false)
+
+    fun setThinkingEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(BasePreferences.KEY_GEMINI_THINKING_ENABLED, enabled).apply()
+    }
 }

@@ -548,24 +548,28 @@ abstract class BasePreferences(
         const val KEY_GEMINI_PERSONAL_CONTEXT = "gemini_personal_context"
         const val KEY_GEMINI_MODEL = "gemini_model"
         const val KEY_GEMINI_GROUNDING_ENABLED = "gemini_grounding_enabled"
+        const val KEY_GEMINI_THINKING_ENABLED = "gemini_thinking_enabled"
 
         // OpenAI preferences keys
         const val KEY_OPENAI_API_KEY = "openai_api_key"
         const val KEY_OPENAI_PERSONAL_CONTEXT = "openai_personal_context"
         const val KEY_OPENAI_MODEL = "openai_model"
         const val KEY_OPENAI_GROUNDING_ENABLED = "openai_grounding_enabled"
+        const val KEY_OPENAI_THINKING_ENABLED = "openai_thinking_enabled"
 
         // Anthropic preferences keys
         const val KEY_ANTHROPIC_API_KEY = "anthropic_api_key"
         const val KEY_ANTHROPIC_PERSONAL_CONTEXT = "anthropic_personal_context"
         const val KEY_ANTHROPIC_MODEL = "anthropic_model"
         const val KEY_ANTHROPIC_GROUNDING_ENABLED = "anthropic_grounding_enabled"
+        const val KEY_ANTHROPIC_THINKING_ENABLED = "anthropic_thinking_enabled"
 
         // Groq preferences keys
         const val KEY_GROQ_API_KEY = "groq_api_key"
         const val KEY_GROQ_PERSONAL_CONTEXT = "groq_personal_context"
         const val KEY_GROQ_MODEL = "groq_model"
         const val KEY_GROQ_GROUNDING_ENABLED = "groq_grounding_enabled"
+        const val KEY_GROQ_THINKING_ENABLED = "groq_thinking_enabled"
 
         // Usage permission banner preferences keys
         const val KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT =

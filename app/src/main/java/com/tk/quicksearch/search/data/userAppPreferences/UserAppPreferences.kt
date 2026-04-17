@@ -637,6 +637,23 @@ class UserAppPreferences(
         }
     }
 
+    fun isLlmThinkingEnabled(providerId: DirectSearchLlmProviderId): Boolean =
+            when (providerId) {
+                DirectSearchLlmProviderId.GEMINI -> geminiPreferences.isThinkingEnabled()
+                DirectSearchLlmProviderId.OPENAI -> openAiPreferences.isThinkingEnabled()
+                DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.isThinkingEnabled()
+                DirectSearchLlmProviderId.GROQ -> groqPreferences.isThinkingEnabled()
+            }
+
+    fun setLlmThinkingEnabled(providerId: DirectSearchLlmProviderId, enabled: Boolean) {
+        when (providerId) {
+            DirectSearchLlmProviderId.GEMINI -> geminiPreferences.setThinkingEnabled(enabled)
+            DirectSearchLlmProviderId.OPENAI -> openAiPreferences.setThinkingEnabled(enabled)
+            DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.setThinkingEnabled(enabled)
+            DirectSearchLlmProviderId.GROQ -> groqPreferences.setThinkingEnabled(enabled)
+        }
+    }
+
     fun getLlmPersonalContext(providerId: DirectSearchLlmProviderId): String? =
             when (providerId) {
                 DirectSearchLlmProviderId.GEMINI -> geminiPreferences.getPersonalContext()
@@ -678,6 +695,11 @@ class UserAppPreferences(
 
     fun setGeminiGroundingEnabled(enabled: Boolean) =
             geminiPreferences.setGeminiGroundingEnabled(enabled)
+
+    fun isGeminiThinkingEnabled(): Boolean = geminiPreferences.isThinkingEnabled()
+
+    fun setGeminiThinkingEnabled(enabled: Boolean) =
+            geminiPreferences.setThinkingEnabled(enabled)
 
     // ============================================================================
     // UI Preferences

@@ -106,6 +106,7 @@ class OpenAiClient(
         personalContext: String? = null,
         modelId: String = OpenAiModelCatalog.DEFAULT_MODEL_ID,
         useGroundingWithGoogleSearch: Boolean = OpenAiModelCatalog.DEFAULT_GROUNDING_ENABLED,
+        thinkingEnabled: Boolean = false,
         useSystemInstruction: Boolean = true,
         systemInstruction: String? = null,
     ): Result<String> =
@@ -121,6 +122,7 @@ class OpenAiClient(
                         personalContext = personalContext,
                         modelId = modelId,
                         useGrounding = useGroundingWithGoogleSearch && OpenAiModelCatalog.supportsWebSearch(modelId),
+                        thinkingEnabled = thinkingEnabled,
                         useSystemInstruction = useSystemInstruction,
                         systemInstruction = systemInstruction,
                     )
@@ -142,6 +144,7 @@ class OpenAiClient(
         personalContext: String?,
         modelId: String,
         useGrounding: Boolean,
+        thinkingEnabled: Boolean,
         useSystemInstruction: Boolean,
         systemInstruction: String?,
     ): Result<String> {
@@ -163,12 +166,14 @@ class OpenAiClient(
                 personalContext = personalContext,
                 modelId = modelId,
                 useGrounding = useGrounding,
+                thinkingEnabled = thinkingEnabled,
                 useSystemInstruction = useSystemInstruction,
                 systemInstruction = systemInstruction,
             )
 
             if (BuildConfig.DEBUG) {
-                Log.d(LOG_TAG, "OpenAI request: model=$modelId, grounding=$useGrounding")
+                Log.d(LOG_TAG, "OpenAI request: model=$modelId, grounding=$useGrounding, thinking=$thinkingEnabled")
+                Log.d(LOG_TAG, "OpenAI request payload: $payload")
             }
 
             connection.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
@@ -201,6 +206,7 @@ class OpenAiClient(
         personalContext: String?,
         modelId: String,
         useGrounding: Boolean,
+        thinkingEnabled: Boolean,
         useSystemInstruction: Boolean,
         systemInstruction: String?,
     ): String {
@@ -241,6 +247,10 @@ class OpenAiClient(
                 root.put("model", searchModel)
             }
             root.put("web_search_options", JSONObject())
+        }
+
+        if (thinkingEnabled && isReasoning) {
+            root.put("reasoning_effort", "high")
         }
 
         return root.toString()

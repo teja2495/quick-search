@@ -156,6 +156,9 @@ internal interface SearchViewModelPreferencesApi {
     fun setGeminiGroundingEnabled(enabled: Boolean) =
         preferencesApiDelegate.setGeminiGroundingEnabled(enabled)
 
+    fun setGeminiThinkingEnabled(enabled: Boolean) =
+        preferencesApiDelegate.setGeminiThinkingEnabled(enabled)
+
     fun refreshAvailableGeminiModels() = preferencesApiDelegate.refreshAvailableGeminiModels()
 
     fun archiveTodayCalendarEvent(eventId: Long) = preferencesApiDelegate.archiveTodayCalendarEvent(eventId)
@@ -316,6 +319,9 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
 
     fun setGeminiGroundingEnabled(enabled: Boolean) =
         preferencesDelegate.setGeminiGroundingEnabled(enabled)
+
+    fun setGeminiThinkingEnabled(enabled: Boolean) =
+        preferencesDelegate.setGeminiThinkingEnabled(enabled)
 
     fun refreshAvailableGeminiModels() = preferencesDelegate.refreshAvailableGeminiModels()
 }

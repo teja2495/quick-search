@@ -111,6 +111,7 @@ class AnthropicClient(
         personalContext: String? = null,
         modelId: String = AnthropicModelCatalog.DEFAULT_MODEL_ID,
         useGroundingWithGoogleSearch: Boolean = AnthropicModelCatalog.DEFAULT_GROUNDING_ENABLED,
+        thinkingEnabled: Boolean = false,
         useSystemInstruction: Boolean = true,
         systemInstruction: String? = null,
     ): Result<String> =
@@ -126,6 +127,7 @@ class AnthropicClient(
                         personalContext = personalContext,
                         modelId = modelId,
                         useGrounding = useGroundingWithGoogleSearch,
+                        thinkingEnabled = thinkingEnabled,
                         useSystemInstruction = useSystemInstruction,
                         systemInstruction = systemInstruction,
                     )
@@ -147,6 +149,7 @@ class AnthropicClient(
         personalContext: String?,
         modelId: String,
         useGrounding: Boolean,
+        thinkingEnabled: Boolean,
         useSystemInstruction: Boolean,
         systemInstruction: String?,
     ): Result<String> {
@@ -158,6 +161,9 @@ class AnthropicClient(
                     requestMethod = "POST"
                     setRequestProperty("x-api-key", apiKey)
                     setRequestProperty("anthropic-version", ANTHROPIC_VERSION)
+                    if (thinkingEnabled) {
+                        setRequestProperty("anthropic-beta", ANTHROPIC_BETA)
+                    }
                     setRequestProperty("Content-Type", "application/json")
                     doOutput = true
                     connectTimeout = 15000
@@ -169,12 +175,14 @@ class AnthropicClient(
                 personalContext = personalContext,
                 modelId = modelId,
                 useGrounding = useGrounding,
+                thinkingEnabled = thinkingEnabled,
                 useSystemInstruction = useSystemInstruction,
                 systemInstruction = systemInstruction,
             )
 
             if (BuildConfig.DEBUG) {
-                Log.d(LOG_TAG, "Anthropic request: model=$modelId, grounding=$useGrounding")
+                Log.d(LOG_TAG, "Anthropic request: model=$modelId, grounding=$useGrounding, thinking=$thinkingEnabled")
+                Log.d(LOG_TAG, "Anthropic request payload: $payload")
             }
 
             connection.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
@@ -207,6 +215,7 @@ class AnthropicClient(
         personalContext: String?,
         modelId: String,
         useGrounding: Boolean,
+        thinkingEnabled: Boolean,
         useSystemInstruction: Boolean,
         systemInstruction: String?,
     ): String {
@@ -253,6 +262,15 @@ class AnthropicClient(
                         .put("name", "web_search")
                         .put("max_uses", 1),
                 ),
+            )
+        }
+
+        if (thinkingEnabled) {
+            root.put(
+                "thinking",
+                JSONObject()
+                    .put("type", "enabled")
+                    .put("budget_tokens", 1024),
             )
         }
 

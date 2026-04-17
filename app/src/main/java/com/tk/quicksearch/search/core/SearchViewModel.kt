@@ -549,6 +549,7 @@ class SearchViewModel(
             systemInstruction = tool.prompt,
             modelId = tool.modelId,
             groundingEnabled = tool.groundingEnabled,
+            thinkingEnabled = tool.thinkingEnabled,
         )
     }
     fun activateSearchSectionFilter(section: SearchSection) =

@@ -107,6 +107,7 @@ data class SettingsScreenState(
     val personalContext: String = "",
     val geminiModel: String,
     val geminiGroundingEnabled: Boolean,
+    val geminiThinkingEnabled: Boolean = false,
     val availableGeminiModels: List<GeminiTextModel>,
 ) {
     val searchResults: SearchResultsSettingsState
@@ -145,6 +146,7 @@ data class SettingsScreenState(
                 personalContext = personalContext,
                 geminiModel = geminiModel,
                 geminiGroundingEnabled = geminiGroundingEnabled,
+                geminiThinkingEnabled = geminiThinkingEnabled,
                 availableGeminiModels = availableGeminiModels,
             )
 
@@ -305,6 +307,7 @@ data class SettingsScreenCallbacks(
     val onSetPersonalContext: (String?) -> Unit,
     val onSetGeminiModel: (String?) -> Unit,
     val onSetGeminiGroundingEnabled: (Boolean) -> Unit,
+    val onSetGeminiThinkingEnabled: (Boolean) -> Unit,
     val onRefreshAvailableGeminiModels: () -> Unit,
     val onOpenDirectSearchConfigure: () -> Unit,
     val onToggleAppShortcutEnabled: (StaticShortcut, Boolean) -> Unit,
@@ -373,6 +376,7 @@ data class SettingsScreenCallbacks(
                 onSetPersonalContext = onSetPersonalContext,
                 onSetGeminiModel = onSetGeminiModel,
                 onSetGeminiGroundingEnabled = onSetGeminiGroundingEnabled,
+                onSetGeminiThinkingEnabled = onSetGeminiThinkingEnabled,
                 onRefreshAvailableGeminiModels = onRefreshAvailableGeminiModels,
                 onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
             )
@@ -442,6 +446,7 @@ data class SearchEngineSettingsState(
     val personalContext: String,
     val geminiModel: String,
     val geminiGroundingEnabled: Boolean,
+    val geminiThinkingEnabled: Boolean,
     val availableGeminiModels: List<GeminiTextModel>,
 )
 
@@ -544,6 +549,7 @@ data class SearchEngineSettingsCallbacks(
     val onSetPersonalContext: (String?) -> Unit,
     val onSetGeminiModel: (String?) -> Unit,
     val onSetGeminiGroundingEnabled: (Boolean) -> Unit,
+    val onSetGeminiThinkingEnabled: (Boolean) -> Unit,
     val onRefreshAvailableGeminiModels: () -> Unit,
     val onOpenDirectSearchConfigure: () -> Unit,
 )

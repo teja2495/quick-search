@@ -168,6 +168,7 @@ class DirectSearchClient(
         personalContext: String? = null,
         modelId: String = GeminiModelCatalog.DEFAULT_MODEL_ID,
         useGroundingWithGoogleSearch: Boolean = GeminiModelCatalog.DEFAULT_GROUNDING_ENABLED,
+        thinkingEnabled: Boolean = false,
         useSystemInstruction: Boolean = true,
         systemInstruction: String? = null,
         responseMimeType: String = "text/plain",
@@ -185,6 +186,7 @@ class DirectSearchClient(
                         personalContext = personalContext,
                         modelId = modelId,
                         useGroundingWithGoogleSearch = groundingEnabledForAttempt,
+                        thinkingEnabled = thinkingEnabled,
                         useSystemInstruction = useSystemInstruction,
                         systemInstruction = systemInstruction,
                         responseMimeType = responseMimeType,
@@ -216,6 +218,7 @@ class DirectSearchClient(
         personalContext: String?,
         modelId: String,
         useGroundingWithGoogleSearch: Boolean,
+        thinkingEnabled: Boolean,
         useSystemInstruction: Boolean,
         systemInstruction: String? = null,
         responseMimeType: String = "text/plain",
@@ -238,6 +241,7 @@ class DirectSearchClient(
                     query = query,
                     personalContext = personalContext,
                     useGroundingWithGoogleSearch = useGroundingWithGoogleSearch,
+                    thinkingEnabled = thinkingEnabled,
                     useSystemInstruction = useSystemInstruction,
                     systemInstructionOverride = systemInstruction,
                     responseMimeType = responseMimeType,
@@ -247,7 +251,9 @@ class DirectSearchClient(
                 queryLength = query.length,
                 hasPersonalContext = !personalContext.isNullOrBlank(),
                 useGroundingWithGoogleSearch = useGroundingWithGoogleSearch,
+                thinkingEnabled = thinkingEnabled,
                 useSystemInstruction = useSystemInstruction,
+                payload = payload,
             )
             connection.outputStream.use { output ->
                 output.write(payload.toByteArray(Charsets.UTF_8))
@@ -284,14 +290,17 @@ class DirectSearchClient(
         queryLength: Int,
         hasPersonalContext: Boolean,
         useGroundingWithGoogleSearch: Boolean,
+        thinkingEnabled: Boolean,
         useSystemInstruction: Boolean,
+        payload: String,
     ) {
         if (!BuildConfig.DEBUG) return
         Log.d(
             LOG_TAG,
             "Gemini request: model=$endpointModelId, queryLength=$queryLength, hasPersonalContext=$hasPersonalContext, " +
-                "groundingEnabled=$useGroundingWithGoogleSearch, systemInstructionEnabled=$useSystemInstruction",
+                "groundingEnabled=$useGroundingWithGoogleSearch, thinkingEnabled=$thinkingEnabled, systemInstructionEnabled=$useSystemInstruction",
         )
+        Log.d(LOG_TAG, "Gemini request payload: $payload")
     }
 
     private fun logResponseDiagnostics(
@@ -309,6 +318,7 @@ class DirectSearchClient(
         query: String,
         personalContext: String?,
         useGroundingWithGoogleSearch: Boolean,
+        thinkingEnabled: Boolean,
         useSystemInstruction: Boolean,
         systemInstructionOverride: String? = null,
         responseMimeType: String = "text/plain",
@@ -345,7 +355,7 @@ class DirectSearchClient(
                 put(
                     "thinkingConfig",
                     JSONObject().apply {
-                        put("includeThoughts", false)
+                        put("includeThoughts", thinkingEnabled)
                     },
                 )
             }

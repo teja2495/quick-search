@@ -547,6 +547,7 @@ data class SearchUiState(
         val personalContext: String = "",
         val geminiModel: String = GeminiModelCatalog.DEFAULT_MODEL_ID,
         val geminiGroundingEnabled: Boolean = GeminiModelCatalog.DEFAULT_GROUNDING_ENABLED,
+        val geminiThinkingEnabled: Boolean = false,
         val availableGeminiModels: List<GeminiTextModel> = GeminiModelCatalog.FALLBACK_TEXT_MODELS,
         // Release notes dialog
         val showReleaseNotesDialog: Boolean = false,
@@ -689,6 +690,7 @@ fun SearchUiState(
                 personalContext = features.personalContext,
                 geminiModel = features.geminiModel,
                 geminiGroundingEnabled = features.geminiGroundingEnabled,
+                geminiThinkingEnabled = features.geminiThinkingEnabled,
                 availableGeminiModels = features.availableGeminiModels,
                 webSuggestionsEnabled = features.webSuggestionsEnabled,
                 webSuggestionsCount = features.webSuggestionsCount,

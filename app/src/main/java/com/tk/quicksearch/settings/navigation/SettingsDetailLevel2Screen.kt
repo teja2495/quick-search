@@ -9,6 +9,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -29,6 +33,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -54,6 +59,7 @@ import com.tk.quicksearch.settings.NoteDeleteConfirmationDialog
 import com.tk.quicksearch.settings.NotesBulkDeleteConfirmationDialog
 import com.tk.quicksearch.settings.settingsDetailScreen.CustomToolNavigationMemory
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
+import com.tk.quicksearch.tools.directSearch.DirectSearchLlmProviderId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -76,8 +82,10 @@ internal fun SettingsDetailLevel2Screen(
     if (!detailType.isLevel2()) return
 
     val context = LocalContext.current
+    val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
+    val imeBottom = WindowInsets.ime.getBottom(density)
     var showClearAllConfirmation by remember { mutableStateOf(false) }
     var appShortcutsSearchQuery by remember { mutableStateOf("") }
     var appManagementSearchQuery by remember { mutableStateOf("") }
@@ -136,6 +144,11 @@ internal fun SettingsDetailLevel2Screen(
             notesMultiSelectActive = false
             notesSelectedIds = emptySet()
             showNotesBulkDeleteConfirm = false
+        }
+    }
+    LaunchedEffect(detailType, imeBottom) {
+        if (detailType == SettingsDetailType.GEMINI_API_CONFIG && imeBottom > 0) {
+            scrollState.scrollTo(scrollState.maxValue)
         }
     }
 
@@ -566,25 +579,60 @@ internal fun SettingsDetailLevel2Screen(
                         }
 
                         SettingsDetailType.GEMINI_API_CONFIG -> {
-                            DirectSearchSetupCard(
-                                directSearchEnabled = state.hasGeminiApiKey,
-                                onSetGeminiApiKey = callbacks.onSetGeminiApiKey,
-                                geminiApiKeyLast4 = state.geminiApiKeyLast4,
-                                directSearchLlmProviderId = state.directSearchLlmProviderId,
-                                isSavingGeminiApiKey = state.isSavingGeminiApiKey,
-                                onOpenDirectSearchConfigure = null,
-                            )
                             if (state.hasGeminiApiKey) {
+                                val apiKeyDisplayFormatRes =
+                                    when (state.directSearchLlmProviderId) {
+                                        DirectSearchLlmProviderId.GEMINI -> R.string.settings_llm_api_key_display_gemini
+                                        DirectSearchLlmProviderId.OPENAI -> R.string.settings_llm_api_key_display_openai
+                                        DirectSearchLlmProviderId.ANTHROPIC -> R.string.settings_llm_api_key_display_claude
+                                        DirectSearchLlmProviderId.GROQ -> R.string.settings_llm_api_key_display_groq
+                                    }
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(bottom = DesignTokens.SpacingLarge),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text(
+                                        text = stringResource(apiKeyDisplayFormatRes, state.geminiApiKeyLast4 ?: ""),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    androidx.compose.foundation.layout.Spacer(modifier = Modifier.width(4.dp))
+                                    IconButton(
+                                        onClick = { callbacks.onSetGeminiApiKey(null) },
+                                        modifier = Modifier.size(32.dp),
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.Delete,
+                                            contentDescription = stringResource(R.string.settings_gemini_api_key_reset),
+                                            modifier = Modifier.size(16.dp),
+                                            tint = MaterialTheme.colorScheme.error,
+                                        )
+                                    }
+                                }
                                 APIKeySettingsSection(
                                     personalContext = state.personalContext,
                                     geminiModel = state.geminiModel,
                                     geminiGroundingEnabled = state.geminiGroundingEnabled,
+                                    geminiThinkingEnabled = state.geminiThinkingEnabled,
                                     availableGeminiModels = state.availableGeminiModels,
                                     onSetPersonalContext = callbacks.onSetPersonalContext,
                                     onSetGeminiModel = callbacks.onSetGeminiModel,
                                     onSetGeminiGroundingEnabled = callbacks.onSetGeminiGroundingEnabled,
+                                    onSetGeminiThinkingEnabled = callbacks.onSetGeminiThinkingEnabled,
                                     onRefreshAvailableGeminiModels = callbacks.onRefreshAvailableGeminiModels,
+                                    onRequestScrollToBottom = {
+                                        coroutineScope.launch {
+                                            scrollState.scrollTo(scrollState.maxValue)
+                                        }
+                                    },
                                     modifier = Modifier.fillMaxWidth(),
+                                )
+                            } else {
+                                DirectSearchSetupCard(
+                                    directSearchEnabled = state.hasGeminiApiKey,
+                                    onSetGeminiApiKey = callbacks.onSetGeminiApiKey,
+                                    geminiApiKeyLast4 = state.geminiApiKeyLast4,
+                                    isSavingGeminiApiKey = state.isSavingGeminiApiKey,
                                 )
                             }
                         }

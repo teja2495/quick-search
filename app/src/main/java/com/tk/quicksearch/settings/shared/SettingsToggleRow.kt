@@ -54,6 +54,8 @@ fun SettingsToggleRow(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     onRowClick: (() -> Unit)? = null,
+    onDisabledClick: (() -> Unit)? = null,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier,
     subtitle: String? = null,
     titleContent: (@Composable () -> Unit)? = null,
@@ -77,8 +79,10 @@ fun SettingsToggleRow(
     val topPadding = DesignTokens.cardItemTopPadding(isFirstItem) + extraVerticalPadding
     val bottomPadding = DesignTokens.cardItemBottomPadding(isLastItem) + extraVerticalPadding
     val onToggle: (Boolean) -> Unit = { newValue ->
-        hapticToggle(view)()
-        onCheckedChange(newValue)
+        if (enabled) {
+            hapticToggle(view)()
+            onCheckedChange(newValue)
+        }
     }
 
     Column {
@@ -88,15 +92,30 @@ fun SettingsToggleRow(
                     .fillMaxWidth()
                     .then(
                         if (onRowClick != null) {
-                            Modifier.clickable(onClick = onRowClick)
+                            Modifier.clickable(
+                                enabled = enabled || onDisabledClick != null,
+                                onClick = {
+                                    if (enabled) {
+                                        onRowClick()
+                                    } else {
+                                        onDisabledClick?.invoke()
+                                    }
+                                },
+                            )
                         } else if (sliderDetails != null) {
                             Modifier
                         } else {
-                            Modifier.toggleable(
-                                value = checked,
-                                role = Role.Switch,
-                                onValueChange = onToggle,
-                            )
+                            if (enabled) {
+                                Modifier.toggleable(
+                                    value = checked,
+                                    role = Role.Switch,
+                                    onValueChange = onToggle,
+                                )
+                            } else if (onDisabledClick != null) {
+                                Modifier.clickable(onClick = onDisabledClick)
+                            } else {
+                                Modifier
+                            }
                         },
                     )
                     .padding(
@@ -127,7 +146,12 @@ fun SettingsToggleRow(
                     Text(
                         text = title,
                         style = titleTextStyle,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color =
+                            if (enabled) {
+                                MaterialTheme.colorScheme.onSurface
+                            } else {
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                            },
                     )
                 }
 
@@ -142,6 +166,7 @@ fun SettingsToggleRow(
                             onValueChange = sliderDetails.onValueChange,
                             valueRange = sliderDetails.valueRange,
                             steps = sliderDetails.steps,
+                            enabled = enabled,
                             modifier = Modifier.weight(1f),
                         )
                         Text(
@@ -156,7 +181,12 @@ fun SettingsToggleRow(
                         Text(
                             text = subtitle,
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            color =
+                                if (enabled) {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                } else {
+                                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                },
                         )
                     }
 
@@ -167,6 +197,7 @@ fun SettingsToggleRow(
             Switch(
                 checked = checked,
                 onCheckedChange = onToggle,
+                enabled = enabled,
                 modifier = Modifier.scale(0.85f),
                 colors =
                     SwitchDefaults.colors(

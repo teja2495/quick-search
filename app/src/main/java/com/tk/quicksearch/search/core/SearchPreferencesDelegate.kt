@@ -630,6 +630,7 @@ internal class SearchPreferencesDelegate(
                         geminiApiKeyLast4 = apiKey?.trim()?.takeLast(4),
                         directSearchLlmProviderId = directSearchHandler.getDirectSearchProviderId(),
                         geminiModel = directSearchHandler.getGeminiModel(),
+                        geminiThinkingEnabled = directSearchHandler.isGeminiThinkingEnabled(),
                         availableGeminiModels = availableModels,
                     )
                 }
@@ -662,6 +663,13 @@ internal class SearchPreferencesDelegate(
         scope.launch(Dispatchers.IO) {
             directSearchHandler.setGeminiGroundingEnabled(enabled)
             updateFeatureState { it.copy(geminiGroundingEnabled = enabled) }
+        }
+    }
+
+    fun setGeminiThinkingEnabled(enabled: Boolean) {
+        scope.launch(Dispatchers.IO) {
+            directSearchHandler.setGeminiThinkingEnabled(enabled)
+            updateFeatureState { it.copy(geminiThinkingEnabled = enabled) }
         }
     }
 

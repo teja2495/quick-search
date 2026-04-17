@@ -69,6 +69,7 @@ fun GeminiModelPickerDialog(
                                                                         .clip(MaterialTheme.shapes.medium)
                                                                         .clickable {
                                                                                 onModelSelected(model.id)
+                                                                                onDismiss()
                                                                         }
                                                                         .padding(
                                                                                 horizontal = 8.dp,
@@ -79,7 +80,10 @@ fun GeminiModelPickerDialog(
                                                 ) {
                                                         RadioButton(
                                                                 selected = isSelected,
-                                                                onClick = { onModelSelected(model.id) },
+                                                                onClick = {
+                                                                        onModelSelected(model.id)
+                                                                        onDismiss()
+                                                                },
                                                                 modifier = Modifier.size(16.dp).padding(end = 8.dp)
                                                         )
                                                         Text(
