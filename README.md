@@ -21,6 +21,7 @@ A fast & powerful Android app that lets you search across **apps, app shortcuts,
 - **App Shortcuts**: Find and launch app shortcuts (including custom deep links and search/browser shortcuts) alongside app results.
 - **Contacts**: Find and call/text contacts with multi-number support and integrations such as WhatsApp, Telegram, Signal, Google Meet, and more. Long press contact actions to customize them.
 - **Calendar Events**: Search your calendar events from the search bar.
+- **Notes**: Write notes and search them from the search bar. Swipe left on the home screen for a quick note.
 - **Files**: Search device files and folders (images, videos, documents, etc.)
 - **Device Settings**: Search Android system settings
 - **App Settings**: Find and open Quick Search app settings directly from the search bar
@@ -31,6 +32,8 @@ A fast & powerful Android app that lets you search across **apps, app shortcuts,
 - **World Clock**: Check the current time across different time zones by searching for city names
 - **Date & Time**: Natural-language date parsing, differences, offsets, and time arithmetic from the search bar (optional alias)
 - **Gemini API**: Direct search with AI-powered answers using Gemini/Gemma models and optional personal context
+- **AI Providers**: Configure API keys for OpenAI, Claude, and Groq
+- **Custom AI Tools**: Create your own AI tools (requires an API key)
 - **Overlay Mode**: Enable to make the search bar appear over other apps, anywhere—changes how you access search from any screen
 - **Home Screen Widget**: Search widget and custom buttons widget with extensive customization options
 - **Launch Options**: Widget, Quick Settings Tile & Digital Assistant
@@ -63,6 +66,7 @@ Enable AI-powered answers by:
 - **Supported** (25): Direct Search, Google, ChatGPT, Gemini, Perplexity, Grok, Google Maps, Google Drive, Google Photos, Google Play, YouTube, YouTube Music, Spotify, Reddit, Amazon, X (Twitter), Facebook Marketplace, Bing, DuckDuckGo, Brave, Startpage, You.com, AI Mode, Claude, Wikipedia—each can be reordered or disabled. You also have option to add **custom** search engines.
 - **Browsers**: Add installed browsers as search engines
 - **Direct Search**: AI answers with Gemini API integration; choose among several Gemini and Gemma models; optional personal context
+- **AI Providers**: Support for OpenAI, Claude, and Groq API keys
 - **Style**: Choose between inline or compact styles
 
 [View all features](app/src/main/assets/FEATURES.md)

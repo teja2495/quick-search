@@ -11,6 +11,7 @@ This document highlights all the available features. It also includes details ab
 - **Contact Search** - Quickly locate contacts in your phone and perform various actions for that contact, e.g. Call, SMS, Google Meet Voice/Video call, WhatsApp (Chat, Audio/Video Call), Telegram (Chat, Audio/Video Call), Signal (Chat, Audio/Video Call)
 - **File Search** - Search through device files & folders
 - **Calendar Events Search** - Search through your calendar events
+- **Notes Search** - Write notes and search them quickly from the search bar. Swipe left from home for a quick note.
 - **Device Settings Search** - Find specific device settings
 - **App Settings Search** - Find and access Quick Search app settings directly by searching
 - **App Suggestions** - Shows suggested apps when no search query is entered. You can also choose to hide app suggestions completely. This feature requires usage access permission. If permission is not granted, the app shows suggestions based on apps you recently opened from within the app.
@@ -58,6 +59,7 @@ This document highlights all the available features. It also includes details ab
 - **Dictionary** - Example usage: "define serendipity" or "serendipity meaning", to see search dictionary card, tapping on which will show dictionary result. This requires Gemini API key configuration.
 - **World Clock** - Check the current time across different time zones. Search for city names to see their current time instantly.
 - **Currency Converter** - Convert between currencies directly from the search bar. Example: "100 USD to EUR" to see the converted amount with the current exchange rate.
+- **Custom AI Tools** - Create your own tools for AI Search. This feature requires an API key to be configured.
 
 ---
 
@@ -127,6 +129,7 @@ Long-press on most results to open a context menu with quick actions.
 - **Search History** - Enable or disable search history. Your search queries and recently opened items (files, contacts, etc.) appear in your search history.
 - **Excluded Items** - When you exclude any item on the search results page, you can find them here and clear them if you want to.
 - **Refresh Data** - The app automatically refreshes your data from time to time, but if you want to manually refresh the data, you can do it here.
+- **Calendar Options** - Create custom calendar entries and choose to ignore past events in results. Today's events also appear on the home screen.
 
 ---
 
@@ -138,6 +141,7 @@ Long-press on most results to open a context menu with quick actions.
 - **Amazon Domain** - Select the Amazon region/domain used when searching via the Amazon engine. Updating this will open your Amazon queries within the installed app instead of the website.
 - **Custom Search Engines** - Add your own search engines by specifying a URL template with the {{query}} placeholder. The app automatically fetches the name and icon for the website, but you can choose to edit them if needed. Tapping on {{query}} in the error hint will add this string to your URL so that you don't have to type it. You can choose any installed browser to open custom search engine queries.
 - **AI Search** - Connect a Gemini API key to enable AI answers directly in Quick Search, view if a key is configured, and open the dedicated AI Search configuration screen. Gemini Flash Latest is the model which is chosen by default.
+- **AI Providers** - Configure API keys for OpenAI, Claude, and Groq providers.
 
 ---
 
@@ -229,6 +233,7 @@ Long-press on most results to open a context menu with quick actions.
 
 - **Layouts & Variants** - Choose between the main search widget and the custom buttons widget, with flexible button layouts for each.
 - **Themes & Colors** - Adjust widget theme, background, and text/icon colors to match your home screen.
+- **Border Color** - Customize the widget border color to better match your wallpaper and icon style.
 - **Size & Spacing** - Control corner radius, internal padding, and spacing using intuitive sliders.
 - **Icons & Buttons** - Toggle search and mic icons and configure up to 2 custom buttons on the search widget or a full set of custom buttons on the custom buttons widget.
 - The widget mic button can be customized to open other device assistants like Gemini, Perplexity, Bixby, etc.
@@ -237,6 +242,7 @@ Long-press on most results to open a context menu with quick actions.
 
 ### Hidden / Non-Obvious Features
 
+- Swipe left to quickly write a note.
 - **Search Icon tap behavior** - Tap on the Search icon in search bar to narrow down your search to a specific type. 
 - **URL Detection in Search Bar** - Paste or type a URL in the search bar to open it quickly in your installed browsers of your choice.
 - **App Search** - Acronym matching is supported for app search. For example, you can search for "yt" to find "YouTube."
