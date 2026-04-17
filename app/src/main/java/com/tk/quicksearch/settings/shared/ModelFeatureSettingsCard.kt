@@ -21,9 +21,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.tools.directSearch.GeminiModelCatalog
-import com.tk.quicksearch.tools.directSearch.ModelPickerDialog
-import com.tk.quicksearch.tools.directSearch.GeminiTextModel
+import com.tk.quicksearch.tools.aiSearch.GeminiModelCatalog
+import com.tk.quicksearch.tools.aiSearch.ModelPickerDialog
+import com.tk.quicksearch.tools.aiSearch.GeminiTextModel
 
 @Composable
 fun ModelFeatureSettingsCard(

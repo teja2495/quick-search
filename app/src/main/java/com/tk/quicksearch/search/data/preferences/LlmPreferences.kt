@@ -1,17 +1,17 @@
 package com.tk.quicksearch.search.data.preferences
 
-import com.tk.quicksearch.tools.directSearch.DirectSearchLlmProviderId
+import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 
-/** Provider selection preferences for direct-search LLM routing. */
+/** Provider selection preferences for AI search LLM routing. */
 class LlmPreferences(
     context: android.content.Context,
 ) : BasePreferences(context) {
-    fun getDirectSearchProviderId(): DirectSearchLlmProviderId {
-        val raw = prefs.getString(BasePreferences.KEY_DIRECT_SEARCH_LLM_PROVIDER, null)
-        return DirectSearchLlmProviderId.fromStorageValue(raw)
+    fun getAiSearchProviderId(): AiSearchLlmProviderId {
+        val raw = prefs.getString(BasePreferences.KEY_AI_SEARCH_LLM_PROVIDER, null)
+        return AiSearchLlmProviderId.fromStorageValue(raw)
     }
 
-    fun setDirectSearchProviderId(providerId: DirectSearchLlmProviderId) {
-        prefs.edit().putString(BasePreferences.KEY_DIRECT_SEARCH_LLM_PROVIDER, providerId.storageValue).apply()
+    fun setAiSearchProviderId(providerId: AiSearchLlmProviderId) {
+        prefs.edit().putString(BasePreferences.KEY_AI_SEARCH_LLM_PROVIDER, providerId.storageValue).apply()
     }
 }

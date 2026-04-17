@@ -1,4 +1,4 @@
-package com.tk.quicksearch.tools.directSearch
+package com.tk.quicksearch.tools.aiSearch
 
 import android.content.Context
 import android.util.Log
@@ -15,21 +15,18 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 /**
- * Lightweight client for fetching direct answers from the Anthropic Messages API.
- * Supports optional web search via the web_search_20250305 server-side tool.
+ * Lightweight client for fetching direct answers from the Groq Chat Completions API.
+ * Groq uses an OpenAI-compatible API. Web search grounding is not supported.
  */
-class AnthropicClient(
+class GroqClient(
     private val apiKey: String,
     private val context: Context,
 ) {
     companion object {
         private const val LOG_TAG = "AI_REQUEST"
-        private const val BASE_URL = "https://api.anthropic.com/v1"
+        private const val BASE_URL = "https://api.groq.com/openai/v1"
         private const val MODELS_ENDPOINT = "$BASE_URL/models"
-        private const val MESSAGES_ENDPOINT = "$BASE_URL/messages"
-        private const val ANTHROPIC_VERSION = "2023-06-01"
-        private const val ANTHROPIC_BETA = "interleaved-thinking-2025-05-14"
-        private const val MAX_TOKENS = 1024
+        private const val CHAT_ENDPOINT = "$BASE_URL/chat/completions"
         private const val SYSTEM_PROMPT =
             "Return only the direct answer as a single short sentence. " +
                 "Provide additional context ONLY when its needed. " +
@@ -37,6 +34,22 @@ class AnthropicClient(
                 "Whenever a phone number is included, format it in E.164 with country code so it can be dialed directly."
         private const val MAX_ATTEMPTS = 2
         private const val INITIAL_RETRY_DELAY_MS = 750L
+
+        /** Reasoning models may embed traces in content; strip before showing the direct answer (fallback). */
+        private val REDACTED_THINKING_BLOCK =
+            Regex(
+                "<redacted_thinking>.*?</redacted_thinking>",
+                setOf(RegexOption.DOT_MATCHES_ALL, RegexOption.IGNORE_CASE),
+            )
+
+        private val SHORT_THINKING_BLOCK =
+            Regex(
+                "<think>.*?</think>",
+                setOf(RegexOption.DOT_MATCHES_ALL, RegexOption.IGNORE_CASE),
+            )
+
+        private val CHANNEL_THINKING_BLOCK =
+            Regex("""<\|channel>thought[\s\S]*?<channel\|>""")
 
         suspend fun fetchAvailableTextModels(
             apiKey: String,
@@ -48,8 +61,7 @@ class AnthropicClient(
                     val connection =
                         (url.openConnection() as HttpURLConnection).apply {
                             requestMethod = "GET"
-                            setRequestProperty("x-api-key", apiKey)
-                            setRequestProperty("anthropic-version", ANTHROPIC_VERSION)
+                            setRequestProperty("Authorization", "Bearer $apiKey")
                             connectTimeout = 15000
                             readTimeout = 20000
                         }
@@ -57,7 +69,7 @@ class AnthropicClient(
                         val responseCode = connection.responseCode
                         val raw = readResponseBody(connection, responseCode)
                         if (responseCode !in 200..299) {
-                            val message = parseError(raw) ?: "Failed to load Anthropic models"
+                            val message = parseError(raw) ?: "Failed to load Groq models"
                             throw IOException(message)
                         }
                         val root = JSONObject(raw)
@@ -66,20 +78,19 @@ class AnthropicClient(
                         for (i in 0 until data.length()) {
                             val item = data.optJSONObject(i) ?: continue
                             val id = item.optString("id").takeIf { it.isNotBlank() } ?: continue
-                            if (!AnthropicModelCatalog.isLikelyTextModel(id)) continue
-                            val displayName = item.optString("display_name").takeIf { it.isNotBlank() } ?: id
+                            if (!GroqModelCatalog.isLikelyTextModel(id)) continue
                             models.add(
                                 LlmTextModel(
                                     id = id,
-                                    displayName = displayName,
+                                    displayName = id,
                                     supportsSystemInstructions = true,
-                                    supportsGrounding = true,
+                                    supportsGrounding = false,
                                 ),
                             )
                         }
                         val deduped = models.distinctBy { it.id }
                         if (deduped.isEmpty()) {
-                            AnthropicModelCatalog.FALLBACK_TEXT_MODELS
+                            GroqModelCatalog.FALLBACK_TEXT_MODELS
                         } else {
                             deduped.sortedBy { it.displayName.lowercase() }
                         }
@@ -109,8 +120,7 @@ class AnthropicClient(
     suspend fun fetchAnswer(
         query: String,
         personalContext: String? = null,
-        modelId: String = AnthropicModelCatalog.DEFAULT_MODEL_ID,
-        useGroundingWithGoogleSearch: Boolean = AnthropicModelCatalog.DEFAULT_GROUNDING_ENABLED,
+        modelId: String = GroqModelCatalog.DEFAULT_MODEL_ID,
         thinkingEnabled: Boolean = false,
         useSystemInstruction: Boolean = true,
         systemInstruction: String? = null,
@@ -126,7 +136,6 @@ class AnthropicClient(
                         query = query,
                         personalContext = personalContext,
                         modelId = modelId,
-                        useGrounding = useGroundingWithGoogleSearch,
                         thinkingEnabled = thinkingEnabled,
                         useSystemInstruction = useSystemInstruction,
                         systemInstruction = systemInstruction,
@@ -148,22 +157,17 @@ class AnthropicClient(
         query: String,
         personalContext: String?,
         modelId: String,
-        useGrounding: Boolean,
         thinkingEnabled: Boolean,
         useSystemInstruction: Boolean,
         systemInstruction: String?,
     ): Result<String> {
         var connection: HttpURLConnection? = null
         return try {
-            val url = URL(MESSAGES_ENDPOINT)
+            val url = URL(CHAT_ENDPOINT)
             connection =
                 (url.openConnection() as HttpURLConnection).apply {
                     requestMethod = "POST"
-                    setRequestProperty("x-api-key", apiKey)
-                    setRequestProperty("anthropic-version", ANTHROPIC_VERSION)
-                    if (thinkingEnabled) {
-                        setRequestProperty("anthropic-beta", ANTHROPIC_BETA)
-                    }
+                    setRequestProperty("Authorization", "Bearer $apiKey")
                     setRequestProperty("Content-Type", "application/json")
                     doOutput = true
                     connectTimeout = 15000
@@ -174,15 +178,14 @@ class AnthropicClient(
                 query = query,
                 personalContext = personalContext,
                 modelId = modelId,
-                useGrounding = useGrounding,
                 thinkingEnabled = thinkingEnabled,
                 useSystemInstruction = useSystemInstruction,
                 systemInstruction = systemInstruction,
             )
 
             if (BuildConfig.DEBUG) {
-                Log.d(LOG_TAG, "Anthropic request: model=$modelId, grounding=$useGrounding, thinking=$thinkingEnabled")
-                Log.d(LOG_TAG, "Anthropic request payload: ${redactApiKeyForLogging(payload, apiKey)}")
+                Log.d(LOG_TAG, "Groq request: model=$modelId, thinking=$thinkingEnabled")
+                Log.d(LOG_TAG, "Groq request payload: ${redactApiKeyForLogging(payload, apiKey)}")
             }
 
             connection.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
@@ -191,19 +194,19 @@ class AnthropicClient(
             val raw = readResponseBody(connection, responseCode)
 
             if (BuildConfig.DEBUG) {
-                Log.d(LOG_TAG, "Anthropic response: code=$responseCode, length=${raw.length}")
+                Log.d(LOG_TAG, "Groq response: code=$responseCode, length=${raw.length}")
             }
 
             if (responseCode in 200..299) {
                 val answer = extractAnswer(raw)
-                    ?: return Result.failure(IllegalStateException("Empty response from Claude"))
+                    ?: return Result.failure(IllegalStateException("Empty response from Groq"))
                 Result.success(answer)
             } else {
                 val message = parseError(raw) ?: "Request failed ($responseCode)"
                 Result.failure(ResponseException(responseCode, message))
             }
         } catch (e: Exception) {
-            Log.e(LOG_TAG, "Anthropic request failed", e)
+            Log.e(LOG_TAG, "Groq request failed", e)
             Result.failure(e)
         } finally {
             connection?.disconnect()
@@ -214,7 +217,6 @@ class AnthropicClient(
         query: String,
         personalContext: String?,
         modelId: String,
-        useGrounding: Boolean,
         thinkingEnabled: Boolean,
         useSystemInstruction: Boolean,
         systemInstruction: String?,
@@ -222,9 +224,7 @@ class AnthropicClient(
         val effectiveSystem =
             systemInstruction?.trim()?.takeIf { it.isNotBlank() } ?: SYSTEM_PROMPT
 
-        val root = JSONObject()
-        root.put("model", modelId.trim().ifBlank { AnthropicModelCatalog.DEFAULT_MODEL_ID })
-        root.put("max_tokens", MAX_TOKENS)
+        val messages = JSONArray()
 
         if (useSystemInstruction) {
             val systemContent = buildString {
@@ -233,67 +233,74 @@ class AnthropicClient(
                     append("\n\nUser personal context:\n${personalContext.trim()}")
                 }
             }
-            root.put("system", systemContent)
+            messages.put(JSONObject().put("role", "system").put("content", systemContent))
         }
 
-        val userContent = if (!useSystemInstruction) {
-            buildString {
-                append(effectiveSystem)
-                if (!personalContext.isNullOrBlank()) {
-                    append("\n\nUser personal context:\n${personalContext.trim()}")
-                }
-                append("\n\nUser query: $query")
-            }
-        } else {
-            query
-        }
+        messages.put(JSONObject().put("role", "user").put("content", query))
 
-        root.put(
-            "messages",
-            JSONArray().put(JSONObject().put("role", "user").put("content", userContent)),
-        )
-
-        if (useGrounding) {
-            root.put(
-                "tools",
-                JSONArray().put(
-                    JSONObject()
-                        .put("type", "web_search_20250305")
-                        .put("name", "web_search")
-                        .put("max_uses", 1),
-                ),
-            )
-        }
-
-        if (thinkingEnabled) {
-            root.put(
-                "thinking",
-                JSONObject()
-                    .put("type", "enabled")
-                    .put("budget_tokens", 1024),
-            )
-        }
+        val root = JSONObject()
+        val normalizedModel = modelId.trim().ifBlank { GroqModelCatalog.DEFAULT_MODEL_ID }
+        root.put("model", normalizedModel)
+        root.put("messages", messages)
+        root.put("temperature", 0.2)
+        applyGroqReasoningControls(root, normalizedModel, thinkingEnabled)
 
         return root.toString()
+    }
+
+    // Groq defaults to raw reasoning in content for Qwen 3 (`<redacted_thinking>`). See reasoning docs.
+    private fun applyGroqReasoningControls(
+        root: JSONObject,
+        modelId: String,
+        thinkingEnabled: Boolean,
+    ) {
+        val id = modelId.lowercase()
+
+        when {
+            id == "qwen/qwen3-32b" || id.endsWith("/qwen3-32b") -> {
+                root.put("reasoning_format", "hidden")
+                root.put("reasoning_effort", if (thinkingEnabled) "default" else "none")
+            }
+            id.contains("gpt-oss") -> {
+                root.put("include_reasoning", thinkingEnabled)
+            }
+            id.contains("qwq") -> {
+                root.put("reasoning_format", "hidden")
+            }
+            thinkingEnabled && isLikelyReasoningModel(modelId) -> {
+                root.put("reasoning_effort", "high")
+            }
+        }
+    }
+
+    private fun isLikelyReasoningModel(modelId: String): Boolean {
+        val lower = modelId.lowercase()
+        return lower.contains("r1") || lower.contains("reason")
+    }
+
+    private fun stripInlineThinkingMarkers(text: String): String {
+        var t = text
+        repeat(8) {
+            val next =
+                CHANNEL_THINKING_BLOCK.replace(
+                    SHORT_THINKING_BLOCK.replace(REDACTED_THINKING_BLOCK.replace(t, ""), ""),
+                    "",
+                )
+            if (next == t) return@repeat
+            t = next
+        }
+        return t.trim()
     }
 
     private fun extractAnswer(raw: String): String? {
         if (raw.isBlank()) return null
         return runCatching {
             val root = JSONObject(raw)
-            val content = root.optJSONArray("content") ?: return null
-            val pieces = mutableListOf<String>()
-            for (i in 0 until content.length()) {
-                val block = content.optJSONObject(i) ?: continue
-                // Only collect text blocks; skip tool_use, tool_result, thinking blocks
-                if (block.optString("type") == "text") {
-                    val text = block.optString("text")
-                    if (text.isNotBlank()) pieces.add(text)
-                }
-            }
-            if (pieces.isEmpty()) return null
-            pieces
-                .joinToString("\n\n")
+            val choices = root.optJSONArray("choices") ?: return null
+            if (choices.length() == 0) return null
+            val message = choices.getJSONObject(0).optJSONObject("message") ?: return null
+            val text = message.optString("content").takeIf { it.isNotBlank() } ?: return null
+            stripInlineThinkingMarkers(text)
                 .replace("*", "")
                 .replace(Regex("degrees?\\s+Fahrenheit", RegexOption.IGNORE_CASE), "°F")
                 .replace(Regex("degrees?\\s+Celsius", RegexOption.IGNORE_CASE), "°C")

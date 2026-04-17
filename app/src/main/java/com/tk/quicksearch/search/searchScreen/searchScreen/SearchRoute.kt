@@ -77,7 +77,7 @@ fun SearchRoute(
     onOpenSearchHistorySettings: () -> Unit = {},
     onSearchEngineLongPress: () -> Unit = {},
     onCustomizeSearchEnginesClick: () -> Unit = {},
-    onOpenDirectSearchConfigure: () -> Unit = {},
+    onOpenAiSearchConfigure: () -> Unit = {},
     onOpenReleaseNotesFeatures: () -> Unit = {},
     onOpenAppSettingDestination: (AppSettingsDestination) -> Unit = {},
     onOpenNotesDetail: (Long?) -> Unit = {},
@@ -578,7 +578,7 @@ fun SearchRoute(
                 }
             },
             onSearchEngineLongPress = onSearchEngineLongPress,
-            onDirectSearchEmailClick = { email: String ->
+            onAiSearchEmailClick = { email: String ->
                 viewModel.openEmail(email)
             },
             onSetPersonalContext = viewModel::setPersonalContext,
@@ -642,7 +642,7 @@ fun SearchRoute(
             onSearchEngineOnboardingDismissed = viewModel::onSearchEngineOnboardingDismissed,
             onContactActionHintDismissed = viewModel::onContactActionHintDismissed,
             onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
-            onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
+            onOpenAiSearchConfigure = onOpenAiSearchConfigure,
             onDeleteRecentItem = viewModel::deleteRecentItem,
             onOpenSearchHistorySettings = onOpenSearchHistorySettings,
             onDismissSearchHistoryTip = viewModel::dismissSearchHistoryTip,

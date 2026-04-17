@@ -1,4 +1,4 @@
-package com.tk.quicksearch.tools.directSearch
+package com.tk.quicksearch.tools.aiSearch
 
 import android.content.ClipData
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -16,28 +16,28 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.core.DirectSearchState
-import com.tk.quicksearch.search.core.DirectSearchStatus
+import com.tk.quicksearch.search.core.AiSearchState
+import com.tk.quicksearch.search.core.AiSearchStatus
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.ui.graphics.Color
 import com.tk.quicksearch.shared.util.PhoneEmailLinkifiedText
 
 /** Composable that displays direct search results with loading, success, and error states. */
 @Composable
-fun DirectSearchResult(
-        directSearchState: DirectSearchState,
-        directSearchLlmProviderId: DirectSearchLlmProviderId,
+fun AiSearchResult(
+        aiSearchState: AiSearchState,
+        aiSearchLlmProviderId: AiSearchLlmProviderId,
         showWallpaperBackground: Boolean = false,
         onGeminiModelInfoClick: () -> Unit = {},
-        onOpenDirectSearchConfigure: () -> Unit = {},
+        onOpenAiSearchConfigure: () -> Unit = {},
         onPhoneNumberClick: (String) -> Unit = {},
         onEmailClick: (String) -> Unit = {},
 ) {
-    if (directSearchState.status == DirectSearchStatus.Idle) return
+    if (aiSearchState.status == AiSearchStatus.Idle) return
 
     val showAttribution =
-            directSearchState.status == DirectSearchStatus.Success &&
-                    !directSearchState.answer.isNullOrBlank()
+            aiSearchState.status == AiSearchStatus.Success &&
+                    !aiSearchState.answer.isNullOrBlank()
 
     @Suppress("DEPRECATION")
     val clipboardManager = LocalClipboardManager.current
@@ -45,23 +45,23 @@ fun DirectSearchResult(
     GeminiResultCard(
             showWallpaperBackground = showWallpaperBackground,
             showAttribution = showAttribution,
-            usedModelId = directSearchState.usedModelId,
-            llmProviderId = directSearchLlmProviderId,
+            usedModelId = aiSearchState.usedModelId,
+            llmProviderId = aiSearchLlmProviderId,
             isAttributionClickable = true,
             onGeminiModelInfoClick = onGeminiModelInfoClick,
-            onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
+            onOpenAiSearchConfigure = onOpenAiSearchConfigure,
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Column(
                     modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
                     verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
             ) {
-                when (directSearchState.status) {
-                    DirectSearchStatus.Loading -> {
+                when (aiSearchState.status) {
+                    AiSearchStatus.Loading -> {
                         GeminiLoadingAnimation()
                     }
-                    DirectSearchStatus.Success -> {
-                        directSearchState.answer?.let { answer ->
+                    AiSearchStatus.Success -> {
+                        aiSearchState.answer?.let { answer ->
                             Box(
                                     modifier =
                                             Modifier.fillMaxWidth().pointerInput(answer) {
@@ -74,7 +74,7 @@ fun DirectSearchResult(
                                                 )
                                             },
                             ) {
-                                ClickableDirectSearchText(
+                                ClickableAiSearchText(
                                         text = answer,
                                         style = MaterialTheme.typography.bodyLarge,
                                         color = MaterialTheme.colorScheme.onSurface,
@@ -84,15 +84,15 @@ fun DirectSearchResult(
                             }
                         }
                     }
-                    DirectSearchStatus.Error -> {
+                    AiSearchStatus.Error -> {
                         Text(
-                                text = directSearchState.errorMessage
+                                text = aiSearchState.errorMessage
                                         ?: stringResource(R.string.direct_search_error_generic),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.error,
                         )
                     }
-                    DirectSearchStatus.Idle -> {}
+                    AiSearchStatus.Idle -> {}
                 }
             }
         }
@@ -101,7 +101,7 @@ fun DirectSearchResult(
 
 /** Composable that displays text with clickable phone numbers and email IDs. */
 @Composable
-private fun ClickableDirectSearchText(
+private fun ClickableAiSearchText(
         text: String,
         style: androidx.compose.ui.text.TextStyle,
         color: Color,

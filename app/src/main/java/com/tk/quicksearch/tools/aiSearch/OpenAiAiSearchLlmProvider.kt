@@ -1,9 +1,9 @@
-package com.tk.quicksearch.tools.directSearch
+package com.tk.quicksearch.tools.aiSearch
 
 import android.content.Context
 
-object OpenAiDirectSearchLlmProvider : DirectSearchLlmProvider {
-    override val id: DirectSearchLlmProviderId = DirectSearchLlmProviderId.OPENAI
+object OpenAiAiSearchLlmProvider : AiSearchLlmProvider {
+    override val id: AiSearchLlmProviderId = AiSearchLlmProviderId.OPENAI
     override val displayName: String = "OpenAI"
     override val defaultModelId: String = OpenAiModelCatalog.DEFAULT_MODEL_ID
     override val defaultGroundingEnabled: Boolean = OpenAiModelCatalog.DEFAULT_GROUNDING_ENABLED

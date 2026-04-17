@@ -527,7 +527,7 @@ abstract class BasePreferences(
         const val KEY_CLEAR_QUERY_AFTER_SEARCH_ENGINE = "clear_query_after_search_engine"
         const val KEY_SELECTED_ICON_PACK = "selected_icon_pack"
         const val KEY_LAST_SEEN_VERSION = "last_seen_version"
-        const val KEY_DIRECT_SEARCH_SETUP_EXPANDED = "direct_search_setup_expanded"
+        const val KEY_AI_SEARCH_SETUP_EXPANDED = "direct_search_setup_expanded"
         const val KEY_DISABLED_SEARCH_ENGINES_EXPANDED = "disabled_search_engines_expanded"
         const val KEY_HAS_SEEN_SEARCH_BAR_WELCOME = "has_seen_search_bar_welcome"
         const val KEY_FORCE_SEARCH_BAR_WELCOME_ON_NEXT_OPEN =
@@ -543,7 +543,7 @@ abstract class BasePreferences(
 
         // Amazon domain preferences keys
         const val KEY_AMAZON_DOMAIN = "amazon_domain"
-        const val KEY_DIRECT_SEARCH_LLM_PROVIDER = "direct_search_llm_provider"
+        const val KEY_AI_SEARCH_LLM_PROVIDER = "direct_search_llm_provider"
         const val KEY_GEMINI_API_KEY = "gemini_api_key"
         const val KEY_GEMINI_PERSONAL_CONTEXT = "gemini_personal_context"
         const val KEY_GEMINI_MODEL = "gemini_model"

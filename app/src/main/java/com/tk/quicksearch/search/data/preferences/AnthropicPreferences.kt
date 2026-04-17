@@ -2,7 +2,7 @@ package com.tk.quicksearch.search.data.preferences
 
 import android.content.Context
 import android.util.Log
-import com.tk.quicksearch.tools.directSearch.AnthropicModelCatalog
+import com.tk.quicksearch.tools.aiSearch.AnthropicModelCatalog
 
 /** Preferences for Anthropic (Claude) API-related settings. Uses encrypted storage for the API key. */
 class AnthropicPreferences(

@@ -1,4 +1,4 @@
-package com.tk.quicksearch.tools.directSearch
+package com.tk.quicksearch.tools.aiSearch
 
 /** Shared Anthropic (Claude) model configuration defaults. */
 object AnthropicModelCatalog {

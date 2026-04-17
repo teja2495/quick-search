@@ -1,4 +1,4 @@
-package com.tk.quicksearch.tools.directSearch
+package com.tk.quicksearch.tools.aiSearch
 
 import android.content.Context
 import android.util.Log

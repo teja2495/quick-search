@@ -136,7 +136,7 @@ internal class SearchStartupLifecycleDelegate(
     private val aliasHandler get() = handlersProvider().aliasHandler
     private val appSearchManager get() = handlersProvider().appSearchManager
     private val appShortcutSearchHandler get() = handlersProvider().appShortcutSearchHandler
-    private val directSearchHandler get() = handlersProvider().directSearchHandler
+    private val aiSearchHandler get() = handlersProvider().aiSearchHandler
     private val iconPackHandler get() = handlersProvider().iconPackHandler
     private val messagingHandler get() = handlersProvider().messagingHandler
     private val releaseNotesHandler get() = handlersProvider().releaseNotesHandler
@@ -292,6 +292,7 @@ internal class SearchStartupLifecycleDelegate(
 
             searchEngineManager.ensureInitialized()
             val shortcutsState = aliasHandler.getInitialState()
+            val customTools = normalizeCustomToolModels(userPreferences.getCustomTools())
 
             updateFeatureState { state ->
                 state.copy(
@@ -312,16 +313,16 @@ internal class SearchStartupLifecycleDelegate(
                     currencyConverterEnabled = userPreferences.isCurrencyConverterEnabled(),
                     wordClockEnabled = userPreferences.isWordClockEnabled(),
                     dictionaryEnabled = userPreferences.isDictionaryEnabled(),
-                    customTools = userPreferences.getCustomTools(),
+                    customTools = customTools,
                     disabledCustomToolIds = userPreferences.getDisabledCustomTools(),
-                    hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
-                    geminiApiKeyLast4 = directSearchHandler.getGeminiApiKey()?.takeLast(4),
-                    directSearchLlmProviderId = directSearchHandler.getDirectSearchProviderId(),
-                    personalContext = directSearchHandler.getPersonalContext(),
-                    geminiModel = directSearchHandler.getGeminiModel(),
-                    geminiGroundingEnabled = directSearchHandler.isGeminiGroundingEnabled(),
-                    geminiThinkingEnabled = directSearchHandler.isGeminiThinkingEnabled(),
-                    availableGeminiModels = directSearchHandler.getAvailableGeminiModels(),
+                    hasGeminiApiKey = !aiSearchHandler.getGeminiApiKey().isNullOrBlank(),
+                    geminiApiKeyLast4 = aiSearchHandler.getGeminiApiKey()?.takeLast(4),
+                    aiSearchLlmProviderId = aiSearchHandler.getAiSearchProviderId(),
+                    personalContext = aiSearchHandler.getPersonalContext(),
+                    geminiModel = aiSearchHandler.getGeminiModel(),
+                    geminiGroundingEnabled = aiSearchHandler.isGeminiGroundingEnabled(),
+                    geminiThinkingEnabled = aiSearchHandler.isGeminiThinkingEnabled(),
+                    availableGeminiModels = aiSearchHandler.getAvailableGeminiModels(),
                 )
             }
             updateConfigState { state ->
@@ -354,10 +355,10 @@ internal class SearchStartupLifecycleDelegate(
                 state.copy(disabledAppShortcutIds = userPreferences.getDisabledAppShortcutIds())
             }
 
-            if (!directSearchHandler.getGeminiApiKey().isNullOrBlank()) {
+            if (!aiSearchHandler.getGeminiApiKey().isNullOrBlank()) {
                 launch(Dispatchers.IO) {
-                    delay(DEFERRED_DIRECT_SEARCH_MODELS_DELAY_MS)
-                    val models = directSearchHandler.refreshAvailableGeminiModels()
+                    delay(DEFERRED_AI_SEARCH_MODELS_DELAY_MS)
+                    val models = aiSearchHandler.refreshAvailableGeminiModels()
                     updateFeatureState { state -> state.copy(availableGeminiModels = models) }
                 }
             }
@@ -600,16 +601,17 @@ internal class SearchStartupLifecycleDelegate(
 
             searchEngineManager.reloadFromPreferences()
             val shortcutsState = aliasHandler.reloadFromPreferences()
-            directSearchHandler.reloadFromPreferences()
+            aiSearchHandler.reloadFromPreferences()
             val webSuggestionsEnabled = webSuggestionHandler.reloadFromPreferences()
 
-            val geminiApiKey = directSearchHandler.getGeminiApiKey()
-            val personalContext = directSearchHandler.getPersonalContext()
-            val geminiModel = directSearchHandler.getGeminiModel()
-            val geminiGroundingEnabled = directSearchHandler.isGeminiGroundingEnabled()
-            val geminiThinkingEnabled = directSearchHandler.isGeminiThinkingEnabled()
-            val availableGeminiModels = directSearchHandler.getAvailableGeminiModels()
+            val geminiApiKey = aiSearchHandler.getGeminiApiKey()
+            val personalContext = aiSearchHandler.getPersonalContext()
+            val geminiModel = aiSearchHandler.getGeminiModel()
+            val geminiGroundingEnabled = aiSearchHandler.isGeminiGroundingEnabled()
+            val geminiThinkingEnabled = aiSearchHandler.isGeminiThinkingEnabled()
+            val availableGeminiModels = aiSearchHandler.getAvailableGeminiModels()
             val hasGeminiApiKey = !geminiApiKey.isNullOrBlank()
+            val customTools = normalizeCustomToolModels(userPreferences.getCustomTools())
 
             withContext(Dispatchers.Main) {
                 applyStartupPreferences(startupPrefs)
@@ -631,11 +633,11 @@ internal class SearchStartupLifecycleDelegate(
                         currencyConverterEnabled = userPreferences.isCurrencyConverterEnabled(),
                         wordClockEnabled = userPreferences.isWordClockEnabled(),
                         dictionaryEnabled = userPreferences.isDictionaryEnabled(),
-                        customTools = userPreferences.getCustomTools(),
+                        customTools = customTools,
                         disabledCustomToolIds = userPreferences.getDisabledCustomTools(),
                         hasGeminiApiKey = hasGeminiApiKey,
                         geminiApiKeyLast4 = geminiApiKey?.takeLast(4),
-                        directSearchLlmProviderId = directSearchHandler.getDirectSearchProviderId(),
+                        aiSearchLlmProviderId = aiSearchHandler.getAiSearchProviderId(),
                         personalContext = personalContext,
                         geminiModel = geminiModel,
                         geminiGroundingEnabled = geminiGroundingEnabled,
@@ -682,7 +684,7 @@ internal class SearchStartupLifecycleDelegate(
     private fun shouldRetainDirectOrGeminiQueryOnStop(): Boolean {
         val state = resultsStateProvider()
         if (state.query.isBlank()) return false
-        return state.DirectSearchState.status != DirectSearchStatus.Idle ||
+        return state.AiSearchState.status != AiSearchStatus.Idle ||
             state.currencyConverterState.status != CurrencyConverterStatus.Idle ||
             state.wordClockState.status != WordClockStatus.Idle ||
             state.dictionaryState.status != DictionaryStatus.Idle
@@ -815,6 +817,26 @@ internal class SearchStartupLifecycleDelegate(
         }
     }
 
+    private fun normalizeCustomToolModels(tools: List<CustomTool>): List<CustomTool> {
+        val availableModelIds = handlersProvider().aiSearchHandler.getAvailableGeminiModels().map { it.id }
+        val firstAvailableModelId = availableModelIds.firstOrNull() ?: return tools
+        val availableModelIdSet = availableModelIds.toSet()
+
+        val normalizedTools =
+            tools.map { tool ->
+                if (tool.modelId in availableModelIdSet) {
+                    tool
+                } else {
+                    tool.copy(modelId = firstAvailableModelId)
+                }
+            }
+
+        if (normalizedTools != tools) {
+            userPreferences.setCustomTools(normalizedTools)
+        }
+        return normalizedTools
+    }
+
     private data class MessagingAppInfo(
         val isWhatsAppInstalled: Boolean,
         val isTelegramInstalled: Boolean,
@@ -827,7 +849,7 @@ internal class SearchStartupLifecycleDelegate(
     companion object {
         private const val BROWSER_REFRESH_INTERVAL_MS = 5 * 60 * 1_000L
         private const val DEFERRED_APP_REFRESH_DELAY_MS = 2_000L
-        private const val DEFERRED_DIRECT_SEARCH_MODELS_DELAY_MS = 3_000L
+        private const val DEFERRED_AI_SEARCH_MODELS_DELAY_MS = 3_000L
         private const val DEFERRED_RELEASE_NOTES_DELAY_MS = 3_000L
     }
 }

@@ -55,5 +55,5 @@ internal data class SearchRuntimeState(
     var pendingNavigationClear: Boolean = false,
     var isStartupComplete: Boolean = false,
     var wallpaperAvailable: Boolean = false,
-    @Volatile var shouldRecordPendingDirectSearchQueryInHistory: Boolean = true,
+    @Volatile var shouldRecordPendingAiSearchQueryInHistory: Boolean = true,
 )

@@ -59,7 +59,7 @@ import com.tk.quicksearch.settings.NoteDeleteConfirmationDialog
 import com.tk.quicksearch.settings.NotesBulkDeleteConfirmationDialog
 import com.tk.quicksearch.settings.settingsDetailScreen.CustomToolNavigationMemory
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
-import com.tk.quicksearch.tools.directSearch.DirectSearchLlmProviderId
+import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -391,10 +391,10 @@ internal fun SettingsDetailLevel2Screen(
                     existingTool = existingTool,
                     existingAlias = existingAlias,
                     availableModels = state.availableGeminiModels,
-                    showThinkingToggle = state.directSearchLlmProviderId != DirectSearchLlmProviderId.OPENAI,
+                    showThinkingToggle = state.aiSearchLlmProviderId != AiSearchLlmProviderId.OPENAI,
                     showGroundingCheckbox =
-                        state.directSearchLlmProviderId != DirectSearchLlmProviderId.OPENAI &&
-                            state.directSearchLlmProviderId != DirectSearchLlmProviderId.GROQ,
+                        state.aiSearchLlmProviderId != AiSearchLlmProviderId.OPENAI &&
+                            state.aiSearchLlmProviderId != AiSearchLlmProviderId.GROQ,
                     onSave = { name, prompt, modelId, groundingEnabled, aliasCode, thinkingEnabled ->
                         if (existingTool != null) {
                             callbacks.onUpdateCustomTool(existingTool.id, name, prompt, modelId, groundingEnabled, thinkingEnabled)
@@ -585,11 +585,11 @@ internal fun SettingsDetailLevel2Screen(
                         SettingsDetailType.GEMINI_API_CONFIG -> {
                             if (state.hasGeminiApiKey) {
                                 val apiKeyDisplayFormatRes =
-                                    when (state.directSearchLlmProviderId) {
-                                        DirectSearchLlmProviderId.GEMINI -> R.string.settings_llm_api_key_display_gemini
-                                        DirectSearchLlmProviderId.OPENAI -> R.string.settings_llm_api_key_display_openai
-                                        DirectSearchLlmProviderId.ANTHROPIC -> R.string.settings_llm_api_key_display_claude
-                                        DirectSearchLlmProviderId.GROQ -> R.string.settings_llm_api_key_display_groq
+                                    when (state.aiSearchLlmProviderId) {
+                                        AiSearchLlmProviderId.GEMINI -> R.string.settings_llm_api_key_display_gemini
+                                        AiSearchLlmProviderId.OPENAI -> R.string.settings_llm_api_key_display_openai
+                                        AiSearchLlmProviderId.ANTHROPIC -> R.string.settings_llm_api_key_display_claude
+                                        AiSearchLlmProviderId.GROQ -> R.string.settings_llm_api_key_display_groq
                                     }
                                 Row(
                                     modifier = Modifier.fillMaxWidth().padding(bottom = DesignTokens.SpacingLarge),
@@ -625,9 +625,9 @@ internal fun SettingsDetailLevel2Screen(
                                     onSetGeminiThinkingEnabled = callbacks.onSetGeminiThinkingEnabled,
                                     onRefreshAvailableGeminiModels = callbacks.onRefreshAvailableGeminiModels,
                                     showGroundingCheckbox =
-                                        state.directSearchLlmProviderId != DirectSearchLlmProviderId.OPENAI &&
-                                            state.directSearchLlmProviderId != DirectSearchLlmProviderId.GROQ,
-                                    showThinkingCheckbox = state.directSearchLlmProviderId != DirectSearchLlmProviderId.OPENAI,
+                                        state.aiSearchLlmProviderId != AiSearchLlmProviderId.OPENAI &&
+                                            state.aiSearchLlmProviderId != AiSearchLlmProviderId.GROQ,
+                                    showThinkingCheckbox = state.aiSearchLlmProviderId != AiSearchLlmProviderId.OPENAI,
                                     onRequestScrollToBottom = {
                                         coroutineScope.launch {
                                             scrollState.scrollTo(scrollState.maxValue)
@@ -637,7 +637,7 @@ internal fun SettingsDetailLevel2Screen(
                                 )
                             } else {
                                 ApiKeySetupCard(
-                                    directSearchEnabled = state.hasGeminiApiKey,
+                                    aiSearchEnabled = state.hasGeminiApiKey,
                                     onSetGeminiApiKey = callbacks.onSetGeminiApiKey,
                                     geminiApiKeyLast4 = state.geminiApiKeyLast4,
                                     isSavingGeminiApiKey = state.isSavingGeminiApiKey,

@@ -108,7 +108,7 @@ internal fun SearchScreenStateManagement(
     onAppShortcutAppInfoClick: (StaticShortcut) -> Unit,
     onSearchTargetClick: (String, com.tk.quicksearch.search.core.SearchTarget) -> Unit,
     onSearchEngineLongPress: () -> Unit,
-    onDirectSearchEmailClick: (String) -> Unit,
+    onAiSearchEmailClick: (String) -> Unit,
     onSetPersonalContext: (String?) -> Unit,
     onSetGeminiModel: (String?) -> Unit,
     onSetGeminiGroundingEnabled: (Boolean) -> Unit,
@@ -140,7 +140,7 @@ internal fun SearchScreenStateManagement(
     onSearchEngineOnboardingDismissed: () -> Unit,
     onContactActionHintDismissed: () -> Unit,
     onCustomizeSearchEnginesClick: () -> Unit,
-    onOpenDirectSearchConfigure: () -> Unit,
+    onOpenAiSearchConfigure: () -> Unit,
     onDeleteRecentItem: (RecentSearchEntry) -> Unit,
     onOpenSearchHistorySettings: () -> Unit,
     onDismissSearchHistoryTip: () -> Unit,
@@ -206,9 +206,9 @@ internal fun SearchScreenStateManagement(
     // Section expansion state
     var expandedSection by remember { mutableStateOf(ExpandedSection.NONE) }
     val scrollState = rememberScrollState()
-    val showDirectSearch = state.DirectSearchState.status != DirectSearchStatus.Idle
+    val showAiSearch = state.AiSearchState.status != AiSearchStatus.Idle
     val alignResultsToBottom =
-        state.oneHandedMode && expandedSection == ExpandedSection.NONE && !showDirectSearch
+        state.oneHandedMode && expandedSection == ExpandedSection.NONE && !showAiSearch
 
     // Nickname dialog state
     var nicknameDialogState by remember { mutableStateOf<NicknameDialogState?>(null) }
@@ -499,7 +499,7 @@ internal fun SearchScreenStateManagement(
         derivedState = derivedState,
         expandedSection = expandedSection,
         scrollState = scrollState,
-        showDirectSearch = showDirectSearch,
+        showAiSearch = showAiSearch,
         alignResultsToBottom = alignResultsToBottom,
         shortcutToEdit = shortcutToEdit,
         shortcutIconEdit = shortcutIconEdit,
@@ -532,7 +532,7 @@ internal data class SearchScreenStateResult(
     val derivedState: DerivedState,
     val expandedSection: ExpandedSection,
     val scrollState: androidx.compose.foundation.ScrollState,
-    val showDirectSearch: Boolean,
+    val showAiSearch: Boolean,
     val alignResultsToBottom: Boolean,
     val shortcutToEdit: StaticShortcut?,
     val shortcutIconEdit: StaticShortcut?,

@@ -11,7 +11,7 @@ import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.data.preferences.*
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.searchHistory.SearchHistoryPreferences
-import com.tk.quicksearch.tools.directSearch.DirectSearchLlmProviderId
+import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 
 /**
  * Stores user-driven overrides for the app grid such as hidden or pinned apps. Manages preferences
@@ -568,30 +568,30 @@ class UserAppPreferences(
     // Gemini API Preferences
     // ============================================================================
 
-    fun getDirectSearchProviderId(): DirectSearchLlmProviderId =
-            llmPreferences.getDirectSearchProviderId()
+    fun getAiSearchProviderId(): AiSearchLlmProviderId =
+            llmPreferences.getAiSearchProviderId()
 
-    fun setDirectSearchProviderId(providerId: DirectSearchLlmProviderId) =
-            llmPreferences.setDirectSearchProviderId(providerId)
+    fun setAiSearchProviderId(providerId: AiSearchLlmProviderId) =
+            llmPreferences.setAiSearchProviderId(providerId)
 
     /**
      * Generic LLM API key accessor used by provider-aware callers.
      * New providers should extend this when provider-specific credential keys are added.
      */
-    fun getLlmApiKey(providerId: DirectSearchLlmProviderId): String? =
+    fun getLlmApiKey(providerId: AiSearchLlmProviderId): String? =
             when (providerId) {
-                DirectSearchLlmProviderId.GEMINI -> geminiPreferences.getGeminiApiKey()
-                DirectSearchLlmProviderId.OPENAI -> openAiPreferences.getApiKey()
-                DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.getApiKey()
-                DirectSearchLlmProviderId.GROQ -> groqPreferences.getApiKey()
+                AiSearchLlmProviderId.GEMINI -> geminiPreferences.getGeminiApiKey()
+                AiSearchLlmProviderId.OPENAI -> openAiPreferences.getApiKey()
+                AiSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.getApiKey()
+                AiSearchLlmProviderId.GROQ -> groqPreferences.getApiKey()
             }
 
-    fun setLlmApiKey(providerId: DirectSearchLlmProviderId, key: String?) {
+    fun setLlmApiKey(providerId: AiSearchLlmProviderId, key: String?) {
         when (providerId) {
-            DirectSearchLlmProviderId.GEMINI -> geminiPreferences.setGeminiApiKey(key)
-            DirectSearchLlmProviderId.OPENAI -> openAiPreferences.setApiKey(key)
-            DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.setApiKey(key)
-            DirectSearchLlmProviderId.GROQ -> groqPreferences.setApiKey(key)
+            AiSearchLlmProviderId.GEMINI -> geminiPreferences.setGeminiApiKey(key)
+            AiSearchLlmProviderId.OPENAI -> openAiPreferences.setApiKey(key)
+            AiSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.setApiKey(key)
+            AiSearchLlmProviderId.GROQ -> groqPreferences.setApiKey(key)
         }
     }
 
@@ -603,71 +603,71 @@ class UserAppPreferences(
         groqPreferences.setApiKey(null)
     }
 
-    fun getLlmModel(providerId: DirectSearchLlmProviderId): String =
+    fun getLlmModel(providerId: AiSearchLlmProviderId): String =
             when (providerId) {
-                DirectSearchLlmProviderId.GEMINI -> geminiPreferences.getGeminiModel()
-                DirectSearchLlmProviderId.OPENAI -> openAiPreferences.getModel()
-                DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.getModel()
-                DirectSearchLlmProviderId.GROQ -> groqPreferences.getModel()
+                AiSearchLlmProviderId.GEMINI -> geminiPreferences.getGeminiModel()
+                AiSearchLlmProviderId.OPENAI -> openAiPreferences.getModel()
+                AiSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.getModel()
+                AiSearchLlmProviderId.GROQ -> groqPreferences.getModel()
             }
 
-    fun setLlmModel(providerId: DirectSearchLlmProviderId, modelId: String?) {
+    fun setLlmModel(providerId: AiSearchLlmProviderId, modelId: String?) {
         when (providerId) {
-            DirectSearchLlmProviderId.GEMINI -> geminiPreferences.setGeminiModel(modelId)
-            DirectSearchLlmProviderId.OPENAI -> openAiPreferences.setModel(modelId)
-            DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.setModel(modelId)
-            DirectSearchLlmProviderId.GROQ -> groqPreferences.setModel(modelId)
+            AiSearchLlmProviderId.GEMINI -> geminiPreferences.setGeminiModel(modelId)
+            AiSearchLlmProviderId.OPENAI -> openAiPreferences.setModel(modelId)
+            AiSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.setModel(modelId)
+            AiSearchLlmProviderId.GROQ -> groqPreferences.setModel(modelId)
         }
     }
 
-    fun isLlmGroundingEnabled(providerId: DirectSearchLlmProviderId): Boolean =
+    fun isLlmGroundingEnabled(providerId: AiSearchLlmProviderId): Boolean =
             when (providerId) {
-                DirectSearchLlmProviderId.GEMINI -> geminiPreferences.isGeminiGroundingEnabled()
-                DirectSearchLlmProviderId.OPENAI -> openAiPreferences.isGroundingEnabled()
-                DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.isGroundingEnabled()
-                DirectSearchLlmProviderId.GROQ -> groqPreferences.isGroundingEnabled()
+                AiSearchLlmProviderId.GEMINI -> geminiPreferences.isGeminiGroundingEnabled()
+                AiSearchLlmProviderId.OPENAI -> openAiPreferences.isGroundingEnabled()
+                AiSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.isGroundingEnabled()
+                AiSearchLlmProviderId.GROQ -> groqPreferences.isGroundingEnabled()
             }
 
-    fun setLlmGroundingEnabled(providerId: DirectSearchLlmProviderId, enabled: Boolean) {
+    fun setLlmGroundingEnabled(providerId: AiSearchLlmProviderId, enabled: Boolean) {
         when (providerId) {
-            DirectSearchLlmProviderId.GEMINI -> geminiPreferences.setGeminiGroundingEnabled(enabled)
-            DirectSearchLlmProviderId.OPENAI -> openAiPreferences.setGroundingEnabled(enabled)
-            DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.setGroundingEnabled(enabled)
-            DirectSearchLlmProviderId.GROQ -> groqPreferences.setGroundingEnabled(enabled)
+            AiSearchLlmProviderId.GEMINI -> geminiPreferences.setGeminiGroundingEnabled(enabled)
+            AiSearchLlmProviderId.OPENAI -> openAiPreferences.setGroundingEnabled(enabled)
+            AiSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.setGroundingEnabled(enabled)
+            AiSearchLlmProviderId.GROQ -> groqPreferences.setGroundingEnabled(enabled)
         }
     }
 
-    fun isLlmThinkingEnabled(providerId: DirectSearchLlmProviderId): Boolean =
+    fun isLlmThinkingEnabled(providerId: AiSearchLlmProviderId): Boolean =
             when (providerId) {
-                DirectSearchLlmProviderId.GEMINI -> geminiPreferences.isThinkingEnabled()
-                DirectSearchLlmProviderId.OPENAI -> false
-                DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.isThinkingEnabled()
-                DirectSearchLlmProviderId.GROQ -> groqPreferences.isThinkingEnabled()
+                AiSearchLlmProviderId.GEMINI -> geminiPreferences.isThinkingEnabled()
+                AiSearchLlmProviderId.OPENAI -> false
+                AiSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.isThinkingEnabled()
+                AiSearchLlmProviderId.GROQ -> groqPreferences.isThinkingEnabled()
             }
 
-    fun setLlmThinkingEnabled(providerId: DirectSearchLlmProviderId, enabled: Boolean) {
+    fun setLlmThinkingEnabled(providerId: AiSearchLlmProviderId, enabled: Boolean) {
         when (providerId) {
-            DirectSearchLlmProviderId.GEMINI -> geminiPreferences.setThinkingEnabled(enabled)
-            DirectSearchLlmProviderId.OPENAI -> Unit
-            DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.setThinkingEnabled(enabled)
-            DirectSearchLlmProviderId.GROQ -> groqPreferences.setThinkingEnabled(enabled)
+            AiSearchLlmProviderId.GEMINI -> geminiPreferences.setThinkingEnabled(enabled)
+            AiSearchLlmProviderId.OPENAI -> Unit
+            AiSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.setThinkingEnabled(enabled)
+            AiSearchLlmProviderId.GROQ -> groqPreferences.setThinkingEnabled(enabled)
         }
     }
 
-    fun getLlmPersonalContext(providerId: DirectSearchLlmProviderId): String? =
+    fun getLlmPersonalContext(providerId: AiSearchLlmProviderId): String? =
             when (providerId) {
-                DirectSearchLlmProviderId.GEMINI -> geminiPreferences.getPersonalContext()
-                DirectSearchLlmProviderId.OPENAI -> openAiPreferences.getPersonalContext()
-                DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.getPersonalContext()
-                DirectSearchLlmProviderId.GROQ -> groqPreferences.getPersonalContext()
+                AiSearchLlmProviderId.GEMINI -> geminiPreferences.getPersonalContext()
+                AiSearchLlmProviderId.OPENAI -> openAiPreferences.getPersonalContext()
+                AiSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.getPersonalContext()
+                AiSearchLlmProviderId.GROQ -> groqPreferences.getPersonalContext()
             }
 
-    fun setLlmPersonalContext(providerId: DirectSearchLlmProviderId, context: String?) {
+    fun setLlmPersonalContext(providerId: AiSearchLlmProviderId, context: String?) {
         when (providerId) {
-            DirectSearchLlmProviderId.GEMINI -> geminiPreferences.setPersonalContext(context)
-            DirectSearchLlmProviderId.OPENAI -> openAiPreferences.setPersonalContext(context)
-            DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.setPersonalContext(context)
-            DirectSearchLlmProviderId.GROQ -> groqPreferences.setPersonalContext(context)
+            AiSearchLlmProviderId.GEMINI -> geminiPreferences.setPersonalContext(context)
+            AiSearchLlmProviderId.OPENAI -> openAiPreferences.setPersonalContext(context)
+            AiSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.setPersonalContext(context)
+            AiSearchLlmProviderId.GROQ -> groqPreferences.setPersonalContext(context)
         }
     }
 
@@ -824,10 +824,10 @@ class UserAppPreferences(
 
     fun setWallpaperAccentEnabled(enabled: Boolean) = uiPreferences.setWallpaperAccentEnabled(enabled)
 
-    fun isDirectSearchSetupExpanded(): Boolean = uiPreferences.isDirectSearchSetupExpanded()
+    fun isAiSearchSetupExpanded(): Boolean = uiPreferences.isAiSearchSetupExpanded()
 
-    fun setDirectSearchSetupExpanded(expanded: Boolean) =
-            uiPreferences.setDirectSearchSetupExpanded(expanded)
+    fun setAiSearchSetupExpanded(expanded: Boolean) =
+            uiPreferences.setAiSearchSetupExpanded(expanded)
 
     fun isDisabledSearchEnginesExpanded(): Boolean = uiPreferences.isDisabledSearchEnginesExpanded()
 

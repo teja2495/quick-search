@@ -65,7 +65,7 @@ import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.shared.permissions.PermissionSettingsDialog
-import com.tk.quicksearch.tools.directSearch.GeminiTextModel
+import com.tk.quicksearch.tools.aiSearch.GeminiTextModel
 import com.tk.quicksearch.tile.requestAddQuickSearchTile
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
@@ -301,7 +301,7 @@ fun SettingsRoute(
                     onPickCustomImage = {},
                     onToggleDirectDial = onToggleDirectDial,
                     onToggleSection = onToggleSection,
-                    onOpenDirectSearchConfigure = {
+                    onOpenAiSearchConfigure = {
                         onNavigateToDetail(com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType.GEMINI_API_CONFIG)
                     },
                     onOpenAddAppShortcutDialog = appShortcutSourceFlow.openSourcePicker,

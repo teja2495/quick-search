@@ -1,4 +1,4 @@
-package com.tk.quicksearch.tools.directSearch
+package com.tk.quicksearch.tools.aiSearch
 
 import android.util.Log
 import com.tk.quicksearch.BuildConfig
@@ -19,7 +19,7 @@ import java.net.URL
  * Lightweight client for fetching direct answers from the Gemini API.
  * Uses the public Gemini endpoint so it can be proxied via Firebase AI Logic.
  */
-class DirectSearchClient(
+class AiSearchClient(
     private val apiKey: String,
     private val context: android.content.Context,
 ) {

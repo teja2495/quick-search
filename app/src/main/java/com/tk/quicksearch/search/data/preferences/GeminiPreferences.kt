@@ -2,7 +2,7 @@ package com.tk.quicksearch.search.data.preferences
 
 import android.content.Context
 import android.util.Log
-import com.tk.quicksearch.tools.directSearch.GeminiModelCatalog
+import com.tk.quicksearch.tools.aiSearch.GeminiModelCatalog
 
 /**
  * Preferences for Gemini API-related settings such as API key and personal context.

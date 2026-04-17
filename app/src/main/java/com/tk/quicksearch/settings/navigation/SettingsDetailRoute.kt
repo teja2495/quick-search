@@ -88,7 +88,7 @@ fun SettingsDetailRoute(
             remember {
                 mutableStateOf(userPreferences.isAssistantLaunchVoiceModeEnabled())
             }
-    var directSearchSetupExpanded by
+    var aiSearchSetupExpanded by
             remember(detailType) {
                 mutableStateOf(
                         if (detailType == SettingsDetailType.SEARCH_ENGINES) {
@@ -262,7 +262,7 @@ fun SettingsDetailRoute(
                                     },
                                     onToggleDirectDial = viewModel::setDirectDialEnabled,
                                     onToggleSection = onToggleSection,
-                                    onOpenDirectSearchConfigure = {
+                                    onOpenAiSearchConfigure = {
                                         onNavigateToDetail(SettingsDetailType.GEMINI_API_CONFIG)
                                     },
                                     onOpenAddAppShortcutDialog = appShortcutSourceFlow.openSourcePicker,
@@ -325,11 +325,11 @@ fun SettingsDetailRoute(
                             ),
             )
 
-    val onToggleDirectSearchSetupExpanded = {
-        val newExpanded = !directSearchSetupExpanded
-        directSearchSetupExpanded = newExpanded
+    val onToggleAiSearchSetupExpanded = {
+        val newExpanded = !aiSearchSetupExpanded
+        aiSearchSetupExpanded = newExpanded
         if (detailType == SettingsDetailType.SEARCH_ENGINES) {
-            userPreferences.setDirectSearchSetupExpanded(newExpanded)
+            userPreferences.setAiSearchSetupExpanded(newExpanded)
         }
     }
     val onToggleDisabledSearchEnginesExpanded = {
@@ -388,8 +388,8 @@ fun SettingsDetailRoute(
                 hasUsagePermission = uiState.hasUsagePermission,
                 isDefaultAssistant = isDefaultAssistant,
                 assistantLaunchVoiceModeEnabled = assistantLaunchVoiceModeEnabled,
-                directSearchSetupExpanded = directSearchSetupExpanded,
-                onToggleDirectSearchSetupExpanded = onToggleDirectSearchSetupExpanded,
+                aiSearchSetupExpanded = aiSearchSetupExpanded,
+                onToggleAiSearchSetupExpanded = onToggleAiSearchSetupExpanded,
                 disabledSearchEnginesExpanded = disabledSearchEnginesExpanded,
                 onToggleDisabledSearchEnginesExpanded = onToggleDisabledSearchEnginesExpanded,
                 onNavigateToDetail = onNavigateToDetail,

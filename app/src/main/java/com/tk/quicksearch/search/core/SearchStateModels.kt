@@ -11,9 +11,9 @@ import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.searchHistory.RecentSearchItem
-import com.tk.quicksearch.tools.directSearch.DirectSearchLlmProviderId
-import com.tk.quicksearch.tools.directSearch.GeminiModelCatalog
-import com.tk.quicksearch.tools.directSearch.GeminiTextModel
+import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
+import com.tk.quicksearch.tools.aiSearch.GeminiModelCatalog
+import com.tk.quicksearch.tools.aiSearch.GeminiTextModel
 
 // =============================================================================
 // The four focused sub-state data classes that replace the monolithic
@@ -90,7 +90,7 @@ data class SearchResultsState(
         val currencyConverterState: CurrencyConverterState = CurrencyConverterState(),
         val wordClockState: WordClockState = WordClockState(),
         val dictionaryState: DictionaryState = DictionaryState(),
-        val DirectSearchState: DirectSearchState = DirectSearchState(),
+        val AiSearchState: AiSearchState = AiSearchState(),
         val webSuggestions: List<String> = emptyList(),
         val webSuggestionWasSelected: Boolean = false,
         val isSecondarySearchInProgress: Boolean = false,
@@ -153,7 +153,7 @@ data class SearchFeatureState(
         // Gemini / Direct Search
         val hasGeminiApiKey: Boolean = false,
         val geminiApiKeyLast4: String? = null,
-        val directSearchLlmProviderId: DirectSearchLlmProviderId = DirectSearchLlmProviderId.GEMINI,
+        val aiSearchLlmProviderId: AiSearchLlmProviderId = AiSearchLlmProviderId.GEMINI,
         val isSavingGeminiApiKey: Boolean = false,
         val personalContext: String = "",
         val geminiModel: String = GeminiModelCatalog.DEFAULT_MODEL_ID,

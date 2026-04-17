@@ -1,9 +1,9 @@
-package com.tk.quicksearch.tools.directSearch
+package com.tk.quicksearch.tools.aiSearch
 
 import android.content.Context
 
-object GroqDirectSearchLlmProvider : DirectSearchLlmProvider {
-    override val id: DirectSearchLlmProviderId = DirectSearchLlmProviderId.GROQ
+object GroqAiSearchLlmProvider : AiSearchLlmProvider {
+    override val id: AiSearchLlmProviderId = AiSearchLlmProviderId.GROQ
     override val displayName: String = "Groq"
     override val defaultModelId: String = GroqModelCatalog.DEFAULT_MODEL_ID
     override val defaultGroundingEnabled: Boolean = GroqModelCatalog.DEFAULT_GROUNDING_ENABLED

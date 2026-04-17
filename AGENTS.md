@@ -97,7 +97,7 @@ Use it as the primary implementation playbook for building new features and upda
 
 - Search engines: `searchEngines/`
 - Orchestration/debounce: `searchEngines/SecondarySearchOrchestrator.kt`
-- Direct Search (Gemini/Gemma): `tools/directSearch/`
+- AI Search: `tools/aiSearch/`
 - Built-in tools: `tools/calculator/`, `tools/unitConverter/`, `tools/dateCalculator/`, `tools/aiTools/`
 
 ### Overlay mode

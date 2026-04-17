@@ -23,7 +23,7 @@ import com.tk.quicksearch.search.searchScreen.LocalOverlayActionColor
 private const val RETRY_ICON_SIZE = 18
 
 @Composable
-internal fun RetryDirectSearchButton(
+internal fun RetryAiSearchButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {

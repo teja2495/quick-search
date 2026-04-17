@@ -50,7 +50,7 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
  */
 @Composable
 fun ApiKeySetupCard(
-    directSearchEnabled: Boolean,
+    aiSearchEnabled: Boolean,
     onSetGeminiApiKey: (String?) -> Unit,
     geminiApiKeyLast4: String?,
     isSavingGeminiApiKey: Boolean = false,
@@ -58,7 +58,7 @@ fun ApiKeySetupCard(
     onToggleExpanded: (() -> Unit)? = null,
 ) {
     var apiKeyInput by remember { mutableStateOf("") }
-    val hasConfiguredApiKey = directSearchEnabled && geminiApiKeyLast4 != null
+    val hasConfiguredApiKey = aiSearchEnabled && geminiApiKeyLast4 != null
     val buttonRowBottomPadding = DesignTokens.SpacingXSmall
     val context = LocalContext.current
     @Suppress("DEPRECATION")

@@ -23,7 +23,7 @@ class NavigationHandler(
     private val application: Application,
     private val userPreferences: UserAppPreferences,
     private val settingsSearchHandler: DeviceSettingsSearchHandler,
-    private val onRequestDirectSearch: (String, Boolean) -> Unit,
+    private val onRequestAiSearch: (String, Boolean) -> Unit,
     private val onClearQuery: () -> Unit,
     private val onExternalNavigation: () -> Unit,
     private val showToastCallback: (Int) -> Unit,
@@ -109,7 +109,7 @@ class NavigationHandler(
         val trimmedQuery = query.trim()
 
         if (searchEngine == SearchEngine.DIRECT_SEARCH) {
-            onRequestDirectSearch(trimmedQuery, addToSearchHistory)
+            onRequestAiSearch(trimmedQuery, addToSearchHistory)
             return
         }
 

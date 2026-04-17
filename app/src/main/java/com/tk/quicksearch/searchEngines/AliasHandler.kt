@@ -7,7 +7,7 @@ import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchToolType
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.data.UserAppPreferences
-import com.tk.quicksearch.tools.directSearch.DirectSearchHandler
+import com.tk.quicksearch.tools.aiSearch.AiSearchHandler
 import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
 import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
@@ -20,7 +20,7 @@ class AliasHandler(
     private val userPreferences: UserAppPreferences,
     private val scope: CoroutineScope,
     private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit,
-    private val directSearchHandler: DirectSearchHandler,
+    private val aiSearchHandler: AiSearchHandler,
     private val searchTargetsProvider: () -> List<SearchTarget>,
 ) {
     data class FeatureAliasDefinition(
@@ -357,7 +357,7 @@ class AliasHandler(
         for (target in targets) {
             if (target is SearchTarget.Engine &&
                 target.engine == SearchEngine.DIRECT_SEARCH &&
-                directSearchHandler.getGeminiApiKey().isNullOrBlank()
+                aiSearchHandler.getGeminiApiKey().isNullOrBlank()
             ) {
                 continue
             }
@@ -384,7 +384,7 @@ class AliasHandler(
         for (target in targets) {
             if (target is SearchTarget.Engine &&
                 target.engine == SearchEngine.DIRECT_SEARCH &&
-                directSearchHandler.getGeminiApiKey().isNullOrBlank()
+                aiSearchHandler.getGeminiApiKey().isNullOrBlank()
             ) {
                 continue
             }

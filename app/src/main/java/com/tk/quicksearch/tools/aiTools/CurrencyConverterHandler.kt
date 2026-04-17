@@ -3,8 +3,8 @@ package com.tk.quicksearch.tools.aiTools
 import android.content.Context
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.UserAppPreferences
-import com.tk.quicksearch.tools.directSearch.DirectSearchLlmProviderRegistry
-import com.tk.quicksearch.tools.directSearch.LlmRequest
+import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderRegistry
+import com.tk.quicksearch.tools.aiSearch.LlmRequest
 import org.json.JSONObject
 
 class CurrencyNotRecognizedException : Exception()
@@ -47,8 +47,8 @@ class CurrencyConverterHandler(
     }
 
     suspend fun convert(confirmed: ConfirmedCurrencyQuery): Result<Pair<CurrencyConversionModelResult, String>> {
-        val providerId = userPreferences.getDirectSearchProviderId()
-        val provider = DirectSearchLlmProviderRegistry.get(providerId, context)
+        val providerId = userPreferences.getAiSearchProviderId()
+        val provider = AiSearchLlmProviderRegistry.get(providerId, context)
         val apiKey = userPreferences.getLlmApiKey(providerId)?.trim().orEmpty()
         if (apiKey.isEmpty()) {
             return Result.failure(IllegalStateException(context.getString(R.string.direct_search_error_no_key)))
@@ -83,8 +83,8 @@ class CurrencyConverterHandler(
 
     /** Used in alias mode — sends the raw query to the AI without pre-parsing. */
     suspend fun convertRaw(rawQuery: String): Result<Pair<CurrencyConversionModelResult, String>> {
-        val providerId = userPreferences.getDirectSearchProviderId()
-        val provider = DirectSearchLlmProviderRegistry.get(providerId, context)
+        val providerId = userPreferences.getAiSearchProviderId()
+        val provider = AiSearchLlmProviderRegistry.get(providerId, context)
         val apiKey = userPreferences.getLlmApiKey(providerId)?.trim().orEmpty()
         if (apiKey.isEmpty()) {
             return Result.failure(IllegalStateException(context.getString(R.string.direct_search_error_no_key)))

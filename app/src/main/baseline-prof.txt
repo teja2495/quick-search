@@ -23,7 +23,7 @@ HSPLcom/tk/quicksearch/search/core/SearchViewModel;->startStartupPhasesAfterFirs
 HSPLcom/tk/quicksearch/search/core/SearchViewModel;->markStartupCoreSurfaceReady()V
 HSPLcom/tk/quicksearch/search/core/SearchViewModel;->refreshPermissionSnapshotAtLaunch()V
 HSPLcom/tk/quicksearch/search/core/SearchViewModel;->initializeServices()V
-HSPLcom/tk/quicksearch/search/core/SearchViewModel;->setupDirectSearchStateListener()V
+HSPLcom/tk/quicksearch/search/core/SearchViewModel;->setupAiSearchStateListener()V
 
 Lcom/tk/quicksearch/search/core/SearchStartupLifecycleDelegate;
 HSPLcom/tk/quicksearch/search/core/SearchStartupLifecycleDelegate;->startStartupPhasesAfterFirstFrame()V
@@ -92,7 +92,7 @@ Lcom/tk/quicksearch/app/navigation/NavigationHandler;
 
 # Handlers initialized during early lifecycle
 Lcom/tk/quicksearch/search/contacts/actions/ContactActionHandler;
-Lcom/tk/quicksearch/tools/directSearch/DirectSearchHandler;
+Lcom/tk/quicksearch/tools/aiSearch/AiSearchHandler;
 Lcom/tk/quicksearch/search/apps/AppSearchManager;
 Lcom/tk/quicksearch/search/apps/AppManagementService;
 Lcom/tk/quicksearch/search/contacts/utils/ContactManagementHandler;

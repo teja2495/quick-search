@@ -66,8 +66,8 @@ internal fun SettingsDetailLevel1Screen(
     hasUsagePermission: Boolean,
     isDefaultAssistant: Boolean,
     assistantLaunchVoiceModeEnabled: Boolean,
-    directSearchSetupExpanded: Boolean = true,
-    onToggleDirectSearchSetupExpanded: (() -> Unit)? = null,
+    aiSearchSetupExpanded: Boolean = true,
+    onToggleAiSearchSetupExpanded: (() -> Unit)? = null,
     disabledSearchEnginesExpanded: Boolean = true,
     onToggleDisabledSearchEnginesExpanded: (() -> Unit)? = null,
     onNavigateToDetail: (SettingsDetailType) -> Unit = {},
@@ -160,11 +160,11 @@ internal fun SettingsDetailLevel1Screen(
                             onSetGeminiModel = callbacks.onSetGeminiModel,
                             onSetGeminiGroundingEnabled = callbacks.onSetGeminiGroundingEnabled,
                             onRefreshAvailableGeminiModels = callbacks.onRefreshAvailableGeminiModels,
-                            onOpenDirectSearchConfigure = callbacks.onOpenDirectSearchConfigure,
-                            directSearchAvailable = state.hasGeminiApiKey,
+                            onOpenAiSearchConfigure = callbacks.onOpenAiSearchConfigure,
+                            aiSearchAvailable = state.hasGeminiApiKey,
                             showTitle = false,
-                            directSearchSetupExpanded = directSearchSetupExpanded,
-                            onToggleDirectSearchSetupExpanded = onToggleDirectSearchSetupExpanded,
+                            aiSearchSetupExpanded = aiSearchSetupExpanded,
+                            onToggleAiSearchSetupExpanded = onToggleAiSearchSetupExpanded,
                             disabledSearchEnginesExpanded = disabledSearchEnginesExpanded,
                             onToggleDisabledSearchEnginesExpanded = onToggleDisabledSearchEnginesExpanded,
                             onToggleSearchEngineCompactMode = { enabled ->
@@ -187,7 +187,7 @@ internal fun SettingsDetailLevel1Screen(
                             isAliasTriggerAfterSpaceEnabled = state.isAliasTriggerAfterSpaceEnabled,
                             onToggleAliasTriggerAfterSpaceEnabled =
                                 callbacks.onToggleAliasTriggerAfterSpaceEnabled,
-                            showDirectSearchAtTop = true,
+                            showAiSearchAtTop = true,
                         )
                     }
 

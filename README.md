@@ -141,7 +141,7 @@ app/src/main/java/com/tk/quicksearch/
 │   └── shared/             # Shared search engine components
 ├── tools/                  # Specialized tools and utilities
 │   ├── calculator/         # Calculator functionality
-│   └── directSearch/       # Direct Search (Gemini API integration)
+│   └── aiSearch/            # AI Search (Gemini API integration)
 ├── settings/               # Settings screens (restructured)
 │   ├── appearanceSettings/ # Appearance and theme settings
 │   ├── appShortcutsSettings/# App shortcuts configuration

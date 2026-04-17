@@ -1,4 +1,4 @@
-package com.tk.quicksearch.tools.directSearch
+package com.tk.quicksearch.tools.aiSearch
 
 import android.content.Context
 
@@ -22,8 +22,8 @@ data class LlmRequest(
     val responseMimeType: String = "text/plain",
 )
 
-/** Current direct-search LLM providers. */
-enum class DirectSearchLlmProviderId(
+/** Current AI search LLM providers. */
+enum class AiSearchLlmProviderId(
     val storageValue: String,
 ) {
     GEMINI("gemini"),
@@ -33,7 +33,7 @@ enum class DirectSearchLlmProviderId(
     ;
 
     companion object {
-        fun fromStorageValue(value: String?): DirectSearchLlmProviderId =
+        fun fromStorageValue(value: String?): AiSearchLlmProviderId =
             entries.firstOrNull { it.storageValue == value } ?: GEMINI
 
         /**
@@ -43,7 +43,7 @@ enum class DirectSearchLlmProviderId(
          * - `sk-*` (not `sk-ant-`) → OPENAI
          * - everything else → GEMINI
          */
-        fun detectFromApiKey(apiKey: String?): DirectSearchLlmProviderId {
+        fun detectFromApiKey(apiKey: String?): AiSearchLlmProviderId {
             if (apiKey.isNullOrBlank()) return GEMINI
             val trimmed = apiKey.trim()
             return when {
@@ -56,9 +56,9 @@ enum class DirectSearchLlmProviderId(
     }
 }
 
-/** Provider abstraction for direct-search style LLM requests. */
-interface DirectSearchLlmProvider {
-    val id: DirectSearchLlmProviderId
+/** Provider abstraction for AI search style LLM requests. */
+interface AiSearchLlmProvider {
+    val id: AiSearchLlmProviderId
     val displayName: String
     val defaultModelId: String
     val defaultGroundingEnabled: Boolean
@@ -77,15 +77,15 @@ interface DirectSearchLlmProvider {
 }
 
 /** Central lookup to keep provider wiring in one place. */
-object DirectSearchLlmProviderRegistry {
+object AiSearchLlmProviderRegistry {
     fun get(
-        id: DirectSearchLlmProviderId,
+        id: AiSearchLlmProviderId,
         context: Context,
-    ): DirectSearchLlmProvider =
+    ): AiSearchLlmProvider =
         when (id) {
-            DirectSearchLlmProviderId.GEMINI -> GeminiDirectSearchLlmProvider
-            DirectSearchLlmProviderId.OPENAI -> OpenAiDirectSearchLlmProvider
-            DirectSearchLlmProviderId.ANTHROPIC -> AnthropicDirectSearchLlmProvider
-            DirectSearchLlmProviderId.GROQ -> GroqDirectSearchLlmProvider
+            AiSearchLlmProviderId.GEMINI -> GeminiAiSearchLlmProvider
+            AiSearchLlmProviderId.OPENAI -> OpenAiAiSearchLlmProvider
+            AiSearchLlmProviderId.ANTHROPIC -> AnthropicAiSearchLlmProvider
+            AiSearchLlmProviderId.GROQ -> GroqAiSearchLlmProvider
         }
 }

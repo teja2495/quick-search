@@ -42,10 +42,10 @@ import com.tk.quicksearch.search.searchScreen.dialogs.SearchScreenDialogs
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
 import com.tk.quicksearch.settings.AppShortcutsSettings.EditCustomShortcutDialog
-import com.tk.quicksearch.tools.directSearch.DirectSearchLlmProviderId
-import com.tk.quicksearch.tools.directSearch.GeminiModelCatalog
-import com.tk.quicksearch.tools.directSearch.ModelPickerDialog
-import com.tk.quicksearch.tools.directSearch.GeminiTextModel
+import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
+import com.tk.quicksearch.tools.aiSearch.GeminiModelCatalog
+import com.tk.quicksearch.tools.aiSearch.ModelPickerDialog
+import com.tk.quicksearch.tools.aiSearch.GeminiTextModel
 import kotlinx.coroutines.delay
 
 @Composable
@@ -182,8 +182,8 @@ internal fun SearchScreenDialogLogic(
                 onRefreshAvailableGeminiModels()
             },
             showGroundingToggle =
-                state.directSearchLlmProviderId != DirectSearchLlmProviderId.OPENAI &&
-                    state.directSearchLlmProviderId != DirectSearchLlmProviderId.GROQ,
+                state.aiSearchLlmProviderId != AiSearchLlmProviderId.OPENAI &&
+                    state.aiSearchLlmProviderId != AiSearchLlmProviderId.GROQ,
         )
     }
 

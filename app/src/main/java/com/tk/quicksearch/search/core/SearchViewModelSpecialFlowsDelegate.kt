@@ -9,11 +9,11 @@ import kotlinx.coroutines.launch
 internal class SearchViewModelSpecialFlowsDelegate(
     private val scope: CoroutineScope,
     private val userPreferences: com.tk.quicksearch.search.data.UserAppPreferences,
-    private val directSearchStateFlow: Flow<DirectSearchState>,
-    private val clearDirectSearchState: () -> Unit,
+    private val aiSearchStateFlow: Flow<AiSearchState>,
+    private val clearAiSearchState: () -> Unit,
     private val cancelInactiveTools: (SearchViewModel.ActiveInformationCard) -> Unit,
-    private val shouldRecordPendingDirectSearchQueryInHistory: () -> Boolean,
-    private val setShouldRecordPendingDirectSearchQueryInHistory: (Boolean) -> Unit,
+    private val shouldRecordPendingAiSearchQueryInHistory: () -> Boolean,
+    private val setShouldRecordPendingAiSearchQueryInHistory: (Boolean) -> Unit,
     private val updateResultsState: ((SearchResultsState) -> SearchResultsState) -> Unit,
     private val updateConfigState: ((SearchUiConfigState) -> SearchUiConfigState) -> Unit,
     private val updateFeatureState: ((SearchFeatureState) -> SearchFeatureState) -> Unit,
@@ -22,19 +22,19 @@ internal class SearchViewModelSpecialFlowsDelegate(
     fun clearInformationCardsExcept(activeCard: SearchViewModel.ActiveInformationCard) {
         cancelInactiveTools(activeCard)
         if (
-            activeCard != SearchViewModel.ActiveInformationCard.DIRECT_SEARCH &&
-                resultsStateProvider().DirectSearchState.status != DirectSearchStatus.Idle
+            activeCard != SearchViewModel.ActiveInformationCard.AI_SEARCH &&
+                resultsStateProvider().AiSearchState.status != AiSearchStatus.Idle
         ) {
-            clearDirectSearchState()
+            clearAiSearchState()
         }
 
         updateResultsState { state ->
             state.copy(
-                DirectSearchState =
-                    if (activeCard == SearchViewModel.ActiveInformationCard.DIRECT_SEARCH) {
-                        state.DirectSearchState
+                AiSearchState =
+                    if (activeCard == SearchViewModel.ActiveInformationCard.AI_SEARCH) {
+                        state.AiSearchState
                     } else {
-                        DirectSearchState()
+                        AiSearchState()
                     },
                 calculatorState =
                     if (activeCard == SearchViewModel.ActiveInformationCard.CALCULATOR) {
@@ -64,20 +64,20 @@ internal class SearchViewModelSpecialFlowsDelegate(
         }
     }
 
-    fun setupDirectSearchStateListener() {
+    fun setupAiSearchStateListener() {
         scope.launch {
-            directSearchStateFlow.collect { dsState ->
-                if (dsState.status == DirectSearchStatus.Loading) {
-                    val activeQuery = dsState.activeQuery?.trim().orEmpty()
-                    if (shouldRecordPendingDirectSearchQueryInHistory() && activeQuery.isNotEmpty()) {
+            aiSearchStateFlow.collect { aiState ->
+                if (aiState.status == AiSearchStatus.Loading) {
+                    val activeQuery = aiState.activeQuery?.trim().orEmpty()
+                    if (shouldRecordPendingAiSearchQueryInHistory() && activeQuery.isNotEmpty()) {
                         userPreferences.addRecentItem(RecentSearchEntry.Query(activeQuery))
                     }
-                    setShouldRecordPendingDirectSearchQueryInHistory(true)
+                    setShouldRecordPendingAiSearchQueryInHistory(true)
                 }
-                if (dsState.status != DirectSearchStatus.Idle) {
-                    clearInformationCardsExcept(SearchViewModel.ActiveInformationCard.DIRECT_SEARCH)
+                if (aiState.status != AiSearchStatus.Idle) {
+                    clearInformationCardsExcept(SearchViewModel.ActiveInformationCard.AI_SEARCH)
                 }
-                updateResultsState { it.copy(DirectSearchState = dsState) }
+                updateResultsState { it.copy(AiSearchState = aiState) }
             }
         }
     }

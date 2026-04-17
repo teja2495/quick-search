@@ -2,7 +2,7 @@ package com.tk.quicksearch.settings.shared
 
 import com.tk.quicksearch.search.core.CustomTool
 import com.tk.quicksearch.search.core.SearchUiState
-import com.tk.quicksearch.tools.directSearch.DirectSearchLlmProviderId
+import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 
 internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState {
     val searchResults = toSearchResultsSettingsState()
@@ -36,7 +36,7 @@ internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState {
         amazonDomain = searchEngines.amazonDomain,
         hasGeminiApiKey = searchEngines.hasGeminiApiKey,
         geminiApiKeyLast4 = searchEngines.geminiApiKeyLast4,
-        directSearchLlmProviderId = searchEngines.directSearchLlmProviderId,
+        aiSearchLlmProviderId = searchEngines.aiSearchLlmProviderId,
         isSavingGeminiApiKey = searchEngines.isSavingGeminiApiKey,
         personalContext = searchEngines.personalContext,
         geminiModel = searchEngines.geminiModel,
@@ -141,13 +141,13 @@ private data class SearchEngineMapperState(
     val amazonDomain: String?,
     val hasGeminiApiKey: Boolean,
     val geminiApiKeyLast4: String?,
-    val directSearchLlmProviderId: DirectSearchLlmProviderId,
+    val aiSearchLlmProviderId: AiSearchLlmProviderId,
     val isSavingGeminiApiKey: Boolean,
     val personalContext: String,
     val geminiModel: String,
     val geminiGroundingEnabled: Boolean,
     val geminiThinkingEnabled: Boolean,
-    val availableGeminiModels: List<com.tk.quicksearch.tools.directSearch.GeminiTextModel>,
+    val availableGeminiModels: List<com.tk.quicksearch.tools.aiSearch.GeminiTextModel>,
 )
 
 private fun SearchUiState.toSearchEngineSettingsState() =
@@ -163,7 +163,7 @@ private fun SearchUiState.toSearchEngineSettingsState() =
         amazonDomain = amazonDomain,
         hasGeminiApiKey = hasGeminiApiKey,
         geminiApiKeyLast4 = geminiApiKeyLast4,
-        directSearchLlmProviderId = directSearchLlmProviderId,
+        aiSearchLlmProviderId = aiSearchLlmProviderId,
         isSavingGeminiApiKey = isSavingGeminiApiKey,
         personalContext = personalContext,
         geminiModel = geminiModel,

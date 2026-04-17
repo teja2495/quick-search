@@ -1,4 +1,4 @@
-package com.tk.quicksearch.tools.directSearch
+package com.tk.quicksearch.tools.aiSearch
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
@@ -40,10 +40,10 @@ internal fun GeminiResultCard(
         showWallpaperBackground: Boolean,
         showAttribution: Boolean,
         usedModelId: String?,
-        llmProviderId: DirectSearchLlmProviderId = DirectSearchLlmProviderId.GEMINI,
+        llmProviderId: AiSearchLlmProviderId = AiSearchLlmProviderId.GEMINI,
         isAttributionClickable: Boolean = false,
         onGeminiModelInfoClick: () -> Unit = {},
-        onOpenDirectSearchConfigure: () -> Unit = {},
+        onOpenAiSearchConfigure: () -> Unit = {},
         content: @Composable () -> Unit,
 ) {
     ColumnWithContent(
@@ -54,7 +54,7 @@ internal fun GeminiResultCard(
             llmProviderId = llmProviderId,
             isAttributionClickable = isAttributionClickable,
             onGeminiModelInfoClick = onGeminiModelInfoClick,
-            onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
+            onOpenAiSearchConfigure = onOpenAiSearchConfigure,
     )
 }
 
@@ -64,10 +64,10 @@ private fun ColumnWithContent(
         content: @Composable () -> Unit,
         showAttribution: Boolean,
         usedModelId: String?,
-        llmProviderId: DirectSearchLlmProviderId,
+        llmProviderId: AiSearchLlmProviderId,
         isAttributionClickable: Boolean,
         onGeminiModelInfoClick: () -> Unit,
-        onOpenDirectSearchConfigure: () -> Unit,
+        onOpenAiSearchConfigure: () -> Unit,
 ) {
     androidx.compose.foundation.layout.Column(
             modifier = Modifier.fillMaxWidth(),
@@ -87,7 +87,7 @@ private fun ColumnWithContent(
                     llmProviderId = llmProviderId,
                     isClickable = isAttributionClickable,
                     onClick = onGeminiModelInfoClick,
-                    onLongClick = onOpenDirectSearchConfigure,
+                    onLongClick = onOpenAiSearchConfigure,
             )
         }
     }
@@ -126,7 +126,7 @@ private fun AnthropicClaudeWordmark(
 internal fun GeminiAttributionRow(
         modifier: Modifier = Modifier,
         usedModelId: String? = null,
-        llmProviderId: DirectSearchLlmProviderId = DirectSearchLlmProviderId.GEMINI,
+        llmProviderId: AiSearchLlmProviderId = AiSearchLlmProviderId.GEMINI,
         isClickable: Boolean = false,
         onClick: () -> Unit = {},
         onLongClick: () -> Unit = {},
@@ -158,7 +158,7 @@ internal fun GeminiAttributionRow(
                 color = contentColor,
         )
         when (llmProviderId) {
-            DirectSearchLlmProviderId.OPENAI -> {
+            AiSearchLlmProviderId.OPENAI -> {
                 Image(
                         painter = painterResource(R.drawable.openai_wordmark),
                         contentDescription = poweredByText,
@@ -168,7 +168,7 @@ internal fun GeminiAttributionRow(
                                 Modifier.height(18.dp).aspectRatio(1564.3f / 428.4f),
                 )
             }
-            DirectSearchLlmProviderId.ANTHROPIC -> {
+            AiSearchLlmProviderId.ANTHROPIC -> {
                 AnthropicClaudeWordmark(
                         contentDescription = poweredByText,
                         wordmarkTextColor = contentColor,
@@ -177,7 +177,7 @@ internal fun GeminiAttributionRow(
                                         .aspectRatio(689.97997f / 148.17999f),
                 )
             }
-            DirectSearchLlmProviderId.GROQ -> {
+            AiSearchLlmProviderId.GROQ -> {
                 Image(
                         painter = painterResource(R.drawable.groq_wordmark),
                         contentDescription = poweredByText,

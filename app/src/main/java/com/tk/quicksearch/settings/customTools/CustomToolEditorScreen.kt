@@ -29,8 +29,8 @@ import com.tk.quicksearch.search.core.CustomTool
 import com.tk.quicksearch.settings.shared.ModelFeatureSettingsCard
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.tools.directSearch.GeminiModelCatalog
-import com.tk.quicksearch.tools.directSearch.GeminiTextModel
+import com.tk.quicksearch.tools.aiSearch.GeminiModelCatalog
+import com.tk.quicksearch.tools.aiSearch.GeminiTextModel
 
 @Composable
 fun CustomToolEditorScreen(

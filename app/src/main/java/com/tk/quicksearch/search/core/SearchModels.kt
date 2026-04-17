@@ -11,9 +11,9 @@ import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.searchHistory.RecentSearchItem
-import com.tk.quicksearch.tools.directSearch.DirectSearchLlmProviderId
-import com.tk.quicksearch.tools.directSearch.GeminiModelCatalog
-import com.tk.quicksearch.tools.directSearch.GeminiTextModel
+import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
+import com.tk.quicksearch.tools.aiSearch.GeminiModelCatalog
+import com.tk.quicksearch.tools.aiSearch.GeminiTextModel
 
 // IconPackInfo moved here to avoid circular imports
 data class IconPackInfo(
@@ -138,7 +138,7 @@ enum class StartupPhase {
         COMPLETE,
 }
 
-enum class DirectSearchStatus {
+enum class AiSearchStatus {
         Idle,
         Loading,
         Success,
@@ -172,8 +172,8 @@ enum class SearchToolType {
         DATE_CALCULATOR,
 }
 
-data class DirectSearchState(
-        val status: DirectSearchStatus = DirectSearchStatus.Idle,
+data class AiSearchState(
+        val status: AiSearchStatus = AiSearchStatus.Idle,
         val answer: String? = null,
         val errorMessage: String? = null,
         val activeQuery: String? = null,
@@ -529,7 +529,7 @@ data class SearchUiState(
         // Web suggestions
         val webSuggestionsEnabled: Boolean = true,
         val webSuggestionsCount: Int = 3,
-        // Calculator / Direct Search
+        // Calculator / AI Search
         val calculatorEnabled: Boolean = true,
         val unitConverterEnabled: Boolean = true,
         val dateCalculatorEnabled: Boolean = true,
@@ -538,11 +538,11 @@ data class SearchUiState(
         val dictionaryEnabled: Boolean = true,
         val customTools: List<CustomTool> = emptyList(),
         val disabledCustomToolIds: Set<String> = emptySet(),
-        val DirectSearchState: DirectSearchState = DirectSearchState(),
+        val AiSearchState: AiSearchState = AiSearchState(),
         // Gemini
         val hasGeminiApiKey: Boolean = false,
         val geminiApiKeyLast4: String? = null,
-        val directSearchLlmProviderId: DirectSearchLlmProviderId = DirectSearchLlmProviderId.GEMINI,
+        val aiSearchLlmProviderId: AiSearchLlmProviderId = AiSearchLlmProviderId.GEMINI,
         val isSavingGeminiApiKey: Boolean = false,
         val personalContext: String = "",
         val geminiModel: String = GeminiModelCatalog.DEFAULT_MODEL_ID,
@@ -642,7 +642,7 @@ fun SearchUiState(
                 currencyConverterState = results.currencyConverterState,
                 wordClockState = results.wordClockState,
                 dictionaryState = results.dictionaryState,
-                DirectSearchState = results.DirectSearchState,
+                AiSearchState = results.AiSearchState,
                 webSuggestions = results.webSuggestions,
                 isSecondarySearchInProgress = results.isSecondarySearchInProgress,
                 webSuggestionWasSelected = results.webSuggestionWasSelected,
@@ -685,7 +685,7 @@ fun SearchUiState(
                 disabledSections = features.disabledSections,
                 hasGeminiApiKey = features.hasGeminiApiKey,
                 geminiApiKeyLast4 = features.geminiApiKeyLast4,
-                directSearchLlmProviderId = features.directSearchLlmProviderId,
+                aiSearchLlmProviderId = features.aiSearchLlmProviderId,
                 isSavingGeminiApiKey = features.isSavingGeminiApiKey,
                 personalContext = features.personalContext,
                 geminiModel = features.geminiModel,

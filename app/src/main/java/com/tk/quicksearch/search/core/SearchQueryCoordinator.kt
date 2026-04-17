@@ -329,12 +329,12 @@ internal class SearchQueryCoordinator(
         if (newQuery == previousQuery) return
 
         val trimmedQuery = newQuery.trim()
-        val directSearchState = currentResultsStateProvider().DirectSearchState
-        if (directSearchState.status != DirectSearchStatus.Idle &&
-            (directSearchState.activeQuery == null ||
-                directSearchState.activeQuery != trimmedQuery)
+        val aiSearchState = currentResultsStateProvider().AiSearchState
+        if (aiSearchState.status != AiSearchStatus.Idle &&
+            (aiSearchState.activeQuery == null ||
+                aiSearchState.activeQuery != trimmedQuery)
         ) {
-            handlers.directSearchHandler.clearDirectSearchState()
+            handlers.aiSearchHandler.clearAiSearchState()
         }
 
         val currencyState = currentResultsStateProvider().currencyConverterState
@@ -382,7 +382,7 @@ internal class SearchQueryCoordinator(
                         appSettingResults = emptyList(),
                         calendarEvents = emptyList(),
                         noteResults = emptyList(),
-                        DirectSearchState = DirectSearchState(),
+                        AiSearchState = AiSearchState(),
                         currencyConverterState = CurrencyConverterState(),
                         wordClockState = WordClockState(),
                         dictionaryState = DictionaryState(),
@@ -421,7 +421,7 @@ internal class SearchQueryCoordinator(
                     appSettingResults = emptyList(),
                     calendarEvents = emptyList(),
                     noteResults = emptyList(),
-                    DirectSearchState = DirectSearchState(),
+                    AiSearchState = AiSearchState(),
                     currencyConverterState = CurrencyConverterState(),
                     wordClockState = WordClockState(),
                     dictionaryState = DictionaryState(),

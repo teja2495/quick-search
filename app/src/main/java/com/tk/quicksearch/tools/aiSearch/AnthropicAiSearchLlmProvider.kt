@@ -1,9 +1,9 @@
-package com.tk.quicksearch.tools.directSearch
+package com.tk.quicksearch.tools.aiSearch
 
 import android.content.Context
 
-object AnthropicDirectSearchLlmProvider : DirectSearchLlmProvider {
-    override val id: DirectSearchLlmProviderId = DirectSearchLlmProviderId.ANTHROPIC
+object AnthropicAiSearchLlmProvider : AiSearchLlmProvider {
+    override val id: AiSearchLlmProviderId = AiSearchLlmProviderId.ANTHROPIC
     override val displayName: String = "Claude"
     override val defaultModelId: String = AnthropicModelCatalog.DEFAULT_MODEL_ID
     override val defaultGroundingEnabled: Boolean = AnthropicModelCatalog.DEFAULT_GROUNDING_ENABLED

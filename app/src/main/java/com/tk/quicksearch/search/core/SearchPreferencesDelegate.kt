@@ -5,9 +5,9 @@ import com.tk.quicksearch.search.apps.IconPackService
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.models.FileType
-import com.tk.quicksearch.tools.directSearch.DirectSearchHandler
-import com.tk.quicksearch.tools.directSearch.DirectSearchLlmProviderId
-import com.tk.quicksearch.tools.directSearch.GeminiModelCatalog
+import com.tk.quicksearch.tools.aiSearch.AiSearchHandler
+import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
+import com.tk.quicksearch.tools.aiSearch.GeminiModelCatalog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -57,7 +57,7 @@ internal class SearchPreferencesDelegate(
     private val scope: CoroutineScope,
     private val applicationProvider: () -> android.app.Application,
     private val userPreferences: UserAppPreferences,
-    private val directSearchHandler: DirectSearchHandler,
+    private val aiSearchHandler: AiSearchHandler,
     private val searchEngineManager: com.tk.quicksearch.searchEngines.SearchEngineManager,
     private val iconPackHandler: IconPackService,
     private val secondarySearchOrchestrator: com.tk.quicksearch.searchEngines.SecondarySearchOrchestrator,
@@ -595,17 +595,17 @@ internal class SearchPreferencesDelegate(
 
                 if (hasKey) {
                     // Auto-detect provider from the key prefix and switch if needed.
-                    val detectedProvider = DirectSearchLlmProviderId.detectFromApiKey(apiKey)
-                    val currentProvider = directSearchHandler.getDirectSearchProviderId()
+                    val detectedProvider = AiSearchLlmProviderId.detectFromApiKey(apiKey)
+                    val currentProvider = aiSearchHandler.getAiSearchProviderId()
                     if (detectedProvider != currentProvider) {
                         // Clear the old provider's key before switching.
-                        directSearchHandler.setLlmApiKey(null)
-                        directSearchHandler.setDirectSearchProviderId(detectedProvider)
+                        aiSearchHandler.setLlmApiKey(null)
+                        aiSearchHandler.setAiSearchProviderId(detectedProvider)
                         userPreferences.clearAllLlmApiKeys()
                         // Immediately reflect the new provider's fallback models so the UI does
                         // not show the previous provider's model list while the API refresh runs.
                         updateFeatureState {
-                            it.copy(availableGeminiModels = directSearchHandler.getAvailableGeminiModels())
+                            it.copy(availableGeminiModels = aiSearchHandler.getAvailableGeminiModels())
                         }
                     }
                 } else {
@@ -613,24 +613,24 @@ internal class SearchPreferencesDelegate(
                     userPreferences.clearAllLlmApiKeys()
                 }
 
-                directSearchHandler.setGeminiApiKey(apiKey)
+                aiSearchHandler.setGeminiApiKey(apiKey)
 
                 searchEngineManager.updateSearchTargetsForGemini(hasKey)
 
                 val availableModels =
                     if (hasKey) {
-                        directSearchHandler.refreshAvailableGeminiModels(forceRefresh = true)
+                        aiSearchHandler.refreshAvailableGeminiModels(forceRefresh = true)
                     } else {
-                        directSearchHandler.getAvailableGeminiModels()
+                        aiSearchHandler.getAvailableGeminiModels()
                     }
 
                 updateFeatureState {
                     it.copy(
                         hasGeminiApiKey = hasKey,
                         geminiApiKeyLast4 = apiKey?.trim()?.takeLast(4),
-                        directSearchLlmProviderId = directSearchHandler.getDirectSearchProviderId(),
-                        geminiModel = directSearchHandler.getGeminiModel(),
-                        geminiThinkingEnabled = directSearchHandler.isGeminiThinkingEnabled(),
+                        aiSearchLlmProviderId = aiSearchHandler.getAiSearchProviderId(),
+                        geminiModel = aiSearchHandler.getGeminiModel(),
+                        geminiThinkingEnabled = aiSearchHandler.isGeminiThinkingEnabled(),
                         availableGeminiModels = availableModels,
                     )
                 }
@@ -642,14 +642,14 @@ internal class SearchPreferencesDelegate(
 
     fun setPersonalContext(context: String?) {
         scope.launch(Dispatchers.IO) {
-            directSearchHandler.setPersonalContext(context)
+            aiSearchHandler.setPersonalContext(context)
             updateFeatureState { it.copy(personalContext = context?.trim().orEmpty()) }
         }
     }
 
     fun setGeminiModel(modelId: String?) {
         scope.launch(Dispatchers.IO) {
-            directSearchHandler.setGeminiModel(modelId)
+            aiSearchHandler.setGeminiModel(modelId)
             val normalized = modelId?.trim().takeUnless { it.isNullOrBlank() }
             updateFeatureState {
                 it.copy(
@@ -661,23 +661,23 @@ internal class SearchPreferencesDelegate(
 
     fun setGeminiGroundingEnabled(enabled: Boolean) {
         scope.launch(Dispatchers.IO) {
-            directSearchHandler.setGeminiGroundingEnabled(enabled)
+            aiSearchHandler.setGeminiGroundingEnabled(enabled)
             updateFeatureState { it.copy(geminiGroundingEnabled = enabled) }
         }
     }
 
     fun setGeminiThinkingEnabled(enabled: Boolean) {
         scope.launch(Dispatchers.IO) {
-            directSearchHandler.setGeminiThinkingEnabled(enabled)
+            aiSearchHandler.setGeminiThinkingEnabled(enabled)
             updateFeatureState {
-                it.copy(geminiThinkingEnabled = directSearchHandler.isGeminiThinkingEnabled())
+                it.copy(geminiThinkingEnabled = aiSearchHandler.isGeminiThinkingEnabled())
             }
         }
     }
 
     fun refreshAvailableGeminiModels() {
         scope.launch(Dispatchers.IO) {
-            val models = directSearchHandler.refreshAvailableGeminiModels(forceRefresh = true)
+            val models = aiSearchHandler.refreshAvailableGeminiModels(forceRefresh = true)
             updateFeatureState { it.copy(availableGeminiModels = models) }
         }
     }
@@ -710,12 +710,13 @@ internal class SearchPreferencesDelegate(
         scope.launch(Dispatchers.IO) {
             val trimmedName = name.trim()
             if (trimmedName.isBlank()) return@launch
+            val resolvedModelId = resolveCustomToolModelId(modelId)
             val id = "custom_tool:${java.util.UUID.randomUUID()}"
             val newTool = CustomTool(
                 id = id,
                 name = trimmedName,
                 prompt = prompt.trim(),
-                modelId = modelId,
+                modelId = resolvedModelId,
                 groundingEnabled = groundingEnabled,
                 thinkingEnabled = thinkingEnabled,
             )
@@ -750,6 +751,7 @@ internal class SearchPreferencesDelegate(
         scope.launch(Dispatchers.IO) {
             val trimmedName = name.trim()
             if (trimmedName.isBlank()) return@launch
+            val resolvedModelId = resolveCustomToolModelId(modelId)
             val existing = userPreferences.getCustomTools()
             val updated =
                 existing.map { tool ->
@@ -757,7 +759,7 @@ internal class SearchPreferencesDelegate(
                         tool.copy(
                             name = trimmedName,
                             prompt = prompt.trim(),
-                            modelId = modelId,
+                            modelId = resolvedModelId,
                             groundingEnabled = groundingEnabled,
                             thinkingEnabled = thinkingEnabled,
                         )
@@ -802,5 +804,12 @@ internal class SearchPreferencesDelegate(
         if (query.isNotBlank()) {
             secondarySearchOrchestrator.performSecondarySearches(query)
         }
+    }
+
+    private fun resolveCustomToolModelId(modelId: String): String {
+        val availableModelIds = aiSearchHandler.getAvailableGeminiModels().map { it.id }
+        val firstAvailableModelId = availableModelIds.firstOrNull() ?: GeminiModelCatalog.DEFAULT_MODEL_ID
+        val normalizedModelId = modelId.trim()
+        return normalizedModelId.takeIf { it.isNotBlank() && it in availableModelIds } ?: firstAvailableModelId
     }
 }

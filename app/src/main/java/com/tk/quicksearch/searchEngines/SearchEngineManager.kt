@@ -285,7 +285,7 @@ class SearchEngineManager(
     }
 
     fun updateSearchTargetsForGemini(hasGemini: Boolean) {
-        val updatedOrder = applyDirectSearchAvailability(searchTargetsOrder, hasGemini)
+        val updatedOrder = applyAiSearchAvailability(searchTargetsOrder, hasGemini)
         searchTargetsOrder = updatedOrder
         if (!hasGemini) {
             disabledSearchTargetIds =
@@ -385,8 +385,8 @@ class SearchEngineManager(
                     customMap = customMap,
                 )
             }
-        val directAdjusted = applyDirectSearchAvailability(savedTargets, hasGemini)
-        val withNewEngines = mergeMissingEngines(directAdjusted, availableEngines)
+        val aiAdjusted = applyAiSearchAvailability(savedTargets, hasGemini)
+        val withNewEngines = mergeMissingEngines(aiAdjusted, availableEngines)
         val withCustomTargets = mergeMissingCustomTargets(withNewEngines, customEngines)
         val finalOrder = mergeBrowsers(withCustomTargets, availableBrowsers)
 
@@ -682,20 +682,20 @@ class SearchEngineManager(
         packageName: String,
     ): Boolean = packageManager.getLaunchIntentForPackage(packageName) != null
 
-    private fun applyDirectSearchAvailability(
+    private fun applyAiSearchAvailability(
         order: List<SearchTarget>,
         hasGemini: Boolean,
     ): List<SearchTarget> {
-        val hasDirect =
+        val hasAiSearch =
             order.any { it is SearchTarget.Engine && it.engine == SearchEngine.DIRECT_SEARCH }
-        val withoutDirect =
+        val withoutAiSearch =
             order.filterNot {
                 it is SearchTarget.Engine && it.engine == SearchEngine.DIRECT_SEARCH
             }
         return when {
-            hasGemini && hasDirect -> order
-            hasGemini -> listOf(SearchTarget.Engine(SearchEngine.DIRECT_SEARCH)) + withoutDirect
-            else -> withoutDirect
+            hasGemini && hasAiSearch -> order
+            hasGemini -> listOf(SearchTarget.Engine(SearchEngine.DIRECT_SEARCH)) + withoutAiSearch
+            else -> withoutAiSearch
         }
     }
 }

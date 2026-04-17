@@ -1,4 +1,4 @@
-package com.tk.quicksearch.tools.directSearch
+package com.tk.quicksearch.tools.aiSearch
 
 private const val REDACTED = "[REDACTED_API_KEY]"
 

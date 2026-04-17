@@ -1,9 +1,9 @@
-package com.tk.quicksearch.tools.directSearch
+package com.tk.quicksearch.tools.aiSearch
 
 import android.content.Context
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.core.DirectSearchState
-import com.tk.quicksearch.search.core.DirectSearchStatus
+import com.tk.quicksearch.search.core.AiSearchState
+import com.tk.quicksearch.search.core.AiSearchStatus
 import com.tk.quicksearch.search.data.UserAppPreferences
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -14,18 +14,18 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class DirectSearchHandler(
+class AiSearchHandler(
     private val context: Context,
     private val userPreferences: UserAppPreferences,
     private val scope: CoroutineScope,
     private val showToastCallback: (Int) -> Unit,
 ) {
-    private val _directSearchState = MutableStateFlow(DirectSearchState())
-    val directSearchState: StateFlow<DirectSearchState> = _directSearchState.asStateFlow()
+    private val _aiSearchState = MutableStateFlow(AiSearchState())
+    val aiSearchState: StateFlow<AiSearchState> = _aiSearchState.asStateFlow()
 
-    private var activeProviderId: DirectSearchLlmProviderId = DirectSearchLlmProviderId.GEMINI
-    private var activeProvider: DirectSearchLlmProvider =
-        DirectSearchLlmProviderRegistry.get(DirectSearchLlmProviderId.GEMINI, context)
+    private var activeProviderId: AiSearchLlmProviderId = AiSearchLlmProviderId.GEMINI
+    private var activeProvider: AiSearchLlmProvider =
+        AiSearchLlmProviderRegistry.get(AiSearchLlmProviderId.GEMINI, context)
     private var llmApiKey: String? = null
     private var personalContext: String = ""
     private var selectedModelId: String = GeminiModelCatalog.DEFAULT_MODEL_ID
@@ -35,12 +35,12 @@ class DirectSearchHandler(
     private var hasLoadedGeminiModelsFromApi: Boolean = false
 
     private var isInitialized = false
-    private var directSearchJob: Job? = null
+    private var aiSearchJob: Job? = null
 
     private fun ensureInitialized() {
         if (!isInitialized) {
-            activeProviderId = userPreferences.getDirectSearchProviderId()
-            activeProvider = DirectSearchLlmProviderRegistry.get(activeProviderId, context)
+            activeProviderId = userPreferences.getAiSearchProviderId()
+            activeProvider = AiSearchLlmProviderRegistry.get(activeProviderId, context)
             llmApiKey = userPreferences.getLlmApiKey(activeProviderId)
             personalContext = userPreferences.getLlmPersonalContext(activeProviderId).orEmpty()
             selectedModelId = userPreferences.getLlmModel(activeProviderId)
@@ -52,18 +52,18 @@ class DirectSearchHandler(
         }
     }
 
-    fun getDirectSearchProviderId(): DirectSearchLlmProviderId {
+    fun getAiSearchProviderId(): AiSearchLlmProviderId {
         ensureInitialized()
         return activeProviderId
     }
 
-    fun setDirectSearchProviderId(providerId: DirectSearchLlmProviderId) {
+    fun setAiSearchProviderId(providerId: AiSearchLlmProviderId) {
         ensureInitialized()
         if (providerId == activeProviderId) return
 
         activeProviderId = providerId
-        activeProvider = DirectSearchLlmProviderRegistry.get(providerId, context)
-        userPreferences.setDirectSearchProviderId(providerId)
+        activeProvider = AiSearchLlmProviderRegistry.get(providerId, context)
+        userPreferences.setAiSearchProviderId(providerId)
 
         llmApiKey = userPreferences.getLlmApiKey(providerId)
         personalContext = userPreferences.getLlmPersonalContext(providerId).orEmpty()
@@ -72,7 +72,7 @@ class DirectSearchHandler(
         thinkingEnabled = userPreferences.isLlmThinkingEnabled(providerId)
         availableGeminiModels = ensureModelExists(activeProvider.fallbackTextModels)
         hasLoadedGeminiModelsFromApi = false
-        clearDirectSearchState()
+        clearAiSearchState()
     }
 
     fun getLlmApiKey(): String? {
@@ -91,7 +91,7 @@ class DirectSearchHandler(
 
         if (llmApiKey == null) {
             availableGeminiModels = ensureModelExists(activeProvider.fallbackTextModels)
-            clearDirectSearchState()
+            clearAiSearchState()
         }
     }
 
@@ -125,13 +125,13 @@ class DirectSearchHandler(
 
     fun isThinkingEnabled(): Boolean {
         ensureInitialized()
-        if (activeProviderId == DirectSearchLlmProviderId.OPENAI) return false
+        if (activeProviderId == AiSearchLlmProviderId.OPENAI) return false
         return thinkingEnabled
     }
 
     fun setThinkingEnabled(enabled: Boolean) {
         ensureInitialized()
-        if (activeProviderId == DirectSearchLlmProviderId.OPENAI) return
+        if (activeProviderId == AiSearchLlmProviderId.OPENAI) return
         if (enabled == thinkingEnabled) return
 
         thinkingEnabled = enabled
@@ -160,7 +160,7 @@ class DirectSearchHandler(
     fun reloadFromPreferences() {
         isInitialized = false
         ensureInitialized()
-        clearDirectSearchState()
+        clearAiSearchState()
     }
 
     fun setGeminiApiKey(apiKey: String?) {
@@ -208,20 +208,20 @@ class DirectSearchHandler(
         return availableGeminiModels
     }
 
-    fun requestDirectSearch(query: String) {
+    fun requestAiSearch(query: String) {
         ensureInitialized()
         val trimmedQuery = query.trim()
         if (trimmedQuery.isBlank()) {
             showToastCallback(R.string.direct_search_enter_query)
-            clearDirectSearchState()
+            clearAiSearchState()
             return
         }
 
         val apiKey = llmApiKey
         if (apiKey.isNullOrBlank()) {
-            _directSearchState.update {
-                DirectSearchState(
-                    status = DirectSearchStatus.Error,
+            _aiSearchState.update {
+                AiSearchState(
+                    status = AiSearchStatus.Error,
                     errorMessage = context.getString(R.string.direct_search_error_no_key),
                     activeQuery = trimmedQuery,
                 )
@@ -229,12 +229,12 @@ class DirectSearchHandler(
             return
         }
 
-        directSearchJob?.cancel()
-        directSearchJob =
+        aiSearchJob?.cancel()
+        aiSearchJob =
             scope.launch {
-                _directSearchState.update {
-                    DirectSearchState(
-                        status = DirectSearchStatus.Loading,
+                _aiSearchState.update {
+                    AiSearchState(
+                        status = AiSearchStatus.Loading,
                         activeQuery = trimmedQuery,
                     )
                 }
@@ -255,12 +255,12 @@ class DirectSearchHandler(
                                     },
                                 modelId = selectedModelId,
                                 useGroundingWithGoogleSearch =
-                                    activeProviderId != DirectSearchLlmProviderId.OPENAI &&
+                                    activeProviderId != AiSearchLlmProviderId.OPENAI &&
                                         groundingEnabled &&
                                         (selectedModel?.supportsGrounding != false),
                                 thinkingEnabled =
                                     thinkingEnabled &&
-                                        activeProviderId != DirectSearchLlmProviderId.OPENAI,
+                                        activeProviderId != AiSearchLlmProviderId.OPENAI,
                                 useSystemInstruction =
                                     selectedModel?.supportsSystemInstructions != false,
                             ),
@@ -268,9 +268,9 @@ class DirectSearchHandler(
 
                 result
                     .onSuccess { answer ->
-                        _directSearchState.update {
-                            DirectSearchState(
-                                status = DirectSearchStatus.Success,
+                        _aiSearchState.update {
+                            AiSearchState(
+                                status = AiSearchStatus.Success,
                                 answer = answer,
                                 activeQuery = trimmedQuery,
                                 usedModelId = selectedModelId,
@@ -300,9 +300,9 @@ class DirectSearchHandler(
                                     context.getString(R.string.error_gemini_empty_response)
                                 else -> error.message ?: context.getString(R.string.direct_search_error_generic)
                             }
-                        _directSearchState.update {
-                            DirectSearchState(
-                                status = DirectSearchStatus.Error,
+                        _aiSearchState.update {
+                            AiSearchState(
+                                status = AiSearchStatus.Error,
                                 errorMessage = message,
                                 activeQuery = trimmedQuery,
                             )
@@ -324,9 +324,9 @@ class DirectSearchHandler(
 
         val apiKey = llmApiKey
         if (apiKey.isNullOrBlank()) {
-            _directSearchState.update {
-                DirectSearchState(
-                    status = DirectSearchStatus.Error,
+            _aiSearchState.update {
+                AiSearchState(
+                    status = AiSearchStatus.Error,
                     errorMessage = context.getString(R.string.direct_search_error_no_key),
                     activeQuery = trimmedQuery,
                 )
@@ -334,12 +334,12 @@ class DirectSearchHandler(
             return
         }
 
-        directSearchJob?.cancel()
-        directSearchJob =
+        aiSearchJob?.cancel()
+        aiSearchJob =
             scope.launch {
-                _directSearchState.update {
-                    DirectSearchState(
-                        status = DirectSearchStatus.Loading,
+                _aiSearchState.update {
+                    AiSearchState(
+                        status = AiSearchStatus.Loading,
                         activeQuery = trimmedQuery,
                     )
                 }
@@ -355,12 +355,12 @@ class DirectSearchHandler(
                                 personalContext = null,
                                 modelId = modelId,
                                 useGroundingWithGoogleSearch =
-                                    activeProviderId != DirectSearchLlmProviderId.OPENAI &&
+                                    activeProviderId != AiSearchLlmProviderId.OPENAI &&
                                         groundingEnabled &&
                                         modelSupportsGrounding(modelId),
                                 thinkingEnabled =
-                                    (this@DirectSearchHandler.thinkingEnabled || thinkingEnabled) &&
-                                        activeProviderId != DirectSearchLlmProviderId.OPENAI,
+                                    (this@AiSearchHandler.thinkingEnabled || thinkingEnabled) &&
+                                        activeProviderId != AiSearchLlmProviderId.OPENAI,
                                 useSystemInstruction = useSystemInstruction,
                                 systemInstruction = systemInstruction,
                             ),
@@ -368,9 +368,9 @@ class DirectSearchHandler(
 
                 result
                     .onSuccess { answer ->
-                        _directSearchState.update {
-                            DirectSearchState(
-                                status = DirectSearchStatus.Success,
+                        _aiSearchState.update {
+                            AiSearchState(
+                                status = AiSearchStatus.Success,
                                 answer = answer,
                                 activeQuery = trimmedQuery,
                                 usedModelId = modelId,
@@ -400,9 +400,9 @@ class DirectSearchHandler(
                                     context.getString(R.string.error_gemini_empty_response)
                                 else -> error.message ?: context.getString(R.string.direct_search_error_generic)
                             }
-                        _directSearchState.update {
-                            DirectSearchState(
-                                status = DirectSearchStatus.Error,
+                        _aiSearchState.update {
+                            AiSearchState(
+                                status = AiSearchStatus.Error,
                                 errorMessage = message,
                                 activeQuery = trimmedQuery,
                             )
@@ -411,10 +411,10 @@ class DirectSearchHandler(
             }
     }
 
-    fun clearDirectSearchState() {
-        directSearchJob?.cancel()
-        directSearchJob = null
-        _directSearchState.update { DirectSearchState() }
+    fun clearAiSearchState() {
+        aiSearchJob?.cancel()
+        aiSearchJob = null
+        _aiSearchState.update { AiSearchState() }
     }
 
     private fun ensureModelExists(models: List<GeminiTextModel>): List<GeminiTextModel> {
@@ -432,7 +432,7 @@ class DirectSearchHandler(
     }
 
     /**
-     * When the catalog entry is missing (e.g. stale cache), match [DirectSearchClient] Gemma
+     * When the catalog entry is missing (e.g. stale cache), match [AiSearchClient] Gemma
      * heuristics so we do not send `systemInstruction` JSON for models that reject it.
      */
     private fun modelSupportsSystemInstructions(modelId: String): Boolean {

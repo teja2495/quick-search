@@ -49,7 +49,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.CurrencyConverterStatus
 import com.tk.quicksearch.search.core.DictionaryStatus
-import com.tk.quicksearch.search.core.DirectSearchStatus
+import com.tk.quicksearch.search.core.AiSearchStatus
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchSectionUiMetadataRegistry
 import com.tk.quicksearch.search.core.SearchTarget
@@ -101,12 +101,12 @@ internal fun SearchScreenContent(
         onRequestUsagePermission: () -> Unit,
         onSearchTargetClick: (String, SearchTarget) -> Unit,
         onSearchEngineLongPress: () -> Unit,
-        onDirectSearchEmailClick: (String) -> Unit,
+        onAiSearchEmailClick: (String) -> Unit,
         onPhoneNumberClick: (String) -> Unit,
         onWebSuggestionClick: (String) -> Unit,
         onOpenPersonalContextDialog: () -> Unit,
         onCustomizeSearchEnginesClick: () -> Unit = {},
-        onOpenDirectSearchConfigure: () -> Unit = {},
+        onOpenAiSearchConfigure: () -> Unit = {},
         onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
         onOpenSearchHistorySettings: () -> Unit = {},
         onDismissSearchHistoryTip: () -> Unit = {},
@@ -300,11 +300,11 @@ internal fun SearchScreenContent(
             activeCustomTool != null &&
                     state.hasGeminiApiKey &&
                     !showCalculatorResult &&
-                    state.DirectSearchState.status == DirectSearchStatus.Idle
+                    state.AiSearchState.status == AiSearchStatus.Idle
     val hideSearchEnginesForCustomTool =
             activeCustomTool != null ||
                     (state.detectedCustomToolId != null &&
-                            state.DirectSearchState.status != DirectSearchStatus.Idle)
+                            state.AiSearchState.status != AiSearchStatus.Idle)
     val hideCompactSearchEnginesInToolMode =
             (isToolMode ||
                     showCurrencyConverter ||
@@ -684,13 +684,13 @@ internal fun SearchScreenContent(
                 onRequestUsagePermission = onRequestUsagePermission,
                 scrollState = scrollState,
                 onPhoneNumberClick = onPhoneNumberClick,
-                onEmailClick = onDirectSearchEmailClick,
+                onEmailClick = onAiSearchEmailClick,
                 onOpenPersonalContextDialog = onOpenPersonalContextDialog,
                 onWebSuggestionClick = onWebSuggestionClick,
                 onSearchTargetClick = onSearchTargetClick,
                 onSearchEngineLongPress = onSearchEngineLongPress,
                 onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
-                onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
+                onOpenAiSearchConfigure = onOpenAiSearchConfigure,
                 onDeleteRecentItem = onDeleteRecentItem,
                 onOpenSearchHistorySettings = onOpenSearchHistorySettings,
                 onDismissSearchHistoryTip = onDismissSearchHistoryTip,
@@ -701,8 +701,8 @@ internal fun SearchScreenContent(
                 showCurrencyConverter = showCurrencyConverter,
                 showWordClock = showWordClock,
                 showDictionary = showDictionary,
-                showDirectSearch = state.DirectSearchState.status != DirectSearchStatus.Idle,
-                directSearchState = state.DirectSearchState,
+                showAiSearch = state.AiSearchState.status != AiSearchStatus.Idle,
+                aiSearchState = state.AiSearchState,
                 isOverlayPresentation = isOverlayPresentation,
         )
 

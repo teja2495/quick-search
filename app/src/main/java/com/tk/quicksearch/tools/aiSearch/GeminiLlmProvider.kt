@@ -1,9 +1,9 @@
-package com.tk.quicksearch.tools.directSearch
+package com.tk.quicksearch.tools.aiSearch
 
 import android.content.Context
 
-object GeminiDirectSearchLlmProvider : DirectSearchLlmProvider {
-    override val id: DirectSearchLlmProviderId = DirectSearchLlmProviderId.GEMINI
+object GeminiAiSearchLlmProvider : AiSearchLlmProvider {
+    override val id: AiSearchLlmProviderId = AiSearchLlmProviderId.GEMINI
     override val displayName: String = "Gemini"
     override val defaultModelId: String = GeminiModelCatalog.DEFAULT_MODEL_ID
     override val defaultGroundingEnabled: Boolean = GeminiModelCatalog.DEFAULT_GROUNDING_ENABLED
@@ -12,14 +12,14 @@ object GeminiDirectSearchLlmProvider : DirectSearchLlmProvider {
     override suspend fun fetchAvailableTextModels(
         apiKey: String,
         context: Context,
-    ): Result<List<LlmTextModel>> = DirectSearchClient.fetchAvailableTextModels(apiKey, context)
+    ): Result<List<LlmTextModel>> = AiSearchClient.fetchAvailableTextModels(apiKey, context)
 
     override suspend fun fetchAnswer(
         apiKey: String,
         context: Context,
         request: LlmRequest,
     ): Result<String> {
-        val client = DirectSearchClient(apiKey = apiKey, context = context)
+        val client = AiSearchClient(apiKey = apiKey, context = context)
         return client.fetchAnswer(
             query = request.query,
             personalContext = request.personalContext,

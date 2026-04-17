@@ -3,8 +3,8 @@ package com.tk.quicksearch.tools.aiTools
 import android.content.Context
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.UserAppPreferences
-import com.tk.quicksearch.tools.directSearch.DirectSearchLlmProviderRegistry
-import com.tk.quicksearch.tools.directSearch.LlmRequest
+import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderRegistry
+import com.tk.quicksearch.tools.aiSearch.LlmRequest
 import org.json.JSONObject
 
 class DictionaryNotRecognizedException : Exception()
@@ -53,8 +53,8 @@ class DictionaryHandler(
     suspend fun define(
             confirmed: ConfirmedDictionaryQuery,
     ): Result<Pair<DictionaryModelResult, String>> {
-        val providerId = userPreferences.getDirectSearchProviderId()
-        val provider = DirectSearchLlmProviderRegistry.get(providerId, context)
+        val providerId = userPreferences.getAiSearchProviderId()
+        val provider = AiSearchLlmProviderRegistry.get(providerId, context)
         val apiKey = userPreferences.getLlmApiKey(providerId)?.trim().orEmpty()
         if (apiKey.isEmpty()) {
             return Result.failure(

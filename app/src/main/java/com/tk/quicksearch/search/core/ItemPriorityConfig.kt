@@ -38,7 +38,7 @@ object ItemPriorityConfig {
         CURRENCY_CONVERTER_RESULT,
         WORD_CLOCK_RESULT,
         DICTIONARY_RESULT,
-        DIRECT_SEARCH_RESULT,
+        AI_SEARCH_RESULT,
 
         // Section groups (contain multiple search results)
         APPS_SECTION,
@@ -86,7 +86,7 @@ object ItemPriorityConfig {
             add(ItemType.CURRENCY_CONVERTER_RESULT)
             add(ItemType.WORD_CLOCK_RESULT)
             add(ItemType.DICTIONARY_RESULT)
-            add(ItemType.DIRECT_SEARCH_RESULT)
+            add(ItemType.AI_SEARCH_RESULT)
             addAll(sectionItemTypes)
             add(ItemType.WEB_SUGGESTIONS)
             add(ItemType.SEARCH_ENGINES_INLINE)

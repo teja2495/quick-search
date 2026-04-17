@@ -71,8 +71,8 @@ import com.tk.quicksearch.searchEngines.*
 import com.tk.quicksearch.searchEngines.compact.NoResultsSearchEngineCards
 import com.tk.quicksearch.search.webSuggestions.WebSuggestionsSection
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.tools.directSearch.CalculatorResult
-import com.tk.quicksearch.tools.directSearch.DirectSearchResult
+import com.tk.quicksearch.tools.aiSearch.CalculatorResult
+import com.tk.quicksearch.tools.aiSearch.AiSearchResult
 import kotlin.math.min
 
 /** Renders the scrollable content area with sections based on layout mode. */
@@ -98,7 +98,7 @@ fun SearchContentArea(
     onSearchTargetClick: (String, SearchTarget) -> Unit = { _, _ -> },
     onSearchEngineLongPress: () -> Unit = {},
     onCustomizeSearchEnginesClick: () -> Unit = {},
-    onOpenDirectSearchConfigure: () -> Unit = {},
+    onOpenAiSearchConfigure: () -> Unit = {},
     onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
     onOpenSearchHistorySettings: () -> Unit = {},
     onDismissSearchHistoryTip: () -> Unit = {},
@@ -108,15 +108,15 @@ fun SearchContentArea(
     showCurrencyConverter: Boolean = false,
     showWordClock: Boolean = false,
     showDictionary: Boolean = false,
-    showDirectSearch: Boolean = false,
-    directSearchState: DirectSearchState? = null,
+    showAiSearch: Boolean = false,
+    aiSearchState: AiSearchState? = null,
     isOverlayPresentation: Boolean = false,
     onOpenPermissionsSettings: () -> Unit = {},
 ) {
     val useOneHandedMode =
         state.oneHandedMode && renderingState.expandedSection == ExpandedSection.NONE
     val hideOtherResults =
-                showDirectSearch ||
+                showAiSearch ||
                 showCalculator ||
                 showWordClock ||
                 showDictionary ||
@@ -138,7 +138,7 @@ fun SearchContentArea(
                 shouldShowNotesSection(renderingState)
     val alignResultsToBottom =
             useOneHandedMode &&
-                    !showDirectSearch &&
+                    !showAiSearch &&
                     !showCalculator &&
                     !showCurrencyConverter &&
                     !showWordClock &&
@@ -166,9 +166,9 @@ fun SearchContentArea(
     val hasInlineSearchEngines = hasQuery && (!state.isSearchEngineCompactMode || isUrlQuery)
 
     val showRetryButton =
-        showDirectSearch &&
-                directSearchState?.status == DirectSearchStatus.Error &&
-                !directSearchState.activeQuery.isNullOrBlank() &&
+        showAiSearch &&
+                aiSearchState?.status == AiSearchStatus.Error &&
+                !aiSearchState.activeQuery.isNullOrBlank() &&
                 renderingState.expandedSection == ExpandedSection.NONE
     val isSectionAliasMode = state.detectedAliasSearchSection != null
     val useOverlayThemeTints = !state.deviceThemeEnabled && state.backgroundSource == BackgroundSource.THEME
@@ -228,7 +228,7 @@ fun SearchContentArea(
                         !showCurrencyConverter &&
                         !showWordClock &&
                         !showDictionary &&
-                        !showDirectSearch &&
+                        !showAiSearch &&
                         !hasInlineSearchEngines
 
             val heightModifier =
@@ -412,7 +412,7 @@ fun SearchContentArea(
                                     .coerceAtLeast(220.dp),
                             isReversed =
                                     useOneHandedMode &&
-                                            !showDirectSearch &&
+                                            !showAiSearch &&
                                             !showCurrencyConverter &&
                                             !showWordClock &&
                                             !showDictionary,
@@ -421,8 +421,8 @@ fun SearchContentArea(
                             showCurrencyConverter = showCurrencyConverter,
                             showWordClock = showWordClock,
                             showDictionary = showDictionary,
-                            showDirectSearch = showDirectSearch,
-                            directSearchState = directSearchState,
+                            showAiSearch = showAiSearch,
+                            aiSearchState = aiSearchState,
                             isOverlayPresentation = isOverlayPresentation,
                             onPhoneNumberClick = onPhoneNumberClick,
                             onEmailClick = onEmailClick,
@@ -431,7 +431,7 @@ fun SearchContentArea(
                             onSearchEngineLongPress = onSearchEngineLongPress,
                             onCustomizeSearchEnginesClick =
                             onCustomizeSearchEnginesClick,
-                            onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
+                            onOpenAiSearchConfigure = onOpenAiSearchConfigure,
                             onSearchTargetClick = onSearchTargetClick,
                             onDeleteRecentItem = onDeleteRecentItem,
                             onOpenSearchHistorySettings = onOpenSearchHistorySettings,
@@ -488,10 +488,10 @@ fun SearchContentArea(
             }
 
             if (showRetryButton) {
-                RetryDirectSearchButton(
+                RetryAiSearchButton(
                     onClick = {
                         val retryQuery =
-                            directSearchState?.activeQuery?.trim().orEmpty()
+                            aiSearchState?.activeQuery?.trim().orEmpty()
                         if (retryQuery.isNotEmpty()) {
                             onSearchTargetClick(
                                 retryQuery,

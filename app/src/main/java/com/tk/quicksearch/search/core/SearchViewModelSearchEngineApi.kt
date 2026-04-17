@@ -34,7 +34,7 @@ internal interface SearchViewModelSearchEngineApi {
 
     fun acknowledgeReleaseNotes() = searchEngineApiDelegate.acknowledgeReleaseNotes()
 
-    fun requestDirectSearch(query: String) = searchEngineApiDelegate.requestDirectSearch(query)
+    fun requestAiSearch(query: String) = searchEngineApiDelegate.requestAiSearch(query)
 
     fun setShowStartSearchingOnOnboarding(show: Boolean) =
         searchEngineApiDelegate.setShowStartSearchingOnOnboarding(show)
@@ -88,7 +88,7 @@ class SearchViewModelSearchEngineApiDelegate internal constructor(
     private val sectionManager: () -> SectionManager,
     private val messagingHandler: () -> com.tk.quicksearch.search.contacts.utils.MessagingHandler,
     private val searchEngineManager: () -> com.tk.quicksearch.searchEngines.SearchEngineManager,
-    private val directSearchHandler: () -> com.tk.quicksearch.tools.directSearch.DirectSearchHandler,
+    private val aiSearchHandler: () -> com.tk.quicksearch.tools.aiSearch.AiSearchHandler,
     private val releaseNotesHandler: () -> com.tk.quicksearch.app.ReleaseNotesHandler,
     private val permissionStateProvider: () -> SearchPermissionState,
     private val configStateProvider: () -> SearchUiConfigState,
@@ -139,7 +139,7 @@ class SearchViewModelSearchEngineApiDelegate internal constructor(
         releaseNotesHandler().acknowledgeReleaseNotes(configStateProvider().releaseNotesVersionName)
     }
 
-    fun requestDirectSearch(query: String) = directSearchHandler().requestDirectSearch(query)
+    fun requestAiSearch(query: String) = aiSearchHandler().requestAiSearch(query)
 
     fun setShowStartSearchingOnOnboarding(show: Boolean) {
         updateConfigState { it.copy(showStartSearchingOnOnboarding = show) }

@@ -37,14 +37,14 @@ Follow existing patterns from:
 ## 3) Define/extend result models
 
 If the tool needs a new result type, add a dedicated model in:
-- `app/src/main/java/com/tk/quicksearch/tools/directSearch/`
+- `app/src/main/java/com/tk/quicksearch/tools/aiSearch/`
 
 Keep naming consistent with existing result classes (for example `CalculatorResult`, `DictionaryResult`).
 
 ## 4) Wire the tool into orchestration
 
 Integrate handler invocation where tool parsing/execution is orchestrated:
-- `app/src/main/java/com/tk/quicksearch/tools/directSearch/DirectSearchHandler.kt`
+- `app/src/main/java/com/tk/quicksearch/tools/aiSearch/AiSearchHandler.kt`
 
 Rules:
 - Keep logic incremental and localized.
@@ -53,8 +53,8 @@ Rules:
 
 ## 5) Update UI rendering if needed
 
-If result UI is unique, add/update rendering in the existing direct-search UI path under:
-- `app/src/main/java/com/tk/quicksearch/tools/directSearch/`
+If result UI is unique, add/update rendering in the existing AI search UI path under:
+- `app/src/main/java/com/tk/quicksearch/tools/aiSearch/`
 
 Reuse shared design tokens and components where possible.
 

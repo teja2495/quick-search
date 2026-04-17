@@ -1,4 +1,4 @@
-package com.tk.quicksearch.tools.directSearch
+package com.tk.quicksearch.tools.aiSearch
 
 /** Shared OpenAI model configuration defaults. */
 object OpenAiModelCatalog {

@@ -1,4 +1,4 @@
-package com.tk.quicksearch.tools.directSearch
+package com.tk.quicksearch.tools.aiSearch
 
 /** Backward-compatible alias while the UI/state still references Gemini naming. */
 typealias GeminiTextModel = LlmTextModel

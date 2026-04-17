@@ -25,7 +25,7 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
-import com.tk.quicksearch.tools.directSearch.GeminiTextModel
+import com.tk.quicksearch.tools.aiSearch.GeminiTextModel
 import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.searchEngines.isInAppBrowserPackage
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -61,26 +61,26 @@ fun SearchEngines(
     onSetGeminiModel: ((String?) -> Unit)? = null,
     onSetGeminiGroundingEnabled: ((Boolean) -> Unit)? = null,
     onRefreshAvailableGeminiModels: (() -> Unit)? = null,
-    onOpenDirectSearchConfigure: (() -> Unit)? = null,
+    onOpenAiSearchConfigure: (() -> Unit)? = null,
     isSearchEngineAliasSuffixEnabled: Boolean = true,
     onToggleSearchEngineAliasSuffixEnabled: ((Boolean) -> Unit)? = null,
     isAliasTriggerAfterSpaceEnabled: Boolean = true,
     onToggleAliasTriggerAfterSpaceEnabled: ((Boolean) -> Unit)? = null,
     showTitle: Boolean = true,
-    directSearchAvailable: Boolean = false,
-    directSearchSetupExpanded: Boolean = true,
-    onToggleDirectSearchSetupExpanded: (() -> Unit)? = null,
+    aiSearchAvailable: Boolean = false,
+    aiSearchSetupExpanded: Boolean = true,
+    onToggleAiSearchSetupExpanded: (() -> Unit)? = null,
     showAddSearchEngineButton: Boolean = true,
     onAddCustomSearchEngine: ((String, String, String, String?) -> Unit)? = null,
     onUpdateCustomSearchEngine: ((String, String, String, String?, String?) -> Unit)? = null,
     onDeleteCustomSearchEngine: ((String) -> Unit)? = null,
-    showDirectSearchAtTop: Boolean = false,
+    showAiSearchAtTop: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val hasEnabledEngines =
         searchEngineOrder.any { searchTarget ->
             searchTarget.getId() !in disabledSearchEngines &&
-                (directSearchAvailable ||
+                (aiSearchAvailable ||
                     searchTarget !is SearchTarget.Engine ||
                     searchTarget.engine != SearchEngine.DIRECT_SEARCH)
         }
@@ -103,7 +103,7 @@ fun SearchEngines(
         }
     }
 
-    if (showDirectSearchAtTop && onToggleSearchEngineAliasSuffixEnabled != null) {
+    if (showAiSearchAtTop && onToggleSearchEngineAliasSuffixEnabled != null) {
         SearchEngineAliasSuffixCard(
             enabled = isSearchEngineAliasSuffixEnabled,
             onToggle = onToggleSearchEngineAliasSuffixEnabled,
@@ -113,7 +113,7 @@ fun SearchEngines(
         Spacer(modifier = Modifier.height(6.dp))
     }
 
-    if (!directSearchAvailable && onOpenDirectSearchConfigure != null) {
+    if (!aiSearchAvailable && onOpenAiSearchConfigure != null) {
         SettingsCard(
             modifier = Modifier
                 .fillMaxWidth()
@@ -124,7 +124,7 @@ fun SearchEngines(
                     title = stringResource(R.string.settings_direct_search_setup_nav_title),
                     description = stringResource(R.string.settings_direct_search_setup_nav_desc),
                     iconResId = R.drawable.direct_search,
-                    actionOnPress = onOpenDirectSearchConfigure,
+                    actionOnPress = onOpenAiSearchConfigure,
                 ),
                 contentPadding = PaddingValues(
                     horizontal = DesignTokens.SpacingXXLarge,
@@ -135,7 +135,7 @@ fun SearchEngines(
     }
 
     val enginesToDisplay =
-        (if (directSearchAvailable) {
+        (if (aiSearchAvailable) {
             searchEngineOrder
         } else {
             searchEngineOrder.filterNot {
@@ -165,7 +165,7 @@ fun SearchEngines(
         onDeleteCustomSearchEngine = onDeleteCustomSearchEngine,
     )
 
-    if (!showDirectSearchAtTop && onToggleSearchEngineAliasSuffixEnabled != null) {
+    if (!showAiSearchAtTop && onToggleSearchEngineAliasSuffixEnabled != null) {
         Spacer(modifier = Modifier.height(16.dp))
         SearchEngineAliasSuffixCard(
             enabled = isSearchEngineAliasSuffixEnabled,

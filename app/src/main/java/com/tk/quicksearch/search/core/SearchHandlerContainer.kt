@@ -38,7 +38,7 @@ import com.tk.quicksearch.tools.aiTools.DictionaryHandler
 import com.tk.quicksearch.tools.aiTools.WordClockHandler
 import com.tk.quicksearch.tools.calculator.CalculatorHandler
 import com.tk.quicksearch.tools.dateCalculator.DateCalculatorHandler
-import com.tk.quicksearch.tools.directSearch.DirectSearchHandler
+import com.tk.quicksearch.tools.aiSearch.AiSearchHandler
 import com.tk.quicksearch.tools.unitConverter.UnitConverterHandler
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -227,8 +227,8 @@ internal class SearchHandlerContainer(
         FileSearchHandler(fileRepository = fileRepository, userPreferences = userPreferences)
     }
 
-    val directSearchHandler by lazy {
-        DirectSearchHandler(
+    val aiSearchHandler by lazy {
+        AiSearchHandler(
             context = appContext,
             userPreferences = userPreferences,
             scope = scope,
@@ -241,7 +241,7 @@ internal class SearchHandlerContainer(
             userPreferences = userPreferences,
             scope = scope,
             uiStateUpdater = updateUiState,
-            directSearchHandler = directSearchHandler,
+            aiSearchHandler = aiSearchHandler,
             searchTargetsProvider = { searchEngineManager.searchTargetsOrder },
         )
     }
@@ -289,7 +289,7 @@ internal class SearchHandlerContainer(
         getCurrentState: () -> SearchUiState,
         clearQuery: () -> Unit,
         externalNavigation: () -> Unit,
-        onRequestDirectSearch: (query: String, addToSearchHistory: Boolean) -> Unit,
+        onRequestAiSearch: (query: String, addToSearchHistory: Boolean) -> Unit,
         showToastText: (Int) -> Unit,
     ) {
         navigationHandler =
@@ -297,7 +297,7 @@ internal class SearchHandlerContainer(
                 application = application,
                 userPreferences = userPreferences,
                 settingsSearchHandler = settingsSearchHandler,
-                onRequestDirectSearch = onRequestDirectSearch,
+                onRequestAiSearch = onRequestAiSearch,
                 onClearQuery = clearQuery,
                 onExternalNavigation = externalNavigation,
                 showToastCallback = showToastText,

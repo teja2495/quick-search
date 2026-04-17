@@ -548,7 +548,7 @@ private fun NavigationContent(
                     onCustomizeSearchEnginesClick = {
                         navigateToSettings(SettingsDetailType.SEARCH_ENGINES)
                     },
-                    onOpenDirectSearchConfigure = {
+                    onOpenAiSearchConfigure = {
                         navigateToSettings(SettingsDetailType.GEMINI_API_CONFIG)
                     },
                     onOpenReleaseNotesFeatures = {

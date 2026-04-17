@@ -2,7 +2,7 @@ package com.tk.quicksearch.search.data.preferences
 
 import android.content.Context
 import android.util.Log
-import com.tk.quicksearch.tools.directSearch.GroqModelCatalog
+import com.tk.quicksearch.tools.aiSearch.GroqModelCatalog
 
 /** Preferences for Groq API-related settings. Uses encrypted storage for the API key. */
 class GroqPreferences(

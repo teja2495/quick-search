@@ -31,11 +31,11 @@ import com.tk.quicksearch.searchEngines.*
 import com.tk.quicksearch.searchEngines.compact.NoResultsSearchEngineCards
 import com.tk.quicksearch.search.webSuggestions.WebSuggestionsSection
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.tools.directSearch.CurrencyConverterResult
-import com.tk.quicksearch.tools.directSearch.CalculatorResult
-import com.tk.quicksearch.tools.directSearch.DictionaryResult
-import com.tk.quicksearch.tools.directSearch.DirectSearchResult
-import com.tk.quicksearch.tools.directSearch.WordClockResult
+import com.tk.quicksearch.tools.aiSearch.CurrencyConverterResult
+import com.tk.quicksearch.tools.aiSearch.CalculatorResult
+import com.tk.quicksearch.tools.aiSearch.DictionaryResult
+import com.tk.quicksearch.tools.aiSearch.AiSearchResult
+import com.tk.quicksearch.tools.aiSearch.WordClockResult
 import com.tk.quicksearch.search.searchScreen.ExpandedSection
 import com.tk.quicksearch.search.searchScreen.InfoBanner
 import com.tk.quicksearch.search.searchScreen.hasAnySearchResults
@@ -75,8 +75,8 @@ fun ContentLayout(
     showCurrencyConverter: Boolean = false,
     showWordClock: Boolean = false,
     showDictionary: Boolean = false,
-    showDirectSearch: Boolean = false,
-    directSearchState: DirectSearchState? = null,
+    showAiSearch: Boolean = false,
+    aiSearchState: AiSearchState? = null,
     isOverlayPresentation: Boolean = false,
     onPhoneNumberClick: (String) -> Unit = {},
     onEmailClick: (String) -> Unit = {},
@@ -84,7 +84,7 @@ fun ContentLayout(
     onWebSuggestionClick: (String) -> Unit = {},
     onSearchEngineLongPress: () -> Unit = {},
     onCustomizeSearchEnginesClick: () -> Unit = {},
-    onOpenDirectSearchConfigure: () -> Unit = {},
+    onOpenAiSearchConfigure: () -> Unit = {},
     onSearchTargetClick: (String, SearchTarget) -> Unit = { _, _ -> },
     onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
     onOpenSearchHistorySettings: () -> Unit = {},
@@ -196,7 +196,7 @@ fun ContentLayout(
     val showWebSuggestions =
         hasQuery &&
                 !isUrlQuery &&
-                !showDirectSearch &&
+                !showAiSearch &&
                 !showCalculator &&
                 !showCurrencyConverter &&
                 !showWordClock &&
@@ -373,14 +373,14 @@ fun ContentLayout(
                     }
                 }
 
-                ItemPriorityConfig.ItemType.DIRECT_SEARCH_RESULT -> {
-                    if (showDirectSearch && directSearchState != null) {
-                        DirectSearchResult(
-                            directSearchState = directSearchState,
-                            directSearchLlmProviderId = state.directSearchLlmProviderId,
+                ItemPriorityConfig.ItemType.AI_SEARCH_RESULT -> {
+                    if (showAiSearch && aiSearchState != null) {
+                        AiSearchResult(
+                            aiSearchState = aiSearchState,
+                            aiSearchLlmProviderId = state.aiSearchLlmProviderId,
                             showWallpaperBackground = effectiveShowWallpaperBackground,
                             onGeminiModelInfoClick = onGeminiModelInfoClick,
-                            onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
+                            onOpenAiSearchConfigure = onOpenAiSearchConfigure,
                             onPhoneNumberClick = onPhoneNumberClick,
                             onEmailClick = onEmailClick,
                         )

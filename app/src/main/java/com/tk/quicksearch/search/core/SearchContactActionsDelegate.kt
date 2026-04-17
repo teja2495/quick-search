@@ -25,7 +25,7 @@ internal class SearchContactActionsDelegate(
     private val contactRepository: ContactRepository,
     private val contactActionHandler: ContactActionHandler,
     private val permissionStateProvider: () -> SearchPermissionState,
-    private val directSearchActiveProvider: () -> Boolean,
+    private val aiSearchActiveProvider: () -> Boolean,
     private val updateResultsState: ((SearchResultsState) -> SearchResultsState) -> Unit,
     private val updateConfigState: ((SearchUiConfigState) -> SearchUiConfigState) -> Unit,
     private val showToastRes: (Int) -> Unit,
@@ -87,7 +87,7 @@ internal class SearchContactActionsDelegate(
         contactInfo: ContactInfo,
         action: ContactCardAction,
     ) {
-        val trackHistory = directSearchActiveProvider().not()
+        val trackHistory = aiSearchActiveProvider().not()
 
         when (action) {
             is ContactCardAction.Phone -> {
@@ -254,11 +254,11 @@ internal class SearchContactActionsDelegate(
     }
 
     fun callContact(contactInfo: ContactInfo) {
-        contactActionHandler.callContact(contactInfo, trackHistory = directSearchActiveProvider().not())
+        contactActionHandler.callContact(contactInfo, trackHistory = aiSearchActiveProvider().not())
     }
 
     fun smsContact(contactInfo: ContactInfo) {
-        contactActionHandler.smsContact(contactInfo, trackHistory = directSearchActiveProvider().not())
+        contactActionHandler.smsContact(contactInfo, trackHistory = aiSearchActiveProvider().not())
     }
 
     fun handleContactMethod(
@@ -268,7 +268,7 @@ internal class SearchContactActionsDelegate(
         contactActionHandler.handleContactMethod(
             contactInfo,
             method,
-            trackHistory = directSearchActiveProvider().not(),
+            trackHistory = aiSearchActiveProvider().not(),
         )
     }
 

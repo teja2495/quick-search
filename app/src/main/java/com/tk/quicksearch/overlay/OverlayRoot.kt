@@ -454,7 +454,7 @@ fun OverlayRoot(
                                                         )
                                                         handleClose()
                                                 },
-                                                onOpenDirectSearchConfigure = {
+                                                onOpenAiSearchConfigure = {
                                                         OverlayModeController.openMainActivity(
                                                                 context,
                                                                 openSettings = true,

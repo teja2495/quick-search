@@ -315,11 +315,11 @@ class UiPreferences(
         prefs.edit().putInt(KEY_PHONE_APP_GRID_COLUMNS, columns.coerceIn(4, 5)).apply()
     }
 
-    fun isDirectSearchSetupExpanded(): Boolean =
-            getBooleanPref(UiPreferences.KEY_DIRECT_SEARCH_SETUP_EXPANDED, true)
+    fun isAiSearchSetupExpanded(): Boolean =
+            getBooleanPref(UiPreferences.KEY_AI_SEARCH_SETUP_EXPANDED, true)
 
-    fun setDirectSearchSetupExpanded(expanded: Boolean) {
-        setBooleanPref(UiPreferences.KEY_DIRECT_SEARCH_SETUP_EXPANDED, expanded)
+    fun setAiSearchSetupExpanded(expanded: Boolean) {
+        setBooleanPref(UiPreferences.KEY_AI_SEARCH_SETUP_EXPANDED, expanded)
     }
 
     fun isDisabledSearchEnginesExpanded(): Boolean =
@@ -714,7 +714,7 @@ class UiPreferences(
         const val DEFAULT_PHONE_APP_GRID_COLUMNS = 4
         const val KEY_LAST_SEEN_VERSION = "last_seen_version"
         const val KEY_LAST_SEEN_VERSION_CODE = "last_seen_version_code"
-        const val KEY_DIRECT_SEARCH_SETUP_EXPANDED = "direct_search_setup_expanded"
+        const val KEY_AI_SEARCH_SETUP_EXPANDED = "direct_search_setup_expanded"
         const val KEY_DISABLED_SEARCH_ENGINES_EXPANDED = "disabled_search_engines_expanded"
         const val KEY_INSTANT_STARTUP_SURFACE_ENABLED = "instant_startup_surface_v1"
         const val KEY_HAS_SEEN_SEARCH_BAR_WELCOME = "has_seen_search_bar_welcome"
