@@ -52,6 +52,7 @@ fun CustomToolEditorScreen(
     existingAlias: String,
     availableModels: List<GeminiTextModel>,
     onSave: (name: String, prompt: String, modelId: String, groundingEnabled: Boolean, aliasCode: String, thinkingEnabled: Boolean) -> Unit,
+    showThinkingToggle: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     var nameInput by remember(existingTool?.id) {
@@ -207,17 +208,19 @@ fun CustomToolEditorScreen(
                     checked = groundingEnabled,
                     onCheckedChange = { groundingEnabled = it },
                     isFirstItem = false,
-                    isLastItem = false,
+                    isLastItem = !showThinkingToggle,
                 )
 
-                SettingsToggleRow(
-                    title = stringResource(R.string.settings_custom_tool_thinking_label),
-                    subtitle = stringResource(R.string.settings_custom_tool_thinking_hint),
-                    checked = thinkingEnabled,
-                    onCheckedChange = { thinkingEnabled = it },
-                    isFirstItem = false,
-                    isLastItem = true,
-                )
+                if (showThinkingToggle) {
+                    SettingsToggleRow(
+                        title = stringResource(R.string.settings_custom_tool_thinking_label),
+                        subtitle = stringResource(R.string.settings_custom_tool_thinking_hint),
+                        checked = thinkingEnabled,
+                        onCheckedChange = { thinkingEnabled = it },
+                        isFirstItem = false,
+                        isLastItem = true,
+                    )
+                }
             }
         }
 
@@ -232,7 +235,14 @@ fun CustomToolEditorScreen(
             Button(
                 onClick = {
                     if (canSave) {
-                        onSave(nameInput.trim(), promptInput.trim(), selectedModelId, groundingEnabled, aliasInput.trim(), thinkingEnabled)
+                        onSave(
+                            nameInput.trim(),
+                            promptInput.trim(),
+                            selectedModelId,
+                            groundingEnabled,
+                            aliasInput.trim(),
+                            if (showThinkingToggle) thinkingEnabled else false,
+                        )
                     }
                 },
                 enabled = canSave,

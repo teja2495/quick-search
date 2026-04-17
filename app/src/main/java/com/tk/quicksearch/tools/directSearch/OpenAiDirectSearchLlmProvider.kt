@@ -25,7 +25,6 @@ object OpenAiDirectSearchLlmProvider : DirectSearchLlmProvider {
             personalContext = request.personalContext,
             modelId = request.modelId,
             useGroundingWithGoogleSearch = request.useGroundingWithGoogleSearch,
-            thinkingEnabled = request.thinkingEnabled,
             useSystemInstruction = request.useSystemInstruction,
             systemInstruction = request.systemInstruction,
         )

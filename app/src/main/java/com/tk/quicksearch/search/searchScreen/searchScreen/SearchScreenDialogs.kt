@@ -42,6 +42,7 @@ import com.tk.quicksearch.search.searchScreen.dialogs.SearchScreenDialogs
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
 import com.tk.quicksearch.settings.AppShortcutsSettings.EditCustomShortcutDialog
+import com.tk.quicksearch.tools.directSearch.DirectSearchLlmProviderId
 import com.tk.quicksearch.tools.directSearch.GeminiModelCatalog
 import com.tk.quicksearch.tools.directSearch.GeminiModelPickerDialog
 import com.tk.quicksearch.tools.directSearch.GeminiTextModel
@@ -180,6 +181,7 @@ internal fun SearchScreenDialogLogic(
                 setShowGeminiModelDialog(false)
                 onRefreshAvailableGeminiModels()
             },
+            showGroundingToggle = state.directSearchLlmProviderId != DirectSearchLlmProviderId.OPENAI,
         )
     }
 

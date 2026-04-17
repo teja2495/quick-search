@@ -431,7 +431,7 @@ fun SearchScreen(
             onDeleteRecentItem = onDeleteRecentItem,
             onOpenSearchHistorySettings = onOpenSearchHistorySettings,
             onDismissSearchHistoryTip = onDismissSearchHistoryTip,
-            onGeminiModelInfoClick = { stateResult.setShowGeminiModelDialog(true) },
+            onGeminiModelInfoClick = onOpenDirectSearchConfigure,
             onCurrencyConversionClick = onCurrencyConversionClick,
             onDictionarySearchClick = onDictionarySearchClick,
             onWordClockSearchClick = onWordClockSearchClick,

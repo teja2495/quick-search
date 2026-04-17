@@ -23,7 +23,7 @@ class GroqClient(
     private val context: Context,
 ) {
     companion object {
-        private const val LOG_TAG = "GroqClient"
+        private const val LOG_TAG = "AI_REQUEST"
         private const val BASE_URL = "https://api.groq.com/openai/v1"
         private const val MODELS_ENDPOINT = "$BASE_URL/models"
         private const val CHAT_ENDPOINT = "$BASE_URL/chat/completions"
@@ -169,7 +169,7 @@ class GroqClient(
 
             if (BuildConfig.DEBUG) {
                 Log.d(LOG_TAG, "Groq request: model=$modelId, thinking=$thinkingEnabled")
-                Log.d(LOG_TAG, "Groq request payload: $payload")
+                Log.d(LOG_TAG, "Groq request payload: ${redactApiKeyForLogging(payload, apiKey)}")
             }
 
             connection.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }

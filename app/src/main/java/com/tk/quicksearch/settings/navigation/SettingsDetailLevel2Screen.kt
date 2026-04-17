@@ -391,6 +391,7 @@ internal fun SettingsDetailLevel2Screen(
                     existingTool = existingTool,
                     existingAlias = existingAlias,
                     availableModels = state.availableGeminiModels,
+                    showThinkingToggle = state.directSearchLlmProviderId != DirectSearchLlmProviderId.OPENAI,
                     onSave = { name, prompt, modelId, groundingEnabled, aliasCode, thinkingEnabled ->
                         if (existingTool != null) {
                             callbacks.onUpdateCustomTool(existingTool.id, name, prompt, modelId, groundingEnabled, thinkingEnabled)
@@ -620,6 +621,8 @@ internal fun SettingsDetailLevel2Screen(
                                     onSetGeminiGroundingEnabled = callbacks.onSetGeminiGroundingEnabled,
                                     onSetGeminiThinkingEnabled = callbacks.onSetGeminiThinkingEnabled,
                                     onRefreshAvailableGeminiModels = callbacks.onRefreshAvailableGeminiModels,
+                                    showGroundingCheckbox = state.directSearchLlmProviderId != DirectSearchLlmProviderId.OPENAI,
+                                    showThinkingCheckbox = state.directSearchLlmProviderId != DirectSearchLlmProviderId.OPENAI,
                                     onRequestScrollToBottom = {
                                         coroutineScope.launch {
                                             scrollState.scrollTo(scrollState.maxValue)

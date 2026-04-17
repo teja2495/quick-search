@@ -125,11 +125,13 @@ class DirectSearchHandler(
 
     fun isThinkingEnabled(): Boolean {
         ensureInitialized()
+        if (activeProviderId == DirectSearchLlmProviderId.OPENAI) return false
         return thinkingEnabled
     }
 
     fun setThinkingEnabled(enabled: Boolean) {
         ensureInitialized()
+        if (activeProviderId == DirectSearchLlmProviderId.OPENAI) return
         if (enabled == thinkingEnabled) return
 
         thinkingEnabled = enabled
@@ -253,8 +255,12 @@ class DirectSearchHandler(
                                     },
                                 modelId = selectedModelId,
                                 useGroundingWithGoogleSearch =
-                                    groundingEnabled && (selectedModel?.supportsGrounding != false),
-                                thinkingEnabled = thinkingEnabled,
+                                    activeProviderId != DirectSearchLlmProviderId.OPENAI &&
+                                        groundingEnabled &&
+                                        (selectedModel?.supportsGrounding != false),
+                                thinkingEnabled =
+                                    thinkingEnabled &&
+                                        activeProviderId != DirectSearchLlmProviderId.OPENAI,
                                 useSystemInstruction =
                                     selectedModel?.supportsSystemInstructions != false,
                             ),
@@ -349,8 +355,12 @@ class DirectSearchHandler(
                                 personalContext = null,
                                 modelId = modelId,
                                 useGroundingWithGoogleSearch =
-                                    groundingEnabled && modelSupportsGrounding(modelId),
-                                thinkingEnabled = this@DirectSearchHandler.thinkingEnabled || thinkingEnabled,
+                                    activeProviderId != DirectSearchLlmProviderId.OPENAI &&
+                                        groundingEnabled &&
+                                        modelSupportsGrounding(modelId),
+                                thinkingEnabled =
+                                    (this@DirectSearchHandler.thinkingEnabled || thinkingEnabled) &&
+                                        activeProviderId != DirectSearchLlmProviderId.OPENAI,
                                 useSystemInstruction = useSystemInstruction,
                                 systemInstruction = systemInstruction,
                             ),

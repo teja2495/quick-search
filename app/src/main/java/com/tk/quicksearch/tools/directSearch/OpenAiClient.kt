@@ -23,7 +23,7 @@ class OpenAiClient(
     private val context: Context,
 ) {
     companion object {
-        private const val LOG_TAG = "OpenAiClient"
+        private const val LOG_TAG = "AI_REQUEST"
         private const val BASE_URL = "https://api.openai.com/v1"
         private const val MODELS_ENDPOINT = "$BASE_URL/models"
         private const val CHAT_ENDPOINT = "$BASE_URL/chat/completions"
@@ -62,7 +62,7 @@ class OpenAiClient(
                         for (i in 0 until data.length()) {
                             val item = data.optJSONObject(i) ?: continue
                             val id = item.optString("id").takeIf { it.isNotBlank() } ?: continue
-                            if (!OpenAiModelCatalog.isLikelyTextModel(id)) continue
+                            if (!OpenAiModelCatalog.isModelPickerModel(id)) continue
                             models.add(
                                 LlmTextModel(
                                     id = id,
@@ -106,7 +106,6 @@ class OpenAiClient(
         personalContext: String? = null,
         modelId: String = OpenAiModelCatalog.DEFAULT_MODEL_ID,
         useGroundingWithGoogleSearch: Boolean = OpenAiModelCatalog.DEFAULT_GROUNDING_ENABLED,
-        thinkingEnabled: Boolean = false,
         useSystemInstruction: Boolean = true,
         systemInstruction: String? = null,
     ): Result<String> =
@@ -122,7 +121,6 @@ class OpenAiClient(
                         personalContext = personalContext,
                         modelId = modelId,
                         useGrounding = useGroundingWithGoogleSearch && OpenAiModelCatalog.supportsWebSearch(modelId),
-                        thinkingEnabled = thinkingEnabled,
                         useSystemInstruction = useSystemInstruction,
                         systemInstruction = systemInstruction,
                     )
@@ -144,7 +142,6 @@ class OpenAiClient(
         personalContext: String?,
         modelId: String,
         useGrounding: Boolean,
-        thinkingEnabled: Boolean,
         useSystemInstruction: Boolean,
         systemInstruction: String?,
     ): Result<String> {
@@ -166,14 +163,13 @@ class OpenAiClient(
                 personalContext = personalContext,
                 modelId = modelId,
                 useGrounding = useGrounding,
-                thinkingEnabled = thinkingEnabled,
                 useSystemInstruction = useSystemInstruction,
                 systemInstruction = systemInstruction,
             )
 
             if (BuildConfig.DEBUG) {
-                Log.d(LOG_TAG, "OpenAI request: model=$modelId, grounding=$useGrounding, thinking=$thinkingEnabled")
-                Log.d(LOG_TAG, "OpenAI request payload: $payload")
+                Log.d(LOG_TAG, "OpenAI request: model=$modelId, grounding=$useGrounding")
+                Log.d(LOG_TAG, "OpenAI request payload: ${redactApiKeyForLogging(payload, apiKey)}")
             }
 
             connection.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
@@ -206,13 +202,11 @@ class OpenAiClient(
         personalContext: String?,
         modelId: String,
         useGrounding: Boolean,
-        thinkingEnabled: Boolean,
         useSystemInstruction: Boolean,
         systemInstruction: String?,
     ): String {
         val effectiveSystem =
             systemInstruction?.trim()?.takeIf { it.isNotBlank() } ?: SYSTEM_PROMPT
-        val isReasoning = OpenAiModelCatalog.isReasoningModel(modelId)
 
         val messages = JSONArray()
 
@@ -223,9 +217,7 @@ class OpenAiClient(
                     append("\n\nUser personal context:\n${personalContext.trim()}")
                 }
             }
-            // Reasoning models use "developer" role for system-level guidance
-            val role = if (isReasoning) "developer" else "system"
-            messages.put(JSONObject().put("role", role).put("content", systemContent))
+            messages.put(JSONObject().put("role", "system").put("content", systemContent))
         }
 
         messages.put(JSONObject().put("role", "user").put("content", query))
@@ -234,8 +226,8 @@ class OpenAiClient(
         root.put("model", modelId.trim().ifBlank { OpenAiModelCatalog.DEFAULT_MODEL_ID })
         root.put("messages", messages)
 
-        // Search-preview models and reasoning models do not accept temperature.
-        if (!isReasoning && !useGrounding) {
+        // Search-preview models do not accept temperature.
+        if (!useGrounding) {
             root.put("temperature", 0.2)
         }
 
@@ -247,10 +239,6 @@ class OpenAiClient(
                 root.put("model", searchModel)
             }
             root.put("web_search_options", JSONObject())
-        }
-
-        if (thinkingEnabled && isReasoning) {
-            root.put("reasoning_effort", "high")
         }
 
         return root.toString()

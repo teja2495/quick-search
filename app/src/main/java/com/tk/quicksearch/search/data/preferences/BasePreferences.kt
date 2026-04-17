@@ -555,8 +555,6 @@ abstract class BasePreferences(
         const val KEY_OPENAI_PERSONAL_CONTEXT = "openai_personal_context"
         const val KEY_OPENAI_MODEL = "openai_model"
         const val KEY_OPENAI_GROUNDING_ENABLED = "openai_grounding_enabled"
-        const val KEY_OPENAI_THINKING_ENABLED = "openai_thinking_enabled"
-
         // Anthropic preferences keys
         const val KEY_ANTHROPIC_API_KEY = "anthropic_api_key"
         const val KEY_ANTHROPIC_PERSONAL_CONTEXT = "anthropic_personal_context"

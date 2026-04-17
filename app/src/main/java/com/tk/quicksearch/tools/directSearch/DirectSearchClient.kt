@@ -24,7 +24,7 @@ class DirectSearchClient(
     private val context: android.content.Context,
 ) {
     companion object {
-        private const val LOG_TAG = "DirectSearchClient"
+        private const val LOG_TAG = "AI_REQUEST"
         private const val BASE_API_URL = "https://generativelanguage.googleapis.com/v1beta"
         private const val SYSTEM_PROMPT =
             "Return only the direct answer as a single short sentence. " +
@@ -300,7 +300,11 @@ class DirectSearchClient(
             "Gemini request: model=$endpointModelId, queryLength=$queryLength, hasPersonalContext=$hasPersonalContext, " +
                 "groundingEnabled=$useGroundingWithGoogleSearch, thinkingEnabled=$thinkingEnabled, systemInstructionEnabled=$useSystemInstruction",
         )
-        Log.d(LOG_TAG, "Gemini request payload: $payload")
+        Log.d(
+            LOG_TAG,
+            "Gemini request path: POST $BASE_API_URL/models/$endpointModelId:generateContent?key=[REDACTED_API_KEY]",
+        )
+        Log.d(LOG_TAG, "Gemini request payload: ${redactApiKeyForLogging(payload, apiKey)}")
     }
 
     private fun logResponseDiagnostics(

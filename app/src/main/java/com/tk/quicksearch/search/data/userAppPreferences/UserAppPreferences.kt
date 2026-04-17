@@ -640,7 +640,7 @@ class UserAppPreferences(
     fun isLlmThinkingEnabled(providerId: DirectSearchLlmProviderId): Boolean =
             when (providerId) {
                 DirectSearchLlmProviderId.GEMINI -> geminiPreferences.isThinkingEnabled()
-                DirectSearchLlmProviderId.OPENAI -> openAiPreferences.isThinkingEnabled()
+                DirectSearchLlmProviderId.OPENAI -> false
                 DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.isThinkingEnabled()
                 DirectSearchLlmProviderId.GROQ -> groqPreferences.isThinkingEnabled()
             }
@@ -648,7 +648,7 @@ class UserAppPreferences(
     fun setLlmThinkingEnabled(providerId: DirectSearchLlmProviderId, enabled: Boolean) {
         when (providerId) {
             DirectSearchLlmProviderId.GEMINI -> geminiPreferences.setThinkingEnabled(enabled)
-            DirectSearchLlmProviderId.OPENAI -> openAiPreferences.setThinkingEnabled(enabled)
+            DirectSearchLlmProviderId.OPENAI -> Unit
             DirectSearchLlmProviderId.ANTHROPIC -> anthropicPreferences.setThinkingEnabled(enabled)
             DirectSearchLlmProviderId.GROQ -> groqPreferences.setThinkingEnabled(enabled)
         }

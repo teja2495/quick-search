@@ -669,7 +669,9 @@ internal class SearchPreferencesDelegate(
     fun setGeminiThinkingEnabled(enabled: Boolean) {
         scope.launch(Dispatchers.IO) {
             directSearchHandler.setGeminiThinkingEnabled(enabled)
-            updateFeatureState { it.copy(geminiThinkingEnabled = enabled) }
+            updateFeatureState {
+                it.copy(geminiThinkingEnabled = directSearchHandler.isGeminiThinkingEnabled())
+            }
         }
     }
 

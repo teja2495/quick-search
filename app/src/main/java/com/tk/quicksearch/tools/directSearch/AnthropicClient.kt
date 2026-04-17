@@ -23,7 +23,7 @@ class AnthropicClient(
     private val context: Context,
 ) {
     companion object {
-        private const val LOG_TAG = "AnthropicClient"
+        private const val LOG_TAG = "AI_REQUEST"
         private const val BASE_URL = "https://api.anthropic.com/v1"
         private const val MODELS_ENDPOINT = "$BASE_URL/models"
         private const val MESSAGES_ENDPOINT = "$BASE_URL/messages"
@@ -182,7 +182,7 @@ class AnthropicClient(
 
             if (BuildConfig.DEBUG) {
                 Log.d(LOG_TAG, "Anthropic request: model=$modelId, grounding=$useGrounding, thinking=$thinkingEnabled")
-                Log.d(LOG_TAG, "Anthropic request payload: $payload")
+                Log.d(LOG_TAG, "Anthropic request payload: ${redactApiKeyForLogging(payload, apiKey)}")
             }
 
             connection.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }

@@ -54,6 +54,8 @@ fun APIKeySettingsSection(
         onSetGeminiThinkingEnabled: (Boolean) -> Unit,
         onRefreshAvailableGeminiModels: () -> Unit,
         onRequestScrollToBottom: (() -> Unit)? = null,
+        showGroundingCheckbox: Boolean = true,
+        showThinkingCheckbox: Boolean = true,
         modifier: Modifier = Modifier,
 ) {
         val context = LocalContext.current
@@ -190,37 +192,59 @@ fun APIKeySettingsSection(
                                                 showGroundingToggle = false
                                         )
                                 }
-                                Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                ) {
-                                        SettingsCheckboxPill(
-                                                label = stringResource(R.string.settings_direct_search_thinking_label),
-                                                checked = thinkingEnabledInput,
-                                                onCheckedChange = { checked ->
-                                                        thinkingEnabledInput = checked
-                                                        onSetGeminiThinkingEnabled(checked)
-                                                },
-                                                modifier = Modifier.weight(0.9f),
-                                        )
-                                        SettingsCheckboxPill(
-                                                label = stringResource(R.string.settings_direct_search_grounding_label),
-                                                checked = groundingEnabledInput,
-                                                onCheckedChange = { checked ->
-                                                        groundingEnabledInput = checked
-                                                        onSetGeminiGroundingEnabled(checked)
-                                                },
-                                                enabled = supportsGrounding,
-                                                onDisabledClick = {
-                                                        Toast.makeText(
-                                                                        context,
-                                                                        context.getString(R.string.settings_direct_search_web_search_unsupported),
-                                                                        Toast.LENGTH_SHORT,
-                                                                )
-                                                                .show()
-                                                },
-                                                modifier = Modifier.weight(1.1f),
-                                        )
+                                if (showThinkingCheckbox || showGroundingCheckbox) {
+                                        Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                        ) {
+                                                if (showThinkingCheckbox) {
+                                                        SettingsCheckboxPill(
+                                                                label =
+                                                                        stringResource(
+                                                                                R.string
+                                                                                        .settings_direct_search_thinking_label
+                                                                        ),
+                                                                checked = thinkingEnabledInput,
+                                                                onCheckedChange = { checked ->
+                                                                        thinkingEnabledInput = checked
+                                                                        onSetGeminiThinkingEnabled(checked)
+                                                                },
+                                                                modifier =
+                                                                        if (showGroundingCheckbox) {
+                                                                                Modifier.weight(0.9f)
+                                                                        } else {
+                                                                                Modifier.fillMaxWidth()
+                                                                        },
+                                                        )
+                                                }
+                                                if (showGroundingCheckbox) {
+                                                        SettingsCheckboxPill(
+                                                                label =
+                                                                        stringResource(
+                                                                                R.string
+                                                                                        .settings_direct_search_grounding_label
+                                                                        ),
+                                                                checked = groundingEnabledInput,
+                                                                onCheckedChange = { checked ->
+                                                                        groundingEnabledInput = checked
+                                                                        onSetGeminiGroundingEnabled(checked)
+                                                                },
+                                                                enabled = supportsGrounding,
+                                                                onDisabledClick = {
+                                                                        Toast.makeText(
+                                                                                        context,
+                                                                                        context.getString(
+                                                                                                R.string
+                                                                                                        .settings_direct_search_web_search_unsupported
+                                                                                        ),
+                                                                                        Toast.LENGTH_SHORT,
+                                                                                )
+                                                                                .show()
+                                                                },
+                                                                modifier = Modifier.weight(1.1f),
+                                                        )
+                                                }
+                                        }
                                 }
                         }
                 }
