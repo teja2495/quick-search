@@ -2,7 +2,7 @@
 
 This document highlights all the available features. It also includes details about hidden or non-obvious features that you might miss.
 
-**Version**: 3.1 (Updated Apr 5 2026)
+**Version**: 3.2 (Updated Apr 17 2026)
 
 ### Search
 
