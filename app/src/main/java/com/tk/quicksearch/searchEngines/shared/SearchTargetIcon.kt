@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.asImageBitmap
@@ -89,93 +90,101 @@ fun SearchTargetIcon(
                     contentScale = ContentScale.Fit,
                 )
             } else if (!targetEngine.isInstallOnlyEngine()) {
-                when (style) {
-                    IconRenderStyle.SIMPLE -> {
-                        Icon(
-                            painter = painterResource(id = targetEngine.getDrawableResId()),
-                            contentDescription = targetEngine.getContentDescription(),
-                            modifier = modifier.size(iconSize),
-                            tint = androidx.compose.ui.graphics.Color.Unspecified,
-                        )
-                    }
+                val backgroundColor = MaterialTheme.colorScheme.background
+                val isLightMode =
+                    backgroundColor.red > 0.9f &&
+                        backgroundColor.green > 0.9f &&
+                        backgroundColor.blue > 0.9f
 
-                    IconRenderStyle.ADVANCED -> {
-                        val colorPolicy = targetEngine.getIconColorPolicy()
+                if (targetEngine == SearchEngine.WIKIPEDIA) {
+                    Icon(
+                        painter = painterResource(id = targetEngine.getDrawableResId()),
+                        contentDescription = targetEngine.getContentDescription(),
+                        modifier = modifier.size(iconSize),
+                        tint = if (isLightMode) Color.Black else Color.White,
+                    )
+                } else {
+                    when (style) {
+                        IconRenderStyle.SIMPLE -> {
+                            Icon(
+                                painter = painterResource(id = targetEngine.getDrawableResId()),
+                                contentDescription = targetEngine.getContentDescription(),
+                                modifier = modifier.size(iconSize),
+                                tint = Color.Unspecified,
+                            )
+                        }
 
-                        val backgroundColor = MaterialTheme.colorScheme.background
-                        val isLightMode =
-                            backgroundColor.red > 0.9f &&
-                                backgroundColor.green > 0.9f &&
-                                backgroundColor.blue > 0.9f
-
-                        val colorFilter =
-                            if (isLightMode) {
-                                when (colorPolicy) {
-                                    SearchEngineIconColorPolicy.DARKEN_ON_LIGHT ->
-                                        ColorFilter.colorMatrix(
-                                            ColorMatrix(
-                                                floatArrayOf(
-                                                    0.3f,
-                                                    0f,
-                                                    0f,
-                                                    0f,
-                                                    0f,
-                                                    0f,
-                                                    0.3f,
-                                                    0f,
-                                                    0f,
-                                                    0f,
-                                                    0f,
-                                                    0f,
-                                                    0.3f,
-                                                    0f,
-                                                    0f,
-                                                    0f,
-                                                    0f,
-                                                    0f,
-                                                    1f,
-                                                    0f,
+                        IconRenderStyle.ADVANCED -> {
+                            val colorPolicy = targetEngine.getIconColorPolicy()
+                            val colorFilter =
+                                if (isLightMode) {
+                                    when (colorPolicy) {
+                                        SearchEngineIconColorPolicy.DARKEN_ON_LIGHT ->
+                                            ColorFilter.colorMatrix(
+                                                ColorMatrix(
+                                                    floatArrayOf(
+                                                        0.3f,
+                                                        0f,
+                                                        0f,
+                                                        0f,
+                                                        0f,
+                                                        0f,
+                                                        0.3f,
+                                                        0f,
+                                                        0f,
+                                                        0f,
+                                                        0f,
+                                                        0f,
+                                                        0.3f,
+                                                        0f,
+                                                        0f,
+                                                        0f,
+                                                        0f,
+                                                        0f,
+                                                        1f,
+                                                        0f,
+                                                    ),
                                                 ),
-                                            ),
-                                        )
-                                    SearchEngineIconColorPolicy.INVERT_ON_LIGHT ->
-                                        ColorFilter.colorMatrix(
-                                            ColorMatrix(
-                                                floatArrayOf(
-                                                    -1f,
-                                                    0f,
-                                                    0f,
-                                                    0f,
-                                                    255f,
-                                                    0f,
-                                                    -1f,
-                                                    0f,
-                                                    0f,
-                                                    255f,
-                                                    0f,
-                                                    0f,
-                                                    -1f,
-                                                    0f,
-                                                    255f,
-                                                    0f,
-                                                    0f,
-                                                    0f,
-                                                    1f,
-                                                    0f,
+                                            )
+                                        SearchEngineIconColorPolicy.INVERT_ON_LIGHT ->
+                                            ColorFilter.colorMatrix(
+                                                ColorMatrix(
+                                                    floatArrayOf(
+                                                        -1f,
+                                                        0f,
+                                                        0f,
+                                                        0f,
+                                                        255f,
+                                                        0f,
+                                                        -1f,
+                                                        0f,
+                                                        0f,
+                                                        255f,
+                                                        0f,
+                                                        0f,
+                                                        -1f,
+                                                        0f,
+                                                        255f,
+                                                        0f,
+                                                        0f,
+                                                        0f,
+                                                        1f,
+                                                        0f,
+                                                    ),
                                                 ),
-                                            ),
-                                        )
-                                    SearchEngineIconColorPolicy.NONE -> null
-                                }
-                            } else null
+                                            )
+                                        SearchEngineIconColorPolicy.NONE -> null
+                                    }
+                                } else null
 
-                        Image(
-                            painter = painterResource(id = targetEngine.getDrawableResId()),
-                            contentDescription = targetEngine.getContentDescription(),
-                            modifier = modifier.size(iconSize),
-                            contentScale = ContentScale.Fit,
-                            colorFilter = colorFilter,
-                        )
+                            Image(
+                                painter = painterResource(id = targetEngine.getDrawableResId()),
+                                contentDescription = targetEngine.getContentDescription(),
+                                modifier = modifier.size(iconSize),
+                                contentScale = ContentScale.Fit,
+                                colorFilter = colorFilter,
+                            )
+                        }
                     }
                 }
             }

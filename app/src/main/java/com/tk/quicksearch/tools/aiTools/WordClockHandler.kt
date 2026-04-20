@@ -8,7 +8,10 @@ import com.tk.quicksearch.tools.aiSearch.LlmRequest
 import org.json.JSONObject
 import java.time.Instant
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
+import java.util.Locale
 
 class WordClockNotRecognizedException : Exception()
 
@@ -31,6 +34,10 @@ class WordClockHandler(
 ) {
     private val gmtTimeFormatter: DateTimeFormatter =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss 'GMT'").withZone(ZoneId.of("GMT"))
+    private val clockTimeFormatter: DateTimeFormatter =
+            DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH)
+    private val dateFormatter: DateTimeFormatter =
+            DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy", Locale.ENGLISH)
 
     fun parseModelResponse(raw: String): Result<WordClockModelResult> {
         val trimmed =
@@ -92,7 +99,8 @@ class WordClockHandler(
                 )
         return result.mapCatching { text ->
             val parsed = parseModelResponse(text).getOrElse { throw it }
-            parsed to modelId
+            val corrected = resolveFixedLocationResult(confirmed.timeExpression) ?: parsed
+            corrected to modelId
         }
     }
 
@@ -122,6 +130,39 @@ class WordClockHandler(
         val source = if (significant.isNotEmpty()) significant else parts
         val abbr = source.mapNotNull { it.firstOrNull()?.uppercaseChar() }.joinToString("")
         return abbr.takeIf { it.length in 2..6 }
+    }
+
+    private fun resolveFixedLocationResult(timeExpression: String): WordClockModelResult? {
+        val normalized =
+                timeExpression.trim().lowercase(Locale.ENGLISH).replace(Regex("""[^\p{Alnum}\s]"""), " ")
+                        .replace(Regex("""\s+"""), " ")
+                        .trim()
+
+        val londonAliases =
+                setOf(
+                        "uk",
+                        "u k",
+                        "united kingdom",
+                        "great britain",
+                        "britain",
+                        "england",
+                        "scotland",
+                        "wales",
+                        "northern ireland",
+                )
+        if (!londonAliases.contains(normalized)) return null
+
+        val zoneId = ZoneId.of("Europe/London")
+        val now = ZonedDateTime.now(zoneId)
+        val fullZoneName = now.zone.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
+        val zoneAbbreviation = now.zone.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
+
+        return WordClockModelResult(
+                wordClockText = now.format(clockTimeFormatter),
+                sourceTimeText = now.format(dateFormatter),
+                placeText = "United Kingdom",
+                timeZoneText = "$fullZoneName ($zoneAbbreviation)",
+        )
     }
 }
 

@@ -1,8 +1,15 @@
 package com.tk.quicksearch.searchEngines.inline
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.PaddingValues
@@ -64,6 +71,9 @@ private object SearchEngineSectionConstants {
     val VERTICAL_PADDING = SearchTargetConstants.VERTICAL_PADDING
     val SEARCH_ICON_SPACING = SearchTargetConstants.SEARCH_ICON_SPACING
     val TOOL_ICON_TEXT_SPACING = DesignTokens.SpacingSmall
+    val TOOL_BUTTON_CORNER_RADIUS = 24.dp
+    val TOOL_BUTTON_HORIZONTAL_PADDING = DesignTokens.SpacingLarge
+    val TOOL_BUTTON_VERTICAL_PADDING = DesignTokens.SpacingMedium
 }
 /**
  * Composable section displaying search engine icons in a scrollable row.
@@ -154,11 +164,22 @@ fun SearchEngineIconsSection(
                     thickness = SearchEngineSectionConstants.COMPACT_TOP_DIVIDER_THICKNESS,
                 )
                 if ((showOnlyToolAction || enabledEngines.isEmpty()) && hasToolAction) {
-                    CompactToolActionContent(
-                        label = toolActionLabel!!,
-                        icon = toolActionIcon,
-                        onClick = onToolActionClick!!,
-                    )
+                    AnimatedVisibility(
+                        visible = true,
+                        enter =
+                            fadeIn(animationSpec = tween(durationMillis = 180)) +
+                                expandVertically(animationSpec = tween(durationMillis = 220)),
+                        exit =
+                            fadeOut(animationSpec = tween(durationMillis = 130)) +
+                                shrinkVertically(animationSpec = tween(durationMillis = 180)),
+                    ) {
+                        CompactToolActionContent(
+                            label = toolActionLabel!!,
+                            icon = toolActionIcon,
+                            onClick = onToolActionClick!!,
+                            addTopPadding = true,
+                        )
+                    }
                 } else {
                     SearchEngineContent(
                         query = query,
@@ -173,11 +194,20 @@ fun SearchEngineIconsSection(
                         predictedTarget = predictedTarget,
                         appIconShape = appIconShape,
                     )
-                    if (hasToolAction) {
+                    AnimatedVisibility(
+                        visible = hasToolAction,
+                        enter =
+                            fadeIn(animationSpec = tween(durationMillis = 180)) +
+                                expandVertically(animationSpec = tween(durationMillis = 220)),
+                        exit =
+                            fadeOut(animationSpec = tween(durationMillis = 130)) +
+                                shrinkVertically(animationSpec = tween(durationMillis = 180)),
+                    ) {
                         CompactToolActionContent(
-                            label = toolActionLabel!!,
+                            label = toolActionLabel ?: return@AnimatedVisibility,
                             icon = toolActionIcon,
-                            onClick = onToolActionClick!!,
+                            onClick = onToolActionClick ?: return@AnimatedVisibility,
+                            addTopPadding = false,
                         )
                     }
                 }
@@ -238,39 +268,67 @@ private fun CompactToolActionContent(
     label: String,
     icon: ImageVector?,
     onClick: () -> Unit,
+    addTopPadding: Boolean,
 ) {
     val view = LocalView.current
     Row(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .combinedClickable(
-                    onClick = {
-                        hapticConfirm(view)()
-                        onClick()
-                    },
-                ).padding(
-                    horizontal = SearchEngineSectionConstants.HORIZONTAL_PADDING,
-                    vertical = SearchEngineSectionConstants.VERTICAL_PADDING,
+                .padding(
+                    start = SearchEngineSectionConstants.HORIZONTAL_PADDING,
+                    end = SearchEngineSectionConstants.HORIZONTAL_PADDING,
+                    top =
+                        if (addTopPadding) {
+                            SearchEngineSectionConstants.VERTICAL_PADDING
+                        } else {
+                            0.dp
+                        },
+                    bottom = SearchEngineSectionConstants.VERTICAL_PADDING,
                 ),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (icon != null) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(SearchEngineSectionConstants.ICON_SIZE),
-            )
-            Spacer(modifier = Modifier.width(SearchEngineSectionConstants.TOOL_ICON_TEXT_SPACING))
+        Surface(
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(SearchEngineSectionConstants.TOOL_BUTTON_CORNER_RADIUS),
+            color = AppColors.InlineEngineHighlightBackground,
+            border = BorderStroke(DesignTokens.BorderWidth, AppColors.InlineEngineHighlightBorder),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .combinedClickable(
+                        onClick = {
+                            hapticConfirm(view)()
+                            onClick()
+                        },
+                    ),
+        ) {
+            Row(
+                modifier =
+                    Modifier.padding(
+                        horizontal = SearchEngineSectionConstants.TOOL_BUTTON_HORIZONTAL_PADDING,
+                        vertical = SearchEngineSectionConstants.TOOL_BUTTON_VERTICAL_PADDING,
+                    ),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (icon != null) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(SearchEngineSectionConstants.ICON_SIZE),
+                    )
+                    Spacer(modifier = Modifier.width(SearchEngineSectionConstants.TOOL_ICON_TEXT_SPACING))
+                }
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Medium,
+                )
+            }
         }
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.Medium,
-        )
     }
 }
 
