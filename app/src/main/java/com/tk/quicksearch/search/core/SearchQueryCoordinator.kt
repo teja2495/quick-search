@@ -111,6 +111,7 @@ internal class SearchQueryCoordinator(
                 isCurrencyConverterAliasMode = false,
                 isWordClockAliasMode = false,
                 isDictionaryAliasMode = false,
+                detectedCustomToolId = null,
                 calculatorState = CalculatorState(),
                 currencyConverterState = CurrencyConverterState(),
                 wordClockState = WordClockState(),

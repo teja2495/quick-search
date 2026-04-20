@@ -387,6 +387,9 @@ internal fun SettingsDetailLevel2Screen(
                 val existingAlias = remember(existingTool?.id, state.shortcutCodes) {
                     existingTool?.id?.let { state.shortcutCodes[it] }.orEmpty()
                 }
+                val shouldAutoFocusTitle = remember(pendingToolId, existingTool?.name) {
+                    pendingToolId == null || existingTool?.name?.trim().isNullOrEmpty()
+                }
                 com.tk.quicksearch.settings.customTools.CustomToolEditorScreen(
                     existingTool = existingTool,
                     existingAlias = existingAlias,
@@ -395,6 +398,7 @@ internal fun SettingsDetailLevel2Screen(
                     showGroundingCheckbox =
                         state.aiSearchLlmProviderId != AiSearchLlmProviderId.OPENAI &&
                             state.aiSearchLlmProviderId != AiSearchLlmProviderId.GROQ,
+                    shouldAutoFocusTitle = shouldAutoFocusTitle,
                     onSave = { name, prompt, modelId, groundingEnabled, aliasCode, thinkingEnabled ->
                         if (existingTool != null) {
                             callbacks.onUpdateCustomTool(existingTool.id, name, prompt, modelId, groundingEnabled, thinkingEnabled)

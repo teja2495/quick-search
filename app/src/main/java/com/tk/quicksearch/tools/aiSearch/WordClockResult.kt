@@ -22,6 +22,7 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 @Composable
 fun WordClockResult(
         wordClockState: WordClockState,
+        llmProviderId: AiSearchLlmProviderId = AiSearchLlmProviderId.GEMINI,
         showWallpaperBackground: Boolean = false,
         onGeminiModelInfoClick: () -> Unit = {},
 ) {
@@ -38,6 +39,7 @@ fun WordClockResult(
             showWallpaperBackground = showWallpaperBackground,
             showAttribution = showAttribution,
             usedModelId = wordClockState.usedModelId,
+            llmProviderId = llmProviderId,
             isAttributionClickable = true,
             onGeminiModelInfoClick = onGeminiModelInfoClick,
     ) {

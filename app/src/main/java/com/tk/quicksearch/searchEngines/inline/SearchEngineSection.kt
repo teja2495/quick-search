@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -24,11 +25,15 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppIconShape
@@ -42,6 +47,7 @@ import com.tk.quicksearch.shared.util.isLandscape
 import com.tk.quicksearch.shared.util.isTablet
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.util.hapticConfirm
 
 /** Constants for search engine section layout. */
 private object SearchEngineSectionConstants {
@@ -57,6 +63,7 @@ private object SearchEngineSectionConstants {
     val HORIZONTAL_PADDING = SearchTargetConstants.HORIZONTAL_PADDING
     val VERTICAL_PADDING = SearchTargetConstants.VERTICAL_PADDING
     val SEARCH_ICON_SPACING = SearchTargetConstants.SEARCH_ICON_SPACING
+    val TOOL_ICON_TEXT_SPACING = DesignTokens.SpacingSmall
 }
 /**
  * Composable section displaying search engine icons in a scrollable row.
@@ -89,8 +96,13 @@ fun SearchEngineIconsSection(
     compactRowCount: Int = 1,
     predictedTarget: PredictedSubmitTarget? = null,
     appIconShape: AppIconShape = AppIconShape.DEFAULT,
+    toolActionLabel: String? = null,
+    toolActionIcon: ImageVector? = null,
+    onToolActionClick: (() -> Unit)? = null,
+    showOnlyToolAction: Boolean = false,
 ) {
-    if (enabledEngines.isEmpty() && detectedShortcutTarget == null) return
+    val hasToolAction = toolActionLabel != null && onToolActionClick != null
+    if (enabledEngines.isEmpty() && detectedShortcutTarget == null && !hasToolAction) return
 
     val scrollState = externalScrollState ?: rememberLazyListState()
 
@@ -141,19 +153,34 @@ fun SearchEngineIconsSection(
                     color = compactTopDividerColor,
                     thickness = SearchEngineSectionConstants.COMPACT_TOP_DIVIDER_THICKNESS,
                 )
-                SearchEngineContent(
-                    query = query,
-                    enabledEngines = enabledEngines,
-                    scrollState = scrollState,
-                    onSearchEngineClick = onSearchEngineClick,
-                    onSearchEngineLongPress = onSearchEngineLongPress,
-                    showOverlayExpandChevron = showOverlayExpandChevron,
-                    onOverlayExpandClick = onOverlayExpandClick,
-                    isOverlayExpanded = isOverlayExpanded,
-                    compactRowCount = compactRowCount,
-                    predictedTarget = predictedTarget,
-                    appIconShape = appIconShape,
-                )
+                if ((showOnlyToolAction || enabledEngines.isEmpty()) && hasToolAction) {
+                    CompactToolActionContent(
+                        label = toolActionLabel!!,
+                        icon = toolActionIcon,
+                        onClick = onToolActionClick!!,
+                    )
+                } else {
+                    SearchEngineContent(
+                        query = query,
+                        enabledEngines = enabledEngines,
+                        scrollState = scrollState,
+                        onSearchEngineClick = onSearchEngineClick,
+                        onSearchEngineLongPress = onSearchEngineLongPress,
+                        showOverlayExpandChevron = showOverlayExpandChevron,
+                        onOverlayExpandClick = onOverlayExpandClick,
+                        isOverlayExpanded = isOverlayExpanded,
+                        compactRowCount = compactRowCount,
+                        predictedTarget = predictedTarget,
+                        appIconShape = appIconShape,
+                    )
+                    if (hasToolAction) {
+                        CompactToolActionContent(
+                            label = toolActionLabel!!,
+                            icon = toolActionIcon,
+                            onClick = onToolActionClick!!,
+                        )
+                    }
+                }
             }
         }
     }
@@ -202,6 +229,47 @@ private fun SearchEngineContent(
             compactRowCount = compactRowCount,
             predictedTarget = predictedTarget,
             appIconShape = appIconShape,
+        )
+    }
+}
+
+@Composable
+private fun CompactToolActionContent(
+    label: String,
+    icon: ImageVector?,
+    onClick: () -> Unit,
+) {
+    val view = LocalView.current
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .combinedClickable(
+                    onClick = {
+                        hapticConfirm(view)()
+                        onClick()
+                    },
+                ).padding(
+                    horizontal = SearchEngineSectionConstants.HORIZONTAL_PADDING,
+                    vertical = SearchEngineSectionConstants.VERTICAL_PADDING,
+                ),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (icon != null) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(SearchEngineSectionConstants.ICON_SIZE),
+            )
+            Spacer(modifier = Modifier.width(SearchEngineSectionConstants.TOOL_ICON_TEXT_SPACING))
+        }
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Medium,
         )
     }
 }

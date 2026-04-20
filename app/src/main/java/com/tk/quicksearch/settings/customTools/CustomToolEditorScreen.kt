@@ -40,6 +40,7 @@ fun CustomToolEditorScreen(
     onSave: (name: String, prompt: String, modelId: String, groundingEnabled: Boolean, aliasCode: String, thinkingEnabled: Boolean) -> Unit,
     showThinkingToggle: Boolean = true,
     showGroundingCheckbox: Boolean = true,
+    shouldAutoFocusTitle: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     var nameInput by remember(existingTool?.id) {
@@ -64,8 +65,8 @@ fun CustomToolEditorScreen(
     val focusRequester = remember { FocusRequester() }
     val scrollState = rememberScrollState()
 
-    LaunchedEffect(Unit) {
-        if (existingTool == null) {
+    LaunchedEffect(existingTool?.id, shouldAutoFocusTitle) {
+        if (shouldAutoFocusTitle && nameInput.trim().isEmpty()) {
             focusRequester.requestFocus()
         }
     }

@@ -335,6 +335,7 @@ fun ContentLayout(
                     ) {
                         CurrencyConverterResult(
                                 currencyConverterState = state.currencyConverterState,
+                                llmProviderId = state.aiSearchLlmProviderId,
                                 showWallpaperBackground = effectiveShowWallpaperBackground,
                                 onGeminiModelInfoClick = onGeminiModelInfoClick,
                         )
@@ -351,6 +352,7 @@ fun ContentLayout(
                     ) {
                         WordClockResult(
                                 wordClockState = state.wordClockState,
+                                llmProviderId = state.aiSearchLlmProviderId,
                                 showWallpaperBackground = effectiveShowWallpaperBackground,
                                 onGeminiModelInfoClick = onGeminiModelInfoClick,
                         )
@@ -367,6 +369,7 @@ fun ContentLayout(
                     ) {
                         DictionaryResult(
                                 dictionaryState = state.dictionaryState,
+                                llmProviderId = state.aiSearchLlmProviderId,
                                 showWallpaperBackground = effectiveShowWallpaperBackground,
                                 onGeminiModelInfoClick = onGeminiModelInfoClick,
                         )

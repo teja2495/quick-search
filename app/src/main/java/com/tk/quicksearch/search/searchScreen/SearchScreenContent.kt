@@ -40,6 +40,7 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -70,7 +71,6 @@ import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SearchContentAr
 import com.tk.quicksearch.search.searchScreen.appThemeActionColor
 import com.tk.quicksearch.search.searchScreen.appThemeDividerColor
 import com.tk.quicksearch.search.searchScreen.appThemeResultCardColor
-import com.tk.quicksearch.search.searchScreen.components.ToolCard
 import com.tk.quicksearch.search.searchScreen.resolveSearchColorTheme
 import com.tk.quicksearch.shared.ui.theme.LocalSearchColorTheme
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
@@ -82,6 +82,12 @@ import kotlinx.coroutines.launch
 
 private const val OPEN_KEYBOARD_ACTION_APPEAR_DELAY_MS = 500L
 private const val SEARCH_HINT_ROTATION_INTERVAL_MS = 5000L
+
+private data class ToolCardConfig(
+        val label: String,
+        val icon: ImageVector,
+        val onClick: () -> Unit,
+)
 
 @Composable
 internal fun SearchScreenContent(
@@ -302,18 +308,11 @@ internal fun SearchScreenContent(
                     state.hasGeminiApiKey &&
                     !showCalculatorResult &&
                     state.AiSearchState.status == AiSearchStatus.Idle
-    val hideSearchEnginesForCustomTool =
-            activeCustomTool != null ||
-                    (state.detectedCustomToolId != null &&
-                            state.AiSearchState.status != AiSearchStatus.Idle)
-    val hideCompactSearchEnginesInToolMode =
-            (isToolMode ||
-                    showCurrencyConverter ||
-                    showWordClock ||
-                    showDictionary ||
-                    isCurrencyConverterAliasMode ||
-                    isWordClockAliasMode) &&
-                    state.isSearchEngineCompactMode
+    val isToolAliasMode =
+            isCurrencyConverterAliasMode ||
+                    isWordClockAliasMode ||
+                    isDictionaryAliasMode ||
+                    activeCustomTool != null
     val shouldShowNumberKeyboardOperators =
             isImeVisible && (manuallySwitchedToNumberKeyboard || isCalculatorMode)
     val showBottomSearchBar = showSearchField && state.bottomSearchBarEnabled
@@ -435,6 +434,41 @@ internal fun SearchScreenContent(
                     !showWordClockSearchCard) {
                 predictedTarget
             } else null
+    val activeToolCardConfig =
+            if (isSearchHistoryExpanded) {
+                null
+            } else {
+                when {
+                    showCurrencyConverterSearchCard ->
+                            ToolCardConfig(
+                                    label = stringResource(R.string.get_currency_value),
+                                    icon = Icons.Rounded.CurrencyExchange,
+                                    onClick = onCurrencyConversionClick,
+                            )
+                    showDictionarySearchCard ->
+                            ToolCardConfig(
+                                    label = stringResource(R.string.search_in_dictionary),
+                                    icon = Icons.Rounded.Search,
+                                    onClick = onDictionarySearchClick,
+                            )
+                    showCustomToolSearchCard ->
+                            ToolCardConfig(
+                                    label = activeCustomTool?.name.orEmpty(),
+                                    icon = Icons.Rounded.Construction,
+                                    onClick = onCustomToolSearchClick,
+                            )
+                    showWordClockSearchCard ->
+                            ToolCardConfig(
+                                    label = stringResource(R.string.get_time),
+                                    icon = Icons.Rounded.AccessTime,
+                                    onClick = onWordClockSearchClick,
+                            )
+                    else -> null
+                }
+            }
+    val showOnlyToolActionInCompactSection =
+            activeToolCardConfig != null &&
+                    (isToolAliasMode || !state.isSearchEngineCompactMode || enabledTargets.isEmpty())
 
     // Search engine scroll state for auto-scroll during onboarding
     val searchEngineScrollState = rememberLazyListState()
@@ -514,6 +548,7 @@ internal fun SearchScreenContent(
                 isCurrencyConverterAliasMode = isCurrencyConverterAliasMode,
                 isWordClockAliasMode = isWordClockAliasMode,
                 isDictionaryAliasMode = isDictionaryAliasMode,
+                detectedCustomToolId = state.detectedCustomToolId,
                 activeToolType = activeToolType,
                 isCalculatorMode = isCalculatorMode,
                 placeholderText = searchHintText,
@@ -737,86 +772,7 @@ internal fun SearchScreenContent(
                 }
             }
 
-            // Currency card is independent of compact-mode gating so it always appears
-            // in alias mode regardless of whether compact search engines are hidden.
             if (!isSearchHistoryExpanded) {
-                AnimatedVisibility(
-                        visible = showCurrencyConverterSearchCard,
-                        enter = fadeIn(animationSpec = tween(durationMillis = 140, delayMillis = 50)),
-                        exit = fadeOut(animationSpec = tween(durationMillis = 160)) +
-                                shrinkVertically(animationSpec = tween(durationMillis = 200), shrinkTowards = Alignment.Top),
-                ) {
-                    ToolCard(
-                            modifier =
-                                    Modifier
-                                            .fillMaxWidth()
-                                            .padding(bottom = DesignTokens.SpacingXSmall),
-                            label = stringResource(R.string.get_currency_value),
-                            icon = Icons.Rounded.CurrencyExchange,
-                            onClick = onCurrencyConversionClick,
-                            showWallpaperBackground = state.showWallpaperBackground,
-                    )
-                }
-            }
-
-            if (!isSearchHistoryExpanded) {
-                AnimatedVisibility(
-                        visible = showWordClockSearchCard,
-                        enter = fadeIn(animationSpec = tween(durationMillis = 140, delayMillis = 50)),
-                        exit = fadeOut(animationSpec = tween(durationMillis = 160)) +
-                                shrinkVertically(animationSpec = tween(durationMillis = 200), shrinkTowards = Alignment.Top),
-                ) {
-                    ToolCard(
-                            modifier =
-                                    Modifier
-                                            .fillMaxWidth()
-                                            .padding(bottom = DesignTokens.SpacingXSmall),
-                            label = stringResource(R.string.get_time),
-                            icon = Icons.Rounded.AccessTime,
-                            onClick = onWordClockSearchClick,
-                            showWallpaperBackground = state.showWallpaperBackground,
-                    )
-                }
-            }
-
-            if (!isSearchHistoryExpanded) {
-                AnimatedVisibility(
-                        visible = showCustomToolSearchCard,
-                        enter = fadeIn(animationSpec = tween(durationMillis = 140, delayMillis = 50)),
-                        exit = fadeOut(animationSpec = tween(durationMillis = 160)) +
-                                shrinkVertically(animationSpec = tween(durationMillis = 200), shrinkTowards = Alignment.Top),
-                ) {
-                    ToolCard(
-                            modifier =
-                                    Modifier
-                                            .fillMaxWidth()
-                                            .padding(bottom = DesignTokens.SpacingXSmall),
-                            label = activeCustomTool?.name ?: "",
-                            icon = Icons.Rounded.Construction,
-                            onClick = onCustomToolSearchClick,
-                            showWallpaperBackground = state.showWallpaperBackground,
-                    )
-                }
-            }
-
-            if (!hideCompactSearchEnginesInToolMode && !hideSearchEnginesForCustomTool && !isSearchHistoryExpanded) {
-                AnimatedVisibility(
-                        visible = showDictionarySearchCard,
-                        enter = fadeIn(animationSpec = tween(durationMillis = 140, delayMillis = 50)),
-                        exit = fadeOut(animationSpec = tween(durationMillis = 160)) +
-                                shrinkVertically(animationSpec = tween(durationMillis = 200), shrinkTowards = Alignment.Top),
-                ) {
-                    ToolCard(
-                            modifier =
-                                    Modifier
-                                            .fillMaxWidth()
-                                            .padding(bottom = DesignTokens.SpacingXSmall),
-                            label = stringResource(R.string.search_in_dictionary),
-                            icon = Icons.Rounded.Search,
-                            onClick = onDictionarySearchClick,
-                            showWallpaperBackground = state.showWallpaperBackground,
-                    )
-                }
                 CompositionLocalProvider(
                         LocalOverlayResultCardColor provides overlayCardColor,
                         LocalOverlayDividerColor provides overlayDividerTint,
@@ -839,6 +795,10 @@ internal fun SearchScreenContent(
                                         compactRowCount = state.searchEngineCompactRowCount,
                                         predictedTarget = predictedTargetForIndicator,
                                         appIconShape = state.appIconShape,
+                                        toolActionLabel = activeToolCardConfig?.label,
+                                        toolActionIcon = activeToolCardConfig?.icon,
+                                        onToolActionClick = activeToolCardConfig?.onClick,
+                                        showOnlyToolAction = showOnlyToolActionInCompactSection,
                                 )
                             },
                             fullContent = {
@@ -874,9 +834,31 @@ internal fun SearchScreenContent(
                                 )
                             },
                             hiddenContent = {
-                                // Add padding when search engines are hidden to prevent keyboard from
-                                // covering content
-                                Spacer(modifier = searchEnginesModifier)
+                                if (activeToolCardConfig != null) {
+                                    SearchEngineIconsSection(
+                                            modifier = searchEnginesModifier,
+                                            query = state.query,
+                                            hasAppResults = renderingState.hasAppResults,
+                                            enabledEngines = enabledTargets,
+                                            onSearchEngineClick = onSearchTargetClick,
+                                            onSearchEngineLongPress = onSearchEngineLongPress,
+                                            externalScrollState = searchEngineScrollState,
+                                            detectedShortcutTarget = state.detectedShortcutTarget,
+                                            onClearDetectedShortcut = onClearDetectedShortcut,
+                                            showWallpaperBackground = state.showWallpaperBackground,
+                                            compactRowCount = state.searchEngineCompactRowCount,
+                                            predictedTarget = predictedTargetForIndicator,
+                                            appIconShape = state.appIconShape,
+                                            toolActionLabel = activeToolCardConfig.label,
+                                            toolActionIcon = activeToolCardConfig.icon,
+                                            onToolActionClick = activeToolCardConfig.onClick,
+                                            showOnlyToolAction = true,
+                                    )
+                                } else {
+                                    // Add padding when search engines are hidden to prevent keyboard from
+                                    // covering content
+                                    Spacer(modifier = searchEnginesModifier)
+                                }
                             },
                     )
                 }
@@ -916,12 +898,9 @@ internal fun SearchScreenContent(
             val shouldShowCompactBottomBarBackground =
                     expandedSection == ExpandedSection.NONE &&
                     state.isSearchEngineCompactMode &&
-                            !hideCompactSearchEnginesInToolMode &&
                             !isSearchHistoryExpanded &&
                             state.detectedShortcutTarget == null &&
-                            state.detectedAliasSearchSection == null &&
-                            !state.isCurrencyConverterAliasMode &&
-                            !state.isWordClockAliasMode
+                            state.detectedAliasSearchSection == null
 
             Box(
                     modifier =

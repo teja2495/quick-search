@@ -169,8 +169,6 @@ internal class SearchVisibilityStateResolver {
             state.detectedShortcutTarget != null ->
                 SearchEnginesVisibility.ShortcutDetected(state.detectedShortcutTarget)
             state.detectedAliasSearchSection != null -> SearchEnginesVisibility.Hidden
-            state.isCurrencyConverterAliasMode -> SearchEnginesVisibility.Hidden
-            state.isWordClockAliasMode -> SearchEnginesVisibility.Hidden
             isLikelyWebUrl(state.query) -> SearchEnginesVisibility.Hidden
             state.isSearchEngineCompactMode -> SearchEnginesVisibility.Compact
             else -> SearchEnginesVisibility.Hidden

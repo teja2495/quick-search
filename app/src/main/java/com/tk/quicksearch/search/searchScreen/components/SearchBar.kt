@@ -150,6 +150,7 @@ internal fun PersistentSearchBar(
     isCurrencyConverterAliasMode: Boolean = false,
     isWordClockAliasMode: Boolean = false,
     isDictionaryAliasMode: Boolean = false,
+    detectedCustomToolId: String? = null,
     activeToolType: SearchToolType? = null,
     isCalculatorMode: Boolean = false,
     placeholderText: String,
@@ -185,7 +186,8 @@ internal fun PersistentSearchBar(
             activeToolType != null ||
             isCurrencyConverterAliasMode ||
             isWordClockAliasMode ||
-            isDictionaryAliasMode
+            isDictionaryAliasMode ||
+            detectedCustomToolId != null
     val aliasVisualTransformation =
         rememberAliasHighlightVisualTransformation(
             enabledTargets = enabledTargets,
@@ -497,13 +499,14 @@ internal fun PersistentSearchBar(
                     .onPreviewKeyEvent { keyEvent ->
                         when {
                             keyEvent.type == KeyEventType.KeyDown &&
-                                keyEvent.key == Key.Backspace &&
+                                (keyEvent.key == Key.Backspace || keyEvent.key == Key.Delete) &&
                                 textFieldValue.text.isEmpty() &&
                                 (detectedShortcutTarget != null ||
                                     detectedAliasSearchSection != null ||
                                     isCurrencyConverterAliasMode ||
                                     isWordClockAliasMode ||
                                     isDictionaryAliasMode ||
+                                    detectedCustomToolId != null ||
                                     activeToolType != null ||
                                     isCalculatorMode) -> {
                                 onClearDetectedShortcut()

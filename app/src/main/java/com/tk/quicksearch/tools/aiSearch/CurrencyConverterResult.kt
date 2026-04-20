@@ -26,6 +26,7 @@ import java.util.Locale
 @Composable
 fun CurrencyConverterResult(
         currencyConverterState: CurrencyConverterState,
+        llmProviderId: AiSearchLlmProviderId = AiSearchLlmProviderId.GEMINI,
         showWallpaperBackground: Boolean = false,
         onGeminiModelInfoClick: () -> Unit = {},
 ) {
@@ -42,6 +43,7 @@ fun CurrencyConverterResult(
             showWallpaperBackground = showWallpaperBackground,
             showAttribution = showAttribution,
             usedModelId = currencyConverterState.usedModelId,
+            llmProviderId = llmProviderId,
             isAttributionClickable = true,
             onGeminiModelInfoClick = onGeminiModelInfoClick,
     ) {

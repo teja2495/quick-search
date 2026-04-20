@@ -24,6 +24,7 @@ import java.util.Locale
 @Composable
 fun DictionaryResult(
         dictionaryState: DictionaryState,
+        llmProviderId: AiSearchLlmProviderId = AiSearchLlmProviderId.GEMINI,
         showWallpaperBackground: Boolean = false,
         onGeminiModelInfoClick: () -> Unit = {},
 ) {
@@ -40,6 +41,7 @@ fun DictionaryResult(
             showWallpaperBackground = showWallpaperBackground,
             showAttribution = showAttribution,
             usedModelId = dictionaryState.usedModelId,
+            llmProviderId = llmProviderId,
             isAttributionClickable = true,
             onGeminiModelInfoClick = onGeminiModelInfoClick,
     ) {
