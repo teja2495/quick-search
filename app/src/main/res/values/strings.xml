@@ -16,7 +16,7 @@
     <string-array name="search_hints_cycle">
         <item>Search Contacts</item>
         <item>Search Files</item>
-        <item>Search Calendar Events</item>
+        <item>Calendar Events</item>
         <item>Search Apps</item>
         <item>Search App Shortcuts</item>
         <item>Search Settings</item>

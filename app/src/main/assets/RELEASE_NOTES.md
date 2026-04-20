@@ -1,5 +1,5 @@
 - Write and search notes. Swipe left to quickly take a note.
 - Create custom calendar events. Today's events will now show up on the home screen.
-- Customize widget border colors.
 - Support for OpenAI, Claude, and Groq API keys.
 - Create custom tools (API key required).
+- Customize widget border colors.

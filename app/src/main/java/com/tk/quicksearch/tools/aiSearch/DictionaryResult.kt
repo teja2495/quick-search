@@ -40,6 +40,7 @@ fun DictionaryResult(
             showWallpaperBackground = showWallpaperBackground,
             showAttribution = showAttribution,
             usedModelId = dictionaryState.usedModelId,
+            isAttributionClickable = true,
             onGeminiModelInfoClick = onGeminiModelInfoClick,
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {

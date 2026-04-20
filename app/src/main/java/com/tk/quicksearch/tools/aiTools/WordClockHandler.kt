@@ -6,6 +6,9 @@ import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderRegistry
 import com.tk.quicksearch.tools.aiSearch.LlmRequest
 import org.json.JSONObject
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 class WordClockNotRecognizedException : Exception()
 
@@ -26,6 +29,9 @@ class WordClockHandler(
         private val context: Context,
         private val userPreferences: UserAppPreferences,
 ) {
+    private val gmtTimeFormatter: DateTimeFormatter =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss 'GMT'").withZone(ZoneId.of("GMT"))
+
     fun parseModelResponse(raw: String): Result<WordClockModelResult> {
         val trimmed =
                 raw.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
@@ -63,8 +69,10 @@ class WordClockHandler(
                 userPreferences.getCurrencyConverterModel().trim().ifBlank {
                     provider.defaultModelId
                 }
+        val currentTimeGmt = gmtTimeFormatter.format(Instant.now())
         val userMessage =
                 "Resolve this request into local clock time and date: ${confirmed.timeExpression}. " +
+                        "Current reference time for calculations (GMT): $currentTimeGmt. " +
                         "If it is a location, compute the current local time there first. " +
                         "Original user query: ${confirmed.originalQuery}"
         val result =

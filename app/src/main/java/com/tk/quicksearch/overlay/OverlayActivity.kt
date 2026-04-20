@@ -8,21 +8,25 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.app.startup.StartupCoordinator
 import com.tk.quicksearch.app.startup.StartupMode
 import com.tk.quicksearch.search.core.AppThemeMode
+import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
+import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.widgets.searchWidget.MicAction
 import com.tk.quicksearch.widgets.searchWidget.VoiceSearchHandler
 
@@ -104,13 +108,23 @@ class OverlayActivity : ComponentActivity() {
     private fun renderOverlayContent() {
         setContent {
             val uiState by searchViewModel.uiState.collectAsStateWithLifecycle()
+            val context = LocalContext.current
             val isSystemDarkTheme = isSystemInDarkTheme()
-            val useDarkSystemBars =
+            val wallpaperIsDark by produceState<Boolean?>(initialValue = null) {
+                value =
+                    WallpaperUtils.getBackgroundAppearance(
+                        context = context,
+                        backgroundSource = BackgroundSource.SYSTEM_WALLPAPER,
+                        customImageUri = null,
+                    )?.isDark
+            }
+            val useDarkSystemBarsFromTheme =
                 when (uiState.appThemeMode) {
                     AppThemeMode.LIGHT -> false
                     AppThemeMode.DARK -> true
                     AppThemeMode.SYSTEM -> isSystemDarkTheme
                 }
+            val useDarkSystemBars = wallpaperIsDark ?: useDarkSystemBarsFromTheme
             SideEffect {
                 val systemBarStyle =
                     if (useDarkSystemBars) {

@@ -81,6 +81,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private const val OPEN_KEYBOARD_ACTION_APPEAR_DELAY_MS = 500L
+private const val SEARCH_HINT_ROTATION_INTERVAL_MS = 5000L
 
 @Composable
 internal fun SearchScreenContent(
@@ -219,7 +220,7 @@ internal fun SearchScreenContent(
             return@LaunchedEffect
         }
         while (true) {
-            delay(3000L)
+            delay(SEARCH_HINT_ROTATION_INTERVAL_MS)
             hintIndex = (hintIndex + 1) % defaultHints.size
         }
     }

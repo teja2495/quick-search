@@ -154,6 +154,8 @@ fun SearchScreen(
     onSectionSelected: (com.tk.quicksearch.search.core.SearchSection) -> Unit = {},
     onCustomizeSearchEnginesClick: () -> Unit = {},
     onOpenAiSearchConfigure: () -> Unit = {},
+    onOpenToolsSettings: () -> Unit = {},
+    onOpenCustomToolSettings: (String) -> Unit = {},
     onConsumeContactActionRequest: () -> Unit = {},
     onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
     onOpenSearchHistorySettings: () -> Unit = {},
@@ -312,47 +314,49 @@ fun SearchScreen(
         } else {
             state.appTheme
         }
-    val useDarkSystemBarsFromTheme =
+    if (!isOverlayPresentation) {
+        val useDarkSystemBarsFromTheme =
             when (state.appThemeMode) {
                 AppThemeMode.LIGHT -> false
                 AppThemeMode.DARK -> true
                 AppThemeMode.SYSTEM -> isSystemDarkTheme
             }
-    val useDarkSystemBars = imageBackgroundIsDark ?: useDarkSystemBarsFromTheme
-    val themeSystemBarsDarkState = rememberUpdatedState(useDarkSystemBarsFromTheme)
-    SideEffect {
-        val activity = context as? ComponentActivity ?: return@SideEffect
-        val systemBarStyle =
+        val useDarkSystemBars = imageBackgroundIsDark ?: useDarkSystemBarsFromTheme
+        val themeSystemBarsDarkState = rememberUpdatedState(useDarkSystemBarsFromTheme)
+        SideEffect {
+            val activity = context as? ComponentActivity ?: return@SideEffect
+            val systemBarStyle =
                 if (useDarkSystemBars) {
                     SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
                 } else {
                     SystemBarStyle.light(
-                            android.graphics.Color.TRANSPARENT,
-                            android.graphics.Color.TRANSPARENT,
+                        android.graphics.Color.TRANSPARENT,
+                        android.graphics.Color.TRANSPARENT,
                     )
                 }
-        activity.enableEdgeToEdge(
+            activity.enableEdgeToEdge(
                 statusBarStyle = systemBarStyle,
                 navigationBarStyle = systemBarStyle,
-        )
-    }
-    DisposableEffect(Unit) {
-        onDispose {
-            val activity = context as? ComponentActivity ?: return@onDispose
-            val useDark = themeSystemBarsDarkState.value
-            val systemBarStyle =
+            )
+        }
+        DisposableEffect(Unit) {
+            onDispose {
+                val activity = context as? ComponentActivity ?: return@onDispose
+                val useDark = themeSystemBarsDarkState.value
+                val systemBarStyle =
                     if (useDark) {
                         SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
                     } else {
                         SystemBarStyle.light(
-                                android.graphics.Color.TRANSPARENT,
-                                android.graphics.Color.TRANSPARENT,
+                            android.graphics.Color.TRANSPARENT,
+                            android.graphics.Color.TRANSPARENT,
                         )
                     }
-            activity.enableEdgeToEdge(
+                activity.enableEdgeToEdge(
                     statusBarStyle = systemBarStyle,
                     navigationBarStyle = systemBarStyle,
-            )
+                )
+            }
         }
     }
 
@@ -431,7 +435,18 @@ fun SearchScreen(
             onDeleteRecentItem = onDeleteRecentItem,
             onOpenSearchHistorySettings = onOpenSearchHistorySettings,
             onDismissSearchHistoryTip = onDismissSearchHistoryTip,
-            onGeminiModelInfoClick = onOpenAiSearchConfigure,
+            onGeminiModelInfoClick = {
+                val cardsState = stateResult.effectiveStateForCards
+                val customToolId = cardsState.detectedCustomToolId
+                when {
+                    customToolId != null -> onOpenCustomToolSettings(customToolId)
+                    cardsState.currencyConverterState.status != com.tk.quicksearch.search.core.CurrencyConverterStatus.Idle ||
+                        cardsState.wordClockState.status != com.tk.quicksearch.search.core.WordClockStatus.Idle ||
+                        cardsState.dictionaryState.status != com.tk.quicksearch.search.core.DictionaryStatus.Idle ->
+                        onOpenToolsSettings()
+                    else -> onOpenAiSearchConfigure()
+                }
+            },
             onCurrencyConversionClick = onCurrencyConversionClick,
             onDictionarySearchClick = onDictionarySearchClick,
             onWordClockSearchClick = onWordClockSearchClick,

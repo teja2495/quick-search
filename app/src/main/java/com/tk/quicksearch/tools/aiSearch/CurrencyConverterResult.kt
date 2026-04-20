@@ -42,6 +42,7 @@ fun CurrencyConverterResult(
             showWallpaperBackground = showWallpaperBackground,
             showAttribution = showAttribution,
             usedModelId = currencyConverterState.usedModelId,
+            isAttributionClickable = true,
             onGeminiModelInfoClick = onGeminiModelInfoClick,
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {

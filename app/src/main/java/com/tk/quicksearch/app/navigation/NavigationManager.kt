@@ -36,6 +36,7 @@ import com.tk.quicksearch.settings.settingsDetailScreen.level
 import com.tk.quicksearch.settings.navigation.SettingsDetailRoute
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
+import com.tk.quicksearch.settings.settingsDetailScreen.CustomToolNavigationMemory
 import com.tk.quicksearch.settings.shared.SettingsRoute
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.shared.util.FeedbackUtils
@@ -446,7 +447,11 @@ private fun NavigationContent(
                             onNavigateToSearch = {
                                 rootAnimationDirectionOverride = SwipeAnimationDirection.LEFT
                                 onSettingsDetailTypeChange(null)
-                                onDestinationChange(RootDestination.Search)
+                                if (uiState.overlayModeEnabled) {
+                                    onFinishActivity()
+                                } else {
+                                    onDestinationChange(RootDestination.Search)
+                                }
                             },
                             onRequestUsagePermission = {
                                 PermissionHelper.launchUsageAccessRequest(context)
@@ -550,6 +555,13 @@ private fun NavigationContent(
                     },
                     onOpenAiSearchConfigure = {
                         navigateToSettings(SettingsDetailType.GEMINI_API_CONFIG)
+                    },
+                    onOpenToolsSettings = {
+                        navigateToSettings(SettingsDetailType.TOOLS)
+                    },
+                    onOpenCustomToolSettings = { toolId ->
+                        CustomToolNavigationMemory.setPendingToolId(toolId)
+                        navigateToSettings(SettingsDetailType.CUSTOM_TOOL_EDITOR)
                     },
                     onOpenReleaseNotesFeatures = {
                         navigateToSettings(SettingsDetailType.FEATURES_LIST)

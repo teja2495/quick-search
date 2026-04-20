@@ -8,6 +8,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -114,6 +115,8 @@ private const val LeadingIconExitDurationMs = 120
 private const val LeadingIconEnterDelayMs = 40
 private const val LeadingIconEnterInitialScale = 0.88f
 private const val LeadingIconExitTargetScale = 0.88f
+private const val PlaceholderHintTransitionDurationMs = 700
+private const val PlaceholderHintTransitionDelayMs = 120
 private const val LightSearchBarShadowAmbientAlpha = 0.38f
 private const val LightSearchBarShadowSpotAlpha = 0.62f
 private val AliasMorphTextStartPadding = DesignTokens.Spacing48 + DesignTokens.SpacingXSmall
@@ -529,8 +532,21 @@ internal fun PersistentSearchBar(
                 AnimatedContent(
                     targetState = placeholderText,
                     transitionSpec = {
-                        fadeIn(animationSpec = tween(durationMillis = 400)) togetherWith
-                                fadeOut(animationSpec = tween(durationMillis = 400))
+                        fadeIn(
+                            animationSpec =
+                                tween(
+                                    durationMillis = PlaceholderHintTransitionDurationMs,
+                                    delayMillis = PlaceholderHintTransitionDelayMs,
+                                    easing = LinearOutSlowInEasing,
+                                ),
+                        ) togetherWith
+                            fadeOut(
+                                animationSpec =
+                                    tween(
+                                        durationMillis = PlaceholderHintTransitionDurationMs,
+                                        easing = FastOutSlowInEasing,
+                                    ),
+                            )
                     },
                     label = "SearchPlaceholderHint",
                 ) { text ->

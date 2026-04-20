@@ -121,6 +121,54 @@ private fun AnthropicClaudeWordmark(
     }
 }
 
+@Composable
+private fun GeminiWordmark(
+        contentDescription: String,
+        modifier: Modifier = Modifier,
+        wordmarkTextColor: Color,
+) {
+    Box(modifier = modifier) {
+        Image(
+                painter = painterResource(R.drawable.gemini_wordmark_mark),
+                contentDescription = contentDescription,
+                contentScale = ContentScale.Fit,
+                colorFilter = null,
+                modifier = Modifier.fillMaxSize(),
+        )
+        Image(
+                painter = painterResource(R.drawable.gemini_wordmark_type),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                colorFilter = ColorFilter.tint(wordmarkTextColor),
+                modifier = Modifier.fillMaxSize(),
+        )
+    }
+}
+
+@Composable
+private fun GemmaWordmark(
+        contentDescription: String,
+        modifier: Modifier = Modifier,
+        wordmarkTextColor: Color,
+) {
+    Box(modifier = modifier) {
+        Image(
+                painter = painterResource(R.drawable.gemma_wordmark_mark),
+                contentDescription = contentDescription,
+                contentScale = ContentScale.Fit,
+                colorFilter = null,
+                modifier = Modifier.fillMaxSize(),
+        )
+        Image(
+                painter = painterResource(R.drawable.gemma_wordmark_type),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                colorFilter = ColorFilter.tint(wordmarkTextColor),
+                modifier = Modifier.fillMaxSize(),
+        )
+    }
+}
+
 /** Attribution row showing powered by Gemini, Gemma, OpenAI, Claude, or Groq branding. */
 @Composable
 internal fun GeminiAttributionRow(
@@ -188,16 +236,21 @@ internal fun GeminiAttributionRow(
                 )
             }
             else -> {
-                val logoRes = if (isGemma) R.drawable.gemma_logo else R.drawable.gemini_logo
                 val logoAspectRatio = if (isGemma) 250f / 64f else 288f / 65f
                 val logoHeight = if (isGemma) 18.dp else 14.dp
-                Image(
-                        painter = painterResource(id = logoRes),
-                        contentDescription = poweredByText,
-                        contentScale = ContentScale.Fit,
-                        colorFilter = null,
-                        modifier = Modifier.height(logoHeight).aspectRatio(logoAspectRatio),
-                )
+                if (isGemma) {
+                    GemmaWordmark(
+                            contentDescription = poweredByText,
+                            wordmarkTextColor = contentColor,
+                            modifier = Modifier.height(logoHeight).aspectRatio(logoAspectRatio),
+                    )
+                } else {
+                    GeminiWordmark(
+                            contentDescription = poweredByText,
+                            wordmarkTextColor = contentColor,
+                            modifier = Modifier.height(logoHeight).aspectRatio(logoAspectRatio),
+                    )
+                }
             }
         }
     }

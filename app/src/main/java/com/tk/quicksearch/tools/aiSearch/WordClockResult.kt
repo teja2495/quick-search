@@ -38,6 +38,7 @@ fun WordClockResult(
             showWallpaperBackground = showWallpaperBackground,
             showAttribution = showAttribution,
             usedModelId = wordClockState.usedModelId,
+            isAttributionClickable = true,
             onGeminiModelInfoClick = onGeminiModelInfoClick,
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {

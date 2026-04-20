@@ -62,6 +62,7 @@ import com.tk.quicksearch.search.searchScreen.ExcludeUndoSnackbarHost
 import com.tk.quicksearch.search.searchScreen.SearchRoute
 import com.tk.quicksearch.search.searchScreen.SearchScreenBackground
 import com.tk.quicksearch.search.searchScreen.components.NumberKeyboardOperatorPills
+import com.tk.quicksearch.settings.settingsDetailScreen.CustomToolNavigationMemory
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -461,6 +462,23 @@ fun OverlayRoot(
                                                                 settingsDetailType =
                                                                         SettingsDetailType
                                                                                 .GEMINI_API_CONFIG,
+                                                        )
+                                                        handleClose()
+                                                },
+                                                onOpenToolsSettings = {
+                                                        OverlayModeController.openMainActivity(
+                                                                context,
+                                                                openSettings = true,
+                                                                settingsDetailType = SettingsDetailType.TOOLS,
+                                                        )
+                                                        handleClose()
+                                                },
+                                                onOpenCustomToolSettings = { toolId ->
+                                                        CustomToolNavigationMemory.setPendingToolId(toolId)
+                                                        OverlayModeController.openMainActivity(
+                                                                context,
+                                                                openSettings = true,
+                                                                settingsDetailType = SettingsDetailType.CUSTOM_TOOL_EDITOR,
                                                         )
                                                         handleClose()
                                                 },

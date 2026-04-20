@@ -78,6 +78,8 @@ fun SearchRoute(
     onSearchEngineLongPress: () -> Unit = {},
     onCustomizeSearchEnginesClick: () -> Unit = {},
     onOpenAiSearchConfigure: () -> Unit = {},
+    onOpenToolsSettings: () -> Unit = {},
+    onOpenCustomToolSettings: (String) -> Unit = {},
     onOpenReleaseNotesFeatures: () -> Unit = {},
     onOpenAppSettingDestination: (AppSettingsDestination) -> Unit = {},
     onOpenNotesDetail: (Long?) -> Unit = {},
@@ -427,27 +429,23 @@ fun SearchRoute(
             modifier.fillMaxSize()
         }
     val swipeNavigationModifier =
-        if (isOverlayPresentation) {
-            Modifier
-        } else {
-            Modifier.pointerInput(Unit) {
-                var totalHorizontalDrag = 0f
-                detectHorizontalDragGestures(
-                    onDragStart = { totalHorizontalDrag = 0f },
-                    onHorizontalDrag = { _, dragAmount ->
-                        totalHorizontalDrag += dragAmount
-                    },
-                    onDragEnd = {
-                        if (totalHorizontalDrag >= SWIPE_NAVIGATION_THRESHOLD_PX) {
-                            openQuickNoteEditor()
-                        } else if (totalHorizontalDrag <= -SWIPE_NAVIGATION_THRESHOLD_PX) {
-                            onSettingsClick()
-                        }
-                        totalHorizontalDrag = 0f
-                    },
-                    onDragCancel = { totalHorizontalDrag = 0f },
-                )
-            }
+        Modifier.pointerInput(Unit) {
+            var totalHorizontalDrag = 0f
+            detectHorizontalDragGestures(
+                onDragStart = { totalHorizontalDrag = 0f },
+                onHorizontalDrag = { _, dragAmount ->
+                    totalHorizontalDrag += dragAmount
+                },
+                onDragEnd = {
+                    if (totalHorizontalDrag >= SWIPE_NAVIGATION_THRESHOLD_PX) {
+                        openQuickNoteEditor()
+                    } else if (totalHorizontalDrag <= -SWIPE_NAVIGATION_THRESHOLD_PX) {
+                        onSettingsClick()
+                    }
+                    totalHorizontalDrag = 0f
+                },
+                onDragCancel = { totalHorizontalDrag = 0f },
+            )
         }
     val shouldAutoCloseApp = uiState.autoCloseOverlay
     LaunchedEffect(Unit) {
@@ -650,6 +648,8 @@ fun SearchRoute(
             onDictionarySearchClick = viewModel::executeDictionaryLookup,
             onWordClockSearchClick = viewModel::executeWordClockLookup,
             onCustomToolSearchClick = viewModel::executeCustomToolSearch,
+            onOpenToolsSettings = onOpenToolsSettings,
+            onOpenCustomToolSettings = onOpenCustomToolSettings,
             onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
             onCustomAction = viewModel::onCustomAction,
             getPrimaryContactCardAction = viewModel::getPrimaryContactCardAction,
