@@ -6,8 +6,6 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchSectionRegistry
 import com.tk.quicksearch.search.utils.SearchQueryContext
-import com.tk.quicksearch.shared.featureFlags.FeatureFlag
-import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.util.isTablet
 
 private val WHITESPACE_REGEX = "\\s+".toRegex()
@@ -230,22 +228,20 @@ class AppSettingsRepository(
                 descriptionRes = R.string.settings_all_quick_search_features_desc,
                 destination = AppSettingsDestination.FEATURES_LIST,
             )
-            if (FeatureFlags.isEnabled(FeatureFlag.NOTES)) {
-                addNavigation(
-                    id = "app_settings_create_note",
-                    titleRes = R.string.app_settings_search_create_note_title,
-                    descriptionRes = R.string.app_settings_search_create_note_desc,
-                    destination = AppSettingsDestination.CREATE_NOTE,
-                    keywords = listOf("new note", "memo", "write"),
-                )
-                addNavigation(
-                    id = "app_settings_notes_list",
-                    titleRes = R.string.section_notes,
-                    descriptionRes = R.string.settings_notes_view_all_desc,
-                    destination = AppSettingsDestination.NOTES_LIST,
-                    keywords = listOf("notebook", "memo", "list"),
-                )
-            }
+            addNavigation(
+                id = "app_settings_create_note",
+                titleRes = R.string.app_settings_search_create_note_title,
+                descriptionRes = R.string.app_settings_search_create_note_desc,
+                destination = AppSettingsDestination.CREATE_NOTE,
+                keywords = listOf("new note", "memo", "write"),
+            )
+            addNavigation(
+                id = "app_settings_notes_list",
+                titleRes = R.string.section_notes,
+                descriptionRes = R.string.settings_notes_view_all_desc,
+                destination = AppSettingsDestination.NOTES_LIST,
+                keywords = listOf("notebook", "memo", "list"),
+            )
 
             addToggle(
                 id = "app_toggle_overlay_mode",
