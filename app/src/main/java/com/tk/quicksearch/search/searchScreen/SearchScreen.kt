@@ -158,6 +158,7 @@ fun SearchScreen(
     onOpenCustomToolSettings: (String) -> Unit = {},
     onConsumeContactActionRequest: () -> Unit = {},
     onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
+    onClearRecentItems: () -> Unit = {},
     onOpenSearchHistorySettings: () -> Unit = {},
     onDismissSearchHistoryTip: () -> Unit = {},
     onCurrencyConversionClick: () -> Unit = {},
@@ -433,6 +434,7 @@ fun SearchScreen(
             onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
             onOpenAiSearchConfigure = onOpenAiSearchConfigure,
             onDeleteRecentItem = onDeleteRecentItem,
+            onClearRecentItems = onClearRecentItems,
             onOpenSearchHistorySettings = onOpenSearchHistorySettings,
             onDismissSearchHistoryTip = onDismissSearchHistoryTip,
             onGeminiModelInfoClick = {

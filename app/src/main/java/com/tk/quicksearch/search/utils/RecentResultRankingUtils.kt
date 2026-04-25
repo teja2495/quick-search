@@ -29,6 +29,7 @@ object RecentResultRankingUtils {
                 is RecentSearchEntry.AppShortcut ->
                     appShortcutScores.putIfAbsent(entry.shortcutKey, recencyScore)
                 is RecentSearchEntry.AppSetting -> Unit
+                is RecentSearchEntry.Note -> Unit
                 is RecentSearchEntry.Query -> Unit
             }
         }

@@ -49,6 +49,7 @@ class RecentResultOpensPreferences(
             entry is RecentSearchEntry.File ||
             entry is RecentSearchEntry.Setting ||
             entry is RecentSearchEntry.AppSetting ||
+            entry is RecentSearchEntry.Note ||
             entry is RecentSearchEntry.AppShortcut
 
     companion object {

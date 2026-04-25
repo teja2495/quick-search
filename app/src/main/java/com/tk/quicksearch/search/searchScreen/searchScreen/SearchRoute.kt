@@ -519,6 +519,7 @@ fun SearchRoute(
             onIncludeCalendarEvent = viewModel::removeExcludedCalendarEvent,
             onArchiveTodayCalendarEvent = { event -> viewModel.archiveTodayCalendarEvent(event.eventId) },
             onNoteClick = { note ->
+                viewModel.trackRecentNoteTap(note)
                 NotesNavigationMemory.setPendingNoteId(note.noteId)
                 onOpenNotesDetail(note.noteId)
             },
@@ -642,6 +643,7 @@ fun SearchRoute(
             onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
             onOpenAiSearchConfigure = onOpenAiSearchConfigure,
             onDeleteRecentItem = viewModel::deleteRecentItem,
+            onClearRecentItems = viewModel::clearRecentItems,
             onOpenSearchHistorySettings = onOpenSearchHistorySettings,
             onDismissSearchHistoryTip = viewModel::dismissSearchHistoryTip,
             onCurrencyConversionClick = viewModel::executeCurrencyConversion,

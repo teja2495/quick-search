@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.core
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
+import com.tk.quicksearch.search.models.NoteInfo
 
 internal interface SearchViewModelContactActionsApi {
     val contactActionsApiDelegate: SearchViewModelContactActionsApiDelegate
@@ -48,6 +49,9 @@ internal interface SearchViewModelContactActionsApi {
 
     fun trackRecentAppSettingTap(settingId: String) =
         contactActionsApiDelegate.trackRecentAppSettingTap(settingId)
+
+    fun trackRecentNoteTap(noteInfo: NoteInfo) =
+        contactActionsApiDelegate.trackRecentNoteTap(noteInfo)
 
     fun showContactMethodsBottomSheet(contactInfo: ContactInfo) =
         contactActionsApiDelegate.showContactMethodsBottomSheet(contactInfo)
@@ -125,6 +129,8 @@ class SearchViewModelContactActionsApiDelegate internal constructor(
 
     fun trackRecentAppSettingTap(settingId: String) =
         historyDelegate.trackRecentAppSettingTap(settingId, lockedAliasSearchSectionProvider())
+
+    fun trackRecentNoteTap(noteInfo: NoteInfo) = historyDelegate.trackRecentNoteTap(noteInfo)
 
     fun showContactMethodsBottomSheet(contactInfo: ContactInfo) =
         contactActionsDelegate.showContactMethodsBottomSheet(contactInfo)

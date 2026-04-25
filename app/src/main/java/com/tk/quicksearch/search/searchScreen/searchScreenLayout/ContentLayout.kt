@@ -87,6 +87,7 @@ fun ContentLayout(
     onOpenAiSearchConfigure: () -> Unit = {},
     onSearchTargetClick: (String, SearchTarget) -> Unit = { _, _ -> },
     onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
+    onClearRecentItems: () -> Unit = {},
     onOpenSearchHistorySettings: () -> Unit = {},
     onDismissSearchHistoryTip: () -> Unit = {},
     onGeminiModelInfoClick: () -> Unit = {},
@@ -273,6 +274,7 @@ fun ContentLayout(
                         filesParams = effectiveFilesParams,
                         settingsParams = effectiveSettingsParams,
                         appShortcutsParams = effectiveAppShortcutsParams,
+                        notesParams = notesParams,
                         onWebSuggestionClick = onWebSuggestionClick,
                         onDeleteRecentItem = onDeleteRecentItem,
                         expandedCardMaxHeight = expandedCardMaxHeight,
@@ -481,8 +483,10 @@ fun ContentLayout(
                                     onAppShortcutClick =
                                         effectiveAppShortcutsParams
                                             .onShortcutClick,
+                                    onNoteClick = notesParams.onNoteClick,
                                     onDeleteRecentItem =
                                     onDeleteRecentItem,
+                                    onClearRecentItems = onClearRecentItems,
                                     showSearchHistoryTip = !state.hasDismissedSearchHistoryTip,
                                     onOpenSearchHistorySettings = onOpenSearchHistorySettings,
                                     onDismissSearchHistoryTip = onDismissSearchHistoryTip,
@@ -569,6 +573,7 @@ private val ALIAS_RECENT_ELIGIBLE_SECTIONS =
         SearchSection.CONTACTS,
         SearchSection.SETTINGS,
         SearchSection.APP_SETTINGS,
+        SearchSection.NOTES,
     )
 
 private fun ItemPriorityConfig.ItemType.toSearchSectionOrNull(): SearchSection? =
@@ -610,6 +615,7 @@ private fun AliasRecentItemsSection(
     filesParams: FilesSectionParams,
     settingsParams: SettingsSectionParams,
     appShortcutsParams: AppShortcutsSectionParams,
+    notesParams: NotesSectionParams,
     onWebSuggestionClick: (String) -> Unit,
     onDeleteRecentItem: (RecentSearchEntry) -> Unit,
     expandedCardMaxHeight: Dp,
@@ -634,6 +640,7 @@ private fun AliasRecentItemsSection(
         onFileClick = filesParams.onFileClick,
         onSettingClick = settingsParams.onSettingClick,
         onAppShortcutClick = appShortcutsParams.onShortcutClick,
+        onNoteClick = notesParams.onNoteClick,
         onAppSettingClick = settingsParams.onAppSettingClick,
         onAppSettingToggle = settingsParams.onAppSettingToggle,
         isAppSettingToggleChecked = settingsParams.isAppSettingToggleChecked,

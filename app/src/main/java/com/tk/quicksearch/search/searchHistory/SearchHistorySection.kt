@@ -19,6 +19,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -61,6 +63,8 @@ import com.tk.quicksearch.search.files.FileResultRow
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.models.NoteInfo
+import com.tk.quicksearch.search.notes.NotesTextUtils
 import com.tk.quicksearch.search.data.AppShortcutRepository.SearchTargetShortcutMode
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
@@ -104,12 +108,14 @@ fun SearchHistorySection(
     onFileClick: (DeviceFile) -> Unit,
     onSettingClick: (DeviceSetting) -> Unit,
     onAppShortcutClick: (StaticShortcut) -> Unit,
+    onNoteClick: (NoteInfo) -> Unit = {},
     onAppSettingClick: (AppSettingResult) -> Unit = {},
     onAppSettingToggle: (AppSettingResult, Boolean) -> Unit = { _, _ -> },
     isAppSettingToggleChecked: (AppSettingResult) -> Boolean = { false },
     appSettingPhoneAppGridColumns: Int = com.tk.quicksearch.search.data.preferences.UiPreferences.DEFAULT_PHONE_APP_GRID_COLUMNS,
     onAppSettingPhoneAppGridColumnsChange: (Int) -> Unit = {},
     onDeleteRecentItem: (RecentSearchEntry) -> Unit,
+    onClearRecentItems: (() -> Unit)? = null,
     showSearchHistoryTip: Boolean = false,
     onOpenSearchHistorySettings: () -> Unit = {},
     onDismissSearchHistoryTip: () -> Unit = {},
@@ -171,12 +177,13 @@ fun SearchHistorySection(
                     contentModifier
                 }
             Column(modifier = listModifier) {
+                val showClearAllHistory = displayAsExpanded && onClearRecentItems != null
                 displayItems.forEachIndexed { index, item ->
                     val showTipBelowFirstItem =
                         !displayAsExpanded &&
                             showSearchHistoryTip &&
                             index == 0
-                    val baseShowDivider = index < displayItems.lastIndex
+                    val baseShowDivider = index < displayItems.lastIndex || showClearAllHistory
                     RecentSearchItemRow(
                         item = item,
                         textColor = textColor,
@@ -197,6 +204,7 @@ fun SearchHistorySection(
                         onFileClick = onFileClick,
                         onSettingClick = onSettingClick,
                         onAppShortcutClick = onAppShortcutClick,
+                        onNoteClick = onNoteClick,
                         onAppSettingClick = onAppSettingClick,
                         onAppSettingToggle = onAppSettingToggle,
                         isAppSettingToggleChecked = isAppSettingToggleChecked,
@@ -219,6 +227,13 @@ fun SearchHistorySection(
                             )
                         }
                     }
+                }
+
+                if (showClearAllHistory) {
+                    ClearAllHistoryRow(
+                        showWallpaperBackground = showWallpaperBackground,
+                        onClick = onClearRecentItems,
+                    )
                 }
 
                 if (!displayAsExpanded && canExpand) {
@@ -273,6 +288,7 @@ private fun RecentSearchItemRow(
     onFileClick: (DeviceFile) -> Unit,
     onSettingClick: (DeviceSetting) -> Unit,
     onAppShortcutClick: (StaticShortcut) -> Unit,
+    onNoteClick: (NoteInfo) -> Unit,
     onAppSettingClick: (AppSettingResult) -> Unit,
     onAppSettingToggle: (AppSettingResult, Boolean) -> Unit,
     isAppSettingToggleChecked: (AppSettingResult) -> Boolean,
@@ -405,6 +421,16 @@ private fun RecentSearchItemRow(
                     )
                 }
             }
+
+            is RecentSearchItem.Note -> {
+                RecentNoteRow(
+                    note = item.note,
+                    textColor = textColor,
+                    iconColor = iconColor,
+                    onClick = { onNoteClick(item.note) },
+                    onLongPress = { showRemoveMenu = true },
+                )
+            }
         }
 
         DropdownMenu(
@@ -462,6 +488,73 @@ private fun dividerPadding(item: RecentSearchItem) =
         is RecentSearchItem.AppSetting -> SETTINGS_HORIZONTAL_PADDING.dp
         else -> DesignTokens.SpacingMedium
     }
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun RecentNoteRow(
+    note: NoteInfo,
+    textColor: Color,
+    iconColor: Color,
+    onClick: () -> Unit,
+    onLongPress: () -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val title = note.title.ifBlank { stringResource(R.string.notes_untitled) }
+    val preview = NotesTextUtils.firstLinesPreview(note.markdownContent)
+    val subtitle =
+        if (preview.isNotBlank()) {
+            preview
+        } else {
+            stringResource(R.string.notes_empty_note_subtext)
+        }
+
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clip(DesignTokens.CardShape)
+                .combinedClickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = onClick,
+                    onLongClick = onLongPress,
+                ).padding(
+                    horizontal = DesignTokens.SpacingMedium,
+                    vertical = QUERY_ROW_VERTICAL_PADDING.dp,
+                ),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.Description,
+            contentDescription = null,
+            tint = iconColor,
+            modifier =
+                Modifier
+                    .size(QUERY_ROW_ICON_SIZE.dp)
+                    .padding(
+                        start = DesignTokens.SpacingXSmall,
+                        end = QUERY_TEXT_START_PADDING.dp,
+                    ),
+        )
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyMedium,
+                color = textColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = iconColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
+}
 
 private fun resolveAppShortcutHistorySubtext(shortcut: StaticShortcut): String? {
     val deepLink =
@@ -554,6 +647,52 @@ private fun InlineSearchHistoryTip(
                 bottom = DesignTokens.SpacingSmall,
             ),
     )
+}
+
+@Composable
+private fun ClearAllHistoryRow(
+    showWallpaperBackground: Boolean,
+    onClick: () -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val clearColor =
+        if (showWallpaperBackground) {
+            AppColors.WallpaperTextPrimary.copy(alpha = 0.72f)
+        } else {
+            MaterialTheme.colorScheme.error.copy(alpha = 0.78f)
+        }
+
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .heightIn(min = (QUERY_ROW_ICON_SIZE + QUERY_ROW_VERTICAL_PADDING * 2).dp)
+                .clip(DesignTokens.CardShape)
+                .combinedClickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = onClick,
+                ).padding(
+                    horizontal = QUERY_TEXT_END_PADDING.dp,
+                    vertical = QUERY_ROW_VERTICAL_PADDING.dp,
+                ),
+        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.Delete,
+            contentDescription = null,
+            tint = clearColor,
+            modifier = Modifier.size(DesignTokens.IconSizeSmall),
+        )
+
+        Text(
+            text = stringResource(R.string.action_clear_all_history),
+            style = MaterialTheme.typography.bodyMedium,
+            color = clearColor,
+            modifier = Modifier.padding(start = DesignTokens.SpacingSmall),
+        )
+    }
 }
 
 @Composable

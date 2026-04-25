@@ -5,9 +5,11 @@ import com.tk.quicksearch.search.appShortcuts.AppShortcutSearchHandler
 import com.tk.quicksearch.search.data.CalendarRepository
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
+import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsSearchHandler
 import com.tk.quicksearch.search.models.ContactInfo
+import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.search.searchHistory.RecentSearchItem
 import kotlinx.coroutines.CoroutineScope
@@ -23,6 +25,7 @@ internal class SearchHistoryDelegate(
     private val appShortcutSearchHandler: AppShortcutSearchHandler,
     private val appSettingsSearchHandler: AppSettingsSearchHandler,
     private val calendarRepository: CalendarRepository,
+    private val notesRepository: NotesRepository,
     private val featureStateProvider: () -> SearchFeatureState,
     private val updateResultsState: ((SearchResultsState) -> SearchResultsState) -> Unit,
     private val updateUiState: ((SearchUiState) -> SearchUiState) -> Unit,
@@ -47,6 +50,10 @@ internal class SearchHistoryDelegate(
                 entries.filterIsInstance<RecentSearchEntry.AppShortcut>()
                     .map { it.shortcutKey }
                     .toSet()
+            val noteIds =
+                entries.filterIsInstance<RecentSearchEntry.Note>()
+                    .map { it.noteId }
+                    .toSet()
 
             val contactsById =
                 contactRepository.getContactsByIds(contactIds).associateBy { it.contactId }
@@ -54,11 +61,17 @@ internal class SearchHistoryDelegate(
                 fileRepository.getFilesByUris(fileUris).associateBy { it.uri.toString() }
             val settingsById = settingsSearchHandler.getSettingsByIds(settingIds)
             val shortcutsByKey = appShortcutSearchHandler.getShortcutsByKeys(shortcutKeys)
+            val notesById =
+                noteIds
+                    .mapNotNull { notesRepository.getNoteById(it) }
+                    .filterNot { notesRepository.isQuickNote(it.noteId) }
+                    .associateBy { it.noteId }
 
             val pinnedContactIds = userPreferences.getPinnedContactIds()
             val pinnedFileUris = userPreferences.getPinnedFileUris()
             val pinnedSettingIds = userPreferences.getPinnedSettingIds()
             val pinnedAppShortcutIds = userPreferences.getPinnedAppShortcutIds()
+            val pinnedNoteIds = notesRepository.getPinnedNoteIds()
 
             val items =
                 buildList {
@@ -93,6 +106,13 @@ internal class SearchHistoryDelegate(
                                     }
                                 }
                             }
+                            is RecentSearchEntry.Note -> {
+                                notesById[entry.noteId]?.let {
+                                    if (entry.noteId !in pinnedNoteIds) {
+                                        add(RecentSearchItem.Note(entry, it))
+                                    }
+                                }
+                            }
                             is RecentSearchEntry.AppSetting -> Unit
                         }
                     }
@@ -120,6 +140,7 @@ internal class SearchHistoryDelegate(
                     SearchSection.SETTINGS -> allOpens.filterIsInstance<RecentSearchEntry.Setting>()
                     SearchSection.APP_SHORTCUTS -> allOpens.filterIsInstance<RecentSearchEntry.AppShortcut>()
                     SearchSection.APP_SETTINGS -> allOpens.filterIsInstance<RecentSearchEntry.AppSetting>()
+                    SearchSection.NOTES -> allOpens.filterIsInstance<RecentSearchEntry.Note>()
                     else -> {
                         updateResultsState { it.copy(aliasRecentItems = emptyList()) }
                         return@launch
@@ -133,17 +154,24 @@ internal class SearchHistoryDelegate(
             val settingIds = limited.filterIsInstance<RecentSearchEntry.Setting>().map { it.id }.toSet()
             val shortcutKeys = limited.filterIsInstance<RecentSearchEntry.AppShortcut>().map { it.shortcutKey }.toSet()
             val appSettingIds = limited.filterIsInstance<RecentSearchEntry.AppSetting>().map { it.id }.toSet()
+            val noteIds = limited.filterIsInstance<RecentSearchEntry.Note>().map { it.noteId }.toSet()
 
             val contactsById = contactRepository.getContactsByIds(contactIds).associateBy { it.contactId }
             val filesByUri = fileRepository.getFilesByUris(fileUris).associateBy { it.uri.toString() }
             val settingsById = settingsSearchHandler.getSettingsByIds(settingIds)
             val shortcutsByKey = appShortcutSearchHandler.getShortcutsByKeys(shortcutKeys)
             val appSettingsById = appSettingsSearchHandler.getSettingsByIds(appSettingIds)
+            val notesById =
+                noteIds
+                    .mapNotNull { notesRepository.getNoteById(it) }
+                    .filterNot { notesRepository.isQuickNote(it.noteId) }
+                    .associateBy { it.noteId }
 
             val pinnedContactIds = userPreferences.getPinnedContactIds()
             val pinnedFileUris = userPreferences.getPinnedFileUris()
             val pinnedSettingIds = userPreferences.getPinnedSettingIds()
             val pinnedAppShortcutIds = userPreferences.getPinnedAppShortcutIds()
+            val pinnedNoteIds = notesRepository.getPinnedNoteIds()
 
             val items =
                 buildList {
@@ -164,6 +192,9 @@ internal class SearchHistoryDelegate(
                             is RecentSearchEntry.AppSetting -> appSettingsById[entry.id]?.let {
                                 add(RecentSearchItem.AppSetting(entry, it))
                             }
+                            is RecentSearchEntry.Note -> notesById[entry.noteId]?.let {
+                                if (entry.noteId !in pinnedNoteIds) add(RecentSearchItem.Note(entry, it))
+                            }
                             is RecentSearchEntry.Query -> Unit
                         }
                     }
@@ -178,6 +209,14 @@ internal class SearchHistoryDelegate(
     ) {
         scope.launch(Dispatchers.IO) {
             userPreferences.deleteRecentItem(entry)
+            refreshRecentItems()
+            refreshAliasRecentItems(lockedAliasSearchSection)
+        }
+    }
+
+    fun clearRecentItems(lockedAliasSearchSection: SearchSection?) {
+        scope.launch(Dispatchers.IO) {
+            userPreferences.clearRecentQueries()
             refreshRecentItems()
             refreshAliasRecentItems(lockedAliasSearchSection)
         }
@@ -205,7 +244,14 @@ internal class SearchHistoryDelegate(
         }
     }
 
+    fun trackRecentNoteTap(noteInfo: NoteInfo) {
+        scope.launch(Dispatchers.IO) {
+            if (notesRepository.isQuickNote(noteInfo.noteId)) return@launch
+            userPreferences.addRecentItem(RecentSearchEntry.Note(noteInfo.noteId))
+        }
+    }
+
     private companion object {
-        const val MAX_RECENT_ITEMS = 10
+        const val MAX_RECENT_ITEMS = 15
     }
 }

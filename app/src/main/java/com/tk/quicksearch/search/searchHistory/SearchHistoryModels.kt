@@ -5,6 +5,7 @@ import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.models.NoteInfo
 import org.json.JSONObject
 
 sealed class RecentSearchEntry {
@@ -47,6 +48,12 @@ sealed class RecentSearchEntry {
         override val stableKey: String = "app_setting:$id"
     }
 
+    data class Note(
+        val noteId: Long,
+    ) : RecentSearchEntry() {
+        override val stableKey: String = "note:$noteId"
+    }
+
     fun toJsonString(): String {
         val json = JSONObject()
         when (this) {
@@ -79,6 +86,11 @@ sealed class RecentSearchEntry {
                 json.put(FIELD_TYPE, TYPE_APP_SETTING)
                 json.put(FIELD_SETTING_ID, id)
             }
+
+            is Note -> {
+                json.put(FIELD_TYPE, TYPE_NOTE)
+                json.put(FIELD_NOTE_ID, noteId)
+            }
         }
         return json.toString()
     }
@@ -90,6 +102,7 @@ sealed class RecentSearchEntry {
         private const val FIELD_FILE_URI = "fileUri"
         private const val FIELD_SETTING_ID = "settingId"
         private const val FIELD_SHORTCUT_KEY = "shortcutKey"
+        private const val FIELD_NOTE_ID = "noteId"
 
         private const val TYPE_QUERY = "query"
         private const val TYPE_CONTACT = "contact"
@@ -97,6 +110,7 @@ sealed class RecentSearchEntry {
         private const val TYPE_SETTING = "setting"
         private const val TYPE_APP_SHORTCUT = "app_shortcut"
         private const val TYPE_APP_SETTING = "app_setting"
+        private const val TYPE_NOTE = "note"
 
         fun fromRaw(raw: String): RecentSearchEntry? {
             val trimmed = raw.trim()
@@ -147,6 +161,13 @@ sealed class RecentSearchEntry {
                                 ?.let { AppSetting(it) }
                         }
 
+                        TYPE_NOTE -> {
+                            json
+                                .optLong(FIELD_NOTE_ID, -1L)
+                                .takeIf { it > 0L }
+                                ?.let { Note(it) }
+                        }
+
                         else -> {
                             null
                         }
@@ -188,5 +209,10 @@ sealed class RecentSearchItem(
     data class AppSetting(
         override val entry: RecentSearchEntry.AppSetting,
         val setting: AppSettingResult,
+    ) : RecentSearchItem(entry)
+
+    data class Note(
+        override val entry: RecentSearchEntry.Note,
+        val note: NoteInfo,
     ) : RecentSearchItem(entry)
 }

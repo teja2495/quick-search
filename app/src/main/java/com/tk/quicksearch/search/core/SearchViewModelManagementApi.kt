@@ -19,6 +19,8 @@ internal interface SearchViewModelManagementApi {
 
     fun deleteRecentItem(entry: RecentSearchEntry) = managementApiDelegate.deleteRecentItem(entry)
 
+    fun clearRecentItems() = managementApiDelegate.clearRecentItems()
+
     fun refreshAppShortcutsCacheFirst() = managementApiDelegate.refreshAppShortcutsCacheFirst()
 
     fun refreshUsageAccess() = managementApiDelegate.refreshUsageAccess()
@@ -264,6 +266,10 @@ class SearchViewModelManagementApiDelegate internal constructor(
 ) {
     fun deleteRecentItem(entry: RecentSearchEntry) {
         historyDelegate.deleteRecentItem(entry, lockedAliasSearchSectionProvider())
+    }
+
+    fun clearRecentItems() {
+        historyDelegate.clearRecentItems(lockedAliasSearchSectionProvider())
     }
 
     fun refreshAppShortcutsCacheFirst() {

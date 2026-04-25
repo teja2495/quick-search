@@ -10,7 +10,7 @@ class SearchHistoryPreferences(
     context: Context,
 ) : BasePreferences(context) {
     companion object {
-        private const val MAX_RECENT_QUERIES = 10
+        private const val MAX_RECENT_QUERIES = 15
     }
 
     // ============================================================================
@@ -18,7 +18,7 @@ class SearchHistoryPreferences(
     // ============================================================================
 
     /**
-     * Get the list of recent search entries (up to 10).
+     * Get the list of recent search entries (up to 15).
      * Returns an empty list if no recent entries exist.
      */
     fun getRecentItems(): List<RecentSearchEntry> {
@@ -32,7 +32,7 @@ class SearchHistoryPreferences(
 
     /**
      * Add a new recent item to the list.
-     * Maintains only the last 10 items, with the newest first.
+     * Maintains only the last 15 items, with the newest first.
      * Duplicates are moved to the front rather than being added again.
      */
     fun addRecentItem(entry: RecentSearchEntry) {

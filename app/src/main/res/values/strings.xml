@@ -182,6 +182,7 @@
     <string name="action_open_keyboard">Open Keyboard</string>
     <string name="action_open_settings">Open settings</string>
     <string name="action_pin_app">Pin</string>
+    <string name="action_clear_all_history">Clear All History</string>
     <string name="action_remove">Remove</string>
     <string name="action_remove_from_history">Remove From History</string>
     <string name="action_reset_app_shortcut_icon">Reset to default icon</string>
