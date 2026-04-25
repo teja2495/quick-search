@@ -4,8 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -13,13 +11,13 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.onboarding.FinalSetupScreen
 import com.tk.quicksearch.onboarding.ImportSettingsScreen
 import com.tk.quicksearch.onboarding.SearchEngineSetupScreen
@@ -114,7 +112,6 @@ fun MainContent(
     var destination by rememberSaveable { mutableStateOf(initialDestination) }
     var settingsDetailType by rememberSaveable { mutableStateOf(initialSettingsDetailType) }
     var previousSettingsDetailType by remember { mutableStateOf<SettingsDetailType?>(null) }
-    val uiState by searchViewModel.uiState.collectAsState()
 
     LaunchedEffect(navigationRequest) {
         navigationRequest?.let { request ->
@@ -135,27 +132,6 @@ fun MainContent(
             SettingsNavigationMemory.clear()
         }
     }
-
-    // Permission request handlers for settings detail screens
-    val usagePermissionLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.StartActivityForResult(),
-        ) { result -> searchViewModel.handleOptionalPermissionChange() }
-
-    val contactPermissionLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestPermission(),
-        ) { isGranted -> searchViewModel.handleOptionalPermissionChange() }
-
-    val callPermissionLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestPermission(),
-        ) { isGranted -> searchViewModel.handleOptionalPermissionChange() }
-
-    val filePermissionLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.StartActivityForResult(),
-        ) { result -> searchViewModel.handleOptionalPermissionChange() }
 
     AnimatedContent(
         targetState = currentScreen,
@@ -224,6 +200,7 @@ fun MainContent(
             }
 
             AppScreen.ImportSettings -> {
+                val uiState by searchViewModel.uiState.collectAsStateWithLifecycle()
                 BackHandler { currentScreen = AppScreen.Permissions }
                 val hasContactsPermission =
                     context.checkSelfPermission(android.Manifest.permission.READ_CONTACTS) ==
@@ -262,6 +239,7 @@ fun MainContent(
             }
 
             AppScreen.SearchEngineSetup -> {
+                val uiState by searchViewModel.uiState.collectAsStateWithLifecycle()
                 BackHandler { currentScreen = AppScreen.ImportSettings }
                 val hasContactsPermission =
                     context.checkSelfPermission(android.Manifest.permission.READ_CONTACTS) ==
@@ -382,18 +360,12 @@ private fun NavigationContent(
     onFinishActivity: () -> Unit,
 ) {
     val context = LocalContext.current
-    val uiState by viewModel.uiState.collectAsState()
-    val settingsScrollState = rememberScrollState()
     var showCreateCalendarEventDialog by remember { mutableStateOf(false) }
     var rootAnimationDirectionOverride by remember { mutableStateOf<SwipeAnimationDirection?>(null) }
     var settingsDetailAnimationDirectionOverride by
         remember { mutableStateOf<SwipeAnimationDirection?>(null) }
-    val customCalendarEventRepository = remember(context) { CustomCalendarEventRepository(context) }
 
     LaunchedEffect(destination) {
-        if (destination == RootDestination.Search) {
-            settingsScrollState.scrollTo(0)
-        }
         rootAnimationDirectionOverride = null
     }
 
@@ -420,61 +392,19 @@ private fun NavigationContent(
     ) { targetDestination ->
         when (targetDestination) {
             RootDestination.Settings -> {
-                AnimatedContent(
-                    targetState = settingsDetailType,
-                    transitionSpec = {
-                        val initialLevel = initialState?.level() ?: 0
-                        val targetLevel = targetState?.level() ?: 0
-                        val isForward = targetLevel > initialLevel
-                        val animationDirection =
-                            settingsDetailAnimationDirectionOverride
-                                ?: if (isForward) {
-                                    SwipeAnimationDirection.LEFT
-                                } else {
-                                    SwipeAnimationDirection.RIGHT
-                                }
-                        directionalNavigationTransition(animationDirection)
+                SettingsNavigationContent(
+                    settingsDetailType = settingsDetailType,
+                    previousSettingsDetailType = previousSettingsDetailType,
+                    settingsDetailAnimationDirectionOverride = settingsDetailAnimationDirectionOverride,
+                    onSettingsDetailTypeChange = onSettingsDetailTypeChange,
+                    onSettingsDetailAnimationDirectionConsumed = {
+                        settingsDetailAnimationDirectionOverride = null
                     },
-                    label = "SettingsDetailTransition",
-                ) { currentDetailType ->
-                    if (currentDetailType != null) {
-                        SettingsDetailRoute(
-                            onBack = { onSettingsDetailTypeChange(null) },
-                            viewModel = viewModel,
-                            detailType = currentDetailType,
-                            sourceDetailType = previousSettingsDetailType,
-                            onNavigateToDetail = onSettingsDetailTypeChange,
-                            onNavigateToSearch = {
-                                rootAnimationDirectionOverride = SwipeAnimationDirection.LEFT
-                                onSettingsDetailTypeChange(null)
-                                if (uiState.overlayModeEnabled) {
-                                    onFinishActivity()
-                                } else {
-                                    onDestinationChange(RootDestination.Search)
-                                }
-                            },
-                            onRequestUsagePermission = {
-                                PermissionHelper.launchUsageAccessRequest(context)
-                            },
-                            onRequestContactPermission = viewModel::openContactPermissionSettings,
-                            onRequestFilePermission = viewModel::openFilesPermissionSettings,
-                            onRequestCallPermission = viewModel::openAppSettings,
-                        )
-                    } else {
-                        SettingsRoute(
-                            onBack = {
-                                if (uiState.overlayModeEnabled) {
-                                    onFinishActivity()
-                                } else {
-                                    onDestinationChange(RootDestination.Search)
-                                }
-                            },
-                            viewModel = viewModel,
-                            onNavigateToDetail = onSettingsDetailTypeChange,
-                            scrollState = settingsScrollState,
-                        )
-                    }
-                }
+                    onRootAnimationDirectionChange = { rootAnimationDirectionOverride = it },
+                    onDestinationChange = onDestinationChange,
+                    viewModel = viewModel,
+                    onFinishActivity = onFinishActivity,
+                )
             }
 
             RootDestination.Search -> {
@@ -576,6 +506,8 @@ private fun NavigationContent(
     }
 
     if (showCreateCalendarEventDialog) {
+        val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+        val customCalendarEventRepository = remember(context) { CustomCalendarEventRepository(context) }
         CreateCalendarEventDialog(
             onDismiss = { showCreateCalendarEventDialog = false },
             onConfirm = { title, dateTimeMillis, allDay ->
@@ -584,5 +516,82 @@ private fun NavigationContent(
                 viewModel.onQueryChange(uiState.query)
             },
         )
+    }
+}
+
+@Composable
+private fun SettingsNavigationContent(
+    settingsDetailType: SettingsDetailType?,
+    previousSettingsDetailType: SettingsDetailType?,
+    settingsDetailAnimationDirectionOverride: SwipeAnimationDirection?,
+    onSettingsDetailTypeChange: (SettingsDetailType?) -> Unit,
+    onSettingsDetailAnimationDirectionConsumed: () -> Unit,
+    onRootAnimationDirectionChange: (SwipeAnimationDirection) -> Unit,
+    onDestinationChange: (RootDestination) -> Unit,
+    viewModel: SearchViewModel,
+    onFinishActivity: () -> Unit,
+) {
+    val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val settingsScrollState = rememberScrollState()
+
+    LaunchedEffect(settingsDetailType) {
+        onSettingsDetailAnimationDirectionConsumed()
+    }
+
+    AnimatedContent(
+        targetState = settingsDetailType,
+        transitionSpec = {
+            val initialLevel = initialState?.level() ?: 0
+            val targetLevel = targetState?.level() ?: 0
+            val isForward = targetLevel > initialLevel
+            val animationDirection =
+                settingsDetailAnimationDirectionOverride
+                    ?: if (isForward) {
+                        SwipeAnimationDirection.LEFT
+                    } else {
+                        SwipeAnimationDirection.RIGHT
+                    }
+            directionalNavigationTransition(animationDirection)
+        },
+        label = "SettingsDetailTransition",
+    ) { currentDetailType ->
+        if (currentDetailType != null) {
+            SettingsDetailRoute(
+                onBack = { onSettingsDetailTypeChange(null) },
+                viewModel = viewModel,
+                detailType = currentDetailType,
+                sourceDetailType = previousSettingsDetailType,
+                onNavigateToDetail = onSettingsDetailTypeChange,
+                onNavigateToSearch = {
+                    onRootAnimationDirectionChange(SwipeAnimationDirection.LEFT)
+                    onSettingsDetailTypeChange(null)
+                    if (uiState.overlayModeEnabled) {
+                        onFinishActivity()
+                    } else {
+                        onDestinationChange(RootDestination.Search)
+                    }
+                },
+                onRequestUsagePermission = {
+                    PermissionHelper.launchUsageAccessRequest(context)
+                },
+                onRequestContactPermission = viewModel::openContactPermissionSettings,
+                onRequestFilePermission = viewModel::openFilesPermissionSettings,
+                onRequestCallPermission = viewModel::openAppSettings,
+            )
+        } else {
+            SettingsRoute(
+                onBack = {
+                    if (uiState.overlayModeEnabled) {
+                        onFinishActivity()
+                    } else {
+                        onDestinationChange(RootDestination.Search)
+                    }
+                },
+                viewModel = viewModel,
+                onNavigateToDetail = onSettingsDetailTypeChange,
+                scrollState = settingsScrollState,
+            )
+        }
     }
 }

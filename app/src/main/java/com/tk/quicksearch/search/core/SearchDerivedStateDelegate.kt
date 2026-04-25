@@ -43,17 +43,17 @@ internal class SearchDerivedStateDelegate(
             getAppGridColumns(applicationProvider(), configStateProvider().phoneAppGridColumns)
 
     fun getSearchableAppsSnapshot(): List<AppInfo> {
-        val cachedApps = cachedAllSearchableAppsProvider()
-        if (cachedApps.isNotEmpty()) return cachedApps
+        return cachedAllSearchableAppsProvider()
+    }
 
-        val pinnedAppsForResults =
-            appSearchManager.computePinnedApps(userPreferences.getResultHiddenPackages())
-        val nonPinnedApps = appSearchManager.searchSourceApps()
-        val fallback = (pinnedAppsForResults + nonPinnedApps).distinctBy { it.launchCountKey() }
-        if (fallback.isNotEmpty()) {
-            setCachedAllSearchableApps(fallback)
-        }
-        return fallback
+    fun warmSearchableAppsSnapshot(apps: List<AppInfo> = appSearchManager.cachedApps) {
+        setCachedAllSearchableApps(
+            buildSearchableApps(
+                apps = apps,
+                resultHiddenPackages = userPreferences.getResultHiddenPackages(),
+                pinnedPackages = userPreferences.getPinnedPackages(),
+            ),
+        )
     }
 
     fun refreshAppSuggestions(
@@ -81,7 +81,12 @@ internal class SearchDerivedStateDelegate(
         }
 
         val pinnedAppsForSuggestions = appSearchManager.computePinnedApps(emptySet())
-        val pinnedAppsForResults = appSearchManager.computePinnedApps(resultHiddenPackages)
+        val pinnedAppsForResults =
+            computePinnedApps(
+                apps = apps,
+                pinnedPackages = pinnedPackages,
+                exclusion = resultHiddenPackages,
+            )
         val recents =
             if (suggestionsEnabled) {
                 val recentsSource = visibleAppList.filterNot { pinnedPackages.contains(it.launchCountKey()) }
@@ -97,8 +102,13 @@ internal class SearchDerivedStateDelegate(
         val query = resultsStateProvider().query
         val trimmedQuery = query.trim()
 
-        val nonPinnedApps = appSearchManager.searchSourceApps()
-        val allSearchableApps = (pinnedAppsForResults + nonPinnedApps).distinctBy { it.launchCountKey() }
+        val allSearchableApps =
+            buildSearchableApps(
+                apps = apps,
+                resultHiddenPackages = resultHiddenPackages,
+                pinnedPackages = pinnedPackages,
+                pinnedAppsForResults = pinnedAppsForResults,
+            )
         setCachedAllSearchableApps(allSearchableApps)
 
         val searchResults =
@@ -276,6 +286,42 @@ internal class SearchDerivedStateDelegate(
             limit = limit,
             hasUsagePermission = hasUsagePermission,
         )
+
+    private fun buildSearchableApps(
+        apps: List<AppInfo>,
+        resultHiddenPackages: Set<String>,
+        pinnedPackages: Set<String>,
+        pinnedAppsForResults: List<AppInfo> =
+            computePinnedApps(
+                apps = apps,
+                pinnedPackages = pinnedPackages,
+                exclusion = resultHiddenPackages,
+            ),
+    ): List<AppInfo> {
+        if (apps.isEmpty()) return emptyList()
+
+        val nonPinnedApps =
+            apps.filterNot { app ->
+                resultHiddenPackages.contains(app.launchCountKey()) ||
+                    resultHiddenPackages.contains(app.packageName) ||
+                    pinnedPackages.contains(app.launchCountKey())
+            }
+        return (pinnedAppsForResults + nonPinnedApps).distinctBy { it.launchCountKey() }
+    }
+
+    private fun computePinnedApps(
+        apps: List<AppInfo>,
+        pinnedPackages: Set<String>,
+        exclusion: Set<String>,
+    ): List<AppInfo> {
+        if (apps.isEmpty() || pinnedPackages.isEmpty()) return emptyList()
+
+        return apps
+            .asSequence()
+            .filter { pinnedPackages.contains(it.launchCountKey()) && !exclusion.contains(it.launchCountKey()) }
+            .sortedBy { it.appName.lowercase(Locale.getDefault()) }
+            .toList()
+    }
 
     private fun resolveCallingApp(
         app: CallingApp,

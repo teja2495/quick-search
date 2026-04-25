@@ -10,9 +10,7 @@ import kotlinx.coroutines.withContext
 internal class SearchStartupCoordinator(
     private val scope: CoroutineScope,
     private val hasStartedStartupPhases: AtomicBoolean,
-    private val instantStartupSurfaceEnabled: Boolean,
     private val updateStartupPhase: (StartupPhase) -> Unit,
-    private val preloadBackgroundForInitialSearchSurface: suspend () -> Unit,
     private val loadCacheAndMinimalPrefsBlock: suspend () -> Unit,
     private val loadRemainingStartupPreferencesBlock: suspend () -> Unit,
     private val launchDeferredInitializationBlock: () -> Unit,
@@ -21,10 +19,6 @@ internal class SearchStartupCoordinator(
         if (!hasStartedStartupPhases.compareAndSet(false, true)) return
 
         scope.launch(Dispatchers.Main.immediate) {
-            if (!instantStartupSurfaceEnabled) {
-                withContext(Dispatchers.IO) { preloadBackgroundForInitialSearchSurface() }
-            }
-
             updateStartupPhase(StartupPhase.PHASE_1_CACHE_PREFS)
             Trace.beginSection("QS.Startup.Phase1.CachePrefs")
             try {

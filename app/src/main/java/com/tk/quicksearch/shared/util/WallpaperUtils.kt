@@ -22,6 +22,8 @@ import java.io.FileOutputStream
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 private const val MAX_BACKGROUND_BITMAP_DIMENSION = 4096
@@ -48,6 +50,8 @@ object WallpaperUtils {
     private var cachedOverlayCustomAppearanceUri: String? = null
     @Volatile
     private var cachedOverlayCustomAppearance: ImageAppearance? = null
+    private val wallpaperBitmapMutex = Mutex()
+    private val customImageBitmapMutex = Mutex()
 
     sealed class WallpaperLoadResult {
         data class Success(
@@ -182,7 +186,12 @@ object WallpaperUtils {
             else -> null
         }
 
-    suspend fun getWallpaperBitmapResult(context: Context): WallpaperLoadResult {
+    suspend fun getWallpaperBitmapResult(context: Context): WallpaperLoadResult =
+        wallpaperBitmapMutex.withLock {
+            getWallpaperBitmapResultLocked(context)
+        }
+
+    private suspend fun getWallpaperBitmapResultLocked(context: Context): WallpaperLoadResult {
         val currentWallpaperId = getCurrentSystemWallpaperId(context)
         val cachedWallpaperId = cachedSystemWallpaperId
         cachedBitmap?.let { cached ->
@@ -249,6 +258,14 @@ object WallpaperUtils {
     }
 
     suspend fun getOverlayCustomImageBitmap(
+        context: Context,
+        uriString: String?,
+    ): ImageBitmap? =
+        customImageBitmapMutex.withLock {
+            getOverlayCustomImageBitmapLocked(context, uriString)
+        }
+
+    private suspend fun getOverlayCustomImageBitmapLocked(
         context: Context,
         uriString: String?,
     ): ImageBitmap? {
@@ -378,20 +395,24 @@ object WallpaperUtils {
             return cachedOverlayCustomAppearance
         }
         val bitmap =
-            if (cachedOverlayCustomUri == normalizedUri && cachedOverlayCustomBitmap != null) {
-                cachedOverlayCustomBitmap
-            } else {
-                withContext(Dispatchers.IO) {
-                    runCatching {
-                        decodeBitmapWithOrientation(context, Uri.parse(normalizedUri))
-                    }.getOrNull()
+            customImageBitmapMutex.withLock {
+                if (cachedOverlayCustomUri == normalizedUri && cachedOverlayCustomBitmap != null) {
+                    cachedOverlayCustomBitmap
+                } else {
+                    withContext(Dispatchers.IO) {
+                        runCatching {
+                            decodeBitmapWithOrientation(context, Uri.parse(normalizedUri))
+                        }.getOrNull()
+                    }?.also { decoded ->
+                        if (cachedOverlayCustomUri != normalizedUri) {
+                            cachedOverlayCustomAppearanceUri = null
+                            cachedOverlayCustomAppearance = null
+                        }
+                        cachedOverlayCustomUri = normalizedUri
+                        cachedOverlayCustomBitmap = decoded
+                    }
                 }
             } ?: return null
-
-        if (cachedOverlayCustomUri != normalizedUri || cachedOverlayCustomBitmap == null) {
-            cachedOverlayCustomUri = normalizedUri
-            cachedOverlayCustomBitmap = bitmap
-        }
 
         return withContext(Dispatchers.Default) {
             ImageAppearanceUtils.analyze(bitmap)

@@ -25,11 +25,34 @@ HSPLcom/tk/quicksearch/search/core/SearchViewModel;->refreshPermissionSnapshotAt
 HSPLcom/tk/quicksearch/search/core/SearchViewModel;->initializeServices()V
 HSPLcom/tk/quicksearch/search/core/SearchViewModel;->setupAiSearchStateListener()V
 
+Lcom/tk/quicksearch/search/core/SearchViewModelInitialStateFactory;
+HSPLcom/tk/quicksearch/search/core/SearchViewModelInitialStateFactory;->create(Landroid/content/Context;Lcom/tk/quicksearch/search/data/UserAppPreferences;Lcom/tk/quicksearch/search/startup/StartupSurfaceStore;Ljava/lang/String;)Lcom/tk/quicksearch/search/core/SearchViewModelInitialState;
+Lcom/tk/quicksearch/search/core/SearchViewModelInitialState;
+
+Lcom/tk/quicksearch/search/core/SearchStartupCoordinator;
+HSPLcom/tk/quicksearch/search/core/SearchStartupCoordinator;-><init>(Lkotlinx/coroutines/CoroutineScope;Ljava/util/concurrent/atomic/AtomicBoolean;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;)V
+HSPLcom/tk/quicksearch/search/core/SearchStartupCoordinator;->startStartupPhases()V
+
 Lcom/tk/quicksearch/search/core/SearchStartupLifecycleDelegate;
-HSPLcom/tk/quicksearch/search/core/SearchStartupLifecycleDelegate;->startStartupPhasesAfterFirstFrame()V
 HSPLcom/tk/quicksearch/search/core/SearchStartupLifecycleDelegate;->markStartupCoreSurfaceReady()V
 HSPLcom/tk/quicksearch/search/core/SearchStartupLifecycleDelegate;->refreshPermissionSnapshotAtLaunch()V
 HSPLcom/tk/quicksearch/search/core/SearchStartupLifecycleDelegate;->initializeWithCacheMinimal(Ljava/util/List;Z)V
+HSPLcom/tk/quicksearch/search/core/SearchStartupLifecycleDelegate;->loadCacheAndMinimalPrefs(Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+HSPLcom/tk/quicksearch/search/core/SearchStartupLifecycleDelegate;->loadRemainingStartupPreferences(Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+HSPLcom/tk/quicksearch/search/core/SearchStartupLifecycleDelegate;->applyStartupPreferences(Lcom/tk/quicksearch/search/data/StartupPreferencesFacade$StartupPreferences;)V
+HSPLcom/tk/quicksearch/search/core/SearchStartupLifecycleDelegate;->launchDeferredInitialization()V
+
+Lcom/tk/quicksearch/search/core/SearchDerivedStateDelegate;
+HSPLcom/tk/quicksearch/search/core/SearchDerivedStateDelegate;->warmSearchableAppsSnapshot(Ljava/util/List;)V
+HSPLcom/tk/quicksearch/search/core/SearchDerivedStateDelegate;->refreshAppSuggestions(Ljava/lang/Long;Ljava/lang/Boolean;)V
+HSPLcom/tk/quicksearch/search/core/SearchDerivedStateDelegate;->refreshMessagingState()V
+HSPLcom/tk/quicksearch/search/core/SearchDerivedStateDelegate;->refreshDerivedState(Ljava/lang/Long;Ljava/lang/Boolean;)V
+HSPLcom/tk/quicksearch/search/core/SearchDerivedStateDelegate;->saveStartupSurfaceSnapshotAsync(ZZ)V
+
+Lcom/tk/quicksearch/search/core/SearchPreferenceCache;
+Lcom/tk/quicksearch/search/core/SearchPreferenceCache$Companion;
+HSPLcom/tk/quicksearch/search/core/SearchPreferenceCache$Companion;->from(Lcom/tk/quicksearch/search/data/StartupPreferencesFacade$StartupConfig;Z)Lcom/tk/quicksearch/search/core/SearchPreferenceCache;
+HSPLcom/tk/quicksearch/search/core/SearchPreferenceCache$Companion;->from(Lcom/tk/quicksearch/search/data/StartupPreferencesFacade$StartupPreferences;Z)Lcom/tk/quicksearch/search/core/SearchPreferenceCache;
 
 Lcom/tk/quicksearch/search/startup/StartupSurfaceStore;
 HSPLcom/tk/quicksearch/search/startup/StartupSurfaceStore;-><init>(Landroid/content/Context;)V
@@ -89,6 +112,9 @@ HSPLcom/tk/quicksearch/search/deviceSettings/DeviceSettingsSearchHandler;-><init
 Lcom/tk/quicksearch/searchEngines/SearchEngineManager;
 Lcom/tk/quicksearch/searchEngines/SecondarySearchOrchestrator;
 Lcom/tk/quicksearch/app/navigation/NavigationHandler;
+Lcom/tk/quicksearch/app/navigation/NavigationManagerKt;
+Lcom/tk/quicksearch/app/navigation/SettingsNavigationMemory;
+Lcom/tk/quicksearch/settings/settingsDetailScreen/CustomToolNavigationMemory;
 
 # Handlers initialized during early lifecycle
 Lcom/tk/quicksearch/search/contacts/actions/ContactActionHandler;
@@ -107,6 +133,7 @@ HSPLcom/tk/quicksearch/search/utils/SearchRankingUtils;->calculateMatchPriorityW
 Lcom/tk/quicksearch/shared/util/WallpaperUtils;
 HSPLcom/tk/quicksearch/shared/util/WallpaperUtils;->preloadWallpaper(Landroid/content/Context;)V
 HSPLcom/tk/quicksearch/shared/util/WallpaperUtils;->getStartupBackgroundPreviewBitmap(Landroid/content/Context;Ljava/lang/String;)Landroid/graphics/Bitmap;
+HSPLcom/tk/quicksearch/shared/util/WallpaperUtils;->saveStartupBackgroundPreview(Landroid/content/Context;Lcom/tk/quicksearch/search/core/BackgroundSource;Ljava/lang/String;)Ljava/lang/String;
 
 Lcom/tk/quicksearch/search/utils/PermissionUtils;
 HSPLcom/tk/quicksearch/search/utils/PermissionUtils;->hasFileAccessPermission(Landroid/content/Context;)Z

@@ -4,33 +4,45 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import com.tk.quicksearch.search.models.AppInfo
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
+import java.io.DataInputStream
+import java.io.DataOutputStream
+import java.io.File
 import org.json.JSONArray
-import org.json.JSONObject
 
 /**
  * Manages persistent caching of app list to enable instant loading on app startup.
- * Uses SharedPreferences to store app data as JSON for efficient serialization.
+ * Uses a compact app-private file for startup reads, with the legacy SharedPreferences JSON
+ * cache retained as a migration fallback.
  */
 class AppCache(
     context: Context,
 ) {
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    private val cacheFile = File(context.filesDir, CACHE_FILE_NAME)
+    private val tempCacheFile = File(context.filesDir, "$CACHE_FILE_NAME.tmp")
 
     /**
      * @return List of cached apps, or null if no cache exists or if cache is corrupted.
      */
     fun loadCachedApps(): List<AppInfo>? {
-        // Fast path: check if cache exists before parsing
+        loadCachedAppsFromFile()?.let { return it }
         if (!prefs.contains(KEY_APP_LIST)) return null
 
-        return runCatching {
+        val migratedApps = runCatching {
             val json = prefs.getString(KEY_APP_LIST, null) ?: return null
             // Fast paths: empty or minimal content check without full parse
             if (json.length < 10 || json == "[]") return null
             JSONArray(json).toAppInfoList()
         }.onFailure { exception ->
-            Log.e(TAG, "Failed to load cached apps", exception)
+            Log.e(TAG, "Failed to load legacy cached apps", exception)
         }.getOrNull()
+
+        if (!migratedApps.isNullOrEmpty()) {
+            saveAppsToFile(migratedApps)
+        }
+        return migratedApps
     }
 
     /**
@@ -39,10 +51,9 @@ class AppCache(
      */
     fun saveApps(apps: List<AppInfo>): Boolean =
         runCatching {
-            val json = apps.toJsonArray().toString()
+            saveAppsToFile(apps)
             prefs
                 .edit()
-                .putString(KEY_APP_LIST, json)
                 .putLong(KEY_LAST_UPDATE, System.currentTimeMillis())
                 .apply()
             true
@@ -57,6 +68,45 @@ class AppCache(
 
     fun clearCache() {
         prefs.edit().clear().apply()
+        cacheFile.delete()
+        tempCacheFile.delete()
+    }
+
+    private fun loadCachedAppsFromFile(): List<AppInfo>? {
+        if (!cacheFile.exists()) return null
+
+        return runCatching {
+            DataInputStream(BufferedInputStream(cacheFile.inputStream())).use { input ->
+                if (input.readInt() != CACHE_FILE_VERSION) return null
+                val appCount = input.readInt()
+                if (appCount <= 0) return null
+
+                List(appCount) {
+                    input.readAppInfo()
+                }
+            }
+        }.onFailure { exception ->
+            Log.e(TAG, "Failed to load cached apps", exception)
+        }.getOrNull()
+    }
+
+    private fun saveAppsToFile(apps: List<AppInfo>) {
+        if (apps.isEmpty()) {
+            cacheFile.delete()
+            tempCacheFile.delete()
+            return
+        }
+
+        DataOutputStream(BufferedOutputStream(tempCacheFile.outputStream())).use { output ->
+            output.writeInt(CACHE_FILE_VERSION)
+            output.writeInt(apps.size)
+            apps.forEach { app -> output.writeAppInfo(app) }
+        }
+
+        if (!tempCacheFile.renameTo(cacheFile)) {
+            tempCacheFile.copyTo(cacheFile, overwrite = true)
+            tempCacheFile.delete()
+        }
     }
 
     companion object {
@@ -64,6 +114,8 @@ class AppCache(
         private const val PREFS_NAME = "app_cache"
         private const val KEY_APP_LIST = "app_list"
         private const val KEY_LAST_UPDATE = "last_update"
+        private const val CACHE_FILE_NAME = "app_cache_v1.bin"
+        private const val CACHE_FILE_VERSION = 1
 
         // JSON field names
         private const val FIELD_APP_NAME = "appName"
@@ -94,23 +146,45 @@ class AppCache(
                 )
             }
 
-        private fun List<AppInfo>.toJsonArray(): JSONArray =
-            JSONArray().apply {
-                forEach { app ->
-                    put(
-                        JSONObject().apply {
-                            put(FIELD_APP_NAME, app.appName)
-                            put(FIELD_PACKAGE_NAME, app.packageName)
-                            put(FIELD_LAST_USED_TIME, app.lastUsedTime)
-                            put(FIELD_TOTAL_TIME_IN_FOREGROUND, app.totalTimeInForeground)
-                            put(FIELD_LAUNCH_COUNT, app.launchCount)
-                            put(FIELD_FIRST_INSTALL_TIME, app.firstInstallTime)
-                            put(FIELD_IS_SYSTEM_APP, app.isSystemApp)
-                            if (app.userHandleId != null) put(FIELD_USER_HANDLE_ID, app.userHandleId)
-                            if (app.componentName != null) put(FIELD_COMPONENT_NAME, app.componentName)
-                        },
-                    )
-                }
-            }
+        private fun DataInputStream.readAppInfo(): AppInfo =
+            AppInfo(
+                appName = readUTF(),
+                packageName = readUTF(),
+                lastUsedTime = readLong(),
+                totalTimeInForeground = readLong(),
+                launchCount = readInt(),
+                firstInstallTime = readLong(),
+                isSystemApp = readBoolean(),
+                userHandleId = readNullableInt(),
+                componentName = readNullableString(),
+            )
+
+        private fun DataOutputStream.writeAppInfo(app: AppInfo) {
+            writeUTF(app.appName)
+            writeUTF(app.packageName)
+            writeLong(app.lastUsedTime)
+            writeLong(app.totalTimeInForeground)
+            writeInt(app.launchCount)
+            writeLong(app.firstInstallTime)
+            writeBoolean(app.isSystemApp)
+            writeNullableInt(app.userHandleId)
+            writeNullableString(app.componentName)
+        }
+
+        private fun DataInputStream.readNullableInt(): Int? =
+            if (readBoolean()) readInt() else null
+
+        private fun DataOutputStream.writeNullableInt(value: Int?) {
+            writeBoolean(value != null)
+            if (value != null) writeInt(value)
+        }
+
+        private fun DataInputStream.readNullableString(): String? =
+            if (readBoolean()) readUTF() else null
+
+        private fun DataOutputStream.writeNullableString(value: String?) {
+            writeBoolean(value != null)
+            if (value != null) writeUTF(value)
+        }
     }
 }

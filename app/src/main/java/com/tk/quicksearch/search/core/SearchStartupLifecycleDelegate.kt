@@ -110,6 +110,7 @@ internal class SearchStartupLifecycleDelegate(
     private val clearQuery: () -> Unit,
     private val refreshApps: () -> Unit,
     private val refreshAppSuggestions: () -> Unit,
+    private val warmSearchableAppsSnapshot: (List<AppInfo>) -> Unit,
     private val refreshSettingsState: () -> Unit,
     private val refreshAppShortcutsState: () -> Unit,
     private val refreshDerivedState: (Long?, Boolean?) -> Unit,
@@ -286,6 +287,7 @@ internal class SearchStartupLifecycleDelegate(
     fun launchDeferredInitialization() {
         scope.launch(Dispatchers.IO) {
             refreshAppsUsageAndPermissions()
+            loadApps()
 
             val packageNames = appSearchManager.cachedApps.map { it.packageName }.toSet()
             val messagingInfo = getMessagingAppInfo(packageNames)
@@ -361,11 +363,6 @@ internal class SearchStartupLifecycleDelegate(
                     val models = aiSearchHandler.refreshAvailableGeminiModels()
                     updateFeatureState { state -> state.copy(availableGeminiModels = models) }
                 }
-            }
-
-            launch(Dispatchers.IO) {
-                delay(DEFERRED_APP_REFRESH_DELAY_MS)
-                loadApps()
             }
 
             launch(Dispatchers.IO) { iconPackHandler.refreshIconPacks() }
@@ -492,6 +489,9 @@ internal class SearchStartupLifecycleDelegate(
         applyLauncherIconSelection()
 
         if (!cachedAppsList.isNullOrEmpty()) {
+            withContext(Dispatchers.Default) {
+                warmSearchableAppsSnapshot(cachedAppsList)
+            }
             scope.launch(Dispatchers.IO) {
                 if (userPreferences.areAppSuggestionsEnabled()) {
                     val visibleApps =
@@ -848,7 +848,6 @@ internal class SearchStartupLifecycleDelegate(
 
     companion object {
         private const val BROWSER_REFRESH_INTERVAL_MS = 5 * 60 * 1_000L
-        private const val DEFERRED_APP_REFRESH_DELAY_MS = 2_000L
         private const val DEFERRED_AI_SEARCH_MODELS_DELAY_MS = 3_000L
         private const val DEFERRED_RELEASE_NOTES_DELAY_MS = 3_000L
     }
