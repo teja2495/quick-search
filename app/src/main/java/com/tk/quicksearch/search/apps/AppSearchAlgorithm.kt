@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.apps
 
+import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.search.fuzzy.FuzzySearchPerformanceLogger
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.utils.SearchQueryContext
 import java.util.Locale
@@ -34,19 +36,47 @@ object AppSearchAlgorithm {
     ): List<AppInfo> {
         if (queryContext.normalizedQuery.isBlank()) return emptyList()
 
-        return source
-            .asSequence()
-            .mapNotNull { app ->
-                calculateAppMatch(
-                    app = app,
-                    queryContext = queryContext,
-                    fuzzySearchStrategy = fuzzySearchStrategy,
-                    appNicknames = appNicknames,
-                )
-            }.sortedWith(createAppComparator(sortAppsByUsageEnabled))
-            .map { it.app }
-            .take(limit)
-            .toList()
+        val canUseFuzzySearch = fuzzySearchStrategy.canUseFuzzySearch(queryContext.normalizedQuery)
+        val fuzzyCandidateLimit =
+            if (canUseFuzzySearch) {
+                fuzzySearchStrategy.fuzzyCandidateLimitFor(queryContext.normalizedQuery)
+            } else {
+                0
+            }
+        var fuzzyCandidatesScored = 0
+
+        val searchBlock = {
+            source
+                .asSequence()
+                .mapNotNull { app ->
+                    calculateAppMatch(
+                        app = app,
+                        queryContext = queryContext,
+                        fuzzySearchStrategy = fuzzySearchStrategy,
+                        appNicknames = appNicknames,
+                        canScoreFuzzyCandidate = {
+                            if (fuzzyCandidatesScored >= fuzzyCandidateLimit) {
+                                false
+                            } else {
+                                fuzzyCandidatesScored += 1
+                                true
+                            }
+                        },
+                    )
+                }.sortedWith(createAppComparator(sortAppsByUsageEnabled))
+                .map { it.app }
+                .take(limit)
+                .toList()
+        }
+
+        if (!canUseFuzzySearch) return searchBlock()
+
+        return FuzzySearchPerformanceLogger.measure(
+            section = SearchSection.APPS,
+            query = queryContext.normalizedQuery,
+            candidateCount = minOf(source.size, fuzzyCandidateLimit),
+            block = searchBlock,
+        )
     }
 
     private data class AppMatch(
@@ -61,6 +91,7 @@ object AppSearchAlgorithm {
         queryContext: SearchQueryContext,
         fuzzySearchStrategy: FuzzyAppSearchStrategy,
         appNicknames: Map<String, String>,
+        canScoreFuzzyCandidate: () -> Boolean,
     ): AppMatch? {
         val nickname = appNicknames[app.packageName]
         val initials = AppSearchInitials.initialsFor(app)
@@ -79,6 +110,8 @@ object AppSearchAlgorithm {
             }
             return AppMatch(app, priority, 0, false)
         }
+
+        if (!canScoreFuzzyCandidate()) return null
 
         val match =
             fuzzySearchStrategy.computeMatch(

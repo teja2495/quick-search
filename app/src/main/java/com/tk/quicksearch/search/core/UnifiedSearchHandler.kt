@@ -17,6 +17,7 @@ import com.tk.quicksearch.search.deviceSettings.DeviceSettingsSearchHandler
 import com.tk.quicksearch.search.files.FileSearchHandler
 import com.tk.quicksearch.search.files.FileSearchPolicy
 import com.tk.quicksearch.search.files.FolderPathPatternMatcher
+import com.tk.quicksearch.search.fuzzy.FuzzySearchPolicyResolver
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
@@ -67,17 +68,10 @@ class UnifiedSearchHandler(
         private val searchOperations: SearchOperations,
 ) {
         companion object {
-                private const val DEFAULT_FUZZY_MIN_SCORE = 78
-                private const val ALIAS_FUZZY_MIN_SCORE = 72
                 private const val ALIAS_CONTACT_RESULT_LIMIT = 60
                 private const val ALIAS_FILE_RESULT_LIMIT = 60
-                private const val ALIAS_CONTACT_FUZZY_CANDIDATE_LIMIT = 600
-                private const val ALIAS_FILE_FUZZY_CANDIDATE_LIMIT = 700
-                private const val LOW_RAM_ALIAS_FUZZY_MIN_SCORE = 76
                 private const val LOW_RAM_ALIAS_CONTACT_RESULT_LIMIT = 35
                 private const val LOW_RAM_ALIAS_FILE_RESULT_LIMIT = 35
-                private const val LOW_RAM_ALIAS_CONTACT_FUZZY_CANDIDATE_LIMIT = 360
-                private const val LOW_RAM_ALIAS_FILE_FUZZY_CANDIDATE_LIMIT = 420
         }
 
         private val isLowRamDevice by lazy { isLowRamDevice(context) }
@@ -131,6 +125,7 @@ class UnifiedSearchHandler(
                         val enableFuzzyFileSearch = filesConfig.enableFuzzyMatching
                         val enableFuzzySettingsSearch = settingsConfig.enableFuzzyMatching
                         val enableFuzzyAppSettingsSearch = appSettingsConfig.enableFuzzyMatching
+                        val enableFuzzyAppShortcutSearch = appShortcutsConfig.enableFuzzyMatching
                         val isContactsAliasSearch = aliasSection == SearchSection.CONTACTS
                         val isFilesAliasSearch = aliasSection == SearchSection.FILES
                         val isCalendarAliasSearch = aliasSection == SearchSection.CALENDAR
@@ -146,25 +141,23 @@ class UnifiedSearchHandler(
                                         else ALIAS_FILE_RESULT_LIMIT
                                 }
                                 else FileSearchHandler.FILE_SEARCH_RESULT_LIMIT
-                        val fuzzyMinScore =
-                                if (isContactsAliasSearch || isFilesAliasSearch) {
-                                        if (isLowRamDevice) LOW_RAM_ALIAS_FUZZY_MIN_SCORE
-                                        else ALIAS_FUZZY_MIN_SCORE
-                                } else {
-                                        DEFAULT_FUZZY_MIN_SCORE
-                                }
-                        val contactFuzzyCandidateLimit =
-                                if (isContactsAliasSearch) {
-                                        if (isLowRamDevice) LOW_RAM_ALIAS_CONTACT_FUZZY_CANDIDATE_LIMIT
-                                        else ALIAS_CONTACT_FUZZY_CANDIDATE_LIMIT
-                                }
-                                else SearchOperations.CONTACT_RESULT_LIMIT * 12
-                        val fileFuzzyCandidateLimit =
-                                if (isFilesAliasSearch) {
-                                        if (isLowRamDevice) LOW_RAM_ALIAS_FILE_FUZZY_CANDIDATE_LIMIT
-                                        else ALIAS_FILE_FUZZY_CANDIDATE_LIMIT
-                                }
-                                else FileSearchHandler.FILE_SEARCH_RESULT_LIMIT * 14
+                        val contactFuzzyPolicy =
+                                FuzzySearchPolicyResolver.effectivePolicy(
+                                        section = SearchSection.CONTACTS,
+                                        query = queryContext.normalizedQuery,
+                                        isLowRamDevice = isLowRamDevice,
+                                )
+                        val fileFuzzyPolicy =
+                                FuzzySearchPolicyResolver.effectivePolicy(
+                                        section = SearchSection.FILES,
+                                        query = queryContext.normalizedQuery,
+                                        isLowRamDevice = isLowRamDevice,
+                                )
+                        val contactFuzzyCandidateLimit = contactFuzzyPolicy.candidateLimit
+                        val fileFuzzyCandidateLimit = fileFuzzyPolicy.candidateLimit
+                        val canUseFileFuzzySearch =
+                                enableFuzzyFileSearch &&
+                                        fileFuzzyPolicy.enabled
                         val nicknameOnlyFileUriHydrationLimit = fileResultLimit * 2
                         val calendarResultLimit =
                                 if (isCalendarAliasSearch) {
@@ -223,7 +216,8 @@ class UnifiedSearchHandler(
                                                                                         limit =
                                                                                                 contactResultLimit,
                                                                                         enableFuzzyMatching =
-                                                                                                enableFuzzyContactSearch,
+                                                                                                enableFuzzyContactSearch &&
+                                                                                                        contactFuzzyPolicy.enabled,
                                                                                         fuzzyCandidateLimit =
                                                                                                 contactFuzzyCandidateLimit,
                                                                                 )
@@ -253,7 +247,7 @@ class UnifiedSearchHandler(
                                                                                         showSystemFiles,
                                                                                         recencyIndex.fileScores,
                                                                                         includeFuzzyCandidates =
-                                                                                                enableFuzzyFileSearch,
+                                                                                                canUseFileFuzzySearch,
                                                                                         resultLimit =
                                                                                                 fileResultLimit,
                                                                                         fuzzyCandidateLimit =
@@ -370,6 +364,8 @@ class UnifiedSearchHandler(
                                                                                 appShortcutSearchHandler.searchShortcuts(
                                                                                         queryContext,
                                                                                         recencyIndex.appShortcutScores,
+                                                                                        enableFuzzyMatching =
+                                                                                                enableFuzzyAppShortcutSearch,
                                                                                 )
                                                                         )
                                                                 },
@@ -437,8 +433,10 @@ class UnifiedSearchHandler(
                                                 contactResults + nicknameContacts,
                                                 queryContext,
                                                 recencyIndex.contactScores,
-                                                enableFuzzyContactSearch,
-                                                fuzzyMinScore,
+                                                enableFuzzyContactSearch &&
+                                                        contactFuzzyPolicy.enabled,
+                                                contactFuzzyPolicy.minimumScore,
+                                                contactFuzzyPolicy.maximumEditDistance,
                                         )
                                         .take(contactResultLimit)
                         val filteredFiles =
@@ -446,8 +444,9 @@ class UnifiedSearchHandler(
                                         fileResults + nicknameFiles,
                                         queryContext,
                                         recencyIndex.fileScores,
-                                        enableFuzzyFileSearch,
-                                        fuzzyMinScore,
+                                        canUseFileFuzzySearch,
+                                        fileFuzzyPolicy.minimumScore,
+                                        fileFuzzyPolicy.maximumEditDistance,
                                         fileResultLimit,
                                 )
                         val filteredCalendarEvents =
@@ -638,6 +637,7 @@ class UnifiedSearchHandler(
                 recentContactScores: Map<Long, Int>,
                 enableFuzzyMatching: Boolean,
                 fuzzyMinScore: Int,
+                fuzzyMaxEditDistance: Int,
         ): List<ContactInfo> {
                 if (contacts.isEmpty()) return emptyList()
 
@@ -695,6 +695,7 @@ class UnifiedSearchHandler(
                                                         query = queryContext.normalizedQuery,
                                                         primaryTarget = normalizedName,
                                                         secondaryTarget = normalizedNickname,
+                                                        maxEditDistance = fuzzyMaxEditDistance,
                                                 )
                                         if (fuzzyScore < fuzzyMinScore) {
                                                 null
@@ -718,6 +719,7 @@ class UnifiedSearchHandler(
                 recentFileScores: Map<String, Int>,
                 enableFuzzyMatching: Boolean,
                 fuzzyMinScore: Int,
+                fuzzyMaxEditDistance: Int,
                 resultLimit: Int,
         ): List<DeviceFile> {
                 if (files.isEmpty()) return emptyList()
@@ -778,6 +780,7 @@ class UnifiedSearchHandler(
                                                         query = queryContext.normalizedQuery,
                                                         primaryTarget = normalizedName,
                                                         secondaryTarget = normalizedNickname,
+                                                        maxEditDistance = fuzzyMaxEditDistance,
                                                 )
                                         if (fuzzyScore < fuzzyMinScore) {
                                                 null

@@ -20,6 +20,7 @@ class AppSearchManager(
     private val onAppsUpdated: () -> Unit,
     private val onLoadingStateChanged: (Boolean, String?) -> Unit,
     private val showToastCallback: (Int) -> Unit,
+    private val isLowRamDevice: Boolean = false,
     initialFuzzyConfig: FuzzySearchConfig = FuzzySearchConfig.DEFAULT_APP_CONFIG,
 ) {
     var cachedApps: List<AppInfo> = emptyList()
@@ -29,7 +30,7 @@ class AppSearchManager(
     var sortAppsByUsageEnabled: Boolean = false
         private set
 
-    private var fuzzySearchStrategy = FuzzyAppSearchStrategy(initialFuzzyConfig)
+    private var fuzzySearchStrategy = FuzzyAppSearchStrategy(initialFuzzyConfig, isLowRamDevice)
 
     fun initCache(initialApps: List<AppInfo>) {
         cachedApps = initialApps
@@ -121,7 +122,7 @@ class AppSearchManager(
         // Always evaluate single-character queries to avoid stale no-match prefixes
         // suppressing legitimate first-letter app searches.
         if (normalizedQuery.length <= 1) return false
-        if (normalizedQuery.length >= fuzzySearchStrategy.config.minQueryLength) return false
+        if (fuzzySearchStrategy.canUseFuzzySearch(normalizedQuery)) return false
         return normalizedQuery.length >= prefix.length && normalizedQuery.startsWith(prefix)
     }
 

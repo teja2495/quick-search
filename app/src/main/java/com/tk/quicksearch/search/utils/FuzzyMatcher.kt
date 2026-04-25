@@ -7,6 +7,8 @@ package com.tk.quicksearch.search.utils
  * repeatedly doing normalization work inside tight matching loops.
  */
 object FuzzyMatcher {
+    private const val LONG_QUERY_MIN_LENGTH = 6
+
     data class ScoredMatch<T>(
         val item: T,
         val score: Int,
@@ -18,11 +20,21 @@ object FuzzyMatcher {
     fun score(
         query: String,
         target: String,
+        maxEditDistance: Int? = null,
     ): Int {
         val trimmedQuery = query.trim()
         val trimmedTarget = target.trim()
         if (trimmedQuery.isEmpty() || trimmedTarget.isEmpty()) return 0
         if (trimmedQuery == trimmedTarget) return 100
+        if (maxEditDistance != null &&
+            !hasTokenWithinEditDistance(
+                query = trimmedQuery,
+                target = trimmedTarget,
+                maxDistance = maxEditDistance,
+            )
+        ) {
+            return 0
+        }
         return tokenSetRatio(trimmedQuery, trimmedTarget)
     }
 
@@ -33,10 +45,11 @@ object FuzzyMatcher {
         query: String,
         primaryTarget: String,
         secondaryTarget: String?,
+        maxEditDistance: Int? = null,
     ): Int {
-        var bestScore = score(query, primaryTarget)
+        var bestScore = score(query, primaryTarget, maxEditDistance)
         if (!secondaryTarget.isNullOrBlank()) {
-            bestScore = maxOf(bestScore, score(query, secondaryTarget))
+            bestScore = maxOf(bestScore, score(query, secondaryTarget, maxEditDistance))
         }
         return bestScore
     }
@@ -49,22 +62,33 @@ object FuzzyMatcher {
         candidates: List<T>,
         minScore: Int = 0,
         limit: Int = Int.MAX_VALUE,
+        candidateLimit: Int = Int.MAX_VALUE,
+        maxEditDistance: Int? = null,
         primaryTextSelector: (T) -> String,
         secondaryTextSelector: ((T) -> String?)? = null,
     ): List<ScoredMatch<T>> {
         if (query.isBlank() || candidates.isEmpty()) return emptyList()
 
-        val matches = ArrayList<ScoredMatch<T>>(minOf(candidates.size, 32))
-        for (candidate in candidates) {
+        val cappedCandidateCount = minOf(candidates.size, candidateLimit.coerceAtLeast(0))
+        if (cappedCandidateCount == 0) return emptyList()
+
+        val matches = ArrayList<ScoredMatch<T>>(minOf(cappedCandidateCount, 32))
+        for (index in 0 until cappedCandidateCount) {
+            val candidate = candidates[index]
             val score =
                 if (secondaryTextSelector != null) {
                     score(
                         query = query,
                         primaryTarget = primaryTextSelector(candidate),
                         secondaryTarget = secondaryTextSelector(candidate),
+                        maxEditDistance = maxEditDistance,
                     )
                 } else {
-                    score(query = query, target = primaryTextSelector(candidate))
+                    score(
+                        query = query,
+                        target = primaryTextSelector(candidate),
+                        maxEditDistance = maxEditDistance,
+                    )
                 }
 
             if (score >= minScore) {
@@ -79,6 +103,19 @@ object FuzzyMatcher {
         } else {
             matches.subList(0, limit).toList()
         }
+    }
+
+    fun maxEditDistanceForQuery(
+        query: String,
+        mediumQueryMaxDistance: Int = 1,
+        longQueryMaxDistance: Int = 2,
+        longQueryMinLength: Int = LONG_QUERY_MIN_LENGTH,
+    ): Int {
+        return if (query.trim().length >= longQueryMinLength) {
+            longQueryMaxDistance
+        } else {
+            mediumQueryMaxDistance
+        }.coerceAtLeast(0)
     }
 
     private data class Tokens(

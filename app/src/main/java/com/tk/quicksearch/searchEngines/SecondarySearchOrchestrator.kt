@@ -25,7 +25,6 @@ class SecondarySearchOrchestrator(
     private val sectionManager: SectionManager,
     private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit,
     private val currentStateProvider: () -> SearchUiState,
-    private val isLowRamDevice: Boolean = false,
 ) {
     private var searchJob: Job? = null
     private val queryVersion = AtomicLong(0L)
@@ -98,8 +97,11 @@ class SecondarySearchOrchestrator(
                 val shouldSearch = canSearchSection && !shouldSkipSection
                 val enableFuzzyMatching =
                     shouldSearch &&
-                        (section == SearchSection.SETTINGS || section == SearchSection.APP_SETTINGS) &&
-                        !isLowRamDevice
+                        (
+                            section == SearchSection.SETTINGS ||
+                                section == SearchSection.APP_SETTINGS ||
+                                section == SearchSection.APP_SHORTCUTS
+                        )
                 section to
                     UnifiedSectionSearchConfig(
                         shouldSearch = shouldSearch,

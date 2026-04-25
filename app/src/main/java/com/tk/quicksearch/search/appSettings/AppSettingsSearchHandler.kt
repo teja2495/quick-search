@@ -12,6 +12,7 @@ private const val RESULT_LIMIT = 25
 class AppSettingsSearchHandler(
     private val repository: AppSettingsRepository,
     private val userPreferences: UserAppPreferences,
+    private val isLowRamDevice: Boolean = false,
 ) {
     private var availableSettings: List<AppSettingResult> = emptyList()
 
@@ -45,6 +46,7 @@ class AppSettingsSearchHandler(
                 recentSettingScores = recentSettingScores,
                 resultLimit = RESULT_LIMIT,
                 enableFuzzyMatching = enableFuzzyMatching,
+                isLowRamDevice = isLowRamDevice,
             )
     }
 

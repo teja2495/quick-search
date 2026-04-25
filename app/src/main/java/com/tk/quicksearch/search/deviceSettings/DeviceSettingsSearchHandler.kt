@@ -21,6 +21,7 @@ class DeviceSettingsSearchHandler(
     private val repository: DeviceSettingsRepository,
     private val userPreferences: UserAppPreferences,
     private val showToastCallback: (Int) -> Unit,
+    private val isLowRamDevice: Boolean = false,
 ) {
     private var availableSettings: List<DeviceSetting> = emptyList()
 
@@ -130,6 +131,7 @@ class DeviceSettingsSearchHandler(
             recentSettingScores = recentSettingScores,
             resultLimit = RESULT_LIMIT,
             enableFuzzyMatching = enableFuzzyMatching,
+            isLowRamDevice = isLowRamDevice,
         )
     }
 

@@ -197,6 +197,7 @@ internal class SearchHandlerContainer(
                 updateConfigState { it.copy(isLoading = isLoading, errorMessage = error) }
             },
             showToastCallback = showToast,
+            isLowRamDevice = isLowRamDevice,
         )
     }
 
@@ -206,6 +207,7 @@ internal class SearchHandlerContainer(
             repository = settingsShortcutRepository,
             userPreferences = userPreferences,
             showToastCallback = showToast,
+            isLowRamDevice = isLowRamDevice,
         )
     }
 
@@ -213,6 +215,7 @@ internal class SearchHandlerContainer(
         AppShortcutSearchHandler(
             repository = appShortcutRepository,
             userPreferences = userPreferences,
+            isLowRamDevice = isLowRamDevice,
         )
     }
 
@@ -220,6 +223,7 @@ internal class SearchHandlerContainer(
         AppSettingsSearchHandler(
             repository = appSettingsRepository,
             userPreferences = userPreferences,
+            isLowRamDevice = isLowRamDevice,
         )
     }
 
@@ -271,7 +275,6 @@ internal class SearchHandlerContainer(
             sectionManager = sectionManager,
             uiStateUpdater = updateUiState,
             currentStateProvider = currentStateProvider,
-            isLowRamDevice = isLowRamDevice,
         )
     }
 

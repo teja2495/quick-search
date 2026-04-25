@@ -24,6 +24,7 @@ data class AppShortcutSearchResults(
 class AppShortcutSearchHandler(
     private val repository: AppShortcutRepository,
     private val userPreferences: UserAppPreferences,
+    private val isLowRamDevice: Boolean = false,
 ) {
     private var availableShortcuts: List<StaticShortcut> = emptyList()
 
@@ -132,12 +133,14 @@ class AppShortcutSearchHandler(
     fun searchShortcuts(
         queryContext: SearchQueryContext,
         recentShortcutScores: Map<String, Int> = getRecentShortcutScores(),
+        enableFuzzyMatching: Boolean = false,
     ): List<StaticShortcut> =
         searchShortcutsInternal(
             queryContext = queryContext,
             excludedIds = userPreferences.getExcludedAppShortcutIds(),
             disabledIds = userPreferences.getDisabledAppShortcutIds(),
             recentShortcutScores = recentShortcutScores,
+            enableFuzzyMatching = enableFuzzyMatching,
         )
 
     private fun searchShortcutsInternal(
@@ -145,6 +148,7 @@ class AppShortcutSearchHandler(
         excludedIds: Set<String>,
         disabledIds: Set<String>,
         recentShortcutScores: Map<String, Int>,
+        enableFuzzyMatching: Boolean = false,
     ): List<StaticShortcut> =
         mergeIconOverrides(
             AppShortcutSearchAlgorithm.search(
@@ -155,6 +159,8 @@ class AppShortcutSearchHandler(
                 shortcutNicknames = userPreferences.getAllAppShortcutNicknames(),
                 recentShortcutScores = recentShortcutScores,
                 resultLimit = RESULT_LIMIT,
+                enableFuzzyMatching = enableFuzzyMatching,
+                isLowRamDevice = isLowRamDevice,
             ),
         )
 

@@ -1,13 +1,14 @@
 package com.tk.quicksearch.search.deviceSettings
 
-import com.tk.quicksearch.search.utils.SearchQueryContext
-import com.tk.quicksearch.search.utils.RecentResultRankingUtils
+import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.search.fuzzy.FuzzySearchPerformanceLogger
+import com.tk.quicksearch.search.fuzzy.FuzzySearchPolicyResolver
 import com.tk.quicksearch.search.utils.FuzzyMatcher
+import com.tk.quicksearch.search.utils.RecentResultRankingUtils
+import com.tk.quicksearch.search.utils.SearchQueryContext
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
 
 object DeviceSettingsSearchAlgorithm {
-    private const val ALIAS_FUZZY_MIN_SCORE = 78
-
     fun search(
         fullList: List<DeviceSetting>,
         query: String,
@@ -17,6 +18,7 @@ object DeviceSettingsSearchAlgorithm {
         recentSettingScores: Map<String, Int> = emptyMap(),
         resultLimit: Int = 25,
         enableFuzzyMatching: Boolean = false,
+        isLowRamDevice: Boolean = false,
     ): List<DeviceSetting> {
         if (fullList.isEmpty()) return emptyList()
         val trimmed = query.trim()
@@ -30,6 +32,7 @@ object DeviceSettingsSearchAlgorithm {
             recentSettingScores = recentSettingScores,
             resultLimit = resultLimit,
             enableFuzzyMatching = enableFuzzyMatching,
+            isLowRamDevice = isLowRamDevice,
         )
     }
 
@@ -42,6 +45,7 @@ object DeviceSettingsSearchAlgorithm {
         recentSettingScores: Map<String, Int> = emptyMap(),
         resultLimit: Int = 25,
         enableFuzzyMatching: Boolean = false,
+        isLowRamDevice: Boolean = false,
     ): List<DeviceSetting> {
         if (fullList.isEmpty()) return emptyList()
         if (queryContext.normalizedQuery.isBlank()) return emptyList()
@@ -76,10 +80,25 @@ object DeviceSettingsSearchAlgorithm {
 
         if (!enableFuzzyMatching) return exactMatches
 
+        val fuzzyPolicy =
+            FuzzySearchPolicyResolver.effectivePolicy(
+                section = SearchSection.SETTINGS,
+                query = queryContext.normalizedQuery,
+                isLowRamDevice = isLowRamDevice,
+            )
+        if (!fuzzyPolicy.enabled) return exactMatches
+
         val exactMatchIds = exactMatches.map { it.id }.toSet()
+        val fuzzyCandidateCount = minOf(settingsToSearch.size, fuzzyPolicy.candidateLimit)
         val fuzzyMatches =
+            FuzzySearchPerformanceLogger.measure(
+                section = SearchSection.SETTINGS,
+                query = queryContext.normalizedQuery,
+                candidateCount = fuzzyCandidateCount,
+            ) {
             settingsToSearch
                 .asSequence()
+                .take(fuzzyCandidateCount)
                 .filterNot { exactMatchIds.contains(it.id) }
                 .mapNotNull { setting ->
                     val normalizedTitle = SearchTextNormalizer.normalizeForSearch(setting.title)
@@ -103,14 +122,9 @@ object DeviceSettingsSearchAlgorithm {
                             query = queryContext.normalizedQuery,
                             primaryTarget = normalizedTitle,
                             secondaryTarget = normalizedSupportingText,
+                            maxEditDistance = fuzzyPolicy.maximumEditDistance,
                         )
-                    if (fuzzyScore < ALIAS_FUZZY_MIN_SCORE ||
-                        !FuzzyMatcher.hasTokenWithinEditDistance(
-                            queryContext.normalizedQuery,
-                            normalizedTitle,
-                            maxDistance = 2,
-                        )
-                    ) {
+                    if (fuzzyScore < fuzzyPolicy.minimumScore) {
                         null
                     } else {
                         setting to fuzzyScore
@@ -120,6 +134,7 @@ object DeviceSettingsSearchAlgorithm {
                         .thenBy { it.first.title.lowercase() },
                 ).map { it.first }
                 .toList()
+            }
 
         return (exactMatches + fuzzyMatches).take(resultLimit)
     }
