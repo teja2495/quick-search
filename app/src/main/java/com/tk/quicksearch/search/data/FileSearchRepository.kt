@@ -187,6 +187,44 @@ class FileSearchRepository(
         return results
     }
 
+    fun searchFolders(
+        query: String,
+        limit: Int,
+    ): List<DeviceFile> {
+        if (query.isBlank() || !hasPermission()) return emptyList()
+
+        val normalizedQuery = normalizeQuery(query)
+        val escapedQuery = escapeLikeQuery(normalizedQuery)
+        val selection =
+            "LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE ? ESCAPE '\\' AND " +
+                "format = ${MtpConstants.FORMAT_ASSOCIATION}"
+        val selectionArgs = arrayOf("%$escapedQuery%")
+        val uri = getFilesContentUri()
+
+        val results = mutableListOf<DeviceFile>()
+
+        contentResolver
+            .query(
+                uri,
+                FILE_PROJECTION,
+                selection,
+                selectionArgs,
+                DATE_MODIFIED_SORT,
+            )?.use { cursor ->
+                val columnIndices = getColumnIndices(cursor)
+
+                while (cursor.moveToNext() && results.size < limit) {
+                    val file = createDeviceFileFromCursor(cursor, uri, columnIndices)
+                    if (file != null) {
+                        results.add(file)
+                    }
+                }
+            }
+
+        cacheFiles(results)
+        return results
+    }
+
     fun getRecentFiles(limit: Int): List<DeviceFile> {
         if (limit <= 0 || !hasPermission()) return emptyList()
 

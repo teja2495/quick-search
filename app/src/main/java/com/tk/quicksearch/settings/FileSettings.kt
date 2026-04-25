@@ -1,46 +1,71 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.AudioFile
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Image
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.VideoLibrary
 import androidx.compose.material.icons.rounded.Visibility
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.data.FileSearchRepository
+import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
+import com.tk.quicksearch.shared.ui.components.AppAlertDialog
+import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 
 // Constants for consistent spacing
 private object FileTypesSpacing {
@@ -54,6 +79,7 @@ private object FileTypesSpacing {
     val pathFilterTitleTopSpacing = 4.dp
     val blacklistTitleTopSpacing = 8.dp
     val pathFilterDescriptionBottomSpacing = 6.dp
+    val folderDialogMaxHeight = 320.dp
 }
 
 private val multiSlashRegex = "/+".toRegex()
@@ -76,27 +102,21 @@ private fun normalizePathFilterPattern(rawPattern: String): String? {
     return "*/$normalizedPath/*"
 }
 
-private fun parsePathFilterInput(input: String): Set<String> =
-    input
-        .split(",")
-        .mapNotNull(::normalizePathFilterPattern)
-        .toCollection(LinkedHashSet())
+private fun patternDisplayPath(pattern: String): String =
+    pattern
+        .removePrefix("*/")
+        .removeSuffix("/*")
+        .trim('/')
 
-private fun shouldApplyPathFiltersOnInput(value: String): Boolean =
-    value.endsWith(",") || value.endsWith(", ")
-
-private fun trailingDelimiter(value: String): String =
-    when {
-        value.endsWith(", ") -> ", "
-        value.endsWith(",") -> ","
-        else -> ""
+private fun displayPathWithLeadingSlash(path: String): String =
+    path.trim('/').let { trimmedPath ->
+        if (trimmedPath.isBlank()) "/" else "/$trimmedPath"
     }
 
-private fun buildNormalizedInputText(rawValue: String, keepTrailingDelimiter: Boolean): String {
-    val normalizedPatterns = parsePathFilterInput(rawValue).joinToString(", ")
-    if (!keepTrailingDelimiter) return normalizedPatterns
-    return normalizedPatterns + trailingDelimiter(rawValue)
-}
+private fun folderDisplayPath(folder: DeviceFile): String =
+    listOfNotNull(folder.relativePath?.trim('/'), folder.displayName.trim())
+        .filter { it.isNotBlank() }
+        .joinToString("/")
 
 /** Gets the display name for a file type. */
 @Composable
@@ -329,57 +349,34 @@ fun FileTypesSection(
 
     Spacer(modifier = Modifier.height(12.dp))
 
-    var whitelistInput by remember {
-        mutableStateOf(
-            TextFieldValue(
-                text = folderWhitelistPatterns.joinToString(", "),
-                selection = TextRange(folderWhitelistPatterns.joinToString(", ").length),
-            ),
+    var activeFolderFilterTarget by remember { mutableStateOf<FolderFilterTarget?>(null) }
+
+    activeFolderFilterTarget?.let { target ->
+        FolderSearchDialog(
+            title =
+                when (target) {
+                    FolderFilterTarget.Whitelist -> stringResource(R.string.settings_folder_whitelist_add)
+                    FolderFilterTarget.Blacklist -> stringResource(R.string.settings_folder_blacklist_add)
+                },
+            selectedPatterns =
+                when (target) {
+                    FolderFilterTarget.Whitelist -> folderWhitelistPatterns
+                    FolderFilterTarget.Blacklist -> folderBlacklistPatterns
+                },
+            onDismiss = { activeFolderFilterTarget = null },
+            onSelect = { folder ->
+                val pattern = normalizePathFilterPattern(folderDisplayPath(folder)) ?: return@FolderSearchDialog
+                when (target) {
+                    FolderFilterTarget.Whitelist ->
+                        onSetFolderWhitelistPatterns(folderWhitelistPatterns + pattern)
+                    FolderFilterTarget.Blacklist ->
+                        onSetFolderBlacklistPatterns(folderBlacklistPatterns + pattern)
+                }
+                activeFolderFilterTarget = null
+            },
         )
     }
-    var blacklistInput by remember {
-        mutableStateOf(
-            TextFieldValue(
-                text = folderBlacklistPatterns.joinToString(", "),
-                selection = TextRange(folderBlacklistPatterns.joinToString(", ").length),
-            ),
-        )
-    }
-    var lastAppliedWhitelistPatterns by remember { mutableStateOf(folderWhitelistPatterns) }
-    var lastAppliedBlacklistPatterns by remember { mutableStateOf(folderBlacklistPatterns) }
-    var whitelistHasFocus by remember { mutableStateOf(false) }
-    var blacklistHasFocus by remember { mutableStateOf(false) }
 
-    val applyWhitelistPatterns: (String, Boolean) -> Unit = { rawValue, keepTrailingDelimiter ->
-        val patterns = parsePathFilterInput(rawValue)
-        val updatedInput = buildNormalizedInputText(rawValue, keepTrailingDelimiter)
-        whitelistInput = TextFieldValue(updatedInput, TextRange(updatedInput.length))
-        lastAppliedWhitelistPatterns = patterns
-        onSetFolderWhitelistPatterns(patterns)
-    }
-
-    val applyBlacklistPatterns: (String, Boolean) -> Unit = { rawValue, keepTrailingDelimiter ->
-        val patterns = parsePathFilterInput(rawValue)
-        val updatedInput = buildNormalizedInputText(rawValue, keepTrailingDelimiter)
-        blacklistInput = TextFieldValue(updatedInput, TextRange(updatedInput.length))
-        lastAppliedBlacklistPatterns = patterns
-        onSetFolderBlacklistPatterns(patterns)
-    }
-
-    LaunchedEffect(folderWhitelistPatterns) {
-        if (folderWhitelistPatterns != lastAppliedWhitelistPatterns) {
-            val updatedText = folderWhitelistPatterns.joinToString(", ")
-            whitelistInput = TextFieldValue(updatedText, TextRange(updatedText.length))
-            lastAppliedWhitelistPatterns = folderWhitelistPatterns
-        }
-    }
-    LaunchedEffect(folderBlacklistPatterns) {
-        if (folderBlacklistPatterns != lastAppliedBlacklistPatterns) {
-            val updatedText = folderBlacklistPatterns.joinToString(", ")
-            blacklistInput = TextFieldValue(updatedText, TextRange(updatedText.length))
-            lastAppliedBlacklistPatterns = folderBlacklistPatterns
-        }
-    }
     SettingsCard(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier =
@@ -416,25 +413,12 @@ fun FileTypesSection(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
-            OutlinedTextField(
-                value = whitelistInput,
-                onValueChange = { value ->
-                    whitelistInput = value
-                    if (shouldApplyPathFiltersOnInput(value.text)) {
-                        applyWhitelistPatterns(value.text, true)
-                    }
+            FolderFilterList(
+                patterns = folderWhitelistPatterns,
+                onAdd = { activeFolderFilterTarget = FolderFilterTarget.Whitelist },
+                onRemove = { pattern ->
+                    onSetFolderWhitelistPatterns(folderWhitelistPatterns - pattern)
                 },
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .onFocusChanged { focusState ->
-                            if (whitelistHasFocus && !focusState.isFocused) {
-                                applyWhitelistPatterns(whitelistInput.text, true)
-                            }
-                            whitelistHasFocus = focusState.isFocused
-                        },
-                minLines = 1,
-                maxLines = 3,
             )
 
             Spacer(modifier = Modifier.height(FileTypesSpacing.blacklistTitleTopSpacing))
@@ -450,27 +434,279 @@ fun FileTypesSection(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
-            OutlinedTextField(
-                value = blacklistInput,
-                onValueChange = { value ->
-                    blacklistInput = value
-                    if (shouldApplyPathFiltersOnInput(value.text)) {
-                        applyBlacklistPatterns(value.text, true)
-                    }
+            FolderFilterList(
+                patterns = folderBlacklistPatterns,
+                onAdd = { activeFolderFilterTarget = FolderFilterTarget.Blacklist },
+                onRemove = { pattern ->
+                    onSetFolderBlacklistPatterns(folderBlacklistPatterns - pattern)
                 },
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .onFocusChanged { focusState ->
-                            if (blacklistHasFocus && !focusState.isFocused) {
-                                applyBlacklistPatterns(blacklistInput.text, true)
-                            }
-                            blacklistHasFocus = focusState.isFocused
-                        },
-                minLines = 1,
-                maxLines = 3,
             )
             Spacer(modifier = Modifier.height(24.dp))
         }
+    }
+}
+
+private enum class FolderFilterTarget {
+    Whitelist,
+    Blacklist,
+}
+
+@Composable
+private fun FolderFilterList(
+    patterns: Set<String>,
+    onAdd: () -> Unit,
+    onRemove: (String) -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+    ) {
+        if (patterns.isNotEmpty()) {
+            patterns.sortedBy(::patternDisplayPath).forEach { pattern ->
+                FolderFilterRow(
+                    pattern = pattern,
+                    onRemove = { onRemove(pattern) },
+                )
+            }
+        }
+
+        Button(
+            onClick = onAdd,
+            shape = RoundedCornerShape(50.dp),
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                ),
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Add,
+                contentDescription = null,
+                modifier = Modifier.size(FileTypesSpacing.chipIconSize),
+            )
+            Text(text = stringResource(R.string.settings_folder_filter_add_button))
+        }
+    }
+}
+
+@Composable
+private fun FolderFilterRow(
+    pattern: String,
+    onRemove: () -> Unit,
+) {
+    val path = patternDisplayPath(pattern)
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = DesignTokens.SpacingSmall),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.Folder,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(DesignTokens.IconSize),
+        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = path.substringAfterLast('/', path),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = displayPathWithLeadingSlash(path),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+        IconButton(onClick = onRemove) {
+            Icon(
+                imageVector = Icons.Rounded.Delete,
+                contentDescription = stringResource(R.string.action_remove),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun FolderSearchDialog(
+    title: String,
+    selectedPatterns: Set<String>,
+    onDismiss: () -> Unit,
+    onSelect: (DeviceFile) -> Unit,
+) {
+    val context = LocalContext.current
+    val repository = remember(context) { FileSearchRepository(context) }
+    var query by remember { mutableStateOf(TextFieldValue("")) }
+    var results by remember { mutableStateOf<List<DeviceFile>>(emptyList()) }
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(Unit) {
+        delay(50)
+        focusRequester.requestFocus()
+        keyboardController?.show()
+    }
+
+    LaunchedEffect(query.text) {
+        val trimmedQuery = query.text.trim()
+        results =
+            if (trimmedQuery.isBlank()) {
+                emptyList()
+            } else {
+                withContext(Dispatchers.IO) {
+                    repository.searchFolders(trimmedQuery, limit = 30)
+                        .distinctBy { folder ->
+                            normalizePathFilterPattern(folderDisplayPath(folder))
+                        }
+                }
+            }
+    }
+
+    AppAlertDialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+        modifier = Modifier.fillMaxWidth(0.95f),
+        title = { Text(text = title) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium)) {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                    shape = RoundedCornerShape(50.dp),
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Rounded.Search,
+                            contentDescription = stringResource(R.string.desc_search_icon),
+                        )
+                    },
+                    trailingIcon = {
+                        if (query.text.isNotBlank()) {
+                            IconButton(onClick = { query = TextFieldValue("") }) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Close,
+                                    contentDescription = stringResource(R.string.desc_clear_search),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    },
+                    singleLine = true,
+                    colors = dialogTextFieldColors(),
+                )
+
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = FileTypesSpacing.folderDialogMaxHeight),
+                ) {
+                    when {
+                        query.text.isBlank() -> {
+                            Text(
+                                text = stringResource(R.string.settings_folder_search_hint),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+
+                        results.isEmpty() -> {
+                            Text(
+                                text = stringResource(R.string.settings_folder_search_no_results),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+
+                        else -> {
+                            LazyColumn {
+                                itemsIndexed(results) { index, folder ->
+                                    val path = folderDisplayPath(folder)
+                                    val pattern = normalizePathFilterPattern(path)
+                                    FolderSearchResultRow(
+                                        folder = folder,
+                                        alreadySelected = pattern in selectedPatterns,
+                                        onSelect = { onSelect(folder) },
+                                    )
+                                    if (index < results.lastIndex) {
+                                        HorizontalDivider(
+                                            color = MaterialTheme.colorScheme.outlineVariant,
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.dialog_cancel))
+            }
+        },
+    )
+}
+
+@Composable
+private fun FolderSearchResultRow(
+    folder: DeviceFile,
+    alreadySelected: Boolean,
+    onSelect: () -> Unit,
+) {
+    val path = folderDisplayPath(folder)
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(
+                    enabled = !alreadySelected,
+                    onClick = onSelect,
+                )
+                .padding(vertical = DesignTokens.SpacingSmall),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.Folder,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(DesignTokens.IconSize),
+        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = folder.displayName,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = displayPathWithLeadingSlash(path),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+        Icon(
+            imageVector = Icons.Rounded.Add,
+            contentDescription = stringResource(R.string.settings_folder_filter_add_button),
+            tint =
+                if (alreadySelected) {
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+                } else {
+                    MaterialTheme.colorScheme.primary
+                },
+            modifier = Modifier.size(DesignTokens.IconSize),
+        )
     }
 }

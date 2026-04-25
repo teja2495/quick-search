@@ -28,6 +28,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -73,6 +74,7 @@ import com.tk.quicksearch.search.searchScreen.components.CollapseButton
 import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
 import com.tk.quicksearch.search.searchScreen.components.ExpandButton
 import com.tk.quicksearch.searchEngines.SearchTargetQueryShortcutActivity
+import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -129,6 +131,7 @@ fun SearchHistorySection(
     val overlayDividerColor = LocalOverlayDividerColor.current
     if (items.isEmpty()) return
     var isExpanded by remember { mutableStateOf(alwaysExpanded) }
+    var showClearAllConfirmation by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
     val canExpand = !alwaysExpanded && items.size > 1
     val scrollState = rememberScrollState()
@@ -232,7 +235,7 @@ fun SearchHistorySection(
                 if (showClearAllHistory) {
                     ClearAllHistoryRow(
                         showWallpaperBackground = showWallpaperBackground,
-                        onClick = onClearRecentItems,
+                        onClick = { showClearAllConfirmation = true },
                     )
                 }
 
@@ -261,6 +264,16 @@ fun SearchHistorySection(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .padding(vertical = DesignTokens.SpacingXXLarge),
+            )
+        }
+
+        if (showClearAllConfirmation && onClearRecentItems != null) {
+            ClearAllHistoryConfirmationDialog(
+                onConfirm = {
+                    showClearAllConfirmation = false
+                    onClearRecentItems()
+                },
+                onDismiss = { showClearAllConfirmation = false },
             )
         }
     }
@@ -646,6 +659,37 @@ private fun InlineSearchHistoryTip(
                 end = QUERY_TEXT_END_PADDING.dp,
                 bottom = DesignTokens.SpacingSmall,
             ),
+    )
+}
+
+@Composable
+private fun ClearAllHistoryConfirmationDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AppAlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = stringResource(R.string.dialog_clear_all_history_title)) },
+        text = {
+            Text(
+                text = stringResource(R.string.dialog_clear_all_history_message),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(
+                    text = stringResource(R.string.action_clear_all_history),
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.dialog_cancel))
+            }
+        },
     )
 }
 
