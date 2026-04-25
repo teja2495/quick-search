@@ -401,7 +401,7 @@ fun rememberSectionRenderContext(
         isFilesExpanded = isFilesExpanded || !isSearching,
         isContactsExpanded = isContactsExpanded || !isSearching,
         isDeviceSettingsExpanded = isSettingsExpanded || !isSearching,
-        isAppSettingsExpanded = isAppSettingsExpanded || !isSearching,
+        isAppSettingsExpanded = isAppSettingsExpanded,
         isCalendarExpanded = isCalendarExpanded || !isSearching,
         isAppShortcutsExpanded = isAppShortcutsExpanded || !isSearching,
         isNotesExpanded = isNotesExpanded || !isSearching,
