@@ -9,6 +9,7 @@ import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.models.NoteInfo
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import org.json.JSONArray
@@ -22,6 +23,7 @@ enum class CustomWidgetButtonType(
     FILE("file"),
     SETTING("setting"),
     APP_SHORTCUT("app_shortcut"),
+    NOTE("note"),
 }
 
 enum class SettingExtraType(
@@ -257,6 +259,33 @@ sealed class CustomWidgetButtonAction : Parcelable {
                 .toString()
     }
 
+    @Parcelize
+    data class Note(
+        val noteId: Long,
+        val title: String,
+    ) : CustomWidgetButtonAction() {
+        @IgnoredOnParcel
+        override val type: CustomWidgetButtonType = CustomWidgetButtonType.NOTE
+
+        override fun displayLabel(): String = title.ifBlank { noteId.toString() }
+
+        fun toNoteInfo(): NoteInfo =
+            NoteInfo(
+                noteId = noteId,
+                title = title,
+                markdownContent = "",
+                createdAtMillis = 0L,
+                updatedAtMillis = 0L,
+            )
+
+        override fun toJson(): String =
+            JSONObject()
+                .put(KEY_TYPE, type.value)
+                .put(KEY_NOTE_ID, noteId)
+                .put(KEY_TITLE, title)
+                .toString()
+    }
+
     companion object {
         fun fromJson(raw: String?): CustomWidgetButtonAction? {
             if (raw.isNullOrBlank()) return null
@@ -360,6 +389,19 @@ sealed class CustomWidgetButtonAction : Parcelable {
                         )
                     }
 
+                    CustomWidgetButtonType.NOTE.value -> {
+                        val noteId = json.optLong(KEY_NOTE_ID, -1L)
+                        if (noteId <= 0L) return@runCatching null
+                        Note(
+                            noteId = noteId,
+                            title =
+                                json
+                                    .optString(KEY_TITLE, noteId.toString())
+                                    .nullIfBlankOrLiteralNull()
+                                    ?: noteId.toString(),
+                        )
+                    }
+
                     else -> {
                         null
                     }
@@ -401,6 +443,7 @@ private const val KEY_ICON_RES_ID = "iconResId"
 private const val KEY_ICON_BASE64 = "iconBase64"
 private const val KEY_ENABLED = "enabled"
 private const val KEY_INTENTS = "intents"
+private const val KEY_NOTE_ID = "noteId"
 
 private const val KEY_INTENT_ACTION = "action"
 private const val KEY_INTENT_TARGET_PACKAGE = "targetPackage"

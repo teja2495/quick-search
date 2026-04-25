@@ -69,6 +69,10 @@ fun rememberWidgetButtonIcon(
             // Use Material Design settings icon
             WidgetButtonIcon(drawableResId = R.drawable.ic_widget_settings, shouldTint = true)
         }
+
+        is CustomWidgetButtonAction.Note -> {
+            WidgetButtonIcon(drawableResId = R.drawable.ic_widget_note, shouldTint = true)
+        }
     }
 
 private fun loadAppIconBitmap(

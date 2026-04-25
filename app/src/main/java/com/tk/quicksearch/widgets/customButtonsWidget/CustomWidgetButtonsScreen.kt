@@ -80,6 +80,7 @@ import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.models.NoteInfo
 import androidx.compose.ui.graphics.Color
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -652,6 +653,10 @@ private sealed class CustomWidgetSearchResult {
         val setting: DeviceSetting,
     ) : CustomWidgetSearchResult()
 
+    data class Note(
+        val note: NoteInfo,
+    ) : CustomWidgetSearchResult()
+
     fun displayLabel(): String =
         when (this) {
             is App -> {
@@ -675,6 +680,10 @@ private sealed class CustomWidgetSearchResult {
 
             is Setting -> {
                 setting.title
+            }
+
+            is Note -> {
+                note.title
             }
         }
 
@@ -771,6 +780,13 @@ private sealed class CustomWidgetSearchResult {
                     maxSdk = setting.maxSdk,
                 )
             }
+
+            is Note -> {
+                CustomWidgetButtonAction.Note(
+                    noteId = note.noteId,
+                    title = note.title,
+                )
+            }
         }
 
     fun toPersistedAction(context: Context): CustomWidgetButtonAction =
@@ -832,6 +848,7 @@ private fun buildCustomWidgetSearchResults(state: SearchUiState): List<CustomWid
         state.contactResults.forEach { add(CustomWidgetSearchResult.Contact(it)) }
         state.fileResults.forEach { add(CustomWidgetSearchResult.File(it)) }
         state.settingResults.forEach { add(CustomWidgetSearchResult.Setting(it)) }
+        state.noteResults.forEach { add(CustomWidgetSearchResult.Note(it)) }
     }
 
 private fun CustomWidgetButtonAction.matchesResult(result: CustomWidgetSearchResult): Boolean =
@@ -856,6 +873,10 @@ private fun CustomWidgetButtonAction.matchesResult(result: CustomWidgetSearchRes
 
         is CustomWidgetSearchResult.Setting -> {
             this is CustomWidgetButtonAction.Setting && id == result.setting.id
+        }
+
+        is CustomWidgetSearchResult.Note -> {
+            this is CustomWidgetButtonAction.Note && noteId == result.note.noteId
         }
     }
 

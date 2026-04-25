@@ -36,6 +36,7 @@ import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.overlay.OverlayModeController
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
+import com.tk.quicksearch.settings.settingsDetailScreen.NotesNavigationMemory
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.shared.util.CrashLogManager
 import com.tk.quicksearch.shared.util.FeedbackUtils
@@ -450,6 +451,10 @@ class MainActivity : ComponentActivity() {
                         runCatching { SettingsDetailType.valueOf(name) }.getOrNull()
                     }
                     ?: SettingsNavigationMemory.getLastOpenedSettingsDetail()
+            val requestedNoteId = intent.getLongExtra(OverlayModeController.EXTRA_OPEN_NOTE_ID, -1L)
+            if (requestedDetail == SettingsDetailType.NOTE_EDITOR && requestedNoteId > 0L) {
+                NotesNavigationMemory.setPendingNoteId(requestedNoteId)
+            }
             navigationRequest.value =
                 NavigationRequest(
                     destination = RootDestination.Settings,
@@ -457,6 +462,7 @@ class MainActivity : ComponentActivity() {
                 )
             intent.removeExtra(OverlayModeController.EXTRA_OPEN_SETTINGS)
             intent.removeExtra(OverlayModeController.EXTRA_OPEN_SETTINGS_DETAIL)
+            intent.removeExtra(OverlayModeController.EXTRA_OPEN_NOTE_ID)
         }
         val contactActionIntent = intent
         if (contactActionIntent?.getBooleanExtra(

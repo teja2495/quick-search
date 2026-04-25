@@ -692,7 +692,7 @@
     <string name="widget_background_color_custom_invalid">Enter a valid 6-digit hex color.</string>
     <string name="widget_custom_button_add">Add</string>
     <string name="widget_custom_button_add_desc">Add custom button</string>
-    <string name="widget_custom_buttons_dialog_hint">You can search for Apps, App Shortcuts, Contacts, Files, Folders &amp; Device settings.</string>
+    <string name="widget_custom_buttons_dialog_hint">You can search for Apps, App Shortcuts, Contacts, Files, Folders, Notes &amp; Device settings.</string>
     <string name="widget_custom_buttons_dialog_title">Select Action</string>
     <string name="widget_custom_buttons_no_results">No results found.</string>
     <string name="widget_custom_buttons_restriction">Not available when custom buttons are active.</string>

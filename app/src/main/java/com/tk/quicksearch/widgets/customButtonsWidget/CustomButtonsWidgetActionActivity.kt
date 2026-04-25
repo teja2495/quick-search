@@ -26,6 +26,8 @@ import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.utils.PhoneNumberUtils
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
+import com.tk.quicksearch.overlay.OverlayModeController
+import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import kotlinx.coroutines.launch
 
 class WidgetActionActivity : ComponentActivity() {
@@ -367,6 +369,15 @@ class WidgetActionActivity : ComponentActivity() {
                 if (error != null) {
                     Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
                 }
+            }
+
+            is CustomWidgetButtonAction.Note -> {
+                OverlayModeController.openMainActivity(
+                    context = this,
+                    openSettings = true,
+                    settingsDetailType = SettingsDetailType.NOTE_EDITOR,
+                    noteId = action.noteId,
+                )
             }
         }
     }

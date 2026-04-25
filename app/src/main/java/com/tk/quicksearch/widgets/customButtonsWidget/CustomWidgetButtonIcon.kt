@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.Apps
+import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Icon
@@ -115,6 +116,15 @@ fun CustomWidgetButtonIcon(
         is CustomWidgetButtonAction.Setting -> {
             Icon(
                 imageVector = Icons.Rounded.Settings,
+                contentDescription = action.contentDescription(),
+                tint = tintColor,
+                modifier = modifier.size(iconSize),
+            )
+        }
+
+        is CustomWidgetButtonAction.Note -> {
+            Icon(
+                imageVector = Icons.Rounded.Description,
                 contentDescription = action.contentDescription(),
                 tint = tintColor,
                 modifier = modifier.size(iconSize),
