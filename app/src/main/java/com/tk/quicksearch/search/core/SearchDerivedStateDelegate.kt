@@ -87,7 +87,7 @@ internal class SearchDerivedStateDelegate(
                 pinnedPackages = pinnedPackages,
                 exclusion = resultHiddenPackages,
             )
-        val recents =
+        val suggestedRecents =
             if (suggestionsEnabled) {
                 val recentsSource = visibleAppList.filterNot { pinnedPackages.contains(it.launchCountKey()) }
                 extractSuggestedApps(
@@ -98,8 +98,18 @@ internal class SearchDerivedStateDelegate(
             } else {
                 emptyList()
             }
+        val currentResultsState = resultsStateProvider()
+        val recents =
+            stabilizeVisibleSuggestions(
+                currentSuggestions = currentResultsState.recentApps,
+                refreshedSuggestions = suggestedRecents,
+                visibleApps = visibleAppList,
+                pinnedPackages = pinnedPackages,
+                limit = getGridItemCount(),
+                suggestionsEnabled = suggestionsEnabled,
+            )
 
-        val query = resultsStateProvider().query
+        val query = currentResultsState.query
         val trimmedQuery = query.trim()
 
         val allSearchableApps =
@@ -154,6 +164,36 @@ internal class SearchDerivedStateDelegate(
             updateConfigState { it.copy(isStartupCoreSurfaceReady = true) }
         }
         saveStartupSurfaceSnapshotAsync()
+    }
+
+    private fun stabilizeVisibleSuggestions(
+        currentSuggestions: List<AppInfo>,
+        refreshedSuggestions: List<AppInfo>,
+        visibleApps: List<AppInfo>,
+        pinnedPackages: Set<String>,
+        limit: Int,
+        suggestionsEnabled: Boolean,
+    ): List<AppInfo> {
+        if (!suggestionsEnabled || currentSuggestions.isEmpty()) return refreshedSuggestions
+
+        val refreshedByKey = refreshedSuggestions.associateBy { it.launchCountKey() }
+        val visibleByKey = visibleApps.associateBy { it.launchCountKey() }
+        val stableKeys =
+            visibleByKey.keys
+                .filterNot { pinnedPackages.contains(it) }
+                .toSet()
+
+        val stableExisting =
+            currentSuggestions.mapNotNull { current ->
+                val key = current.launchCountKey()
+                if (!stableKeys.contains(key)) return@mapNotNull null
+                refreshedByKey[key] ?: visibleByKey[key]
+            }
+
+        val existingKeys = stableExisting.map { it.launchCountKey() }.toSet()
+        val appendedSuggestions = refreshedSuggestions.filterNot { existingKeys.contains(it.launchCountKey()) }
+
+        return (stableExisting + appendedSuggestions).take(limit)
     }
 
     fun refreshMessagingState() {

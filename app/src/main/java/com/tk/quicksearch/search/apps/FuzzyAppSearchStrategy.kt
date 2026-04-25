@@ -4,7 +4,10 @@ import com.tk.quicksearch.search.fuzzy.BaseFuzzySearchStrategy
 import com.tk.quicksearch.search.fuzzy.FuzzySearchConfig
 import com.tk.quicksearch.search.fuzzy.FuzzySearchStrategy
 import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.search.utils.FuzzyMatcher
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
+
+private const val MAX_APP_FUZZY_EDIT_DISTANCE = 2
 
 /**
  * Fuzzy search strategy specifically for app search.
@@ -55,7 +58,7 @@ class FuzzyAppSearchStrategy(
                 .joinToString(separator = " ")
                 .ifBlank { null }
         val score = engine.computeScore(query, app.appName, alternateNames, config.minQueryLength)
-        return if (score >= config.matchThreshold) {
+        return if (score >= config.matchThreshold && isWithinTypoTolerance(query, app.appName, alternateNames)) {
             FuzzySearchStrategy.Match(
                 item = app,
                 score = score,
@@ -89,6 +92,20 @@ class FuzzyAppSearchStrategy(
                 .joinToString(separator = " ")
                 .ifBlank { null }
         val score = engine.computeScore(token, appName, alternateNames, config.minQueryLength)
-        return score >= config.matchThreshold
+        return score >= config.matchThreshold && isWithinTypoTolerance(token, appName, alternateNames)
+    }
+
+    private fun isWithinTypoTolerance(
+        query: String,
+        appName: String,
+        alternateNames: String?,
+    ): Boolean {
+        if (query.length < config.minQueryLength) return true
+        if (FuzzyMatcher.hasTokenWithinEditDistance(query, appName, MAX_APP_FUZZY_EDIT_DISTANCE)) {
+            return true
+        }
+        return alternateNames?.let {
+            FuzzyMatcher.hasTokenWithinEditDistance(query, it, MAX_APP_FUZZY_EDIT_DISTANCE)
+        } ?: false
     }
 }

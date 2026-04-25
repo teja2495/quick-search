@@ -5,6 +5,7 @@ import android.util.Log
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.tk.quicksearch.search.data.UserAppPreferences
 
@@ -33,11 +34,20 @@ object UpdateHelper {
                 .addOnSuccessListener { appUpdateInfo ->
                     userPreferences.setUpdateCheckShownThisSession()
 
-                    val updateAvailable = appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                    if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
+                        Log.d(TAG, "Downloaded update found, completing update")
+                        appUpdateManager.completeUpdate()
+                        return@addOnSuccessListener
+                    }
+
+                    val updateAvailable =
+                        appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE ||
+                            appUpdateInfo.updateAvailability() ==
+                                UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS
                     val isFlexibleUpdateAllowed = appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)
 
                     if (updateAvailable && isFlexibleUpdateAllowed) {
-                        Log.d(TAG, "Update available, showing flexible update prompt")
+                        Log.d(TAG, "Update available, starting flexible in-app update")
 
                         appUpdateManager.startUpdateFlow(
                             appUpdateInfo,

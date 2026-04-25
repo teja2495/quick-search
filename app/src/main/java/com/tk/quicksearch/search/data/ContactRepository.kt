@@ -87,6 +87,8 @@ class ContactRepository(
                 ContactsContract.CommonDataKinds.Phone.LOOKUP_KEY,
                 ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY,
                 ContactsContract.CommonDataKinds.Phone.NUMBER,
+                ContactsContract.CommonDataKinds.Phone.TYPE,
+                ContactsContract.CommonDataKinds.Phone.LABEL,
             )
 
         // Projection fields for photo URI queries
@@ -248,6 +250,7 @@ class ContactRepository(
                             lookupKey = contact.lookupKey,
                             displayName = contact.displayName,
                             numbers = contact.phoneNumbers.toMutableList(),
+                            phoneNumberLabels = contact.phoneNumberLabels.toMutableMap(),
                         ),
                     )
                 }
@@ -358,6 +361,7 @@ class ContactRepository(
                 cursor
                     .getString(columnIndices.numberIndex)
                     ?.takeIf { it.isNotBlank() } ?: continue
+            val phoneNumberLabel = cursor.getPhoneNumberLabel(columnIndices)
 
             val existing = contacts[contactId]
             if (existing == null) {
@@ -371,9 +375,10 @@ class ContactRepository(
                         lookupKey = lookupKey,
                         displayName = displayName,
                         numbers = mutableListOf(phoneNumber),
+                        phoneNumberLabels = mutableMapOf(phoneNumber to phoneNumberLabel),
                     )
             } else {
-                addOrUpdatePhoneNumber(existing.numbers, phoneNumber)
+                addOrUpdatePhoneNumber(existing.numbers, existing.phoneNumberLabels, phoneNumber, phoneNumberLabel)
             }
         }
 
@@ -877,10 +882,13 @@ class ContactRepository(
      */
     private fun addOrUpdatePhoneNumber(
         existingNumbers: MutableList<String>,
+        phoneNumberLabels: MutableMap<String, String>,
         newNumber: String,
+        newLabel: String,
     ) {
         // Check for exact match first
         if (existingNumbers.contains(newNumber)) {
+            phoneNumberLabels.putIfAbsent(newNumber, newLabel)
             return
         }
 
@@ -898,13 +906,26 @@ class ContactRepository(
             // Prioritize number with country code
             if (newHasCountryCode && !existingHasCountryCode) {
                 existingNumbers[duplicateIndex] = newNumber
+                phoneNumberLabels.remove(existingNumber)
+                phoneNumberLabels[newNumber] = newLabel
+            } else {
+                phoneNumberLabels.putIfAbsent(existingNumber, newLabel)
             }
             // If existing has country code and new doesn't, ignore the new number
             // If both have or both don't have country codes, keep the existing one
         } else {
             // No duplicate found, add the new number
             existingNumbers.add(newNumber)
+            phoneNumberLabels[newNumber] = newLabel
         }
+    }
+
+    private fun Cursor.getPhoneNumberLabel(columnIndices: PhoneColumnIndices): String {
+        val type = getInt(columnIndices.typeIndex)
+        val customLabel = getString(columnIndices.labelIndex)
+        return ContactsContract.CommonDataKinds.Phone
+            .getTypeLabel(context.resources, type, customLabel)
+            .toString()
     }
 
     private data class MutableContact(
@@ -912,6 +933,7 @@ class ContactRepository(
         val lookupKey: String,
         val displayName: String,
         val numbers: MutableList<String>,
+        val phoneNumberLabels: MutableMap<String, String> = mutableMapOf(),
         var photoUri: String? = null,
         val contactMethods: MutableList<ContactMethod> = mutableListOf(),
     ) {
@@ -937,6 +959,7 @@ class ContactRepository(
                 lookupKey = lookupKey,
                 displayName = displayName,
                 phoneNumbers = numbers,
+                phoneNumberLabels = phoneNumberLabels.toMap(),
                 photoUri = photoUri,
                 contactMethods = reorderedMethods,
             )
@@ -948,6 +971,7 @@ class ContactRepository(
                 lookupKey = lookupKey,
                 displayName = displayName,
                 phoneNumbers = numbers.toList(),
+                phoneNumberLabels = phoneNumberLabels.toMap(),
             )
     }
 
@@ -961,6 +985,8 @@ class ContactRepository(
         val lookupIndex: Int,
         val nameIndex: Int,
         val numberIndex: Int,
+        val typeIndex: Int,
+        val labelIndex: Int,
     ) {
         companion object {
             fun fromCursor(cursor: Cursor): PhoneColumnIndices =
@@ -969,6 +995,8 @@ class ContactRepository(
                     lookupIndex = cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.LOOKUP_KEY),
                     nameIndex = cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY),
                     numberIndex = cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER),
+                    typeIndex = cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.TYPE),
+                    labelIndex = cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.LABEL),
                 )
         }
     }

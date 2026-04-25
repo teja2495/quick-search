@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.files
 import android.provider.OpenableColumns
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -13,12 +14,14 @@ import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.VisibilityOff
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -146,6 +149,7 @@ fun FileDropdownMenu(
         onNicknameClick: () -> Unit,
         onOpenFolderClick: () -> Unit = {},
         onFileInfoClick: () -> Unit = {},
+        onShareClick: () -> Unit = {},
         onAddToHome: () -> Unit,
 ) {
     DropdownMenu(
@@ -253,21 +257,6 @@ fun FileDropdownMenu(
                                 },
                         ),
                 )
-                add(
-                        FileMenuItem(
-                                textResId = R.string.action_file_info,
-                                icon = {
-                                    Icon(
-                                            imageVector = Icons.Rounded.Info,
-                                            contentDescription = null
-                                    )
-                                },
-                                onClick = {
-                                    onDismissRequest()
-                                    onFileInfoClick()
-                                },
-                        ),
-                )
             }
         }
 
@@ -289,6 +278,39 @@ fun FileDropdownMenu(
                     leadingIcon = { item.icon() },
                     onClick = item.onClick,
             )
+        }
+
+        if (!deviceFile.isDirectory) {
+            HorizontalDivider()
+            val actionIconColor = MaterialTheme.colorScheme.onSurface
+            Row(modifier = Modifier.fillMaxWidth()) {
+                IconButton(
+                        onClick = {
+                            onDismissRequest()
+                            onShareClick()
+                        },
+                        modifier = Modifier.weight(1f),
+                ) {
+                    Icon(
+                            imageVector = Icons.Rounded.Share,
+                            contentDescription = stringResource(R.string.action_share),
+                            tint = actionIconColor,
+                    )
+                }
+                IconButton(
+                        onClick = {
+                            onDismissRequest()
+                            onFileInfoClick()
+                        },
+                        modifier = Modifier.weight(1f),
+                ) {
+                    Icon(
+                            imageVector = Icons.Rounded.Info,
+                            contentDescription = stringResource(R.string.action_file_info),
+                            tint = actionIconColor,
+                    )
+                }
+            }
         }
     }
 }

@@ -54,6 +54,12 @@ internal fun reorderPhoneNumbersForDisplay(
     }
 }
 
+internal fun ContactInfo.phoneNumberLabel(phoneNumber: String): String? =
+    phoneNumberLabels[phoneNumber]
+        ?: phoneNumberLabels.entries
+            .firstOrNull { (number, _) -> PhoneNumberUtils.isSameNumber(number, phoneNumber) }
+            ?.value
+
 /**
  * Filters contact methods to only include those that match the selected phone number.
  * Telegram methods use special utility functions for matching, while other methods

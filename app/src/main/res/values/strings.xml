@@ -12,6 +12,7 @@
     <string name="search_hint_calendar">Search Calendar Events…</string>
     <string name="search_hint_notes">Search Notes…</string>
     <string name="search_hint_app_settings">Search App Settings…</string>
+    <string name="search_provider_description">Search apps, contacts, files, settings, and more with Quick Search.</string>
     <!-- Cycling search bar hint examples -->
     <string-array name="search_hints_cycle">
         <item>Search Contacts</item>
@@ -138,6 +139,7 @@
          ============================================================================ -->
     <string name="action_file_info">File Info</string>
     <string name="action_open_folder">Open Folder</string>
+    <string name="action_share">Share</string>
     <string name="calendar_section_permission_subtitle">Calendar permission is required to perform calendar search</string>
     <string name="file_extension_label">.%s files</string>
     <string name="file_info_file_type">File type</string>

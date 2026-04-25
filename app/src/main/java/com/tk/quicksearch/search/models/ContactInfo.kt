@@ -8,6 +8,7 @@ data class ContactInfo(
     val lookupKey: String,
     val displayName: String,
     val phoneNumbers: List<String>,
+    val phoneNumberLabels: Map<String, String> = emptyMap(),
     val photoUri: String? = null,
     val contactMethods: List<ContactMethod> = emptyList(),
 ) {

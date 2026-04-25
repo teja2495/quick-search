@@ -99,6 +99,8 @@ internal fun ContactActionsPopup(
     var selectedPhoneIndex by remember { mutableStateOf(0) }
     val selectedPhoneNumber =
         reorderedPhoneNumbers.getOrNull(selectedPhoneIndex) ?: contactInfo.primaryNumber
+    val selectedPhoneNumberLabel =
+        selectedPhoneNumber?.let { contactInfo.phoneNumberLabel(it) }
 
     LaunchedEffect(selectedPhoneIndex, reorderedPhoneNumbers, hasMultipleNumbers) {
         if (hasMultipleNumbers &&
@@ -223,24 +225,40 @@ internal fun ContactActionsPopup(
                         Spacer(modifier = Modifier.size(32.dp))
                     }
 
-                    @OptIn(ExperimentalFoundationApi::class)
-                    Text(
-                        text = PhoneNumberUtils.formatPhoneNumberForDisplay(phoneNumber),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        textAlign = TextAlign.Center,
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
                         modifier =
                             Modifier
                                 .weight(1f)
-                                .combinedClickable(
-                                    indication = null,
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    onClick = {},
-                                    onLongClick = {
-                                        clipboardManager.setText(AnnotatedString(phoneNumber))
-                                    },
-                                ),
-                    )
+                    ) {
+                        @OptIn(ExperimentalFoundationApi::class)
+                        Text(
+                            text = PhoneNumberUtils.formatPhoneNumberForDisplay(phoneNumber),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            textAlign = TextAlign.Center,
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .combinedClickable(
+                                        indication = null,
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        onClick = {},
+                                        onLongClick = {
+                                            clipboardManager.setText(AnnotatedString(phoneNumber))
+                                        },
+                                    ),
+                        )
+
+                        selectedPhoneNumberLabel?.takeIf { it.isNotBlank() }?.let { label ->
+                            Text(
+                                text = label,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    }
 
                     if (reorderedPhoneNumbers.size > 1 &&
                         selectedPhoneIndex < reorderedPhoneNumbers.size - 1

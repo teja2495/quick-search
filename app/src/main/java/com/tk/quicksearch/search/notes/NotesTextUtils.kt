@@ -8,7 +8,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.core.text.util.LinkifyCompat
-import java.util.Locale
+import com.tk.quicksearch.search.utils.SearchTextNormalizer
 
 internal object NotesTextUtils {
     private const val NOTE_LINK_ANNOTATION_TAG = "note_link"
@@ -33,7 +33,7 @@ internal object NotesTextUtils {
         return lines.take(maxLines).joinToString("\n")
     }
 
-    fun normalize(value: String): String = value.trim().lowercase(Locale.getDefault())
+    fun normalize(value: String): String = SearchTextNormalizer.normalizeForSearch(value.trim())
 
     fun buildLinkHighlightedAnnotatedString(
         text: String,

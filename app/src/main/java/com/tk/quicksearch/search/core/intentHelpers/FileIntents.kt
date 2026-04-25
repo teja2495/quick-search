@@ -1,7 +1,10 @@
 package com.tk.quicksearch.search.core
 
+import android.app.Activity
 import android.app.Application
 import android.content.ActivityNotFoundException
+import android.content.ClipData
+import android.content.Context
 import android.content.ComponentName
 import android.content.Intent
 import android.net.Uri
@@ -54,6 +57,35 @@ internal object FileIntents {
 
         try {
             context.startActivity(viewIntent)
+        } catch (exception: ActivityNotFoundException) {
+            onShowToast?.invoke(R.string.common_error_unable_to_open, deviceFile.displayName)
+        } catch (exception: SecurityException) {
+            onShowToast?.invoke(R.string.common_error_unable_to_open, deviceFile.displayName)
+        }
+    }
+
+    fun shareFile(
+        context: Context,
+        deviceFile: DeviceFile,
+        onShowToast: ((Int, String?) -> Unit)? = null,
+    ) {
+        if (deviceFile.isDirectory) return
+
+        val shareIntent =
+            Intent(Intent.ACTION_SEND).apply {
+                type = deviceFile.mimeType ?: "*/*"
+                putExtra(Intent.EXTRA_STREAM, deviceFile.uri)
+                clipData = ClipData.newUri(context.contentResolver, deviceFile.displayName, deviceFile.uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+        val chooserIntent = Intent.createChooser(shareIntent, null).apply {
+            if (context !is Activity) {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        }
+
+        try {
+            context.startActivity(chooserIntent)
         } catch (exception: ActivityNotFoundException) {
             onShowToast?.invoke(R.string.common_error_unable_to_open, deviceFile.displayName)
         } catch (exception: SecurityException) {

@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppTheme
+import com.tk.quicksearch.search.core.FileIntents
 import com.tk.quicksearch.search.contacts.components.ContactUiConstants
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
@@ -646,6 +647,7 @@ internal fun FileResultRow(
                     onNicknameClick = { onNicknameClick(deviceFile) },
                     onOpenFolderClick = { onOpenFolder(deviceFile) },
                     onFileInfoClick = { showFileInfoDialog = true },
+                    onShareClick = { FileIntents.shareFile(context, deviceFile) },
                     onAddToHome = { addToHomeHandler.addFileToHome(deviceFile) },
             )
         }
