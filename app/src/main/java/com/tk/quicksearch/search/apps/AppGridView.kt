@@ -1,11 +1,8 @@
 package com.tk.quicksearch.search.apps
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -79,9 +76,6 @@ private const val TopResultIndicatorBackgroundAlpha = 0.12f
 private const val TopResultIndicatorBorderAlpha = 0.22f
 private const val LightWallpaperAppIconShadowAmbientAlpha = 0.28f
 private const val LightWallpaperAppIconShadowSpotAlpha = 0.45f
-private const val APP_GRID_FADE_IN_DURATION_MS = 140
-private const val APP_GRID_FADE_OUT_DURATION_MS = 100
-private const val APP_GRID_FADE_IN_DELAY_MS = 70
 private const val ThemedMonochromeGlyphScale = 1.42f
 private const val UnsupportedThemedIconGlyphScale = 0.62f
 private const val UnsupportedThemedIconGlyphAlpha = 0.72f
@@ -174,69 +168,31 @@ fun AppGridView(
             verticalArrangement = Arrangement.spacedBy(AppGridRowSpacing),
     ) {
         val showAppGrid = apps.isNotEmpty() && areAppIconsLoaded
-        AnimatedVisibility(
-                visible = showAppGrid,
-                enter =
-                        fadeIn(
-                                animationSpec =
-                                        tween(
-                                                durationMillis = APP_GRID_FADE_IN_DURATION_MS,
-                                                delayMillis = APP_GRID_FADE_IN_DELAY_MS,
-                                        ),
-                        ),
-                exit = fadeOut(animationSpec = tween(durationMillis = APP_GRID_FADE_OUT_DURATION_MS)),
-        ) {
-            if (isSearching) {
-                AppGrid(
-                        apps = apps,
-                        isSearching = isSearching,
-                        onAppClick = onAppClick,
-                        onAppInfoClick = onAppInfoClick,
-                        onUninstallClick = onUninstallClick,
-                        onHideApp = onHideApp,
-                        onPinApp = onPinApp,
-                        onUnpinApp = onUnpinApp,
-                        onNicknameClick = onNicknameClick,
-                        getAppNickname = getAppNickname,
-                        pinnedPackageNames = pinnedPackageNames,
-                        shortcutsByPackage = shortcutsByPackage,
-                        rowCount = rowCount,
-                        phoneColumnOverride = phoneColumnOverride,
-                        iconPackPackage = iconPackPackage,
-                        showAppLabels = showAppLabels,
-                        oneHandedMode = oneHandedMode,
-                        isOverlayPresentation = isOverlayPresentation,
-                        predictedTarget = predictedTarget,
-                        appIconShape = appIconShape,
-                        themedIconsEnabled = themedIconsEnabled,
-                        showWallpaperBackground = showWallpaperBackground,
-                )
-            } else {
-                AppGrid(
-                        apps = apps,
-                        isSearching = isSearching,
-                        onAppClick = onAppClick,
-                        onAppInfoClick = onAppInfoClick,
-                        onUninstallClick = onUninstallClick,
-                        onHideApp = onHideApp,
-                        onPinApp = onPinApp,
-                        onUnpinApp = onUnpinApp,
-                        onNicknameClick = onNicknameClick,
-                        getAppNickname = getAppNickname,
-                        pinnedPackageNames = pinnedPackageNames,
-                        shortcutsByPackage = shortcutsByPackage,
-                        rowCount = rowCount,
-                        phoneColumnOverride = phoneColumnOverride,
-                        iconPackPackage = iconPackPackage,
-                        showAppLabels = showAppLabels,
-                        oneHandedMode = oneHandedMode,
-                        isOverlayPresentation = isOverlayPresentation,
-                        predictedTarget = predictedTarget,
-                        appIconShape = appIconShape,
-                        themedIconsEnabled = themedIconsEnabled,
-                        showWallpaperBackground = showWallpaperBackground,
-                )
-            }
+        if (showAppGrid) {
+            AppGrid(
+                    apps = apps,
+                    isSearching = isSearching,
+                    onAppClick = onAppClick,
+                    onAppInfoClick = onAppInfoClick,
+                    onUninstallClick = onUninstallClick,
+                    onHideApp = onHideApp,
+                    onPinApp = onPinApp,
+                    onUnpinApp = onUnpinApp,
+                    onNicknameClick = onNicknameClick,
+                    getAppNickname = getAppNickname,
+                    pinnedPackageNames = pinnedPackageNames,
+                    shortcutsByPackage = shortcutsByPackage,
+                    rowCount = rowCount,
+                    phoneColumnOverride = phoneColumnOverride,
+                    iconPackPackage = iconPackPackage,
+                    showAppLabels = showAppLabels,
+                    oneHandedMode = oneHandedMode,
+                    isOverlayPresentation = isOverlayPresentation,
+                    predictedTarget = predictedTarget,
+                    appIconShape = appIconShape,
+                    themedIconsEnabled = themedIconsEnabled,
+                    showWallpaperBackground = showWallpaperBackground,
+            )
         }
     }
 }

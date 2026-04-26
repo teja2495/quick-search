@@ -1,13 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
-
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.ui.Alignment
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -328,13 +321,7 @@ fun ContentLayout(
                 }
 
                 ItemPriorityConfig.ItemType.CURRENCY_CONVERTER_RESULT -> {
-                    AnimatedVisibility(
-                        visible = showCurrencyConverter,
-                        enter = fadeIn(animationSpec = tween(durationMillis = 200, delayMillis = 80)) +
-                                expandVertically(animationSpec = tween(durationMillis = 250, delayMillis = 60), expandFrom = Alignment.Top),
-                        exit = fadeOut(animationSpec = tween(durationMillis = 120)) +
-                                shrinkVertically(animationSpec = tween(durationMillis = 160), shrinkTowards = Alignment.Top),
-                    ) {
+                    if (showCurrencyConverter) {
                         CurrencyConverterResult(
                                 currencyConverterState = state.currencyConverterState,
                                 llmProviderId = state.aiSearchLlmProviderId,
@@ -345,13 +332,7 @@ fun ContentLayout(
                 }
 
                 ItemPriorityConfig.ItemType.WORD_CLOCK_RESULT -> {
-                    AnimatedVisibility(
-                        visible = showWordClock,
-                        enter = fadeIn(animationSpec = tween(durationMillis = 200, delayMillis = 80)) +
-                                expandVertically(animationSpec = tween(durationMillis = 250, delayMillis = 60), expandFrom = Alignment.Top),
-                        exit = fadeOut(animationSpec = tween(durationMillis = 120)) +
-                                shrinkVertically(animationSpec = tween(durationMillis = 160), shrinkTowards = Alignment.Top),
-                    ) {
+                    if (showWordClock) {
                         WordClockResult(
                                 wordClockState = state.wordClockState,
                                 llmProviderId = state.aiSearchLlmProviderId,
@@ -362,13 +343,7 @@ fun ContentLayout(
                 }
 
                 ItemPriorityConfig.ItemType.DICTIONARY_RESULT -> {
-                    AnimatedVisibility(
-                        visible = showDictionary,
-                        enter = fadeIn(animationSpec = tween(durationMillis = 200, delayMillis = 80)) +
-                                expandVertically(animationSpec = tween(durationMillis = 250, delayMillis = 60), expandFrom = Alignment.Top),
-                        exit = fadeOut(animationSpec = tween(durationMillis = 120)) +
-                                shrinkVertically(animationSpec = tween(durationMillis = 160), shrinkTowards = Alignment.Top),
-                    ) {
+                    if (showDictionary) {
                         DictionaryResult(
                                 dictionaryState = state.dictionaryState,
                                 llmProviderId = state.aiSearchLlmProviderId,
@@ -396,21 +371,7 @@ fun ContentLayout(
                 ItemPriorityConfig.ItemType.WEB_SUGGESTIONS -> {
                     val allowWebSuggestions =
                         !hideResults || state.detectedShortcutTarget != null
-                    AnimatedVisibility(
-                        visible = allowWebSuggestions && hasQuery && showWebSuggestions,
-                        enter =
-                            fadeIn(animationSpec = tween(durationMillis = 150, delayMillis = 80)) +
-                                expandVertically(
-                                    animationSpec = tween(durationMillis = 200, delayMillis = 80),
-                                    expandFrom = Alignment.Top,
-                                ),
-                        exit =
-                            fadeOut(animationSpec = tween(durationMillis = 90)) +
-                                shrinkVertically(
-                                    animationSpec = tween(durationMillis = 150),
-                                    shrinkTowards = Alignment.Top,
-                                ),
-                    ) {
+                    if (allowWebSuggestions && hasQuery && showWebSuggestions) {
                         WebSuggestionsSection(
                             suggestions = state.webSuggestions,
                             onSuggestionClick = onWebSuggestionClick,
@@ -425,79 +386,72 @@ fun ContentLayout(
                 ItemPriorityConfig.ItemType.RECENT_QUERIES -> {
                     if (!hideResults && showRecentItems) {
                         val orderedRecentItems = state.recentItems
-                        AnimatedVisibility(
-                            visible = true, // showRecentItems is
-                            // already checked
-                            enter = fadeIn(),
-                            exit = shrinkVertically(),
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                         ) {
-                            Column(
+                            SearchHistorySection(
+                                items = orderedRecentItems,
+                                callingApp =
+                                    effectiveContactsParams.callingApp
+                                        ?: CallingApp.CALL,
+                                messagingApp =
+                                    effectiveContactsParams.messagingApp
+                                        ?: MessagingApp
+                                            .MESSAGES,
+                                onRecentQueryClick =
+                                onWebSuggestionClick,
+                                onContactClick =
+                                    effectiveContactsParams
+                                        .onContactClick,
+                                onShowContactMethods =
+                                    effectiveContactsParams
+                                        .onShowContactMethods,
+                                onCallContact =
+                                    effectiveContactsParams
+                                        .onCallContact,
+                                onSmsContact =
+                                    effectiveContactsParams.onSmsContact,
+                                onContactMethodClick =
+                                    effectiveContactsParams
+                                        .onContactMethodClick,
+                                getPrimaryContactCardAction =
+                                    effectiveContactsParams
+                                        .getPrimaryContactCardAction,
+                                getSecondaryContactCardAction =
+                                    effectiveContactsParams
+                                        .getSecondaryContactCardAction,
+                                onPrimaryActionLongPress =
+                                    effectiveContactsParams
+                                        .onPrimaryActionLongPress,
+                                onSecondaryActionLongPress =
+                                    effectiveContactsParams
+                                        .onSecondaryActionLongPress,
+                                onCustomAction =
+                                    effectiveContactsParams
+                                        .onCustomAction,
+                                onFileClick =
+                                    effectiveFilesParams.onFileClick,
+                                onSettingClick =
+                                    effectiveSettingsParams
+                                        .onSettingClick,
+                                onAppShortcutClick =
+                                    effectiveAppShortcutsParams
+                                        .onShortcutClick,
+                                onNoteClick = notesParams.onNoteClick,
+                                onDeleteRecentItem =
+                                onDeleteRecentItem,
+                                onClearRecentItems = onClearRecentItems,
+                                showSearchHistoryTip = !state.hasDismissedSearchHistoryTip,
+                                onOpenSearchHistorySettings = onOpenSearchHistorySettings,
+                                onDismissSearchHistoryTip = onDismissSearchHistoryTip,
+                                onExpandedChange = { searchHistoryExpanded = it },
+                                expandedCardMaxHeight = expandedCardMaxHeight,
+                                showWallpaperBackground =
+                                    effectiveShowWallpaperBackground,
+                                isOverlayPresentation = isOverlayPresentation,
                                 modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-                            ) {
-                                SearchHistorySection(
-                                    items = orderedRecentItems,
-                                    callingApp =
-                                        effectiveContactsParams.callingApp
-                                            ?: CallingApp.CALL,
-                                    messagingApp =
-                                        effectiveContactsParams.messagingApp
-                                            ?: MessagingApp
-                                                .MESSAGES,
-                                    onRecentQueryClick =
-                                    onWebSuggestionClick,
-                                    onContactClick =
-                                        effectiveContactsParams
-                                            .onContactClick,
-                                    onShowContactMethods =
-                                        effectiveContactsParams
-                                            .onShowContactMethods,
-                                    onCallContact =
-                                        effectiveContactsParams
-                                            .onCallContact,
-                                    onSmsContact =
-                                        effectiveContactsParams.onSmsContact,
-                                    onContactMethodClick =
-                                        effectiveContactsParams
-                                            .onContactMethodClick,
-                                    getPrimaryContactCardAction =
-                                        effectiveContactsParams
-                                            .getPrimaryContactCardAction,
-                                    getSecondaryContactCardAction =
-                                        effectiveContactsParams
-                                            .getSecondaryContactCardAction,
-                                    onPrimaryActionLongPress =
-                                        effectiveContactsParams
-                                            .onPrimaryActionLongPress,
-                                    onSecondaryActionLongPress =
-                                        effectiveContactsParams
-                                            .onSecondaryActionLongPress,
-                                    onCustomAction =
-                                        effectiveContactsParams
-                                            .onCustomAction,
-                                    onFileClick =
-                                        effectiveFilesParams.onFileClick,
-                                    onSettingClick =
-                                        effectiveSettingsParams
-                                            .onSettingClick,
-                                    onAppShortcutClick =
-                                        effectiveAppShortcutsParams
-                                            .onShortcutClick,
-                                    onNoteClick = notesParams.onNoteClick,
-                                    onDeleteRecentItem =
-                                    onDeleteRecentItem,
-                                    onClearRecentItems = onClearRecentItems,
-                                    showSearchHistoryTip = !state.hasDismissedSearchHistoryTip,
-                                    onOpenSearchHistorySettings = onOpenSearchHistorySettings,
-                                    onDismissSearchHistoryTip = onDismissSearchHistoryTip,
-                                    onExpandedChange = { searchHistoryExpanded = it },
-                                    expandedCardMaxHeight = expandedCardMaxHeight,
-                                    showWallpaperBackground =
-                                        effectiveShowWallpaperBackground,
-                                    isOverlayPresentation = isOverlayPresentation,
-                                    modifier = Modifier.fillMaxWidth(),
-                                )
-                            }
+                            )
                         }
                     }
                 }
@@ -510,11 +464,7 @@ fun ContentLayout(
                             hasQuery &&
                             !state.isSecondarySearchInProgress &&
                             (!state.isSearchEngineCompactMode || isUrlQuery)
-                    AnimatedVisibility(
-                        visible = showInlineSearchEngines,
-                        enter = fadeIn(animationSpec = tween(durationMillis = 140, delayMillis = 70)),
-                        exit = fadeOut(animationSpec = tween(durationMillis = 100)),
-                    ) {
+                    if (showInlineSearchEngines) {
                         NoResultsSearchEngineCards(
                             query = state.query,
                             enabledEngines = inlineTargets,

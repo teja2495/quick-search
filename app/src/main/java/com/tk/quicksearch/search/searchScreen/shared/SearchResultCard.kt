@@ -4,17 +4,9 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
@@ -84,21 +76,9 @@ fun SearchResultCard(
             overlayContainerColor = overlayContainerColor,
             containerColorOverride = styleOverrides.containerColor,
         )
-    var cardVisible by remember { mutableStateOf(false) }
-    val animatedAlpha by animateFloatAsState(
-        targetValue = if (cardVisible) 1f else 0f,
-        animationSpec = tween(durationMillis = RESULT_CARD_FADE_DURATION_MS),
-        label = "searchResultCardAlpha",
-    )
-    LaunchedEffect(Unit) {
-        cardVisible = true
-    }
 
     Card(
-        modifier =
-            modifier.graphicsLayer {
-                alpha = animatedAlpha
-            },
+        modifier = modifier,
         colors = colors,
         shape = shape,
         border = border,

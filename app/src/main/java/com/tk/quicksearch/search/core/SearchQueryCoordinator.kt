@@ -523,8 +523,7 @@ internal class SearchQueryCoordinator(
                 aliasState.lockedWordClockAlias ||
                 aliasState.lockedDictionaryAlias ||
                 aliasState.lockedCustomToolId != null ||
-                detectedAliasSearchSection != null ||
-                currentResultsStateProvider().query != newQuery
+                detectedAliasSearchSection != null
         val shouldClearAppShortcutResults =
             aliasState.lockedCurrencyConverterAlias ||
                 aliasState.lockedWordClockAlias ||

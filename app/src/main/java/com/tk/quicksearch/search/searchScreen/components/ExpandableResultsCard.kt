@@ -74,7 +74,10 @@ internal fun ExpandableResultsCard(
         showWallpaperBackground = showWallpaperBackground,
         overlayContainerColor = overlayCardColor,
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(),
+        ) {
             content(contentModifier, state)
         }
     }

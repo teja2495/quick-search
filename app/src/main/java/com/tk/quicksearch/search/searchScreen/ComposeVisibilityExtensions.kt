@@ -1,8 +1,5 @@
 package com.tk.quicksearch.search.searchScreen
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
@@ -34,37 +31,16 @@ fun SearchEnginesVisibility(
         }
 
         is SearchEnginesVisibility.Compact -> {
-            AnimatedVisibility(
-                visible = true,
-                enter = fadeIn(),
-                exit = fadeOut(),
-                modifier = modifier,
-            ) {
-                compactContent()
-            }
+            compactContent()
         }
 
         is SearchEnginesVisibility.Full -> {
-            AnimatedVisibility(
-                visible = true,
-                enter = fadeIn(),
-                exit = fadeOut(),
-                modifier = modifier,
-            ) {
-                fullContent()
-            }
+            fullContent()
         }
 
         is SearchEnginesVisibility.ShortcutDetected -> {
             key(enginesState.target) {
-                AnimatedVisibility(
-                    visible = true,
-                    enter = fadeIn(),
-                    exit = fadeOut(),
-                    modifier = modifier,
-                ) {
-                    shortcutContent(enginesState.target)
-                }
+                shortcutContent(enginesState.target)
             }
         }
     }

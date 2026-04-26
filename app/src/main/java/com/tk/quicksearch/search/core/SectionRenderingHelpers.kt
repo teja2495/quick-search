@@ -224,7 +224,9 @@ fun rememberSectionRenderContext(
         shouldRenderApps =
             when (state.appsSectionState) {
                 is AppsSectionVisibility.ShowingResults -> {
-                    !isFilesExpanded &&
+                    renderingState.shouldShowApps &&
+                        renderingState.hasAppResults &&
+                        !isFilesExpanded &&
                         !isContactsExpanded &&
                         !isSettingsExpanded &&
                         !isAppSettingsExpanded &&
@@ -326,7 +328,7 @@ fun rememberSectionRenderContext(
         // Pinned state
         shouldRenderApps =
             when (state.appsSectionState) {
-                is AppsSectionVisibility.ShowingResults -> true
+                is AppsSectionVisibility.ShowingResults -> renderingState.shouldShowApps
                 else -> false
             }
         shouldRenderFiles =
