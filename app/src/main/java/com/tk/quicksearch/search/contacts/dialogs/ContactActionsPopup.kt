@@ -100,7 +100,11 @@ internal fun ContactActionsPopup(
     val selectedPhoneNumber =
         reorderedPhoneNumbers.getOrNull(selectedPhoneIndex) ?: contactInfo.primaryNumber
     val selectedPhoneNumberLabel =
-        selectedPhoneNumber?.let { contactInfo.phoneNumberLabel(it) }
+        if (hasMultipleNumbers) {
+            selectedPhoneNumber?.let { contactInfo.phoneNumberLabel(it) }
+        } else {
+            null
+        }
 
     LaunchedEffect(selectedPhoneIndex, reorderedPhoneNumbers, hasMultipleNumbers) {
         if (hasMultipleNumbers &&
