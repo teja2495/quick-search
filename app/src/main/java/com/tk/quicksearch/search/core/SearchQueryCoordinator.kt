@@ -553,13 +553,19 @@ internal class SearchQueryCoordinator(
                 calculatorState = calculatorResult,
                 webSuggestions = emptyList(),
                 isSecondarySearchInProgress =
-                    !showingTool &&
-                        detectedTarget == null &&
-                        !aliasState.lockedCurrencyConverterAlias &&
-                        !aliasState.lockedWordClockAlias &&
-                        !aliasState.lockedDictionaryAlias &&
-                        aliasState.lockedCustomToolId == null &&
-                        detectedAliasSearchSection != SearchSection.APPS,
+                    if (
+                        !showingTool &&
+                            detectedTarget == null &&
+                            !aliasState.lockedCurrencyConverterAlias &&
+                            !aliasState.lockedWordClockAlias &&
+                            !aliasState.lockedDictionaryAlias &&
+                            aliasState.lockedCustomToolId == null &&
+                            detectedAliasSearchSection != SearchSection.APPS
+                    ) {
+                        state.isSecondarySearchInProgress
+                    } else {
+                        false
+                    },
                 detectedShortcutTarget = detectedTarget,
                 detectedAliasSearchSection = detectedAliasSearchSection,
                 isCurrencyConverterAliasMode = aliasState.lockedCurrencyConverterAlias,

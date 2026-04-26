@@ -4,12 +4,18 @@ import com.tk.quicksearch.search.core.SearchSection
 
 private const val MEDIUM_QUERY_MIN_LENGTH = 3
 private const val LONG_QUERY_MIN_LENGTH = 6
+private const val SHORT_FUZZY_QUERY_MAX_LENGTH = 4
+private const val MEDIUM_FUZZY_QUERY_MAX_LENGTH = 5
+private const val SHORT_QUERY_CANDIDATE_NUMERATOR = 35
+private const val SHORT_QUERY_CANDIDATE_DENOMINATOR = 100
+private const val MEDIUM_QUERY_CANDIDATE_NUMERATOR = 55
+private const val MEDIUM_QUERY_CANDIDATE_DENOMINATOR = 100
 private const val DEFAULT_MIN_SCORE = 78
 private const val ALIAS_MIN_SCORE = 72
 private const val LOW_RAM_ALIAS_MIN_SCORE = 76
-private const val APP_CANDIDATE_LIMIT = 2_000
-private const val SMALL_SECTION_CANDIDATE_LIMIT = 500
-private const val APP_SHORTCUT_CANDIDATE_LIMIT = 1_000
+private const val APP_CANDIDATE_LIMIT = 1_200
+private const val SMALL_SECTION_CANDIDATE_LIMIT = 250
+private const val APP_SHORTCUT_CANDIDATE_LIMIT = 350
 
 /**
  * Describes fuzzy-search thresholds and budgets for a search section.
@@ -58,6 +64,7 @@ object FuzzySearchPolicyResolver {
         val trimmedQueryLength = query.trim().length
         return policy.copy(
             enabled = policy.enabled && trimmedQueryLength >= policy.minimumQueryLength,
+            candidateLimit = policy.effectiveCandidateLimit(trimmedQueryLength),
             maximumEditDistance = policy.effectiveMaximumEditDistance(query),
         )
     }
@@ -85,6 +92,23 @@ object FuzzySearchPolicyResolver {
                     ?: allowDistanceTwoForLongerQueries,
         )
 
+    private fun FuzzySearchPolicy.effectiveCandidateLimit(queryLength: Int): Int {
+        if (candidateLimit <= 0) return 0
+
+        val scaledLimit =
+            when {
+                queryLength <= SHORT_FUZZY_QUERY_MAX_LENGTH ->
+                    (candidateLimit * SHORT_QUERY_CANDIDATE_NUMERATOR) /
+                        SHORT_QUERY_CANDIDATE_DENOMINATOR
+                queryLength <= MEDIUM_FUZZY_QUERY_MAX_LENGTH ->
+                    (candidateLimit * MEDIUM_QUERY_CANDIDATE_NUMERATOR) /
+                        MEDIUM_QUERY_CANDIDATE_DENOMINATOR
+                else -> candidateLimit
+            }
+
+        return scaledLimit.coerceIn(1, candidateLimit)
+    }
+
     private val APP_POLICY =
         FuzzySearchPolicy(
             enabled = true,
@@ -106,13 +130,13 @@ object FuzzySearchPolicyResolver {
         FuzzySearchPolicy(
             enabled = true,
             minimumQueryLength = MEDIUM_QUERY_MIN_LENGTH,
-            candidateLimit = 600,
+            candidateLimit = 450,
             minimumScore = ALIAS_MIN_SCORE,
             maximumEditDistance = 2,
             allowDistanceTwoForLongerQueries = true,
             lowRamOverride =
                 LowRamFuzzySearchOverride(
-                    candidateLimit = 360,
+                    candidateLimit = 220,
                     minimumScore = LOW_RAM_ALIAS_MIN_SCORE,
                     maximumEditDistance = 1,
                     allowDistanceTwoForLongerQueries = false,
@@ -123,14 +147,14 @@ object FuzzySearchPolicyResolver {
         FuzzySearchPolicy(
             enabled = true,
             minimumQueryLength = MEDIUM_QUERY_MIN_LENGTH,
-            candidateLimit = 700,
+            candidateLimit = 500,
             minimumScore = ALIAS_MIN_SCORE,
             maximumEditDistance = 2,
             allowDistanceTwoForLongerQueries = true,
             lowRamOverride =
                 LowRamFuzzySearchOverride(
                     enabled = false,
-                    candidateLimit = 420,
+                    candidateLimit = 260,
                     minimumScore = LOW_RAM_ALIAS_MIN_SCORE,
                     maximumEditDistance = 1,
                     allowDistanceTwoForLongerQueries = false,

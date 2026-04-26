@@ -76,8 +76,20 @@ class FuzzySearchPolicyResolverTest {
                 isLowRamDevice = true,
             )
 
-        assertEquals(600, normal.candidateLimit)
-        assertEquals(360, lowRam.candidateLimit)
+        assertEquals(157, normal.candidateLimit)
+        assertEquals(77, lowRam.candidateLimit)
+    }
+
+    @Test
+    fun contactsPolicyRestoresFullCandidateCapForLongerQueries() {
+        val policy =
+            FuzzySearchPolicyResolver.effectivePolicy(
+                section = SearchSection.CONTACTS,
+                query = "alexander",
+                isLowRamDevice = false,
+            )
+
+        assertEquals(450, policy.candidateLimit)
     }
 
     @Test
@@ -96,7 +108,7 @@ class FuzzySearchPolicyResolverTest {
             )
 
         assertTrue(normal.enabled)
-        assertEquals(700, normal.candidateLimit)
+        assertEquals(500, normal.candidateLimit)
         assertFalse(lowRam.enabled)
     }
 

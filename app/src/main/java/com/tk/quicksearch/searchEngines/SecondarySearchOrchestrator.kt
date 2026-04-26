@@ -99,8 +99,7 @@ class SecondarySearchOrchestrator(
                     shouldSearch &&
                         (
                             section == SearchSection.SETTINGS ||
-                                section == SearchSection.APP_SETTINGS ||
-                                section == SearchSection.APP_SHORTCUTS
+                                section == SearchSection.APP_SETTINGS
                         )
                 section to
                     UnifiedSectionSearchConfig(
@@ -108,6 +107,41 @@ class SecondarySearchOrchestrator(
                         enableFuzzyMatching = enableFuzzyMatching,
                     )
             }
+        val hasAnySecondarySectionToSearch = sectionSearchConfig.values.any { it.shouldSearch }
+        val shouldFetchWebSuggestions = trimmedQuery.length >= 2 && webSuggestionHandler.isEnabled
+
+        if (!hasAnySecondarySectionToSearch) {
+            val currentVersion = queryVersion.incrementAndGet()
+            lastQueryLength = trimmedQuery.length
+            uiStateUpdater { it.copy(isSecondarySearchInProgress = false) }
+
+            searchJob =
+                scope.launch(Dispatchers.IO) {
+                    delay(SECONDARY_SEARCH_DEBOUNCE_MS)
+                    if (currentVersion != queryVersion.get()) return@launch
+
+                    withContext(Dispatchers.Main) {
+                        if (currentVersion != queryVersion.get()) return@withContext
+
+                        if (shouldFetchWebSuggestions) {
+                            webSuggestionHandler.fetchWebSuggestions(
+                                trimmedQuery,
+                                currentVersion,
+                                activeQueryVersionProvider = {
+                                    this@SecondarySearchOrchestrator.queryVersion.get()
+                                },
+                                activeQueryProvider = { currentStateProvider().query },
+                            )
+                        } else {
+                            webSuggestionHandler.cancelSuggestions()
+                            uiStateUpdater { state ->
+                                state.copy(webSuggestions = emptyList())
+                            }
+                        }
+                    }
+                }
+            return
+        }
 
         val currentVersion = queryVersion.incrementAndGet()
         lastQueryLength = trimmedQuery.length
@@ -165,9 +199,7 @@ class SecondarySearchOrchestrator(
                         }
 
                         // Fetch web suggestions if query is long enough and suggestions are enabled
-                        val queryLengthCheck = trimmedQuery.length >= 2
-                        val suggestionsEnabled = webSuggestionHandler.isEnabled
-                        if (queryLengthCheck && suggestionsEnabled) {
+                        if (shouldFetchWebSuggestions) {
                             webSuggestionHandler.fetchWebSuggestions(
                                 trimmedQuery,
                                 currentVersion,
@@ -275,23 +307,21 @@ class SecondarySearchOrchestrator(
 
         val currentVersion = queryVersion.incrementAndGet()
         lastQueryLength = trimmedQuery.length
+        if (!shouldRunTargetedSearch) {
+            uiStateUpdater { state ->
+                state.copy(
+                    webSuggestions = emptyList(),
+                    isSecondarySearchInProgress = false,
+                )
+            }
+            return
+        }
+
         uiStateUpdater { it.copy(isSecondarySearchInProgress = true) }
         searchJob =
             scope.launch(Dispatchers.IO) {
                 delay(SECONDARY_SEARCH_DEBOUNCE_MS)
                 if (currentVersion != queryVersion.get()) return@launch
-                if (!shouldRunTargetedSearch) {
-                    withContext(Dispatchers.Main) {
-                        if (currentVersion != queryVersion.get()) return@withContext
-                        uiStateUpdater { state ->
-                            state.copy(
-                                webSuggestions = emptyList(),
-                                isSecondarySearchInProgress = false,
-                            )
-                        }
-                    }
-                    return@launch
-                }
 
                 val unifiedResults =
                     unifiedSearchHandler.performSearch(

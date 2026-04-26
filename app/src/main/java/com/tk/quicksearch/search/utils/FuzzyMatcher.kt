@@ -272,6 +272,7 @@ object FuzzyMatcher {
         if (queryTokens.isEmpty() || targetTokens.isEmpty()) return false
         for (queryToken in queryTokens) {
             for (targetToken in targetTokens) {
+                if (kotlin.math.abs(queryToken.length - targetToken.length) > maxDistance) continue
                 if (levenshteinDistance(queryToken, targetToken) <= maxDistance) return true
             }
         }

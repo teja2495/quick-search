@@ -8,6 +8,8 @@ import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 import com.tk.quicksearch.search.utils.SearchQueryContext
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
 
+private const val FUZZY_CANDIDATE_BUFFER_MULTIPLIER = 12
+
 object AppSettingsSearchAlgorithm {
     fun search(
         fullList: List<AppSettingResult>,
@@ -43,6 +45,7 @@ object AppSettingsSearchAlgorithm {
                 .toList()
 
         if (!enableFuzzyMatching) return exactMatches
+        if (exactMatches.size >= resultLimit) return exactMatches
 
         val fuzzyPolicy =
             FuzzySearchPolicyResolver.effectivePolicy(
@@ -52,8 +55,17 @@ object AppSettingsSearchAlgorithm {
             )
         if (!fuzzyPolicy.enabled) return exactMatches
 
+        val remainingSlots = (resultLimit - exactMatches.size).coerceAtLeast(0)
+        if (remainingSlots == 0) return exactMatches
         val exactMatchIds = exactMatches.map { it.id }.toSet()
-        val fuzzyCandidateCount = minOf(fullList.size, fuzzyPolicy.candidateLimit)
+        val fuzzyCandidateBudget = (remainingSlots * FUZZY_CANDIDATE_BUFFER_MULTIPLIER).coerceAtLeast(remainingSlots)
+        val fuzzyCandidateCount =
+            minOf(
+                fullList.size,
+                fuzzyPolicy.candidateLimit,
+                fuzzyCandidateBudget,
+            )
+        if (fuzzyCandidateCount == 0) return exactMatches
         val fuzzyMatches =
             FuzzySearchPerformanceLogger.measure(
                 section = SearchSection.APP_SETTINGS,
@@ -95,6 +107,6 @@ object AppSettingsSearchAlgorithm {
                 .toList()
             }
 
-        return (exactMatches + fuzzyMatches).take(resultLimit)
+        return exactMatches + fuzzyMatches.take(remainingSlots)
     }
 }

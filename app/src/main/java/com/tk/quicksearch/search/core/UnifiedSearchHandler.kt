@@ -72,6 +72,8 @@ class UnifiedSearchHandler(
                 private const val ALIAS_FILE_RESULT_LIMIT = 60
                 private const val LOW_RAM_ALIAS_CONTACT_RESULT_LIMIT = 35
                 private const val LOW_RAM_ALIAS_FILE_RESULT_LIMIT = 35
+                private const val CONTACT_FUZZY_CANDIDATE_BUFFER_MULTIPLIER = 10
+                private const val FILE_FUZZY_CANDIDATE_BUFFER_MULTIPLIER = 10
         }
 
         private val isLowRamDevice by lazy { isLowRamDevice(context) }
@@ -429,16 +431,16 @@ class UnifiedSearchHandler(
 
                         // Combine and filter results
                         val filteredContacts =
-                                        filterAndRankContacts(
-                                                contactResults + nicknameContacts,
-                                                queryContext,
-                                                recencyIndex.contactScores,
-                                                enableFuzzyContactSearch &&
-                                                        contactFuzzyPolicy.enabled,
-                                                contactFuzzyPolicy.minimumScore,
-                                                contactFuzzyPolicy.maximumEditDistance,
-                                        )
-                                        .take(contactResultLimit)
+                                filterAndRankContacts(
+                                        contactResults + nicknameContacts,
+                                        queryContext,
+                                        recencyIndex.contactScores,
+                                        enableFuzzyContactSearch &&
+                                                contactFuzzyPolicy.enabled,
+                                        contactFuzzyPolicy.minimumScore,
+                                        contactFuzzyPolicy.maximumEditDistance,
+                                        contactResultLimit,
+                                )
                         val filteredFiles =
                                 filterAndRankFiles(
                                         fileResults + nicknameFiles,
@@ -638,6 +640,7 @@ class UnifiedSearchHandler(
                 enableFuzzyMatching: Boolean,
                 fuzzyMinScore: Int,
                 fuzzyMaxEditDistance: Int,
+                resultLimit: Int,
         ): List<ContactInfo> {
                 if (contacts.isEmpty()) return emptyList()
 
@@ -674,14 +677,22 @@ class UnifiedSearchHandler(
                                 ),
                         )
                         .map { it.first }
+                        .take(resultLimit)
 
                 if (!enableFuzzyMatching) return exactMatches
+                if (exactMatches.size >= resultLimit) return exactMatches
 
+                val remainingSlots = (resultLimit - exactMatches.size).coerceAtLeast(0)
+                if (remainingSlots == 0) return exactMatches
                 val exactContactIds = exactMatches.map { it.contactId }.toSet()
+                val fuzzyCandidateBudget =
+                        (remainingSlots * CONTACT_FUZZY_CANDIDATE_BUFFER_MULTIPLIER)
+                                .coerceAtLeast(remainingSlots)
                 val fuzzyMatches =
                         distinctContacts
                                 .asSequence()
                                 .filterNot { exactContactIds.contains(it.contactId) }
+                                .take(fuzzyCandidateBudget)
                                 .mapNotNull { contact ->
                                         val normalizedName =
                                                 SearchTextNormalizer.normalizeForSearch(
@@ -710,7 +721,7 @@ class UnifiedSearchHandler(
                                 .map { it.first }
                                 .toList()
 
-                return exactMatches + fuzzyMatches
+                return exactMatches + fuzzyMatches.take(remainingSlots)
         }
 
         private fun filterAndRankFiles(
@@ -760,12 +771,19 @@ class UnifiedSearchHandler(
                         .take(resultLimit)
 
                 if (!enableFuzzyMatching) return exactMatches
+                if (exactMatches.size >= resultLimit) return exactMatches
 
+                val remainingSlots = (resultLimit - exactMatches.size).coerceAtLeast(0)
+                if (remainingSlots == 0) return exactMatches
                 val exactFileUris = exactMatches.map { it.uri.toString() }.toSet()
+                val fuzzyCandidateBudget =
+                        (remainingSlots * FILE_FUZZY_CANDIDATE_BUFFER_MULTIPLIER)
+                                .coerceAtLeast(remainingSlots)
                 val fuzzyMatches =
                         distinctFiles
                                 .asSequence()
                                 .filterNot { exactFileUris.contains(it.uri.toString()) }
+                                .take(fuzzyCandidateBudget)
                                 .mapNotNull { file ->
                                         val uriString = file.uri.toString()
                                         val normalizedName =
@@ -795,7 +813,7 @@ class UnifiedSearchHandler(
                                 .map { it.first }
                                 .toList()
 
-                return (exactMatches + fuzzyMatches).take(resultLimit)
+                return exactMatches + fuzzyMatches.take(remainingSlots)
         }
 
         private fun filterAndRankCalendarEvents(

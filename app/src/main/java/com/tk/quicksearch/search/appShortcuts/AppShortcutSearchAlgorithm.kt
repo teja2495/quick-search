@@ -12,6 +12,8 @@ import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 import com.tk.quicksearch.search.utils.SearchQueryContext
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
 
+private const val FUZZY_CANDIDATE_BUFFER_MULTIPLIER = 12
+
 object AppShortcutSearchAlgorithm {
     fun search(
         fullList: List<StaticShortcut>,
@@ -55,15 +57,11 @@ object AppShortcutSearchAlgorithm {
         if (fullList.isEmpty()) return emptyList()
         if (queryContext.normalizedQuery.isBlank()) return emptyList()
 
-        val searchableShortcuts =
+        val exactMatches =
             fullList
-                .asSequence()
-                .filterNot { excludedIds.contains(shortcutKey(it)) }
-                .filterNot { disabledIds.contains(shortcutKey(it)) }
-                .toList()
-
-        val exactMatches = searchableShortcuts
             .asSequence()
+            .filterNot { excludedIds.contains(shortcutKey(it)) }
+            .filterNot { disabledIds.contains(shortcutKey(it)) }
             .mapNotNull { shortcut ->
                 val shortcutId = shortcutKey(shortcut)
                 val displayName = shortcutDisplayName(shortcut)
@@ -92,6 +90,7 @@ object AppShortcutSearchAlgorithm {
             .toList()
 
         if (!enableFuzzyMatching) return exactMatches
+        if (exactMatches.size >= resultLimit) return exactMatches
 
         val fuzzyPolicy =
             FuzzySearchPolicyResolver.effectivePolicy(
@@ -101,8 +100,24 @@ object AppShortcutSearchAlgorithm {
             )
         if (!fuzzyPolicy.enabled) return exactMatches
 
+        val searchableShortcuts =
+            fullList
+                .asSequence()
+                .filterNot { excludedIds.contains(shortcutKey(it)) }
+                .filterNot { disabledIds.contains(shortcutKey(it)) }
+                .toList()
+
+        val remainingSlots = (resultLimit - exactMatches.size).coerceAtLeast(0)
+        if (remainingSlots == 0) return exactMatches
         val exactMatchIds = exactMatches.map { shortcutKey(it) }.toSet()
-        val fuzzyCandidateCount = minOf(searchableShortcuts.size, fuzzyPolicy.candidateLimit)
+        val fuzzyCandidateBudget = (remainingSlots * FUZZY_CANDIDATE_BUFFER_MULTIPLIER).coerceAtLeast(remainingSlots)
+        val fuzzyCandidateCount =
+            minOf(
+                searchableShortcuts.size,
+                fuzzyPolicy.candidateLimit,
+                fuzzyCandidateBudget,
+            )
+        if (fuzzyCandidateCount == 0) return exactMatches
         val fuzzyMatches =
             FuzzySearchPerformanceLogger.measure(
                 section = SearchSection.APP_SHORTCUTS,
@@ -143,6 +158,6 @@ object AppShortcutSearchAlgorithm {
                 .toList()
             }
 
-        return (exactMatches + fuzzyMatches).take(resultLimit)
+        return exactMatches + fuzzyMatches.take(remainingSlots)
     }
 }
