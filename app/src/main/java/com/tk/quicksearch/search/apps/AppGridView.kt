@@ -162,13 +162,18 @@ fun AppGridView(
                 true
             }
 
+    // Once the grid has appeared with all icons loaded, keep it visible even when new fuzzy-search
+    // results arrive with icons still loading — avoids flicker when the list grows mid-search.
+    var gridHasBeenVisible by remember { mutableStateOf(false) }
+
     Column(
             modifier = modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(AppGridRowSpacing),
     ) {
-        val showAppGrid = apps.isNotEmpty() && areAppIconsLoaded
+        val showAppGrid = apps.isNotEmpty() && (areAppIconsLoaded || gridHasBeenVisible)
         if (showAppGrid) {
+            gridHasBeenVisible = true
             AppGrid(
                     apps = apps,
                     isSearching = isSearching,

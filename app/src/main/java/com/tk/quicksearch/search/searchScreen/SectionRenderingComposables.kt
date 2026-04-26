@@ -1,8 +1,16 @@
 package com.tk.quicksearch.search.searchScreen
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.appSettings.AppSettingsResultsSection
@@ -17,6 +25,7 @@ import com.tk.quicksearch.search.core.SectionRenderContext
 import com.tk.quicksearch.search.core.SectionRenderParams
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsResultsSection
 import com.tk.quicksearch.search.files.FileResultsSection
+import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.notes.NotesResultsSection
 
 // ============================================================================
@@ -141,9 +150,21 @@ private fun renderAppsSection(
 ) {
     val appsParams = params.appsParams ?: return
 
-    if (context.shouldRenderApps && appsParams.hasAppResults && appsParams.apps.isNotEmpty()) {
+    // Freeze the last non-empty apps list so the grid stays at full height during the
+    // exit animation. Without this, apps collapses to 0 height before shrinkVertically
+    // runs, making the animation invisible/choppy.
+    val lastNonEmptyApps = remember { Array<List<AppInfo>>(1) { appsParams.apps } }
+    if (appsParams.apps.isNotEmpty()) lastNonEmptyApps[0] = appsParams.apps
+
+    AnimatedVisibility(
+        visible = context.shouldRenderApps && appsParams.hasAppResults && appsParams.apps.isNotEmpty(),
+        enter = fadeIn(tween(220, easing = FastOutSlowInEasing)) +
+            expandVertically(tween(220, easing = FastOutSlowInEasing)),
+        exit = fadeOut(tween(180, easing = FastOutSlowInEasing)) +
+            shrinkVertically(tween(220, easing = FastOutSlowInEasing)),
+    ) {
         AppGridView(
-            apps = appsParams.apps,
+            apps = lastNonEmptyApps[0],
             appShortcuts = appsParams.appShortcuts,
             isSearching = appsParams.isSearching,
             hasAppResults = appsParams.hasAppResults,

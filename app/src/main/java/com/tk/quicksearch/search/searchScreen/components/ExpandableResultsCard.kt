@@ -1,5 +1,8 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -76,7 +79,10 @@ internal fun ExpandableResultsCard(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .animateContentSize(
+                    animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing),
+                ),
         ) {
             content(contentModifier, state)
         }
