@@ -85,6 +85,7 @@ fun ContentLayout(
     onDismissSearchHistoryTip: () -> Unit = {},
     onGeminiModelInfoClick: () -> Unit = {},
     onSearchHistoryExpandedChange: (Boolean) -> Unit = {},
+    searchHistoryCollapseRequestKey: Int = 0,
     onOpenPermissionsSettings: () -> Unit = {},
 ) {
     val context = LocalContext.current
@@ -446,10 +447,12 @@ fun ContentLayout(
                                 onOpenSearchHistorySettings = onOpenSearchHistorySettings,
                                 onDismissSearchHistoryTip = onDismissSearchHistoryTip,
                                 onExpandedChange = { searchHistoryExpanded = it },
+                                collapseRequestKey = searchHistoryCollapseRequestKey,
                                 expandedCardMaxHeight = expandedCardMaxHeight,
                                 showWallpaperBackground =
                                     effectiveShowWallpaperBackground,
                                 isOverlayPresentation = isOverlayPresentation,
+                                showInlineCollapseButton = false,
                                 modifier = Modifier.fillMaxWidth(),
                             )
                         }
@@ -597,6 +600,7 @@ private fun AliasRecentItemsSection(
         appSettingPhoneAppGridColumns = settingsParams.appSettingPhoneAppGridColumns,
         onAppSettingPhoneAppGridColumnsChange = settingsParams.onAppSettingPhoneAppGridColumnsChange,
         onDeleteRecentItem = onDeleteRecentItem,
+        showInlineCollapseButton = false,
         expandedCardMaxHeight = expandedCardMaxHeight,
         showWallpaperBackground = showWallpaperBackground,
         isOverlayPresentation = isOverlayPresentation,

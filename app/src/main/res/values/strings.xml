@@ -182,7 +182,7 @@
     <string name="action_open_keyboard">Open Keyboard</string>
     <string name="action_open_settings">Open settings</string>
     <string name="action_pin_app">Pin</string>
-    <string name="action_clear_all_history">Clear</string>
+    <string name="action_clear_all_history">Clear History</string>
     <string name="dialog_clear_all_history_title">Clear All History?</string>
     <string name="dialog_clear_all_history_message">Are you sure you want to clear all search history? This action cannot be undone.</string>
     <string name="action_remove">Remove</string>

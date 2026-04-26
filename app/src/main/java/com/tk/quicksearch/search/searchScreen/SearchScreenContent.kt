@@ -146,6 +146,7 @@ internal fun SearchScreenContent(
     var delayedOpenKeyboardActionVisible by remember { mutableStateOf(false) }
     var hideOpenKeyboardActionInstantly by remember { mutableStateOf(false) }
     var isSearchHistoryExpanded by remember { mutableStateOf(false) }
+    var searchHistoryCollapseRequestKey by remember { mutableStateOf(0) }
     val openKeyboardActionScope = rememberCoroutineScope()
 
     LaunchedEffect(isOverlayPresentation) {
@@ -734,6 +735,9 @@ internal fun SearchScreenContent(
                 onDismissSearchHistoryTip = onDismissSearchHistoryTip,
                 onGeminiModelInfoClick = onGeminiModelInfoClick,
                 onSearchHistoryExpandedChange = { isSearchHistoryExpanded = it },
+                searchHistoryCollapseRequestKey = searchHistoryCollapseRequestKey,
+                isSearchHistoryExpanded = isSearchHistoryExpanded,
+                onSearchHistoryCollapseRequested = { searchHistoryCollapseRequestKey += 1 },
                 onOpenPermissionsSettings = onOpenPermissionsSettings,
                 showCalculator = state.calculatorState.isToolMode || state.calculatorState.result != null || state.calculatorState.parsedDateMillis != null || state.calculatorState.dateDiffLabel != null || state.calculatorState.timeResultLabel != null,
                 showCurrencyConverter = showCurrencyConverter,

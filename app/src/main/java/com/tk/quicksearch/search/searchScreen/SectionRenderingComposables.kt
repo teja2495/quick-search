@@ -158,10 +158,16 @@ private fun renderAppsSection(
 
     AnimatedVisibility(
         visible = context.shouldRenderApps && appsParams.hasAppResults && appsParams.apps.isNotEmpty(),
-        enter = fadeIn(tween(220, easing = FastOutSlowInEasing)) +
-            expandVertically(tween(220, easing = FastOutSlowInEasing)),
-        exit = fadeOut(tween(180, easing = FastOutSlowInEasing)) +
-            shrinkVertically(tween(220, easing = FastOutSlowInEasing)),
+        enter = fadeIn(tween(170, easing = FastOutSlowInEasing)) +
+            expandVertically(
+                animationSpec = tween(190, easing = FastOutSlowInEasing),
+                expandFrom = Alignment.Top,
+            ),
+        exit = fadeOut(tween(140, easing = FastOutSlowInEasing)) +
+            shrinkVertically(
+                animationSpec = tween(170, easing = FastOutSlowInEasing),
+                shrinkTowards = Alignment.Top,
+            ),
     ) {
         AppGridView(
             apps = lastNonEmptyApps[0],

@@ -330,6 +330,10 @@ internal class SearchQueryCoordinator(
         if (newQuery == previousQuery) return
 
         val trimmedQuery = newQuery.trim()
+        if (trimmedQuery.isNotBlank() && trimmedQuery == previousQuery.trim()) {
+            updateUiState { it.copy(query = newQuery) }
+            return
+        }
         val aiSearchState = currentResultsStateProvider().AiSearchState
         if (aiSearchState.status != AiSearchStatus.Idle &&
             (aiSearchState.activeQuery == null ||

@@ -105,6 +105,9 @@ fun SearchContentArea(
     onDismissSearchHistoryTip: () -> Unit = {},
     onGeminiModelInfoClick: () -> Unit = {},
     onSearchHistoryExpandedChange: (Boolean) -> Unit = {},
+    searchHistoryCollapseRequestKey: Int = 0,
+    isSearchHistoryExpanded: Boolean = false,
+    onSearchHistoryCollapseRequested: () -> Unit = {},
     showCalculator: Boolean = false,
     showCurrencyConverter: Boolean = false,
     showWordClock: Boolean = false,
@@ -440,6 +443,7 @@ fun SearchContentArea(
                             onDismissSearchHistoryTip = onDismissSearchHistoryTip,
                             onGeminiModelInfoClick = onGeminiModelInfoClick,
                             onSearchHistoryExpandedChange = onSearchHistoryExpandedChange,
+                            searchHistoryCollapseRequestKey = searchHistoryCollapseRequestKey,
                             onOpenPermissionsSettings = onOpenPermissionsSettings,
                         )
                     }
@@ -503,6 +507,21 @@ fun SearchContentArea(
                             )
                         }
                     },
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = footerBottomPadding),
+                )
+            }
+
+            if (
+                renderingState.expandedSection == ExpandedSection.NONE &&
+                    !isSectionAliasMode &&
+                    isSearchHistoryExpanded
+            ) {
+                CollapseButton(
+                    showWallpaperBackground = state.showWallpaperBackground,
+                    onClick = onSearchHistoryCollapseRequested,
                     modifier =
                         Modifier
                             .align(Alignment.BottomCenter)

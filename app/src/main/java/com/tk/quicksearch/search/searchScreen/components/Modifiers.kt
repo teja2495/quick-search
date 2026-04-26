@@ -3,8 +3,9 @@ package com.tk.quicksearch.search.searchScreen.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -15,18 +16,35 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.ui.theme.LocalImageBackgroundIsDark
 
+private const val PredictedSubmitIndicatorEnterDelayMs = 500
+private const val PredictedSubmitIndicatorFadeInDurationMs = 300
+private const val PredictedSubmitIndicatorFadeOutDurationMs = 240
+
 internal fun Modifier.predictedSubmitHighlight(
     isPredicted: Boolean,
     shape: Shape = DesignTokens.CardShape,
     opaqueCardTopResultBorder: Boolean = false,
 ): Modifier =
     composed {
+        val indicatorTransition = updateTransition(targetState = isPredicted, label = "predictedSubmitIndicator")
         val indicatorAlpha =
-            animateFloatAsState(
-                targetValue = if (isPredicted) 1f else 0f,
-                animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing),
+            indicatorTransition.animateFloat(
+                transitionSpec = {
+                    tween(
+                        durationMillis =
+                            if (targetState) {
+                                PredictedSubmitIndicatorFadeInDurationMs
+                            } else {
+                                PredictedSubmitIndicatorFadeOutDurationMs
+                            },
+                        delayMillis = if (targetState) PredictedSubmitIndicatorEnterDelayMs else 0,
+                        easing = FastOutSlowInEasing,
+                    )
+                },
                 label = "predictedSubmitIndicatorAlpha",
-            ).value
+            ) { predicted ->
+                if (predicted) 1f else 0f
+            }.value
 
         if (indicatorAlpha <= 0f) {
             this
@@ -72,7 +90,27 @@ internal fun Modifier.predictedSubmitCardBorder(
     shape: Shape = DesignTokens.CardShape,
 ): Modifier =
     composed {
-        if (!isPredicted) {
+        val indicatorTransition = updateTransition(targetState = isPredicted, label = "predictedSubmitCardBorder")
+        val indicatorAlpha =
+            indicatorTransition.animateFloat(
+                transitionSpec = {
+                    tween(
+                        durationMillis =
+                            if (targetState) {
+                                PredictedSubmitIndicatorFadeInDurationMs
+                            } else {
+                                PredictedSubmitIndicatorFadeOutDurationMs
+                            },
+                        delayMillis = if (targetState) PredictedSubmitIndicatorEnterDelayMs else 0,
+                        easing = FastOutSlowInEasing,
+                    )
+                },
+                label = "predictedSubmitBorderAlpha",
+            ) { predicted ->
+                if (predicted) 1f else 0f
+            }.value
+
+        if (indicatorAlpha <= 0f) {
             this
         } else {
             val imageBackgroundIsDark = LocalImageBackgroundIsDark.current
@@ -85,11 +123,11 @@ internal fun Modifier.predictedSubmitCardBorder(
                     false ->
                         lerp(Color.Black, primary, DesignTokens.PredictedSubmitHighlightAccentBlend)
                             .copy(alpha = 0.24f)
-                    null -> primary.copy(alpha = 0.24f)
+                    null -> primary.copy(alpha = 0.24f * indicatorAlpha)
                 }
             this.border(
                 width = DesignTokens.BorderWidth,
-                color = borderColor,
+                color = borderColor.copy(alpha = borderColor.alpha * indicatorAlpha),
                 shape = shape,
             )
         }

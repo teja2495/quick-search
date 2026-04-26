@@ -30,6 +30,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -122,10 +123,12 @@ fun SearchHistorySection(
     onOpenSearchHistorySettings: () -> Unit = {},
     onDismissSearchHistoryTip: () -> Unit = {},
     onExpandedChange: (Boolean) -> Unit = {},
+    collapseRequestKey: Int = 0,
     expandedCardMaxHeight: Dp = SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT,
     showWallpaperBackground: Boolean = false,
     isOverlayPresentation: Boolean = false,
     alwaysExpanded: Boolean = false,
+    showInlineCollapseButton: Boolean = true,
 ) {
     val overlayCardColor = LocalOverlayResultCardColor.current
     val overlayDividerColor = LocalOverlayDividerColor.current
@@ -146,6 +149,14 @@ fun SearchHistorySection(
         isExpanded = false
         onExpandedChange(false)
         keyboardController?.show()
+    }
+
+    LaunchedEffect(collapseRequestKey) {
+        if (!alwaysExpanded && isExpanded) {
+            isExpanded = false
+            onExpandedChange(false)
+            keyboardController?.show()
+        }
     }
 
     val textColor =
@@ -253,7 +264,7 @@ fun SearchHistorySection(
             }
         }
 
-        if (isExpanded && !alwaysExpanded) {
+        if (isExpanded && !alwaysExpanded && showInlineCollapseButton) {
             CollapseButton(
                 showWallpaperBackground = showWallpaperBackground,
                 onClick = {
