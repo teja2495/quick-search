@@ -65,6 +65,7 @@ class SecondarySearchOrchestrator(
                     appSettingResults = emptyList(),
                     appShortcutResults = emptyList(),
                     isSecondarySearchInProgress = false,
+                    webSuggestionsLoading = false,
                     // Flush any staged app results (query was cleared, so clear them too).
                     searchResults = emptyList(),
                     pendingSearchResults = null,
@@ -121,6 +122,7 @@ class SecondarySearchOrchestrator(
             uiStateUpdater { state ->
                 state.copy(
                     isSecondarySearchInProgress = false,
+                    webSuggestionsLoading = false,
                     searchResults = state.pendingSearchResults ?: state.searchResults,
                     pendingSearchResults = null,
                 )
@@ -146,7 +148,7 @@ class SecondarySearchOrchestrator(
                         } else {
                             webSuggestionHandler.cancelSuggestions()
                             uiStateUpdater { state ->
-                                state.copy(webSuggestions = emptyList())
+                                state.copy(webSuggestions = emptyList(), webSuggestionsLoading = false)
                             }
                         }
                     }
@@ -227,7 +229,7 @@ class SecondarySearchOrchestrator(
                             // Clear suggestions if disabled or query too short
                             webSuggestionHandler.cancelSuggestions()
                             uiStateUpdater { state ->
-                                state.copy(webSuggestions = emptyList())
+                                state.copy(webSuggestions = emptyList(), webSuggestionsLoading = false)
                             }
                         }
                     }
@@ -280,6 +282,7 @@ class SecondarySearchOrchestrator(
                     appSettingResults = emptyList(),
                     appShortcutResults = emptyList(),
                     webSuggestions = emptyList(),
+                    webSuggestionsLoading = false,
                     isSecondarySearchInProgress = false,
                     // Flush staged app results (query cleared — discard them).
                     searchResults = emptyList(),
@@ -329,6 +332,7 @@ class SecondarySearchOrchestrator(
             uiStateUpdater { state ->
                 state.copy(
                     webSuggestions = emptyList(),
+                    webSuggestionsLoading = false,
                     isSecondarySearchInProgress = false,
                     // Flush any staged app results — no targeted search will complete.
                     searchResults = state.pendingSearchResults ?: state.searchResults,
@@ -372,6 +376,7 @@ class SecondarySearchOrchestrator(
                             appSettingResults = unifiedResults.appSettingResults,
                             appShortcutResults = unifiedResults.appShortcutResults,
                             webSuggestions = emptyList(),
+                            webSuggestionsLoading = false,
                             isSecondarySearchInProgress = false,
                             // Flush staged app results atomically with secondary results.
                             searchResults = state.pendingSearchResults ?: state.searchResults,
@@ -417,6 +422,7 @@ class SecondarySearchOrchestrator(
         uiStateUpdater { state ->
             state.copy(
                 isSecondarySearchInProgress = false,
+                webSuggestionsLoading = false,
                 searchResults = state.pendingSearchResults ?: state.searchResults,
                 pendingSearchResults = null,
             )
@@ -440,6 +446,7 @@ class SecondarySearchOrchestrator(
                             appSettingResults = emptyList(),
                             appShortcutResults = emptyList(),
                             isSecondarySearchInProgress = false,
+                            webSuggestionsLoading = false,
                         )
                     }
 
@@ -457,7 +464,9 @@ class SecondarySearchOrchestrator(
                         )
                     } else {
                         webSuggestionHandler.cancelSuggestions()
-                        uiStateUpdater { state -> state.copy(webSuggestions = emptyList()) }
+                        uiStateUpdater {
+                            state -> state.copy(webSuggestions = emptyList(), webSuggestionsLoading = false)
+                        }
                     }
                 }
             }
@@ -470,6 +479,7 @@ class SecondarySearchOrchestrator(
                 uiStateUpdater { state ->
                     state.copy(
                         isSecondarySearchInProgress = false,
+                        webSuggestionsLoading = false,
                         searchResults = state.pendingSearchResults ?: state.searchResults,
                         pendingSearchResults = null,
                     )
@@ -481,6 +491,7 @@ class SecondarySearchOrchestrator(
         uiStateUpdater { state ->
             state.copy(
                 isSecondarySearchInProgress = false,
+                webSuggestionsLoading = false,
                 // Flush any staged app results so they aren't permanently hidden.
                 searchResults = state.pendingSearchResults ?: state.searchResults,
                 pendingSearchResults = null,

@@ -415,8 +415,8 @@ data class SearchUiState(
         // App results
         val recentApps: List<AppInfo> = emptyList(),
         val searchResults: List<AppInfo> = emptyList(),
-        // Internal staging buffer: app results held here until secondary search completes
-        // so both appear in the UI simultaneously. Not read by any UI composable directly.
+        // Internal staging buffer for app results (normally unused in write-through flow).
+        // Not read by any UI composable directly.
         val pendingSearchResults: List<AppInfo>? = null,
         val allApps: List<AppInfo> = emptyList(),
         val pinnedApps: List<AppInfo> = emptyList(),
@@ -561,6 +561,8 @@ data class SearchUiState(
         val wordClockState: WordClockState = WordClockState(),
         val dictionaryState: DictionaryState = DictionaryState(),
         val webSuggestions: List<String> = emptyList(),
+        val webSuggestionsLoading: Boolean = false,
+        val isAppSearchInProgress: Boolean = false,
         val isSecondarySearchInProgress: Boolean = false,
         val detectedShortcutTarget: SearchTarget? = null,
         val detectedAliasSearchSection: SearchSection? = null,
@@ -648,6 +650,8 @@ fun SearchUiState(
                 dictionaryState = results.dictionaryState,
                 AiSearchState = results.AiSearchState,
                 webSuggestions = results.webSuggestions,
+                webSuggestionsLoading = results.webSuggestionsLoading,
+                isAppSearchInProgress = results.isAppSearchInProgress,
                 isSecondarySearchInProgress = results.isSecondarySearchInProgress,
                 webSuggestionWasSelected = results.webSuggestionWasSelected,
                 detectedShortcutTarget = results.detectedShortcutTarget,

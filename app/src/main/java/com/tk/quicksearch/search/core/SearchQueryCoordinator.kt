@@ -62,7 +62,6 @@ internal class SearchQueryCoordinator(
     private val appShortcutSearchHandler get() = handlers.appShortcutSearchHandler
     private val secondarySearchOrchestrator get() = handlers.secondarySearchOrchestrator
     private val webSuggestionHandler get() = handlers.webSuggestionHandler
-    private val sectionManager get() = handlers.sectionManager
 
     fun onQueryChange(newQuery: String) {
         onQueryChangeInternal(newQuery, clearShortcutWhenBlank = false)
@@ -83,6 +82,7 @@ internal class SearchQueryCoordinator(
                 wordClockState = WordClockState(),
                 dictionaryState = DictionaryState(),
                 searchResults = emptyList(),
+                isAppSearchInProgress = false,
                 contactResults = emptyList(),
                 fileResults = emptyList(),
                 settingResults = emptyList(),
@@ -395,6 +395,8 @@ internal class SearchQueryCoordinator(
                             aliasState.lockedToolMode?.let(::createToolModeState)
                                 ?: CalculatorState(),
                         webSuggestions = emptyList(),
+                        webSuggestionsLoading = false,
+                        isAppSearchInProgress = false,
                         detectedShortcutTarget = aliasState.lockedShortcutTarget,
                         detectedAliasSearchSection = aliasState.lockedAliasSearchSection,
                         isCurrencyConverterAliasMode = aliasState.lockedCurrencyConverterAlias,
@@ -437,6 +439,8 @@ internal class SearchQueryCoordinator(
                             createToolModeState(lockedMode)
                         },
                     webSuggestions = emptyList(),
+                    webSuggestionsLoading = false,
+                    isAppSearchInProgress = false,
                     detectedShortcutTarget =
                         if (clearShortcutWhenBlank) null else updatedAliasState.lockedShortcutTarget,
                     detectedAliasSearchSection =
@@ -522,20 +526,19 @@ internal class SearchQueryCoordinator(
                 aliasState.lockedDictionaryAlias ||
                 aliasState.lockedCustomToolId != null ||
                 (detectedAliasSearchSection != null && !shouldOnlySearchApps)
-        val shouldClearSecondaryResults =
-            aliasState.lockedCurrencyConverterAlias ||
-                aliasState.lockedWordClockAlias ||
-                aliasState.lockedDictionaryAlias ||
-                aliasState.lockedCustomToolId != null ||
-                detectedAliasSearchSection != null
-        val shouldClearAppShortcutResults =
-            aliasState.lockedCurrencyConverterAlias ||
-                aliasState.lockedWordClockAlias ||
-                aliasState.lockedDictionaryAlias ||
-                aliasState.lockedCustomToolId != null ||
-                detectedTarget != null ||
-                (detectedAliasSearchSection != null &&
-                    detectedAliasSearchSection != SearchSection.APP_SHORTCUTS)
+        val shouldRunSecondarySearchBatch =
+            !showingTool &&
+                detectedTarget == null &&
+                !aliasState.lockedCurrencyConverterAlias &&
+                !aliasState.lockedWordClockAlias &&
+                !aliasState.lockedDictionaryAlias &&
+                aliasState.lockedCustomToolId == null &&
+                detectedAliasSearchSection != SearchSection.APPS
+        val shouldRunAppSearch =
+            !shouldSkipSearch &&
+                detectedTarget == null &&
+                !showingTool &&
+                !shouldSkipAppSearchDueToAlias
         updateUiState { state ->
             state.copy(
                 query = newQuery,
@@ -552,57 +555,28 @@ internal class SearchQueryCoordinator(
                     },
                 calculatorState = calculatorResult,
                 webSuggestions = emptyList(),
-                isSecondarySearchInProgress =
-                    if (
-                        !showingTool &&
-                            detectedTarget == null &&
-                            !aliasState.lockedCurrencyConverterAlias &&
-                            !aliasState.lockedWordClockAlias &&
-                            !aliasState.lockedDictionaryAlias &&
-                            aliasState.lockedCustomToolId == null &&
-                            detectedAliasSearchSection != SearchSection.APPS
-                    ) {
-                        state.isSecondarySearchInProgress
-                    } else {
-                        false
-                    },
+                webSuggestionsLoading = false,
+                isAppSearchInProgress = shouldRunAppSearch,
+                isSecondarySearchInProgress = shouldRunSecondarySearchBatch,
                 detectedShortcutTarget = detectedTarget,
                 detectedAliasSearchSection = detectedAliasSearchSection,
                 isCurrencyConverterAliasMode = aliasState.lockedCurrencyConverterAlias,
                 isWordClockAliasMode = aliasState.lockedWordClockAlias,
                 isDictionaryAliasMode = aliasState.lockedDictionaryAlias,
                 detectedCustomToolId = aliasState.lockedCustomToolId,
-                contactResults =
-                    if (showingTool || shouldClearSecondaryResults) emptyList()
-                    else state.contactResults,
-                fileResults =
-                    if (showingTool || shouldClearSecondaryResults) emptyList()
-                    else state.fileResults,
-                settingResults =
-                    if (showingTool || shouldClearSecondaryResults) emptyList()
-                    else state.settingResults,
-                appSettingResults =
-                    if (showingTool || shouldClearSecondaryResults) emptyList()
-                    else state.appSettingResults,
-                appShortcutResults =
-                    if (showingTool || shouldClearAppShortcutResults) emptyList()
-                    else appShortcutSearchHandler.getShortcutsState(
-                        query = trimmedQuery,
-                        isSectionEnabled =
-                            SearchSection.APP_SHORTCUTS !in sectionManager.disabledSections,
-                    ).results,
-                calendarEvents =
-                    if (showingTool || shouldClearSecondaryResults) emptyList()
-                    else state.calendarEvents,
+                contactResults = emptyList(),
+                fileResults = emptyList(),
+                settingResults = emptyList(),
+                appSettingResults = emptyList(),
+                appShortcutResults = emptyList(),
+                calendarEvents = emptyList(),
+                noteResults = emptyList(),
                 aliasRecentItems = emptyList(),
             )
         }
 
         if (
-            !shouldSkipSearch &&
-                detectedTarget == null &&
-                !showingTool &&
-                !shouldSkipAppSearchDueToAlias
+            shouldRunAppSearch
         ) {
             val appsSnapshot = getSearchableAppsSnapshot()
             val gridLimit = getGridItemCount()
@@ -629,17 +603,20 @@ internal class SearchQueryCoordinator(
                     }
 
                     updateResultsState { state ->
-                        // If secondary search is still running, stage results so they appear
-                        // simultaneously with secondary results. Otherwise write through directly.
-                        if (state.isSecondarySearchInProgress) {
-                            state.copy(pendingSearchResults = results)
-                        } else {
-                            state.copy(searchResults = results, pendingSearchResults = null)
-                        }
+                        state.copy(
+                            searchResults = results,
+                            pendingSearchResults = null,
+                            isAppSearchInProgress = false,
+                        )
                     }
                 }
         } else if (shouldSkipSearch) {
-            updateResultsState { state -> state.copy(searchResults = emptyList()) }
+            updateResultsState {
+                it.copy(
+                    searchResults = emptyList(),
+                    isAppSearchInProgress = false,
+                )
+            }
         }
 
         if (!showingTool) {
@@ -655,6 +632,7 @@ internal class SearchQueryCoordinator(
                         calendarEvents = emptyList(),
                         noteResults = emptyList(),
                         webSuggestions = emptyList(),
+                        webSuggestionsLoading = false,
                     )
                 }
             } else if (aliasState.lockedWordClockAlias || aliasState.lockedDictionaryAlias || aliasState.lockedCustomToolId != null) {
@@ -669,6 +647,7 @@ internal class SearchQueryCoordinator(
                         calendarEvents = emptyList(),
                         noteResults = emptyList(),
                         webSuggestions = emptyList(),
+                        webSuggestionsLoading = false,
                     )
                 }
             } else if (detectedTarget != null) {
@@ -686,6 +665,7 @@ internal class SearchQueryCoordinator(
                             calendarEvents = emptyList(),
                             noteResults = emptyList(),
                             webSuggestions = emptyList(),
+                            webSuggestionsLoading = false,
                         )
                     }
                 } else {

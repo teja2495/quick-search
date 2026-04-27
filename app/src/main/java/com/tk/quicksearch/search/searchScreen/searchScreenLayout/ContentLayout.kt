@@ -240,6 +240,10 @@ fun ContentLayout(
     val activeAliasSection = state.detectedAliasSearchSection
     val isSectionAliasMode = activeAliasSection != null
     val showAliasRecentItems = isSectionAliasMode && !hasQuery && state.aliasRecentItems.isNotEmpty()
+    val deferNonAppContentUntilAppsReady =
+        hasQuery &&
+            state.isAppSearchInProgress &&
+            !renderingState.hasAppResults
 
     fun shouldRenderSection(section: SearchSection): Boolean {
         return if (isSectionAliasMode) {
@@ -260,6 +264,7 @@ fun ContentLayout(
             if (section != null) {
                 if (!shouldRenderSection(section)) return@forEach
                 if (section == SearchSection.APPS && isUrlQuery) return@forEach
+                if (deferNonAppContentUntilAppsReady && section != SearchSection.APPS) return@forEach
 
                 val showAliasRecentForSection =
                     showAliasRecentItems && section in ALIAS_RECENT_ELIGIBLE_SECTIONS
@@ -300,6 +305,8 @@ fun ContentLayout(
                 renderSection(section, sectionParams, sectionContextForRecentHistoryExpansion)
                 return@forEach
             }
+
+            if (deferNonAppContentUntilAppsReady) return@forEach
 
             when (itemType) {
                 ItemPriorityConfig.ItemType.ERROR_BANNER -> {

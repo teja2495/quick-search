@@ -30,6 +30,7 @@ internal fun computeShouldShowNoResults(state: SearchUiState): Boolean {
     val trimmedQuery = state.query.trim()
     val queryLength = trimmedQuery.length
     return trimmedQuery.isNotBlank() &&
+        !state.isSecondarySearchInProgress &&
         !hasAnySearchResults &&
         state.detectedShortcutTarget == null &&
         state.detectedAliasSearchSection == null &&

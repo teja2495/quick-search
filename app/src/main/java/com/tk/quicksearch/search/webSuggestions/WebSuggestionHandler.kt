@@ -5,6 +5,7 @@ import com.tk.quicksearch.search.data.UserAppPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -34,7 +35,7 @@ class WebSuggestionHandler(
 
             // If disabling web suggestions, clear any existing suggestions
             if (!enabled) {
-                uiStateUpdater { it.copy(webSuggestions = emptyList()) }
+                uiStateUpdater { it.copy(webSuggestions = emptyList(), webSuggestionsLoading = false) }
             }
         }
     }
@@ -47,10 +48,12 @@ class WebSuggestionHandler(
     ) {
         val trimmedQuery = query.trim()
         if (!isEnabled) {
+            uiStateUpdater { it.copy(webSuggestionsLoading = false) }
             return
         }
 
         webSuggestionsJob?.cancel()
+        uiStateUpdater { it.copy(webSuggestionsLoading = true) }
 
         webSuggestionsJob =
             scope.launch(Dispatchers.IO) {
@@ -67,6 +70,7 @@ class WebSuggestionHandler(
                     }
 
                     val suggestions = WebSuggestionsUtils.getSuggestions(trimmedQuery)
+                    ensureActive()
 
                     withContext(Dispatchers.Main) {
                         // Only update if query hasn't changed
@@ -81,17 +85,33 @@ class WebSuggestionHandler(
                             uiStateUpdater { state ->
                                 state.copy(
                                     webSuggestions = suggestionsToShow,
+                                    webSuggestionsLoading = false,
                                 )
                             }
                         }
                     }
+                } catch (_: kotlinx.coroutines.CancellationException) {
+                    // Cancellation means a newer query is in-flight.
                 } catch (e: Exception) {
                     // Silently fail - don't show suggestions on error
+                    withContext(Dispatchers.Main) {
+                        val finalActiveVersion = activeQueryVersionProvider()
+                        val finalActiveQuery = activeQueryProvider().trim()
+                        if (finalActiveVersion == currentQueryVersion && finalActiveQuery == trimmedQuery) {
+                            uiStateUpdater { state ->
+                                state.copy(
+                                    webSuggestions = emptyList(),
+                                    webSuggestionsLoading = false,
+                                )
+                            }
+                        }
+                    }
                 }
             }
     }
 
     fun cancelSuggestions() {
         webSuggestionsJob?.cancel()
+        uiStateUpdater { it.copy(webSuggestionsLoading = false) }
     }
 }

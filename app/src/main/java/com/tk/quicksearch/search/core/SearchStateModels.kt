@@ -41,8 +41,8 @@ data class SearchResultsState(
         // App results (updated by refreshDerivedState on each query change)
         val recentApps: List<AppInfo> = emptyList(),
         val searchResults: List<AppInfo> = emptyList(),
-        // Staged app results held until secondary search finishes so both appear simultaneously.
-        // null = no pending results (written through directly or cleared).
+        // Optional staging buffer for app results.
+        // null = no staged results (normal write-through path).
         val pendingSearchResults: List<AppInfo>? = null,
         val pinnedApps: List<AppInfo> = emptyList(),
         val allApps: List<AppInfo> = emptyList(),
@@ -95,7 +95,9 @@ data class SearchResultsState(
         val dictionaryState: DictionaryState = DictionaryState(),
         val AiSearchState: AiSearchState = AiSearchState(),
         val webSuggestions: List<String> = emptyList(),
+        val webSuggestionsLoading: Boolean = false,
         val webSuggestionWasSelected: Boolean = false,
+        val isAppSearchInProgress: Boolean = false,
         val isSecondarySearchInProgress: Boolean = false,
         val detectedShortcutTarget: SearchTarget? = null,
         val detectedAliasSearchSection: SearchSection? = null,

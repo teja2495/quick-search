@@ -1,11 +1,5 @@
 package com.tk.quicksearch.search.webSuggestions
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,7 +15,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,19 +28,11 @@ import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
-// ============================================================================
-// Constants
-// ============================================================================
-
 private const val SUGGESTION_ICON_SIZE = 36
 private const val SUGGESTION_ARROW_ICON_SIZE = 32
 private const val SUGGESTION_ICON_START_PADDING = 16
 private const val SUGGESTION_TEXT_START_PADDING = 12
 private const val SUGGESTION_TEXT_END_PADDING = 16
-
-// ============================================================================
-// Public API
-// ============================================================================
 
 @Composable
 fun WebSuggestionsSection(
@@ -60,13 +45,10 @@ fun WebSuggestionsSection(
 ) {
     if (suggestions.isEmpty()) return
 
-    // Reverse the suggestions list if requested
     val orderedSuggestions = if (reverseOrder) suggestions.reversed() else suggestions
 
     Column(
-        modifier =
-            modifier
-                .fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
         WebSuggestionsCard(
@@ -77,10 +59,6 @@ fun WebSuggestionsSection(
         )
     }
 }
-
-// ============================================================================
-// Result Card
-// ============================================================================
 
 @Composable
 private fun WebSuggestionsCard(
@@ -103,39 +81,30 @@ private fun WebSuggestionsCard(
     val iconColor =
         if (showWallpaperBackground) AppColors.WallpaperTextSecondary else MaterialTheme.colorScheme.onSurfaceVariant
 
-    val cardEnterTransitionState =
-        remember { MutableTransitionState(false).apply { targetState = true } }
-
-    AnimatedVisibility(
-        visibleState = cardEnterTransitionState,
-        enter = fadeIn(animationSpec = tween(durationMillis = 170, easing = FastOutSlowInEasing)),
+    SearchResultCard(
+        modifier = Modifier.fillMaxWidth(),
+        showWallpaperBackground = showWallpaperBackground,
     ) {
-        SearchResultCard(
-            modifier = Modifier.fillMaxWidth(),
-            showWallpaperBackground = showWallpaperBackground,
-        ) {
-            Column {
-                suggestions.forEachIndexed { index, suggestion ->
-                    WebSuggestionItem(
-                        suggestion = suggestion,
-                        onClick = { onSuggestionClick(suggestion) },
-                        textColor = textColor,
-                        iconColor = iconColor,
-                        modifier = Modifier.fillMaxWidth(),
-                        isShortcutDetected = isShortcutDetected,
-                    )
+        Column {
+            suggestions.forEachIndexed { index, suggestion ->
+                WebSuggestionItem(
+                    suggestion = suggestion,
+                    onClick = { onSuggestionClick(suggestion) },
+                    textColor = textColor,
+                    iconColor = iconColor,
+                    modifier = Modifier.fillMaxWidth(),
+                    isShortcutDetected = isShortcutDetected,
+                )
 
-                    // Add divider between items, but not after the last one
-                    if (index < suggestions.size - 1) {
-                        HorizontalDivider(
-                            modifier =
-                                Modifier.padding(
-                                    start = SUGGESTION_ICON_START_PADDING.dp,
-                                    end = SUGGESTION_TEXT_END_PADDING.dp,
-                                ),
-                            color = dividerColor,
-                        )
-                    }
+                if (index < suggestions.size - 1) {
+                    HorizontalDivider(
+                        modifier =
+                            Modifier.padding(
+                                start = SUGGESTION_ICON_START_PADDING.dp,
+                                end = SUGGESTION_TEXT_END_PADDING.dp,
+                            ),
+                        color = dividerColor,
+                    )
                 }
             }
         }
