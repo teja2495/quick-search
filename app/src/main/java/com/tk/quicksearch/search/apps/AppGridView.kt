@@ -1,8 +1,5 @@
 package com.tk.quicksearch.search.apps
 
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -406,11 +403,7 @@ private fun AppGridItem(
                     AppIconDisplayMode.REGULAR -> RegularAppIconSize
                 }
             }
-    val indicatorAlpha by animateFloatAsState(
-            targetValue = if (isPredicted) 1f else 0f,
-            animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing),
-            label = "topResultIndicatorAlpha",
-    )
+    val indicatorAlpha = if (isPredicted) 1f else 0f
 
     Box(
             modifier = modifier.fillMaxWidth(),

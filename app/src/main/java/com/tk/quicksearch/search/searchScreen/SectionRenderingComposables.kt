@@ -1,18 +1,6 @@
 package com.tk.quicksearch.search.searchScreen
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.appSettings.AppSettingsResultsSection
 import com.tk.quicksearch.search.appShortcuts.AppShortcutResultsSection
 import com.tk.quicksearch.search.apps.AppGridView
@@ -25,7 +13,6 @@ import com.tk.quicksearch.search.core.SectionRenderContext
 import com.tk.quicksearch.search.core.SectionRenderParams
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsResultsSection
 import com.tk.quicksearch.search.files.FileResultsSection
-import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.notes.NotesResultsSection
 
 // ============================================================================
@@ -150,27 +137,9 @@ private fun renderAppsSection(
 ) {
     val appsParams = params.appsParams ?: return
 
-    // Freeze the last non-empty apps list so the grid stays at full height during the
-    // exit animation. Without this, apps collapses to 0 height before shrinkVertically
-    // runs, making the animation invisible/choppy.
-    val lastNonEmptyApps = remember { Array<List<AppInfo>>(1) { appsParams.apps } }
-    if (appsParams.apps.isNotEmpty()) lastNonEmptyApps[0] = appsParams.apps
-
-    AnimatedVisibility(
-        visible = context.shouldRenderApps && appsParams.hasAppResults && appsParams.apps.isNotEmpty(),
-        enter = fadeIn(tween(170, easing = FastOutSlowInEasing)) +
-            expandVertically(
-                animationSpec = tween(190, easing = FastOutSlowInEasing),
-                expandFrom = Alignment.Top,
-            ),
-        exit = fadeOut(tween(140, easing = FastOutSlowInEasing)) +
-            shrinkVertically(
-                animationSpec = tween(170, easing = FastOutSlowInEasing),
-                shrinkTowards = Alignment.Top,
-            ),
-    ) {
+    if (context.shouldRenderApps && appsParams.hasAppResults && appsParams.apps.isNotEmpty()) {
         AppGridView(
-            apps = lastNonEmptyApps[0],
+            apps = appsParams.apps,
             appShortcuts = appsParams.appShortcuts,
             isSearching = appsParams.isSearching,
             hasAppResults = appsParams.hasAppResults,
@@ -240,31 +209,29 @@ private fun renderSettingsSection(
     params: SectionRenderParams,
     context: SectionRenderContext,
 ) {
+    val settingsParams = params.settingsParams ?: return
     val shouldShowSettings =
         context.shouldRenderSettings &&
-            params.settingsParams != null &&
-            context.settingsList.isNotEmpty() &&
             !context.isAppSettingsExpanded
-    if (shouldShowSettings) {
-        if (params.settingsParams != null) {
-            DeviceSettingsResultsSection(
-                settings = context.settingsList,
-                isExpanded = context.isDeviceSettingsExpanded,
-                pinnedSettingIds = params.settingsParams.pinnedSettingIds,
-                onSettingClick = params.settingsParams.onSettingClick,
-                onTogglePin = params.settingsParams.onTogglePin,
-                onExclude = params.settingsParams.onExclude,
-                onNicknameClick = params.settingsParams.onNicknameClick,
-                getSettingNickname = params.settingsParams.getSettingNickname,
-                showAllResults = context.showAllSettingsResults,
-                showExpandControls = context.showDeviceSettingsExpandControls,
-                onExpandClick = context.deviceSettingsExpandClick,
-                expandedCardMaxHeight = params.settingsParams.expandedCardMaxHeight,
-                showWallpaperBackground = params.settingsParams.showWallpaperBackground,
-                predictedTarget = params.settingsParams.predictedTarget,
-                fillExpandedHeight = context.isSectionAliasMode,
-            )
-        }
+
+    if (shouldShowSettings && context.settingsList.isNotEmpty()) {
+        DeviceSettingsResultsSection(
+            settings = context.settingsList,
+            isExpanded = context.isDeviceSettingsExpanded,
+            pinnedSettingIds = settingsParams.pinnedSettingIds,
+            onSettingClick = settingsParams.onSettingClick,
+            onTogglePin = settingsParams.onTogglePin,
+            onExclude = settingsParams.onExclude,
+            onNicknameClick = settingsParams.onNicknameClick,
+            getSettingNickname = settingsParams.getSettingNickname,
+            showAllResults = context.showAllSettingsResults,
+            showExpandControls = context.showDeviceSettingsExpandControls,
+            onExpandClick = context.deviceSettingsExpandClick,
+            expandedCardMaxHeight = settingsParams.expandedCardMaxHeight,
+            showWallpaperBackground = settingsParams.showWallpaperBackground,
+            predictedTarget = settingsParams.predictedTarget,
+            fillExpandedHeight = context.isSectionAliasMode,
+        )
     }
 }
 
@@ -274,33 +241,31 @@ private fun renderAppSettingsSection(
     params: SectionRenderParams,
     context: SectionRenderContext,
 ) {
+    val settingsParams = params.settingsParams ?: return
     val shouldShowAppSettings =
         context.shouldRenderSettings &&
-            params.settingsParams != null &&
-            context.appSettingsList.isNotEmpty() &&
             !context.isDeviceSettingsExpanded
-    if (shouldShowAppSettings) {
-        if (params.settingsParams != null) {
-            AppSettingsResultsSection(
-                appSettings = context.appSettingsList,
-                isExpanded = context.isAppSettingsExpanded,
-                onAppSettingClick = params.settingsParams.onAppSettingClick,
-                onAppSettingToggle = params.settingsParams.onAppSettingToggle,
-                onWebSuggestionsCountChange =
-                    params.settingsParams.onAppSettingWebSuggestionsCountChange,
-                isAppSettingToggleChecked = params.settingsParams.isAppSettingToggleChecked,
-                webSuggestionsCount = params.settingsParams.appSettingWebSuggestionsCount,
-                appSettingPhoneAppGridColumns = params.settingsParams.appSettingPhoneAppGridColumns,
-                onAppSettingPhoneAppGridColumnsChange = params.settingsParams.onAppSettingPhoneAppGridColumnsChange,
-                showAllResults = context.showAllSettingsResults,
-                showExpandControls = context.showAppSettingsExpandControls,
-                onExpandClick = context.appSettingsExpandClick,
-                expandedCardMaxHeight = params.settingsParams.expandedCardMaxHeight,
-                showWallpaperBackground = params.settingsParams.showWallpaperBackground,
-                predictedTarget = params.settingsParams.predictedTarget,
-                fillExpandedHeight = context.isSectionAliasMode,
-            )
-        }
+
+    if (shouldShowAppSettings && context.appSettingsList.isNotEmpty()) {
+        AppSettingsResultsSection(
+            appSettings = context.appSettingsList,
+            isExpanded = context.isAppSettingsExpanded,
+            onAppSettingClick = settingsParams.onAppSettingClick,
+            onAppSettingToggle = settingsParams.onAppSettingToggle,
+            onWebSuggestionsCountChange =
+                settingsParams.onAppSettingWebSuggestionsCountChange,
+            isAppSettingToggleChecked = settingsParams.isAppSettingToggleChecked,
+            webSuggestionsCount = settingsParams.appSettingWebSuggestionsCount,
+            appSettingPhoneAppGridColumns = settingsParams.appSettingPhoneAppGridColumns,
+            onAppSettingPhoneAppGridColumnsChange = settingsParams.onAppSettingPhoneAppGridColumnsChange,
+            showAllResults = context.showAllSettingsResults,
+            showExpandControls = context.showAppSettingsExpandControls,
+            onExpandClick = context.appSettingsExpandClick,
+            expandedCardMaxHeight = settingsParams.expandedCardMaxHeight,
+            showWallpaperBackground = settingsParams.showWallpaperBackground,
+            predictedTarget = settingsParams.predictedTarget,
+            fillExpandedHeight = context.isSectionAliasMode,
+        )
     }
 }
 

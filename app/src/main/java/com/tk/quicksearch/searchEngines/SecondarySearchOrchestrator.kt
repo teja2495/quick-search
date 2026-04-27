@@ -55,8 +55,8 @@ class SecondarySearchOrchestrator(
             clearNoResultTracking()
             lastQueryLength = 0
 
-            uiStateUpdater {
-                it.copy(
+            uiStateUpdater { state ->
+                state.copy(
                     contactResults = emptyList(),
                     fileResults = emptyList(),
                     settingResults = emptyList(),
@@ -65,6 +65,9 @@ class SecondarySearchOrchestrator(
                     appSettingResults = emptyList(),
                     appShortcutResults = emptyList(),
                     isSecondarySearchInProgress = false,
+                    // Flush any staged app results (query was cleared, so clear them too).
+                    searchResults = emptyList(),
+                    pendingSearchResults = null,
                 )
             }
             return
@@ -113,7 +116,15 @@ class SecondarySearchOrchestrator(
         if (!hasAnySecondarySectionToSearch) {
             val currentVersion = queryVersion.incrementAndGet()
             lastQueryLength = trimmedQuery.length
-            uiStateUpdater { it.copy(isSecondarySearchInProgress = false) }
+            // No secondary sections — flush any pending app results immediately so they
+            // aren't held back waiting for a secondary search that will never complete.
+            uiStateUpdater { state ->
+                state.copy(
+                    isSecondarySearchInProgress = false,
+                    searchResults = state.pendingSearchResults ?: state.searchResults,
+                    pendingSearchResults = null,
+                )
+            }
 
             searchJob =
                 scope.launch(Dispatchers.IO) {
@@ -195,6 +206,10 @@ class SecondarySearchOrchestrator(
                                         state.appShortcutResults
                                     },
                                 isSecondarySearchInProgress = false,
+                                // Flush any staged app results atomically with secondary results
+                                // so both appear in the UI in a single state update.
+                                searchResults = state.pendingSearchResults ?: state.searchResults,
+                                pendingSearchResults = null,
                             )
                         }
 
@@ -255,8 +270,8 @@ class SecondarySearchOrchestrator(
         val trimmedQuery = query.trim()
         if (trimmedQuery.isBlank()) {
             clearNoResultTracking()
-            uiStateUpdater {
-                it.copy(
+            uiStateUpdater { state ->
+                state.copy(
                     contactResults = emptyList(),
                     fileResults = emptyList(),
                     settingResults = emptyList(),
@@ -266,6 +281,9 @@ class SecondarySearchOrchestrator(
                     appShortcutResults = emptyList(),
                     webSuggestions = emptyList(),
                     isSecondarySearchInProgress = false,
+                    // Flush staged app results (query cleared — discard them).
+                    searchResults = emptyList(),
+                    pendingSearchResults = null,
                 )
             }
             return
@@ -312,6 +330,9 @@ class SecondarySearchOrchestrator(
                 state.copy(
                     webSuggestions = emptyList(),
                     isSecondarySearchInProgress = false,
+                    // Flush any staged app results — no targeted search will complete.
+                    searchResults = state.pendingSearchResults ?: state.searchResults,
+                    pendingSearchResults = null,
                 )
             }
             return
@@ -352,6 +373,9 @@ class SecondarySearchOrchestrator(
                             appShortcutResults = unifiedResults.appShortcutResults,
                             webSuggestions = emptyList(),
                             isSecondarySearchInProgress = false,
+                            // Flush staged app results atomically with secondary results.
+                            searchResults = state.pendingSearchResults ?: state.searchResults,
+                            pendingSearchResults = null,
                         )
                     }
                 }
@@ -388,7 +412,15 @@ class SecondarySearchOrchestrator(
         val trimmedQuery = query.trim()
         val currentVersion = queryVersion.incrementAndGet()
         lastQueryLength = trimmedQuery.length
-        uiStateUpdater { it.copy(isSecondarySearchInProgress = false) }
+        // Web-suggestions-only path (search engine alias): secondary search is not
+        // running, so flush any staged app results immediately.
+        uiStateUpdater { state ->
+            state.copy(
+                isSecondarySearchInProgress = false,
+                searchResults = state.pendingSearchResults ?: state.searchResults,
+                pendingSearchResults = null,
+            )
+        }
 
         searchJob =
             scope.launch(Dispatchers.IO) {
@@ -435,12 +467,25 @@ class SecondarySearchOrchestrator(
         if (!isOnMainThread()) {
             scope.launch(Dispatchers.Main.immediate) {
                 searchJob?.cancel()
-                uiStateUpdater { it.copy(isSecondarySearchInProgress = false) }
+                uiStateUpdater { state ->
+                    state.copy(
+                        isSecondarySearchInProgress = false,
+                        searchResults = state.pendingSearchResults ?: state.searchResults,
+                        pendingSearchResults = null,
+                    )
+                }
             }
             return
         }
         searchJob?.cancel()
-        uiStateUpdater { it.copy(isSecondarySearchInProgress = false) }
+        uiStateUpdater { state ->
+            state.copy(
+                isSecondarySearchInProgress = false,
+                // Flush any staged app results so they aren't permanently hidden.
+                searchResults = state.pendingSearchResults ?: state.searchResults,
+                pendingSearchResults = null,
+            )
+        }
     }
 
     private fun isOnMainThread(): Boolean = Looper.myLooper() == Looper.getMainLooper()

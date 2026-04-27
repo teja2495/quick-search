@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.Alignment
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.core.isLikelyWebUrl
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
@@ -123,6 +124,7 @@ fun ContentLayout(
 
     // 1. Determine Layout Order based on ItemPriorityConfig
     val hasQuery = state.query.isNotBlank()
+    val queryLength = state.query.trim().length
     val isUrlQuery = remember(state.query) { isLikelyWebUrl(state.query) }
     val baseLayoutOrder = ItemPriorityConfig.getLayoutOrder(hasQuery)
 
@@ -261,6 +263,7 @@ fun ContentLayout(
 
                 val showAliasRecentForSection =
                     showAliasRecentItems && section in ALIAS_RECENT_ELIGIBLE_SECTIONS
+
                 if (showAliasRecentForSection) {
                     AliasRecentItemsSection(
                         items = state.aliasRecentItems,
@@ -275,8 +278,8 @@ fun ContentLayout(
                         showWallpaperBackground = effectiveShowWallpaperBackground,
                         isOverlayPresentation = isOverlayPresentation,
                     )
-                    return@forEach
                 }
+                if (showAliasRecentForSection) return@forEach
 
                 val permissionMessageRes =
                     sectionAliasPermissionMessageRes(
@@ -372,7 +375,9 @@ fun ContentLayout(
                 ItemPriorityConfig.ItemType.WEB_SUGGESTIONS -> {
                     val allowWebSuggestions =
                         !hideResults || state.detectedShortcutTarget != null
-                    if (allowWebSuggestions && hasQuery && showWebSuggestions) {
+                    val isVisible = allowWebSuggestions && hasQuery && showWebSuggestions
+
+                    if (isVisible) {
                         WebSuggestionsSection(
                             suggestions = state.webSuggestions,
                             onSuggestionClick = onWebSuggestionClick,
@@ -385,14 +390,14 @@ fun ContentLayout(
                 }
 
                 ItemPriorityConfig.ItemType.RECENT_QUERIES -> {
-                    if (!hideResults && showRecentItems) {
-                        val orderedRecentItems = state.recentItems
+                    val isVisible = !hideResults && showRecentItems
+                    if (isVisible) {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                         ) {
                             SearchHistorySection(
-                                items = orderedRecentItems,
+                                items = state.recentItems,
                                 callingApp =
                                     effectiveContactsParams.callingApp
                                         ?: CallingApp.CALL,
@@ -465,8 +470,10 @@ fun ContentLayout(
                     val showInlineSearchEngines =
                         !hideResults &&
                             hasQuery &&
+                            (isUrlQuery || queryLength > 1) &&
                             !state.isSecondarySearchInProgress &&
                             (!state.isSearchEngineCompactMode || isUrlQuery)
+
                     if (showInlineSearchEngines) {
                         NoResultsSearchEngineCards(
                             query = state.query,

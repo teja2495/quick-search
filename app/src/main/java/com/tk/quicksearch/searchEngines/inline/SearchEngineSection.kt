@@ -1,10 +1,13 @@
 package com.tk.quicksearch.searchEngines.inline
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,6 +37,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -74,6 +78,24 @@ private object SearchEngineSectionConstants {
     val TOOL_BUTTON_CORNER_RADIUS = 24.dp
     val TOOL_BUTTON_HORIZONTAL_PADDING = DesignTokens.SpacingLarge
     val TOOL_BUTTON_VERTICAL_PADDING = DesignTokens.SpacingMedium
+}
+
+@Composable
+private fun InlineCardEnterAnimation(
+    content: @Composable () -> Unit,
+) {
+    val enterState = remember { MutableTransitionState(false).apply { targetState = true } }
+    AnimatedVisibility(
+        visibleState = enterState,
+        enter =
+            fadeIn(animationSpec = tween(durationMillis = 170, easing = FastOutSlowInEasing)) +
+                slideInVertically(
+                    initialOffsetY = { fullHeight -> -(fullHeight / 5) },
+                    animationSpec = tween(durationMillis = 190, easing = FastOutSlowInEasing),
+                ),
+    ) {
+        content()
+    }
 }
 /**
  * Composable section displaying search engine icons in a scrollable row.
@@ -122,25 +144,27 @@ fun SearchEngineIconsSection(
     if (detectedShortcutTarget != null) {
         // Check if query starts with the shortcut and remove it
         // The shortcut corresponds to the detected engine
-        Box(
-            modifier =
-                modifier.extendToScreenEdges().padding(
-                    horizontal = DesignTokens.SpacingXLarge,
-                    vertical = 8.dp,
-                ),
-        ) {
-            SearchEngineCard(
-                target = detectedShortcutTarget,
-                query = query,
-                onClick = { onSearchEngineClick(query, detectedShortcutTarget) },
-                onLongClick = onSearchEngineLongPress,
-                onClear = onClearDetectedShortcut,
-                showWallpaperBackground = showWallpaperBackground,
-                isPredicted =
-                    (predictedTarget as? PredictedSubmitTarget.SearchTarget)?.targetId ==
-                        detectedShortcutTarget.getId(),
-                appIconShape = appIconShape,
-            )
+        InlineCardEnterAnimation {
+            Box(
+                modifier =
+                    modifier.extendToScreenEdges().padding(
+                        horizontal = DesignTokens.SpacingXLarge,
+                        vertical = 8.dp,
+                    ),
+            ) {
+                SearchEngineCard(
+                    target = detectedShortcutTarget,
+                    query = query,
+                    onClick = { onSearchEngineClick(query, detectedShortcutTarget) },
+                    onLongClick = onSearchEngineLongPress,
+                    onClear = onClearDetectedShortcut,
+                    showWallpaperBackground = showWallpaperBackground,
+                    isPredicted =
+                        (predictedTarget as? PredictedSubmitTarget.SearchTarget)?.targetId ==
+                            detectedShortcutTarget.getId(),
+                    appIconShape = appIconShape,
+                )
+            }
         }
     } else {
         val compactTopDividerColor =
@@ -181,19 +205,21 @@ fun SearchEngineIconsSection(
                         )
                     }
                 } else {
-                    SearchEngineContent(
-                        query = query,
-                        enabledEngines = enabledEngines,
-                        scrollState = scrollState,
-                        onSearchEngineClick = onSearchEngineClick,
-                        onSearchEngineLongPress = onSearchEngineLongPress,
-                        showOverlayExpandChevron = showOverlayExpandChevron,
-                        onOverlayExpandClick = onOverlayExpandClick,
-                        isOverlayExpanded = isOverlayExpanded,
-                        compactRowCount = compactRowCount,
-                        predictedTarget = predictedTarget,
-                        appIconShape = appIconShape,
-                    )
+                    InlineCardEnterAnimation {
+                        SearchEngineContent(
+                            query = query,
+                            enabledEngines = enabledEngines,
+                            scrollState = scrollState,
+                            onSearchEngineClick = onSearchEngineClick,
+                            onSearchEngineLongPress = onSearchEngineLongPress,
+                            showOverlayExpandChevron = showOverlayExpandChevron,
+                            onOverlayExpandClick = onOverlayExpandClick,
+                            isOverlayExpanded = isOverlayExpanded,
+                            compactRowCount = compactRowCount,
+                            predictedTarget = predictedTarget,
+                            appIconShape = appIconShape,
+                        )
+                    }
                     AnimatedVisibility(
                         visible = hasToolAction,
                         enter =

@@ -5,7 +5,6 @@ import com.tk.quicksearch.search.data.UserAppPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -56,10 +55,8 @@ class WebSuggestionHandler(
         webSuggestionsJob =
             scope.launch(Dispatchers.IO) {
                 try {
-                    // Add small delay to prevent immediate API calls while user is typing
-                    delay(50L)
-
-                    // Check if query version still matches after delay
+                    // Check if query version still matches (outer debounce already
+                    // handles rapid typing, so no additional delay is needed here)
                     val activeVersion = activeQueryVersionProvider()
                     val activeQuery = activeQueryProvider().trim()
                     val versionMatches = activeVersion == currentQueryVersion

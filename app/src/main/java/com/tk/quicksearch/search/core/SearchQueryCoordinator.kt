@@ -628,7 +628,15 @@ internal class SearchQueryCoordinator(
                         appSearchManager.setNoMatchPrefix(null)
                     }
 
-                    updateResultsState { state -> state.copy(searchResults = results) }
+                    updateResultsState { state ->
+                        // If secondary search is still running, stage results so they appear
+                        // simultaneously with secondary results. Otherwise write through directly.
+                        if (state.isSecondarySearchInProgress) {
+                            state.copy(pendingSearchResults = results)
+                        } else {
+                            state.copy(searchResults = results, pendingSearchResults = null)
+                        }
+                    }
                 }
         } else if (shouldSkipSearch) {
             updateResultsState { state -> state.copy(searchResults = emptyList()) }

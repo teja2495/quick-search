@@ -415,6 +415,9 @@ data class SearchUiState(
         // App results
         val recentApps: List<AppInfo> = emptyList(),
         val searchResults: List<AppInfo> = emptyList(),
+        // Internal staging buffer: app results held here until secondary search completes
+        // so both appear in the UI simultaneously. Not read by any UI composable directly.
+        val pendingSearchResults: List<AppInfo>? = null,
         val allApps: List<AppInfo> = emptyList(),
         val pinnedApps: List<AppInfo> = emptyList(),
         val suggestionExcludedApps: List<AppInfo> = emptyList(),
@@ -602,6 +605,7 @@ fun SearchUiState(
                 query = results.query,
                 recentApps = results.recentApps,
                 searchResults = results.searchResults,
+                pendingSearchResults = results.pendingSearchResults,
                 pinnedApps = results.pinnedApps,
                 allApps = results.allApps,
                 suggestionExcludedApps = results.suggestionExcludedApps,

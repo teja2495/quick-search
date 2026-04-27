@@ -591,11 +591,10 @@ class SearchViewModel(
     private fun updateVisibilityStates() = updateUiState { currentState -> applyVisibilityStates(currentState) }
     companion object {
         @Volatile private var inMemoryRetainedQuery: String = ""
-        // Debounce for the background app-search job (ms).  Kept intentionally
-        // shorter than the 150 ms secondary-search debounce because app results
-        // are cheap relative to contact/file queries, but still eliminates the
-        // redundant mid-word searches that occur during rapid typing.
-        private const val APP_SEARCH_DEBOUNCE_MS = 60L
+        // Match the secondary-search debounce so all results (apps + contacts/
+        // files/settings) appear at the same time instead of apps popping in
+        // ~90 ms before secondary results.
+        private const val APP_SEARCH_DEBOUNCE_MS = 150L
     }
     private fun getGridItemCount(): Int =
             derivedStateDelegate.getGridItemCount()
