@@ -260,7 +260,6 @@ class SecondarySearchOrchestrator(
     fun performTargetedSecondarySearch(
         query: String,
         section: SearchSection,
-        useFuzzyMatching: Boolean,
         ignoreSectionToggle: Boolean = false,
     ) {
         if (!isOnMainThread()) {
@@ -268,7 +267,6 @@ class SecondarySearchOrchestrator(
                 performTargetedSecondarySearchInternal(
                     query = query,
                     section = section,
-                    useFuzzyMatching = useFuzzyMatching,
                     ignoreSectionToggle = ignoreSectionToggle,
                 )
             }
@@ -277,7 +275,6 @@ class SecondarySearchOrchestrator(
         performTargetedSecondarySearchInternal(
             query = query,
             section = section,
-            useFuzzyMatching = useFuzzyMatching,
             ignoreSectionToggle = ignoreSectionToggle,
         )
     }
@@ -285,7 +282,6 @@ class SecondarySearchOrchestrator(
     private fun performTargetedSecondarySearchInternal(
         query: String,
         section: SearchSection,
-        useFuzzyMatching: Boolean,
         ignoreSectionToggle: Boolean,
     ) {
         searchJob?.cancel()
@@ -338,7 +334,12 @@ class SecondarySearchOrchestrator(
         val sectionSearchConfig =
             SearchSectionRegistry.secondarySearchDefinitions.associate { definition ->
                 val shouldSearch = definition.section == section && shouldRunTargetedSearch
-                val enableFuzzyMatching = shouldSearch && useFuzzyMatching
+                val enableFuzzyMatching =
+                    shouldSearch &&
+                        (
+                            definition.section == SearchSection.SETTINGS ||
+                                definition.section == SearchSection.APP_SETTINGS
+                        )
                 definition.section to
                     UnifiedSectionSearchConfig(
                         shouldSearch = shouldSearch,

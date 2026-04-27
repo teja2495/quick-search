@@ -96,7 +96,6 @@ internal class SearchQueryCoordinator(
             secondarySearchOrchestrator.performTargetedSecondarySearch(
                 query = currentQuery,
                 section = section,
-                useFuzzyMatching = true,
                 ignoreSectionToggle = true,
             )
         }
@@ -681,7 +680,6 @@ internal class SearchQueryCoordinator(
                     secondarySearchOrchestrator.performTargetedSecondarySearch(
                         query = newQuery,
                         section = detectedAliasSearchSection,
-                        useFuzzyMatching = true,
                         ignoreSectionToggle = true,
                     )
                 }

@@ -131,15 +131,16 @@ class UnifiedSearchHandler(
                         val isContactsAliasSearch = aliasSection == SearchSection.CONTACTS
                         val isFilesAliasSearch = aliasSection == SearchSection.FILES
                         val isCalendarAliasSearch = aliasSection == SearchSection.CALENDAR
+                        val useLowRamAliasLimits = false
                         val contactResultLimit =
                                 if (isContactsAliasSearch) {
-                                        if (isLowRamDevice) LOW_RAM_ALIAS_CONTACT_RESULT_LIMIT
+                                        if (useLowRamAliasLimits) LOW_RAM_ALIAS_CONTACT_RESULT_LIMIT
                                         else ALIAS_CONTACT_RESULT_LIMIT
                                 }
                                 else SearchOperations.CONTACT_RESULT_LIMIT
                         val fileResultLimit =
                                 if (isFilesAliasSearch) {
-                                        if (isLowRamDevice) LOW_RAM_ALIAS_FILE_RESULT_LIMIT
+                                        if (useLowRamAliasLimits) LOW_RAM_ALIAS_FILE_RESULT_LIMIT
                                         else ALIAS_FILE_RESULT_LIMIT
                                 }
                                 else FileSearchHandler.FILE_SEARCH_RESULT_LIMIT
@@ -163,7 +164,7 @@ class UnifiedSearchHandler(
                         val nicknameOnlyFileUriHydrationLimit = fileResultLimit * 2
                         val calendarResultLimit =
                                 if (isCalendarAliasSearch) {
-                                        if (isLowRamDevice) 35 else 60
+                                        if (useLowRamAliasLimits) 35 else 60
                                 } else {
                                         25
                                 }
