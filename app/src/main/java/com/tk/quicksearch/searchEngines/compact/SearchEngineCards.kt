@@ -16,6 +16,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,6 +59,13 @@ fun NoResultsSearchEngineCards(
     predictedTarget: PredictedSubmitTarget? = null,
     appIconShape: AppIconShape = AppIconShape.DEFAULT,
 ) {
+    val currentQuery = rememberUpdatedState(query)
+    val actionLabelResId =
+        if (isLikelyWebUrl(query)) {
+            R.string.open_with_engine
+        } else {
+            R.string.search_on_engine
+        }
     // Reverse the engine list when results are at the bottom
     val orderedEngines =
         if (isReversed) {
@@ -80,17 +90,23 @@ fun NoResultsSearchEngineCards(
         }
 
         orderedEngines.forEach { engine ->
-            SearchTargetCard(
-                target = engine,
-                query = query,
-                onClick = { onSearchEngineClick(query, engine) },
-                onLongClick = onSearchEngineLongPress,
-                showWallpaperBackground = showWallpaperBackground,
-                isPredicted =
-                    (predictedTarget as? PredictedSubmitTarget.SearchTarget)?.targetId ==
-                        engine.getId(),
-                appIconShape = appIconShape,
-            )
+            key(engine.getId()) {
+                val onEngineClick =
+                    remember(engine, onSearchEngineClick) {
+                        { onSearchEngineClick(currentQuery.value, engine) }
+                    }
+                SearchTargetCard(
+                    target = engine,
+                    actionLabelResId = actionLabelResId,
+                    onClick = onEngineClick,
+                    onLongClick = onSearchEngineLongPress,
+                    showWallpaperBackground = showWallpaperBackground,
+                    isPredicted =
+                        (predictedTarget as? PredictedSubmitTarget.SearchTarget)?.targetId ==
+                            engine.getId(),
+                    appIconShape = appIconShape,
+                )
+            }
         }
 
         // When not reversed, show customize card at the bottom
@@ -196,7 +212,7 @@ fun SearchEngineCard(
 @Composable
 private fun SearchTargetCard(
     target: SearchTarget,
-    query: String,
+    actionLabelResId: Int,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
@@ -205,12 +221,6 @@ private fun SearchTargetCard(
     appIconShape: AppIconShape = AppIconShape.DEFAULT,
 ) {
     val view = LocalView.current
-    val actionLabelResId =
-        if (isLikelyWebUrl(query)) {
-            R.string.open_with_engine
-        } else {
-            R.string.search_on_engine
-        }
     SearchResultCard(
         modifier =
             modifier

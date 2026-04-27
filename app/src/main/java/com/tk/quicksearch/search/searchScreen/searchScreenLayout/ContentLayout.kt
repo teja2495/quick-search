@@ -306,7 +306,12 @@ fun ContentLayout(
                 return@forEach
             }
 
-            if (deferNonAppContentUntilAppsReady) return@forEach
+            if (
+                deferNonAppContentUntilAppsReady &&
+                    itemType != ItemPriorityConfig.ItemType.SEARCH_ENGINES_INLINE
+            ) {
+                return@forEach
+            }
 
             when (itemType) {
                 ItemPriorityConfig.ItemType.ERROR_BANNER -> {
@@ -478,7 +483,6 @@ fun ContentLayout(
                         !hideResults &&
                             hasQuery &&
                             (isUrlQuery || queryLength > 1) &&
-                            !state.isSecondarySearchInProgress &&
                             (!state.isSearchEngineCompactMode || isUrlQuery)
 
                     if (showInlineSearchEngines) {

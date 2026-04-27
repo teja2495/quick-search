@@ -37,6 +37,26 @@ class SecondarySearchOrchestrator(
         private const val SECONDARY_SEARCH_DEBOUNCE_MS = 150L
     }
 
+    fun willRunSecondarySearch(query: String): Boolean {
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isBlank()) return false
+
+        val currentState = currentStateProvider()
+        val isBackspacing = trimmedQuery.length < lastQueryLength
+        return SearchSectionRegistry.secondarySearchDefinitions.any { definition ->
+            val section = definition.section
+            val skipNoResultsCache =
+                definition.minimumQueryLength == 1 && trimmedQuery.length == 1
+            val shouldSkipSection =
+                !skipNoResultsCache &&
+                    shouldSkipSearchForSection(trimmedQuery, section, isBackspacing)
+            trimmedQuery.length >= definition.minimumQueryLength &&
+                hasPermissionForSection(currentState, section) &&
+                section !in sectionManager.disabledSections &&
+                !shouldSkipSection
+        }
+    }
+
     fun performSecondarySearches(query: String) {
         if (!isOnMainThread()) {
             scope.launch(Dispatchers.Main.immediate) {

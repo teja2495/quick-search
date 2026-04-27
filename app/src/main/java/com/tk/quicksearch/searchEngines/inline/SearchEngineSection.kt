@@ -205,21 +205,19 @@ fun SearchEngineIconsSection(
                         )
                     }
                 } else {
-                    InlineCardEnterAnimation {
-                        SearchEngineContent(
-                            query = query,
-                            enabledEngines = enabledEngines,
-                            scrollState = scrollState,
-                            onSearchEngineClick = onSearchEngineClick,
-                            onSearchEngineLongPress = onSearchEngineLongPress,
-                            showOverlayExpandChevron = showOverlayExpandChevron,
-                            onOverlayExpandClick = onOverlayExpandClick,
-                            isOverlayExpanded = isOverlayExpanded,
-                            compactRowCount = compactRowCount,
-                            predictedTarget = predictedTarget,
-                            appIconShape = appIconShape,
-                        )
-                    }
+                    SearchEngineContent(
+                        query = query,
+                        enabledEngines = enabledEngines,
+                        scrollState = scrollState,
+                        onSearchEngineClick = onSearchEngineClick,
+                        onSearchEngineLongPress = onSearchEngineLongPress,
+                        showOverlayExpandChevron = showOverlayExpandChevron,
+                        onOverlayExpandClick = onOverlayExpandClick,
+                        isOverlayExpanded = isOverlayExpanded,
+                        compactRowCount = compactRowCount,
+                        predictedTarget = predictedTarget,
+                        appIconShape = appIconShape,
+                    )
                     AnimatedVisibility(
                         visible = hasToolAction,
                         enter =
@@ -438,7 +436,12 @@ private fun ScrollableEngineIcons(
                                 predictionHighlightExtraHeight,
                         ),
             ) {
-                rowItems(columns) { column ->
+                rowItems(
+                    items = columns,
+                    key = { column ->
+                        "${column.top?.getId().orEmpty()}|${column.bottom?.getId().orEmpty()}"
+                    },
+                ) { column ->
                     Column(
                         verticalArrangement =
                             Arrangement.spacedBy(SearchEngineSectionConstants.ROW_SPACING),
@@ -484,7 +487,10 @@ private fun ScrollableEngineIcons(
                     ),
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                rowItems(enabledEngines) { engine ->
+                rowItems(
+                    items = enabledEngines,
+                    key = { engine -> engine.getId() },
+                ) { engine ->
                     SearchEngineIconItem(
                         engine = engine,
                         query = query,

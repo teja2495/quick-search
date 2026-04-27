@@ -533,7 +533,8 @@ internal class SearchQueryCoordinator(
                 !aliasState.lockedWordClockAlias &&
                 !aliasState.lockedDictionaryAlias &&
                 aliasState.lockedCustomToolId == null &&
-                detectedAliasSearchSection != SearchSection.APPS
+                detectedAliasSearchSection != SearchSection.APPS &&
+                secondarySearchOrchestrator.willRunSecondarySearch(newQuery)
         val shouldRunAppSearch =
             !shouldSkipSearch &&
                 detectedTarget == null &&
@@ -557,20 +558,28 @@ internal class SearchQueryCoordinator(
                 webSuggestions = emptyList(),
                 webSuggestionsLoading = false,
                 isAppSearchInProgress = shouldRunAppSearch,
-                isSecondarySearchInProgress = shouldRunSecondarySearchBatch,
+                isSecondarySearchInProgress =
+                    if (shouldRunSecondarySearchBatch) {
+                        state.isSecondarySearchInProgress
+                    } else {
+                        false
+                    },
                 detectedShortcutTarget = detectedTarget,
                 detectedAliasSearchSection = detectedAliasSearchSection,
                 isCurrencyConverterAliasMode = aliasState.lockedCurrencyConverterAlias,
                 isWordClockAliasMode = aliasState.lockedWordClockAlias,
                 isDictionaryAliasMode = aliasState.lockedDictionaryAlias,
                 detectedCustomToolId = aliasState.lockedCustomToolId,
-                contactResults = emptyList(),
-                fileResults = emptyList(),
-                settingResults = emptyList(),
-                appSettingResults = emptyList(),
-                appShortcutResults = emptyList(),
-                calendarEvents = emptyList(),
-                noteResults = emptyList(),
+                // Keep stale secondary results during debounce so cards don't flicker.
+                // When secondary search is not going to run (tool mode, alias mode, etc.),
+                // clear them immediately since the orchestrator won't clean them up.
+                contactResults = if (shouldRunSecondarySearchBatch) state.contactResults else emptyList(),
+                fileResults = if (shouldRunSecondarySearchBatch) state.fileResults else emptyList(),
+                settingResults = if (shouldRunSecondarySearchBatch) state.settingResults else emptyList(),
+                appSettingResults = if (shouldRunSecondarySearchBatch) state.appSettingResults else emptyList(),
+                appShortcutResults = if (shouldRunSecondarySearchBatch) state.appShortcutResults else emptyList(),
+                calendarEvents = if (shouldRunSecondarySearchBatch) state.calendarEvents else emptyList(),
+                noteResults = if (shouldRunSecondarySearchBatch) state.noteResults else emptyList(),
                 aliasRecentItems = emptyList(),
             )
         }
