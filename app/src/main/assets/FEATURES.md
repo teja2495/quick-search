@@ -2,7 +2,7 @@
 
 This document highlights all the available features. It also includes details about hidden or non-obvious features that you might miss.
 
-**Version**: 3.2 (Updated Apr 17 2026)
+**Version**: 3.3 (Updated Apr 27 2026)
 
 ### Search
 
@@ -83,7 +83,9 @@ Add aliases at the start of your query to quickly let the app know what you want
   - Second word matches
   - Names containing query anywhere
 - **Recently Opened Results** - Recently opened results are prioritized in the result order.
-- App, App Shortcut, Device and App settings searches support fuzzy search to ignore typos.
+- **Apps** - Use the ranking above plus optional fuzzy matching, acronym-style shortcuts (for example matching initials to an app name), and nicknames you assign.
+- **Device settings** and **Quick Search app settings** - Typo-tolerant fuzzy matching is used in the unified secondary search so small spelling mistakes still surface the right setting rows.
+- **Contacts** and **files** - Also respect **nicknames** you add; using a **section alias** for contacts or files runs a deeper, section-focused search (see Hidden / Non-Obvious Features).
 
 ---
 
@@ -97,7 +99,7 @@ Long-press on most results to open a context menu with quick actions.
 - **Add to Home Screen** - Add apps, app shortcuts, contacts, files, and device settings directly to your home screen as shortcuts for one-tap access.
 - **Edit Icons for App Shortcuts** - Option to add custom icons for app shortcuts.
 - **App Info / Uninstall / Hide** - For apps, open system app info, uninstall supported apps, or hide them from suggestions/results using the long-press menu on the app icon.
-- **File-Specific Options** - For files, long-press to open the containing folder, exclude all files with the same extension, or view a detailed file info dialog (type, size, path, last modified, etc.).
+- **File-Specific Options** - For files, long-press to share, open the containing folder, exclude all files with the same extension, or view a detailed file info dialog (type, size, path, last modified, etc.).
 
 ---
 
@@ -126,7 +128,7 @@ Long-press on most results to open a context menu with quick actions.
 - **Search Sections Management** - Enable/disable individual result sections (apps, app shortcuts, contacts, files, device settings, history, etc.), and assign alias shortcuts to each section. Tap on the search type options to navigate to their respective screen, which offers additional options.
 - **App Suggestions** - You can choose to disable app suggestions if you want a cleaner home screen. 
 - **Web Search Suggestions** - Turn web suggestions on or off and control how many suggestions (1–5) appear under the search bar.
-- **Search History** - Enable or disable search history. Your search queries and recently opened items (files, contacts, etc.) appear in your search history.
+- **Search History** - Enable or disable search history. The expanded list shows up to 15 items; **Clear all** history is available at the bottom of the list. Your search queries, recently opened items (files, contacts, etc.) appear in your search history.
 - **Excluded Items** - When you exclude any item on the search results page, you can find them here and clear them if you want to.
 - **Refresh Data** - The app automatically refreshes your data from time to time, but if you want to manually refresh the data, you can do it here.
 - **Calendar Options** - Create custom calendar entries and choose to ignore past events in results. Today's events also appear on the home screen.
@@ -170,7 +172,7 @@ Long-press on most results to open a context menu with quick actions.
 - **File Types** - Enable or disable specific file categories (documents, pictures, videos, audio, APKs, other) to fine‑tune which files are searchable.
 - **Excluded Extensions** - See and remove file extensions that are currently excluded from results.
 - **System & Hidden Files** - Show or hide system files and hidden files from file search results.
-- **Folder Filters (Whitelist / Blacklist)** - Configure which folder paths should always be included or excluded using simple comma‑separated patterns.
+- **Folder Filters (Whitelist / Blacklist)** - Configure which folders should be included or excluded for files search.
 
 ---
 
@@ -225,7 +227,7 @@ Long-press on most results to open a context menu with quick actions.
 ### Widgets
 
 - **Search Widget** - Tap the widget to instantly open Quick Search. Highly customizable with mic button support and up to 2 custom buttons alongside the search functionality.
-- **Custom Buttons Widget** - A dedicated widget for custom buttons - apps, app shortcuts, contacts, files, device settings - with enhanced customizable layouts and actions.
+- **Custom Buttons Widget** - A dedicated widget for custom buttons - apps, app shortcuts, contacts, files, device settings, and notes - with enhanced customizable layouts and actions.
 
 ---
 
@@ -252,7 +254,7 @@ Long-press on most results to open a context menu with quick actions.
 - **Keyboard Action Button** - Tap on keyboard action button to automatically open the top result
 - **Show/Switch Keyboard Button** - When you close the keyboard, a small "Open Keyboard" button appears so that you don't have to tap on the search bar. When you type numbers in search, a "Switch to number" keyboard will appear. This is useful when using the calculator.
 - **Alias-based Contact and File Searches** - When you trigger contact/files search using an alias, the app will search more deeply.
-- **Search History Items** - Long-press on any search history item to remove it from your search history.
+- **Search History Items** - Up to 15 items in the expanded list, with **Clear all** at the bottom. Long-press on any item to remove it.
 - **Search Engines Long Press** - Long-press any search engine icon or card (inline or compact) to jump directly to the Search Engines settings screen for managing engines, order, aliases, and other options.
 - **Contacts**
 - **Contact Action Customization** - Long-press the call/message action buttons on a contact card to replace them with any action you like.

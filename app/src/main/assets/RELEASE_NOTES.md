@@ -1,5 +1,5 @@
 - Improved search algorithm
-- Startup performance optimisations
+- Startup speed improvements
 - Ability to share file results by long pressing
 - Option to clear all search history
 - Bug fixes
