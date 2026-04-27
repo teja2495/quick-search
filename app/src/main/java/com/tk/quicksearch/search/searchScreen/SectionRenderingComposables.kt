@@ -73,7 +73,7 @@ private fun renderFilesSection(
             permissionDisabledCard = filesParams.permissionDisabledCard,
             showWallpaperBackground = filesParams.showWallpaperBackground,
             predictedTarget = filesParams.predictedTarget,
-            fillExpandedHeight = context.isSectionAliasMode,
+            fillExpandedHeight = false,
         )
     }
 }
@@ -124,7 +124,7 @@ private fun renderContactsSection(
             permissionDisabledCard = contactsParams.permissionDisabledCard,
             showWallpaperBackground = contactsParams.showWallpaperBackground,
             predictedTarget = contactsParams.predictedTarget,
-            fillExpandedHeight = context.isSectionAliasMode,
+            fillExpandedHeight = false,
         )
     }
 }
@@ -198,7 +198,7 @@ private fun renderAppShortcutsSection(
             iconPackPackage = appShortcutsParams.iconPackPackage,
             showWallpaperBackground = appShortcutsParams.showWallpaperBackground,
             predictedTarget = appShortcutsParams.predictedTarget,
-            fillExpandedHeight = context.isSectionAliasMode,
+            fillExpandedHeight = false,
         )
     }
 }
@@ -230,7 +230,7 @@ private fun renderSettingsSection(
             expandedCardMaxHeight = settingsParams.expandedCardMaxHeight,
             showWallpaperBackground = settingsParams.showWallpaperBackground,
             predictedTarget = settingsParams.predictedTarget,
-            fillExpandedHeight = context.isSectionAliasMode,
+            fillExpandedHeight = false,
         )
     }
 }
@@ -264,7 +264,7 @@ private fun renderAppSettingsSection(
             expandedCardMaxHeight = settingsParams.expandedCardMaxHeight,
             showWallpaperBackground = settingsParams.showWallpaperBackground,
             predictedTarget = settingsParams.predictedTarget,
-            fillExpandedHeight = context.isSectionAliasMode,
+            fillExpandedHeight = false,
         )
     }
 }
@@ -297,7 +297,7 @@ private fun renderCalendarSection(
             permissionDisabledCard = calendarParams.permissionDisabledCard,
             showWallpaperBackground = calendarParams.showWallpaperBackground,
             predictedTarget = calendarParams.predictedTarget,
-            fillExpandedHeight = context.isSectionAliasMode,
+            fillExpandedHeight = false,
             isHomeScreenMode = context.isHomeScreenCalendarMode,
         )
     }
@@ -323,7 +323,7 @@ private fun renderNotesSection(
             expandedCardMaxHeight = notesParams.expandedCardMaxHeight,
             showWallpaperBackground = notesParams.showWallpaperBackground,
             predictedTarget = notesParams.predictedTarget,
-            fillExpandedHeight = context.isSectionAliasMode,
+            fillExpandedHeight = false,
         )
     }
 }
