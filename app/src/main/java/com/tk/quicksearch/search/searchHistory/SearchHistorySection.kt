@@ -78,8 +78,6 @@ import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
-private val EXPANDED_HISTORY_MAX_HEIGHT_OVERLAY = 300.dp
-
 private const val QUERY_ROW_ICON_SIZE = 40
 private const val QUERY_ICON_START_PADDING = 16
 private const val QUERY_TEXT_START_PADDING = 12
@@ -120,6 +118,7 @@ fun SearchHistorySection(
     showSearchHistoryTip: Boolean = false,
     onOpenSearchHistorySettings: () -> Unit = {},
     onDismissSearchHistoryTip: () -> Unit = {},
+    isExpanded: Boolean? = null,
     onExpandedChange: (Boolean) -> Unit = {},
     collapseRequestKey: Int = 0,
     expandedCardMaxHeight: Dp = SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT,
@@ -131,29 +130,33 @@ fun SearchHistorySection(
     val overlayCardColor = LocalOverlayResultCardColor.current
     val overlayDividerColor = LocalOverlayDividerColor.current
     if (items.isEmpty()) return
-    var isExpanded by remember { mutableStateOf(alwaysExpanded) }
+    var localExpanded by remember { mutableStateOf(alwaysExpanded) }
+    val expanded = alwaysExpanded || (isExpanded ?: localExpanded)
     var showClearAllConfirmation by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
-    val canExpand = !alwaysExpanded && items.size > 1
+    val canExpand = !alwaysExpanded && items.size > SearchScreenConstants.INITIAL_RESULT_COUNT
     val scrollState = rememberScrollState()
-    val expandedHistoryMaxHeight =
-        if (isOverlayPresentation) {
-            minOf(expandedCardMaxHeight, EXPANDED_HISTORY_MAX_HEIGHT_OVERLAY)
-        } else {
-            expandedCardMaxHeight
-        }
+    var lastCollapseRequestKey by remember { mutableStateOf(collapseRequestKey) }
 
-    BackHandler(enabled = isExpanded) {
-        isExpanded = false
-        onExpandedChange(false)
+    fun updateExpanded(value: Boolean) {
+        if (isExpanded == null) {
+            localExpanded = value
+        }
+        onExpandedChange(value)
+    }
+
+    BackHandler(enabled = expanded) {
+        updateExpanded(false)
         keyboardController?.show()
     }
 
     LaunchedEffect(collapseRequestKey) {
-        if (!alwaysExpanded && isExpanded) {
-            isExpanded = false
-            onExpandedChange(false)
+        if (collapseRequestKey != lastCollapseRequestKey && !alwaysExpanded && expanded) {
+            lastCollapseRequestKey = collapseRequestKey
+            updateExpanded(false)
             keyboardController?.show()
+        } else {
+            lastCollapseRequestKey = collapseRequestKey
         }
     }
 
@@ -170,17 +173,22 @@ fun SearchHistorySection(
     ) {
         ExpandableResultsCard(
             resultCount = items.size,
-            isExpanded = isExpanded,
+            isExpanded = expanded,
             showAllResults = false,
             showExpandControls = canExpand,
-            expandedCardMaxHeight = expandedHistoryMaxHeight,
+            expandedCardMaxHeight = expandedCardMaxHeight,
             hasScrollableContent = scrollState.maxValue > 0,
             fillExpandedHeight = false,
             showWallpaperBackground = showWallpaperBackground,
             overlayCardColor = overlayCardColor,
         ) { contentModifier, cardState ->
             val displayAsExpanded = cardState.displayAsExpanded
-            val displayItems = if (displayAsExpanded) items else items.take(1)
+            val displayItems =
+                if (displayAsExpanded) {
+                    items
+                } else {
+                    items.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
+                }
             val listModifier =
                 if (displayAsExpanded) {
                     contentModifier.verticalScroll(scrollState)
@@ -250,8 +258,7 @@ fun SearchHistorySection(
                 if (!displayAsExpanded && canExpand) {
                     ExpandButton(
                         onClick = {
-                            isExpanded = true
-                            onExpandedChange(true)
+                            updateExpanded(true)
                             keyboardController?.hide()
                         },
                         modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -261,12 +268,11 @@ fun SearchHistorySection(
             }
         }
 
-        if (isExpanded && !alwaysExpanded && showInlineCollapseButton) {
+        if (expanded && !alwaysExpanded && showInlineCollapseButton) {
             CollapseButton(
                 showWallpaperBackground = showWallpaperBackground,
                 onClick = {
-                    isExpanded = false
-                    onExpandedChange(false)
+                    updateExpanded(false)
                     keyboardController?.show()
                 },
                 modifier = Modifier
@@ -689,7 +695,7 @@ private fun ClearAllHistoryConfirmationDialog(
             TextButton(onClick = onConfirm) {
                 Text(
                     text = stringResource(R.string.action_clear_all_history),
-                    color = MaterialTheme.colorScheme.error,
+                    color = MaterialTheme.colorScheme.error.copy(alpha = 0.82f),
                 )
             }
         },
@@ -709,7 +715,7 @@ private fun ClearAllHistoryRow(
     val interactionSource = remember { MutableInteractionSource() }
     val clearColor =
         if (showWallpaperBackground) {
-            AppColors.WallpaperTextPrimary.copy(alpha = 0.72f)
+            MaterialTheme.colorScheme.error.copy(alpha = 0.72f)
         } else {
             MaterialTheme.colorScheme.error.copy(alpha = 0.78f)
         }

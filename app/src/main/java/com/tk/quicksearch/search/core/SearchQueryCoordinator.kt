@@ -331,6 +331,28 @@ internal class SearchQueryCoordinator(
         val trimmedQuery = newQuery.trim()
         if (trimmedQuery.isNotBlank() && trimmedQuery == previousQuery.trim()) {
             updateUiState { it.copy(query = newQuery) }
+            when (val aliasResolution = resolveAliasQueryResolution(newQuery)) {
+                is AliasQueryResolution.ReprocessQuery -> {
+                    onQueryChangeInternal(
+                        aliasResolution.queryWithoutAlias,
+                        clearShortcutWhenBlank = false,
+                    )
+                }
+
+                is AliasQueryResolution.ExecuteSearchTarget -> {
+                    navigationHandler.openSearchTarget(
+                        aliasResolution.queryWithoutAlias.trim(),
+                        aliasResolution.target,
+                    )
+                    if (aliasResolution.queryWithoutAlias.isBlank()) {
+                        clearQuery()
+                    } else {
+                        onQueryChange(aliasResolution.queryWithoutAlias)
+                    }
+                }
+
+                AliasQueryResolution.None -> Unit
+            }
             return
         }
         val aiSearchState = currentResultsStateProvider().AiSearchState

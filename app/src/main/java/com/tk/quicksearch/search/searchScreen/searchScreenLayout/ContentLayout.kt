@@ -463,6 +463,7 @@ fun ContentLayout(
                                 showSearchHistoryTip = !state.hasDismissedSearchHistoryTip,
                                 onOpenSearchHistorySettings = onOpenSearchHistorySettings,
                                 onDismissSearchHistoryTip = onDismissSearchHistoryTip,
+                                isExpanded = searchHistoryExpanded,
                                 onExpandedChange = { searchHistoryExpanded = it },
                                 collapseRequestKey = searchHistoryCollapseRequestKey,
                                 expandedCardMaxHeight = expandedCardMaxHeight,

@@ -118,7 +118,9 @@ fun SearchContentArea(
     onOpenPermissionsSettings: () -> Unit = {},
 ) {
     val useOneHandedMode =
-        state.oneHandedMode && renderingState.expandedSection == ExpandedSection.NONE
+        state.oneHandedMode &&
+            renderingState.expandedSection == ExpandedSection.NONE &&
+            !isSearchHistoryExpanded
     val hideOtherResults =
                 showAiSearch ||
                 showCalculator ||
@@ -240,6 +242,7 @@ fun SearchContentArea(
                     val shouldFillOverlayHeight =
                         alignResultsToBottom ||
                                 renderingState.expandedSection != ExpandedSection.NONE ||
+                                isSearchHistoryExpanded ||
                                 showRetryButton
                     if (shouldFillOverlayHeight) {
                         // Ensure overlay content occupies full available height so one-handed
@@ -359,10 +362,9 @@ fun SearchContentArea(
                                         alignResultsToBottom,
                                     ).padding(
                                         bottom =
-                                            if (renderingState
-                                                    .expandedSection !=
-                                                ExpandedSection
-                                                    .NONE
+                                            if (
+                                                renderingState.expandedSection != ExpandedSection.NONE ||
+                                                isSearchHistoryExpanded
                                             ) {
                                                 if (isSectionAliasMode) {
                                                     aliasExpandedSectionBottomInset
