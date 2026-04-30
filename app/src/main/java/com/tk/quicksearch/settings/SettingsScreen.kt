@@ -867,7 +867,7 @@ fun SettingsVersionDisplay(
             textAlign = TextAlign.Center,
             modifier =
                 Modifier.clickable {
-                    val url = "https://hihello.com/p/e11b6338-b4a5-49d8-93c8-03ac219de738"
+                    val url = "https://teja2495.github.io/teja-karlapudi-links/"
                     try {
                         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                     } catch (e: Exception) {
