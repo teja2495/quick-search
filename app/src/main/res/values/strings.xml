@@ -185,6 +185,7 @@
     <string name="action_clear_all_history">Clear History</string>
     <string name="dialog_clear_all_history_title">Clear All History?</string>
     <string name="dialog_clear_all_history_message">Are you sure you want to clear all search history? This action cannot be undone.</string>
+    <string name="action_change_icon">Change Icon</string>
     <string name="action_remove">Remove</string>
     <string name="action_remove_from_history">Remove From History</string>
     <string name="action_reset_app_shortcut_icon">Reset to default icon</string>

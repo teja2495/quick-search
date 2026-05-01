@@ -177,11 +177,39 @@ private fun downloadImageBytes(url: String): ByteArray? {
     }
 }
 
-private fun normalizeImage(input: ByteArray): ByteArray? {
-    val bitmap = BitmapFactory.decodeByteArray(input, 0, input.size)
-    if (bitmap == null) {
-        return null
-    }
+private fun normalizeImage(input: ByteArray, maxSizePx: Int? = null): ByteArray? {
+    val bitmap =
+        if (maxSizePx != null) {
+            // Decode bounds first to compute an efficient inSampleSize.
+            val boundsOpts = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            BitmapFactory.decodeByteArray(input, 0, input.size, boundsOpts)
+            val larger = maxOf(boundsOpts.outWidth, boundsOpts.outHeight).coerceAtLeast(1)
+            val sampleSize = Integer.highestOneBit(larger / maxSizePx).coerceAtLeast(1)
+
+            val decodeOpts = BitmapFactory.Options().apply { inSampleSize = sampleSize }
+            val sampled =
+                BitmapFactory.decodeByteArray(input, 0, input.size, decodeOpts)
+                    ?: return null
+
+            // Precise scale-down if still over the limit after inSampleSize.
+            val scale = maxSizePx.toFloat() / maxOf(sampled.width, sampled.height).coerceAtLeast(1)
+            if (scale < 1f) {
+                val scaled =
+                    Bitmap.createScaledBitmap(
+                        sampled,
+                        (sampled.width * scale).toInt().coerceAtLeast(1),
+                        (sampled.height * scale).toInt().coerceAtLeast(1),
+                        true,
+                    )
+                sampled.recycle()
+                scaled
+            } else {
+                sampled
+            }
+        } else {
+            BitmapFactory.decodeByteArray(input, 0, input.size) ?: return null
+        }
+
     return ByteArrayOutputStream().use { out ->
         val compressed = bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
         bitmap.recycle()
@@ -196,6 +224,7 @@ private fun normalizeImage(input: ByteArray): ByteArray? {
 fun loadCustomIconAsBase64(
     context: Context,
     uri: Uri,
+    maxSizePx: Int? = null,
 ): String? {
     val bytes =
         runCatching {
@@ -205,7 +234,7 @@ fun loadCustomIconAsBase64(
         }.getOrNull()
             ?: return null
 
-    val normalizedBytes = normalizeImage(bytes) ?: return null
+    val normalizedBytes = normalizeImage(bytes, maxSizePx) ?: return null
 
     return Base64.encodeToString(normalizedBytes, Base64.NO_WRAP)
 }

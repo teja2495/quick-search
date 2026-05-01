@@ -252,8 +252,7 @@
             android:exported="false"
             android:label="@string/widget_settings_title"
             android:excludeFromRecents="true"
-            android:finishOnTaskLaunch="true"
-            android:noHistory="true">
+            android:finishOnTaskLaunch="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>

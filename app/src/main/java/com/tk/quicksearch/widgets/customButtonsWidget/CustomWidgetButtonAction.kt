@@ -53,6 +53,9 @@ data class SettingExtra(
 sealed class CustomWidgetButtonAction : Parcelable {
     abstract val type: CustomWidgetButtonType
 
+    /** User-set custom icon override; takes precedence over all type-specific icons. */
+    open val customIconBase64: String? = null
+
     abstract fun displayLabel(): String
 
     abstract fun toJson(): String
@@ -63,6 +66,7 @@ sealed class CustomWidgetButtonAction : Parcelable {
     data class App(
         val packageName: String,
         val appName: String,
+        override val customIconBase64: String? = null,
     ) : CustomWidgetButtonAction() {
         @IgnoredOnParcel
         override val type: CustomWidgetButtonType = CustomWidgetButtonType.APP
@@ -85,6 +89,7 @@ sealed class CustomWidgetButtonAction : Parcelable {
                 .put(KEY_TYPE, type.value)
                 .put(KEY_PACKAGE_NAME, packageName)
                 .put(KEY_APP_NAME, appName)
+                .put(KEY_CUSTOM_ICON_BASE64, customIconBase64)
                 .toString()
     }
 
@@ -95,6 +100,7 @@ sealed class CustomWidgetButtonAction : Parcelable {
         val displayName: String,
         val photoUri: String?,
         val serializedAction: String? = null,
+        override val customIconBase64: String? = null,
     ) : CustomWidgetButtonAction() {
         @IgnoredOnParcel
         override val type: CustomWidgetButtonType = CustomWidgetButtonType.CONTACT
@@ -118,6 +124,7 @@ sealed class CustomWidgetButtonAction : Parcelable {
                 .put(KEY_DISPLAY_NAME, displayName)
                 .put(KEY_PHOTO_URI, photoUri)
                 .put(KEY_CONTACT_ACTION, serializedAction)
+                .put(KEY_CUSTOM_ICON_BASE64, customIconBase64)
                 .toString()
 
         fun toContactCardAction(): ContactCardAction? =
@@ -133,6 +140,7 @@ sealed class CustomWidgetButtonAction : Parcelable {
         val isDirectory: Boolean,
         val relativePath: String?,
         val volumeName: String?,
+        override val customIconBase64: String? = null,
     ) : CustomWidgetButtonAction() {
         @IgnoredOnParcel
         override val type: CustomWidgetButtonType = CustomWidgetButtonType.FILE
@@ -160,6 +168,7 @@ sealed class CustomWidgetButtonAction : Parcelable {
                 .put(KEY_IS_DIRECTORY, isDirectory)
                 .put(KEY_RELATIVE_PATH, relativePath)
                 .put(KEY_VOLUME_NAME, volumeName)
+                .put(KEY_CUSTOM_ICON_BASE64, customIconBase64)
                 .toString()
     }
 
@@ -175,6 +184,7 @@ sealed class CustomWidgetButtonAction : Parcelable {
         val extras: List<SettingExtra>,
         val minSdk: Int,
         val maxSdk: Int,
+        override val customIconBase64: String? = null,
     ) : CustomWidgetButtonAction() {
         @IgnoredOnParcel
         override val type: CustomWidgetButtonType = CustomWidgetButtonType.SETTING
@@ -208,6 +218,7 @@ sealed class CustomWidgetButtonAction : Parcelable {
                 .put(KEY_EXTRAS, settingExtrasToJson(extras))
                 .put(KEY_MIN_SDK, minSdk)
                 .put(KEY_MAX_SDK, maxSdk)
+                .put(KEY_CUSTOM_ICON_BASE64, customIconBase64)
                 .toString()
     }
 
@@ -222,6 +233,7 @@ sealed class CustomWidgetButtonAction : Parcelable {
         val iconBase64: String? = null,
         val enabled: Boolean,
         val intents: List<Intent>,
+        override val customIconBase64: String? = null,
     ) : CustomWidgetButtonAction() {
         @IgnoredOnParcel
         override val type: CustomWidgetButtonType = CustomWidgetButtonType.APP_SHORTCUT
@@ -256,6 +268,7 @@ sealed class CustomWidgetButtonAction : Parcelable {
                 .put(KEY_ICON_BASE64, iconBase64)
                 .put(KEY_ENABLED, enabled)
                 .put(KEY_INTENTS, intentsToJson(intents))
+                .put(KEY_CUSTOM_ICON_BASE64, customIconBase64)
                 .toString()
     }
 
@@ -263,6 +276,7 @@ sealed class CustomWidgetButtonAction : Parcelable {
     data class Note(
         val noteId: Long,
         val title: String,
+        override val customIconBase64: String? = null,
     ) : CustomWidgetButtonAction() {
         @IgnoredOnParcel
         override val type: CustomWidgetButtonType = CustomWidgetButtonType.NOTE
@@ -283,6 +297,7 @@ sealed class CustomWidgetButtonAction : Parcelable {
                 .put(KEY_TYPE, type.value)
                 .put(KEY_NOTE_ID, noteId)
                 .put(KEY_TITLE, title)
+                .put(KEY_CUSTOM_ICON_BASE64, customIconBase64)
                 .toString()
     }
 
@@ -291,7 +306,7 @@ sealed class CustomWidgetButtonAction : Parcelable {
             if (raw.isNullOrBlank()) return null
             return runCatching {
                 val json = JSONObject(raw)
-                when (json.optString(KEY_TYPE)) {
+                val action: CustomWidgetButtonAction? = when (json.optString(KEY_TYPE)) {
                     CustomWidgetButtonType.APP.value -> {
                         val packageName = json.optString(KEY_PACKAGE_NAME)
                         if (packageName.isBlank()) return@runCatching null
@@ -406,12 +421,15 @@ sealed class CustomWidgetButtonAction : Parcelable {
                         null
                     }
                 }
+                val customIconBase64 = json.optString(KEY_CUSTOM_ICON_BASE64).nullIfBlankOrLiteralNull()
+                if (customIconBase64 != null) action?.withCustomIcon(customIconBase64) else action
             }.getOrNull()
         }
     }
 }
 
 private const val KEY_TYPE = "type"
+private const val KEY_CUSTOM_ICON_BASE64 = "customIconBase64"
 private const val KEY_PACKAGE_NAME = "packageName"
 private const val KEY_APP_NAME = "appName"
 private const val KEY_APP_LABEL = "appLabel"
@@ -630,3 +648,14 @@ private fun String.nullIfBlankOrLiteralNull(): String? {
         this
     }
 }
+
+/** Returns a copy of this action with [iconBase64] set as the user-override icon. */
+internal fun CustomWidgetButtonAction.withCustomIcon(iconBase64: String?): CustomWidgetButtonAction =
+    when (this) {
+        is CustomWidgetButtonAction.App -> copy(customIconBase64 = iconBase64)
+        is CustomWidgetButtonAction.Contact -> copy(customIconBase64 = iconBase64)
+        is CustomWidgetButtonAction.File -> copy(customIconBase64 = iconBase64)
+        is CustomWidgetButtonAction.Setting -> copy(customIconBase64 = iconBase64)
+        is CustomWidgetButtonAction.AppShortcut -> copy(customIconBase64 = iconBase64)
+        is CustomWidgetButtonAction.Note -> copy(customIconBase64 = iconBase64)
+    }

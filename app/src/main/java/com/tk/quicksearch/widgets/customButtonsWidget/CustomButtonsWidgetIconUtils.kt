@@ -34,8 +34,23 @@ fun rememberWidgetButtonIcon(
     iconSizePx: Int,
     textIconColor: Color,
     iconPackPackage: String?,
-): WidgetButtonIcon =
-    when (action) {
+): WidgetButtonIcon {
+    // User-set custom icon takes precedence over all type-specific icons.
+    action.customIconBase64?.let { encoded ->
+        val decoded = runCatching { Base64.decode(encoded, Base64.DEFAULT) }.getOrNull()
+        val bitmap = decoded?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
+        if (bitmap != null) {
+            val scaled = Bitmap.createScaledBitmap(
+                bitmap,
+                iconSizePx.coerceAtLeast(1),
+                iconSizePx.coerceAtLeast(1),
+                true,
+            )
+            return WidgetButtonIcon(bitmap = scaled, shouldTint = false)
+        }
+    }
+
+    return when (action) {
         is CustomWidgetButtonAction.App -> {
             val bitmap = loadAppIconBitmap(context, action.packageName, iconSizePx, iconPackPackage)
             bitmap?.let { WidgetButtonIcon(bitmap = it, shouldTint = false) }
@@ -79,6 +94,7 @@ fun rememberWidgetButtonIcon(
             WidgetButtonIcon(drawableResId = R.drawable.ic_widget_note, shouldTint = true)
         }
     }
+}
 
 private fun loadAppIconBitmap(
     context: Context,

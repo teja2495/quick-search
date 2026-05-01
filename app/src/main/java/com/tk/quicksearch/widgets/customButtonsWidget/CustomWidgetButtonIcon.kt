@@ -1,5 +1,7 @@
 package com.tk.quicksearch.widgets.customButtonsWidget
 
+import android.graphics.BitmapFactory
+import android.util.Base64
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -14,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.vectorResource
@@ -32,6 +35,25 @@ fun CustomWidgetButtonIcon(
     modifier: Modifier = Modifier,
     tintColor: Color = MaterialTheme.colorScheme.secondary,
 ) {
+    // User-set custom icon takes precedence over all type-specific icons.
+    val customIconBase64 = action.customIconBase64
+    if (!customIconBase64.isNullOrBlank()) {
+        val bitmap = remember(customIconBase64) {
+            runCatching {
+                val bytes = Base64.decode(customIconBase64, Base64.DEFAULT)
+                BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
+            }.getOrNull()
+        }
+        if (bitmap != null) {
+            Image(
+                bitmap = bitmap,
+                contentDescription = action.contentDescription(),
+                modifier = modifier.size(iconSize),
+            )
+            return
+        }
+    }
+
     when (action) {
         is CustomWidgetButtonAction.App -> {
             val iconBitmap =

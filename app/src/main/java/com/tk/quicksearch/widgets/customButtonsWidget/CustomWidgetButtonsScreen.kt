@@ -3,6 +3,8 @@ package com.tk.quicksearch.widgets.customButtonsWidget
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Base64
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.graphics.drawable.toBitmap
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -30,6 +32,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.Search
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
@@ -49,6 +52,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -85,10 +90,14 @@ import androidx.compose.ui.graphics.Color
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
+import com.tk.quicksearch.searchEngines.loadCustomIconAsBase64
 import com.tk.quicksearch.widgets.utils.WidgetPreferences
 import com.tk.quicksearch.widgets.utils.WidgetConfigConstants
 import com.tk.quicksearch.widgets.utils.WidgetButtonSlotConfig
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 
 @Composable
@@ -100,7 +109,29 @@ fun CustomWidgetButtonsSection(
 ) {
     val searchState by searchViewModel.uiState.collectAsState()
     val iconPackPackage = searchState.selectedIconPackPackage
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var activeSlotIndex by remember { mutableStateOf<Int?>(null) }
+    var iconEditSlotIndex by rememberSaveable { mutableStateOf<Int?>(null) }
+
+    val pickIconLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        val slotIndex = iconEditSlotIndex
+        iconEditSlotIndex = null
+        if (uri == null || slotIndex == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            val encoded = withContext(Dispatchers.IO) {
+                loadCustomIconAsBase64(context, uri, maxSizePx = 128)
+            }
+            if (encoded != null) {
+                val updatedButtons = state.customButtons.normalizedSlots(maxButtons).toMutableList()
+                val existing = updatedButtons.getOrNull(slotIndex) ?: return@launch
+                updatedButtons[slotIndex] = existing.withCustomIcon(encoded)
+                onStateChange(state.copy(customButtons = updatedButtons))
+            }
+        }
+    }
 
     val onDismissDialog = {
         activeSlotIndex = null
@@ -141,6 +172,10 @@ fun CustomWidgetButtonsSection(
                     )
                 onStateChange(updated)
             },
+            onChangeIcon = { index ->
+                iconEditSlotIndex = index
+                pickIconLauncher.launch(arrayOf("image/*"))
+            },
         )
     }
 
@@ -172,6 +207,7 @@ private fun CustomButtonsRow(
     onSlotClick: (Int) -> Unit,
     onReorder: (List<CustomWidgetButtonAction?>) -> Unit,
     onReset: (Int) -> Unit,
+    onChangeIcon: (Int) -> Unit,
 ) {
     val view = LocalView.current
     var draggingIndex by remember { mutableStateOf<Int?>(null) }
@@ -236,6 +272,16 @@ private fun CustomButtonsRow(
                                 properties = PopupProperties(focusable = false),
                                 containerColor = AppColors.DialogBackground,
                             ) {
+                                DropdownMenuItem(
+                                    text = { Text(text = stringResource(R.string.action_change_icon)) },
+                                    leadingIcon = {
+                                        Icon(imageVector = Icons.Rounded.Image, contentDescription = null)
+                                    },
+                                    onClick = {
+                                        showMenu = false
+                                        onChangeIcon(index)
+                                    },
+                                )
                                 DropdownMenuItem(
                                     text = { Text(text = stringResource(R.string.action_remove)) },
                                     leadingIcon = {
@@ -350,6 +396,16 @@ private fun CustomButtonsRow(
                         properties = PopupProperties(focusable = false),
                         containerColor = AppColors.DialogBackground,
                     ) {
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(R.string.action_change_icon)) },
+                            leadingIcon = {
+                                Icon(imageVector = Icons.Rounded.Image, contentDescription = null)
+                            },
+                            onClick = {
+                                showMenu = false
+                                onChangeIcon(index)
+                            },
+                        )
                         DropdownMenuItem(
                             text = { Text(text = stringResource(R.string.action_remove)) },
                             leadingIcon = {
