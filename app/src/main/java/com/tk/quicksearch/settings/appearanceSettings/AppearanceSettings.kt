@@ -43,11 +43,13 @@ fun AppearanceSettingsSection(
         appTheme: AppTheme,
         overlayThemeIntensity: Float,
         fontScaleMultiplier: Float,
+        useSystemFont: Boolean,
         onSetAppTheme: (AppTheme) -> Unit,
         onOverlayThemeIntensityChange: (Float) -> Unit,
         appThemeMode: com.tk.quicksearch.search.core.AppThemeMode,
         onSetAppThemeMode: (com.tk.quicksearch.search.core.AppThemeMode) -> Unit,
         onFontScaleMultiplierChange: (Float) -> Unit,
+        onUseSystemFontChange: (Boolean) -> Unit,
         backgroundSource: BackgroundSource,
         customImageUri: String?,
         onSetBackgroundSource: (BackgroundSource) -> Unit,
@@ -97,6 +99,8 @@ fun AppearanceSettingsSection(
         FontSizeCard(
                 fontScaleMultiplier = fontScaleMultiplier,
                 onFontScaleMultiplierChange = onFontScaleMultiplierChange,
+                useSystemFont = useSystemFont,
+                onUseSystemFontChange = onUseSystemFontChange,
         )
 
         Spacer(modifier = Modifier.height(16.dp))

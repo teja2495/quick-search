@@ -43,6 +43,7 @@ class StartupPreferencesFacade(
             val appTheme: AppTheme,
             val overlayThemeIntensity: Float,
             val fontScaleMultiplier: Float,
+            val useSystemFont: Boolean,
             val backgroundSource: BackgroundSource,
             val customImageUri: String?,
             val amazonDomain: String?,
@@ -303,6 +304,13 @@ class StartupPreferencesFacade(
                                         com.tk.quicksearch.search.data.preferences.UiPreferences
                                                 .MAX_FONT_SCALE_MULTIPLIER,
                                 ),
+                useSystemFont =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.UiPreferences
+                                        .KEY_USE_SYSTEM_FONT,
+                        ] as?
+                                Boolean
+                                ?: false,
                 backgroundSource =
                         (
                                 allPrefs[
@@ -661,6 +669,13 @@ class StartupPreferencesFacade(
                                         com.tk.quicksearch.search.data.preferences.UiPreferences
                                                 .MAX_FONT_SCALE_MULTIPLIER,
                                 ),
+                        useSystemFont =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .KEY_USE_SYSTEM_FONT,
+                                ] as?
+                                        Boolean
+                                        ?: false,
                         backgroundSource =
                                 (
                                         allPrefs[

@@ -102,6 +102,7 @@ class SearchWidgetConfigureActivity : ComponentActivity() {
             }
             QuickSearchTheme(
                 fontScaleMultiplier = uiState.fontScaleMultiplier,
+                useSystemFont = uiState.useSystemFont,
                 appTheme = uiState.appTheme,
                 appThemeMode = uiState.appThemeMode,
                 deviceThemeEnabled = uiState.deviceThemeEnabled,

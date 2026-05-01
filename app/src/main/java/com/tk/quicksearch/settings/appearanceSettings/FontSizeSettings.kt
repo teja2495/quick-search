@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.util.hapticToggle
 
@@ -30,6 +31,8 @@ import com.tk.quicksearch.shared.util.hapticToggle
 fun FontSizeCard(
         fontScaleMultiplier: Float,
         onFontScaleMultiplierChange: (Float) -> Unit,
+        useSystemFont: Boolean,
+        onUseSystemFontChange: (Boolean) -> Unit,
         modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
@@ -85,6 +88,14 @@ fun FontSizeCard(
                     )
                 }
             }
+
+            SettingsToggleRow(
+                    title = stringResource(R.string.settings_use_system_font_title),
+                    checked = useSystemFont,
+                    onCheckedChange = onUseSystemFontChange,
+                    horizontalPadding = 4.dp,
+                    showDivider = false,
+            )
         }
     }
 }

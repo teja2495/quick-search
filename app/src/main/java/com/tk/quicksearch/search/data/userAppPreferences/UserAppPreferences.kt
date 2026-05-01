@@ -780,6 +780,10 @@ class UserAppPreferences(
 
     fun setFontScaleMultiplier(multiplier: Float) = uiPreferences.setFontScaleMultiplier(multiplier)
 
+    fun shouldUseSystemFont(): Boolean = uiPreferences.shouldUseSystemFont()
+
+    fun setUseSystemFont(enabled: Boolean) = uiPreferences.setUseSystemFont(enabled)
+
     fun getBackgroundSource(): BackgroundSource = uiPreferences.getBackgroundSource()
 
     fun setBackgroundSource(source: BackgroundSource) =

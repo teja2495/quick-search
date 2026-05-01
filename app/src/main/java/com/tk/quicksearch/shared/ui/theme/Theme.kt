@@ -193,6 +193,7 @@ private fun withImageAccent(
 @Composable
 fun QuickSearchTheme(
     fontScaleMultiplier: Float = 1f,
+    useSystemFont: Boolean = false,
     appTheme: com.tk.quicksearch.search.core.AppTheme = com.tk.quicksearch.search.core.AppTheme.MONOCHROME,
     appThemeMode: com.tk.quicksearch.search.core.AppThemeMode = com.tk.quicksearch.search.core.AppThemeMode.SYSTEM,
     backgroundSource: com.tk.quicksearch.search.core.BackgroundSource = com.tk.quicksearch.search.core.BackgroundSource.THEME,
@@ -359,7 +360,7 @@ fun QuickSearchTheme(
     ) {
         MaterialTheme(
             colorScheme = colorScheme,
-            typography = Typography,
+            typography = quickSearchTypography(useSystemFont),
             content = content,
         )
     }

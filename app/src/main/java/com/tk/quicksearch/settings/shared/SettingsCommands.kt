@@ -24,6 +24,8 @@ sealed interface SettingsCommand {
 
     data class FontScaleMultiplier(val multiplier: Float) : SettingsCommand
 
+    data class UseSystemFont(val enabled: Boolean) : SettingsCommand
+
     data class WallpaperBackgroundAlpha(val alpha: Float) : SettingsCommand
 
     data class WallpaperBlurRadius(val radius: Float) : SettingsCommand
@@ -92,6 +94,7 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
                     setWallpaperAccentEnabled(command.enabled)
                 AppSettingsToggleKey.THEMED_ICONS -> setThemedIconsEnabled(command.enabled)
                 AppSettingsToggleKey.DEVICE_THEME -> setDeviceThemeEnabled(command.enabled)
+                AppSettingsToggleKey.USE_SYSTEM_FONT -> setUseSystemFont(command.enabled)
                 AppSettingsToggleKey.DICTIONARY -> setDictionaryEnabled(command.enabled)
                 AppSettingsToggleKey.APPS_PER_ROW -> Unit
                 AppSettingsToggleKey.SEARCH_APPS,
@@ -111,6 +114,7 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
         is SettingsCommand.SearchEngineCompactRowCount ->
             setSearchEngineCompactRowCount(command.rowCount)
         is SettingsCommand.FontScaleMultiplier -> setFontScaleMultiplier(command.multiplier)
+        is SettingsCommand.UseSystemFont -> setUseSystemFont(command.enabled)
         is SettingsCommand.WallpaperBackgroundAlpha -> setWallpaperBackgroundAlpha(command.alpha)
         is SettingsCommand.WallpaperBlurRadius -> setWallpaperBlurRadius(command.radius)
         is SettingsCommand.OverlayThemeIntensity -> setOverlayThemeIntensity(command.intensity)
@@ -155,6 +159,7 @@ internal fun SearchUiState.isAppSettingToggleEnabled(toggleKey: AppSettingsToggl
         AppSettingsToggleKey.WALLPAPER_ACCENT -> wallpaperAccentEnabled
         AppSettingsToggleKey.THEMED_ICONS -> themedIconsEnabled
         AppSettingsToggleKey.DEVICE_THEME -> deviceThemeEnabled
+        AppSettingsToggleKey.USE_SYSTEM_FONT -> useSystemFont
         AppSettingsToggleKey.DICTIONARY -> dictionaryEnabled
         AppSettingsToggleKey.APPS_PER_ROW -> false
         AppSettingsToggleKey.SEARCH_APPS,

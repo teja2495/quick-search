@@ -38,6 +38,7 @@ internal interface SearchPreferencesStateAccess {
     var appTheme: AppTheme
     var overlayThemeIntensity: Float
     var fontScaleMultiplier: Float
+    var useSystemFont: Boolean
     var backgroundSource: BackgroundSource
     var customImageUri: String?
     var clearQueryOnLaunch: Boolean
@@ -305,6 +306,16 @@ internal class SearchPreferencesDelegate(
             userPreferences.setFontScaleMultiplier(sanitizedMultiplier)
             stateAccess.fontScaleMultiplier = sanitizedMultiplier
             updateConfigState { it.copy(fontScaleMultiplier = sanitizedMultiplier) }
+            stateAccess.saveStartupSurfaceSnapshotAsync(allowDuringQuery = true)
+        }
+    }
+
+    fun setUseSystemFont(enabled: Boolean) {
+        scope.launch(Dispatchers.IO) {
+            if (stateAccess.useSystemFont == enabled) return@launch
+            userPreferences.setUseSystemFont(enabled)
+            stateAccess.useSystemFont = enabled
+            updateConfigState { it.copy(useSystemFont = enabled) }
             stateAccess.saveStartupSurfaceSnapshotAsync(allowDuringQuery = true)
         }
     }

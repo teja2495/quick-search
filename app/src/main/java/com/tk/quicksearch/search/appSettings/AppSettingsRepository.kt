@@ -27,6 +27,7 @@ class AppSettingsRepository(
                         "style",
                         "search engines style",
                         "font size",
+                        "system font",
                         "text size",
                         "icons",
                         "icon pack",
@@ -267,6 +268,12 @@ class AppSettingsRepository(
                 descriptionRes = R.string.settings_show_app_labels_desc,
                 toggleKey = AppSettingsToggleKey.APP_LABELS,
                 keywords = listOf("app names"),
+            )
+            addToggle(
+                id = "app_toggle_use_system_font",
+                titleRes = R.string.settings_use_system_font_title,
+                toggleKey = AppSettingsToggleKey.USE_SYSTEM_FONT,
+                keywords = listOf("font", "typeface"),
             )
             addToggle(
                 id = "app_toggle_alias_after_query",

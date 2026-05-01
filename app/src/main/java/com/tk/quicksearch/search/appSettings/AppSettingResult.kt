@@ -78,6 +78,7 @@ enum class AppSettingsToggleKey {
     WALLPAPER_ACCENT,
     THEMED_ICONS,
     DEVICE_THEME,
+    USE_SYSTEM_FONT,
     APPS_PER_ROW,
     DICTIONARY,
 }

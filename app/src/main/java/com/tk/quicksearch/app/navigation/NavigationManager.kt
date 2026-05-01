@@ -182,7 +182,11 @@ fun MainContent(
     ) { targetScreen ->
         when (targetScreen) {
             AppScreen.Permissions -> {
-                QuickSearchTheme(appTheme = AppTheme.MONOCHROME) {
+                QuickSearchTheme(
+                    fontScaleMultiplier = userPreferences.getFontScaleMultiplier(),
+                    useSystemFont = userPreferences.shouldUseSystemFont(),
+                    appTheme = AppTheme.MONOCHROME,
+                ) {
                 PermissionsScreen(
                     currentStep = 1,
                     onPermissionsComplete = {
@@ -218,7 +222,11 @@ fun MainContent(
                 val willShowFinalSetup =
                     hasFilesPermission || (hasContactsPermission && hasAnyThirdPartyMessagingAppForImport)
                 val importTotalSteps = if (willShowFinalSetup) 4 else 3
-                QuickSearchTheme(appTheme = AppTheme.MONOCHROME) {
+                QuickSearchTheme(
+                    fontScaleMultiplier = userPreferences.getFontScaleMultiplier(),
+                    useSystemFont = userPreferences.shouldUseSystemFont(),
+                    appTheme = AppTheme.MONOCHROME,
+                ) {
                     ImportSettingsScreen(
                         currentStep = 2,
                         totalSteps = importTotalSteps,
@@ -258,7 +266,11 @@ fun MainContent(
                     hasFilesPermission || (hasContactsPermission && hasAnyThirdPartyMessagingApp)
                 val skipFinalSetup = !shouldShowFinalSetup
                 val searchEngineTotalSteps = if (skipFinalSetup) 3 else 4
-                QuickSearchTheme(appTheme = AppTheme.MONOCHROME) {
+                QuickSearchTheme(
+                    fontScaleMultiplier = userPreferences.getFontScaleMultiplier(),
+                    useSystemFont = userPreferences.shouldUseSystemFont(),
+                    appTheme = AppTheme.MONOCHROME,
+                ) {
                 SearchEngineSetupScreen(
                     currentStep = 3,
                     totalSteps = searchEngineTotalSteps,
@@ -306,7 +318,11 @@ fun MainContent(
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                 }
 
-                QuickSearchTheme(appTheme = AppTheme.MONOCHROME) {
+                QuickSearchTheme(
+                    fontScaleMultiplier = userPreferences.getFontScaleMultiplier(),
+                    useSystemFont = userPreferences.shouldUseSystemFont(),
+                    appTheme = AppTheme.MONOCHROME,
+                ) {
                 FinalSetupScreen(
                     currentStep = 4,
                     totalSteps = 4,

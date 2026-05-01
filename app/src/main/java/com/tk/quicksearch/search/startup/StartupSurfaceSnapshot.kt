@@ -27,6 +27,7 @@ data class StartupSurfaceSnapshot(
     val topResultIndicatorEnabled: Boolean,
     val openKeyboardOnLaunch: Boolean,
     val fontScaleMultiplier: Float,
+    val useSystemFont: Boolean = false,
     val showAppLabels: Boolean,
     val appSuggestionsEnabled: Boolean,
     val phoneAppGridColumns: Int = com.tk.quicksearch.search.data.preferences.UiPreferences.DEFAULT_PHONE_APP_GRID_COLUMNS,
@@ -50,6 +51,7 @@ internal object StartupSurfaceSnapshotJson {
     private const val KEY_TOP_RESULT_INDICATOR = "topResultIndicatorEnabled"
     private const val KEY_OPEN_KEYBOARD_ON_LAUNCH = "openKeyboardOnLaunch"
     private const val KEY_FONT_SCALE = "fontScaleMultiplier"
+    private const val KEY_USE_SYSTEM_FONT = "useSystemFont"
     private const val KEY_SHOW_APP_LABELS = "showAppLabels"
     private const val KEY_APP_SUGGESTIONS = "appSuggestionsEnabled"
     private const val KEY_PHONE_APP_GRID_COLUMNS = "phoneAppGridColumns"
@@ -81,6 +83,7 @@ internal object StartupSurfaceSnapshotJson {
                 put(KEY_TOP_RESULT_INDICATOR, snapshot.topResultIndicatorEnabled)
                 put(KEY_OPEN_KEYBOARD_ON_LAUNCH, snapshot.openKeyboardOnLaunch)
                 put(KEY_FONT_SCALE, snapshot.fontScaleMultiplier.toDouble())
+                put(KEY_USE_SYSTEM_FONT, snapshot.useSystemFont)
                 put(KEY_SHOW_APP_LABELS, snapshot.showAppLabels)
                 put(KEY_APP_SUGGESTIONS, snapshot.appSuggestionsEnabled)
                 put(KEY_PHONE_APP_GRID_COLUMNS, snapshot.phoneAppGridColumns)
@@ -153,6 +156,7 @@ internal object StartupSurfaceSnapshotJson {
                 topResultIndicatorEnabled = root.optBoolean(KEY_TOP_RESULT_INDICATOR, true),
                 openKeyboardOnLaunch = root.optBoolean(KEY_OPEN_KEYBOARD_ON_LAUNCH, true),
                 fontScaleMultiplier = root.optDouble(KEY_FONT_SCALE, 1.0).toFloat(),
+                useSystemFont = root.optBoolean(KEY_USE_SYSTEM_FONT, false),
                 showAppLabels = root.optBoolean(KEY_SHOW_APP_LABELS, true),
                 appSuggestionsEnabled = root.optBoolean(KEY_APP_SUGGESTIONS, true),
                 phoneAppGridColumns = root.optInt(KEY_PHONE_APP_GRID_COLUMNS, com.tk.quicksearch.search.data.preferences.UiPreferences.DEFAULT_PHONE_APP_GRID_COLUMNS),

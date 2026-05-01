@@ -301,6 +301,7 @@ internal class SearchDerivedStateDelegate(
                     topResultIndicatorEnabled = config.topResultIndicatorEnabled,
                     openKeyboardOnLaunch = config.openKeyboardOnLaunch,
                     fontScaleMultiplier = config.fontScaleMultiplier,
+                    useSystemFont = config.useSystemFont,
                     showAppLabels = config.showAppLabels,
                     appSuggestionsEnabled = config.appSuggestionsEnabled,
                     phoneAppGridColumns = config.phoneAppGridColumns,

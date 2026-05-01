@@ -35,6 +35,7 @@ internal class SearchViewModelLegacyPreferenceState(
     var appTheme: AppTheme = AppTheme.MONOCHROME
     var overlayThemeIntensity: Float = UiPreferences.DEFAULT_OVERLAY_THEME_INTENSITY
     var fontScaleMultiplier: Float = UiPreferences.DEFAULT_FONT_SCALE_MULTIPLIER
+    var useSystemFont: Boolean = false
     var backgroundSource: BackgroundSource = BackgroundSource.THEME
     var customImageUri: String? = null
     var lockedShortcutTarget: SearchTarget? = null
@@ -77,6 +78,7 @@ internal class SearchViewModelLegacyPreferenceState(
         appTheme = prefCache.appTheme
         overlayThemeIntensity = prefCache.overlayThemeIntensity
         fontScaleMultiplier = prefCache.fontScaleMultiplier
+        useSystemFont = prefCache.useSystemFont
         backgroundSource = prefCache.backgroundSource
         customImageUri = prefCache.customImageUri
         lockedShortcutTarget = prefCache.lockedShortcutTarget

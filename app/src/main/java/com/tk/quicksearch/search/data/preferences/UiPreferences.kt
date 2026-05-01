@@ -210,6 +210,12 @@ class UiPreferences(
                 .apply()
     }
 
+    fun shouldUseSystemFont(): Boolean = getBooleanPref(UiPreferences.KEY_USE_SYSTEM_FONT, false)
+
+    fun setUseSystemFont(enabled: Boolean) {
+        setBooleanPref(UiPreferences.KEY_USE_SYSTEM_FONT, enabled)
+    }
+
     fun getBackgroundSource(): BackgroundSource {
         val saved = prefs.getString(KEY_BACKGROUND_SOURCE, null)
         if (saved != null) {
@@ -696,6 +702,7 @@ class UiPreferences(
         const val KEY_APP_THEME_MODE = "app_theme_mode"
         const val KEY_OVERLAY_THEME_INTENSITY = "overlay_theme_intensity"
         const val KEY_FONT_SCALE_MULTIPLIER = "font_scale_multiplier"
+        const val KEY_USE_SYSTEM_FONT = "use_system_font"
         const val KEY_BACKGROUND_SOURCE = "background_source"
         const val KEY_CUSTOM_IMAGE_URI = "custom_image_uri"
         const val KEY_SHOW_WALLPAPER_BACKGROUND = "show_wallpaper_background" // Legacy only.

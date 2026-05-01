@@ -146,6 +146,7 @@ internal object SearchStateExtractor {
             clearQueryOnLaunch = s.clearQueryOnLaunch,
             autoCloseOverlay = s.autoCloseOverlay,
             fontScaleMultiplier = s.fontScaleMultiplier,
+            useSystemFont = s.useSystemFont,
             showAppLabels = s.showAppLabels,
             phoneAppGridColumns = s.phoneAppGridColumns,
             appIconShape = s.appIconShape,

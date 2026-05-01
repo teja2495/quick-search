@@ -29,6 +29,15 @@ val GoogleSansFontFamily =
         Font(R.font.google_sans_bold_italic, FontWeight.Bold, FontStyle.Italic),
     )
 
+private val SystemTypography = Typography()
+
+fun quickSearchTypography(useSystemFont: Boolean): Typography =
+    if (useSystemFont) {
+        SystemTypography
+    } else {
+        Typography
+    }
+
 val Typography =
     Typography(
         displayLarge =

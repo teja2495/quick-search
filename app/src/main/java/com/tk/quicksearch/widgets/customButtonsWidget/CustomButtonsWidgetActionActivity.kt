@@ -205,8 +205,15 @@ class WidgetActionActivity : ComponentActivity() {
         val userPreferences = UserAppPreferences(applicationContext)
         val appTheme = userPreferences.getAppTheme()
         val appThemeMode = userPreferences.getAppThemeMode()
+        val fontScaleMultiplier = userPreferences.getFontScaleMultiplier()
+        val useSystemFont = userPreferences.shouldUseSystemFont()
         setContent {
-            QuickSearchTheme(appTheme = appTheme, appThemeMode = appThemeMode) {
+            QuickSearchTheme(
+                fontScaleMultiplier = fontScaleMultiplier,
+                useSystemFont = useSystemFont,
+                appTheme = appTheme,
+                appThemeMode = appThemeMode,
+            ) {
                 var showDialog by remember { mutableStateOf(true) }
                 if (showDialog) {
                     ContactActionsPopup(

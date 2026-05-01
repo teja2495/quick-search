@@ -142,6 +142,7 @@ class OverlayActivity : ComponentActivity() {
             }
             QuickSearchTheme(
                 fontScaleMultiplier = uiState.fontScaleMultiplier,
+                useSystemFont = uiState.useSystemFont,
                 appTheme = uiState.appTheme,
                 appThemeMode = uiState.appThemeMode,
                 backgroundSource = uiState.backgroundSource,

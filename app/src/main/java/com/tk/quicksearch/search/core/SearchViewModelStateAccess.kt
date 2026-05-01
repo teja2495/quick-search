@@ -167,6 +167,12 @@ internal class SearchViewModelPreferencesStateAccess(
             state.fontScaleMultiplier = value
         }
 
+    override var useSystemFont: Boolean
+        get() = state.useSystemFont
+        set(value) {
+            state.useSystemFont = value
+        }
+
     override var backgroundSource: BackgroundSource
         get() = state.backgroundSource
         set(value) {

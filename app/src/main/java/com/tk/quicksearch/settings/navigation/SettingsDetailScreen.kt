@@ -106,6 +106,8 @@ internal fun SettingsDetailLevel1Screen(
     MonoThemeWrapper(
         applyMono = shouldForceMonochromeTheme,
         appThemeMode = state.appThemeMode,
+        fontScaleMultiplier = state.fontScaleMultiplier,
+        useSystemFont = state.useSystemFont,
     ) {
     Box(
         modifier =
@@ -276,6 +278,7 @@ internal fun SettingsDetailLevel1Screen(
                             overlayThemeIntensity = state.overlayThemeIntensity,
                             appThemeMode = state.appThemeMode,
                             fontScaleMultiplier = state.fontScaleMultiplier,
+                            useSystemFont = state.useSystemFont,
                             onSetAppTheme = { theme ->
                                 callbacks.onApplySettingsCommand(
                                     SettingsCommand.AppThemeSetting(theme),
@@ -294,6 +297,11 @@ internal fun SettingsDetailLevel1Screen(
                             onFontScaleMultiplierChange = { multiplier ->
                                 callbacks.onApplySettingsCommand(
                                     SettingsCommand.FontScaleMultiplier(multiplier),
+                                )
+                            },
+                            onUseSystemFontChange = { enabled ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.UseSystemFont(enabled),
                                 )
                             },
                             backgroundSource = state.backgroundSource,
@@ -537,10 +545,14 @@ internal fun SettingsDetailHeader(
 private fun MonoThemeWrapper(
     applyMono: Boolean,
     appThemeMode: AppThemeMode,
+    fontScaleMultiplier: Float,
+    useSystemFont: Boolean,
     content: @Composable () -> Unit,
 ) {
     if (applyMono) {
         QuickSearchTheme(
+            fontScaleMultiplier = fontScaleMultiplier,
+            useSystemFont = useSystemFont,
             appTheme = AppTheme.MONOCHROME,
             appThemeMode = appThemeMode,
         ) { content() }

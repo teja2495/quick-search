@@ -71,6 +71,7 @@ internal fun buildSettingsScreenCallbacks(
         onOverlayThemeIntensityChange = viewModel::setOverlayThemeIntensity,
         onSetAppThemeMode = viewModel::setAppThemeMode,
         onFontScaleMultiplierChange = viewModel::setFontScaleMultiplier,
+        onUseSystemFontChange = viewModel::setUseSystemFont,
         onSetBackgroundSource = viewModel::setBackgroundSource,
         onPickCustomImage = handlers.onPickCustomImage,
         onSelectIconPack = viewModel::setIconPackPackage,

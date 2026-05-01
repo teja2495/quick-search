@@ -79,6 +79,9 @@ internal interface SearchViewModelPreferencesApi {
     fun setFontScaleMultiplier(multiplier: Float) =
         preferencesApiDelegate.setFontScaleMultiplier(multiplier)
 
+    fun setUseSystemFont(enabled: Boolean) =
+        preferencesApiDelegate.setUseSystemFont(enabled)
+
     fun setBackgroundSource(source: BackgroundSource) =
         preferencesApiDelegate.setBackgroundSource(source)
 
@@ -243,6 +246,9 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
 
     fun setFontScaleMultiplier(multiplier: Float) =
         preferencesDelegate.setFontScaleMultiplier(multiplier)
+
+    fun setUseSystemFont(enabled: Boolean) =
+        preferencesDelegate.setUseSystemFont(enabled)
 
     fun setBackgroundSource(source: BackgroundSource) = preferencesDelegate.setBackgroundSource(source)
 

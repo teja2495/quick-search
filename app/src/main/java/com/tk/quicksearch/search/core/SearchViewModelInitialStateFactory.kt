@@ -117,6 +117,8 @@ internal object SearchViewModelInitialStateFactory {
                             UiPreferences.MIN_FONT_SCALE_MULTIPLIER,
                             UiPreferences.MAX_FONT_SCALE_MULTIPLIER,
                         ),
+                useSystemFont =
+                    startupSnapshot?.useSystemFont ?: startupPreferencesReader.shouldUseSystemFont(),
                 launcherAppIcon = startupPreferencesReader.getLauncherAppIcon(),
                 showAppLabels =
                     startupSnapshot?.showAppLabels ?: startupPreferencesReader.shouldShowAppLabels(),

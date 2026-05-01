@@ -41,6 +41,7 @@ internal data class SearchRuntimeState(
     var appTheme: AppTheme = AppTheme.MONOCHROME,
     var overlayThemeIntensity: Float,
     var fontScaleMultiplier: Float,
+    var useSystemFont: Boolean = false,
     var backgroundSource: BackgroundSource = BackgroundSource.THEME,
     var customImageUri: String? = null,
     var lockedShortcutTarget: SearchTarget? = null,
