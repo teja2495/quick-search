@@ -56,13 +56,18 @@ fun rememberWidgetButtonIcon(
         }
 
         is CustomWidgetButtonAction.File -> {
-            val drawableResId =
-                if (action.isDirectory) {
-                    R.drawable.ic_widget_folder
-                } else {
-                    R.drawable.ic_widget_file
-                }
-            WidgetButtonIcon(drawableResId = drawableResId, shouldTint = true)
+            val customFileIconResId = customWidgetFileIconRes(action)
+            if (customFileIconResId != null) {
+                WidgetButtonIcon(drawableResId = customFileIconResId, shouldTint = false)
+            } else {
+                val drawableResId =
+                    if (action.isDirectory) {
+                        R.drawable.ic_widget_folder
+                    } else {
+                        R.drawable.ic_widget_file
+                    }
+                WidgetButtonIcon(drawableResId = drawableResId, shouldTint = true)
+            }
         }
 
         is CustomWidgetButtonAction.Setting -> {

@@ -88,8 +88,7 @@ import kotlinx.coroutines.async
 // ============================================================================
 
 private const val FILE_ICON_SIZE = 24
-private const val PDF_ICON_SIZE = 20
-private const val PDF_ICON_HORIZONTAL_PADDING = 2
+private const val CUSTOM_FILE_ICON_SIZE = 20
 private const val THUMBNAIL_SIZE_DP = 60
 private const val THUMBNAIL_LOAD_SIZE_PX = 160
 private const val THUMBNAIL_CACHE_MAX_SIZE = 60
@@ -97,6 +96,17 @@ private const val THUMBNAIL_FAILURE_RETRY_DELAY_MS = 30_000L
 private const val EXPAND_BUTTON_TOP_PADDING = 2
 private const val EXPAND_BUTTON_HORIZONTAL_PADDING = 12
 private val FILE_CARD_CONTENT_VERTICAL_PADDING = 4.dp
+private val WORD_EXTENSIONS = setOf("doc", "docx")
+private val SHEET_EXTENSIONS = setOf("xls", "xlsx")
+private val SLIDES_EXTENSIONS = setOf("ppt", "pptx")
+private val TEXT_EXTENSIONS = setOf("txt")
+private val EPUB_EXTENSIONS = setOf("epub")
+private val ZIP_EXTENSIONS = setOf("zip")
+
+private data class CustomFileIconSpec(
+        val drawableRes: Int,
+        val aspectRatio: Float,
+)
 
 private object FileThumbnailCache {
     private val loadScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -470,20 +480,40 @@ private fun FileCardContent(
 // File Row
 // ============================================================================
 
+private fun customFileIconSpec(deviceFile: DeviceFile): CustomFileIconSpec? {
+    if (deviceFile.isDirectory) return null
+
+    val extension = deviceFile.displayName.substringAfterLast('.', missingDelimiterValue = "").lowercase()
+    if (extension.isBlank()) return null
+
+    return when {
+        FileTypeUtils.isPdf(deviceFile) -> CustomFileIconSpec(R.drawable.ic_pdf, 1f)
+        extension in WORD_EXTENSIONS -> CustomFileIconSpec(R.drawable.ic_doc, 3800f / 4800f)
+        extension in SHEET_EXTENSIONS -> CustomFileIconSpec(R.drawable.ic_sheet, 47.333332f / 65.083336f)
+        extension in SLIDES_EXTENSIONS -> CustomFileIconSpec(R.drawable.ic_slides, 421f / 511.605f)
+        extension in TEXT_EXTENSIONS -> CustomFileIconSpec(R.drawable.ic_txt, 1f)
+        extension in EPUB_EXTENSIONS -> CustomFileIconSpec(R.drawable.ic_epub, 508.893f / 471.466f)
+        extension in ZIP_EXTENSIONS -> CustomFileIconSpec(R.drawable.ic_zip, 500f / 511.56f)
+        else -> null
+    }
+}
+
 @Composable
-private fun fileResultIcon(deviceFile: DeviceFile): ImageVector =
-        when {
-            deviceFile.isDirectory -> Icons.Rounded.Folder
-            FileTypeUtils.isPdf(deviceFile) -> ImageVector.vectorResource(R.drawable.ic_pdf)
-            else ->
-                    when (FileTypeUtils.getFileType(deviceFile)) {
-                        FileType.AUDIO -> Icons.Rounded.AudioFile
-                        FileType.PICTURES -> Icons.Rounded.Image
-                        FileType.VIDEOS -> Icons.Rounded.VideoLibrary
-                        FileType.APKS -> Icons.Rounded.Android
-                        else -> Icons.AutoMirrored.Rounded.InsertDriveFile
-                    }
-        }
+private fun fileResultIcon(deviceFile: DeviceFile): ImageVector {
+    val customIcon = customFileIconSpec(deviceFile)
+    return when {
+        deviceFile.isDirectory -> Icons.Rounded.Folder
+        customIcon != null -> ImageVector.vectorResource(customIcon.drawableRes)
+        else ->
+                when (FileTypeUtils.getFileType(deviceFile)) {
+                    FileType.AUDIO -> Icons.Rounded.AudioFile
+                    FileType.PICTURES -> Icons.Rounded.Image
+                    FileType.VIDEOS -> Icons.Rounded.VideoLibrary
+                    FileType.APKS -> Icons.Rounded.Android
+                    else -> Icons.AutoMirrored.Rounded.InsertDriveFile
+                }
+    }
+}
 
 @Composable
 private fun FileResultThumbnailOrIcon(
@@ -494,6 +524,8 @@ private fun FileResultThumbnailOrIcon(
 ) {
     val context = LocalContext.current
     val fileType = FileTypeUtils.getFileType(deviceFile)
+    val customIconSpec = if (iconOverride == null) customFileIconSpec(deviceFile) else null
+    val customIcon = customIconSpec?.let { ImageVector.vectorResource(it.drawableRes) }
     val showThumbnail =
             !deviceFile.isDirectory &&
                     (fileType == FileType.PICTURES || fileType == FileType.VIDEOS)
@@ -524,11 +556,11 @@ private fun FileResultThumbnailOrIcon(
         }
     }
 
-    val isPdf = iconOverride == null && FileTypeUtils.isPdf(deviceFile)
+    val hasCustomFileIcon = customIconSpec != null && customIcon != null
     val iconSize =
             when {
                 iconOverride != null -> 34.dp
-                isPdf -> PDF_ICON_SIZE.dp
+                hasCustomFileIcon -> CUSTOM_FILE_ICON_SIZE.dp
                 else -> FILE_ICON_SIZE.dp
             }
 
@@ -542,7 +574,7 @@ private fun FileResultThumbnailOrIcon(
         }
         Box(modifier = modifier.size(THUMBNAIL_SIZE_DP.dp)) {
             Icon(
-                    imageVector = fileResultIcon(deviceFile),
+                    imageVector = customIcon ?: fileResultIcon(deviceFile),
                     contentDescription = null,
                     tint = iconTint,
                     modifier = Modifier.size(THUMBNAIL_SIZE_DP.dp).alpha(1f - thumbnailAlpha.value),
@@ -558,15 +590,33 @@ private fun FileResultThumbnailOrIcon(
             )
         }
     } else {
-        Icon(
-                imageVector = iconOverride ?: fileResultIcon(deviceFile),
-                contentDescription = null,
-                tint = if (isPdf) Color.Unspecified else iconTint,
-                modifier =
-                        modifier
-                                .padding(horizontal = if (isPdf) PDF_ICON_HORIZONTAL_PADDING.dp else 0.dp)
-                                .size(iconSize),
-        )
+        if (hasCustomFileIcon) {
+            val ratio = customIconSpec!!.aspectRatio
+            val (iconWidth, iconHeight) =
+                    if (ratio >= 1f) {
+                        Pair(iconSize, iconSize / ratio)
+                    } else {
+                        Pair(iconSize * ratio, iconSize)
+                    }
+            Box(
+                    modifier = modifier.size(iconSize),
+                    contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                        imageVector = customIcon!!,
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier.size(width = iconWidth, height = iconHeight),
+                )
+            }
+        } else {
+            Icon(
+                    imageVector = iconOverride ?: fileResultIcon(deviceFile),
+                    contentDescription = null,
+                    tint = iconTint,
+                    modifier = modifier.size(iconSize),
+            )
+        }
     }
 }
 

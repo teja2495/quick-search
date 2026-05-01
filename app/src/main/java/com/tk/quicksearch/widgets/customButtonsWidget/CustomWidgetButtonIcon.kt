@@ -4,10 +4,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Description
-import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -16,7 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import com.tk.quicksearch.search.apps.rememberAppIcon
@@ -105,12 +105,22 @@ fun CustomWidgetButtonIcon(
         }
 
         is CustomWidgetButtonAction.File -> {
-            Icon(
-                imageVector = fileIconVector(action),
-                contentDescription = action.contentDescription(),
-                tint = tintColor,
-                modifier = modifier.size(iconSize),
-            )
+            val customIconRes = customWidgetFileIconRes(action)
+            if (customIconRes != null) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(customIconRes),
+                    contentDescription = action.contentDescription(),
+                    tint = Color.Unspecified,
+                    modifier = modifier.size(iconSize),
+                )
+            } else {
+                Icon(
+                    imageVector = widgetFileIconVector(action),
+                    contentDescription = action.contentDescription(),
+                    tint = tintColor,
+                    modifier = modifier.size(iconSize),
+                )
+            }
         }
 
         is CustomWidgetButtonAction.Setting -> {
@@ -132,10 +142,3 @@ fun CustomWidgetButtonIcon(
         }
     }
 }
-
-private fun fileIconVector(action: CustomWidgetButtonAction.File) =
-    if (action.isDirectory) {
-        Icons.Rounded.Folder
-    } else {
-        Icons.AutoMirrored.Rounded.InsertDriveFile
-    }
