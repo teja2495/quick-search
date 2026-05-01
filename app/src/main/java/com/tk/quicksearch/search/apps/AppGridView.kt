@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.apps
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,11 +27,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.Modifier
@@ -64,6 +69,8 @@ import com.tk.quicksearch.shared.util.getAppGridColumns
 import com.tk.quicksearch.shared.util.hapticConfirm
 
 private const val ROW_COUNT = 2
+private const val SuggestionsEnterDurationMillis = 320
+private const val SuggestionsEnterOffsetDp = 12f
 private val AppGridRowSpacing = DesignTokens.SpacingXSmall
 private val RegularAppIconSize = DesignTokens.IconSizeXLarge - DesignTokens.SpacingXXSmall
 private val TopResultIndicatorTopPadding = 0.dp
@@ -163,15 +170,48 @@ fun AppGridView(
     // results arrive with icons still loading — avoids flicker when the list grows mid-search.
     var gridHasBeenVisible by remember { mutableStateOf(false) }
 
+    // Animate the suggestions grid (empty query) when it first appears. Search results should
+    // appear immediately without animation.
+    val suggestionsAlpha = remember { Animatable(0f) }
+    val suggestionsTranslationYDp = remember { Animatable(SuggestionsEnterOffsetDp) }
+    val density = LocalDensity.current
+
     Column(
             modifier = modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(AppGridRowSpacing),
     ) {
         val showAppGrid = apps.isNotEmpty() && (areAppIconsLoaded || gridHasBeenVisible)
+
+        LaunchedEffect(showAppGrid, isSearching) {
+            if (!showAppGrid) return@LaunchedEffect
+            if (isSearching) {
+                suggestionsAlpha.snapTo(1f)
+                suggestionsTranslationYDp.snapTo(0f)
+            } else if (suggestionsAlpha.value < 1f) {
+                suggestionsAlpha.animateTo(
+                        targetValue = 1f,
+                        animationSpec = tween(durationMillis = SuggestionsEnterDurationMillis),
+                )
+            }
+        }
+        LaunchedEffect(showAppGrid, isSearching) {
+            if (!showAppGrid || isSearching) return@LaunchedEffect
+            if (suggestionsTranslationYDp.value != 0f) {
+                suggestionsTranslationYDp.animateTo(
+                        targetValue = 0f,
+                        animationSpec = tween(durationMillis = SuggestionsEnterDurationMillis),
+                )
+            }
+        }
+
         if (showAppGrid) {
             gridHasBeenVisible = true
             AppGrid(
+                    modifier = Modifier.graphicsLayer {
+                        alpha = suggestionsAlpha.value
+                        translationY = with(density) { suggestionsTranslationYDp.value.dp.toPx() }
+                    },
                     apps = apps,
                     isSearching = isSearching,
                     onAppClick = onAppClick,
@@ -203,6 +243,7 @@ fun AppGridView(
 private fun AppGrid(
         apps: List<AppInfo>,
         isSearching: Boolean,
+        modifier: Modifier = Modifier,
         onAppClick: (AppInfo) -> Unit,
         onAppInfoClick: (AppInfo) -> Unit,
         onUninstallClick: (AppInfo) -> Unit,
@@ -241,7 +282,7 @@ private fun AppGrid(
             }
     val firstResultKey = remember(apps) { apps.firstOrNull()?.launchCountKey() }
 
-    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+    BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         val horizontalSpacing = DesignTokens.SpacingMedium
         val rowItemWidth =
                 if (columns <= 1) {
