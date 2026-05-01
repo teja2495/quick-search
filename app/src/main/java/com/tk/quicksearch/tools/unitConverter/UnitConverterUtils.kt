@@ -71,6 +71,78 @@ object UnitConverterUtils {
             pattern = "^([+-]?(?:(?:\\d{1,3}(?:,\\d{3})+)|\\d+)(?:\\.\\d+)?|[+-]?\\.\\d+)\\s*([\\p{L}0-9\\s./^°-]+)$",
             options = setOf(RegexOption.IGNORE_CASE),
         )
+    private val defaultToAliasByFromAlias: Map<String, String> by lazy {
+        mapOf(
+            // Temperature
+            "c" to "f",
+            "f" to "c",
+            // Weight
+            "lb" to "kg",
+            "lbs" to "kg",
+            "pound" to "kg",
+            "pounds" to "kg",
+            "kg" to "lb",
+            "kgs" to "lb",
+            "kilogram" to "lb",
+            "kilograms" to "lb",
+            "oz" to "g",
+            "ounce" to "g",
+            "ounces" to "g",
+            "g" to "oz",
+            "gram" to "oz",
+            "grams" to "oz",
+            // Length
+            "mi" to "km",
+            "mile" to "km",
+            "miles" to "km",
+            "km" to "mi",
+            "kilometer" to "mi",
+            "kilometers" to "mi",
+            "kilometre" to "mi",
+            "kilometres" to "mi",
+            "ft" to "m",
+            "foot" to "m",
+            "feet" to "m",
+            "m" to "ft",
+            "meter" to "ft",
+            "meters" to "ft",
+            "metre" to "ft",
+            "metres" to "ft",
+            "in" to "cm",
+            "inch" to "cm",
+            "inches" to "cm",
+            "cm" to "in",
+            "centimeter" to "in",
+            "centimeters" to "in",
+            "centimetre" to "in",
+            "centimetres" to "in",
+            // Volume
+            "gal" to "l",
+            "gallon" to "l",
+            "gallons" to "l",
+            "l" to "gal",
+            "liter" to "gal",
+            "liters" to "gal",
+            "litre" to "gal",
+            "litres" to "gal",
+            "ml" to "fl oz",
+            "milliliter" to "fl oz",
+            "milliliters" to "fl oz",
+            "millilitre" to "fl oz",
+            "millilitres" to "fl oz",
+            "floz" to "ml",
+            "fl oz" to "ml",
+            "fluid ounce" to "ml",
+            "fluid ounces" to "ml",
+            // Speed
+            "mph" to "km/h",
+            "km/h" to "mph",
+            "kph" to "mph",
+            "kmh" to "mph",
+            "kmph" to "mph",
+        ).mapKeys { normalizeUnit(it.key) }
+            .mapValues { normalizeUnit(it.value) }
+    }
 
     private val unitDisplayNames =
         mapOf(
@@ -504,12 +576,39 @@ object UnitConverterUtils {
         val trimmed = query.trim()
         if (trimmed.isEmpty()) return null
 
-        val separatorMatch = separatorRegex.find(trimmed) ?: return null
-        val left = trimmed.substring(0, separatorMatch.range.first).trim()
-        val right = trimmed.substring(separatorMatch.range.last + 1).trim()
+        parseExplicitQuery(trimmed)?.let { return it }
+        return parseCommonShorthandQuery(trimmed)
+    }
+
+    private fun parseExplicitQuery(query: String): ParsedQuery? {
+        val separatorMatch = separatorRegex.find(query) ?: return null
+        val left = query.substring(0, separatorMatch.range.first).trim()
+        val right = query.substring(separatorMatch.range.last + 1).trim()
         if (left.isEmpty() || right.isEmpty()) return null
 
-        val leftMatch = leftQueryRegex.matchEntire(left) ?: return null
+        val parsedLeft = parseAmountAndUnit(left) ?: return null
+        return ParsedQuery(
+            amount = parsedLeft.first,
+            fromUnitRaw = parsedLeft.second,
+            toUnitRaw = right,
+        )
+    }
+
+    private fun parseCommonShorthandQuery(query: String): ParsedQuery? {
+        val parsedInput = parseAmountAndUnit(query) ?: return null
+        val fromUnitRaw = parsedInput.second
+        val fromUnitAlias = normalizeUnit(fromUnitRaw)
+        val defaultToAlias = defaultToAliasByFromAlias[fromUnitAlias] ?: return null
+
+        return ParsedQuery(
+            amount = parsedInput.first,
+            fromUnitRaw = fromUnitRaw,
+            toUnitRaw = defaultToAlias,
+        )
+    }
+
+    private fun parseAmountAndUnit(input: String): Pair<Double, String>? {
+        val leftMatch = leftQueryRegex.matchEntire(input.trim()) ?: return null
         val amount =
             leftMatch.groupValues[1]
                 .replace(",", "")
@@ -517,7 +616,7 @@ object UnitConverterUtils {
         val fromUnit = leftMatch.groupValues[2].trim()
         if (fromUnit.isEmpty()) return null
 
-        return ParsedQuery(amount = amount, fromUnitRaw = fromUnit, toUnitRaw = right)
+        return amount to fromUnit
     }
 
     private fun matchCompatibleUnits(
