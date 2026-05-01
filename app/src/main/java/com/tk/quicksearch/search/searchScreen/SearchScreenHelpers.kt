@@ -14,11 +14,13 @@ import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.NoteInfo
+import com.tk.quicksearch.searchEngines.AliasParser
 import com.tk.quicksearch.searchEngines.defaultBrowserTarget
 import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.search.searchScreen.dialogs.NicknameDialogState
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
+import java.util.Locale
 
 sealed interface PredictedSubmitTarget {
     data class App(val packageName: String, val userHandleId: Int?) : PredictedSubmitTarget
@@ -112,6 +114,37 @@ internal fun resolvePredictedSubmitTarget(
 
     val firstEnabledTarget = enabledTargets.firstOrNull() ?: return null
     return PredictedSubmitTarget.SearchTarget(firstEnabledTarget.getId())
+}
+
+internal fun detectSuffixSearchTargetAlias(
+    query: String,
+    enabledTargets: List<SearchTarget>,
+    shortcutCodes: Map<String, String>,
+    shortcutEnabled: Map<String, Boolean>,
+    requireTrailingSpace: Boolean,
+): Pair<String, SearchTarget>? {
+    if (query.isBlank()) return null
+
+    val aliases = mutableMapOf<String, SearchTarget>()
+    enabledTargets.forEach { target ->
+        val targetId = target.getId()
+        if (shortcutEnabled[targetId] != true) return@forEach
+
+        val aliasCode = shortcutCodes[targetId].orEmpty().trim()
+        if (aliasCode.isEmpty()) return@forEach
+
+        aliases[aliasCode.lowercase(Locale.getDefault())] = target
+    }
+    if (aliases.isEmpty()) return null
+
+    val match =
+        AliasParser.detectSuffixAlias(
+            query = query,
+            aliases = aliases,
+            requireTrailingSpace = requireTrailingSpace,
+        ) ?: return null
+
+    return match.queryWithoutAlias to match.target
 }
 
 /** Data class for Files section parameters */

@@ -429,11 +429,33 @@ internal fun SearchScreenContent(
                     )
                 }
             }
+    val suffixAliasMatchIgnoringTrailingSpace =
+            remember(
+                    state.query,
+                    state.isSearchEngineAliasSuffixEnabled,
+                    enabledTargets,
+                    state.shortcutCodes,
+                    state.shortcutEnabled,
+            ) {
+                if (!state.isSearchEngineAliasSuffixEnabled) {
+                    null
+                } else {
+                    detectSuffixSearchTargetAlias(
+                            query = state.query,
+                            enabledTargets = enabledTargets,
+                            shortcutCodes = state.shortcutCodes,
+                            shortcutEnabled = state.shortcutEnabled,
+                            requireTrailingSpace = false,
+                    )
+                }
+            }
+    val hasSuffixAliasKeywordAtQueryEnd = suffixAliasMatchIgnoringTrailingSpace != null
     val predictedTargetForIndicator =
             if (state.topResultIndicatorEnabled &&
                     !showCurrencyConverterSearchCard &&
                     !showDictionarySearchCard &&
-                    !showWordClockSearchCard) {
+                    !showWordClockSearchCard &&
+                    !hasSuffixAliasKeywordAtQueryEnd) {
                 predictedTarget
             } else null
     val activeToolCardConfig =
@@ -671,6 +693,21 @@ internal fun SearchScreenContent(
                         // shortcut-at-start is detected
                         onSearchTargetClick(trimmedQuery, state.detectedShortcutTarget)
                     } else {
+                        val shouldResolveSuffixAliasOnDone =
+                                state.isSearchEngineAliasSuffixEnabled &&
+                                        state.isAliasTriggerAfterSpaceEnabled &&
+                                        state.query.lastOrNull()?.isWhitespace() == false
+                        if (shouldResolveSuffixAliasOnDone) {
+                            val suffixAliasMatch = suffixAliasMatchIgnoringTrailingSpace
+                            if (suffixAliasMatch != null) {
+                                val aliasQuery = suffixAliasMatch.first.trim()
+                                if (aliasQuery.isNotBlank()) {
+                                    onQueryChanged(aliasQuery)
+                                    onSearchTargetClick(aliasQuery, suffixAliasMatch.second)
+                                    return@PersistentSearchBar false
+                                }
+                            }
+                        }
                         val primaryTarget = enabledTargets.firstOrNull()
                         if (primaryTarget != null && trimmedQuery.isNotBlank()) {
                             onSearchTargetClick(trimmedQuery, primaryTarget)
