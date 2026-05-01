@@ -1,7 +1,5 @@
 package com.tk.quicksearch.tools.aiSearch
 
-import android.content.ClipData
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,10 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AiSearchState
 import com.tk.quicksearch.search.core.AiSearchStatus
@@ -39,9 +34,6 @@ fun AiSearchResult(
             aiSearchState.status == AiSearchStatus.Success &&
                     !aiSearchState.answer.isNullOrBlank()
 
-    @Suppress("DEPRECATION")
-    val clipboardManager = LocalClipboardManager.current
-
     GeminiResultCard(
             showWallpaperBackground = showWallpaperBackground,
             showAttribution = showAttribution,
@@ -50,6 +42,7 @@ fun AiSearchResult(
             isAttributionClickable = true,
             onGeminiModelInfoClick = onGeminiModelInfoClick,
             onOpenAiSearchConfigure = onOpenAiSearchConfigure,
+            copyText = aiSearchState.answer,
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Column(
@@ -62,18 +55,7 @@ fun AiSearchResult(
                     }
                     AiSearchStatus.Success -> {
                         aiSearchState.answer?.let { answer ->
-                            Box(
-                                    modifier =
-                                            Modifier.fillMaxWidth().pointerInput(answer) {
-                                                detectTapGestures(
-                                                        onLongPress = {
-                                                            clipboardManager.setText(
-                                                                    AnnotatedString(answer)
-                                                            )
-                                                        },
-                                                )
-                                            },
-                            ) {
+                            Box(modifier = Modifier.fillMaxWidth()) {
                                 ClickableAiSearchText(
                                         text = answer,
                                         style = MaterialTheme.typography.bodyLarge,

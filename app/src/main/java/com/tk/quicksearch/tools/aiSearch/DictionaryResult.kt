@@ -1,6 +1,5 @@
 package com.tk.quicksearch.tools.aiSearch
 
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,10 +10,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.DictionaryState
 import com.tk.quicksearch.search.core.DictionaryStatus
@@ -34,8 +30,12 @@ fun DictionaryResult(
             dictionaryState.status == DictionaryStatus.Success &&
                     !dictionaryState.meaning.isNullOrBlank()
 
-    @Suppress("DEPRECATION")
-    val clipboardManager = LocalClipboardManager.current
+    val copyText =
+            if (dictionaryState.status == DictionaryStatus.Success) {
+                dictionaryState.copyText()
+            } else {
+                null
+            }
 
     GeminiResultCard(
             showWallpaperBackground = showWallpaperBackground,
@@ -44,6 +44,7 @@ fun DictionaryResult(
             llmProviderId = llmProviderId,
             isAttributionClickable = true,
             onGeminiModelInfoClick = onGeminiModelInfoClick,
+            copyText = copyText,
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Column(
@@ -65,26 +66,8 @@ fun DictionaryResult(
                                 } else {
                                     dictionaryState.synonyms.joinToString(", ")
                                 }
-                        val copyText =
-                                buildString {
-                                    append(word)
-                                    if (part.isNotBlank()) append(" ($part)")
-                                    append('\n')
-                                    append(meaning)
-                                    if (example.isNotBlank()) append("\n\nExample: $example\n")
-                                    if (synonyms.isNotBlank()) append("\nSynonyms: $synonyms")
-                                }
                         Column(
-                                modifier =
-                                        Modifier.fillMaxWidth().pointerInput(copyText) {
-                                            detectTapGestures(
-                                                    onLongPress = {
-                                                        clipboardManager.setText(
-                                                                AnnotatedString(copyText)
-                                                        )
-                                                    },
-                                            )
-                                        },
+                                modifier = Modifier.fillMaxWidth(),
                                 verticalArrangement =
                                         Arrangement.spacedBy(DesignTokens.SpacingXXSmall),
                         ) {
@@ -141,3 +124,20 @@ fun DictionaryResult(
 
 private fun String.capitalizeFirstCharacter(): String =
         replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+
+private fun DictionaryState.copyText(): String {
+    val word = word.orEmpty().capitalizeFirstCharacter()
+    val part = partOfSpeech.orEmpty()
+    val meaning = meaning.orEmpty()
+    val example = example.orEmpty()
+    val synonyms = synonyms.joinToString(", ")
+
+    return buildString {
+        append(word)
+        if (part.isNotBlank()) append(" ($part)")
+        append('\n')
+        append(meaning)
+        if (example.isNotBlank()) append("\n\nExample: $example\n")
+        if (synonyms.isNotBlank()) append("\nSynonyms: $synonyms")
+    }
+}

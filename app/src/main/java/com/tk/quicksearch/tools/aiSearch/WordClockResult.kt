@@ -1,6 +1,5 @@
 package com.tk.quicksearch.tools.aiSearch
 
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,10 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.WordClockState
 import com.tk.quicksearch.search.core.WordClockStatus
@@ -32,8 +28,12 @@ fun WordClockResult(
             wordClockState.status == WordClockStatus.Success &&
                     !wordClockState.wordClockText.isNullOrBlank()
 
-    @Suppress("DEPRECATION")
-    val clipboardManager = LocalClipboardManager.current
+    val copyText =
+            if (wordClockState.status == WordClockStatus.Success) {
+                wordClockState.wordClockText
+            } else {
+                null
+            }
 
     GeminiResultCard(
             showWallpaperBackground = showWallpaperBackground,
@@ -42,6 +42,7 @@ fun WordClockResult(
             llmProviderId = llmProviderId,
             isAttributionClickable = true,
             onGeminiModelInfoClick = onGeminiModelInfoClick,
+            copyText = copyText,
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Column(
@@ -57,16 +58,7 @@ fun WordClockResult(
                         val placeLabel = wordClockState.placeText?.trim().orEmpty()
                         val timeZoneLabel = wordClockState.timeZoneText?.trim().orEmpty()
                         Column(
-                                modifier =
-                                        Modifier.fillMaxWidth().pointerInput(line1) {
-                                            detectTapGestures(
-                                                    onLongPress = {
-                                                        clipboardManager.setText(
-                                                                AnnotatedString(line1)
-                                                        )
-                                                    },
-                                            )
-                                        },
+                                modifier = Modifier.fillMaxWidth(),
                         ) {
                             Text(
                                     text = line1,

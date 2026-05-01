@@ -26,8 +26,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchToolType
@@ -44,6 +46,7 @@ internal fun GeminiResultCard(
         isAttributionClickable: Boolean = false,
         onGeminiModelInfoClick: () -> Unit = {},
         onOpenAiSearchConfigure: () -> Unit = {},
+        copyText: String? = null,
         content: @Composable () -> Unit,
 ) {
     ColumnWithContent(
@@ -55,6 +58,7 @@ internal fun GeminiResultCard(
             isAttributionClickable = isAttributionClickable,
             onGeminiModelInfoClick = onGeminiModelInfoClick,
             onOpenAiSearchConfigure = onOpenAiSearchConfigure,
+            copyText = copyText,
     )
 }
 
@@ -68,13 +72,32 @@ private fun ColumnWithContent(
         isAttributionClickable: Boolean,
         onGeminiModelInfoClick: () -> Unit,
         onOpenAiSearchConfigure: () -> Unit,
+        copyText: String?,
 ) {
+    @Suppress("DEPRECATION")
+    val clipboardManager = LocalClipboardManager.current
+    val cardModifier =
+            Modifier.fillMaxWidth()
+                    .heightIn(min = 175.dp)
+                    .let { baseModifier ->
+                        if (copyText.isNullOrBlank()) {
+                            baseModifier
+                        } else {
+                            baseModifier.combinedClickable(
+                                    onClick = {},
+                                    onLongClick = {
+                                        clipboardManager.setText(AnnotatedString(copyText))
+                                    },
+                            )
+                        }
+                    }
+
     androidx.compose.foundation.layout.Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
         InformationCard(
-                modifier = Modifier.fillMaxWidth().heightIn(min = 175.dp),
+                modifier = cardModifier,
                 showWallpaperBackground = showWallpaperBackground,
         ) {
             content()

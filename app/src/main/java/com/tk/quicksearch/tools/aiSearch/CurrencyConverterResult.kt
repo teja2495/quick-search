@@ -1,6 +1,5 @@
 package com.tk.quicksearch.tools.aiSearch
 
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,10 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.CurrencyConverterState
 import com.tk.quicksearch.search.core.CurrencyConverterStatus
@@ -36,8 +32,14 @@ fun CurrencyConverterResult(
             currencyConverterState.status == CurrencyConverterStatus.Success &&
                     !currencyConverterState.convertedAmount.isNullOrBlank()
 
-    @Suppress("DEPRECATION")
-    val clipboardManager = LocalClipboardManager.current
+    val copyText =
+            if (currencyConverterState.status == CurrencyConverterStatus.Success) {
+                currencyConverterState.convertedAmount
+                        ?.let(::formatCurrencyAmountForDisplay)
+                        ?.let { amount -> "$amount ${currencyConverterState.targetCurrencyCode.orEmpty()}" }
+            } else {
+                null
+            }
 
     GeminiResultCard(
             showWallpaperBackground = showWallpaperBackground,
@@ -46,6 +48,7 @@ fun CurrencyConverterResult(
             llmProviderId = llmProviderId,
             isAttributionClickable = true,
             onGeminiModelInfoClick = onGeminiModelInfoClick,
+            copyText = copyText,
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Column(
@@ -72,16 +75,7 @@ fun CurrencyConverterResult(
                                     null
                                 }
                         Column(
-                                modifier =
-                                        Modifier.fillMaxWidth().pointerInput(line1) {
-                                            detectTapGestures(
-                                                    onLongPress = {
-                                                        clipboardManager.setText(
-                                                                AnnotatedString(line1)
-                                                        )
-                                                    },
-                                            )
-                                        },
+                                modifier = Modifier.fillMaxWidth(),
                         ) {
                             Text(
                                     text = line1,
