@@ -154,20 +154,8 @@ fun SearchContentArea(
     val footerBottomPadding = 28.dp
     val expandedCardExtraReduction = 20.dp
 
-    // Compute "no results" state once - shared by both places that need it
-    val shouldShowNoResults =
-        remember(
-            state.query,
-            state.webSuggestionsEnabled,
-            state.webSuggestions,
-            state.detectedShortcutTarget,
-            state.detectedAliasSearchSection,
-            state.isCurrencyConverterAliasMode,
-            state.isWordClockAliasMode,
-            state.isDictionaryAliasMode,
-        ) {
-            computeShouldShowNoResults(state)
-        }
+    // Compute "no results" state once - shared by both places that need it.
+    val shouldShowNoResults = computeShouldShowNoResults(state)
 
     val hasInlineSearchEngines = hasQuery && (!state.isSearchEngineCompactMode || isUrlQuery)
 

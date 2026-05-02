@@ -91,11 +91,16 @@ fun AddSearchEngineDialog(
     val showValidationError =
         urlInput.text.isNotBlank() && validation is CustomSearchTemplateValidation.Invalid
 
+    val coroutineScope = rememberCoroutineScope()
     val pickIconLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             if (uri == null) return@rememberLauncherForActivityResult
-            val encoded = loadCustomIconAsBase64(context, uri) ?: return@rememberLauncherForActivityResult
-            iconBase64 = encoded
+            coroutineScope.launch {
+                val encoded = withContext(Dispatchers.IO) {
+                    loadCustomIconAsBase64(context, uri, maxSizePx = 256)
+                } ?: return@launch
+                iconBase64 = encoded
+            }
         }
 
     // Delay focus so the sheet finishes its expand animation before the keyboard appears
@@ -148,7 +153,6 @@ fun AddSearchEngineDialog(
         }
 
     val scrollState = rememberScrollState()
-    val coroutineScope = rememberCoroutineScope()
 
     AppBottomSheet(onDismissRequest = onDismiss, swipeToDismissEnabled = false) {
         Column(

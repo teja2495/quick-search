@@ -40,7 +40,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -257,11 +261,16 @@ fun AddAppDeepLinkDialog(
         )
     }
     var iconBase64 by remember(packageName) { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
     val pickIconLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             if (uri == null) return@rememberLauncherForActivityResult
-            val encoded = loadCustomIconAsBase64(context, uri) ?: return@rememberLauncherForActivityResult
-            iconBase64 = encoded
+            scope.launch {
+                val encoded = withContext(Dispatchers.IO) {
+                    loadCustomIconAsBase64(context, uri, maxSizePx = 256)
+                } ?: return@launch
+                iconBase64 = encoded
+            }
         }
     val iconBitmap =
         remember(iconBase64) {
@@ -513,11 +522,16 @@ fun EditCustomShortcutDialog(
     val trimmedValue = shortcutValue.text.trim()
     val canSave = trimmedName.isNotBlank() && (editableConfiguredValue == null || trimmedValue.isNotBlank())
 
+    val scope = rememberCoroutineScope()
     val pickIconLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             if (uri == null) return@rememberLauncherForActivityResult
-            val encoded = loadCustomIconAsBase64(context, uri) ?: return@rememberLauncherForActivityResult
-            iconBase64 = encoded
+            scope.launch {
+                val encoded = withContext(Dispatchers.IO) {
+                    loadCustomIconAsBase64(context, uri, maxSizePx = 256)
+                } ?: return@launch
+                iconBase64 = encoded
+            }
         }
 
     val iconBitmap =

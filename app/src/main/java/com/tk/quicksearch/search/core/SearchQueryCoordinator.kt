@@ -125,7 +125,12 @@ internal class SearchQueryCoordinator(
     }
 
     fun cancel() {
+        cancelAppSearch()
+    }
+
+    private fun cancelAppSearch() {
         appSearchJob?.cancel()
+        appSearchQueryVersion.incrementAndGet()
     }
 
     private fun setDetectedAliasMode(
@@ -393,7 +398,7 @@ internal class SearchQueryCoordinator(
                     aliasState.lockedDictionaryAlias ||
                     aliasState.lockedCustomToolId != null
             if (clearShortcutWhenBlank && hasLockedAliasMode && newQuery.isNotEmpty()) {
-                appSearchJob?.cancel()
+                cancelAppSearch()
                 appSearchManager.setNoMatchPrefix(null)
                 secondarySearchOrchestrator.resetNoResultTracking()
                 webSuggestionHandler.cancelSuggestions()
@@ -433,7 +438,7 @@ internal class SearchQueryCoordinator(
                 clearDetectedAliasMode()
             }
             val updatedAliasState = aliasStateProvider()
-            appSearchJob?.cancel()
+            cancelAppSearch()
             appSearchManager.setNoMatchPrefix(null)
             secondarySearchOrchestrator.resetNoResultTracking()
             webSuggestionHandler.cancelSuggestions()
@@ -533,7 +538,7 @@ internal class SearchQueryCoordinator(
             loadAppShortcuts()
         }
 
-        appSearchJob?.cancel()
+        cancelAppSearch()
         webSuggestionHandler.cancelSuggestions()
 
         val showingTool = calculatorResult.isToolMode || calculatorResult.result != null

@@ -32,7 +32,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,12 +69,17 @@ internal fun AppShortcutIconEditDialog(
     onSave: (String?) -> Unit,
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var iconBase64 by remember(shortcut, currentIconBase64) { mutableStateOf(currentIconBase64) }
     val pickIconLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             if (uri == null) return@rememberLauncherForActivityResult
-            val encoded = loadCustomIconAsBase64(context, uri) ?: return@rememberLauncherForActivityResult
-            iconBase64 = encoded
+            scope.launch {
+                val encoded = withContext(Dispatchers.IO) {
+                    loadCustomIconAsBase64(context, uri, maxSizePx = 256)
+                } ?: return@launch
+                iconBase64 = encoded
+            }
         }
     val iconBitmap =
         remember(iconBase64) {

@@ -30,6 +30,7 @@ internal fun computeShouldShowNoResults(state: SearchUiState): Boolean {
     val trimmedQuery = state.query.trim()
     val queryLength = trimmedQuery.length
     return trimmedQuery.isNotBlank() &&
+        !state.isAppSearchInProgress &&
         !state.isSecondarySearchInProgress &&
         !hasAnySearchResults &&
         state.detectedShortcutTarget == null &&
@@ -66,19 +67,7 @@ internal fun rememberNoResultsTextVisible(
 
 @Composable
 internal fun NoResultsMessage(state: SearchUiState) {
-    val shouldShowNoResults =
-        remember(
-            state.query,
-            state.webSuggestionsEnabled,
-            state.webSuggestions,
-            state.detectedShortcutTarget,
-            state.detectedAliasSearchSection,
-            state.isCurrencyConverterAliasMode,
-            state.isWordClockAliasMode,
-            state.isDictionaryAliasMode,
-        ) {
-            computeShouldShowNoResults(state)
-        }
+    val shouldShowNoResults = computeShouldShowNoResults(state)
     val showNoResultsText =
         rememberNoResultsTextVisible(
             shouldShowNoResults = shouldShowNoResults,

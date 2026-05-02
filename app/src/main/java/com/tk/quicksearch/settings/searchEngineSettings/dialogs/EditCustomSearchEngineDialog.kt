@@ -51,7 +51,9 @@ import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
 import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
 import com.tk.quicksearch.shared.util.withoutWhitespaces
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun EditCustomSearchEngineDialog(
@@ -75,11 +77,16 @@ fun EditCustomSearchEngineDialog(
     var iconBase64 by remember(customEngine.id) { mutableStateOf(customEngine.faviconBase64) }
     var selectedBrowserPackage by remember(customEngine.id) { mutableStateOf(customEngine.browserPackage) }
 
+    val coroutineScope = rememberCoroutineScope()
     val pickIconLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             if (uri == null) return@rememberLauncherForActivityResult
-            val encoded = loadCustomIconAsBase64(context, uri) ?: return@rememberLauncherForActivityResult
-            iconBase64 = encoded
+            coroutineScope.launch {
+                val encoded = withContext(Dispatchers.IO) {
+                    loadCustomIconAsBase64(context, uri, maxSizePx = 256)
+                } ?: return@launch
+                iconBase64 = encoded
+            }
         }
     var urlInput by remember(customEngine.id) {
         mutableStateOf(
@@ -128,7 +135,6 @@ fun EditCustomSearchEngineDialog(
         }
 
     val scrollState = rememberScrollState()
-    val coroutineScope = rememberCoroutineScope()
 
     AppBottomSheet(onDismissRequest = onDismiss, swipeToDismissEnabled = false) {
         Column(
