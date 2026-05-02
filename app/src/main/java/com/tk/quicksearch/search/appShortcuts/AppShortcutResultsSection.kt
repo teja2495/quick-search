@@ -75,9 +75,11 @@ fun AppShortcutResultsSection(
         onInclude: (StaticShortcut) -> Unit,
         onAppInfoClick: (StaticShortcut) -> Unit,
         onNicknameClick: (StaticShortcut) -> Unit,
+        onTriggerClick: (StaticShortcut) -> Unit,
         onEditCustomShortcut: (StaticShortcut) -> Unit = {},
         onEditShortcutIcon: (StaticShortcut) -> Unit = {},
         getShortcutNickname: (String) -> String?,
+        getShortcutTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
         showAllResults: Boolean,
         showExpandControls: Boolean,
         onExpandClick: () -> Unit,
@@ -145,9 +147,11 @@ fun AppShortcutResultsSection(
                                         onInclude = onInclude,
                                         onAppInfoClick = onAppInfoClick,
                                         onNicknameClick = onNicknameClick,
+                                        onTriggerClick = onTriggerClick,
                                         onEditCustomShortcut = onEditCustomShortcut,
                                         onEditShortcutIcon = onEditShortcutIcon,
                                         getShortcutNickname = getShortcutNickname,
+                                        getShortcutTrigger = getShortcutTrigger,
                                         iconPackPackage = iconPackPackage,
                                         shouldShowExpandButton = cardState.shouldShowExpandButton,
                                         onExpandClick = onExpandClick,
@@ -178,9 +182,11 @@ private fun AppShortcutsCardContent(
         onInclude: (StaticShortcut) -> Unit,
         onAppInfoClick: (StaticShortcut) -> Unit,
         onNicknameClick: (StaticShortcut) -> Unit,
+        onTriggerClick: (StaticShortcut) -> Unit,
         onEditCustomShortcut: (StaticShortcut) -> Unit,
         onEditShortcutIcon: (StaticShortcut) -> Unit,
         getShortcutNickname: (String) -> String?,
+        getShortcutTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
         iconPackPackage: String?,
         shouldShowExpandButton: Boolean,
         onExpandClick: () -> Unit,
@@ -205,12 +211,14 @@ private fun AppShortcutsCardContent(
                                         isPinned = pinnedShortcutIds.contains(shortcutId),
                                         isExcluded = excludedShortcutIds.contains(shortcutId),
                                         hasNickname = !getShortcutNickname(shortcutId).isNullOrBlank(),
+                                        hasTrigger = getShortcutTrigger(shortcutId)?.word?.isNotBlank() == true,
                                         onShortcutClick = onShortcutClick,
                                         onTogglePin = onTogglePin,
                                         onExclude = onExclude,
                                         onInclude = onInclude,
                                         onAppInfoClick = onAppInfoClick,
                                         onNicknameClick = onNicknameClick,
+                                        onTriggerClick = onTriggerClick,
                                         onEditCustomShortcut = onEditCustomShortcut,
                                         onEditShortcutIcon = onEditShortcutIcon,
                                         iconPackPackage = iconPackPackage,
@@ -243,12 +251,14 @@ internal fun AppShortcutRow(
         isPinned: Boolean,
         isExcluded: Boolean,
         hasNickname: Boolean,
+        hasTrigger: Boolean = false,
         onShortcutClick: (StaticShortcut) -> Unit,
         onTogglePin: (StaticShortcut) -> Unit,
         onExclude: (StaticShortcut) -> Unit,
         onInclude: (StaticShortcut) -> Unit,
         onAppInfoClick: (StaticShortcut) -> Unit,
         onNicknameClick: (StaticShortcut) -> Unit,
+        onTriggerClick: (StaticShortcut) -> Unit = {},
         onEditCustomShortcut: (StaticShortcut) -> Unit,
         onEditShortcutIcon: (StaticShortcut) -> Unit,
         iconPackPackage: String?,
@@ -359,11 +369,13 @@ internal fun AppShortcutRow(
                                 isPinned = isPinned,
                                 isExcluded = isExcluded,
                                 hasNickname = hasNickname,
+                                hasTrigger = hasTrigger,
                                 onTogglePin = { onTogglePin(shortcut) },
                                 onExclude = { onExclude(shortcut) },
                                 onInclude = { onInclude(shortcut) },
                                 onAppInfoClick = { onAppInfoClick(shortcut) },
                                 onNicknameClick = { onNicknameClick(shortcut) },
+                                onTriggerClick = { onTriggerClick(shortcut) },
                                 onEditCustomShortcut = onEditCustomShortcut,
                                 onEditShortcutIcon = onEditShortcutIcon,
                                 onAddToHome = { addToHomeHandler.addAppShortcutToHome(shortcut) },
@@ -386,11 +398,13 @@ private fun AppShortcutDropdownMenu(
         isPinned: Boolean,
         isExcluded: Boolean,
         hasNickname: Boolean,
+        hasTrigger: Boolean,
         onTogglePin: () -> Unit,
         onExclude: () -> Unit,
         onInclude: () -> Unit,
         onAppInfoClick: () -> Unit,
         onNicknameClick: () -> Unit,
+        onTriggerClick: () -> Unit,
         onEditCustomShortcut: (StaticShortcut) -> Unit,
         onEditShortcutIcon: (StaticShortcut) -> Unit,
         onAddToHome: () -> Unit,
@@ -415,6 +429,26 @@ private fun AppShortcutDropdownMenu(
                                         onClick = {
                                                 onDismissRequest()
                                                 onAppInfoClick()
+                                        },
+                                ),
+                        )
+                        add(
+                                AppShortcutMenuItem(
+                                        textResId =
+                                                if (hasTrigger) {
+                                                        R.string.action_edit_trigger
+                                                } else {
+                                                        R.string.action_add_trigger
+                                                },
+                                        icon = {
+                                                Icon(
+                                                        imageVector = Icons.Rounded.Edit,
+                                                        contentDescription = null,
+                                                )
+                                        },
+                                        onClick = {
+                                                onDismissRequest()
+                                                onTriggerClick()
                                         },
                                 ),
                         )

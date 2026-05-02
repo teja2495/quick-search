@@ -58,7 +58,9 @@ fun DeviceSettingsResultsSection(
         onTogglePin: (DeviceSetting) -> Unit,
         onExclude: (DeviceSetting) -> Unit,
         onNicknameClick: (DeviceSetting) -> Unit,
+        onTriggerClick: (DeviceSetting) -> Unit,
         getSettingNickname: (String) -> String?,
+        getSettingTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
         showAllResults: Boolean,
         showExpandControls: Boolean,
         onExpandClick: () -> Unit,
@@ -146,9 +148,12 @@ fun DeviceSettingsResultsSection(
                                                         onTogglePin = onTogglePin,
                                                         onExclude = onExclude,
                                                         onNicknameClick = onNicknameClick,
+                                                        onTriggerClick = onTriggerClick,
                                                         hasNickname =
                                                                 !getSettingNickname(shortcut.id)
                                                                         .isNullOrBlank(),
+                                                        hasTrigger =
+                                                                getSettingTrigger(shortcut.id)?.word?.isNotBlank() == true,
                                                         isPredicted = showPredictedOnRow,
                                                 )
 
@@ -188,6 +193,8 @@ internal fun SettingResultRow(
         onExclude: (DeviceSetting) -> Unit,
         onNicknameClick: (DeviceSetting) -> Unit,
         hasNickname: Boolean,
+        onTriggerClick: (DeviceSetting) -> Unit = {},
+        hasTrigger: Boolean = false,
         showDescription: Boolean = true,
         enableLongPress: Boolean = true,
         onLongPressOverride: (() -> Unit)? = null,
@@ -262,9 +269,11 @@ internal fun SettingResultRow(
                                 onDismissRequest = { showOptions = false },
                                 isPinned = isPinned,
                                 hasNickname = hasNickname,
+                                hasTrigger = hasTrigger,
                                 onTogglePin = { onTogglePin(shortcut) },
                                 onExclude = { onExclude(shortcut) },
                                 onNicknameClick = { onNicknameClick(shortcut) },
+                                onTriggerClick = { onTriggerClick(shortcut) },
                                 onAddToHome = { addToHomeHandler.addDeviceSettingToHome(shortcut) },
                         )
                 }

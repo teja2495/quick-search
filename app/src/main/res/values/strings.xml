@@ -164,10 +164,12 @@
          Common Actions
          ============================================================================ -->
     <string name="action_add_nickname">Add Nickname</string>
+    <string name="action_add_trigger">Add Trigger</string>
     <string name="action_add_to_home">Add to Home</string>
     <string name="action_app_info">App Info</string>
     <string name="action_edit_icon">Edit Icon</string>
     <string name="action_edit_nickname">Edit Nickname</string>
+    <string name="action_edit_trigger">Edit Trigger</string>
     <string name="action_exclude_extension">Exclude .%s files</string>
     <string name="action_exclude_generic">Exclude</string>
     <string name="action_expand_more">More</string>
@@ -239,6 +241,9 @@
     <string name="dialog_gemini_model_picker_title">Select Model</string>
     <string name="dialog_nickname_hint">Nickname</string>
     <string name="dialog_nickname_message">Enter a nickname for "%1$s". You can search for it using this nickname.</string>
+    <string name="dialog_trigger_after_space">Trigger after space</string>
+    <string name="dialog_trigger_hint">Trigger word</string>
+    <string name="dialog_trigger_message">Enter a one-word trigger for "%1$s".</string>
 
     <string name="dialog_no">No</string>
     <string name="dialog_ok">Continue</string>

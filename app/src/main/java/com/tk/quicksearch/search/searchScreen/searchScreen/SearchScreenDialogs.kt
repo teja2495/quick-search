@@ -38,6 +38,7 @@ import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.search.searchScreen.dialogs.AppShortcutIconEditDialog
 import com.tk.quicksearch.search.searchScreen.dialogs.NicknameDialogState
+import com.tk.quicksearch.search.searchScreen.dialogs.TriggerDialogState
 import com.tk.quicksearch.search.searchScreen.dialogs.SearchScreenDialogs
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
@@ -52,6 +53,7 @@ import kotlinx.coroutines.delay
 internal fun SearchScreenDialogLogic(
     state: SearchUiState,
     nicknameDialogState: NicknameDialogState?,
+    triggerDialogState: TriggerDialogState?,
     contactActionPickerDialogState: ContactActionPickerDialogState?,
     onPhoneNumberSelected: (String, Boolean) -> Unit,
     onDismissPhoneNumberSelection: () -> Unit,
@@ -62,12 +64,19 @@ internal fun SearchScreenDialogLogic(
     onReleaseNotesAcknowledged: () -> Unit,
     onReleaseNotesViewAllFeatures: () -> Unit,
     onDismissNicknameDialog: () -> Unit,
+    onDismissTriggerDialog: () -> Unit,
     onSaveAppNickname: (com.tk.quicksearch.search.models.AppInfo, String?) -> Unit,
     onSaveAppShortcutNickname: (StaticShortcut, String?) -> Unit,
     onSaveContactNickname: (ContactInfo, String?) -> Unit,
     onSaveFileNickname: (DeviceFile, String?) -> Unit,
     onSaveSettingNickname: (DeviceSetting, String?) -> Unit,
     onSaveCalendarEventNickname: (CalendarEventInfo, String?) -> Unit,
+    onSaveAppTrigger: (com.tk.quicksearch.search.models.AppInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
+    onSaveAppShortcutTrigger: (StaticShortcut, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
+    onSaveContactTrigger: (ContactInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
+    onSaveFileTrigger: (DeviceFile, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
+    onSaveSettingTrigger: (DeviceSetting, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
+    onSaveCalendarEventTrigger: (CalendarEventInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
     getLastShownPhoneNumber: (Long) -> String?,
     setLastShownPhoneNumber: (Long, String) -> Unit,
     onSetPersonalContext: (String?) -> Unit,
@@ -229,6 +238,7 @@ internal fun SearchScreenDialogLogic(
     SearchScreenDialogs(
         state = state,
         nicknameDialogState = nicknameDialogState,
+        triggerDialogState = triggerDialogState,
         onPhoneNumberSelected = onPhoneNumberSelected,
         onDismissPhoneNumberSelection = onDismissPhoneNumberSelection,
         onDirectDialChoiceSelected = onDirectDialChoiceSelected,
@@ -238,12 +248,19 @@ internal fun SearchScreenDialogLogic(
         onReleaseNotesAcknowledged = onReleaseNotesAcknowledged,
         onReleaseNotesViewAllFeatures = onReleaseNotesViewAllFeatures,
         onDismissNicknameDialog = onDismissNicknameDialog,
+        onDismissTriggerDialog = onDismissTriggerDialog,
         onSaveAppNickname = onSaveAppNickname,
         onSaveAppShortcutNickname = onSaveAppShortcutNickname,
         onSaveContactNickname = onSaveContactNickname,
         onSaveFileNickname = onSaveFileNickname,
         onSaveSettingNickname = onSaveSettingNickname,
         onSaveCalendarEventNickname = onSaveCalendarEventNickname,
+        onSaveAppTrigger = onSaveAppTrigger,
+        onSaveAppShortcutTrigger = onSaveAppShortcutTrigger,
+        onSaveContactTrigger = onSaveContactTrigger,
+        onSaveFileTrigger = onSaveFileTrigger,
+        onSaveSettingTrigger = onSaveSettingTrigger,
+        onSaveCalendarEventTrigger = onSaveCalendarEventTrigger,
         getLastShownPhoneNumber = getLastShownPhoneNumber,
         setLastShownPhoneNumber = setLastShownPhoneNumber,
     )

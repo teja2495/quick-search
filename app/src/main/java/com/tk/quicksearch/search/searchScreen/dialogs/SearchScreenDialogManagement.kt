@@ -23,6 +23,7 @@ import com.tk.quicksearch.search.models.DeviceFile
 internal fun SearchScreenDialogs(
     state: SearchUiState,
     nicknameDialogState: NicknameDialogState?,
+    triggerDialogState: TriggerDialogState?,
     onPhoneNumberSelected: (String, Boolean) -> Unit,
     onDismissPhoneNumberSelection: () -> Unit,
     onDirectDialChoiceSelected: (DirectDialOption, Boolean) -> Unit,
@@ -32,12 +33,19 @@ internal fun SearchScreenDialogs(
     onReleaseNotesAcknowledged: () -> Unit,
     onReleaseNotesViewAllFeatures: () -> Unit,
     onDismissNicknameDialog: () -> Unit,
+    onDismissTriggerDialog: () -> Unit,
     onSaveAppNickname: (AppInfo, String?) -> Unit,
     onSaveAppShortcutNickname: (StaticShortcut, String?) -> Unit,
     onSaveContactNickname: (ContactInfo, String?) -> Unit,
     onSaveFileNickname: (DeviceFile, String?) -> Unit,
     onSaveSettingNickname: (DeviceSetting, String?) -> Unit,
     onSaveCalendarEventNickname: (CalendarEventInfo, String?) -> Unit,
+    onSaveAppTrigger: (AppInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
+    onSaveAppShortcutTrigger: (StaticShortcut, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
+    onSaveContactTrigger: (ContactInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
+    onSaveFileTrigger: (DeviceFile, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
+    onSaveSettingTrigger: (DeviceSetting, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
+    onSaveCalendarEventTrigger: (CalendarEventInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
     getLastShownPhoneNumber: (Long) -> String?,
     setLastShownPhoneNumber: (Long, String) -> Unit,
 ) {
@@ -154,6 +162,53 @@ internal fun SearchScreenDialogs(
                     onDismiss = onDismissNicknameDialog,
                 )
             }
+        }
+    }
+
+    triggerDialogState?.let { dialogState ->
+        when (dialogState) {
+            is TriggerDialogState.App ->
+                TriggerDialog(
+                    currentTrigger = dialogState.currentTrigger,
+                    itemName = dialogState.itemName,
+                    onSave = { onSaveAppTrigger(dialogState.app, it) },
+                    onDismiss = onDismissTriggerDialog,
+                )
+            is TriggerDialogState.AppShortcut ->
+                TriggerDialog(
+                    currentTrigger = dialogState.currentTrigger,
+                    itemName = dialogState.itemName,
+                    onSave = { onSaveAppShortcutTrigger(dialogState.shortcut, it) },
+                    onDismiss = onDismissTriggerDialog,
+                )
+            is TriggerDialogState.Contact ->
+                TriggerDialog(
+                    currentTrigger = dialogState.currentTrigger,
+                    itemName = dialogState.itemName,
+                    onSave = { onSaveContactTrigger(dialogState.contact, it) },
+                    onDismiss = onDismissTriggerDialog,
+                )
+            is TriggerDialogState.File ->
+                TriggerDialog(
+                    currentTrigger = dialogState.currentTrigger,
+                    itemName = dialogState.itemName,
+                    onSave = { onSaveFileTrigger(dialogState.file, it) },
+                    onDismiss = onDismissTriggerDialog,
+                )
+            is TriggerDialogState.Setting ->
+                TriggerDialog(
+                    currentTrigger = dialogState.currentTrigger,
+                    itemName = dialogState.itemName,
+                    onSave = { onSaveSettingTrigger(dialogState.setting, it) },
+                    onDismiss = onDismissTriggerDialog,
+                )
+            is TriggerDialogState.CalendarEvent ->
+                TriggerDialog(
+                    currentTrigger = dialogState.currentTrigger,
+                    itemName = dialogState.itemName,
+                    onSave = { onSaveCalendarEventTrigger(dialogState.event, it) },
+                    onDismiss = onDismissTriggerDialog,
+                )
         }
     }
 }

@@ -531,6 +531,99 @@ internal fun SearchScreenContent(
         }
     }
 
+    fun matchesTrigger(
+        query: String,
+        word: String,
+        triggerAfterSpace: Boolean,
+    ): Boolean {
+        val normalizedWord = word.trim().lowercase()
+        if (normalizedWord.isBlank()) return false
+        val normalizedQuery = query.lowercase()
+        return if (triggerAfterSpace) {
+            normalizedQuery == "$normalizedWord "
+        } else {
+            normalizedQuery == normalizedWord
+        }
+    }
+
+    fun openMatchingTrigger(query: String): Boolean {
+        state.allApps.firstOrNull { app ->
+            appsParams.getAppTrigger(app.packageName)?.let { trigger ->
+                matchesTrigger(query, trigger.word, trigger.triggerAfterSpace)
+            } == true
+        }?.let { app ->
+            onAppClick(app)
+            return true
+        }
+
+        state.allAppShortcuts.firstOrNull { shortcut ->
+            appShortcutsParams.getShortcutTrigger(
+                com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey(shortcut),
+            )?.let { trigger ->
+                matchesTrigger(query, trigger.word, trigger.triggerAfterSpace)
+            } == true
+        }?.let { shortcut ->
+            appShortcutsParams.onShortcutClick(shortcut)
+            return true
+        }
+
+        (renderingState.contactResults + state.pinnedContacts)
+            .distinctBy { it.contactId }
+            .firstOrNull { contact ->
+                contactsParams.getContactTrigger(contact.contactId)?.let { trigger ->
+                    matchesTrigger(query, trigger.word, trigger.triggerAfterSpace)
+                } == true
+            }?.let { contact ->
+                if (contact.hasContactMethods) {
+                    contactsParams.onShowContactMethods(contact)
+                } else {
+                    contactsParams.onContactClick(contact)
+                }
+                return true
+            }
+
+        (renderingState.fileResults + state.pinnedFiles)
+            .distinctBy { it.uri }
+            .firstOrNull { file ->
+                filesParams.getFileTrigger(file.uri.toString())?.let { trigger ->
+                    matchesTrigger(query, trigger.word, trigger.triggerAfterSpace)
+                } == true
+            }?.let { file ->
+                filesParams.onFileClick(file)
+                return true
+            }
+
+        state.allDeviceSettings.firstOrNull { setting ->
+            settingsParams.getSettingTrigger(setting.id)?.let { trigger ->
+                matchesTrigger(query, trigger.word, trigger.triggerAfterSpace)
+            } == true
+        }?.let { setting ->
+            settingsParams.onSettingClick(setting)
+            return true
+        }
+
+        (renderingState.calendarEvents + state.pinnedCalendarEvents + state.todayCalendarEvents)
+            .distinctBy { it.eventId }
+            .firstOrNull { event ->
+                calendarParams.getEventTrigger(event.eventId)?.let { trigger ->
+                    matchesTrigger(query, trigger.word, trigger.triggerAfterSpace)
+                } == true
+            }?.let { event ->
+                calendarParams.onEventClick(event)
+                return true
+            }
+
+        return false
+    }
+
+    var lastTriggeredQuery by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(state.query) {
+        if (state.query.isBlank() || state.query == lastTriggeredQuery) return@LaunchedEffect
+        if (openMatchingTrigger(state.query)) {
+            lastTriggeredQuery = state.query
+        }
+    }
+
     val searchFieldModifier =
             if (showBottomSearchBar) {
                 Modifier.padding(
@@ -605,6 +698,10 @@ internal fun SearchScreenContent(
                     }
 
                     val trimmedQuery = state.query.trim()
+                    if (openMatchingTrigger(state.query)) {
+                        return@PersistentSearchBar false
+                    }
+
                     val isUrlQuery = isLikelyWebUrl(trimmedQuery)
                     val defaultBrowserPackage = resolveDefaultBrowserPackage(context)
 

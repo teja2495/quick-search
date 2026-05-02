@@ -143,10 +143,12 @@ fun FileDropdownMenu(
         deviceFile: DeviceFile,
         isPinned: Boolean,
         hasNickname: Boolean,
+        hasTrigger: Boolean,
         onTogglePin: () -> Unit,
         onExclude: () -> Unit,
         onExcludeExtension: () -> Unit,
         onNicknameClick: () -> Unit,
+        onTriggerClick: () -> Unit,
         onOpenFolderClick: () -> Unit = {},
         onFileInfoClick: () -> Unit = {},
         onShareClick: () -> Unit = {},
@@ -178,6 +180,20 @@ fun FileDropdownMenu(
                             onClick = {
                                 onDismissRequest()
                                 onTogglePin()
+                            },
+                    ),
+            )
+            add(
+                    FileMenuItem(
+                            textResId =
+                                    if (hasTrigger) R.string.action_edit_trigger
+                                    else R.string.action_add_trigger,
+                            icon = {
+                                Icon(imageVector = Icons.Rounded.Edit, contentDescription = null)
+                            },
+                            onClick = {
+                                onDismissRequest()
+                                onTriggerClick()
                             },
                     ),
             )

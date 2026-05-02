@@ -3,6 +3,8 @@ package com.tk.quicksearch.search.core
 import android.content.Intent
 import com.tk.quicksearch.search.data.AppShortcutRepository.SearchTargetShortcutMode
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
+import com.tk.quicksearch.search.data.preferences.ResultTrigger
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.CalendarEventInfo
@@ -56,6 +58,12 @@ internal interface SearchViewModelManagementApi {
 
     fun getAppNickname(packageName: String): String? = managementApiDelegate.getAppNickname(packageName)
 
+    fun setAppTrigger(appInfo: AppInfo, trigger: ResultTrigger?) =
+        managementApiDelegate.setAppTrigger(appInfo, trigger)
+
+    fun getAppTrigger(packageName: String): ResultTrigger? =
+        managementApiDelegate.getAppTrigger(packageName)
+
     fun clearCachedApps() = managementApiDelegate.clearCachedApps()
 
     fun pinContact(contactInfo: ContactInfo) = managementApiDelegate.pinContact(contactInfo)
@@ -73,6 +81,12 @@ internal interface SearchViewModelManagementApi {
         managementApiDelegate.setContactNickname(contactInfo, nickname)
 
     fun getContactNickname(contactId: Long): String? = managementApiDelegate.getContactNickname(contactId)
+
+    fun setContactTrigger(contactInfo: ContactInfo, trigger: ResultTrigger?) =
+        managementApiDelegate.setContactTrigger(contactInfo, trigger)
+
+    fun getContactTrigger(contactId: Long): ResultTrigger? =
+        managementApiDelegate.getContactTrigger(contactId)
 
     fun pinFile(deviceFile: DeviceFile) = managementApiDelegate.pinFile(deviceFile)
 
@@ -94,6 +108,11 @@ internal interface SearchViewModelManagementApi {
 
     fun getFileNickname(uri: String): String? = managementApiDelegate.getFileNickname(uri)
 
+    fun setFileTrigger(deviceFile: DeviceFile, trigger: ResultTrigger?) =
+        managementApiDelegate.setFileTrigger(deviceFile, trigger)
+
+    fun getFileTrigger(uri: String): ResultTrigger? = managementApiDelegate.getFileTrigger(uri)
+
     fun pinSetting(setting: DeviceSetting) = managementApiDelegate.pinSetting(setting)
 
     fun unpinSetting(setting: DeviceSetting) = managementApiDelegate.unpinSetting(setting)
@@ -104,6 +123,12 @@ internal interface SearchViewModelManagementApi {
         managementApiDelegate.setSettingNickname(setting, nickname)
 
     fun getSettingNickname(id: String): String? = managementApiDelegate.getSettingNickname(id)
+
+    fun setSettingTrigger(setting: DeviceSetting, trigger: ResultTrigger?) =
+        managementApiDelegate.setSettingTrigger(setting, trigger)
+
+    fun getSettingTrigger(id: String): ResultTrigger? =
+        managementApiDelegate.getSettingTrigger(id)
 
     fun removeExcludedSetting(setting: DeviceSetting) = managementApiDelegate.removeExcludedSetting(setting)
 
@@ -125,6 +150,12 @@ internal interface SearchViewModelManagementApi {
 
     fun getCalendarEventNickname(eventId: Long): String? =
         managementApiDelegate.getCalendarEventNickname(eventId)
+
+    fun setCalendarEventTrigger(event: CalendarEventInfo, trigger: ResultTrigger?) =
+        managementApiDelegate.setCalendarEventTrigger(event, trigger)
+
+    fun getCalendarEventTrigger(eventId: Long): ResultTrigger? =
+        managementApiDelegate.getCalendarEventTrigger(eventId)
 
     fun pinNote(noteInfo: NoteInfo) = managementApiDelegate.pinNote(noteInfo)
 
@@ -156,6 +187,12 @@ internal interface SearchViewModelManagementApi {
 
     fun getAppShortcutNickname(shortcutId: String): String? =
         managementApiDelegate.getAppShortcutNickname(shortcutId)
+
+    fun setAppShortcutTrigger(shortcut: StaticShortcut, trigger: ResultTrigger?) =
+        managementApiDelegate.setAppShortcutTrigger(shortcut, trigger)
+
+    fun getAppShortcutTrigger(shortcutId: String): ResultTrigger? =
+        managementApiDelegate.getAppShortcutTrigger(shortcutId)
 
     fun removeExcludedAppShortcut(shortcut: StaticShortcut) =
         managementApiDelegate.removeExcludedAppShortcut(shortcut)
@@ -329,6 +366,12 @@ class SearchViewModelManagementApiDelegate internal constructor(
 
     fun getAppNickname(packageName: String): String? = appManager().getAppNickname(packageName)
 
+    fun setAppTrigger(appInfo: AppInfo, trigger: ResultTrigger?) {
+        userPreferences.setAppTrigger(appInfo.packageName, trigger)
+    }
+
+    fun getAppTrigger(packageName: String): ResultTrigger? = userPreferences.getAppTrigger(packageName)
+
     fun clearCachedApps() = appSearchManager().clearCachedApps()
 
     fun pinContact(contactInfo: ContactInfo) = contactManager().pinContact(contactInfo)
@@ -349,6 +392,12 @@ class SearchViewModelManagementApiDelegate internal constructor(
         contactManager().setContactNickname(contactInfo, nickname)
 
     fun getContactNickname(contactId: Long): String? = contactManager().getContactNickname(contactId)
+
+    fun setContactTrigger(contactInfo: ContactInfo, trigger: ResultTrigger?) {
+        userPreferences.setContactTrigger(contactInfo.contactId, trigger)
+    }
+
+    fun getContactTrigger(contactId: Long): ResultTrigger? = userPreferences.getContactTrigger(contactId)
 
     fun pinFile(deviceFile: DeviceFile) = fileManager().pinFile(deviceFile)
 
@@ -379,6 +428,12 @@ class SearchViewModelManagementApiDelegate internal constructor(
 
     fun getFileNickname(uri: String): String? = fileManager().getFileNickname(uri)
 
+    fun setFileTrigger(deviceFile: DeviceFile, trigger: ResultTrigger?) {
+        userPreferences.setFileTrigger(deviceFile.uri.toString(), trigger)
+    }
+
+    fun getFileTrigger(uri: String): ResultTrigger? = userPreferences.getFileTrigger(uri)
+
     fun pinSetting(setting: DeviceSetting) = settingsManager().pinSetting(setting)
 
     fun unpinSetting(setting: DeviceSetting) {
@@ -392,6 +447,12 @@ class SearchViewModelManagementApiDelegate internal constructor(
         settingsManager().setSettingNickname(setting, nickname)
 
     fun getSettingNickname(id: String): String? = settingsManager().getSettingNickname(id)
+
+    fun setSettingTrigger(setting: DeviceSetting, trigger: ResultTrigger?) {
+        userPreferences.setSettingTrigger(setting.id, trigger)
+    }
+
+    fun getSettingTrigger(id: String): ResultTrigger? = userPreferences.getSettingTrigger(id)
 
     fun removeExcludedSetting(setting: DeviceSetting) = settingsManager().removeExcludedSetting(setting)
 
@@ -411,6 +472,13 @@ class SearchViewModelManagementApiDelegate internal constructor(
         calendarManager().setItemNickname(event, nickname)
 
     fun getCalendarEventNickname(eventId: Long): String? = userPreferences.getCalendarEventNickname(eventId)
+
+    fun setCalendarEventTrigger(event: CalendarEventInfo, trigger: ResultTrigger?) {
+        userPreferences.setCalendarEventTrigger(event.eventId, trigger)
+    }
+
+    fun getCalendarEventTrigger(eventId: Long): ResultTrigger? =
+        userPreferences.getCalendarEventTrigger(eventId)
 
     fun pinNote(noteInfo: NoteInfo) {
         scope.launch(Dispatchers.IO) {
@@ -468,6 +536,13 @@ class SearchViewModelManagementApiDelegate internal constructor(
 
     fun getAppShortcutNickname(shortcutId: String): String? =
         appShortcutManager().getShortcutNickname(shortcutId)
+
+    fun setAppShortcutTrigger(shortcut: StaticShortcut, trigger: ResultTrigger?) {
+        userPreferences.setAppShortcutTrigger(shortcutKey(shortcut), trigger)
+    }
+
+    fun getAppShortcutTrigger(shortcutId: String): ResultTrigger? =
+        userPreferences.getAppShortcutTrigger(shortcutId)
 
     fun removeExcludedAppShortcut(shortcut: StaticShortcut) =
         appShortcutManager().removeExcludedShortcut(shortcut)

@@ -27,6 +27,7 @@ import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.search.searchScreen.dialogs.NicknameDialogState
+import com.tk.quicksearch.search.searchScreen.dialogs.TriggerDialogState
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.searchScreen.buildSectionParams
 import com.tk.quicksearch.search.searchScreen.rememberDerivedState
@@ -125,6 +126,12 @@ internal fun SearchScreenStateManagement(
     getFileNickname: (String) -> String?,
     getAppShortcutNickname: (String) -> String?,
     getCalendarEventNickname: (Long) -> String?,
+    getAppTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+    getContactTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+    getFileTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+    getAppShortcutTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+    getSettingTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+    getCalendarEventTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     onSaveAppNickname: (AppInfo, String?) -> Unit,
     onSaveAppShortcutNickname: (StaticShortcut, String?) -> Unit,
     onSaveContactNickname: (ContactInfo, String?) -> Unit,
@@ -212,6 +219,7 @@ internal fun SearchScreenStateManagement(
 
     // Nickname dialog state
     var nicknameDialogState by remember { mutableStateOf<NicknameDialogState?>(null) }
+    var triggerDialogState by remember { mutableStateOf<TriggerDialogState?>(null) }
 
     var shortcutToEdit by remember { mutableStateOf<StaticShortcut?>(null) }
     var shortcutIconEdit by remember { mutableStateOf<StaticShortcut?>(null) }
@@ -435,6 +443,13 @@ internal fun SearchScreenStateManagement(
             getSecondaryContactCardAction = getSecondaryContactCardAction,
             onContactActionHintDismissed = onContactActionHintDismissed,
             onUpdateNicknameDialogState = { newState -> nicknameDialogState = newState },
+            onUpdateTriggerDialogState = { newState -> triggerDialogState = newState },
+            getAppTrigger = getAppTrigger,
+            getContactTrigger = getContactTrigger,
+            getFileTrigger = getFileTrigger,
+            getAppShortcutTrigger = getAppShortcutTrigger,
+            getSettingTrigger = getSettingTrigger,
+            getCalendarEventTrigger = getCalendarEventTrigger,
             onUpdateExpandedSection = { newSection: ExpandedSection ->
                 expandedSection = newSection
                 if (newSection == ExpandedSection.NONE) {
@@ -506,6 +521,7 @@ internal fun SearchScreenStateManagement(
         setShortcutToEdit = { shortcutToEdit = it },
         setShortcutIconEdit = { shortcutIconEdit = it },
         nicknameDialogState = nicknameDialogState,
+        triggerDialogState = triggerDialogState,
         contactActionPickerDialogState = contactActionPickerDialogState,
         manuallySwitchedToNumberKeyboard = manuallySwitchedToNumberKeyboard,
         showPersonalContextDialog = showPersonalContextDialog,
@@ -520,6 +536,7 @@ internal fun SearchScreenStateManagement(
         renderingState = renderingState,
         setExpandedSection = { expandedSection = it },
         setNicknameDialogState = { nicknameDialogState = it },
+        setTriggerDialogState = { triggerDialogState = it },
         setContactActionPickerDialogState = { contactActionPickerDialogState = it },
         setManuallySwitchedToNumberKeyboard = { manuallySwitchedToNumberKeyboard = it },
         setShowPersonalContextDialog = { showPersonalContextDialog = it },
@@ -539,6 +556,7 @@ internal data class SearchScreenStateResult(
     val setShortcutToEdit: (StaticShortcut?) -> Unit,
     val setShortcutIconEdit: (StaticShortcut?) -> Unit,
     val nicknameDialogState: NicknameDialogState?,
+    val triggerDialogState: TriggerDialogState?,
     val contactActionPickerDialogState: ContactActionPickerDialogState?,
     val manuallySwitchedToNumberKeyboard: Boolean,
     val showPersonalContextDialog: Boolean,
@@ -553,6 +571,7 @@ internal data class SearchScreenStateResult(
     val renderingState: SectionRenderingState,
     val setExpandedSection: (ExpandedSection) -> Unit,
     val setNicknameDialogState: (NicknameDialogState?) -> Unit,
+    val setTriggerDialogState: (TriggerDialogState?) -> Unit,
     val setContactActionPickerDialogState: (ContactActionPickerDialogState?) -> Unit,
     val setManuallySwitchedToNumberKeyboard: (Boolean) -> Unit,
     val setShowPersonalContextDialog: (Boolean) -> Unit,

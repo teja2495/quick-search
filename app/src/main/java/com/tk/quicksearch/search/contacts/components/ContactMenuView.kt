@@ -32,9 +32,11 @@ fun ContactDropdownMenu(
         onDismissRequest: () -> Unit,
         isPinned: Boolean,
         hasNickname: Boolean,
+        hasTrigger: Boolean,
         onTogglePin: () -> Unit,
         onExclude: () -> Unit,
         onNicknameClick: () -> Unit,
+        onTriggerClick: () -> Unit,
         onAddToHome: () -> Unit,
 ) {
     DropdownMenu(
@@ -63,6 +65,20 @@ fun ContactDropdownMenu(
                             onClick = {
                                 onDismissRequest()
                                 onTogglePin()
+                            },
+                    ),
+            )
+            add(
+                    ContactMenuItem(
+                            textResId =
+                                    if (hasTrigger) R.string.action_edit_trigger
+                                    else R.string.action_add_trigger,
+                            icon = {
+                                Icon(imageVector = Icons.Rounded.Edit, contentDescription = null)
+                            },
+                            onClick = {
+                                onDismissRequest()
+                                onTriggerClick()
                             },
                     ),
             )

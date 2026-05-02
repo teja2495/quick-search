@@ -97,12 +97,14 @@ private data class AppActions(
         val onPinApp: () -> Unit,
         val onUnpinApp: () -> Unit,
         val onNicknameClick: () -> Unit,
+        val onTriggerClick: () -> Unit,
         val onAddToHome: () -> Unit,
 )
 
 /** Data class containing app state information to reduce parameter count in composables. */
 private data class AppState(
         val hasNickname: Boolean,
+        val hasTrigger: Boolean,
         val isPinned: Boolean,
         val showUninstall: Boolean,
         val showAppLabel: Boolean,
@@ -122,7 +124,9 @@ fun AppGridView(
         onPinApp: (AppInfo) -> Unit,
         onUnpinApp: (AppInfo) -> Unit,
         onNicknameClick: (AppInfo) -> Unit,
+        onTriggerClick: (AppInfo) -> Unit,
         getAppNickname: (String) -> String?,
+        getAppTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
         pinnedPackageNames: Set<String>,
         disabledShortcutIds: Set<String>,
         modifier: Modifier = Modifier,
@@ -221,7 +225,9 @@ fun AppGridView(
                     onPinApp = onPinApp,
                     onUnpinApp = onUnpinApp,
                     onNicknameClick = onNicknameClick,
+                    onTriggerClick = onTriggerClick,
                     getAppNickname = getAppNickname,
+                    getAppTrigger = getAppTrigger,
                     pinnedPackageNames = pinnedPackageNames,
                     shortcutsByPackage = shortcutsByPackage,
                     rowCount = rowCount,
@@ -251,7 +257,9 @@ private fun AppGrid(
         onPinApp: (AppInfo) -> Unit,
         onUnpinApp: (AppInfo) -> Unit,
         onNicknameClick: (AppInfo) -> Unit,
+        onTriggerClick: (AppInfo) -> Unit,
         getAppNickname: (String) -> String?,
+        getAppTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
         pinnedPackageNames: Set<String>,
         shortcutsByPackage: Map<String, List<StaticShortcut>>,
         rowCount: Int = ROW_COUNT,
@@ -306,6 +314,7 @@ private fun AppGrid(
                             onPinApp,
                             onUnpinApp,
                             onNicknameClick,
+                            onTriggerClick,
                             addToHomeHandler
                     ) {
                         { app: AppInfo ->
@@ -317,16 +326,18 @@ private fun AppGrid(
                                     onPinApp = { onPinApp(app) },
                                     onUnpinApp = { onUnpinApp(app) },
                                     onNicknameClick = { onNicknameClick(app) },
+                                    onTriggerClick = { onTriggerClick(app) },
                                     onAddToHome = { addToHomeHandler.addAppToHome(app) },
                             )
                         }
                     }
 
             val createAppState =
-                    remember(getAppNickname, pinnedPackageNames) {
+                    remember(getAppNickname, getAppTrigger, pinnedPackageNames) {
                         { app: AppInfo ->
                             AppState(
                                     hasNickname = !getAppNickname(app.packageName).isNullOrBlank(),
+                                    hasTrigger = getAppTrigger(app.packageName)?.word?.isNotBlank() == true,
                                     isPinned = pinnedPackageNames.contains(app.launchCountKey()),
                                     showUninstall = !app.isSystemApp && app.userHandleId == null,
                                     showAppLabel = showAppLabels,
@@ -507,6 +518,7 @@ private fun AppGridItem(
                 isPinned = appState.isPinned,
                 showUninstall = appState.showUninstall,
                 hasNickname = appState.hasNickname,
+                hasTrigger = appState.hasTrigger,
                 shortcuts = shortcuts,
                 onShortcutClick = { shortcut -> launchStaticShortcut(context, shortcut) },
                 onAppInfoClick = appActions.onAppInfoClick,
@@ -515,6 +527,7 @@ private fun AppGridItem(
                 onUnpinApp = appActions.onUnpinApp,
                 onUninstallClick = appActions.onUninstallClick,
                 onNicknameClick = appActions.onNicknameClick,
+                onTriggerClick = appActions.onTriggerClick,
                 onAddToHome = appActions.onAddToHome,
         )
     }

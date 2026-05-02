@@ -117,6 +117,16 @@ fun SearchRoute(
         remember(nicknameUpdateVersion) { { id -> viewModel.getSettingNickname(id) } }
     val getAppShortcutNickname: (String) -> String? =
         remember(nicknameUpdateVersion) { { id -> viewModel.getAppShortcutNickname(id) } }
+    val getAppTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger? =
+        remember(nicknameUpdateVersion) { { packageName -> viewModel.getAppTrigger(packageName) } }
+    val getContactTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger? =
+        remember(nicknameUpdateVersion) { { contactId -> viewModel.getContactTrigger(contactId) } }
+    val getFileTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger? =
+        remember(nicknameUpdateVersion) { { uri -> viewModel.getFileTrigger(uri) } }
+    val getSettingTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger? =
+        remember(nicknameUpdateVersion) { { id -> viewModel.getSettingTrigger(id) } }
+    val getAppShortcutTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger? =
+        remember(nicknameUpdateVersion) { { id -> viewModel.getAppShortcutTrigger(id) } }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val effectiveSnackbarHostState = overlaySnackbarHostState ?: snackbarHostState
@@ -615,11 +625,23 @@ fun SearchRoute(
             getFileNickname = getFileNickname,
             getAppShortcutNickname = getAppShortcutNickname,
             getCalendarEventNickname = viewModel::getCalendarEventNickname,
+            getAppTrigger = getAppTrigger,
+            getContactTrigger = getContactTrigger,
+            getFileTrigger = getFileTrigger,
+            getAppShortcutTrigger = getAppShortcutTrigger,
+            getSettingTrigger = getSettingTrigger,
+            getCalendarEventTrigger = viewModel::getCalendarEventTrigger,
             onSaveAppNickname = viewModel::setAppNickname,
             onSaveAppShortcutNickname = viewModel::setAppShortcutNickname,
             onSaveContactNickname = viewModel::setContactNickname,
             onSaveFileNickname = viewModel::setFileNickname,
             onSaveCalendarEventNickname = viewModel::setCalendarEventNickname,
+            onSaveAppTrigger = viewModel::setAppTrigger,
+            onSaveAppShortcutTrigger = viewModel::setAppShortcutTrigger,
+            onSaveContactTrigger = viewModel::setContactTrigger,
+            onSaveFileTrigger = viewModel::setFileTrigger,
+            onSaveSettingTrigger = viewModel::setSettingTrigger,
+            onSaveCalendarEventTrigger = viewModel::setCalendarEventTrigger,
             getSettingNickname = getSettingNickname,
             onSaveSettingNickname = viewModel::setSettingNickname,
             getAppShortcutIconOverride = viewModel::getAppShortcutIconOverride,

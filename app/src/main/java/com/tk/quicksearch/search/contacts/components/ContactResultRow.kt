@@ -88,6 +88,8 @@ internal fun ContactResultRow(
         onExclude: (ContactInfo) -> Unit = {},
         onNicknameClick: (ContactInfo) -> Unit = {},
         hasNickname: Boolean = false,
+        onTriggerClick: (ContactInfo) -> Unit = {},
+        hasTrigger: Boolean = false,
         enableLongPress: Boolean = true,
         onLongPressOverride: (() -> Unit)? = null,
         icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
@@ -207,9 +209,11 @@ internal fun ContactResultRow(
                                 onDismissRequest = { showOptions = false },
                                 isPinned = isPinned,
                                 hasNickname = hasNickname,
+                                hasTrigger = hasTrigger,
                                 onTogglePin = { onTogglePin(contactInfo) },
                                 onExclude = { onExclude(contactInfo) },
                                 onNicknameClick = { onNicknameClick(contactInfo) },
+                                onTriggerClick = { onTriggerClick(contactInfo) },
                                 onAddToHome = { addToHomeHandler.addContactToHome(contactInfo) },
                         )
                 }

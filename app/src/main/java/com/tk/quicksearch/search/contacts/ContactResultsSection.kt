@@ -71,7 +71,9 @@ fun ContactResultsSection(
     onTogglePin: (ContactInfo) -> Unit = {},
     onExclude: (ContactInfo) -> Unit = {},
     onNicknameClick: (ContactInfo) -> Unit = {},
+    onTriggerClick: (ContactInfo) -> Unit = {},
     getContactNickname: (Long) -> String? = { null },
+    getContactTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger? = { null },
     getPrimaryContactCardAction: (Long) -> com.tk.quicksearch.search.contacts.models.ContactCardAction? =
         {
             null
@@ -122,7 +124,9 @@ fun ContactResultsSection(
                     onTogglePin = onTogglePin,
                     onExclude = onExclude,
                     onNicknameClick = onNicknameClick,
+                    onTriggerClick = onTriggerClick,
                     getContactNickname = getContactNickname,
+                    getContactTrigger = getContactTrigger,
                     getPrimaryContactCardAction = getPrimaryContactCardAction,
                     getSecondaryContactCardAction =
                     getSecondaryContactCardAction,
@@ -172,7 +176,9 @@ private fun ContactsResultCard(
     onTogglePin: (ContactInfo) -> Unit,
     onExclude: (ContactInfo) -> Unit,
     onNicknameClick: (ContactInfo) -> Unit,
+    onTriggerClick: (ContactInfo) -> Unit,
     getContactNickname: (Long) -> String?,
+    getContactTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     getPrimaryContactCardAction: (Long) -> com.tk.quicksearch.search.contacts.models.ContactCardAction?,
     getSecondaryContactCardAction: (Long) -> com.tk.quicksearch.search.contacts.models.ContactCardAction?,
     onPrimaryActionLongPress: (ContactInfo) -> Unit,
@@ -245,7 +251,9 @@ private fun ContactsResultCard(
                     onTogglePin = onTogglePin,
                     onExclude = onExclude,
                     onNicknameClick = onNicknameClick,
+                    onTriggerClick = onTriggerClick,
                     getContactNickname = getContactNickname,
+                    getContactTrigger = getContactTrigger,
                     getPrimaryContactCardAction =
                     getPrimaryContactCardAction,
                     getSecondaryContactCardAction =
@@ -293,7 +301,9 @@ private fun ContactList(
     onTogglePin: (ContactInfo) -> Unit,
     onExclude: (ContactInfo) -> Unit,
     onNicknameClick: (ContactInfo) -> Unit,
+    onTriggerClick: (ContactInfo) -> Unit,
     getContactNickname: (Long) -> String?,
+    getContactTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     getPrimaryContactCardAction: (Long) -> com.tk.quicksearch.search.contacts.models.ContactCardAction?,
     getSecondaryContactCardAction: (Long) -> com.tk.quicksearch.search.contacts.models.ContactCardAction?,
     onPrimaryActionLongPress: (ContactInfo) -> Unit,
@@ -345,9 +355,11 @@ private fun ContactList(
                     onTogglePin = onTogglePin,
                     onExclude = onExclude,
                     onNicknameClick = onNicknameClick,
+                    onTriggerClick = onTriggerClick,
                     hasNickname =
                         !getContactNickname(contactInfo.contactId)
                             .isNullOrBlank(),
+                    hasTrigger = getContactTrigger(contactInfo.contactId)?.word?.isNotBlank() == true,
                     primaryAction =
                         getPrimaryContactCardAction(contactInfo.contactId),
                     secondaryAction =

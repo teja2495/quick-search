@@ -18,6 +18,7 @@ import com.tk.quicksearch.searchEngines.AliasParser
 import com.tk.quicksearch.searchEngines.defaultBrowserTarget
 import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.search.searchScreen.dialogs.NicknameDialogState
+import com.tk.quicksearch.search.searchScreen.dialogs.TriggerDialogState
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import java.util.Locale
@@ -160,7 +161,9 @@ data class FilesSectionParams(
     val onExclude: (DeviceFile) -> Unit,
     val onExcludeExtension: (DeviceFile) -> Unit,
     val onNicknameClick: (DeviceFile) -> Unit,
+    val onTriggerClick: (DeviceFile) -> Unit,
     val getFileNickname: (String) -> String?,
+    val getFileTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     val showAllResults: Boolean,
     val showExpandControls: Boolean,
     val onExpandClick: () -> Unit,
@@ -196,7 +199,9 @@ data class SettingsSectionParams(
     val onTogglePin: (DeviceSetting) -> Unit,
     val onExclude: (DeviceSetting) -> Unit,
     val onNicknameClick: (DeviceSetting) -> Unit,
+    val onTriggerClick: (DeviceSetting) -> Unit,
     val getSettingNickname: (String) -> String?,
+    val getSettingTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     val showAllResults: Boolean,
     val showExpandControls: Boolean,
     val onExpandClick: () -> Unit,
@@ -219,9 +224,11 @@ data class AppShortcutsSectionParams(
     val onInclude: (StaticShortcut) -> Unit,
     val onAppInfoClick: (StaticShortcut) -> Unit,
     val onNicknameClick: (StaticShortcut) -> Unit,
+    val onTriggerClick: (StaticShortcut) -> Unit,
     val onEditCustomShortcut: (StaticShortcut) -> Unit,
     val onEditShortcutIcon: (StaticShortcut) -> Unit,
     val getShortcutNickname: (String) -> String?,
+    val getShortcutTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     val showAllResults: Boolean,
     val showExpandControls: Boolean,
     val onExpandClick: () -> Unit,
@@ -248,7 +255,9 @@ data class ContactsSectionParams(
     val onTogglePin: (ContactInfo) -> Unit,
     val onExclude: (ContactInfo) -> Unit,
     val onNicknameClick: (ContactInfo) -> Unit,
+    val onTriggerClick: (ContactInfo) -> Unit,
     val getContactNickname: (Long) -> String?,
+    val getContactTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     val getPrimaryContactCardAction: (Long) -> com.tk.quicksearch.search.contacts.models.ContactCardAction?,
     val getSecondaryContactCardAction: (Long) -> com.tk.quicksearch.search.contacts.models.ContactCardAction?,
     val onPrimaryActionLongPress: (ContactInfo) -> Unit,
@@ -290,7 +299,9 @@ data class AppsSectionParams(
     val onPinApp: (AppInfo) -> Unit,
     val onUnpinApp: (AppInfo) -> Unit,
     val onNicknameClick: (AppInfo) -> Unit,
+    val onTriggerClick: (AppInfo) -> Unit,
     val getAppNickname: (String) -> String?,
+    val getAppTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     val rowCount: Int,
     val phoneColumnOverride: Int = 5,
     val iconPackPackage: String?,
@@ -318,8 +329,10 @@ data class CalendarSectionParams(
     val onExclude: (CalendarEventInfo) -> Unit,
     val onInclude: (CalendarEventInfo) -> Unit,
     val onNicknameClick: (CalendarEventInfo) -> Unit,
+    val onTriggerClick: (CalendarEventInfo) -> Unit,
     val onArchiveTodayEvent: (CalendarEventInfo) -> Unit,
     val getEventNickname: (Long) -> String?,
+    val getEventTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     val showAllResults: Boolean,
     val showExpandControls: Boolean,
     val onExpandClick: () -> Unit,
@@ -421,6 +434,13 @@ internal fun buildSectionParams(
     getAppShortcutNickname: (String) -> String?,
     getCalendarEventNickname: (Long) -> String?,
     onUpdateNicknameDialogState: (NicknameDialogState?) -> Unit,
+    onUpdateTriggerDialogState: (TriggerDialogState?) -> Unit,
+    getAppTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+    getContactTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+    getFileTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+    getAppShortcutTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+    getSettingTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+    getCalendarEventTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     onUpdateExpandedSection: (ExpandedSection) -> Unit,
     expandedSection: ExpandedSection,
 ) = remember(
@@ -488,6 +508,13 @@ internal fun buildSectionParams(
     getAppShortcutNickname,
     getCalendarEventNickname,
     onUpdateNicknameDialogState,
+    onUpdateTriggerDialogState,
+    getAppTrigger,
+    getContactTrigger,
+    getFileTrigger,
+    getAppShortcutTrigger,
+    getSettingTrigger,
+    getCalendarEventTrigger,
     onUpdateExpandedSection,
 ) {
     val filesParams =
@@ -523,7 +550,17 @@ internal fun buildSectionParams(
                     ),
                 )
             },
+            onTriggerClick = { file ->
+                onUpdateTriggerDialogState(
+                    TriggerDialogState.File(
+                        file = file,
+                        currentTrigger = getFileTrigger(file.uri.toString()),
+                        itemName = file.displayName,
+                    ),
+                )
+            },
             getFileNickname = getFileNickname,
+            getFileTrigger = getFileTrigger,
             showAllResults = false,
             showExpandControls = derivedState.isSearching,
             onExpandClick = {
@@ -585,9 +622,19 @@ internal fun buildSectionParams(
                     ),
                 )
             },
+            onTriggerClick = { shortcut ->
+                onUpdateTriggerDialogState(
+                    TriggerDialogState.AppShortcut(
+                        shortcut = shortcut,
+                        currentTrigger = getAppShortcutTrigger(shortcutKey(shortcut)),
+                        itemName = shortcutDisplayName(shortcut),
+                    ),
+                )
+            },
             onEditCustomShortcut = onEditCustomAppShortcut,
             onEditShortcutIcon = onEditAppShortcutIcon,
             getShortcutNickname = getAppShortcutNickname,
+            getShortcutTrigger = getAppShortcutTrigger,
             showAllResults = false,
             showExpandControls = derivedState.isSearching,
             onExpandClick = {
@@ -635,7 +682,17 @@ internal fun buildSectionParams(
                     ),
                 )
             },
+            onTriggerClick = { setting ->
+                onUpdateTriggerDialogState(
+                    TriggerDialogState.Setting(
+                        setting = setting,
+                        currentTrigger = getSettingTrigger(setting.id),
+                        itemName = setting.title,
+                    ),
+                )
+            },
             getSettingNickname = getSettingNickname,
+            getSettingTrigger = getSettingTrigger,
             showAllResults = false,
             showExpandControls = derivedState.isSearching,
             onExpandClick = {
@@ -695,7 +752,17 @@ internal fun buildSectionParams(
                     ),
                 )
             },
+            onTriggerClick = { contact ->
+                onUpdateTriggerDialogState(
+                    TriggerDialogState.Contact(
+                        contact = contact,
+                        currentTrigger = getContactTrigger(contact.contactId),
+                        itemName = contact.displayName,
+                    ),
+                )
+            },
             getContactNickname = getContactNickname,
+            getContactTrigger = getContactTrigger,
             getPrimaryContactCardAction = getPrimaryContactCardAction,
             getSecondaryContactCardAction = getSecondaryContactCardAction,
             onPrimaryActionLongPress = onPrimaryActionLongPress,
@@ -754,7 +821,17 @@ internal fun buildSectionParams(
                     ),
                 )
             },
+            onTriggerClick = { app ->
+                onUpdateTriggerDialogState(
+                    TriggerDialogState.App(
+                        app = app,
+                        currentTrigger = getAppTrigger(app.packageName),
+                        itemName = app.appName,
+                    ),
+                )
+            },
             getAppNickname = getAppNickname,
+            getAppTrigger = getAppTrigger,
             rowCount = derivedState.visibleRowCount,
             phoneColumnOverride = state.phoneAppGridColumns,
             iconPackPackage = state.selectedIconPackPackage,
@@ -796,7 +873,17 @@ internal fun buildSectionParams(
                     ),
                 )
             },
+            onTriggerClick = { event ->
+                onUpdateTriggerDialogState(
+                    TriggerDialogState.CalendarEvent(
+                        event = event,
+                        currentTrigger = getCalendarEventTrigger(event.eventId),
+                        itemName = event.title,
+                    ),
+                )
+            },
             getEventNickname = getCalendarEventNickname,
+            getEventTrigger = getCalendarEventTrigger,
             showAllResults = false,
             showExpandControls = derivedState.isSearching,
             onExpandClick = {

@@ -56,6 +56,7 @@ fun AppItemDropdownMenu(
         isPinned: Boolean,
         showUninstall: Boolean,
         hasNickname: Boolean,
+        hasTrigger: Boolean,
         shortcuts: List<StaticShortcut>,
         onShortcutClick: (StaticShortcut) -> Unit,
         onAppInfoClick: () -> Unit,
@@ -64,6 +65,7 @@ fun AppItemDropdownMenu(
         onUnpinApp: () -> Unit,
         onUninstallClick: () -> Unit,
         onNicknameClick: () -> Unit,
+        onTriggerClick: () -> Unit,
         onAddToHome: () -> Unit,
 ) {
     DropdownMenu(
@@ -159,6 +161,23 @@ fun AppItemDropdownMenu(
                             onClick = {
                                 onDismiss()
                                 onNicknameClick()
+                            },
+                    ),
+            )
+            add(
+                    AppMenuItem(
+                            textResId =
+                                    if (hasTrigger) {
+                                        R.string.action_edit_trigger
+                                    } else {
+                                        R.string.action_add_trigger
+                                    },
+                            icon = {
+                                Icon(imageVector = Icons.Rounded.Edit, contentDescription = null)
+                            },
+                            onClick = {
+                                onDismiss()
+                                onTriggerClick()
                             },
                     ),
             )

@@ -37,6 +37,7 @@ class UserAppPreferences(
     private val notesPreferences by lazy { NotesPreferences(context) }
     private val appShortcutPreferences by lazy { AppShortcutPreferences(context) }
     private val nicknamePreferences by lazy { NicknamePreferences(context) }
+    private val triggerPreferences by lazy { TriggerPreferences(context) }
     private val searchEnginePreferences by lazy { SearchEnginePreferences(context) }
     private val aliasPreferences by lazy { AliasPreferences(context) }
     private val geminiPreferences by lazy { GeminiPreferences(context) }
@@ -395,19 +396,23 @@ class UserAppPreferences(
 
     /** Finds contact IDs that have nicknames matching the query. */
     fun findContactsWithMatchingNickname(query: String): Set<Long> =
-            nicknamePreferences.findContactsWithMatchingNickname(query)
+            nicknamePreferences.findContactsWithMatchingNickname(query) +
+                    triggerPreferences.findContactsWithMatchingTrigger(query)
 
     /** Finds file URIs that have nicknames matching the query. */
     fun findFilesWithMatchingNickname(query: String): Set<String> =
-            nicknamePreferences.findFilesWithMatchingNickname(query)
+            nicknamePreferences.findFilesWithMatchingNickname(query) +
+                    triggerPreferences.findFilesWithMatchingTrigger(query)
 
     /** Finds settings that have nicknames matching the query. */
     fun findSettingsWithMatchingNickname(query: String): Set<String> =
-            nicknamePreferences.findSettingsWithMatchingNickname(query)
+            nicknamePreferences.findSettingsWithMatchingNickname(query) +
+                    triggerPreferences.findSettingsWithMatchingTrigger(query)
 
     /** Finds calendar event IDs that have nicknames matching the query. */
     fun findCalendarEventsWithMatchingNickname(query: String): Set<Long> =
-            nicknamePreferences.findCalendarEventsWithMatchingNickname(query)
+            nicknamePreferences.findCalendarEventsWithMatchingNickname(query) +
+                    triggerPreferences.findCalendarEventsWithMatchingTrigger(query)
 
     fun getCalendarEventNickname(eventId: Long): String? =
             nicknamePreferences.getCalendarEventNickname(eventId)
@@ -416,6 +421,43 @@ class UserAppPreferences(
             eventId: Long,
             nickname: String?,
     ) = nicknamePreferences.setCalendarEventNickname(eventId, nickname)
+
+    // ============================================================================
+    // Trigger Preferences
+    // ============================================================================
+
+    fun getAppTrigger(packageName: String): ResultTrigger? = triggerPreferences.getAppTrigger(packageName)
+
+    fun setAppTrigger(packageName: String, trigger: ResultTrigger?) =
+            triggerPreferences.setAppTrigger(packageName, trigger)
+
+    fun getAppShortcutTrigger(shortcutId: String): ResultTrigger? =
+            triggerPreferences.getAppShortcutTrigger(shortcutId)
+
+    fun setAppShortcutTrigger(shortcutId: String, trigger: ResultTrigger?) =
+            triggerPreferences.setAppShortcutTrigger(shortcutId, trigger)
+
+    fun getContactTrigger(contactId: Long): ResultTrigger? =
+            triggerPreferences.getContactTrigger(contactId)
+
+    fun setContactTrigger(contactId: Long, trigger: ResultTrigger?) =
+            triggerPreferences.setContactTrigger(contactId, trigger)
+
+    fun getFileTrigger(uri: String): ResultTrigger? = triggerPreferences.getFileTrigger(uri)
+
+    fun setFileTrigger(uri: String, trigger: ResultTrigger?) =
+            triggerPreferences.setFileTrigger(uri, trigger)
+
+    fun getSettingTrigger(id: String): ResultTrigger? = triggerPreferences.getSettingTrigger(id)
+
+    fun setSettingTrigger(id: String, trigger: ResultTrigger?) =
+            triggerPreferences.setSettingTrigger(id, trigger)
+
+    fun getCalendarEventTrigger(eventId: Long): ResultTrigger? =
+            triggerPreferences.getCalendarEventTrigger(eventId)
+
+    fun setCalendarEventTrigger(eventId: Long, trigger: ResultTrigger?) =
+            triggerPreferences.setCalendarEventTrigger(eventId, trigger)
 
     // ============================================================================
     // Search Engine Preferences

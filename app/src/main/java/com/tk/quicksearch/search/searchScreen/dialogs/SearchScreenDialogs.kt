@@ -253,3 +253,41 @@ sealed class NicknameDialogState {
         val itemName: String,
     ) : NicknameDialogState()
 }
+
+sealed class TriggerDialogState {
+    data class App(
+        val app: AppInfo,
+        val currentTrigger: com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+        val itemName: String,
+    ) : TriggerDialogState()
+
+    data class AppShortcut(
+        val shortcut: StaticShortcut,
+        val currentTrigger: com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+        val itemName: String,
+    ) : TriggerDialogState()
+
+    data class Contact(
+        val contact: ContactInfo,
+        val currentTrigger: com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+        val itemName: String,
+    ) : TriggerDialogState()
+
+    data class File(
+        val file: DeviceFile,
+        val currentTrigger: com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+        val itemName: String,
+    ) : TriggerDialogState()
+
+    data class Setting(
+        val setting: DeviceSetting,
+        val currentTrigger: com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+        val itemName: String,
+    ) : TriggerDialogState()
+
+    data class CalendarEvent(
+        val event: CalendarEventInfo,
+        val currentTrigger: com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+        val itemName: String,
+    ) : TriggerDialogState()
+}
