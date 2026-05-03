@@ -21,6 +21,8 @@ internal fun AppSettingsDestination.toSettingsDetailTypeOrNull(): SettingsDetail
         AppSettingsDestination.AI_SEARCH_CONFIGURE,
         AppSettingsDestination.GEMINI_API -> SettingsDetailType.GEMINI_API_CONFIG
         AppSettingsDestination.CALENDAR_EVENTS -> SettingsDetailType.CALENDAR_EVENTS
+        AppSettingsDestination.NICKNAMES -> SettingsDetailType.NICKNAMES
+        AppSettingsDestination.TRIGGERS -> SettingsDetailType.TRIGGERS
         AppSettingsDestination.FEATURES_LIST -> SettingsDetailType.FEATURES_LIST
         AppSettingsDestination.OPEN_SOURCE_LICENSES -> SettingsDetailType.OPEN_SOURCE_LICENSES
         AppSettingsDestination.UNIT_CONVERTER_INFO -> SettingsDetailType.UNIT_CONVERTER_INFO

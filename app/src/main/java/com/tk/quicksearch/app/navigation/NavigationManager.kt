@@ -355,6 +355,10 @@ fun MainContent(
                         previousSettingsDetailType = settingsDetailType
                         settingsDetailType = it
                     },
+                    onSettingsDetailTypeChangeFromSearch = {
+                        previousSettingsDetailType = null
+                        settingsDetailType = it
+                    },
                     viewModel = searchViewModel,
                     onSearchBackPressed = onSearchBackPressed,
                     onFinishActivity = onFinishActivity,
@@ -371,6 +375,7 @@ private fun NavigationContent(
     settingsDetailType: SettingsDetailType?,
     previousSettingsDetailType: SettingsDetailType?,
     onSettingsDetailTypeChange: (SettingsDetailType?) -> Unit,
+    onSettingsDetailTypeChangeFromSearch: (SettingsDetailType?) -> Unit,
     viewModel: SearchViewModel,
     onSearchBackPressed: () -> Unit,
     onFinishActivity: () -> Unit,
@@ -437,7 +442,7 @@ private fun NavigationContent(
                     rootAnimationDirectionOverride = SwipeAnimationDirection.RIGHT
                     settingsDetailAnimationDirectionOverride = SwipeAnimationDirection.RIGHT
                     onDestinationChange(RootDestination.Settings)
-                    onSettingsDetailTypeChange(SettingsDetailType.NOTE_EDITOR)
+                    onSettingsDetailTypeChangeFromSearch(SettingsDetailType.NOTE_EDITOR)
                     keyboardController?.hide()
                 }
                 SearchRoute(
@@ -490,7 +495,13 @@ private fun NavigationContent(
                             } else {
                                 SettingsDetailType.NOTES
                             }
-                        navigateToSettings(destination)
+                        if (destination == SettingsDetailType.NOTE_EDITOR) {
+                            onDestinationChange(RootDestination.Settings)
+                            onSettingsDetailTypeChangeFromSearch(destination)
+                            keyboardController?.hide()
+                        } else {
+                            navigateToSettings(destination)
+                        }
                     },
                     onOpenQuickNoteFromSwipe = navigateToQuickNoteFromSwipeRight,
                     onSearchEngineLongPress = {

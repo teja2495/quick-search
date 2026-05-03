@@ -3,6 +3,8 @@ package com.tk.quicksearch.search.appSettings
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination.EXCLUDED_ITEMS
+import com.tk.quicksearch.search.appSettings.AppSettingsDestination.NICKNAMES
+import com.tk.quicksearch.search.appSettings.AppSettingsDestination.TRIGGERS
 import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 import com.tk.quicksearch.search.utils.SearchQueryContext
 import java.util.Locale
@@ -66,10 +68,16 @@ class AppSettingsSearchHandler(
         return availableSettings.filter { setting ->
             val shouldHideExcludedItems =
                 !hasExcludedItems() && setting.destination == EXCLUDED_ITEMS
+            val shouldHideNicknames =
+                !userPreferences.hasAnyNicknameItems() && setting.destination == NICKNAMES
+            val shouldHideTriggers =
+                !userPreferences.hasAnyTriggerItems() && setting.destination == TRIGGERS
             val shouldHideWallpaperAccent =
                 setting.toggleKey == AppSettingsToggleKey.WALLPAPER_ACCENT &&
                     backgroundSource == BackgroundSource.THEME
             !shouldHideExcludedItems &&
+                !shouldHideNicknames &&
+                !shouldHideTriggers &&
                 !shouldHideWallpaperAccent
         }
     }

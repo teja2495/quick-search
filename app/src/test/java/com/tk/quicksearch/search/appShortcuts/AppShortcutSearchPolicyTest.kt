@@ -1,17 +1,18 @@
-package com.tk.quicksearch.search.files
+package com.tk.quicksearch.search.appShortcuts
 
 import com.tk.quicksearch.search.utils.SearchQueryContext
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class FileSearchPolicyTest {
+class AppShortcutSearchPolicyTest {
     @Test
-    fun multiWordQueryRejectsFileWhenAQueryTokenIsNotCovered() {
+    fun multiWordQueryRejectsShortcutWhenAQueryTokenIsNotCovered() {
         val covered =
-            FileSearchPolicy.areAllQueryTokensCovered(
+            AppShortcutSearchPolicy.areAllQueryTokensCovered(
                 query = SearchQueryContext.fromRawQuery("teja passport"),
-                displayName = "teja_notes.txt",
+                displayName = "Call Teja",
+                appLabel = "Phone",
                 nickname = null,
                 fuzzyMinScore = 72,
                 fuzzyMaxEditDistance = 2,
@@ -21,12 +22,13 @@ class FileSearchPolicyTest {
     }
 
     @Test
-    fun multiWordQueryCanBeCoveredByNickname() {
+    fun multiWordQueryCanBeCoveredBySupportingText() {
         val covered =
-            FileSearchPolicy.areAllQueryTokensCovered(
+            AppShortcutSearchPolicy.areAllQueryTokensCovered(
                 query = SearchQueryContext.fromRawQuery("teja passport"),
-                displayName = "teja_notes.txt",
-                nickname = "passport docs",
+                displayName = "Call Teja",
+                appLabel = "Passport Office",
+                nickname = null,
                 fuzzyMinScore = 72,
                 fuzzyMaxEditDistance = 2,
             )

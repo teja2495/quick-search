@@ -183,6 +183,20 @@ class AppSettingsRepository(
                 destination = AppSettingsDestination.EXCLUDED_ITEMS,
             )
             addNavigation(
+                id = "app_settings_nicknames",
+                titleRes = R.string.settings_nicknames_title,
+                descriptionRes = R.string.settings_nicknames_desc,
+                destination = AppSettingsDestination.NICKNAMES,
+                keywords = listOf("alias", "rename"),
+            )
+            addNavigation(
+                id = "app_settings_triggers",
+                titleRes = R.string.settings_triggers_title,
+                descriptionRes = R.string.settings_triggers_desc,
+                destination = AppSettingsDestination.TRIGGERS,
+                keywords = listOf("shortcut word", "keyword"),
+            )
+            addNavigation(
                 id = "app_settings_calendar_events",
                 titleRes = R.string.section_calendar,
                 descriptionRes = R.string.settings_calendar_view_all_events_desc,

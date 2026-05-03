@@ -92,7 +92,7 @@ internal object SettingsDestinationRegistry {
                 SettingsDestinationSpec(
                     titleResId = R.string.notes_editor_title,
                     level = 3,
-                    fallbackBackDestination = SettingsDetailType.NOTES,
+                    preferSourceBackDestination = true,
                 ),
             SettingsDetailType.APPEARANCE to
                 SettingsDestinationSpec(

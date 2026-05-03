@@ -113,6 +113,7 @@ object DeviceSettingsSearchAlgorithm {
                 .take(fuzzyCandidateCount)
                 .filterNot { exactMatchIds.contains(it.id) }
                 .mapNotNull { setting ->
+                    val nickname = nicknameCache[setting.id]
                     val normalizedTitle = SearchTextNormalizer.normalizeForSearch(setting.title)
                     val normalizedSupportingText =
                         SearchTextNormalizer.normalizeForSearch(
@@ -122,7 +123,6 @@ object DeviceSettingsSearchAlgorithm {
                                     append(' ')
                                     append(setting.keywords.joinToString(" "))
                                 }
-                                val nickname = nicknameCache[setting.id]
                                 if (!nickname.isNullOrBlank()) {
                                     append(' ')
                                     append(nickname)
@@ -137,6 +137,18 @@ object DeviceSettingsSearchAlgorithm {
                             maxEditDistance = fuzzyPolicy.maximumEditDistance,
                         )
                     if (fuzzyScore < fuzzyPolicy.minimumScore) {
+                        null
+                    } else if (
+                        !DeviceSettingsSearchPolicy.areAllQueryTokensCovered(
+                            query = queryContext,
+                            title = setting.title,
+                            description = setting.description,
+                            keywords = setting.keywords,
+                            nickname = nickname,
+                            fuzzyMinScore = fuzzyPolicy.minimumScore,
+                            fuzzyMaxEditDistance = fuzzyPolicy.maximumEditDistance,
+                        )
+                    ) {
                         null
                     } else {
                         setting to fuzzyScore

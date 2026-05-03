@@ -148,6 +148,17 @@ object AppShortcutSearchAlgorithm {
                         )
                     if (fuzzyScore < fuzzyPolicy.minimumScore) {
                         null
+                    } else if (
+                        !AppShortcutSearchPolicy.areAllQueryTokensCovered(
+                            query = queryContext,
+                            displayName = shortcutDisplayName(shortcut),
+                            appLabel = shortcut.appLabel,
+                            nickname = shortcutNicknames[shortcutId],
+                            fuzzyMinScore = fuzzyPolicy.minimumScore,
+                            fuzzyMaxEditDistance = fuzzyPolicy.maximumEditDistance,
+                        )
+                    ) {
+                        null
                     } else {
                         shortcut to fuzzyScore
                     }

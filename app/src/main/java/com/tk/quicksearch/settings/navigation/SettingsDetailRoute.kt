@@ -239,11 +239,15 @@ fun SettingsDetailRoute(
     val onBackAction: () -> Unit =
             if (detailType.isLevel2()) {
                 {
-                    val destination = detailType.resolveBackDestination(sourceDetailType)
-                    if (destination == null) {
-                        onBack()
+                    if (detailType == SettingsDetailType.NOTE_EDITOR && sourceDetailType == null) {
+                        onNavigateToSearch()
                     } else {
-                        onNavigateToDetail(destination)
+                        val destination = detailType.resolveBackDestination(sourceDetailType)
+                        if (destination == null) {
+                            onBack()
+                        } else {
+                            onNavigateToDetail(destination)
+                        }
                     }
                 }
             } else {

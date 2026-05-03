@@ -803,12 +803,13 @@ class UnifiedSearchHandler(
                                 .take(fuzzyCandidateBudget)
                                 .mapNotNull { file ->
                                         val uriString = file.uri.toString()
+                                        val nickname = fileNicknames[uriString]
                                         val normalizedName =
                                                 SearchTextNormalizer.normalizeForSearch(
                                                         file.displayName
                                                 )
                                         val normalizedNickname =
-                                                fileNicknames[uriString]
+                                                nickname
                                                         ?.let { SearchTextNormalizer.normalizeForSearch(it) }
                                         val fuzzyScore =
                                                 FuzzyMatcher.score(
@@ -818,6 +819,16 @@ class UnifiedSearchHandler(
                                                         maxEditDistance = fuzzyMaxEditDistance,
                                                 )
                                         if (fuzzyScore < fuzzyMinScore) {
+                                                null
+                                        } else if (
+                                                !FileSearchPolicy.areAllQueryTokensCovered(
+                                                        query = queryContext,
+                                                        displayName = file.displayName,
+                                                        nickname = nickname,
+                                                        fuzzyMinScore = fuzzyMinScore,
+                                                        fuzzyMaxEditDistance = fuzzyMaxEditDistance,
+                                                )
+                                        ) {
                                                 null
                                         } else {
                                                 file to fuzzyScore

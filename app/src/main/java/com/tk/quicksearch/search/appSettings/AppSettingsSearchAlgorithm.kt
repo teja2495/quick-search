@@ -97,6 +97,17 @@ object AppSettingsSearchAlgorithm {
                         )
                     if (fuzzyScore < fuzzyPolicy.minimumScore) {
                         null
+                    } else if (
+                        !AppSettingsSearchPolicy.areAllQueryTokensCovered(
+                            query = queryContext,
+                            title = setting.title,
+                            description = setting.description,
+                            keywords = setting.keywords,
+                            fuzzyMinScore = fuzzyPolicy.minimumScore,
+                            fuzzyMaxEditDistance = fuzzyPolicy.maximumEditDistance,
+                        )
+                    ) {
+                        null
                     } else {
                         setting to fuzzyScore
                     }

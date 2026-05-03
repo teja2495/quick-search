@@ -421,6 +421,14 @@ class UserAppPreferences(
             nickname: String?,
     ) = nicknamePreferences.setCalendarEventNickname(eventId, nickname)
 
+    fun hasAnyNicknameItems(): Boolean =
+            getAllAppNicknames().isNotEmpty() ||
+                    getAllAppShortcutNicknames().isNotEmpty() ||
+                    nicknamePreferences.getAllContactNicknames().isNotEmpty() ||
+                    nicknamePreferences.getAllFileNicknames().isNotEmpty() ||
+                    nicknamePreferences.getAllSettingNicknames().isNotEmpty() ||
+                    nicknamePreferences.getAllCalendarEventNicknames().isNotEmpty()
+
     // ============================================================================
     // Trigger Preferences
     // ============================================================================
@@ -478,6 +486,8 @@ class UserAppPreferences(
                     put("note:$id", trigger.word)
                 }
             }
+
+    fun hasAnyTriggerItems(): Boolean = getAllTriggerWordsById().isNotEmpty()
 
     fun findNotesWithMatchingTrigger(query: String): Set<Long> =
             triggerPreferences.findNotesWithMatchingTrigger(query)
