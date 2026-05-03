@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.utils.FileSearchTextNormalizer
 import com.tk.quicksearch.search.utils.PermissionUtils
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import java.util.LinkedHashMap
@@ -155,12 +156,16 @@ class FileSearchRepository(
     ): List<DeviceFile> {
         if (query.isBlank() || !hasPermission()) return emptyList()
 
-        val normalizedQuery = normalizeQuery(query)
-        val escapedQuery = escapeLikeQuery(normalizedQuery)
+        val queryTokens = normalizeQueryTokens(query)
+        if (queryTokens.isEmpty()) return emptyList()
+        val displayNameTokenSelection =
+            queryTokens.joinToString(" AND ") {
+                "LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE ? ESCAPE '\\'"
+            }
         val selection =
-            "LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE ? ESCAPE '\\' AND " +
+            "$displayNameTokenSelection AND " +
                 "(format = ${MtpConstants.FORMAT_ASSOCIATION} OR LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE '%.%')"
-        val selectionArgs = arrayOf("%$escapedQuery%")
+        val selectionArgs = queryTokens.map { "%${escapeLikeQuery(it)}%" }.toTypedArray()
         val uri = getFilesContentUri()
 
         val results = mutableListOf<DeviceFile>()
@@ -193,12 +198,16 @@ class FileSearchRepository(
     ): List<DeviceFile> {
         if (query.isBlank() || !hasPermission()) return emptyList()
 
-        val normalizedQuery = normalizeQuery(query)
-        val escapedQuery = escapeLikeQuery(normalizedQuery)
+        val queryTokens = normalizeQueryTokens(query)
+        if (queryTokens.isEmpty()) return emptyList()
+        val displayNameTokenSelection =
+            queryTokens.joinToString(" AND ") {
+                "LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE ? ESCAPE '\\'"
+            }
         val selection =
-            "LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE ? ESCAPE '\\' AND " +
+            "$displayNameTokenSelection AND " +
                 "format = ${MtpConstants.FORMAT_ASSOCIATION}"
-        val selectionArgs = arrayOf("%$escapedQuery%")
+        val selectionArgs = queryTokens.map { "%${escapeLikeQuery(it)}%" }.toTypedArray()
         val uri = getFilesContentUri()
 
         val results = mutableListOf<DeviceFile>()
@@ -255,6 +264,9 @@ class FileSearchRepository(
         SearchTextNormalizer.normalizeForSearch(
             SearchTextNormalizer.normalizeQueryWhitespace(query),
         )
+
+    private fun normalizeQueryTokens(query: String): List<String> =
+        FileSearchTextNormalizer.queryTokens(normalizeQuery(query))
 
     private fun escapeLikeQuery(query: String): String =
         buildString(query.length) {
