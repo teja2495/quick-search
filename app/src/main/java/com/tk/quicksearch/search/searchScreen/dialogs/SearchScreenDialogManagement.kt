@@ -9,6 +9,7 @@ import com.tk.quicksearch.search.contacts.dialogs.DirectDialChoiceDialog
 import com.tk.quicksearch.search.contacts.dialogs.PhoneNumberSelectionDialog
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.CalendarEventInfo
@@ -47,6 +48,7 @@ internal fun SearchScreenDialogs(
     onSaveFileTrigger: (DeviceFile, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
     onSaveSettingTrigger: (DeviceSetting, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
     onSaveNoteTrigger: (NoteInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
+    getAllTriggerWordsById: () -> Map<String, String>,
     getLastShownPhoneNumber: (Long) -> String?,
     setLastShownPhoneNumber: (Long, String) -> Unit,
 ) {
@@ -167,11 +169,16 @@ internal fun SearchScreenDialogs(
     }
 
     triggerDialogState?.let { dialogState ->
+        val allTriggerWords = getAllTriggerWordsById()
         when (dialogState) {
             is TriggerDialogState.App ->
                 TriggerDialog(
                     currentTrigger = dialogState.currentTrigger,
                     itemName = dialogState.itemName,
+                    existingTriggerWords =
+                        allTriggerWords
+                            .filterKeys { it != "app:${dialogState.app.packageName}" }
+                            .values,
                     onSave = { onSaveAppTrigger(dialogState.app, it) },
                     onDismiss = onDismissTriggerDialog,
                 )
@@ -179,6 +186,10 @@ internal fun SearchScreenDialogs(
                 TriggerDialog(
                     currentTrigger = dialogState.currentTrigger,
                     itemName = dialogState.itemName,
+                    existingTriggerWords =
+                        allTriggerWords
+                            .filterKeys { it != "shortcut:${shortcutKey(dialogState.shortcut)}" }
+                            .values,
                     onSave = { onSaveAppShortcutTrigger(dialogState.shortcut, it) },
                     onDismiss = onDismissTriggerDialog,
                 )
@@ -186,6 +197,10 @@ internal fun SearchScreenDialogs(
                 TriggerDialog(
                     currentTrigger = dialogState.currentTrigger,
                     itemName = dialogState.itemName,
+                    existingTriggerWords =
+                        allTriggerWords
+                            .filterKeys { it != "contact:${dialogState.contact.contactId}" }
+                            .values,
                     onSave = { onSaveContactTrigger(dialogState.contact, it) },
                     onDismiss = onDismissTriggerDialog,
                 )
@@ -193,6 +208,10 @@ internal fun SearchScreenDialogs(
                 TriggerDialog(
                     currentTrigger = dialogState.currentTrigger,
                     itemName = dialogState.itemName,
+                    existingTriggerWords =
+                        allTriggerWords
+                            .filterKeys { it != "file:${dialogState.file.uri}" }
+                            .values,
                     onSave = { onSaveFileTrigger(dialogState.file, it) },
                     onDismiss = onDismissTriggerDialog,
                 )
@@ -200,6 +219,10 @@ internal fun SearchScreenDialogs(
                 TriggerDialog(
                     currentTrigger = dialogState.currentTrigger,
                     itemName = dialogState.itemName,
+                    existingTriggerWords =
+                        allTriggerWords
+                            .filterKeys { it != "setting:${dialogState.setting.id}" }
+                            .values,
                     onSave = { onSaveSettingTrigger(dialogState.setting, it) },
                     onDismiss = onDismissTriggerDialog,
                 )
@@ -207,6 +230,10 @@ internal fun SearchScreenDialogs(
                 TriggerDialog(
                     currentTrigger = dialogState.currentTrigger,
                     itemName = dialogState.itemName,
+                    existingTriggerWords =
+                        allTriggerWords
+                            .filterKeys { it != "note:${dialogState.note.noteId}" }
+                            .values,
                     onSave = { onSaveNoteTrigger(dialogState.note, it) },
                     onDismiss = onDismissTriggerDialog,
                 )

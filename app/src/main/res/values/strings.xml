@@ -244,6 +244,7 @@
     <string name="dialog_trigger_after_space">Trigger after space</string>
     <string name="dialog_trigger_hint">Trigger word</string>
     <string name="dialog_trigger_message">Enter a one-word trigger for "%1$s".</string>
+    <string name="dialog_trigger_error_taken">This trigger is already taken.</string>
 
     <string name="dialog_no">No</string>
     <string name="dialog_ok">Continue</string>

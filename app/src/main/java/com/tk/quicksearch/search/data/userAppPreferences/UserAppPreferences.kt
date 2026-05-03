@@ -457,6 +457,28 @@ class UserAppPreferences(
     fun setNoteTrigger(noteId: Long, trigger: ResultTrigger?) =
             triggerPreferences.setNoteTrigger(noteId, trigger)
 
+    fun getAllTriggerWordsById(): Map<String, String> =
+            buildMap {
+                triggerPreferences.getAllAppTriggers().forEach { (id, trigger) ->
+                    put("app:$id", trigger.word)
+                }
+                triggerPreferences.getAllAppShortcutTriggers().forEach { (id, trigger) ->
+                    put("shortcut:$id", trigger.word)
+                }
+                triggerPreferences.getAllContactTriggers().forEach { (id, trigger) ->
+                    put("contact:$id", trigger.word)
+                }
+                triggerPreferences.getAllFileTriggers().forEach { (id, trigger) ->
+                    put("file:$id", trigger.word)
+                }
+                triggerPreferences.getAllSettingTriggers().forEach { (id, trigger) ->
+                    put("setting:$id", trigger.word)
+                }
+                triggerPreferences.getAllNoteTriggers().forEach { (id, trigger) ->
+                    put("note:$id", trigger.word)
+                }
+            }
+
     fun findNotesWithMatchingTrigger(query: String): Set<Long> =
             triggerPreferences.findNotesWithMatchingTrigger(query)
 

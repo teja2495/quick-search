@@ -41,6 +41,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.data.preferences.NicknamePreferences
+import com.tk.quicksearch.search.data.preferences.TriggerPreferences
 import com.tk.quicksearch.search.core.ItemPriorityConfig
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.settings.shared.*
@@ -64,6 +66,8 @@ private fun SearchOptionsCard(
     recentQueriesEnabled: Boolean,
     onRecentQueriesToggle: (Boolean) -> Unit,
     hasExcludedItems: Boolean,
+    hasNicknames: Boolean,
+    hasTriggers: Boolean,
     excludedItemsTitle: String,
     excludedItemsDescription: String,
     onNavigateToExcludedItems: () -> Unit,
@@ -139,41 +143,56 @@ private fun SearchOptionsCard(
                 leadingIcon = Icons.Rounded.History,
             )
 
-            HorizontalDivider(color = AppColors.SettingsDivider)
+            val hasAnyNavigationRows = hasNicknames || hasTriggers || hasExcludedItems
+            var hasRenderedNavigationRow = false
 
-            SettingsNavigationRow(
-                item =
-                    SettingsCardItem(
-                        title = stringResource(R.string.settings_nicknames_title),
-                        description = stringResource(R.string.settings_nicknames_desc),
-                        icon = Icons.Rounded.Label,
-                        actionOnPress = onNavigateToNicknames,
-                    ),
-                contentPadding =
-                    PaddingValues(
-                        horizontal = DesignTokens.SpacingXXLarge,
-                        vertical = DesignTokens.SpacingLarge,
-                    ),
-            )
+            if (hasAnyNavigationRows) {
+                HorizontalDivider(color = AppColors.SettingsDivider)
+            }
 
-            HorizontalDivider(color = AppColors.SettingsDivider)
+            if (hasNicknames) {
+                SettingsNavigationRow(
+                    item =
+                        SettingsCardItem(
+                            title = stringResource(R.string.settings_nicknames_title),
+                            description = stringResource(R.string.settings_nicknames_desc),
+                            icon = Icons.Rounded.Label,
+                            actionOnPress = onNavigateToNicknames,
+                        ),
+                    contentPadding =
+                        PaddingValues(
+                            horizontal = DesignTokens.SpacingXXLarge,
+                            vertical = DesignTokens.SpacingLarge,
+                        ),
+                )
+                hasRenderedNavigationRow = true
+            }
 
-            SettingsNavigationRow(
-                item =
-                    SettingsCardItem(
-                        title = stringResource(R.string.settings_triggers_title),
-                        description = stringResource(R.string.settings_triggers_desc),
-                        icon = Icons.Rounded.Bolt,
-                        actionOnPress = onNavigateToTriggers,
-                    ),
-                contentPadding =
-                    PaddingValues(
-                        horizontal = DesignTokens.SpacingXXLarge,
-                        vertical = DesignTokens.SpacingLarge,
-                    ),
-            )
+            if (hasTriggers) {
+                if (hasRenderedNavigationRow) {
+                    HorizontalDivider(color = AppColors.SettingsDivider)
+                }
+                SettingsNavigationRow(
+                    item =
+                        SettingsCardItem(
+                            title = stringResource(R.string.settings_triggers_title),
+                            description = stringResource(R.string.settings_triggers_desc),
+                            icon = Icons.Rounded.Bolt,
+                            actionOnPress = onNavigateToTriggers,
+                        ),
+                    contentPadding =
+                        PaddingValues(
+                            horizontal = DesignTokens.SpacingXXLarge,
+                            vertical = DesignTokens.SpacingLarge,
+                        ),
+                )
+                hasRenderedNavigationRow = true
+            }
 
             if (hasExcludedItems) {
+                if (hasRenderedNavigationRow) {
+                    HorizontalDivider(color = AppColors.SettingsDivider)
+                }
                 SettingsNavigationRow(
                     item =
                         SettingsCardItem(
@@ -331,6 +350,28 @@ fun SearchResultsSettingsSection(
     onNavigateToNotes: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalView.current.context
+
+    val hasNicknames =
+        NicknamePreferences(context).run {
+            getAllAppNicknames().isNotEmpty() ||
+                getAllAppShortcutNicknames().isNotEmpty() ||
+                getAllContactNicknames().isNotEmpty() ||
+                getAllFileNicknames().isNotEmpty() ||
+                getAllSettingNicknames().isNotEmpty() ||
+                getAllCalendarEventNicknames().isNotEmpty()
+        }
+
+    val hasTriggers =
+        TriggerPreferences(context).run {
+            getAllAppTriggers().isNotEmpty() ||
+                getAllAppShortcutTriggers().isNotEmpty() ||
+                getAllContactTriggers().isNotEmpty() ||
+                getAllFileTriggers().isNotEmpty() ||
+                getAllSettingTriggers().isNotEmpty() ||
+                getAllNoteTriggers().isNotEmpty()
+        }
+
     val hasExcludedItems =
         state.suggestionExcludedApps.isNotEmpty() ||
             state.resultExcludedApps.isNotEmpty() ||
@@ -436,6 +477,8 @@ fun SearchResultsSettingsSection(
                 )
             },
             hasExcludedItems = hasExcludedItems,
+            hasNicknames = hasNicknames,
+            hasTriggers = hasTriggers,
             excludedItemsTitle = stringResource(R.string.settings_excluded_items_title),
             excludedItemsDescription = stringResource(R.string.settings_excluded_items_desc),
             onNavigateToExcludedItems = onNavigateToExcludedItems,

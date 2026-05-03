@@ -135,6 +135,7 @@ fun SearchScreen(
     getFileTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     getAppShortcutTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     getSettingTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+    getAllTriggerWordsById: () -> Map<String, String>,
     onSaveAppNickname: (AppInfo, String?) -> Unit,
     onSaveAppShortcutNickname: (StaticShortcut, String?) -> Unit,
     onSaveContactNickname: (ContactInfo, String?) -> Unit,
@@ -554,6 +555,7 @@ fun SearchScreen(
             onSaveNoteTrigger(note, trigger)
             stateResult.setTriggerDialogState(null)
         },
+        getAllTriggerWordsById = getAllTriggerWordsById,
         getLastShownPhoneNumber = getLastShownPhoneNumber,
         setLastShownPhoneNumber = setLastShownPhoneNumber,
         onSetPersonalContext = onSetPersonalContext,

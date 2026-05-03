@@ -33,6 +33,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.preferences.ResultTrigger
+import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import kotlinx.coroutines.delay
@@ -41,6 +42,7 @@ import kotlinx.coroutines.delay
 fun TriggerDialog(
     currentTrigger: ResultTrigger?,
     itemName: String,
+    existingTriggerWords: Collection<String>,
     onSave: (ResultTrigger?) -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -60,6 +62,19 @@ fun TriggerDialog(
     val hasExistingTrigger = triggerText.text.isNotBlank()
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val normalizedTrigger =
+        remember(triggerText.text) {
+            SearchTextNormalizer.normalizeForSearch(triggerText.text).trim().substringBefore(' ')
+        }
+    val hasConflict =
+        remember(normalizedTrigger, existingTriggerWords) {
+            normalizedTrigger.isNotBlank() &&
+                existingTriggerWords.any {
+                    SearchTextNormalizer.normalizeForSearch(it).trim().substringBefore(' ') ==
+                        normalizedTrigger
+                }
+        }
+    val canSave = !hasConflict
 
     LaunchedEffect(Unit) {
         delay(50)
@@ -117,7 +132,16 @@ fun TriggerDialog(
                         }
                     },
                     colors = dialogTextFieldColors(),
+                    isError = hasConflict,
                 )
+                if (hasConflict) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(R.string.dialog_trigger_error_taken),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
 
                 Row(
                     modifier = Modifier.padding(top = 12.dp),
@@ -143,6 +167,7 @@ fun TriggerDialog(
                         },
                     )
                 },
+                enabled = canSave,
             ) { Text(text = stringResource(R.string.dialog_save)) }
         },
         dismissButton = {

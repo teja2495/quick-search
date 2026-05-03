@@ -127,6 +127,8 @@ fun SearchRoute(
         remember(nicknameUpdateVersion) { { id -> viewModel.getSettingTrigger(id) } }
     val getAppShortcutTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger? =
         remember(nicknameUpdateVersion) { { id -> viewModel.getAppShortcutTrigger(id) } }
+    val getAllTriggerWordsById: () -> Map<String, String> =
+        remember(nicknameUpdateVersion) { { viewModel.getAllTriggerWordsById() } }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val effectiveSnackbarHostState = overlaySnackbarHostState ?: snackbarHostState
@@ -630,6 +632,7 @@ fun SearchRoute(
             getFileTrigger = getFileTrigger,
             getAppShortcutTrigger = getAppShortcutTrigger,
             getSettingTrigger = getSettingTrigger,
+            getAllTriggerWordsById = getAllTriggerWordsById,
             onSaveAppNickname = viewModel::setAppNickname,
             onSaveAppShortcutNickname = viewModel::setAppShortcutNickname,
             onSaveContactNickname = viewModel::setContactNickname,
