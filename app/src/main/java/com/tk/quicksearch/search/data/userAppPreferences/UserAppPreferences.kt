@@ -411,8 +411,7 @@ class UserAppPreferences(
 
     /** Finds calendar event IDs that have nicknames matching the query. */
     fun findCalendarEventsWithMatchingNickname(query: String): Set<Long> =
-            nicknamePreferences.findCalendarEventsWithMatchingNickname(query) +
-                    triggerPreferences.findCalendarEventsWithMatchingTrigger(query)
+            nicknamePreferences.findCalendarEventsWithMatchingNickname(query)
 
     fun getCalendarEventNickname(eventId: Long): String? =
             nicknamePreferences.getCalendarEventNickname(eventId)
@@ -453,11 +452,13 @@ class UserAppPreferences(
     fun setSettingTrigger(id: String, trigger: ResultTrigger?) =
             triggerPreferences.setSettingTrigger(id, trigger)
 
-    fun getCalendarEventTrigger(eventId: Long): ResultTrigger? =
-            triggerPreferences.getCalendarEventTrigger(eventId)
+    fun getNoteTrigger(noteId: Long): ResultTrigger? = triggerPreferences.getNoteTrigger(noteId)
 
-    fun setCalendarEventTrigger(eventId: Long, trigger: ResultTrigger?) =
-            triggerPreferences.setCalendarEventTrigger(eventId, trigger)
+    fun setNoteTrigger(noteId: Long, trigger: ResultTrigger?) =
+            triggerPreferences.setNoteTrigger(noteId, trigger)
+
+    fun findNotesWithMatchingTrigger(query: String): Set<Long> =
+            triggerPreferences.findNotesWithMatchingTrigger(query)
 
     // ============================================================================
     // Search Engine Preferences

@@ -131,7 +131,7 @@ internal fun SearchScreenStateManagement(
     getFileTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     getAppShortcutTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     getSettingTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
-    getCalendarEventTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+    getNoteTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     onSaveAppNickname: (AppInfo, String?) -> Unit,
     onSaveAppShortcutNickname: (StaticShortcut, String?) -> Unit,
     onSaveContactNickname: (ContactInfo, String?) -> Unit,
@@ -449,7 +449,7 @@ internal fun SearchScreenStateManagement(
             getFileTrigger = getFileTrigger,
             getAppShortcutTrigger = getAppShortcutTrigger,
             getSettingTrigger = getSettingTrigger,
-            getCalendarEventTrigger = getCalendarEventTrigger,
+            getNoteTrigger = getNoteTrigger,
             onUpdateExpandedSection = { newSection: ExpandedSection ->
                 expandedSection = newSection
                 if (newSection == ExpandedSection.NONE) {

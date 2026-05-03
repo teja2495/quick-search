@@ -602,14 +602,14 @@ internal fun SearchScreenContent(
             return true
         }
 
-        (renderingState.calendarEvents + state.pinnedCalendarEvents + state.todayCalendarEvents)
-            .distinctBy { it.eventId }
-            .firstOrNull { event ->
-                calendarParams.getEventTrigger(event.eventId)?.let { trigger ->
+        (renderingState.noteResults + state.pinnedNotes)
+            .distinctBy { it.noteId }
+            .firstOrNull { note ->
+                notesParams.getNoteTrigger(note.noteId)?.let { trigger ->
                     matchesTrigger(query, trigger.word, trigger.triggerAfterSpace)
                 } == true
-            }?.let { event ->
-                calendarParams.onEventClick(event)
+            }?.let { note ->
+                notesParams.onNoteClick(note)
                 return true
             }
 
@@ -617,7 +617,14 @@ internal fun SearchScreenContent(
     }
 
     var lastTriggeredQuery by remember { mutableStateOf<String?>(null) }
-    LaunchedEffect(state.query) {
+    LaunchedEffect(
+        state.query,
+        renderingState.contactResults,
+        renderingState.fileResults,
+        renderingState.settingResults,
+        renderingState.calendarEvents,
+        renderingState.noteResults,
+    ) {
         if (state.query.isBlank() || state.query == lastTriggeredQuery) return@LaunchedEffect
         if (openMatchingTrigger(state.query)) {
             lastTriggeredQuery = state.query

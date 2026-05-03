@@ -329,10 +329,8 @@ data class CalendarSectionParams(
     val onExclude: (CalendarEventInfo) -> Unit,
     val onInclude: (CalendarEventInfo) -> Unit,
     val onNicknameClick: (CalendarEventInfo) -> Unit,
-    val onTriggerClick: (CalendarEventInfo) -> Unit,
     val onArchiveTodayEvent: (CalendarEventInfo) -> Unit,
     val getEventNickname: (Long) -> String?,
-    val getEventTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     val showAllResults: Boolean,
     val showExpandControls: Boolean,
     val onExpandClick: () -> Unit,
@@ -356,6 +354,8 @@ data class NotesSectionParams(
     val onNoteClick: (NoteInfo) -> Unit,
     val onTogglePin: (NoteInfo) -> Unit,
     val onDelete: (NoteInfo) -> Unit,
+    val onTriggerClick: (NoteInfo) -> Unit,
+    val getNoteTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     val showExpandControls: Boolean,
     val onExpandClick: () -> Unit,
     val showWallpaperBackground: Boolean,
@@ -440,7 +440,7 @@ internal fun buildSectionParams(
     getFileTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     getAppShortcutTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     getSettingTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
-    getCalendarEventTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+    getNoteTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     onUpdateExpandedSection: (ExpandedSection) -> Unit,
     expandedSection: ExpandedSection,
 ) = remember(
@@ -514,7 +514,7 @@ internal fun buildSectionParams(
     getFileTrigger,
     getAppShortcutTrigger,
     getSettingTrigger,
-    getCalendarEventTrigger,
+    getNoteTrigger,
     onUpdateExpandedSection,
 ) {
     val filesParams =
@@ -873,17 +873,7 @@ internal fun buildSectionParams(
                     ),
                 )
             },
-            onTriggerClick = { event ->
-                onUpdateTriggerDialogState(
-                    TriggerDialogState.CalendarEvent(
-                        event = event,
-                        currentTrigger = getCalendarEventTrigger(event.eventId),
-                        itemName = event.title,
-                    ),
-                )
-            },
             getEventNickname = getCalendarEventNickname,
-            getEventTrigger = getCalendarEventTrigger,
             showAllResults = false,
             showExpandControls = derivedState.isSearching,
             onExpandClick = {
@@ -918,6 +908,16 @@ internal fun buildSectionParams(
                 }
             },
             onDelete = onDeleteNote,
+            onTriggerClick = { note ->
+                onUpdateTriggerDialogState(
+                    TriggerDialogState.Note(
+                        note = note,
+                        currentTrigger = getNoteTrigger(note.noteId),
+                        itemName = note.title,
+                    ),
+                )
+            },
+            getNoteTrigger = getNoteTrigger,
             showExpandControls = derivedState.isSearching,
             onExpandClick = {
                 onUpdateExpandedSection(

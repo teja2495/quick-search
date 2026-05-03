@@ -613,7 +613,7 @@ abstract class BasePreferences(
         const val KEY_TRIGGER_CONTACT_PREFIX = "trigger_contact_"
         const val KEY_TRIGGER_FILE_PREFIX = "trigger_file_"
         const val KEY_TRIGGER_SETTING_PREFIX = "trigger_setting_"
-        const val KEY_TRIGGER_CALENDAR_EVENT_PREFIX = "trigger_calendar_event_"
+        const val KEY_TRIGGER_NOTE_PREFIX = "trigger_note_"
 
         // Contact card action preferences keys
         const val KEY_CONTACT_PRIMARY_ACTION_PREFIX = "contact_primary_action_"

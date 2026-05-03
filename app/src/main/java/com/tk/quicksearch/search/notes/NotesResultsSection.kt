@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -59,6 +60,8 @@ fun NotesResultsSection(
     onNoteClick: (NoteInfo) -> Unit,
     onTogglePin: (NoteInfo) -> Unit,
     onDelete: (NoteInfo) -> Unit,
+    onTriggerClick: (NoteInfo) -> Unit,
+    getNoteTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     isExpanded: Boolean,
     showAllResults: Boolean,
     showExpandControls: Boolean,
@@ -128,6 +131,8 @@ fun NotesResultsSection(
                             onClick = onNoteClick,
                             onTogglePin = onTogglePin,
                             onDelete = onDelete,
+                            onTriggerClick = onTriggerClick,
+                            hasTrigger = getNoteTrigger(note.noteId)?.word?.isNotBlank() == true,
                             isPredicted = showPredictedOnRow,
                         )
                         if (index < displayNotes.lastIndex && !showPredictedOnRow) {
@@ -165,6 +170,8 @@ private fun NoteRow(
     onClick: (NoteInfo) -> Unit,
     onTogglePin: (NoteInfo) -> Unit,
     onDelete: (NoteInfo) -> Unit,
+    onTriggerClick: (NoteInfo) -> Unit,
+    hasTrigger: Boolean,
     isPredicted: Boolean,
 ) {
     var showMenu by remember { mutableStateOf(false) }
@@ -258,6 +265,25 @@ private fun NoteRow(
                             contentDescription = null,
                         )
                     },
+                )
+                HorizontalDivider()
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            stringResource(
+                                if (hasTrigger) {
+                                    R.string.action_edit_trigger
+                                } else {
+                                    R.string.action_add_trigger
+                                },
+                            ),
+                        )
+                    },
+                    onClick = {
+                        showMenu = false
+                        onTriggerClick(note)
+                    },
+                    leadingIcon = { Icon(Icons.Rounded.Edit, contentDescription = null) },
                 )
                 HorizontalDivider()
                 DropdownMenuItem(

@@ -628,7 +628,12 @@ class UnifiedSearchHandler(
                         nicknameMatchingEventIds.filterNot { displayNameMatchedIds.contains(it) }
 
                 return if (nicknameOnlyIds.isNotEmpty()) {
-                        calendarRepository.getEventsByIds(nicknameOnlyIds.toSet())
+                        val ids = nicknameOnlyIds.toSet()
+                        val customEvents =
+                                ids
+                                        .filter { it < 0L }
+                                        .mapNotNull { customCalendarEventRepository.getCustomEventById(it) }
+                        calendarRepository.getEventsByIds(ids.filter { it > 0L }.toSet()) + customEvents
                 } else {
                         emptyList()
                 }

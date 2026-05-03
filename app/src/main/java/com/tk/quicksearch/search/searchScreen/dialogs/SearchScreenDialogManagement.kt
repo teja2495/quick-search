@@ -15,6 +15,7 @@ import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.models.NoteInfo
 
 /**
  * Composable that manages all dialogs for SearchScreen
@@ -45,7 +46,7 @@ internal fun SearchScreenDialogs(
     onSaveContactTrigger: (ContactInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
     onSaveFileTrigger: (DeviceFile, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
     onSaveSettingTrigger: (DeviceSetting, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
-    onSaveCalendarEventTrigger: (CalendarEventInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
+    onSaveNoteTrigger: (NoteInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
     getLastShownPhoneNumber: (Long) -> String?,
     setLastShownPhoneNumber: (Long, String) -> Unit,
 ) {
@@ -202,11 +203,11 @@ internal fun SearchScreenDialogs(
                     onSave = { onSaveSettingTrigger(dialogState.setting, it) },
                     onDismiss = onDismissTriggerDialog,
                 )
-            is TriggerDialogState.CalendarEvent ->
+            is TriggerDialogState.Note ->
                 TriggerDialog(
                     currentTrigger = dialogState.currentTrigger,
                     itemName = dialogState.itemName,
-                    onSave = { onSaveCalendarEventTrigger(dialogState.event, it) },
+                    onSave = { onSaveNoteTrigger(dialogState.note, it) },
                     onDismiss = onDismissTriggerDialog,
                 )
         }

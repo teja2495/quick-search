@@ -77,11 +77,11 @@ class TriggerPreferences(
     fun setSettingTrigger(id: String, trigger: ResultTrigger?) =
         writeTrigger("${BasePreferences.KEY_TRIGGER_SETTING_PREFIX}$id", trigger)
 
-    fun getCalendarEventTrigger(eventId: Long): ResultTrigger? =
-        readTrigger("${BasePreferences.KEY_TRIGGER_CALENDAR_EVENT_PREFIX}$eventId")
+    fun getNoteTrigger(noteId: Long): ResultTrigger? =
+        readTrigger("${BasePreferences.KEY_TRIGGER_NOTE_PREFIX}$noteId")
 
-    fun setCalendarEventTrigger(eventId: Long, trigger: ResultTrigger?) =
-        writeTrigger("${BasePreferences.KEY_TRIGGER_CALENDAR_EVENT_PREFIX}$eventId", trigger)
+    fun setNoteTrigger(noteId: Long, trigger: ResultTrigger?) =
+        writeTrigger("${BasePreferences.KEY_TRIGGER_NOTE_PREFIX}$noteId", trigger)
 
     fun findContactsWithMatchingTrigger(query: String): Set<Long> =
         findMatchingTriggerIds(
@@ -104,10 +104,10 @@ class TriggerPreferences(
             parseId = { it },
         )
 
-    fun findCalendarEventsWithMatchingTrigger(query: String): Set<Long> =
+    fun findNotesWithMatchingTrigger(query: String): Set<Long> =
         findMatchingTriggerIds(
             query = query,
-            prefix = BasePreferences.KEY_TRIGGER_CALENDAR_EVENT_PREFIX,
+            prefix = BasePreferences.KEY_TRIGGER_NOTE_PREFIX,
             parseId = String::toLongOrNull,
         )
 

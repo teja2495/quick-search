@@ -53,11 +53,11 @@ fun TriggerDialog(
                     selection = TextRange(initialText.length),
                 ),
             )
-        }
-    var triggerAfterSpace by remember(currentTrigger) {
-        mutableStateOf(currentTrigger?.triggerAfterSpace ?: false)
     }
-    val hasExistingTrigger = currentTrigger?.word?.isNotBlank() == true
+    var triggerAfterSpace by remember(currentTrigger) {
+        mutableStateOf(currentTrigger?.triggerAfterSpace ?: true)
+    }
+    val hasExistingTrigger = triggerText.text.isNotBlank()
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
 

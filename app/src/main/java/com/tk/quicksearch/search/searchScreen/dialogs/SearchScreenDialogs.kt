@@ -38,6 +38,7 @@ import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.models.NoteInfo
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.remember
@@ -285,8 +286,8 @@ sealed class TriggerDialogState {
         val itemName: String,
     ) : TriggerDialogState()
 
-    data class CalendarEvent(
-        val event: CalendarEventInfo,
+    data class Note(
+        val note: NoteInfo,
         val currentTrigger: com.tk.quicksearch.search.data.preferences.ResultTrigger?,
         val itemName: String,
     ) : TriggerDialogState()

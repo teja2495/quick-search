@@ -77,10 +77,8 @@ fun CalendarEventsSection(
     onExclude: (CalendarEventInfo) -> Unit,
     onInclude: (CalendarEventInfo) -> Unit,
     onNicknameClick: (CalendarEventInfo) -> Unit,
-    onTriggerClick: (CalendarEventInfo) -> Unit,
     onArchiveTodayEvent: (CalendarEventInfo) -> Unit,
     getEventNickname: (Long) -> String?,
-    getEventTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     showAllResults: Boolean,
     showExpandControls: Boolean,
     onExpandClick: () -> Unit,
@@ -181,7 +179,6 @@ fun CalendarEventsSection(
                             isPinned = isPinned,
                             isExcluded = excludedEventIds.contains(event.eventId),
                             hasNickname = !getEventNickname(event.eventId).isNullOrBlank(),
-                            hasTrigger = getEventTrigger(event.eventId)?.word?.isNotBlank() == true,
                             onClick = { clickedEvent ->
                                 if (clickedEvent.eventId < 0) {
                                     editingCustomEvent = clickedEvent
@@ -193,7 +190,6 @@ fun CalendarEventsSection(
                             onExclude = onExclude,
                             onInclude = onInclude,
                             onNicknameClick = onNicknameClick,
-                            onTriggerClick = onTriggerClick,
                             isPredicted = showPredictedOnRow,
                             isHomescreenTodayEvent = isHomeScreenMode && !isPinned,
                             onArchive = onArchiveTodayEvent,
@@ -243,13 +239,11 @@ private fun CalendarEventRow(
     isPinned: Boolean,
     isExcluded: Boolean,
     hasNickname: Boolean,
-    hasTrigger: Boolean,
     onClick: (CalendarEventInfo) -> Unit,
     onTogglePin: (CalendarEventInfo) -> Unit,
     onExclude: (CalendarEventInfo) -> Unit,
     onInclude: (CalendarEventInfo) -> Unit,
     onNicknameClick: (CalendarEventInfo) -> Unit,
-    onTriggerClick: (CalendarEventInfo) -> Unit,
     isPredicted: Boolean,
     isHomescreenTodayEvent: Boolean = false,
     onArchive: (CalendarEventInfo) -> Unit = {},
@@ -411,21 +405,6 @@ private fun CalendarEventRow(
                             onClick = {
                                 showMenu = false
                                 onNicknameClick(event)
-                            },
-                        ),
-                    )
-                    add(
-                        CalendarMenuItem(
-                            textResId =
-                                if (hasTrigger) {
-                                    R.string.action_edit_trigger
-                                } else {
-                                    R.string.action_add_trigger
-                                },
-                            icon = { Icon(imageVector = Icons.Rounded.Edit, contentDescription = null) },
-                            onClick = {
-                                showMenu = false
-                                onTriggerClick(event)
                             },
                         ),
                     )

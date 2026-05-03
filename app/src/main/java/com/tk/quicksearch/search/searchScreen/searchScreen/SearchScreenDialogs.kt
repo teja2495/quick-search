@@ -35,6 +35,7 @@ import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.CalendarEventInfo
+import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.search.searchScreen.dialogs.AppShortcutIconEditDialog
 import com.tk.quicksearch.search.searchScreen.dialogs.NicknameDialogState
@@ -76,7 +77,7 @@ internal fun SearchScreenDialogLogic(
     onSaveContactTrigger: (ContactInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
     onSaveFileTrigger: (DeviceFile, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
     onSaveSettingTrigger: (DeviceSetting, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
-    onSaveCalendarEventTrigger: (CalendarEventInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
+    onSaveNoteTrigger: (NoteInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
     getLastShownPhoneNumber: (Long) -> String?,
     setLastShownPhoneNumber: (Long, String) -> Unit,
     onSetPersonalContext: (String?) -> Unit,
@@ -260,7 +261,7 @@ internal fun SearchScreenDialogLogic(
         onSaveContactTrigger = onSaveContactTrigger,
         onSaveFileTrigger = onSaveFileTrigger,
         onSaveSettingTrigger = onSaveSettingTrigger,
-        onSaveCalendarEventTrigger = onSaveCalendarEventTrigger,
+        onSaveNoteTrigger = onSaveNoteTrigger,
         getLastShownPhoneNumber = getLastShownPhoneNumber,
         setLastShownPhoneNumber = setLastShownPhoneNumber,
     )

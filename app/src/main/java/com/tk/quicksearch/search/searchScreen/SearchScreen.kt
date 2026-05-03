@@ -135,7 +135,6 @@ fun SearchScreen(
     getFileTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     getAppShortcutTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     getSettingTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
-    getCalendarEventTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     onSaveAppNickname: (AppInfo, String?) -> Unit,
     onSaveAppShortcutNickname: (StaticShortcut, String?) -> Unit,
     onSaveContactNickname: (ContactInfo, String?) -> Unit,
@@ -146,7 +145,8 @@ fun SearchScreen(
     onSaveContactTrigger: (ContactInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
     onSaveFileTrigger: (DeviceFile, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
     onSaveSettingTrigger: (DeviceSetting, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
-    onSaveCalendarEventTrigger: (CalendarEventInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
+    getNoteTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+    onSaveNoteTrigger: (NoteInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
     getSettingNickname: (String) -> String?,
     onSaveSettingNickname: (DeviceSetting, String?) -> Unit,
     getAppShortcutIconOverride: (String) -> String?,
@@ -268,7 +268,7 @@ fun SearchScreen(
         getFileTrigger = getFileTrigger,
         getAppShortcutTrigger = getAppShortcutTrigger,
         getSettingTrigger = getSettingTrigger,
-        getCalendarEventTrigger = getCalendarEventTrigger,
+        getNoteTrigger = getNoteTrigger,
         onSaveAppNickname = onSaveAppNickname,
         onSaveAppShortcutNickname = onSaveAppShortcutNickname,
         onSaveContactNickname = onSaveContactNickname,
@@ -550,8 +550,8 @@ fun SearchScreen(
             onSaveSettingTrigger(setting, trigger)
             stateResult.setTriggerDialogState(null)
         },
-        onSaveCalendarEventTrigger = { event, trigger ->
-            onSaveCalendarEventTrigger(event, trigger)
+        onSaveNoteTrigger = { note, trigger ->
+            onSaveNoteTrigger(note, trigger)
             stateResult.setTriggerDialogState(null)
         },
         getLastShownPhoneNumber = getLastShownPhoneNumber,

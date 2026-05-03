@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.data
 import android.content.Context
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.preferences.NotesPreferences
+import com.tk.quicksearch.search.data.preferences.TriggerPreferences
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.notes.NotesTextUtils
 import org.json.JSONArray
@@ -13,6 +14,7 @@ class NotesRepository(
     context: Context,
 ) {
     private val notesPreferences = NotesPreferences(context)
+    private val triggerPreferences = TriggerPreferences(context)
     private val pendingDeletesByNoteId = mutableMapOf<Long, NoteInfo>()
     private val quickNoteTitle = context.getString(R.string.notes_quick_note_title)
 
@@ -39,6 +41,7 @@ class NotesRepository(
         if (normalizedQuery.isBlank()) return getAllNotes()
 
         val pinnedIds = getPinnedNoteIds()
+        val triggerMatchingIds = triggerPreferences.findNotesWithMatchingTrigger(query)
         return readNotes()
             .mapNotNull { note ->
                 val normalizedTitle = NotesTextUtils.normalize(note.title)
@@ -48,9 +51,11 @@ class NotesRepository(
                 val titleStartsWith = normalizedTitle.startsWith(normalizedQuery)
                 val titleContains = normalizedTitle.contains(normalizedQuery)
                 val bodyContains = normalizedBody.contains(normalizedQuery)
-                if (!titleContains && !bodyContains) return@mapNotNull null
+                val triggerMatches = triggerMatchingIds.contains(note.noteId)
+                if (!titleContains && !bodyContains && !triggerMatches) return@mapNotNull null
                 val score =
                     when {
+                        triggerMatches -> 500
                         titleStartsWith -> 400
                         titleContains -> 300
                         bodyContains -> 200

@@ -151,12 +151,6 @@ internal interface SearchViewModelManagementApi {
     fun getCalendarEventNickname(eventId: Long): String? =
         managementApiDelegate.getCalendarEventNickname(eventId)
 
-    fun setCalendarEventTrigger(event: CalendarEventInfo, trigger: ResultTrigger?) =
-        managementApiDelegate.setCalendarEventTrigger(event, trigger)
-
-    fun getCalendarEventTrigger(eventId: Long): ResultTrigger? =
-        managementApiDelegate.getCalendarEventTrigger(eventId)
-
     fun pinNote(noteInfo: NoteInfo) = managementApiDelegate.pinNote(noteInfo)
 
     fun unpinNote(noteInfo: NoteInfo) = managementApiDelegate.unpinNote(noteInfo)
@@ -166,6 +160,11 @@ internal interface SearchViewModelManagementApi {
     fun undoDeleteNote(noteId: Long) = managementApiDelegate.undoDeleteNote(noteId)
 
     fun finalizeDeleteNote(noteId: Long) = managementApiDelegate.finalizeDeleteNote(noteId)
+
+    fun setNoteTrigger(noteInfo: NoteInfo, trigger: ResultTrigger?) =
+        managementApiDelegate.setNoteTrigger(noteInfo, trigger)
+
+    fun getNoteTrigger(noteId: Long): ResultTrigger? = managementApiDelegate.getNoteTrigger(noteId)
 
     fun pinAppShortcut(shortcut: StaticShortcut) = managementApiDelegate.pinAppShortcut(shortcut)
 
@@ -368,6 +367,7 @@ class SearchViewModelManagementApiDelegate internal constructor(
 
     fun setAppTrigger(appInfo: AppInfo, trigger: ResultTrigger?) {
         userPreferences.setAppTrigger(appInfo.packageName, trigger)
+        updateUiState { it.copy(nicknameUpdateVersion = it.nicknameUpdateVersion + 1) }
     }
 
     fun getAppTrigger(packageName: String): ResultTrigger? = userPreferences.getAppTrigger(packageName)
@@ -395,6 +395,7 @@ class SearchViewModelManagementApiDelegate internal constructor(
 
     fun setContactTrigger(contactInfo: ContactInfo, trigger: ResultTrigger?) {
         userPreferences.setContactTrigger(contactInfo.contactId, trigger)
+        updateUiState { it.copy(nicknameUpdateVersion = it.nicknameUpdateVersion + 1) }
     }
 
     fun getContactTrigger(contactId: Long): ResultTrigger? = userPreferences.getContactTrigger(contactId)
@@ -430,6 +431,7 @@ class SearchViewModelManagementApiDelegate internal constructor(
 
     fun setFileTrigger(deviceFile: DeviceFile, trigger: ResultTrigger?) {
         userPreferences.setFileTrigger(deviceFile.uri.toString(), trigger)
+        updateUiState { it.copy(nicknameUpdateVersion = it.nicknameUpdateVersion + 1) }
     }
 
     fun getFileTrigger(uri: String): ResultTrigger? = userPreferences.getFileTrigger(uri)
@@ -450,6 +452,7 @@ class SearchViewModelManagementApiDelegate internal constructor(
 
     fun setSettingTrigger(setting: DeviceSetting, trigger: ResultTrigger?) {
         userPreferences.setSettingTrigger(setting.id, trigger)
+        updateUiState { it.copy(nicknameUpdateVersion = it.nicknameUpdateVersion + 1) }
     }
 
     fun getSettingTrigger(id: String): ResultTrigger? = userPreferences.getSettingTrigger(id)
@@ -472,13 +475,6 @@ class SearchViewModelManagementApiDelegate internal constructor(
         calendarManager().setItemNickname(event, nickname)
 
     fun getCalendarEventNickname(eventId: Long): String? = userPreferences.getCalendarEventNickname(eventId)
-
-    fun setCalendarEventTrigger(event: CalendarEventInfo, trigger: ResultTrigger?) {
-        userPreferences.setCalendarEventTrigger(event.eventId, trigger)
-    }
-
-    fun getCalendarEventTrigger(eventId: Long): ResultTrigger? =
-        userPreferences.getCalendarEventTrigger(eventId)
 
     fun pinNote(noteInfo: NoteInfo) {
         scope.launch(Dispatchers.IO) {
@@ -511,6 +507,14 @@ class SearchViewModelManagementApiDelegate internal constructor(
         refreshNotesState()
     }
 
+    fun setNoteTrigger(noteInfo: NoteInfo, trigger: ResultTrigger?) {
+        userPreferences.setNoteTrigger(noteInfo.noteId, trigger)
+        updateUiState { it.copy(nicknameUpdateVersion = it.nicknameUpdateVersion + 1) }
+        refreshNotesState()
+    }
+
+    fun getNoteTrigger(noteId: Long): ResultTrigger? = userPreferences.getNoteTrigger(noteId)
+
     fun pinAppShortcut(shortcut: StaticShortcut) = appShortcutManager().pinShortcut(shortcut)
 
     fun unpinAppShortcut(shortcut: StaticShortcut) {
@@ -539,6 +543,7 @@ class SearchViewModelManagementApiDelegate internal constructor(
 
     fun setAppShortcutTrigger(shortcut: StaticShortcut, trigger: ResultTrigger?) {
         userPreferences.setAppShortcutTrigger(shortcutKey(shortcut), trigger)
+        updateUiState { it.copy(nicknameUpdateVersion = it.nicknameUpdateVersion + 1) }
     }
 
     fun getAppShortcutTrigger(shortcutId: String): ResultTrigger? =
