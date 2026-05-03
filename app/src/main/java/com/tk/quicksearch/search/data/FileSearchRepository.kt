@@ -24,6 +24,11 @@ class FileSearchRepository(
         private const val COLUMN_FORMAT = "format"
         private const val BATCH_ID_QUERY_CHUNK_SIZE = 200
         private const val MAX_RECENT_FILE_SNAPSHOT_SIZE = 400
+        private const val SQL_DOT = "'.'"
+        private const val SQL_EMPTY = "''"
+        private const val SQL_HYPHEN = "'-'"
+        private const val SQL_SPACE = "' '"
+        private const val SQL_UNDERSCORE = "'_'"
 
         private val FILE_PROJECTION = buildFileProjection()
 
@@ -162,10 +167,15 @@ class FileSearchRepository(
             queryTokens.joinToString(" AND ") {
                 "LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE ? ESCAPE '\\'"
             }
+        val compactDisplayNameSelection = "${compactDisplayNameExpression()} LIKE ? ESCAPE '\\'"
         val selection =
-            "$displayNameTokenSelection AND " +
+            "($displayNameTokenSelection OR $compactDisplayNameSelection) AND " +
                 "(format = ${MtpConstants.FORMAT_ASSOCIATION} OR LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE '%.%')"
-        val selectionArgs = queryTokens.map { "%${escapeLikeQuery(it)}%" }.toTypedArray()
+        val selectionArgs =
+            (
+                queryTokens.map { "%${escapeLikeQuery(it)}%" } +
+                    "%${escapeLikeQuery(queryTokens.joinToString(""))}%"
+            ).toTypedArray()
         val uri = getFilesContentUri()
 
         val results = mutableListOf<DeviceFile>()
@@ -204,10 +214,15 @@ class FileSearchRepository(
             queryTokens.joinToString(" AND ") {
                 "LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE ? ESCAPE '\\'"
             }
+        val compactDisplayNameSelection = "${compactDisplayNameExpression()} LIKE ? ESCAPE '\\'"
         val selection =
-            "$displayNameTokenSelection AND " +
+            "($displayNameTokenSelection OR $compactDisplayNameSelection) AND " +
                 "format = ${MtpConstants.FORMAT_ASSOCIATION}"
-        val selectionArgs = queryTokens.map { "%${escapeLikeQuery(it)}%" }.toTypedArray()
+        val selectionArgs =
+            (
+                queryTokens.map { "%${escapeLikeQuery(it)}%" } +
+                    "%${escapeLikeQuery(queryTokens.joinToString(""))}%"
+            ).toTypedArray()
         val uri = getFilesContentUri()
 
         val results = mutableListOf<DeviceFile>()
@@ -267,6 +282,14 @@ class FileSearchRepository(
 
     private fun normalizeQueryTokens(query: String): List<String> =
         FileSearchTextNormalizer.queryTokens(normalizeQuery(query))
+
+    private fun compactDisplayNameExpression(): String {
+        val lowerDisplayName = "LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME})"
+        val withoutSpaces = "REPLACE($lowerDisplayName, $SQL_SPACE, $SQL_EMPTY)"
+        val withoutHyphens = "REPLACE($withoutSpaces, $SQL_HYPHEN, $SQL_EMPTY)"
+        val withoutUnderscores = "REPLACE($withoutHyphens, $SQL_UNDERSCORE, $SQL_EMPTY)"
+        return "REPLACE($withoutUnderscores, $SQL_DOT, $SQL_EMPTY)"
+    }
 
     private fun escapeLikeQuery(query: String): String =
         buildString(query.length) {

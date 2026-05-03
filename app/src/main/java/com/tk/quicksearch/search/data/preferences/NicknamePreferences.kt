@@ -199,10 +199,11 @@ class NicknamePreferences(
     fun findContactsWithMatchingNickname(query: String): Set<Long> {
         val normalizedQuery = SearchTextNormalizer.normalizeForSearch(query).trim()
         if (normalizedQuery.isBlank()) return emptySet()
+        val compactQuery = SearchTextNormalizer.removeSearchWhitespace(normalizedQuery)
 
         val matchingContactIds = mutableSetOf<Long>()
         for ((contactId, nickname) in contactNicknameCache) {
-            if (SearchTextNormalizer.normalizeForSearch(nickname).contains(normalizedQuery)) {
+            if (nicknameMatchesQuery(nickname, normalizedQuery, compactQuery)) {
                 matchingContactIds.add(contactId)
             }
         }
@@ -217,10 +218,11 @@ class NicknamePreferences(
     fun findFilesWithMatchingNickname(query: String): Set<String> {
         val normalizedQuery = SearchTextNormalizer.normalizeForSearch(query).trim()
         if (normalizedQuery.isBlank()) return emptySet()
+        val compactQuery = SearchTextNormalizer.removeSearchWhitespace(normalizedQuery)
 
         val matchingFileUris = mutableSetOf<String>()
         for ((uri, nickname) in fileNicknameCache) {
-            if (SearchTextNormalizer.normalizeForSearch(nickname).contains(normalizedQuery)) {
+            if (nicknameMatchesQuery(nickname, normalizedQuery, compactQuery)) {
                 matchingFileUris.add(uri)
             }
         }
@@ -235,10 +237,11 @@ class NicknamePreferences(
     fun findSettingsWithMatchingNickname(query: String): Set<String> {
         val normalizedQuery = SearchTextNormalizer.normalizeForSearch(query).trim()
         if (normalizedQuery.isBlank()) return emptySet()
+        val compactQuery = SearchTextNormalizer.removeSearchWhitespace(normalizedQuery)
 
         val matchingSettingIds = mutableSetOf<String>()
         for ((id, nickname) in settingNicknameCache) {
-            if (SearchTextNormalizer.normalizeForSearch(nickname).contains(normalizedQuery)) {
+            if (nicknameMatchesQuery(nickname, normalizedQuery, compactQuery)) {
                 matchingSettingIds.add(id)
             }
         }
@@ -250,14 +253,25 @@ class NicknamePreferences(
     fun findCalendarEventsWithMatchingNickname(query: String): Set<Long> {
         val normalizedQuery = SearchTextNormalizer.normalizeForSearch(query).trim()
         if (normalizedQuery.isBlank()) return emptySet()
+        val compactQuery = SearchTextNormalizer.removeSearchWhitespace(normalizedQuery)
 
         val matchingEventIds = mutableSetOf<Long>()
         for ((eventId, nickname) in calendarEventNicknameCache) {
-            if (SearchTextNormalizer.normalizeForSearch(nickname).contains(normalizedQuery)) {
+            if (nicknameMatchesQuery(nickname, normalizedQuery, compactQuery)) {
                 matchingEventIds.add(eventId)
             }
         }
 
         return matchingEventIds
+    }
+
+    private fun nicknameMatchesQuery(
+        nickname: String,
+        normalizedQuery: String,
+        compactQuery: String,
+    ): Boolean {
+        val normalizedNickname = SearchTextNormalizer.normalizeForSearch(nickname)
+        return normalizedNickname.contains(normalizedQuery) ||
+            SearchTextNormalizer.removeSearchWhitespace(normalizedNickname).contains(compactQuery)
     }
 }

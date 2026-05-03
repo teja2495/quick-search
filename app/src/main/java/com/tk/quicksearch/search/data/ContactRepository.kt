@@ -118,6 +118,8 @@ class ContactRepository(
         private const val SORT_ORDER = "${ContactsContract.CommonDataKinds.Phone.TIMES_CONTACTED} DESC"
 
         private const val TAG = "ContactRepository"
+        private const val SQL_EMPTY = "''"
+        private const val SQL_SPACE = "' '"
 
         // MIME type prefixes
         private const val VND_MIME_PREFIX = "vnd.android.cursor.item/vnd."
@@ -313,25 +315,32 @@ class ContactRepository(
 
         val queryTokens = query.split(WHITESPACE_REGEX).filter { it.isNotBlank() }
         if (queryTokens.isEmpty()) return LinkedHashMap()
+        val compactQuery = SearchTextNormalizer.removeSearchWhitespace(query)
 
         val tokenClauses =
             queryTokens.joinToString(" AND ") {
                 "(LOWER(${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY}) LIKE ? " +
                     "OR LOWER(${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_ALTERNATIVE}) LIKE ?)"
             }
+        val compactClause =
+            "(${compactContactNameExpression(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY)} LIKE ? " +
+                "OR ${compactContactNameExpression(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_ALTERNATIVE)} LIKE ?)"
         val exclusionsClause =
             if (existingContactIds.isNotEmpty()) {
                 " AND ${buildNotInClause(ContactsContract.CommonDataKinds.Phone.CONTACT_ID, existingContactIds)}"
             } else {
                 ""
             }
-        val selection = tokenClauses + exclusionsClause
+        val selection = "($tokenClauses OR $compactClause)" + exclusionsClause
         val selectionArgs =
-            queryTokens
-                .flatMap { token ->
-                    val likeToken = "%${token.lowercase(Locale.getDefault())}%"
-                    listOf(likeToken, likeToken)
-                }.toTypedArray()
+            (
+                queryTokens
+                    .flatMap { token ->
+                        val likeToken = "%${token.lowercase(Locale.getDefault())}%"
+                        listOf(likeToken, likeToken)
+                    } +
+                    listOf("%$compactQuery%", "%$compactQuery%")
+            ).toTypedArray()
 
         val cursor =
             contentResolver.query(
@@ -344,6 +353,9 @@ class ContactRepository(
 
         return cursor.use { processPhoneCursor(it, limit) }
     }
+
+    private fun compactContactNameExpression(column: String): String =
+        "REPLACE(LOWER($column), $SQL_SPACE, $SQL_EMPTY)"
 
     private fun processPhoneCursor(
         cursor: Cursor,

@@ -34,8 +34,9 @@ object SearchRankingUtils {
         val normalizedQuery = SearchTextNormalizer.normalizeForSearch(query.trim())
         // Parse query tokens once for reuse
         val queryTokens = normalizedQuery.split(WHITESPACE_REGEX).filter { it.isNotBlank() }
+        val compactQuery = SearchTextNormalizer.removeSearchWhitespace(normalizedQuery)
 
-        return calculateMatchPriority(text, normalizedQuery, queryTokens)
+        return calculateMatchPriority(text, normalizedQuery, queryTokens, compactQuery)
     }
 
     /**
@@ -46,10 +47,12 @@ object SearchRankingUtils {
         text: String,
         normalizedQuery: String,
         queryTokens: List<String>,
+        compactQuery: String = SearchTextNormalizer.removeSearchWhitespace(normalizedQuery),
     ): Int {
         if (normalizedQuery.isBlank()) return PRIORITY_NO_MATCH
 
         val normalizedText = SearchTextNormalizer.normalizeForSearch(text)
+        val compactText = SearchTextNormalizer.removeSearchWhitespace(normalizedText)
         val isMultiWord = queryTokens.size > 1
         val primaryToken = queryTokens.lastOrNull() ?: normalizedQuery
         val textWords = normalizedText.split(WHITESPACE_REGEX)
@@ -67,6 +70,9 @@ object SearchRankingUtils {
             if (allTokensContained(normalizedText, queryTokens)) {
                 return PRIORITY_CONTAINS
             }
+            if (hasCompactContainingMatch(compactText, compactQuery)) {
+                return PRIORITY_CONTAINS
+            }
             return PRIORITY_NO_MATCH
         }
 
@@ -82,6 +88,10 @@ object SearchRankingUtils {
 
         // Priority 3: Contains query/token anywhere (single-word only)
         if (hasContainingMatch(normalizedText, normalizedQuery, queryTokens)) {
+            return PRIORITY_CONTAINS
+        }
+
+        if (hasCompactContainingMatch(compactText, compactQuery)) {
             return PRIORITY_CONTAINS
         }
 
@@ -137,6 +147,13 @@ object SearchRankingUtils {
             token.isNotBlank() && normalizedText.contains(token)
         }
 
+    private fun hasCompactContainingMatch(
+        compactText: String,
+        compactQuery: String,
+    ): Boolean =
+        compactQuery.isNotBlank() &&
+            compactText.contains(compactQuery)
+
     /**
      * Calculates match priority with optional nickname support.
      * Nickname is treated as an additional searchable name using the same priority rules.
@@ -151,8 +168,15 @@ object SearchRankingUtils {
         val normalizedQuery = SearchTextNormalizer.normalizeForSearch(query.trim())
         // Parse query tokens once for reuse
         val queryTokens = normalizedQuery.split(WHITESPACE_REGEX).filter { it.isNotBlank() }
+        val compactQuery = SearchTextNormalizer.removeSearchWhitespace(normalizedQuery)
 
-        return calculateMatchPriorityWithNickname(primaryText, nickname, normalizedQuery, queryTokens)
+        return calculateMatchPriorityWithNickname(
+            primaryText,
+            nickname,
+            normalizedQuery,
+            queryTokens,
+            compactQuery,
+        )
     }
 
     /**
@@ -163,12 +187,13 @@ object SearchRankingUtils {
         nickname: String?,
         normalizedQuery: String,
         queryTokens: List<String>,
+        compactQuery: String = SearchTextNormalizer.removeSearchWhitespace(normalizedQuery),
     ): Int {
         if (normalizedQuery.isBlank()) return PRIORITY_NO_MATCH
 
-        val primaryPriority = calculateMatchPriority(primaryText, normalizedQuery, queryTokens)
+        val primaryPriority = calculateMatchPriority(primaryText, normalizedQuery, queryTokens, compactQuery)
         val nicknamePriority =
-            nickname?.let { calculateMatchPriority(it, normalizedQuery, queryTokens) }
+            nickname?.let { calculateMatchPriority(it, normalizedQuery, queryTokens, compactQuery) }
                 ?: PRIORITY_NO_MATCH
         return minOf(primaryPriority, nicknamePriority)
     }

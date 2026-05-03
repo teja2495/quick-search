@@ -5,6 +5,7 @@ private val QUERY_TOKENS_REGEX = "\\s+".toRegex()
 data class SearchQueryContext(
     val normalizedQuery: String,
     val tokens: List<String>,
+    val compactQuery: String,
 ) {
     companion object {
         fun fromRawQuery(query: String): SearchQueryContext {
@@ -16,6 +17,7 @@ data class SearchQueryContext(
             SearchQueryContext(
                 normalizedQuery = normalizedQuery,
                 tokens = normalizedQuery.split(QUERY_TOKENS_REGEX).filter { it.isNotBlank() },
+                compactQuery = SearchTextNormalizer.removeSearchWhitespace(normalizedQuery),
             )
     }
 }
@@ -46,6 +48,7 @@ object DefaultSearchMatcher : SearchMatcher {
             nickname = nickname,
             normalizedQuery = query.normalizedQuery,
             queryTokens = query.tokens,
+            compactQuery = query.compactQuery,
         )
 
     override fun matchAny(
@@ -57,8 +60,14 @@ object DefaultSearchMatcher : SearchMatcher {
                 text = field,
                 normalizedQuery = query.normalizedQuery,
                 queryTokens = query.tokens,
+                compactQuery = query.compactQuery,
             )
-        } ?: SearchRankingUtils.calculateMatchPriority("", query.normalizedQuery, query.tokens)
+        } ?: SearchRankingUtils.calculateMatchPriority(
+            "",
+            query.normalizedQuery,
+            query.tokens,
+            query.compactQuery,
+        )
 
     override fun isMatch(priority: Int): Boolean = !SearchRankingUtils.isOtherMatch(priority)
 }
