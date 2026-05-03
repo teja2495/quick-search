@@ -237,10 +237,6 @@ class NotesRepository(
             notesPreferences.setQuickNoteId(quickNote.noteId)
         }
 
-        if (notesPreferences.getPinnedNoteIds().contains(quickNote.noteId)) {
-            notesPreferences.unpinNote(quickNote.noteId)
-        }
-
         if (changed) {
             writeNotes(notes)
         }
