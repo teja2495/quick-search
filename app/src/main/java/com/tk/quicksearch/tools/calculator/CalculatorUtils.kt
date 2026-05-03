@@ -7,6 +7,12 @@ import java.util.Locale
  * Safely evaluates basic math expressions (addition, subtraction, multiplication, division, and brackets).
  */
 object CalculatorUtils {
+    private val percentPhraseRegex =
+        Regex(
+            pattern = """^\s*([+-]?\d+(?:\.\d+)?)\s*%\s*(off|of)\s*([+-]?\d+(?:\.\d+)?)\s*$""",
+            option = RegexOption.IGNORE_CASE,
+        )
+
     /**
      * Checks if a string looks like a math expression.
      * A math expression should contain at least one operator (+, -, *, /) or brackets.
@@ -14,6 +20,7 @@ object CalculatorUtils {
     fun isMathExpression(query: String): Boolean {
         val trimmed = query.trim()
         if (trimmed.isEmpty()) return false
+        if (isPercentPhrase(trimmed)) return true
 
         // Check if it contains math operators or brackets
         val hasOperator =
@@ -22,7 +29,8 @@ object CalculatorUtils {
                 trimmed.contains('*') ||
                 trimmed.contains('/') ||
                 trimmed.contains('(') ||
-                trimmed.contains(')')
+                trimmed.contains(')') ||
+                trimmed.contains('%')
 
         if (!hasOperator) return false
 
@@ -53,12 +61,31 @@ object CalculatorUtils {
      */
     fun evaluateExpression(expression: String): String? =
         try {
+            evaluatePercentPhrase(expression)?.let { percentResult ->
+                return formatResult(percentResult)
+            }
             val cleaned = cleanExpression(expression)
             val result = evaluate(cleaned)
             formatResult(result)
         } catch (e: Exception) {
             null
         }
+
+    private fun isPercentPhrase(query: String): Boolean = percentPhraseRegex.matches(query)
+
+    private fun evaluatePercentPhrase(expression: String): Double? {
+        val match = percentPhraseRegex.matchEntire(expression) ?: return null
+        val percent = match.groupValues[1].toDoubleOrNull() ?: return null
+        val operation = match.groupValues[2].lowercase(Locale.US)
+        val baseValue = match.groupValues[3].toDoubleOrNull() ?: return null
+
+        val percentValue = baseValue * (percent / 100.0)
+        return when (operation) {
+            "off" -> baseValue - percentValue
+            "of" -> percentValue
+            else -> null
+        }
+    }
 
     /**
      * Cleans the expression by normalizing operators and removing extra spaces.
