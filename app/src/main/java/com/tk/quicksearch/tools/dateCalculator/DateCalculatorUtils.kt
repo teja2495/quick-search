@@ -380,8 +380,12 @@ object DateCalculatorUtils {
         val t1 = parseTimeString(part1) ?: return null
         val t2 = parseTimeString(part2) ?: return null
 
-        val duration = java.time.Duration.between(t1, t2).abs()
-        val totalMinutes = duration.toMinutes()
+        val rawMinutes = java.time.Duration.between(t1, t2).toMinutes()
+        val totalMinutes =
+                when {
+                    rawMinutes < 0 -> rawMinutes + (24 * 60)
+                    else -> rawMinutes
+                }
         val hours = totalMinutes / 60
         val mins = totalMinutes % 60
         val parts = buildList {
