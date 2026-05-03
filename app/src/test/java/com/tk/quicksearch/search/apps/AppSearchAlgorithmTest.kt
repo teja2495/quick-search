@@ -58,6 +58,54 @@ class AppSearchAlgorithmTest {
         assertEquals(listOf(settings), matches)
     }
 
+    @Test
+    fun githubTypoQueriesReturnGithubResult() {
+        val github = app("GitHub", "github")
+
+        val deletedCharMatches =
+            AppSearchAlgorithm.findMatches(
+                query = "Githb",
+                source = listOf(github),
+                limit = 10,
+                fuzzySearchStrategy = FuzzyAppSearchStrategy(FuzzySearchConfig.DEFAULT_APP_CONFIG),
+                appNicknames = emptyMap(),
+                sortAppsByUsageEnabled = false,
+            )
+        val substitutedCharMatches =
+            AppSearchAlgorithm.findMatches(
+                query = "Githbb",
+                source = listOf(github),
+                limit = 10,
+                fuzzySearchStrategy = FuzzyAppSearchStrategy(FuzzySearchConfig.DEFAULT_APP_CONFIG),
+                appNicknames = emptyMap(),
+                sortAppsByUsageEnabled = false,
+            )
+
+        assertEquals(listOf(github), deletedCharMatches)
+        assertEquals(listOf(github), substitutedCharMatches)
+    }
+
+    @Test
+    fun typoEligibleCandidatesAreNotStarvedByUnrelatedApps() {
+        val github = app("GitHub", "github")
+        val unrelatedApps =
+            (1..1_300).map { index ->
+                app("Camera$index", "camera$index", launchCount = 100 + index)
+            }
+
+        val matches =
+            AppSearchAlgorithm.findMatches(
+                query = "githb",
+                source = unrelatedApps + github,
+                limit = 10,
+                fuzzySearchStrategy = FuzzyAppSearchStrategy(FuzzySearchConfig.DEFAULT_APP_CONFIG),
+                appNicknames = emptyMap(),
+                sortAppsByUsageEnabled = true,
+            )
+
+        assertTrue(matches.contains(github))
+    }
+
     private fun app(
         appName: String,
         packageSuffix: String,

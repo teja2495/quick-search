@@ -119,12 +119,7 @@ class SecondarySearchOrchestrator(
                     !skipNoResultsCache &&
                         shouldSkipSearchForSection(trimmedQuery, section, isBackspacing)
                 val shouldSearch = canSearchSection && !shouldSkipSection
-                val enableFuzzyMatching =
-                    shouldSearch &&
-                        (
-                            section == SearchSection.SETTINGS ||
-                                section == SearchSection.APP_SETTINGS
-                        )
+                val enableFuzzyMatching = shouldSearch && supportsFuzzySecondarySearch(section)
                 section to
                     UnifiedSectionSearchConfig(
                         shouldSearch = shouldSearch,
@@ -335,11 +330,7 @@ class SecondarySearchOrchestrator(
             SearchSectionRegistry.secondarySearchDefinitions.associate { definition ->
                 val shouldSearch = definition.section == section && shouldRunTargetedSearch
                 val enableFuzzyMatching =
-                    shouldSearch &&
-                        (
-                            definition.section == SearchSection.SETTINGS ||
-                                definition.section == SearchSection.APP_SETTINGS
-                        )
+                    shouldSearch && supportsFuzzySecondarySearch(definition.section)
                 definition.section to
                     UnifiedSectionSearchConfig(
                         shouldSearch = shouldSearch,
@@ -572,6 +563,21 @@ class SecondarySearchOrchestrator(
             SearchSectionPermissionRequirement.FILES -> state.hasFilePermission
             SearchSectionPermissionRequirement.CALENDAR -> state.hasCalendarPermission
             null -> true
+        }
+
+    private fun supportsFuzzySecondarySearch(section: SearchSection): Boolean =
+        when (section) {
+            SearchSection.CONTACTS,
+            SearchSection.FILES,
+            SearchSection.SETTINGS,
+            SearchSection.APP_SETTINGS,
+            SearchSection.APP_SHORTCUTS,
+            -> true
+
+            SearchSection.APPS,
+            SearchSection.CALENDAR,
+            SearchSection.NOTES,
+            -> false
         }
 
     private fun hasResultsForSection(

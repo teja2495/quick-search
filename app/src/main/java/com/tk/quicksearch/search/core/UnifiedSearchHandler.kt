@@ -704,8 +704,9 @@ class UnifiedSearchHandler(
                                                 SearchTextNormalizer.normalizeForSearch(
                                                         contact.displayName
                                                 )
+                                        val nickname = contactNicknames[contact.contactId]
                                         val normalizedNickname =
-                                                contactNicknames[contact.contactId]
+                                                nickname
                                                         ?.let { SearchTextNormalizer.normalizeForSearch(it) }
                                         val fuzzyScore =
                                                 FuzzyMatcher.score(
@@ -715,6 +716,16 @@ class UnifiedSearchHandler(
                                                         maxEditDistance = fuzzyMaxEditDistance,
                                                 )
                                         if (fuzzyScore < fuzzyMinScore) {
+                                                null
+                                        } else if (
+                                                !ContactSearchPolicy.areAllQueryTokensCovered(
+                                                        query = queryContext,
+                                                        displayName = contact.displayName,
+                                                        nickname = nickname,
+                                                        fuzzyMinScore = fuzzyMinScore,
+                                                        fuzzyMaxEditDistance = fuzzyMaxEditDistance,
+                                                )
+                                        ) {
                                                 null
                                         } else {
                                                 contact to fuzzyScore

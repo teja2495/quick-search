@@ -111,6 +111,17 @@ object AppSearchAlgorithm {
             return AppMatch(app, priority, 0, false)
         }
 
+        if (
+            !fuzzySearchStrategy.isTypoEligibleCandidate(
+                query = queryContext.normalizedQuery,
+                appName = app.appName,
+                nickname = nickname,
+                initials = initials,
+            )
+        ) {
+            return null
+        }
+
         if (!canScoreFuzzyCandidate()) return null
 
         val match =

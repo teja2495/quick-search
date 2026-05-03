@@ -65,13 +65,7 @@ class FuzzyAppSearchStrategy(
     ): FuzzySearchStrategy.Match<AppInfo>? {
         val policy = appPolicyFor(query)
         if (!policy.enabled) return null
-        val alternateNames =
-            sequenceOf(nickname)
-                .filterNotNull()
-                .plus(initials.asSequence())
-                .filter { it.isNotBlank() }
-                .joinToString(separator = " ")
-                .ifBlank { null }
+        val alternateNames = buildAlternateNames(nickname, initials)
         val score = engine.computeScore(query, app.appName, alternateNames, policy.minimumQueryLength)
         return if (score >= policy.minimumScore && isWithinTypoTolerance(query, app.appName, alternateNames, policy)) {
             FuzzySearchStrategy.Match(
@@ -88,6 +82,18 @@ class FuzzyAppSearchStrategy(
     fun canUseFuzzySearch(query: String): Boolean = appPolicyFor(query).enabled
 
     fun fuzzyCandidateLimitFor(query: String): Int = appPolicyFor(query).candidateLimit
+
+    fun isTypoEligibleCandidate(
+        query: String,
+        appName: String,
+        nickname: String?,
+        initials: List<String> = emptyList(),
+    ): Boolean {
+        val policy = appPolicyFor(query)
+        if (!policy.enabled) return false
+        val alternateNames = buildAlternateNames(nickname, initials)
+        return isWithinTypoTolerance(query, appName, alternateNames, policy)
+    }
 
     fun isTokenCoveredByApp(
         token: String,
@@ -116,6 +122,17 @@ class FuzzyAppSearchStrategy(
         return score >= policy.minimumScore && isWithinTypoTolerance(token, appName, alternateNames, policy)
     }
 
+    private fun buildAlternateNames(
+        nickname: String?,
+        initials: List<String>,
+    ): String? =
+        sequenceOf(nickname)
+            .filterNotNull()
+            .plus(initials.asSequence())
+            .filter { it.isNotBlank() }
+            .joinToString(separator = " ")
+            .ifBlank { null }
+
     private fun isWithinTypoTolerance(
         query: String,
         appName: String,
@@ -123,11 +140,23 @@ class FuzzyAppSearchStrategy(
         policy: FuzzySearchPolicy,
     ): Boolean {
         if (query.length < policy.minimumQueryLength) return true
-        if (FuzzyMatcher.hasTokenWithinEditDistance(query, appName, policy.maximumEditDistance)) {
+        val normalizedQuery = SearchTextNormalizer.normalizeForSearch(query)
+        val normalizedAppName = SearchTextNormalizer.normalizeForSearch(appName)
+        if (
+            FuzzyMatcher.hasTokenWithinEditDistance(
+                normalizedQuery,
+                normalizedAppName,
+                policy.maximumEditDistance,
+            )
+        ) {
             return true
         }
         return alternateNames?.let {
-            FuzzyMatcher.hasTokenWithinEditDistance(query, it, policy.maximumEditDistance)
+            FuzzyMatcher.hasTokenWithinEditDistance(
+                normalizedQuery,
+                SearchTextNormalizer.normalizeForSearch(it),
+                policy.maximumEditDistance,
+            )
         } ?: false
     }
 
