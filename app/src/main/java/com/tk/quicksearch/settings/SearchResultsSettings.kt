@@ -15,13 +15,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Apps
+import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material.icons.rounded.Contacts
 import androidx.compose.material.icons.rounded.History
+import androidx.compose.material.icons.rounded.Label
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -64,6 +67,8 @@ private fun SearchOptionsCard(
     excludedItemsTitle: String,
     excludedItemsDescription: String,
     onNavigateToExcludedItems: () -> Unit,
+    onNavigateToNicknames: () -> Unit,
+    onNavigateToTriggers: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
@@ -132,6 +137,40 @@ private fun SearchOptionsCard(
                 checked = recentQueriesEnabled,
                 onCheckedChange = onRecentQueriesToggle,
                 leadingIcon = Icons.Rounded.History,
+            )
+
+            HorizontalDivider(color = AppColors.SettingsDivider)
+
+            SettingsNavigationRow(
+                item =
+                    SettingsCardItem(
+                        title = stringResource(R.string.settings_nicknames_title),
+                        description = stringResource(R.string.settings_nicknames_desc),
+                        icon = Icons.Rounded.Label,
+                        actionOnPress = onNavigateToNicknames,
+                    ),
+                contentPadding =
+                    PaddingValues(
+                        horizontal = DesignTokens.SpacingXXLarge,
+                        vertical = DesignTokens.SpacingLarge,
+                    ),
+            )
+
+            HorizontalDivider(color = AppColors.SettingsDivider)
+
+            SettingsNavigationRow(
+                item =
+                    SettingsCardItem(
+                        title = stringResource(R.string.settings_triggers_title),
+                        description = stringResource(R.string.settings_triggers_desc),
+                        icon = Icons.Rounded.Bolt,
+                        actionOnPress = onNavigateToTriggers,
+                    ),
+                contentPadding =
+                    PaddingValues(
+                        horizontal = DesignTokens.SpacingXXLarge,
+                        vertical = DesignTokens.SpacingLarge,
+                    ),
             )
 
             if (hasExcludedItems) {
@@ -281,6 +320,8 @@ fun SearchResultsSettingsSection(
     hasFilePermission: Boolean,
     hasCalendarPermission: Boolean,
     onNavigateToExcludedItems: () -> Unit,
+    onNavigateToNicknames: () -> Unit,
+    onNavigateToTriggers: () -> Unit,
     onNavigateToAppManagement: () -> Unit,
     onNavigateToAppShortcuts: () -> Unit,
     onNavigateToCallsTexts: () -> Unit,
@@ -398,6 +439,8 @@ fun SearchResultsSettingsSection(
             excludedItemsTitle = stringResource(R.string.settings_excluded_items_title),
             excludedItemsDescription = stringResource(R.string.settings_excluded_items_desc),
             onNavigateToExcludedItems = onNavigateToExcludedItems,
+            onNavigateToNicknames = onNavigateToNicknames,
+            onNavigateToTriggers = onNavigateToTriggers,
             modifier = Modifier.padding(top = DesignTokens.SpacingLarge),
         )
 

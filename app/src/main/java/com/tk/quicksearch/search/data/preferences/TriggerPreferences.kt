@@ -47,6 +47,35 @@ class TriggerPreferences(
         prefs.edit().putString(key, json.toString()).apply()
     }
 
+    fun getAllAppTriggers(): Map<String, ResultTrigger> =
+        getAllTriggersByPrefix(BasePreferences.KEY_TRIGGER_APP_PREFIX)
+
+    fun getAllAppShortcutTriggers(): Map<String, ResultTrigger> =
+        getAllTriggersByPrefix(BasePreferences.KEY_TRIGGER_APP_SHORTCUT_PREFIX)
+
+    fun getAllContactTriggers(): Map<Long, ResultTrigger> =
+        getAllTriggersByPrefix(BasePreferences.KEY_TRIGGER_CONTACT_PREFIX)
+            .mapNotNull { (id, trigger) -> id.toLongOrNull()?.let { it to trigger } }
+            .toMap()
+
+    fun getAllFileTriggers(): Map<String, ResultTrigger> =
+        getAllTriggersByPrefix(BasePreferences.KEY_TRIGGER_FILE_PREFIX)
+
+    fun getAllSettingTriggers(): Map<String, ResultTrigger> =
+        getAllTriggersByPrefix(BasePreferences.KEY_TRIGGER_SETTING_PREFIX)
+
+    fun getAllNoteTriggers(): Map<Long, ResultTrigger> =
+        getAllTriggersByPrefix(BasePreferences.KEY_TRIGGER_NOTE_PREFIX)
+            .mapNotNull { (id, trigger) -> id.toLongOrNull()?.let { it to trigger } }
+            .toMap()
+
+    private fun getAllTriggersByPrefix(prefix: String): Map<String, ResultTrigger> =
+        prefs.all.mapNotNull { (key, _) ->
+            if (!key.startsWith(prefix)) return@mapNotNull null
+            val trigger = readTrigger(key) ?: return@mapNotNull null
+            key.removePrefix(prefix) to trigger
+        }.toMap()
+
     fun getAppTrigger(packageName: String): ResultTrigger? =
         readTrigger("${BasePreferences.KEY_TRIGGER_APP_PREFIX}$packageName")
 

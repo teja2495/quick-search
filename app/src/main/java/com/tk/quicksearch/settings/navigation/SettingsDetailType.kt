@@ -28,6 +28,8 @@ enum class SettingsDetailType {
     UNIT_CONVERTER_INFO,
     DATE_CALCULATOR_INFO,
     CUSTOM_TOOL_EDITOR,
+    NICKNAMES,
+    TRIGGERS,
 }
 
 internal data class SettingsDestinationSpec(
@@ -163,6 +165,18 @@ internal object SettingsDestinationRegistry {
                     level = 3,
                     fallbackBackDestination = SettingsDetailType.TOOLS,
                     preferSourceBackDestination = true,
+                ),
+            SettingsDetailType.NICKNAMES to
+                SettingsDestinationSpec(
+                    titleResId = R.string.settings_nicknames_title,
+                    level = 2,
+                    fallbackBackDestination = SettingsDetailType.SEARCH_RESULTS,
+                ),
+            SettingsDetailType.TRIGGERS to
+                SettingsDestinationSpec(
+                    titleResId = R.string.settings_triggers_title,
+                    level = 2,
+                    fallbackBackDestination = SettingsDetailType.SEARCH_RESULTS,
                 ),
         )
 

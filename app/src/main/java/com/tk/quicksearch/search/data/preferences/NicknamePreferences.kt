@@ -113,6 +113,8 @@ class NicknamePreferences(
 
     fun getAllAppShortcutNicknames(): Map<String, String> = appShortcutNicknameCache.toMap()
 
+    fun getAllContactNicknames(): Map<Long, String> = contactNicknameCache.toMap()
+
     fun getContactNickname(contactId: Long): String? = contactNicknameCache[contactId]
 
     fun setContactNickname(
@@ -129,6 +131,8 @@ class NicknamePreferences(
             contactNicknameCache[contactId] = trimmed
         }
     }
+
+    fun getAllFileNicknames(): Map<String, String> = fileNicknameCache.toMap()
 
     fun getFileNickname(uri: String): String? = fileNicknameCache[uri]
 
@@ -147,6 +151,8 @@ class NicknamePreferences(
         }
     }
 
+    fun getAllSettingNicknames(): Map<String, String> = settingNicknameCache.toMap()
+
     fun getSettingNickname(id: String): String? = settingNicknameCache[id]
 
     fun setSettingNickname(
@@ -163,6 +169,8 @@ class NicknamePreferences(
             settingNicknameCache[id] = trimmed
         }
     }
+
+    fun getAllCalendarEventNicknames(): Map<Long, String> = calendarEventNicknameCache.toMap()
 
     fun getCalendarEventNickname(eventId: Long): String? = calendarEventNicknameCache[eventId]
 

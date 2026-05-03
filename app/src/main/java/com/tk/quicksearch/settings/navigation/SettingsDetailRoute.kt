@@ -377,6 +377,7 @@ fun SettingsDetailRoute(
                 },
                 onNavigateToDetail = onNavigateToDetail,
                 onNavigateToSearch = onNavigateToSearch,
+                onNicknameRemoved = { userPreferences.reloadNicknameCaches() },
         )
     } else {
         SettingsDetailLevel1Screen(

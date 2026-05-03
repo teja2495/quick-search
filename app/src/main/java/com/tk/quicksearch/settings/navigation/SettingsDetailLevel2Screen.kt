@@ -78,6 +78,7 @@ internal fun SettingsDetailLevel2Screen(
     onAppShortcutFocusHandled: () -> Unit = {},
     onNavigateToDetail: (SettingsDetailType) -> Unit = {},
     onNavigateToSearch: () -> Unit = {},
+    onNicknameRemoved: () -> Unit = {},
 ) {
     if (!detailType.isLevel2()) return
 
@@ -650,6 +651,17 @@ internal fun SettingsDetailLevel2Screen(
                         }
 
                         SettingsDetailType.TOOLS -> Unit
+
+                        SettingsDetailType.NICKNAMES -> {
+                            NicknameItemsScreen(
+                                modifier = Modifier.fillMaxWidth(),
+                                onAfterRemove = onNicknameRemoved,
+                            )
+                        }
+
+                        SettingsDetailType.TRIGGERS -> {
+                            TriggerItemsScreen(modifier = Modifier.fillMaxWidth())
+                        }
 
                         SettingsDetailType.UNIT_CONVERTER_INFO -> {
                             UnitConverterInfoSection(modifier = Modifier.fillMaxWidth())

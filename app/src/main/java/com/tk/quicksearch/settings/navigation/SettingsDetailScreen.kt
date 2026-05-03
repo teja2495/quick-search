@@ -213,6 +213,12 @@ internal fun SettingsDetailLevel1Screen(
                                         ).show()
                                 }
                             },
+                            onNavigateToNicknames = {
+                                onNavigateToDetail(SettingsDetailType.NICKNAMES)
+                            },
+                            onNavigateToTriggers = {
+                                onNavigateToDetail(SettingsDetailType.TRIGGERS)
+                            },
                             onNavigateToAppManagement = {
                                 onNavigateToDetail(SettingsDetailType.APP_MANAGEMENT)
                             },
@@ -476,6 +482,8 @@ internal fun SettingsDetailLevel1Screen(
                     SettingsDetailType.UNIT_CONVERTER_INFO,
                     SettingsDetailType.DATE_CALCULATOR_INFO,
                     SettingsDetailType.CUSTOM_TOOL_EDITOR,
+                    SettingsDetailType.NICKNAMES,
+                    SettingsDetailType.TRIGGERS,
                     -> Unit
                 }
             }
