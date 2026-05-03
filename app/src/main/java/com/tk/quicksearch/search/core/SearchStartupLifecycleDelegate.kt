@@ -580,6 +580,10 @@ internal class SearchStartupLifecycleDelegate(
                 disabledAppShortcutIds = userPreferences.getDisabledAppShortcutIds(),
                 recentQueriesEnabled = prefs.searchHistoryEnabled,
                 webSuggestionsCount = userPreferences.getWebSuggestionsCount(),
+                topMatchesEnabled = userPreferences.isTopMatchesEnabled(),
+                topMatchesLimit = userPreferences.getTopMatchesLimit(),
+                topMatchesSectionOrder = userPreferences.getTopMatchesSectionOrder(),
+                disabledTopMatchesSections = userPreferences.getDisabledTopMatchesSections(),
                 shouldShowUsagePermissionBanner = userPreferences.shouldShowUsagePermissionBanner(),
                 hasDismissedSearchHistoryTip = userPreferences.hasDismissedSearchHistoryTip(),
             )

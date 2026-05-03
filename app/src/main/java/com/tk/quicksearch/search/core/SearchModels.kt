@@ -583,6 +583,10 @@ data class SearchUiState(
         val recentItems: List<RecentSearchItem> = emptyList(),
         val aliasRecentItems: List<RecentSearchItem> = emptyList(),
         val recentQueriesEnabled: Boolean = true,
+        val topMatchesEnabled: Boolean = false,
+        val topMatchesLimit: Int = UiPreferences.DEFAULT_TOP_MATCHES_LIMIT,
+        val topMatchesSectionOrder: List<SearchSection> = UiPreferences.DEFAULT_TOP_MATCHES_SECTION_ORDER,
+        val disabledTopMatchesSections: Set<SearchSection> = emptySet(),
         // Calendar
         val showTodayEvents: Boolean = true,
         // Usage permission banner
@@ -712,6 +716,10 @@ fun SearchUiState(
                 customTools = features.customTools,
                 disabledCustomToolIds = features.disabledCustomToolIds,
                 recentQueriesEnabled = features.recentQueriesEnabled,
+                topMatchesEnabled = features.topMatchesEnabled,
+                topMatchesLimit = features.topMatchesLimit,
+                topMatchesSectionOrder = features.topMatchesSectionOrder,
+                disabledTopMatchesSections = features.disabledTopMatchesSections,
                 showTodayEvents = features.showTodayEvents,
                 hasDismissedSearchHistoryTip = features.hasDismissedSearchHistoryTip,
                 directDialEnabled = features.directDialEnabled,

@@ -24,6 +24,10 @@ internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState {
         webSuggestionsEnabled = searchResults.webSuggestionsEnabled,
         webSuggestionsCount = searchResults.webSuggestionsCount,
         topResultIndicatorEnabled = searchResults.topResultIndicatorEnabled,
+        topMatchesEnabled = searchResults.topMatchesEnabled,
+        topMatchesLimit = searchResults.topMatchesLimit,
+        topMatchesSectionOrder = searchResults.topMatchesSectionOrder,
+        disabledTopMatchesSections = searchResults.disabledTopMatchesSections,
         recentQueriesEnabled = searchResults.recentQueriesEnabled,
         searchEngineOrder = searchEngines.searchEngineOrder,
         disabledSearchEngines = searchEngines.disabledSearchEngines,
@@ -111,6 +115,10 @@ private data class SearchResultsMapperState(
     val webSuggestionsEnabled: Boolean,
     val webSuggestionsCount: Int,
     val topResultIndicatorEnabled: Boolean,
+    val topMatchesEnabled: Boolean,
+    val topMatchesLimit: Int,
+    val topMatchesSectionOrder: List<com.tk.quicksearch.search.core.SearchSection>,
+    val disabledTopMatchesSections: Set<com.tk.quicksearch.search.core.SearchSection>,
     val recentQueriesEnabled: Boolean,
 )
 
@@ -127,6 +135,10 @@ private fun SearchUiState.toSearchResultsSettingsState() =
         webSuggestionsEnabled = webSuggestionsEnabled,
         webSuggestionsCount = webSuggestionsCount,
         topResultIndicatorEnabled = topResultIndicatorEnabled,
+        topMatchesEnabled = topMatchesEnabled,
+        topMatchesLimit = topMatchesLimit,
+        topMatchesSectionOrder = topMatchesSectionOrder,
+        disabledTopMatchesSections = disabledTopMatchesSections,
         recentQueriesEnabled = recentQueriesEnabled,
     )
 

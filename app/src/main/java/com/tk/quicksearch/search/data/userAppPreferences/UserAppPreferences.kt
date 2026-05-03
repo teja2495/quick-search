@@ -8,6 +8,7 @@ import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.data.preferences.*
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.searchHistory.SearchHistoryPreferences
@@ -798,6 +799,26 @@ class UserAppPreferences(
 
     fun setTopResultIndicatorEnabled(enabled: Boolean) =
             uiPreferences.setTopResultIndicatorEnabled(enabled)
+
+    fun isTopMatchesEnabled(): Boolean = uiPreferences.isTopMatchesEnabled()
+
+    fun setTopMatchesEnabled(enabled: Boolean) = uiPreferences.setTopMatchesEnabled(enabled)
+
+    fun getTopMatchesLimit(): Int = uiPreferences.getTopMatchesLimit()
+
+    fun setTopMatchesLimit(limit: Int) = uiPreferences.setTopMatchesLimit(limit)
+
+    fun getTopMatchesSectionOrder(): List<SearchSection> =
+            uiPreferences.getTopMatchesSectionOrder()
+
+    fun setTopMatchesSectionOrder(order: List<SearchSection>) =
+            uiPreferences.setTopMatchesSectionOrder(order)
+
+    fun getDisabledTopMatchesSections(): Set<SearchSection> =
+            uiPreferences.getDisabledTopMatchesSections()
+
+    fun setDisabledTopMatchesSections(disabledSections: Set<SearchSection>) =
+            uiPreferences.setDisabledTopMatchesSections(disabledSections)
 
     fun isClearQueryOnLaunchEnabled(): Boolean = uiPreferences.isClearQueryOnLaunchEnabled()
 

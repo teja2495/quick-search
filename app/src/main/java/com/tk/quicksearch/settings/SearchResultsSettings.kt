@@ -13,20 +13,29 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material.icons.rounded.Contacts
+import androidx.compose.material.icons.rounded.DragHandle
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Label
 import androidx.compose.material.icons.rounded.Language
+import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.Reorder
 import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.VisibilityOff
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,21 +45,28 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.view.HapticFeedbackConstantsCompat
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.preferences.NicknamePreferences
 import com.tk.quicksearch.search.data.preferences.TriggerPreferences
 import com.tk.quicksearch.search.core.ItemPriorityConfig
 import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.search.core.SearchSectionUiMetadataRegistry
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
+import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
+import com.tk.quicksearch.shared.util.performHapticFeedbackSafely
+import sh.calvin.reorderable.ReorderableColumn
 
 /** Card for app suggestions, web suggestions, recent queries and excluded items. */
 @Composable
@@ -210,6 +226,236 @@ private fun SearchOptionsCard(
             }
         }
     }
+}
+
+@Composable
+private fun TopMatchesCard(
+    topMatchesEnabled: Boolean,
+    onTopMatchesToggle: (Boolean) -> Unit,
+    topMatchesLimit: Int,
+    onTopMatchesLimitChange: (Int) -> Unit,
+    topMatchesSectionOrder: List<SearchSection>,
+    disabledTopMatchesSections: Set<SearchSection>,
+    onTopMatchesSectionOrderChange: (List<SearchSection>) -> Unit,
+    onTopMatchesSectionEnabledChange: (SearchSection, Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var showPriorityDialog by rememberSaveable { mutableStateOf(false) }
+    val priorityItems =
+        remember(topMatchesSectionOrder) {
+            topMatchesSectionOrder.filter { section -> FeatureFlags.isSearchSectionEnabled(section) }
+        }
+
+    SettingsCard(modifier = modifier.fillMaxWidth()) {
+        Column {
+            SettingsToggleRow(
+                title = stringResource(R.string.top_matches_toggle_title),
+                subtitle = stringResource(R.string.top_matches_toggle_desc),
+                checked = topMatchesEnabled,
+                onCheckedChange = onTopMatchesToggle,
+                leadingIcon = Icons.Rounded.AutoAwesome,
+                isFirstItem = true,
+                isLastItem = !topMatchesEnabled,
+            )
+
+            if (topMatchesEnabled) {
+                SettingsNavigationRow(
+                    item =
+                        SettingsCardItem(
+                            title = stringResource(R.string.top_matches_priority_title),
+                            description = stringResource(R.string.top_matches_priority_desc),
+                            icon = Icons.Rounded.Reorder,
+                            actionOnPress = { showPriorityDialog = true },
+                        ),
+                    contentPadding =
+                        PaddingValues(
+                            horizontal = DesignTokens.SpacingXXLarge,
+                            vertical = DesignTokens.SpacingLarge,
+                        ),
+                )
+                HorizontalDivider(color = AppColors.SettingsDivider)
+                TopMatchesLimitChips(
+                    selectedLimit = topMatchesLimit,
+                    onLimitSelected = onTopMatchesLimitChange,
+                )
+            }
+        }
+    }
+
+    if (showPriorityDialog) {
+        PriorityReorderDialog(
+            items = priorityItems,
+            onItemsChange = onTopMatchesSectionOrderChange,
+            disabledSections = disabledTopMatchesSections,
+            onItemEnabledChange = onTopMatchesSectionEnabledChange,
+            onDismiss = { showPriorityDialog = false },
+        )
+    }
+}
+
+@Composable
+private fun TopMatchesLimitChips(
+    selectedLimit: Int,
+    onLimitSelected: (Int) -> Unit,
+) {
+    val view = LocalView.current
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = DesignTokens.SpacingXXLarge,
+                    vertical = DesignTokens.SpacingLarge,
+                ),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)) {
+            Text(
+                text = stringResource(R.string.top_matches_count_label),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+            ) {
+                com.tk.quicksearch.search.data.preferences.UiPreferences.TOP_MATCHES_LIMIT_OPTIONS.forEach { limit ->
+                    val selected = selectedLimit == limit
+                    AssistChip(
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            hapticToggle(view)()
+                            onLimitSelected(limit)
+                        },
+                        label = {
+                            Text(
+                                text = limit.toString(),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        },
+                        shape = DesignTokens.ShapeFull,
+                        border = if (selected) null else BorderStroke(1.dp, AppColors.SettingsDivider),
+                        colors =
+                            AssistChipDefaults.assistChipColors(
+                                containerColor =
+                                    if (selected) MaterialTheme.colorScheme.primary else Color.Transparent,
+                                labelColor =
+                                    if (selected) {
+                                        MaterialTheme.colorScheme.onPrimary
+                                    } else {
+                                        MaterialTheme.colorScheme.primary
+                                    },
+                            ),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PriorityReorderDialog(
+    items: List<SearchSection>,
+    onItemsChange: (List<SearchSection>) -> Unit,
+    disabledSections: Set<SearchSection>,
+    onItemEnabledChange: (SearchSection, Boolean) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val view = LocalView.current
+    AppAlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = stringResource(R.string.top_matches_priority_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)) {
+                Text(
+                    text = stringResource(R.string.top_matches_priority_dialog_info),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                ReorderableColumn(
+                    list = items,
+                    onSettle = { fromIndex, toIndex ->
+                        if (fromIndex != toIndex) {
+                            val newOrder =
+                                items.toMutableList().apply {
+                                    add(toIndex, removeAt(fromIndex))
+                                }
+                            onItemsChange(newOrder)
+                        }
+                    },
+                    onMove = {
+                        performHapticFeedbackSafely(
+                            view,
+                            HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK,
+                        )
+                    },
+                ) { index, item, isDragging ->
+                    if (index > 0) {
+                        HorizontalDivider(color = AppColors.SettingsDivider)
+                    }
+                    Surface(
+                        color = if (isDragging) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Row(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .longPressDraggableHandle(
+                                        onDragStarted = {
+                                            performHapticFeedbackSafely(
+                                                view,
+                                                HapticFeedbackConstantsCompat.GESTURE_START,
+                                            )
+                                        },
+                                        onDragStopped = {
+                                            performHapticFeedbackSafely(
+                                                view,
+                                                HapticFeedbackConstantsCompat.GESTURE_END,
+                                            )
+                                        },
+                                    )
+                                    .padding(
+                                        vertical = DesignTokens.SpacingXSmall,
+                                        horizontal = DesignTokens.SpacingSmall,
+                                    ),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.DragHandle,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Text(
+                                text =
+                                    stringResource(
+                                        SearchSectionUiMetadataRegistry
+                                            .metadataFor(item)
+                                            .sectionLabelRes,
+                                    ),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.weight(1f),
+                            )
+                            Switch(
+                                modifier = Modifier.scale(0.7f),
+                                checked = item !in disabledSections,
+                                onCheckedChange = { enabled -> onItemEnabledChange(item, enabled) },
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.action_close))
+            }
+        },
+    )
 }
 
 @Composable
@@ -440,6 +686,33 @@ fun SearchResultsSettingsSection(
                 if (!hasCalendarPermission) add(SearchSection.CALENDAR)
             },
             showTitle = false,
+        )
+
+        TopMatchesCard(
+            topMatchesEnabled = state.topMatchesEnabled,
+            onTopMatchesToggle = { enabled ->
+                callbacks.onApplySettingsCommand(
+                    SettingsCommand.Toggle(
+                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.TOP_MATCHES,
+                        enabled = enabled,
+                    ),
+                )
+            },
+            topMatchesLimit = state.topMatchesLimit,
+            onTopMatchesLimitChange = { limit ->
+                callbacks.onApplySettingsCommand(SettingsCommand.TopMatchesLimit(limit))
+            },
+            topMatchesSectionOrder = state.topMatchesSectionOrder,
+            disabledTopMatchesSections = state.disabledTopMatchesSections,
+            onTopMatchesSectionOrderChange = { order ->
+                callbacks.onApplySettingsCommand(SettingsCommand.TopMatchesSectionOrder(order))
+            },
+            onTopMatchesSectionEnabledChange = { section, enabled ->
+                callbacks.onApplySettingsCommand(
+                    SettingsCommand.TopMatchesSectionEnabled(section, enabled),
+                )
+            },
+            modifier = Modifier.padding(top = DesignTokens.SpacingLarge),
         )
 
         SearchOptionsCard(

@@ -96,6 +96,10 @@ data class SettingsScreenState(
     val webSuggestionsEnabled: Boolean,
     val webSuggestionsCount: Int,
     val topResultIndicatorEnabled: Boolean,
+    val topMatchesEnabled: Boolean,
+    val topMatchesLimit: Int,
+    val topMatchesSectionOrder: List<SearchSection>,
+    val disabledTopMatchesSections: Set<SearchSection>,
     val wallpaperAccentEnabled: Boolean,
     val openKeyboardOnLaunch: Boolean,
     val clearQueryOnLaunch: Boolean,
@@ -125,6 +129,10 @@ data class SettingsScreenState(
                 webSuggestionsEnabled = webSuggestionsEnabled,
                 webSuggestionsCount = webSuggestionsCount,
                 topResultIndicatorEnabled = topResultIndicatorEnabled,
+                topMatchesEnabled = topMatchesEnabled,
+                topMatchesLimit = topMatchesLimit,
+                topMatchesSectionOrder = topMatchesSectionOrder,
+                disabledTopMatchesSections = disabledTopMatchesSections,
                 recentQueriesEnabled = recentQueriesEnabled,
             )
 
@@ -355,6 +363,17 @@ data class SettingsScreenCallbacks(
                 onToggleAppSuggestions = onToggleAppSuggestions,
                 onToggleWebSuggestions = onToggleWebSuggestions,
                 onWebSuggestionsCountChange = onWebSuggestionsCountChange,
+                onToggleTopMatches = { enabled ->
+                    onApplySettingsCommand(
+                        SettingsCommand.Toggle(
+                            key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.TOP_MATCHES,
+                            enabled = enabled,
+                        ),
+                    )
+                },
+                onTopMatchesLimitChange = { limit ->
+                    onApplySettingsCommand(SettingsCommand.TopMatchesLimit(limit))
+                },
                 onToggleTopResultIndicator = onToggleTopResultIndicator,
                 onToggleRecentQueries = onToggleRecentQueries,
             )
@@ -430,6 +449,10 @@ data class SearchResultsSettingsState(
     val webSuggestionsEnabled: Boolean,
     val webSuggestionsCount: Int,
     val topResultIndicatorEnabled: Boolean,
+    val topMatchesEnabled: Boolean,
+    val topMatchesLimit: Int,
+    val topMatchesSectionOrder: List<SearchSection>,
+    val disabledTopMatchesSections: Set<SearchSection>,
     val recentQueriesEnabled: Boolean,
 )
 
@@ -532,6 +555,8 @@ data class SearchResultsSettingsCallbacks(
     val onToggleAppSuggestions: (Boolean) -> Unit,
     val onToggleWebSuggestions: (Boolean) -> Unit,
     val onWebSuggestionsCountChange: (Int) -> Unit,
+    val onToggleTopMatches: (Boolean) -> Unit,
+    val onTopMatchesLimitChange: (Int) -> Unit,
     val onToggleTopResultIndicator: (Boolean) -> Unit,
     val onToggleRecentQueries: (Boolean) -> Unit,
 )

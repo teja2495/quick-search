@@ -60,6 +60,17 @@ internal interface SearchViewModelPreferencesApi {
     fun setRecentQueriesEnabled(enabled: Boolean) =
         preferencesApiDelegate.setRecentQueriesEnabled(enabled)
 
+    fun setTopMatchesEnabled(enabled: Boolean) =
+        preferencesApiDelegate.setTopMatchesEnabled(enabled)
+
+    fun setTopMatchesLimit(limit: Int) = preferencesApiDelegate.setTopMatchesLimit(limit)
+
+    fun setTopMatchesSectionOrder(order: List<SearchSection>) =
+        preferencesApiDelegate.setTopMatchesSectionOrder(order)
+
+    fun setTopMatchesSectionEnabled(section: SearchSection, enabled: Boolean) =
+        preferencesApiDelegate.setTopMatchesSectionEnabled(section, enabled)
+
     fun setShowTodayEvents(enabled: Boolean) = preferencesApiDelegate.setShowTodayEvents(enabled)
 
     fun dismissSearchHistoryTip() = preferencesApiDelegate.dismissSearchHistoryTip()
@@ -303,6 +314,16 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
 
     fun setTopResultIndicatorEnabled(enabled: Boolean) =
         preferencesDelegate.setTopResultIndicatorEnabled(enabled)
+
+    fun setTopMatchesEnabled(enabled: Boolean) = preferencesDelegate.setTopMatchesEnabled(enabled)
+
+    fun setTopMatchesLimit(limit: Int) = preferencesDelegate.setTopMatchesLimit(limit)
+
+    fun setTopMatchesSectionOrder(order: List<SearchSection>) =
+        preferencesDelegate.setTopMatchesSectionOrder(order)
+
+    fun setTopMatchesSectionEnabled(section: SearchSection, enabled: Boolean) =
+        preferencesDelegate.setTopMatchesSectionEnabled(section, enabled)
 
     fun setWallpaperAccentEnabled(enabled: Boolean) =
         preferencesDelegate.setWallpaperAccentEnabled(enabled)

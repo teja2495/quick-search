@@ -7,6 +7,8 @@ import com.tk.quicksearch.search.core.CallingApp
 import com.tk.quicksearch.search.core.LauncherAppIcon
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.AppTheme
+import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.search.core.SearchSectionRegistry
 
 /** Preferences for UI-related settings such as layout, messaging app, banners, etc. */
 class UiPreferences(
@@ -41,6 +43,76 @@ class UiPreferences(
 
     fun setTopResultIndicatorEnabled(enabled: Boolean) {
         setBooleanPref(UiPreferences.KEY_TOP_RESULT_INDICATOR_ENABLED, enabled)
+    }
+
+    fun isTopMatchesEnabled(): Boolean =
+            getBooleanPref(UiPreferences.KEY_TOP_MATCHES_ENABLED, false)
+
+    fun setTopMatchesEnabled(enabled: Boolean) {
+        setBooleanPref(UiPreferences.KEY_TOP_MATCHES_ENABLED, enabled)
+    }
+
+    fun getTopMatchesLimit(): Int =
+            prefs.getInt(UiPreferences.KEY_TOP_MATCHES_LIMIT, UiPreferences.DEFAULT_TOP_MATCHES_LIMIT)
+                    .takeIf { it in UiPreferences.TOP_MATCHES_LIMIT_OPTIONS }
+                    ?: UiPreferences.DEFAULT_TOP_MATCHES_LIMIT
+
+    fun setTopMatchesLimit(limit: Int) {
+        prefs.edit()
+                .putInt(
+                        UiPreferences.KEY_TOP_MATCHES_LIMIT,
+                        if (limit in UiPreferences.TOP_MATCHES_LIMIT_OPTIONS) {
+                            limit
+                        } else {
+                            UiPreferences.DEFAULT_TOP_MATCHES_LIMIT
+                        },
+                )
+                .apply()
+    }
+
+    fun getTopMatchesSectionOrder(): List<SearchSection> {
+        val savedOrder =
+                prefs.getString(UiPreferences.KEY_TOP_MATCHES_SECTION_ORDER, null)
+                        ?.split(UiPreferences.TOP_MATCHES_SECTION_ORDER_SEPARATOR)
+                        ?.mapNotNull { name ->
+                            runCatching { SearchSection.valueOf(name) }.getOrNull()
+                        }
+                        .orEmpty()
+        val defaultOrder = UiPreferences.DEFAULT_TOP_MATCHES_SECTION_ORDER
+        return (savedOrder + defaultOrder)
+                .distinct()
+                .filter { section -> section in defaultOrder }
+    }
+
+    fun setTopMatchesSectionOrder(order: List<SearchSection>) {
+        val normalized =
+                (order + UiPreferences.DEFAULT_TOP_MATCHES_SECTION_ORDER)
+                        .distinct()
+                        .filter { section -> section in UiPreferences.DEFAULT_TOP_MATCHES_SECTION_ORDER }
+        prefs.edit()
+                .putString(
+                        UiPreferences.KEY_TOP_MATCHES_SECTION_ORDER,
+                        normalized.joinToString(UiPreferences.TOP_MATCHES_SECTION_ORDER_SEPARATOR) { it.name },
+                )
+                .apply()
+    }
+
+    fun getDisabledTopMatchesSections(): Set<SearchSection> =
+            getStringSet(UiPreferences.KEY_DISABLED_TOP_MATCHES_SECTIONS)
+                    .mapNotNull { name -> runCatching { SearchSection.valueOf(name) }.getOrNull() }
+                    .filter { section -> section in UiPreferences.DEFAULT_TOP_MATCHES_SECTION_ORDER }
+                    .toSet()
+
+    fun setDisabledTopMatchesSections(disabledSections: Set<SearchSection>) {
+        prefs.edit()
+                .putStringSet(
+                        UiPreferences.KEY_DISABLED_TOP_MATCHES_SECTIONS,
+                        disabledSections
+                                .filter { section -> section in UiPreferences.DEFAULT_TOP_MATCHES_SECTION_ORDER }
+                                .map { it.name }
+                                .toSet(),
+                )
+                .apply()
     }
 
     fun isClearQueryOnLaunchEnabled(): Boolean =
@@ -684,6 +756,10 @@ class UiPreferences(
         const val KEY_BOTTOM_SEARCH_BAR_ENABLED = "bottom_search_bar_enabled"
         const val KEY_OPEN_KEYBOARD_ON_LAUNCH = "open_keyboard_on_launch"
         const val KEY_TOP_RESULT_INDICATOR_ENABLED = "top_result_indicator_enabled"
+        const val KEY_TOP_MATCHES_ENABLED = "top_matches_enabled"
+        const val KEY_TOP_MATCHES_LIMIT = "top_matches_limit"
+        const val KEY_TOP_MATCHES_SECTION_ORDER = "top_matches_section_order"
+        const val KEY_DISABLED_TOP_MATCHES_SECTIONS = "disabled_top_matches_sections"
         const val KEY_CLEAR_QUERY_ON_LAUNCH = "clear_query_on_launch"
         const val KEY_AUTO_CLOSE_OVERLAY = "auto_close_overlay"
         const val KEY_OVERLAY_MODE_ENABLED = "overlay_mode_enabled"
@@ -719,6 +795,11 @@ class UiPreferences(
         const val KEY_SHOW_APP_LABELS = "show_app_labels"
         const val KEY_PHONE_APP_GRID_COLUMNS = "phone_app_grid_columns"
         const val DEFAULT_PHONE_APP_GRID_COLUMNS = 4
+        const val DEFAULT_TOP_MATCHES_LIMIT = 3
+        val TOP_MATCHES_LIMIT_OPTIONS = listOf(1, 3, 5)
+        val DEFAULT_TOP_MATCHES_SECTION_ORDER: List<SearchSection>
+            get() = SearchSectionRegistry.orderedSections
+        const val TOP_MATCHES_SECTION_ORDER_SEPARATOR = ","
         const val KEY_LAST_SEEN_VERSION = "last_seen_version"
         const val KEY_LAST_SEEN_VERSION_CODE = "last_seen_version_code"
         const val KEY_AI_SEARCH_SETUP_EXPANDED = "direct_search_setup_expanded"

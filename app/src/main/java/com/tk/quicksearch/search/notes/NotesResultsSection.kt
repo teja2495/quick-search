@@ -164,7 +164,7 @@ fun NotesResultsSection(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun NoteRow(
+internal fun NoteRow(
     note: NoteInfo,
     isPinned: Boolean,
     onClick: (NoteInfo) -> Unit,

@@ -54,9 +54,11 @@ import com.tk.quicksearch.search.core.AiSearchStatus
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchSectionUiMetadataRegistry
 import com.tk.quicksearch.search.core.SearchTarget
+import com.tk.quicksearch.search.core.SectionRenderParams
 import com.tk.quicksearch.search.core.WordClockStatus
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.isLikelyWebUrl
+import com.tk.quicksearch.search.core.rememberSectionRenderContext
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.searchEngines.defaultBrowserTarget
 import com.tk.quicksearch.searchEngines.extendToScreenEdges
@@ -458,6 +460,70 @@ internal fun SearchScreenContent(
                     !hasSuffixAliasKeywordAtQueryEnd) {
                 predictedTarget
             } else null
+    val hideResultsForTopMatchSubmit =
+            state.AiSearchState.status != AiSearchStatus.Idle ||
+                    state.calculatorState.isToolMode ||
+                    state.calculatorState.result != null ||
+                    state.calculatorState.parsedDateMillis != null ||
+                    state.calculatorState.dateDiffLabel != null ||
+                    state.calculatorState.timeResultLabel != null ||
+                    showCurrencyConverter ||
+                    showWordClock ||
+                    showDictionary ||
+                    state.detectedShortcutTarget != null ||
+                    state.detectedAliasSearchSection != null ||
+                    state.isCurrencyConverterAliasMode ||
+                    state.isWordClockAliasMode ||
+                    state.isDictionaryAliasMode ||
+                    state.detectedCustomToolId != null
+    val deferTopMatchSubmitUntilAppsReady =
+            state.query.isNotBlank() &&
+                    state.isAppSearchInProgress &&
+                    !renderingState.hasAppResults
+    val topMatchSubmitContext =
+            rememberSectionRenderContext(
+                    state = state,
+                    renderingState = renderingState,
+                    filesParams = filesParams,
+                    contactsParams = contactsParams,
+                    settingsParams = settingsParams,
+                    calendarParams = calendarParams,
+                    notesParams = notesParams,
+                    appShortcutsParams = appShortcutsParams,
+                    appsParams = appsParams,
+                    isSearching = state.query.isNotBlank(),
+                    oneHandedMode = state.oneHandedMode,
+            )
+    val topMatchSubmitParams =
+            SectionRenderParams(
+                    renderingState = renderingState,
+                    contactsParams = contactsParams,
+                    filesParams = filesParams,
+                    appShortcutsParams = appShortcutsParams,
+                    settingsParams = settingsParams,
+                    calendarParams = calendarParams,
+                    notesParams = notesParams,
+                    appsParams = appsParams,
+                    isReversed = state.oneHandedMode,
+            )
+    val topMatchesForSubmit =
+            rememberTopMatches(
+                    query = state.query,
+                    renderingState = renderingState,
+                    context = topMatchSubmitContext,
+                    params = topMatchSubmitParams,
+                    limit = state.topMatchesLimit,
+                    topMatchesSectionOrder = state.topMatchesSectionOrder,
+                    disabledTopMatchesSections = state.disabledTopMatchesSections,
+            )
+    val shouldSubmitTopMatch =
+            state.topMatchesEnabled &&
+                    state.query.isNotBlank() &&
+                    !hideResultsForTopMatchSubmit &&
+                    expandedSection == ExpandedSection.NONE &&
+                    !isSearchHistoryExpanded &&
+                    !deferTopMatchSubmitUntilAppsReady &&
+                    topMatchesForSubmit.isNotEmpty()
     val activeToolCardConfig =
             if (isSearchHistoryExpanded) {
                 null
@@ -702,6 +768,15 @@ internal fun SearchScreenContent(
                     if (showWordClockSearchCard) {
                         onWordClockSearchClick()
                         return@PersistentSearchBar true // keep keyboard open
+                    }
+
+                    if (shouldSubmitTopMatch) {
+                        openTopMatch(
+                                item = topMatchesForSubmit.first(),
+                                params = topMatchSubmitParams,
+                        )?.let { keepKeyboardOpen ->
+                            return@PersistentSearchBar keepKeyboardOpen
+                        }
                     }
 
                     val trimmedQuery = state.query.trim()

@@ -234,7 +234,7 @@ fun CalendarEventsSection(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun CalendarEventRow(
+internal fun CalendarEventRow(
     event: CalendarEventInfo,
     isPinned: Boolean,
     isExcluded: Boolean,

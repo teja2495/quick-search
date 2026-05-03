@@ -7,6 +7,7 @@ import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.LauncherAppIcon
 import com.tk.quicksearch.search.core.SearchSectionRegistry
+import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
 
@@ -17,6 +18,15 @@ sealed interface SettingsCommand {
     ) : SettingsCommand
 
     data class WebSuggestionsCount(val count: Int) : SettingsCommand
+
+    data class TopMatchesLimit(val limit: Int) : SettingsCommand
+
+    data class TopMatchesSectionOrder(val order: List<SearchSection>) : SettingsCommand
+
+    data class TopMatchesSectionEnabled(
+        val section: SearchSection,
+        val enabled: Boolean,
+    ) : SettingsCommand
 
     data class PhoneAppGridColumns(val columns: Int) : SettingsCommand
 
@@ -71,6 +81,7 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
                 AppSettingsToggleKey.APP_SUGGESTIONS -> setAppSuggestionsEnabled(command.enabled)
                 AppSettingsToggleKey.WEB_SUGGESTIONS -> setWebSuggestionsEnabled(command.enabled)
                 AppSettingsToggleKey.RECENT_QUERIES -> setRecentQueriesEnabled(command.enabled)
+                AppSettingsToggleKey.TOP_MATCHES -> setTopMatchesEnabled(command.enabled)
                 AppSettingsToggleKey.TOP_RESULT_INDICATOR ->
                     setTopResultIndicatorEnabled(command.enabled)
                 AppSettingsToggleKey.OPEN_KEYBOARD -> setOpenKeyboardOnLaunchEnabled(command.enabled)
@@ -110,6 +121,10 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
         }
 
         is SettingsCommand.WebSuggestionsCount -> setWebSuggestionsCount(command.count)
+        is SettingsCommand.TopMatchesLimit -> setTopMatchesLimit(command.limit)
+        is SettingsCommand.TopMatchesSectionOrder -> setTopMatchesSectionOrder(command.order)
+        is SettingsCommand.TopMatchesSectionEnabled ->
+            setTopMatchesSectionEnabled(command.section, command.enabled)
         is SettingsCommand.PhoneAppGridColumns -> setPhoneAppGridColumns(command.columns)
         is SettingsCommand.SearchEngineCompactRowCount ->
             setSearchEngineCompactRowCount(command.rowCount)
@@ -147,6 +162,7 @@ internal fun SearchUiState.isAppSettingToggleEnabled(toggleKey: AppSettingsToggl
         AppSettingsToggleKey.APP_SUGGESTIONS -> appSuggestionsEnabled
         AppSettingsToggleKey.WEB_SUGGESTIONS -> webSuggestionsEnabled
         AppSettingsToggleKey.RECENT_QUERIES -> recentQueriesEnabled
+        AppSettingsToggleKey.TOP_MATCHES -> topMatchesEnabled
         AppSettingsToggleKey.TOP_RESULT_INDICATOR -> topResultIndicatorEnabled
         AppSettingsToggleKey.OPEN_KEYBOARD -> openKeyboardOnLaunch
         AppSettingsToggleKey.CLEAR_QUERY -> clearQueryOnLaunch

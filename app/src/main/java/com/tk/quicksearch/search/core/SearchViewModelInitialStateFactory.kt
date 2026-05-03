@@ -68,6 +68,10 @@ internal object SearchViewModelInitialStateFactory {
                 isAliasTriggerAfterSpaceEnabled =
                     startupPreferencesReader.isAliasTriggerAfterSpaceEnabled(),
                 showTodayEvents = startupPreferencesReader.getShowTodayEvents(),
+                topMatchesEnabled = startupPreferencesReader.isTopMatchesEnabled(),
+                topMatchesLimit = startupPreferencesReader.getTopMatchesLimit(),
+                topMatchesSectionOrder = startupPreferencesReader.getTopMatchesSectionOrder(),
+                disabledTopMatchesSections = startupPreferencesReader.getDisabledTopMatchesSections(),
             )
 
         val initialConfigState =

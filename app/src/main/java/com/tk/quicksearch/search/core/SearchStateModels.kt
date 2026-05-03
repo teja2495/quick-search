@@ -181,6 +181,11 @@ data class SearchFeatureState(
         // Search history
         val recentQueriesEnabled: Boolean = true,
         val hasDismissedSearchHistoryTip: Boolean = false,
+        // Top matches
+        val topMatchesEnabled: Boolean = false,
+        val topMatchesLimit: Int = UiPreferences.DEFAULT_TOP_MATCHES_LIMIT,
+        val topMatchesSectionOrder: List<SearchSection> = UiPreferences.DEFAULT_TOP_MATCHES_SECTION_ORDER,
+        val disabledTopMatchesSections: Set<SearchSection> = emptySet(),
         // Calendar
         val showTodayEvents: Boolean = true,
         // Direct dial

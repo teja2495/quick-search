@@ -188,6 +188,44 @@ internal class SearchPreferencesDelegate(
         }
     }
 
+    fun setTopMatchesEnabled(enabled: Boolean) {
+        scope.launch(Dispatchers.IO) {
+            userPreferences.setTopMatchesEnabled(enabled)
+            updateFeatureState { it.copy(topMatchesEnabled = enabled) }
+        }
+    }
+
+    fun setTopMatchesLimit(limit: Int) {
+        scope.launch(Dispatchers.IO) {
+            userPreferences.setTopMatchesLimit(limit)
+            updateFeatureState { it.copy(topMatchesLimit = userPreferences.getTopMatchesLimit()) }
+        }
+    }
+
+    fun setTopMatchesSectionOrder(order: List<SearchSection>) {
+        scope.launch(Dispatchers.IO) {
+            userPreferences.setTopMatchesSectionOrder(order)
+            updateFeatureState {
+                it.copy(topMatchesSectionOrder = userPreferences.getTopMatchesSectionOrder())
+            }
+        }
+    }
+
+    fun setTopMatchesSectionEnabled(section: SearchSection, enabled: Boolean) {
+        scope.launch(Dispatchers.IO) {
+            val updated =
+                    if (enabled) {
+                        userPreferences.getDisabledTopMatchesSections() - section
+                    } else {
+                        userPreferences.getDisabledTopMatchesSections() + section
+                    }
+            userPreferences.setDisabledTopMatchesSections(updated)
+            updateFeatureState {
+                it.copy(disabledTopMatchesSections = userPreferences.getDisabledTopMatchesSections())
+            }
+        }
+    }
+
     fun setShowTodayEvents(enabled: Boolean) {
         scope.launch(Dispatchers.IO) {
             userPreferences.setShowTodayEvents(enabled)

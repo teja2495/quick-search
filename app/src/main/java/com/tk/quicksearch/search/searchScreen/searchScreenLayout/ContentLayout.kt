@@ -34,6 +34,8 @@ import com.tk.quicksearch.search.searchScreen.ExpandedSection
 import com.tk.quicksearch.search.searchScreen.InfoBanner
 import com.tk.quicksearch.search.searchScreen.hasAnySearchResults
 import com.tk.quicksearch.search.searchScreen.renderSection
+import com.tk.quicksearch.search.searchScreen.rememberTopMatches
+import com.tk.quicksearch.search.searchScreen.TopMatchesSection
 import com.tk.quicksearch.search.searchScreen.ContactsSectionParams
 import com.tk.quicksearch.search.searchScreen.FilesSectionParams
 import com.tk.quicksearch.search.searchScreen.AppShortcutsSectionParams
@@ -244,6 +246,38 @@ fun ContentLayout(
         hasQuery &&
             state.isAppSearchInProgress &&
             !renderingState.hasAppResults
+    val topMatches =
+        rememberTopMatches(
+            query = state.query,
+            renderingState = renderingState,
+            context = sectionContextForRecentHistoryExpansion,
+            params = sectionParams,
+            limit = state.topMatchesLimit,
+            topMatchesSectionOrder = state.topMatchesSectionOrder,
+            disabledTopMatchesSections = state.disabledTopMatchesSections,
+        )
+    val showTopMatches =
+        state.topMatchesEnabled &&
+            hasQuery &&
+            !hideResults &&
+            !isExpanded &&
+            !isSectionAliasMode &&
+            !deferNonAppContentUntilAppsReady &&
+            topMatches.isNotEmpty()
+    val regularSectionParams =
+        if (showTopMatches) {
+            sectionParams.copy(
+                contactsParams = sectionParams.contactsParams.copy(predictedTarget = null),
+                filesParams = sectionParams.filesParams.copy(predictedTarget = null),
+                appShortcutsParams = sectionParams.appShortcutsParams?.copy(predictedTarget = null),
+                settingsParams = sectionParams.settingsParams?.copy(predictedTarget = null),
+                calendarParams = sectionParams.calendarParams?.copy(predictedTarget = null),
+                notesParams = sectionParams.notesParams?.copy(predictedTarget = null),
+                appsParams = sectionParams.appsParams?.copy(predictedTarget = null),
+            )
+        } else {
+            sectionParams
+        }
 
     fun shouldRenderSection(section: SearchSection): Boolean {
         return if (isSectionAliasMode) {
@@ -254,6 +288,15 @@ fun ContentLayout(
     }
 
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        if (showTopMatches) {
+            TopMatchesSection(
+                matches = topMatches,
+                params = sectionParams,
+                showWallpaperBackground = effectiveShowWallpaperBackground,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
         finalLayoutOrder.forEach { itemType ->
             val section = itemType.toSearchSectionOrNull()
             val isSectionItem = section != null
@@ -302,7 +345,7 @@ fun ContentLayout(
                     return@forEach
                 }
 
-                renderSection(section, sectionParams, sectionContextForRecentHistoryExpansion)
+                renderSection(section, regularSectionParams, sectionContextForRecentHistoryExpansion)
                 return@forEach
             }
 
