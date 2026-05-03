@@ -86,7 +86,10 @@ class NicknamePreferences(
         val allPrefs = prefs.all
         val nicknames = mutableMapOf<String, String>()
         for ((key, value) in allPrefs) {
-            if (key.startsWith(BasePreferences.KEY_NICKNAME_APP_PREFIX) && value is String) {
+            if (key.startsWith(BasePreferences.KEY_NICKNAME_APP_PREFIX) &&
+                !key.startsWith(BasePreferences.KEY_NICKNAME_APP_SHORTCUT_PREFIX) &&
+                value is String
+            ) {
                 val packageName = key.removePrefix(BasePreferences.KEY_NICKNAME_APP_PREFIX)
                 nicknames[packageName] = value
             }

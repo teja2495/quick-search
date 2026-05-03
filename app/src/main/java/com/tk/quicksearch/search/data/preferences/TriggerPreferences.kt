@@ -48,7 +48,10 @@ class TriggerPreferences(
     }
 
     fun getAllAppTriggers(): Map<String, ResultTrigger> =
-        getAllTriggersByPrefix(BasePreferences.KEY_TRIGGER_APP_PREFIX)
+        getAllTriggersByPrefix(
+            prefix = BasePreferences.KEY_TRIGGER_APP_PREFIX,
+            excludedPrefix = BasePreferences.KEY_TRIGGER_APP_SHORTCUT_PREFIX,
+        )
 
     fun getAllAppShortcutTriggers(): Map<String, ResultTrigger> =
         getAllTriggersByPrefix(BasePreferences.KEY_TRIGGER_APP_SHORTCUT_PREFIX)
@@ -69,9 +72,13 @@ class TriggerPreferences(
             .mapNotNull { (id, trigger) -> id.toLongOrNull()?.let { it to trigger } }
             .toMap()
 
-    private fun getAllTriggersByPrefix(prefix: String): Map<String, ResultTrigger> =
+    private fun getAllTriggersByPrefix(
+        prefix: String,
+        excludedPrefix: String? = null,
+    ): Map<String, ResultTrigger> =
         prefs.all.mapNotNull { (key, _) ->
             if (!key.startsWith(prefix)) return@mapNotNull null
+            if (excludedPrefix != null && key.startsWith(excludedPrefix)) return@mapNotNull null
             val trigger = readTrigger(key) ?: return@mapNotNull null
             key.removePrefix(prefix) to trigger
         }.toMap()
