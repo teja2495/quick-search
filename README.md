@@ -25,6 +25,7 @@ A fast & powerful Android app that lets you search across **apps, app shortcuts,
 - **Files**: Search device files and folders (images, videos, documents, etc.)
 - **Device Settings**: Search Android system settings
 - **App Settings**: Find and open Quick Search app settings directly from the search bar
+- **Top Matches**: Turn this on to see the top result for your query across all categories. You can also enable or disable categories and adjust their priority.
 - **Web**: Search the web using 25 search engines with customizable shortcuts and web suggestions. Browsers can be added as search engines.
 - **Calculator**: Built-in calculator for math expressions (+, -, *, /, brackets); optional alias to open calculator mode
 - **Unit Converter**: Convert units from the search bar (length, mass, temperature, area, volume, time, speed, data, energy, power, pressure, angle, frequency, and more)
@@ -37,6 +38,7 @@ A fast & powerful Android app that lets you search across **apps, app shortcuts,
 - **Overlay Mode**: Enable to make the search bar appear over other apps, anywhere—changes how you access search from any screen
 - **Home Screen Widget**: Search widget and custom buttons widget with extensive customization options
 - **Launch Options**: Widget, Quick Settings Tile & Digital Assistant
+- **Triggers**: Long-press any result to set a trigger. The app opens it automatically when you type the trigger word and press space.
 
 ### 🎨 Customization & New Features
 - **App Themes**: Choose from multiple visual themes (Mono, Forest, Aurora, Sunset) for the app's appearance

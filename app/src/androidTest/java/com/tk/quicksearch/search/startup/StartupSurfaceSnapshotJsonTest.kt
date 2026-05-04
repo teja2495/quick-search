@@ -24,6 +24,8 @@ class StartupSurfaceSnapshotJsonTest {
                 startupBackgroundPreviewPath = "/tmp/preview.jpg",
                 oneHandedMode = true,
                 bottomSearchBarEnabled = true,
+                topResultIndicatorEnabled = true,
+                openKeyboardOnLaunch = true,
                 fontScaleMultiplier = 1.02f,
                 showAppLabels = false,
                 appSuggestionsEnabled = true,
