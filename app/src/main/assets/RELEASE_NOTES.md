@@ -1,5 +1,5 @@
-- Improved search algorithm
-- Startup speed improvements
-- Ability to share file results by long pressing
-- Option to clear all search history
-- Bug fixes
+- Top Matches: Turn this on to see the top result for your query across all categories. You can also enable or disable categories and adjust their priority.
+- Triggers: Long-press any result to set a trigger. The app opens it automatically when you type the trigger word and press space.
+- Set custom icons for widget buttons.
+- Option to use the system font.
+- General enhancements and bug fixes.

@@ -93,6 +93,7 @@ Add aliases at the start of your query to quickly let the app know what you want
 
 Long-press on most results to open a context menu with quick actions.
 
+- **Triggers** - Long-press a result to add a trigger phrase. When you type that trigger and press space, Quick Search opens that result automatically.
 - **Pin / Unpin** - Pin or unpin apps, app shortcuts, contacts, files, and device settings so that they stay on your home screen when you open the app.
 - **Add / Edit Nickname** - Add or edit nicknames for apps, app shortcuts, contacts, files, and device settings so you can search them using custom names.
 - **Exclude / Include** - Exclude individual contacts, app shortcuts, files, and device settings from results. You can include them again later by clearing them from Excluded Items list in Search Results settings.
@@ -106,6 +107,7 @@ Long-press on most results to open a context menu with quick actions.
 ### Appearance Settings
 
 - **Overlay Mode** - Enable to make the search bar appear over other apps anywhere in the system. This defines the main experience: search from any screen without leaving what you're doing.
+- **System Font** - Option to use your device system font throughout the app for a native look and better consistency with your phone theme.
 - **Font Size** - Choose between small, medium, and large font sizes for all in-app text.
 - **Theme** - Set base theme to Light, Dark or System (follows system theme). Then, pick among the available themes - Mono, Forest, Aurora, Sunset - and adjust their intensity. These themes will adapt to light and dark mode seamlessly.
 - **Material You** - Enable to use your device's color palette from Material You for the app's theme and accent colors.
@@ -126,6 +128,7 @@ Long-press on most results to open a context menu with quick actions.
 ### Search Results Settings
 
 - **Search Sections Management** - Enable/disable individual result sections (apps, app shortcuts, contacts, files, device settings, history, etc.), and assign alias shortcuts to each section. Tap on the search type options to navigate to their respective screen, which offers additional options.
+- **Top Matches** - Turn on Top Matches to show the best results for your query across enabled categories. You can include or exclude categories and reorder them to control priority.
 - **App Suggestions** - You can choose to disable app suggestions if you want a cleaner home screen. 
 - **Web Search Suggestions** - Turn web suggestions on or off and control how many suggestions (1–5) appear under the search bar.
 - **Search History** - Enable or disable search history. The expanded list shows up to 15 items; **Clear all** history is available at the bottom of the list. Your search queries, recently opened items (files, contacts, etc.) appear in your search history.
@@ -238,6 +241,7 @@ Long-press on most results to open a context menu with quick actions.
 - **Border Color** - Customize the widget border color to better match your wallpaper and icon style.
 - **Size & Spacing** - Control corner radius, internal padding, and spacing using intuitive sliders.
 - **Icons & Buttons** - Toggle search and mic icons and configure up to 2 custom buttons on the search widget or a full set of custom buttons on the custom buttons widget.
+- **Custom Button Icons** - Set custom icons for widget buttons to personalize how shortcuts appear on your home screen.
 - The widget mic button can be customized to open other device assistants like Gemini, Perplexity, Bixby, etc.
 
 ---
@@ -285,4 +289,4 @@ Your feedback is important — it's what shapes every update and improvement. So
 
 -
 
-[Teja Karlapudi](https://hihello.com/p/e11b6338-b4a5-49d8-93c8-03ac219de738)
+[Teja Karlapudi](https://teja2495.github.io/teja-karlapudi-links/)
