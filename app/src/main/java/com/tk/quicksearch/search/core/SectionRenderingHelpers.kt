@@ -17,6 +17,7 @@ import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderin
 import com.tk.quicksearch.search.searchScreen.SettingsSectionParams
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.NoteInfo
+import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 
 // ============================================================================
 // Section Visibility Helpers
@@ -491,6 +492,7 @@ fun rememberSectionRenderContext(
         calendarExpandClick = calendarParams.onExpandClick,
         notesExpandClick = notesParams.onExpandClick,
         appShortcutsExpandClick = appShortcutsParams.onExpandClick,
+        recentResultRecencyIndex = state.recentResultRecencyIndex,
         isSectionAliasMode = state.detectedAliasSearchSection != null,
         isHomeScreenCalendarMode = !isSearching && state.detectedAliasSearchSection != SearchSection.CALENDAR,
     )
@@ -552,6 +554,8 @@ data class SectionRenderContext(
     val showAppSettingsExpandControls: Boolean = false,
     val deviceSettingsExpandClick: () -> Unit = {},
     val appSettingsExpandClick: () -> Unit = {},
+    val recentResultRecencyIndex: RecentResultRankingUtils.RecencyIndex =
+        RecentResultRankingUtils.RecencyIndex(),
     val isSectionAliasMode: Boolean = false,
     val isHomeScreenCalendarMode: Boolean = false,
 )

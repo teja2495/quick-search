@@ -9,6 +9,8 @@ object RecentResultRankingUtils {
         val fileScores: Map<String, Int> = emptyMap(),
         val settingScores: Map<String, Int> = emptyMap(),
         val appShortcutScores: Map<String, Int> = emptyMap(),
+        val appSettingScores: Map<String, Int> = emptyMap(),
+        val noteScores: Map<Long, Int> = emptyMap(),
     )
 
     fun buildRecencyIndex(entries: List<RecentSearchEntry>): RecencyIndex {
@@ -18,6 +20,8 @@ object RecentResultRankingUtils {
         val fileScores = LinkedHashMap<String, Int>()
         val settingScores = LinkedHashMap<String, Int>()
         val appShortcutScores = LinkedHashMap<String, Int>()
+        val appSettingScores = LinkedHashMap<String, Int>()
+        val noteScores = LinkedHashMap<Long, Int>()
 
         val maxScore = entries.size
         entries.forEachIndexed { index, entry ->
@@ -28,8 +32,8 @@ object RecentResultRankingUtils {
                 is RecentSearchEntry.Setting -> settingScores.putIfAbsent(entry.id, recencyScore)
                 is RecentSearchEntry.AppShortcut ->
                     appShortcutScores.putIfAbsent(entry.shortcutKey, recencyScore)
-                is RecentSearchEntry.AppSetting -> Unit
-                is RecentSearchEntry.Note -> Unit
+                is RecentSearchEntry.AppSetting -> appSettingScores.putIfAbsent(entry.id, recencyScore)
+                is RecentSearchEntry.Note -> noteScores.putIfAbsent(entry.noteId, recencyScore)
                 is RecentSearchEntry.Query -> Unit
             }
         }
@@ -39,6 +43,8 @@ object RecentResultRankingUtils {
             fileScores = fileScores,
             settingScores = settingScores,
             appShortcutScores = appShortcutScores,
+            appSettingScores = appSettingScores,
+            noteScores = noteScores,
         )
     }
 

@@ -61,6 +61,7 @@ internal object SearchStateExtractor {
             detectedCustomToolId = s.detectedCustomToolId,
             recentItems = s.recentItems,
             aliasRecentItems = s.aliasRecentItems,
+            recentResultRecencyIndex = s.recentResultRecencyIndex,
             nicknameUpdateVersion = s.nicknameUpdateVersion,
             contactActionsVersion = s.contactActionsVersion,
         )

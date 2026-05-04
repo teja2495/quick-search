@@ -73,12 +73,14 @@ private const val APP_ICON_SIZE = 32
 internal sealed interface TopMatchItem {
     val priority: Int
     val sectionOrder: Int
+    val recencyScore: Int
     val index: Int
 
     data class App(
         val app: AppInfo,
         override val priority: Int,
         override val sectionOrder: Int,
+        override val recencyScore: Int,
         override val index: Int,
     ) : TopMatchItem
 
@@ -86,6 +88,7 @@ internal sealed interface TopMatchItem {
         val shortcut: StaticShortcut,
         override val priority: Int,
         override val sectionOrder: Int,
+        override val recencyScore: Int,
         override val index: Int,
     ) : TopMatchItem
 
@@ -93,6 +96,7 @@ internal sealed interface TopMatchItem {
         val contact: ContactInfo,
         override val priority: Int,
         override val sectionOrder: Int,
+        override val recencyScore: Int,
         override val index: Int,
     ) : TopMatchItem
 
@@ -100,6 +104,7 @@ internal sealed interface TopMatchItem {
         val file: DeviceFile,
         override val priority: Int,
         override val sectionOrder: Int,
+        override val recencyScore: Int,
         override val index: Int,
     ) : TopMatchItem
 
@@ -107,6 +112,7 @@ internal sealed interface TopMatchItem {
         val setting: DeviceSetting,
         override val priority: Int,
         override val sectionOrder: Int,
+        override val recencyScore: Int,
         override val index: Int,
     ) : TopMatchItem
 
@@ -114,6 +120,7 @@ internal sealed interface TopMatchItem {
         val setting: AppSettingResult,
         override val priority: Int,
         override val sectionOrder: Int,
+        override val recencyScore: Int,
         override val index: Int,
     ) : TopMatchItem
 
@@ -121,6 +128,7 @@ internal sealed interface TopMatchItem {
         val event: CalendarEventInfo,
         override val priority: Int,
         override val sectionOrder: Int,
+        override val recencyScore: Int,
         override val index: Int,
     ) : TopMatchItem
 
@@ -128,6 +136,7 @@ internal sealed interface TopMatchItem {
         val note: NoteInfo,
         override val priority: Int,
         override val sectionOrder: Int,
+        override val recencyScore: Int,
         override val index: Int,
     ) : TopMatchItem
 }
@@ -174,6 +183,7 @@ private fun buildTopMatches(
         section !in disabledTopMatchesSections && section in sectionOrder
     fun priority(text: String, nickname: String? = null): Int =
         SearchRankingUtils.calculateMatchPriorityWithNickname(text, nickname, query)
+    val recencyIndex = context.recentResultRecencyIndex
 
     val matches = mutableListOf<TopMatchItem>()
     if (context.shouldRenderApps && isTopMatchesSectionEnabled(SearchSection.APPS)) {
@@ -182,6 +192,7 @@ private fun buildTopMatches(
                 app = app,
                 priority = priority(app.appName, params.appsParams?.getAppNickname?.invoke(app.packageName)),
                 sectionOrder = order(SearchSection.APPS),
+                recencyScore = app.launchCount,
                 index = index,
             )
         }
@@ -196,6 +207,7 @@ private fun buildTopMatches(
                     params.appShortcutsParams?.getShortcutNickname?.invoke(id),
                 ),
                 sectionOrder = order(SearchSection.APP_SHORTCUTS),
+                recencyScore = recencyIndex.appShortcutScores[id] ?: 0,
                 index = index,
             )
         }
@@ -209,6 +221,7 @@ private fun buildTopMatches(
                     params.contactsParams.getContactNickname(contact.contactId),
                 ),
                 sectionOrder = order(SearchSection.CONTACTS),
+                recencyScore = recencyIndex.contactScores[contact.contactId] ?: 0,
                 index = index,
             )
         }
@@ -222,6 +235,7 @@ private fun buildTopMatches(
                     params.filesParams.getFileNickname(file.uri.toString()),
                 ),
                 sectionOrder = order(SearchSection.FILES),
+                recencyScore = recencyIndex.fileScores[file.uri.toString()] ?: 0,
                 index = index,
             )
         }
@@ -235,6 +249,7 @@ private fun buildTopMatches(
                     params.settingsParams?.getSettingNickname?.invoke(setting.id),
                 ),
                 sectionOrder = order(SearchSection.SETTINGS),
+                recencyScore = recencyIndex.settingScores[setting.id] ?: 0,
                 index = index,
             )
         }
@@ -245,6 +260,7 @@ private fun buildTopMatches(
                 setting = setting,
                 priority = priority(setting.title),
                 sectionOrder = order(SearchSection.APP_SETTINGS),
+                recencyScore = recencyIndex.appSettingScores[setting.id] ?: 0,
                 index = index,
             )
         }
@@ -258,6 +274,7 @@ private fun buildTopMatches(
                     params.calendarParams?.getEventNickname?.invoke(event.eventId),
                 ),
                 sectionOrder = order(SearchSection.CALENDAR),
+                recencyScore = 0,
                 index = index,
             )
         }
@@ -272,13 +289,19 @@ private fun buildTopMatches(
                 note = note,
                 priority = priority(note.title),
                 sectionOrder = order(SearchSection.NOTES),
+                recencyScore = recencyIndex.noteScores[note.noteId] ?: 0,
                 index = index,
             )
         }
     }
 
     return matches
-        .sortedWith(compareBy<TopMatchItem> { it.priority }.thenBy { it.sectionOrder }.thenBy { it.index })
+        .sortedWith(
+            compareBy<TopMatchItem> { it.priority }
+                .thenBy { it.sectionOrder }
+                .thenByDescending { it.recencyScore }
+                .thenBy { it.index },
+        )
         .take(limit)
 }
 

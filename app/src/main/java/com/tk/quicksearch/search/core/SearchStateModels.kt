@@ -11,6 +11,7 @@ import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.searchHistory.RecentSearchItem
+import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.tools.aiSearch.GeminiModelCatalog
 import com.tk.quicksearch.tools.aiSearch.GeminiTextModel
@@ -109,6 +110,8 @@ data class SearchResultsState(
         val recentItems: List<RecentSearchItem> = emptyList(),
         // Recently opened items filtered to the active alias section (shown when alias detected + query blank)
         val aliasRecentItems: List<RecentSearchItem> = emptyList(),
+        val recentResultRecencyIndex: RecentResultRankingUtils.RecencyIndex =
+                RecentResultRankingUtils.RecencyIndex(),
         // Cache invalidation counters
         val nicknameUpdateVersion: Int = 0,
         val contactActionsVersion: Int = 0,

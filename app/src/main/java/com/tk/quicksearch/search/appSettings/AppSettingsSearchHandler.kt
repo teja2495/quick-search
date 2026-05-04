@@ -61,7 +61,7 @@ class AppSettingsSearchHandler(
     private fun getRecentSettingScores(): Map<String, Int> =
         RecentResultRankingUtils
             .buildRecencyIndex(userPreferences.getRecentResultOpens())
-            .settingScores
+            .appSettingScores
 
     private fun getVisibleSettings(): List<AppSettingResult> {
         val backgroundSource = userPreferences.getBackgroundSource()

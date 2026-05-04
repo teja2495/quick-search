@@ -11,6 +11,7 @@ import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.searchHistory.RecentSearchItem
+import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.tools.aiSearch.GeminiModelCatalog
 import com.tk.quicksearch.tools.aiSearch.GeminiTextModel
@@ -582,6 +583,8 @@ data class SearchUiState(
         // Recent items
         val recentItems: List<RecentSearchItem> = emptyList(),
         val aliasRecentItems: List<RecentSearchItem> = emptyList(),
+        val recentResultRecencyIndex: RecentResultRankingUtils.RecencyIndex =
+                RecentResultRankingUtils.RecencyIndex(),
         val recentQueriesEnabled: Boolean = true,
         val topMatchesEnabled: Boolean = false,
         val topMatchesLimit: Int = UiPreferences.DEFAULT_TOP_MATCHES_LIMIT,
@@ -667,6 +670,7 @@ fun SearchUiState(
                 detectedCustomToolId = results.detectedCustomToolId,
                 recentItems = results.recentItems,
                 aliasRecentItems = results.aliasRecentItems,
+                recentResultRecencyIndex = results.recentResultRecencyIndex,
                 nicknameUpdateVersion = results.nicknameUpdateVersion,
                 contactActionsVersion = results.contactActionsVersion,
                 // ── SearchPermissionState ─────────────────────────────────────────

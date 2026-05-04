@@ -213,6 +213,7 @@ class SecondarySearchOrchestrator(
                                 calendarEvents = unifiedResults.calendarEvents,
                                 noteResults = unifiedResults.noteResults,
                                 appSettingResults = unifiedResults.appSettingResults,
+                                recentResultRecencyIndex = unifiedResults.recencyIndex,
                                 // Preserve existing results when the search was skipped via the
                                 // no-results cache; overwriting with empty would clear valid
                                 // results that were found for the current or a prior query.
@@ -387,6 +388,7 @@ class SecondarySearchOrchestrator(
                             noteResults = unifiedResults.noteResults,
                             appSettingResults = unifiedResults.appSettingResults,
                             appShortcutResults = unifiedResults.appShortcutResults,
+                            recentResultRecencyIndex = unifiedResults.recencyIndex,
                             webSuggestions = emptyList(),
                             webSuggestionsLoading = false,
                             isSecondarySearchInProgress = false,

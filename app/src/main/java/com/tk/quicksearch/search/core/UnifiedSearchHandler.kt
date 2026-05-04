@@ -46,6 +46,8 @@ data class UnifiedSearchResults(
         val noteResults: List<NoteInfo> = emptyList(),
         val appSettingResults: List<AppSettingResult> = emptyList(),
         val appShortcutResults: List<StaticShortcut> = emptyList(),
+        val recencyIndex: RecentResultRankingUtils.RecencyIndex =
+                RecentResultRankingUtils.RecencyIndex(),
 )
 
 data class UnifiedSectionSearchConfig(
@@ -327,7 +329,7 @@ class UnifiedSearchHandler(
                                                                                         queryContext =
                                                                                                 queryContext,
                                                                                         recentSettingScores =
-                                                                                                recencyIndex.settingScores,
+                                                                                                recencyIndex.appSettingScores,
                                                                                         enableFuzzyMatching =
                                                                                                 enableFuzzyAppSettingsSearch,
                                                                                 )
@@ -470,6 +472,7 @@ class UnifiedSearchHandler(
                                 noteResults = noteMatches,
                                 appSettingResults = appSettingsMatches,
                                 appShortcutResults = appShortcutMatches,
+                                recencyIndex = recencyIndex,
                         )
                 }
 
