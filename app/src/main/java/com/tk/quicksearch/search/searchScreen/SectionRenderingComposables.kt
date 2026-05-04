@@ -170,6 +170,7 @@ private fun renderAppsSection(
             startupPhase = appsParams.startupPhase,
             isOverlayPresentation = appsParams.isOverlayPresentation,
             predictedTarget = appsParams.predictedTarget,
+            suppressTopResultIndicator = appsParams.suppressTopResultIndicator,
             showWallpaperBackground = appsParams.showWallpaperBackground,
         )
     }

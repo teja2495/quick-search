@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -273,7 +275,11 @@ fun ContentLayout(
                 settingsParams = sectionParams.settingsParams?.copy(predictedTarget = null),
                 calendarParams = sectionParams.calendarParams?.copy(predictedTarget = null),
                 notesParams = sectionParams.notesParams?.copy(predictedTarget = null),
-                appsParams = sectionParams.appsParams?.copy(predictedTarget = null),
+                appsParams =
+                    sectionParams.appsParams?.copy(
+                        predictedTarget = null,
+                        suppressTopResultIndicator = true,
+                    ),
             )
         } else {
             sectionParams
@@ -288,12 +294,23 @@ fun ContentLayout(
     }
 
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        if (showTopMatches) {
+        if (showTopMatches && !isReversed) {
             TopMatchesSection(
                 matches = topMatches,
                 params = sectionParams,
                 showWallpaperBackground = effectiveShowWallpaperBackground,
+                reverseOrder = false,
                 modifier = Modifier.fillMaxWidth(),
+            )
+            Text(
+                text = stringResource(R.string.more_results_title),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier =
+                    Modifier.padding(
+                        horizontal = DesignTokens.SpacingLarge,
+                        vertical = DesignTokens.SpacingXSmall,
+                ),
             )
         }
 
@@ -577,6 +594,16 @@ fun ContentLayout(
                 ItemPriorityConfig.ItemType.APP_SETTINGS_SECTION,
                 -> Unit
             }
+        }
+
+        if (showTopMatches && isReversed) {
+            TopMatchesSection(
+                matches = topMatches,
+                params = sectionParams,
+                showWallpaperBackground = effectiveShowWallpaperBackground,
+                reverseOrder = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
     }
 }

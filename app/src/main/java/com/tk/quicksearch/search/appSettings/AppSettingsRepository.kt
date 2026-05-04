@@ -347,12 +347,12 @@ class AppSettingsRepository(
                 toggleKey = AppSettingsToggleKey.WEB_SUGGESTIONS,
                 keywords = listOf("autocomplete"),
             )
-            addToggle(
-                id = "app_toggle_top_matches",
+            addNavigation(
+                id = "app_settings_top_matches",
                 titleRes = R.string.top_matches_toggle_title,
                 descriptionRes = R.string.top_matches_toggle_desc,
-                toggleKey = AppSettingsToggleKey.TOP_MATCHES,
-                keywords = listOf("top matches", "best results"),
+                destination = AppSettingsDestination.SEARCH_RESULTS,
+                keywords = listOf("top matches", "best results", "searches"),
             )
             addToggle(
                 id = "app_toggle_recent_queries",

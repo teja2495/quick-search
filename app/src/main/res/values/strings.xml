@@ -864,7 +864,9 @@
     <string name="open_keyboard_toggle_desc">Automatically open keyboard when the app launches</string>
     <string name="recent_queries_toggle_desc">Show your search history in the home screen.</string>
     <string name="recent_queries_toggle_title">Search History</string>
+    <string name="top_match_title">Top Match</string>
     <string name="top_matches_title">Top Matches</string>
+    <string name="more_results_title">More Results</string>
     <string name="top_matches_toggle_desc">Show top matched results across all types at the top.</string>
     <string name="top_matches_toggle_title">Top Matches</string>
     <string name="top_matches_count_label">No. of matches</string>

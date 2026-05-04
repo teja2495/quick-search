@@ -139,6 +139,7 @@ fun AppGridView(
         isOverlayPresentation: Boolean = false,
         startupPhase: StartupPhase = StartupPhase.COMPLETE,
         predictedTarget: PredictedSubmitTarget? = null,
+        suppressTopResultIndicator: Boolean = false,
         appIconShape: AppIconShape = AppIconShape.DEFAULT,
         themedIconsEnabled: Boolean = true,
         showWallpaperBackground: Boolean = false,
@@ -237,6 +238,7 @@ fun AppGridView(
                     oneHandedMode = oneHandedMode,
                     isOverlayPresentation = isOverlayPresentation,
                     predictedTarget = predictedTarget,
+                    suppressTopResultIndicator = suppressTopResultIndicator,
                     appIconShape = appIconShape,
                     themedIconsEnabled = themedIconsEnabled,
                     showWallpaperBackground = showWallpaperBackground,
@@ -269,6 +271,7 @@ private fun AppGrid(
         oneHandedMode: Boolean,
         isOverlayPresentation: Boolean,
         predictedTarget: PredictedSubmitTarget?,
+        suppressTopResultIndicator: Boolean,
         appIconShape: AppIconShape,
         themedIconsEnabled: Boolean = true,
         showWallpaperBackground: Boolean = false,
@@ -288,7 +291,9 @@ private fun AppGrid(
                 val chunked = apps.chunked(columns)
                 if (oneHandedMode) chunked.reversed() else chunked
             }
-    val firstResultKey = remember(apps) { apps.firstOrNull()?.launchCountKey() }
+    val firstResultKey = remember(apps, suppressTopResultIndicator) {
+        if (suppressTopResultIndicator) null else apps.firstOrNull()?.launchCountKey()
+    }
 
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         val horizontalSpacing = DesignTokens.SpacingMedium

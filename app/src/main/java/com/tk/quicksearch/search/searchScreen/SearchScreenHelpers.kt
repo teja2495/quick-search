@@ -313,6 +313,7 @@ data class AppsSectionParams(
     val startupPhase: StartupPhase,
     val isOverlayPresentation: Boolean,
     val predictedTarget: PredictedSubmitTarget? = null,
+    val suppressTopResultIndicator: Boolean = false,
     val showWallpaperBackground: Boolean = false,
 )
 

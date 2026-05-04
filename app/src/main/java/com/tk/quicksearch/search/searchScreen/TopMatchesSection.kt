@@ -11,15 +11,19 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Apps
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -28,8 +32,10 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.appSettings.AppSettingResult
 import com.tk.quicksearch.search.appSettings.AppSettingResultRow
 import com.tk.quicksearch.search.appShortcuts.AppShortcutRow
+import com.tk.quicksearch.search.apps.AppItemDropdownMenu
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.calendar.CalendarEventRow
+import com.tk.quicksearch.search.common.AddToHomeHandler
 import com.tk.quicksearch.search.contacts.components.ContactResultRow
 import com.tk.quicksearch.search.core.CallingApp
 import com.tk.quicksearch.search.core.MessagingApp
@@ -37,6 +43,7 @@ import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SectionRenderContext
 import com.tk.quicksearch.search.core.SectionRenderParams
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.AppShortcutRepository.launchStaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
@@ -54,9 +61,9 @@ import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentP
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
+import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardStyleOverrides
 import com.tk.quicksearch.search.utils.SearchRankingUtils
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
 
@@ -280,53 +287,68 @@ internal fun TopMatchesSection(
     matches: List<TopMatchItem>,
     params: SectionRenderParams,
     showWallpaperBackground: Boolean,
+    reverseOrder: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     if (matches.isEmpty()) return
+    val bestMatch = matches.firstOrNull()
+    val titleRes = if (matches.size == 1) R.string.top_match_title else R.string.top_matches_title
+    val displayedMatches = if (reverseOrder) matches.asReversed() else matches
 
-    SearchResultCard(
+    Column(
         modifier = modifier.fillMaxWidth(),
-        showWallpaperBackground = showWallpaperBackground,
-        overlayContainerColor = LocalOverlayResultCardColor.current,
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = stringResource(R.string.top_matches_title),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier =
-                    Modifier.padding(
-                        start = DesignTokens.SpacingLarge,
-                        top = DesignTokens.SpacingSmall,
-                        end = DesignTokens.SpacingLarge,
-                        bottom = 2.dp,
-                    ),
+        Row(
+            modifier =
+                Modifier.padding(
+                    start = DesignTokens.SpacingMedium,
+                    top = DesignTokens.SpacingXSmall,
+                    end = DesignTokens.SpacingLarge,
+                    bottom = DesignTokens.SpacingXSmall,
+                ),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.AutoAwesome,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.92f),
+                modifier = Modifier.size(14.dp),
             )
-            Column(
+            Text(
+                text = stringResource(titleRes),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+
+        displayedMatches.forEach { item ->
+            val isTopPredicted = item == bestMatch
+            SearchResultCard(
                 modifier =
-                    Modifier.padding(
-                        start = DesignTokens.SpacingLarge,
-                        end = DesignTokens.SpacingMedium,
-                        bottom = 4.dp,
-                    ),
+                    Modifier
+                        .fillMaxWidth()
+                        .predictedSubmitHighlight(
+                            isPredicted = isTopPredicted,
+                            shape = DesignTokens.ShapeLarge,
+                            opaqueCardTopResultBorder = true,
+                        ),
+                showWallpaperBackground = showWallpaperBackground,
+                styleOverrides = SearchResultCardStyleOverrides(shape = DesignTokens.ShapeLarge),
             ) {
-                matches.forEachIndexed { index, item ->
+                Column(
+                    modifier =
+                        Modifier.padding(
+                            horizontal = DesignTokens.SpacingLarge,
+                            vertical = 4.dp,
+                        ),
+                ) {
                     TopMatchRow(
                         item = item,
                         params = params,
-                        isPredicted = index == 0,
+                        isPredicted = false,
                     )
-                    if (index != matches.lastIndex && index != 0) {
-                        HorizontalDivider(
-                            modifier = Modifier.fillMaxWidth(),
-                            color =
-                                if (showWallpaperBackground) {
-                                    AppColors.WallpaperDivider
-                                } else {
-                                    MaterialTheme.colorScheme.outlineVariant
-                                },
-                        )
-                    }
                 }
             }
         }
@@ -510,6 +532,16 @@ private fun TopMatchAppRow(
 ) {
     if (params == null) return
     val view = LocalView.current
+    val context = LocalContext.current
+    val addToHomeHandler = remember(context) { AddToHomeHandler(context) }
+    var showOptions by remember { mutableStateOf(false) }
+    val shortcuts =
+        remember(params.appShortcuts, params.disabledAppShortcutIds, app.packageName) {
+            params.appShortcuts.filter { shortcut ->
+                shortcut.packageName == app.packageName &&
+                    !params.disabledAppShortcutIds.contains(shortcutKey(shortcut))
+            }
+        }
     val iconResult =
         rememberAppIcon(
             packageName = app.packageName,
@@ -518,48 +550,69 @@ private fun TopMatchAppRow(
             forceCircularMask = params.appIconShape == com.tk.quicksearch.search.core.AppIconShape.CIRCLE,
         )
 
-    Row(
-        modifier =
-            Modifier.fillMaxWidth()
-                .heightIn(min = APP_ROW_MIN_HEIGHT.dp)
-                .topPredictedRowContainer(isTopPredicted = isPredicted)
-                .combinedClickable(
-                    onClick = {
-                        hapticConfirm(view)()
-                        params.onAppClick(app)
-                    },
-                    onLongClick = { params.onAppInfoClick(app) },
-                )
-                .topPredictedRowContentPadding(isTopPredicted = isPredicted)
-                .padding(vertical = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(
-            modifier = Modifier.padding(start = DesignTokens.SpacingXSmall).size(APP_ICON_SIZE.dp),
-            contentAlignment = Alignment.Center,
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier =
+                Modifier.fillMaxWidth()
+                    .heightIn(min = APP_ROW_MIN_HEIGHT.dp)
+                    .topPredictedRowContainer(isTopPredicted = isPredicted)
+                    .combinedClickable(
+                        onClick = {
+                            hapticConfirm(view)()
+                            params.onAppClick(app)
+                        },
+                        onLongClick = { showOptions = true },
+                    )
+                    .topPredictedRowContentPadding(isTopPredicted = isPredicted)
+                    .padding(vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            iconResult.bitmap?.let { icon ->
-                androidx.compose.foundation.Image(
-                    bitmap = icon,
+            Box(
+                modifier = Modifier.padding(start = DesignTokens.SpacingXSmall).size(APP_ICON_SIZE.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                iconResult.bitmap?.let { icon ->
+                    androidx.compose.foundation.Image(
+                        bitmap = icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(APP_ICON_SIZE.dp),
+                    )
+                } ?: Icon(
+                    imageVector = Icons.Rounded.Apps,
                     contentDescription = null,
-                    modifier = Modifier.size(APP_ICON_SIZE.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(24.dp),
                 )
-            } ?: Icon(
-                imageVector = Icons.Rounded.Apps,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(24.dp),
+            }
+
+            Text(
+                text = app.appName,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
             )
         }
 
-        Text(
-            text = app.appName,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f),
+        AppItemDropdownMenu(
+            expanded = showOptions,
+            onDismiss = { showOptions = false },
+            isPinned = params.pinnedPackageNames.contains(app.launchCountKey()),
+            showUninstall = !app.isSystemApp && app.userHandleId == null,
+            hasNickname = !params.getAppNickname(app.packageName).isNullOrBlank(),
+            hasTrigger = params.getAppTrigger(app.packageName)?.word?.isNotBlank() == true,
+            shortcuts = shortcuts,
+            onShortcutClick = { shortcut -> launchStaticShortcut(context, shortcut) },
+            onAppInfoClick = { params.onAppInfoClick(app) },
+            onHideApp = { params.onHideApp(app) },
+            onPinApp = { params.onPinApp(app) },
+            onUnpinApp = { params.onUnpinApp(app) },
+            onUninstallClick = { params.onUninstallClick(app) },
+            onNicknameClick = { params.onNicknameClick(app) },
+            onTriggerClick = { params.onTriggerClick(app) },
+            onAddToHome = { addToHomeHandler.addAppToHome(app) },
         )
     }
 }
