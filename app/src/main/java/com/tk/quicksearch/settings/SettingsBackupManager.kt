@@ -67,6 +67,8 @@ object SettingsBackupManager {
 
     private val excludedUserPreferenceKeys =
         setOf(
+            BasePreferences.KEY_FIRST_LAUNCH,
+            BasePreferences.KEY_INSTALL_TIME,
             "hidden_packages_suggestions",
             "hidden_packages_results",
             "excluded_contact_ids",
@@ -147,7 +149,7 @@ object SettingsBackupManager {
         val importedNames = preferencesJson.keys().asSequence().toSet()
         val preferenceNames =
             if (selectedExportItems != null) {
-                importedNames
+                importedNames.filterNot { it in excludedPreferenceFiles }.toSet()
             } else {
                 collectEligiblePreferenceNames(context, importedNames)
             }
