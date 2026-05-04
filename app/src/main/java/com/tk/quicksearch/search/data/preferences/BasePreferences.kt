@@ -610,6 +610,7 @@ abstract class BasePreferences(
         const val KEY_NICKNAME_CALENDAR_EVENT_PREFIX = "nickname_calendar_event_"
         const val KEY_TRIGGER_APP_PREFIX = "trigger_app_"
         const val KEY_TRIGGER_APP_SHORTCUT_PREFIX = "trigger_app_shortcut_"
+        const val KEY_TRIGGER_CONTACT_ACTION_PREFIX = "trigger_contact_action_"
         const val KEY_TRIGGER_CONTACT_PREFIX = "trigger_contact_"
         const val KEY_TRIGGER_FILE_PREFIX = "trigger_file_"
         const val KEY_TRIGGER_SETTING_PREFIX = "trigger_setting_"

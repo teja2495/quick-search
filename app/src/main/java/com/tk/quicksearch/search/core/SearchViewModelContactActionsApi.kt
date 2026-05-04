@@ -28,6 +28,9 @@ internal interface SearchViewModelContactActionsApi {
     fun onCustomAction(contactInfo: ContactInfo, action: ContactCardAction) =
         contactActionsApiDelegate.onCustomAction(contactInfo, action)
 
+    fun onCustomActionTrigger(contactId: Long, action: ContactCardAction) =
+        contactActionsApiDelegate.onCustomActionTrigger(contactId, action)
+
     fun callContact(contactInfo: ContactInfo) = contactActionsApiDelegate.callContact(contactInfo)
 
     fun smsContact(contactInfo: ContactInfo) = contactActionsApiDelegate.smsContact(contactInfo)
@@ -107,6 +110,10 @@ class SearchViewModelContactActionsApiDelegate internal constructor(
 
     fun onCustomAction(contactInfo: ContactInfo, action: ContactCardAction) {
         contactActionsDelegate.onCustomAction(contactInfo, action)
+    }
+
+    fun onCustomActionTrigger(contactId: Long, action: ContactCardAction) {
+        contactActionsDelegate.onCustomActionTrigger(contactId, action)
     }
 
     fun callContact(contactInfo: ContactInfo) = contactActionsDelegate.callContact(contactInfo)

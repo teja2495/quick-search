@@ -451,6 +451,22 @@ class UserAppPreferences(
     fun setContactTrigger(contactId: Long, trigger: ResultTrigger?) =
             triggerPreferences.setContactTrigger(contactId, trigger)
 
+    fun getContactActionTrigger(
+            contactId: Long,
+            action: com.tk.quicksearch.search.contacts.models.ContactCardAction,
+    ): ResultTrigger? =
+            triggerPreferences.getContactActionTrigger(contactId, action)
+
+    fun setContactActionTrigger(
+            contactId: Long,
+            action: com.tk.quicksearch.search.contacts.models.ContactCardAction,
+            trigger: ResultTrigger?,
+    ) = triggerPreferences.setContactActionTrigger(contactId, action, trigger)
+
+    fun getAllContactActionTriggers():
+            Map<com.tk.quicksearch.search.data.preferences.ContactActionTriggerKey, ResultTrigger> =
+            triggerPreferences.getAllContactActionTriggers()
+
     fun getFileTrigger(uri: String): ResultTrigger? = triggerPreferences.getFileTrigger(uri)
 
     fun setFileTrigger(uri: String, trigger: ResultTrigger?) =
@@ -476,6 +492,9 @@ class UserAppPreferences(
                 }
                 triggerPreferences.getAllContactTriggers().forEach { (id, trigger) ->
                     put("contact:$id", trigger.word)
+                }
+                triggerPreferences.getAllContactActionTriggers().forEach { (key, trigger) ->
+                    put("contactAction:${key.contactId}:${key.action.toSerializedString()}", trigger.word)
                 }
                 triggerPreferences.getAllFileTriggers().forEach { (id, trigger) ->
                     put("file:$id", trigger.word)

@@ -121,6 +121,14 @@ fun SearchRoute(
         remember(nicknameUpdateVersion) { { packageName -> viewModel.getAppTrigger(packageName) } }
     val getContactTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger? =
         remember(nicknameUpdateVersion) { { contactId -> viewModel.getContactTrigger(contactId) } }
+    val getContactActionTrigger:
+        (Long, com.tk.quicksearch.search.contacts.models.ContactCardAction) -> com.tk.quicksearch.search.data.preferences.ResultTrigger? =
+        remember(nicknameUpdateVersion) {
+            { contactId, action -> viewModel.getContactActionTrigger(contactId, action) }
+        }
+    val getAllContactActionTriggers:
+        () -> Map<com.tk.quicksearch.search.data.preferences.ContactActionTriggerKey, com.tk.quicksearch.search.data.preferences.ResultTrigger> =
+        remember(nicknameUpdateVersion) { { viewModel.getAllContactActionTriggers() } }
     val getFileTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger? =
         remember(nicknameUpdateVersion) { { uri -> viewModel.getFileTrigger(uri) } }
     val getSettingTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger? =
@@ -629,6 +637,8 @@ fun SearchRoute(
             getCalendarEventNickname = viewModel::getCalendarEventNickname,
             getAppTrigger = getAppTrigger,
             getContactTrigger = getContactTrigger,
+            getContactActionTrigger = getContactActionTrigger,
+            getAllContactActionTriggers = getAllContactActionTriggers,
             getFileTrigger = getFileTrigger,
             getAppShortcutTrigger = getAppShortcutTrigger,
             getSettingTrigger = getSettingTrigger,
@@ -641,6 +651,7 @@ fun SearchRoute(
             onSaveAppTrigger = viewModel::setAppTrigger,
             onSaveAppShortcutTrigger = viewModel::setAppShortcutTrigger,
             onSaveContactTrigger = viewModel::setContactTrigger,
+            onSaveContactActionTrigger = viewModel::setContactActionTrigger,
             onSaveFileTrigger = viewModel::setFileTrigger,
             onSaveSettingTrigger = viewModel::setSettingTrigger,
             getSettingNickname = getSettingNickname,
@@ -679,6 +690,7 @@ fun SearchRoute(
             onOpenCustomToolSettings = onOpenCustomToolSettings,
             onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
             onCustomAction = viewModel::onCustomAction,
+            onContactActionTrigger = viewModel::onCustomActionTrigger,
             getPrimaryContactCardAction = viewModel::getPrimaryContactCardAction,
             getSecondaryContactCardAction = viewModel::getSecondaryContactCardAction,
             onSavePrimaryContactCardAction = viewModel::setPrimaryContactCardAction,

@@ -253,6 +253,24 @@ internal class SearchContactActionsDelegate(
         }
     }
 
+    fun onCustomActionTrigger(
+        contactId: Long,
+        action: ContactCardAction,
+    ) {
+        scope.launch(Dispatchers.IO) {
+            val contact = contactRepository.getContactsByIds(setOf(contactId)).firstOrNull()
+            if (contact == null) {
+                withContext(Dispatchers.Main) {
+                    showToastRes(R.string.error_action_not_available)
+                }
+                return@launch
+            }
+            withContext(Dispatchers.Main) {
+                onCustomAction(contact, action)
+            }
+        }
+    }
+
     fun callContact(contactInfo: ContactInfo) {
         contactActionHandler.callContact(contactInfo, trackHistory = aiSearchActiveProvider().not())
     }

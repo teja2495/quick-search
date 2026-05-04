@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.data.preferences
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import org.json.JSONObject
 import android.content.Context
+import com.tk.quicksearch.search.contacts.models.ContactCardAction
 
 data class ResultTrigger(
     val word: String,
@@ -57,8 +58,24 @@ class TriggerPreferences(
         getAllTriggersByPrefix(BasePreferences.KEY_TRIGGER_APP_SHORTCUT_PREFIX)
 
     fun getAllContactTriggers(): Map<Long, ResultTrigger> =
-        getAllTriggersByPrefix(BasePreferences.KEY_TRIGGER_CONTACT_PREFIX)
+        getAllTriggersByPrefix(
+            prefix = BasePreferences.KEY_TRIGGER_CONTACT_PREFIX,
+            excludedPrefix = BasePreferences.KEY_TRIGGER_CONTACT_ACTION_PREFIX,
+        )
             .mapNotNull { (id, trigger) -> id.toLongOrNull()?.let { it to trigger } }
+            .toMap()
+
+    fun getAllContactActionTriggers(): Map<ContactActionTriggerKey, ResultTrigger> =
+        getAllTriggersByPrefix(BasePreferences.KEY_TRIGGER_CONTACT_ACTION_PREFIX)
+            .mapNotNull { (id, trigger) ->
+                val separatorIndex = id.indexOf(KEY_SEPARATOR)
+                if (separatorIndex <= 0 || separatorIndex == id.lastIndex) return@mapNotNull null
+                val contactId = id.take(separatorIndex).toLongOrNull() ?: return@mapNotNull null
+                val action =
+                    ContactCardAction.fromSerializedString(id.drop(separatorIndex + 1))
+                        ?: return@mapNotNull null
+                ContactActionTriggerKey(contactId, action) to trigger
+            }
             .toMap()
 
     fun getAllFileTriggers(): Map<String, ResultTrigger> =
@@ -101,6 +118,18 @@ class TriggerPreferences(
     fun setContactTrigger(contactId: Long, trigger: ResultTrigger?) =
         writeTrigger("${BasePreferences.KEY_TRIGGER_CONTACT_PREFIX}$contactId", trigger)
 
+    fun getContactActionTrigger(
+        contactId: Long,
+        action: ContactCardAction,
+    ): ResultTrigger? =
+        readTrigger(contactActionTriggerKey(contactId, action))
+
+    fun setContactActionTrigger(
+        contactId: Long,
+        action: ContactCardAction,
+        trigger: ResultTrigger?,
+    ) = writeTrigger(contactActionTriggerKey(contactId, action), trigger)
+
     fun getFileTrigger(uri: String): ResultTrigger? =
         readTrigger("${BasePreferences.KEY_TRIGGER_FILE_PREFIX}$uri")
 
@@ -123,7 +152,15 @@ class TriggerPreferences(
         findMatchingTriggerIds(
             query = query,
             prefix = BasePreferences.KEY_TRIGGER_CONTACT_PREFIX,
+            excludedPrefix = BasePreferences.KEY_TRIGGER_CONTACT_ACTION_PREFIX,
             parseId = String::toLongOrNull,
+        ) + findMatchingTriggerIds(
+            query = query,
+            prefix = BasePreferences.KEY_TRIGGER_CONTACT_ACTION_PREFIX,
+            parseId = { id ->
+                val separatorIndex = id.indexOf(KEY_SEPARATOR)
+                if (separatorIndex <= 0) null else id.take(separatorIndex).toLongOrNull()
+            },
         )
 
     fun findFilesWithMatchingTrigger(query: String): Set<String> =
@@ -150,6 +187,7 @@ class TriggerPreferences(
     private fun <T : Any> findMatchingTriggerIds(
         query: String,
         prefix: String,
+        excludedPrefix: String? = null,
         parseId: (String) -> T?,
     ): Set<T> {
         val normalizedQuery = normalizeWord(query)
@@ -157,6 +195,7 @@ class TriggerPreferences(
 
         return prefs.all.mapNotNull { (key, _) ->
             if (!key.startsWith(prefix)) return@mapNotNull null
+            if (excludedPrefix != null && key.startsWith(excludedPrefix)) return@mapNotNull null
             val trigger = readTrigger(key) ?: return@mapNotNull null
             if (normalizeWord(trigger.word) == normalizedQuery) {
                 parseId(key.removePrefix(prefix))
@@ -166,8 +205,20 @@ class TriggerPreferences(
         }.toSet()
     }
 
+    private fun contactActionTriggerKey(
+        contactId: Long,
+        action: ContactCardAction,
+    ): String =
+        "${BasePreferences.KEY_TRIGGER_CONTACT_ACTION_PREFIX}$contactId$KEY_SEPARATOR${action.toSerializedString()}"
+
     private companion object {
+        const val KEY_SEPARATOR = "|"
         const val KEY_WORD = "word"
         const val KEY_AFTER_SPACE = "afterSpace"
     }
 }
+
+data class ContactActionTriggerKey(
+    val contactId: Long,
+    val action: ContactCardAction,
+)

@@ -41,6 +41,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.data.AppShortcutRepository.AppShortcutCache
 import com.tk.quicksearch.search.data.NotesRepository
+import com.tk.quicksearch.search.contacts.models.ContactCardAction
 import com.tk.quicksearch.search.data.preferences.TriggerPreferences
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsRepository
 import com.tk.quicksearch.settings.shared.SettingsCard
@@ -100,20 +101,21 @@ fun TriggerItemsScreen(
                     add(TriggerItem.AppShortcut(shortcutId = shortcutId, word = trigger.word, triggerAfterSpace = trigger.triggerAfterSpace, itemName = shortcutName, iconBase64 = shortcut?.iconBase64))
                 }
                 prefs.getAllContactTriggers().forEach { (contactId, trigger) ->
-                    val contactName = try {
-                        context.contentResolver.query(
-                            ContactsContract.Contacts.CONTENT_URI,
-                            arrayOf(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY),
-                            "${ContactsContract.Contacts._ID} = ?",
-                            arrayOf(contactId.toString()),
-                            null,
-                        )?.use { cursor ->
-                            if (cursor.moveToFirst()) cursor.getString(0) else null
-                        }
-                    } catch (e: Exception) {
-                        null
-                    } ?: contactId.toString()
+                    val contactName = loadContactName(context, contactId)
                     add(TriggerItem.Contact(contactId = contactId, word = trigger.word, triggerAfterSpace = trigger.triggerAfterSpace, itemName = contactName))
+                }
+                prefs.getAllContactActionTriggers().forEach { (key, trigger) ->
+                    val contactName = loadContactName(context, key.contactId)
+                    val actionName = contactActionLabel(context, key.action)
+                    add(
+                        TriggerItem.ContactAction(
+                            contactId = key.contactId,
+                            action = key.action,
+                            word = trigger.word,
+                            triggerAfterSpace = trigger.triggerAfterSpace,
+                            itemName = "$contactName - $actionName",
+                        ),
+                    )
                 }
                 prefs.getAllFileTriggers().forEach { (uri, trigger) ->
                     val fileName = try {
@@ -186,6 +188,7 @@ fun TriggerItemsScreen(
                                 is TriggerItem.App -> prefs.setAppTrigger(item.packageName, null)
                                 is TriggerItem.AppShortcut -> prefs.setAppShortcutTrigger(item.shortcutId, null)
                                 is TriggerItem.Contact -> prefs.setContactTrigger(item.contactId, null)
+                                is TriggerItem.ContactAction -> prefs.setContactActionTrigger(item.contactId, item.action, null)
                                 is TriggerItem.File -> prefs.setFileTrigger(item.uri, null)
                                 is TriggerItem.Setting -> prefs.setSettingTrigger(item.settingId, null)
                                 is TriggerItem.Note -> prefs.setNoteTrigger(item.noteId, null)
@@ -316,6 +319,12 @@ private fun TriggerItemIcon(item: TriggerItem) {
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(DesignTokens.IconSize),
         )
+        is TriggerItem.ContactAction -> Icon(
+            imageVector = Icons.Rounded.Person,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(DesignTokens.IconSize),
+        )
         is TriggerItem.File -> Icon(
             imageVector = Icons.AutoMirrored.Rounded.InsertDriveFile,
             contentDescription = null,
@@ -364,6 +373,14 @@ private sealed class TriggerItem {
         override val itemName: String,
     ) : TriggerItem()
 
+    data class ContactAction(
+        val contactId: Long,
+        val action: ContactCardAction,
+        override val word: String,
+        override val triggerAfterSpace: Boolean,
+        override val itemName: String,
+    ) : TriggerItem()
+
     data class File(
         val uri: String,
         override val word: String,
@@ -385,3 +402,44 @@ private sealed class TriggerItem {
         override val itemName: String,
     ) : TriggerItem()
 }
+
+private fun loadContactName(
+    context: android.content.Context,
+    contactId: Long,
+): String =
+    try {
+        context.contentResolver.query(
+            ContactsContract.Contacts.CONTENT_URI,
+            arrayOf(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY),
+            "${ContactsContract.Contacts._ID} = ?",
+            arrayOf(contactId.toString()),
+            null,
+        )?.use { cursor ->
+            if (cursor.moveToFirst()) cursor.getString(0) else null
+        }
+    } catch (e: Exception) {
+        null
+    } ?: contactId.toString()
+
+private fun contactActionLabel(
+    context: android.content.Context,
+    action: ContactCardAction,
+): String =
+    when (action) {
+        is ContactCardAction.Phone -> context.getString(R.string.contact_method_call_label)
+        is ContactCardAction.Sms -> context.getString(R.string.contact_method_message_label)
+        is ContactCardAction.WhatsAppCall -> context.getString(R.string.contact_method_whatsapp_voice_call_label)
+        is ContactCardAction.WhatsAppMessage -> context.getString(R.string.contact_method_whatsapp_message_label)
+        is ContactCardAction.WhatsAppVideoCall -> context.getString(R.string.contact_method_whatsapp_video_call_label)
+        is ContactCardAction.TelegramMessage -> context.getString(R.string.contact_method_telegram_message_label)
+        is ContactCardAction.TelegramCall -> context.getString(R.string.contact_method_telegram_voice_call_label)
+        is ContactCardAction.TelegramVideoCall -> context.getString(R.string.contact_method_telegram_video_call_label)
+        is ContactCardAction.SignalMessage -> context.getString(R.string.contact_method_signal_message_label)
+        is ContactCardAction.SignalCall -> context.getString(R.string.contact_method_signal_voice_call_label)
+        is ContactCardAction.SignalVideoCall -> context.getString(R.string.contact_method_signal_video_call_label)
+        is ContactCardAction.GoogleMeet -> context.getString(R.string.contact_method_google_meet_label)
+        is ContactCardAction.Email -> context.getString(R.string.contact_method_email_label)
+        is ContactCardAction.VideoCall -> context.getString(R.string.contacts_action_button_video_call)
+        is ContactCardAction.CustomApp -> action.displayLabel
+        is ContactCardAction.ViewInContactsApp -> context.getString(R.string.contacts_action_button_contacts)
+    }

@@ -5,6 +5,7 @@ import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.contacts.dialogs.ContactActionsPopup
 import com.tk.quicksearch.search.contacts.dialogs.ContactActionsPopupState
+import com.tk.quicksearch.search.contacts.models.ContactCardAction
 import com.tk.quicksearch.search.contacts.dialogs.DirectDialChoiceDialog
 import com.tk.quicksearch.search.contacts.dialogs.PhoneNumberSelectionDialog
 import com.tk.quicksearch.search.core.*
@@ -31,6 +32,8 @@ internal fun SearchScreenDialogs(
     onDirectDialChoiceSelected: (DirectDialOption, Boolean) -> Unit,
     onDismissDirectDialChoice: () -> Unit,
     onContactMethodClick: (ContactInfo, com.tk.quicksearch.search.models.ContactMethod) -> Unit,
+    getContactActionTrigger: (Long, com.tk.quicksearch.search.contacts.models.ContactCardAction) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+    onContactActionTriggerClick: (ContactInfo, com.tk.quicksearch.search.contacts.models.ContactCardAction, String) -> Unit,
     onDismissContactMethods: () -> Unit,
     onReleaseNotesAcknowledged: () -> Unit,
     onReleaseNotesViewAllFeatures: () -> Unit,
@@ -45,6 +48,7 @@ internal fun SearchScreenDialogs(
     onSaveAppTrigger: (AppInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
     onSaveAppShortcutTrigger: (StaticShortcut, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
     onSaveContactTrigger: (ContactInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
+    onSaveContactActionTrigger: (ContactInfo, com.tk.quicksearch.search.contacts.models.ContactCardAction, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
     onSaveFileTrigger: (DeviceFile, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
     onSaveSettingTrigger: (DeviceSetting, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
     onSaveNoteTrigger: (NoteInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
@@ -82,6 +86,11 @@ internal fun SearchScreenDialogs(
                     onAvatarClick = { contact ->
                         onContactMethodClick(contact, ContactMethod.ViewInContactsApp(viewInContactsLabel))
                     },
+                    enableContactActionTriggers = true,
+                    getContactActionTrigger = { contact, action ->
+                        getContactActionTrigger(contact.contactId, action)
+                    },
+                    onContactActionTriggerClick = onContactActionTriggerClick,
                 ),
             getLastShownPhoneNumber = getLastShownPhoneNumber,
             setLastShownPhoneNumber = setLastShownPhoneNumber,
@@ -202,6 +211,21 @@ internal fun SearchScreenDialogs(
                             .filterKeys { it != "contact:${dialogState.contact.contactId}" }
                             .values,
                     onSave = { onSaveContactTrigger(dialogState.contact, it) },
+                    onDismiss = onDismissTriggerDialog,
+                )
+            is TriggerDialogState.ContactAction ->
+                TriggerDialog(
+                    currentTrigger = dialogState.currentTrigger,
+                    itemName = dialogState.itemName,
+                    existingTriggerWords =
+                        allTriggerWords
+                            .filterKeys {
+                                it != "contactAction:${dialogState.contact.contactId}:${dialogState.action.toSerializedString()}"
+                            }
+                            .values,
+                    onSave = {
+                        onSaveContactActionTrigger(dialogState.contact, dialogState.action, it)
+                    },
                     onDismiss = onDismissTriggerDialog,
                 )
             is TriggerDialogState.File ->

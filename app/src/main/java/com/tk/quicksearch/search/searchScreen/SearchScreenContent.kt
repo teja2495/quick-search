@@ -139,6 +139,8 @@ internal fun SearchScreenContent(
         isOverlayPresentation: Boolean = false,
         showSearchField: Boolean = true,
         onOpenPermissionsSettings: () -> Unit = {},
+        getAllContactActionTriggers: () -> Map<com.tk.quicksearch.search.data.preferences.ContactActionTriggerKey, com.tk.quicksearch.search.data.preferences.ResultTrigger> = { emptyMap() },
+        onContactActionTrigger: (Long, com.tk.quicksearch.search.contacts.models.ContactCardAction) -> Unit = { _, _ -> },
 ) {
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -647,6 +649,17 @@ internal fun SearchScreenContent(
                 }
                 return true
             }
+
+        getAllContactActionTriggers().firstNotNullOfOrNull { (key, trigger) ->
+            if (matchesTrigger(query, trigger.word, trigger.triggerAfterSpace)) {
+                key
+            } else {
+                null
+            }
+        }?.let { key ->
+            onContactActionTrigger(key.contactId, key.action)
+            return true
+        }
 
         (renderingState.fileResults + state.pinnedFiles)
             .distinctBy { it.uri }

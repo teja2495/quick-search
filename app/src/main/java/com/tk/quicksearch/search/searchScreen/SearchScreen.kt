@@ -132,6 +132,8 @@ fun SearchScreen(
     getCalendarEventNickname: (Long) -> String?,
     getAppTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     getContactTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+    getContactActionTrigger: (Long, ContactCardAction) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+    getAllContactActionTriggers: () -> Map<com.tk.quicksearch.search.data.preferences.ContactActionTriggerKey, com.tk.quicksearch.search.data.preferences.ResultTrigger>,
     getFileTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     getAppShortcutTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     getSettingTrigger: (String) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
@@ -144,6 +146,7 @@ fun SearchScreen(
     onSaveAppTrigger: (AppInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
     onSaveAppShortcutTrigger: (StaticShortcut, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
     onSaveContactTrigger: (ContactInfo, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
+    onSaveContactActionTrigger: (ContactInfo, ContactCardAction, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
     onSaveFileTrigger: (DeviceFile, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
     onSaveSettingTrigger: (DeviceSetting, com.tk.quicksearch.search.data.preferences.ResultTrigger?) -> Unit,
     getNoteTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
@@ -179,6 +182,7 @@ fun SearchScreen(
     onWordClockSearchClick: () -> Unit = {},
     onCustomToolSearchClick: () -> Unit = {},
     onCustomAction: (ContactInfo, ContactCardAction) -> Unit,
+    onContactActionTrigger: (Long, ContactCardAction) -> Unit = { _, _ -> },
     getPrimaryContactCardAction: (Long) -> ContactCardAction?,
     getSecondaryContactCardAction: (Long) -> ContactCardAction?,
     onSavePrimaryContactCardAction: (Long, ContactCardAction) -> Unit,
@@ -266,6 +270,7 @@ fun SearchScreen(
         getCalendarEventNickname = getCalendarEventNickname,
         getAppTrigger = getAppTrigger,
         getContactTrigger = getContactTrigger,
+        getContactActionTrigger = getContactActionTrigger,
         getFileTrigger = getFileTrigger,
         getAppShortcutTrigger = getAppShortcutTrigger,
         getSettingTrigger = getSettingTrigger,
@@ -486,6 +491,8 @@ fun SearchScreen(
             isOverlayPresentation = isOverlayPresentation,
             showSearchField = true,
             onOpenPermissionsSettings = onOpenPermissionsSettings,
+            getAllContactActionTriggers = getAllContactActionTriggers,
+            onContactActionTrigger = onContactActionTrigger,
         )
 
     }
@@ -502,6 +509,17 @@ fun SearchScreen(
         onDirectDialChoiceSelected = onDirectDialChoiceSelected,
         onDismissDirectDialChoice = onDismissDirectDialChoice,
         onContactMethodClick = onContactMethodClick,
+        getContactActionTrigger = getContactActionTrigger,
+        onContactActionTriggerClick = { contact, action, actionDisplayName ->
+            stateResult.setTriggerDialogState(
+                com.tk.quicksearch.search.searchScreen.dialogs.TriggerDialogState.ContactAction(
+                    contact = contact,
+                    action = action,
+                    currentTrigger = getContactActionTrigger(contact.contactId, action),
+                    itemName = "${contact.displayName} - $actionDisplayName",
+                ),
+            )
+        },
         onDismissContactMethods = onDismissContactMethods,
         onReleaseNotesAcknowledged = onReleaseNotesAcknowledged,
         onReleaseNotesViewAllFeatures = onReleaseNotesViewAllFeatures,
@@ -541,6 +559,10 @@ fun SearchScreen(
         },
         onSaveContactTrigger = { contact, trigger ->
             onSaveContactTrigger(contact, trigger)
+            stateResult.setTriggerDialogState(null)
+        },
+        onSaveContactActionTrigger = { contact, action, trigger ->
+            onSaveContactActionTrigger(contact, action, trigger)
             stateResult.setTriggerDialogState(null)
         },
         onSaveFileTrigger = { file, trigger ->

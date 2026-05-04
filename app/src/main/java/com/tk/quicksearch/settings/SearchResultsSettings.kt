@@ -613,6 +613,7 @@ fun SearchResultsSettingsSection(
             getAllAppTriggers().isNotEmpty() ||
                 getAllAppShortcutTriggers().isNotEmpty() ||
                 getAllContactTriggers().isNotEmpty() ||
+                getAllContactActionTriggers().isNotEmpty() ||
                 getAllFileTriggers().isNotEmpty() ||
                 getAllSettingTriggers().isNotEmpty() ||
                 getAllNoteTriggers().isNotEmpty()

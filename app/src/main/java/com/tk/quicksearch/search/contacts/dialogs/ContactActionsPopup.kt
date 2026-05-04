@@ -5,15 +5,21 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronLeft
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,6 +41,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.common.AddToHomeHandler
 import com.tk.quicksearch.search.contacts.components.ContactActionButton
@@ -53,6 +60,11 @@ internal sealed interface ContactActionsPopupState {
         val contactInfo: ContactInfo,
         val onContactMethodClick: (ContactInfo, ContactMethod) -> Unit,
         val onAvatarClick: (ContactInfo) -> Unit,
+        val enableContactActionTriggers: Boolean = false,
+        val getContactActionTrigger: (ContactInfo, ContactCardAction) -> com.tk.quicksearch.search.data.preferences.ResultTrigger? =
+            { _, _ -> null },
+        val onContactActionTriggerClick: (ContactInfo, ContactCardAction, String) -> Unit =
+            { _, _, _ -> },
     ) : ContactActionsPopupState
 
     data class ReplaceAction(
@@ -301,34 +313,24 @@ internal fun ContactActionsPopup(
                         verticalAlignment = Alignment.Top,
                     ) {
                         firstRowMethods.forEach { method ->
-                            ContactActionButton(
+                            ContactActionButtonWithLongPressMenu(
+                                contact = contactInfo,
                                 method = method,
+                                selectedPhoneNumber = selectedPhoneNumber,
+                                addToHomeHandler = addToHomeHandler,
+                                getContactActionTrigger = state.getContactActionTrigger,
+                                showTriggerAction = state.enableContactActionTriggers,
+                                onContactActionTriggerClick = state.onContactActionTriggerClick,
                                 onClick = {
                                     state.onContactMethodClick(contactInfo, method)
                                     onDismiss()
-                                },
-                                onLongClick = {
-                                    val action =
-                                        contactMethodToCardAction(
-                                            method,
-                                            selectedPhoneNumber,
-                                        )
-                                    val actionDisplayName =
-                                        methodShortcutLabel(context, method)
-                                    if (action != null && actionDisplayName != null) {
-                                        addToHomeHandler.addContactActionToHome(
-                                            contact = contactInfo,
-                                            contactAction = action,
-                                            actionDisplayName = actionDisplayName,
-                                        )
-                                    }
                                 },
                             )
                         }
                     }
                 }
 
-                renderMethodRow(
+                ContactActionMethodRow(
                     methods = normalizedMethodsForSelectedNumber,
                     methodTypes =
                         listOf(
@@ -340,20 +342,15 @@ internal fun ContactActionsPopup(
                         state.onContactMethodClick(contactInfo, method)
                         onDismiss()
                     },
-                    onMethodLongClick = { method ->
-                        val action = contactMethodToCardAction(method, selectedPhoneNumber)
-                        val actionDisplayName = methodShortcutLabel(context, method)
-                        if (action != null && actionDisplayName != null) {
-                            addToHomeHandler.addContactActionToHome(
-                                contact = contactInfo,
-                                contactAction = action,
-                                actionDisplayName = actionDisplayName,
-                            )
-                        }
-                    },
+                    contactInfo = contactInfo,
+                    selectedPhoneNumber = selectedPhoneNumber,
+                    addToHomeHandler = addToHomeHandler,
+                    getContactActionTrigger = state.getContactActionTrigger,
+                    showTriggerAction = state.enableContactActionTriggers,
+                    onContactActionTriggerClick = state.onContactActionTriggerClick,
                 )
 
-                renderMethodRow(
+                ContactActionMethodRow(
                     methods = normalizedMethodsForSelectedNumber,
                     methodTypes =
                         listOf(
@@ -365,20 +362,15 @@ internal fun ContactActionsPopup(
                         state.onContactMethodClick(contactInfo, method)
                         onDismiss()
                     },
-                    onMethodLongClick = { method ->
-                        val action = contactMethodToCardAction(method, selectedPhoneNumber)
-                        val actionDisplayName = methodShortcutLabel(context, method)
-                        if (action != null && actionDisplayName != null) {
-                            addToHomeHandler.addContactActionToHome(
-                                contact = contactInfo,
-                                contactAction = action,
-                                actionDisplayName = actionDisplayName,
-                            )
-                        }
-                    },
+                    contactInfo = contactInfo,
+                    selectedPhoneNumber = selectedPhoneNumber,
+                    addToHomeHandler = addToHomeHandler,
+                    getContactActionTrigger = state.getContactActionTrigger,
+                    showTriggerAction = state.enableContactActionTriggers,
+                    onContactActionTriggerClick = state.onContactActionTriggerClick,
                 )
 
-                renderMethodRow(
+                ContactActionMethodRow(
                     methods = normalizedMethodsForSelectedNumber,
                     methodTypes =
                         listOf(
@@ -390,17 +382,12 @@ internal fun ContactActionsPopup(
                         state.onContactMethodClick(contactInfo, method)
                         onDismiss()
                     },
-                    onMethodLongClick = { method ->
-                        val action = contactMethodToCardAction(method, selectedPhoneNumber)
-                        val actionDisplayName = methodShortcutLabel(context, method)
-                        if (action != null && actionDisplayName != null) {
-                            addToHomeHandler.addContactActionToHome(
-                                contact = contactInfo,
-                                contactAction = action,
-                                actionDisplayName = actionDisplayName,
-                            )
-                        }
-                    },
+                    contactInfo = contactInfo,
+                    selectedPhoneNumber = selectedPhoneNumber,
+                    addToHomeHandler = addToHomeHandler,
+                    getContactActionTrigger = state.getContactActionTrigger,
+                    showTriggerAction = state.enableContactActionTriggers,
+                    onContactActionTriggerClick = state.onContactActionTriggerClick,
                 )
 
                 if (remainingMethods.isNotEmpty()) {
@@ -410,17 +397,12 @@ internal fun ContactActionsPopup(
                             state.onContactMethodClick(contactInfo, method)
                             onDismiss()
                         },
-                        onMethodLongClick = { method ->
-                            val action = contactMethodToCardAction(method, selectedPhoneNumber)
-                            val actionDisplayName = methodShortcutLabel(context, method)
-                            if (action != null && actionDisplayName != null) {
-                                addToHomeHandler.addContactActionToHome(
-                                    contact = contactInfo,
-                                    contactAction = action,
-                                    actionDisplayName = actionDisplayName,
-                                )
-                            }
-                        },
+                        contactInfo = contactInfo,
+                        selectedPhoneNumber = selectedPhoneNumber,
+                        addToHomeHandler = addToHomeHandler,
+                        getContactActionTrigger = state.getContactActionTrigger,
+                        showTriggerAction = state.enableContactActionTriggers,
+                        onContactActionTriggerClick = state.onContactActionTriggerClick,
                     )
                 }
 
@@ -514,6 +496,14 @@ private fun RemainingMethodsList(
     methods: List<ContactMethod>,
     onMethodClick: (ContactMethod) -> Unit,
     onMethodLongClick: ((ContactMethod) -> Unit)? = null,
+    contactInfo: ContactInfo? = null,
+    selectedPhoneNumber: String? = null,
+    addToHomeHandler: AddToHomeHandler? = null,
+    getContactActionTrigger: (ContactInfo, ContactCardAction) -> com.tk.quicksearch.search.data.preferences.ResultTrigger? =
+        { _, _ -> null },
+    showTriggerAction: Boolean = false,
+    onContactActionTriggerClick: (ContactInfo, ContactCardAction, String) -> Unit =
+        { _, _, _ -> },
 ) {
     Column(
         modifier =
@@ -523,18 +513,31 @@ private fun RemainingMethodsList(
         verticalArrangement = Arrangement.spacedBy(0.dp),
     ) {
         methods.forEachIndexed { index, method ->
+            val action = contactMethodToCardAction(method, selectedPhoneNumber)
+            val actionDisplayName = methodShortcutLabel(LocalContext.current, method)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                var showMenu by remember { mutableStateOf(false) }
                 Row(
                     modifier =
                         Modifier
                             .fillMaxWidth()
                             .combinedClickable(
                                 onClick = { onMethodClick(method) },
-                                onLongClick = onMethodLongClick?.let { { it(method) } },
+                                onLongClick =
+                                    if (
+                                        contactInfo != null &&
+                                        addToHomeHandler != null &&
+                                        action != null &&
+                                        actionDisplayName != null
+                                    ) {
+                                        { showMenu = true }
+                                    } else {
+                                        onMethodLongClick?.let { { it(method) } }
+                                    },
                             )
                             .padding(horizontal = 8.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -549,11 +552,174 @@ private fun RemainingMethodsList(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
+                    if (
+                        contactInfo != null &&
+                        addToHomeHandler != null &&
+                        action != null &&
+                        actionDisplayName != null
+                    ) {
+                        ContactActionLongPressMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false },
+                            contact = contactInfo,
+                            action = action,
+                            actionDisplayName = actionDisplayName,
+                            addToHomeHandler = addToHomeHandler,
+                            hasTrigger =
+                                getContactActionTrigger(
+                                    contactInfo,
+                                    action,
+                                )?.word?.isNotBlank() == true,
+                            showTriggerAction = showTriggerAction,
+                            onContactActionTriggerClick = onContactActionTriggerClick,
+                        )
+                    }
                 }
             }
             if (index != methods.lastIndex) {
                 HorizontalDivider()
             }
+        }
+    }
+}
+
+@Composable
+private fun ContactActionMethodRow(
+    methods: List<ContactMethod>,
+    methodTypes: List<kotlin.reflect.KClass<out ContactMethod>>,
+    onMethodClick: (ContactMethod) -> Unit,
+    contactInfo: ContactInfo,
+    selectedPhoneNumber: String?,
+    addToHomeHandler: AddToHomeHandler,
+    getContactActionTrigger: (ContactInfo, ContactCardAction) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+    showTriggerAction: Boolean,
+    onContactActionTriggerClick: (ContactInfo, ContactCardAction, String) -> Unit,
+) {
+    val methodTypeOrder = methodTypes.withIndex().associate { (index, type) -> type to index }
+    val filteredMethods =
+        methods.filter { method ->
+            methodTypes.any { type -> type.isInstance(method) }
+        }.sortedBy { method ->
+            methodTypeOrder.entries.firstOrNull { (type, _) -> type.isInstance(method) }?.value
+                ?: Int.MAX_VALUE
+        }
+
+    if (filteredMethods.isNotEmpty()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.Top,
+        ) {
+            filteredMethods.forEach { method ->
+                ContactActionButtonWithLongPressMenu(
+                    contact = contactInfo,
+                    method = method,
+                    selectedPhoneNumber = selectedPhoneNumber,
+                    addToHomeHandler = addToHomeHandler,
+                    getContactActionTrigger = getContactActionTrigger,
+                    showTriggerAction = showTriggerAction,
+                    onContactActionTriggerClick = onContactActionTriggerClick,
+                    onClick = { onMethodClick(method) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ContactActionButtonWithLongPressMenu(
+    contact: ContactInfo,
+    method: ContactMethod,
+    selectedPhoneNumber: String?,
+    addToHomeHandler: AddToHomeHandler,
+    getContactActionTrigger: (ContactInfo, ContactCardAction) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
+    showTriggerAction: Boolean,
+    onContactActionTriggerClick: (ContactInfo, ContactCardAction, String) -> Unit,
+    onClick: () -> Unit,
+) {
+    val context = LocalContext.current
+    val action = contactMethodToCardAction(method, selectedPhoneNumber)
+    val actionDisplayName = methodShortcutLabel(context, method)
+    var showMenu by remember { mutableStateOf(false) }
+
+    Box {
+        ContactActionButton(
+            method = method,
+            onClick = onClick,
+            onLongClick =
+                if (action != null && actionDisplayName != null) {
+                    { showMenu = true }
+                } else {
+                    null
+                },
+        )
+        if (action != null && actionDisplayName != null) {
+            ContactActionLongPressMenu(
+                expanded = showMenu,
+                onDismissRequest = { showMenu = false },
+                contact = contact,
+                action = action,
+                actionDisplayName = actionDisplayName,
+                addToHomeHandler = addToHomeHandler,
+                hasTrigger = getContactActionTrigger(contact, action)?.word?.isNotBlank() == true,
+                showTriggerAction = showTriggerAction,
+                onContactActionTriggerClick = onContactActionTriggerClick,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ContactActionLongPressMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    contact: ContactInfo,
+    action: ContactCardAction,
+    actionDisplayName: String,
+    addToHomeHandler: AddToHomeHandler,
+    hasTrigger: Boolean,
+    showTriggerAction: Boolean,
+    onContactActionTriggerClick: (ContactInfo, ContactCardAction, String) -> Unit,
+) {
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest,
+        shape = RoundedCornerShape(24.dp),
+        properties = PopupProperties(focusable = false),
+        containerColor = com.tk.quicksearch.shared.ui.theme.AppColors.DialogBackground,
+    ) {
+        DropdownMenuItem(
+            text = { Text(text = stringResource(R.string.action_add_to_home)) },
+            leadingIcon = { Icon(imageVector = Icons.Rounded.Home, contentDescription = null) },
+            onClick = {
+                onDismissRequest()
+                addToHomeHandler.addContactActionToHome(
+                    contact = contact,
+                    contactAction = action,
+                    actionDisplayName = actionDisplayName,
+                )
+            },
+        )
+        if (showTriggerAction) {
+            DropdownMenuItem(
+                text = {
+                    Text(
+                        text =
+                            stringResource(
+                                if (hasTrigger) {
+                                    R.string.action_edit_trigger
+                                } else {
+                                    R.string.action_add_trigger
+                                },
+                            ),
+                    )
+                },
+                leadingIcon = { Icon(imageVector = Icons.Rounded.Edit, contentDescription = null) },
+                onClick = {
+                    onDismissRequest()
+                    onContactActionTriggerClick(contact, action, actionDisplayName)
+                },
+            )
         }
     }
 }

@@ -4,6 +4,7 @@ import android.content.Intent
 import com.tk.quicksearch.search.data.AppShortcutRepository.SearchTargetShortcutMode
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
+import com.tk.quicksearch.search.contacts.models.ContactCardAction
 import com.tk.quicksearch.search.data.preferences.ResultTrigger
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
@@ -90,6 +91,21 @@ internal interface SearchViewModelManagementApi {
 
     fun getContactTrigger(contactId: Long): ResultTrigger? =
         managementApiDelegate.getContactTrigger(contactId)
+
+    fun setContactActionTrigger(
+        contactInfo: ContactInfo,
+        action: ContactCardAction,
+        trigger: ResultTrigger?,
+    ) = managementApiDelegate.setContactActionTrigger(contactInfo, action, trigger)
+
+    fun getContactActionTrigger(
+        contactId: Long,
+        action: ContactCardAction,
+    ): ResultTrigger? = managementApiDelegate.getContactActionTrigger(contactId, action)
+
+    fun getAllContactActionTriggers():
+        Map<com.tk.quicksearch.search.data.preferences.ContactActionTriggerKey, ResultTrigger> =
+        managementApiDelegate.getAllContactActionTriggers()
 
     fun pinFile(deviceFile: DeviceFile) = managementApiDelegate.pinFile(deviceFile)
 
@@ -404,6 +420,24 @@ class SearchViewModelManagementApiDelegate internal constructor(
     }
 
     fun getContactTrigger(contactId: Long): ResultTrigger? = userPreferences.getContactTrigger(contactId)
+
+    fun setContactActionTrigger(
+        contactInfo: ContactInfo,
+        action: ContactCardAction,
+        trigger: ResultTrigger?,
+    ) {
+        userPreferences.setContactActionTrigger(contactInfo.contactId, action, trigger)
+        updateUiState { it.copy(nicknameUpdateVersion = it.nicknameUpdateVersion + 1) }
+    }
+
+    fun getContactActionTrigger(
+        contactId: Long,
+        action: ContactCardAction,
+    ): ResultTrigger? = userPreferences.getContactActionTrigger(contactId, action)
+
+    fun getAllContactActionTriggers():
+        Map<com.tk.quicksearch.search.data.preferences.ContactActionTriggerKey, ResultTrigger> =
+        userPreferences.getAllContactActionTriggers()
 
     fun pinFile(deviceFile: DeviceFile) = fileManager().pinFile(deviceFile)
 
