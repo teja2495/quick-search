@@ -211,7 +211,6 @@ fun isAppActivitySource(source: AppShortcutSource): Boolean =
 fun filterAppShortcutSources(
     sources: List<AppShortcutSource>,
     existingShortcuts: List<StaticShortcut>,
-    currentPackageName: String,
 ): List<AppShortcutSource> {
     val locale = Locale.getDefault()
     val existingShortcutNamesByPackage =
@@ -225,7 +224,6 @@ fun filterAppShortcutSources(
 
     return sources
         .asSequence()
-        .filterNot { it.packageName == currentPackageName }
         .distinctBy { "${it.packageName}:${it.className}:${it.sourceType.name}" }
         .filterNot { source ->
             if (source.sourceType == AppShortcutSourceType.APP_ACTIVITY) return@filterNot false

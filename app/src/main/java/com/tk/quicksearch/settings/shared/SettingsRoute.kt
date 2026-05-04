@@ -266,7 +266,6 @@ fun SettingsRoute(
                 filterAppShortcutSources(
                     sources = appShortcutSources,
                     existingShortcuts = state.allAppShortcuts,
-                    currentPackageName = context.packageName,
                 )
             }
     }

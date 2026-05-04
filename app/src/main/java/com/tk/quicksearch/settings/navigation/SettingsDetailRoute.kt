@@ -224,7 +224,6 @@ fun SettingsDetailRoute(
                     filterAppShortcutSources(
                             sources = appShortcutSources,
                             existingShortcuts = state.allAppShortcuts,
-                            currentPackageName = context.packageName,
                     )
                 }
         hasLoadedAppShortcutSources = true

@@ -99,7 +99,6 @@ val context = LocalContext.current
             filterAppShortcutSources(
                 sources = shortcutSources,
                 existingShortcuts = displayShortcuts,
-                currentPackageName = context.packageName,
             )
         }
     val searchTargetShortcutSources by remember(searchTargets, displayShortcuts, filteredShortcutSources) {
