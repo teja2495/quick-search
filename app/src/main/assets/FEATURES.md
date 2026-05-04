@@ -2,7 +2,7 @@
 
 This document highlights all the available features. It also includes details about hidden or non-obvious features that you might miss.
 
-**Version**: 3.3 (Updated Apr 27 2026)
+**Version**: 3.4 (Updated May 4 2026)
 
 ### Search
 
@@ -267,6 +267,7 @@ Long-press on most results to open a context menu with quick actions.
 - **Access Beta Features** - Tap on version number 5 times to unlock new beta features. These features are hidden because they're not fully implemented & tested, so expect bugs. You can disable these features by long-pressing on the version number.
 - Long-press AI Search, Calculator or any tool result to copy it to clipboard.
 - You can send text to Quick Search by selecting Quick Search in phone's text-selection menu and share sheet.
+- Long press on any contact actions to add it to your launcher or add a trigger for it.
 
 ---
 
