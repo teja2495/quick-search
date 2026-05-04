@@ -72,6 +72,7 @@ fun ImportSettingsScreen(
     currentStep: Int,
     totalSteps: Int,
     onImportSuccess: () -> Unit,
+    onSettingsImported: () -> Unit = {},
     onSkip: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -89,6 +90,9 @@ fun ImportSettingsScreen(
                 SettingsBackupManager.importFromUri(context, uri)
             }.isSuccess
             withContext(Dispatchers.Main) {
+                if (isSuccess) {
+                    onSettingsImported()
+                }
                 screenState = if (isSuccess) ImportScreenState.Success else ImportScreenState.Error
             }
         }

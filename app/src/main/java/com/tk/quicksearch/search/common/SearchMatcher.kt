@@ -17,7 +17,7 @@ data class SearchQueryContext(
             SearchQueryContext(
                 normalizedQuery = normalizedQuery,
                 tokens = normalizedQuery.split(QUERY_TOKENS_REGEX).filter { it.isNotBlank() },
-                compactQuery = SearchTextNormalizer.removeSearchWhitespace(normalizedQuery),
+                compactQuery = SearchTextNormalizer.compactForSearch(normalizedQuery),
             )
     }
 }

@@ -241,6 +241,7 @@ fun MainContent(
                                 currentScreen = AppScreen.Main
                             }
                         },
+                        onSettingsImported = searchViewModel::onSettingsImported,
                         onSkip = { currentScreen = AppScreen.SearchEngineSetup },
                     )
                 }

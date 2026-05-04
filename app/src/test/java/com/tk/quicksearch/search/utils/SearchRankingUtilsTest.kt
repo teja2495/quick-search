@@ -27,6 +27,15 @@ class SearchRankingUtilsTest {
     }
 
     @Test
+    fun compactMatchingIgnoresPunctuationSeparators() {
+        listOf("fdr", "fdro", "fdroi").forEach { query ->
+            val priority = SearchRankingUtils.calculateMatchPriority("F-Droid", query)
+
+            assertTrue("Expected F-Droid to match $query", DefaultSearchMatcher.isMatch(priority))
+        }
+    }
+
+    @Test
     fun nicknameMatchingIsSpaceInsensitive() {
         val priority =
             SearchRankingUtils.calculateMatchPriorityWithNickname(

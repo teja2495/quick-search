@@ -6,6 +6,7 @@ import java.util.Locale
 private val DIACRITIC_MARKS_REGEX = "\\p{M}+".toRegex()
 private val NORMALIZE_WHITESPACE_REGEX = "[\\s\\u00A0]+".toRegex()
 private val SEARCH_WHITESPACE_REGEX = "[\\s\\u00A0]+".toRegex()
+private val SEARCH_SEPARATOR_REGEX = "[^\\p{L}\\p{Nd}]+".toRegex()
 
 object SearchTextNormalizer {
     /**
@@ -29,4 +30,6 @@ object SearchTextNormalizer {
             .trim()
 
     fun removeSearchWhitespace(text: String): String = text.replace(SEARCH_WHITESPACE_REGEX, "")
+
+    fun compactForSearch(text: String): String = text.replace(SEARCH_SEPARATOR_REGEX, "")
 }

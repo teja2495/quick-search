@@ -86,6 +86,25 @@ class AppSearchAlgorithmTest {
     }
 
     @Test
+    fun punctuationSeparatedAppNameMatchesCompactPrefixQuery() {
+        val fdroid = app("F-Droid", "fdroid")
+
+        listOf("fdr", "fdro", "fdroi").forEach { query ->
+            val matches =
+                AppSearchAlgorithm.findMatches(
+                    query = query,
+                    source = listOf(fdroid),
+                    limit = 10,
+                    fuzzySearchStrategy = FuzzyAppSearchStrategy(FuzzySearchConfig.DEFAULT_APP_CONFIG),
+                    appNicknames = emptyMap(),
+                    sortAppsByUsageEnabled = false,
+                )
+
+            assertEquals("Expected F-Droid to match $query", listOf(fdroid), matches)
+        }
+    }
+
+    @Test
     fun typoEligibleCandidatesAreNotStarvedByUnrelatedApps() {
         val github = app("GitHub", "github")
         val unrelatedApps =

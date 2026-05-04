@@ -34,7 +34,7 @@ object SearchRankingUtils {
         val normalizedQuery = SearchTextNormalizer.normalizeForSearch(query.trim())
         // Parse query tokens once for reuse
         val queryTokens = normalizedQuery.split(WHITESPACE_REGEX).filter { it.isNotBlank() }
-        val compactQuery = SearchTextNormalizer.removeSearchWhitespace(normalizedQuery)
+        val compactQuery = SearchTextNormalizer.compactForSearch(normalizedQuery)
 
         return calculateMatchPriority(text, normalizedQuery, queryTokens, compactQuery)
     }
@@ -47,12 +47,12 @@ object SearchRankingUtils {
         text: String,
         normalizedQuery: String,
         queryTokens: List<String>,
-        compactQuery: String = SearchTextNormalizer.removeSearchWhitespace(normalizedQuery),
+        compactQuery: String = SearchTextNormalizer.compactForSearch(normalizedQuery),
     ): Int {
         if (normalizedQuery.isBlank()) return PRIORITY_NO_MATCH
 
         val normalizedText = SearchTextNormalizer.normalizeForSearch(text)
-        val compactText = SearchTextNormalizer.removeSearchWhitespace(normalizedText)
+        val compactText = SearchTextNormalizer.compactForSearch(normalizedText)
         val isMultiWord = queryTokens.size > 1
         val primaryToken = queryTokens.lastOrNull() ?: normalizedQuery
         val textWords = normalizedText.split(WHITESPACE_REGEX)
@@ -168,7 +168,7 @@ object SearchRankingUtils {
         val normalizedQuery = SearchTextNormalizer.normalizeForSearch(query.trim())
         // Parse query tokens once for reuse
         val queryTokens = normalizedQuery.split(WHITESPACE_REGEX).filter { it.isNotBlank() }
-        val compactQuery = SearchTextNormalizer.removeSearchWhitespace(normalizedQuery)
+        val compactQuery = SearchTextNormalizer.compactForSearch(normalizedQuery)
 
         return calculateMatchPriorityWithNickname(
             primaryText,
@@ -187,7 +187,7 @@ object SearchRankingUtils {
         nickname: String?,
         normalizedQuery: String,
         queryTokens: List<String>,
-        compactQuery: String = SearchTextNormalizer.removeSearchWhitespace(normalizedQuery),
+        compactQuery: String = SearchTextNormalizer.compactForSearch(normalizedQuery),
     ): Int {
         if (normalizedQuery.isBlank()) return PRIORITY_NO_MATCH
 
