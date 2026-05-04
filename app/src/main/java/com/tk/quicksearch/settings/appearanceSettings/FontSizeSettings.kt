@@ -8,8 +8,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.TextFields
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,11 +48,26 @@ fun FontSizeCard(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            SettingsToggleRow(
+                    title = stringResource(R.string.settings_use_system_font_title),
+                    subtitle = stringResource(R.string.settings_use_system_font_desc),
+                    checked = useSystemFont,
+                    onCheckedChange = onUseSystemFontChange,
+                    leadingIcon = Icons.Rounded.TextFields,
+                    horizontalPadding = 4.dp,
+                    showDivider = false,
+            )
+
+            HorizontalDivider(
+                    color = AppColors.SettingsDivider,
+                    modifier = Modifier.padding(start = 4.dp, top = 1.dp, end = 4.dp, bottom = 4.dp),
+            )
+
             Text(
                     text = stringResource(R.string.settings_font_size_title),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(start = 4.dp, end = 4.dp, bottom = 4.dp),
+                    modifier = Modifier.padding(start = 4.dp, end = 4.dp),
             )
 
             Row(
@@ -88,14 +106,6 @@ fun FontSizeCard(
                     )
                 }
             }
-
-            SettingsToggleRow(
-                    title = stringResource(R.string.settings_use_system_font_title),
-                    checked = useSystemFont,
-                    onCheckedChange = onUseSystemFontChange,
-                    horizontalPadding = 4.dp,
-                    showDivider = false,
-            )
         }
     }
 }

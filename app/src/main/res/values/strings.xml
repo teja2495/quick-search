@@ -538,8 +538,10 @@
     <string name="settings_font_size_big">Big</string>
     <string name="settings_font_size_medium">Medium</string>
     <string name="settings_font_size_small">Small</string>
+    <string name="settings_font_title">Font</string>
     <string name="settings_font_size_title">Font Size</string>
     <string name="settings_use_system_font_title">Use System Font</string>
+    <string name="settings_use_system_font_desc">Follow your device font style</string>
     <string name="settings_gemini_api_key_add">Add Key</string>
     <string name="settings_llm_api_key_display_gemini">Your Gemini API key:  ****%1$s</string>
     <string name="settings_llm_api_key_display_openai">Your OpenAI API key:  ****%1$s</string>
