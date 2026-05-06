@@ -190,7 +190,7 @@ private fun LinkStyledNoteTextField(
                 val labelRes =
                     when {
                         url.startsWith("tel:", ignoreCase = true) ->
-                            R.string.notes_editor_action_call
+                            R.string.contact_method_call_label
                         url.startsWith("mailto:", ignoreCase = true) ->
                             R.string.notes_editor_action_send_email
                         else -> R.string.notes_editor_action_open_link

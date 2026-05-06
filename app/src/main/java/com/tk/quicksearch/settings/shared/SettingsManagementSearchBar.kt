@@ -71,7 +71,7 @@ fun SettingsManagementSearchBar(
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.Close,
-                            contentDescription = stringResource(R.string.desc_close),
+                            contentDescription = stringResource(R.string.common_close),
                         )
                     }
                 }

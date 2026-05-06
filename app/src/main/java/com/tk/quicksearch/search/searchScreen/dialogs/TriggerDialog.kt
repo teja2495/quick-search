@@ -151,7 +151,7 @@ fun TriggerDialog(
                         checked = triggerAfterSpace,
                         onCheckedChange = { triggerAfterSpace = it },
                     )
-                    Text(text = stringResource(R.string.dialog_trigger_after_space))
+                    Text(text = stringResource(R.string.alias_trigger_after_space))
                 }
             }
         },

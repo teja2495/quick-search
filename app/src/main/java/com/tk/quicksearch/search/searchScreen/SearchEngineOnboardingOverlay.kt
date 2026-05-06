@@ -307,7 +307,7 @@ private fun OnboardingContent(
         ) {
             Icon(
                     imageVector = Icons.Rounded.Close,
-                    contentDescription = stringResource(R.string.desc_close),
+                    contentDescription = stringResource(R.string.common_close),
                     tint = AppColors.DialogText,
                     modifier = Modifier.size(DesignTokens.IconSizeSmall),
             )

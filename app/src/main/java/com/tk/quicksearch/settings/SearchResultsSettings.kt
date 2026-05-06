@@ -249,7 +249,7 @@ private fun TopMatchesCard(
     SettingsCard(modifier = modifier.fillMaxWidth()) {
         Column {
             SettingsToggleRow(
-                title = stringResource(R.string.top_matches_toggle_title),
+                title = stringResource(R.string.top_matches_title),
                 subtitle = stringResource(R.string.top_matches_toggle_desc),
                 checked = topMatchesEnabled,
                 onCheckedChange = onTopMatchesToggle,
@@ -452,7 +452,7 @@ private fun PriorityReorderDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.action_close))
+                Text(text = stringResource(R.string.common_close))
             }
         },
     )

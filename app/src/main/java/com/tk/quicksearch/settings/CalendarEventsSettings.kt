@@ -367,7 +367,7 @@ fun CalendarEventsBottomBar(
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Add,
-                    contentDescription = stringResource(R.string.calendar_create_event_cta),
+                    contentDescription = stringResource(R.string.calendar_create_event_title),
                     modifier = Modifier.size(24.dp),
                 )
             }
@@ -390,7 +390,7 @@ fun CalendarEventsBottomBar(
                 shape = CalendarSettingsBarCornerShape,
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
-                text = { Text(text = stringResource(R.string.calendar_create_event_cta)) },
+                text = { Text(text = stringResource(R.string.calendar_create_event_title)) },
                 icon = {
                     Icon(
                         imageVector = Icons.Rounded.Add,

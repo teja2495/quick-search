@@ -484,7 +484,7 @@ private fun FolderFilterList(
                 contentDescription = null,
                 modifier = Modifier.size(FileTypesSpacing.chipIconSize),
             )
-            Text(text = stringResource(R.string.settings_folder_filter_add_button))
+            Text(text = stringResource(R.string.common_action_add))
         }
     }
 }
@@ -699,7 +699,7 @@ private fun FolderSearchResultRow(
         }
         Icon(
             imageVector = Icons.Rounded.Add,
-            contentDescription = stringResource(R.string.settings_folder_filter_add_button),
+            contentDescription = stringResource(R.string.common_action_add),
             tint =
                 if (alreadySelected) {
                     MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)

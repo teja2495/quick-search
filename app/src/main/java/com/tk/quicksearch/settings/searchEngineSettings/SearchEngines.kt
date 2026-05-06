@@ -221,7 +221,7 @@ private fun SearchEngineAliasSuffixCard(
                     onCheckedChange = null,
                 )
                 Text(
-                    text = stringResource(R.string.settings_alias_trigger_after_space),
+                    text = stringResource(R.string.alias_trigger_after_space),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(start = DesignTokens.SpacingMedium),

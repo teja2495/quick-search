@@ -126,7 +126,7 @@ fun ModelPickerDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.desc_close))
+                Text(text = stringResource(R.string.common_close))
             }
         },
     )

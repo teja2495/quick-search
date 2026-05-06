@@ -555,7 +555,7 @@ private fun ContactActionHintBubble(
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Close,
-                    contentDescription = stringResource(R.string.desc_close),
+                    contentDescription = stringResource(R.string.common_close),
                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.size(18.dp),
                 )

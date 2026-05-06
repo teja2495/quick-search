@@ -451,7 +451,7 @@ private fun CustomButtonSlotContent(
                     modifier = Modifier.size(iconSize),
                 )
                 Text(
-                    text = stringResource(R.string.widget_custom_button_add),
+                    text = stringResource(R.string.common_action_add),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,

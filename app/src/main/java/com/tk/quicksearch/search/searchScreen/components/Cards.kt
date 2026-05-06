@@ -108,7 +108,7 @@ internal fun UsagePermissionCard(
                     Icon(
                         imageVector = Icons.Rounded.Close,
                         contentDescription =
-                            stringResource(R.string.desc_close),
+                            stringResource(R.string.common_close),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(DesignTokens.IconSizeSmall),
                     )

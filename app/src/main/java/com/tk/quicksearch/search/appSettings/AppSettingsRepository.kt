@@ -349,7 +349,7 @@ class AppSettingsRepository(
             )
             addNavigation(
                 id = "app_settings_top_matches",
-                titleRes = R.string.top_matches_toggle_title,
+                titleRes = R.string.top_matches_title,
                 descriptionRes = R.string.top_matches_toggle_desc,
                 destination = AppSettingsDestination.SEARCH_RESULTS,
                 keywords = listOf("top matches", "best results", "searches"),
