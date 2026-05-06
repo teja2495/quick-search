@@ -1,9 +1,7 @@
 package com.tk.quicksearch.shared.util
 
-import android.Manifest
 import android.app.WallpaperManager
 import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
@@ -16,7 +14,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.shared.permissions.PermissionHelper
-import androidx.core.content.ContextCompat
 import java.io.File
 import java.io.FileOutputStream
 import kotlinx.coroutines.CoroutineScope
@@ -68,78 +65,45 @@ object WallpaperUtils {
     data class WallpaperAccessState(
         val wallpaperAvailable: Boolean,
         val needsPermission: Boolean,
-        val requiresImagePermissionAfterSecurityError: Boolean,
+        val securityError: Boolean,
         val shouldSelectSystemWallpaper: Boolean,
-        val shouldShowFallbackDialog: Boolean,
     )
 
-    /**
-     * Permission gate used by wallpaper background selection flows.
-     * This follows the app's files-permission model for wallpaper access.
-     */
     fun hasWallpaperAccessPermission(context: Context): Boolean =
         PermissionHelper.checkFilesPermission(context)
 
-    /**
-     * Checks if the app has permission to access wallpapers on Android 13+.
-     */
-    fun hasWallpaperPermission(context: Context): Boolean =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.READ_MEDIA_IMAGES,
-            ) == PackageManager.PERMISSION_GRANTED
-        } else {
-            // On older Android versions, wallpaper access doesn't require special permissions
-            true
-        }
-
-    /**
-     * Checks if wallpaper access would require special permission on this device.
-     * This is used to determine if we should show permission prompts to the user.
-     */
-    fun wallpaperRequiresPermission(context: Context): Boolean =
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !hasWallpaperPermission(context)
-
-    fun resolveWallpaperAccessState(
-        result: WallpaperLoadResult,
-        showFallbackDialogOnSecurityError: Boolean = true,
-    ): WallpaperAccessState =
+    fun resolveWallpaperAccessState(result: WallpaperLoadResult): WallpaperAccessState =
         when (result) {
             is WallpaperLoadResult.Success ->
                 WallpaperAccessState(
                     wallpaperAvailable = true,
                     needsPermission = false,
-                    requiresImagePermissionAfterSecurityError = false,
+                    securityError = false,
                     shouldSelectSystemWallpaper = true,
-                    shouldShowFallbackDialog = false,
-                )
-
-            WallpaperLoadResult.SecurityError ->
-                WallpaperAccessState(
-                    wallpaperAvailable = false,
-                    needsPermission = true,
-                    requiresImagePermissionAfterSecurityError = true,
-                    shouldSelectSystemWallpaper = false,
-                    shouldShowFallbackDialog = showFallbackDialogOnSecurityError,
                 )
 
             WallpaperLoadResult.PermissionRequired ->
                 WallpaperAccessState(
                     wallpaperAvailable = false,
                     needsPermission = true,
-                    requiresImagePermissionAfterSecurityError = false,
+                    securityError = false,
                     shouldSelectSystemWallpaper = false,
-                    shouldShowFallbackDialog = false,
+                )
+
+            WallpaperLoadResult.SecurityError ->
+                WallpaperAccessState(
+                    wallpaperAvailable = false,
+                    needsPermission = false,
+                    securityError = true,
+                    shouldSelectSystemWallpaper = false,
                 )
 
             WallpaperLoadResult.Unavailable ->
                 WallpaperAccessState(
                     wallpaperAvailable = false,
                     needsPermission = false,
-                    requiresImagePermissionAfterSecurityError = false,
+                    securityError = false,
                     shouldSelectSystemWallpaper = false,
-                    shouldShowFallbackDialog = false,
                 )
         }
 
@@ -166,9 +130,18 @@ object WallpaperUtils {
      */
     fun getCachedWallpaperBitmap(): Bitmap? = cachedBitmap
 
-    /**
-     * Clears the in-memory system wallpaper cache so the next read fetches the latest wallpaper.
-     */
+    fun copyImageToInternalStorage(context: Context, sourceUri: Uri): String? =
+        runCatching {
+            val dir = File(context.filesDir, "backgrounds")
+            dir.listFiles { f -> f.name.startsWith("custom_background_") }?.forEach { it.delete() }
+            if (!dir.exists()) dir.mkdirs()
+            val dest = File(dir, "custom_background_${System.currentTimeMillis()}.jpg")
+            context.contentResolver.openInputStream(sourceUri)?.use { input ->
+                FileOutputStream(dest).use { output -> input.copyTo(output) }
+            }
+            Uri.fromFile(dest).toString()
+        }.getOrNull()
+
     fun invalidateWallpaperCache() {
         cachedBitmap = null
         cachedSystemWallpaperId = null

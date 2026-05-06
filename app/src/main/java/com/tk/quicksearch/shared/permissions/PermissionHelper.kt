@@ -87,33 +87,13 @@ object PermissionHelper {
             Manifest.permission.READ_CALENDAR,
         ) == PackageManager.PERMISSION_GRANTED
 
-    fun checkWallpaperPermission(context: Context): Boolean =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.READ_MEDIA_IMAGES,
-            ) == PackageManager.PERMISSION_GRANTED
-        } else {
-            true
-        }
-
     fun requestWallpaperPermission(
         context: Context,
-        requiresImagePermissionAfterSecurityError: Boolean,
-        imagePermissionLauncher: ActivityResultLauncher<String>,
         legacyFilesPermissionLauncher: ActivityResultLauncher<String>,
         allFilesLauncher: ActivityResultLauncher<Intent>,
         onRequestingFilesPermission: (() -> Unit)? = null,
         onFilesPermissionAlreadyGranted: (() -> Unit)? = null,
     ) {
-        if (
-            requiresImagePermissionAfterSecurityError &&
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-        ) {
-            imagePermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
-            return
-        }
-
         if (!checkFilesPermission(context)) {
             onRequestingFilesPermission?.invoke()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -125,17 +105,6 @@ object PermissionHelper {
         }
 
         onFilesPermissionAlreadyGranted?.invoke()
-    }
-
-    fun requestWallpaperGalleryPermission(
-        imagePermissionLauncher: ActivityResultLauncher<String>,
-        onUnsupportedVersion: (() -> Unit)? = null,
-    ) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            imagePermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
-        } else {
-            onUnsupportedVersion?.invoke()
-        }
     }
 
     fun shouldOpenSettingsForFiles(

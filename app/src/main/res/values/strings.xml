@@ -694,8 +694,6 @@
     <string name="settings_wallpaper_transparency_label">Transparency</string>
     <string name="shortcut_song_search_label">Song Search</string>
     <string name="shortcut_watch_later_label">Watch Later</string>
-    <string name="wallpaper_permission_fallback_message">Couldn\u2019t fetch wallpaper with files permission. Should I try another method to fetch your wallpaper?</string>
-    <string name="wallpaper_permission_fallback_title">Wallpaper Error</string>
     <!-- ============================================================================
          Widget
          ============================================================================ -->

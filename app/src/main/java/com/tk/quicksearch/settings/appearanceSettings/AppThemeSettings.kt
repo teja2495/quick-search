@@ -66,6 +66,7 @@ import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.search.data.preferences.UiPreferences
+import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.search.searchScreen.AppThemeColors
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -387,6 +388,8 @@ fun WallpaperCard(
     val isWallpaperSourceSelected =
             backgroundSource == BackgroundSource.SYSTEM_WALLPAPER && hasWallpaperPermission
     val isCustomSourceSelected = backgroundSource == BackgroundSource.CUSTOM_IMAGE
+    val shouldHideSystemWallpaperSource =
+            !hasWallpaperPermission && PermissionHelper.checkFilesPermission(context)
 
     val wallpaperAlphaDisplayValue = (wallpaperBackgroundAlpha / 0.7f).coerceIn(0f, 1f)
     var lastAlphaStep by remember {
@@ -418,70 +421,72 @@ fun WallpaperCard(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                OverlaySourceBox(
-                        modifier = Modifier.weight(1f),
-                        selected = isWallpaperSourceSelected,
-                        enabled = true,
-                        hasImage = wallpaperPreviewBitmap != null,
-                        onClick = {
-                            hapticToggle(view)()
-                            if (isWallpaperSourceSelected) {
-                                onSetBackgroundSource(BackgroundSource.THEME)
-                            } else {
-                                onRequestWallpaperPermission()
+                if (!shouldHideSystemWallpaperSource) {
+                    OverlaySourceBox(
+                            modifier = Modifier.weight(1f),
+                            selected = isWallpaperSourceSelected,
+                            enabled = true,
+                            hasImage = wallpaperPreviewBitmap != null,
+                            onClick = {
+                                hapticToggle(view)()
+                                if (isWallpaperSourceSelected) {
+                                    onSetBackgroundSource(BackgroundSource.THEME)
+                                } else {
+                                    onRequestWallpaperPermission()
+                                }
+                            },
+                            label = stringResource(R.string.settings_overlay_source_wallpaper),
+                    ) {
+                        if (!hasWallpaperPermission) {
+                            Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                Icon(
+                                        imageVector = Icons.Rounded.Info,
+                                        contentDescription =
+                                                stringResource(
+                                                        R.string.permission_required_title,
+                                                ),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(14.dp),
+                                )
+                                Text(
+                                        text =
+                                                stringResource(
+                                                        R.string.settings_overlay_source_needs_permission,
+                                                ),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
                             }
-                        },
-                        label = stringResource(R.string.settings_overlay_source_wallpaper),
-                ) {
-                    if (!hasWallpaperPermission) {
-                        Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            Icon(
-                                    imageVector = Icons.Rounded.Info,
-                                    contentDescription =
-                                            stringResource(
-                                                    R.string.permission_required_title,
-                                            ),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(14.dp),
-                            )
-                            Text(
-                                    text =
-                                            stringResource(
-                                                    R.string.settings_overlay_source_needs_permission,
-                                            ),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    } else if (wallpaperPreviewBitmap != null) {
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            Image(
-                                    bitmap = wallpaperPreviewBitmap!!,
-                                    contentDescription = null,
-                                    modifier =
-                                            Modifier.fillMaxSize()
-                                                    .then(
-                                                            if (isWallpaperSourceSelected) {
-                                                                Modifier.blur(wallpaperBlurRadius.dp)
-                                                            } else {
-                                                                Modifier
-                                                            },
-                                                    ),
-                                    contentScale = ContentScale.Crop,
-                            )
-                            if (isWallpaperSourceSelected) {
-                                Box(
+                        } else if (wallpaperPreviewBitmap != null) {
+                            Box(modifier = Modifier.fillMaxSize()) {
+                                Image(
+                                        bitmap = wallpaperPreviewBitmap!!,
+                                        contentDescription = null,
                                         modifier =
                                                 Modifier.fillMaxSize()
-                                                        .background(
-                                                                AppColors.WallpaperOverlayTint.copy(
-                                                                        alpha = wallpaperBackgroundAlpha,
-                                                                ),
+                                                        .then(
+                                                                if (isWallpaperSourceSelected) {
+                                                                    Modifier.blur(wallpaperBlurRadius.dp)
+                                                                } else {
+                                                                    Modifier
+                                                                },
                                                         ),
+                                        contentScale = ContentScale.Crop,
                                 )
+                                if (isWallpaperSourceSelected) {
+                                    Box(
+                                            modifier =
+                                                    Modifier.fillMaxSize()
+                                                            .background(
+                                                                    AppColors.WallpaperOverlayTint.copy(
+                                                                            alpha = wallpaperBackgroundAlpha,
+                                                                    ),
+                                                            ),
+                                    )
+                                }
                             }
                         }
                     }
