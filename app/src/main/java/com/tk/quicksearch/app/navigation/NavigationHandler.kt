@@ -26,7 +26,7 @@ class NavigationHandler(
     private val onRequestAiSearch: (String, Boolean) -> Unit,
     private val onClearQuery: () -> Unit,
     private val onExternalNavigation: () -> Unit,
-    private val showToastCallback: (Int) -> Unit,
+    private val showToastCallback: (Int, String?) -> Unit,
 ) {
     private val mainHandler = Handler(Looper.getMainLooper())
 
@@ -70,10 +70,8 @@ class NavigationHandler(
         appInfo: AppInfo,
         shouldTrackRecentFallback: Boolean,
     ) {
-        IntentHelpers.launchApp(application, appInfo) { stringResId, _ ->
-            // For now, just show the string resource ID since we can't format from UI layer
-            // TODO: Consider passing formatted strings or extending the callback
-            showToastCallback(stringResId)
+        IntentHelpers.launchApp(application, appInfo) { stringResId, formatArg ->
+            showToastCallback(stringResId, formatArg)
         }
         userPreferences.incrementAppLaunchCount(appInfo.packageName, appInfo.userHandleId)
         if (shouldTrackRecentFallback) {
@@ -93,10 +91,8 @@ class NavigationHandler(
     }
 
     fun requestUninstall(appInfo: AppInfo) {
-        IntentHelpers.requestUninstall(application, appInfo) { stringResId, _ ->
-            // For now, just show the string resource ID since we can't format from UI layer
-            // TODO: Consider passing formatted strings or extending the callback
-            showToastCallback(stringResId)
+        IntentHelpers.requestUninstall(application, appInfo) { stringResId, formatArg ->
+            showToastCallback(stringResId, formatArg)
         }
         onExternalNavigation()
     }
@@ -124,14 +120,7 @@ class NavigationHandler(
             } else {
                 null
             }
-        IntentHelpers.openSearchUrl(application, trimmedQuery, searchEngine, amazonDomain) {
-            stringResId,
-            _,
-            ->
-            // For now, just show the string resource ID since we can't format from UI layer
-            // TODO: Consider passing formatted strings or extending the callback
-            showToastCallback(stringResId)
-        }
+        IntentHelpers.openSearchUrl(application, trimmedQuery, searchEngine, amazonDomain, showToastCallback)
 
         // Always clear query after search
         onClearQuery()
@@ -158,13 +147,13 @@ class NavigationHandler(
                         application,
                         normalizeToBrowsableUrl(trimmedQuery) ?: trimmedQuery,
                         target.app.packageName,
-                    ) { stringResId, _ -> showToastCallback(stringResId) }
+                    ) { stringResId, formatArg -> showToastCallback(stringResId, formatArg) }
                 } else {
                     IntentHelpers.openBrowserSearch(
                         application,
                         trimmedQuery,
                         target.app.packageName,
-                    ) { stringResId, _ -> showToastCallback(stringResId) }
+                    ) { stringResId, formatArg -> showToastCallback(stringResId, formatArg) }
                 }
 
                 onClearQuery()
@@ -180,7 +169,7 @@ class NavigationHandler(
                     trimmedQuery,
                     target.custom.urlTemplate,
                     target.custom.browserPackage,
-                ) { stringResId, _ -> showToastCallback(stringResId) }
+                ) { stringResId, formatArg -> showToastCallback(stringResId, formatArg) }
 
                 onClearQuery()
             }
@@ -197,7 +186,7 @@ class NavigationHandler(
         onClearQuery()
         mainHandler.post {
             IntentHelpers.openFile(application, deviceFile) { stringResId, _ ->
-                showToastCallback(stringResId)
+                showToastCallback(stringResId, null)
             }
         }
     }
@@ -206,7 +195,7 @@ class NavigationHandler(
         onClearQuery()
         mainHandler.post {
             IntentHelpers.openContainingFolder(application, deviceFile) { stringResId, _ ->
-                showToastCallback(stringResId)
+                showToastCallback(stringResId, null)
             }
         }
     }
@@ -218,7 +207,7 @@ class NavigationHandler(
 
     fun openContact(contactInfo: ContactInfo) {
         val success = ContactIntentHelpers.openContact(application, contactInfo) { stringResId ->
-            showToastCallback(stringResId)
+            showToastCallback(stringResId, null)
         }
         if (!success) {
             return
@@ -230,7 +219,7 @@ class NavigationHandler(
 
     fun openEmail(email: String) {
         val success = ContactIntentHelpers.composeEmail(application, email) { stringResId ->
-            showToastCallback(stringResId)
+            showToastCallback(stringResId, null)
         }
         if (success) {
             onExternalNavigation()
@@ -240,7 +229,7 @@ class NavigationHandler(
     fun openCalendarEvent(event: CalendarEventInfo) {
         mainHandler.post {
             IntentHelpers.openCalendarEvent(application, event.eventId) { stringResId, _ ->
-                showToastCallback(stringResId)
+                showToastCallback(stringResId, null)
             }
         }
         onClearQuery()

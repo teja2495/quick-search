@@ -81,10 +81,30 @@ internal fun SearchScreenWallpaperLogic(
     }
 
     val shouldUseStartupPreview = wallpaperChangeVersion == 0
+    val startupWallpaperPreviewBitmap =
+        remember(
+            context,
+            state.backgroundSource,
+            state.startupBackgroundPreviewPath,
+            shouldUseStartupPreview,
+        ) {
+            if (
+                state.backgroundSource == BackgroundSource.SYSTEM_WALLPAPER &&
+                    shouldUseStartupPreview
+            ) {
+                WallpaperUtils.getCachedWallpaperBitmap()?.asImageBitmap()
+                    ?: WallpaperUtils.getStartupBackgroundPreviewBitmap(
+                        context = context,
+                        previewPath = state.startupBackgroundPreviewPath,
+                    )?.asImageBitmap()
+            } else {
+                null
+            }
+        }
 
     val sourceWallpaperBitmap =
         produceState<ImageBitmap?>(
-            initialValue = null,
+            initialValue = startupWallpaperPreviewBitmap,
             state.backgroundSource,
             state.wallpaperAvailable,
             state.startupBackgroundPreviewPath,
@@ -97,6 +117,8 @@ internal fun SearchScreenWallpaperLogic(
 
             // Render quickly from cache/preview, then always fetch fresh system wallpaper.
             WallpaperUtils.getCachedWallpaperBitmap()?.asImageBitmap()?.let {
+                value = it
+            } ?: startupWallpaperPreviewBitmap?.let {
                 value = it
             } ?: run {
                 if (shouldUseStartupPreview) {
@@ -160,6 +182,7 @@ internal fun SearchScreenWallpaperLogic(
             backgroundSource = state.backgroundSource,
             hasImageBitmap = imageBitmap?.value != null,
             wallpaperAvailable = state.wallpaperAvailable,
+            requireWallpaperAvailableForSystemSource = startupWallpaperPreviewBitmap == null,
         )
     val useMonoThemeFallback =
         !isOverlayPresentation &&

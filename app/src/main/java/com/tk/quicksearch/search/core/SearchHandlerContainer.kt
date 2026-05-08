@@ -293,6 +293,7 @@ internal class SearchHandlerContainer(
         clearQuery: () -> Unit,
         externalNavigation: () -> Unit,
         onRequestAiSearch: (query: String, addToSearchHistory: Boolean) -> Unit,
+        showFormattedToast: (Int, String?) -> Unit,
         showToastText: (Int) -> Unit,
     ) {
         navigationHandler =
@@ -303,7 +304,7 @@ internal class SearchHandlerContainer(
                 onRequestAiSearch = onRequestAiSearch,
                 onClearQuery = clearQuery,
                 onExternalNavigation = externalNavigation,
-                showToastCallback = showToastText,
+                showToastCallback = showFormattedToast,
             )
 
         contactActionHandler =

@@ -469,6 +469,13 @@ class SearchViewModel(
                 shouldRecordPendingAiSearchQueryInHistory = addToSearchHistory
                 handlers.aiSearchHandler.requestAiSearch(query)
             },
+            showFormattedToast = { resId, formatArg ->
+                val message =
+                    runCatching {
+                        if (formatArg != null) getApplication<Application>().getString(resId, formatArg) else getApplication<Application>().getString(resId)
+                    }.getOrElse { getApplication<Application>().getString(resId) }
+                showToast(message)
+            },
             showToastText = { resId -> showToast(resId) },
         )
     }
