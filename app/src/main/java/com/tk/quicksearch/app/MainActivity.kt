@@ -2,6 +2,8 @@ package com.tk.quicksearch.app
 
 import android.app.SearchManager
 import android.content.Intent
+import android.net.Uri
+import android.provider.OpenableColumns
 import android.os.Bundle
 import android.os.Trace
 import android.view.ViewTreeObserver
@@ -72,6 +74,7 @@ class MainActivity : ComponentActivity() {
         private const val TRACE_CORE_SURFACE_READY = "QS.Startup.CoreSurface.Ready"
         private const val TRACE_WALLPAPER_PREVIEW_READY = "QS.Startup.WallpaperPreview.Ready"
         private const val TRACE_SUGGESTIONS_READY = "QS.Startup.Suggestions.Ready"
+        private const val QUICK_SEARCH_BACKUP_EXTENSION = ".quicksearch"
     }
 
     private val searchViewModel: SearchViewModel by viewModels()
@@ -418,6 +421,16 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleIntent(intent: Intent?) {
+        val settingsImportUri = extractSettingsImportUri(intent)
+        if (settingsImportUri != null) {
+            navigationRequest.value =
+                NavigationRequest(
+                    destination = RootDestination.Settings,
+                    settingsImportUri = settingsImportUri.toString(),
+                )
+            return
+        }
+
         if (isExplicitLauncherLaunch(intent)) {
             navigationRequest.value = NavigationRequest(destination = RootDestination.Search)
         }
@@ -522,6 +535,45 @@ class MainActivity : ComponentActivity() {
     private fun isExplicitLauncherLaunch(intent: Intent?): Boolean {
         if (intent?.action != Intent.ACTION_MAIN) return false
         return intent.hasCategory(Intent.CATEGORY_LAUNCHER)
+    }
+
+    private fun extractSettingsImportUri(intent: Intent?): Uri? {
+        if (intent?.action != Intent.ACTION_VIEW) return null
+        val data = intent.data ?: return null
+        val type = intent.type?.lowercase().orEmpty()
+        val path = data.path?.lowercase().orEmpty()
+        val segment = data.lastPathSegment?.lowercase().orEmpty()
+
+        val displayName =
+            runCatching {
+                contentResolver
+                    .query(data, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
+                    ?.use { cursor ->
+                        val columnIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                        if (columnIndex >= 0 && cursor.moveToFirst()) {
+                            cursor.getString(columnIndex)
+                        } else {
+                            null
+                        }
+                    }
+            }.getOrNull()
+                ?.lowercase()
+                .orEmpty()
+
+        val hasBackupExtension =
+            path.endsWith(QUICK_SEARCH_BACKUP_EXTENSION) ||
+                segment.endsWith(QUICK_SEARCH_BACKUP_EXTENSION) ||
+                displayName.endsWith(QUICK_SEARCH_BACKUP_EXTENSION)
+        if (hasBackupExtension) return data
+
+        // Some providers hide file names; accept openable binary/text file intents as a fallback.
+        val isOpenable = intent.categories?.contains(Intent.CATEGORY_OPENABLE) == true
+        val isGenericFileType =
+            type == "application/octet-stream" ||
+                type == "application/json" ||
+                type == "*/*" ||
+                type.isBlank()
+        return if (isOpenable && isGenericFileType) data else null
     }
 
     private fun maybeExecutePendingSearchTargetShortcut() {

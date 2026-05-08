@@ -51,6 +51,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -118,6 +119,8 @@ fun SettingsScreen(
     onDismissSettingsSearchTip: () -> Unit,
     onNavigateToDetail: (SettingsDetailType) -> Unit,
     onSettingsImported: () -> Unit = {},
+    pendingImportUri: String? = null,
+    onPendingImportUriConsumed: () -> Unit = {},
     scrollState: androidx.compose.foundation.ScrollState =
         androidx.compose.foundation.rememberScrollState(),
 ) {
@@ -126,6 +129,7 @@ fun SettingsScreen(
     val coroutineScope = rememberCoroutineScope()
     FeatureFlags.initialize(context)
     var showImportWarningDialog by remember { mutableStateOf(false) }
+    var pendingImportSourceUri by remember { mutableStateOf<Uri?>(null) }
     var showExportSelectionDialog by remember { mutableStateOf(false) }
     var exportSelectionState by remember { mutableStateOf(ExportSelectionState()) }
     val userPrefs =
@@ -194,30 +198,20 @@ fun SettingsScreen(
             contract = ActivityResultContracts.OpenDocument(),
         ) { uri ->
             if (uri == null) return@rememberLauncherForActivityResult
-            coroutineScope.launch(Dispatchers.IO) {
-                val isSuccess =
-                    runCatching {
-                        SettingsBackupManager.importFromUri(context, uri)
-                    }.isSuccess
-                withContext(Dispatchers.Main) {
-                    val messageResId =
-                        if (isSuccess) {
-                            R.string.settings_backup_import_success
-                        } else {
-                            R.string.settings_backup_import_failed
-                        }
-                    Toast
-                        .makeText(
-                            context,
-                            context.getString(messageResId),
-                            Toast.LENGTH_SHORT,
-                        ).show()
-                    if (isSuccess) {
-                        onSettingsImported()
-                    }
-                }
-            }
+            importSettingsFromUri(
+                context = context,
+                uri = uri,
+                onSuccess = onSettingsImported,
+                coroutineScope = coroutineScope,
+            )
         }
+
+    LaunchedEffect(pendingImportUri) {
+        val incomingUri = pendingImportUri ?: return@LaunchedEffect
+        pendingImportSourceUri = Uri.parse(incomingUri)
+        showImportWarningDialog = true
+        onPendingImportUriConsumed()
+    }
 
     SettingsScreenBackground(
         appTheme = state.appTheme,
@@ -508,7 +502,18 @@ fun SettingsScreen(
                 TextButton(
                     onClick = {
                         showImportWarningDialog = false
-                        importLauncher.launch(arrayOf("*/*"))
+                        val externalUri = pendingImportSourceUri
+                        pendingImportSourceUri = null
+                        if (externalUri != null) {
+                            importSettingsFromUri(
+                                context = context,
+                                uri = externalUri,
+                                onSuccess = onSettingsImported,
+                                coroutineScope = coroutineScope,
+                            )
+                        } else {
+                            importLauncher.launch(arrayOf("*/*"))
+                        }
                     },
                 ) {
                     Text(text = stringResource(R.string.dialog_ok))
@@ -518,6 +523,7 @@ fun SettingsScreen(
                 TextButton(
                     onClick = {
                         showImportWarningDialog = false
+                        pendingImportSourceUri = null
                     },
                 ) {
                     Text(text = stringResource(R.string.dialog_cancel))
@@ -539,6 +545,37 @@ fun SettingsScreen(
                 exportLauncher.launch("quick-search-settings-$defaultName.quicksearch")
             },
         )
+    }
+}
+
+private fun importSettingsFromUri(
+    context: android.content.Context,
+    uri: Uri,
+    onSuccess: () -> Unit,
+    coroutineScope: kotlinx.coroutines.CoroutineScope,
+) {
+    coroutineScope.launch(Dispatchers.IO) {
+        val isSuccess =
+            runCatching {
+                SettingsBackupManager.importFromUri(context, uri)
+            }.isSuccess
+        withContext(Dispatchers.Main) {
+            val messageResId =
+                if (isSuccess) {
+                    R.string.settings_backup_import_success
+                } else {
+                    R.string.settings_backup_import_failed
+                }
+            Toast
+                .makeText(
+                    context,
+                    context.getString(messageResId),
+                    Toast.LENGTH_SHORT,
+                ).show()
+            if (isSuccess) {
+                onSuccess()
+            }
+        }
     }
 }
 

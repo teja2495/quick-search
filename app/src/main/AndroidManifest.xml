@@ -95,6 +95,24 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="text/plain" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.OPENABLE" />
+                <data
+                    android:scheme="content"
+                    android:pathPattern=".*\\.quicksearch" />
+                <data
+                    android:scheme="file"
+                    android:pathPattern=".*\\.quicksearch" />
+                <data
+                    android:scheme="content"
+                    android:pathSuffix=".quicksearch" />
+                <data
+                    android:scheme="file"
+                    android:pathSuffix=".quicksearch" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />

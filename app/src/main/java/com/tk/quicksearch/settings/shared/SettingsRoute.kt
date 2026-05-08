@@ -88,6 +88,8 @@ fun SettingsRoute(
     viewModel: SearchViewModel,
     onNavigateToDetail: (com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType) -> Unit =
         {},
+    pendingImportUri: String? = null,
+    onPendingImportUriConsumed: () -> Unit = {},
     scrollState: androidx.compose.foundation.ScrollState =
         androidx.compose.foundation.rememberScrollState(),
 ) {
@@ -460,6 +462,8 @@ fun SettingsRoute(
         onDismissSettingsSearchTip = onDismissSettingsSearchTip,
         onNavigateToDetail = onNavigateToDetail,
         onSettingsImported = viewModel::onSettingsImported,
+        pendingImportUri = pendingImportUri,
+        onPendingImportUriConsumed = onPendingImportUriConsumed,
         scrollState = scrollState,
     )
 

@@ -187,8 +187,8 @@ class NavigationHandler(
         userPreferences.addRecentItem(RecentSearchEntry.File(deviceFile.uri.toString()))
         onClearQuery()
         mainHandler.post {
-            IntentHelpers.openFile(application, deviceFile) { stringResId, _ ->
-                showToastCallback(stringResId, null)
+            IntentHelpers.openFile(application, deviceFile) { stringResId, formatArg ->
+                showToastCallback(stringResId, formatArg)
             }
         }
     }
@@ -196,8 +196,8 @@ class NavigationHandler(
     fun openContainingFolder(deviceFile: DeviceFile) {
         onClearQuery()
         mainHandler.post {
-            IntentHelpers.openContainingFolder(application, deviceFile) { stringResId, _ ->
-                showToastCallback(stringResId, null)
+            IntentHelpers.openContainingFolder(application, deviceFile) { stringResId, formatArg ->
+                showToastCallback(stringResId, formatArg)
             }
         }
     }

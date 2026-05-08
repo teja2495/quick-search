@@ -77,6 +77,7 @@ private fun directionalNavigationTransition(
 data class NavigationRequest(
     val destination: RootDestination,
     val settingsDetailType: SettingsDetailType? = null,
+    val settingsImportUri: String? = null,
 )
 
 enum class AppScreen {
@@ -111,6 +112,9 @@ fun MainContent(
     val initialSettingsDetailType = navigationRequest?.settingsDetailType
     var destination by rememberSaveable { mutableStateOf(initialDestination) }
     var settingsDetailType by rememberSaveable { mutableStateOf(initialSettingsDetailType) }
+    var pendingSettingsImportUri by rememberSaveable {
+        mutableStateOf(navigationRequest?.settingsImportUri)
+    }
     var previousSettingsDetailType by remember { mutableStateOf<SettingsDetailType?>(null) }
 
     LaunchedEffect(navigationRequest) {
@@ -120,6 +124,7 @@ fun MainContent(
             // When null (e.g. returning to home on app reopen), preserve the last visited
             // settings screen so tapping the settings icon resumes where the user left off.
             request.settingsDetailType?.let { settingsDetailType = it }
+            request.settingsImportUri?.let { pendingSettingsImportUri = it }
             onNavigationRequestHandled()
         }
     }
@@ -360,6 +365,8 @@ fun MainContent(
                         previousSettingsDetailType = null
                         settingsDetailType = it
                     },
+                    pendingSettingsImportUri = pendingSettingsImportUri,
+                    onPendingSettingsImportUriConsumed = { pendingSettingsImportUri = null },
                     viewModel = searchViewModel,
                     onSearchBackPressed = onSearchBackPressed,
                     onFinishActivity = onFinishActivity,
@@ -377,6 +384,8 @@ private fun NavigationContent(
     previousSettingsDetailType: SettingsDetailType?,
     onSettingsDetailTypeChange: (SettingsDetailType?) -> Unit,
     onSettingsDetailTypeChangeFromSearch: (SettingsDetailType?) -> Unit,
+    pendingSettingsImportUri: String?,
+    onPendingSettingsImportUriConsumed: () -> Unit,
     viewModel: SearchViewModel,
     onSearchBackPressed: () -> Unit,
     onFinishActivity: () -> Unit,
@@ -424,6 +433,8 @@ private fun NavigationContent(
                     },
                     onRootAnimationDirectionChange = { rootAnimationDirectionOverride = it },
                     onDestinationChange = onDestinationChange,
+                    pendingSettingsImportUri = pendingSettingsImportUri,
+                    onPendingSettingsImportUriConsumed = onPendingSettingsImportUriConsumed,
                     viewModel = viewModel,
                     onFinishActivity = onFinishActivity,
                 )
@@ -556,6 +567,8 @@ private fun SettingsNavigationContent(
     onSettingsDetailAnimationDirectionConsumed: () -> Unit,
     onRootAnimationDirectionChange: (SwipeAnimationDirection) -> Unit,
     onDestinationChange: (RootDestination) -> Unit,
+    pendingSettingsImportUri: String?,
+    onPendingSettingsImportUriConsumed: () -> Unit,
     viewModel: SearchViewModel,
     onFinishActivity: () -> Unit,
 ) {
@@ -618,6 +631,8 @@ private fun SettingsNavigationContent(
                 },
                 viewModel = viewModel,
                 onNavigateToDetail = onSettingsDetailTypeChange,
+                pendingImportUri = pendingSettingsImportUri,
+                onPendingImportUriConsumed = onPendingSettingsImportUriConsumed,
                 scrollState = settingsScrollState,
             )
         }
