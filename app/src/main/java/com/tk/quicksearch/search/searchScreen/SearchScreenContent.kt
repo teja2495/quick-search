@@ -82,7 +82,8 @@ import com.tk.quicksearch.tools.aiTools.WordClockIntentParser
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private const val OPEN_KEYBOARD_ACTION_APPEAR_DELAY_MS = 500L
+private const val OPEN_KEYBOARD_ACTION_APPEAR_DELAY_MS = 200L
+private const val OPEN_KEYBOARD_COLD_START_SUPPRESS_MS = 1000L
 private const val SEARCH_HINT_ROTATION_INTERVAL_MS = 5000L
 
 private data class ToolCardConfig(
@@ -146,8 +147,9 @@ internal fun SearchScreenContent(
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val density = LocalDensity.current
+    val openKeyboardOnLaunchOnStartup = remember { state.openKeyboardOnLaunch }
     var canShowOpenKeyboardPill by
-            remember(isOverlayPresentation) { mutableStateOf(!isOverlayPresentation) }
+            remember(isOverlayPresentation) { mutableStateOf(!isOverlayPresentation && !openKeyboardOnLaunchOnStartup) }
     var delayedOpenKeyboardActionVisible by remember { mutableStateOf(false) }
     var hideOpenKeyboardActionInstantly by remember { mutableStateOf(false) }
     var isSearchHistoryExpanded by remember { mutableStateOf(false) }
@@ -156,6 +158,9 @@ internal fun SearchScreenContent(
 
     LaunchedEffect(isOverlayPresentation) {
         if (!isOverlayPresentation) {
+            if (openKeyboardOnLaunchOnStartup) {
+                delay(OPEN_KEYBOARD_COLD_START_SUPPRESS_MS)
+            }
             canShowOpenKeyboardPill = true
             return@LaunchedEffect
         }
