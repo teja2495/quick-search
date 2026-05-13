@@ -10,21 +10,20 @@ import android.graphics.drawable.Drawable
 import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import java.io.File
 import java.io.FileOutputStream
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
-private const val MAX_BACKGROUND_BITMAP_DIMENSION = 4096
-private const val MAX_BACKGROUND_BITMAP_PIXELS = 12_000_000
+private const val MAX_BACKGROUND_BITMAP_DIMENSION = 2400
+private const val MAX_BACKGROUND_BITMAP_PIXELS = 4_000_000
 private const val STARTUP_PREVIEW_MAX_DIMENSION = 720
 private const val STARTUP_PREVIEW_QUALITY = 82
 
@@ -148,6 +147,14 @@ object WallpaperUtils {
         cachedWallpaperAppearance = null
     }
 
+    fun clearMemoryCaches() {
+        invalidateWallpaperCache()
+        cachedOverlayCustomUri = null
+        cachedOverlayCustomBitmap = null
+        cachedOverlayCustomAppearanceUri = null
+        cachedOverlayCustomAppearance = null
+    }
+
     /**
      * Gets the current wallpaper as a Bitmap.
      * Returns cached bitmap if available, otherwise loads from system.
@@ -210,24 +217,19 @@ object WallpaperUtils {
      * This should be called early in the app lifecycle to ensure
      * the wallpaper is ready when needed.
      */
-    fun preloadWallpaper(context: Context) {
-        // Only preload if not already cached
+    suspend fun preloadWallpaper(context: Context) {
         if (cachedBitmap == null) {
-            CoroutineScope(Dispatchers.IO).launch {
-                getWallpaperBitmap(context)
-            }
+            getWallpaperBitmap(context)
         }
     }
 
-    fun preloadCustomImage(
+    suspend fun preloadCustomImage(
         context: Context,
         uriString: String?,
     ) {
         val normalized = uriString?.trim()?.takeIf { it.isNotEmpty() } ?: return
         if (cachedOverlayCustomUri == normalized && cachedOverlayCustomBitmap != null) return
-        CoroutineScope(Dispatchers.IO).launch {
-            getOverlayCustomImageBitmap(context, normalized)
-        }
+        getOverlayCustomImageBitmap(context, normalized)
     }
 
     suspend fun getOverlayCustomImageBitmap(
@@ -399,15 +401,37 @@ object WallpaperUtils {
         context: Context,
         uri: Uri,
     ): Bitmap? {
-        val bytes =
-            context.contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: return null
-        val original = decodeBoundedBitmap(bytes) ?: return null
+        val boundsOptions =
+            BitmapFactory.Options().apply {
+                inJustDecodeBounds = true
+            }
+        context.contentResolver.openInputStream(uri)?.use { stream ->
+            BitmapFactory.decodeStream(stream, null, boundsOptions)
+        } ?: return null
+
+        val sourceWidth = boundsOptions.outWidth
+        val sourceHeight = boundsOptions.outHeight
+        if (sourceWidth <= 0 || sourceHeight <= 0) return null
+
+        val decodeOptions =
+            BitmapFactory.Options().apply {
+                inSampleSize = computeSampleSize(sourceWidth, sourceHeight)
+                inPreferredConfig = Bitmap.Config.ARGB_8888
+            }
+        val decoded =
+            context.contentResolver.openInputStream(uri)?.use { stream ->
+                BitmapFactory.decodeStream(stream, null, decodeOptions)
+            } ?: return null
+
+        val original = clampBitmapToBounds(decoded)
         val exifOrientation =
             runCatching {
-                ExifInterface(bytes.inputStream()).getAttributeInt(
-                    ExifInterface.TAG_ORIENTATION,
-                    ExifInterface.ORIENTATION_NORMAL,
-                )
+                context.contentResolver.openInputStream(uri)?.use { stream ->
+                    ExifInterface(stream).getAttributeInt(
+                        ExifInterface.TAG_ORIENTATION,
+                        ExifInterface.ORIENTATION_NORMAL,
+                    )
+                } ?: ExifInterface.ORIENTATION_NORMAL
             }.getOrDefault(ExifInterface.ORIENTATION_NORMAL)
 
         val matrix = Matrix()
@@ -445,26 +469,6 @@ object WallpaperUtils {
             original.recycle()
         }
         return transformed
-    }
-
-    private fun decodeBoundedBitmap(bytes: ByteArray): Bitmap? {
-        val boundsOptions =
-            BitmapFactory.Options().apply {
-                inJustDecodeBounds = true
-            }
-        BitmapFactory.decodeByteArray(bytes, 0, bytes.size, boundsOptions)
-        val sourceWidth = boundsOptions.outWidth
-        val sourceHeight = boundsOptions.outHeight
-        if (sourceWidth <= 0 || sourceHeight <= 0) return null
-
-        val decodeOptions =
-            BitmapFactory.Options().apply {
-                inSampleSize = computeSampleSize(sourceWidth, sourceHeight)
-                inPreferredConfig = Bitmap.Config.ARGB_8888
-            }
-
-        val sampled = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, decodeOptions) ?: return null
-        return clampBitmapToBounds(sampled)
     }
 
     private fun computeSampleSize(
@@ -536,29 +540,29 @@ object WallpaperUtils {
  * Converts a Drawable to a Bitmap.
  * Uses the drawable's intrinsic dimensions if available, otherwise falls back to standard HD resolution.
  */
-private fun Drawable.toBitmap(): Bitmap {
-    // Use drawable's intrinsic dimensions if available, otherwise use standard HD resolution
-    val sourceWidth = intrinsicWidth.takeIf { it > 0 } ?: 1920
-    val sourceHeight = intrinsicHeight.takeIf { it > 0 } ?: 1080
-    val scale =
-        minOf(
-            1f,
-            MAX_BACKGROUND_BITMAP_DIMENSION.toFloat() / sourceWidth,
-            MAX_BACKGROUND_BITMAP_DIMENSION.toFloat() / sourceHeight,
-            kotlin.math.sqrt(
-                MAX_BACKGROUND_BITMAP_PIXELS.toFloat() /
-                    (sourceWidth.toFloat() * sourceHeight.toFloat()),
-            ).coerceAtMost(1f),
-        )
-    val width = (sourceWidth * scale).toInt().coerceAtLeast(1)
-    val height = (sourceHeight * scale).toInt().coerceAtLeast(1)
+private fun Drawable.toBitmap(): Bitmap? =
+    runCatching {
+        // Use drawable's intrinsic dimensions if available, otherwise use standard HD resolution.
+        val sourceWidth = intrinsicWidth.takeIf { it > 0 } ?: 1920
+        val sourceHeight = intrinsicHeight.takeIf { it > 0 } ?: 1080
+        val scale =
+            minOf(
+                1f,
+                MAX_BACKGROUND_BITMAP_DIMENSION.toFloat() / sourceWidth,
+                MAX_BACKGROUND_BITMAP_DIMENSION.toFloat() / sourceHeight,
+                kotlin.math.sqrt(
+                    MAX_BACKGROUND_BITMAP_PIXELS.toFloat() /
+                        (sourceWidth.toFloat() * sourceHeight.toFloat()),
+                ).coerceAtMost(1f),
+            )
+        val width = (sourceWidth * scale).toInt().coerceAtLeast(1)
+        val height = (sourceHeight * scale).toInt().coerceAtLeast(1)
 
-    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-    val canvas = Canvas(bitmap)
-
-    // Set bounds to fill the entire bitmap
-    setBounds(0, 0, width, height)
-    draw(canvas)
-
-    return bitmap
-}
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        setBounds(0, 0, width, height)
+        draw(canvas)
+        bitmap
+    }.onFailure {
+        Log.w("WallpaperUtils", "Failed to rasterize wallpaper drawable", it)
+    }.getOrNull()

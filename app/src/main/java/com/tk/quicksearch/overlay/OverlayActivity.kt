@@ -1,5 +1,6 @@
 package com.tk.quicksearch.overlay
 
+import android.content.ComponentCallbacks2
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.ComponentActivity
@@ -24,7 +25,9 @@ import com.tk.quicksearch.app.startup.StartupMode
 import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.SearchViewModel
+import com.tk.quicksearch.search.apps.invalidateAppIconCache
 import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.managers.IconPackManager
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.widgets.searchWidget.MicAction
@@ -95,6 +98,23 @@ class OverlayActivity : ComponentActivity() {
         searchViewModel.handleOnStop()
     }
 
+    @Suppress("DEPRECATION")
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        if (level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW) {
+            WallpaperUtils.clearMemoryCaches()
+            invalidateAppIconCache()
+            IconPackManager.clearAllCaches()
+        }
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        WallpaperUtils.clearMemoryCaches()
+        invalidateAppIconCache()
+        IconPackManager.clearAllCaches()
+    }
+
     override fun finish() {
         super.finish()
         @Suppress("DEPRECATION")
@@ -110,13 +130,21 @@ class OverlayActivity : ComponentActivity() {
             val uiState by searchViewModel.uiState.collectAsStateWithLifecycle()
             val context = LocalContext.current
             val isSystemDarkTheme = isSystemInDarkTheme()
-            val wallpaperIsDark by produceState<Boolean?>(initialValue = null) {
+            val wallpaperIsDark by produceState<Boolean?>(
+                initialValue = null,
+                uiState.backgroundSource,
+                uiState.customImageUri,
+            ) {
                 value =
-                    WallpaperUtils.getBackgroundAppearance(
-                        context = context,
-                        backgroundSource = BackgroundSource.SYSTEM_WALLPAPER,
-                        customImageUri = null,
-                    )?.isDark
+                    if (uiState.backgroundSource == BackgroundSource.THEME) {
+                        null
+                    } else {
+                        WallpaperUtils.getBackgroundAppearance(
+                            context = context,
+                            backgroundSource = uiState.backgroundSource,
+                            customImageUri = uiState.customImageUri,
+                        )?.isDark
+                    }
             }
             val useDarkSystemBarsFromTheme =
                 when (uiState.appThemeMode) {

@@ -224,6 +224,7 @@ Long-press on most results to open a context menu with quick actions.
 ### Launch Options
 
 - **Default Assistant** - Set Quick Search as your default assistant app to replace Google Assistant or Gemini. You can enable Assistant Voice Mode to open the app with voice typing enabled when triggered with digital assistant gesture.
+- **Set as Launcher** - Set Quick Search as your default launcher so it opens directly from the home button.
 - **Quick Settings Tile** - Add a Quick Search tile to notification quick settings for quick access
 
 ---

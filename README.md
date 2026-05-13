@@ -39,7 +39,7 @@ A fast & powerful Android app that lets you search across **apps, app shortcuts,
 - **Search History**: View search history and swipe left or right in the expanded history to switch between recent queries and recently opened results
 - **Overlay Mode**: Enable to make the search bar appear over other apps, anywhere—changes how you access search from any screen
 - **Home Screen Widget**: Search widget and custom buttons widget with extensive customization options
-- **Launch Options**: Widget, Quick Settings Tile & Digital Assistant
+- **Launch Options**: Widget, Quick Settings Tile, Digital Assistant & set as Launcher
 - **Triggers**: Long-press any result to set a trigger. The app opens it automatically when you type the trigger word and press space.
 
 ### 🎨 Customization & New Features

@@ -1,6 +1,7 @@
 package com.tk.quicksearch.app
 
 import android.app.SearchManager
+import android.content.ComponentCallbacks2
 import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
@@ -35,13 +36,16 @@ import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.core.AppThemeMode
+import com.tk.quicksearch.search.apps.invalidateAppIconCache
 import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.managers.IconPackManager
 import com.tk.quicksearch.overlay.OverlayModeController
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.settings.settingsDetailScreen.NotesNavigationMemory
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.shared.util.CrashLogManager
 import com.tk.quicksearch.shared.util.FeedbackUtils
+import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.widgets.searchWidget.SearchWidget
 import com.tk.quicksearch.widgets.searchWidget.MicAction
 import com.tk.quicksearch.widgets.searchWidget.VoiceSearchHandler
@@ -162,6 +166,23 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         searchViewModel.handleOnStop()
+    }
+
+    @Suppress("DEPRECATION")
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        if (level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW) {
+            WallpaperUtils.clearMemoryCaches()
+            invalidateAppIconCache()
+            IconPackManager.clearAllCaches()
+        }
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        WallpaperUtils.clearMemoryCaches()
+        invalidateAppIconCache()
+        IconPackManager.clearAllCaches()
     }
 
     private fun initializePreferences() {
