@@ -6,6 +6,7 @@ import com.tk.quicksearch.app.navigation.handleAppSettingsDestination
 import com.tk.quicksearch.app.navigation.launchDevelopmentPage
 import com.tk.quicksearch.app.navigation.launchRateQuickSearch
 import com.tk.quicksearch.app.navigation.openDefaultAssistantSettings
+import com.tk.quicksearch.app.navigation.openDefaultLauncherSettings
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
@@ -46,6 +47,10 @@ internal fun handleOverlayAppSettingDestination(
                 },
                 onSetDefaultAssistant = {
                     openDefaultAssistantSettings(context)
+                    closeIfNeeded()
+                },
+                onSetDefaultLauncher = {
+                    openDefaultLauncherSettings(context)
                     closeIfNeeded()
                 },
                 onAddHomeScreenWidget = {

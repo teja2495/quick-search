@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.provider.Settings
 import android.widget.Toast
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination
@@ -21,6 +22,7 @@ internal data class AppSettingsDestinationHandlers(
     val onRateQuickSearch: () -> Unit = {},
     val onOpenDevelopmentPage: () -> Unit = {},
     val onSetDefaultAssistant: () -> Unit = {},
+    val onSetDefaultLauncher: () -> Unit = {},
     val onAddHomeScreenWidget: () -> Unit = {},
     val onAddQuickSettingsTile: () -> Unit = {},
     val onCreateCalendarEvent: () -> Unit = {},
@@ -43,6 +45,7 @@ internal fun handleAppSettingsDestination(
         AppSettingsDestination.RATE_QUICK_SEARCH -> handlers.onRateQuickSearch()
         AppSettingsDestination.DEVELOPMENT -> handlers.onOpenDevelopmentPage()
         AppSettingsDestination.SET_DEFAULT_ASSISTANT -> handlers.onSetDefaultAssistant()
+        AppSettingsDestination.SET_DEFAULT_LAUNCHER -> handlers.onSetDefaultLauncher()
         AppSettingsDestination.ADD_HOME_SCREEN_WIDGET -> handlers.onAddHomeScreenWidget()
         AppSettingsDestination.ADD_QUICK_SETTINGS_TILE -> handlers.onAddQuickSettingsTile()
         AppSettingsDestination.CREATE_NOTE -> {
@@ -84,16 +87,28 @@ internal fun launchDevelopmentPage(context: Context) {
 
 internal fun openDefaultAssistantSettings(context: Context) {
     try {
-        context.startActivity(Intent(android.provider.Settings.ACTION_VOICE_INPUT_SETTINGS))
+        context.startActivity(Intent(Settings.ACTION_VOICE_INPUT_SETTINGS))
     } catch (_: Exception) {
-        try {
-            context.startActivity(Intent(android.provider.Settings.ACTION_SETTINGS))
-        } catch (_: Exception) {
-            Toast.makeText(
-                context,
-                context.getString(R.string.settings_unable_to_open_settings),
-                Toast.LENGTH_SHORT,
-            ).show()
-        }
+        openSystemSettingsFallback(context)
+    }
+}
+
+internal fun openDefaultLauncherSettings(context: Context) {
+    try {
+        context.startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
+    } catch (_: Exception) {
+        openSystemSettingsFallback(context)
+    }
+}
+
+private fun openSystemSettingsFallback(context: Context) {
+    try {
+        context.startActivity(Intent(Settings.ACTION_SETTINGS))
+    } catch (_: Exception) {
+        Toast.makeText(
+            context,
+            context.getString(R.string.settings_unable_to_open_settings),
+            Toast.LENGTH_SHORT,
+        ).show()
     }
 }

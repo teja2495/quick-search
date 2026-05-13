@@ -34,6 +34,7 @@ internal fun AppSettingsDestination.toSettingsDetailTypeOrNull(): SettingsDetail
         AppSettingsDestination.RATE_QUICK_SEARCH,
         AppSettingsDestination.DEVELOPMENT,
         AppSettingsDestination.SET_DEFAULT_ASSISTANT,
+        AppSettingsDestination.SET_DEFAULT_LAUNCHER,
         AppSettingsDestination.ADD_HOME_SCREEN_WIDGET,
         AppSettingsDestination.ADD_QUICK_SETTINGS_TILE,
         AppSettingsDestination.CREATE_NOTE,

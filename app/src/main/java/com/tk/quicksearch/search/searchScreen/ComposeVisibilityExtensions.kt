@@ -51,7 +51,11 @@ fun SearchEnginesVisibility(
  * not including pinned/static content.
  */
 fun hasAnySearchResults(state: SearchUiState): Boolean {
-    val hasAppResults = state.searchResults.isNotEmpty()
+    val appsResultsEnabledForCurrentQuery =
+        state.query.isBlank() ||
+            SearchSection.APPS !in state.disabledSections ||
+            state.detectedAliasSearchSection == SearchSection.APPS
+    val hasAppResults = appsResultsEnabledForCurrentQuery && state.searchResults.isNotEmpty()
     val hasContactResults = state.contactResults.isNotEmpty()
     val hasFileResults = state.fileResults.isNotEmpty()
     val hasSettingResults = state.settingResults.isNotEmpty()

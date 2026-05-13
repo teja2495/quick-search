@@ -172,17 +172,18 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
         ) {
             ItemPriorityConfig.getSearchResultsPriority().filter { section ->
                 section !in state.disabledSections ||
+                    (section == SearchSection.APPS && !isSearching) ||
                     state.detectedAliasSearchSection == section ||
                     (section == SearchSection.SETTINGS && hasAppSettingResults) ||
                     (section == SearchSection.NOTES && notesEnabled)
             }
         }
 
-    val shouldShowApps =
-        (
+    val isAppsSectionEnabledForCurrentQuery =
+        !isSearching ||
             SearchSection.APPS !in state.disabledSections ||
-                state.detectedAliasSearchSection == SearchSection.APPS
-        ) && hasAppResults
+            state.detectedAliasSearchSection == SearchSection.APPS
+    val shouldShowApps = isAppsSectionEnabledForCurrentQuery && hasAppResults
     val shouldShowAppShortcuts =
         (
             SearchSection.APP_SHORTCUTS !in state.disabledSections ||

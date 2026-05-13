@@ -56,6 +56,7 @@ import com.tk.quicksearch.overlay.OverlayModeController
 import com.tk.quicksearch.shared.permissions.PermissionSettingsDialog
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.util.isDefaultHomeApp
 import com.tk.quicksearch.settings.shared.SettingsCommand
 import com.tk.quicksearch.settings.shared.applySettingsCommand
 import com.tk.quicksearch.settings.shared.isAppSettingToggleEnabled
@@ -373,8 +374,10 @@ fun SearchRoute(
         viewModel.trackRecentAppSettingTap(setting.id)
         when (val toggleKey = setting.toggleKey) {
             AppSettingsToggleKey.OVERLAY_MODE -> {
-                viewModel.setOverlayModeEnabled(enabled)
-                if (enabled) {
+                val isDefaultHomeApp = context.isDefaultHomeApp()
+                val shouldEnableOverlay = enabled && !isDefaultHomeApp
+                viewModel.setOverlayModeEnabled(shouldEnableOverlay)
+                if (shouldEnableOverlay) {
                     OverlayModeController.startOverlay(
                         context = context,
                         initialQuery = uiState.query.takeIf { it.isNotBlank() },
@@ -422,6 +425,9 @@ fun SearchRoute(
                 when (event) {
                     Lifecycle.Event.ON_RESUME -> {
                         viewModel.handleOnResume()
+                        if (uiState.overlayModeEnabled && context.isDefaultHomeApp()) {
+                            viewModel.setOverlayModeEnabled(false)
+                        }
                     }
 
                     else -> {}

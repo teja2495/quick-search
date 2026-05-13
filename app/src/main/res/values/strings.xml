@@ -477,6 +477,8 @@
     <string name="settings_default_assistant_desc">Set this app as your default digital assistant app.</string>
     <string name="settings_default_assistant_desc_change">Change your default digital assistant app.</string>
     <string name="settings_default_assistant_title">Default Assistant</string>
+    <string name="settings_default_launcher_title">Default Launcher</string>
+    <string name="settings_default_launcher_desc">Set this app as your default home app.</string>
     <string name="settings_device_settings_empty">No device settings available.</string>
     <string name="settings_direct_dial_desc">Place calls directly without opening the dialer. </string>
     <string name="settings_direct_dial_title">Direct Dial</string>
@@ -593,6 +595,7 @@
     <string name="settings_overlay_assistant_tip">Tip: Set this app as your digital assistant to open the overlay from anywhere.</string>
     <string name="settings_overlay_mode_desc">Search bar opens as an overlay on top of other apps</string>
     <string name="settings_overlay_mode_title">Overlay Mode</string>
+    <string name="settings_overlay_mode_desc_launcher_blocked">Unavailable while Quick Search is your default launcher</string>
     <string name="settings_overlay_source_add_custom">Add custom image</string>
     <string name="settings_overlay_source_custom">Custom</string>
     <string name="settings_overlay_source_edit_custom">Edit custom image</string>

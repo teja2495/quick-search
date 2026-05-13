@@ -50,9 +50,12 @@ class SecondarySearchOrchestrator(
             val shouldSkipSection =
                 !skipNoResultsCache &&
                     shouldSkipSearchForSection(trimmedQuery, section, isBackspacing)
+            val isSectionEnabledForSearchResults = section !in sectionManager.disabledSections
+            val isSectionEnabledForTopMatches =
+                isSectionEnabledForTopMatches(currentState, section)
             trimmedQuery.length >= definition.minimumQueryLength &&
                 hasPermissionForSection(currentState, section) &&
-                section !in sectionManager.disabledSections &&
+                (isSectionEnabledForSearchResults || isSectionEnabledForTopMatches) &&
                 !shouldSkipSection
         }
     }
@@ -104,10 +107,13 @@ class SecondarySearchOrchestrator(
         val sectionSearchConfig =
             SearchSectionRegistry.secondarySearchDefinitions.associate { definition ->
                 val section = definition.section
+                val isSectionEnabledForSearchResults = section !in sectionManager.disabledSections
+                val isSectionEnabledForTopMatches =
+                    isSectionEnabledForTopMatches(currentState, section)
                 val canSearchSection =
                     trimmedQuery.length >= definition.minimumQueryLength &&
                         hasPermissionForSection(currentState, section) &&
-                        section !in sectionManager.disabledSections
+                        (isSectionEnabledForSearchResults || isSectionEnabledForTopMatches)
                 val skipNoResultsCache =
                     definition.minimumQueryLength == 1 && trimmedQuery.length == 1
                 if (skipNoResultsCache) {
@@ -566,6 +572,15 @@ class SecondarySearchOrchestrator(
             SearchSectionPermissionRequirement.CALENDAR -> state.hasCalendarPermission
             null -> true
         }
+
+    private fun isSectionEnabledForTopMatches(
+        state: SearchUiState,
+        section: SearchSection,
+    ): Boolean {
+        if (!state.topMatchesEnabled) return false
+        if (section in state.disabledTopMatchesSections) return false
+        return section in state.topMatchesSectionOrder
+    }
 
     private fun supportsFuzzySecondarySearch(section: SearchSection): Boolean =
         when (section) {

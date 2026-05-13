@@ -186,7 +186,7 @@ private fun buildTopMatches(
     val recencyIndex = context.recentResultRecencyIndex
 
     val matches = mutableListOf<TopMatchItem>()
-    if (context.shouldRenderApps && isTopMatchesSectionEnabled(SearchSection.APPS)) {
+    if (isTopMatchesSectionEnabled(SearchSection.APPS)) {
         renderingState.displayApps.forEachIndexed { index, app ->
             matches += TopMatchItem.App(
                 app = app,
@@ -197,7 +197,7 @@ private fun buildTopMatches(
             )
         }
     }
-    if (context.shouldRenderAppShortcuts && isTopMatchesSectionEnabled(SearchSection.APP_SHORTCUTS)) {
+    if (isTopMatchesSectionEnabled(SearchSection.APP_SHORTCUTS)) {
         context.appShortcutsList.forEachIndexed { index, shortcut ->
             val id = shortcutKey(shortcut)
             matches += TopMatchItem.AppShortcut(
@@ -212,7 +212,7 @@ private fun buildTopMatches(
             )
         }
     }
-    if (context.shouldRenderContacts && isTopMatchesSectionEnabled(SearchSection.CONTACTS)) {
+    if (isTopMatchesSectionEnabled(SearchSection.CONTACTS)) {
         context.contactsList.forEachIndexed { index, contact ->
             matches += TopMatchItem.Contact(
                 contact = contact,
@@ -226,7 +226,7 @@ private fun buildTopMatches(
             )
         }
     }
-    if (context.shouldRenderFiles && isTopMatchesSectionEnabled(SearchSection.FILES)) {
+    if (isTopMatchesSectionEnabled(SearchSection.FILES)) {
         context.filesList.forEachIndexed { index, file ->
             matches += TopMatchItem.File(
                 file = file,
@@ -240,7 +240,7 @@ private fun buildTopMatches(
             )
         }
     }
-    if (context.shouldRenderSettings && isTopMatchesSectionEnabled(SearchSection.SETTINGS)) {
+    if (isTopMatchesSectionEnabled(SearchSection.SETTINGS)) {
         context.settingsList.forEachIndexed { index, setting ->
             matches += TopMatchItem.Setting(
                 setting = setting,
@@ -254,7 +254,7 @@ private fun buildTopMatches(
             )
         }
     }
-    if (context.shouldRenderSettings && isTopMatchesSectionEnabled(SearchSection.APP_SETTINGS)) {
+    if (isTopMatchesSectionEnabled(SearchSection.APP_SETTINGS)) {
         context.appSettingsList.forEachIndexed { index, setting ->
             matches += TopMatchItem.AppSetting(
                 setting = setting,
@@ -265,7 +265,7 @@ private fun buildTopMatches(
             )
         }
     }
-    if (context.shouldRenderCalendar && isTopMatchesSectionEnabled(SearchSection.CALENDAR)) {
+    if (isTopMatchesSectionEnabled(SearchSection.CALENDAR)) {
         context.calendarEventsList.forEachIndexed { index, event ->
             matches += TopMatchItem.Calendar(
                 event = event,
@@ -280,8 +280,7 @@ private fun buildTopMatches(
         }
     }
     if (
-        context.shouldRenderNotes &&
-            FeatureFlags.isSearchSectionEnabled(SearchSection.NOTES) &&
+        FeatureFlags.isSearchSectionEnabled(SearchSection.NOTES) &&
             isTopMatchesSectionEnabled(SearchSection.NOTES)
     ) {
         context.notesList.forEachIndexed { index, note ->

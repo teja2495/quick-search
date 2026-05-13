@@ -540,6 +540,9 @@ private fun NavigationContent(
                                     onSetDefaultAssistant = {
                                         openDefaultAssistantSettings(context)
                                     },
+                                    onSetDefaultLauncher = {
+                                        openDefaultLauncherSettings(context)
+                                    },
                                     onAddHomeScreenWidget = {
                                         com.tk.quicksearch.widgets.utils.requestAddQuickSearchWidget(context)
                                     },

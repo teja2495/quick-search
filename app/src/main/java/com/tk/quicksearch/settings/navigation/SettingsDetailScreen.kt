@@ -418,6 +418,7 @@ internal fun SettingsDetailLevel1Screen(
                             isDefaultAssistant = isDefaultAssistant,
                             assistantLaunchVoiceModeEnabled = assistantLaunchVoiceModeEnabled,
                             onSetDefaultAssistant = callbacks.onSetDefaultAssistant,
+                            onSetDefaultLauncher = callbacks.onSetDefaultLauncher,
                             onToggleAssistantLaunchVoiceMode =
                                 callbacks.onToggleAssistantLaunchVoiceMode,
                             onAddHomeScreenWidget = callbacks.onAddHomeScreenWidget,

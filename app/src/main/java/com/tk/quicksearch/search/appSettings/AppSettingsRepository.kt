@@ -76,6 +76,13 @@ class AppSettingsRepository(
                 destination = AppSettingsDestination.SET_DEFAULT_ASSISTANT,
                 keywords = listOf("digital assistant"),
             )
+            addNavigation(
+                id = "app_settings_default_launcher",
+                titleRes = R.string.settings_default_launcher_title,
+                descriptionRes = R.string.settings_default_launcher_desc,
+                destination = AppSettingsDestination.SET_DEFAULT_LAUNCHER,
+                keywords = listOf("home app", "default home", "launcher"),
+            )
             addToggle(
                 id = "app_settings_assistant_voice_mode",
                 titleRes = R.string.settings_assistant_voice_mode_title,

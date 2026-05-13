@@ -61,6 +61,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.R
+import com.tk.quicksearch.app.navigation.openDefaultAssistantSettings
+import com.tk.quicksearch.app.navigation.openDefaultLauncherSettings
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.shared.permissions.PermissionHelper
@@ -68,6 +70,7 @@ import com.tk.quicksearch.shared.permissions.PermissionSettingsDialog
 import com.tk.quicksearch.tools.aiSearch.GeminiTextModel
 import com.tk.quicksearch.tile.requestAddQuickSearchTile
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.util.isDefaultHomeApp
 import com.tk.quicksearch.shared.util.hapticToggle
 import com.tk.quicksearch.widgets.utils.requestAddQuickSearchWidget
 import com.tk.quicksearch.settings.AppShortcutsSettings.*
@@ -215,8 +218,10 @@ fun SettingsRoute(
     val onRequestAddQuickSettingsTile = { requestAddQuickSearchTile(context) }
 
     val onToggleOverlayMode: (Boolean) -> Unit = { enabled ->
-        viewModel.setOverlayModeEnabled(enabled)
-        if (enabled) {
+        val isDefaultHomeApp = context.isDefaultHomeApp()
+        val shouldEnableOverlay = enabled && !isDefaultHomeApp
+        viewModel.setOverlayModeEnabled(shouldEnableOverlay)
+        if (shouldEnableOverlay) {
             com.tk.quicksearch.overlay.OverlayModeController.startOverlay(context)
             (context as? android.app.Activity)?.finish()
         }
@@ -331,24 +336,8 @@ fun SettingsRoute(
                     },
                     onAddHomeScreenWidget = onRequestAddHomeScreenWidget,
                     onAddQuickSettingsTile = onRequestAddQuickSettingsTile,
-                    onSetDefaultAssistant = {
-                        try {
-                            val intent = Intent(android.provider.Settings.ACTION_VOICE_INPUT_SETTINGS)
-                            context.startActivity(intent)
-                        } catch (e: Exception) {
-                            try {
-                                val intent = Intent(android.provider.Settings.ACTION_SETTINGS)
-                                context.startActivity(intent)
-                            } catch (e: Exception) {
-                                Toast
-                                    .makeText(
-                                        context,
-                                        context.getString(R.string.settings_unable_to_open_settings),
-                                        Toast.LENGTH_SHORT,
-                                    ).show()
-                            }
-                        }
-                    },
+                    onSetDefaultAssistant = { openDefaultAssistantSettings(context) },
+                    onSetDefaultLauncher = { openDefaultLauncherSettings(context) },
                     onToggleAssistantLaunchVoiceMode = { enabled ->
                         userPreferences.setAssistantLaunchVoiceModeEnabled(enabled)
                     },

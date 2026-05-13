@@ -177,5 +177,9 @@ internal class SearchVisibilityStateResolver {
     private fun isSectionEnabledForCurrentQuery(
         state: SearchUiState,
         section: SearchSection,
-    ): Boolean = section !in state.disabledSections || state.detectedAliasSearchSection == section
+    ): Boolean {
+        if (state.detectedAliasSearchSection == section) return true
+        if (section == SearchSection.APPS && state.query.isBlank()) return true
+        return section !in state.disabledSections
+    }
 }

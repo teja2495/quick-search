@@ -21,6 +21,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.R
+import com.tk.quicksearch.app.navigation.openDefaultAssistantSettings
+import com.tk.quicksearch.app.navigation.openDefaultLauncherSettings
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
@@ -305,24 +307,8 @@ fun SettingsDetailRoute(
                                     },
                                     onAddHomeScreenWidget = onRequestAddHomeScreenWidget,
                                     onAddQuickSettingsTile = onRequestAddQuickSettingsTile,
-                                    onSetDefaultAssistant = {
-                                        try {
-                                            val intent = Intent(android.provider.Settings.ACTION_VOICE_INPUT_SETTINGS)
-                                            context.startActivity(intent)
-                                        } catch (e: Exception) {
-                                            try {
-                                                val intent = Intent(android.provider.Settings.ACTION_SETTINGS)
-                                                context.startActivity(intent)
-                                            } catch (e: Exception) {
-                                                Toast.makeText(
-                                                                context,
-                                                                context.getString(R.string.settings_unable_to_open_settings),
-                                                                Toast.LENGTH_SHORT,
-                                                        )
-                                                        .show()
-                                            }
-                                        }
-                                    },
+                                    onSetDefaultAssistant = { openDefaultAssistantSettings(context) },
+                                    onSetDefaultLauncher = { openDefaultLauncherSettings(context) },
                                     onToggleAssistantLaunchVoiceMode = { enabled ->
                                         userPreferences.setAssistantLaunchVoiceModeEnabled(enabled)
                                         assistantLaunchVoiceModeEnabled = enabled

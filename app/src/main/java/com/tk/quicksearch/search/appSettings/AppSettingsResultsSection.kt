@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
@@ -50,6 +51,7 @@ import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentP
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
+import com.tk.quicksearch.shared.util.isDefaultHomeApp
 import com.tk.quicksearch.shared.util.hapticToggle
 
 private const val QUICK_SEARCH_PACKAGE_NAME = "com.tk.quicksearch"
@@ -195,6 +197,15 @@ internal fun AppSettingResultRow(
         )
     val isWebSuggestionsToggle = setting.toggleKey == AppSettingsToggleKey.WEB_SUGGESTIONS
     val isAppsPerRowSetting = setting.toggleKey == AppSettingsToggleKey.APPS_PER_ROW
+    val context = LocalContext.current
+    val isOverlayBlockedByLauncher =
+        setting.toggleKey == AppSettingsToggleKey.OVERLAY_MODE && context.isDefaultHomeApp()
+    val effectiveDescription =
+        if (isOverlayBlockedByLauncher) {
+            stringResource(R.string.settings_overlay_mode_desc_launcher_blocked)
+        } else {
+            setting.description
+        }
 
     val rowModifier =
         Modifier.fillMaxWidth()
@@ -243,7 +254,7 @@ internal fun AppSettingResultRow(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
-            setting.description?.takeIf { it.isNotBlank() }?.let { description ->
+            effectiveDescription?.takeIf { it.isNotBlank() }?.let { description ->
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodySmall,

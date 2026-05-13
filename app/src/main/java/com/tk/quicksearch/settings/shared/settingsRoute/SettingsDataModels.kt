@@ -345,6 +345,7 @@ data class SettingsScreenCallbacks(
     val onAddHomeScreenWidget: () -> Unit,
     val onAddQuickSettingsTile: () -> Unit,
     val onSetDefaultAssistant: () -> Unit,
+    val onSetDefaultLauncher: () -> Unit,
     val onToggleAssistantLaunchVoiceMode: (Boolean) -> Unit,
     val onRefreshApps: (Boolean) -> Unit,
     val onRefreshContacts: (Boolean) -> Unit,
