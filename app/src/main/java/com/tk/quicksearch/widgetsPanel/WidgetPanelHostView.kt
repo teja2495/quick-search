@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
 import android.os.SystemClock
+import android.util.TypedValue
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.ViewConfiguration
@@ -24,6 +25,15 @@ internal class WidgetPanelHost(
         null
     var onWidgetDragEnd: ((appWidgetId: Int) -> Unit)? = null
 
+    /**
+     * Provider for whether the surrounding scroll container is currently scrolling/flinging.
+     * When true, ACTION_DOWN on a widget should not arm the long-press timer (e.g. the user is
+     * tapping the widget to halt a fling, not asking to enter edit mode).
+     */
+    var isScrollInProgressProvider: () -> Boolean = { false }
+
+    private val liveViews = mutableSetOf<WidgetPanelHostView>()
+
     override fun onCreateView(
         context: Context,
         appWidgetId: Int,
@@ -33,7 +43,21 @@ internal class WidgetPanelHost(
             view.onLongPress = { onWidgetLongPress?.invoke(appWidgetId) }
             view.onDragMove = { dx, dy -> onWidgetDragMove?.invoke(appWidgetId, dx, dy) }
             view.onDragEnd = { onWidgetDragEnd?.invoke(appWidgetId) }
+            view.isScrollInProgressProvider = { isScrollInProgressProvider() }
+            view.onDetached = { liveViews.remove(view) }
+            liveViews.add(view)
         }
+
+    /**
+     * Cancel any pending long-press timers across every live widget host view. Called when the
+     * surrounding scroll starts so a finger that landed on a widget right before a scroll began
+     * doesn't accidentally promote to edit mode after the 500ms long-press timeout. Necessary
+     * because once Compose's scroll consumes pointer events the host view may not see further
+     * ACTION_MOVE events to trigger its own slop-based cancellation.
+     */
+    fun cancelAllPendingLongPresses() {
+        liveViews.forEach { it.cancelPendingLongPress() }
+    }
 }
 
 /**
@@ -50,9 +74,25 @@ private class WidgetPanelHostView(
     var onLongPress: (() -> Unit)? = null
     var onDragMove: ((deltaX: Float, deltaY: Float) -> Unit)? = null
     var onDragEnd: (() -> Unit)? = null
+    var onDetached: (() -> Unit)? = null
+    var isScrollInProgressProvider: () -> Boolean = { false }
+
+    fun cancelPendingLongPress() {
+        removeCallbacks(longPressRunnable)
+    }
 
     private val longPressTimeout = ViewConfiguration.getLongPressTimeout().toLong()
     private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
+    // Tighter Y-axis cancellation than Compose's scroll slop so that gradual vertical scrolls
+    // cancel the long-press timer before Compose claims the gesture and dispatches ACTION_CANCEL.
+    // Without this, a slow scroll that takes >500ms to exceed scaledTouchSlop can fire long-press
+    // mid-scroll. Picked small but above natural finger tremor (~1-3px).
+    private val verticalScrollCancelSlop =
+        TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            4f,
+            context.resources.displayMetrics,
+        )
     private var downRawX = 0f
     private var downRawY = 0f
     private var longPressFired = false
@@ -76,14 +116,18 @@ private class WidgetPanelHostView(
                 longPressFired = false
                 dragHandled = false
                 removeCallbacks(longPressRunnable)
-                postDelayed(longPressRunnable, longPressTimeout)
+                // Don't arm long-press if the surrounding scroll is mid-fling — the user is
+                // tapping to stop momentum, not asking to edit.
+                if (!isScrollInProgressProvider()) {
+                    postDelayed(longPressRunnable, longPressTimeout)
+                }
             }
 
             MotionEvent.ACTION_MOVE -> {
                 if (!longPressFired) {
                     if (
                         abs(ev.rawX - downRawX) > touchSlop ||
-                        abs(ev.rawY - downRawY) > touchSlop
+                        abs(ev.rawY - downRawY) > verticalScrollCancelSlop
                     ) {
                         removeCallbacks(longPressRunnable)
                     }
@@ -126,6 +170,7 @@ private class WidgetPanelHostView(
 
     override fun onDetachedFromWindow() {
         removeCallbacks(longPressRunnable)
+        onDetached?.invoke()
         super.onDetachedFromWindow()
     }
 

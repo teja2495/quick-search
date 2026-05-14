@@ -62,6 +62,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -131,6 +132,7 @@ fun WidgetsPanelScreen(
     var editingWidgetId by remember { mutableStateOf<Int?>(null) }
     var showPicker by rememberSaveable { mutableStateOf(false) }
     var pendingRequest by remember { mutableStateOf<PendingWidgetRequest?>(null) }
+    val panelScrollState = rememberScrollState()
 
     fun persistWidgets(next: List<PanelWidgetInfo>) {
         if (next == widgets) return
@@ -233,8 +235,19 @@ fun WidgetsPanelScreen(
     }
 
     DisposableEffect(appWidgetHost) {
+        appWidgetHost.isScrollInProgressProvider = { panelScrollState.isScrollInProgress }
         appWidgetHost.startListening()
-        onDispose { appWidgetHost.stopListening() }
+        onDispose {
+            appWidgetHost.stopListening()
+            appWidgetHost.isScrollInProgressProvider = { false }
+        }
+    }
+
+    LaunchedEffect(appWidgetHost, panelScrollState) {
+        snapshotFlow { panelScrollState.isScrollInProgress }
+            .collect { inProgress ->
+                if (inProgress) appWidgetHost.cancelAllPendingLongPresses()
+            }
     }
 
     BackHandler {
@@ -305,7 +318,7 @@ fun WidgetsPanelScreen(
                     modifier =
                         Modifier
                             .weight(1f)
-                            .verticalScroll(rememberScrollState()),
+                            .verticalScroll(panelScrollState),
                     verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
                 ) {
                     CompactQuickNoteWidget(modifier = Modifier.fillMaxWidth())
