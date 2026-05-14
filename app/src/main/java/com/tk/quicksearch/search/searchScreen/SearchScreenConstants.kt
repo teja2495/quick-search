@@ -114,13 +114,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
         }
     val pinnedAndRecentApps =
         remember(state.recentApps, state.pinnedApps, visibleAppLimit) {
-            val pinnedPackages = state.pinnedApps.map { it.launchCountKey() }.toSet()
-            (
-                state.pinnedApps +
-                    state.recentApps.filterNot {
-                        pinnedPackages.contains(it.launchCountKey())
-                    }
-            ).take(visibleAppLimit)
+            state.recentApps.take(visibleAppLimit)
         }
     val newOrUpdatedApps =
         remember(state.newOrUpdatedApps, visibleAppLimit) {

@@ -99,7 +99,7 @@ internal class SearchDerivedStateDelegate(
             )
         val suggestedRecents =
             if (suggestionsEnabled) {
-                val recentsSource = visibleAppList.filterNot { pinnedPackages.contains(it.launchCountKey()) }
+                val recentsSource = visibleAppList
                 if (hasUsagePermission) {
                     appSuggestionSelector.selectRecentlyOpenedApps(
                         apps = recentsSource,
@@ -139,7 +139,6 @@ internal class SearchDerivedStateDelegate(
                 currentSuggestions = currentResultsState.recentApps,
                 refreshedSuggestions = suggestedRecents,
                 visibleApps = visibleAppList,
-                pinnedPackages = pinnedPackages,
                 limit = getGridItemCount(),
                 suggestionsEnabled = suggestionsEnabled,
             )
@@ -207,7 +206,6 @@ internal class SearchDerivedStateDelegate(
         currentSuggestions: List<AppInfo>,
         refreshedSuggestions: List<AppInfo>,
         visibleApps: List<AppInfo>,
-        pinnedPackages: Set<String>,
         limit: Int,
         suggestionsEnabled: Boolean,
     ): List<AppInfo> {
@@ -215,10 +213,7 @@ internal class SearchDerivedStateDelegate(
 
         val refreshedByKey = refreshedSuggestions.associateBy { it.launchCountKey() }
         val visibleByKey = visibleApps.associateBy { it.launchCountKey() }
-        val stableKeys =
-            visibleByKey.keys
-                .filterNot { pinnedPackages.contains(it) }
-                .toSet()
+        val stableKeys = visibleByKey.keys
 
         val stableExisting =
             currentSuggestions.mapNotNull { current ->
