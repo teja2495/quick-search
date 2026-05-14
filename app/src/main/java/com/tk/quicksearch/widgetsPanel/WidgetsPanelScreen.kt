@@ -17,6 +17,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -32,6 +33,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -133,14 +136,6 @@ fun WidgetsPanelScreen(
         if (next == widgets) return
         widgets = next
         preferences.setWidgets(next)
-    }
-
-    SideEffect {
-        appWidgetHost.onWidgetLongPress = { id ->
-            if (widgets.any { it.appWidgetId == id }) {
-                editingWidgetId = id
-            }
-        }
     }
 
     LaunchedEffect(widgets) {
@@ -266,6 +261,15 @@ fun WidgetsPanelScreen(
             )
         }
 
+    val editModeDismissModifier =
+        if (editingWidgetId != null) {
+            Modifier.pointerInput(Unit) {
+                detectTapGestures(onTap = { editingWidgetId = null })
+            }
+        } else {
+            Modifier
+        }
+
     SettingsScreenBackground(
         appTheme = appTheme,
         overlayThemeIntensity = overlayThemeIntensity,
@@ -277,6 +281,7 @@ fun WidgetsPanelScreen(
                 Modifier
                     .fillMaxSize()
                     .then(swipeBackModifier)
+                    .then(editModeDismissModifier)
                     .navigationBarsPadding()
                     .imePadding(),
         ) {
@@ -284,40 +289,52 @@ fun WidgetsPanelScreen(
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
                         .padding(horizontal = DesignTokens.ContentHorizontalPadding)
-                        .padding(top = DesignTokens.SpacingXXLarge, bottom = DesignTokens.SpacingLarge),
+                        .padding(bottom = DesignTokens.SpacingLarge),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
             ) {
+                Spacer(modifier = Modifier.height(DesignTokens.SpacingXXLarge))
+
                 WidgetsPanelHeader(
                     inEditMode = editingWidgetId != null,
                     onAddWidget = { showPicker = true },
                     onExitEditMode = { editingWidgetId = null },
                 )
 
-                CompactQuickNoteWidget(modifier = Modifier.fillMaxWidth())
+                Column(
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
+                ) {
+                    CompactQuickNoteWidget(modifier = Modifier.fillMaxWidth())
 
-                if (widgets.isNotEmpty()) {
-                    WidgetPanelGrid(
-                        widgets = widgets,
-                        appWidgetManager = appWidgetManager,
-                        appWidgetHost = appWidgetHost,
-                        editingWidgetId = editingWidgetId,
-                        density = density,
-                        onPersist = ::persistWidgets,
-                        onRemoveWidget = { widget ->
-                            appWidgetHost.deleteAppWidgetId(widget.appWidgetId)
-                            persistWidgets(
-                                preferences.removeWidget(widget.appWidgetId),
-                            )
-                            editingWidgetId = null
-                        },
-                        onConfigureWidget = { _, configureIntent ->
-                            configureExistingLauncher.launch(configureIntent)
-                            editingWidgetId = null
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                    if (widgets.isNotEmpty()) {
+                        WidgetPanelGrid(
+                            widgets = widgets,
+                            appWidgetManager = appWidgetManager,
+                            appWidgetHost = appWidgetHost,
+                            editingWidgetId = editingWidgetId,
+                            density = density,
+                            onPersist = ::persistWidgets,
+                            onSetEditingWidgetId = { id -> editingWidgetId = id },
+                            onRemoveWidget = { widget ->
+                                appWidgetHost.deleteAppWidgetId(widget.appWidgetId)
+                                persistWidgets(
+                                    preferences.removeWidget(widget.appWidgetId),
+                                )
+                                editingWidgetId = null
+                            },
+                            onConfigureWidget = { _, configureIntent ->
+                                configureExistingLauncher.launch(configureIntent)
+                                editingWidgetId = null
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    } else {
+                        Spacer(modifier = Modifier.height(DesignTokens.SpacingSmall))
+                    }
                 }
             }
 
@@ -356,6 +373,14 @@ private fun WidgetsPanelHeader(
             Button(
                 onClick = onAddWidget,
                 shape = DesignTokens.ShapeXXLarge,
+                modifier = Modifier.height(34.dp),
+                contentPadding =
+                    PaddingValues(
+                        start = DesignTokens.SpacingSmall,
+                        top = 0.dp,
+                        end = DesignTokens.SpacingMedium,
+                        bottom = 0.dp,
+                    ),
                 colors =
                     ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
@@ -365,10 +390,13 @@ private fun WidgetsPanelHeader(
                 Icon(
                     imageVector = Icons.Rounded.Add,
                     contentDescription = null,
-                    modifier = Modifier.size(DesignTokens.IconSizeSmall),
+                    modifier = Modifier.size(16.dp),
                 )
-                Spacer(modifier = Modifier.size(DesignTokens.TextButtonIconSpacing))
-                Text(text = stringResource(R.string.common_action_add))
+                Spacer(modifier = Modifier.width(DesignTokens.SpacingXSmall))
+                Text(
+                    text = stringResource(R.string.common_action_add),
+                    style = MaterialTheme.typography.labelMedium,
+                )
             }
         }
     }
@@ -382,6 +410,7 @@ private fun WidgetPanelGrid(
     editingWidgetId: Int?,
     density: Density,
     onPersist: (List<PanelWidgetInfo>) -> Unit,
+    onSetEditingWidgetId: (Int?) -> Unit,
     onRemoveWidget: (PanelWidgetInfo) -> Unit,
     onConfigureWidget: (PanelWidgetInfo, Intent) -> Unit,
     modifier: Modifier = Modifier,
@@ -431,6 +460,50 @@ private fun WidgetPanelGrid(
 
         var liveLayout by remember { mutableStateOf<List<PanelWidgetInfo>?>(null) }
         val displayLayout = liveLayout ?: laidOut
+        var hostDragStart by remember { mutableStateOf<PanelWidgetInfo?>(null) }
+
+        val currentLaidOut by rememberUpdatedState(laidOut)
+        val currentSpecs by rememberUpdatedState(specs)
+        val currentGridUnitWidthPx by rememberUpdatedState(gridUnitWidthPx)
+        val currentGridUnitHeightPx by rememberUpdatedState(gridUnitHeightPx)
+        val currentOnPersist by rememberUpdatedState(onPersist)
+        val currentOnSetEditing by rememberUpdatedState(onSetEditingWidgetId)
+
+        SideEffect {
+            appWidgetHost.onWidgetLongPress = { id ->
+                val widget = currentLaidOut.firstOrNull { it.appWidgetId == id }
+                if (widget != null) {
+                    hostDragStart = widget
+                    currentOnSetEditing(id)
+                }
+            }
+            appWidgetHost.onWidgetDragMove = { id, dx, dy ->
+                val start = hostDragStart
+                if (start != null && start.appWidgetId == id) {
+                    val columnSpan = start.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN
+                    val nextColumn =
+                        ((start.column ?: 0) + (dx / currentGridUnitWidthPx).roundToInt())
+                            .coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - columnSpan)
+                    val nextRow =
+                        ((start.row ?: 0) + (dy / currentGridUnitHeightPx).roundToInt())
+                            .coerceAtLeast(0)
+                    liveLayout =
+                        moveWidgetToCell(
+                            widgets = liveLayout ?: currentLaidOut,
+                            appWidgetId = id,
+                            targetColumn = nextColumn,
+                            targetRow = nextRow,
+                            specs = currentSpecs,
+                        )
+                }
+            }
+            appWidgetHost.onWidgetDragEnd = { _ ->
+                val final = liveLayout
+                liveLayout = null
+                hostDragStart = null
+                if (final != null && final != currentLaidOut) currentOnPersist(final)
+            }
+        }
 
         val rows =
             displayLayout.maxOfOrNull { widget ->
@@ -649,7 +722,11 @@ private fun BoxScope.WidgetEditOverlay(
                     width = WidgetEditBorderWidth,
                     color = MaterialTheme.colorScheme.primary,
                     shape = DesignTokens.ShapeMedium,
-                ),
+                )
+                .pointerInput(Unit) {
+                    // Absorb taps anywhere on the widget so the screen-level dismiss doesn't fire.
+                    detectTapGestures(onTap = {})
+                },
     ) {
         // Drag-to-move handler covering the widget. Lives below handles & buttons so they get
         // their gestures first.

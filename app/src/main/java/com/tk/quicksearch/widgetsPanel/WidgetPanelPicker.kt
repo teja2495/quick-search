@@ -21,6 +21,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ExpandLess
+import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -111,6 +113,7 @@ internal fun WidgetPickerSheet(
                 }
             }
         }
+    var expandedApps by rememberSaveable { mutableStateOf(setOf<String>()) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -144,6 +147,15 @@ internal fun WidgetPickerSheet(
                 items(filteredApps, key = { it.packageName }) { app ->
                     WidgetPickerAppGroup(
                         app = app,
+                        isExpanded = expandedApps.contains(app.packageName),
+                        onToggleExpanded = {
+                            expandedApps =
+                                if (expandedApps.contains(app.packageName)) {
+                                    expandedApps - app.packageName
+                                } else {
+                                    expandedApps + app.packageName
+                                }
+                        },
                         packageManager = packageManager,
                         onSelectWidget = onSelectWidget,
                     )
@@ -218,6 +230,8 @@ private fun WidgetPickerSearchField(
 @Composable
 private fun WidgetPickerAppGroup(
     app: WidgetPickerApp,
+    isExpanded: Boolean,
+    onToggleExpanded: () -> Unit,
     packageManager: PackageManager,
     onSelectWidget: (AppWidgetProviderInfo) -> Unit,
     modifier: Modifier = Modifier,
@@ -232,6 +246,7 @@ private fun WidgetPickerAppGroup(
                 modifier =
                     Modifier
                         .fillMaxWidth()
+                        .clickable(onClick = onToggleExpanded)
                         .padding(DesignTokens.SpacingLarge),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
@@ -241,7 +256,7 @@ private fun WidgetPickerAppGroup(
                     contentDescription = null,
                     modifier =
                         Modifier
-                            .size(DesignTokens.AppIconSize)
+                            .size(DesignTokens.LargeIconSize)
                             .clip(CircleShape),
                 )
                 Column(modifier = Modifier.weight(1f)) {
@@ -260,17 +275,24 @@ private fun WidgetPickerAppGroup(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+                Icon(
+                    imageVector = if (isExpanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
 
-            app.widgets.forEachIndexed { index, provider ->
-                if (index > 0) {
-                    HorizontalDivider(color = AppColors.SettingsDivider)
+            if (isExpanded) {
+                app.widgets.forEachIndexed { index, provider ->
+                    if (index > 0) {
+                        HorizontalDivider(color = AppColors.SettingsDivider)
+                    }
+                    WidgetPickerRow(
+                        provider = provider,
+                        packageManager = packageManager,
+                        onClick = { onSelectWidget(provider) },
+                    )
                 }
-                WidgetPickerRow(
-                    provider = provider,
-                    packageManager = packageManager,
-                    onClick = { onSelectWidget(provider) },
-                )
             }
         }
     }
@@ -292,17 +314,16 @@ private fun WidgetPickerRow(
     val minWidth = with(density) { provider.minWidth.toDp() }
     val minHeight = with(density) { provider.minHeight.toDp() }
 
-    Row(
+    Column(
         modifier =
             modifier
                 .fillMaxWidth()
                 .clickable(onClick = onClick)
                 .padding(DesignTokens.SpacingLarge),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
     ) {
         Surface(
-            modifier = Modifier.size(width = 92.dp, height = 64.dp),
+            modifier = Modifier.fillMaxWidth().heightIn(min = 92.dp),
             shape = DesignTokens.ShapeMedium,
             color = MaterialTheme.colorScheme.surfaceContainerHighest,
         ) {
@@ -314,7 +335,7 @@ private fun WidgetPickerRow(
                 )
             }
         }
-        Column(modifier = Modifier.weight(1f)) {
+        Column(modifier = Modifier.fillMaxWidth()) {
             Text(
                 text = provider.loadLabel(packageManager)?.toString().orEmpty(),
                 style = MaterialTheme.typography.bodyLarge,
@@ -330,11 +351,16 @@ private fun WidgetPickerRow(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+            ) {
+                AssistChip(
+                    onClick = onClick,
+                    label = { Text(stringResource(R.string.common_action_add)) },
+                )
+            }
         }
-        AssistChip(
-            onClick = onClick,
-            label = { Text(stringResource(R.string.common_action_add)) },
-        )
     }
 }
 

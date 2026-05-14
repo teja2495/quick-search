@@ -158,8 +158,10 @@ internal fun moveWidgetToCell(
 }
 
 /**
- * Applies a resize to a widget, clamping to the panel bounds and refusing changes that would
- * overlap another widget.
+ * Applies a resize to a widget, clamping to the panel bounds. When the new bounds would overlap
+ * other widgets, those widgets are pushed downward to make room. If a widget *above* the anchor
+ * would need to move (the anchor grew upward into it), the resize is rejected (we can't push
+ * widgets above off the top of the grid).
  */
 internal fun resizeWidgetInGrid(
     widgets: List<PanelWidgetInfo>,
@@ -175,15 +177,74 @@ internal fun resizeWidgetInGrid(
     val rowSpan = resize.rowSpan.coerceIn(minRowSpan, WIDGET_PANEL_MAX_ROW_SPAN)
     val column = resize.column.coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - columnSpan)
     val row = resize.row.coerceAtLeast(0)
-    val occupied = buildOccupiedSet(widgets, excludeAppWidgetId = appWidgetId)
-    if (!canPlace(occupied, column, row, columnSpan, rowSpan)) return widgets
-    return widgets.map { item ->
-        if (item.appWidgetId == appWidgetId) {
-            item.copy(column = column, row = row, columnSpan = columnSpan, rowSpan = rowSpan)
-        } else {
-            item
+
+    val updated =
+        current.copy(column = column, row = row, columnSpan = columnSpan, rowSpan = rowSpan)
+    val anchorTopBefore = current.row ?: 0
+
+    // Reject if anchor's top moved upward into an existing widget that we'd need to push up.
+    if (updated.rowOrZero() < anchorTopBefore) {
+        val blocksAbove =
+            widgets.any { other ->
+                other.appWidgetId != appWidgetId &&
+                    horizontallyOverlaps(other, updated) &&
+                    other.rowOrZero() < updated.rowOrZero() &&
+                    other.bottomRow() > updated.rowOrZero()
+            }
+        if (blocksAbove) return widgets
+    }
+
+    val updatedList = widgets.map { if (it.appWidgetId == appWidgetId) updated else it }
+    return cascadePushDown(updatedList, anchorAppWidgetId = appWidgetId)
+}
+
+private fun cascadePushDown(
+    widgets: List<PanelWidgetInfo>,
+    anchorAppWidgetId: Int,
+): List<PanelWidgetInfo> {
+    val byId = widgets.associateBy { it.appWidgetId }.toMutableMap()
+    val anchor = byId[anchorAppWidgetId] ?: return widgets
+    val occupied = mutableSetOf<Pair<Int, Int>>()
+    markOccupied(
+        occupied = occupied,
+        column = anchor.column ?: 0,
+        row = anchor.row ?: 0,
+        columnSpan = anchor.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN,
+        rowSpan = anchor.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN,
+    )
+
+    val others =
+        byId.values
+            .filter { it.appWidgetId != anchorAppWidgetId }
+            .sortedBy { it.row ?: 0 }
+
+    for (widget in others) {
+        val colSpan = widget.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN
+        val rowSpan = widget.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN
+        val col = widget.column ?: 0
+        var row = widget.row ?: 0
+        while (!canPlace(occupied, col, row, colSpan, rowSpan)) {
+            row++
+        }
+        markOccupied(occupied, col, row, colSpan, rowSpan)
+        if (row != (widget.row ?: 0)) {
+            byId[widget.appWidgetId] = widget.copy(row = row)
         }
     }
+
+    return widgets.map { byId[it.appWidgetId] ?: it }
+}
+
+private fun PanelWidgetInfo.rowOrZero(): Int = row ?: 0
+private fun PanelWidgetInfo.bottomRow(): Int =
+    (row ?: 0) + (rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN)
+
+private fun horizontallyOverlaps(a: PanelWidgetInfo, b: PanelWidgetInfo): Boolean {
+    val aLeft = a.column ?: 0
+    val aRight = aLeft + (a.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN)
+    val bLeft = b.column ?: 0
+    val bRight = bLeft + (b.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN)
+    return aLeft < bRight && bLeft < aRight
 }
 
 internal fun calculateGridColumnSpan(
