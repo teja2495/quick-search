@@ -77,6 +77,8 @@ class WidgetsPanelPreferences(
     fun addWidget(
         appWidgetId: Int,
         provider: ComponentName,
+        columnSpan: Int,
+        rowSpan: Int,
     ): List<PanelWidgetInfo> {
         val next =
             getWidgets() +
@@ -84,6 +86,8 @@ class WidgetsPanelPreferences(
                     appWidgetId = appWidgetId,
                     providerPackage = provider.packageName,
                     providerClassName = provider.className,
+                    columnSpan = columnSpan,
+                    rowSpan = rowSpan,
                 )
         setWidgets(next)
         return next
