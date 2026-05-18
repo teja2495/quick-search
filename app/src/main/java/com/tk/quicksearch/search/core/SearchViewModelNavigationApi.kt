@@ -49,6 +49,8 @@ internal interface SearchViewModelNavigationApi {
 
     fun openFile(deviceFile: DeviceFile) = navigationApiDelegate.openFile(deviceFile)
 
+    fun recordFileOpen(deviceFile: DeviceFile) = navigationApiDelegate.recordFileOpen(deviceFile)
+
     fun openContainingFolder(deviceFile: DeviceFile) =
         navigationApiDelegate.openContainingFolder(deviceFile)
 
@@ -113,6 +115,8 @@ class SearchViewModelNavigationApiDelegate internal constructor(
     fun searchIconPacks() = navigationHandler().searchIconPacks()
 
     fun openFile(deviceFile: DeviceFile) = navigationHandler().openFile(deviceFile)
+
+    fun recordFileOpen(deviceFile: DeviceFile) = navigationHandler().recordFileOpen(deviceFile)
 
     fun openContainingFolder(deviceFile: DeviceFile) = navigationHandler().openContainingFolder(deviceFile)
 

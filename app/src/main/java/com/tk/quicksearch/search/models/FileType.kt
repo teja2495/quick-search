@@ -171,4 +171,12 @@ object FileTypeUtils {
         if (file.mimeType?.lowercase() == "application/pdf") return true
         return file.displayName.lowercase().endsWith(".pdf")
     }
+
+    fun isImage(file: DeviceFile): Boolean {
+        if (file.isDirectory) return false
+        val mime = file.mimeType?.lowercase()
+        if (mime != null && mime.startsWith(IMAGE_PREFIX)) return true
+        val ext = file.displayName.substringAfterLast('.', "").lowercase()
+        return ext in IMAGE_EXTENSIONS
+    }
 }

@@ -193,6 +193,10 @@ class NavigationHandler(
         }
     }
 
+    fun recordFileOpen(deviceFile: DeviceFile) {
+        userPreferences.addRecentItem(RecentSearchEntry.File(deviceFile.uri.toString()))
+    }
+
     fun openContainingFolder(deviceFile: DeviceFile) {
         onClearQuery()
         mainHandler.post {

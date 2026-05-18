@@ -311,6 +311,7 @@ fun SearchRoute(
     var pendingPermissionSettingsType by remember { mutableStateOf<Int?>(null) }
     var pendingDirectDialToggleFromAppSetting by remember { mutableStateOf(false) }
     var editingCustomCalendarEvent by remember { mutableStateOf<CalendarEventInfo?>(null) }
+    var previewFile by remember { mutableStateOf<DeviceFile?>(null) }
     val customCalendarEventRepository = remember(context) { CustomCalendarEventRepository(context) }
 
     val callPermissionLauncher =
@@ -533,7 +534,14 @@ fun SearchRoute(
                 viewModel.handleContactMethod(contact, method)
             },
             onFileClick = { file: com.tk.quicksearch.search.models.DeviceFile ->
-                viewModel.openFile(file)
+                if (com.tk.quicksearch.search.models.FileTypeUtils.isPdf(file) ||
+                    com.tk.quicksearch.search.models.FileTypeUtils.isImage(file)
+                ) {
+                    viewModel.recordFileOpen(file)
+                    previewFile = file
+                } else {
+                    viewModel.openFile(file)
+                }
             },
             onOpenFolder = { file: com.tk.quicksearch.search.models.DeviceFile ->
                 viewModel.openContainingFolder(file)
@@ -767,6 +775,21 @@ fun SearchRoute(
                     showPermissionSettingsDialog = false
                     pendingPermissionSettingsAction = null
                     pendingPermissionSettingsType = null
+                },
+            )
+        }
+
+        previewFile?.let { file ->
+            com.tk.quicksearch.search.files.FilePreviewBottomSheet(
+                deviceFile = file,
+                onDismiss = { previewFile = null },
+                onOpen = {
+                    previewFile = null
+                    viewModel.openFile(file)
+                },
+                onShare = {
+                    previewFile = null
+                    com.tk.quicksearch.search.core.FileIntents.shareFile(context, file)
                 },
             )
         }
