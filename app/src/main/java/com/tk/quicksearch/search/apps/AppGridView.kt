@@ -294,7 +294,9 @@ fun AppGridView(
                         }
                         .groupBy { it.packageName }
             }
-    val waitForAppIcons = activeApps.isNotEmpty()
+    // Search results should not wait for the cold-start icon pipeline. If they do,
+    // secondary sections can render first even when app results are already in state.
+    val waitForAppIcons = activeApps.isNotEmpty() && !isSearching
     val areAppIconsLoaded =
             if (waitForAppIcons) {
                 activeApps.all { app ->
@@ -367,9 +369,7 @@ fun AppGridView(
                         animationSpec = tween(durationMillis = SuggestionsEnterDurationMillis),
                 )
             }
-            if (!isSearching) {
-                onGridAppeared?.invoke()
-            }
+            onGridAppeared?.invoke()
         }
         LaunchedEffect(showAppGrid, isSearching) {
             if (!showAppGrid || isSearching || suppressSuggestionsEnterAnimation) return@LaunchedEffect

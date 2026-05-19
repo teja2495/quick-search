@@ -127,15 +127,19 @@ fun ContentLayout(
             predictedTarget = predictedTarget,
             expandedCardMaxHeight = expandedCardMaxHeight,
         )
-    var appGridHasAppeared by remember { mutableStateOf(false) }
+    val hasQuery = state.query.isNotBlank()
+    var suggestionsAppGridHasAppeared by remember { mutableStateOf(false) }
     val effectiveAppsParams = appsParams.copy(
         predictedTarget = predictedTarget,
-        onGridAppeared = { appGridHasAppeared = true },
-        suppressSuggestionsEnterAnimation = appGridHasAppeared,
+        onGridAppeared = {
+            if (!hasQuery) {
+                suggestionsAppGridHasAppeared = true
+            }
+        },
+        suppressSuggestionsEnterAnimation = suggestionsAppGridHasAppeared,
     )
 
     // 1. Determine Layout Order based on ItemPriorityConfig
-    val hasQuery = state.query.isNotBlank()
     val queryLength = state.query.trim().length
     val isUrlQuery = remember(state.query) { isLikelyWebUrl(state.query) }
     val baseLayoutOrder = ItemPriorityConfig.getLayoutOrder(hasQuery)
@@ -270,7 +274,7 @@ fun ContentLayout(
             state.pinnedApps.isEmpty()
     val holdingForAppGridAnimation =
         canDeferOtherContentForSuggestions &&
-            !appGridHasAppeared &&
+            !suggestionsAppGridHasAppeared &&
             (state.recentApps.isNotEmpty() || state.pinnedApps.isNotEmpty())
     val hideOtherContent = waitingForSuggestions || holdingForAppGridAnimation
     val topMatches =
