@@ -186,7 +186,7 @@ fun AppItemDropdownMenu(
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    shortcuts.chunked(2).forEach { row ->
+                    shortcuts.chunked(3).forEach { row ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
@@ -217,10 +217,11 @@ fun AppItemDropdownMenu(
                                         }
                                     },
                                     onClick = { onShortcutClick(shortcut); onDismiss() },
+                                    enableMarquee = true,
                                     modifier = Modifier.weight(1f),
                                 )
                             }
-                            if (row.size == 1) Spacer(Modifier.weight(1f))
+                            repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
                         }
                     }
                 }
