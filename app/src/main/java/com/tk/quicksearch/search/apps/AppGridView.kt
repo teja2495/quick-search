@@ -96,6 +96,7 @@ import com.tk.quicksearch.shared.ui.theme.LocalIsSystemWallpaperActive
 import com.tk.quicksearch.shared.ui.theme.LocalWallpaperDynamicAccentActive
 import com.tk.quicksearch.shared.util.getAppGridColumns
 import com.tk.quicksearch.shared.util.hapticConfirm
+import kotlin.math.min
 
 private const val ROW_COUNT = 2
 private const val TabSlideOffsetPx = 64
@@ -104,7 +105,10 @@ private const val SuggestionsEnterOffsetDp = 12f
 private const val SuggestionTabInactiveAlpha = 0.34f
 private const val SuggestionTabSwipeThresholdPx = 48f
 private val AppGridRowSpacing = DesignTokens.SpacingXSmall
+private val OverlayGridWidthRoundingSlack = 1.dp
 private val RegularAppIconSize = DesignTokens.IconSizeXLarge - DesignTokens.SpacingXXSmall
+private val OverlayAppIconSurfaceSize = 52.dp
+private val OverlayAppIconSize = 36.dp
 private val TopResultIndicatorTopPadding = 0.dp
 private val TopResultIndicatorBottomPadding = DesignTokens.SpacingSmall
 private val TopResultIndicatorHorizontalPadding = DesignTokens.SpacingSmall
@@ -634,25 +638,46 @@ private fun AppGrid(
                     maxVisibleColumns.coerceAtLeast(1)
                 }
             }
-    val orderedApps =
-            remember(displayedApps, oneHandedMode, columns) {
-                if (oneHandedMode) {
-                    displayedApps.chunked(columns).reversed().flatten()
+    val visibleAppLimit =
+            remember(isOverlayPresentation, rowCount, columns) {
+                if (isOverlayPresentation) {
+                    (rowCount * columns).coerceAtLeast(1)
                 } else {
-                    displayedApps
+                    Int.MAX_VALUE
                 }
             }
-    val firstResultKey = remember(displayedApps, suppressTopResultIndicator) {
-        if (suppressTopResultIndicator) null else displayedApps.firstOrNull()?.launchCountKey()
+    val visibleDisplayedApps =
+            remember(displayedApps, visibleAppLimit) {
+                displayedApps.take(visibleAppLimit)
+            }
+    val orderedApps =
+            remember(visibleDisplayedApps, oneHandedMode, columns) {
+                if (oneHandedMode) {
+                    visibleDisplayedApps.chunked(columns).reversed().flatten()
+                } else {
+                    visibleDisplayedApps
+                }
+            }
+    val firstResultKey = remember(visibleDisplayedApps, suppressTopResultIndicator) {
+        if (suppressTopResultIndicator) null else visibleDisplayedApps.firstOrNull()?.launchCountKey()
     }
 
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         val horizontalSpacing = DesignTokens.SpacingMedium
+        val widthRoundingSlack =
+                if (isOverlayPresentation && columns > 1) {
+                    OverlayGridWidthRoundingSlack
+                } else {
+                    0.dp
+                }
         val rowItemWidth =
                 if (columns <= 1) {
                     maxWidth
                 } else {
-                    ((maxWidth - (horizontalSpacing * (columns - 1))) / columns).coerceAtLeast(0.dp)
+                    (
+                        ((maxWidth - (horizontalSpacing * (columns - 1))) / columns) -
+                            widthRoundingSlack
+                    ).coerceAtLeast(0.dp)
                 }
         val spacingPx = with(LocalDensity.current) { horizontalSpacing.toPx() }
         val rowItemWidthPx = with(LocalDensity.current) { rowItemWidth.toPx() }
@@ -681,7 +706,8 @@ private fun AppGrid(
                             (itemHeightPx + spacingPx))
                             .toInt()
                             .coerceAtLeast(0)
-            return (targetRow * columns + targetColumn).coerceIn(displayedApps.indices)
+            val maxTargetIndex = min(displayedApps.lastIndex, visibleAppLimit - 1)
+            return (targetRow * columns + targetColumn).coerceIn(0, maxTargetIndex)
         }
 
         val context = LocalContext.current
@@ -875,8 +901,16 @@ private fun AppGridItem(
                         AppIconDisplayMode.REGULAR
                     }
                 ) {
-                    AppIconDisplayMode.OVERLAY -> 40.dp
+                    AppIconDisplayMode.OVERLAY -> OverlayAppIconSize
                     AppIconDisplayMode.REGULAR -> RegularAppIconSize
+                }
+            }
+    val appIconSurfaceSize =
+            remember(appState.isOverlayPresentation) {
+                if (appState.isOverlayPresentation) {
+                    OverlayAppIconSurfaceSize
+                } else {
+                    DesignTokens.AppIconSize
                 }
             }
     val indicatorAlpha = if (isPredicted) 1f else 0f
@@ -1005,6 +1039,7 @@ private fun AppGridItem(
                     onLongClick = if (isDraggable) null else ({ showOptions = true }),
                     gestureModifier = dragModifier,
                     clickGesturesEnabled = !isDraggable,
+                    appIconSurfaceSize = appIconSurfaceSize,
                     appIconSize = appIconSize,
                     appIconShape = appIconShape,
                     hasCustomIconPack = iconPackPackage != null,
@@ -1055,6 +1090,7 @@ private fun AppIconSurface(
         onLongClick: (() -> Unit)?,
         gestureModifier: Modifier = Modifier,
         clickGesturesEnabled: Boolean = true,
+        appIconSurfaceSize: Dp = DesignTokens.AppIconSize,
         appIconSize: Dp,
         appIconShape: AppIconShape = AppIconShape.DEFAULT,
         hasCustomIconPack: Boolean = false,
@@ -1112,7 +1148,7 @@ private fun AppIconSurface(
     val themedIconContainerShape = CircleShape
 
     Surface(
-            modifier = Modifier.requiredSize(DesignTokens.AppIconSize).then(gestureModifier),
+            modifier = Modifier.requiredSize(appIconSurfaceSize).then(gestureModifier),
             color = Color.Transparent,
             tonalElevation = 0.dp,
             shape = DesignTokens.ShapeLarge,
