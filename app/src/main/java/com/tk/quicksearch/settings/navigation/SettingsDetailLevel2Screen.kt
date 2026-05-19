@@ -68,6 +68,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+private val ConfigureApiKeyCardVerticalPadding =
+    DesignTokens.CardVerticalPadding + DesignTokens.SpacingSmall
+
 @Composable
 internal fun SettingsDetailLevel2Screen(
     modifier: Modifier = Modifier,
@@ -691,7 +694,7 @@ internal fun SettingsDetailLevel2Screen(
                                         ),
                                     contentPadding = PaddingValues(
                                         horizontal = DesignTokens.CardHorizontalPadding,
-                                        vertical = DesignTokens.CardVerticalPadding,
+                                        vertical = ConfigureApiKeyCardVerticalPadding,
                                     ),
                                 )
                             }
@@ -732,6 +735,7 @@ internal fun SettingsDetailLevel2Screen(
                         SettingsDetailType.API_KEY_SETUP -> {
                             ApiKeySetupScreen(
                                 apiKeyLast4ByProvider = state.llmApiKeyLast4ByProvider,
+                                customProviderBaseUrlByProvider = state.customLlmBaseUrlByProvider,
                                 isSavingApiKey = state.isSavingGeminiApiKey,
                                 onSetApiKey = callbacks.onSetLlmApiKey,
                                 onAddCustomProvider = callbacks.onAddCustomLlmProvider,

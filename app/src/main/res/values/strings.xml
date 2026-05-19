@@ -37,6 +37,7 @@
     <string name="common_theme_device">Device</string>
     <string name="common_theme_system">System</string>
     <string name="common_action_add">Add</string>
+    <string name="action_clear">Clear</string>
     <string name="common_close">Close</string>
     <string name="common_time">Time</string>
     <string name="alias_trigger_after_space">Trigger after space</string>
@@ -496,7 +497,6 @@
     <string name="settings_ai_provider_openai">OpenAI</string>
     <string name="settings_ai_provider_groq">Groq</string>
     <string name="settings_ai_provider_custom_label">Custom</string>
-    <string name="settings_add_custom_provider_button">Add Custom Provider</string>
     <string name="settings_add_custom_provider_title">Add Custom Provider</string>
     <string name="settings_add_custom_provider_desc">Add an OpenAI-compatible provider.</string>
     <string name="settings_custom_provider_base_url_label">OpenAI Base URL</string>

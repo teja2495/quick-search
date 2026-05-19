@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -19,7 +18,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Delete
-import com.tk.quicksearch.shared.ui.components.AppBottomSheet
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.material3.Button
@@ -56,14 +54,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
-fun EditCustomSearchEngineDialog(
+fun EditCustomSearchEngineCard(
     customEngine: CustomSearchEngine,
     existingShortcuts: Map<String, String>,
     currentShortcutCode: String,
     availableBrowsers: List<com.tk.quicksearch.search.core.BrowserApp> = emptyList(),
     onSave: (String, String, String, String?, String?) -> Unit,
     onDelete: () -> Unit,
-    onDismiss: () -> Unit,
+    onCancel: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     var nameInput by remember(customEngine.id) {
@@ -136,24 +135,21 @@ fun EditCustomSearchEngineDialog(
 
     val scrollState = rememberScrollState()
 
-    AppBottomSheet(onDismissRequest = onDismiss, swipeToDismissEnabled = false) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        // Scrollable form content
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .imePadding(),
-        ) {
-            // Scrollable form content
-            Column(
-                modifier = Modifier
+            modifier =
+                Modifier
                     .fillMaxWidth()
-                    .weight(1f, fill = false)
                     .verticalScroll(scrollState)
                     .padding(
                         horizontal = DesignTokens.ContentHorizontalPadding,
                         vertical = DesignTokens.SpacingLarge,
                     ),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
-            ) {
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
+        ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -216,7 +212,7 @@ fun EditCustomSearchEngineDialog(
                             onDone = {
                                 if (canSave) {
                                     onSave(trimmedName, validTemplate!!, normalizedShortcut, iconBase64, selectedBrowserPackage)
-                                    onDismiss()
+                                    onCancel()
                                 }
                             },
                         ),
@@ -255,7 +251,7 @@ fun EditCustomSearchEngineDialog(
                             onDone = {
                                 if (canSave) {
                                     onSave(trimmedName, validTemplate!!, normalizedShortcut, iconBase64, selectedBrowserPackage)
-                                    onDismiss()
+                                    onCancel()
                                 }
                             },
                         ),
@@ -281,31 +277,30 @@ fun EditCustomSearchEngineDialog(
                 )
             }
 
-            // Pinned action buttons — always visible above keyboard
-            Row(
-                modifier = Modifier
+        Row(
+            modifier =
+                Modifier
                     .fillMaxWidth()
                     .padding(
                         horizontal = DesignTokens.ContentHorizontalPadding,
                         vertical = DesignTokens.SpacingMedium,
                     ),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            TextButton(onClick = onCancel) {
+                Text(text = stringResource(R.string.dialog_cancel))
+            }
+            Button(
+                onClick = {
+                    if (canSave) {
+                        onSave(trimmedName, validTemplate!!, normalizedShortcut, iconBase64, selectedBrowserPackage)
+                        onCancel()
+                    }
+                },
+                enabled = canSave,
             ) {
-                TextButton(onClick = onDismiss) {
-                    Text(text = stringResource(R.string.dialog_cancel))
-                }
-                Button(
-                    onClick = {
-                        if (canSave) {
-                            onSave(trimmedName, validTemplate!!, normalizedShortcut, iconBase64, selectedBrowserPackage)
-                            onDismiss()
-                        }
-                    },
-                    enabled = canSave,
-                ) {
-                    Text(text = stringResource(R.string.dialog_save))
-                }
+                Text(text = stringResource(R.string.dialog_save))
             }
         }
     }

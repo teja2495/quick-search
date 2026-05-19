@@ -19,7 +19,6 @@ import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.DragHandle
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
-import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -88,7 +87,6 @@ fun SearchEngineListCard(
     val availableBrowsers = remember(searchEngineOrder) {
         searchEngineOrder.filterIsInstance<SearchTarget.Browser>().map { it.app }
     }
-    var showAddSearchEngineDialog by remember { mutableStateOf(false) }
     var customEngineToEdit by remember { mutableStateOf<CustomSearchEngine?>(null) }
     var localDisabledSectionExpanded by remember { mutableStateOf(disabledSearchEnginesExpanded) }
     val isDisabledSectionExpanded =
@@ -98,39 +96,41 @@ fun SearchEngineListCard(
             localDisabledSectionExpanded
         }
 
-    if (showAddSearchEngineDialog && onAddCustomSearchEngine != null) {
-        AddSearchEngineDialog(
-            availableBrowsers = availableBrowsers,
-            onSave = { name, normalizedTemplate, faviconBase64, browserPackage ->
-                onAddCustomSearchEngine(name, normalizedTemplate, faviconBase64, browserPackage)
-                showAddSearchEngineDialog = false
-            },
-            onDismiss = { showAddSearchEngineDialog = false },
-        )
-    }
-
     if (customEngineToEdit != null &&
         onUpdateCustomSearchEngine != null &&
         onDeleteCustomSearchEngine != null
     ) {
-        EditCustomSearchEngineDialog(
-            customEngine = customEngineToEdit!!,
-            existingShortcuts = shortcutCodes,
-            currentShortcutCode = shortcutCodes["custom:${customEngineToEdit!!.id}"].orEmpty(),
-            availableBrowsers = availableBrowsers,
-            onSave = { name, normalizedTemplate, shortcutCode, iconBase64, browserPackage ->
-                val editingEngine = customEngineToEdit!!
-                onUpdateCustomSearchEngine(editingEngine.id, name, normalizedTemplate, iconBase64, browserPackage)
-                setAliasCode?.invoke(SearchTarget.Custom(editingEngine), shortcutCode)
-                setAliasEnabled?.invoke(SearchTarget.Custom(editingEngine), true)
-                customEngineToEdit = null
-            },
-            onDelete = {
-                onDeleteCustomSearchEngine(customEngineToEdit!!.id)
-                customEngineToEdit = null
-            },
-            onDismiss = { customEngineToEdit = null },
-        )
+        SettingsCard(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp, bottom = 24.dp),
+        ) {
+            EditCustomSearchEngineCard(
+                customEngine = customEngineToEdit!!,
+                existingShortcuts = shortcutCodes,
+                currentShortcutCode = shortcutCodes["custom:${customEngineToEdit!!.id}"].orEmpty(),
+                availableBrowsers = availableBrowsers,
+                onSave = { name, normalizedTemplate, shortcutCode, iconBase64, browserPackage ->
+                    val editingEngine = customEngineToEdit!!
+                    onUpdateCustomSearchEngine(
+                        editingEngine.id,
+                        name,
+                        normalizedTemplate,
+                        iconBase64,
+                        browserPackage,
+                    )
+                    setAliasCode?.invoke(SearchTarget.Custom(editingEngine), shortcutCode)
+                    setAliasEnabled?.invoke(SearchTarget.Custom(editingEngine), true)
+                    customEngineToEdit = null
+                },
+                onDelete = {
+                    onDeleteCustomSearchEngine(customEngineToEdit!!.id)
+                    customEngineToEdit = null
+                },
+                onCancel = { customEngineToEdit = null },
+            )
+        }
     }
 
     Column {
@@ -411,16 +411,16 @@ fun SearchEngineListCard(
         }
 
         if (showAddSearchEngineButton && onAddCustomSearchEngine != null) {
-            Box(
+            SettingsCard(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .padding(top = 34.dp, bottom = 24.dp),
-                contentAlignment = Alignment.Center,
+                        .padding(top = 24.dp, bottom = 24.dp),
             ) {
-                Button(onClick = { showAddSearchEngineDialog = true }) {
-                    Text(text = stringResource(R.string.settings_add_search_engine_button))
-                }
+                AddSearchEngineCard(
+                    availableBrowsers = availableBrowsers,
+                    onSave = onAddCustomSearchEngine,
+                )
             }
         }
     }

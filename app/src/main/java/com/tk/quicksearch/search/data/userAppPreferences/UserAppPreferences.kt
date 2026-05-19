@@ -854,6 +854,11 @@ class UserAppPreferences(
             }
         }.toMap()
 
+    fun getCustomLlmBaseUrlByProvider(): Map<AiSearchLlmProviderId, String> =
+        customLlmProviderPreferences.getProviders().associate { provider ->
+            AiSearchLlmProviderId.custom(provider.id) to provider.baseUrl
+        }
+
     fun getConfiguredLlmProviderIds(): List<AiSearchLlmProviderId> =
         AiSearchLlmProviderId.entries +
             customLlmProviderPreferences.getProviders().map { AiSearchLlmProviderId.custom(it.id) }
