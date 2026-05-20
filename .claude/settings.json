@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(./gradlew :app:compileDebugKotlin --quiet)"
+      "Bash(./gradlew :app:compileDebugKotlin --quiet)",
+      "Bash(find ~/.gradle/caches -name \"material3-*.pom\" 2>/dev/null | head -5)",
+      "Read(//Users/teja2495/.gradle/caches/**)"
     ]
   }
 }

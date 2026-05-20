@@ -91,6 +91,7 @@ internal fun SliderRow(
     valueFormatter: (Float) -> String,
     labelTextStyle: TextStyle = MaterialTheme.typography.bodyLarge,
     labelColor: Color = MaterialTheme.colorScheme.onSurface,
+    showTicks: Boolean = true,
     onValueChange: (Float) -> Unit,
 ) {
     val view = LocalView.current
@@ -124,7 +125,14 @@ internal fun SliderRow(
         }
         Slider(
             value = value,
-            onValueChange = { v ->
+            onValueChange = { rawValue ->
+                val v = if (!showTicks && steps > 0 && span > 0) {
+                    val stepSize = span / steps
+                    (((rawValue - start) / stepSize).roundToInt() * stepSize + start)
+                        .coerceIn(valueRange.start, valueRange.endInclusive)
+                } else {
+                    rawValue
+                }
                 val step =
                     if (span > 0) {
                         ((v - start) / span * steps)
@@ -140,7 +148,7 @@ internal fun SliderRow(
                 onValueChange(v)
             },
             valueRange = valueRange,
-            steps = (steps - 1).coerceAtLeast(0),
+            steps = if (showTicks) (steps - 1).coerceAtLeast(0) else 0,
         )
     }
 }
