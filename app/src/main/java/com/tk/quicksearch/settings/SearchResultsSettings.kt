@@ -584,7 +584,17 @@ private fun PriorityReorderDialog(
                             Switch(
                                 modifier = Modifier.scale(0.7f),
                                 checked = item !in disabledSections,
-                                onCheckedChange = { enabled -> onItemEnabledChange(item, enabled) },
+                                onCheckedChange = { enabled ->
+                                    if (!enabled && items.count { it !in disabledSections } <= 1 && item !in disabledSections) {
+                                        Toast.makeText(
+                                            view.context,
+                                            view.context.getString(R.string.settings_sections_at_least_one_required),
+                                            Toast.LENGTH_SHORT,
+                                        ).show()
+                                    } else {
+                                        onItemEnabledChange(item, enabled)
+                                    }
+                                },
                             )
                         }
                     }
