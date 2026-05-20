@@ -61,7 +61,6 @@ import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentP
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
-import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardStyleOverrides
 import com.tk.quicksearch.search.utils.SearchRankingUtils
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -354,11 +353,10 @@ internal fun TopMatchesSection(
                         .fillMaxWidth()
                         .predictedSubmitHighlight(
                             isPredicted = isTopPredicted,
-                            shape = DesignTokens.ShapeLarge,
+                            shape = SearchResultCardDefaults.shape,
                             opaqueCardTopResultBorder = true,
                         ),
                 showWallpaperBackground = showWallpaperBackground,
-                styleOverrides = SearchResultCardStyleOverrides(shape = DesignTokens.ShapeLarge),
             ) {
                 Column(
                     modifier =

@@ -430,7 +430,7 @@ fun SearchContentArea(
                             .clip(TopRoundedShape)
                             .then(edgeFadeModifier)
                             .then(
-                                if (canChangeImageBackground) {
+                                if (canChangeImageBackground && !hasQuery) {
                                     Modifier.pointerInput(Unit) {
                                         detectTapGestures(
                                             onLongPress = { pressOffset ->

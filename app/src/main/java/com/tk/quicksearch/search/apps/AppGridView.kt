@@ -951,6 +951,7 @@ private fun AppGridItem(
                 Modifier.pointerInput(appInfo.launchCountKey()) {
                     awaitEachGesture {
                         val down = awaitFirstDown(requireUnconsumed = false)
+                        down.consume()
                         val longPress = awaitLongPressOrCancellation(down.id)
                         if (longPress == null) {
                             if (currentEvent.changes.any { it.id == down.id && it.changedToUp() }) {
