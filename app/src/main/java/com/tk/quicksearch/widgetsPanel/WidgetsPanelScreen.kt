@@ -82,6 +82,7 @@ import androidx.compose.ui.zIndex
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
+import com.tk.quicksearch.shared.util.isDefaultHomeApp
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlin.math.roundToInt
 
@@ -125,6 +126,7 @@ fun WidgetsPanelScreen(
 ) {
     val context = LocalContext.current
     val appContext = context.applicationContext
+    val isDefaultLauncher = context.isDefaultHomeApp()
     val density = LocalDensity.current
     val appWidgetManager = remember(appContext) { AppWidgetManager.getInstance(appContext) }
     val appWidgetHost = remember(appContext) { WidgetPanelHost(appContext, WIDGET_PANEL_HOST_ID) }
@@ -340,7 +342,9 @@ fun WidgetsPanelScreen(
                             .verticalScroll(panelScrollState),
                     verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
                 ) {
-                    CompactQuickNoteWidget(modifier = Modifier.fillMaxWidth())
+                    if (!isDefaultLauncher) {
+                        CompactQuickNoteWidget(modifier = Modifier.fillMaxWidth())
+                    }
 
                     if (widgets.isNotEmpty()) {
                         WidgetPanelGrid(

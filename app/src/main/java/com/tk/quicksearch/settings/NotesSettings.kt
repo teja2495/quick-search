@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +19,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.EditNote
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -49,9 +51,11 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.NotesRepository
+import com.tk.quicksearch.search.data.preferences.NotesPreferences
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.notes.NotesTextUtils
 import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.settings.shared.SettingsNavigationToggleRow
 import com.tk.quicksearch.settings.shared.SettingsManagementSearchBar
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -186,16 +190,20 @@ fun NotesSettingsSection(
     val normalizedSearchQuery =
         remember(searchQuery, locale) { searchQuery.trim().lowercase(locale) }
     val repository = remember(context) { NotesRepository(context) }
+    val notesPreferences = remember(context) { NotesPreferences(context) }
+    var quickNoteEnabled by remember { mutableStateOf(notesPreferences.isQuickNoteEnabled()) }
     var refreshToken by remember { mutableLongStateOf(0L) }
     val notes by produceState(initialValue = emptyList<NoteInfo>(), refreshToken, notesRefreshSignal) {
         value = withContext(Dispatchers.IO) { repository.getAllNotes() }
     }
+    val quickNote = remember(notes) { notes.firstOrNull { repository.isQuickNote(it.noteId) } }
+    val userNotes = remember(notes) { notes.filterNot { repository.isQuickNote(it.noteId) } }
     val filteredNotes =
-        remember(notes, normalizedSearchQuery, locale) {
+        remember(userNotes, normalizedSearchQuery, locale) {
             if (normalizedSearchQuery.isBlank()) {
-                notes
+                userNotes
             } else {
-                notes.filter { note ->
+                userNotes.filter { note ->
                     note.title.lowercase(locale).contains(normalizedSearchQuery) ||
                         note.markdownContent.lowercase(locale).contains(normalizedSearchQuery)
                 }
@@ -212,58 +220,94 @@ fun NotesSettingsSection(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    Box(modifier = modifier) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
+    ) {
         SettingsCard(
             modifier =
                 Modifier
                     .fillMaxWidth()
                     .wrapContentHeight(),
         ) {
-            if (notes.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = stringResource(R.string.notes_empty_state),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            } else if (filteredNotes.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = stringResource(R.string.widget_custom_buttons_no_results),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth().wrapContentHeight(),
-                    contentPadding = PaddingValues(bottom = 8.dp),
-                ) {
-                    itemsIndexed(
-                        items = filteredNotes,
-                        key = { _, note -> note.noteId },
-                    ) { index, note ->
-                        NoteListRow(
-                            note = note,
-                            isPinned = repository.isPinned(note.noteId),
-                            selectionMode = multiSelectActive,
-                            isSelected = selectedNoteIds.contains(note.noteId),
-                            onOpen = { onOpenNoteEditor(note.noteId) },
-                            onLongPress = { onEnterMultiSelect(note.noteId) },
-                            onToggleSelected = { onToggleNoteSelected(note.noteId) },
+            quickNote?.let { note ->
+                SettingsNavigationToggleRow(
+                    title = stringResource(R.string.notes_quick_note_title),
+                    subtitle = stringResource(R.string.notes_quick_note_toggle_desc),
+                    checked = quickNoteEnabled,
+                    onCheckedChange = { enabled ->
+                        quickNoteEnabled = enabled
+                        notesPreferences.setQuickNoteEnabled(enabled)
+                    },
+                    leadingIcon = Icons.Rounded.EditNote,
+                    onRowClick = { onOpenNoteEditor(note.noteId) },
+                )
+            }
+        }
+
+        if (filteredNotes.isNotEmpty() || normalizedSearchQuery.isNotBlank()) {
+            SettingsCard(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+            ) {
+                if (filteredNotes.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.widget_custom_buttons_no_results),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                        if (index < filteredNotes.lastIndex) {
-                            HorizontalDivider(color = AppColors.SettingsDivider)
-                        }
                     }
+                } else {
+                    NotesList(
+                        notes = filteredNotes,
+                        repository = repository,
+                        selectedNoteIds = selectedNoteIds,
+                        multiSelectActive = multiSelectActive,
+                        onOpenNoteEditor = onOpenNoteEditor,
+                        onEnterMultiSelect = onEnterMultiSelect,
+                        onToggleNoteSelected = onToggleNoteSelected,
+                    )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun NotesList(
+    notes: List<NoteInfo>,
+    repository: NotesRepository,
+    selectedNoteIds: Set<Long>,
+    multiSelectActive: Boolean,
+    onOpenNoteEditor: (Long?) -> Unit,
+    onEnterMultiSelect: (Long) -> Unit,
+    onToggleNoteSelected: (Long) -> Unit,
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+        contentPadding = PaddingValues(bottom = 8.dp),
+    ) {
+        itemsIndexed(
+            items = notes,
+            key = { _, note -> note.noteId },
+        ) { index, note ->
+            NoteListRow(
+                note = note,
+                isPinned = repository.isPinned(note.noteId),
+                selectionMode = multiSelectActive,
+                isSelected = selectedNoteIds.contains(note.noteId),
+                onOpen = { onOpenNoteEditor(note.noteId) },
+                onLongPress = { onEnterMultiSelect(note.noteId) },
+                onToggleSelected = { onToggleNoteSelected(note.noteId) },
+            )
+            if (index < notes.lastIndex) {
+                HorizontalDivider(color = AppColors.SettingsDivider)
             }
         }
     }

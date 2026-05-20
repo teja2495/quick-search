@@ -35,4 +35,11 @@ class NotesPreferences(
     fun setQuickNoteId(noteId: Long) {
         prefs.edit().putLong(BasePreferences.KEY_QUICK_NOTE_ID, noteId).apply()
     }
+
+    fun isQuickNoteEnabled(): Boolean =
+        prefs.getBoolean(BasePreferences.KEY_QUICK_NOTE_ENABLED, true)
+
+    fun setQuickNoteEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(BasePreferences.KEY_QUICK_NOTE_ENABLED, enabled).apply()
+    }
 }

@@ -710,6 +710,7 @@
     <string name="settings_custom_tool_delete_button">Delete Tool</string>
     <string name="notes_create_note_cta">New Note</string>
     <string name="notes_quick_note_title">Quick Note</string>
+    <string name="notes_quick_note_toggle_desc">Open Quick Note from swipe navigation</string>
     <string name="notes_editor_title">Note Editor</string>
     <string name="notes_empty_state">No notes yet</string>
     <string name="notes_empty_note_subtext">Empty note</string>

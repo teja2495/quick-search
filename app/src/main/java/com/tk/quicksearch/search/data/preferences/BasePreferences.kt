@@ -486,6 +486,7 @@ abstract class BasePreferences(
         const val KEY_NOTES_DATA = "notes_data"
         const val KEY_NOTE_ID_COUNTER = "note_id_counter"
         const val KEY_QUICK_NOTE_ID = "quick_note_id"
+        const val KEY_QUICK_NOTE_ENABLED = "quick_note_enabled"
 
         // App shortcut preferences keys
         const val KEY_PINNED_APP_SHORTCUTS = "pinned_app_shortcuts"

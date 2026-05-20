@@ -317,6 +317,10 @@ class UserAppPreferences(
     fun ensureNoteIdCounterAtLeast(nextCandidate: Long) =
             notesPreferences.ensureNoteIdCounterAtLeast(nextCandidate)
 
+    fun isQuickNoteEnabled(): Boolean = notesPreferences.isQuickNoteEnabled()
+
+    fun setQuickNoteEnabled(enabled: Boolean) = notesPreferences.setQuickNoteEnabled(enabled)
+
     // ============================================================================
     // App Shortcut Preferences
     // ============================================================================

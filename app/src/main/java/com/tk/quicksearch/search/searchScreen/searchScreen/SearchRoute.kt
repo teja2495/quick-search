@@ -39,6 +39,7 @@ import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
+import com.tk.quicksearch.search.data.preferences.NotesPreferences
 import com.tk.quicksearch.search.appSettings.AppSettingResult
 import com.tk.quicksearch.search.appSettings.AppSettingResultAction
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination
@@ -486,8 +487,21 @@ fun SearchRoute(
         } else {
             modifier.fillMaxSize()
         }
+    val notesPreferences = remember(context.applicationContext) {
+        NotesPreferences(context.applicationContext)
+    }
+    var quickNoteEnabled by remember { mutableStateOf(notesPreferences.isQuickNoteEnabled()) }
+    DisposableEffect(lifecycleOwner, notesPreferences) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                quickNoteEnabled = notesPreferences.isQuickNoteEnabled()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
     val swipeNavigationModifier =
-        Modifier.pointerInput(Unit) {
+        Modifier.pointerInput(quickNoteEnabled) {
             var totalHorizontalDrag = 0f
             detectHorizontalDragGestures(
                 onDragStart = { totalHorizontalDrag = 0f },
@@ -498,7 +512,7 @@ fun SearchRoute(
                     if (totalHorizontalDrag >= SWIPE_NAVIGATION_THRESHOLD_PX) {
                         if (context.isDefaultHomeApp()) {
                             onOpenWidgetsPanelFromSwipe?.invoke() ?: openQuickNoteEditor()
-                        } else {
+                        } else if (quickNoteEnabled) {
                             openQuickNoteEditor()
                         }
                     } else if (totalHorizontalDrag <= -SWIPE_NAVIGATION_THRESHOLD_PX) {
