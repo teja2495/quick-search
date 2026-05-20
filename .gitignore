@@ -104,3 +104,4 @@ Thumbs.db
 .kotlin/
 .codex/
 .vscode/
+.claude/settings.json

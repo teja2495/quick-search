@@ -498,19 +498,14 @@
     <string name="settings_direct_search_desc">Gemini, OpenAI, Claude and Groq API keys are supported</string>
     <string name="settings_api_key_setup_desc">Configure API keys to access models from the respective AI provider.</string>
     <string name="settings_api_key_setup_nav_desc">Add or remove provider API keys</string>
-    <string name="settings_api_key_input_label">API key</string>
-    <string name="settings_api_key_not_set">No API key set</string>
     <string name="settings_api_key_saved_last4">Saved key ending in ****%1$s</string>
-    <string name="settings_api_key_paste_action">Paste from clipboard</string>
     <string name="settings_ai_provider_openai">OpenAI</string>
     <string name="settings_ai_provider_groq">Groq</string>
     <string name="settings_ai_provider_custom_label">Custom</string>
     <string name="settings_add_custom_provider_title">Add Custom Provider</string>
     <string name="settings_add_custom_provider_desc">Add an OpenAI-compatible provider.</string>
-    <string name="settings_custom_provider_base_url_label">OpenAI Base URL</string>
     <string name="settings_custom_provider_base_url_input_label">Base URL</string>
     <string name="settings_custom_provider_base_url_hint">Example: https://openrouter.ai/api/v1</string>
-    <string name="settings_custom_provider_key_label">Key</string>
     <string name="settings_model_picker_search_hint">Search models</string>
     <string name="settings_direct_search_grounding_label">Web Search</string>
     <string name="settings_direct_search_thinking_label">Thinking</string>
@@ -563,10 +558,6 @@
     <string name="settings_font_size_title">Font Size</string>
     <string name="settings_use_system_font_title">Use System Font</string>
     <string name="settings_use_system_font_desc">Follow your device font style</string>
-    <string name="settings_llm_api_key_display_gemini">Your Gemini API key:  ****%1$s</string>
-    <string name="settings_llm_api_key_display_openai">Your OpenAI API key:  ****%1$s</string>
-    <string name="settings_llm_api_key_display_claude">Your Claude API key:  ****%1$s</string>
-    <string name="settings_llm_api_key_display_groq">Your Groq API key:  ****%1$s</string>
     <string name="settings_gemini_api_key_paste_hint">Tap to paste the key</string>
     <string name="settings_gemini_api_key_clear">Clear</string>
     <string name="settings_gemini_api_key_reset">Reset Key</string>
@@ -714,7 +705,6 @@
     <string name="notes_quick_note_title">Quick Note</string>
     <string name="notes_quick_note_toggle_desc">Open Quick Note from swipe navigation</string>
     <string name="notes_editor_title">Note Editor</string>
-    <string name="notes_empty_state">No notes yet</string>
     <string name="notes_empty_note_subtext">Empty note</string>
     <string name="notes_untitled">Untitled</string>
     <string name="notes_title_hint">Title</string>
@@ -736,12 +726,10 @@
     <string name="shortcut_song_search_label">Song Search</string>
     <string name="shortcut_watch_later_label">Watch Later</string>
     <string name="widgets_panel_title">Widgets</string>
-    <string name="widgets_panel_add_widget">Add Widget</string>
     <string name="widgets_picker_title">Add Widget</string>
     <string name="widgets_picker_search_hint">Search</string>
     <string name="widgets_picker_empty">No widgets found.</string>
     <string name="widgets_picker_widget_count">%1$d widgets</string>
-    <string name="widgets_picker_widget_size">%1$d x %2$d dp</string>
     <string name="widgets_picker_widget_grid_size">%1$d x %2$d</string>
     <string name="widgets_picker_preview_unavailable">Preview unavailable</string>
     <!-- ============================================================================
