@@ -629,6 +629,7 @@
     <string name="settings_search_description_change_icon_pack">Change icon pack</string>
     <string name="settings_search_description_change_layout">Change app layout options</string>
     <string name="settings_search_description_change_wallpaper">Change wallpaper appearance</string>
+    <string name="action_change_wallpaper">Change Wallpaper</string>
     <string name="settings_search_dynamic_description_template">Manage %1$s settings</string>
     <string name="settings_search_engine_alias_suffix_desc">Triggers search engine when you add an alias at the end of the query. Aliases will always work at the start.</string>
     <string name="settings_search_engine_alias_suffix_title">Alias after Query</string>

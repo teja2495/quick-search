@@ -5,7 +5,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,7 +18,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -45,10 +50,13 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.core.isLikelyWebUrl
@@ -80,6 +88,7 @@ import com.tk.quicksearch.search.searchHistory.SearchHistorySection
 import com.tk.quicksearch.searchEngines.*
 import com.tk.quicksearch.searchEngines.compact.NoResultsSearchEngineCards
 import com.tk.quicksearch.search.webSuggestions.WebSuggestionsSection
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.tools.aiSearch.CalculatorResult
 import com.tk.quicksearch.tools.aiSearch.AiSearchResult
@@ -129,6 +138,7 @@ fun SearchContentArea(
     aiSearchState: AiSearchState? = null,
     isOverlayPresentation: Boolean = false,
     onOpenPermissionsSettings: () -> Unit = {},
+    onChangeWallpaperClick: () -> Unit = {},
     isDefaultLauncher: Boolean = false,
     onBottomOneHandedOverscrollUp: () -> Unit = {},
     onLauncherOverscrollDown: () -> Unit = {},
@@ -219,6 +229,19 @@ fun SearchContentArea(
     val canSwitchSearchHistoryTabs =
         state.recentItems.any { it is RecentSearchItem.Query } &&
             state.recentItems.any { it !is RecentSearchItem.Query }
+    var showBackgroundMenu by remember { mutableStateOf(false) }
+    var backgroundMenuOffset by remember { mutableStateOf(Offset.Zero) }
+    val density = LocalDensity.current
+    val backgroundMenuDpOffset =
+        remember(backgroundMenuOffset, density) {
+            with(density) {
+                DpOffset(
+                    x = backgroundMenuOffset.x.toDp(),
+                    y = backgroundMenuOffset.y.toDp(),
+                )
+            }
+        }
+    val canChangeImageBackground = state.showWallpaperBackground
 
     CompositionLocalProvider(
         LocalOverlayResultCardColor provides overlayCardColor,
@@ -394,116 +417,154 @@ fun SearchContentArea(
                     Modifier
                 }
 
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .then(heightModifier)
-                        .clip(TopRoundedShape)
-                        .then(edgeFadeModifier)
-                        .then(
-                            if (shouldHideScrollView) {
-                                Modifier.padding(
-                                    bottom = DesignTokens.SpacingMedium,
-                                )
-                            } else {
-                                Modifier
-                                    .nestedScroll(bottomOneHandedOverscrollConnection)
-                                    .verticalScroll(
-                                        scrollState,
-                                        reverseScrolling =
-                                        alignResultsToBottom,
-                                    ).padding(
-                                        bottom =
-                                            if (
-                                                renderingState.expandedSection != ExpandedSection.NONE ||
-                                                isSearchHistoryExpanded
-                                            ) {
-                                                if (isSectionAliasMode) {
-                                                    aliasExpandedSectionBottomInset
-                                                } else {
-                                                    expandedSectionBottomInset
-                                                }
-                                            } else {
-                                                DesignTokens
-                                                    .SpacingMedium
+            Box {
+                Column(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .then(heightModifier)
+                            .clip(TopRoundedShape)
+                            .then(edgeFadeModifier)
+                            .then(
+                                if (canChangeImageBackground) {
+                                    Modifier.pointerInput(Unit) {
+                                        detectTapGestures(
+                                            onLongPress = { pressOffset ->
+                                                backgroundMenuOffset = pressOffset
+                                                showBackgroundMenu = true
                                             },
-                                    )
-                            },
-                        ),
-                verticalArrangement =
-                    if (shouldHideScrollView) Arrangement.Top else verticalArrangement,
-            ) {
-                if (shouldHideScrollView) {
-                    // Show only the shared no-results message layout without the scroll view.
-                    NoResultsMessage(state)
-                } else {
-                    key(state.backgroundSource, state.showWallpaperBackground) {
-                        ContentLayout(
-                            modifier = Modifier.fillMaxWidth(),
-                            state = state,
-                            renderingState = renderingState,
-                            contactsParams = contactsParams,
-                            filesParams = filesParams,
-                            appShortcutsParams = appShortcutsParams,
-                            settingsParams = settingsParams,
-                            calendarParams = calendarParams,
-                            notesParams = notesParams,
-                            appsParams = appsParams,
-                            predictedTarget = predictedTarget,
-                            onRequestUsagePermission = onRequestUsagePermission,
-                            minContentHeight =
-                                if (isOverlayPresentation) {
-                                    0.dp
+                                        )
+                                    }
                                 } else {
-                                    this@BoxWithConstraints.maxHeight
+                                    Modifier
                                 },
-                            expandedCardMaxHeight =
-                                (
-                                    this@BoxWithConstraints.maxHeight -
-                                        if (isSectionAliasMode) {
-                                            aliasExpandedSectionBottomInset
-                                        } else {
-                                            expandedSectionBottomInset +
-                                                expandedCardExtraReduction
-                                        }
-                                )
-                                    .coerceAtLeast(220.dp),
-                            isReversed =
-                                    useOneHandedMode &&
-                                            !showAiSearch &&
-                                            !showCurrencyConverter &&
-                                            !showWordClock &&
-                                            !showDictionary,
-                            hideResults = hideOtherResults,
-                            showCalculator = showCalculator,
-                            showCurrencyConverter = showCurrencyConverter,
-                            showWordClock = showWordClock,
-                            showDictionary = showDictionary,
-                            showAiSearch = showAiSearch,
-                            aiSearchState = aiSearchState,
-                            isOverlayPresentation = isOverlayPresentation,
-                            onPhoneNumberClick = onPhoneNumberClick,
-                            onEmailClick = onEmailClick,
-                            onOpenPersonalContextDialog = onOpenPersonalContextDialog,
-                            onWebSuggestionClick = onWebSuggestionClick,
-                            onSearchEngineLongPress = onSearchEngineLongPress,
-                            onCustomizeSearchEnginesClick =
-                            onCustomizeSearchEnginesClick,
-                            onOpenAiSearchConfigure = onOpenAiSearchConfigure,
-                            onSearchTargetClick = onSearchTargetClick,
-                            onDeleteRecentItem = onDeleteRecentItem,
-                            onClearRecentItems = onClearRecentItems,
-                            onOpenSearchHistorySettings = onOpenSearchHistorySettings,
-                            onDismissSearchHistoryTip = onDismissSearchHistoryTip,
-                            onGeminiModelInfoClick = onGeminiModelInfoClick,
-                            onSearchHistoryExpandedChange = onSearchHistoryExpandedChange,
-                            searchHistoryCollapseRequestKey = searchHistoryCollapseRequestKey,
-                            searchHistorySelectedTab = searchHistorySelectedTab,
-                            onSearchHistorySelectedTabChange = { searchHistorySelectedTab = it },
-                            onOpenPermissionsSettings = onOpenPermissionsSettings,
-                        )
+                            )
+                            .then(
+                                if (shouldHideScrollView) {
+                                    Modifier.padding(
+                                        bottom = DesignTokens.SpacingMedium,
+                                    )
+                                } else {
+                                    Modifier
+                                        .nestedScroll(bottomOneHandedOverscrollConnection)
+                                        .verticalScroll(
+                                            scrollState,
+                                            reverseScrolling =
+                                            alignResultsToBottom,
+                                        ).padding(
+                                            bottom =
+                                                if (
+                                                    renderingState.expandedSection != ExpandedSection.NONE ||
+                                                    isSearchHistoryExpanded
+                                                ) {
+                                                    if (isSectionAliasMode) {
+                                                        aliasExpandedSectionBottomInset
+                                                    } else {
+                                                        expandedSectionBottomInset
+                                                    }
+                                                } else {
+                                                    DesignTokens
+                                                        .SpacingMedium
+                                                },
+                                        )
+                                },
+                            ),
+                    verticalArrangement =
+                        if (shouldHideScrollView) Arrangement.Top else verticalArrangement,
+                ) {
+                    if (shouldHideScrollView) {
+                        // Show only the shared no-results message layout without the scroll view.
+                        NoResultsMessage(state)
+                    } else {
+                        key(state.backgroundSource, state.showWallpaperBackground) {
+                            ContentLayout(
+                                modifier = Modifier.fillMaxWidth(),
+                                state = state,
+                                renderingState = renderingState,
+                                contactsParams = contactsParams,
+                                filesParams = filesParams,
+                                appShortcutsParams = appShortcutsParams,
+                                settingsParams = settingsParams,
+                                calendarParams = calendarParams,
+                                notesParams = notesParams,
+                                appsParams = appsParams,
+                                predictedTarget = predictedTarget,
+                                onRequestUsagePermission = onRequestUsagePermission,
+                                minContentHeight =
+                                    if (isOverlayPresentation) {
+                                        0.dp
+                                    } else {
+                                        this@BoxWithConstraints.maxHeight
+                                    },
+                                expandedCardMaxHeight =
+                                    (
+                                        this@BoxWithConstraints.maxHeight -
+                                            if (isSectionAliasMode) {
+                                                aliasExpandedSectionBottomInset
+                                            } else {
+                                                expandedSectionBottomInset +
+                                                    expandedCardExtraReduction
+                                            }
+                                    )
+                                        .coerceAtLeast(220.dp),
+                                isReversed =
+                                        useOneHandedMode &&
+                                                !showAiSearch &&
+                                                !showCurrencyConverter &&
+                                                !showWordClock &&
+                                                !showDictionary,
+                                hideResults = hideOtherResults,
+                                showCalculator = showCalculator,
+                                showCurrencyConverter = showCurrencyConverter,
+                                showWordClock = showWordClock,
+                                showDictionary = showDictionary,
+                                showAiSearch = showAiSearch,
+                                aiSearchState = aiSearchState,
+                                isOverlayPresentation = isOverlayPresentation,
+                                onPhoneNumberClick = onPhoneNumberClick,
+                                onEmailClick = onEmailClick,
+                                onOpenPersonalContextDialog = onOpenPersonalContextDialog,
+                                onWebSuggestionClick = onWebSuggestionClick,
+                                onSearchEngineLongPress = onSearchEngineLongPress,
+                                onCustomizeSearchEnginesClick =
+                                onCustomizeSearchEnginesClick,
+                                onOpenAiSearchConfigure = onOpenAiSearchConfigure,
+                                onSearchTargetClick = onSearchTargetClick,
+                                onDeleteRecentItem = onDeleteRecentItem,
+                                onClearRecentItems = onClearRecentItems,
+                                onOpenSearchHistorySettings = onOpenSearchHistorySettings,
+                                onDismissSearchHistoryTip = onDismissSearchHistoryTip,
+                                onGeminiModelInfoClick = onGeminiModelInfoClick,
+                                onSearchHistoryExpandedChange = onSearchHistoryExpandedChange,
+                                searchHistoryCollapseRequestKey = searchHistoryCollapseRequestKey,
+                                searchHistorySelectedTab = searchHistorySelectedTab,
+                                onSearchHistorySelectedTabChange = { searchHistorySelectedTab = it },
+                                onOpenPermissionsSettings = onOpenPermissionsSettings,
+                            )
+                        }
                     }
+                }
+                DropdownMenu(
+                    expanded = showBackgroundMenu,
+                    onDismissRequest = { showBackgroundMenu = false },
+                    offset = backgroundMenuDpOffset,
+                    shape = RoundedCornerShape(24.dp),
+                    containerColor = AppColors.DialogBackground,
+                    properties = PopupProperties(focusable = false),
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.action_change_wallpaper)) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Rounded.Image,
+                                contentDescription = null,
+                            )
+                        },
+                        onClick = {
+                            showBackgroundMenu = false
+                            onChangeWallpaperClick()
+                        },
+                    )
                 }
             }
 

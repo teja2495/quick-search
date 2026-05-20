@@ -1,7 +1,9 @@
 package com.tk.quicksearch.search.searchScreen
 
 import android.Manifest
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -33,6 +35,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
+import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
@@ -56,6 +59,7 @@ import com.tk.quicksearch.overlay.OverlayModeController
 import com.tk.quicksearch.shared.permissions.PermissionSettingsDialog
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.isDefaultHomeApp
 import com.tk.quicksearch.settings.shared.SettingsCommand
 import com.tk.quicksearch.settings.shared.applySettingsCommand
@@ -145,6 +149,30 @@ fun SearchRoute(
     val snackbarHostState = remember { SnackbarHostState() }
     val effectiveSnackbarHostState = overlaySnackbarHostState ?: snackbarHostState
     val snackbarScope = rememberCoroutineScope()
+    val customWallpaperPickerLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.PickVisualMedia(),
+        ) { uri ->
+            if (uri == null) return@rememberLauncherForActivityResult
+            snackbarScope.launch {
+                val persistedUri =
+                    withContext(Dispatchers.IO) {
+                        WallpaperUtils.copyImageToInternalStorage(context, uri)
+                    }
+                if (persistedUri != null) {
+                    viewModel.applySettingsCommand(SettingsCommand.CustomImageUriSetting(persistedUri))
+                    viewModel.applySettingsCommand(
+                        SettingsCommand.BackgroundSourceSetting(BackgroundSource.CUSTOM_IMAGE),
+                    )
+                } else {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.settings_overlay_source_custom_save_failed),
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                }
+            }
+        }
     val undoLabel = stringResource(R.string.action_undo)
     var isQuickNoteNavigationInProgress by remember { mutableStateOf(false) }
 
@@ -727,6 +755,11 @@ fun SearchRoute(
             onOverlayScrollableContentChanged = onOverlayScrollableContentChanged,
             onOpenPermissionsSettings = {
                 onOpenAppSettingDestination(AppSettingsDestination.PERMISSIONS)
+            },
+            onChangeWallpaperClick = {
+                customWallpaperPickerLauncher.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                )
             },
         )
 
