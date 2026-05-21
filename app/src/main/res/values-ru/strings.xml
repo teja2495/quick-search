@@ -1,0 +1,984 @@
+<resources>
+
+    <!-- Language: Russian -->
+
+    <!-- Translation Guidelines:
+         - Translate user-facing text into this locale.
+         - Do not translate brand/product names and technical identifiers (e.g., Quick Search, AI, API, Gemini, Android, Amazon, USD, INR, lbs, kgs).
+         - Do not translate placeholders or format specifiers (%1$s, %1$d, %s, %%).
+         - In search_hints_cycle, keep the example queries in English.
+    -->
+
+    <!-- ============================================================================
+     App &amp; Search Entry
+     ============================================================================ -->
+<string name="app_name">Quick Search</string>
+<string name="direct_answer_contact_name">AI-ответ</string>
+    <string name="direct_search_enter_query">Введите запрос для поиска.</string>
+    <string name="direct_search_error_generic">Не удалось получить AI-ответ. Попробуйте ещё раз.</string>
+<string name="direct_search_error_no_key">Добавьте API-ключ в настройках (AI-провайдер), чтобы получать AI-ответы.</string>
+<string name="direct_search_powered_by">Работает на базе</string>
+<string name="empty_state_subtitle">Запустите приложение или уточните запрос, чтобы увидеть подсказки.</string>
+<string name="empty_state_title">Пока ничего нет</string>
+<string name="error_action_not_available">Действие недоступно</string>
+<string name="error_gemini_empty_response">Пустой ответ от Gemini</string>
+<string name="error_gemini_load_models_failed">Не удалось загрузить модели Gemini</string>
+<string name="error_gemini_request_failed">Ошибка запроса (%1$d)</string>
+<string name="error_unknown">Неизвестная ошибка</string>
+<string name="gemini_model_flash_latest">Gemini Flash (последняя версия)</string>
+<string name="keyboard_switch_back">Обычная клавиатура</string>
+<string name="keyboard_switch_to_number">Цифровая клавиатура</string>
+    <string name="no_results_found">Результатов не найдено. Нажмите на одну из поисковых систем ниже, чтобы выполнить поиск в сети.</string>
+<string name="search_hint">Искать везде…</string>
+<string name="search_hint_app_settings">Искать в настройках приложений…</string>
+<string name="search_hint_app_shortcuts">Искать в ярлыках приложений…</string>
+<string name="search_hint_apps">Искать в приложениях…</string>
+<string name="search_hint_calendar">Искать в календаре…</string>
+<string name="search_hint_contacts">Искать в контактах…</string>
+<string name="search_hint_currency_converter">Конвертировать валюту, например: 100 USD в INR</string>
+<string name="search_hint_dictionary">Введите любое слово</string>
+<string name="search_hint_files">Искать в файлах…</string>
+<string name="search_hint_notes">Искать в заметках…</string>
+<string name="search_hint_settings">Искать в настройках устройства…</string>
+<string name="search_hint_static">Искать везде</string>
+<string name="search_hint_word_clock">Введите любое место, чтобы узнать местное время</string>
+<string-array name="search_hints_cycle">
+    <item>Search Contacts</item>
+    <item>Search Files</item>
+    <item>Calendar Events</item>
+    <item>Search Apps</item>
+    <item>Search App Shortcuts</item>
+    <item>Search Settings</item>
+    <!-- These examples should not be translated -->
+    <item>5 USD to INR</item>
+    <item>5 lbs in kgs</item>
+    <item>3 months from now</item>
+    <item>225 + 456</item>
+    <item>Time in UK</item>
+    <item>Define Serendipity</item>
+</string-array>
+<string name="search_provider_description">Поиск приложений, контактов, файлов, настроек и многого другого с помощью Quick Search.</string>
+
+<!-- ============================================================================
+     Common Actions, Labels &amp; Dialogs
+     ============================================================================ -->
+<string name="action_add_to_home">На главный экран</string>
+<string name="action_add_trigger">Добавить триггер</string>
+<string name="action_app_info">О приложении</string>
+<string name="action_archive_today_event">В архив</string>
+<string name="action_change_icon">Изменить значок</string>
+<string name="action_change_wallpaper">Изменить обои</string>
+<string name="action_clear_all_history">Очистить историю</string>
+    <string name="action_edit_icon">Редактировать значок</string>
+<string name="action_edit_nickname">Изменить псевдоним</string>
+<string name="action_edit_trigger">Изменить триггер</string>
+<string name="action_exclude_extension">Исключить файлы .%s</string>
+<string name="action_exclude_generic">Исключить</string>
+<string name="action_expand_more">Ещё</string>
+<string name="action_expand_more_app_settings">Ещё настройки приложений</string>
+<string name="action_expand_more_contacts">Ещё контакты</string>
+<string name="action_expand_more_device_settings">Ещё настройки</string>
+<string name="action_expand_more_events">Ещё события</string>
+<string name="action_expand_more_files">Ещё файлы</string>
+<string name="action_expand_more_notes">Ещё заметки</string>
+<string name="action_expand_more_shortcuts">Ещё ярлыки</string>
+<string name="action_file_info">Свойства файла</string>
+<string name="action_include_generic">Включить</string>
+<string name="action_more_search_history">Вся история</string>
+<string name="action_open">Открыть</string>
+<string name="action_open_folder">Открыть папку</string>
+<string name="action_open_keyboard">Открыть клавиатуру</string>
+<string name="action_open_settings">Открыть настройки</string>
+<string name="action_pin_app">Закрепить</string>
+<string name="action_remove">Удалить</string>
+<string name="action_remove_from_history">Удалить из истории</string>
+<string name="action_reset_app_shortcut_icon">Сбросить значок</string>
+<string name="action_retry">Повторить</string>
+<string name="action_share">Поделиться</string>
+<string name="action_move_up">Переместить вверх</string>
+<string name="action_move_down">Переместить вниз</string>
+<string name="action_undo">Отменить</string>
+<string name="action_uninstall_app">Удалить</string>
+<string name="action_unpin_app">Открепить</string>
+<string name="alias_trigger_after_space">Триггер после пробела</string>
+<string name="common_action_add">Добавить</string>
+<string name="common_action_clear">Очистить</string>
+<string name="common_ai_provider">AI-провайдер</string>
+<string name="common_api_key_setup">Настройка API-ключа</string>
+<string name="common_close">Закрыть</string>
+<string name="common_custom">Свой вариант</string>
+<string name="common_error_unable_to_open">Не удалось открыть %1$s</string>
+<string name="common_most_used">Часто используемые</string>
+<string name="common_nickname">Псевдоним</string>
+<string name="common_search">Поиск</string>
+<string name="common_theme_dark">Тёмная</string>
+<string name="common_theme_device">Как на устройстве</string>
+<string name="common_theme_light">Светлая</string>
+<string name="common_theme_system">Системная</string>
+<string name="common_time">Время</string>
+<string name="dialog_add_alias_for_search_type_title">Добавить алиас для «%1$s»</string>
+<string name="dialog_alias_info_search_engine">Введите этот алиас в начале или в конце запроса, чтобы быстро начать поиск в %1$s.</string>
+<string name="dialog_alias_info_search_engine_start_only">Введите этот алиас в начале запроса, чтобы быстро начать поиск в %1$s.</string>
+<string name="dialog_alias_info_search_type">Введите этот алиас в начале запроса, чтобы запустить поиск по категории «%1$s».</string>
+<string name="dialog_alias_info_tool">Введите этот алиас в начале запроса, чтобы переключиться в режим «%1$s».</string>
+<string name="dialog_app_shortcut_icon_message">Выберите изображение для «%1$s». Это изменит внешний вид ярлыка только внутри Quick Search.</string>
+<string name="dialog_cancel">Отмена</string>
+<string name="dialog_choose_contact_action_title">Выберите действие вместо %1$s</string>
+<string name="dialog_clear_all_history_message">Вы уверены, что хотите очистить всю историю поиска? Это действие нельзя отменить.</string>
+<string name="dialog_clear_all_history_title">Очистить всю историю?</string>
+<string name="dialog_delete">Удалить</string>
+<string name="dialog_direct_dial_change_later">Вы можете изменить это в любой момент в настройках.</string>
+<string name="dialog_direct_dial_option_dialer">Открыть телефон</string>
+<string name="dialog_direct_dial_option_dialer_desc">Проверить номер в приложении «Телефон» перед вызовом.</string>
+<string name="dialog_direct_dial_option_direct">Прямой вызов</string>
+<string name="dialog_direct_dial_option_direct_desc">Позвонить немедленно (требуется разрешение на телефонные звонки).</string>
+<string name="dialog_direct_dial_title">Выберите способ вызова</string>
+<string name="dialog_done">Готово</string>
+<string name="dialog_edit_alias_error_prefix">Этот алиас уже занят.</string>
+<string name="dialog_edit_alias_error_trigger_conflict">Этот алиас совпадает с существующим триггером.</string>
+<string name="dialog_edit_alias_for_search_type_title">Изменить алиас для «%1$s»</string>
+<string name="dialog_edit_alias_title">Изменить алиас</string>
+<string name="dialog_edit_amazon_domain_error">Неверный домен</string>
+<string name="dialog_edit_amazon_domain_hint">Примеры: amazon.com, amazon.in, amazon.ca и т. д.</string>
+<string name="dialog_edit_amazon_domain_message">Обновите домен Amazon для вашей страны.</string>
+<string name="dialog_edit_amazon_domain_title">Изменить домен Amazon</string>
+    <string name="dialog_enjoying_app_title">Вам нравится это приложение?</string>
+<string name="dialog_feedback_hint">Поделитесь, что мы можем улучшить</string>
+<string name="dialog_gemini_model_picker_title">Выберите модель</string>
+    <string name="dialog_nickname_message">Введите псевдоним для «%1$s». Вы сможете искать его по этому псевдониму.</string>
+<string name="dialog_no">Нет</string>
+<string name="dialog_ok">Продолжить</string>
+<string name="dialog_okay">Окей</string>
+<string name="dialog_remember_choice">Запомнить выбор</string>
+<string name="dialog_save">Сохранить</string>
+<string name="dialog_select_phone_number_message">Выберите номер телефона для %1$s</string>
+<string name="dialog_select_phone_number_title">Выберите номер телефона</string>
+<string name="dialog_send">Отправить</string>
+<string name="dialog_trigger_error_alias_conflict">Этот триггер совпадает с существующим алиасом.</string>
+<string name="dialog_trigger_error_taken">Этот триггер уже занят.</string>
+<string name="dialog_trigger_hint">Слово-триггер</string>
+<string name="dialog_trigger_message">Введите одно слово в качестве триггера для «%1$s».</string>
+<string name="dialog_yes">Да</string>
+<string name="exclude_marker"> исключено из </string>
+<string name="permission_action_manage_android">Управление в настройках Android</string>
+<string name="permission_settings_dialog_message">Для этого действия требуется разрешение «%1$s». Вы будете перенаправлены в системные настройки для его предоставления.</string>
+<string name="permission_settings_dialog_title">Требуется разрешение «%1$s»</string>
+<string name="toast_excluded_from_results">Элемент «%1$s» исключен из результатов</string>
+<string name="toast_excluded_from_suggestions">Элемент «%1$s» исключен из подсказок</string>
+
+<!-- ============================================================================
+     Accessibility
+     ============================================================================ -->
+<string name="desc_clear_search">Очистить поле поиска</string>
+<string name="desc_collapse">Свернуть</string>
+<string name="desc_expand">Развернуть</string>
+<string name="desc_launch_app">Открыть %1$s</string>
+<string name="desc_navigate_back">Назад</string>
+<string name="desc_navigate_forward">Вперед</string>
+<string name="desc_open_settings">Открыть настройки Quick Search</string>
+<string name="desc_selected">Выбрано</string>
+<string name="desc_voice_search_icon">Запустить голосовой поиск</string>
+
+<!-- ============================================================================
+     Search Result Sections &amp; Ranking
+     ============================================================================ -->
+<string name="app_suggestions_tab_new_updated">Новые/Обновленные</string>
+<string name="app_suggestions_tab_pinned">Закрепленные</string>
+<string name="app_suggestions_tab_recent">Недавние</string>
+<string name="app_suggestions_tab_required_toast">Должна быть включена хотя бы одна вкладка с подсказками приложений</string>
+<string name="app_suggestions_toggle_desc">Показывать или скрывать рекомендуемые приложения на главном экране</string>
+<string name="app_suggestions_toggle_title">Подсказки приложений</string>
+<string name="app_suggestions_usage_access_link">доступ к истории использования</string>
+<string name="app_suggestions_usage_access_tip">Предоставьте доступ к истории использования, чтобы видеть более точные рекомендации</string>
+    <string name="clear_query_toggle_desc">Автоматически очищать старый запрос при запуске приложения</string>
+<string name="clear_query_toggle_title">Очищать запрос</string>
+<string name="more_results_title">Другие результаты</string>
+<string name="open_keyboard_toggle_desc">Автоматически открывать клавиатуру при запуске приложения</string>
+    <string name="recent_queries_toggle_desc">Показывать историю поиска на главном экране.</string>
+<string name="recent_queries_toggle_title">История поиска</string>
+<string name="search_history_tab_recently_opened">Результаты</string>
+<string name="search_history_tab_searches">Запросы</string>
+<string name="search_history_tip_link">настройках</string>
+<string name="search_history_tip_message">Вы можете отключить сохранение истории поиска в</string>
+<string name="search_section_app_settings_toggle_desc">Включить или отключить поиск по настройкам приложений</string>
+<string name="search_section_app_settings_toggle_title">Поиск по настройкам приложений</string>
+<string name="search_section_app_shortcuts_toggle_desc">Включить или отключить поиск по ярлыкам приложений</string>
+<string name="search_section_app_shortcuts_toggle_title">Поиск по ярлыкам приложений</string>
+<string name="search_section_apps_toggle_desc">Включить или отключить поиск приложений</string>
+<string name="search_section_apps_toggle_title">Поиск приложений</string>
+<string name="search_section_calendar_toggle_desc">Включить или отключить поиск по календарю</string>
+<string name="search_section_calendar_toggle_title">Поиск по календарю</string>
+<string name="search_section_contacts_toggle_desc">Включить или отключить поиск по контактам</string>
+<string name="search_section_contacts_toggle_title">Поиск по контактам</string>
+<string name="search_section_device_settings_toggle_desc">Включить или отключить поиск по настройкам устройства</string>
+<string name="search_section_device_settings_toggle_title">Поиск по настройкам устройства</string>
+<string name="search_section_files_toggle_desc">Включить или отключить поиск по файлам</string>
+<string name="search_section_files_toggle_title">Поиск по файлам</string>
+<string name="search_section_notes_toggle_desc">Включить или отключить поиск по заметкам</string>
+<string name="search_section_notes_toggle_title">Поиск по заметкам</string>
+<string name="section_app_settings">Настройки приложений</string>
+<string name="section_app_shortcuts">Ярлыки приложений</string>
+<string name="section_apps">Приложения</string>
+<string name="section_calendar">События календаря</string>
+<string name="section_files">Файлы</string>
+<string name="section_notes">Заметки</string>
+<string name="section_settings">Настройки устройства</string>
+<string name="top_match_title">Лучшее совпадение</string>
+<string name="top_matches_count_label">Количество совпадений</string>
+<string name="top_matches_priority_desc">Изменить приоритет и отключить элементы в лучших совпадениях</string>
+<string name="top_matches_priority_dialog_info">Удерживайте и перетаскивайте элементы, чтобы изменить приоритет. Используйте переключатели для включения или отключения определенных типов результатов.</string>
+<string name="top_matches_priority_title">Управление лучшими совпадениями</string>
+<string name="top_matches_title">Лучшие совпадения</string>
+<string name="top_matches_toggle_desc">Показывать самые точные совпадения среди всех категорий в самом верху.</string>
+<string name="top_result_indicator_toggle_desc">Выделять главный результат, который можно открыть сразу с клавиатуры.</string>
+<string name="top_result_indicator_toggle_title">Индикатор лучшего результата</string>
+<string name="web_search_suggestions_title">Поисковые подсказки</string>
+
+<!-- ============================================================================
+     Apps
+     ============================================================================ -->
+<string name="app_menu_section_actions">Действия</string>
+<string name="app_menu_section_shortcuts">Ярлыки</string>
+<string name="apps_refreshed_successfully">Список приложений успешно обновлен</string>
+<string name="error_loading_user_apps">Не удалось загрузить ваши приложения. Повторите попытку позже.</string>
+<string name="error_uninstall_app">Не удалось удалить %1$s</string>
+<string name="error_uninstall_self">Вы не можете удалить Quick Search отсюда.</string>
+<string name="failed_to_refresh_apps">Не удалось обновить список приложений</string>
+<string name="settings_app_apk_size_format">Размер APK: %1$.2f МБ</string>
+<string name="settings_app_columns_4">4</string>
+<string name="settings_app_columns_5">5</string>
+<string name="settings_app_columns_title">Приложений в строке</string>
+<string name="settings_app_icon_size_percent">%1$d%%</string>
+<string name="settings_app_icon_size_title">Размер значков</string>
+<string name="settings_app_info_install_date">Дата установки</string>
+<string name="settings_app_info_last_update">Последнее обновление</string>
+<string name="settings_app_info_minimum_sdk">Минимальная версия SDK</string>
+<string name="settings_app_info_not_available">Нет данных</string>
+<string name="settings_app_info_package_name">Имя пакета</string>
+<string name="settings_app_info_target_sdk">Целевая версия SDK</string>
+<string name="settings_app_info_version">Версия</string>
+<string name="settings_app_info_version_code">Код версии</string>
+<string name="settings_app_sort_api_level">Уровень API</string>
+<string name="settings_app_sort_apk_size">Размер APK</string>
+<string name="settings_app_sort_ascending">По возрастанию</string>
+<string name="settings_app_sort_by_format">Сортировка: %1$s</string>
+<string name="settings_app_sort_descending">По убыванию</string>
+<string name="settings_app_sort_least_used">Редко используемые</string>
+    <string name="settings_app_sort_name">Название</string>
+<string name="settings_app_uninstall_selected_format">Удалить (%1$d)</string>
+<string name="settings_apps_empty">Приложения не найдены.</string>
+<string name="settings_manage_apps_desc">Управление вашими приложениями</string>
+<string name="settings_manage_apps_title">Управление приложениями</string>
+<string name="settings_refresh_apps_disabled">Поиск приложений отключен, невозможно обновить данные приложений</string>
+    <string name="settings_refresh_apps_title">Обновить приложения</string>
+<string name="usage_permission_subtitle">Если вы хотите видеть недавно использованные приложения в подсказках, предоставьте доступ к истории использования.</string>
+<string name="usage_permission_title">Доступ к истории использования</string>
+
+<!-- ============================================================================
+     App Shortcuts
+     ============================================================================ -->
+<string name="error_shortcut_activity_not_exported">Выбранный компонент (Activity) не экспортирован.</string>
+<string name="error_shortcut_creation_failed">Не удалось создать ярлык</string>
+<string name="error_shortcut_disabled">Ярлык отключен.</string>
+<string name="error_shortcut_launch_failed">Не удалось запустить ярлык: %1$s.</string>
+<string name="error_shortcut_no_activity_resolves">Не найдено приложение для обработки этого интента.</string>
+<string name="error_shortcut_requires_permission">Для ярлыка требуется разрешение: %1$s.</string>
+<string name="error_shortcuts_not_supported">Добавление ярлыков на главный экран не поддерживается на этом устройстве</string>
+<string name="settings_app_shortcuts_activity_dialog_title">Выберите Activity приложения</string>
+<string name="settings_app_shortcuts_activity_empty">Нет доступных Activity.</string>
+<string name="settings_app_shortcuts_activity_warning">Некоторые действия могут работать некорректно</string>
+<string name="settings_app_shortcuts_add_button">Добавить ярлык</string>
+<string name="settings_app_shortcuts_add_deep_link">Диплинк приложения</string>
+<string name="settings_app_shortcuts_add_deep_link_dialog_message">Добавьте поддерживаемый URL или ссылку-интент, которая открывает определенный экран в приложении. Неподдерживаемые ссылки откроются в браузере.</string>
+<string name="settings_app_shortcuts_add_deep_link_dialog_title">Добавить диплинк приложения</string>
+<string name="settings_app_shortcuts_add_dialog_title">Выберите источник ярлыка</string>
+<string name="settings_app_shortcuts_add_failed">Не удалось добавить ярлык.</string>
+<string name="settings_app_shortcuts_add_query_dialog_title">Добавить ярлык кастомного поиска в %1$s</string>
+<string name="settings_app_shortcuts_add_query_shortcut">Кастомный поисковый запрос</string>
+<string name="settings_app_shortcuts_add_success">Ярлык добавлен.</string>
+<string name="settings_app_shortcuts_add_success_with_app_name">Новый ярлык добавлен в %1$s</string>
+<string name="settings_app_shortcuts_add_url_dialog_title">Добавить URL-ярлык в %1$s</string>
+<string name="settings_app_shortcuts_add_url_shortcut">Кастомный URL</string>
+<plurals name="settings_app_shortcuts_card_count">
+    <item quantity="one">%d ярлык</item>
+    <item quantity="few">%d ярлыка</item>
+    <item quantity="many">%d ярлыков</item>
+    <item quantity="other">%d ярлыка</item>
+</plurals>
+<string name="settings_app_shortcuts_collapse_all">Свернуть все</string>
+<string name="settings_app_shortcuts_create_not_supported">Ни одно приложение на этом устройстве не поддерживает создание ярлыков.</string>
+<string name="settings_app_shortcuts_deep_link_label">URL или интент</string>
+<string name="settings_app_shortcuts_delete_action">Удалить ярлык</string>
+<string name="settings_app_shortcuts_delete_success">Ярлык удален.</string>
+<string name="settings_app_shortcuts_description_with_count">Нажмите на любое приложение, чтобы просмотреть его ярлыки. Включайте, отключайте или создавайте свои ярлыки.\n\nДоступно ярлыков: %1$s</string>
+<string name="settings_app_shortcuts_edit_dialog_title">Редактировать ярлык</string>
+<string name="settings_app_shortcuts_empty">Ярлыки приложений не найдены.</string>
+<string name="settings_app_shortcuts_expand_all">Развернуть все</string>
+<string name="settings_app_shortcuts_filter_all_apps">Все приложения</string>
+<string name="settings_app_shortcuts_filter_apps_with_shortcuts">Приложения с ярлыками</string>
+<string name="settings_app_shortcuts_filter_browsers">Браузеры</string>
+<string name="settings_app_shortcuts_filter_search_engines">Поисковые системы</string>
+<string name="settings_app_shortcuts_query_label">Запрос</string>
+<string name="settings_app_shortcuts_shortcut_name_label">Название ярлыка</string>
+<string name="settings_app_shortcuts_update_failed">Не удалось обновить ярлык.</string>
+<string name="settings_app_shortcuts_update_success">Ярлык обновлен.</string>
+<string name="settings_app_shortcuts_url_label">URL</string>
+<string name="shortcut_song_search_label">Поиск песни</string>
+<string name="shortcut_watch_later_label">Смотреть позже</string>
+
+<!-- ============================================================================
+     Contacts &amp; Calls
+     ============================================================================ -->
+<string name="contact_method_call_label">Позвонить</string>
+<string name="contact_method_email_label">Эл. почта</string>
+<string name="contact_method_fallback_label">Другое</string>
+<string name="contact_method_google_meet_label">Google Meet</string>
+<string name="contact_method_message_label">Написать СМС</string>
+<string name="contact_method_signal_message_label">Signal</string>
+<string name="contact_method_signal_video_call_label">Видеозвонок в Signal</string>
+<string name="contact_method_signal_voice_call_label">Аудиозвонок в Signal</string>
+<string name="contact_method_telegram_message_label">Telegram</string>
+<string name="contact_method_telegram_video_call_label">Видеозвонок в Telegram</string>
+<string name="contact_method_telegram_voice_call_label">Аудиозвонок в Telegram</string>
+<string name="contact_method_view_in_contacts_label">Открыть в «Контактах»</string>
+<string name="contact_method_whatsapp_message_label">WhatsApp</string>
+<string name="contact_method_whatsapp_video_call_label">Видеозвонок в WhatsApp</string>
+<string name="contact_method_whatsapp_voice_call_label">Аудиозвонок в WhatsApp</string>
+<string name="contacts_action_button_chat">Чат</string>
+<string name="contacts_action_button_contacts">Контакты</string>
+<string name="contacts_action_button_meet">Meet</string>
+<string name="contacts_action_button_video_call">Видеозвонок</string>
+<string name="contacts_action_button_voice_call">Звонок</string>
+<string name="contacts_action_call">Позвонить контакту</string>
+    <string name="contacts_action_hint_message">Подсказка: нажмите и удерживайте любое действие здесь, чтобы настроить его для конкретного контакта.</string>
+<string name="contacts_action_next_number">Следующий номер телефона</string>
+<string name="contacts_action_previous_number">Предыдущий номер телефона</string>
+<string name="contacts_action_signal">Связаться через Signal</string>
+<string name="contacts_action_sms">Написать контакту</string>
+<string name="contacts_action_telegram">Связаться через Telegram</string>
+<string name="contacts_action_whatsapp">Связаться через WhatsApp</string>
+<string name="contacts_no_methods_available">Нет доступных способов связи</string>
+<string name="contacts_refreshed_successfully">Список контактов успешно обновлен</string>
+<string name="contacts_section_permission_subtitle">Для поиска по контактам требуется соответствующее разрешение</string>
+<string name="error_call_permission_required">Для этого действия требуется разрешение на совершение звонков</string>
+<string name="error_google_meet_call_failed">Сбой звонка в Google Meet — возможно, приложение не поддерживает этот метод</string>
+<string name="error_google_meet_no_phone">Не удалось позвонить через Google Meet — номер телефона не найден</string>
+<string name="error_google_meet_not_installed">Приложение Google Meet не установлено</string>
+<string name="error_google_meet_video_call_failed">Не удалось запустить видеозвонок в Google Meet</string>
+<string name="error_missing_phone_number">Номер телефона отсутствует</string>
+<string name="error_open_contact">Не удалось открыть контакт</string>
+<string name="error_signal_call_failed">Сбой вызова в Signal. Пожалуйста, убедитесь, что Signal установлен.</string>
+<string name="error_signal_chat_failed">Не удалось открыть чат в Signal</string>
+<string name="error_signal_not_installed">Приложение Signal не установлено</string>
+<string name="error_signal_video_call_failed">Не удалось запустить видеозвонок в Signal</string>
+<string name="error_telegram_call_failed">Сбой вызова в Telegram. Пожалуйста, убедитесь, что Telegram установлен.</string>
+<string name="error_telegram_chat_failed">Не удалось открыть чат в Telegram</string>
+<string name="error_telegram_not_installed">Приложение Telegram не установлено</string>
+<string name="error_whatsapp_call_failed">Сбой вызова в WhatsApp. Пожалуйста, убедитесь, что WhatsApp установлен.</string>
+<string name="error_whatsapp_chat_failed">Не удалось открыть чат в WhatsApp</string>
+<string name="error_whatsapp_not_installed">Приложение WhatsApp не установлено</string>
+<string name="error_whatsapp_video_call_failed">Не удалось запустить видеозвонок в WhatsApp</string>
+<string name="error_whatsapp_video_call_missing_data">Не удалось совершить видеозвонок в WhatsApp — отсутствуют данные контакта</string>
+<string name="error_whatsapp_video_call_unavailable">WhatsApp недоступен для видеозвонков</string>
+<string name="settings_call_permission_title">Телефон</string>
+<string name="settings_calling_card_title">Приложение для звонков по умолчанию</string>
+<string name="settings_calls_texts_title">Звонки и сообщения</string>
+<string name="settings_direct_dial_desc">Совершайте вызовы напрямую без открытия номеронабирателя.</string>
+<string name="settings_direct_dial_title">Прямой набор</string>
+<string name="settings_messaging_app_not_installed">Приложение %s не установлено на вашем устройстве</string>
+<string name="settings_messaging_card_title">Приложение для сообщений по умолчанию</string>
+<string name="settings_messaging_option_messages">Сообщения</string>
+
+<!-- ============================================================================
+     Files &amp; Folders
+     ============================================================================ -->
+<string name="excluded_item_type_file">Файл</string>
+<string name="excluded_item_type_file_extension">Расширение файла</string>
+<string name="excluded_item_type_folder">Папка</string>
+<string name="file_extension_label">Файлы .%s</string>
+<string name="file_info_file_type">Тип файла</string>
+<string name="file_info_modified">Изменен</string>
+<string name="file_info_path">Путь</string>
+<string name="file_info_size">Размер</string>
+<string name="file_info_type">Тип</string>
+<string name="file_type_apks">Файлы APK</string>
+<string name="file_type_audio">Аудио</string>
+<string name="file_type_documents">Документы</string>
+<string name="file_type_pictures">Изображения</string>
+<string name="file_type_videos">Видео</string>
+<string name="files_refreshed_successfully">Список файлов успешно обновлен</string>
+<string name="files_section_permission_subtitle">Для поиска файлов требуется соответствующее разрешение</string>
+<string name="settings_excluded_extensions_title">Исключенные расширения файлов</string>
+<string name="settings_file_types_title">Файлы и папки</string>
+<string name="settings_folder_blacklist_add">Добавить заблокированную папку</string>
+<string name="settings_folder_blacklist_helper">Эти папки будут игнорироваться при поиске</string>
+<string name="settings_folder_blacklist_title">Черный список</string>
+<string name="settings_folder_filter_helper">Ищите папки и добавляйте их, чтобы контролировать, где появляются результаты файлов и папок.</string>
+<string name="settings_folder_filters_title">Фильтры путей к папкам</string>
+<string name="settings_folder_search_hint">Поиск папки для добавления</string>
+<string name="settings_folder_search_no_results">Папки не найдены</string>
+<string name="settings_folder_whitelist_add">Добавить разрешенную папку</string>
+<string name="settings_folder_whitelist_helper">Поиск файлов и папок будет производиться только внутри этих директорий</string>
+<string name="settings_folder_whitelist_title">Белый список</string>
+<string name="settings_folders_toggle">Папки</string>
+<string name="settings_refresh_files_disabled">Поиск файлов отключен, невозможно обновить данные файлов</string>
+    <string name="settings_refresh_files_title">Обновить файлы</string>
+<string name="settings_system_files_toggle">Системные файлы</string>
+
+<!-- ============================================================================
+     Calendar
+     ============================================================================ -->
+<string name="app_settings_create_calendar_event_desc">Создать и добавить новое событие</string>
+<string name="app_settings_create_calendar_event_title">Новое событие календаря</string>
+<string name="calendar_create_event_name_hint">Название события</string>
+<string name="calendar_create_event_select_date">Выберите дату</string>
+<string name="calendar_create_event_sync_notice">Это событие не будет синхронизировано с системным календарем вашего устройства</string>
+<string name="calendar_create_event_title">Новое событие</string>
+<string name="calendar_edit_event_title">Изменить событие</string>
+<string name="calendar_relative_ago_format">%1$s назад</string>
+<plurals name="calendar_relative_days">
+    <item quantity="one">%d день</item>
+    <item quantity="few">%d дня</item>
+    <item quantity="many">%d дней</item>
+    <item quantity="other">%d дня</item>
+</plurals>
+<string name="calendar_relative_in_format">через %1$s</string>
+<plurals name="calendar_relative_months">
+    <item quantity="one">%d месяц</item>
+    <item quantity="few">%d месяца</item>
+    <item quantity="many">%d месяцев</item>
+    <item quantity="other">%d месяца</item>
+</plurals>
+<string name="calendar_relative_today">Сегодня</string>
+<string name="calendar_relative_tomorrow">Завтра</string>
+<plurals name="calendar_relative_years">
+    <item quantity="one">%d год</item>
+    <item quantity="few">%d года</item>
+    <item quantity="many">%d лет</item>
+    <item quantity="other">%d года</item>
+</plurals>
+<string name="calendar_relative_yesterday">Вчера</string>
+<string name="calendar_repeats_daily">Каждый день</string>
+<plurals name="calendar_repeats_every_days">
+    <item quantity="one">Каждый %d день</item>
+    <item quantity="few">Каждые %d дня</item>
+    <item quantity="many">Каждые %d дней</item>
+    <item quantity="other">Каждые %d дня</item>
+</plurals>
+<plurals name="calendar_repeats_every_months">
+    <item quantity="one">Каждый %d месяц</item>
+    <item quantity="few">Каждые %d месяца</item>
+    <item quantity="many">Каждые %d месяцев</item>
+    <item quantity="other">Каждые %d месяца</item>
+</plurals>
+<plurals name="calendar_repeats_every_weeks">
+    <item quantity="one">Каждую %d неделю</item>
+    <item quantity="few">Каждые %d недели</item>
+    <item quantity="many">Каждые %d недель</item>
+    <item quantity="other">Каждые %d недели</item>
+</plurals>
+<plurals name="calendar_repeats_every_years">
+    <item quantity="one">Каждый %d год</item>
+    <item quantity="few">Каждые %d года</item>
+    <item quantity="many">Каждые %d лет</item>
+    <item quantity="other">Каждые %d года</item>
+</plurals>
+<string name="calendar_repeats_generic">Повторяющееся событие</string>
+<string name="calendar_repeats_monthly">Каждый месяц</string>
+<string name="calendar_repeats_weekly">Каждую неделю</string>
+<string name="calendar_repeats_yearly">Каждый год</string>
+<string name="calendar_section_permission_subtitle">Для поиска по календарю требуется соответствующее разрешение</string>
+<string name="error_open_calendar_event">Не удалось открыть событие календаря</string>
+<string name="settings_calendar_events_empty">Нет доступных событий календаря.</string>
+<string name="settings_calendar_include_past_events_desc">Включать прошедшие события в результаты поиска.</string>
+<string name="settings_calendar_include_past_events_title">Прошедшие события</string>
+<string name="settings_calendar_permission_title">Календарь</string>
+<string name="settings_calendar_show_today_events_desc">Показывать сегодняшние события на главном экране.</string>
+<string name="settings_calendar_show_today_events_title">Показывать события на сегодня</string>
+    <string name="settings_calendar_view_all_events_desc">Просмотреть все события</string>
+
+<!-- ============================================================================
+     Notes
+     ============================================================================ -->
+<string name="app_settings_search_create_note_desc">Создать новую заметку в редакторе</string>
+<string name="app_settings_search_create_note_title">Создать заметку</string>
+<string name="notes_body_hint">Текст заметки</string>
+<string name="notes_create_note_cta">Новая заметка</string>
+<string name="notes_delete_confirm_message">Эта заметка будет удалена безвозвратно.</string>
+<string name="notes_delete_confirm_title">Удалить эту заметку?</string>
+<string name="notes_delete_note_desc">Удалить заметку</string>
+<string name="notes_delete_selected_confirm_message">Эти заметки будут удалены безвозвратно.</string>
+<string name="notes_delete_selected_confirm_title">Удалить выбранные заметки?</string>
+<string name="notes_editor_action_open_link">Открыть ссылку</string>
+<string name="notes_editor_action_send_email">Отправить эл. письмо</string>
+<string name="notes_editor_title">Редактор заметок</string>
+<string name="notes_empty_note_subtext">Пустая заметка</string>
+<string name="notes_quick_note_title">Быстрая заметка</string>
+<string name="notes_quick_note_toggle_desc">Открывать быструю заметку жестом бокового свайпа</string>
+<string name="notes_title_hint">Заголовок</string>
+<string name="notes_untitled">Без названия</string>
+    <string name="settings_notes_view_all_desc">Просмотреть все заметки</string>
+
+<!-- ============================================================================
+     Device Settings Shortcuts
+     ============================================================================ -->
+<string name="device_settings_category_apps_permissions">Приложения и разрешения</string>
+<string name="device_settings_category_battery_performance">Батарея и производительность</string>
+<string name="device_settings_category_developer_advanced">Для разработчиков и расширенные</string>
+<string name="device_settings_category_language_input">Язык и ввод</string>
+<string name="device_settings_category_network_connectivity">Сеть и подключения</string>
+<string name="device_settings_category_notifications_accessibility">Уведомления и спец. возможности</string>
+<string name="device_settings_category_security_privacy">Безопасность и конфиденциальность</string>
+<string name="device_settings_category_system_device">Система и устройство</string>
+<string name="settings_device_settings_empty">Настройки устройства недоступны.</string>
+<string name="settings_shortcut_about_phone">О телефоне</string>
+<string name="settings_shortcut_accessibility">Специальные возможности</string>
+<string name="settings_shortcut_airplane">Режим полета</string>
+<string name="settings_shortcut_all_files">Доступ ко всем файлам</string>
+<string name="settings_shortcut_battery_optimization">Оптимизация батареи</string>
+<string name="settings_shortcut_battery_saver">Режим энергосбережения</string>
+<string name="settings_shortcut_battery_usage">Использование батареи</string>
+<string name="settings_shortcut_bluetooth">Bluetooth</string>
+<string name="settings_shortcut_cast">Трансляция</string>
+<string name="settings_shortcut_data_usage">Передача данных</string>
+<string name="settings_shortcut_date_time">Дата и время</string>
+<string name="settings_shortcut_default_apps">Приложения по умолчанию</string>
+<string name="settings_shortcut_developer_options">Для разработчиков</string>
+<string name="settings_shortcut_display">Экран</string>
+<string name="settings_shortcut_do_not_disturb">Режим «Не беспокоить»</string>
+<string name="settings_shortcut_hotspot">Точка доступа и модем</string>
+<string name="settings_shortcut_locale">Язык</string>
+<string name="settings_shortcut_location">Местоположение</string>
+<string name="settings_shortcut_mobile_data">Мобильный интернет</string>
+<string name="settings_shortcut_network">Сеть и интернет</string>
+<string name="settings_shortcut_nfc">NFC</string>
+<string name="settings_shortcut_notification_listener">Доступ к уведомлениям</string>
+<string name="settings_shortcut_notifications">Уведомления</string>
+<string name="settings_shortcut_overlay_permission">Отображение поверх других приложений</string>
+<string name="settings_shortcut_privacy">Конфиденциальность</string>
+<string name="settings_shortcut_security">Безопасность</string>
+<string name="settings_shortcut_sound">Звук и вибрация</string>
+<string name="settings_shortcut_storage">Хранилище</string>
+<string name="settings_shortcut_usage_access">Доступ к истории использования</string>
+<string name="settings_shortcut_voice_input">Цифровой помощник</string>
+<string name="settings_shortcut_vpn">VPN</string>
+<string name="settings_shortcut_wifi">Wi\u2011Fi</string>
+<string name="settings_unable_to_open_settings">Не удалось открыть настройки</string>
+
+<!-- ============================================================================
+     App Settings Search
+     ============================================================================ -->
+<string name="settings_all_quick_search_features">Список функций</string>
+<string name="settings_all_quick_search_features_desc">Просмотреть полный список возможностей и функций</string>
+<string name="settings_app_settings_desc">Поиск по настройкам Quick Search</string>
+<string name="settings_features_load_failed">Не удалось загрузить документацию функций.</string>
+<string name="settings_features_sections_title">Содержание</string>
+<string name="settings_search_description_change_app_theme">Изменить тему приложения</string>
+<string name="settings_search_description_change_font_size">Изменить размер шрифта приложения</string>
+<string name="settings_search_description_change_icon_pack">Изменить пакет значков</string>
+<string name="settings_search_description_change_layout">Изменить параметры макета приложения</string>
+<string name="settings_search_description_change_wallpaper">Изменить внешний вид обоев</string>
+<string name="settings_search_dynamic_description_template">Управление настройками категории «%1$s»</string>
+    <string name="settings_view_all_desc">Просмотреть все настройки</string>
+
+<!-- ============================================================================
+     Settings - Main Navigation &amp; Appearance
+     ============================================================================ -->
+<string name="customize_search_engines">Настройка поисковых систем</string>
+<string name="settings_app_theme_aurora">Аврора</string>
+<string name="settings_app_theme_forest">Лес</string>
+<string name="settings_app_theme_monochrome">Монохром</string>
+<string name="settings_app_theme_sunset">Закат</string>
+<string name="settings_app_theme_title">Тема оформления</string>
+<string name="settings_appearance_desc">Обои, стили поисковых систем, режим управления одной рукой и т. д.</string>
+<string name="settings_appearance_title">Внешний вид</string>
+<string name="settings_assistant_voice_mode_desc">Запускать голосовой ввод при вызове в качестве цифрового помощника</string>
+<string name="settings_assistant_voice_mode_title">Голосовой режим помощника</string>
+<string name="settings_beta_features_disabled">Бета-функции отключены</string>
+<string name="settings_beta_features_enabled">Новые бета-функции включены</string>
+<string name="settings_beta_features_unavailable">Нет доступных новых функций</string>
+<string name="settings_beta_tag">Бета</string>
+<string name="settings_bottom_searchbar_desc">Расположить поисковую строку внизу экрана</string>
+<string name="settings_bottom_searchbar_title">Нижняя поисковая строка</string>
+<string name="settings_cache_cleared_toast">Кэш очищен. Перестройка индекса приложений\u2026</string>
+<string name="settings_circular_app_icons_desc">Принудительно делать значки приложений круглыми</string>
+<string name="settings_circular_app_icons_title">Круглые значки приложений</string>
+<string name="settings_compact_rows_one_row">Одна строка</string>
+<string name="settings_compact_rows_two_rows">Две строки</string>
+<string name="settings_default_assistant_desc">Установить это приложение в качестве цифрового помощника по умолчанию.</string>
+<string name="settings_default_assistant_desc_change">Изменить цифровой помощник по умолчанию.</string>
+<string name="settings_default_assistant_title">Помощник по умолчанию</string>
+<string name="settings_default_launcher_desc">Установить это приложение в качестве главного экрана по умолчанию.</string>
+<string name="settings_default_launcher_title">Главный экран по умолчанию</string>
+<string name="settings_device_theme_blocked_toast">Недоступно, пока включена тема Material You</string>
+<string name="settings_device_theme_desc">Использовать динамическую цветовую палитру устройства для темы приложения</string>
+<string name="settings_device_theme_title">Material You</string>
+<string name="settings_edit_label">Изменить</string>
+<string name="settings_font_size_big">Большой</string>
+<string name="settings_font_size_medium">Средний</string>
+<string name="settings_font_size_small">Маленький</string>
+<string name="settings_font_size_title">Размер шрифта</string>
+    <string name="settings_home_screen_widget_confirm_message">Вы собираетесь добавить виджет Quick Search на главный экран. Нажмите и удерживайте его, чтобы открыть экран настроек со множеством параметров кастомизации.</string>
+<string name="settings_home_screen_widget_desc">Добавить виджет Quick Search на главный экран.</string>
+<string name="settings_home_screen_widget_title">Виджет на главный экран</string>
+    <string name="settings_icon_desc">Показывать/скрывать значок шестерёнки в поисковой строке. Вы всегда можете перейти в настройки свайпом влево или через поиск.</string>
+<string name="settings_icon_pack_empty">Пакеты значков не найдены.</string>
+<string name="settings_icon_pack_mask_unsupported_icons">Маскировать неподдерживаемые значки</string>
+<string name="settings_icon_pack_option_system">Системные значки</string>
+<string name="settings_icon_pack_picker_title">Выберите пакет значков</string>
+<string name="settings_icon_pack_search_query">Бесплатные пакеты значков</string>
+<string name="settings_icon_pack_selected_label">Текущий: %1$s</string>
+<string name="settings_icon_pack_title">Пакет значков</string>
+<string name="settings_icon_title">Значок настроек</string>
+<string name="settings_launch_options_desc">Различные способы запуска приложения</string>
+<string name="settings_launch_options_title">Варианты запуска</string>
+<string name="settings_launcher_icon_reset_default">Сбросить по умолчанию</string>
+<string name="settings_launcher_icon_title">Значок приложения в лаунчере</string>
+<string name="settings_layout_option_bottom_desc">Наиболее важные элементы отображаются внизу для удобного доступа</string>
+<string name="settings_layout_option_bottom_title">Режим управления одной рукой</string>
+<string name="settings_more_options_desc">Различные дополнительные параметры кастомизации</string>
+<string name="settings_more_options_title">Дополнительные параметры</string>
+<string name="settings_overlay_assistant_setup_now">Настроить сейчас</string>
+<string name="settings_overlay_assistant_tip">Подсказка: установите это приложение в качестве цифрового помощника, чтобы открывать оверлей из любого места.</string>
+<string name="settings_overlay_mode_desc">Поисковая строка открывается как оверлей поверх других приложений</string>
+<string name="settings_overlay_mode_desc_launcher_blocked">Недоступно, пока Quick Search выбран основным лаунчером</string>
+<string name="settings_overlay_mode_title">Режим оверлея</string>
+<string name="settings_overlay_source_add_custom">Добавить свое изображение</string>
+<string name="settings_overlay_source_custom_save_failed">Не удалось использовать это изображение.</string>
+<string name="settings_overlay_source_edit_custom">Изменить свое изображение</string>
+<string name="settings_overlay_source_needs_permission">Требуется разрешение</string>
+<string name="settings_overlay_source_wallpaper">Обои</string>
+<string name="settings_overlay_theme_tone_darker">Темнее</string>
+<string name="settings_overlay_theme_tone_lighter">Светлее</string>
+<string name="settings_permissions_desc">Разрешения, необходимые приложению для работы определенных функций</string>
+<string name="settings_permissions_title">Разрешения</string>
+<string name="settings_quick_settings_tile_desc">Добавить Quick Search в шторку быстрых настроек.</string>
+<string name="settings_quick_settings_tile_title">Плитка быстрых настроек</string>
+<string name="settings_refresh_contacts_disabled">Поиск контактов отключен, невозможно обновить данные контактов</string>
+    <string name="settings_refresh_contacts_title">Обновить контакты</string>
+<string name="settings_refresh_data_note">Данные обновляются автоматически. Используйте эти кнопки для принудительного обновления вручную.</string>
+<string name="settings_refresh_data_title">Обновление данных</string>
+<string name="settings_refresh_icon_packs">Обновить пакеты значков</string>
+<string name="settings_refreshing_icon_packs">Обновление списка пакетов значков</string>
+<string name="settings_scroll_to_top">Прокрутить наверх</string>
+<string name="settings_search_hints_desc">Включить/отключить чередующиеся подсказки в поисковой строке</string>
+<string name="settings_search_hints_title">Подсказки при поиске</string>
+<string name="settings_search_results_desc">Управление типами результатов, поисковыми подсказками и историей</string>
+<string name="settings_search_results_title">Результаты поиска</string>
+<string name="settings_sections_at_least_one_required">Должен быть включен хотя бы один элемент</string>
+<string name="settings_show_app_labels_desc">Показывать названия приложений в рекомендациях и результатах</string>
+<string name="settings_show_app_labels_title">Названия приложений</string>
+<string name="settings_themed_icons_desc">Тонировать значки приложений под цвет темы</string>
+<string name="settings_themed_icons_title">Тематические значки</string>
+<string name="settings_tools_desc">Калькулятор, конвертер величин, словарь и многое другое</string>
+<string name="settings_tools_gemini_api_desc">Добавление API-ключа активирует больше инструментов.</string>
+<string name="settings_tools_gemini_api_title">Настройка AI-провайдера</string>
+<string name="settings_tools_info_examples_header">Вот несколько примеров того, что можно ввести в поисковой строке</string>
+<string name="settings_tools_title">Инструменты</string>
+<string name="settings_use_system_font_desc">Использовать системный стиль шрифта вашего устройства</string>
+<string name="settings_use_system_font_title">Системный шрифт</string>
+<string name="settings_wallpaper_accent_desc">Подбирать акцентные цвета на основе фонового изображения</string>
+<string name="settings_wallpaper_accent_title">Акцентные цвета</string>
+<string name="settings_wallpaper_blur_label">Размытие</string>
+<string name="settings_wallpaper_card_title">Фон обоев</string>
+<string name="settings_wallpaper_transparency_label">Прозрачность</string>
+
+<!-- ============================================================================
+     Settings - Search Engines &amp; AI Provider
+     ============================================================================ -->
+<string name="error_open_email">Не найдено почтовое приложение для отправки письма.</string>
+<string name="settings_add_alias">Настроить алиас</string>
+<string name="settings_add_custom_provider_desc">Добавить OpenAI-совместимый провайдер.</string>
+<string name="settings_add_custom_provider_title">Добавить кастомный провайдер</string>
+<string name="settings_add_search_engine_button">Добавить поисковую систему</string>
+    <string name="settings_add_search_engine_dialog_message">Введите URL или шаблон интента Android с плейсхолдером для запроса.\n\nПример:\nwww.google.com/search?q={{query}}</string>
+<string name="settings_add_search_engine_error_multiple_placeholders">Используйте {{query}} только один раз.</string>
+<string name="settings_add_search_engine_error_placeholder">URL должен содержать {{query}}</string>
+    <string name="settings_add_search_engine_error_required">Введите шаблон URL.</string>
+<string name="settings_ai_provider_groq">Groq</string>
+<string name="settings_ai_provider_openai">OpenAI</string>
+<string name="settings_alias_label">Алиас:</string>
+<string name="settings_amazon_domain_default">amazon.com</string>
+<string name="settings_amazon_domain_label">Домен:</string>
+<string name="settings_api_key_saved_last4">Сохранен ключ, оканчивающийся на ****%1$s</string>
+<string name="settings_api_key_setup_desc">Настройте API-ключи для доступа к моделям соответствующего AI-провайдера.</string>
+<string name="settings_api_key_setup_nav_desc">Добавление или удаление API-ключей провайдеров</string>
+<string name="settings_configure_api_key_title">Настроить API-ключ</string>
+    <string name="settings_custom_provider_base_url_hint">Пример: https://openrouter.ai/api/v1</string>
+    <string name="settings_custom_provider_base_url_input_label">Базовый URL</string>
+<string name="settings_direct_search_desc">Поддерживаются API-ключи Gemini, OpenAI, Claude и Groq</string>
+<string name="settings_direct_search_desc_intro">Добавьте API-ключ, чтобы включить поиск и инструменты на базе искусственного интеллекта.</string>
+<string name="settings_direct_search_grounding_label">Поиск в Интернете</string>
+<string name="settings_direct_search_how_to">Получить бесплатный API-ключ</string>
+<string name="settings_direct_search_model_label">Модель</string>
+<string name="settings_direct_search_personal_context">Персональный контекст</string>
+<string name="settings_direct_search_personal_context_hint">Добавьте любой контекст, который ИИ должен учитывать при создании ответов.</string>
+<string name="settings_direct_search_personal_context_unsupported">Персональный контекст не поддерживается для этой модели.</string>
+<string name="settings_direct_search_setup_nav_desc">Добавьте API-ключ для активации поиска на базе ИИ</string>
+<string name="settings_direct_search_setup_nav_title">AI-поиск</string>
+    <string name="settings_direct_search_thinking_label">Рассуждения</string>
+<string name="settings_edit_search_engine_dialog_title">Редактировать поисковую систему</string>
+<string name="settings_gemini_api_config_desc">Настройте AI-провайдера для поиска и инструментов на базе искусственного интеллекта</string>
+<string name="settings_gemini_api_desc">Настройка AI-провайдера</string>
+<string name="settings_gemini_api_key_paste_hint">Нажмите, чтобы вставить ключ</string>
+<string name="settings_gemini_api_key_reset">Сбросить ключ</string>
+<string name="settings_gemini_api_key_saving">Сохранение...</string>
+    <string name="settings_gemini_guide_url" translatable="false">https://medium.com/@tejakarlapudi.apps/setting-up-gemini-api-key-in-quick-search-25ee92aa4311</string>
+<string name="settings_model_picker_search_hint">Поиск моделей</string>
+<string name="settings_search_engine_alias_suffix_desc">Активирует поисковую систему, если добавить алиас в конце запроса. Алиасы в начале запроса работают всегда.</string>
+<string name="settings_search_engine_alias_suffix_title">Алиас после запроса</string>
+<string name="settings_search_engine_browser_default">Браузер по умолчанию</string>
+<string name="settings_search_engine_browser_label">Открыть в</string>
+<string name="settings_search_engine_display_compact_desc">Всегда отображаются над клавиатурой в виде горизонтального списка</string>
+<string name="settings_search_engine_display_compact_title">Компактный</string>
+<string name="settings_search_engine_display_inline_desc">Отображаются в виде карточек в области результатов при поиске</string>
+<string name="settings_search_engine_display_inline_title">Встроенный</string>
+<string name="settings_search_engine_display_title">Стиль поисковых систем</string>
+<string name="settings_search_engines_desc">Управление и изменение порядка поисковых систем</string>
+<string name="settings_search_engines_more_search_engines">Дополнительные поисковые системы</string>
+
+<!-- ============================================================================
+     Settings - Backup, Feedback &amp; About
+     ============================================================================ -->
+<string name="release_notes_action_all_features">Все функции</string>
+<string name="release_notes_action_got_it">Понятно</string>
+<string name="release_notes_title">Примечания к релизу Quick Search v%1$s</string>
+<string name="release_notes_title_no_version">Примечания к релизу Quick Search</string>
+<string name="settings_backup_export_api_key_warning_message">Вы действуете на свой страх и риск. Экспортируемый API-ключ не зашифрован и может быть доступен любому, у кого есть доступ к вашему файлу резервной копии.</string>
+<string name="settings_backup_export_button">Экспорт</string>
+<string name="settings_backup_export_failed">Не удалось экспортировать настройки.</string>
+<string name="settings_backup_export_option_pinned_items_title">Закрепленные элементы</string>
+<string name="settings_backup_export_option_settings_title">Настройки</string>
+<string name="settings_backup_export_selection_title">Экспорт данных</string>
+<string name="settings_backup_export_success">Настройки успешно экспортированы.</string>
+<string name="settings_backup_import_button">Импорт</string>
+<string name="settings_backup_import_failed">Не удалось импортировать настройки.</string>
+<string name="settings_backup_import_success">Настройки успешно импортированы.</string>
+<string name="settings_backup_import_warning_message">Это действие перезапишет ваши текущие настройки.</string>
+<string name="settings_backup_import_warning_title">Импортировать настройки?</string>
+<string name="settings_backup_restore_title">Резервное копирование и восстановление</string>
+<string name="settings_backup_restore_desc">Экспорт или импорт настроек вашего приложения</string>
+<string name="settings_feedback_developer_desc">Создатель: %1$s</string>
+<string name="settings_feedback_developer_name">Teja Karlapudi</string>
+<string name="settings_feedback_developer_title">%1$s v%2$s</string>
+<string name="settings_feedback_github_desc">Посмотреть исходный код проекта на GitHub</string>
+<string name="settings_feedback_github_title">Разработка</string>
+<string name="settings_feedback_rate_desc">Поставьте нам 5 звезд, если приложение вам нравится</string>
+<string name="settings_feedback_rate_title">Оценить Quick Search</string>
+<string name="settings_feedback_send_desc">Сообщить об ошибке или предложить функцию</string>
+<string name="settings_feedback_send_title">Отправить отзыв</string>
+<string name="settings_open_source_licenses_load_failed">Не удалось загрузить лицензии.</string>
+<string name="settings_open_source_licenses_loading">Загрузка лицензий…</string>
+<string name="settings_open_source_licenses_tap_to_view">Нажмите, чтобы просмотреть текст лицензии</string>
+<string name="settings_open_source_licenses_title">Лицензии открытого ПО</string>
+
+<!-- ============================================================================
+     Tools - Calculator, Converter, Time &amp; Dictionary
+     ============================================================================ -->
+<string name="calculator_enter_math_expression_hint">Введите математическое выражение</string>
+<string name="calculator_invalid_or_unsupported_expression">Неверное или неподдерживаемое выражение</string>
+<string name="calculator_toggle_desc">Результаты для простых математических выражений</string>
+<string name="calculator_toggle_title">Калькулятор</string>
+<string name="currency_converter_invalid_input">Некорректный ввод для конвертации валют</string>
+<string name="currency_converter_requires_gemini_key">Требуется API-ключ AI-провайдера</string>
+<string name="currency_converter_toggle_desc">Пример: 100 USD в INR</string>
+<string name="currency_converter_toggle_title">Конвертер валют</string>
+<string name="date_calculator_category_absolute_time">Абсолютное время</string>
+<string name="date_calculator_category_date_differences">Разница между датами</string>
+<string name="date_calculator_category_named_dates">Именованные даты</string>
+<string name="date_calculator_category_offset_from_date">Смещение от даты</string>
+<string name="date_calculator_category_relative_dates">Относительные даты</string>
+<string name="date_calculator_category_time_arithmetic">Временная арифметика</string>
+<string name="date_calculator_category_time_offset">Смещение времени</string>
+<string name="date_calculator_category_time_ranges">Временные диапазоны</string>
+<string name="date_calculator_info_title">Калькулятор даты и времени</string>
+<string name="date_calculator_invalid_date">Неверная или нераспознанная дата/время</string>
+<string name="date_calculator_toggle_action_desc">Включить или отключить калькулятор даты и времени</string>
+<string name="date_calculator_toggle_desc">Примеры использования</string>
+<string name="dictionary_example_label">Пример: %1$s</string>
+<string name="dictionary_synonyms_label">Синонимы: %1$s</string>
+<string name="dictionary_toggle_desc">Пример: define serendipity</string>
+<string name="dictionary_toggle_title">Словарь</string>
+<string name="get_currency_value">Получить курс валюты</string>
+<string name="get_time">Узнать время</string>
+<string name="search_in_dictionary">Искать в словаре</string>
+<string name="unit_converter_category_angle">Угол</string>
+<string name="unit_converter_category_area">Площадь</string>
+<string name="unit_converter_category_data">Данные</string>
+<string name="unit_converter_category_energy">Энергия</string>
+<string name="unit_converter_category_frequency">Частота</string>
+<string name="unit_converter_category_length">Длина</string>
+<string name="unit_converter_category_power">Мощность</string>
+<string name="unit_converter_category_pressure">Давление</string>
+<string name="unit_converter_category_speed">Скорость</string>
+<string name="unit_converter_category_temperature">Температура</string>
+<string name="unit_converter_category_volume">Объем</string>
+<string name="unit_converter_category_weight_mass">Вес / Масса</string>
+    <string name="unit_converter_enter_conversion_hint">Введите запрос для конвертации (например, 5lbs в kgs)</string>
+<string name="unit_converter_info_title">Конвертер величин</string>
+<string name="unit_converter_invalid_or_unsupported_query">Неверное или неподдерживаемое преобразование</string>
+<string name="unit_converter_toggle_action_desc">Включить или отключить конвертер величин</string>
+<string name="word_clock_error_not_recognized">Не удалось обработать запрос времени. Попробуйте указать город, страну, часовой пояс или точное время.</string>
+<string name="word_clock_toggle_desc">Пример: Time in Tokyo</string>
+<string name="word_clock_toggle_title">Мировое время</string>
+
+<!-- ============================================================================
+     Widgets &amp; Shortcuts
+     ============================================================================ -->
+<string name="home_screen_widget_error">Не удалось запросить виджет. Попробуйте еще раз.</string>
+<string name="home_screen_widget_not_supported">Прямое закрепление виджетов не поддерживается на этой версии Android. Добавьте его через стандартное меню виджетов главного экрана.</string>
+<string name="quick_settings_tile_added">Плитка Quick Search добавлена</string>
+<string name="quick_settings_tile_already_added">Плитка Quick Search уже добавлена</string>
+<string name="quick_settings_tile_error">Не удалось запросить плитку быстрых настроек. Попробуйте еще раз.</string>
+<string name="quick_settings_tile_not_added">Плитка не добавлена</string>
+<string name="quick_settings_tile_not_supported">Прямой запрос плиток не поддерживается на этой версии Android. Используйте режим редактирования панели быстрых настроек, чтобы добавить её.</string>
+<string name="shortcut_voice_search_disabled_message">Ярлык голосового поиска недоступен.</string>
+<string name="shortcut_voice_search_long_label">Открыть голосовой поиск</string>
+<string name="shortcut_voice_search_short_label">Голосовой поиск</string>
+<string name="voice_input_not_available">Голосовой ввод сейчас недоступен.</string>
+<string name="widget_background_color_custom_dialog_hint">Цвет в Hex (RRGGBB)</string>
+<string name="widget_background_color_custom_dialog_title">Кастомный цвет</string>
+<string name="widget_background_color_custom_invalid">Введите корректный 6-значный hex-код цвета.</string>
+<string name="widget_border_color">Цвет рамки</string>
+<string name="widget_custom_button_add_desc">Добавить кастомную кнопку</string>
+<string name="widget_custom_buttons_dialog_hint">Вы можете искать приложения, ярлыки приложений, контакты, файлы, папки, заметки и настройки устройства.</string>
+<string name="widget_custom_buttons_dialog_title">Выберите действие</string>
+<string name="widget_custom_buttons_no_results">Результатов не найдено.</string>
+<string name="widget_custom_buttons_restriction">Недоступно, когда активны кастомные кнопки.</string>
+<string name="widget_custom_buttons_title">Кастомные кнопки</string>
+<string name="widget_custom_buttons_widget_title">Виджет с кастомными кнопками</string>
+<string name="widget_icon_center">По центру</string>
+<string name="widget_icon_left">Слева</string>
+<string name="widget_icon_off">Выкл.</string>
+<string name="widget_loading_state">Загрузка настроек виджета…</string>
+<string name="widget_mic_action_default">По умолчанию</string>
+<string name="widget_mic_action_digital_assistant">Помощник</string>
+<string name="widget_mic_action_digital_assistant_limitation">Из-за ограничений Android вы не можете запустить помощника, пока Google не выбран в качестве цифрового помощника по умолчанию.</string>
+<string name="widget_mic_action_digital_assistant_link_phrase">приложение цифрового помощника</string>
+<string name="widget_mic_icon">Значок микрофона</string>
+<string name="widget_search_icon">Значок поиска</string>
+<string name="widget_settings_title">Виджет поиска</string>
+<string name="widget_slider_border">Толщина рамки</string>
+<string name="widget_slider_internal_padding">Внешние отступы</string>
+<string name="widget_slider_internal_padding_horizontal">По горизонтали</string>
+<string name="widget_slider_internal_padding_vertical">По вертикали</string>
+<string name="widget_slider_radius">Радиус скругления углов</string>
+<string name="widget_slider_transparency_background">Фон</string>
+<string name="widget_slider_transparency_border">Рамка</string>
+<string name="widget_text_icon_color">Цвет текста и значков</string>
+<string name="widget_text_icon_color_black">Черный</string>
+<string name="widget_text_icon_color_white">Белый</string>
+<string name="widget_toggle_show_label">Текст Quick Search</string>
+<string name="widgets_panel_title">Виджеты</string>
+<string name="widgets_picker_empty">Виджеты не найдены.</string>
+<string name="widgets_picker_preview_unavailable">Превью недоступно</string>
+<string name="widgets_picker_title">Добавить виджет</string>
+<string name="widgets_picker_widget_count">%1$d виджетов</string>
+<string name="widgets_picker_widget_grid_size">%1$d x %2$d</string>
+
+<!-- ============================================================================
+     Permissions &amp; Onboarding
+     ============================================================================ -->
+<string name="permissions_calendar_desc">Требуется для поиска событий в вашем календаре.</string>
+<string name="permissions_calling_desc">Требуется для совершения звонков контактам напрямую без открытия номеронабирателя.</string>
+<string name="permissions_contacts_desc">Требуется для поиска по вашим контактам.</string>
+<string name="permissions_files_desc">Требуется для поиска по вашим документам и другим файлам.</string>
+<string name="permissions_files_title">Доступ к файлам</string>
+<string name="permissions_granted">Предоставлено</string>
+<string name="permissions_mandatory_indicator">*</string>
+<string name="permissions_reminder_dialog_message">Если вы позже передумаете насчет разрешения «%1$s», вы сможете предоставить его в настройках приложения.</string>
+<string name="permissions_reminder_dialog_title">Разрешения не предоставлены</string>
+<string name="permissions_screen_subtitle">Эти разрешения открывают дополнительные функции. Они не являются обязательными. Ваши данные остаются на устройстве.</string>
+<string name="permissions_usage_desc">Требуется для отображения недавно использованных приложений в подсказках.</string>
+<string name="setup_action_next">Далее</string>
+<string name="setup_action_start">Начать поиск!</string>
+<string name="setup_final_title">Почти готово!</string>
+<string name="setup_import_backup_found_subtitle">Хотите восстановить настройки из этого файла?</string>
+<string name="setup_import_backup_found_title">Найден файл резервной копии</string>
+<string name="setup_import_button">Импортировать настройки</string>
+<string name="setup_import_description_subtitle">Импортируйте настройки Quick Search, используя ранее экспортированный файл резервной копии.</string>
+<string name="setup_import_description_title">У вас есть бэкап?</string>
+<string name="setup_import_error_subtitle">Не удалось прочитать файл резервной копии. Пожалуйста, попробуйте еще раз.</string>
+<string name="setup_import_error_title">Ошибка импорта</string>
+<string name="setup_import_importing">Импорт настроек…</string>
+<string name="setup_import_restore_button">Восстановить</string>
+<string name="setup_import_skip">Пропустить</string>
+<string name="setup_import_success_subtitle">Ваши настройки были успешно импортированы. Нажмите ниже, чтобы начать поиск.</string>
+<string name="setup_import_success_title">Настройки восстановлены</string>
+<string name="setup_import_title">Восстановление настроек</string>
+<string name="setup_search_engines_subtitle">Включите нужные поисковые системы и расположите их в удобном для вас порядке.</string>
+
+<!-- ============================================================================
+     Search Engines
+     ============================================================================ -->
+<string name="browser_brave_name">Браузер Brave</string>
+<string name="browser_in_app_name">Встроенный браузер</string>
+<string name="open_with_engine">Открыть с помощью %1$s</string>
+<string name="search_engine_ai_mode">Режим ИИ</string>
+<string name="search_engine_amazon">Amazon</string>
+<string name="search_engine_bing">Bing</string>
+<string name="search_engine_brave">Brave Search</string>
+<string name="search_engine_chatgpt">ChatGPT</string>
+<string name="search_engine_claude">Claude</string>
+<string name="search_engine_custom">Кастомный поиск</string>
+<string name="search_engine_duckduckgo">DuckDuckGo</string>
+<string name="search_engine_facebook_marketplace">Facebook Marketplace</string>
+<string name="search_engine_gemini">Gemini</string>
+<string name="search_engine_google">Google</string>
+<string name="search_engine_google_drive">Google Диск</string>
+<string name="search_engine_google_maps">Google Карты</string>
+<string name="search_engine_google_photos">Google Фото</string>
+<string name="search_engine_google_play">Google Play</string>
+<string name="search_engine_grok">Grok</string>
+<string name="search_engine_onboarding_description">Когда вы вводите поисковый запрос и нажимаете на любую из этих поисковых систем, запустится поиск внутри этих приложений. Вы можете изменить их по долгому нажатию.</string>
+<string name="search_engine_perplexity">Perplexity</string>
+<string name="search_engine_reddit">Reddit</string>
+<string name="search_engine_spotify">Spotify</string>
+<string name="search_engine_startpage">Startpage</string>
+<string name="search_engine_waze">Waze</string>
+<string name="search_engine_wikipedia">Википедия</string>
+<string name="search_engine_x">X</string>
+<string name="search_engine_you_com">You.com</string>
+<string name="search_engine_youtube">YouTube</string>
+<string name="search_engine_youtube_music">YouTube Music</string>
+<string name="search_on_engine">Искать в %1$s</string>
+
+<!-- ============================================================================
+     Miscellaneous
+     ============================================================================ -->
+<string name="auto_close_overlay_toggle_desc">Автоматически закрывать приложение после открытия результата</string>
+<string name="auto_close_overlay_toggle_title">Автозакрытие приложения</string>
+<string name="excluded_item_type_app_results">Приложение (в результатах)</string>
+<string name="excluded_item_type_app_shortcut">Ярлык приложения</string>
+<string name="excluded_item_type_app_suggestions">Приложение (в подсказках)</string>
+<string name="excluded_item_type_contact">Контакт</string>
+<string name="excluded_item_type_setting">Настройка</string>
+<string name="permission_required_title">Требуется разрешение</string>
+<string name="settings_action_clear_all">Очистить всё</string>
+<string name="settings_action_move_down">Переместить в самый низ</string>
+<string name="settings_action_move_up">Переместить в самый верх</string>
+<string name="settings_action_reorder">Перетащите для изменения порядка</string>
+<string name="settings_create_new_tool_button">Создать новый инструмент</string>
+<string name="settings_custom_tool_alias_hint">Ключевое слово для запуска этого инструмента</string>
+<string name="settings_custom_tool_alias_label">Алиас</string>
+<string name="settings_custom_tool_delete_button">Удалить инструмент</string>
+<string name="settings_custom_tool_editor_title">Кастомный инструмент</string>
+<string name="settings_custom_tool_name_label">Название инструмента</string>
+<string name="settings_custom_tool_prompt_hint">Опишите, что делает этот инструмент. Этот промпт направляет действия ИИ при активации инструмента.</string>
+<string name="settings_custom_tool_prompt_label">Системный промпт (System Prompt)</string>
+<string name="settings_excluded_items_clear_all">Сбросить все исключения</string>
+<string name="settings_excluded_items_clear_all_confirmation">Вы уверены, что хотите удалить все исключенные элементы? Это действие нельзя отменить.</string>
+<string name="settings_excluded_items_desc">Просмотр и управление элементами, которые вы исключили из поиска</string>
+<string name="settings_excluded_items_empty">У вас нет исключенных элементов.</string>
+<string name="settings_excluded_items_title">Исключенные элементы</string>
+<string name="settings_manage_calls_texts_contacts_desc">Управление звонками и сообщениями для контактов</string>
+<string name="settings_manage_files_desc">Управление типами файлов, отображаемыми в результатах</string>
+<string name="settings_manage_shortcuts_desc">Управление ярлыками ваших приложений</string>
+<string name="settings_nicknames_desc">Просмотр и управление установленными вами кастомными псевдонимами</string>
+<string name="settings_nicknames_empty">У вас нет установленных псевдонимов.</string>
+<string name="settings_nicknames_title">Псевдонимы</string>
+<string name="settings_search_tip_banner_message">Подсказка: вы можете искать настройки прямо из поисковой строки.</string>
+<string name="settings_triggers_desc">Просмотр и управление установленными вами словами-триггерами</string>
+<string name="settings_triggers_empty">У вас нет установленных триггеров.</string>
+    <string name="settings_triggers_title">Триггеры</string>
+</resources>
