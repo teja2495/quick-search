@@ -291,6 +291,7 @@
     <string name="settings_app_shortcuts_add_deep_link">App Deep Link</string>
     <string name="settings_app_shortcuts_add_deep_link_dialog_message">Προσθέστε έναν υποστηριζόμενο σύνδεσμο URL ή intent που ανοίγει μια συγκεκριμένη οθόνη στην εφαρμογή. Οι μη υποστηριζόμενοι σύνδεσμοι θα ανοίγουν στο πρόγραμμα περιήγησής σας.</string>
     <string name="settings_app_shortcuts_add_deep_link_dialog_title">Προσθήκη App Deep Link</string>
+    <string name="settings_app_shortcuts_add_dialog_title">Επιλογή πηγής συντόμευσης</string>
     <string name="settings_app_shortcuts_add_failed">Αδυναμία προσθήκης συντόμευσης.</string>
     <string name="settings_app_shortcuts_add_query_dialog_title">Προσθήκη συντόμευσης προσαρμοσμένου ερωτήματος αναζήτησης στο %1$s</string>
     <string name="settings_app_shortcuts_add_query_shortcut">Προσαρμοσμένο ερώτημα αναζήτησης</string>

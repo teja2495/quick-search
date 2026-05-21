@@ -301,7 +301,7 @@
     <string name="settings_app_shortcuts_add_url_dialog_title">إضافة اختصار URL إلى %1$s</string>
     <string name="settings_app_shortcuts_add_url_shortcut">اختصار رابط مخصص</string>
     <plurals name="settings_app_shortcuts_card_count">
-        <item quantity="one">اختصار واحد</item>
+        <item quantity="one">%d اختصار</item>
         <item quantity="other">%d اختصارات</item>
     </plurals>
     <string name="settings_app_shortcuts_collapse_all">طي الكل</string>
@@ -436,36 +436,36 @@
     <string name="calendar_edit_event_title">تعديل الحدث</string>
     <string name="calendar_relative_ago_format">منذ %1$s</string>
     <plurals name="calendar_relative_days">
-        <item quantity="one">يوم واحد</item>
+        <item quantity="one">%d يوم</item>
         <item quantity="other">%d أيام</item>
     </plurals>
     <string name="calendar_relative_in_format">بعد %1$s</string>
     <plurals name="calendar_relative_months">
-        <item quantity="one">شهر واحد</item>
+        <item quantity="one">%d شهر</item>
         <item quantity="other">%d أشهر</item>
     </plurals>
     <string name="calendar_relative_today">اليوم</string>
     <string name="calendar_relative_tomorrow">غداً</string>
     <plurals name="calendar_relative_years">
-        <item quantity="one">سنة واحدة</item>
+        <item quantity="one">%d سنة</item>
         <item quantity="other">%d سنوات</item>
     </plurals>
     <string name="calendar_relative_yesterday">أمس</string>
     <string name="calendar_repeats_daily">يومياً</string>
     <plurals name="calendar_repeats_every_days">
-        <item quantity="one">كل يوم</item>
+        <item quantity="one">كل %d يوم</item>
         <item quantity="other">كل %d يوم</item>
     </plurals>
     <plurals name="calendar_repeats_every_months">
-        <item quantity="one">كل شهر</item>
+        <item quantity="one">كل %d شهر</item>
         <item quantity="other">كل %d شهر</item>
     </plurals>
     <plurals name="calendar_repeats_every_weeks">
-        <item quantity="one">كل أسبوع</item>
+        <item quantity="one">كل %d أسبوع</item>
         <item quantity="other">كل %d أسبوع</item>
     </plurals>
     <plurals name="calendar_repeats_every_years">
-        <item quantity="one">كل سنة</item>
+        <item quantity="one">كل %d سنة</item>
         <item quantity="other">كل %d سنة</item>
     </plurals>
     <string name="calendar_repeats_generic">متكرر</string>
