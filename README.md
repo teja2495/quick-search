@@ -3,6 +3,7 @@
 A fast & powerful Android app that lets you search across **apps, app shortcuts, contacts, calendar events, device files, device settings, app settings, and the web**, plus access tools like **calculator, unit converter, etc**—all from a single search bar. Built with Kotlin and Jetpack Compose using Material 3 design.
 
 <a href="https://play.google.com/store/apps/details?id=com.tk.quicksearch"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="80"></a>
+<a href="https://f-droid.org/en/packages/com.tk.quicksearch/"><img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80"></a>
 <a href="https://github.com/teja2495/quick-search/releases/latest"><img src="https://github.com/user-attachments/assets/5d36bf7f-3386-4b0e-b7e1-892daba01343" alt="Get it on GitHub" height="80"></a>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -98,7 +99,7 @@ See [docs/FDROID.md](docs/FDROID.md) for publishing to F-Droid.
 
 ### Download
 - **Google Play Store**: Get the app from [Google Play Store](https://play.google.com/store/apps/details?id=com.tk.quicksearch) for automatic updates
-- **F-Droid**: After inclusion, install from [F-Droid](https://f-droid.org/) (build with the `fdroid` flavor)
+- **F-Droid**: Install from [F-Droid](https://f-droid.org/en/packages/com.tk.quicksearch/) for repository-based updates
 - **APK Release**: Download the latest APK from the [Releases](https://github.com/teja2495/quick-search/releases) page
 
 ## 🛡️ Permissions & Privacy
