@@ -244,7 +244,7 @@ Always read the guide, then follow the steps in order.
 
 - Build compiles after changes.
 - After every completed coding task, run:
-  - `./gradlew installDebug && adb shell am force-stop com.tk.quicksearch; adb shell am force-stop com.tk.quicksearch.debug; adb shell am start -W -n com.tk.quicksearch.debug/com.tk.quicksearch.app.MainActivity`
+  - `./gradlew assembleStandardDebug && adb install --user 0 -r app/build/outputs/apk/standard/debug/app-standard-debug.apk && adb shell am force-stop com.tk.quicksearch && adb shell am force-stop com.tk.quicksearch.debug && adb shell am start -W -n com.tk.quicksearch.debug/com.tk.quicksearch.app.MainActivity`
   - If this command fails, treat it as a blocking issue and fix the errors before considering the task complete.
 - Search behavior verified for:
   - empty query
