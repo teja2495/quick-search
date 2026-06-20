@@ -274,7 +274,7 @@ private fun renderAppSettingsSection(
 ) {
     val settingsParams = params.settingsParams ?: return
     val shouldShowAppSettings =
-        context.shouldRenderSettings &&
+        context.shouldRenderAppSettings &&
             !context.isDeviceSettingsExpanded
 
     if (shouldShowAppSettings && context.appSettingsList.isNotEmpty()) {

@@ -218,6 +218,7 @@ fun rememberSectionRenderContext(
     val shouldRenderContacts: Boolean
     val shouldRenderAppShortcuts: Boolean
     val shouldRenderSettings: Boolean
+    val shouldRenderAppSettings: Boolean
     val shouldRenderCalendar: Boolean
     val shouldRenderNotes: Boolean
 
@@ -288,6 +289,8 @@ fun rememberSectionRenderContext(
         shouldRenderSettings =
             when (state.settingsSectionState) {
                 is SettingsSectionVisibility.ShowingResults -> {
+                    (SearchSection.SETTINGS !in state.disabledSections ||
+                        state.detectedAliasSearchSection == SearchSection.SETTINGS) &&
                         !isFilesExpanded &&
                         !isContactsExpanded &&
                         !isAppShortcutsExpanded &&
@@ -299,6 +302,15 @@ fun rememberSectionRenderContext(
                     false
                 }
             }
+        shouldRenderAppSettings =
+            state.appSettingResults.isNotEmpty() &&
+                (SearchSection.APP_SETTINGS !in state.disabledSections ||
+                    state.detectedAliasSearchSection == SearchSection.APP_SETTINGS) &&
+                !isFilesExpanded &&
+                !isContactsExpanded &&
+                !isAppShortcutsExpanded &&
+                !isCalendarExpanded &&
+                !isNotesExpanded
         shouldRenderCalendar =
             when (state.calendarSectionState) {
                 is CalendarSectionVisibility.ShowingResults -> {
@@ -372,6 +384,7 @@ fun rememberSectionRenderContext(
                     false
                 }
             }
+        shouldRenderAppSettings = false
         shouldRenderCalendar =
             when (state.calendarSectionState) {
                 is CalendarSectionVisibility.ShowingResults -> {
@@ -399,6 +412,7 @@ fun rememberSectionRenderContext(
         shouldRenderApps = shouldRenderApps,
         shouldRenderAppShortcuts = shouldRenderAppShortcuts,
         shouldRenderSettings = shouldRenderSettings,
+        shouldRenderAppSettings = shouldRenderAppSettings,
         shouldRenderCalendar = shouldRenderCalendar,
         shouldRenderNotes = shouldRenderNotes,
         isFilesExpanded = isFilesExpanded || !isSearching,
@@ -545,6 +559,7 @@ data class SectionRenderContext(
     val calendarExpandClick: () -> Unit = {},
     val notesExpandClick: () -> Unit = {},
     val shouldRenderSettings: Boolean = false,
+    val shouldRenderAppSettings: Boolean = false,
     val isDeviceSettingsExpanded: Boolean = false,
     val isAppSettingsExpanded: Boolean = false,
     val settingsList: List<DeviceSetting> = emptyList(),
