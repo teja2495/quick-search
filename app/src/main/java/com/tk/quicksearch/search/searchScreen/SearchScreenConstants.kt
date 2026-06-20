@@ -159,14 +159,15 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
 
     val orderedSections =
         remember(
+            isSearching,
             state.disabledSections,
             state.detectedAliasSearchSection,
             hasAppSettingResults,
             notesEnabled,
         ) {
             ItemPriorityConfig.getSearchResultsPriority().filter { section ->
-                section !in state.disabledSections ||
-                    (section == SearchSection.APPS && !isSearching) ||
+                !isSearching ||
+                    section !in state.disabledSections ||
                     state.detectedAliasSearchSection == section ||
                     (section == SearchSection.SETTINGS && hasAppSettingResults) ||
                     (section == SearchSection.NOTES && notesEnabled)
@@ -180,39 +181,45 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
     val shouldShowApps = isAppsSectionEnabledForCurrentQuery && hasAppResults
     val shouldShowAppShortcuts =
         (
-            SearchSection.APP_SHORTCUTS !in state.disabledSections ||
+            !isSearching ||
+                SearchSection.APP_SHORTCUTS !in state.disabledSections ||
                 state.detectedAliasSearchSection == SearchSection.APP_SHORTCUTS
         ) &&
             (hasAppShortcutResults || hasPinnedAppShortcuts)
     val shouldShowContacts =
         (
-            SearchSection.CONTACTS !in state.disabledSections ||
+            !isSearching ||
+                SearchSection.CONTACTS !in state.disabledSections ||
                 state.detectedAliasSearchSection == SearchSection.CONTACTS
         ) &&
             (!state.hasContactPermission || hasContactResults || hasPinnedContacts)
     val shouldShowFiles =
         (
-            SearchSection.FILES !in state.disabledSections ||
+            !isSearching ||
+                SearchSection.FILES !in state.disabledSections ||
                 state.detectedAliasSearchSection == SearchSection.FILES
         ) &&
             (!state.hasFilePermission || hasFileResults || hasPinnedFiles)
     val shouldShowSettings =
         hasAppSettingResults ||
             (
-            SearchSection.SETTINGS !in state.disabledSections ||
+            !isSearching ||
+                SearchSection.SETTINGS !in state.disabledSections ||
                 state.detectedAliasSearchSection == SearchSection.SETTINGS
         ) &&
             (hasSettingResults || hasPinnedSettings)
     val shouldShowCalendar =
         (
-            SearchSection.CALENDAR !in state.disabledSections ||
+            !isSearching ||
+                SearchSection.CALENDAR !in state.disabledSections ||
                 state.detectedAliasSearchSection == SearchSection.CALENDAR
         ) &&
             (!state.hasCalendarPermission || hasCalendarResults || hasPinnedCalendarEvents)
     val shouldShowNotes =
         notesEnabled &&
             (
-            SearchSection.NOTES !in state.disabledSections ||
+            !isSearching ||
+                SearchSection.NOTES !in state.disabledSections ||
                 state.detectedAliasSearchSection == SearchSection.NOTES
         ) &&
             (hasNoteResults || hasPinnedNotes)

@@ -179,7 +179,7 @@ internal class SearchVisibilityStateResolver {
         section: SearchSection,
     ): Boolean {
         if (state.detectedAliasSearchSection == section) return true
-        if (section == SearchSection.APPS && state.query.isBlank()) return true
+        if (state.query.isBlank()) return true
         return section !in state.disabledSections
     }
 }

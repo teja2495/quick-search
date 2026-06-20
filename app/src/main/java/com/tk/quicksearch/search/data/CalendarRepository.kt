@@ -12,7 +12,9 @@ import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.utils.SearchRankingUtils
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.util.Locale
 
 class CalendarRepository(
@@ -39,6 +41,7 @@ class CalendarRepository(
         private const val PAST_WINDOW_YEARS = 2L
         private const val FUTURE_WINDOW_YEARS = 2L
         private const val MILLIS_PER_YEAR = 1000L * 60L * 60L * 24L * 365L
+        internal const val TIMED_EVENT_HIDE_DELAY_MILLIS = 15L * 60L * 1000L
     }
 
     fun hasPermission(): Boolean =
@@ -124,23 +127,26 @@ class CalendarRepository(
 
     fun getTodayEvents(limit: Int = 50): List<CalendarEventInfo> {
         if (limit <= 0 || !hasPermission()) return emptyList()
-        val calendar = java.util.Calendar.getInstance()
-        calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
-        calendar.set(java.util.Calendar.MINUTE, 0)
-        calendar.set(java.util.Calendar.SECOND, 0)
-        calendar.set(java.util.Calendar.MILLISECOND, 0)
-        val startOfDay = calendar.timeInMillis
-        val endOfDay = startOfDay + 24L * 60 * 60 * 1000 - 1
+        val today = LocalDate.now()
+        val zoneId = ZoneId.systemDefault()
+        val startOfDay = today.atStartOfDay(zoneId).toInstant().toEpochMilli()
+        val startOfTomorrow = today.plusDays(1).atStartOfDay(zoneId).toInstant().toEpochMilli()
+        val utcStartOfDay = today.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+        val utcStartOfTomorrow = today.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
         val now = System.currentTimeMillis()
-        val cutoffMillis = now - 15L * 60 * 1000
-        return queryInstancesInWindow(startOfDay, endOfDay, limit, null)
+
+        // CalendarContract stores all-day instances at UTC midnight. Query both the local-day
+        // and UTC-day boundaries, then use the normalized local timestamps for final filtering.
+        val queryStart = minOf(startOfDay, utcStartOfDay)
+        val queryEnd = maxOf(startOfTomorrow, utcStartOfTomorrow) - 1
+        return queryInstancesInWindow(queryStart, queryEnd, limit, null)
             .filter { event ->
-                // Exclude events that don't actually start today — the instance query can return
-                // all-day events from tomorrow when their UTC midnight falls inside the window.
-                event.startMillis in startOfDay..endOfDay &&
-                    // All-day events are valid the whole day; timed events are hidden once they are
-                    // more than 15 minutes past their start time.
-                    (event.allDay || event.startMillis >= cutoffMillis)
+                shouldShowTodayEvent(
+                    event = event,
+                    now = now,
+                    startOfDay = startOfDay,
+                    startOfTomorrow = startOfTomorrow,
+                )
             }
             .sortedBy { it.startMillis }
     }
@@ -332,4 +338,15 @@ class CalendarRepository(
         startMillis: Long,
         now: Long,
     ): Long = if (startMillis >= now) startMillis else Long.MAX_VALUE - startMillis
+}
+
+internal fun shouldShowTodayEvent(
+    event: CalendarEventInfo,
+    now: Long,
+    startOfDay: Long,
+    startOfTomorrow: Long,
+): Boolean {
+    if (event.startMillis !in startOfDay until startOfTomorrow) return false
+    if (event.allDay) return true
+    return event.startMillis >= now - CalendarRepository.TIMED_EVENT_HIDE_DELAY_MILLIS
 }

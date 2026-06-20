@@ -476,9 +476,14 @@ fun rememberSectionRenderContext(
             if (isSearching || state.detectedAliasSearchSection == SearchSection.CALENDAR) {
                 renderingState.calendarEvents
             } else {
+                renderingState.pinnedCalendarEvents
+            },
+        todayCalendarEventsList =
+            if (isSearching || state.detectedAliasSearchSection == SearchSection.CALENDAR) {
+                emptyList()
+            } else {
                 val pinnedIds = renderingState.pinnedCalendarEvents.map { it.eventId }.toSet()
-                renderingState.pinnedCalendarEvents +
-                    state.todayCalendarEvents.filterNot { it.eventId in pinnedIds }
+                state.todayCalendarEvents.filterNot { it.eventId in pinnedIds }
             },
         notesList =
             if (isSearching || state.detectedAliasSearchSection == SearchSection.NOTES) {
@@ -542,6 +547,7 @@ data class SectionRenderContext(
     val contactsList: List<ContactInfo> = emptyList(),
     val appShortcutsList: List<StaticShortcut> = emptyList(),
     val calendarEventsList: List<CalendarEventInfo> = emptyList(),
+    val todayCalendarEventsList: List<CalendarEventInfo> = emptyList(),
     val notesList: List<NoteInfo> = emptyList(),
     val showAllFilesResults: Boolean = false,
     val showAllContactsResults: Boolean = false,

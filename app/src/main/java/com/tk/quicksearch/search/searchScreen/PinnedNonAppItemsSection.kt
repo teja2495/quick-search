@@ -199,7 +199,7 @@ internal fun PinnedNonAppItemsSection(
                             onInclude = calendarParams.onInclude,
                             onNicknameClick = calendarParams.onNicknameClick,
                             isPredicted = false,
-                            isHomescreenTodayEvent = true,
+                            isHomescreenTodayEvent = false,
                             onArchive = calendarParams.onArchiveTodayEvent,
                             showPinnedItemMenu = true,
                         )

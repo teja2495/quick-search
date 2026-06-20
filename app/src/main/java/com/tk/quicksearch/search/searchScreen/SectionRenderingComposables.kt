@@ -306,7 +306,36 @@ private fun renderCalendarSection(
     context: SectionRenderContext,
 ) {
     val calendarParams = params.calendarParams ?: return
-    if (context.shouldRenderCalendar) {
+    if (context.shouldRenderCalendar || context.todayCalendarEventsList.isNotEmpty()) {
+        if (context.isHomeScreenCalendarMode && context.todayCalendarEventsList.isNotEmpty()) {
+            CalendarEventsSection(
+                events = context.todayCalendarEventsList,
+                hasPermission = calendarParams.hasPermission,
+                isExpanded = true,
+                pinnedEventIds = emptySet(),
+                excludedEventIds = calendarParams.excludedEventIds,
+                onEventClick = calendarParams.onEventClick,
+                onRequestPermission = calendarParams.onRequestPermission,
+                onTogglePin = calendarParams.onTogglePin,
+                onMovePinned = calendarParams.onMovePinned,
+                onExclude = calendarParams.onExclude,
+                onInclude = calendarParams.onInclude,
+                onNicknameClick = calendarParams.onNicknameClick,
+                onArchiveTodayEvent = calendarParams.onArchiveTodayEvent,
+                getEventNickname = calendarParams.getEventNickname,
+                showAllResults = true,
+                showExpandControls = false,
+                onExpandClick = context.calendarExpandClick,
+                expandedCardMaxHeight = calendarParams.expandedCardMaxHeight,
+                permissionDisabledCard = calendarParams.permissionDisabledCard,
+                showWallpaperBackground = calendarParams.showWallpaperBackground,
+                predictedTarget = calendarParams.predictedTarget,
+                fillExpandedHeight = false,
+                isHomeScreenMode = true,
+                showPinnedItemMenu = false,
+            )
+        }
+        if (context.calendarEventsList.isEmpty() && context.isHomeScreenCalendarMode) return
         CalendarEventsSection(
             events = context.calendarEventsList,
             hasPermission = calendarParams.hasPermission,
@@ -330,7 +359,7 @@ private fun renderCalendarSection(
             showWallpaperBackground = calendarParams.showWallpaperBackground,
             predictedTarget = calendarParams.predictedTarget,
             fillExpandedHeight = false,
-            isHomeScreenMode = context.isHomeScreenCalendarMode,
+            isHomeScreenMode = false,
             showPinnedItemMenu = context.showAllCalendarResults,
         )
     }

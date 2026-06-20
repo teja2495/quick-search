@@ -394,6 +394,24 @@ fun ContentLayout(
                         )
                         pinnedNonAppItemsRendered = true
                     }
+
+                    if (
+                        shouldRenderStandaloneTodayCalendarSection(
+                            section = section,
+                            todayCalendarEventsCount =
+                                sectionContextForRecentHistoryExpansion.todayCalendarEventsList.size,
+                        )
+                    ) {
+                        renderSection(
+                            section = section,
+                            params = regularSectionParams,
+                            sectionContext =
+                                sectionContextForRecentHistoryExpansion.copy(
+                                    shouldRenderCalendar = false,
+                                    calendarEventsList = emptyList(),
+                                ),
+                        )
+                    }
                     return@forEach
                 }
 
@@ -683,6 +701,11 @@ fun ContentLayout(
         }
     }
 }
+
+internal fun shouldRenderStandaloneTodayCalendarSection(
+    section: SearchSection,
+    todayCalendarEventsCount: Int,
+): Boolean = section == SearchSection.CALENDAR && todayCalendarEventsCount > 0
 
 private val ALIAS_RECENT_ELIGIBLE_SECTIONS =
     setOf(
