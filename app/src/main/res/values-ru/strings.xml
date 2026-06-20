@@ -99,6 +99,8 @@
 <string name="action_move_down">Переместить вниз</string>
 <string name="action_undo">Отменить</string>
 <string name="action_uninstall_app">Удалить</string>
+<string name="action_rate">Оценить сейчас</string>
+<string name="action_not_now">Не сейчас</string>
 <string name="action_unpin_app">Открепить</string>
 <string name="alias_trigger_after_space">Триггер после пробела</string>
 <string name="common_action_add">Добавить</string>

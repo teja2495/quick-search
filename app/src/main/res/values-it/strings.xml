@@ -98,6 +98,8 @@
     <string name="action_move_down">Sposta giù</string>
     <string name="action_undo">Annulla</string>
     <string name="action_uninstall_app">Disinstalla</string>
+    <string name="action_rate">Valuta ora</string>
+    <string name="action_not_now">Non ora</string>
     <string name="action_unpin_app">Rimuovi dai fissati</string>
     <string name="alias_trigger_after_space">Trigger dopo lo spazio</string>
     <string name="common_action_add">Aggiungi</string>

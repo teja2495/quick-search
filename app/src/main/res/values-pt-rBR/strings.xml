@@ -99,6 +99,8 @@
     <string name="action_move_down">Mover para baixo</string>
     <string name="action_undo">Desfazer</string>
     <string name="action_uninstall_app">Desinstalar</string>
+    <string name="action_rate">Avaliar agora</string>
+    <string name="action_not_now">Agora não</string>
     <string name="action_unpin_app">Desafixar</string>
     <string name="alias_trigger_after_space">Ativar após o espaço</string>
     <string name="common_action_add">Adicionar</string>

@@ -99,6 +99,8 @@
     <string name="action_move_down">नीचे ले जाएं</string>
     <string name="action_undo">पूर्ववत करें</string>
     <string name="action_uninstall_app">अनइंस्टॉल करें</string>
+    <string name="action_rate">अभी रेट करें</string>
+    <string name="action_not_now">अभी नहीं</string>
     <string name="action_unpin_app">अनपिन करें</string>
     <string name="alias_trigger_after_space">स्पेस के बाद ट्रिगर</string>
     <string name="common_action_add">जोड़ें</string>

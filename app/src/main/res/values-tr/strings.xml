@@ -98,6 +98,8 @@
 <string name="action_move_down">Aşağı taşı</string>
 <string name="action_undo">Geri al</string>
 <string name="action_uninstall_app">Yüklemeyi kaldır</string>
+<string name="action_rate">Şimdi değerlendir</string>
+<string name="action_not_now">Şimdi değil</string>
 <string name="action_unpin_app">Sabitlemeyi kaldır</string>
 <string name="alias_trigger_after_space">Boşluktan sonra tetikle</string>
 <string name="common_action_add">Ekle</string>

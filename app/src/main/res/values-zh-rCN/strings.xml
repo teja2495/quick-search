@@ -99,6 +99,8 @@
     <string name="action_move_down">下移</string>
     <string name="action_undo">撤销</string>
     <string name="action_uninstall_app">卸载</string>
+    <string name="action_rate">立即评分</string>
+    <string name="action_not_now">暂不</string>
     <string name="action_unpin_app">取消固定</string>
     <string name="alias_trigger_after_space">在空格后触发</string>
     <string name="common_action_add">添加</string>

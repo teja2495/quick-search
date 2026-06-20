@@ -100,6 +100,8 @@
     <string name="action_move_down">نقل لأسفل</string>
     <string name="action_undo">تراجع</string>
     <string name="action_uninstall_app">إلغاء تثبيت التطبيق</string>
+    <string name="action_rate">قيّم الآن</string>
+    <string name="action_not_now">ليس الآن</string>
     <string name="action_unpin_app">إلغاء التثبيت</string>
     <string name="alias_trigger_after_space">تفعيل كلمة التشغيل بعد مسافة</string>
     <string name="common_action_add">إضافة</string>

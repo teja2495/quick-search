@@ -99,6 +99,8 @@
     <string name="action_move_down">Μετακίνηση προς τα κάτω</string>
     <string name="action_undo">Αναίρεση</string>
     <string name="action_uninstall_app">Απεγκατάσταση</string>
+    <string name="action_rate">Βαθμολογήστε τώρα</string>
+    <string name="action_not_now">Όχι τώρα</string>
     <string name="action_unpin_app">Ξεκαρφίτσωμα</string>
     <string name="alias_trigger_after_space">Ενεργοποίηση μετά από διάστημα</string>
     <string name="common_action_add">Προσθήκη</string>

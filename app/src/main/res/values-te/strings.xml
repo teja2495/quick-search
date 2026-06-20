@@ -99,6 +99,8 @@
     <string name="action_move_down">కిందికి జరుపు</string>
     <string name="action_undo">రద్దు చేయి</string>
     <string name="action_uninstall_app">అన్‌ఇన్‌స్టాల్ చేయి</string>
+    <string name="action_rate">ఇప్పుడే రేట్ చేయండి</string>
+    <string name="action_not_now">ఇప్పుడు వద్దు</string>
     <string name="action_unpin_app">అన్‌పిన్ చేయి</string>
     <string name="alias_trigger_after_space">స్పేస్ తర్వాత ట్రిగ్గర్ చేయి</string>
     <string name="common_action_add">జోడించు</string>

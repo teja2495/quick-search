@@ -99,6 +99,8 @@
     <string name="action_move_down">Nach unten</string>
     <string name="action_undo">Rückgängig</string>
     <string name="action_uninstall_app">Deinstallieren</string>
+    <string name="action_rate">Jetzt bewerten</string>
+    <string name="action_not_now">Nicht jetzt</string>
     <string name="action_unpin_app">Lösen</string>
     <string name="alias_trigger_after_space">Nach Leerzeichen auslösen</string>
     <string name="common_action_add">Hinzufügen</string>
