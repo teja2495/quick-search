@@ -320,7 +320,17 @@ private fun calculatePreviewColors(state: WidgetPreferences): PreviewColors {
                 effectiveTheme,
                 state.backgroundAlpha,
             )
-    val border = WidgetColorUtils.getBorderColor(state.borderColor, state.borderAlpha, effectiveTheme, state.borderColorOption)
+    val border =
+        if (state.borderColorOption == BorderColorOption.DEVICE_THEME && deviceThemeBackgroundColor != null) {
+            deviceThemeBackgroundColor.copy(alpha = state.borderAlpha.coerceAtMost(0.4f))
+        } else {
+            WidgetColorUtils.getBorderColor(
+                state.borderColor,
+                state.borderAlpha,
+                effectiveTheme,
+                state.borderColorOption,
+            )
+        }
     val textIcon =
         WidgetColorUtils.getTextIconColor(
             state.theme,

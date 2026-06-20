@@ -151,11 +151,21 @@ fun TextIconColorChoiceSegmentedButtonRow(
 fun BorderColorChoiceSegmentedButtonRow(
     selectedOption: BorderColorOption,
     customColor: Color?,
+    useDeviceTheme: Boolean,
+    onDeviceThemeClick: () -> Unit,
     onWhiteClick: () -> Unit,
     onBlackClick: () -> Unit,
     onCustomClick: () -> Unit,
 ) {
     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+        if (useDeviceTheme) {
+            SegmentedButton(
+                selected = selectedOption == BorderColorOption.DEVICE_THEME,
+                onClick = onDeviceThemeClick,
+                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                icon = {},
+            ) { Text(stringResource(R.string.common_theme_device)) }
+        } else {
         SegmentedButton(
             selected = selectedOption == BorderColorOption.WHITE,
             onClick = onWhiteClick,
@@ -168,10 +178,15 @@ fun BorderColorChoiceSegmentedButtonRow(
             shape = SegmentedButtonDefaults.itemShape(index = 1, count = 3),
             icon = {},
         ) { Text(stringResource(R.string.widget_text_icon_color_black)) }
+        }
         SegmentedButton(
             selected = selectedOption == BorderColorOption.CUSTOM,
             onClick = onCustomClick,
-            shape = SegmentedButtonDefaults.itemShape(index = 2, count = 3),
+            shape =
+                SegmentedButtonDefaults.itemShape(
+                    index = if (useDeviceTheme) 1 else 2,
+                    count = if (useDeviceTheme) 2 else 3,
+                ),
             icon = {},
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {

@@ -53,6 +53,7 @@ import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
 import com.tk.quicksearch.widgets.customButtonsWidget.WidgetActionActivity
 import com.tk.quicksearch.widgets.customButtonsWidget.rememberWidgetButtonIcon
 import com.tk.quicksearch.widgets.searchWidget.MicAction
+import com.tk.quicksearch.widgets.utils.BorderColorOption
 import com.tk.quicksearch.widgets.utils.TextIconColorOverride
 import com.tk.quicksearch.widgets.utils.WidgetPreferences
 import com.tk.quicksearch.widgets.utils.WidgetVariant
@@ -126,7 +127,10 @@ class SearchWidget(
                 config.theme == WidgetTheme.SYSTEM &&
                 config.backgroundColor == null &&
                 !config.useDeviceThemeBackground
-        val useResourceBackedBackground = useDynamicSystemBackground
+        // Arbitrary colors are not reliably applied by launchers through a Glance
+        // ColorProvider. Render custom borders into the background bitmap instead.
+        val useResourceBackedBackground =
+            useDynamicSystemBackground && config.borderColorOption != BorderColorOption.CUSTOM
 
         val backgroundBitmap =
             if (!hasDefaultBackground && !useResourceBackedBackground) {
@@ -244,7 +248,16 @@ class SearchWidget(
                 )
         val borderColor =
             if (borderWidthPx > 0) {
-                WidgetColorUtils.getBorderColor(config.borderColor, config.borderAlpha, effectiveTheme, config.borderColorOption)
+                if (config.borderColorOption == BorderColorOption.DEVICE_THEME && deviceThemeBackgroundColor != null) {
+                    deviceThemeBackgroundColor.copy(alpha = config.borderAlpha.coerceAtMost(0.4f))
+                } else {
+                    WidgetColorUtils.getBorderColor(
+                        config.borderColor,
+                        config.borderAlpha,
+                        effectiveTheme,
+                        config.borderColorOption,
+                    )
+                }
             } else {
                 null
             }
@@ -274,7 +287,7 @@ class SearchWidget(
                 },
             borderColorProvider =
                 if (borderWidthPx > 0) {
-                    if (useDynamicSystemColors) {
+                    if (useDynamicSystemColors && config.borderColorOption != BorderColorOption.CUSTOM) {
                         val lightBackground = WidgetColorUtils.getBackgroundColor(WidgetTheme.LIGHT, config.backgroundAlpha)
                         val darkBackground = WidgetColorUtils.getBackgroundColor(WidgetTheme.DARK, config.backgroundAlpha)
                         DayNightColorProvider(

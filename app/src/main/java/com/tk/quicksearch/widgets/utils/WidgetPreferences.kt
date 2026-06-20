@@ -37,6 +37,7 @@ enum class TextIconColorOverride(
 enum class BorderColorOption(
     val value: String,
 ) {
+    DEVICE_THEME("device_theme"),
     WHITE("white"),
     BLACK("black"),
     CUSTOM("custom"),

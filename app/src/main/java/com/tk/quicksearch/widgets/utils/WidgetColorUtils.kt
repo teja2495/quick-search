@@ -61,6 +61,8 @@ object WidgetColorUtils {
         // Keep some transparency even if the user picks a fully opaque border.
         val appliedAlpha = borderAlpha.coerceAtMost(0.4f)
         val base = when (borderColorOption) {
+            BorderColorOption.DEVICE_THEME ->
+                if (effectiveTheme == WidgetTheme.DARK) AppColors.WidgetBorder else AppColors.WidgetBorderDefault
             BorderColorOption.WHITE -> AppColors.WidgetBorder
             BorderColorOption.BLACK -> AppColors.WidgetBorderDefault
             BorderColorOption.CUSTOM -> Color(borderColor)

@@ -147,6 +147,12 @@ fun WidgetThemeSection(
                         theme = it,
                         backgroundColor = null,
                         useDeviceThemeBackground = false,
+                        borderColorOption =
+                            if (state.borderColorOption == BorderColorOption.DEVICE_THEME) {
+                                BorderColorOption.BLACK
+                            } else {
+                                state.borderColorOption
+                            },
                     ),
                 )
             },
@@ -174,6 +180,14 @@ fun WidgetThemeSection(
                             state.copy(
                                 backgroundColor = option.backgroundColorArgb,
                                 useDeviceThemeBackground = option.isDeviceTheme,
+                                borderColorOption =
+                                    when {
+                                        option.isDeviceTheme && state.borderColorOption != BorderColorOption.CUSTOM ->
+                                            BorderColorOption.DEVICE_THEME
+                                        !option.isDeviceTheme && state.borderColorOption == BorderColorOption.DEVICE_THEME ->
+                                            BorderColorOption.BLACK
+                                        else -> state.borderColorOption
+                                    },
                             ),
                         )
                     },
@@ -192,7 +206,10 @@ fun WidgetThemeSection(
                         Color.Transparent
                     },
                 selected = isCustomSelected,
-                onClick = { showCustomBgColorDialog = true },
+                onClick = {
+                    customBgHexValue = state.backgroundColor?.toHexRgb().orEmpty()
+                    showCustomBgColorDialog = true
+                },
                 label = stringResource(R.string.common_custom),
                 icon = {
                     Icon(
@@ -214,6 +231,11 @@ fun WidgetThemeSection(
         BorderColorChoiceSegmentedButtonRow(
             selectedOption = state.borderColorOption,
             customColor = customBorderColor,
+            useDeviceTheme = state.useDeviceThemeBackground,
+            onDeviceThemeClick = {
+                customBorderHexValue = ""
+                onStateChange(state.copy(borderColorOption = BorderColorOption.DEVICE_THEME))
+            },
             onWhiteClick = {
                 customBorderHexValue = ""
                 onStateChange(state.copy(borderColorOption = BorderColorOption.WHITE))
@@ -222,7 +244,11 @@ fun WidgetThemeSection(
                 customBorderHexValue = ""
                 onStateChange(state.copy(borderColorOption = BorderColorOption.BLACK))
             },
-            onCustomClick = { showCustomBorderColorDialog = true },
+            onCustomClick = {
+                customBorderHexValue =
+                    if (state.borderColorOption == BorderColorOption.CUSTOM) state.borderColor.toHexRgb() else ""
+                showCustomBorderColorDialog = true
+            },
         )
     }
 
@@ -382,6 +408,8 @@ private fun CustomBackgroundColorDialog(
         },
     )
 }
+
+private fun Int.toHexRgb(): String = String.format(java.util.Locale.US, "%06X", this and 0xFFFFFF)
 
 private data class WidgetBackgroundThemeOption(
     val backgroundColorArgb: Int,
