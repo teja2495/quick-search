@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen
 
+import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
@@ -43,6 +44,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringArrayResource
@@ -150,8 +152,12 @@ internal fun SearchScreenContent(
         onContactActionTrigger: (Long, com.tk.quicksearch.search.contacts.models.ContactCardAction) -> Unit = { _, _ -> },
 ) {
     val context = LocalContext.current
+    val configuration = LocalConfiguration.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val density = LocalDensity.current
+    val isPhysicalKeyboardConnected =
+            configuration.keyboard != Configuration.KEYBOARD_NOKEYS &&
+                    configuration.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO
     val openKeyboardOnLaunchOnStartup = remember { state.openKeyboardOnLaunch }
     var canShowOpenKeyboardPill by
             remember(isOverlayPresentation) { mutableStateOf(!isOverlayPresentation && !openKeyboardOnLaunchOnStartup) }
@@ -394,6 +400,7 @@ internal fun SearchScreenContent(
             expandedSection == ExpandedSection.NONE &&
                     !showBottomSearchBar &&
                     !isImeVisible &&
+                    !isPhysicalKeyboardConnected &&
                     canShowOpenKeyboardPill &&
                     !isSearchHistoryExpanded
 
