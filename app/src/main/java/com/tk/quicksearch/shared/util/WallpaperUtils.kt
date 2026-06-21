@@ -12,6 +12,7 @@ import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import android.webkit.MimeTypeMap
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.tk.quicksearch.search.core.BackgroundSource
@@ -134,18 +135,15 @@ object WallpaperUtils {
         runCatching {
             val dir = File(context.filesDir, "backgrounds")
             if (!dir.exists()) dir.mkdirs()
-            val dest = File(dir, "custom_background_${System.currentTimeMillis()}.jpg")
-            val bitmap =
-                decodeBitmapWithOrientation(context, sourceUri)
-                    ?: run {
-                        Log.w("WallpaperUtils", "Failed to decode selected custom background image")
-                        return@runCatching null
-                    }
+            val extension = resolveImageExtension(context, sourceUri)
+            val dest = File(dir, "custom_background_${System.currentTimeMillis()}.$extension")
             val writeSucceeded =
-                FileOutputStream(dest).use { output ->
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, STARTUP_PREVIEW_QUALITY, output)
-                }
-            bitmap.recycle()
+                context.contentResolver.openInputStream(sourceUri)?.use { input ->
+                    FileOutputStream(dest).use { output ->
+                        input.copyTo(output)
+                    }
+                    true
+                } ?: false
             if (!writeSucceeded) return@runCatching null
             if (!dest.exists() || dest.length() == 0L) return@runCatching null
             dir.listFiles { f -> f.name.startsWith("custom_background_") && f != dest }
@@ -577,6 +575,21 @@ object WallpaperUtils {
         val targetWidth = (width * scale).toInt().coerceAtLeast(1)
         val targetHeight = (height * scale).toInt().coerceAtLeast(1)
         return Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true)
+    }
+
+    private fun resolveImageExtension(
+        context: Context,
+        sourceUri: Uri,
+    ): String {
+        val mimeExtension =
+            context.contentResolver.getType(sourceUri)
+                ?.let { MimeTypeMap.getSingleton().getExtensionFromMimeType(it) }
+        if (mimeExtension != null) {
+            return mimeExtension.lowercase()
+        }
+
+        val uriPathExtension = sourceUri.lastPathSegment?.substringAfterLast('.', "")
+        return uriPathExtension?.takeIf { it.isNotBlank() }?.lowercase() ?: "jpg"
     }
 }
 

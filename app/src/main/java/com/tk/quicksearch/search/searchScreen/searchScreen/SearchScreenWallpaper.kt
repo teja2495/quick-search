@@ -145,31 +145,44 @@ internal fun SearchScreenWallpaperLogic(
                 }
             }
         }
+    val startupCustomPreviewBitmap =
+        remember(
+            context,
+            state.backgroundSource,
+            state.startupBackgroundPreviewPath,
+        ) {
+            if (state.backgroundSource == BackgroundSource.CUSTOM_IMAGE) {
+                WallpaperUtils.getStartupBackgroundPreviewBitmap(
+                    context = context,
+                    previewPath = state.startupBackgroundPreviewPath,
+                )?.asImageBitmap()
+            } else {
+                null
+            }
+        }
+
     val sourceCustomBitmap =
         produceState<ImageBitmap?>(
-            initialValue = null,
+            initialValue = startupCustomPreviewBitmap,
             key1 = state.backgroundSource,
             key2 = state.customImageUri,
             key3 = state.startupBackgroundPreviewPath,
         ) {
-            value =
-                if (state.backgroundSource == BackgroundSource.CUSTOM_IMAGE) {
-                    WallpaperUtils.getStartupBackgroundPreviewBitmap(
-                        context = context,
-                        previewPath = state.startupBackgroundPreviewPath,
-                    )?.asImageBitmap()?.also {
-                        if (!isOverlayPresentation) {
-                            onWallpaperLoaded?.invoke()
-                        }
-                    }
-                        ?: WallpaperUtils.getOverlayCustomImageBitmap(context, state.customImageUri)?.also {
-                            if (!isOverlayPresentation) {
-                                onWallpaperLoaded?.invoke()
-                            }
-                        }
-                } else {
-                    null
+            if (state.backgroundSource != BackgroundSource.CUSTOM_IMAGE) {
+                value = null
+                return@produceState
+            }
+
+            startupCustomPreviewBitmap?.let {
+                value = it
+            }
+
+            WallpaperUtils.getOverlayCustomImageBitmap(context, state.customImageUri)?.let {
+                value = it
+                if (!isOverlayPresentation) {
+                    onWallpaperLoaded?.invoke()
                 }
+            }
         }
     val imageBitmap =
         when (state.backgroundSource) {
