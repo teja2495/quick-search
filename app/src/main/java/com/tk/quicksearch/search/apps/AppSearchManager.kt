@@ -23,6 +23,9 @@ class AppSearchManager(
     private val isLowRamDevice: Boolean = false,
     initialFuzzyConfig: FuzzySearchConfig = FuzzySearchConfig.DEFAULT_APP_CONFIG,
 ) {
+    private val currentPackageName = repository.getCurrentPackageName()
+    private val defaultLauncherPackageName by lazy { repository.getDefaultLauncherPackageName() }
+
     var cachedApps: List<AppInfo> = emptyList()
         private set
 
@@ -134,7 +137,11 @@ class AppSearchManager(
         if (cachedApps.isEmpty()) return emptyList()
         val hidden = userPreferences.getSuggestionHiddenPackages()
         return cachedApps.filterNot { app ->
-            hidden.contains(app.launchCountKey()) || hidden.contains(app.packageName)
+            hidden.contains(app.launchCountKey()) ||
+                hidden.contains(app.packageName) ||
+                !app.hasLaunchIntent ||
+                app.packageName == currentPackageName ||
+                app.packageName == defaultLauncherPackageName
         }
     }
 
@@ -156,7 +163,13 @@ class AppSearchManager(
 
         return cachedApps
             .asSequence()
-            .filter { pinnedPackages.contains(it.launchCountKey()) && !exclusion.contains(it.launchCountKey()) }
+            .filter {
+                pinnedPackages.contains(it.launchCountKey()) &&
+                    !exclusion.contains(it.launchCountKey()) &&
+                    it.hasLaunchIntent &&
+                    it.packageName != currentPackageName &&
+                    it.packageName != defaultLauncherPackageName
+            }
             .sortedWith(
                 compareBy<AppInfo> { pinnedOrder[it.launchCountKey()] ?: Int.MAX_VALUE }
                     .thenBy { it.appName.lowercase(Locale.getDefault()) },

@@ -67,6 +67,7 @@ internal object StartupSurfaceSnapshotJson {
     private const val KEY_FIRST_INSTALL_TIME = "firstInstallTime"
     private const val KEY_LAST_UPDATE_TIME = "lastUpdateTime"
     private const val KEY_IS_SYSTEM_APP = "isSystemApp"
+    private const val KEY_HAS_LAUNCH_INTENT = "hasLaunchIntent"
     private const val KEY_USER_HANDLE_ID = "userHandleId"
     private const val KEY_COMPONENT_NAME = "componentName"
 
@@ -109,6 +110,7 @@ internal object StartupSurfaceSnapshotJson {
                                 put(KEY_FIRST_INSTALL_TIME, app.firstInstallTime)
                                 put(KEY_LAST_UPDATE_TIME, app.lastUpdateTime)
                                 put(KEY_IS_SYSTEM_APP, app.isSystemApp)
+                                put(KEY_HAS_LAUNCH_INTENT, app.hasLaunchIntent)
                                 app.userHandleId?.let { put(KEY_USER_HANDLE_ID, it) }
                                 app.componentName?.let { put(KEY_COMPONENT_NAME, it) }
                             },
@@ -190,6 +192,7 @@ internal object StartupSurfaceSnapshotJson {
                         launchCount = app.optInt(KEY_LAUNCH_COUNT, 0),
                         firstInstallTime = app.optLong(KEY_FIRST_INSTALL_TIME, 0L),
                         isSystemApp = app.optBoolean(KEY_IS_SYSTEM_APP, false),
+                        hasLaunchIntent = app.optBoolean(KEY_HAS_LAUNCH_INTENT, true),
                         userHandleId = app.optInt(KEY_USER_HANDLE_ID, -1).takeIf { it >= 0 },
                         componentName = app.optString(KEY_COMPONENT_NAME).takeIf { it.isNotBlank() },
                         lastUpdateTime =

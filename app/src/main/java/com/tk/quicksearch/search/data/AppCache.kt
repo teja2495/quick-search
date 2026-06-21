@@ -116,7 +116,7 @@ class AppCache(
         private const val KEY_APP_LIST = "app_list"
         private const val KEY_LAST_UPDATE = "last_update"
         private const val CACHE_FILE_NAME = "app_cache_v1.bin"
-        private const val CACHE_FILE_VERSION = 2
+        private const val CACHE_FILE_VERSION = 3
 
         // JSON field names
         private const val FIELD_APP_NAME = "appName"
@@ -127,6 +127,7 @@ class AppCache(
         private const val FIELD_FIRST_INSTALL_TIME = "firstInstallTime"
         private const val FIELD_LAST_UPDATE_TIME = "lastUpdateTime"
         private const val FIELD_IS_SYSTEM_APP = "isSystemApp"
+        private const val FIELD_HAS_LAUNCH_INTENT = "hasLaunchIntent"
         private const val FIELD_USER_HANDLE_ID = "userHandleId"
         private const val FIELD_COMPONENT_NAME = "componentName"
 
@@ -143,6 +144,7 @@ class AppCache(
                     launchCount = jsonObject.optInt(FIELD_LAUNCH_COUNT, 0),
                     firstInstallTime = jsonObject.optLong(FIELD_FIRST_INSTALL_TIME, 0L),
                     isSystemApp = jsonObject.getBoolean(FIELD_IS_SYSTEM_APP),
+                    hasLaunchIntent = jsonObject.optBoolean(FIELD_HAS_LAUNCH_INTENT, true),
                     userHandleId = userHandleId,
                     componentName = jsonObject.optString(FIELD_COMPONENT_NAME).takeIf { it.isNotBlank() },
                     lastUpdateTime =
@@ -161,6 +163,7 @@ class AppCache(
             val launchCount = readInt()
             val firstInstallTime = readLong()
             val isSystemApp = readBoolean()
+            val hasLaunchIntent = if (version >= 3) readBoolean() else true
             val userHandleId = readNullableInt()
             val componentName = readNullableString()
             val lastUpdateTime = if (version >= 2) readLong() else firstInstallTime
@@ -172,6 +175,7 @@ class AppCache(
                 launchCount = launchCount,
                 firstInstallTime = firstInstallTime,
                 isSystemApp = isSystemApp,
+                hasLaunchIntent = hasLaunchIntent,
                 userHandleId = userHandleId,
                 componentName = componentName,
                 lastUpdateTime = lastUpdateTime,
@@ -186,6 +190,7 @@ class AppCache(
             writeInt(app.launchCount)
             writeLong(app.firstInstallTime)
             writeBoolean(app.isSystemApp)
+            writeBoolean(app.hasLaunchIntent)
             writeNullableInt(app.userHandleId)
             writeNullableString(app.componentName)
             writeLong(app.lastUpdateTime)

@@ -232,6 +232,8 @@
     <string name="top_matches_toggle_desc">Die besten Ergebnisse aller Typen oben anzeigen.</string>
     <string name="top_result_indicator_toggle_desc">Das beste Ergebnis hervorheben, das per Tastatur geöffnet werden kann.</string>
     <string name="top_result_indicator_toggle_title">Anzeige des Top-Ergebnisses</string>
+    <string name="include_non_launchable_apps_toggle_title">Nicht startbare Apps</string>
+    <string name="include_non_launchable_apps_toggle_desc">Apps ohne Start-Aktivität in den Suchergebnissen anzeigen.</string>
     <string name="web_search_suggestions_title">Web-Vorschläge</string>
 
     <!-- ============================================================================

@@ -3,6 +3,7 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Keyboard
@@ -29,6 +30,12 @@ fun MoreOptionsSettings(
 
     val toggleItems =
         listOf(
+            ToggleItem(
+                key = AppSettingsToggleKey.INCLUDE_NON_LAUNCHABLE_APPS_IN_SEARCH,
+                titleRes = R.string.include_non_launchable_apps_toggle_title,
+                subtitleRes = R.string.include_non_launchable_apps_toggle_desc,
+                leadingIcon = Icons.Rounded.Apps,
+            ),
             ToggleItem(
                 key = AppSettingsToggleKey.TOP_RESULT_INDICATOR,
                 titleRes = R.string.top_result_indicator_toggle_title,

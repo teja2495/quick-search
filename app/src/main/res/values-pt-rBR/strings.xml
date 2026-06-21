@@ -232,6 +232,8 @@
     <string name="top_matches_toggle_desc">Mostrar os resultados de melhor correspondência de todos os tipos no topo.</string>
     <string name="top_result_indicator_toggle_desc">Destacar o principal resultado que pode ser aberto com o teclado.</string>
     <string name="top_result_indicator_toggle_title">Indicador do principal resultado</string>
+    <string name="include_non_launchable_apps_toggle_title">Aplicativos não inicializáveis</string>
+    <string name="include_non_launchable_apps_toggle_desc">Incluir aplicativos que não possuem uma atividade de inicialização nos resultados de pesquisa.</string>
     <string name="web_search_suggestions_title">Sugestões da web</string>
 
     <!-- ============================================================================

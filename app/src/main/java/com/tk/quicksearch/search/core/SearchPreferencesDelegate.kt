@@ -148,6 +148,17 @@ internal class SearchPreferencesDelegate(
         )
     }
 
+    fun setIncludeNonLaunchableAppsInSearch(enabled: Boolean) {
+        updateBooleanPreference(
+            value = enabled,
+            preferenceSetter = userPreferences::setIncludeNonLaunchableAppsInSearch,
+            stateUpdater = {
+                updateConfigState { state -> state.copy(includeNonLaunchableAppsInSearch = it) }
+                refreshAppSuggestions()
+            },
+        )
+    }
+
     fun setSelectedAppSuggestionTab(tab: AppSuggestionTabType) {
         scope.launch(Dispatchers.IO) {
             userPreferences.setSelectedAppSuggestionTab(tab)

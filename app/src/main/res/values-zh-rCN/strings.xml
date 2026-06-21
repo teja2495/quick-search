@@ -232,6 +232,8 @@
     <string name="top_matches_toggle_desc">在顶部展示跨越所有类型的最佳匹配结果。</string>
     <string name="top_result_indicator_toggle_desc">高亮显示可通过键盘直接打开的最佳结果。</string>
     <string name="top_result_indicator_toggle_title">最佳结果指示器</string>
+    <string name="include_non_launchable_apps_toggle_title">不可启动的应用</string>
+    <string name="include_non_launchable_apps_toggle_desc">在搜索结果中包含没有启动 Activity 的应用。</string>
     <string name="web_search_suggestions_title">网络联想建议</string>
 
     <!-- ============================================================================

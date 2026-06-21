@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -84,32 +85,41 @@ fun AppItemDropdownMenu(
     onTriggerClick: () -> Unit,
     onAddToHome: () -> Unit,
 ) {
+    val context = LocalContext.current
+    val isCurrentApp = appInfo.packageName == context.packageName
+    val isLaunchableApp = appInfo.hasLaunchIntent
     val menuItems = buildList {
-        add(AppMenuItem(
-            textResId = if (isPinned) R.string.action_unpin_app else R.string.action_pin_app,
-            icon = {
-                Icon(
-                    painter = painterResource(if (isPinned) R.drawable.ic_unpin else R.drawable.ic_pin),
-                    contentDescription = null,
-                )
-            },
-            onClick = { onDismiss(); if (isPinned) onUnpinApp() else onPinApp() },
-        ))
-        add(AppMenuItem(
-            textResId = if (hasNickname) R.string.action_edit_nickname else R.string.common_nickname,
-            icon = { Icon(imageVector = Icons.Rounded.Edit, contentDescription = null) },
-            onClick = { onDismiss(); onNicknameClick() },
-        ))
-        add(AppMenuItem(
-            textResId = if (hasTrigger) R.string.action_edit_trigger else R.string.action_add_trigger,
-            icon = { Icon(imageVector = Icons.Rounded.Bolt, contentDescription = null) },
-            onClick = { onDismiss(); onTriggerClick() },
-        ))
-        add(AppMenuItem(
-            textResId = R.string.action_add_to_home,
-            icon = { Icon(imageVector = Icons.Rounded.Home, contentDescription = null) },
-            onClick = { onDismiss(); onAddToHome() },
-        ))
+        if (!isCurrentApp && isLaunchableApp) {
+            add(AppMenuItem(
+                textResId = if (isPinned) R.string.action_unpin_app else R.string.action_pin_app,
+                icon = {
+                    Icon(
+                        painter = painterResource(if (isPinned) R.drawable.ic_unpin else R.drawable.ic_pin),
+                        contentDescription = null,
+                    )
+                },
+                onClick = { onDismiss(); if (isPinned) onUnpinApp() else onPinApp() },
+            ))
+        }
+        if (!isCurrentApp) {
+            add(AppMenuItem(
+                textResId = if (hasNickname) R.string.action_edit_nickname else R.string.common_nickname,
+                icon = { Icon(imageVector = Icons.Rounded.Edit, contentDescription = null) },
+                onClick = { onDismiss(); onNicknameClick() },
+            ))
+            add(AppMenuItem(
+                textResId = if (hasTrigger) R.string.action_edit_trigger else R.string.action_add_trigger,
+                icon = { Icon(imageVector = Icons.Rounded.Bolt, contentDescription = null) },
+                onClick = { onDismiss(); onTriggerClick() },
+            ))
+        }
+        if (isLaunchableApp) {
+            add(AppMenuItem(
+                textResId = R.string.action_add_to_home,
+                icon = { Icon(imageVector = Icons.Rounded.Home, contentDescription = null) },
+                onClick = { onDismiss(); onAddToHome() },
+            ))
+        }
         add(AppMenuItem(
             textResId = R.string.action_app_info,
             icon = { Icon(imageVector = Icons.Rounded.Info, contentDescription = null) },

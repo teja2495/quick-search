@@ -71,6 +71,13 @@ class NavigationHandler(
         appInfo: AppInfo,
         shouldTrackRecentFallback: Boolean,
     ) {
+        if (!appInfo.hasLaunchIntent) {
+            IntentHelpers.openAppInfo(application, appInfo.packageName)
+            onExternalNavigation()
+            onClearQuery()
+            return
+        }
+
         IntentHelpers.launchApp(application, appInfo) { stringResId, formatArg ->
             showToastCallback(stringResId, formatArg)
         }

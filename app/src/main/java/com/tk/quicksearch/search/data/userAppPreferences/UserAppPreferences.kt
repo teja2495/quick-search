@@ -1192,6 +1192,12 @@ class UserAppPreferences(
 
     fun setAppSuggestionsEnabled(enabled: Boolean) = uiPreferences.setAppSuggestionsEnabled(enabled)
 
+    fun shouldIncludeNonLaunchableAppsInSearch(): Boolean =
+            uiPreferences.shouldIncludeNonLaunchableAppsInSearch()
+
+    fun setIncludeNonLaunchableAppsInSearch(enabled: Boolean) =
+            uiPreferences.setIncludeNonLaunchableAppsInSearch(enabled)
+
     fun getSelectedAppSuggestionTab(): AppSuggestionTabType =
             uiPreferences.getSelectedAppSuggestionTab()
 

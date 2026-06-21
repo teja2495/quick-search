@@ -232,6 +232,8 @@
 <string name="top_matches_toggle_desc">Afficher les meilleurs résultats de tous les types en haut de la page.</string>
 <string name="top_result_indicator_toggle_desc">Mettre en surbrillance le premier résultat qui peut être ouvert avec le clavier.</string>
 <string name="top_result_indicator_toggle_title">Indicateur du premier résultat</string>
+<string name="include_non_launchable_apps_toggle_title">Applications non lançables</string>
+<string name="include_non_launchable_apps_toggle_desc">Inclure les applications sans activité de lancement dans les résultats de recherche.</string>
 <string name="web_search_suggestions_title">Suggestions Web</string>
 
 <!-- ============================================================================

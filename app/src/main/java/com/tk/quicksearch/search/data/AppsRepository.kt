@@ -5,6 +5,7 @@ import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager.ApplicationInfoFlags
 import android.content.pm.LauncherActivityInfo
 import android.content.pm.LauncherApps
 import android.content.pm.PackageManager
@@ -67,37 +68,22 @@ class AppsRepository(
      */
     suspend fun loadLaunchableApps(launchCounts: Map<String, Int> = emptyMap()): List<AppInfo> {
         val usageMap = queryUsageStatsMap()
-        val currentPackageName = context.packageName
-        val defaultLauncherPackageName = getDefaultLauncherPackageName()
-
-        val activityInfos = queryLaunchableAppsFromAllProfiles()
-        val apps =
-            if (activityInfos.isNotEmpty()) {
-                activityInfos
-                    .distinctBy { "${it.applicationInfo.packageName}_${UserHandleUtils.getIdentifier(it.user)}" }
-                    .filter {
-                        val packageName = it.applicationInfo.packageName
-                        shouldIncludeInSearch(
-                            packageName = packageName,
-                            currentPackageName = currentPackageName,
-                            defaultLauncherPackageName = defaultLauncherPackageName,
-                        )
-                    }
-                    .map { createAppInfo(it, usageMap, launchCounts) }
-            } else {
-                val resolveInfos = queryLaunchableAppsLegacy()
-                resolveInfos
+        val launchableApps =
+            queryLaunchableAppsFromAllProfiles()
+                .takeIf { it.isNotEmpty() }
+                ?.distinctBy { "${it.applicationInfo.packageName}_${UserHandleUtils.getIdentifier(it.user)}" }
+                ?.map { createAppInfo(it, usageMap, launchCounts) }
+                ?: queryLaunchableAppsLegacy()
                     .distinctBy { it.activityInfo.packageName }
-                    .filter {
-                        val pkg = it.activityInfo.packageName
-                        shouldIncludeInSearch(
-                            packageName = pkg,
-                            currentPackageName = currentPackageName,
-                            defaultLauncherPackageName = defaultLauncherPackageName,
-                        )
-                    }
                     .map { createAppInfo(it, usageMap, launchCounts) }
-            }
+        val launchableKeys = launchableApps.map { it.launchCountKey() }.toSet()
+        val nonLaunchableApps =
+            queryInstalledApplications()
+                .asSequence()
+                .filter { !launchableKeys.contains(it.packageName) }
+                .map { createNonLaunchableAppInfo(it, usageMap, launchCounts) }
+                .toList()
+        val apps = launchableApps + nonLaunchableApps
 
         appCache.saveApps(apps.sortedWith(AppInfoComparator))
         return apps.sortedWith(AppInfoComparator)
@@ -163,7 +149,19 @@ class AppsRepository(
         }
     }
 
-    private fun getDefaultLauncherPackageName(): String? {
+    private fun queryInstalledApplications(): List<ApplicationInfo> =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            packageManager.getInstalledApplications(
+                ApplicationInfoFlags.of(PackageManager.MATCH_ALL.toLong()),
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            packageManager.getInstalledApplications(PackageManager.MATCH_ALL)
+        }
+
+    fun getCurrentPackageName(): String = context.packageName
+
+    fun getDefaultLauncherPackageName(): String? {
         val homeIntent =
             Intent(Intent.ACTION_MAIN).apply {
                 addCategory(Intent.CATEGORY_HOME)
@@ -182,23 +180,6 @@ class AppsRepository(
 
         val packageName = resolveInfo?.activityInfo?.packageName
         return packageName?.takeIf { it.isNotBlank() && it != "android" }
-    }
-
-    private fun shouldIncludeInSearch(
-        packageName: String,
-        currentPackageName: String,
-        defaultLauncherPackageName: String?,
-    ): Boolean {
-        if (packageName == currentPackageName || packageName == defaultLauncherPackageName) {
-            return false
-        }
-
-        // Hide internal benchmark/test companion targets from normal app search results.
-        if (packageName == "$currentPackageName.benchmark") {
-            return false
-        }
-
-        return true
     }
 
     private fun createAppInfo(
@@ -238,6 +219,7 @@ class AppsRepository(
             launchCount = launchCount,
             firstInstallTime = firstInstallTime,
             isSystemApp = isSystemApp,
+            hasLaunchIntent = true,
             userHandleId = userHandleId,
             componentName = info.componentName.flattenToString(),
             lastUpdateTime = lastUpdateTime,
@@ -271,8 +253,46 @@ class AppsRepository(
             launchCount = launchCount,
             firstInstallTime = firstInstallTime,
             isSystemApp = isSystemApp,
+            hasLaunchIntent = true,
             userHandleId = null,
             componentName = "${resolveInfo.activityInfo.packageName}/${resolveInfo.activityInfo.name}",
+            lastUpdateTime = lastUpdateTime,
+        )
+    }
+
+    private fun createNonLaunchableAppInfo(
+        applicationInfo: ApplicationInfo,
+        usageMap: Map<String, UsageStats>,
+        launchCounts: Map<String, Int>,
+    ): AppInfo {
+        val packageName = applicationInfo.packageName
+        val label =
+            runCatching { packageManager.getApplicationLabel(applicationInfo)?.toString() }
+                .getOrNull()
+                ?.takeIf { it.isNotBlank() }
+                ?: applicationInfo.nonLocalizedLabel
+                    ?.toString()
+                    ?.takeIf { it.isNotBlank() }
+                    ?: formatPackageNameAsLabel(packageName)
+        val stats = usageMap[packageName]
+        val lastUsedTime = stats?.lastTimeUsed ?: 0L
+        val totalTimeInForeground = stats?.totalTimeInForeground ?: 0L
+        val launchCount = resolveLaunchCount(stats, launchCounts[packageName] ?: 0)
+        val firstInstallTime = getFirstInstallTime(packageName)
+        val lastUpdateTime = getLastUpdateTime(packageName)
+        val isSystemApp = (applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+
+        return AppInfo(
+            appName = label,
+            packageName = packageName,
+            lastUsedTime = lastUsedTime,
+            totalTimeInForeground = totalTimeInForeground,
+            launchCount = launchCount,
+            firstInstallTime = firstInstallTime,
+            isSystemApp = isSystemApp,
+            hasLaunchIntent = false,
+            userHandleId = null,
+            componentName = null,
             lastUpdateTime = lastUpdateTime,
         )
     }

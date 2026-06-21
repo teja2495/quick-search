@@ -623,7 +623,10 @@ private fun TopMatchAppRow(
             expanded = showOptions,
             onDismiss = { showOptions = false },
             isPinned = params.pinnedPackageNames.contains(app.launchCountKey()),
-            showUninstall = !app.isSystemApp && app.userHandleId == null,
+            showUninstall =
+                !app.isSystemApp &&
+                    app.userHandleId == null &&
+                    app.packageName != context.packageName,
             hasNickname = !params.getAppNickname(app.packageName).isNullOrBlank(),
             hasTrigger = params.getAppTrigger(app.packageName)?.word?.isNotBlank() == true,
             shortcuts = shortcuts,

@@ -231,6 +231,8 @@
     <string name="top_matches_toggle_desc">Mostra in alto i risultati con la migliore corrispondenza tra tutte le categorie.</string>
     <string name="top_result_indicator_toggle_desc">Evidenzia il primo risultato che può essere aperto direttamente con la tastiera.</string>
     <string name="top_result_indicator_toggle_title">Indicatore miglior risultato</string>
+    <string name="include_non_launchable_apps_toggle_title">App non avviabili</string>
+    <string name="include_non_launchable_apps_toggle_desc">Includi le app che non hanno un\'attività di avvio nei risultati di ricerca.</string>
     <string name="web_search_suggestions_title">Suggerimenti web</string>
 
     <!-- ============================================================================

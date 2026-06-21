@@ -231,6 +231,8 @@
 <string name="top_matches_toggle_desc">Tüm türlerdeki en iyi eşleşen sonuçları en üstte göster.</string>
 <string name="top_result_indicator_toggle_desc">Klavye ile açılabilecek en üstteki sonucu vurgula.</string>
 <string name="top_result_indicator_toggle_title">En iyi sonuç göstergesi</string>
+<string name="include_non_launchable_apps_toggle_title">Başlatılamayan Uygulamalar</string>
+<string name="include_non_launchable_apps_toggle_desc">Arama sonuçlarında başlatma etkinliği olmayan uygulamaları da göster.</string>
 <string name="web_search_suggestions_title">Web önerileri</string>
 
 <!-- ============================================================================

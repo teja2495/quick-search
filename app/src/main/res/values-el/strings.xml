@@ -232,6 +232,8 @@
     <string name="top_matches_toggle_desc">Εμφάνιση των κορυφαίων αποτελεσμάτων από όλους τους τύπους στο πάνω μέρος.</string>
     <string name="top_result_indicator_toggle_desc">Επισήμανση του κορυφαίου αποτελέσματος που μπορεί να ανοίξει με το πληκτρολόγιο.</string>
     <string name="top_result_indicator_toggle_title">Δείκτης κορυφαίου αποτελέσματος</string>
+    <string name="include_non_launchable_apps_toggle_title">Μη εκκινήσιμες εφαρμογές</string>
+    <string name="include_non_launchable_apps_toggle_desc">Συμπερίληψη εφαρμογών που δεν έχουν δραστηριότητα εκκίνησης στα αποτελέσματα αναζήτησης.</string>
     <string name="web_search_suggestions_title">Προτάσεις ιστού</string>
 
     <!-- ============================================================================

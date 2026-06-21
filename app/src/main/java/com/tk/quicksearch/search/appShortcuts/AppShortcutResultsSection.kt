@@ -531,7 +531,7 @@ private fun AppShortcutDropdownMenu(
                         icon = { Icon(imageVector = Icons.Rounded.Info, contentDescription = null) },
                         onClick = { onDismissRequest(); onAppInfoClick() },
                 ))
-                if (!isUserCreated) {
+                if (!isUserCreated && shortcut.packageName != context.packageName) {
                         add(AppShortcutMenuItem(
                                 textResId = R.string.action_uninstall_app,
                                 icon = { Icon(imageVector = Icons.Rounded.Delete, contentDescription = null) },

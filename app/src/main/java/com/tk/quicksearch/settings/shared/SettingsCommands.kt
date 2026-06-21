@@ -89,6 +89,8 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
                 AppSettingsToggleKey.UNIT_CONVERTER -> setUnitConverterEnabled(command.enabled)
                 AppSettingsToggleKey.DATE_CALCULATOR -> setDateCalculatorEnabled(command.enabled)
                 AppSettingsToggleKey.APP_SUGGESTIONS -> setAppSuggestionsEnabled(command.enabled)
+                AppSettingsToggleKey.INCLUDE_NON_LAUNCHABLE_APPS_IN_SEARCH ->
+                    setIncludeNonLaunchableAppsInSearch(command.enabled)
                 AppSettingsToggleKey.WEB_SUGGESTIONS -> setWebSuggestionsEnabled(command.enabled)
                 AppSettingsToggleKey.RECENT_QUERIES -> setRecentQueriesEnabled(command.enabled)
                 AppSettingsToggleKey.TOP_MATCHES -> setTopMatchesEnabled(command.enabled)
@@ -175,6 +177,8 @@ internal fun SearchUiState.isAppSettingToggleEnabled(toggleKey: AppSettingsToggl
         AppSettingsToggleKey.UNIT_CONVERTER -> unitConverterEnabled
         AppSettingsToggleKey.DATE_CALCULATOR -> dateCalculatorEnabled
         AppSettingsToggleKey.APP_SUGGESTIONS -> appSuggestionsEnabled
+        AppSettingsToggleKey.INCLUDE_NON_LAUNCHABLE_APPS_IN_SEARCH ->
+            includeNonLaunchableAppsInSearch
         AppSettingsToggleKey.WEB_SUGGESTIONS -> webSuggestionsEnabled
         AppSettingsToggleKey.RECENT_QUERIES -> recentQueriesEnabled
         AppSettingsToggleKey.TOP_MATCHES -> topMatchesEnabled

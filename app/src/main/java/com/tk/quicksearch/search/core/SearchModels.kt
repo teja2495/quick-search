@@ -537,6 +537,7 @@ data class SearchUiState(
         val themedIconsEnabled: Boolean = true,
         val deviceThemeEnabled: Boolean = false,
         val appSuggestionsEnabled: Boolean = true,
+        val includeNonLaunchableAppsInSearch: Boolean = false,
         val selectedAppSuggestionTab: AppSuggestionTabType = AppSuggestionTabType.RECENTS,
         val enabledAppSuggestionTabs: Set<AppSuggestionTabType> = AppSuggestionTabType.DefaultEnabledTabs,
         // Section visibility preferences
@@ -787,6 +788,7 @@ fun SearchUiState(
                 themedIconsEnabled = config.themedIconsEnabled,
                 deviceThemeEnabled = config.deviceThemeEnabled,
                 appSuggestionsEnabled = config.appSuggestionsEnabled,
+                includeNonLaunchableAppsInSearch = config.includeNonLaunchableAppsInSearch,
                 selectedAppSuggestionTab = config.selectedAppSuggestionTab,
                 enabledAppSuggestionTabs = config.enabledAppSuggestionTabs,
                 selectedIconPackPackage = config.selectedIconPackPackage,

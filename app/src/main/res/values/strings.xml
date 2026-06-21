@@ -222,6 +222,8 @@
     <string name="top_matches_toggle_desc">Show top matched results across all types at the top.</string>
     <string name="top_result_indicator_toggle_desc">Highlight the top result that can be opened with the keyboard.</string>
     <string name="top_result_indicator_toggle_title">Top Result Indicator</string>
+    <string name="include_non_launchable_apps_toggle_title">Non-Launchable Apps</string>
+    <string name="include_non_launchable_apps_toggle_desc">Include apps that don’t have a launch activity in search results.</string>
     <string name="web_search_suggestions_title">Web Suggestions</string>
 
     <!-- ============================================================================

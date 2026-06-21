@@ -55,6 +55,7 @@ class StartupPreferencesFacade(
             val resultHiddenPackages: Set<String>,
             val searchHistoryEnabled: Boolean,
             val appSuggestionsEnabled: Boolean,
+            val includeNonLaunchableAppsInSearch: Boolean,
             val selectedAppSuggestionTab: AppSuggestionTabType,
             val enabledAppSuggestionTabs: Set<AppSuggestionTabType>,
             val showAppLabels: Boolean,
@@ -402,6 +403,13 @@ class StartupPreferencesFacade(
                         ] as?
                                 Boolean
                                 ?: true,
+                includeNonLaunchableAppsInSearch =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.UiPreferences
+                                        .KEY_INCLUDE_NON_LAUNCHABLE_APPS_IN_SEARCH,
+                        ] as?
+                                Boolean
+                                ?: false,
                 selectedAppSuggestionTab =
                         (
                                 allPrefs[
@@ -816,6 +824,13 @@ class StartupPreferencesFacade(
                                 ] as?
                                         Boolean
                                 ?: true,
+                        includeNonLaunchableAppsInSearch =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .KEY_INCLUDE_NON_LAUNCHABLE_APPS_IN_SEARCH,
+                                ] as?
+                                        Boolean
+                                ?: false,
                         selectedAppSuggestionTab =
                                 (
                                         allPrefs[
