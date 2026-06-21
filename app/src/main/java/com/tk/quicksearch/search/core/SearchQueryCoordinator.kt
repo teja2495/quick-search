@@ -366,6 +366,7 @@ internal class SearchQueryCoordinator(
                 aiSearchState.activeQuery != trimmedQuery)
         ) {
             handlers.aiSearchHandler.clearAiSearchState()
+            updateResultsState { it.copy(AiSearchState = AiSearchState()) }
         }
 
         val currencyState = currentResultsStateProvider().currencyConverterState

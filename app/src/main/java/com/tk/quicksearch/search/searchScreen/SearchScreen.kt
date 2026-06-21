@@ -121,6 +121,7 @@ fun SearchScreen(
     onSearchTargetClick: (String, SearchTarget) -> Unit,
     onSearchEngineLongPress: () -> Unit,
     onAiSearchEmailClick: (String) -> Unit,
+    onRecentQueryClick: (RecentSearchEntry.Query) -> Unit,
     onSetPersonalContext: (String?) -> Unit = {},
     onSetGeminiModel: (String?) -> Unit = {},
     onSetGeminiGroundingEnabled: (Boolean) -> Unit = {},
@@ -478,6 +479,7 @@ fun SearchScreen(
                 onCallContact(tempContact)
             },
             onWebSuggestionClick = onWebSuggestionClick,
+            onRecentQueryClick = onRecentQueryClick,
             onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
             onOpenAiSearchConfigure = onOpenAiSearchConfigure,
             onDeleteRecentItem = onDeleteRecentItem,

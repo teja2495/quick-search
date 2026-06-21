@@ -89,7 +89,7 @@ internal class SearchHistoryDelegate(
                 buildList {
                     entries.forEach { entry ->
                         when (entry) {
-                            is RecentSearchEntry.Query -> add(RecentSearchItem.Query(entry.trimmedQuery))
+                            is RecentSearchEntry.Query -> add(RecentSearchItem.Query(entry))
                             is RecentSearchEntry.Contact -> {
                                 contactsById[entry.contactId]?.let {
                                     if (entry.contactId !in pinnedContactIds) {

@@ -266,6 +266,7 @@ class AiSearchHandler(
                     status = AiSearchStatus.Error,
                     errorMessage = context.getString(R.string.direct_search_error_no_key),
                     activeQuery = trimmedQuery,
+                    llmProviderId = activeProviderId,
                 )
             }
             return
@@ -278,6 +279,7 @@ class AiSearchHandler(
                     AiSearchState(
                         status = AiSearchStatus.Loading,
                         activeQuery = trimmedQuery,
+                        llmProviderId = activeProviderId,
                     )
                 }
 
@@ -318,6 +320,7 @@ class AiSearchHandler(
                                 answer = answer,
                                 activeQuery = trimmedQuery,
                                 usedModelId = selectedModelId,
+                                llmProviderId = activeProviderId,
                             )
                         }
                     }
@@ -349,6 +352,7 @@ class AiSearchHandler(
                                 status = AiSearchStatus.Error,
                                 errorMessage = message,
                                 activeQuery = trimmedQuery,
+                                llmProviderId = activeProviderId,
                             )
                         }
                     }
@@ -375,6 +379,7 @@ class AiSearchHandler(
                     status = AiSearchStatus.Error,
                     errorMessage = context.getString(R.string.direct_search_error_no_key),
                     activeQuery = trimmedQuery,
+                    llmProviderId = providerId,
                 )
             }
             return
@@ -387,6 +392,7 @@ class AiSearchHandler(
                     AiSearchState(
                         status = AiSearchStatus.Loading,
                         activeQuery = trimmedQuery,
+                        llmProviderId = providerId,
                     )
                 }
 
@@ -429,6 +435,7 @@ class AiSearchHandler(
                                 answer = answer,
                                 activeQuery = trimmedQuery,
                                 usedModelId = modelId,
+                                llmProviderId = providerId,
                             )
                         }
                     }
@@ -460,6 +467,7 @@ class AiSearchHandler(
                                 status = AiSearchStatus.Error,
                                 errorMessage = message,
                                 activeQuery = trimmedQuery,
+                                llmProviderId = providerId,
                             )
                         }
                     }

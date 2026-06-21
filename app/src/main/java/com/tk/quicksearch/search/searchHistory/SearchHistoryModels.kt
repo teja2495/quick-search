@@ -6,6 +6,7 @@ import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.NoteInfo
+import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import org.json.JSONObject
 
 enum class SearchHistoryTab {
@@ -18,9 +19,14 @@ sealed class RecentSearchEntry {
 
     data class Query(
         val query: String,
+        val aiAnswer: String? = null,
+        val aiUsedModelId: String? = null,
+        val aiLlmProviderId: AiSearchLlmProviderId? = null,
     ) : RecentSearchEntry() {
         val trimmedQuery = query.trim()
         override val stableKey: String = "query:$trimmedQuery"
+        val hasAiSnapshot: Boolean =
+            !aiAnswer.isNullOrBlank() && aiLlmProviderId != null
     }
 
     data class Contact(
@@ -65,6 +71,9 @@ sealed class RecentSearchEntry {
             is Query -> {
                 json.put(FIELD_TYPE, TYPE_QUERY)
                 json.put(FIELD_QUERY, trimmedQuery)
+                aiAnswer?.takeIf { it.isNotBlank() }?.let { json.put(FIELD_AI_ANSWER, it) }
+                aiUsedModelId?.takeIf { it.isNotBlank() }?.let { json.put(FIELD_AI_USED_MODEL_ID, it) }
+                aiLlmProviderId?.let { json.put(FIELD_AI_LLM_PROVIDER_ID, it.storageValue) }
             }
 
             is Contact -> {
@@ -108,6 +117,9 @@ sealed class RecentSearchEntry {
         private const val FIELD_SETTING_ID = "settingId"
         private const val FIELD_SHORTCUT_KEY = "shortcutKey"
         private const val FIELD_NOTE_ID = "noteId"
+        private const val FIELD_AI_ANSWER = "aiAnswer"
+        private const val FIELD_AI_USED_MODEL_ID = "aiUsedModelId"
+        private const val FIELD_AI_LLM_PROVIDER_ID = "aiLlmProviderId"
 
         private const val TYPE_QUERY = "query"
         private const val TYPE_CONTACT = "contact"
@@ -128,7 +140,22 @@ sealed class RecentSearchEntry {
                             json
                                 .optString(FIELD_QUERY)
                                 .takeIf { it.isNotBlank() }
-                                ?.let { Query(it) }
+                                ?.let { query ->
+                                    Query(
+                                        query = query,
+                                        aiAnswer =
+                                            json.optString(FIELD_AI_ANSWER).takeIf { it.isNotBlank() },
+                                        aiUsedModelId =
+                                            json
+                                                .optString(FIELD_AI_USED_MODEL_ID)
+                                                .takeIf { it.isNotBlank() },
+                                        aiLlmProviderId =
+                                            json
+                                                .optString(FIELD_AI_LLM_PROVIDER_ID)
+                                                .takeIf { it.isNotBlank() }
+                                                ?.let(AiSearchLlmProviderId::fromStorageValue),
+                                    )
+                                }
                         }
 
                         TYPE_CONTACT -> {
@@ -188,8 +215,11 @@ sealed class RecentSearchItem(
     open val entry: RecentSearchEntry,
 ) {
     data class Query(
-        val value: String,
-    ) : RecentSearchItem(RecentSearchEntry.Query(value))
+        override val entry: RecentSearchEntry.Query,
+    ) : RecentSearchItem(entry) {
+        val value: String
+            get() = entry.trimmedQuery
+    }
 
     data class Contact(
         override val entry: RecentSearchEntry.Contact,

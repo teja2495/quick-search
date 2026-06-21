@@ -82,6 +82,7 @@ fun ContentLayout(
     onEmailClick: (String) -> Unit = {},
     onOpenPersonalContextDialog: () -> Unit = {},
     onWebSuggestionClick: (String) -> Unit = {},
+    onRecentQueryClick: (RecentSearchEntry.Query) -> Unit = {},
     onSearchEngineLongPress: () -> Unit = {},
     onCustomizeSearchEnginesClick: () -> Unit = {},
     onOpenAiSearchConfigure: () -> Unit = {},
@@ -249,6 +250,7 @@ fun ContentLayout(
                 shouldRenderAppShortcuts = false,
                 shouldRenderSettings = false,
                 shouldRenderCalendar = false,
+                todayCalendarEventsList = emptyList(),
                 shouldRenderNotes = false,
             )
         } else {
@@ -426,7 +428,7 @@ fun ContentLayout(
                         settingsParams = effectiveSettingsParams,
                         appShortcutsParams = effectiveAppShortcutsParams,
                         notesParams = notesParams,
-                        onWebSuggestionClick = onWebSuggestionClick,
+                        onRecentQueryClick = onRecentQueryClick,
                         onDeleteRecentItem = onDeleteRecentItem,
                         expandedCardMaxHeight = expandedCardMaxHeight,
                         showWallpaperBackground = effectiveShowWallpaperBackground,
@@ -568,7 +570,7 @@ fun ContentLayout(
                                         ?: MessagingApp
                                             .MESSAGES,
                                 onRecentQueryClick =
-                                onWebSuggestionClick,
+                                onRecentQueryClick,
                                 onContactClick =
                                     effectiveContactsParams
                                         .onContactClick,
@@ -757,7 +759,7 @@ private fun AliasRecentItemsSection(
     settingsParams: SettingsSectionParams,
     appShortcutsParams: AppShortcutsSectionParams,
     notesParams: NotesSectionParams,
-    onWebSuggestionClick: (String) -> Unit,
+    onRecentQueryClick: (RecentSearchEntry.Query) -> Unit,
     onDeleteRecentItem: (RecentSearchEntry) -> Unit,
     expandedCardMaxHeight: Dp,
     showWallpaperBackground: Boolean,
@@ -767,7 +769,7 @@ private fun AliasRecentItemsSection(
         items = items,
         callingApp = contactsParams.callingApp ?: CallingApp.CALL,
         messagingApp = contactsParams.messagingApp ?: MessagingApp.MESSAGES,
-        onRecentQueryClick = onWebSuggestionClick,
+        onRecentQueryClick = onRecentQueryClick,
         onContactClick = contactsParams.onContactClick,
         onShowContactMethods = contactsParams.onShowContactMethods,
         onCallContact = contactsParams.onCallContact,

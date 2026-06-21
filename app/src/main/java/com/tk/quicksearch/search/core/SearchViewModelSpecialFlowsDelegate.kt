@@ -74,6 +74,20 @@ internal class SearchViewModelSpecialFlowsDelegate(
                     }
                     setShouldRecordPendingAiSearchQueryInHistory(true)
                 }
+                if (aiState.status == AiSearchStatus.Success) {
+                    val activeQuery = aiState.activeQuery?.trim().orEmpty()
+                    val answer = aiState.answer?.trim().orEmpty()
+                    if (activeQuery.isNotEmpty() && answer.isNotEmpty()) {
+                        userPreferences.addRecentItem(
+                            RecentSearchEntry.Query(
+                                query = activeQuery,
+                                aiAnswer = answer,
+                                aiUsedModelId = aiState.usedModelId,
+                                aiLlmProviderId = aiState.llmProviderId,
+                            ),
+                        )
+                    }
+                }
                 if (aiState.status != AiSearchStatus.Idle) {
                     clearInformationCardsExcept(SearchViewModel.ActiveInformationCard.AI_SEARCH)
                 }

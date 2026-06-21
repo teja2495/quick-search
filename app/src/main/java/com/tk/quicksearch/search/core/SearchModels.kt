@@ -181,6 +181,7 @@ data class AiSearchState(
         val errorMessage: String? = null,
         val activeQuery: String? = null,
         val usedModelId: String? = null,
+        val llmProviderId: AiSearchLlmProviderId? = null,
 )
 
 data class CurrencyConverterState(

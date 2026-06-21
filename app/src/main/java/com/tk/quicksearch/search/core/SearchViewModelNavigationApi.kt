@@ -65,6 +65,8 @@ internal interface SearchViewModelNavigationApi {
     fun launchAppShortcut(shortcut: StaticShortcut) = navigationApiDelegate.launchAppShortcut(shortcut)
 
     fun onWebSuggestionTap(suggestion: String) = navigationApiDelegate.onWebSuggestionTap(suggestion)
+
+    fun onRecentQueryTap(entry: RecentSearchEntry.Query) = navigationApiDelegate.onRecentQueryTap(entry)
 }
 
 class SearchViewModelNavigationApiDelegate internal constructor(
@@ -155,5 +157,29 @@ class SearchViewModelNavigationApiDelegate internal constructor(
             onQueryChange(suggestion)
         }
         updateResultsState { it.copy(webSuggestionWasSelected = true) }
+    }
+
+    fun onRecentQueryTap(entry: RecentSearchEntry.Query) {
+        val trimmedQuery = entry.trimmedQuery
+        if (trimmedQuery.isBlank()) return
+
+        onQueryChange(trimmedQuery)
+        updateResultsState { state ->
+            state.copy(
+                AiSearchState =
+                    if (entry.hasAiSnapshot) {
+                        AiSearchState(
+                            status = AiSearchStatus.Success,
+                            answer = entry.aiAnswer,
+                            activeQuery = trimmedQuery,
+                            usedModelId = entry.aiUsedModelId,
+                            llmProviderId = entry.aiLlmProviderId,
+                        )
+                    } else {
+                        AiSearchState()
+                    },
+                webSuggestionWasSelected = false,
+            )
+        }
     }
 }

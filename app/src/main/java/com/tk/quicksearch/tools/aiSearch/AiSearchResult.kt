@@ -37,12 +37,13 @@ fun AiSearchResult(
     val showAttribution =
             aiSearchState.status == AiSearchStatus.Success &&
                     !aiSearchState.answer.isNullOrBlank()
+    val effectiveProviderId = aiSearchState.llmProviderId ?: aiSearchLlmProviderId
 
     GeminiResultCard(
             showWallpaperBackground = showWallpaperBackground,
             showAttribution = showAttribution,
             usedModelId = aiSearchState.usedModelId,
-            llmProviderId = aiSearchLlmProviderId,
+            llmProviderId = effectiveProviderId,
             isAttributionClickable = true,
             onGeminiModelInfoClick = onGeminiModelInfoClick,
             onOpenAiSearchConfigure = onOpenAiSearchConfigure,

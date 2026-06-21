@@ -119,6 +119,7 @@ fun SearchContentArea(
     onEmailClick: (String) -> Unit = {},
     onOpenPersonalContextDialog: () -> Unit = {},
     onWebSuggestionClick: (String) -> Unit = {},
+    onRecentQueryClick: (RecentSearchEntry.Query) -> Unit = {},
     onSearchTargetClick: (String, SearchTarget) -> Unit = { _, _ -> },
     onSearchEngineLongPress: () -> Unit = {},
     onCustomizeSearchEnginesClick: () -> Unit = {},
@@ -530,6 +531,7 @@ fun SearchContentArea(
                                 onEmailClick = onEmailClick,
                                 onOpenPersonalContextDialog = onOpenPersonalContextDialog,
                                 onWebSuggestionClick = onWebSuggestionClick,
+                                onRecentQueryClick = onRecentQueryClick,
                                 onSearchEngineLongPress = onSearchEngineLongPress,
                                 onCustomizeSearchEnginesClick =
                                 onCustomizeSearchEnginesClick,

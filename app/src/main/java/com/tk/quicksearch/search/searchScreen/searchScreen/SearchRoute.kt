@@ -758,6 +758,7 @@ fun SearchRoute(
             onWebSuggestionClick = { suggestion: String ->
                 viewModel.onWebSuggestionTap(suggestion)
             },
+            onRecentQueryClick = viewModel::onRecentQueryTap,
             onSearchEngineOnboardingDismissed = viewModel::onSearchEngineOnboardingDismissed,
             onContactActionHintDismissed = viewModel::onContactActionHintDismissed,
             onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,

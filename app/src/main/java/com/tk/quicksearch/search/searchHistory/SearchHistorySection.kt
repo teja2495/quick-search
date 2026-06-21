@@ -46,6 +46,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -88,6 +89,7 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 private const val QUERY_ROW_ICON_SIZE = 40
+private const val AI_QUERY_ROW_ICON_SIZE = 34
 private const val QUERY_ICON_START_PADDING = 16
 private const val QUERY_TEXT_START_PADDING = 12
 private const val QUERY_TEXT_END_PADDING = 16
@@ -104,7 +106,7 @@ fun SearchHistorySection(
     items: List<RecentSearchItem>,
     callingApp: CallingApp,
     messagingApp: MessagingApp,
-    onRecentQueryClick: (String) -> Unit,
+    onRecentQueryClick: (RecentSearchEntry.Query) -> Unit,
     onContactClick: (ContactInfo) -> Unit,
     onShowContactMethods: (ContactInfo) -> Unit,
     onCallContact: (ContactInfo) -> Unit,
@@ -459,7 +461,7 @@ private fun RecentSearchItemRow(
     iconColor: Color,
     callingApp: CallingApp,
     messagingApp: MessagingApp,
-    onRecentQueryClick: (String) -> Unit,
+    onRecentQueryClick: (RecentSearchEntry.Query) -> Unit,
     onContactClick: (ContactInfo) -> Unit,
     onShowContactMethods: (ContactInfo) -> Unit,
     onCallContact: (ContactInfo) -> Unit,
@@ -494,9 +496,10 @@ private fun RecentSearchItemRow(
             is RecentSearchItem.Query -> {
                 RecentQueryRow(
                     query = item.value,
+                    showAiSearchIcon = item.entry.hasAiSnapshot,
                     textColor = textColor,
                     iconColor = iconColor,
-                    onClick = { onRecentQueryClick(item.value) },
+                    onClick = { onRecentQueryClick(item.entry) },
                     onLongPress = { showRemoveMenu = true },
                 )
             }
@@ -923,6 +926,7 @@ private fun dividerColor(
 @Composable
 private fun RecentQueryRow(
     query: String,
+    showAiSearchIcon: Boolean,
     textColor: Color,
     iconColor: Color,
     onClick: () -> Unit,
@@ -947,18 +951,33 @@ private fun RecentQueryRow(
                 ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(
-            imageVector = Icons.Rounded.Search,
-            contentDescription = stringResource(R.string.common_search),
-            tint = iconColor,
-            modifier =
-                Modifier
-                    .size(QUERY_ROW_ICON_SIZE.dp)
-                    .padding(
-                        start = DesignTokens.SpacingXSmall,
-                        end = QUERY_TEXT_START_PADDING.dp,
-                    ),
-        )
+        if (showAiSearchIcon) {
+            Icon(
+                painter = painterResource(R.drawable.direct_search),
+                contentDescription = stringResource(R.string.settings_direct_search_setup_nav_title),
+                tint = Color.Unspecified,
+                modifier =
+                    Modifier
+                        .size(AI_QUERY_ROW_ICON_SIZE.dp)
+                        .padding(
+                            start = DesignTokens.SpacingXSmall,
+                            end = QUERY_TEXT_START_PADDING.dp,
+                        ),
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Rounded.Search,
+                contentDescription = stringResource(R.string.common_search),
+                tint = iconColor,
+                modifier =
+                    Modifier
+                        .size(QUERY_ROW_ICON_SIZE.dp)
+                        .padding(
+                            start = DesignTokens.SpacingXSmall,
+                            end = QUERY_TEXT_START_PADDING.dp,
+                        ),
+            )
+        }
 
         Text(
             text = query,
