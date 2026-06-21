@@ -206,6 +206,12 @@ internal interface SearchViewModelPreferencesApi {
         modelId: String?,
     ) = preferencesApiDelegate.setLlmModel(providerId, modelId)
 
+    fun setCustomLlmAdvancedPayload(
+        providerId: AiSearchLlmProviderId,
+        payload: String?,
+        enabled: Boolean,
+    ) = preferencesApiDelegate.setCustomLlmAdvancedPayload(providerId, payload, enabled)
+
     fun setAiBackedToolSettings(
         toolId: AiBackedToolConfigId,
         providerId: AiSearchLlmProviderId,
@@ -432,6 +438,12 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
         providerId: AiSearchLlmProviderId,
         modelId: String?,
     ) = preferencesDelegate.setLlmModel(providerId, modelId)
+
+    fun setCustomLlmAdvancedPayload(
+        providerId: AiSearchLlmProviderId,
+        payload: String?,
+        enabled: Boolean,
+    ) = preferencesDelegate.setCustomLlmAdvancedPayload(providerId, payload, enabled)
 
     fun setAiBackedToolSettings(
         toolId: AiBackedToolConfigId,

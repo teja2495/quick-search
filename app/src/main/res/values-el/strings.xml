@@ -692,6 +692,10 @@
     <string name="settings_configure_api_key_title">Διαμόρφωση κλειδιού API</string>
     <string name="settings_custom_provider_base_url_hint">Παράδειγμα: https://openrouter.ai/api/v1</string>
     <string name="settings_custom_provider_base_url_input_label">Βασικό URL</string>
+    <string name="settings_custom_provider_advanced_payload_desc">Συγχωνεύεται σε κάθε αίτημα που αποστέλλεται μέσω αυτού του παρόχου.</string>
+    <string name="settings_custom_provider_advanced_payload_error">Εισαγάγετε ένα έγκυρο αντικείμενο JSON.</string>
+    <string name="settings_custom_provider_advanced_payload_hint" translatable="false">Example: { \"tools\": [{ \"type\": \"openrouter:web_search\" }] }</string>
+    <string name="settings_custom_provider_advanced_payload_title">Προηγμένο Ωφέλιμο Φορτίο Αιτήματος</string>
     <string name="settings_direct_search_desc">Υποστηρίζονται κλειδιά API για Gemini, OpenAI, Claude και Groq</string>
     <string name="settings_direct_search_desc_intro">Προσθέστε ένα κλειδί API για να ενεργοποιήσετε την αναζήτηση και τα εργαλεία με υποστήριξη AI.</string>
     <string name="settings_direct_search_grounding_label">Αναζήτηση στον ιστό</string>

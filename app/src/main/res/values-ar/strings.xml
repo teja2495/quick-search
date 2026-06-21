@@ -693,6 +693,10 @@
     <string name="settings_configure_api_key_title">إعداد مفتاح API</string>
     <string name="settings_custom_provider_base_url_hint">مثال: https://openrouter.ai/api/v1</string>
     <string name="settings_custom_provider_base_url_input_label">الرابط الأساسي (Base URL)</string>
+    <string name="settings_custom_provider_advanced_payload_desc">يتم دمجها في كل طلب يتم إرساله عبر هذا الموفر.</string>
+    <string name="settings_custom_provider_advanced_payload_error">أدخل كائن JSON صالحًا.</string>
+    <string name="settings_custom_provider_advanced_payload_hint" translatable="false">Example: { \"tools\": [{ \"type\": \"openrouter:web_search\" }] }</string>
+    <string name="settings_custom_provider_advanced_payload_title">حمولة الطلب المتقدمة</string>
     <string name="settings_direct_search_desc">يدعم مفاتيح API لـ Gemini وOpenAI وClaude وGroq</string>
     <string name="settings_direct_search_desc_intro">أضف مفتاح API لتفعيل ميزات البحث والأدوات المدعومة بالذكاء الاصطناعي (AI).</string>
     <string name="settings_direct_search_grounding_label">البحث في الويب</string>

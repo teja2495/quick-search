@@ -692,6 +692,10 @@
     <string name="settings_configure_api_key_title">配置 API 密钥</string>
     <string name="settings_custom_provider_base_url_hint">例如：https://openrouter.ai/api/v1</string>
     <string name="settings_custom_provider_base_url_input_label">接口根地址 (Base URL)</string>
+    <string name="settings_custom_provider_advanced_payload_desc">合并到通过此提供商发送的每个请求中。</string>
+    <string name="settings_custom_provider_advanced_payload_error">请输入有效的 JSON 对象。</string>
+    <string name="settings_custom_provider_advanced_payload_hint" translatable="false">Example: { \"tools\": [{ \"type\": \"openrouter:web_search\" }] }</string>
+    <string name="settings_custom_provider_advanced_payload_title">高级请求负载</string>
     <string name="settings_direct_search_desc">支持 Gemini、OpenAI、Claude 和 Groq 的 API 密钥</string>
     <string name="settings_direct_search_desc_intro">添加 API 密钥以启用 AI 驱动的搜索和相关实用工具。</string>
     <string name="settings_direct_search_grounding_label">联网搜索</string>

@@ -104,6 +104,7 @@ internal object SearchStateExtractor {
             geminiApiKeyLast4 = s.geminiApiKeyLast4,
             llmApiKeyLast4ByProvider = s.llmApiKeyLast4ByProvider,
             customLlmBaseUrlByProvider = s.customLlmBaseUrlByProvider,
+            customLlmAdvancedPayloadByProvider = s.customLlmAdvancedPayloadByProvider,
             aiSearchLlmProviderId = s.aiSearchLlmProviderId,
             personalContext = s.personalContext,
             geminiModel = s.geminiModel,

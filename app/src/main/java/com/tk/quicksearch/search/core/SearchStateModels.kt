@@ -166,6 +166,7 @@ data class SearchFeatureState(
         val geminiApiKeyLast4: String? = null,
         val llmApiKeyLast4ByProvider: Map<AiSearchLlmProviderId, String> = emptyMap(),
         val customLlmBaseUrlByProvider: Map<AiSearchLlmProviderId, String> = emptyMap(),
+        val customLlmAdvancedPayloadByProvider: Map<AiSearchLlmProviderId, Pair<Boolean, String>> = emptyMap(),
         val aiSearchLlmProviderId: AiSearchLlmProviderId = AiSearchLlmProviderId.GEMINI,
         val isSavingGeminiApiKey: Boolean = false,
         val personalContext: String = "",

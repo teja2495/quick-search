@@ -692,6 +692,10 @@
     <string name="settings_configure_api_key_title">API key कॉन्फ़िगर करें</string>
     <string name="settings_custom_provider_base_url_hint">उदाहरण: https://openrouter.ai/api/v1</string>
     <string name="settings_custom_provider_base_url_input_label">बेस URL</string>
+    <string name="settings_custom_provider_advanced_payload_desc">इस प्रदाता के माध्यम से भेजे गए प्रत्येक अनुरोध में विलय कर दिया गया।</string>
+    <string name="settings_custom_provider_advanced_payload_error">एक मान्य JSON ऑब्जेक्ट दर्ज करें।</string>
+    <string name="settings_custom_provider_advanced_payload_hint" translatable="false">Example: { \"tools\": [{ \"type\": \"openrouter:web_search\" }] }</string>
+    <string name="settings_custom_provider_advanced_payload_title">उन्नत अनुरोध पेलोड</string>
     <string name="settings_direct_search_desc">Gemini, OpenAI, Claude और Groq API keys समर्थित हैं</string>
     <string name="settings_direct_search_desc_intro">AI-आधारित खोज और टूल्स सक्षम करने के लिए API key जोड़ें।</string>
     <string name="settings_direct_search_grounding_label">वेब खोज</string>

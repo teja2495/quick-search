@@ -691,6 +691,10 @@
 <string name="settings_configure_api_key_title">API anahtarını yapılandır</string>
 <string name="settings_custom_provider_base_url_hint">Örnek: https://openrouter.ai/api/v1</string>
 <string name="settings_custom_provider_base_url_input_label">Temel URL</string>
+<string name="settings_custom_provider_advanced_payload_desc">Bu sağlayıcı aracılığıyla gönderilen her isteğe birleştirilir.</string>
+<string name="settings_custom_provider_advanced_payload_error">Geçerli bir JSON nesnesi girin.</string>
+<string name="settings_custom_provider_advanced_payload_hint" translatable="false">Example: { \"tools\": [{ \"type\": \"openrouter:web_search\" }] }</string>
+<string name="settings_custom_provider_advanced_payload_title">Gelişmiş İstek Yükü</string>
 <string name="settings_direct_search_desc">Gemini, OpenAI, Claude ve Groq API anahtarları desteklenir</string>
 <string name="settings_direct_search_desc_intro">AI destekli aramayı ve araçları etkinleştirmek için bir API anahtarı ek.</string>
 <string name="settings_direct_search_grounding_label">Web araması</string>

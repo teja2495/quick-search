@@ -908,6 +908,12 @@ class UserAppPreferences(
             AiSearchLlmProviderId.custom(provider.id) to provider.baseUrl
         }
 
+    fun getCustomLlmAdvancedPayloadByProvider(): Map<AiSearchLlmProviderId, Pair<Boolean, String>> =
+        customLlmProviderPreferences.getProviders().mapNotNull { provider ->
+            val payload = provider.advancedPayload?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+            AiSearchLlmProviderId.custom(provider.id) to (provider.advancedPayloadEnabled to payload)
+        }.toMap()
+
     fun getConfiguredLlmProviderIds(): List<AiSearchLlmProviderId> =
         AiSearchLlmProviderId.entries +
             customLlmProviderPreferences.getProviders().map { AiSearchLlmProviderId.custom(it.id) }
@@ -923,6 +929,12 @@ class UserAppPreferences(
         apiKey: String,
     ): CustomLlmProviderConfig? =
         customLlmProviderPreferences.addProvider(baseUrl, apiKey)
+
+    fun setCustomLlmAdvancedPayload(
+        providerId: AiSearchLlmProviderId,
+        payload: String?,
+        enabled: Boolean,
+    ) = customLlmProviderPreferences.setProviderAdvancedPayload(providerId, payload, enabled)
 
     // Backward-compatible Gemini facade methods kept for existing call sites.
     fun getGeminiApiKey(): String? = geminiPreferences.getGeminiApiKey()

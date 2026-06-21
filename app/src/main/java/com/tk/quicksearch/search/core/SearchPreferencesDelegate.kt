@@ -796,6 +796,7 @@ internal class SearchPreferencesDelegate(
                         geminiApiKeyLast4 = aiSearchHandler.getLlmApiKey()?.trim()?.takeLast(4),
                         llmApiKeyLast4ByProvider = userPreferences.getLlmApiKeyLast4ByProvider(),
                         customLlmBaseUrlByProvider = userPreferences.getCustomLlmBaseUrlByProvider(),
+                        customLlmAdvancedPayloadByProvider = userPreferences.getCustomLlmAdvancedPayloadByProvider(),
                         aiSearchLlmProviderId = aiSearchHandler.getAiSearchProviderId(),
                         personalContext = aiSearchHandler.getPersonalContext(),
                         geminiModel = aiSearchHandler.getGeminiModel(),
@@ -842,6 +843,7 @@ internal class SearchPreferencesDelegate(
                         geminiApiKeyLast4 = aiSearchHandler.getLlmApiKey()?.trim()?.takeLast(4),
                         llmApiKeyLast4ByProvider = userPreferences.getLlmApiKeyLast4ByProvider(),
                         customLlmBaseUrlByProvider = userPreferences.getCustomLlmBaseUrlByProvider(),
+                        customLlmAdvancedPayloadByProvider = userPreferences.getCustomLlmAdvancedPayloadByProvider(),
                         aiSearchLlmProviderId = aiSearchHandler.getAiSearchProviderId(),
                         personalContext = aiSearchHandler.getPersonalContext(),
                         geminiModel = aiSearchHandler.getGeminiModel(),
@@ -894,6 +896,23 @@ internal class SearchPreferencesDelegate(
                     availableGeminiModels = models,
                     availableLlmModelsByProvider =
                         it.availableLlmModelsByProvider + (providerId to models),
+                )
+            }
+        }
+    }
+
+    fun setCustomLlmAdvancedPayload(
+        providerId: AiSearchLlmProviderId,
+        payload: String?,
+        enabled: Boolean,
+    ) {
+        if (!providerId.isCustom) return
+        scope.launch(Dispatchers.IO) {
+            userPreferences.setCustomLlmAdvancedPayload(providerId, payload, enabled)
+            updateFeatureState {
+                it.copy(
+                    customLlmAdvancedPayloadByProvider =
+                        userPreferences.getCustomLlmAdvancedPayloadByProvider(),
                 )
             }
         }

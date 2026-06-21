@@ -146,6 +146,7 @@ internal fun buildSettingsScreenCallbacks(
         onSetPersonalContext = viewModel::setPersonalContext,
         onSetGeminiModel = viewModel::setGeminiModel,
         onSetLlmModel = viewModel::setLlmModel,
+        onSetCustomLlmAdvancedPayload = viewModel::setCustomLlmAdvancedPayload,
         onSetAiToolSettings = viewModel::setAiBackedToolSettings,
         onSetGeminiGroundingEnabled = viewModel::setGeminiGroundingEnabled,
         onSetGeminiThinkingEnabled = viewModel::setGeminiThinkingEnabled,

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -17,17 +18,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import android.widget.Toast
 import com.tk.quicksearch.R
+import com.tk.quicksearch.settings.shared.SettingsToggleRow
+import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.tools.aiSearch.GeminiModelCatalog
 import com.tk.quicksearch.tools.aiSearch.GeminiTextModel
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.settings.shared.ModelFeatureSettingsCard
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import org.json.JSONObject
 
 @Composable
 fun AiProviderSettingsSection(
@@ -39,9 +44,11 @@ fun AiProviderSettingsSection(
         availableGeminiModels: List<GeminiTextModel>,
         availableLlmModelsByProvider: Map<AiSearchLlmProviderId, List<GeminiTextModel>>,
         apiKeyLast4ByProvider: Map<AiSearchLlmProviderId, String>,
+        customAdvancedPayloadByProvider: Map<AiSearchLlmProviderId, Pair<Boolean, String>>,
         onSetPersonalContext: (String?) -> Unit,
         onSetGeminiModel: (String?) -> Unit,
         onSetLlmModel: (AiSearchLlmProviderId, String?) -> Unit,
+        onSetCustomAdvancedPayload: (AiSearchLlmProviderId, String?, Boolean) -> Unit,
         onSetGeminiGroundingEnabled: (Boolean) -> Unit,
         onSetGeminiThinkingEnabled: (Boolean) -> Unit,
         onRefreshAvailableGeminiModels: () -> Unit,
@@ -185,5 +192,140 @@ fun AiProviderSettingsSection(
                                 )
                         }
                 }
+
+                if (aiSearchLlmProviderId.isCustom) {
+                        val savedPayload = customAdvancedPayloadByProvider[aiSearchLlmProviderId]
+                        AdvancedPayloadSettingsSection(
+                                providerId = aiSearchLlmProviderId,
+                                payload = savedPayload?.second.orEmpty(),
+                                enabled = savedPayload?.first == true,
+                                onSave = onSetCustomAdvancedPayload,
+                        )
+                }
         }
 }
+
+@Composable
+private fun AdvancedPayloadSettingsSection(
+        providerId: AiSearchLlmProviderId,
+        payload: String,
+        enabled: Boolean,
+        onSave: (AiSearchLlmProviderId, String?, Boolean) -> Unit,
+) {
+        var payloadInput by remember(providerId, payload) { mutableStateOf(payload) }
+        var enabledInput by remember(providerId, enabled) { mutableStateOf(enabled) }
+        var hasJsonError by remember(providerId, payload) {
+                mutableStateOf(payload.isNotBlank() && !isValidJsonObject(payload))
+        }
+
+        fun saveIfValid(
+                nextPayload: String,
+                nextEnabled: Boolean,
+        ): Boolean {
+                val trimmed = nextPayload.trim()
+                if (trimmed.isBlank()) {
+                        hasJsonError = false
+                        onSave(providerId, null, false)
+                        return true
+                }
+                if (!isValidJsonObject(trimmed)) {
+                        hasJsonError = true
+                        return false
+                }
+                hasJsonError = false
+                enabledInput = nextEnabled
+                onSave(providerId, trimmed, nextEnabled)
+                return true
+        }
+
+        SettingsCard(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+                ) {
+                        SettingsToggleRow(
+                                title = stringResource(R.string.settings_custom_provider_advanced_payload_title),
+                                subtitle =
+                                        stringResource(
+                                                R.string.settings_custom_provider_advanced_payload_desc
+                                        ),
+                                checked = enabledInput,
+                                onCheckedChange = { checked ->
+                                        enabledInput = checked
+                                        if (checked) {
+                                                val trimmed = payloadInput.trim()
+                                                if (trimmed.isNotBlank()) {
+                                                        saveIfValid(trimmed, true)
+                                                }
+                                        } else {
+                                                saveIfValid(payloadInput, false)
+                                        }
+                                },
+                                isFirstItem = true,
+                                isLastItem = !enabledInput,
+                                showDivider = false,
+                        )
+
+                        if (enabledInput) {
+                                OutlinedTextField(
+                                        value = payloadInput,
+                                        onValueChange = { next ->
+                                                payloadInput = next
+                                                saveIfValid(next, true)
+                                        },
+                                        modifier =
+                                                Modifier
+                                                        .fillMaxWidth()
+                                                        .height(160.dp)
+                                                        .padding(
+                                                                start = DesignTokens.CardHorizontalPadding,
+                                                                end = DesignTokens.CardHorizontalPadding,
+                                                                bottom = DesignTokens.CardVerticalPadding,
+                                                        ),
+                                        placeholder = {
+                                                Text(
+                                                        text =
+                                                                stringResource(
+                                                                        R.string
+                                                                                .settings_custom_provider_advanced_payload_hint
+                                                                ),
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                )
+                                        },
+                                        supportingText =
+                                                if (hasJsonError) {
+                                                        {
+                                                                Text(
+                                                                        text =
+                                                                                stringResource(
+                                                                                        R.string
+                                                                                                .settings_custom_provider_advanced_payload_error
+                                                                                )
+                                                                )
+                                                        }
+                                                } else {
+                                                        null
+                                                },
+                                        isError = hasJsonError,
+                                        shape = MaterialTheme.shapes.extraLarge,
+                                        colors =
+                                                TextFieldDefaults.colors(
+                                                        focusedContainerColor = AppColors.getSettingsCardContainerColor(),
+                                                        unfocusedContainerColor = AppColors.getSettingsCardContainerColor(),
+                                                        disabledContainerColor = AppColors.getSettingsCardContainerColor(),
+                                                        focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                                                        unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                                                        disabledIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                                                        errorIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                                                ),
+                                        singleLine = false,
+                                        minLines = 4,
+                                        maxLines = 8,
+                                )
+                        }
+                }
+        }
+}
+
+private fun isValidJsonObject(value: String): Boolean =
+        runCatching { JSONObject(value) }.isSuccess

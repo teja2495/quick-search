@@ -708,6 +708,10 @@
 <string name="settings_configure_api_key_title">Настроить API-ключ</string>
     <string name="settings_custom_provider_base_url_hint">Пример: https://openrouter.ai/api/v1</string>
     <string name="settings_custom_provider_base_url_input_label">Базовый URL</string>
+    <string name="settings_custom_provider_advanced_payload_desc">Объединяется с каждым запросом, отправленным через этого провайдера.</string>
+    <string name="settings_custom_provider_advanced_payload_error">Введите допустимый объект JSON.</string>
+    <string name="settings_custom_provider_advanced_payload_hint" translatable="false">Example: { \"tools\": [{ \"type\": \"openrouter:web_search\" }] }</string>
+    <string name="settings_custom_provider_advanced_payload_title">Расширенная полезная нагрузка запроса</string>
 <string name="settings_direct_search_desc">Поддерживаются API-ключи Gemini, OpenAI, Claude и Groq</string>
 <string name="settings_direct_search_desc_intro">Добавьте API-ключ, чтобы включить поиск и инструменты на базе искусственного интеллекта.</string>
 <string name="settings_direct_search_grounding_label">Поиск в Интернете</string>

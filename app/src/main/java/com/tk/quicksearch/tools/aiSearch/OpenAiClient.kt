@@ -114,6 +114,7 @@ class OpenAiClient(
         useGroundingWithGoogleSearch: Boolean = OpenAiModelCatalog.DEFAULT_GROUNDING_ENABLED,
         useSystemInstruction: Boolean = true,
         systemInstruction: String? = null,
+        advancedPayloadJson: String? = null,
     ): Result<String> =
         withContext(Dispatchers.IO) {
             var attempt = 1
@@ -129,6 +130,7 @@ class OpenAiClient(
                         useGrounding = useGroundingWithGoogleSearch && OpenAiModelCatalog.supportsWebSearch(modelId),
                         useSystemInstruction = useSystemInstruction,
                         systemInstruction = systemInstruction,
+                        advancedPayloadJson = advancedPayloadJson,
                     )
                 if (result.isSuccess) return@withContext result
 
@@ -150,6 +152,7 @@ class OpenAiClient(
         useGrounding: Boolean,
         useSystemInstruction: Boolean,
         systemInstruction: String?,
+        advancedPayloadJson: String?,
     ): Result<String> {
         var connection: HttpURLConnection? = null
         return try {
@@ -171,6 +174,7 @@ class OpenAiClient(
                 useGrounding = useGrounding,
                 useSystemInstruction = useSystemInstruction,
                 systemInstruction = systemInstruction,
+                advancedPayloadJson = advancedPayloadJson,
             )
 
             if (BuildConfig.DEBUG) {
@@ -210,6 +214,7 @@ class OpenAiClient(
         useGrounding: Boolean,
         useSystemInstruction: Boolean,
         systemInstruction: String?,
+        advancedPayloadJson: String?,
     ): String {
         val effectiveSystem =
             systemInstruction?.trim()?.takeIf { it.isNotBlank() } ?: SYSTEM_PROMPT
@@ -242,7 +247,21 @@ class OpenAiClient(
             root.put("web_search_options", JSONObject())
         }
 
+        mergeAdvancedPayload(root, advancedPayloadJson)
         return root.toString()
+    }
+
+    private fun mergeAdvancedPayload(
+        root: JSONObject,
+        advancedPayloadJson: String?,
+    ) {
+        val trimmed = advancedPayloadJson?.trim().takeUnless { it.isNullOrBlank() } ?: return
+        val advancedPayload = JSONObject(trimmed)
+        val protectedKeys = setOf("model", "messages")
+        advancedPayload.keys().forEach { key ->
+            if (key in protectedKeys) return@forEach
+            root.put(key, advancedPayload.get(key))
+        }
     }
 
     private fun extractAnswer(raw: String): String? {

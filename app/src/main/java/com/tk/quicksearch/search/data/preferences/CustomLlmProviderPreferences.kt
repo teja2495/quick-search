@@ -31,12 +31,16 @@ class CustomLlmProviderPreferences(
                     val baseUrl = item.optString(FIELD_BASE_URL).takeIf { it.isNotBlank() } ?: continue
                     val apiKey = item.optString(FIELD_API_KEY).takeIf { it.isNotBlank() } ?: continue
                     val modelId = item.optString(FIELD_MODEL_ID).takeIf { it.isNotBlank() } ?: continue
+                    val advancedPayload = item.optString(FIELD_ADVANCED_PAYLOAD).takeIf { it.isNotBlank() }
+                    val advancedPayloadEnabled = item.optBoolean(FIELD_ADVANCED_PAYLOAD_ENABLED, false)
                     add(
                         CustomLlmProviderConfig(
                             id = id,
                             baseUrl = baseUrl,
                             apiKey = apiKey,
                             modelId = modelId,
+                            advancedPayload = advancedPayload,
+                            advancedPayloadEnabled = advancedPayloadEnabled,
                         ),
                     )
                 }
@@ -116,6 +120,32 @@ class CustomLlmProviderPreferences(
         securePrefs.edit().putString(BasePreferences.KEY_CUSTOM_LLM_PROVIDERS, encode(updated)).apply()
     }
 
+    fun setProviderAdvancedPayload(
+        providerId: AiSearchLlmProviderId,
+        payload: String?,
+        enabled: Boolean,
+    ) {
+        val securePrefs =
+            encryptedPrefs ?: run {
+                Log.e(TAG, "EncryptedSharedPreferences unavailable; custom LLM provider payload not persisted")
+                return
+            }
+        val customId = providerId.customId ?: return
+        val normalizedPayload = payload?.trim().takeUnless { it.isNullOrBlank() }
+        val updated =
+            getProviders().map { provider ->
+                if (provider.id == customId) {
+                    provider.copy(
+                        advancedPayload = normalizedPayload,
+                        advancedPayloadEnabled = enabled && normalizedPayload != null,
+                    )
+                } else {
+                    provider
+                }
+            }
+        securePrefs.edit().putString(BasePreferences.KEY_CUSTOM_LLM_PROVIDERS, encode(updated)).apply()
+    }
+
     private fun encode(providers: List<CustomLlmProviderConfig>): String {
         val array = JSONArray()
         providers.forEach { provider ->
@@ -124,7 +154,9 @@ class CustomLlmProviderPreferences(
                     .put(FIELD_ID, provider.id)
                     .put(FIELD_BASE_URL, provider.baseUrl)
                     .put(FIELD_API_KEY, provider.apiKey)
-                    .put(FIELD_MODEL_ID, provider.modelId),
+                    .put(FIELD_MODEL_ID, provider.modelId)
+                    .put(FIELD_ADVANCED_PAYLOAD, provider.advancedPayload.orEmpty())
+                    .put(FIELD_ADVANCED_PAYLOAD_ENABLED, provider.advancedPayloadEnabled),
             )
         }
         return array.toString()
@@ -136,5 +168,7 @@ class CustomLlmProviderPreferences(
         const val FIELD_BASE_URL = "baseUrl"
         const val FIELD_API_KEY = "apiKey"
         const val FIELD_MODEL_ID = "modelId"
+        const val FIELD_ADVANCED_PAYLOAD = "advancedPayload"
+        const val FIELD_ADVANCED_PAYLOAD_ENABLED = "advancedPayloadEnabled"
     }
 }

@@ -8,6 +8,8 @@ data class CustomLlmProviderConfig(
     val baseUrl: String,
     val apiKey: String,
     val modelId: String,
+    val advancedPayload: String? = null,
+    val advancedPayloadEnabled: Boolean = false,
 )
 
 class CustomOpenAiCompatibleLlmProvider(
@@ -77,6 +79,10 @@ class CustomOpenAiCompatibleLlmProvider(
             useGroundingWithGoogleSearch = false,
             useSystemInstruction = request.useSystemInstruction,
             systemInstruction = request.systemInstruction,
+            advancedPayloadJson =
+                providerConfig
+                    .advancedPayload
+                    ?.takeIf { providerConfig.advancedPayloadEnabled },
         )
     }
 }

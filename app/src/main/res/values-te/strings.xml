@@ -692,6 +692,10 @@
     <string name="settings_configure_api_key_title">API కీని కాన్ఫిగర్ చేయండి</string>
     <string name="settings_custom_provider_base_url_hint">ఉదాహరణ: https://openrouter.ai/api/v1</string>
     <string name="settings_custom_provider_base_url_input_label">బేస్ URL (Base URL)</string>
+    <string name="settings_custom_provider_advanced_payload_desc">ఈ ప్రొవైడర్ ద్వారా పంపబడే ప్రతి అభ్యర్థనలో విలీనం చేయబడుతుంది.</string>
+    <string name="settings_custom_provider_advanced_payload_error">దయచేసి చెల్లుబాటు అయ్యే JSON ఆబ్జెక్ట్‌ను నమోదు చేయండి.</string>
+    <string name="settings_custom_provider_advanced_payload_hint" translatable="false">Example: { \"tools\": [{ \"type\": \"openrouter:web_search\" }] }</string>
+    <string name="settings_custom_provider_advanced_payload_title">అధునాతన అభ్యర్థన పేలోడ్</string>
     <string name="settings_direct_search_desc">Gemini, OpenAI, Claude మరియు Groq API కీలు మద్దతు ఇవ్వబడతాయి</string>
     <string name="settings_direct_search_desc_intro">AI-ఆధారిత శోధన మరియు సాధనాలను (Tools) ప్రారంభించడానికి API కీని జోడించండి.</string>
     <string name="settings_direct_search_grounding_label">వెబ్ శోధన</string>

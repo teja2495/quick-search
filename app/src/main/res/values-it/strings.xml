@@ -691,6 +691,10 @@
     <string name="settings_configure_api_key_title">Configura chiave API</string>
     <string name="settings_custom_provider_base_url_hint">Esempio: https://openrouter.ai/api/v1</string>
     <string name="settings_custom_provider_base_url_input_label">URL di base</string>
+    <string name="settings_custom_provider_advanced_payload_desc">Unito in ogni richiesta inviata tramite questo provider.</string>
+    <string name="settings_custom_provider_advanced_payload_error">Inserisci un oggetto JSON valido.</string>
+    <string name="settings_custom_provider_advanced_payload_hint" translatable="false">Example: { \"tools\": [{ \"type\": \"openrouter:web_search\" }] }</string>
+    <string name="settings_custom_provider_advanced_payload_title">Payload di richiesta avanzato</string>
     <string name="settings_direct_search_desc">Sono supportate le chiavi API di Gemini, OpenAI, Claude e Groq</string>
     <string name="settings_direct_search_desc_intro">Aggiungi una chiave API per abilitare la ricerca e gli strumenti basati sull\u2019AI.</string>
     <string name="settings_direct_search_grounding_label">Ricerca Web</string>

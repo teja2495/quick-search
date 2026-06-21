@@ -724,9 +724,13 @@ internal fun SettingsDetailLevel2Screen(
                                     availableGeminiModels = state.availableGeminiModels,
                                     availableLlmModelsByProvider = state.availableLlmModelsByProvider,
                                     apiKeyLast4ByProvider = state.llmApiKeyLast4ByProvider,
+                                    customAdvancedPayloadByProvider =
+                                        state.customLlmAdvancedPayloadByProvider,
                                     onSetPersonalContext = callbacks.onSetPersonalContext,
                                     onSetGeminiModel = callbacks.onSetGeminiModel,
                                     onSetLlmModel = callbacks.onSetLlmModel,
+                                    onSetCustomAdvancedPayload =
+                                        callbacks.onSetCustomLlmAdvancedPayload,
                                     onSetGeminiGroundingEnabled = callbacks.onSetGeminiGroundingEnabled,
                                     onSetGeminiThinkingEnabled = callbacks.onSetGeminiThinkingEnabled,
                                     onRefreshAvailableGeminiModels = callbacks.onRefreshAvailableGeminiModels,
