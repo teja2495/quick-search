@@ -179,12 +179,6 @@ fun WidgetsPanelScreen(
         val provider = request.provider
         val (columnSpan, rowSpan) = initialSpanFor(provider)
         val options = widgetOptionsFactory.create(columnSpan, rowSpan)
-        WidgetPanelDebugLogger.logOptions(
-            event = "finalizeAddWidget",
-                appWidgetId = request.appWidgetId,
-                providerInfo = provider,
-                options = options,
-        )
         appWidgetManager.updateAppWidgetOptions(request.appWidgetId, options)
         widgets =
             preferences.addWidget(
@@ -214,12 +208,6 @@ fun WidgetsPanelScreen(
     fun launchConfigureIfNeeded(request: PendingWidgetRequest) {
         val configure = request.provider.configure
         if (configure == null) {
-            WidgetPanelDebugLogger.logHostEvent(
-                event = "launchConfigureIfNeededSkipped",
-                appWidgetId = request.appWidgetId,
-                providerInfo = request.provider,
-                detail = "configure=<none>",
-            )
             finalizeAddWidget(request)
             return
         }
@@ -236,12 +224,6 @@ fun WidgetsPanelScreen(
                     AppWidgetManager.EXTRA_APPWIDGET_OPTIONS,
                     initialOptions,
                 )
-        WidgetPanelDebugLogger.logOptions(
-            event = "launchConfigureIfNeeded",
-            appWidgetId = request.appWidgetId,
-            providerInfo = request.provider,
-            options = initialOptions,
-        )
         pendingRequest = request
         val launchFailed =
             runCatching { configureLauncher.launch(intent) }
@@ -251,12 +233,6 @@ fun WidgetsPanelScreen(
 
         if (launchFailed) {
             // Some widgets expose configure components that are not exported to third-party launchers.
-            WidgetPanelDebugLogger.logHostEvent(
-                event = "launchConfigureIfNeededFallback",
-                appWidgetId = request.appWidgetId,
-                providerInfo = request.provider,
-                detail = "configure launch failed; continuing without external config",
-            )
             finalizeAddWidget(request)
         }
     }
@@ -284,12 +260,6 @@ fun WidgetsPanelScreen(
         val request = PendingWidgetRequest(appWidgetId, provider)
         val (columnSpan, rowSpan) = initialSpanFor(provider)
         val widgetOptions = widgetOptionsFactory.create(columnSpan, rowSpan)
-        WidgetPanelDebugLogger.logOptions(
-            event = "requestAddWidget",
-            appWidgetId = appWidgetId,
-            providerInfo = provider,
-            options = widgetOptions,
-        )
         val canBind =
             runCatching {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -433,15 +403,7 @@ fun WidgetsPanelScreen(
                                 editingWidgetId = null
                             },
                             onConfigureWidget = { _, configureIntent ->
-            runCatching { configureExistingLauncher.launch(configureIntent) }
-                                .onFailure {
-                                    WidgetPanelDebugLogger.logError(
-                                        event = "configureExistingWidgetFailed",
-                                        appWidgetId = -1,
-                                        providerInfo = null,
-                                        throwable = it,
-                                    )
-                                }
+                                runCatching { configureExistingLauncher.launch(configureIntent) }
                                 editingWidgetId = null
                             },
                             packageManager = packageManager,
@@ -824,24 +786,12 @@ private fun HostedWidget(
             appWidgetHost.createView(ctx, widget.appWidgetId, providerInfo).apply {
                 setAppWidget(widget.appWidgetId, providerInfo)
                 layoutParams = ViewGroup.LayoutParams(widthPx, heightPx)
-                WidgetPanelDebugLogger.logOptions(
-                    event = "hostedWidgetFactory",
-                    appWidgetId = widget.appWidgetId,
-                    providerInfo = providerInfo,
-                    options = displayOptions,
-                )
                 appWidgetManager.updateAppWidgetOptions(widget.appWidgetId, displayOptions)
                 updateAppWidgetSize(displayOptions, widthDp, heightDp, widthDp, heightDp)
             }
         },
         update = { hostView ->
             hostView.layoutParams = ViewGroup.LayoutParams(widthPx, heightPx)
-            WidgetPanelDebugLogger.logOptions(
-                event = "hostedWidgetUpdate",
-                appWidgetId = widget.appWidgetId,
-                providerInfo = providerInfo,
-                options = displayOptions,
-            )
             appWidgetManager.updateAppWidgetOptions(widget.appWidgetId, displayOptions)
             hostView.updateAppWidgetSize(displayOptions, widthDp, heightDp, widthDp, heightDp)
         },

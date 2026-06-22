@@ -4,14 +4,11 @@ import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
-import android.os.Bundle
 import android.os.SystemClock
 import android.util.TypedValue
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
-import android.view.View
 import android.view.ViewConfiguration
-import android.widget.RemoteViews
 import kotlin.math.abs
 
 /**
@@ -43,7 +40,6 @@ internal class WidgetPanelHost(
         appWidget: AppWidgetProviderInfo?,
     ): AppWidgetHostView =
         WidgetPanelHostView(context).also { view ->
-            WidgetPanelDebugLogger.logHostEvent("onCreateView", appWidgetId, appWidget)
             view.onLongPress = { onWidgetLongPress?.invoke(appWidgetId) }
             view.onDragMove = { dx, dy -> onWidgetDragMove?.invoke(appWidgetId, dx, dy) }
             view.onDragEnd = { onWidgetDragEnd?.invoke(appWidgetId) }
@@ -57,12 +53,10 @@ internal class WidgetPanelHost(
         appWidget: AppWidgetProviderInfo,
     ) {
         super.onProviderChanged(appWidgetId, appWidget)
-        WidgetPanelDebugLogger.logHostEvent("onProviderChanged", appWidgetId, appWidget)
     }
 
     override fun onProvidersChanged() {
         super.onProvidersChanged()
-        WidgetPanelDebugLogger.logHostEvent("onProvidersChanged", -1, null)
     }
 
     /**
@@ -93,8 +87,6 @@ private class WidgetPanelHostView(
     var onDragEnd: (() -> Unit)? = null
     var onDetached: (() -> Unit)? = null
     var isScrollInProgressProvider: () -> Boolean = { false }
-    private var trackedAppWidgetId: Int = -1
-    private var trackedProviderInfo: AppWidgetProviderInfo? = null
 
     fun cancelPendingLongPress() {
         removeCallbacks(longPressRunnable)
@@ -104,51 +96,7 @@ private class WidgetPanelHostView(
         appWidgetId: Int,
         info: AppWidgetProviderInfo?,
     ) {
-        trackedAppWidgetId = appWidgetId
-        trackedProviderInfo = info
-        WidgetPanelDebugLogger.logHostEvent("setAppWidget", appWidgetId, info)
         super.setAppWidget(appWidgetId, info)
-    }
-
-    override fun updateAppWidget(remoteViews: RemoteViews?) {
-        WidgetPanelDebugLogger.logHostEvent(
-            event = "updateAppWidget",
-            appWidgetId = trackedAppWidgetId,
-            providerInfo = trackedProviderInfo,
-            detail = "layoutId=${remoteViews?.layoutId ?: -1}",
-        )
-        try {
-            super.updateAppWidget(remoteViews)
-        } catch (throwable: Throwable) {
-            WidgetPanelDebugLogger.logError(
-                event = "updateAppWidgetFailed",
-                appWidgetId = trackedAppWidgetId,
-                providerInfo = trackedProviderInfo,
-                throwable = throwable,
-            )
-            throw throwable
-        }
-    }
-
-    override fun updateAppWidgetSize(
-        newOptions: Bundle?,
-        minWidth: Int,
-        minHeight: Int,
-        maxWidth: Int,
-        maxHeight: Int,
-    ) {
-        WidgetPanelDebugLogger.logOptions(
-            event = "updateAppWidgetSize",
-            appWidgetId = trackedAppWidgetId,
-            providerInfo = trackedProviderInfo,
-            options = newOptions,
-        )
-        super.updateAppWidgetSize(newOptions, minWidth, minHeight, maxWidth, maxHeight)
-    }
-
-    override fun getErrorView(): View {
-        WidgetPanelDebugLogger.logHostEvent("getErrorView", trackedAppWidgetId, trackedProviderInfo)
-        return super.getErrorView()
     }
 
     private val longPressTimeout = ViewConfiguration.getLongPressTimeout().toLong()
