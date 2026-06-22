@@ -15,6 +15,7 @@ This document highlights all the available features. It also includes details ab
 - **Device Settings Search** - Find specific device settings
 - **App Settings Search** - Find and access Quick Search app settings directly by searching
 - **App Suggestions** - Shows suggested apps when no search query is entered. Swipe left or right on the suggestions row to switch between **New & Updated**, **Pinned**, and **Most Used** apps. You can also choose to hide app suggestions completely. This feature requires usage access permission. If permission is not granted, the app shows suggestions based on apps you recently opened from within the app.
+- **View All Apps** - A button below app suggestions lets you browse all installed apps at once. Enable it in settings.
 
 ---
 
@@ -132,7 +133,7 @@ Long-press on most results to open a context menu with quick actions.
 - **Top Matches** - Turn on Top Matches to show the best results for your query across enabled categories. You can include or exclude categories and reorder them to control priority.
 - **App Suggestions** - You can choose to disable app suggestions if you want a cleaner home screen. Toggle the suggestion tabs (New & Updated, Pinned, Most Used) to show only the ones you want.
 - **Web Search Suggestions** - Turn web suggestions on or off and control how many suggestions (1–5) appear under the search bar.
-- **Search History** - Enable or disable search history. The expanded list shows up to 15 items; **Clear all** history is available at the bottom of the list. Your search queries, recently opened items (files, contacts, etc.) appear in your search history. Swipe left or right on the expanded list to switch between **recent queries** and **recently opened results**.
+- **Search History** - Enable or disable search history. The expanded list shows up to 15 items; **Clear all** history is available at the bottom of the list. Your search queries, recently opened items (files, contacts, etc.) appear in your search history. AI answers are also saved to history alongside your queries. Swipe left or right on the expanded list to switch between **recent queries** and **recently opened results**.
 - **Excluded Items** - When you exclude any item on the search results page, you can find them here and clear them if you want to.
 - **Refresh Data** - The app automatically refreshes your data from time to time, but if you want to manually refresh the data, you can do it here.
 - **Calendar Options** - Create custom calendar entries and choose to ignore past events in results. Today's events also appear on the home screen.
@@ -148,7 +149,7 @@ Long-press on most results to open a context menu with quick actions.
 - **Custom Search Engines** - Add your own search engines by specifying a URL template with the {{query}} placeholder. The app automatically fetches the name and icon for the website, but you can choose to edit them if needed. Tapping on {{query}} in the error hint will add this string to your URL so that you don't have to type it. You can choose any installed browser to open custom search engine queries.
 - **AI Search** - Connect a Gemini API key to enable AI answers directly in Quick Search, view if a key is configured, and open the dedicated AI Search configuration screen. Gemini Flash Latest is the model which is chosen by default.
 - **AI Providers** - Configure API keys for multiple AI providers - Gemini, OpenAI, Claude, Groq - at the same time and switch models as needed.
-- **Custom AI Providers** - Add your own AI providers using any OpenAI-compatible API. Specify the base URL, API key, and model details to plug in self-hosted or third-party endpoints.
+- **Custom AI Providers** - Add your own AI providers using any OpenAI-compatible API. Specify the base URL, API key, and model details to plug in self-hosted or third-party endpoints. Advanced users can also provide a custom JSON payload for full control over request parameters.
 
 ---
 
@@ -198,6 +199,7 @@ Long-press on most results to open a context menu with quick actions.
 - **Sorting Options** - Sort apps by name, APK size, most/least used (when usage access is granted), installation date, last update time, or target API level.
 - **App Search & Selection** - Search within your installed apps, multi‑select them, and perform batch actions.
 - **Batch Uninstall & App Info** - Uninstall multiple user apps in one flow and open the system App Info screen for any app, with a detailed info dialog (package name, version, SDK levels, install/update dates).
+- **Non-Launchable Apps** - Option to show non-launchable apps (system services, hidden components) in the apps list.
 
 ---
 
@@ -220,6 +222,7 @@ Long-press on most results to open a context menu with quick actions.
 - **Open Keyboard Toggle** - Choose to disable automatic keyboard opening during app launch. This is useful if you want to use this app just to quickly access pinned items.
 - **Clear Query** - The app clears your query by default when you reopen the app; you can choose to keep the query by disabling this toggle.
 - **Auto-Close App** - Option to toggle auto-close app after any action
+- **Language** - In-app language switcher to change the app language without changing your device language.
 - **Search Hints** - Option to show or hide the rotating search hints displayed in the search bar.
 - **Settings Icon** - Option to show or hide the settings icon in the search bar.
 - **Quick Note** - Option to disable the quick note feature (swipe left from home) if you don't use it.
@@ -271,6 +274,7 @@ Long-press on most results to open a context menu with quick actions.
 - **AI Search**
   - If the results contain emails, phone numbers, or links, you can tap them to email, call, or open them.
   - You can quickly change the model by tapping on "Powered by" text in the result.
+- **Physical Keyboard Shortcuts** - Full keyboard shortcut support for navigating results, opening items, and performing actions when using a physical keyboard.
 - **Keyboard Action Button** - Tap on keyboard action button to automatically open the top result
 - **Show/Switch Keyboard Button** - When you close the keyboard, a small "Open Keyboard" button appears so that you don't have to tap on the search bar. When you type numbers in search, a "Switch to number" keyboard will appear. This is useful when using the calculator.
 - **Alias-based Contact and File Searches** - When you trigger contact/files search using an alias, the app will search more deeply.
