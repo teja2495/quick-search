@@ -4,11 +4,14 @@ import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.view.WindowManager
 import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -31,23 +34,18 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -131,6 +129,7 @@ fun WidgetsPanelScreen(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val activity = remember(context) { context.findActivity() }
     val appContext = context.applicationContext
     val packageManager = context.packageManager
     val configuration = LocalConfiguration.current
@@ -311,6 +310,21 @@ fun WidgetsPanelScreen(
             }
     }
 
+    DisposableEffect(activity, showPicker) {
+        val window = activity?.window
+        val originalSoftInputMode = window?.attributes?.softInputMode
+
+        if (showPicker && window != null) {
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
+        }
+
+        onDispose {
+            if (showPicker && window != null && originalSoftInputMode != null) {
+                window.setSoftInputMode(originalSoftInputMode)
+            }
+        }
+    }
+
     BackHandler {
         when {
             editingWidgetId != null -> editingWidgetId = null
@@ -356,8 +370,7 @@ fun WidgetsPanelScreen(
                     .fillMaxSize()
                     .then(swipeBackModifier)
                     .then(editModeDismissModifier)
-                    .navigationBarsPadding()
-                    .imePadding(),
+                    .navigationBarsPadding(),
         ) {
             Column(
                 modifier =
@@ -428,6 +441,13 @@ fun WidgetsPanelScreen(
     }
 }
 
+private tailrec fun Context.findActivity(): Activity? =
+    when (this) {
+        is Activity -> this
+        is ContextWrapper -> baseContext.findActivity()
+        else -> null
+    }
+
 @Composable
 private fun WidgetsPanelHeader(
     inEditMode: Boolean,
@@ -449,33 +469,8 @@ private fun WidgetsPanelHeader(
                 Text(text = stringResource(R.string.dialog_done))
             }
         } else {
-            Button(
-                onClick = onAddWidget,
-                shape = DesignTokens.ShapeXXLarge,
-                modifier = Modifier.height(34.dp),
-                contentPadding =
-                    PaddingValues(
-                        start = DesignTokens.SpacingSmall,
-                        top = 0.dp,
-                        end = DesignTokens.SpacingMedium,
-                        bottom = 0.dp,
-                    ),
-                colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                    ),
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Add,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                )
-                Spacer(modifier = Modifier.width(DesignTokens.SpacingXSmall))
-                Text(
-                    text = stringResource(R.string.common_action_add),
-                    style = MaterialTheme.typography.labelMedium,
-                )
+            TextButton(onClick = onAddWidget) {
+                Text(text = stringResource(R.string.common_action_add))
             }
         }
     }

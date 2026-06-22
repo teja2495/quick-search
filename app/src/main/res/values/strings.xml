@@ -862,6 +862,7 @@
     <string name="widget_toggle_show_label">Quick Search Text</string>
     <string name="widgets_panel_title">Widgets</string>
     <string name="widgets_picker_empty">No widgets found.</string>
+    <string name="widgets_picker_loading">Loading Widgets...</string>
     <string name="widgets_picker_preview_unavailable">Preview unavailable</string>
     <string name="widgets_picker_title">Add Widget</string>
     <string name="widgets_picker_widget_count">%1$d widgets</string>

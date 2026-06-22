@@ -24,23 +24,22 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -49,6 +48,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
@@ -65,6 +65,8 @@ import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 private const val WIDGET_PREVIEW_FALLBACK_SIZE_PX = 96
 private val WIDGET_PANEL_GRID_ROW_HEIGHT_DP = 80f
@@ -77,7 +79,6 @@ private data class WidgetPickerApp(
     val widgets: List<AppWidgetProviderInfo>,
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun WidgetPickerSheet(
     appWidgetManager: AppWidgetManager,
@@ -87,36 +88,39 @@ internal fun WidgetPickerSheet(
     val context = LocalContext.current
     val packageManager = context.packageManager
     var query by rememberSaveable { mutableStateOf("") }
-    val apps =
-        remember(appWidgetManager, packageManager) {
-            appWidgetManager.installedProviders
-                .groupBy { it.provider.packageName }
-                .map { (packageName, providers) ->
-                    val appInfo =
-                        runCatching { packageManager.getApplicationInfo(packageName, 0) }
-                            .getOrNull()
-                    WidgetPickerApp(
-                        packageName = packageName,
-                        appLabel =
-                            appInfo
-                                ?.let { packageManager.getApplicationLabel(it).toString() }
-                                ?: packageName,
-                        icon = appInfo?.let { packageManager.getApplicationIcon(it) },
-                        widgets =
-                            providers.sortedBy {
-                                it.loadLabel(packageManager)?.toString().orEmpty().lowercase()
-                            },
-                    )
-                }
-                .sortedBy { it.appLabel.lowercase() }
-        }
+    val apps by produceState<List<WidgetPickerApp>?>(initialValue = null, appWidgetManager, packageManager) {
+        value =
+            withContext(Dispatchers.Default) {
+                appWidgetManager.installedProviders
+                    .groupBy { it.provider.packageName }
+                    .map { (packageName, providers) ->
+                        val appInfo =
+                            runCatching { packageManager.getApplicationInfo(packageName, 0) }
+                                .getOrNull()
+                        WidgetPickerApp(
+                            packageName = packageName,
+                            appLabel =
+                                appInfo
+                                    ?.let { packageManager.getApplicationLabel(it).toString() }
+                                    ?: packageName,
+                            icon = appInfo?.let { packageManager.getApplicationIcon(it) },
+                            widgets =
+                                providers.sortedBy {
+                                    it.loadLabel(packageManager)?.toString().orEmpty().lowercase()
+                                },
+                        )
+                    }
+                    .sortedBy { it.appLabel.lowercase() }
+            }
+    }
     val filteredApps =
         remember(apps, query) {
+            val loadedApps = apps.orEmpty()
             val normalizedQuery = query.trim().lowercase()
             if (normalizedQuery.isBlank()) {
-                apps
+                loadedApps
             } else {
-                apps.filter { app -> app.appLabel.lowercase().contains(normalizedQuery) }
+                loadedApps.filter { app -> app.appLabel.lowercase().contains(normalizedQuery) }
             }
         }
     var expandedApps by rememberSaveable { mutableStateOf(setOf<String>()) }
@@ -136,59 +140,107 @@ internal fun WidgetPickerSheet(
             }
         }
 
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = AppColors.getDialogContainerColor(),
+    Box(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.24f)),
     ) {
-        Column(
+        Box(
             modifier =
                 Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 720.dp)
-                    .padding(horizontal = DesignTokens.ContentHorizontalPadding)
-                    .padding(bottom = DesignTokens.SpacingLarge),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-        ) {
-            Text(
-                text = stringResource(R.string.widgets_picker_title),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            WidgetPickerSearchField(
-                query = query,
-                onQueryChange = { query = it },
-                modifier = Modifier.fillMaxWidth(),
-            )
+                    .fillMaxSize()
+                    .clickable(onClick = onDismiss),
+        )
 
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth().nestedScroll(blockSheetDragFromListScroll),
+        Surface(
+            modifier =
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth(),
+            shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+            color = AppColors.getDialogContainerColor(),
+        ) {
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 720.dp)
+                        .padding(top = DesignTokens.SpacingMedium)
+                        .padding(horizontal = DesignTokens.ContentHorizontalPadding)
+                        .padding(bottom = DesignTokens.SpacingLarge),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             ) {
-                items(filteredApps, key = { it.packageName }) { app ->
-                    WidgetPickerAppGroup(
-                        app = app,
-                        isExpanded = expandedApps.contains(app.packageName),
-                        onToggleExpanded = {
-                            expandedApps =
-                                if (expandedApps.contains(app.packageName)) {
-                                    expandedApps - app.packageName
-                                } else {
-                                    expandedApps + app.packageName
-                                }
-                        },
-                        packageManager = packageManager,
-                        onSelectWidget = onSelectWidget,
-                    )
-                }
-                if (filteredApps.isEmpty()) {
-                    item {
+                Box(
+                    modifier =
+                        Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .size(width = 32.dp, height = 4.dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                                shape = CircleShape,
+                            ),
+                )
+
+                Text(
+                    text = stringResource(R.string.widgets_picker_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                if (apps == null) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = 280.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
                         Text(
-                            text = stringResource(R.string.widgets_picker_empty),
-                            style = MaterialTheme.typography.bodyMedium,
+                            text = stringResource(R.string.widgets_picker_loading),
+                            style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(DesignTokens.SpacingLarge),
                         )
+                    }
+                } else {
+                    WidgetPickerSearchField(
+                        query = query,
+                        onQueryChange = { query = it },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+
+                    LazyColumn(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .nestedScroll(blockSheetDragFromListScroll),
+                        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
+                    ) {
+                        items(filteredApps, key = { it.packageName }) { app ->
+                            WidgetPickerAppGroup(
+                                app = app,
+                                isExpanded = expandedApps.contains(app.packageName),
+                                onToggleExpanded = {
+                                    expandedApps =
+                                        if (expandedApps.contains(app.packageName)) {
+                                            expandedApps - app.packageName
+                                        } else {
+                                            expandedApps + app.packageName
+                                        }
+                                },
+                                packageManager = packageManager,
+                                onSelectWidget = onSelectWidget,
+                            )
+                        }
+                        if (filteredApps.isEmpty()) {
+                            item {
+                                Text(
+                                    text = stringResource(R.string.widgets_picker_empty),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(DesignTokens.SpacingLarge),
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -371,7 +423,7 @@ private fun WidgetPickerRow(
         Surface(
             modifier = Modifier.fillMaxWidth().heightIn(min = 92.dp),
             shape = DesignTokens.ShapeMedium,
-            color = MaterialTheme.colorScheme.surfaceContainerHighest,
+            color = Color.Transparent,
         ) {
             Box(contentAlignment = Alignment.Center) {
                 when {

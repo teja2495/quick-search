@@ -868,6 +868,7 @@
     <string name="widget_toggle_show_label">Quick Search 文本提示</string>
     <string name="widgets_panel_title">小部件管理</string>
     <string name="widgets_picker_empty">未找到任何小部件。</string>
+    <string name="widgets_picker_loading">正在加载小部件...</string>
     <string name="widgets_picker_preview_unavailable">暂无预览效果</string>
     <string name="widgets_picker_title">添加小部件</string>
     <string name="widgets_picker_widget_count">%1$d 个小部件</string>
