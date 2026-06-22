@@ -20,6 +20,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.app.startup.StartupCoordinator
@@ -201,6 +202,12 @@ class OverlayActivity : ComponentActivity() {
                         viewModel = searchViewModel,
                         animationToken = animationToken,
                         onCloseRequested = { finish() },
+                        reservedKeyboardHeightProvider = { landscape ->
+                            userPreferences.getReservedKeyboardHeightDp(landscape).dp
+                        },
+                        onKeyboardHeightMeasured = { landscape, height ->
+                            userPreferences.setReservedKeyboardHeightDp(landscape, height.value)
+                        },
                     )
                 }
             }

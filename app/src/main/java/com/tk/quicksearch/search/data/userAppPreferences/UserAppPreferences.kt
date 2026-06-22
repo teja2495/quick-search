@@ -991,6 +991,12 @@ class UserAppPreferences(
     fun setOpenKeyboardOnLaunchEnabled(enabled: Boolean) =
             uiPreferences.setOpenKeyboardOnLaunchEnabled(enabled)
 
+    fun getReservedKeyboardHeightDp(isLandscape: Boolean): Float =
+            uiPreferences.getReservedKeyboardHeightDp(isLandscape)
+
+    fun setReservedKeyboardHeightDp(isLandscape: Boolean, dp: Float) =
+            uiPreferences.setReservedKeyboardHeightDp(isLandscape, dp)
+
     fun applyDefaultLauncherPreferencesIfNeeded(isDefaultLauncher: Boolean): Boolean =
             uiPreferences.applyDefaultLauncherPreferencesIfNeeded(isDefaultLauncher)
 

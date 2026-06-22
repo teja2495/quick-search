@@ -61,6 +61,29 @@ class UiPreferences(
         setBooleanPref(UiPreferences.KEY_OPEN_KEYBOARD_ON_LAUNCH, enabled)
     }
 
+    /**
+     * Last measured soft-keyboard height (in dp) per orientation. Used to reserve the
+     * keyboard space in the overlay from the first frame so the surface does not visibly
+     * resize when the (deferred) keyboard animates in. 0f means "not measured yet".
+     */
+    fun getReservedKeyboardHeightDp(isLandscape: Boolean): Float =
+            prefs.getFloat(
+                    if (isLandscape) UiPreferences.KEY_RESERVED_KEYBOARD_HEIGHT_LANDSCAPE
+                    else UiPreferences.KEY_RESERVED_KEYBOARD_HEIGHT_PORTRAIT,
+                    0f,
+            )
+
+    fun setReservedKeyboardHeightDp(isLandscape: Boolean, dp: Float) {
+        if (dp <= 0f) return
+        prefs.edit()
+                .putFloat(
+                        if (isLandscape) UiPreferences.KEY_RESERVED_KEYBOARD_HEIGHT_LANDSCAPE
+                        else UiPreferences.KEY_RESERVED_KEYBOARD_HEIGHT_PORTRAIT,
+                        dp,
+                )
+                .apply()
+    }
+
     fun applyDefaultLauncherPreferencesIfNeeded(isDefaultLauncher: Boolean): Boolean {
         val wasDefaultLauncher = prefs.getBoolean(KEY_WAS_DEFAULT_LAUNCHER, false)
         if (!isDefaultLauncher) {
@@ -1038,6 +1061,8 @@ class UiPreferences(
         const val KEY_SEARCH_HINTS_ENABLED = "search_hints_enabled"
         const val KEY_SETTINGS_ICON_ENABLED = "settings_icon_enabled"
         const val KEY_OPEN_KEYBOARD_ON_LAUNCH = "open_keyboard_on_launch"
+        const val KEY_RESERVED_KEYBOARD_HEIGHT_PORTRAIT = "reserved_keyboard_height_portrait"
+        const val KEY_RESERVED_KEYBOARD_HEIGHT_LANDSCAPE = "reserved_keyboard_height_landscape"
         const val KEY_WAS_DEFAULT_LAUNCHER = "was_default_launcher"
         const val KEY_DEFAULT_LAUNCHER_PREVIOUS_BOTTOM_SEARCH_BAR_ENABLED =
                 "default_launcher_previous_bottom_search_bar_enabled"

@@ -52,6 +52,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.tk.quicksearch.app.navigation.SettingsNavigationMemory
@@ -85,6 +86,15 @@ private val OVERLAY_BORDER_WIDTH = 1.25.dp
 private val OVERLAY_OPERATOR_ROW_ESTIMATED_HEIGHT = 48.dp
 private val OVERLAY_TOP_OFFSET = 16.dp
 private val OVERLAY_ENTER_START_OFFSET = 56.dp
+// Keyboard space reservation: the overlay defers showing the keyboard (to avoid typing
+// jank), which means the live IME inset is 0 on the first frame and the surface would
+// otherwise paint full-height and then visibly retract when the keyboard slides in. We
+// reserve the last measured keyboard height from frame 1 instead, reconciling with the
+// live inset so a shorter/absent keyboard never leaves a permanent gap.
+private val MIN_RESERVABLE_KEYBOARD_HEIGHT = 120.dp
+private val KEYBOARD_RESERVE_TOLERANCE = 24.dp
+private const val KEYBOARD_RESERVE_TIMEOUT_MS = 1_200L
+private const val KEYBOARD_MEASURE_SETTLE_MS = 250L
 
 @Composable
 fun OverlayRoot(
@@ -92,6 +102,8 @@ fun OverlayRoot(
         animationToken: Long = 0L,
         onCloseRequested: () -> Unit,
         modifier: Modifier = Modifier,
+        reservedKeyboardHeightProvider: (Boolean) -> Dp = { 0.dp },
+        onKeyboardHeightMeasured: (Boolean, Dp) -> Unit = { _, _ -> },
 ) {
         // Keep initial frame visible to avoid cold-start transparent flash.
         var isVisible by remember(animationToken) { mutableStateOf(true) }
@@ -167,6 +179,54 @@ fun OverlayRoot(
                         val systemBarsPadding = WindowInsets.systemBars.asPaddingValues()
                         val imeBottomPadding =
                                 WindowInsets.ime.asPaddingValues().calculateBottomPadding()
+
+                        // Reserve keyboard space from the first frame so the overlay does not
+                        // paint full-height and then retract when the deferred keyboard appears.
+                        val landscape = isLandscape()
+                        val reservedKeyboardHeight =
+                                remember(landscape, animationToken) {
+                                        reservedKeyboardHeightProvider(landscape)
+                                }
+                        var maxLiveImeHeight by
+                                remember(animationToken) { mutableStateOf(0.dp) }
+                        var keyboardReservationFinished by
+                                remember(animationToken) { mutableStateOf(false) }
+                        LaunchedEffect(imeBottomPadding) {
+                                if (imeBottomPadding > maxLiveImeHeight) {
+                                        maxLiveImeHeight = imeBottomPadding
+                                }
+                                // Once the real keyboard has reached (about) the reserved height,
+                                // hand control back to the live inset so later hide/show is normal.
+                                if (reservedKeyboardHeight > 0.dp &&
+                                        imeBottomPadding >=
+                                                reservedKeyboardHeight - KEYBOARD_RESERVE_TOLERANCE
+                                ) {
+                                        keyboardReservationFinished = true
+                                }
+                        }
+                        // Safety net: if the keyboard never shows (e.g. a hardware keyboard),
+                        // drop the reservation so the surface expands to full height.
+                        LaunchedEffect(animationToken) {
+                                delay(KEYBOARD_RESERVE_TIMEOUT_MS)
+                                keyboardReservationFinished = true
+                        }
+                        // Persist the settled keyboard height per orientation for the next launch.
+                        LaunchedEffect(maxLiveImeHeight, landscape) {
+                                if (maxLiveImeHeight >= MIN_RESERVABLE_KEYBOARD_HEIGHT) {
+                                        delay(KEYBOARD_MEASURE_SETTLE_MS)
+                                        onKeyboardHeightMeasured(landscape, maxLiveImeHeight)
+                                }
+                        }
+                        val shouldReserveKeyboardSpace =
+                                uiState.openKeyboardOnLaunch &&
+                                        !keyboardReservationFinished &&
+                                        reservedKeyboardHeight > 0.dp
+                        val effectiveImeBottom =
+                                if (shouldReserveKeyboardSpace) {
+                                        maxOf(imeBottomPadding, reservedKeyboardHeight)
+                                } else {
+                                        imeBottomPadding
+                                }
                         val shouldShowOverlayOperatorRow =
                                 overlayImeVisible &&
                                         (overlayManualNumberKeyboard ||
@@ -197,7 +257,7 @@ fun OverlayRoot(
                         val bottomSafePadding =
                                 maxOf(
                                         systemBarsPadding.calculateBottomPadding(),
-                                        imeBottomPadding,
+                                        effectiveImeBottom,
                                 )
                         val overlayTopPadding = topSafePadding + OVERLAY_TOP_OFFSET
                         val availableHeight =
