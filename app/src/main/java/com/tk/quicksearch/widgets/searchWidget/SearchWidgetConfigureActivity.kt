@@ -131,7 +131,11 @@ class SearchWidgetConfigureActivity : ComponentActivity() {
 
     private suspend fun getGlanceId(appWidgetId: Int): GlanceId? {
         val manager = GlanceAppWidgetManager(this)
-        return manager.getGlanceIdBy(appWidgetId)
+        return try {
+            manager.getGlanceIdBy(appWidgetId)
+        } catch (e: IllegalArgumentException) {
+            null
+        }
     }
 
     private suspend fun loadWidgetPreferences(appWidgetId: Int): LoadedWidgetPreferences {

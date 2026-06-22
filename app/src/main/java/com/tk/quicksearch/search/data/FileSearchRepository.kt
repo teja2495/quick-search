@@ -352,14 +352,27 @@ class FileSearchRepository(
                     val selection = "${MediaStore.Files.FileColumns._ID} IN ($placeholders)"
                     val selectionArgs = chunkIds.map { it.toString() }.toTypedArray()
 
-                    contentResolver
-                        .query(
-                            baseUri,
-                            FILE_PROJECTION,
-                            selection,
-                            selectionArgs,
-                            null,
-                        )?.use { cursor ->
+                    val cursor = runCatching {
+                        contentResolver.query(baseUri, FILE_PROJECTION, selection, selectionArgs, null)
+                    }.getOrElse { e ->
+                        // Some devices don't expose volume-specific URIs (e.g. external_primary).
+                        // Fall back to the virtual external volume which covers all external storage.
+                        if (e is IllegalArgumentException && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            runCatching {
+                                contentResolver.query(
+                                    MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL),
+                                    FILE_PROJECTION,
+                                    selection,
+                                    selectionArgs,
+                                    null,
+                                )
+                            }.getOrNull()
+                        } else {
+                            null
+                        }
+                    }
+
+                    cursor?.use { cursor ->
                             val columnIndices = getColumnIndices(cursor)
                             while (cursor.moveToNext()) {
                                 val rowId = cursor.getLong(columnIndices.idIndex)

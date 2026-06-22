@@ -103,7 +103,7 @@ internal fun WidgetPickerSheet(
                                 appInfo
                                     ?.let { packageManager.getApplicationLabel(it).toString() }
                                     ?: packageName,
-                            icon = appInfo?.let { packageManager.getApplicationIcon(it) },
+                            icon = appInfo?.let { runCatching { packageManager.getApplicationIcon(it) }.getOrNull() },
                             widgets =
                                 providers.sortedBy {
                                     it.loadLabel(packageManager)?.toString().orEmpty().lowercase()

@@ -114,8 +114,8 @@ class ContactRepository(
                 ContactsContract.Data.IS_SUPER_PRIMARY,
             )
 
-        // Sort order for contacts (most contacted first)
-        private const val SORT_ORDER = "${ContactsContract.CommonDataKinds.Phone.TIMES_CONTACTED} DESC"
+        // Sort by display name; TIMES_CONTACTED was removed in Android 11+ OEM builds and causes SQLiteException
+        private const val SORT_ORDER = "${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY} ASC"
 
         private const val TAG = "ContactRepository"
         private const val SQL_EMPTY = "''"

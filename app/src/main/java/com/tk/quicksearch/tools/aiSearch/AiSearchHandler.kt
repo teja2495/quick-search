@@ -26,7 +26,7 @@ class AiSearchHandler(
     private var activeProviderId: AiSearchLlmProviderId = AiSearchLlmProviderId.GEMINI
     private var activeProvider: AiSearchLlmProvider =
         AiSearchLlmProviderRegistry.get(AiSearchLlmProviderId.GEMINI, context)
-    private var llmApiKey: String? = null
+    @Volatile private var llmApiKey: String? = null
     private var personalContext: String = ""
     private var selectedModelId: String = GeminiModelCatalog.DEFAULT_MODEL_ID
     private var groundingEnabled: Boolean = GeminiModelCatalog.DEFAULT_GROUNDING_ENABLED
@@ -34,7 +34,9 @@ class AiSearchHandler(
     private var availableGeminiModels: List<GeminiTextModel> = GeminiModelCatalog.FALLBACK_TEXT_MODELS
     private var hasLoadedGeminiModelsFromApi: Boolean = false
 
-    private var isInitialized = false
+    @Volatile private var hasAnyLlmApiKey: Boolean = false
+    @Volatile private var hasLoadedApiKeyCache: Boolean = false
+    @Volatile private var isInitialized = false
     private var aiSearchJob: Job? = null
 
     private fun ensureInitialized() {
@@ -48,6 +50,8 @@ class AiSearchHandler(
             thinkingEnabled = userPreferences.isLlmThinkingEnabled(activeProviderId)
             availableGeminiModels = ensureModelExists(activeProvider.fallbackTextModels)
             hasLoadedGeminiModelsFromApi = false
+            hasAnyLlmApiKey = userPreferences.hasAnyLlmApiKey()
+            hasLoadedApiKeyCache = true
             isInitialized = true
         }
     }
@@ -89,6 +93,7 @@ class AiSearchHandler(
         hasLoadedGeminiModelsFromApi = false
         userPreferences.setLlmApiKey(activeProviderId, normalized)
 
+        hasAnyLlmApiKey = userPreferences.hasAnyLlmApiKey()
         if (llmApiKey == null) {
             availableGeminiModels = ensureModelExists(activeProvider.fallbackTextModels)
             clearAiSearchState()
@@ -124,6 +129,7 @@ class AiSearchHandler(
                 }
             }
         }
+        hasAnyLlmApiKey = userPreferences.hasAnyLlmApiKey()
     }
 
     fun getSelectedModelId(): String {
@@ -183,6 +189,20 @@ class AiSearchHandler(
     // Backward-compatible Gemini facade methods for existing call sites.
     fun getGeminiApiKey(): String? = getLlmApiKey()
 
+    /**
+     * Returns the cached active-provider API key state without triggering [ensureInitialized].
+     * Safe to call from the main thread. Treats an unknown cache as available so startup alias
+     * parsing does not hide AI targets before background preference initialization completes.
+     */
+    fun hasLlmApiKeyCached(): Boolean = !hasLoadedApiKeyCache || !llmApiKey.isNullOrBlank()
+
+    /**
+     * Returns whether any LLM provider has a cached API key without triggering [ensureInitialized].
+     * Safe to call from the main thread. Treats an unknown cache as available so startup alias
+     * parsing does not hide AI targets before background preference initialization completes.
+     */
+    fun hasAnyLlmApiKeyCached(): Boolean = !hasLoadedApiKeyCache || hasAnyLlmApiKey
+
     fun getPersonalContext(): String {
         ensureInitialized()
         return personalContext
@@ -201,6 +221,7 @@ class AiSearchHandler(
 
     fun reloadFromPreferences() {
         isInitialized = false
+        hasLoadedApiKeyCache = false
         ensureInitialized()
         clearAiSearchState()
     }

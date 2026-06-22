@@ -371,7 +371,7 @@ class AliasHandler(
         for (target in targets) {
             if (target is SearchTarget.Engine &&
                 target.engine == SearchEngine.DIRECT_SEARCH &&
-                aiSearchHandler.getGeminiApiKey().isNullOrBlank()
+                !aiSearchHandler.hasLlmApiKeyCached()
             ) {
                 continue
             }
@@ -398,7 +398,7 @@ class AliasHandler(
         for (target in targets) {
             if (target is SearchTarget.Engine &&
                 target.engine == SearchEngine.DIRECT_SEARCH &&
-                aiSearchHandler.getGeminiApiKey().isNullOrBlank()
+                !aiSearchHandler.hasLlmApiKeyCached()
             ) {
                 continue
             }
