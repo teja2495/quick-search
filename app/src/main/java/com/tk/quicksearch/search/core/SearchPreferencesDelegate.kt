@@ -31,6 +31,7 @@ internal interface SearchPreferencesStateAccess {
     var overlayModeEnabled: Boolean
     var autoCloseOverlay: Boolean
     var appSuggestionsEnabled: Boolean
+    var showAllAppsButton: Boolean
     var showAppLabels: Boolean
     var phoneAppGridColumns: Int
     var appIconSizeStep: Int
@@ -156,6 +157,18 @@ internal class SearchPreferencesDelegate(
             stateUpdater = {
                 updateConfigState { state -> state.copy(includeNonLaunchableAppsInSearch = it) }
                 refreshAppSuggestions()
+            },
+        )
+    }
+
+    fun setShowAllAppsButton(enabled: Boolean) {
+        updateBooleanPreference(
+            value = enabled,
+            preferenceSetter = userPreferences::setShowAllAppsButton,
+            stateUpdater = {
+                stateAccess.showAllAppsButton = it
+                updateUiState { state -> state.copy(showAllAppsButton = it) }
+                stateAccess.saveStartupSurfaceSnapshotAsync(allowDuringQuery = true)
             },
         )
     }

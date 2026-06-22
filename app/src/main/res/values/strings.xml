@@ -182,6 +182,8 @@
     <string name="app_suggestions_tab_required_toast">Keep at least one app suggestion tab enabled</string>
     <string name="app_suggestions_toggle_desc">Show or hide suggested apps on the home screen</string>
     <string name="app_suggestions_toggle_title">App Suggestions</string>
+    <string name="show_all_apps_button_toggle_title">All Apps</string>
+    <string name="show_all_apps_button_toggle_desc">Show All Apps button below app suggestions</string>
     <string name="app_suggestions_usage_access_link">usage access permission</string>
     <string name="app_suggestions_usage_access_tip">Grant usage access permission to see more appropriate suggestions</string>
     <string name="clear_query_toggle_desc">Automatically clear old query when the app launches</string>

@@ -145,12 +145,11 @@ private fun renderAppsSection(
     context: SectionRenderContext,
 ) {
     val appsParams = params.appsParams ?: return
-    val hasAllAppsSuggestionContent =
-        !appsParams.isSearching &&
-            AppSuggestionTabType.ALL_APPS in appsParams.enabledSuggestionTabs &&
-            appsParams.allApps.isNotEmpty()
 
-    if (context.shouldRenderApps && ((appsParams.hasAppResults && appsParams.apps.isNotEmpty()) || hasAllAppsSuggestionContent)) {
+    if (
+        context.shouldRenderApps &&
+            ((appsParams.hasAppResults && appsParams.apps.isNotEmpty()) || appsParams.showAllAppsButton)
+    ) {
         val shouldShowRateQuickSearchCard = appsParams.showRateQuickSearchCard
         val renderRateQuickSearchCardFirst = shouldShowRateQuickSearchCard && appsParams.oneHandedMode
 
@@ -175,6 +174,7 @@ private fun renderAppsSection(
             enabledSuggestionTabs = appsParams.enabledSuggestionTabs,
             onSuggestionTabSelected = appsParams.onSuggestionTabSelected,
             hasAppResults = appsParams.hasAppResults,
+            showAllAppsButton = appsParams.showAllAppsButton,
             onAppClick = appsParams.onAppClick,
             onAppInfoClick = appsParams.onAppInfoClick,
             onUninstallClick = appsParams.onUninstallClick,

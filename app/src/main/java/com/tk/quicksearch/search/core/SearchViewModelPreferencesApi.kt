@@ -53,6 +53,9 @@ internal interface SearchViewModelPreferencesApi {
     fun setAppSuggestionsEnabled(enabled: Boolean) =
         preferencesApiDelegate.setAppSuggestionsEnabled(enabled)
 
+    fun setShowAllAppsButton(enabled: Boolean) =
+        preferencesApiDelegate.setShowAllAppsButton(enabled)
+
     fun setIncludeNonLaunchableAppsInSearch(enabled: Boolean) =
         preferencesApiDelegate.setIncludeNonLaunchableAppsInSearch(enabled)
 
@@ -290,6 +293,9 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
 
     fun setAppSuggestionsEnabled(enabled: Boolean) =
         preferencesDelegate.setAppSuggestionsEnabled(enabled)
+
+    fun setShowAllAppsButton(enabled: Boolean) =
+        preferencesDelegate.setShowAllAppsButton(enabled)
 
     fun setIncludeNonLaunchableAppsInSearch(enabled: Boolean) =
         preferencesDelegate.setIncludeNonLaunchableAppsInSearch(enabled)

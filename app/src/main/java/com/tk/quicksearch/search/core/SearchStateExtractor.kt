@@ -171,6 +171,7 @@ internal object SearchStateExtractor {
             themedIconsEnabled = s.themedIconsEnabled,
             deviceThemeEnabled = s.deviceThemeEnabled,
             appSuggestionsEnabled = s.appSuggestionsEnabled,
+            showAllAppsButton = s.showAllAppsButton,
             includeNonLaunchableAppsInSearch = s.includeNonLaunchableAppsInSearch,
             selectedAppSuggestionTab = s.selectedAppSuggestionTab,
             enabledAppSuggestionTabs = s.enabledAppSuggestionTabs,

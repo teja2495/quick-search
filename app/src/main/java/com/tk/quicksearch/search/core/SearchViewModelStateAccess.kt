@@ -107,6 +107,12 @@ internal class SearchViewModelPreferencesStateAccess(
             state.appSuggestionsEnabled = value
         }
 
+    override var showAllAppsButton: Boolean
+        get() = state.showAllAppsButton
+        set(value) {
+            state.showAllAppsButton = value
+        }
+
     override var showAppLabels: Boolean
         get() = state.showAppLabels
         set(value) {

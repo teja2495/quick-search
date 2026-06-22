@@ -33,6 +33,12 @@ fun MoreOptionsSettings(
     val toggleItems =
         listOf(
             ToggleItem(
+                key = AppSettingsToggleKey.SHOW_ALL_APPS_BUTTON,
+                titleRes = R.string.show_all_apps_button_toggle_title,
+                subtitleRes = R.string.show_all_apps_button_toggle_desc,
+                leadingIcon = Icons.Rounded.Apps,
+            ),
+            ToggleItem(
                 key = AppSettingsToggleKey.INCLUDE_NON_LAUNCHABLE_APPS_IN_SEARCH,
                 titleRes = R.string.include_non_launchable_apps_toggle_title,
                 subtitleRes = R.string.include_non_launchable_apps_toggle_desc,

@@ -253,6 +253,7 @@ data class SearchUiConfigState(
         val deviceThemeEnabled: Boolean = false,
         val wallpaperAccentEnabled: Boolean = true,
         val appSuggestionsEnabled: Boolean = true,
+        val showAllAppsButton: Boolean = false,
         val includeNonLaunchableAppsInSearch: Boolean = false,
         val selectedAppSuggestionTab: AppSuggestionTabType = AppSuggestionTabType.RECENTS,
         val enabledAppSuggestionTabs: Set<AppSuggestionTabType> = AppSuggestionTabType.DefaultEnabledTabs,

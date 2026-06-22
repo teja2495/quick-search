@@ -133,6 +133,7 @@ internal object SearchViewModelInitialStateFactory {
                 appSuggestionsEnabled =
                     startupSnapshot?.appSuggestionsEnabled
                         ?: startupPreferencesReader.areAppSuggestionsEnabled(),
+                showAllAppsButton = startupPreferencesReader.shouldShowAllAppsButton(),
                 includeNonLaunchableAppsInSearch =
                     startupPreferencesReader.shouldIncludeNonLaunchableAppsInSearch(),
                 selectedAppSuggestionTab = startupPreferencesReader.getSelectedAppSuggestionTab(),

@@ -1235,6 +1235,10 @@ class UserAppPreferences(
 
     fun setAppSuggestionsEnabled(enabled: Boolean) = uiPreferences.setAppSuggestionsEnabled(enabled)
 
+    fun shouldShowAllAppsButton(): Boolean = uiPreferences.shouldShowAllAppsButton()
+
+    fun setShowAllAppsButton(enabled: Boolean) = uiPreferences.setShowAllAppsButton(enabled)
+
     fun shouldIncludeNonLaunchableAppsInSearch(): Boolean =
             uiPreferences.shouldIncludeNonLaunchableAppsInSearch()
 

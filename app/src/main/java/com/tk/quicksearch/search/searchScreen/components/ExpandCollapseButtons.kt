@@ -3,9 +3,12 @@ package com.tk.quicksearch.search.searchScreen.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.ButtonDefaults
@@ -17,6 +20,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -35,9 +39,13 @@ internal fun ExpandButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     textResId: Int = R.string.action_expand_more,
+    usePillBackground: Boolean = false,
+    showWallpaperBackground: Boolean = false,
+    icon: ImageVector = Icons.Rounded.ExpandMore,
 ) {
     val overlayActionColor = LocalOverlayActionColor.current
     val moreActionColor = expandCollapseActionContentColor(overlayActionColor)
+    val cardContainerColor = resultCardContainerColor(showWallpaperBackground)
     val moreTextStyle =
         if (LocalAppTheme.current == AppTheme.MONOCHROME) {
             MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold)
@@ -45,22 +53,50 @@ internal fun ExpandButton(
             MaterialTheme.typography.bodySmall
         }
 
-    TextButton(
-        onClick = onClick,
-        modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-    ) {
-        Text(
-            text = stringResource(textResId),
-            style = moreTextStyle,
-            color = moreActionColor,
-        )
-        Icon(
-            imageVector = Icons.Rounded.ExpandMore,
-            contentDescription = stringResource(R.string.desc_expand),
-            tint = moreActionColor,
-            modifier = Modifier.size(EXPAND_ICON_SIZE.dp),
-        )
+    if (usePillBackground) {
+        OutlinedButton(
+            onClick = onClick,
+            modifier = modifier.heightIn(min = 56.dp),
+            shape = CircleShape,
+            border = BorderStroke(1.dp, Color.Transparent),
+            colors =
+                ButtonDefaults.outlinedButtonColors(
+                    containerColor = cardContainerColor,
+                    contentColor = moreActionColor,
+                ),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+        ) {
+            Text(
+                text = stringResource(textResId),
+                style = moreTextStyle,
+                color = moreActionColor,
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Icon(
+                imageVector = icon,
+                contentDescription = stringResource(R.string.desc_expand),
+                tint = moreActionColor,
+                modifier = Modifier.size(EXPAND_ICON_SIZE.dp),
+            )
+        }
+    } else {
+        TextButton(
+            onClick = onClick,
+            modifier = modifier,
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+        ) {
+            Text(
+                text = stringResource(textResId),
+                style = moreTextStyle,
+                color = moreActionColor,
+            )
+            Icon(
+                imageVector = icon,
+                contentDescription = stringResource(R.string.desc_expand),
+                tint = moreActionColor,
+                modifier = Modifier.size(EXPAND_ICON_SIZE.dp),
+            )
+        }
     }
 }
 

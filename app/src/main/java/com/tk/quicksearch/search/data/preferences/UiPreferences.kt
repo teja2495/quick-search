@@ -95,7 +95,8 @@ class UiPreferences(
         val currentBottomSearchBarEnabled = isBottomSearchBarEnabled()
         val currentOpenKeyboardOnLaunch = isOpenKeyboardOnLaunchEnabled()
         val currentEnabledTabs = getEnabledAppSuggestionTabs()
-        val autoEnabledTabs = currentEnabledTabs + AppSuggestionTabType.ALL_APPS
+        val autoEnabledTabs = currentEnabledTabs
+        val currentShowAllAppsButton = shouldShowAllAppsButton()
 
         val editor =
             prefs.edit()
@@ -118,6 +119,11 @@ class UiPreferences(
                 KEY_DEFAULT_LAUNCHER_AUTO_ENABLED_APP_SUGGESTION_TABS,
                 autoEnabledTabs.map { it.name }.toSet(),
             )
+            .putBoolean(
+                KEY_DEFAULT_LAUNCHER_PREVIOUS_SHOW_ALL_APPS_BUTTON,
+                currentShowAllAppsButton,
+            )
+            .putBoolean(KEY_SHOW_ALL_APPS_BUTTON, true)
         persistEnabledAppSuggestionTabs(editor, autoEnabledTabs)
         editor.apply()
         return true
@@ -133,6 +139,7 @@ class UiPreferences(
                 .remove(KEY_DEFAULT_LAUNCHER_PREVIOUS_OPEN_KEYBOARD_ON_LAUNCH)
                 .remove(KEY_DEFAULT_LAUNCHER_PREVIOUS_ENABLED_APP_SUGGESTION_TABS)
                 .remove(KEY_DEFAULT_LAUNCHER_AUTO_ENABLED_APP_SUGGESTION_TABS)
+                .remove(KEY_DEFAULT_LAUNCHER_PREVIOUS_SHOW_ALL_APPS_BUTTON)
 
         var restoredAny = false
         if (
@@ -169,6 +176,16 @@ class UiPreferences(
                 )
                 restoredAny = true
             }
+        }
+        if (
+            shouldShowAllAppsButton() &&
+                prefs.contains(KEY_DEFAULT_LAUNCHER_PREVIOUS_SHOW_ALL_APPS_BUTTON)
+        ) {
+            editor.putBoolean(
+                KEY_SHOW_ALL_APPS_BUTTON,
+                prefs.getBoolean(KEY_DEFAULT_LAUNCHER_PREVIOUS_SHOW_ALL_APPS_BUTTON, false),
+            )
+            restoredAny = true
         }
 
         editor.apply()
@@ -724,6 +741,13 @@ class UiPreferences(
         setBooleanPref(UiPreferences.KEY_APP_SUGGESTIONS_ENABLED, enabled)
     }
 
+    fun shouldShowAllAppsButton(): Boolean =
+            getBooleanPref(UiPreferences.KEY_SHOW_ALL_APPS_BUTTON, false)
+
+    fun setShowAllAppsButton(enabled: Boolean) {
+        setBooleanPref(UiPreferences.KEY_SHOW_ALL_APPS_BUTTON, enabled)
+    }
+
     fun shouldIncludeNonLaunchableAppsInSearch(): Boolean =
             getBooleanPref(UiPreferences.KEY_INCLUDE_NON_LAUNCHABLE_APPS_IN_SEARCH, false)
 
@@ -1069,9 +1093,11 @@ class UiPreferences(
         const val KEY_DEFAULT_LAUNCHER_PREVIOUS_OPEN_KEYBOARD_ON_LAUNCH =
                 "default_launcher_previous_open_keyboard_on_launch"
         const val KEY_DEFAULT_LAUNCHER_PREVIOUS_ENABLED_APP_SUGGESTION_TABS =
-                "default_launcher_previous_enabled_app_suggestion_tabs"
+            "default_launcher_previous_enabled_app_suggestion_tabs"
         const val KEY_DEFAULT_LAUNCHER_AUTO_ENABLED_APP_SUGGESTION_TABS =
-                "default_launcher_auto_enabled_app_suggestion_tabs"
+            "default_launcher_auto_enabled_app_suggestion_tabs"
+        const val KEY_DEFAULT_LAUNCHER_PREVIOUS_SHOW_ALL_APPS_BUTTON =
+            "default_launcher_previous_show_all_apps_button"
         const val KEY_TOP_RESULT_INDICATOR_ENABLED = "top_result_indicator_enabled"
         const val KEY_TOP_MATCHES_ENABLED = "top_matches_enabled"
         const val KEY_TOP_MATCHES_LIMIT = "top_matches_limit"
@@ -1157,8 +1183,9 @@ class UiPreferences(
 
         // App suggestions preferences keys
         const val KEY_APP_SUGGESTIONS_ENABLED = "app_suggestions_enabled"
+        const val KEY_SHOW_ALL_APPS_BUTTON = "show_all_apps_button"
         const val KEY_INCLUDE_NON_LAUNCHABLE_APPS_IN_SEARCH =
-                "include_non_launchable_apps_in_search"
+            "include_non_launchable_apps_in_search"
         const val KEY_SELECTED_APP_SUGGESTION_TAB = "selected_app_suggestion_tab"
         const val KEY_ENABLED_APP_SUGGESTION_TABS = "enabled_app_suggestion_tabs"
 
