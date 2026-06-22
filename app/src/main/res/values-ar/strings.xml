@@ -193,6 +193,8 @@
     <string name="app_suggestions_tab_required_toast">يجب إبقاء تبويب واحد على الأقل مفعل لاقتراحات التطبيقات</string>
     <string name="app_suggestions_toggle_desc">إظهار أو إخفاء التطبيقات المقترحة على الشاشة الرئيسية</string>
     <string name="app_suggestions_toggle_title">اقتراحات التطبيقات</string>
+    <string name="show_all_apps_button_toggle_title">جميع التطبيقات</string>
+    <string name="show_all_apps_button_toggle_desc">إظهار زر \"جميع التطبيقات\" أسفل اقتراحات التطبيقات</string>
     <string name="app_suggestions_usage_access_link">إذن الوصول إلى بيانات الاستخدام</string>
     <string name="app_suggestions_usage_access_tip">امنح إذن الوصول إلى بيانات الاستخدام للحصول على اقتراحات أكثر ملاءمة</string>
     <string name="clear_query_toggle_desc">مسح عبارة البحث السابقة تلقائياً عند تشغيل التطبيق</string>

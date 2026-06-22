@@ -192,6 +192,8 @@
     <string name="app_suggestions_tab_required_toast">కనీసం ఒక యాప్ సూచన ట్యాబ్‌నైనా ప్రారంభించి ఉంచండి</string>
     <string name="app_suggestions_toggle_desc">హోమ్ స్క్రీన్‌పై సూచించిన యాప్‌లను చూపించు లేదా దాచు</string>
     <string name="app_suggestions_toggle_title">యాప్ సూచనలు</string>
+    <string name="show_all_apps_button_toggle_title">అన్ని యాప్‌లు</string>
+    <string name="show_all_apps_button_toggle_desc">యాప్ సూచనల క్రింద \"అన్ని యాప్‌లు\" బటన్‌ను చూపించు</string>
     <string name="app_suggestions_usage_access_link">వినియోగ ప్రాప్యత అనుమతి</string>
     <string name="app_suggestions_usage_access_tip">మరింత తగిన సూచనలను చూడటానికి వినియోగ ప్రాప్యత అనుమతిని మంజూరు చేయండి</string>
     <string name="clear_query_toggle_desc">యాప్ ప్రారంభమైనప్పుడు మునుపటి శోధనను స్వయంచాలకంగా క్లియర్ చేయి</string>

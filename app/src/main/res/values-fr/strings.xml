@@ -192,6 +192,8 @@
 <string name="app_suggestions_tab_required_toast">Gardez au moins un onglet de suggestions d\'applications activé</string>
 <string name="app_suggestions_toggle_desc">Afficher ou masquer les applications suggérées sur l\'écran d\'accueil</string>
 <string name="app_suggestions_toggle_title">Suggestions d\'applications</string>
+<string name="show_all_apps_button_toggle_title">Toutes les applications</string>
+<string name="show_all_apps_button_toggle_desc">Afficher le bouton \"Toutes les applications\" sous les suggestions d\'applications</string>
 <string name="app_suggestions_usage_access_link">l\'autorisation d\'accès aux données d\'utilisation</string>
 <string name="app_suggestions_usage_access_tip">Accordez l\'accès aux données d\'utilisation pour voir des suggestions plus pertinentes</string>
 <string name="clear_query_toggle_desc">Effacer automatiquement l\'ancienne recherche au lancement de l\'application</string>

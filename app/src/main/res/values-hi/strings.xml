@@ -192,6 +192,8 @@
     <string name="app_suggestions_tab_required_toast">कम से कम एक ऐप सुझाव टैब सक्षम रखें</string>
     <string name="app_suggestions_toggle_desc">होम स्क्रीन पर सुझाए गए ऐप दिखाएं या छिपाएं</string>
     <string name="app_suggestions_toggle_title">ऐप सुझाव</string>
+    <string name="show_all_apps_button_toggle_title">सभी ऐप्स</string>
+    <string name="show_all_apps_button_toggle_desc">ऐप सुझावों के नीचे \"सभी ऐप्स\" बटन दिखाएं</string>
     <string name="app_suggestions_usage_access_link">उपयोग पहुंच अनुमति</string>
     <string name="app_suggestions_usage_access_tip">अधिक उपयुक्त सुझाव देखने के लिए उपयोग पहुंच अनुमति दें</string>
     <string name="clear_query_toggle_desc">ऐप खुलने पर पुरानी क्वेरी अपने आप साफ करें</string>

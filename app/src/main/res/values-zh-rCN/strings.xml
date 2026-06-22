@@ -192,6 +192,8 @@
     <string name="app_suggestions_tab_required_toast">请至少保留一个启用的应用建议标签页</string>
     <string name="app_suggestions_toggle_desc">在主屏幕上显示或隐藏建议的应用</string>
     <string name="app_suggestions_toggle_title">应用建议</string>
+    <string name="show_all_apps_button_toggle_title">所有应用</string>
+    <string name="show_all_apps_button_toggle_desc">在应用建议下方显示\"所有应用\"按钮</string>
     <string name="app_suggestions_usage_access_link">使用情况访问权限</string>
     <string name="app_suggestions_usage_access_tip">授予使用情况访问权限以获取更精准的应用建议</string>
     <string name="clear_query_toggle_desc">应用启动时自动清除上次的查询内容</string>

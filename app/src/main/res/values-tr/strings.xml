@@ -191,6 +191,8 @@
 <string name="app_suggestions_tab_required_toast">En az bir uygulama önerisi sekmesini etkin tutmalısınız</string>
 <string name="app_suggestions_toggle_desc">Ana ekranda önerilen uygulamaları göster veya gizle</string>
 <string name="app_suggestions_toggle_title">Uygulama önerileri</string>
+<string name="show_all_apps_button_toggle_title">Tüm uygulamalar</string>
+<string name="show_all_apps_button_toggle_desc">Uygulama önerilerinin altında \"Tüm uygulamalar\" düğmesini göster</string>
 <string name="app_suggestions_usage_access_link">kullanım erişimi izni</string>
 <string name="app_suggestions_usage_access_tip">Daha uygun öneriler görmek için kullanım erişimi izni verin</string>
 <string name="clear_query_toggle_desc">Uygulama başlatıldığında eski sorguyu otomatik olarak temizle</string>

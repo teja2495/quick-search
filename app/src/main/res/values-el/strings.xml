@@ -192,6 +192,8 @@
     <string name="app_suggestions_tab_required_toast">Διατηρήστε τουλάχιστον μία καρτέλα προτάσεων εφαρμογών ενεργοποιημένη</string>
     <string name="app_suggestions_toggle_desc">Εμφάνιση ή απόκρυψη προτεινόμενων εφαρμογών στην αρχική οθόνη</string>
     <string name="app_suggestions_toggle_title">Προτάσεις εφαρμογών</string>
+    <string name="show_all_apps_button_toggle_title">Όλες οι εφαρμογές</string>
+    <string name="show_all_apps_button_toggle_desc">Εμφάνιση του κουμπιού \"Όλες οι εφαρμογές\" κάτω από τις προτάσεις εφαρμογών</string>
     <string name="app_suggestions_usage_access_link">άδεια πρόσβασης στη χρήση</string>
     <string name="app_suggestions_usage_access_tip">Χορηγήστε την άδεια πρόσβασης στη χρήση για να βλέπετε πιο κατάλληλες προτάσεις</string>
     <string name="clear_query_toggle_desc">Αυτόματος καθαρισμός του παλιού ερωτήματος κατά την εκκίνηση της εφαρμογής</string>

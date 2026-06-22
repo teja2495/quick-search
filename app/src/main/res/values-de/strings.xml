@@ -192,6 +192,8 @@
     <string name="app_suggestions_tab_required_toast">Mindestens ein App-Vorschlagstab muss aktiviert bleiben</string>
     <string name="app_suggestions_toggle_desc">Vorgeschlagene Apps auf dem Startbildschirm ein- oder ausblenden</string>
     <string name="app_suggestions_toggle_title">App-Vorschläge</string>
+    <string name="show_all_apps_button_toggle_title">Alle Apps</string>
+    <string name="show_all_apps_button_toggle_desc">Schaltfläche \"Alle Apps\" unter App-Vorschlägen anzeigen</string>
     <string name="app_suggestions_usage_access_link">Nutzungszugriffsberechtigung</string>
     <string name="app_suggestions_usage_access_tip">Nutzungszugriff erteilen, um passendere Vorschläge zu sehen</string>
     <string name="clear_query_toggle_desc">Vorherige Suchanfrage beim Start der App automatisch löschen</string>

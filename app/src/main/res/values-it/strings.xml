@@ -191,6 +191,8 @@
     <string name="app_suggestions_tab_required_toast">Mantieni abilitata almeno una scheda dei suggerimenti app</string>
     <string name="app_suggestions_toggle_desc">Mostra o nascondi le app consigliate nella schermata iniziale</string>
     <string name="app_suggestions_toggle_title">Suggerimenti app</string>
+    <string name="show_all_apps_button_toggle_title">Tutte le app</string>
+    <string name="show_all_apps_button_toggle_desc">Mostra il pulsante \"Tutte le app\" sotto i suggerimenti di app</string>
     <string name="app_suggestions_usage_access_link">autorizzazione di accesso ai dati di utilizzo</string>
     <string name="app_suggestions_usage_access_tip">Concedi l\u2019autorizzazione di accesso ai dati di utilizzo per vedere suggerimenti più pertinenti</string>
     <string name="clear_query_toggle_desc">Cancella automaticamente la query precedente all\u2019avvio dell\u2019app</string>

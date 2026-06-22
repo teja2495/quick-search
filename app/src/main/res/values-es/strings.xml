@@ -192,6 +192,8 @@
     <string name="app_suggestions_tab_required_toast">Mantén activada al menos una pestaña de sugerencias de apps</string>
     <string name="app_suggestions_toggle_desc">Muestra u oculta las apps sugeridas en la pantalla de inicio</string>
     <string name="app_suggestions_toggle_title">Sugerencias de apps</string>
+    <string name="show_all_apps_button_toggle_title">Todas las aplicaciones</string>
+    <string name="show_all_apps_button_toggle_desc">Muestra el botón \"Todas las aplicaciones\" debajo de las sugerencias de apps</string>
     <string name="app_suggestions_usage_access_link">permiso de acceso al uso</string>
     <string name="app_suggestions_usage_access_tip">Concede el permiso de acceso al uso para ver sugerencias más adecuadas</string>
     <string name="clear_query_toggle_desc">Borra automáticamente la búsqueda anterior al abrir la app</string>
