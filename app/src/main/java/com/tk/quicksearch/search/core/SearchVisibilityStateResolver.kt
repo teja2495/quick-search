@@ -22,7 +22,10 @@ internal class SearchVisibilityStateResolver {
             state.isLoading -> ScreenVisibilityState.Loading
             state.errorMessage != null -> ScreenVisibilityState.Error(state.errorMessage, canRetry = true)
             !state.hasUsagePermission -> ScreenVisibilityState.NoPermissions
-            state.query.isBlank() && state.recentApps.isEmpty() && state.pinnedApps.isEmpty() ->
+            state.query.isBlank() &&
+                state.recentApps.isEmpty() &&
+                state.pinnedApps.isEmpty() &&
+                !hasAllAppsSuggestionContent(state) ->
                 ScreenVisibilityState.Empty
             else -> ScreenVisibilityState.Content
         }
@@ -34,7 +37,10 @@ internal class SearchVisibilityStateResolver {
             !sectionEnabled -> AppsSectionVisibility.Hidden
             state.isInitializing || state.isLoading -> AppsSectionVisibility.Loading
             state.query.isBlank() -> {
-                val hasContent = state.recentApps.isNotEmpty() || state.pinnedApps.isNotEmpty()
+                val hasContent =
+                    state.recentApps.isNotEmpty() ||
+                        state.pinnedApps.isNotEmpty() ||
+                        hasAllAppsSuggestionContent(state)
                 if (hasContent) {
                     AppsSectionVisibility.ShowingResults(hasPinned = state.pinnedApps.isNotEmpty())
                 } else {
@@ -51,6 +57,10 @@ internal class SearchVisibilityStateResolver {
             }
         }
     }
+
+    private fun hasAllAppsSuggestionContent(state: SearchUiState): Boolean =
+        AppSuggestionTabType.ALL_APPS in state.enabledAppSuggestionTabs &&
+            state.allApps.any { app -> app.hasLaunchIntent }
 
     private fun computeAppShortcutsSectionVisibility(
         state: SearchUiState,

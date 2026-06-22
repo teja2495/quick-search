@@ -2,7 +2,6 @@ package com.tk.quicksearch.search.searchHistory
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -14,9 +13,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
@@ -28,7 +29,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
@@ -48,6 +48,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -391,33 +392,47 @@ private fun SearchHistoryTabs(
             HorizontalDivider(color = contentColor.copy(alpha = 0.10f))
         },
     ) {
-        Tab(
+        SearchHistoryTabItem(
+            text = stringResource(R.string.search_history_tab_searches),
             selected = selectedTab == SearchHistoryTab.SEARCHES,
+            contentColor = contentColor,
             onClick = { onTabSelected(SearchHistoryTab.SEARCHES) },
-            modifier = Modifier.height(SEARCH_HISTORY_TAB_ROW_HEIGHT.dp),
-            text = {
-                Text(
-                    text = stringResource(R.string.search_history_tab_searches),
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            },
         )
-        Tab(
+        SearchHistoryTabItem(
+            text = stringResource(R.string.search_history_tab_recently_opened),
             selected = selectedTab == SearchHistoryTab.RECENTLY_OPENED,
+            contentColor = contentColor,
             onClick = { onTabSelected(SearchHistoryTab.RECENTLY_OPENED) },
-            modifier = Modifier.height(SEARCH_HISTORY_TAB_ROW_HEIGHT.dp),
-            text = {
-                Text(
-                    text = stringResource(R.string.search_history_tab_recently_opened),
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            },
+        )
+    }
+}
+
+@Composable
+private fun SearchHistoryTabItem(
+    text: String,
+    selected: Boolean,
+    contentColor: Color,
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .height(SEARCH_HISTORY_TAB_ROW_HEIGHT.dp)
+            .selectable(
+                selected = selected,
+                onClick = onClick,
+                role = Role.Tab,
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier.fillMaxWidth(),
+            color = if (selected) contentColor else contentColor.copy(alpha = 0.72f),
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }

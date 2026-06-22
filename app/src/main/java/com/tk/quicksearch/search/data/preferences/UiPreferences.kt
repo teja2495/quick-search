@@ -71,8 +71,11 @@ class UiPreferences(
 
         val currentBottomSearchBarEnabled = isBottomSearchBarEnabled()
         val currentOpenKeyboardOnLaunch = isOpenKeyboardOnLaunchEnabled()
+        val currentEnabledTabs = getEnabledAppSuggestionTabs()
+        val autoEnabledTabs = currentEnabledTabs + AppSuggestionTabType.ALL_APPS
 
-        prefs.edit()
+        val editor =
+            prefs.edit()
             .putBoolean(KEY_WAS_DEFAULT_LAUNCHER, true)
             .putBoolean(
                 KEY_DEFAULT_LAUNCHER_PREVIOUS_BOTTOM_SEARCH_BAR_ENABLED,
@@ -84,7 +87,16 @@ class UiPreferences(
             )
             .putBoolean(KEY_BOTTOM_SEARCH_BAR_ENABLED, true)
             .putBoolean(KEY_OPEN_KEYBOARD_ON_LAUNCH, false)
-            .apply()
+            .putStringSet(
+                KEY_DEFAULT_LAUNCHER_PREVIOUS_ENABLED_APP_SUGGESTION_TABS,
+                currentEnabledTabs.map { it.name }.toSet(),
+            )
+            .putStringSet(
+                KEY_DEFAULT_LAUNCHER_AUTO_ENABLED_APP_SUGGESTION_TABS,
+                autoEnabledTabs.map { it.name }.toSet(),
+            )
+        persistEnabledAppSuggestionTabs(editor, autoEnabledTabs)
+        editor.apply()
         return true
     }
 
@@ -96,6 +108,8 @@ class UiPreferences(
                 .putBoolean(KEY_WAS_DEFAULT_LAUNCHER, false)
                 .remove(KEY_DEFAULT_LAUNCHER_PREVIOUS_BOTTOM_SEARCH_BAR_ENABLED)
                 .remove(KEY_DEFAULT_LAUNCHER_PREVIOUS_OPEN_KEYBOARD_ON_LAUNCH)
+                .remove(KEY_DEFAULT_LAUNCHER_PREVIOUS_ENABLED_APP_SUGGESTION_TABS)
+                .remove(KEY_DEFAULT_LAUNCHER_AUTO_ENABLED_APP_SUGGESTION_TABS)
 
         var restoredAny = false
         if (
@@ -117,6 +131,21 @@ class UiPreferences(
                 prefs.getBoolean(KEY_DEFAULT_LAUNCHER_PREVIOUS_OPEN_KEYBOARD_ON_LAUNCH, true),
             )
             restoredAny = true
+        }
+        val previousEnabledTabsRaw =
+            prefs.getStringSet(KEY_DEFAULT_LAUNCHER_PREVIOUS_ENABLED_APP_SUGGESTION_TABS, null)
+        val autoEnabledTabsRaw =
+            prefs.getStringSet(KEY_DEFAULT_LAUNCHER_AUTO_ENABLED_APP_SUGGESTION_TABS, null)
+        if (previousEnabledTabsRaw != null && autoEnabledTabsRaw != null) {
+            val currentEnabledTabs = getEnabledAppSuggestionTabs()
+            val autoEnabledTabs = AppSuggestionTabType.parseEnabledTabs(autoEnabledTabsRaw)
+            if (currentEnabledTabs == autoEnabledTabs) {
+                persistEnabledAppSuggestionTabs(
+                    editor,
+                    AppSuggestionTabType.parseEnabledTabs(previousEnabledTabsRaw),
+                )
+                restoredAny = true
+            }
         }
 
         editor.apply()
@@ -696,13 +725,26 @@ class UiPreferences(
     }
 
     fun setEnabledAppSuggestionTabs(tabs: Set<AppSuggestionTabType>) {
-        prefs
-            .edit()
-            .putStringSet(
-                UiPreferences.KEY_ENABLED_APP_SUGGESTION_TABS,
-                tabs.map { it.name }.toSet(),
+        prefs.edit().also { editor -> persistEnabledAppSuggestionTabs(editor, tabs) }.apply()
+    }
+
+    private fun persistEnabledAppSuggestionTabs(
+        editor: android.content.SharedPreferences.Editor,
+        tabs: Set<AppSuggestionTabType>,
+    ) {
+        val normalizedTabs =
+            tabs.ifEmpty { AppSuggestionTabType.DefaultEnabledTabs }
+        editor.putStringSet(
+            UiPreferences.KEY_ENABLED_APP_SUGGESTION_TABS,
+            normalizedTabs.map { it.name }.toSet(),
+        )
+        val selectedTab = getSelectedAppSuggestionTab()
+        if (selectedTab !in normalizedTabs && selectedTab != AppSuggestionTabType.PINNED) {
+            editor.putString(
+                UiPreferences.KEY_SELECTED_APP_SUGGESTION_TAB,
+                normalizedTabs.firstOrNull()?.name ?: AppSuggestionTabType.RECENTS.name,
             )
-            .apply()
+        }
     }
 
     // ============================================================================
@@ -1001,6 +1043,10 @@ class UiPreferences(
                 "default_launcher_previous_bottom_search_bar_enabled"
         const val KEY_DEFAULT_LAUNCHER_PREVIOUS_OPEN_KEYBOARD_ON_LAUNCH =
                 "default_launcher_previous_open_keyboard_on_launch"
+        const val KEY_DEFAULT_LAUNCHER_PREVIOUS_ENABLED_APP_SUGGESTION_TABS =
+                "default_launcher_previous_enabled_app_suggestion_tabs"
+        const val KEY_DEFAULT_LAUNCHER_AUTO_ENABLED_APP_SUGGESTION_TABS =
+                "default_launcher_auto_enabled_app_suggestion_tabs"
         const val KEY_TOP_RESULT_INDICATOR_ENABLED = "top_result_indicator_enabled"
         const val KEY_TOP_MATCHES_ENABLED = "top_matches_enabled"
         const val KEY_TOP_MATCHES_LIMIT = "top_matches_limit"

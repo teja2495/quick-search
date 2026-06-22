@@ -258,6 +258,8 @@ internal class SearchStartupLifecycleDelegate(
                 oneHandedMode = userPreferences.isOneHandedMode(),
                 bottomSearchBarEnabled = userPreferences.isBottomSearchBarEnabled(),
                 openKeyboardOnLaunch = userPreferences.isOpenKeyboardOnLaunchEnabled(),
+                selectedAppSuggestionTab = userPreferences.getSelectedAppSuggestionTab(),
+                enabledAppSuggestionTabs = userPreferences.getEnabledAppSuggestionTabs(),
             )
         }
         saveStartupSurfaceSnapshotAsync(true, false)

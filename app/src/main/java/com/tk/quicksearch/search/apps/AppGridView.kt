@@ -16,6 +16,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.foundation.combinedClickable
@@ -98,8 +101,10 @@ import com.tk.quicksearch.shared.ui.theme.LocalWallpaperDynamicAccentActive
 import com.tk.quicksearch.shared.util.getAppGridColumns
 import com.tk.quicksearch.shared.util.hapticConfirm
 import kotlin.math.min
+import java.util.Locale
 
 private const val ROW_COUNT = 2
+private const val ALL_APPS_ROW_COUNT = 3
 private const val TabSlideOffsetPx = 64
 private const val SuggestionsEnterDurationMillis = 320
 private const val SuggestionsEnterOffsetDp = 12f
@@ -167,6 +172,7 @@ private data class AppState(
 @Composable
 fun AppGridView(
         apps: List<AppInfo>,
+        allApps: List<AppInfo>,
         pinnedAndRecentApps: List<AppInfo>,
         pinnedApps: List<AppInfo>,
         newOrUpdatedApps: List<AppInfo>,
@@ -213,14 +219,25 @@ fun AppGridView(
     val recentsTitle = stringResource(R.string.app_suggestions_tab_recent)
     val newUpdatedTitle = stringResource(R.string.app_suggestions_tab_new_updated)
     val mostUsedTitle = stringResource(R.string.common_most_used)
+    val allAppsTitle = stringResource(R.string.settings_app_shortcuts_filter_all_apps)
+    val alphabeticalApps =
+            remember(allApps) {
+                allApps.sortedWith(
+                        compareBy<AppInfo> { it.appName.lowercase(Locale.getDefault()) }
+                                .thenBy { it.packageName.lowercase(Locale.getDefault()) }
+                                .thenBy { it.userHandleId ?: Int.MIN_VALUE },
+                )
+            }
     val suggestionTabs =
             remember(
                     hasUsagePermission,
                     isSearching,
+                    allAppsTitle,
                     newUpdatedTitle,
                     pinnedTitle,
                     recentsTitle,
                     mostUsedTitle,
+                    alphabeticalApps,
                     pinnedApps,
                     newOrUpdatedApps,
                     pinnedAndRecentApps,
@@ -242,6 +259,9 @@ fun AppGridView(
                         if (AppSuggestionTabType.MOST_USED in enabledSuggestionTabs) {
                             add(AppSuggestionTab(AppSuggestionTabType.MOST_USED, mostUsedTitle, mostUsedApps))
                         }
+                        if (AppSuggestionTabType.ALL_APPS in enabledSuggestionTabs) {
+                            add(AppSuggestionTab(AppSuggestionTabType.ALL_APPS, allAppsTitle, alphabeticalApps))
+                        }
                     }
                 } else {
                     buildList {
@@ -250,6 +270,9 @@ fun AppGridView(
                         }
                         if (AppSuggestionTabType.RECENTS in enabledSuggestionTabs) {
                             add(AppSuggestionTab(AppSuggestionTabType.RECENTS, recentsTitle, pinnedAndRecentApps))
+                        }
+                        if (AppSuggestionTabType.ALL_APPS in enabledSuggestionTabs) {
+                            add(AppSuggestionTab(AppSuggestionTabType.ALL_APPS, allAppsTitle, alphabeticalApps))
                         }
                     }
                 }
@@ -272,17 +295,24 @@ fun AppGridView(
     }
     val minSuggestionGridItems = (rowCount * getAppGridColumns(phoneColumnOverride)).coerceAtLeast(1)
     val suggestionFallbackApps = remember(pinnedAndRecentApps, apps) { pinnedAndRecentApps + apps }
+    val selectedSuggestionTabType = suggestionTabs.getOrNull(selectedSuggestionTabIndex)?.type
+    val scrollableSuggestionRowCount =
+            if (selectedSuggestionTabType == AppSuggestionTabType.ALL_APPS) {
+                ALL_APPS_ROW_COUNT
+            } else {
+                null
+            }
     val activeApps =
             if (suggestionTabs.isNotEmpty()) {
                 val selectedTab = suggestionTabs[selectedSuggestionTabIndex]
-                if (selectedTab.type == AppSuggestionTabType.PINNED) {
+                if (selectedTab.type == AppSuggestionTabType.PINNED || selectedTab.type == AppSuggestionTabType.ALL_APPS) {
                     selectedTab.apps
                 } else {
-                fillSuggestionGridApps(
-                        primaryApps = selectedTab.apps,
-                        fallbackApps = suggestionFallbackApps,
-                        minItems = minSuggestionGridItems,
-                )
+                    fillSuggestionGridApps(
+                            primaryApps = selectedTab.apps,
+                            fallbackApps = suggestionFallbackApps,
+                            minItems = minSuggestionGridItems,
+                    )
                 }
             } else {
                 if (isSearching) apps else emptyList()
@@ -298,7 +328,10 @@ fun AppGridView(
             }
     // Search results should not wait for the cold-start icon pipeline. If they do,
     // secondary sections can render first even when app results are already in state.
-    val waitForAppIcons = activeApps.isNotEmpty() && !isSearching
+    val waitForAppIcons =
+            activeApps.isNotEmpty() &&
+                    !isSearching &&
+                    selectedSuggestionTabType != AppSuggestionTabType.ALL_APPS
     val areAppIconsLoaded =
             if (waitForAppIcons) {
                 activeApps.all { app ->
@@ -432,7 +465,10 @@ fun AppGridView(
                         val selectedTab = suggestionTabs[selectedIndex]
                         AppGrid(
                                 apps =
-                                        if (selectedTab.type == AppSuggestionTabType.PINNED) {
+                                        if (
+                                                selectedTab.type == AppSuggestionTabType.PINNED ||
+                                                        selectedTab.type == AppSuggestionTabType.ALL_APPS
+                                        ) {
                                             selectedTab.apps
                                         } else {
                                             fillSuggestionGridApps(
@@ -468,6 +504,12 @@ fun AppGridView(
                                 themedIconsEnabled = themedIconsEnabled,
                                 showWallpaperBackground = showWallpaperBackground,
                                 reorderPinnedApps = selectedTab.type == AppSuggestionTabType.PINNED,
+                                scrollableRowCount =
+                                        if (selectedTab.type == AppSuggestionTabType.ALL_APPS) {
+                                            ALL_APPS_ROW_COUNT
+                                        } else {
+                                            null
+                                        },
                         )
                     }
                 } else {
@@ -500,8 +542,8 @@ fun AppGridView(
                             themedIconsEnabled = themedIconsEnabled,
                             showWallpaperBackground = showWallpaperBackground,
                             reorderPinnedApps =
-                                    suggestionTabs.getOrNull(selectedSuggestionTabIndex)?.type ==
-                                            AppSuggestionTabType.PINNED,
+                                    selectedSuggestionTabType == AppSuggestionTabType.PINNED,
+                            scrollableRowCount = scrollableSuggestionRowCount,
                     )
                 }
             }
@@ -599,6 +641,7 @@ private fun fillSuggestionGridApps(
     return result
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun AppGrid(
         apps: List<AppInfo>,
@@ -630,6 +673,7 @@ private fun AppGrid(
         themedIconsEnabled: Boolean = true,
         showWallpaperBackground: Boolean = false,
         reorderPinnedApps: Boolean = false,
+        scrollableRowCount: Int? = null,
 ) {
     var displayedApps by remember(apps, reorderPinnedApps) { mutableStateOf(apps) }
     var dragState by remember { mutableStateOf<PinnedAppDragState?>(null) }
@@ -676,6 +720,7 @@ private fun AppGrid(
             }
         }
     }
+    val density = LocalDensity.current
 
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         val horizontalSpacing = DesignTokens.SpacingMedium
@@ -692,6 +737,42 @@ private fun AppGrid(
                 }
         val spacingPx = with(LocalDensity.current) { horizontalSpacing.toPx() }
         val rowItemWidthPx = with(LocalDensity.current) { rowItemWidth.toPx() }
+        val scrollContainerHeight =
+                scrollableRowCount?.takeIf { it > 0 }?.let { visibleRows ->
+                    val sizeScale = UiPreferences.appIconSizeScale(appIconSizeStep)
+                    val estimatedIconSurfaceHeight =
+                            if (isOverlayPresentation) {
+                                OverlayAppIconSurfaceSize * sizeScale
+                            } else {
+                                DesignTokens.AppIconSize * sizeScale
+                            }
+                    val estimatedLabelHeight =
+                            if (showAppLabels) {
+                                val labelTextHeight =
+                                        with(density) {
+                                            MaterialTheme.typography.labelSmall.fontSize.toDp()
+                                        }
+                                val labelSpacing =
+                                        if (isOverlayPresentation) {
+                                            4.dp
+                                        } else {
+                                            DesignTokens.SpacingXSmall
+                                        }
+                                labelSpacing + labelTextHeight
+                            } else {
+                                0.dp
+                            }
+                    val estimatedItemHeight =
+                            estimatedIconSurfaceHeight +
+                                    TopResultIndicatorTopPadding +
+                                    TopResultIndicatorBottomPadding +
+                                    estimatedLabelHeight
+                    val measuredItemHeight =
+                            with(density) { measuredItemHeightPx.takeIf { it > 0f }?.toDp() }
+                                    ?: estimatedItemHeight
+                    (measuredItemHeight * visibleRows) +
+                            (AppGridRowSpacing * (visibleRows - 1).coerceAtLeast(0))
+                }
 
         fun movePinnedApp(fromIndex: Int, toIndex: Int) {
             if (!reorderPinnedApps || fromIndex == toIndex) return
@@ -811,19 +892,30 @@ private fun AppGrid(
             onReorderPinnedApps(displayedApps)
         }
 
-        @OptIn(ExperimentalLayoutApi::class)
-        FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-                verticalArrangement = Arrangement.spacedBy(AppGridRowSpacing),
-                maxItemsInEachRow = columns,
-        ) {
-            orderedApps.forEach { app ->
-                key(app.launchCountKey()) {
+        val gridModifier =
+                Modifier
+                        .fillMaxWidth()
+                        .let { base ->
+                            if (scrollContainerHeight != null) {
+                                base.height(scrollContainerHeight)
+                            } else {
+                                base
+                            }
+                        }
+        if (scrollContainerHeight != null && !reorderPinnedApps) {
+            LazyVerticalGrid(
+                    columns = GridCells.Fixed(columns),
+                    modifier = gridModifier,
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
+                    verticalArrangement = Arrangement.spacedBy(AppGridRowSpacing),
+            ) {
+                items(
+                        items = orderedApps,
+                        key = { app -> app.launchCountKey() },
+                ) { app ->
                     val appShortcuts = shortcutsByPackage[app.packageName].orEmpty()
-                    val isThisDragging = app.launchCountKey() == dragState?.key
                     AppGridItem(
-                            modifier = Modifier.width(rowItemWidth),
+                            modifier = Modifier.fillMaxWidth(),
                             appInfo = app,
                             shortcuts = appShortcuts,
                             appActions = createAppActions(app),
@@ -835,27 +927,58 @@ private fun AppGrid(
                             appIconShape = appIconShape,
                             themedIconsEnabled = themedIconsEnabled,
                             showWallpaperBackground = showWallpaperBackground,
-                            isDragging = isThisDragging,
-                            dragOffset =
-                                    if (isThisDragging) {
-                                        dragState?.let {
-                                            IntOffset(it.offsetX.toInt(), it.offsetY.toInt())
-                                        }
-                                    } else {
-                                        null
-                                    },
                             onItemMeasured = { height ->
                                 measuredItemHeightPx = height.toFloat()
                             },
-                            onPinnedDragStart =
-                                    if (reorderPinnedApps) {
-                                        { handleDragStart(app) }
-                                    } else {
-                                        null
-                                    },
-                            onPinnedDrag = if (reorderPinnedApps) handleDrag else null,
-                            onPinnedDragEnd = if (reorderPinnedApps) handleDragEnd else null,
                     )
+                }
+            }
+        } else {
+            FlowRow(
+                    modifier = gridModifier,
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
+                    verticalArrangement = Arrangement.spacedBy(AppGridRowSpacing),
+                    maxItemsInEachRow = columns,
+            ) {
+                orderedApps.forEach { app ->
+                    key(app.launchCountKey()) {
+                        val appShortcuts = shortcutsByPackage[app.packageName].orEmpty()
+                        val isThisDragging = app.launchCountKey() == dragState?.key
+                        AppGridItem(
+                                modifier = Modifier.width(rowItemWidth),
+                                appInfo = app,
+                                shortcuts = appShortcuts,
+                                appActions = createAppActions(app),
+                                appState = createAppState(app),
+                                iconPackPackage = iconPackPackage,
+                                isPredicted = app.launchCountKey() == predictedAppKey,
+                                oneHandedMode = oneHandedMode,
+                                appIconSizeStep = appIconSizeStep,
+                                appIconShape = appIconShape,
+                                themedIconsEnabled = themedIconsEnabled,
+                                showWallpaperBackground = showWallpaperBackground,
+                                isDragging = isThisDragging,
+                                dragOffset =
+                                        if (isThisDragging) {
+                                            dragState?.let {
+                                                IntOffset(it.offsetX.toInt(), it.offsetY.toInt())
+                                            }
+                                        } else {
+                                            null
+                                        },
+                                onItemMeasured = { height ->
+                                    measuredItemHeightPx = height.toFloat()
+                                },
+                                onPinnedDragStart =
+                                        if (reorderPinnedApps) {
+                                            { handleDragStart(app) }
+                                        } else {
+                                            null
+                                        },
+                                onPinnedDrag = if (reorderPinnedApps) handleDrag else null,
+                                onPinnedDragEnd = if (reorderPinnedApps) handleDragEnd else null,
+                        )
+                    }
                 }
             }
         }

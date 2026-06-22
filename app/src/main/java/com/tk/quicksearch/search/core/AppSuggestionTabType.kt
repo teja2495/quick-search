@@ -5,6 +5,7 @@ enum class AppSuggestionTabType {
     PINNED,
     RECENTS,
     MOST_USED,
+    ALL_APPS,
     ;
 
     companion object {

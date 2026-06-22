@@ -6,6 +6,7 @@ import com.tk.quicksearch.search.appShortcuts.AppShortcutResultsSection
 import com.tk.quicksearch.search.apps.AppGridView
 import com.tk.quicksearch.search.calendar.CalendarEventsSection
 import com.tk.quicksearch.search.contacts.ContactResultsSection
+import com.tk.quicksearch.search.core.AppSuggestionTabType
 import com.tk.quicksearch.search.core.CallingApp
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.SearchSection
@@ -144,8 +145,12 @@ private fun renderAppsSection(
     context: SectionRenderContext,
 ) {
     val appsParams = params.appsParams ?: return
+    val hasAllAppsSuggestionContent =
+        !appsParams.isSearching &&
+            AppSuggestionTabType.ALL_APPS in appsParams.enabledSuggestionTabs &&
+            appsParams.allApps.isNotEmpty()
 
-    if (context.shouldRenderApps && appsParams.hasAppResults && appsParams.apps.isNotEmpty()) {
+    if (context.shouldRenderApps && ((appsParams.hasAppResults && appsParams.apps.isNotEmpty()) || hasAllAppsSuggestionContent)) {
         val shouldShowRateQuickSearchCard = appsParams.showRateQuickSearchCard
         val renderRateQuickSearchCardFirst = shouldShowRateQuickSearchCard && appsParams.oneHandedMode
 
@@ -158,6 +163,7 @@ private fun renderAppsSection(
         }
         AppGridView(
             apps = appsParams.apps,
+            allApps = appsParams.allApps,
             pinnedAndRecentApps = appsParams.pinnedAndRecentApps,
             pinnedApps = appsParams.pinnedApps,
             newOrUpdatedApps = appsParams.newOrUpdatedApps,

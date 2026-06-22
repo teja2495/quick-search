@@ -2,6 +2,7 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 
 import android.widget.Toast
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
 import com.tk.quicksearch.settings.shared.SectionSettingsSection
 import com.tk.quicksearch.settings.shared.SettingsScreenCallbacks
 import com.tk.quicksearch.settings.shared.SettingsScreenState
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material.icons.rounded.Contacts
 import androidx.compose.material.icons.rounded.DragHandle
+import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Label
 import androidx.compose.material.icons.rounded.Language
@@ -102,6 +104,7 @@ private fun SearchOptionsCard(
     val view = LocalView.current
     var appSuggestionsTipDismissed by rememberSaveable { mutableStateOf(false) }
     var lastWebStep by remember { mutableStateOf(webSuggestionsCount) }
+    var showAppSuggestionTabsDialog by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(appSuggestionsEnabled) {
         if (!appSuggestionsEnabled) {
@@ -169,9 +172,9 @@ private fun SearchOptionsCard(
                 showDivider = false,
             )
             if (appSuggestionsEnabled) {
-                AppSuggestionTabCheckboxes(
+                AppSuggestionTabsPickerRow(
                     enabledTabs = enabledAppSuggestionTabs,
-                    onTabEnabledChange = onAppSuggestionTabEnabledChange,
+                    onClick = { showAppSuggestionTabsDialog = true },
                 )
             }
 
@@ -242,25 +245,28 @@ private fun SearchOptionsCard(
             }
         }
     }
+
+    if (showAppSuggestionTabsDialog) {
+        AppSuggestionTabsDialog(
+            enabledTabs = enabledAppSuggestionTabs,
+            onTabEnabledChange = onAppSuggestionTabEnabledChange,
+            onDismiss = { showAppSuggestionTabsDialog = false },
+        )
+    }
 }
 
 @Composable
-private fun AppSuggestionTabCheckboxes(
+private fun AppSuggestionTabsPickerRow(
     enabledTabs: Set<AppSuggestionTabType>,
-    onTabEnabledChange: (AppSuggestionTabType, Boolean) -> Unit,
+    onClick: () -> Unit,
 ) {
-    val context = LocalView.current.context
-    val lastTabError = stringResource(R.string.app_suggestions_tab_required_toast)
-    val configurableTabs =
-        listOf(
-            AppSuggestionTabType.PINNED to stringResource(R.string.app_suggestions_tab_pinned),
-            AppSuggestionTabType.RECENTS to stringResource(R.string.app_suggestions_tab_recent),
-            AppSuggestionTabType.NEW_UPDATED to stringResource(R.string.app_suggestions_tab_new_updated),
-            AppSuggestionTabType.MOST_USED to stringResource(R.string.common_most_used),
-        )
-    val rows = configurableTabs.chunked(2)
+    val tabLabels = rememberAppSuggestionTabLabels()
+    val enabledTabsSummary =
+        remember(enabledTabs, tabLabels) {
+            buildAppSuggestionTabsSummary(enabledTabs, tabLabels)
+        }
 
-    Column(
+    Row(
         modifier =
             Modifier
                 .fillMaxWidth()
@@ -272,15 +278,78 @@ private fun AppSuggestionTabCheckboxes(
                     top = DesignTokens.SpacingXXSmall,
                     end = DesignTokens.SpacingXXLarge,
                     bottom = DesignTokens.SpacingMedium,
+                )
+                .clip(MaterialTheme.shapes.extraLarge)
+                .border(
+                    width = 1.dp,
+                    color = AppColors.SettingsDivider,
+                    shape = MaterialTheme.shapes.extraLarge,
+                )
+                .clickable(onClick = onClick)
+                .padding(
+                    horizontal = DesignTokens.SpacingLarge,
+                    vertical = DesignTokens.SpacingMedium,
                 ),
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
     ) {
-        rows.forEach { rowTabs ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-            ) {
-                rowTabs.forEach { (tab, title) ->
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.app_suggestions_enabled_tabs_picker_hint),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Text(
+                text = stringResource(R.string.app_suggestions_enabled_tabs_summary, enabledTabsSummary),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Icon(
+            imageVector = Icons.Rounded.ExpandMore,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun AppSuggestionTabsDialog(
+    enabledTabs: Set<AppSuggestionTabType>,
+    onTabEnabledChange: (AppSuggestionTabType, Boolean) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val context = LocalView.current.context
+    val lastTabError = stringResource(R.string.app_suggestions_tab_required_toast)
+    val tabLabels = rememberAppSuggestionTabLabels()
+    val configurableTabs =
+        remember(tabLabels) {
+            listOf(
+                AppSuggestionTabType.PINNED to requireNotNull(tabLabels[AppSuggestionTabType.PINNED]),
+                AppSuggestionTabType.RECENTS to requireNotNull(tabLabels[AppSuggestionTabType.RECENTS]),
+                AppSuggestionTabType.NEW_UPDATED to requireNotNull(tabLabels[AppSuggestionTabType.NEW_UPDATED]),
+                AppSuggestionTabType.MOST_USED to requireNotNull(tabLabels[AppSuggestionTabType.MOST_USED]),
+                AppSuggestionTabType.ALL_APPS to requireNotNull(tabLabels[AppSuggestionTabType.ALL_APPS]),
+            )
+        }
+
+    AppAlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = stringResource(R.string.app_suggestions_tabs_dialog_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall)) {
+                Text(
+                    text = stringResource(R.string.app_suggestions_tabs_dialog_message),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                configurableTabs.forEachIndexed { index, (tab, title) ->
+                    if (index > 0) {
+                        HorizontalDivider(color = AppColors.SettingsDivider)
+                    }
                     val isPinnedTab = tab == AppSuggestionTabType.PINNED
                     AppSuggestionTabCheckboxItem(
                         title = title,
@@ -293,15 +362,46 @@ private fun AppSuggestionTabCheckboxes(
                                 onTabEnabledChange(tab, enabled)
                             }
                         },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                if (rowTabs.size == 1) {
-                    Spacer(modifier = Modifier.weight(1f))
-                }
             }
-        }
-    }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.dialog_done))
+            }
+        },
+    )
+}
+
+@Composable
+private fun rememberAppSuggestionTabLabels(): Map<AppSuggestionTabType, String> =
+    mapOf(
+        AppSuggestionTabType.PINNED to stringResource(R.string.app_suggestions_tab_pinned),
+        AppSuggestionTabType.RECENTS to stringResource(R.string.app_suggestions_tab_recent),
+        AppSuggestionTabType.NEW_UPDATED to stringResource(R.string.app_suggestions_tab_new_updated),
+        AppSuggestionTabType.MOST_USED to stringResource(R.string.common_most_used),
+        AppSuggestionTabType.ALL_APPS to stringResource(R.string.settings_app_shortcuts_filter_all_apps),
+    )
+
+private fun buildAppSuggestionTabsSummary(
+    enabledTabs: Set<AppSuggestionTabType>,
+    labels: Map<AppSuggestionTabType, String>,
+): String {
+    val orderedTabs =
+        listOf(
+            AppSuggestionTabType.PINNED,
+            AppSuggestionTabType.RECENTS,
+            AppSuggestionTabType.NEW_UPDATED,
+            AppSuggestionTabType.MOST_USED,
+            AppSuggestionTabType.ALL_APPS,
+        )
+
+    return orderedTabs
+        .filter { tab -> tab == AppSuggestionTabType.PINNED || tab in enabledTabs }
+        .mapNotNull(labels::get)
+        .joinToString(separator = ", ")
 }
 
 @Composable
@@ -319,26 +419,12 @@ private fun AppSuggestionTabCheckboxItem(
     Row(
         modifier =
             modifier
-                .clip(DesignTokens.ShapeFull)
-                .border(
-                    width = 1.dp,
-                    color =
-                        if (isLocked) {
-                            lockedColor
-                        } else if (checked) {
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.72f)
-                        } else {
-                            AppColors.SettingsDivider
-                        },
-                    shape = DesignTokens.ShapeFull,
-                )
                 .clickable { if (!isLocked) onCheckedChange(!checked) }
                 .padding(
-                    horizontal = DesignTokens.SpacingSmall,
                     vertical = DesignTokens.SpacingXSmall,
                 ),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
         Checkbox(
             checked = checked,
@@ -353,13 +439,12 @@ private fun AppSuggestionTabCheckboxItem(
                 } else {
                     CheckboxDefaults.colors()
                 },
-            modifier = Modifier.scale(0.72f),
+            modifier = Modifier.scale(0.82f),
         )
         Text(
             text = title,
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.bodyMedium,
             color = contentColor,
-            modifier = Modifier.offset(x = (-2).dp),
         )
     }
 }

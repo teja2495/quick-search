@@ -178,7 +178,12 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
         !isSearching ||
             SearchSection.APPS !in state.disabledSections ||
             state.detectedAliasSearchSection == SearchSection.APPS
-    val shouldShowApps = isAppsSectionEnabledForCurrentQuery && hasAppResults
+    val hasAllAppsSuggestionContent =
+        !isSearching &&
+            AppSuggestionTabType.ALL_APPS in state.enabledAppSuggestionTabs &&
+            state.allApps.any { app -> app.hasLaunchIntent }
+    val shouldShowApps =
+        isAppsSectionEnabledForCurrentQuery && (hasAppResults || hasAllAppsSuggestionContent)
     val shouldShowAppShortcuts =
         (
             !isSearching ||

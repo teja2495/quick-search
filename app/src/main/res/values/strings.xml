@@ -175,6 +175,10 @@
     <string name="app_suggestions_tab_new_updated">New/Updated</string>
     <string name="app_suggestions_tab_pinned">Pinned</string>
     <string name="app_suggestions_tab_recent">Recents</string>
+    <string name="app_suggestions_tabs_dialog_message">Choose which app suggestion tabs appear on the home screen.</string>
+    <string name="app_suggestions_tabs_dialog_title">App Suggestion Tabs</string>
+    <string name="app_suggestions_enabled_tabs_picker_hint">Choose Tabs</string>
+    <string name="app_suggestions_enabled_tabs_summary">Current: %1$s</string>
     <string name="app_suggestions_tab_required_toast">Keep at least one app suggestion tab enabled</string>
     <string name="app_suggestions_toggle_desc">Show or hide suggested apps on the home screen</string>
     <string name="app_suggestions_toggle_title">App Suggestions</string>
