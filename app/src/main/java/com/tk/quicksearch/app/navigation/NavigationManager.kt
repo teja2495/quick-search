@@ -251,7 +251,8 @@ fun MainContent(
                                 }
                             }
                         } else {
-                            currentScreen = AppScreen.SearchEngineSetup
+                            foundQuicksearchFiles = emptyList()
+                            currentScreen = AppScreen.ImportSettings
                         }
                     },
                 )
@@ -306,7 +307,7 @@ fun MainContent(
             AppScreen.SearchEngineSetup -> {
                 val uiState by searchViewModel.uiState.collectAsStateWithLifecycle()
                 BackHandler {
-                    currentScreen = if (foundQuicksearchFiles.isNotEmpty()) {
+                    currentScreen = if (!hasFilesPermission(context) || foundQuicksearchFiles.isNotEmpty()) {
                         AppScreen.ImportSettings
                     } else {
                         AppScreen.Permissions
