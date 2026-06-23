@@ -6,6 +6,20 @@ import org.junit.Test
 
 class SearchRankingUtilsTest {
     @Test
+    fun diacriticsAndTurkishDotlessIAreNormalizedForSearch() {
+        val priority = SearchRankingUtils.calculateMatchPriority("Özgür Işık", "ozgur isik")
+
+        assertTrue(DefaultSearchMatcher.isMatch(priority))
+    }
+
+    @Test
+    fun dotlessIQueryMatchesAsciiIVariants() {
+        val priority = SearchRankingUtils.calculateMatchPriority("Isik", "ışık")
+
+        assertTrue(DefaultSearchMatcher.isMatch(priority))
+    }
+
+    @Test
     fun singleTokenQueryMatchesMultiWordTextWhenSpacesAreOmitted() {
         val priority = SearchRankingUtils.calculateMatchPriority("Bala Guna Teja", "balagunateja")
 
