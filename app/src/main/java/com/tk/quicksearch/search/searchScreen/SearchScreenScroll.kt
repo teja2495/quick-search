@@ -163,6 +163,7 @@ fun ScrollBasedKeyboardBehavior(
     overlayModeEnabled: Boolean,
     oneHandedMode: Boolean,
     reverseScrolling: Boolean,
+    showKeyboardOnBoundaryReached: Boolean = true,
     searchFocusRequester: FocusRequester? = null,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -215,7 +216,12 @@ fun ScrollBasedKeyboardBehavior(
                         scrollDelta < 0
                     }
                     
-                    if (isAtBottom && !wasAtBottom && !isInCooldown) {
+                    if (
+                        showKeyboardOnBoundaryReached &&
+                            isAtBottom &&
+                            !wasAtBottom &&
+                            !isInCooldown
+                    ) {
                         searchFocusRequester?.requestFocus()
                         keyboardController?.show()
                     } else if (isScrollingUp && !isAtBottom) {
@@ -241,7 +247,12 @@ fun ScrollBasedKeyboardBehavior(
                         scrollDelta > 0
                     }
                     
-                    if (isAtTop && !wasAtTop && !isInCooldown) {
+                    if (
+                        showKeyboardOnBoundaryReached &&
+                            isAtTop &&
+                            !wasAtTop &&
+                            !isInCooldown
+                    ) {
                         searchFocusRequester?.requestFocus()
                         keyboardController?.show()
                     } else if (isScrollingDown && !isAtTop) {

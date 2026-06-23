@@ -10,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
@@ -37,6 +38,7 @@ import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderin
 import com.tk.quicksearch.search.searchScreen.ExpandedSection
 import com.tk.quicksearch.search.searchScreen.OneHandedModeScrollBehavior
 import com.tk.quicksearch.search.searchScreen.ScrollBasedKeyboardBehavior
+import com.tk.quicksearch.shared.util.isDefaultHomeApp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 
@@ -176,7 +178,9 @@ internal fun SearchScreenStateManagement(
     onOverlayScrollableContentChanged: ((Boolean) -> Unit)?,
     onConsumeContactActionRequest: () -> Unit,
 ): SearchScreenStateResult {
+    val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
+    val isDefaultLauncher = context.isDefaultHomeApp()
 
     val derivedState = rememberDerivedState(state)
 
@@ -346,6 +350,7 @@ internal fun SearchScreenStateManagement(
         overlayModeEnabled = state.overlayModeEnabled,
         oneHandedMode = state.oneHandedMode,
         reverseScrolling = alignResultsToBottom,
+        showKeyboardOnBoundaryReached = !(isDefaultLauncher && state.query.isBlank()),
         searchFocusRequester = searchFocusRequester,
     )
 

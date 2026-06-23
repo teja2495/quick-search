@@ -92,6 +92,7 @@ internal fun PersistentSearchBar(
     onClearDetectedShortcut: () -> Unit = {},
     onSectionSelected: (com.tk.quicksearch.search.core.SearchSection) -> Unit = {},
     onWelcomeAnimationCompleted: (() -> Unit)? = null,
+    onPressWhileKeyboardClosed: () -> Unit = {},
     focusRequester: androidx.compose.ui.focus.FocusRequester? = null,
     modifier: Modifier = Modifier,
 ) = com.tk.quicksearch.search.searchScreen.components.PersistentSearchBar(
@@ -130,6 +131,7 @@ internal fun PersistentSearchBar(
     onClearDetectedShortcut = onClearDetectedShortcut,
     onSectionSelected = onSectionSelected,
     onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
+    onPressWhileKeyboardClosed = onPressWhileKeyboardClosed,
     focusRequester = focusRequester,
     modifier = modifier,
 )

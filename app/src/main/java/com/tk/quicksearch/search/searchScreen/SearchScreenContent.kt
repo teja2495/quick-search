@@ -160,6 +160,10 @@ internal fun SearchScreenContent(
             remember(isOverlayPresentation) { mutableStateOf(!isOverlayPresentation && !openKeyboardOnLaunchOnStartup) }
     var delayedOpenKeyboardActionVisible by remember { mutableStateOf(false) }
     var hideOpenKeyboardActionInstantly by remember { mutableStateOf(false) }
+    var hasSeenStartupKeyboardVisible by
+            remember(isOverlayPresentation) { mutableStateOf(false) }
+    var hasClosedStartupKeyboardAfterLaunch by
+            remember(isOverlayPresentation) { mutableStateOf(!openKeyboardOnLaunchOnStartup) }
     var isSearchHistoryExpanded by remember { mutableStateOf(false) }
     var searchHistoryCollapseRequestKey by remember { mutableStateOf(0) }
     val openKeyboardActionScope = rememberCoroutineScope()
@@ -185,6 +189,19 @@ internal fun SearchScreenContent(
                 state.searchTargetsOrder.filter { it.getId() !in state.disabledSearchTargetIds }
             }
     val isImeVisible = WindowInsets.ime.getBottom(density) > 0
+    LaunchedEffect(openKeyboardOnLaunchOnStartup, isImeVisible) {
+        if (!openKeyboardOnLaunchOnStartup) {
+            hasSeenStartupKeyboardVisible = false
+            hasClosedStartupKeyboardAfterLaunch = true
+            return@LaunchedEffect
+        }
+
+        if (isImeVisible) {
+            hasSeenStartupKeyboardVisible = true
+        } else if (hasSeenStartupKeyboardVisible) {
+            hasClosedStartupKeyboardAfterLaunch = true
+        }
+    }
     val isCalculatorMode = state.calculatorState.isCalculatorMode
     val isDefaultLauncher = context.isDefaultHomeApp()
     val isToolMode = state.calculatorState.isToolMode
@@ -399,6 +416,7 @@ internal fun SearchScreenContent(
                     !isImeVisible &&
                     !isPhysicalKeyboardConnected &&
                     canShowOpenKeyboardPill &&
+                    hasClosedStartupKeyboardAfterLaunch &&
                     !isSearchHistoryExpanded
 
     LaunchedEffect(shouldShowOpenKeyboardAction) {
@@ -835,6 +853,12 @@ internal fun SearchScreenContent(
                 onClearDetectedShortcut = onClearDetectedShortcut,
                 onSectionSelected = onSectionSelected,
                 onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
+                onPressWhileKeyboardClosed = {
+                    if (!isImeVisible) {
+                        hideOpenKeyboardActionInstantly = true
+                        delayedOpenKeyboardActionVisible = false
+                    }
+                },
                 focusRequester = searchFocusRequester,
                 forceRestingOutline = showBottomSearchBar,
                 modifier = searchFieldModifier,
@@ -1062,8 +1086,16 @@ internal fun SearchScreenContent(
                     searchFocusRequester.requestFocus()
                     keyboardController?.show()
                 },
+                onLauncherOverscrollUp = {
+                    searchFocusRequester.requestFocus()
+                    keyboardController?.show()
+                },
                 onLauncherOverscrollDown = {
-                    context.openNotificationShade()
+                    if (isImeVisible) {
+                        keyboardController?.hide()
+                    } else {
+                        context.openNotificationShade()
+                    }
                 },
                 selectedTopMatchIndex = selectedTopMatchIndex,
         )

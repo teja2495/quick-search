@@ -17,6 +17,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -58,6 +59,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -169,6 +171,7 @@ internal fun PersistentSearchBar(
     onClearDetectedShortcut: () -> Unit = {},
     onSectionSelected: (SearchSection) -> Unit = {},
     onWelcomeAnimationCompleted: (() -> Unit)? = null,
+    onPressWhileKeyboardClosed: () -> Unit = {},
     focusRequester: FocusRequester? = null,
     modifier: Modifier = Modifier,
 ) {
@@ -237,6 +240,7 @@ internal fun PersistentSearchBar(
     var aliasMorphText by remember { mutableStateOf<String?>(null) }
     var previousLeadingIconState by remember { mutableStateOf(leadingIconState) }
     var hasCompletedStartupAutoFocus by remember { mutableStateOf(!autoFocusOnStart) }
+    val searchBarInteractionSource = remember { MutableInteractionSource() }
     fun submitSearchAction() {
         val keepKeyboardFromAction = onSearchAction()
         if (!keepKeyboardFromAction && query.isNotBlank()) {
@@ -294,6 +298,14 @@ internal fun PersistentSearchBar(
             animationSpec = tween(durationMillis = AliasIconMorphDurationMs, easing = LinearOutSlowInEasing),
         )
         aliasMorphText = null
+    }
+
+    LaunchedEffect(searchBarInteractionSource) {
+        searchBarInteractionSource.interactions.collect { interaction ->
+            if (interaction is PressInteraction.Press) {
+                onPressWhileKeyboardClosed()
+            }
+        }
     }
 
     LaunchedEffect(autoFocusOnStart, startupSurfaceReady, hasLaidOutSearchField) {
@@ -756,6 +768,7 @@ internal fun PersistentSearchBar(
                     unfocusedTextColor = iconAndTextColor,
                 ),
             visualTransformation = aliasVisualTransformation,
+            interactionSource = searchBarInteractionSource,
         )
 
         val animatedAliasText = aliasMorphText
