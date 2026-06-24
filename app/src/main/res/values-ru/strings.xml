@@ -641,6 +641,7 @@
 <string name="settings_icon_title">Значок настроек</string>
 <string name="settings_launch_options_desc">Различные способы запуска приложения</string>
 <string name="settings_launch_options_title">Варианты запуска</string>
+<string name="settings_app_language_desc">Текущий: %1$s</string>
 <string name="settings_launcher_icon_reset_default">Сбросить по умолчанию</string>
 <string name="settings_launcher_icon_title">Значок приложения в лаунчере</string>
 <string name="settings_layout_option_bottom_desc">Наиболее важные элементы отображаются внизу для удобного доступа</string>
@@ -886,6 +887,7 @@
 <string name="widget_toggle_show_label">Текст Quick Search</string>
 <string name="widgets_panel_title">Виджеты</string>
 <string name="widgets_picker_empty">Виджеты не найдены.</string>
+<string name="widgets_picker_loading">Загрузка виджетов...</string>
 <string name="widgets_picker_preview_unavailable">Превью недоступно</string>
 <string name="widgets_picker_title">Добавить виджет</string>
 <string name="widgets_picker_widget_count">%1$d виджетов</string>

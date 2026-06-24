@@ -625,6 +625,7 @@
     <string name="settings_icon_title">设置图标</string>
     <string name="settings_launch_options_desc">启动此应用的不同方式</string>
     <string name="settings_launch_options_title">启动选项</string>
+    <string name="settings_app_language_desc">当前: %1$s</string>
     <string name="settings_launcher_icon_reset_default">重置为默认</string>
     <string name="settings_launcher_icon_title">启动器应用图标</string>
     <string name="settings_layout_option_bottom_desc">最相关的匹配项将显示在底部，以便于轻松触达</string>

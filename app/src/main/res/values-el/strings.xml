@@ -625,6 +625,7 @@
     <string name="settings_icon_title">Εικονίδιο ρυθμίσεων</string>
     <string name="settings_launch_options_desc">Διαφορετικοί τρόποι εκκίνησης αυτής της εφαρμογής</string>
     <string name="settings_launch_options_title">Επιλογές εκκίνησης</string>
+    <string name="settings_app_language_desc">Τρέχον: %1$s</string>
     <string name="settings_launcher_icon_reset_default">Επαναφορά στο προεπιλεγμένο</string>
     <string name="settings_launcher_icon_title">Εικονίδιο εφαρμογής Launcher</string>
     <string name="settings_layout_option_bottom_desc">Τα πιο σχετικά στοιχεία εμφανίζονται στο κάτω μέρος για εύκολη πρόσβαση</string>
@@ -870,6 +871,7 @@
     <string name="widget_toggle_show_label">Κείμενο Quick Search</string>
     <string name="widgets_panel_title">Widgets</string>
     <string name="widgets_picker_empty">Δεν βρέθηκαν widgets.</string>
+    <string name="widgets_picker_loading">Φόρτωση widgets...</string>
     <string name="widgets_picker_preview_unavailable">Η προεπισκόπηση δεν είναι διαθέσιμη</string>
     <string name="widgets_picker_title">Προσθήκη widget</string>
     <string name="widgets_picker_widget_count">%1$d widgets</string>

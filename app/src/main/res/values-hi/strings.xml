@@ -625,6 +625,7 @@
     <string name="settings_icon_title">सेटिंग्स आइकन</string>
     <string name="settings_launch_options_desc">इस ऐप को लॉन्च करने के अलग-अलग तरीके</string>
     <string name="settings_launch_options_title">लॉन्च विकल्प</string>
+    <string name="settings_app_language_desc">वर्तमान: %1$s</string>
     <string name="settings_launcher_icon_reset_default">डिफ़ॉल्ट पर रीसेट करें</string>
     <string name="settings_launcher_icon_title">लॉन्चर ऐप आइकन</string>
     <string name="settings_layout_option_bottom_desc">आसान पहुंच के लिए सबसे प्रासंगिक आइटम नीचे दिखते हैं</string>
@@ -870,6 +871,7 @@
     <string name="widget_toggle_show_label">Quick Search टेक्स्ट</string>
     <string name="widgets_panel_title">विजेट्स</string>
     <string name="widgets_picker_empty">कोई विजेट नहीं मिला।</string>
+    <string name="widgets_picker_loading">विजेट्स लोड हो रहे हैं...</string>
     <string name="widgets_picker_preview_unavailable">प्रीव्यू उपलब्ध नहीं</string>
     <string name="widgets_picker_title">विजेट जोड़ें</string>
     <string name="widgets_picker_widget_count">%1$d विजेट्स</string>

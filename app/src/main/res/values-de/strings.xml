@@ -625,6 +625,7 @@
     <string name="settings_icon_title">Einstellungssymbol</string>
     <string name="settings_launch_options_desc">Verschiedene Möglichkeiten, diese App zu starten</string>
     <string name="settings_launch_options_title">Startoptionen</string>
+    <string name="settings_app_language_desc">Aktuell: %1$s</string>
     <string name="settings_launcher_icon_reset_default">Standard wiederherstellen</string>
     <string name="settings_launcher_icon_title">Launcher-App-Symbol</string>
     <string name="settings_layout_option_bottom_desc">Relevanteste Elemente erscheinen unten für einfachen Zugriff</string>
@@ -870,6 +871,7 @@
     <string name="widget_toggle_show_label">Quick Search-Text</string>
     <string name="widgets_panel_title">Widgets</string>
     <string name="widgets_picker_empty">Keine Widgets gefunden.</string>
+    <string name="widgets_picker_loading">Widgets werden geladen...</string>
     <string name="widgets_picker_preview_unavailable">Vorschau nicht verfügbar</string>
     <string name="widgets_picker_title">Widget hinzufügen</string>
     <string name="widgets_picker_widget_count">%1$d Widgets</string>

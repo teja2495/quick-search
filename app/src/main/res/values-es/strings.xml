@@ -625,6 +625,7 @@
     <string name="settings_icon_title">Icono de ajustes</string>
     <string name="settings_launch_options_desc">Diferentes formas de abrir esta app</string>
     <string name="settings_launch_options_title">Opciones de inicio</string>
+    <string name="settings_app_language_desc">Actual: %1$s</string>
     <string name="settings_launcher_icon_reset_default">Restablecer valores predeterminados</string>
     <string name="settings_launcher_icon_title">Icono de la app en el lanzador</string>
     <string name="settings_layout_option_bottom_desc">Los elementos más relevantes aparecen abajo para facilitar el acceso</string>
@@ -870,6 +871,7 @@
     <string name="widget_toggle_show_label">Texto de Quick Search</string>
     <string name="widgets_panel_title">Widgets</string>
     <string name="widgets_picker_empty">No se encontraron widgets.</string>
+    <string name="widgets_picker_loading">Cargando widgets...</string>
     <string name="widgets_picker_preview_unavailable">Vista previa no disponible</string>
     <string name="widgets_picker_title">Añadir widget</string>
     <string name="widgets_picker_widget_count">%1$d widgets</string>

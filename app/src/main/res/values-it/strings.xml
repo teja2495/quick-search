@@ -624,6 +624,7 @@
     <string name="settings_icon_title">Icona impostazioni</string>
     <string name="settings_launch_options_desc">Diversi modi per avviare questa app</string>
     <string name="settings_launch_options_title">Opzioni di avvio</string>
+    <string name="settings_app_language_desc">In uso: %1$s</string>
     <string name="settings_launcher_icon_reset_default">Ripristina predefinita</string>
     <string name="settings_launcher_icon_title">Icona dell\u2019applicazione launcher</string>
     <string name="settings_layout_option_bottom_desc">Gli elementi più rilevanti appaiono in basso per un facile accesso</string>
@@ -869,6 +870,7 @@
     <string name="widget_toggle_show_label">Testo di Quick Search</string>
     <string name="widgets_panel_title">Widget</string>
     <string name="widgets_picker_empty">Nessun widget trovato.</string>
+    <string name="widgets_picker_loading">Caricamento widget...</string>
     <string name="widgets_picker_preview_unavailable">Anteprima non disponibile</string>
     <string name="widgets_picker_title">Aggiungi widget</string>
     <string name="widgets_picker_widget_count">%1$d widget</string>

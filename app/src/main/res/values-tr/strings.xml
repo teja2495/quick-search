@@ -624,6 +624,7 @@
 <string name="settings_icon_title">Ayarlar simgesi</string>
 <string name="settings_launch_options_desc">Bu uygulamayı başlatmanın farklı yolları</string>
 <string name="settings_launch_options_title">Başlatma seçenekleri</string>
+<string name="settings_app_language_desc">Mevcut: %1$s</string>
 <string name="settings_launcher_icon_reset_default">Varsayılana sıfırla</string>
 <string name="settings_launcher_icon_title">Başlatıcı uygulama simgesi</string>
 <string name="settings_layout_option_bottom_desc">Kolay erişim için en ilgili öğeler altta görünür</string>
@@ -869,6 +870,7 @@
 <string name="widget_toggle_show_label">Quick Search metni</string>
 <string name="widgets_panel_title">Widget\'lar</string>
 <string name="widgets_picker_empty">Widget bulunamadı.</string>
+<string name="widgets_picker_loading">Widget\'lar yükleniyor...</string>
 <string name="widgets_picker_preview_unavailable">Önizleme mevcut değil</string>
 <string name="widgets_picker_title">Widget ekle</string>
 <string name="widgets_picker_widget_count">%1$d widget</string>

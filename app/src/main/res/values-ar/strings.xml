@@ -626,6 +626,7 @@
     <string name="settings_icon_title">أيقونة الإعدادات</string>
     <string name="settings_launch_options_desc">طرق تشغيل التطبيق المختلفة</string>
     <string name="settings_launch_options_title">خيارات التشغيل</string>
+    <string name="settings_app_language_desc">الحالي: %1$s</string>
     <string name="settings_launcher_icon_reset_default">إعادة تعيين للأيقونة الافتراضية</string>
     <string name="settings_launcher_icon_title">أيقونة مشغل التطبيقات</string>
     <string name="settings_layout_option_bottom_desc">عرض العناصر الهامة بالأسفل لسهولة الوصول إليها</string>
@@ -871,6 +872,7 @@
     <string name="widget_toggle_show_label">نص Quick Search</string>
     <string name="widgets_panel_title">عناصر واجهة المستخدم</string>
     <string name="widgets_picker_empty">لم يتم العثور على أي عناصر واجهة مستخدم.</string>
+    <string name="widgets_picker_loading">جارٍ تحميل عناصر واجهة المستخدم...</string>
     <string name="widgets_picker_preview_unavailable">المعاينة غير متوفرة</string>
     <string name="widgets_picker_title">إضافة عنصر واجهة مستخدم</string>
     <string name="widgets_picker_widget_count">%1$d من عناصر واجهة المستخدم</string>

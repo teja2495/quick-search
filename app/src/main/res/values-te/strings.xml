@@ -625,6 +625,7 @@
     <string name="settings_icon_title">సెట్టింగ్‌ల ఐకాన్</string>
     <string name="settings_launch_options_desc">ఈ యాప్‌ను ప్రారంభించడానికి వివిధ మార్గాలు</string>
     <string name="settings_launch_options_title">లాంచ్ ఎంపికలు</string>
+    <string name="settings_app_language_desc">ప్రస్తుత: %1$s</string>
     <string name="settings_launcher_icon_reset_default">డిఫాల్ట్‌కి రీసెట్ చేయి</string>
     <string name="settings_launcher_icon_title">లాంచర్ యాప్ ఐకాన్</string>
     <string name="settings_layout_option_bottom_desc">సులభంగా యాక్సెస్ చేయడానికి అత్యంత సంబంధిత అంశాలు దిగువన కనిపిస్తాయి</string>
@@ -870,6 +871,7 @@
     <string name="widget_toggle_show_label">Quick Search టెక్స్ట్</string>
     <string name="widgets_panel_title">విడ్జెట్‌లు</string>
     <string name="widgets_picker_empty">విడ్జెట్‌లు ఏవీ కనుగొనబడలేదు.</string>
+    <string name="widgets_picker_loading">విడ్జెట్‌లను లోడ్ చేస్తోంది...</string>
     <string name="widgets_picker_preview_unavailable">ప్రివ్యూ అందుబాటులో లేదు</string>
     <string name="widgets_picker_title">విడ్జెట్‌ను జోడించండి</string>
     <string name="widgets_picker_widget_count">%1$d విడ్జెట్‌లు</string>
