@@ -324,31 +324,6 @@ fun AppGridView(
                         }
                         .groupBy { it.packageName }
             }
-    // Search results should not wait for the cold-start icon pipeline. If they do,
-    // secondary sections can render first even when app results are already in state.
-    val waitForAppIcons =
-            activeApps.isNotEmpty() &&
-                    !isSearching
-    val areAppIconsLoaded =
-            if (waitForAppIcons) {
-                activeApps.all { app ->
-                    val iconResult =
-                            rememberAppIcon(
-                                    packageName = app.packageName,
-                                    iconPackPackage = iconPackPackage,
-                                    userHandleId = app.userHandleId,
-                                    forceCircularMask = appIconShape == AppIconShape.CIRCLE,
-                            )
-                    iconResult.bitmap != null
-                }
-            } else {
-                true
-            }
-
-    // Once the grid has appeared with all icons loaded, keep it visible even when new fuzzy-search
-    // results arrive with icons still loading — avoids flicker when the list grows mid-search.
-    var gridHasBeenVisible by remember { mutableStateOf(false) }
-
     // Animate the suggestions grid (empty query) when it first appears. Search results should
     // appear immediately without animation.
     val initialSuggestionsAlpha = if (suppressSuggestionsEnterAnimation) 1f else 0f
@@ -390,7 +365,7 @@ fun AppGridView(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(AppGridRowSpacing),
     ) {
-        val showAppGrid = activeApps.isNotEmpty() && (areAppIconsLoaded || gridHasBeenVisible)
+        val showAppGrid = activeApps.isNotEmpty()
 
         LaunchedEffect(showAppGrid, isSearching) {
             if (!showAppGrid) return@LaunchedEffect
@@ -416,7 +391,6 @@ fun AppGridView(
         }
 
         if (showAppGrid) {
-            gridHasBeenVisible = true
             val suggestionsContentModifier = Modifier.graphicsLayer {
                 alpha = suggestionsAlpha.value
                 translationY = with(density) { suggestionsTranslationYDp.value.dp.toPx() }
@@ -1587,10 +1561,29 @@ private fun AppIconSurface(
                                                         Modifier
                                                     },
                                             )
-                                            .size(appIconSize)
-                                            .then(clipModifier),
+                            .size(appIconSize)
+                            .then(clipModifier),
                     )
                 }
+            } else {
+                val placeholderShape =
+                        if (appIconShape == AppIconShape.CIRCLE) {
+                            CircleShape
+                        } else {
+                            DesignTokens.ShapeLarge
+                        }
+                Box(
+                        modifier =
+                                Modifier.size(appIconSize)
+                                        .clip(placeholderShape)
+                                        .background(
+                                                if (showWallpaperBackground) {
+                                                    colorScheme.surface.copy(alpha = 0.28f)
+                                                } else {
+                                                    colorScheme.surfaceVariant.copy(alpha = 0.7f)
+                                                },
+                                        ),
+                )
             }
         }
     }
