@@ -75,6 +75,7 @@ internal class SearchPreferencesDelegate(
     private val updateFeatureState: ((SearchFeatureState) -> SearchFeatureState) -> Unit,
     private val updateResultsState: ((SearchResultsState) -> SearchResultsState) -> Unit,
     private val refreshAppSuggestions: () -> Unit,
+    private val refreshApps: () -> Unit,
     private val refreshRecentItems: () -> Unit,
     private val refreshCalendarEvents: () -> Unit,
     private val stateAccess: SearchPreferencesStateAccess,
@@ -157,6 +158,7 @@ internal class SearchPreferencesDelegate(
             stateUpdater = {
                 updateConfigState { state -> state.copy(includeNonLaunchableAppsInSearch = it) }
                 refreshAppSuggestions()
+                refreshApps()
             },
         )
     }

@@ -50,7 +50,8 @@ class AppsRepository(
      *
      * @return Cached list of apps, or null if no cache exists
      */
-    fun loadCachedApps(): List<AppInfo>? = appCache.loadCachedApps()
+    fun loadCachedApps(includeNonLaunchableApps: Boolean = false): List<AppInfo>? =
+        appCache.loadCachedApps()?.filter { includeNonLaunchableApps || it.hasLaunchIntent }
 
     fun cacheLastUpdatedMillis(): Long = appCache.getLastUpdateTime()
 
@@ -59,14 +60,19 @@ class AppsRepository(
     }
 
     /**
-     * Reads all launchable apps on the device alongside their last used timestamp.
+     * Reads launchable apps on the device alongside their last used timestamp.
+     * When requested, it also includes installed packages that do not expose a launcher activity.
      * Results are sorted by last used time (most recent first), then alphabetically by name.
      * Also saves the result to cache for instant loading next time.
      *
+     * @param includeNonLaunchableApps Whether to include packages without a launch activity
      * @param launchCounts Map of package name to local launch count
-     * @return List of launchable apps sorted by usage and name
+     * @return Apps sorted by usage and name
      */
-    suspend fun loadLaunchableApps(launchCounts: Map<String, Int> = emptyMap()): List<AppInfo> {
+    suspend fun loadLaunchableApps(
+        includeNonLaunchableApps: Boolean = false,
+        launchCounts: Map<String, Int> = emptyMap(),
+    ): List<AppInfo> {
         val usageMap = queryUsageStatsMap()
         val launchableApps =
             queryLaunchableAppsFromAllProfiles()
@@ -76,13 +82,17 @@ class AppsRepository(
                 ?: queryLaunchableAppsLegacy()
                     .distinctBy { it.activityInfo.packageName }
                     .map { createAppInfo(it, usageMap, launchCounts) }
-        val launchableKeys = launchableApps.map { it.launchCountKey() }.toSet()
         val nonLaunchableApps =
-            queryInstalledApplications()
-                .asSequence()
-                .filter { !launchableKeys.contains(it.packageName) }
-                .map { createNonLaunchableAppInfo(it, usageMap, launchCounts) }
-                .toList()
+            if (includeNonLaunchableApps) {
+                val launchablePackageNames = launchableApps.map { it.packageName }.toSet()
+                queryInstalledApplications()
+                    .asSequence()
+                    .filter { it.packageName !in launchablePackageNames }
+                    .map { createNonLaunchableAppInfo(it, usageMap, launchCounts) }
+                    .toList()
+            } else {
+                emptyList()
+            }
         val apps = launchableApps + nonLaunchableApps
 
         appCache.saveApps(apps.sortedWith(AppInfoComparator))

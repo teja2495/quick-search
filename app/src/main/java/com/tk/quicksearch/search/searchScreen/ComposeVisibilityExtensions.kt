@@ -51,19 +51,55 @@ fun SearchEnginesVisibility(
  * not including pinned/static content.
  */
 fun hasAnySearchResults(state: SearchUiState): Boolean {
-    val appsResultsEnabledForCurrentQuery =
-        state.query.isBlank() ||
-            SearchSection.APPS !in state.disabledSections ||
-            state.detectedAliasSearchSection == SearchSection.APPS
-    val hasAppResults = appsResultsEnabledForCurrentQuery && state.searchResults.isNotEmpty()
-    val hasContactResults = state.contactResults.isNotEmpty()
-    val hasFileResults = state.fileResults.isNotEmpty()
-    val hasSettingResults = state.settingResults.isNotEmpty()
-    val hasAppSettingResults = state.appSettingResults.isNotEmpty()
-    val hasAppShortcutResults = state.appShortcutResults.isNotEmpty()
-    val hasCalendarResults = state.calendarEvents.isNotEmpty()
+    val hasAppResults =
+        hasVisibleResultsForSection(
+            state = state,
+            section = SearchSection.APPS,
+            hasResults = state.searchResults.isNotEmpty(),
+        )
+    val hasContactResults =
+        hasVisibleResultsForSection(
+            state = state,
+            section = SearchSection.CONTACTS,
+            hasResults = state.contactResults.isNotEmpty(),
+        )
+    val hasFileResults =
+        hasVisibleResultsForSection(
+            state = state,
+            section = SearchSection.FILES,
+            hasResults = state.fileResults.isNotEmpty(),
+        )
+    val hasSettingResults =
+        hasVisibleResultsForSection(
+            state = state,
+            section = SearchSection.SETTINGS,
+            hasResults = state.settingResults.isNotEmpty(),
+        )
+    val hasAppSettingResults =
+        hasVisibleResultsForSection(
+            state = state,
+            section = SearchSection.APP_SETTINGS,
+            hasResults = state.appSettingResults.isNotEmpty(),
+        )
+    val hasAppShortcutResults =
+        hasVisibleResultsForSection(
+            state = state,
+            section = SearchSection.APP_SHORTCUTS,
+            hasResults = state.appShortcutResults.isNotEmpty(),
+        )
+    val hasCalendarResults =
+        hasVisibleResultsForSection(
+            state = state,
+            section = SearchSection.CALENDAR,
+            hasResults = state.calendarEvents.isNotEmpty(),
+        )
     val hasNoteResults =
-        FeatureFlags.isSearchSectionEnabled(SearchSection.NOTES) && state.noteResults.isNotEmpty()
+        FeatureFlags.isSearchSectionEnabled(SearchSection.NOTES) &&
+            hasVisibleResultsForSection(
+                state = state,
+                section = SearchSection.NOTES,
+                hasResults = state.noteResults.isNotEmpty(),
+            )
 
     val hasResults =
         hasAppResults ||
@@ -76,4 +112,18 @@ fun hasAnySearchResults(state: SearchUiState): Boolean {
             hasNoteResults
 
     return hasResults
+}
+
+private fun hasVisibleResultsForSection(
+    state: SearchUiState,
+    section: SearchSection,
+    hasResults: Boolean,
+): Boolean {
+    if (!hasResults) return false
+    if (state.detectedAliasSearchSection == section) return true
+    if (state.query.isBlank()) return true
+    if (section !in state.disabledSections) return true
+    return state.topMatchesEnabled &&
+        section !in state.disabledTopMatchesSections &&
+        section in state.topMatchesSectionOrder
 }

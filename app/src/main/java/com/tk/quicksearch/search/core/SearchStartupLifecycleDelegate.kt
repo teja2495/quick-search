@@ -496,7 +496,12 @@ internal class SearchStartupLifecycleDelegate(
         applyPreferenceCacheToLegacyVars()
         val startupSnapshot = readStartupPreferencesSnapshot()
 
-        val cachedAppsList = runCatching { repository.loadCachedApps() }.getOrNull()
+        val cachedAppsList =
+            runCatching {
+                repository.loadCachedApps(
+                    includeNonLaunchableApps = userPreferences.shouldIncludeNonLaunchableAppsInSearch(),
+                )
+            }.getOrNull()
         val hasUsagePermission = repository.hasUsageAccess()
         val hasContactPermission = hasContactPermission()
         val hasFilePermission = hasFilePermission()

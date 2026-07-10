@@ -55,7 +55,12 @@ class AppSearchManager(
             }
 
             val launchCounts = userPreferences.getAllAppLaunchCounts()
-            runCatching { repository.loadLaunchableApps(launchCounts) }
+            runCatching {
+                repository.loadLaunchableApps(
+                    includeNonLaunchableApps = userPreferences.shouldIncludeNonLaunchableAppsInSearch(),
+                    launchCounts = launchCounts,
+                )
+            }
                 .onSuccess { apps ->
                     val currentPackageSet = cachedApps.map { it.launchCountKey() }.toSet()
                     val newPackageSet = apps.map { it.launchCountKey() }.toSet()
@@ -121,12 +126,7 @@ class AppSearchManager(
     }
 
     fun shouldSkipDueToNoMatchPrefix(normalizedQuery: String): Boolean {
-        val prefix = noMatchPrefix ?: return false
-        // Always evaluate single-character queries to avoid stale no-match prefixes
-        // suppressing legitimate first-letter app searches.
-        if (normalizedQuery.length <= 1) return false
-        if (fuzzySearchStrategy.canUseFuzzySearch(normalizedQuery)) return false
-        return normalizedQuery.length >= prefix.length && normalizedQuery.startsWith(prefix)
+        return shouldSkipDueToNoMatchPrefix(normalizedQuery, noMatchPrefix)
     }
 
     fun setNoMatchPrefix(prefix: String?) {
@@ -215,4 +215,17 @@ class AppSearchManager(
             appNicknames = cachedAppNicknames,
             sortAppsByUsageEnabled = sortAppsByUsageEnabled,
         )
+
+    internal companion object {
+        internal fun shouldSkipDueToNoMatchPrefix(
+            normalizedQuery: String,
+            noMatchPrefix: String?,
+        ): Boolean {
+            val prefix = noMatchPrefix ?: return false
+            // Always evaluate single-character queries to avoid stale no-match prefixes
+            // suppressing legitimate first-letter app searches.
+            if (normalizedQuery.length <= 1) return false
+            return normalizedQuery.length >= prefix.length && normalizedQuery.startsWith(prefix)
+        }
+    }
 }
