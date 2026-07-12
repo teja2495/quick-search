@@ -55,6 +55,7 @@ import com.tk.quicksearch.widgets.searchWidget.MicAction
 import com.tk.quicksearch.widgets.searchWidget.VoiceSearchHandler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicInteger
 
 open class MainActivity : ComponentActivity() {
     private data class PendingContactActionPickerRequest(
@@ -83,6 +84,11 @@ open class MainActivity : ComponentActivity() {
         private const val TRACE_WALLPAPER_PREVIEW_READY = "QS.Startup.WallpaperPreview.Ready"
         private const val TRACE_SUGGESTIONS_READY = "QS.Startup.Suggestions.Ready"
         private const val QUICK_SEARCH_BACKUP_EXTENSION = ".quicksearch"
+
+        // Launcher activities can be created and destroyed many times while this long-lived
+        // process remains in the background. Track overlapping replacements so cleanup only
+        // runs after the last activity has actually gone away.
+        private val activeActivityInstances = AtomicInteger(0)
     }
 
     private val searchViewModel: SearchViewModel by viewModels()
@@ -102,6 +108,7 @@ open class MainActivity : ComponentActivity() {
     private var hasCoreSurfaceReadyTraced = false
     private var hasWallpaperPreviewReadyTraced = false
     private var hasSuggestionsReadyTraced = false
+    private var isActivityInstanceTracked = false
 
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(AppLanguageManager.wrapContext(newBase))
@@ -118,6 +125,8 @@ open class MainActivity : ComponentActivity() {
             enableEdgeToEdge(statusBarStyle, navigationBarStyle)
 
             super.onCreate(savedInstanceState)
+            activeActivityInstances.incrementAndGet()
+            isActivityInstanceTracked = true
             window.setBackgroundDrawable(null)
 
             // Disable activity opening animation for instant appearance
@@ -173,6 +182,21 @@ open class MainActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         searchViewModel.handleOnStop()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (!isActivityInstanceTracked) return
+        isActivityInstanceTracked = false
+        val remainingInstances =
+            activeActivityInstances.updateAndGet { count -> (count - 1).coerceAtLeast(0) }
+        if (remainingInstances == 0 && !isChangingConfigurations) {
+            clearBitmapMemoryCaches()
+            // A destroyed Compose launcher surface can leave a large unreachable bitmap/render
+            // graph in this otherwise long-lived process. Reclaim it while no UI is visible so
+            // repeated HOME launches do not accumulate until the next background OOM.
+            Runtime.getRuntime().gc()
+        }
     }
 
     @Suppress("DEPRECATION")
