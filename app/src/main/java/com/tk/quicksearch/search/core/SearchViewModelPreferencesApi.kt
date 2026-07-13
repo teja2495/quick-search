@@ -150,6 +150,8 @@ internal interface SearchViewModelPreferencesApi {
 
     fun setShowFolders(show: Boolean) = preferencesApiDelegate.setShowFolders(show)
 
+    fun setFilePreviewsEnabled(enabled: Boolean) = preferencesApiDelegate.setFilePreviewsEnabled(enabled)
+
     fun setShowSystemFiles(show: Boolean) = preferencesApiDelegate.setShowSystemFiles(show)
 
     fun setFolderWhitelistPatterns(patterns: Set<String>) =
@@ -378,6 +380,8 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
         preferencesDelegate.setFileTypeEnabled(fileType, enabled)
 
     fun setShowFolders(show: Boolean) = preferencesDelegate.setShowFolders(show)
+
+    fun setFilePreviewsEnabled(enabled: Boolean) = preferencesDelegate.setFilePreviewsEnabled(enabled)
 
     fun setShowSystemFiles(show: Boolean) = preferencesDelegate.setShowSystemFiles(show)
 

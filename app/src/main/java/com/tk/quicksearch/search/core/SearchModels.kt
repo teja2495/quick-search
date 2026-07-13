@@ -485,6 +485,7 @@ data class SearchUiState(
         val enabledFileTypes: Set<com.tk.quicksearch.search.models.FileType> =
                 com.tk.quicksearch.search.models.FileType.values().toSet(),
         val showFolders: Boolean = false,
+        val filePreviewsEnabled: Boolean = true,
         val showSystemFiles: Boolean = false,
         val folderWhitelistPatterns: Set<String> = emptySet(),
         val folderBlacklistPatterns: Set<String> = emptySet(),
@@ -803,6 +804,7 @@ fun SearchUiState(
                 maskUnsupportedIconPackIcons = config.maskUnsupportedIconPackIcons,
                 enabledFileTypes = config.enabledFileTypes,
                 showFolders = config.showFolders,
+                filePreviewsEnabled = config.filePreviewsEnabled,
                 showSystemFiles = config.showSystemFiles,
                 folderWhitelistPatterns = config.folderWhitelistPatterns,
                 folderBlacklistPatterns = config.folderBlacklistPatterns,

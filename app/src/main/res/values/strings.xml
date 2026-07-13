@@ -418,6 +418,8 @@
     <string name="settings_folder_whitelist_helper">Only these folders will be searched for file &amp; folder searches</string>
     <string name="settings_folder_whitelist_title">Whitelist</string>
     <string name="settings_folders_toggle">Folders</string>
+    <string name="settings_file_previews_toggle">File Previews</string>
+    <string name="settings_file_previews_description">Preview images and PDFs before opening them.</string>
     <string name="settings_refresh_files_disabled">Files search is disabled, cannot refresh files data</string>
     <string name="settings_refresh_files_title">Reload Files</string>
     <string name="settings_system_files_toggle">System Files</string>

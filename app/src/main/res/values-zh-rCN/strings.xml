@@ -428,6 +428,8 @@
     <string name="settings_folder_whitelist_helper">执行文件与文件夹搜索时，将仅在这些文件夹中检索</string>
     <string name="settings_folder_whitelist_title">白名单</string>
     <string name="settings_folders_toggle">文件夹</string>
+    <string name="settings_file_previews_toggle">文件预览</string>
+    <string name="settings_file_previews_description">打开图片和 PDF 文件前进行预览。</string>
     <string name="settings_refresh_files_disabled">文件搜索功能已被停用，无法刷新文件数据</string>
     <string name="settings_refresh_files_title">重新加载文件</string>
     <string name="settings_system_files_toggle">系统文件</string>

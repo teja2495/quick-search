@@ -54,6 +54,7 @@ internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState {
         availableLlmModelsByProvider = searchEngines.availableLlmModelsByProvider,
         enabledFileTypes = fileSearch.enabledFileTypes,
         showFolders = fileSearch.showFolders,
+        filePreviewsEnabled = fileSearch.filePreviewsEnabled,
         showSystemFiles = fileSearch.showSystemFiles,
         folderWhitelistPatterns = fileSearch.folderWhitelistPatterns,
         folderBlacklistPatterns = fileSearch.folderBlacklistPatterns,
@@ -207,6 +208,7 @@ private fun SearchUiState.toSearchEngineSettingsState() =
 private data class FileSearchMapperState(
     val enabledFileTypes: Set<com.tk.quicksearch.search.models.FileType>,
     val showFolders: Boolean,
+    val filePreviewsEnabled: Boolean,
     val showSystemFiles: Boolean,
     val folderWhitelistPatterns: Set<String>,
     val folderBlacklistPatterns: Set<String>,
@@ -217,6 +219,7 @@ private fun SearchUiState.toFileSearchSettingsState() =
     FileSearchMapperState(
         enabledFileTypes = enabledFileTypes,
         showFolders = showFolders,
+        filePreviewsEnabled = filePreviewsEnabled,
         showSystemFiles = showSystemFiles,
         folderWhitelistPatterns = folderWhitelistPatterns,
         folderBlacklistPatterns = folderBlacklistPatterns,

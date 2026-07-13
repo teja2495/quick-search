@@ -475,6 +475,7 @@ abstract class BasePreferences(
         const val KEY_EXCLUDED_FILE_EXTENSIONS = "excluded_file_extensions"
         const val KEY_ENABLED_FILE_TYPES = "enabled_file_types"
         const val KEY_SHOW_FOLDERS_IN_RESULTS = "show_folders_in_results"
+        const val KEY_FILE_PREVIEWS_ENABLED = "file_previews_enabled"
         const val KEY_SHOW_SYSTEM_FILES = "show_system_files"
         // Legacy key kept only to migrate old "Hidden Files" toggle state into System Files.
         const val KEY_SHOW_HIDDEN_FILES = "show_hidden_files"

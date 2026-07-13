@@ -430,6 +430,8 @@
 <string name="settings_folder_whitelist_helper">Поиск файлов и папок будет производиться только внутри этих директорий</string>
 <string name="settings_folder_whitelist_title">Белый список</string>
 <string name="settings_folders_toggle">Папки</string>
+<string name="settings_file_previews_toggle">Предпросмотр файлов</string>
+<string name="settings_file_previews_description">Предпросмотр изображений и PDF-файлов перед их открытием.</string>
 <string name="settings_refresh_files_disabled">Поиск файлов отключен, невозможно обновить данные файлов</string>
     <string name="settings_refresh_files_title">Обновить файлы</string>
 <string name="settings_system_files_toggle">Системные файлы</string>

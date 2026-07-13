@@ -25,6 +25,7 @@ class StartupPreferencesFacade(
     data class StartupPreferences(
             val enabledFileTypes: Set<FileType>,
             val showFolders: Boolean,
+            val filePreviewsEnabled: Boolean,
             val showSystemFiles: Boolean,
             val folderWhitelistPatterns: Set<String>,
             val folderBlacklistPatterns: Set<String>,
@@ -141,6 +142,13 @@ class StartupPreferencesFacade(
                         ] as?
                                 Boolean
                                 ?: false,
+                filePreviewsEnabled =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.BasePreferences
+                                        .KEY_FILE_PREVIEWS_ENABLED,
+                        ] as?
+                                Boolean
+                                ?: true,
                 showSystemFiles =
                         (
                                 allPrefs[
@@ -579,6 +587,13 @@ class StartupPreferencesFacade(
                                 ] as?
                                         Boolean
                                         ?: false,
+                        filePreviewsEnabled =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.BasePreferences
+                                                .KEY_FILE_PREVIEWS_ENABLED,
+                                ] as?
+                                        Boolean
+                                        ?: true,
                         showSystemFiles =
                                 (
                                         allPrefs[

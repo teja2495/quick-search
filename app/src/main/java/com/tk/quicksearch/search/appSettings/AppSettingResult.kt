@@ -74,6 +74,7 @@ enum class AppSettingsToggleKey {
     AUTO_CLOSE_OVERLAY,
     CIRCULAR_APP_ICONS,
     SHOW_FOLDERS,
+    FILE_PREVIEWS,
     SHOW_SYSTEM_FILES,
     DIRECT_DIAL,
     SEARCH_APPS,

@@ -428,6 +428,8 @@
     <string name="settings_folder_whitelist_helper">Apenas estas pastas serão incluídas nas buscas de arquivos e pastas</string>
     <string name="settings_folder_whitelist_title">Lista de permissões (Whitelist)</string>
     <string name="settings_folders_toggle">Pastas</string>
+    <string name="settings_file_previews_toggle">Pré-visualização de arquivos</string>
+    <string name="settings_file_previews_description">Visualizar imagens e PDFs antes de abri-los.</string>
     <string name="settings_refresh_files_disabled">A pesquisa de arquivos está desativada, não é possível atualizar os dados dos arquivos</string>
     <string name="settings_refresh_files_title">Recarregar arquivos</string>
     <string name="settings_system_files_toggle">Arquivos do sistema</string>

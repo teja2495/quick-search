@@ -56,6 +56,11 @@ class FilePreferences(
 
     fun setShowFoldersInResults(show: Boolean) = prefs.edit().putBoolean(BasePreferences.KEY_SHOW_FOLDERS_IN_RESULTS, show).apply()
 
+    fun areFilePreviewsEnabled(): Boolean = prefs.getBoolean(BasePreferences.KEY_FILE_PREVIEWS_ENABLED, true)
+
+    fun setFilePreviewsEnabled(enabled: Boolean) =
+        prefs.edit().putBoolean(BasePreferences.KEY_FILE_PREVIEWS_ENABLED, enabled).apply()
+
     fun getShowSystemFiles(): Boolean =
         prefs.getBoolean(BasePreferences.KEY_SHOW_SYSTEM_FILES, false) ||
             prefs.getBoolean(BasePreferences.KEY_SHOW_HIDDEN_FILES, false)

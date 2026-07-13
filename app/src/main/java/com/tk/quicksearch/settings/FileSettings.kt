@@ -186,6 +186,8 @@ private fun ExcludedExtensionChip(
  * @param onToggleFileType Callback when a file type toggle is changed
  * @param showFolders Whether folders are shown in search results
  * @param onToggleFolders Callback when folders toggle is changed
+ * @param filePreviewsEnabled Whether file previews are shown before opening supported files
+ * @param onToggleFilePreviews Callback when file previews toggle is changed
  * @param showSystemFiles Whether system files are shown in search results
  * @param onToggleSystemFiles Callback when system files toggle is changed
  * @param folderWhitelistPatterns Folder path patterns that should be allowed in results
@@ -202,6 +204,8 @@ fun FileTypesSection(
     onToggleFileType: (FileType, Boolean) -> Unit,
     showFolders: Boolean,
     onToggleFolders: (Boolean) -> Unit,
+    filePreviewsEnabled: Boolean,
+    onToggleFilePreviews: (Boolean) -> Unit,
     showSystemFiles: Boolean,
     onToggleSystemFiles: (Boolean) -> Unit,
     folderWhitelistPatterns: Set<String>,
@@ -228,13 +232,13 @@ fun FileTypesSection(
         }
     }
 
-    // Card 1: Folders toggle
     SettingsCard(modifier = Modifier.fillMaxWidth()) {
         SettingsToggleRow(
-            title = stringResource(R.string.settings_folders_toggle),
-            checked = showFolders,
-            onCheckedChange = onToggleFolders,
-            leadingIcon = Icons.Rounded.Folder,
+            title = stringResource(R.string.settings_file_previews_toggle),
+            subtitle = stringResource(R.string.settings_file_previews_description),
+            checked = filePreviewsEnabled,
+            onCheckedChange = onToggleFilePreviews,
+            leadingIcon = Icons.Rounded.Visibility,
             isFirstItem = true,
             isLastItem = true,
         )
@@ -242,9 +246,17 @@ fun FileTypesSection(
 
     Spacer(modifier = Modifier.height(12.dp))
 
-    // Card 2: File types with icons in specific order
+    // File display and type settings.
     SettingsCard(modifier = Modifier.fillMaxWidth()) {
         Column {
+            SettingsToggleRow(
+                title = stringResource(R.string.settings_folders_toggle),
+                checked = showFolders,
+                onCheckedChange = onToggleFolders,
+                leadingIcon = Icons.Rounded.Folder,
+                isFirstItem = true,
+            )
+
             // Define the order: Documents, Pictures, Videos, Music, APKs, Other
             val orderedFileTypes =
                 listOf(
@@ -264,7 +276,7 @@ fun FileTypesSection(
                         onToggleFileType(fileType, enabled)
                     },
                     leadingIcon = getFileTypeIcon(fileType),
-                    isFirstItem = index == 0,
+                    isFirstItem = false,
                     isLastItem = false,
                 )
             }

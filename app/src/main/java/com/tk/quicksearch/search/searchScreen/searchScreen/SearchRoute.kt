@@ -588,8 +588,9 @@ fun SearchRoute(
                 viewModel.handleContactMethod(contact, method)
             },
             onFileClick = { file: com.tk.quicksearch.search.models.DeviceFile ->
-                if (com.tk.quicksearch.search.models.FileTypeUtils.isPdf(file) ||
-                    com.tk.quicksearch.search.models.FileTypeUtils.isImage(file)
+                if (uiState.filePreviewsEnabled &&
+                    (com.tk.quicksearch.search.models.FileTypeUtils.isPdf(file) ||
+                        com.tk.quicksearch.search.models.FileTypeUtils.isImage(file))
                 ) {
                     viewModel.recordFileOpen(file)
                     previewFile = file

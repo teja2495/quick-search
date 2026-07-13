@@ -55,6 +55,7 @@ internal fun buildSettingsScreenCallbacks(
         onDeleteCustomSearchEngine = viewModel::deleteCustomSearchEngine,
         onToggleFileType = viewModel::setFileTypeEnabled,
         onToggleFolders = viewModel::setShowFolders,
+        onToggleFilePreviews = viewModel::setFilePreviewsEnabled,
         onToggleSystemFiles = viewModel::setShowSystemFiles,
         onSetFolderWhitelistPatterns = viewModel::setFolderWhitelistPatterns,
         onSetFolderBlacklistPatterns = viewModel::setFolderBlacklistPatterns,

@@ -428,6 +428,8 @@
     <string name="settings_folder_whitelist_helper">Solo se buscará en estas carpetas al buscar archivos y carpetas</string>
     <string name="settings_folder_whitelist_title">Lista blanca</string>
     <string name="settings_folders_toggle">Carpetas</string>
+    <string name="settings_file_previews_toggle">Vista previa de archivos</string>
+    <string name="settings_file_previews_description">Previsualizar imágenes y archivos PDF antes de abrirlos.</string>
     <string name="settings_refresh_files_disabled">La búsqueda de archivos está desactivada; no se pueden actualizar los datos</string>
     <string name="settings_refresh_files_title">Recargar archivos</string>
     <string name="settings_system_files_toggle">Archivos del sistema</string>

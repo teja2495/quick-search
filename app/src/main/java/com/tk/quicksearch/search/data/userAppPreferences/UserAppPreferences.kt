@@ -258,6 +258,10 @@ class UserAppPreferences(
 
     fun setShowFoldersInResults(show: Boolean) = filePreferences.setShowFoldersInResults(show)
 
+    fun areFilePreviewsEnabled(): Boolean = filePreferences.areFilePreviewsEnabled()
+
+    fun setFilePreviewsEnabled(enabled: Boolean) = filePreferences.setFilePreviewsEnabled(enabled)
+
     fun getShowSystemFiles(): Boolean = filePreferences.getShowSystemFiles()
 
     fun setShowSystemFiles(show: Boolean) = filePreferences.setShowSystemFiles(show)

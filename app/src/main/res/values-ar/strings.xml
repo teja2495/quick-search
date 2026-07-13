@@ -429,6 +429,8 @@
     <string name="settings_folder_whitelist_helper">سيتم البحث في هذه المجلدات فقط أثناء البحث عن الملفات والمجلدات</string>
     <string name="settings_folder_whitelist_title">القائمة البيضاء</string>
     <string name="settings_folders_toggle">المجلدات</string>
+    <string name="settings_file_previews_toggle">معاينة الملفات</string>
+    <string name="settings_file_previews_description">معاينة الصور وملفات PDF قبل فتحها.</string>
     <string name="settings_refresh_files_disabled">البحث عن الملفات معطل، لا يمكن تحديث بيانات الملفات</string>
     <string name="settings_refresh_files_title">إعادة تحميل الملفات</string>
     <string name="settings_system_files_toggle">ملفات النظام</string>

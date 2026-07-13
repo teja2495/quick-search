@@ -39,6 +39,7 @@ data class SettingsScreenState(
     val disabledSearchEngines: Set<String>,
     val enabledFileTypes: Set<FileType>,
     val showFolders: Boolean,
+    val filePreviewsEnabled: Boolean,
     val showSystemFiles: Boolean,
     val folderWhitelistPatterns: Set<String>,
     val folderBlacklistPatterns: Set<String>,
@@ -180,6 +181,7 @@ data class SettingsScreenState(
             FileSearchSettingsState(
                 enabledFileTypes = enabledFileTypes,
                 showFolders = showFolders,
+                filePreviewsEnabled = filePreviewsEnabled,
                 showSystemFiles = showSystemFiles,
                 folderWhitelistPatterns = folderWhitelistPatterns,
                 folderBlacklistPatterns = folderBlacklistPatterns,
@@ -270,6 +272,7 @@ data class SettingsScreenCallbacks(
     val onDeleteCustomSearchEngine: (String) -> Unit,
     val onToggleFileType: (FileType, Boolean) -> Unit,
     val onToggleFolders: (Boolean) -> Unit,
+    val onToggleFilePreviews: (Boolean) -> Unit,
     val onToggleSystemFiles: (Boolean) -> Unit,
     val onSetFolderWhitelistPatterns: (Set<String>) -> Unit,
     val onSetFolderBlacklistPatterns: (Set<String>) -> Unit,
@@ -521,6 +524,7 @@ data class SearchEngineSettingsState(
 data class FileSearchSettingsState(
     val enabledFileTypes: Set<FileType>,
     val showFolders: Boolean,
+    val filePreviewsEnabled: Boolean,
     val showSystemFiles: Boolean,
     val folderWhitelistPatterns: Set<String>,
     val folderBlacklistPatterns: Set<String>,

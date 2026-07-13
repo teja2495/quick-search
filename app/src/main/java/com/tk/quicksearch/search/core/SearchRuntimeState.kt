@@ -16,6 +16,7 @@ internal data class SearchRuntimeState(
     var prefCache: SearchPreferenceCache,
     var enabledFileTypes: Set<FileType> = emptySet(),
     var showFolders: Boolean = false,
+    var filePreviewsEnabled: Boolean = true,
     var showSystemFiles: Boolean = false,
     var folderWhitelistPatterns: Set<String> = emptySet(),
     var folderBlacklistPatterns: Set<String> = emptySet(),

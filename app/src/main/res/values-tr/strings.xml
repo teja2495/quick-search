@@ -427,6 +427,8 @@
 <string name="settings_folder_whitelist_helper">Dosya ve klasör aramalarında yalnızca bu klasörler taranacaktır</string>
 <string name="settings_folder_whitelist_title">Beyaz liste</string>
 <string name="settings_folders_toggle">Klasörler</string>
+<string name="settings_file_previews_toggle">Dosya önizlemeleri</string>
+<string name="settings_file_previews_description">Açmadan önce görselleri ve PDF\'leri önizleyin.</string>
 <string name="settings_refresh_files_disabled">Dosya araması devre dışı, dosya verileri yenilenemiyor</string>
 <string name="settings_refresh_files_title">Dosyaları yeniden yükle</string>
 <string name="settings_system_files_toggle">Sistem dosyaları</string>

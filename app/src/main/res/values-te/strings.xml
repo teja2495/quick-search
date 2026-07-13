@@ -428,6 +428,8 @@
     <string name="settings_folder_whitelist_helper">ఫైల్ &amp; ఫోల్డర్ శోధనల కోసం ఈ ఫోల్డర్‌లలో మాత్రమే శోధించబడుతుంది</string>
     <string name="settings_folder_whitelist_title">వైట్‌లిస్ట్</string>
     <string name="settings_folders_toggle">ఫోల్డర్‌లు</string>
+    <string name="settings_file_previews_toggle">ఫైల్ ప్రివ్యూలు</string>
+    <string name="settings_file_previews_description">చిత్రాలు మరియు PDFలను తెరవడానికి ముందు వాటిని ప్రివ్యూ చేయండి.</string>
     <string name="settings_refresh_files_disabled">ఫైళ్ల శోధన నిలిపివేయబడింది, ఫైళ్ల డేటాను రీఫ్రెష్ చేయడం సాధ్యపడదు</string>
     <string name="settings_refresh_files_title">ఫైళ్లను రీలోడ్ చేయి</string>
     <string name="settings_system_files_toggle">సిస్టమ్ ఫైళ్లు</string>

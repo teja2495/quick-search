@@ -428,6 +428,8 @@
 <string name="settings_folder_whitelist_helper">Seuls ces dossiers seront explorés pour les recherches de fichiers &amp; dossiers</string>
 <string name="settings_folder_whitelist_title">Liste blanche</string>
 <string name="settings_folders_toggle">Dossiers</string>
+<string name="settings_file_previews_toggle">Aperçu des fichiers</string>
+<string name="settings_file_previews_description">Afficher un aperçu des images et des fichiers PDF avant de les ouvrir.</string>
 <string name="settings_refresh_files_disabled">La recherche de fichiers est désactivée, impossible d\'actualiser les données</string>
 <string name="settings_refresh_files_title">Recharger les fichiers</string>
 <string name="settings_system_files_toggle">Fichiers système</string>

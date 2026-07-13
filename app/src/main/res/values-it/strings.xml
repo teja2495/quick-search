@@ -427,6 +427,8 @@
     <string name="settings_folder_whitelist_helper">La ricerca di file e cartelle verrà effettuata solo all\u2019interno di queste cartelle</string>
     <string name="settings_folder_whitelist_title">Whitelist</string>
     <string name="settings_folders_toggle">Cartelle</string>
+    <string name="settings_file_previews_toggle">Anteprima file</string>
+    <string name="settings_file_previews_description">Visualizza l\u2019anteprima di immagini e PDF prima di aprirli.</string>
     <string name="settings_refresh_files_disabled">La ricerca dei file è disattivata, impossibile aggiornare i dati dei file</string>
     <string name="settings_refresh_files_title">Ricarica file</string>
     <string name="settings_system_files_toggle">File di sistema</string>

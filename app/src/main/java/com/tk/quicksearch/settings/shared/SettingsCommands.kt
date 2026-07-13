@@ -112,6 +112,7 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
                         },
                     )
                 AppSettingsToggleKey.SHOW_FOLDERS -> setShowFolders(command.enabled)
+                AppSettingsToggleKey.FILE_PREVIEWS -> setFilePreviewsEnabled(command.enabled)
                 AppSettingsToggleKey.SHOW_SYSTEM_FILES -> setShowSystemFiles(command.enabled)
                 AppSettingsToggleKey.DIRECT_DIAL -> setDirectDialEnabled(command.enabled)
                 AppSettingsToggleKey.ASSISTANT_LAUNCH_VOICE_MODE ->
@@ -193,6 +194,7 @@ internal fun SearchUiState.isAppSettingToggleEnabled(toggleKey: AppSettingsToggl
         AppSettingsToggleKey.AUTO_CLOSE_OVERLAY -> autoCloseOverlay
         AppSettingsToggleKey.CIRCULAR_APP_ICONS -> appIconShape == AppIconShape.CIRCLE
         AppSettingsToggleKey.SHOW_FOLDERS -> showFolders
+        AppSettingsToggleKey.FILE_PREVIEWS -> filePreviewsEnabled
         AppSettingsToggleKey.SHOW_SYSTEM_FILES -> showSystemFiles
         AppSettingsToggleKey.DIRECT_DIAL -> directDialEnabled
         AppSettingsToggleKey.ASSISTANT_LAUNCH_VOICE_MODE -> assistantLaunchVoiceModeEnabled

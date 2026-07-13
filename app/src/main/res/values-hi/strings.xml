@@ -428,6 +428,8 @@
     <string name="settings_folder_whitelist_helper">फाइल और फोल्डर खोज के लिए केवल इन फोल्डरों में खोज होगी</string>
     <string name="settings_folder_whitelist_title">व्हाइटलिस्ट</string>
     <string name="settings_folders_toggle">फोल्डर्स</string>
+    <string name="settings_file_previews_toggle">फाइल पूर्वावलोकन</string>
+    <string name="settings_file_previews_description">खोलने से पहले छवियों और पीडीएफ का पूर्वावलोकन करें।</string>
     <string name="settings_refresh_files_disabled">फाइल खोज बंद है, फाइल डेटा रिफ्रेश नहीं किया जा सकता</string>
     <string name="settings_refresh_files_title">फाइलें फिर से लोड करें</string>
     <string name="settings_system_files_toggle">सिस्टम फाइलें</string>

@@ -428,6 +428,8 @@
     <string name="settings_folder_whitelist_helper">Nur diese Ordner werden bei Datei- &amp; Ordnersuchen durchsucht</string>
     <string name="settings_folder_whitelist_title">Whitelist</string>
     <string name="settings_folders_toggle">Ordner</string>
+    <string name="settings_file_previews_toggle">Dateivorschau</string>
+    <string name="settings_file_previews_description">Vorschau von Bildern und PDFs vor dem Öffnen anzeigen.</string>
     <string name="settings_refresh_files_disabled">Dateisuche ist deaktiviert, Dateidaten können nicht aktualisiert werden</string>
     <string name="settings_refresh_files_title">Dateien neu laden</string>
     <string name="settings_system_files_toggle">Systemdateien</string>

@@ -7,6 +7,7 @@ import com.tk.quicksearch.search.models.FileType
 internal data class SearchPreferenceCache(
     val enabledFileTypes: Set<FileType> = emptySet(),
     val showFolders: Boolean = false,
+    val filePreviewsEnabled: Boolean = true,
     val showSystemFiles: Boolean = false,
     val folderWhitelistPatterns: Set<String> = emptySet(),
     val folderBlacklistPatterns: Set<String> = emptySet(),
@@ -71,6 +72,7 @@ internal data class SearchPreferenceCache(
             return SearchPreferenceCache(
                 enabledFileTypes = prefs.enabledFileTypes,
                 showFolders = prefs.showFolders,
+                filePreviewsEnabled = prefs.filePreviewsEnabled,
                 showSystemFiles = prefs.showSystemFiles,
                 folderWhitelistPatterns = prefs.folderWhitelistPatterns,
                 folderBlacklistPatterns = prefs.folderBlacklistPatterns,

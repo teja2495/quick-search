@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 internal interface SearchPreferencesStateAccess {
     var enabledFileTypes: Set<FileType>
     var showFolders: Boolean
+    var filePreviewsEnabled: Boolean
     var showSystemFiles: Boolean
     var folderWhitelistPatterns: Set<String>
     var folderBlacklistPatterns: Set<String>
@@ -607,6 +608,14 @@ internal class SearchPreferencesDelegate(
             stateAccess.showFolders = show
             updateUiState { it.copy(showFolders = show) }
             rerunSecondarySearchIfNeeded()
+        }
+    }
+
+    fun setFilePreviewsEnabled(enabled: Boolean) {
+        scope.launch(Dispatchers.IO) {
+            userPreferences.setFilePreviewsEnabled(enabled)
+            stateAccess.filePreviewsEnabled = enabled
+            updateUiState { it.copy(filePreviewsEnabled = enabled) }
         }
     }
 

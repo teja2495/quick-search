@@ -263,6 +263,7 @@ data class SearchUiConfigState(
         // File display preferences
         val enabledFileTypes: Set<FileType> = FileType.values().toSet(),
         val showFolders: Boolean = false,
+        val filePreviewsEnabled: Boolean = true,
         val showSystemFiles: Boolean = false,
         val folderWhitelistPatterns: Set<String> = emptySet(),
         val folderBlacklistPatterns: Set<String> = emptySet(),

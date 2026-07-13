@@ -180,6 +180,7 @@ internal object SearchStateExtractor {
             maskUnsupportedIconPackIcons = s.maskUnsupportedIconPackIcons,
             enabledFileTypes = s.enabledFileTypes,
             showFolders = s.showFolders,
+            filePreviewsEnabled = s.filePreviewsEnabled,
             showSystemFiles = s.showSystemFiles,
             folderWhitelistPatterns = s.folderWhitelistPatterns,
             folderBlacklistPatterns = s.folderBlacklistPatterns,

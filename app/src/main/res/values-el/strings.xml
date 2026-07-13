@@ -428,6 +428,8 @@
     <string name="settings_folder_whitelist_helper">Η αναζήτηση αρχείων και φακέλων θα πραγματοποιείται μόνο σε αυτούς τους φακέλους</string>
     <string name="settings_folder_whitelist_title">Λίστα επιτρεπόμενων</string>
     <string name="settings_folders_toggle">Φάκελοι</string>
+    <string name="settings_file_previews_toggle">Προεπισκοπήσεις αρχείων</string>
+    <string name="settings_file_previews_description">Προεπισκόπηση εικόνων και αρχείων PDF πριν από το άνοιγμά τους.</string>
     <string name="settings_refresh_files_disabled">Η αναζήτηση αρχείων είναι απενεργοποιημένη, αδυναμία ανανέωσης δεδομένων</string>
     <string name="settings_refresh_files_title">Επαναφόρτωση αρχείων</string>
     <string name="settings_system_files_toggle">Αρχεία συστήματος</string>

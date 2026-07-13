@@ -670,6 +670,8 @@ internal fun SettingsDetailLevel2Screen(
                                         ),
                                     )
                                 },
+                                filePreviewsEnabled = state.filePreviewsEnabled,
+                                onToggleFilePreviews = callbacks.onToggleFilePreviews,
                                 showSystemFiles = state.showSystemFiles,
                                 onToggleSystemFiles = { enabled ->
                                     callbacks.onApplySettingsCommand(
