@@ -457,6 +457,15 @@ class SearchEngineManager(
             userPreferences.setDisabledSearchEngines(disabledIds)
             return disabledIds
         }
+        val newDefaultDisabledEngines =
+            availableEngines
+                .filter { it.isDefaultDisabledOnFirstRun() && it.name !in savedOrder }
+                .map { it.name }
+                .toSet()
+        if (newDefaultDisabledEngines.isNotEmpty()) {
+            savedDisabled.addAll(newDefaultDisabledEngines)
+            userPreferences.setDisabledSearchEngines(savedDisabled)
+        }
         if (!hasBrowserTargetsInOrder) {
             val updated =
                 savedDisabled.toMutableSet().apply {

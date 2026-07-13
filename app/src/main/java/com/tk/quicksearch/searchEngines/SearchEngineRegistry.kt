@@ -24,6 +24,7 @@ enum class SearchEngineNativeLaunchMode {
     WAZE,
     CLAUDE,
     GROK,
+    GOOGLE_TRANSLATE,
 }
 
 data class SearchEngineDefinition(
@@ -294,6 +295,17 @@ object SearchEngineRegistry {
                 appPackages = listOf(PackageConstants.STARTPAGE_PACKAGE_NAME),
                 defaultDisableIfAppMissing = true,
                 nativeLaunchMode = SearchEngineNativeLaunchMode.STARTPAGE,
+            ),
+            SearchEngineDefinition(
+                engine = SearchEngine.GOOGLE_TRANSLATE,
+                drawableResId = R.drawable.google_translate,
+                contentDescriptionResId = R.string.search_engine_google_translate,
+                urlTemplate = "https://translate.google.com/?sl=auto&tl=en&text=%s&op=translate",
+                defaultShortcutCode = "",
+                appPackages = listOf(PackageConstants.GOOGLE_TRANSLATE_PACKAGE),
+                installOnly = true,
+                defaultDisabledOnFirstRun = true,
+                nativeLaunchMode = SearchEngineNativeLaunchMode.GOOGLE_TRANSLATE,
             ),
         )
 

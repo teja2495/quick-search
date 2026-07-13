@@ -34,8 +34,36 @@ internal object SearchEngineIntents {
             SearchEngineNativeLaunchMode.WAZE -> ::openWaze
             SearchEngineNativeLaunchMode.CLAUDE -> ::openClaude
             SearchEngineNativeLaunchMode.GROK -> ::openGrok
+            SearchEngineNativeLaunchMode.GOOGLE_TRANSLATE -> ::openGoogleTranslate
             SearchEngineNativeLaunchMode.NONE -> null
         }
+
+    /** Opens Google Translate with the query pre-filled as text to translate. */
+    fun openGoogleTranslate(
+        context: Application,
+        query: String,
+    ) {
+        val shareIntent =
+            Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, query)
+                setPackage(PackageConstants.GOOGLE_TRANSLATE_PACKAGE)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+
+        if (shareIntent.resolveActivity(context.packageManager) == null) {
+            Log.w("GoogleTranslateLaunch", "Google Translate app not resolved")
+            return
+        }
+
+        try {
+            context.startActivity(shareIntent)
+        } catch (e: ActivityNotFoundException) {
+            Log.w("GoogleTranslateLaunch", "Share intent failed: ${e.message}")
+        } catch (e: SecurityException) {
+            Log.w("GoogleTranslateLaunch", "Share intent security exception: ${e.message}")
+        }
+    }
 
     /**
      * Opens the Gemini app with the query using a share intent. If query is empty, just launches

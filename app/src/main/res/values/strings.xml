@@ -924,6 +924,7 @@
     <string name="search_engine_google_drive">Google Drive</string>
     <string name="search_engine_google_maps">Google Maps</string>
     <string name="search_engine_google_photos">Google Photos</string>
+    <string name="search_engine_google_translate">Google Translate</string>
     <string name="search_engine_google_play">Google Play</string>
     <string name="search_engine_grok">Grok</string>
     <string name="search_engine_onboarding_description">When you type your search query and tap on any of these search engines, it will trigger search within these apps. You can modify them by long pressing.</string>

@@ -50,6 +50,7 @@ enum class SearchEngine {
         WIKIPEDIA,
         BING,
         STARTPAGE,
+        GOOGLE_TRANSLATE,
 }
 
 data class BrowserApp(
