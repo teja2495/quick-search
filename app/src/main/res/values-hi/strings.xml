@@ -388,6 +388,8 @@
     <string name="error_whatsapp_video_call_missing_data">WhatsApp वीडियो कॉल नहीं की जा सकती - कॉन्टैक्ट डेटा नहीं है</string>
     <string name="error_whatsapp_video_call_unavailable">WhatsApp पर वीडियो कॉल उपलब्ध नहीं है</string>
     <string name="settings_call_permission_title">फोन</string>
+    <string name="permissions_background_usage_title">बैकग्राउंड में उपयोग की अनुमति दें</string>
+    <string name="permissions_background_usage_desc">यह Quick Search को बैकग्राउंड में बनाए रखने में मदद करता है ताकि आप इसे जल्दी से लॉन्च कर सकें।</string>
     <string name="settings_calling_card_title">डिफ़ॉल्ट कॉलिंग ऐप</string>
     <string name="settings_calls_texts_title">कॉल्स और टेक्स्ट्स</string>
     <string name="settings_direct_dial_desc">डायलर खोले बिना सीधे कॉल करें। </string>

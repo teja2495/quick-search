@@ -388,6 +388,8 @@
     <string name="error_whatsapp_video_call_missing_data">WhatsApp-Videoanruf nicht möglich – Kontaktdaten fehlen</string>
     <string name="error_whatsapp_video_call_unavailable">WhatsApp für Videoanrufe nicht verfügbar</string>
     <string name="settings_call_permission_title">Telefon</string>
+    <string name="permissions_background_usage_title">Hintergrundnutzung zulassen</string>
+    <string name="permissions_background_usage_desc">Dies hilft, Quick Search im Hintergrund aktiv zu halten, damit Sie es schnell starten können.</string>
     <string name="settings_calling_card_title">Standard-Anruf-App</string>
     <string name="settings_calls_texts_title">Anrufe &amp; Nachrichten</string>
     <string name="settings_direct_dial_desc">Direkt anrufen, ohne die Telefon-App zu öffnen. </string>

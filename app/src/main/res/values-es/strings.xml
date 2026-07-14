@@ -388,6 +388,8 @@
     <string name="error_whatsapp_video_call_missing_data">No se puede hacer la videollamada de WhatsApp; faltan datos de contacto</string>
     <string name="error_whatsapp_video_call_unavailable">WhatsApp no está disponible para videollamadas</string>
     <string name="settings_call_permission_title">Teléfono</string>
+    <string name="permissions_background_usage_title">Permitir uso en segundo plano</string>
+    <string name="permissions_background_usage_desc">Esto ayuda a mantener Quick Search en segundo plano para que puedas abrirlo rápidamente.</string>
     <string name="settings_calling_card_title">App de llamadas predeterminada</string>
     <string name="settings_calls_texts_title">Llamadas y mensajes</string>
     <string name="settings_direct_dial_desc">Realiza llamadas directamente sin abrir el teclado de marcación. </string>

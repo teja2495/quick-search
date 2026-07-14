@@ -1,5 +1,6 @@
 package com.tk.quicksearch.onboarding.permissionScreen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -34,6 +36,8 @@ data class PermissionCardItem(
     val permissionState: PermissionState,
     val isMandatory: Boolean,
     val onToggleChange: (Boolean) -> Unit,
+    val isNavigationItem: Boolean = false,
+    val onNavigationClick: () -> Unit = {},
 )
 
 @Composable
@@ -51,6 +55,8 @@ fun PermissionCard(
                     permissionState = item.permissionState,
                     isMandatory = item.isMandatory,
                     onToggleChange = item.onToggleChange,
+                    isNavigationItem = item.isNavigationItem,
+                    onNavigationClick = item.onNavigationClick,
                 )
 
                 if (index < items.lastIndex) {
@@ -76,6 +82,8 @@ fun PermissionItem(
     permissionState: PermissionState,
     isMandatory: Boolean,
     onToggleChange: (Boolean) -> Unit,
+    isNavigationItem: Boolean,
+    onNavigationClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
@@ -83,6 +91,7 @@ fun PermissionItem(
         modifier =
             modifier
                 .fillMaxWidth()
+                .clickable(enabled = isNavigationItem, onClick = onNavigationClick)
                 .padding(DesignTokens.SpacingXLarge),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -116,7 +125,17 @@ fun PermissionItem(
             )
         }
 
-        if (permissionState.isGranted) {
+        if (isNavigationItem) {
+            Icon(
+                imageVector = Icons.Rounded.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier =
+                    Modifier
+                        .padding(start = DesignTokens.SpacingLarge)
+                        .size(DesignTokens.IconSize),
+            )
+        } else if (permissionState.isGranted) {
             Icon(
                 imageVector = Icons.Rounded.CheckCircle,
                 contentDescription = stringResource(R.string.permissions_granted),

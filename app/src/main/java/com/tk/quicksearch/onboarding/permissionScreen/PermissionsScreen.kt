@@ -108,6 +108,8 @@ fun PermissionsScreen(
                         calendarDescription = stringResource(R.string.permissions_calendar_desc),
                         callingTitle = stringResource(R.string.settings_call_permission_title),
                         callingDescription = stringResource(R.string.permissions_calling_desc),
+                        backgroundUsageTitle = stringResource(R.string.permissions_background_usage_title),
+                        backgroundUsageDescription = stringResource(R.string.permissions_background_usage_desc),
                 ),
                 modifier = Modifier.fillMaxWidth(),
                 showCalendarPermission = true,

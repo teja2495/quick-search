@@ -378,6 +378,8 @@
     <string name="error_whatsapp_video_call_missing_data">Cannot make WhatsApp video call - missing contact data</string>
     <string name="error_whatsapp_video_call_unavailable">WhatsApp not available for video calls</string>
     <string name="settings_call_permission_title">Phone</string>
+    <string name="permissions_background_usage_title">Allow Background Usage</string>
+    <string name="permissions_background_usage_desc">This helps keep Quick Search in the background so that you can launch it quickly.</string>
     <string name="settings_calling_card_title">Default Calling App</string>
     <string name="settings_calls_texts_title">Calls &amp; Texts</string>
     <string name="settings_direct_dial_desc">Place calls directly without opening the dialer. </string>

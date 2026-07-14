@@ -36,6 +36,8 @@ data class PermissionCardTexts(
     val calendarDescription: String,
     val callingTitle: String,
     val callingDescription: String,
+    val backgroundUsageTitle: String,
+    val backgroundUsageDescription: String,
 )
 
 data class PermissionCardStates(
@@ -53,6 +55,7 @@ fun PermissionsCardSection(
     modifier: Modifier = Modifier,
     showCalendarPermission: Boolean = true,
     showCallingPermission: Boolean = true,
+    showBackgroundUsage: Boolean = false,
     onRequestUsagePermission: () -> Unit = {},
     onRequestContactPermission: () -> Unit = {},
     onRequestFilePermission: () -> Unit = {},
@@ -228,6 +231,7 @@ fun PermissionsCardSection(
                         } else {
                             callingPermissionState.copy(isGranted = false)
                         }
+
                 }
             }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -339,6 +343,21 @@ fun PermissionsCardSection(
                                     PermissionHelper.launchAppSettingsRequest(context)
                                 }
                             }
+                        },
+                    ),
+                )
+            }
+            if (showBackgroundUsage) {
+                add(
+                    PermissionCardItem(
+                        title = texts.backgroundUsageTitle,
+                        description = texts.backgroundUsageDescription,
+                        permissionState = PermissionState.initial(),
+                        isMandatory = false,
+                        onToggleChange = {},
+                        isNavigationItem = true,
+                        onNavigationClick = {
+                            PermissionHelper.launchBatteryOptimizationSettings(context)
                         },
                     ),
                 )

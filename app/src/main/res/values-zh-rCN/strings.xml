@@ -388,6 +388,8 @@
     <string name="error_whatsapp_video_call_missing_data">无法进行 WhatsApp 视频通话 - 缺少联系人数据</string>
     <string name="error_whatsapp_video_call_unavailable">WhatsApp 目前不支持视频通话</string>
     <string name="settings_call_permission_title">电话</string>
+    <string name="permissions_background_usage_title">允许后台运行</string>
+    <string name="permissions_background_usage_desc">这有助于让 Quick Search 保持在后台运行，以便您可以快速启动它。</string>
     <string name="settings_calling_card_title">默认通话应用</string>
     <string name="settings_calls_texts_title">通话与短信</string>
     <string name="settings_direct_dial_desc">直接拨打电话，无需先打开拨号盘。</string>

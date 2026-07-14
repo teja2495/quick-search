@@ -387,6 +387,8 @@
 <string name="error_whatsapp_video_call_missing_data">WhatsApp görüntülü araması yapılamıyor - kişi verisi eksik</string>
 <string name="error_whatsapp_video_call_unavailable">WhatsApp görüntülü aramalar için kullanılamıyor</string>
 <string name="settings_call_permission_title">Telefon</string>
+<string name="permissions_background_usage_title">Arka Planda Kullanıma İzin Ver</string>
+<string name="permissions_background_usage_desc">Bu, Quick Search\'ün arka planda kalmasına yardımcı olur, böylece hızlıca başlatabilirsiniz.</string>
 <string name="settings_calling_card_title">Varsayılan arama uygulaması</string>
 <string name="settings_calls_texts_title">Aramalar &amp; Mesajlar</string>
 <string name="settings_direct_dial_desc">Arama ekranını açmadan doğrudan arama yap.</string>

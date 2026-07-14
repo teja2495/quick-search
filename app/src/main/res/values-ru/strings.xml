@@ -390,6 +390,8 @@
 <string name="error_whatsapp_video_call_missing_data">Не удалось совершить видеозвонок в WhatsApp — отсутствуют данные контакта</string>
 <string name="error_whatsapp_video_call_unavailable">WhatsApp недоступен для видеозвонков</string>
 <string name="settings_call_permission_title">Телефон</string>
+<string name="permissions_background_usage_title">Разрешить работу в фоновом режиме</string>
+<string name="permissions_background_usage_desc">Это позволяет Quick Search оставаться в фоновом режиме, чтобы вы могли быстро запускать его.</string>
 <string name="settings_calling_card_title">Приложение для звонков по умолчанию</string>
 <string name="settings_calls_texts_title">Звонки и сообщения</string>
 <string name="settings_direct_dial_desc">Совершайте вызовы напрямую без открытия номеронабирателя.</string>

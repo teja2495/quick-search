@@ -388,6 +388,8 @@
 <string name="error_whatsapp_video_call_missing_data">Impossible de passer l\'appel vidéo WhatsApp - données de contact manquantes</string>
 <string name="error_whatsapp_video_call_unavailable">WhatsApp n\'est pas disponible pour les appels vidéo</string>
 <string name="settings_call_permission_title">Téléphone</string>
+<string name="permissions_background_usage_title">Autoriser l\'utilisation en arrière-plan</string>
+<string name="permissions_background_usage_desc">Cela permet de maintenir Quick Search en arrière-plan afin que vous puissiez le lancer rapidement.</string>
 <string name="settings_calling_card_title">Application d\'appel par défaut</string>
 <string name="settings_calls_texts_title">Appels &amp; SMS</string>
 <string name="settings_direct_dial_desc">Passez des appels directement sans ouvrir le clavier numérique.</string>

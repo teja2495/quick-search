@@ -389,6 +389,8 @@
     <string name="error_whatsapp_video_call_missing_data">تعذر إجراء مكالمة فيديو WhatsApp - بيانات جهة الاتصال مفقودة</string>
     <string name="error_whatsapp_video_call_unavailable">مكالمات فيديو WhatsApp غير متاحة</string>
     <string name="settings_call_permission_title">الهاتف</string>
+    <string name="permissions_background_usage_title">السماح بالاستخدام في الخلفية</string>
+    <string name="permissions_background_usage_desc">يساعد هذا في إبقاء Quick Search في الخلفية حتى تتمكن من تشغيله بسرعة.</string>
     <string name="settings_calling_card_title">تطبيق الاتصال الافتراضي</string>
     <string name="settings_calls_texts_title">المكالمات والرسائل النصية</string>
     <string name="settings_direct_dial_desc">إجراء المكالمات مباشرة دون فتح لوحة الاتصال.</string>
