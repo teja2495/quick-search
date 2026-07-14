@@ -149,6 +149,15 @@ internal fun KeyboardSwitchPill(
 )
 
 @Composable
+internal fun PhoneCallPill(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) = com.tk.quicksearch.search.searchScreen.components.PhoneCallPill(
+    onClick = onClick,
+    modifier = modifier,
+)
+
+@Composable
 internal fun OpenKeyboardAction(
     text: String,
     onClick: () -> Unit,

@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import android.content.Intent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Keyboard
 import androidx.compose.material3.Icon
@@ -25,16 +28,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.R
 import com.tk.quicksearch.searchEngines.extendToScreenEdges
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.ui.theme.LocalDeviceDynamicColorsActive
+
+private val PhoneCallPillIconSize = 14.dp
 
 @Composable
 internal fun KeyboardSwitchPill(
@@ -74,6 +83,67 @@ internal fun KeyboardSwitchPill(
                 text = text,
                 style = MaterialTheme.typography.labelSmall,
                 color = labelColor,
+                fontWeight = FontWeight.Medium,
+            )
+        }
+    }
+}
+
+@Composable
+internal fun PhoneCallPill(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
+    val phoneAppIcon =
+        remember(context) {
+            runCatching {
+                val dialIntent = Intent(Intent.ACTION_DIAL)
+                val resolveInfo = context.packageManager.resolveActivity(dialIntent, 0)
+                resolveInfo?.loadIcon(context.packageManager)?.toBitmap()?.asImageBitmap()
+            }.getOrNull()
+        }
+    val interactionSource = remember { MutableInteractionSource() }
+
+    Surface(
+        modifier = modifier,
+        onClick = onClick,
+        interactionSource = interactionSource,
+        shape = DesignTokens.ShapeFull,
+        color = if (LocalAppIsDarkTheme.current) Color.Black else Color.White,
+        border = BorderStroke(DesignTokens.KeyboardPillBorderStrokeWidth, AppColors.ActionPhone),
+        tonalElevation = DesignTokens.ElevationLevel0,
+    ) {
+        Row(
+            modifier =
+                Modifier
+                    .padding(
+                        horizontal = DesignTokens.SpacingMedium,
+                        vertical = DesignTokens.SpacingXSmall,
+                    )
+                    .height(DesignTokens.IconSize),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (phoneAppIcon != null) {
+                Image(
+                    painter = BitmapPainter(phoneAppIcon),
+                    contentDescription = stringResource(R.string.contact_method_call_label),
+                    modifier = Modifier.size(PhoneCallPillIconSize),
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Rounded.Call,
+                    contentDescription = stringResource(R.string.contact_method_call_label),
+                    tint = AppColors.ActionPhone,
+                    modifier = Modifier.size(PhoneCallPillIconSize),
+                )
+            }
+            Spacer(modifier = Modifier.size(DesignTokens.SpacingXSmall))
+            Text(
+                text = stringResource(R.string.contact_method_call_label),
+                style = MaterialTheme.typography.labelSmall,
+                color = if (LocalAppIsDarkTheme.current) Color.White else Color.Black,
                 fontWeight = FontWeight.Medium,
             )
         }

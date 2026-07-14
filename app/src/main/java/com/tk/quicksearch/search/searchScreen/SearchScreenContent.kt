@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchScreen
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
@@ -20,6 +22,7 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -448,6 +451,8 @@ internal fun SearchScreenContent(
             } else {
                 null
             }
+    val shouldShowPhoneCallAction =
+            keyboardSwitchText != null && state.query.isPhoneNumberQuery()
     val shouldShowPredictedHighlight = isImeVisible
     val predictedTarget =
             remember(
@@ -1107,7 +1112,7 @@ internal fun SearchScreenContent(
         // Hide when files or contacts are expanded
         if (expandedSection == ExpandedSection.NONE) {
             AnimatedVisibility(
-                    visible = keyboardSwitchText != null,
+                    visible = keyboardSwitchText != null || shouldShowPhoneCallAction,
                     enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
                     exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top),
             ) {
@@ -1125,6 +1130,18 @@ internal fun SearchScreenContent(
                         KeyboardSwitchPill(
                                 text = keyboardSwitchText,
                                 onClick = onKeyboardSwitchToggle,
+                        )
+                    }
+                    if (shouldShowPhoneCallAction) {
+                        Spacer(modifier = Modifier.size(DesignTokens.SpacingSmall))
+                        PhoneCallPill(
+                                onClick = {
+                                    context.startActivity(
+                                            Intent(Intent.ACTION_DIAL).apply {
+                                                data = Uri.parse("tel:${Uri.encode(state.query)}")
+                                            },
+                                    )
+                                },
                         )
                     }
                 }
@@ -1375,3 +1392,11 @@ internal fun SearchScreenContent(
     }
     } 
 }
+
+private fun String.isPhoneNumberQuery(): Boolean =
+        isNotEmpty() &&
+                if (first() == '+') {
+                    length > 1 && drop(1).all(Char::isDigit)
+                } else {
+                    all(Char::isDigit)
+                }
