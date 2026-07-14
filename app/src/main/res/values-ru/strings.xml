@@ -726,6 +726,9 @@
     <string name="settings_custom_provider_advanced_payload_title">Расширенная полезная нагрузка запроса</string>
 <string name="settings_direct_search_desc">Поддерживаются API-ключи Gemini, OpenAI, Claude и Groq</string>
 <string name="settings_direct_search_desc_intro">Добавьте API-ключ, чтобы включить поиск и инструменты на базе искусственного интеллекта.</string>
+<string name="settings_free_api_key_tip_title">Получить бесплатный API-ключ</string>
+<string name="settings_free_api_key_tip_description">Инструкция по бесплатному получению API-ключа Gemini.</string>
+<string name="settings_open_free_api_key_guide">Открыть руководство по бесплатному API-ключу</string>
 <string name="settings_direct_search_grounding_label">Поиск в Интернете</string>
 <string name="settings_direct_search_how_to">Получить бесплатный API-ключ</string>
 <string name="settings_direct_search_model_label">Модель</string>

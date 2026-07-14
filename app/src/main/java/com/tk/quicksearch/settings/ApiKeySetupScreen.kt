@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -32,8 +35,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Image
@@ -42,6 +49,7 @@ import androidx.compose.ui.res.painterResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
+import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 
@@ -56,6 +64,17 @@ fun ApiKeySetupScreen(
     onAddCustomProvider: (baseUrl: String, apiKey: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
+    val freeApiKeyGuideUrl = stringResource(R.string.settings_gemini_guide_url)
+    val openFreeApiKeyGuide: () -> Unit = {
+        runCatching {
+            context.startActivity(
+                Intent(Intent.ACTION_VIEW, Uri.parse(freeApiKeyGuideUrl)),
+            )
+        }
+        Unit
+    }
+
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
@@ -65,6 +84,24 @@ fun ApiKeySetupScreen(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+
+        if (apiKeyLast4ByProvider.isEmpty()) {
+            TipBanner(
+                annotatedText =
+                    buildAnnotatedString {
+                        pushStyle(SpanStyle(fontWeight = FontWeight.SemiBold))
+                        append(stringResource(R.string.settings_free_api_key_tip_title))
+                        pop()
+                        append("\n")
+                        append(stringResource(R.string.settings_free_api_key_tip_description))
+                    },
+                onContentClick = openFreeApiKeyGuide,
+                actionIcon = Icons.AutoMirrored.Rounded.OpenInNew,
+                actionContentDescription = stringResource(R.string.settings_open_free_api_key_guide),
+                onActionClick = openFreeApiKeyGuide,
+                showDismissButton = false,
+            )
+        }
 
         AiSearchLlmProviderId.entries.forEach { providerId ->
             ProviderApiKeyCard(

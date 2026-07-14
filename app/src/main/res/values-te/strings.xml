@@ -710,6 +710,9 @@
     <string name="settings_custom_provider_advanced_payload_title">అధునాతన అభ్యర్థన పేలోడ్</string>
     <string name="settings_direct_search_desc">Gemini, OpenAI, Claude మరియు Groq API కీలు మద్దతు ఇవ్వబడతాయి</string>
     <string name="settings_direct_search_desc_intro">AI-ఆధారిత శోధన మరియు సాధనాలను (Tools) ప్రారంభించడానికి API కీని జోడించండి.</string>
+    <string name="settings_free_api_key_tip_title">ఉచిత API కీని పొందండి</string>
+    <string name="settings_free_api_key_tip_description">Gemini API కీని ఉచితంగా పొందడానికి దశలు.</string>
+    <string name="settings_open_free_api_key_guide">ఉచిత API కీ మార్గదర్శిని తెరువు</string>
     <string name="settings_direct_search_grounding_label">వెబ్ శోధన</string>
     <string name="settings_direct_search_how_to">ఉచిత API కీని పొందండి</string>
     <string name="settings_direct_search_model_label">మోడల్</string>

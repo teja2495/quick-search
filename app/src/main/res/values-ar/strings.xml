@@ -711,6 +711,9 @@
     <string name="settings_custom_provider_advanced_payload_title">حمولة الطلب المتقدمة</string>
     <string name="settings_direct_search_desc">يدعم مفاتيح API لـ Gemini وOpenAI وClaude وGroq</string>
     <string name="settings_direct_search_desc_intro">أضف مفتاح API لتفعيل ميزات البحث والأدوات المدعومة بالذكاء الاصطناعي (AI).</string>
+    <string name="settings_free_api_key_tip_title">احصل على مفتاح API مجاناً</string>
+    <string name="settings_free_api_key_tip_description">خطوات الحصول على مفتاح Gemini API مجانًا.</string>
+    <string name="settings_open_free_api_key_guide">فتح دليل مفتاح API المجاني</string>
     <string name="settings_direct_search_grounding_label">البحث في الويب</string>
     <string name="settings_direct_search_how_to">احصل على مفتاح API مجاناً</string>
     <string name="settings_direct_search_model_label">النموذج</string>

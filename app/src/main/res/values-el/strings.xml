@@ -710,6 +710,9 @@
     <string name="settings_custom_provider_advanced_payload_title">Προηγμένο Ωφέλιμο Φορτίο Αιτήματος</string>
     <string name="settings_direct_search_desc">Υποστηρίζονται κλειδιά API για Gemini, OpenAI, Claude και Groq</string>
     <string name="settings_direct_search_desc_intro">Προσθέστε ένα κλειδί API για να ενεργοποιήσετε την αναζήτηση και τα εργαλεία με υποστήριξη AI.</string>
+    <string name="settings_free_api_key_tip_title">Λάβετε δωρεάν κλειδί API</string>
+    <string name="settings_free_api_key_tip_description">Βήματα για να αποκτήσετε ένα κλειδί Gemini API δωρεάν.</string>
+    <string name="settings_open_free_api_key_guide">Άνοιγμα οδηγού δωρεάν κλειδιού API</string>
     <string name="settings_direct_search_grounding_label">Αναζήτηση στον ιστό</string>
     <string name="settings_direct_search_how_to">Λάβετε δωρεάν κλειδί API</string>
     <string name="settings_direct_search_model_label">Μοντέλο</string>

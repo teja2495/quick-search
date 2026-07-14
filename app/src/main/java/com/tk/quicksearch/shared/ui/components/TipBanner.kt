@@ -43,6 +43,9 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
  * @param onContentLongClick Optional long-press handler for the content area
  * @param onTextClick Optional click handler for annotated text (receives click offset)
  * @param onDismiss Callback when the dismiss button is clicked
+ * @param actionIcon Optional trailing action icon
+ * @param actionContentDescription Content description for the trailing action icon
+ * @param onActionClick Callback when the trailing action icon is clicked
  * @param modifier Modifier to be applied to the banner
  * @param textStyle Text style to use (defaults to bodyMedium)
  */
@@ -55,6 +58,9 @@ fun TipBanner(
     onContentLongClick: (() -> Unit)? = null,
     onTextClick: ((Int) -> Unit)? = null,
     onDismiss: (() -> Unit)? = null,
+    actionIcon: ImageVector? = null,
+    actionContentDescription: String? = null,
+    onActionClick: (() -> Unit)? = null,
     showDismissButton: Boolean = true,
     modifier: Modifier = Modifier,
     textStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyMedium,
@@ -127,8 +133,15 @@ fun TipBanner(
                 )
             }
 
-            // Dismiss button (optional)
-            if (showDismissButton && onDismiss != null) {
+            if (actionIcon != null && onActionClick != null) {
+                IconButton(onClick = onActionClick) {
+                    Icon(
+                        imageVector = actionIcon,
+                        contentDescription = actionContentDescription,
+                        tint = AppColors.Accent,
+                    )
+                }
+            } else if (showDismissButton && onDismiss != null) {
                 IconButton(onClick = onDismiss) {
                     Icon(
                         imageVector = Icons.Rounded.Close,

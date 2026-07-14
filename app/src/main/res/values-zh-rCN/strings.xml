@@ -710,6 +710,9 @@
     <string name="settings_custom_provider_advanced_payload_title">高级请求负载</string>
     <string name="settings_direct_search_desc">支持 Gemini、OpenAI、Claude 和 Groq 的 API 密钥</string>
     <string name="settings_direct_search_desc_intro">添加 API 密钥以启用 AI 驱动的搜索和相关实用工具。</string>
+    <string name="settings_free_api_key_tip_title">获取免费 API 密钥</string>
+    <string name="settings_free_api_key_tip_description">免费获取 Gemini API 密钥的步骤。</string>
+    <string name="settings_open_free_api_key_guide">打开免费 API 密钥指南</string>
     <string name="settings_direct_search_grounding_label">联网搜索</string>
     <string name="settings_direct_search_how_to">获取免费 API 密钥</string>
     <string name="settings_direct_search_model_label">模型</string>

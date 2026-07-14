@@ -710,6 +710,9 @@
 <string name="settings_custom_provider_advanced_payload_title">Charge utile de requête avancée</string>
 <string name="settings_direct_search_desc">Les clés API Gemini, OpenAI, Claude et Groq sont prises en charge</string>
 <string name="settings_direct_search_desc_intro">Ajoutez une clé API pour activer la recherche et les outils propulsés par l\'AI.</string>
+<string name="settings_free_api_key_tip_title">Obtenir une clé API gratuite</string>
+<string name="settings_free_api_key_tip_description">Étapes pour obtenir gratuitement une clé API Gemini.</string>
+<string name="settings_open_free_api_key_guide">Ouvrir le guide de la clé API gratuite</string>
 <string name="settings_direct_search_grounding_label">Recherche Web</string>
 <string name="settings_direct_search_how_to">Obtenir une clé API gratuite</string>
 <string name="settings_direct_search_model_label">Modèle</string>

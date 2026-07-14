@@ -703,6 +703,9 @@
     <string name="settings_custom_provider_advanced_payload_title">Advanced Request Payload</string>
     <string name="settings_direct_search_desc">Gemini, OpenAI, Claude and Groq API keys are supported</string>
     <string name="settings_direct_search_desc_intro">Add an API key to enable AI-powered search and tools.</string>
+    <string name="settings_free_api_key_tip_title">Get Free API Key</string>
+    <string name="settings_free_api_key_tip_description">Steps to get a Gemini API Key for free.</string>
+    <string name="settings_open_free_api_key_guide">Open free API key guide</string>
     <string name="settings_direct_search_grounding_label">Web Search</string>
     <string name="settings_direct_search_how_to">Get Free API Key</string>
     <string name="settings_direct_search_model_label">Model</string>

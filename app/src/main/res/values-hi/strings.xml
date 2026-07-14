@@ -710,6 +710,9 @@
     <string name="settings_custom_provider_advanced_payload_title">उन्नत अनुरोध पेलोड</string>
     <string name="settings_direct_search_desc">Gemini, OpenAI, Claude और Groq API keys समर्थित हैं</string>
     <string name="settings_direct_search_desc_intro">AI-आधारित खोज और टूल्स सक्षम करने के लिए API key जोड़ें।</string>
+    <string name="settings_free_api_key_tip_title">मुफ्त API Key प्राप्त करें</string>
+    <string name="settings_free_api_key_tip_description">मुफ्त में Gemini API Key प्राप्त करने के चरण।</string>
+    <string name="settings_open_free_api_key_guide">मुफ्त API Key गाइड खोलें</string>
     <string name="settings_direct_search_grounding_label">वेब खोज</string>
     <string name="settings_direct_search_how_to">मुफ्त API Key प्राप्त करें</string>
     <string name="settings_direct_search_model_label">मॉडल</string>

@@ -710,6 +710,9 @@
     <string name="settings_custom_provider_advanced_payload_title">Erweiterte Anfrage-Payload</string>
     <string name="settings_direct_search_desc">Gemini-, OpenAI-, Claude- und Groq-API-Schlüssel werden unterstützt</string>
     <string name="settings_direct_search_desc_intro">Füge einen API-Schlüssel hinzu, um KI-gestützte Suche und Tools zu aktivieren.</string>
+    <string name="settings_free_api_key_tip_title">Kostenlosen API-Schlüssel erhalten</string>
+    <string name="settings_free_api_key_tip_description">Schritte, um kostenlos einen Gemini-API-Schlüssel zu erhalten.</string>
+    <string name="settings_open_free_api_key_guide">Anleitung für kostenlosen API-Schlüssel öffnen</string>
     <string name="settings_direct_search_grounding_label">Web-Suche</string>
     <string name="settings_direct_search_how_to">Kostenlosen API-Schlüssel erhalten</string>
     <string name="settings_direct_search_model_label">Modell</string>

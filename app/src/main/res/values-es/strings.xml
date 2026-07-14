@@ -710,6 +710,9 @@
     <string name="settings_custom_provider_advanced_payload_title">Carga útil de solicitud avanzada</string>
     <string name="settings_direct_search_desc">Compatible con claves API de Gemini, OpenAI, Claude y Groq</string>
     <string name="settings_direct_search_desc_intro">Añade una clave API para activar las herramientas y la búsqueda con AI.</string>
+    <string name="settings_free_api_key_tip_title">Obtener clave API gratuita</string>
+    <string name="settings_free_api_key_tip_description">Pasos para obtener una clave API de Gemini gratis.</string>
+    <string name="settings_open_free_api_key_guide">Abrir guía de clave API gratis</string>
     <string name="settings_direct_search_grounding_label">Búsqueda web</string>
     <string name="settings_direct_search_how_to">Obtener clave API gratuita</string>
     <string name="settings_direct_search_model_label">Modelo</string>
