@@ -4,6 +4,9 @@ import android.content.Context
 import android.net.Uri
 import com.tk.quicksearch.search.data.preferences.BasePreferences
 import com.tk.quicksearch.search.data.preferences.GeminiPreferences
+import com.tk.quicksearch.search.data.NotesRepository
+import com.tk.quicksearch.search.data.notes.NotesRoomStore
+import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import java.io.File
 import java.io.IOException
@@ -39,13 +42,14 @@ object SettingsBackupManager {
         fun includes(item: ExportItem): Boolean = item in selectedItems
     }
 
-    private const val FORMAT_VERSION = 1
+    private const val FORMAT_VERSION = 2
 
     private const val FIELD_FORMAT_VERSION = "formatVersion"
     private const val FIELD_EXPORTED_AT_EPOCH_MS = "exportedAtEpochMs"
     private const val FIELD_PREFERENCES = "preferences"
     private const val FIELD_GEMINI_API_KEY = "geminiApiKey"
     private const val FIELD_SELECTED_EXPORT_ITEMS = "selectedExportItems"
+    private const val FIELD_NOTES = "notes"
     private const val FIELD_TYPE = "type"
     private const val FIELD_VALUE = "value"
 
@@ -60,6 +64,12 @@ object SettingsBackupManager {
 
     private val excludedPreferenceFiles =
         setOf(
+            "bootstrap_preferences",
+            "search_customization_index",
+            "ai_startup_state",
+            "startup_preferences_snapshot",
+            "notes_store_state",
+            "managed_asset_index",
             BasePreferences.FIRST_LAUNCH_PREFS_NAME,
             BasePreferences.TIMING_PREFS_NAME,
             STARTUP_SURFACE_PREFS_NAME,
@@ -117,6 +127,9 @@ object SettingsBackupManager {
                 )
                 .apply {
                     geminiApiKey?.let { put(FIELD_GEMINI_API_KEY, it) }
+                    if (options.includes(ExportItem.NOTES)) {
+                        put(FIELD_NOTES, serializeNotes(NotesRepository(context).getAllNotes()))
+                    }
                 }
 
         val outputStream =
@@ -212,6 +225,17 @@ object SettingsBackupManager {
 
         if (root.has(FIELD_GEMINI_API_KEY)) {
             GeminiPreferences(context).setGeminiApiKey(geminiApiKey)
+        }
+
+        if (selectedExportItems == null || ExportItem.NOTES in selectedExportItems) {
+            val notesStore = NotesRoomStore(context)
+            val notes =
+                root.optJSONArray(FIELD_NOTES)?.let(::parseNotes)
+                    ?: notesStore.parseLegacySnapshot(
+                        context.getSharedPreferences(BasePreferences.PREFS_NAME, Context.MODE_PRIVATE)
+                            .getString(BasePreferences.KEY_NOTES_DATA, null).orEmpty(),
+                    )
+            notesStore.replaceFromBackup(notes)
         }
     }
 
@@ -389,7 +413,11 @@ object SettingsBackupManager {
         if (prefName != BasePreferences.PREFS_NAME) return false
         return key == BasePreferences.KEY_NOTES_DATA ||
             key == BasePreferences.KEY_NOTE_ID_COUNTER ||
-            key == BasePreferences.KEY_PINNED_NOTE_IDS
+            key == BasePreferences.KEY_PINNED_NOTE_IDS ||
+            key == BasePreferences.KEY_PINNED_NOTE_ORDER ||
+            key == BasePreferences.KEY_QUICK_NOTE_ID ||
+            key == BasePreferences.KEY_QUICK_NOTE_ENABLED ||
+            key.startsWith(BasePreferences.KEY_TRIGGER_NOTE_PREFIX)
     }
 
     private fun isGeminiKey(
@@ -449,4 +477,37 @@ object SettingsBackupManager {
     private fun sanitizeStringSetForExport(values: List<String>): List<String> {
         return values
     }
+
+    private fun serializeNotes(notes: List<NoteInfo>): JSONArray =
+        JSONArray().apply {
+            notes.forEach { note ->
+                put(
+                    JSONObject()
+                        .put("noteId", note.noteId)
+                        .put("title", note.title)
+                        .put("markdown", note.markdownContent)
+                        .put("createdAtMillis", note.createdAtMillis)
+                        .put("updatedAtMillis", note.updatedAtMillis),
+                )
+            }
+        }
+
+    private fun parseNotes(array: JSONArray): List<NoteInfo> =
+        buildList {
+            for (index in 0 until array.length()) {
+                val item = array.optJSONObject(index) ?: continue
+                val id = item.optLong("noteId", -1L)
+                if (id <= 0L) continue
+                val createdAt = item.optLong("createdAtMillis", 0L)
+                add(
+                    NoteInfo(
+                        noteId = id,
+                        title = item.optString("title").orEmpty(),
+                        markdownContent = item.optString("markdown").orEmpty(),
+                        createdAtMillis = createdAt,
+                        updatedAtMillis = item.optLong("updatedAtMillis", createdAt),
+                    ),
+                )
+            }
+        }
 }

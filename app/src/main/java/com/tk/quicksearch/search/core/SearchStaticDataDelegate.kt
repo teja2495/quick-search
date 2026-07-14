@@ -54,6 +54,10 @@ internal class SearchStaticDataDelegate(
         appSearchManager.loadApps()
     }
 
+    suspend fun loadAppsForStartup() {
+        appSearchManager.refreshAppsNow()
+    }
+
     fun loadSettingsShortcuts() {
         scope.launch(Dispatchers.IO) {
             settingsSearchHandler.loadShortcuts()
@@ -64,19 +68,28 @@ internal class SearchStaticDataDelegate(
     fun loadAppShortcuts() {
         if (!isAppShortcutsLoadInFlight.compareAndSet(false, true)) return
         scope.launch(Dispatchers.IO) {
-            try {
-                val loadedCached = appShortcutSearchHandler.loadCachedShortcutsOnly()
-                if (loadedCached) {
-                    withContext(Dispatchers.Main) { refreshAppShortcutsState() }
-                }
+            loadAppShortcutsNow()
+        }
+    }
 
-                val loadedFresh = appShortcutSearchHandler.refreshShortcutsFromSystem()
-                if (loadedFresh || !loadedCached) {
-                    withContext(Dispatchers.Main) { refreshAppShortcutsState() }
-                }
-            } finally {
-                isAppShortcutsLoadInFlight.set(false)
+    suspend fun loadAppShortcutsForStartup() {
+        if (!isAppShortcutsLoadInFlight.compareAndSet(false, true)) return
+        loadAppShortcutsNow()
+    }
+
+    private suspend fun loadAppShortcutsNow() {
+        try {
+            val loadedCached = appShortcutSearchHandler.loadCachedShortcutsOnly()
+            if (loadedCached) {
+                withContext(Dispatchers.Main) { refreshAppShortcutsState() }
             }
+
+            val loadedFresh = appShortcutSearchHandler.refreshShortcutsFromSystem()
+            if (loadedFresh || !loadedCached) {
+                withContext(Dispatchers.Main) { refreshAppShortcutsState() }
+            }
+        } finally {
+            isAppShortcutsLoadInFlight.set(false)
         }
     }
 

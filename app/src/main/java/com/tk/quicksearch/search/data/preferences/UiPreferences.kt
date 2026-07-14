@@ -308,11 +308,12 @@ class UiPreferences(
 
     fun isFirstLaunch(): Boolean {
         syncInstallTimeWithBackup()
-        return getFirstLaunchFlag()
+        return getFirstLaunchFlag().also { BootstrapPreferences.setFirstLaunch(context, it) }
     }
 
     fun setFirstLaunchCompleted() {
         setFirstLaunchFlag(false)
+        BootstrapPreferences.setFirstLaunch(context, false)
         recordCurrentInstallTime()
     }
 

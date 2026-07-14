@@ -5,6 +5,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.Until
 
 @RunWith(AndroidJUnit4::class)
 class BaselineProfileGenerator {
@@ -19,7 +21,13 @@ class BaselineProfileGenerator {
         ) {
             pressHome()
             startActivityAndWait()
+            device.executeShellCommand("input text settings")
+            device.wait(Until.hasObject(By.textContains("Settings")), RESULT_TIMEOUT_MS)
             device.waitForIdle()
         }
+    }
+
+    private companion object {
+        const val RESULT_TIMEOUT_MS = 5_000L
     }
 }

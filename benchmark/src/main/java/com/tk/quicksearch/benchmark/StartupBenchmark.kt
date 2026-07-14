@@ -1,6 +1,7 @@
 package com.tk.quicksearch.benchmark
 
 import androidx.benchmark.macro.CompilationMode
+import androidx.benchmark.macro.BaselineProfileMode
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.StartupMode
@@ -11,6 +12,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.Until
 
 @RunWith(AndroidJUnit4::class)
 class StartupBenchmark {
@@ -23,7 +26,26 @@ class StartupBenchmark {
     // - No package/content scans on phase 0.
     @OptIn(ExperimentalMetricApi::class)
     @Test
-    fun coldStartup_tracksStartupPhases() {
+    fun coldStartup_withRequiredBaselineProfile() {
+        measureColdStartup(
+            CompilationMode.Partial(baselineProfileMode = BaselineProfileMode.Require),
+        )
+    }
+
+    @OptIn(ExperimentalMetricApi::class)
+    @Test
+    fun coldStartup_withoutCompilation() {
+        measureColdStartup(CompilationMode.None())
+    }
+
+    @OptIn(ExperimentalMetricApi::class)
+    @Test
+    fun coldStartup_withFullCompilation() {
+        measureColdStartup(CompilationMode.Full())
+    }
+
+    @OptIn(ExperimentalMetricApi::class)
+    private fun measureColdStartup(compilationMode: CompilationMode) {
         benchmarkRule.measureRepeated(
             packageName = "com.tk.quicksearch",
             metrics =
@@ -40,10 +62,18 @@ class StartupBenchmark {
                 ),
             iterations = 8,
             startupMode = StartupMode.COLD,
-            compilationMode = CompilationMode.Partial(),
+            compilationMode = compilationMode,
         ) {
             pressHome()
             startActivityAndWait()
+            device.executeShellCommand("input text settings")
+            check(device.wait(Until.hasObject(By.textContains("Settings")), RESULT_TIMEOUT_MS)) {
+                "Immediate startup query did not produce a Settings result"
+            }
         }
+    }
+
+    private companion object {
+        const val RESULT_TIMEOUT_MS = 5_000L
     }
 }

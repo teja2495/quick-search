@@ -12,6 +12,9 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.os.Build
 import android.os.Process
+import android.os.Handler
+import android.os.Looper
+import android.os.UserHandle
 import android.os.UserManager
 import com.tk.quicksearch.search.common.UserHandleUtils
 import com.tk.quicksearch.search.models.AppInfo
@@ -39,6 +42,8 @@ class AppsRepository(
     private val userManager: UserManager? =
         context.getSystemService(Context.USER_SERVICE) as? UserManager
     private val appCache = AppCache(context)
+    @Volatile private var appCatalogInvalidated = false
+    private var launcherAppsCallback: LauncherApps.Callback? = null
 
     // ==================== Public API ====================
 
@@ -57,6 +62,36 @@ class AppsRepository(
 
     fun clearCache() {
         appCache.clearCache()
+        appCatalogInvalidated = true
+    }
+
+    fun isAppCatalogInvalidated(): Boolean = appCatalogInvalidated
+
+    fun startPackageChangeMonitoring(onCatalogInvalidated: () -> Unit) {
+        val service = launcherApps ?: return
+        if (launcherAppsCallback != null) return
+        val callback =
+            object : LauncherApps.Callback() {
+                private fun invalidate() {
+                    appCatalogInvalidated = true
+                    onCatalogInvalidated()
+                }
+
+                override fun onPackageAdded(packageName: String, user: UserHandle) = invalidate()
+                override fun onPackageRemoved(packageName: String, user: UserHandle) = invalidate()
+                override fun onPackageChanged(packageName: String, user: UserHandle) = invalidate()
+                override fun onPackagesAvailable(packageNames: Array<out String>, user: UserHandle, replacing: Boolean) = invalidate()
+                override fun onPackagesUnavailable(packageNames: Array<out String>, user: UserHandle, replacing: Boolean) = invalidate()
+            }
+        launcherAppsCallback = callback
+        runCatching { service.registerCallback(callback, Handler(Looper.getMainLooper())) }
+            .onFailure { launcherAppsCallback = null }
+    }
+
+    fun stopPackageChangeMonitoring() {
+        val callback = launcherAppsCallback ?: return
+        launcherAppsCallback = null
+        runCatching { launcherApps?.unregisterCallback(callback) }
     }
 
     /**
@@ -95,8 +130,12 @@ class AppsRepository(
             }
         val apps = launchableApps + nonLaunchableApps
 
-        appCache.saveApps(apps.sortedWith(AppInfoComparator))
-        return apps.sortedWith(AppInfoComparator)
+        val sortedApps = apps.sortedWith(AppInfoComparator)
+        if (appCache.loadCachedApps() != sortedApps) {
+            appCache.saveApps(sortedApps)
+        }
+        appCatalogInvalidated = false
+        return sortedApps
     }
 
     /**
@@ -314,8 +353,7 @@ class AppsRepository(
         if (usageStats == null) return localLaunchCount
         val usageLaunchCount =
             runCatching {
-                val getter = UsageStats::class.java.getMethod("getAppLaunchCount")
-                (getter.invoke(usageStats) as? Int) ?: 0
+                (AppLaunchCountGetter?.invoke(usageStats) as? Int) ?: 0
             }.getOrDefault(0)
         return if (usageLaunchCount > 0) usageLaunchCount else localLaunchCount
     }
@@ -383,6 +421,10 @@ class AppsRepository(
         }.getOrDefault(getFirstInstallTime(packageName))
 
     companion object {
+        private val AppLaunchCountGetter by lazy(LazyThreadSafetyMode.PUBLICATION) {
+            runCatching { UsageStats::class.java.getMethod("getAppLaunchCount") }.getOrNull()
+        }
+
         /**
          * Comparator for sorting apps by launch count (descending), then by name (ascending).
          */

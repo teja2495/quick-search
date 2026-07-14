@@ -36,6 +36,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -83,11 +84,13 @@ import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.util.rememberPhysicalKeyboardConnected
 import com.tk.quicksearch.tools.aiTools.CurrencyConversionIntentParser
 import com.tk.quicksearch.tools.aiTools.DictionaryIntentParser
-import com.tk.quicksearch.shared.util.isDefaultHomeApp
+import com.tk.quicksearch.shared.util.cachedDefaultHomeAppStatus
 import com.tk.quicksearch.shared.util.openNotificationShade
 import com.tk.quicksearch.tools.aiTools.WordClockIntentParser
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private const val OPEN_KEYBOARD_ACTION_APPEAR_DELAY_MS = 200L
 private const val OPEN_KEYBOARD_COLD_START_SUPPRESS_MS = 1000L
@@ -206,7 +209,7 @@ internal fun SearchScreenContent(
         }
     }
     val isCalculatorMode = state.calculatorState.isCalculatorMode
-    val isDefaultLauncher = context.isDefaultHomeApp()
+    val isDefaultLauncher = context.cachedDefaultHomeAppStatus()
     val isToolMode = state.calculatorState.isToolMode
     val isUnitConverterMode = state.calculatorState.isUnitConverterMode
     val activeToolType = if (isToolMode) state.calculatorState.toolType else null
@@ -214,7 +217,14 @@ internal fun SearchScreenContent(
     val isWordClockAliasMode = state.isWordClockAliasMode
     val isDictionaryAliasMode = state.isDictionaryAliasMode
     val activeCustomTool = state.detectedCustomToolId?.let { id -> state.customTools.find { it.id == id } }
-    val triggerWords = remember(getAllTriggerWordsById, state.nicknameUpdateVersion) { getAllTriggerWordsById().values }
+    val triggerWords by
+            produceState<Collection<String>>(
+                    initialValue = emptyList(),
+                    getAllTriggerWordsById,
+                    state.nicknameUpdateVersion,
+            ) {
+                value = withContext(Dispatchers.IO) { getAllTriggerWordsById().values.toList() }
+            }
 
     val hintSearchAnything = stringResource(R.string.search_hint)
     val staticSearchHint =

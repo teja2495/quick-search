@@ -18,15 +18,18 @@ import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderRegistry
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import android.os.SystemClock
 
 internal interface SearchStartupLifecycleStateAccess {
     var pendingNavigationClear: Boolean
     var isStartupComplete: Boolean
     var resumeNeedsStaticDataRefresh: Boolean
     var lastBrowserTargetRefreshMs: Long
+    var lastPermissionSnapshotElapsedMs: Long
     var wallpaperAvailable: Boolean
     var directDialEnabled: Boolean
 }
@@ -137,14 +140,17 @@ internal class SearchStartupLifecycleDelegate(
     private val getGridItemCount: () -> Int,
     private val selectSuggestedApps: (List<AppInfo>, Int, Boolean) -> List<AppInfo>,
     private val shouldShowSearchBarWelcome: () -> Boolean,
-    private val loadApps: () -> Unit,
+    private val loadApps: suspend () -> Unit,
     private val loadSettingsShortcuts: () -> Unit,
     private val loadAppSettings: () -> Unit,
-    private val loadAppShortcuts: () -> Unit,
+    private val loadAppShortcuts: suspend () -> Unit,
     private val startupDispatcher: CoroutineDispatcher,
     private val loadPinnedAndExcludedCalendarEvents: () -> Unit,
     private val setDirectDialEnabled: (Boolean, Boolean) -> Unit,
+    private val isQueryActive: () -> Boolean,
 ) {
+    private var optionalStartupJob: Job? = null
+    private var packageRefreshJob: Job? = null
     private val pinningHandler get() = handlersProvider().pinningHandler
     private val searchEngineManager get() = handlersProvider().searchEngineManager
     private val secondarySearchOrchestrator get() = handlersProvider().secondarySearchOrchestrator
@@ -191,20 +197,25 @@ internal class SearchStartupLifecycleDelegate(
     fun handleOnResume() {
         val startupComplete = stateAccess.isStartupComplete
 
-        val previousUsage = permissionStateProvider().hasUsagePermission
-        val latestUsage = repository.hasUsageAccess()
-        val usageChanged = previousUsage != latestUsage
-        if (usageChanged) {
-            updatePermissionState { it.copy(hasUsagePermission = latestUsage) }
-            if (startupComplete) {
-                if (latestUsage) refreshApps() else refreshAppSuggestions()
+        val shouldRefreshLaunchPermissions = shouldRefreshPermissionSnapshot()
+        var optionalPermissionsChanged = false
+        if (shouldRefreshLaunchPermissions) {
+            val previousUsage = permissionStateProvider().hasUsagePermission
+            val latestUsage = repository.hasUsageAccess()
+            val usageChanged = previousUsage != latestUsage
+            if (usageChanged) {
+                updatePermissionState { it.copy(hasUsagePermission = latestUsage) }
+                if (startupComplete) {
+                    if (latestUsage) refreshApps() else refreshAppSuggestions()
+                }
             }
-        }
 
-        val optionalPermissionsChanged = run {
-            val before = permissionStateProvider()
-            handleOptionalPermissionChangeInternal(allowAppRefresh = startupComplete)
-            permissionStateProvider() != before
+            optionalPermissionsChanged = run {
+                val before = permissionStateProvider()
+                handleOptionalPermissionChangeInternal(allowAppRefresh = startupComplete)
+                permissionStateProvider() != before
+            }
+            markPermissionSnapshotRefreshed()
         }
 
         if (startupComplete && optionalPermissionsChanged) {
@@ -240,12 +251,23 @@ internal class SearchStartupLifecycleDelegate(
     fun refreshPermissionSnapshotAtLaunch() {
         scope.launch(Dispatchers.Default) {
             applyDefaultLauncherPreferenceTransition()
+            if (!shouldRefreshPermissionSnapshot()) return@launch
             val latestUsagePermission = repository.hasUsageAccess()
             if (permissionStateProvider().hasUsagePermission != latestUsagePermission) {
                 updatePermissionState { it.copy(hasUsagePermission = latestUsagePermission) }
             }
             refreshOptionalPermissions()
+            markPermissionSnapshotRefreshed()
         }
+    }
+
+    private fun shouldRefreshPermissionSnapshot(): Boolean {
+        val elapsed = SystemClock.elapsedRealtime() - stateAccess.lastPermissionSnapshotElapsedMs
+        return elapsed !in 0 until PERMISSION_SNAPSHOT_DEDUP_WINDOW_MS
+    }
+
+    private fun markPermissionSnapshotRefreshed() {
+        stateAccess.lastPermissionSnapshotElapsedMs = SystemClock.elapsedRealtime()
     }
 
     private fun applyDefaultLauncherPreferenceTransition() {
@@ -322,9 +344,11 @@ internal class SearchStartupLifecycleDelegate(
     }
 
     fun launchDeferredInitialization() {
-        scope.launch(Dispatchers.IO) {
+        scope.launch(startupDispatcher) {
             refreshAppsUsageAndPermissions()
-            loadApps()
+            if (shouldReconcileAppsAtStartup()) {
+                loadApps()
+            }
 
             val packageNames = appSearchManager.cachedApps.map { it.packageName }.toSet()
             val messagingInfo = getMessagingAppInfo(packageNames)
@@ -354,27 +378,9 @@ internal class SearchStartupLifecycleDelegate(
                     dictionaryEnabled = userPreferences.isDictionaryEnabled(),
                     customTools = customTools,
                     disabledCustomToolIds = userPreferences.getDisabledCustomTools(),
-                    hasApiKey = userPreferences.hasAnyLlmApiKey(),
-                    geminiApiKeyLast4 = aiSearchHandler.getGeminiApiKey()?.takeLast(4),
-                    llmApiKeyLast4ByProvider = userPreferences.getLlmApiKeyLast4ByProvider(),
-                    customLlmBaseUrlByProvider = userPreferences.getCustomLlmBaseUrlByProvider(),
-                    customLlmAdvancedPayloadByProvider = userPreferences.getCustomLlmAdvancedPayloadByProvider(),
-                    aiSearchLlmProviderId = aiSearchHandler.getAiSearchProviderId(),
-                    personalContext = aiSearchHandler.getPersonalContext(),
-                    geminiModel = aiSearchHandler.getGeminiModel(),
-                    geminiGroundingEnabled = aiSearchHandler.isGeminiGroundingEnabled(),
-                    geminiThinkingEnabled = aiSearchHandler.isGeminiThinkingEnabled(),
-                    availableGeminiModels = aiSearchHandler.getAvailableGeminiModels(),
-                    availableLlmModelsByProvider =
-                        userPreferences.getConfiguredLlmProviderIds().associateWith { providerId ->
-                            if (providerId == aiSearchHandler.getAiSearchProviderId()) {
-                                aiSearchHandler.getAvailableGeminiModels()
-                            } else {
-                                AiSearchLlmProviderRegistry
-                                    .get(providerId, applicationProvider())
-                                    .fallbackTextModels
-                            }
-                        },
+                    // Unknown is intentionally optimistic for migrated installs. Encrypted
+                    // preferences are reconciled in the long-idle/on-demand AI tier below.
+                    hasApiKey = userPreferences.getConfiguredAiProviderHint() ?: true,
                 )
             }
             updateConfigState { state ->
@@ -417,6 +423,7 @@ internal class SearchStartupLifecycleDelegate(
             if (!aiSearchHandler.getGeminiApiKey().isNullOrBlank()) {
                 launch(Dispatchers.IO) {
                     delay(DEFERRED_AI_SEARCH_MODELS_DELAY_MS)
+                    while (isQueryActive()) delay(OPTIONAL_STARTUP_QUERY_RECHECK_MS)
                     val models = aiSearchHandler.refreshAvailableGeminiModels()
                     updateFeatureState { state ->
                         state.copy(
@@ -429,9 +436,37 @@ internal class SearchStartupLifecycleDelegate(
                 }
             }
 
-            launch(Dispatchers.IO) { iconPackHandler.refreshIconPacks() }
-
-            launch(startupDispatcher) {
+            optionalStartupJob?.cancel()
+            optionalStartupJob = launch(startupDispatcher) {
+                awaitOptionalStartupWindow()
+                val hasApiKey = userPreferences.refreshConfiguredAiProviderHint()
+                val activeProviderId = aiSearchHandler.getAiSearchProviderId()
+                val availableGeminiModels = aiSearchHandler.getAvailableGeminiModels()
+                updateFeatureState { state ->
+                    state.copy(
+                        hasApiKey = hasApiKey,
+                        geminiApiKeyLast4 = aiSearchHandler.getGeminiApiKey()?.takeLast(4),
+                        llmApiKeyLast4ByProvider = userPreferences.getLlmApiKeyLast4ByProvider(),
+                        customLlmBaseUrlByProvider = userPreferences.getCustomLlmBaseUrlByProvider(),
+                        customLlmAdvancedPayloadByProvider = userPreferences.getCustomLlmAdvancedPayloadByProvider(),
+                        aiSearchLlmProviderId = activeProviderId,
+                        personalContext = aiSearchHandler.getPersonalContext(),
+                        geminiModel = aiSearchHandler.getGeminiModel(),
+                        geminiGroundingEnabled = aiSearchHandler.isGeminiGroundingEnabled(),
+                        geminiThinkingEnabled = aiSearchHandler.isGeminiThinkingEnabled(),
+                        availableGeminiModels = availableGeminiModels,
+                        availableLlmModelsByProvider =
+                            userPreferences.getConfiguredLlmProviderIds().associateWith { providerId ->
+                                if (providerId == activeProviderId) {
+                                    availableGeminiModels
+                                } else {
+                                    AiSearchLlmProviderRegistry
+                                        .get(providerId, applicationProvider())
+                                        .fallbackTextModels
+                                }
+                            },
+                    )
+                }
                 pinningHandler.loadPinnedContactsAndFiles()
                 pinningHandler.loadExcludedContactsAndFiles()
                 loadPinnedAndExcludedCalendarEvents()
@@ -460,14 +495,15 @@ internal class SearchStartupLifecycleDelegate(
                         excludedSettings = pinnedSettingsState.excluded,
                     )
                 }
+                // App settings build themselves lazily on the first matching query. Device
+                // settings do the same on their IO search path. Refresh app shortcuts only in
+                // the long-idle tier; their bounded cache was already loaded above.
+                loadAppShortcuts()
             }
-
-            launch(startupDispatcher) { loadSettingsShortcuts() }
-            launch(startupDispatcher) { loadAppSettings() }
-            launch(startupDispatcher) { loadAppShortcuts() }
 
             launch(Dispatchers.IO) {
                 delay(DEFERRED_RELEASE_NOTES_DELAY_MS)
+                while (isQueryActive()) delay(OPTIONAL_STARTUP_QUERY_RECHECK_MS)
                 releaseNotesHandler.checkForReleaseNotes()
             }
 
@@ -481,8 +517,31 @@ internal class SearchStartupLifecycleDelegate(
                     )
                 }
             }
+            repository.startPackageChangeMonitoring {
+                packageRefreshJob?.cancel()
+                packageRefreshJob =
+                    scope.launch(startupDispatcher) {
+                        delay(PACKAGE_CHANGE_DEBOUNCE_MS)
+                        while (isQueryActive()) delay(OPTIONAL_STARTUP_QUERY_RECHECK_MS)
+                        loadApps()
+                    }
+            }
             withContext(Dispatchers.Default) { refreshDerivedState(null, null) }
             saveStartupSurfaceSnapshotAsync(true, false)
+        }
+    }
+
+    private fun shouldReconcileAppsAtStartup(): Boolean {
+        if (appSearchManager.cachedApps.isEmpty()) return true
+        if (repository.isAppCatalogInvalidated()) return true
+        val ageMs = System.currentTimeMillis() - repository.cacheLastUpdatedMillis()
+        return ageMs !in 0 until APP_RECONCILIATION_FRESHNESS_MS
+    }
+
+    private suspend fun awaitOptionalStartupWindow() {
+        delay(OPTIONAL_STARTUP_DELAY_MS)
+        while (isQueryActive()) {
+            delay(OPTIONAL_STARTUP_QUERY_RECHECK_MS)
         }
     }
 
@@ -555,6 +614,7 @@ internal class SearchStartupLifecycleDelegate(
                 initializeWithCacheMinimal(cachedAppsList, hasUsagePermission)
             }
         }
+        markPermissionSnapshotRefreshed()
 
         setStartupConfig(startupConfig)
         applyLauncherIconSelection()
@@ -956,7 +1016,12 @@ internal class SearchStartupLifecycleDelegate(
 
     companion object {
         private const val BROWSER_REFRESH_INTERVAL_MS = 5 * 60 * 1_000L
-        private const val DEFERRED_AI_SEARCH_MODELS_DELAY_MS = 3_000L
-        private const val DEFERRED_RELEASE_NOTES_DELAY_MS = 3_000L
+        private const val DEFERRED_AI_SEARCH_MODELS_DELAY_MS = 15_000L
+        private const val DEFERRED_RELEASE_NOTES_DELAY_MS = 15_000L
+        private const val OPTIONAL_STARTUP_DELAY_MS = 10_000L
+        private const val OPTIONAL_STARTUP_QUERY_RECHECK_MS = 1_000L
+        private const val APP_RECONCILIATION_FRESHNESS_MS = 24L * 60L * 60L * 1_000L
+        private const val PERMISSION_SNAPSHOT_DEDUP_WINDOW_MS = 1_500L
+        private const val PACKAGE_CHANGE_DEBOUNCE_MS = 750L
     }
 }

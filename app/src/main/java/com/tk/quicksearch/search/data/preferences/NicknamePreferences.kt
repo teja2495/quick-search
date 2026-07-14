@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap
 class NicknamePreferences(
     context: Context,
 ) : BasePreferences(context) {
+    private val customizationStore = SearchCustomizationStore(context)
     private val appShortcutNicknameCache = ConcurrentHashMap<String, String>()
     private val contactNicknameCache = ConcurrentHashMap<Long, String>()
     private val fileNicknameCache = ConcurrentHashMap<String, String>()
@@ -31,7 +32,7 @@ class NicknamePreferences(
     }
 
     private fun loadNicknameCaches() {
-        val allPrefs = prefs.all
+        val allPrefs = customizationStore.snapshot()
         for ((key, value) in allPrefs) {
             if (value !is String) continue
 
@@ -68,7 +69,8 @@ class NicknamePreferences(
     // Nickname Preferences
     // ============================================================================
 
-    fun getAppNickname(packageName: String): String? = prefs.getString("${BasePreferences.KEY_NICKNAME_APP_PREFIX}$packageName", null)
+    fun getAppNickname(packageName: String): String? =
+        customizationStore.getString("${BasePreferences.KEY_NICKNAME_APP_PREFIX}$packageName")
 
     fun setAppNickname(
         packageName: String,
@@ -76,14 +78,14 @@ class NicknamePreferences(
     ) {
         val key = "${BasePreferences.KEY_NICKNAME_APP_PREFIX}$packageName"
         if (nickname.isNullOrBlank()) {
-            prefs.edit().remove(key).apply()
+            customizationStore.putString(key, null)
         } else {
-            prefs.edit().putString(key, nickname.trim()).apply()
+            customizationStore.putString(key, nickname.trim())
         }
     }
 
     fun getAllAppNicknames(): Map<String, String> {
-        val allPrefs = prefs.all
+        val allPrefs = customizationStore.snapshot()
         val nicknames = mutableMapOf<String, String>()
         for ((key, value) in allPrefs) {
             if (key.startsWith(BasePreferences.KEY_NICKNAME_APP_PREFIX) &&
@@ -105,11 +107,11 @@ class NicknamePreferences(
     ) {
         val key = "${BasePreferences.KEY_NICKNAME_APP_SHORTCUT_PREFIX}$shortcutId"
         if (nickname.isNullOrBlank()) {
-            prefs.edit().remove(key).apply()
+            customizationStore.putString(key, null)
             appShortcutNicknameCache.remove(shortcutId)
         } else {
             val trimmed = nickname.trim()
-            prefs.edit().putString(key, trimmed).apply()
+            customizationStore.putString(key, trimmed)
             appShortcutNicknameCache[shortcutId] = trimmed
         }
     }
@@ -126,11 +128,11 @@ class NicknamePreferences(
     ) {
         val key = "${BasePreferences.KEY_NICKNAME_CONTACT_PREFIX}$contactId"
         if (nickname.isNullOrBlank()) {
-            prefs.edit().remove(key).apply()
+            customizationStore.putString(key, null)
             contactNicknameCache.remove(contactId)
         } else {
             val trimmed = nickname.trim()
-            prefs.edit().putString(key, trimmed).apply()
+            customizationStore.putString(key, trimmed)
             contactNicknameCache[contactId] = trimmed
         }
     }
@@ -145,11 +147,11 @@ class NicknamePreferences(
     ) {
         val key = "${BasePreferences.KEY_NICKNAME_FILE_PREFIX}$uri"
         if (nickname.isNullOrBlank()) {
-            prefs.edit().remove(key).apply()
+            customizationStore.putString(key, null)
             fileNicknameCache.remove(uri)
         } else {
             val trimmed = nickname.trim()
-            prefs.edit().putString(key, trimmed).apply()
+            customizationStore.putString(key, trimmed)
             fileNicknameCache[uri] = trimmed
         }
     }
@@ -164,11 +166,11 @@ class NicknamePreferences(
     ) {
         val key = "${BasePreferences.KEY_NICKNAME_SETTING_PREFIX}$id"
         if (nickname.isNullOrBlank()) {
-            prefs.edit().remove(key).apply()
+            customizationStore.putString(key, null)
             settingNicknameCache.remove(id)
         } else {
             val trimmed = nickname.trim()
-            prefs.edit().putString(key, trimmed).apply()
+            customizationStore.putString(key, trimmed)
             settingNicknameCache[id] = trimmed
         }
     }
@@ -183,11 +185,11 @@ class NicknamePreferences(
     ) {
         val key = "${BasePreferences.KEY_NICKNAME_CALENDAR_EVENT_PREFIX}$eventId"
         if (nickname.isNullOrBlank()) {
-            prefs.edit().remove(key).apply()
+            customizationStore.putString(key, null)
             calendarEventNicknameCache.remove(eventId)
         } else {
             val trimmed = nickname.trim()
-            prefs.edit().putString(key, trimmed).apply()
+            customizationStore.putString(key, trimmed)
             calendarEventNicknameCache[eventId] = trimmed
         }
     }

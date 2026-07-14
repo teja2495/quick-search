@@ -179,8 +179,10 @@ object WallpaperUtils {
         }
 
     suspend fun getWallpaperBitmapResult(context: Context): WallpaperLoadResult =
-        wallpaperBitmapMutex.withLock {
-            getWallpaperBitmapResultLocked(context)
+        withContext(Dispatchers.IO) {
+            wallpaperBitmapMutex.withLock {
+                getWallpaperBitmapResultLocked(context)
+            }
         }
 
     private suspend fun getWallpaperBitmapResultLocked(context: Context): WallpaperLoadResult {
@@ -199,21 +201,19 @@ object WallpaperUtils {
             invalidateWallpaperCache()
         }
 
-        return withContext(Dispatchers.IO) {
-            try {
-                val bitmap = loadWallpaperBitmap(context)
-                if (bitmap != null) {
-                    cachedBitmap = bitmap
-                    cachedSystemWallpaperId = currentWallpaperId ?: getCurrentSystemWallpaperId(context)
-                    WallpaperLoadResult.Success(bitmap)
-                } else {
-                    WallpaperLoadResult.Unavailable
-                }
-            } catch (e: SecurityException) {
-                WallpaperLoadResult.SecurityError
-            } catch (e: Exception) {
+        return try {
+            val bitmap = loadWallpaperBitmap(context)
+            if (bitmap != null) {
+                cachedBitmap = bitmap
+                cachedSystemWallpaperId = currentWallpaperId ?: getCurrentSystemWallpaperId(context)
+                WallpaperLoadResult.Success(bitmap)
+            } else {
                 WallpaperLoadResult.Unavailable
             }
+        } catch (e: SecurityException) {
+            WallpaperLoadResult.SecurityError
+        } catch (e: Exception) {
+            WallpaperLoadResult.Unavailable
         }
     }
 
@@ -293,15 +293,15 @@ object WallpaperUtils {
         }
     }
 
-    fun getStartupBackgroundPreviewBitmap(
-        context: Context,
+    suspend fun loadStartupBackgroundPreviewBitmap(
         previewPath: String?,
-    ): Bitmap? {
-        val normalized = previewPath?.trim()?.takeIf { it.isNotEmpty() } ?: return null
-        val file = File(normalized)
-        if (!file.exists() || !file.isFile) return null
-        return runCatching { BitmapFactory.decodeFile(file.absolutePath) }.getOrNull()
-    }
+    ): Bitmap? =
+        withContext(Dispatchers.IO) {
+            val normalized = previewPath?.trim()?.takeIf { it.isNotEmpty() } ?: return@withContext null
+            val file = File(normalized)
+            if (!file.exists() || !file.isFile) return@withContext null
+            runCatching { BitmapFactory.decodeFile(file.absolutePath) }.getOrNull()
+        }
 
     suspend fun saveStartupBackgroundPreview(
         context: Context,

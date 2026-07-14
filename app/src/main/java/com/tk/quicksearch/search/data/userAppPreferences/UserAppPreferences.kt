@@ -58,6 +58,12 @@ class UserAppPreferences(
     private val recentSearchesPreferences by lazy { SearchHistoryPreferences(context) }
     private val recentResultOpensPreferences by lazy { RecentResultOpensPreferences(context) }
     private val startupPreferences by lazy { StartupPreferencesFacade(this, context) }
+    private val aiStartupPreferences by lazy {
+        context.applicationContext.getSharedPreferences(
+                AI_STARTUP_PREFS_NAME,
+                android.content.Context.MODE_PRIVATE,
+        )
+    }
 
 
     /**
@@ -552,42 +558,10 @@ class UserAppPreferences(
             triggerPreferences.setNoteTrigger(noteId, trigger)
 
     fun getAllTriggerWordsById(): Map<String, String> =
-            buildMap {
-                triggerPreferences.getAllAppTriggers().forEach { (id, trigger) ->
-                    put("app:$id", trigger.word)
-                }
-                triggerPreferences.getAllAppShortcutTriggers().forEach { (id, trigger) ->
-                    put("shortcut:$id", trigger.word)
-                }
-                triggerPreferences.getAllContactTriggers().forEach { (id, trigger) ->
-                    put("contact:$id", trigger.word)
-                }
-                triggerPreferences.getAllContactActionTriggers().forEach { (key, trigger) ->
-                    put("contactAction:${key.contactId}:${key.action.toSerializedString()}", trigger.word)
-                }
-                triggerPreferences.getAllFileTriggers().forEach { (id, trigger) ->
-                    put("file:$id", trigger.word)
-                }
-                triggerPreferences.getAllSettingTriggers().forEach { (id, trigger) ->
-                    put("setting:$id", trigger.word)
-                }
-                triggerPreferences.getAllNoteTriggers().forEach { (id, trigger) ->
-                    put("note:$id", trigger.word)
-                }
-            }
+            triggerPreferences.getAllTriggerWordsById()
 
     fun getAllAliasWordsById(): Map<String, String> =
-            sharedPrefs.all.mapNotNull { (key, value) ->
-                if (!key.startsWith(BasePreferences.KEY_ALIAS_CODE_PREFIX)) return@mapNotNull null
-                val aliasId = key.removePrefix(BasePreferences.KEY_ALIAS_CODE_PREFIX)
-                val rawValue = (value as? String).orEmpty()
-                val normalized = normalizeShortcutCodeInput(rawValue)
-                if (!isValidGeneralAliasCode(normalized)) {
-                    null
-                } else {
-                    aliasId to normalized
-                }
-            }.toMap()
+            aliasPreferences.getAllAliasWordsById()
 
     fun hasAnyTriggerItems(): Boolean = getAllTriggerWordsById().isNotEmpty()
 
@@ -772,6 +746,7 @@ class UserAppPreferences(
         if (providerId.isCustom) {
             if (key.isNullOrBlank()) {
                 customLlmProviderPreferences.removeProvider(providerId)
+                refreshConfiguredAiProviderHint()
             }
             return
         }
@@ -782,6 +757,7 @@ class UserAppPreferences(
             AiSearchLlmProviderId.GROQ -> groqPreferences.setApiKey(key)
             else -> Unit
         }
+        refreshConfiguredAiProviderHint()
     }
 
     /** Clear the API key for every provider (used when resetting). */
@@ -793,6 +769,7 @@ class UserAppPreferences(
         customLlmProviderPreferences.getProviders().forEach {
             customLlmProviderPreferences.removeProvider(AiSearchLlmProviderId.custom(it.id))
         }
+        aiStartupPreferences.edit().putBoolean(KEY_HAS_CONFIGURED_AI_PROVIDER, false).apply()
     }
 
     fun getLlmModel(providerId: AiSearchLlmProviderId): String =
@@ -905,6 +882,22 @@ class UserAppPreferences(
             !groqPreferences.getApiKey().isNullOrBlank() ||
             customLlmProviderPreferences.getProviders().any { it.apiKey.isNotBlank() }
 
+    /** Non-sensitive startup hint. Null means an older install has not reconciled it yet. */
+    fun getConfiguredAiProviderHint(): Boolean? =
+        if (aiStartupPreferences.contains(KEY_HAS_CONFIGURED_AI_PROVIDER)) {
+            aiStartupPreferences.getBoolean(KEY_HAS_CONFIGURED_AI_PROVIDER, false)
+        } else {
+            null
+        }
+
+    /** Opens encrypted storage only from an AI/settings or long-idle path. */
+    fun refreshConfiguredAiProviderHint(): Boolean =
+        hasAnyLlmApiKey().also { configured ->
+            aiStartupPreferences.edit()
+                    .putBoolean(KEY_HAS_CONFIGURED_AI_PROVIDER, configured)
+                    .apply()
+        }
+
     fun getLlmApiKeyLast4ByProvider(): Map<AiSearchLlmProviderId, String> =
         getConfiguredLlmProviderIds().mapNotNull { providerId ->
             getLlmApiKey(providerId)?.trim()?.takeIf { it.isNotBlank() }?.takeLast(4)?.let { last4 ->
@@ -937,7 +930,9 @@ class UserAppPreferences(
         baseUrl: String,
         apiKey: String,
     ): CustomLlmProviderConfig? =
-        customLlmProviderPreferences.addProvider(baseUrl, apiKey)
+        customLlmProviderPreferences.addProvider(baseUrl, apiKey).also {
+            if (it != null) refreshConfiguredAiProviderHint()
+        }
 
     fun setCustomLlmAdvancedPayload(
         providerId: AiSearchLlmProviderId,
@@ -948,7 +943,15 @@ class UserAppPreferences(
     // Backward-compatible Gemini facade methods kept for existing call sites.
     fun getGeminiApiKey(): String? = geminiPreferences.getGeminiApiKey()
 
-    fun setGeminiApiKey(key: String?) = geminiPreferences.setGeminiApiKey(key)
+    fun setGeminiApiKey(key: String?) {
+        geminiPreferences.setGeminiApiKey(key)
+        refreshConfiguredAiProviderHint()
+    }
+
+    private companion object {
+        const val AI_STARTUP_PREFS_NAME = "ai_startup_state"
+        const val KEY_HAS_CONFIGURED_AI_PROVIDER = "has_configured_ai_provider"
+    }
 
     fun getPersonalContext(): String? = geminiPreferences.getPersonalContext()
 

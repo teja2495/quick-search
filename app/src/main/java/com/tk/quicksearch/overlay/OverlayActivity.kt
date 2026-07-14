@@ -87,7 +87,7 @@ class OverlayActivity : ComponentActivity() {
         handleInitialQueryIfNeeded(intent)
 
         renderOverlayContent()
-        startupCoordinator.scheduleAfterFirstFrame(window)
+        startupCoordinator.scheduleAfterFirstDraw(window)
     }
 
     override fun onNewIntent(intent: android.content.Intent) {

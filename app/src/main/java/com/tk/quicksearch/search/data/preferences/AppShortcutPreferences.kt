@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.data.preferences
 
 import android.content.Context
+import com.tk.quicksearch.search.data.assets.ManagedAssetStore
 
 /**
  * Preferences for app shortcut settings such as pinned and excluded shortcuts.
@@ -8,6 +9,7 @@ import android.content.Context
 class AppShortcutPreferences(
     context: Context,
 ) : BasePreferences(context) {
+    private val assetStore = ManagedAssetStore(context)
     fun getPinnedAppShortcutIds(): Set<String> = getPinnedStringItems(BasePreferences.KEY_PINNED_APP_SHORTCUTS)
 
     fun getPinnedAppShortcutOrder(): List<String> = getStringListPref(BasePreferences.KEY_PINNED_APP_SHORTCUT_ORDER)
@@ -50,7 +52,10 @@ class AppShortcutPreferences(
         }
 
     fun getAppShortcutIconOverride(id: String): String? =
-        prefs.getString(iconOverrideKey(id), null)?.takeIf { it.isNotBlank() }
+        assetStore.getBase64("${ManagedAssetStore.SHORTCUT_ICON_PREFIX}$id")
+            ?: prefs.getString(iconOverrideKey(id), null)?.takeIf { it.isNotBlank() }?.also {
+                assetStore.putBase64("${ManagedAssetStore.SHORTCUT_ICON_PREFIX}$id", it)
+            }
 
     fun getAllAppShortcutIconOverrides(): Map<String, String> {
         val prefix = BasePreferences.KEY_APP_SHORTCUT_ICON_OVERRIDE_PREFIX
@@ -60,7 +65,7 @@ class AppShortcutPreferences(
             if (value !is String || value.isBlank()) continue
             out[key.removePrefix(prefix)] = value
         }
-        return out
+        return out + assetStore.getAllBase64(ManagedAssetStore.SHORTCUT_ICON_PREFIX)
     }
 
     fun setAppShortcutIconOverride(
@@ -68,11 +73,14 @@ class AppShortcutPreferences(
         iconBase64: String?,
     ) {
         val key = iconOverrideKey(id)
+        val assetId = "${ManagedAssetStore.SHORTCUT_ICON_PREFIX}$id"
         // commit() so a follow-up read (e.g. refreshAppShortcutsState) sees the new value;
         // apply() is async and can race with immediate UI refresh.
         if (iconBase64.isNullOrBlank()) {
+            assetStore.remove(assetId)
             prefs.edit().remove(key).commit()
         } else {
+            if (!assetStore.putBase64(assetId, iconBase64)) return
             prefs.edit().putString(key, iconBase64).commit()
         }
     }

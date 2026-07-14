@@ -5,6 +5,7 @@ internal class SearchViewModelStartupState {
     var isStartupComplete: Boolean = false
     var resumeNeedsStaticDataRefresh: Boolean = false
     var lastBrowserTargetRefreshMs: Long = 0L
+    var lastPermissionSnapshotElapsedMs: Long = 0L
     var wallpaperAvailable: Boolean = false
 }
 
@@ -265,6 +266,12 @@ internal class SearchViewModelStartupLifecycleStateAccess(
         get() = startupState.lastBrowserTargetRefreshMs
         set(value) {
             startupState.lastBrowserTargetRefreshMs = value
+        }
+
+    override var lastPermissionSnapshotElapsedMs: Long
+        get() = startupState.lastPermissionSnapshotElapsedMs
+        set(value) {
+            startupState.lastPermissionSnapshotElapsedMs = value
         }
 
     override var wallpaperAvailable: Boolean

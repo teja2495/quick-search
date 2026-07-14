@@ -10,6 +10,7 @@ import com.tk.quicksearch.search.utils.SearchQueryContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Locale
 
 class AppSearchManager(
@@ -41,7 +42,7 @@ class AppSearchManager(
 
     fun loadApps() {
         scope.launch(Dispatchers.IO) {
-            refreshApps()
+            refreshAppsNow()
         }
     }
 
@@ -50,51 +51,62 @@ class AppSearchManager(
         forceUiUpdate: Boolean = false,
     ) {
         scope.launch(Dispatchers.IO) {
-            if (cachedApps.isEmpty()) {
-                onLoadingStateChanged(true, null)
-            }
+            refreshAppsNow(showToast, forceUiUpdate)
+        }
+    }
 
-            val launchCounts = userPreferences.getAllAppLaunchCounts()
-            runCatching {
-                repository.loadLaunchableApps(
-                    includeNonLaunchableApps = userPreferences.shouldIncludeNonLaunchableAppsInSearch(),
-                    launchCounts = launchCounts,
-                )
-            }
-                .onSuccess { apps ->
-                    val currentPackageSet = cachedApps.map { it.launchCountKey() }.toSet()
-                    val newPackageSet = apps.map { it.launchCountKey() }.toSet()
-                    val appSetChanged = currentPackageSet != newPackageSet
-                    val currentUsageMap = cachedApps.associate { it.launchCountKey() to it.launchCount }
-                    val newUsageMap = apps.associate { it.launchCountKey() to it.launchCount }
-                    val usageStatsChanged = currentUsageMap != newUsageMap
+    /**
+     * Structured variant used by startup so app reconciliation remains owned by the startup job
+     * instead of escaping into another fire-and-forget coroutine.
+     */
+    suspend fun refreshAppsNow(
+        showToast: Boolean = false,
+        forceUiUpdate: Boolean = false,
+    ) {
+        if (cachedApps.isEmpty()) {
+            onLoadingStateChanged(true, null)
+        }
 
-                    if (showToast || cachedApps.isEmpty() || appSetChanged || usageStatsChanged || forceUiUpdate) {
-                        cachedApps = apps
-                        noMatchPrefix = null
-                        onAppsUpdated()
-                    }
+        val launchCounts = userPreferences.getAllAppLaunchCounts()
+        runCatching {
+            repository.loadLaunchableApps(
+                includeNonLaunchableApps = userPreferences.shouldIncludeNonLaunchableAppsInSearch(),
+                launchCounts = launchCounts,
+            )
+        }
+            .onSuccess { apps ->
+                val currentPackageSet = cachedApps.map { it.launchCountKey() }.toSet()
+                val newPackageSet = apps.map { it.launchCountKey() }.toSet()
+                val appSetChanged = currentPackageSet != newPackageSet
+                val currentUsageMap = cachedApps.associate { it.launchCountKey() to it.launchCount }
+                val newUsageMap = apps.associate { it.launchCountKey() to it.launchCount }
+                val usageStatsChanged = currentUsageMap != newUsageMap
 
-                    if (cachedApps.isNotEmpty()) {
-                        onLoadingStateChanged(false, null)
-                    }
+                if (showToast || cachedApps.isEmpty() || appSetChanged || usageStatsChanged || forceUiUpdate) {
+                    cachedApps = apps
+                    noMatchPrefix = null
+                    onAppsUpdated()
+                }
 
-                    if (showToast) {
-                        scope.launch(Dispatchers.Main) {
-                            showToastCallback(R.string.apps_refreshed_successfully)
-                        }
-                    }
-                }.onFailure { error ->
-                    val fallbackMessage = context.getString(R.string.error_loading_user_apps)
-                    onLoadingStateChanged(false, error.localizedMessage ?: fallbackMessage)
+                if (cachedApps.isNotEmpty()) {
+                    onLoadingStateChanged(false, null)
+                }
 
-                    if (showToast) {
-                        scope.launch(Dispatchers.Main) {
-                            showToastCallback(R.string.failed_to_refresh_apps)
-                        }
+                if (showToast) {
+                    withContext(Dispatchers.Main) {
+                        showToastCallback(R.string.apps_refreshed_successfully)
                     }
                 }
-        }
+            }.onFailure { error ->
+                val fallbackMessage = context.getString(R.string.error_loading_user_apps)
+                onLoadingStateChanged(false, error.localizedMessage ?: fallbackMessage)
+
+                if (showToast) {
+                    withContext(Dispatchers.Main) {
+                        showToastCallback(R.string.failed_to_refresh_apps)
+                    }
+                }
+            }
     }
 
     fun clearCachedApps() {

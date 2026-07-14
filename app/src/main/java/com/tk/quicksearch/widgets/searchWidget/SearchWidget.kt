@@ -92,8 +92,8 @@ class SearchWidget(
     @Composable
     private fun WidgetBody() {
         val prefs = currentState<Preferences>()
-        val config = prefs.toWidgetPreferences().enforceVariantConstraints(variant)
         val context = LocalContext.current
+        val config = prefs.toWidgetPreferences(context).enforceVariantConstraints(variant)
         val widgetSize = LocalSize.current
         val defaultWidth = WidgetLayoutUtils.DEFAULT_WIDTH_DP.dp
         val defaultHeight = WidgetLayoutUtils.DEFAULT_HEIGHT_DP.dp

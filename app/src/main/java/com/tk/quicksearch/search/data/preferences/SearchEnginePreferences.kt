@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.data.preferences
 import android.content.Context
 import com.tk.quicksearch.search.core.CustomSearchEngine
 import com.tk.quicksearch.search.core.CustomTool
+import com.tk.quicksearch.search.data.assets.ManagedAssetStore
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -12,6 +13,7 @@ import org.json.JSONObject
 class SearchEnginePreferences(
     context: Context,
 ) : BasePreferences(context) {
+    private val assetStore = ManagedAssetStore(context)
     companion object {
         const val ONE_ROW = 1
         const val TWO_ROWS = 2
@@ -98,7 +100,14 @@ class SearchEnginePreferences(
                             id = id,
                             name = name,
                             urlTemplate = urlTemplate,
-                            faviconBase64 = item.optString("faviconBase64").ifBlank { null },
+                            faviconBase64 =
+                                assetStore.getBase64("${ManagedAssetStore.SEARCH_ENGINE_ICON_PREFIX}$id")
+                                    ?: item.optString("faviconBase64").ifBlank { null }?.also { legacy ->
+                                        assetStore.putBase64(
+                                            "${ManagedAssetStore.SEARCH_ENGINE_ICON_PREFIX}$id",
+                                            legacy,
+                                        )
+                                    },
                             browserPackage = item.optString("browserPackage").ifBlank { null },
                         ),
                     )
@@ -173,6 +182,12 @@ class SearchEnginePreferences(
     fun setCustomSearchEngines(engines: List<CustomSearchEngine>) {
         val array = JSONArray()
         engines.forEach { engine ->
+            val assetId = "${ManagedAssetStore.SEARCH_ENGINE_ICON_PREFIX}${engine.id}"
+            if (engine.faviconBase64.isNullOrBlank()) {
+                assetStore.remove(assetId)
+            } else {
+                assetStore.putBase64(assetId, engine.faviconBase64)
+            }
             val item =
                 JSONObject().apply {
                     put("id", engine.id)

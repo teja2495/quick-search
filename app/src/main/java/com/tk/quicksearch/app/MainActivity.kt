@@ -9,7 +9,6 @@ import android.provider.OpenableColumns
 import android.os.Bundle
 import android.os.Trace
 import android.view.KeyEvent
-import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -48,13 +47,17 @@ import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.settings.settingsDetailScreen.NotesNavigationMemory
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.shared.util.AppLanguageManager
+import com.tk.quicksearch.search.data.preferences.BootstrapPreferences
 import com.tk.quicksearch.shared.util.CrashLogManager
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.widgets.searchWidget.SearchWidget
 import com.tk.quicksearch.widgets.searchWidget.MicAction
 import com.tk.quicksearch.widgets.searchWidget.VoiceSearchHandler
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicInteger
 
 open class MainActivity : ComponentActivity() {
@@ -77,7 +80,6 @@ open class MainActivity : ComponentActivity() {
             "overlay_contact_action_picker_serialized_action"
         private const val TRACE_ON_CREATE_ENTRY = "QS.Startup.MainActivity.OnCreate"
         private const val TRACE_SET_CONTENT = "QS.Startup.MainActivity.SetContent"
-        private const val TRACE_FIRST_FRAME_CALLBACK = "QS.Startup.MainActivity.FirstFrameCallback"
         private const val TRACE_SEARCH_SURFACE_FIRST_COMPOSE =
             "QS.Startup.MainActivity.SearchSurfaceFirstCompose"
         private const val TRACE_CORE_SURFACE_READY = "QS.Startup.CoreSurface.Ready"
@@ -104,11 +106,12 @@ open class MainActivity : ComponentActivity() {
     private var pendingContactActionPickerRequest: PendingContactActionPickerRequest? = null
     private var hasMainUiActivated = false
     private var hasSearchSurfaceComposeTraced = false
-    private var hasFirstFrameTraced = false
     private var hasCoreSurfaceReadyTraced = false
     private var hasWallpaperPreviewReadyTraced = false
     private var hasSuggestionsReadyTraced = false
     private var isActivityInstanceTracked = false
+    private var importClassificationJob: Job? = null
+    private var isFirstLaunchAtActivityStart = false
 
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(AppLanguageManager.wrapContext(newBase))
@@ -137,8 +140,7 @@ open class MainActivity : ComponentActivity() {
             if (launchOverlayIfNeeded(intent)) {
                 return
             }
-
-            installFirstFrameTrace()
+            isFirstLaunchAtActivityStart = BootstrapPreferences.isFirstLaunch(this)
 
             Trace.beginSection(TRACE_SET_CONTENT)
             try {
@@ -154,10 +156,11 @@ open class MainActivity : ComponentActivity() {
                     lifecycleScope = lifecycleScope,
                     viewModel = searchViewModel,
                     userPreferences = userPreferences,
+                    isFirstLaunch = isFirstLaunchAtActivityStart,
                     mode = StartupMode.MAIN,
                     onUsageTrackingUpdated = searchViewModel::refreshRateQuickSearchCardState,
                 )
-            startupCoordinator.scheduleAfterFirstFrame(window)
+            startupCoordinator.scheduleAfterFirstDraw(window)
 
             initializeVoiceSearchHandler()
             handleIntent(intent)
@@ -386,6 +389,7 @@ open class MainActivity : ComponentActivity() {
                         context = this@MainActivity,
                         userPreferences = userPreferences,
                         searchViewModel = searchViewModel,
+                        isFirstLaunch = isFirstLaunchAtActivityStart,
                         onSearchBackPressed = { moveTaskToBack(true) },
                         navigationRequest = navigationRequest.value,
                         onNavigationRequestHandled = { navigationRequest.value = null },
@@ -399,27 +403,6 @@ open class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    private fun installFirstFrameTrace() {
-        val decorView = window.decorView
-        val observer = decorView.viewTreeObserver
-        if (!observer.isAlive) return
-        observer.addOnDrawListener(
-            object : ViewTreeObserver.OnDrawListener {
-                override fun onDraw() {
-                    if (hasFirstFrameTraced) return
-                    hasFirstFrameTraced = true
-                    Trace.beginSection(TRACE_FIRST_FRAME_CALLBACK)
-                    Trace.endSection()
-                    decorView.post {
-                        if (decorView.viewTreeObserver.isAlive) {
-                            decorView.viewTreeObserver.removeOnDrawListener(this)
-                        }
-                    }
-                }
-            },
-        )
     }
 
     private fun extractTextFromIntent(intent: Intent?): String? {
@@ -455,15 +438,32 @@ open class MainActivity : ComponentActivity() {
     }
 
     private fun handleIntent(intent: Intent?) {
-        val settingsImportUri = extractSettingsImportUri(intent)
-        if (settingsImportUri != null) {
-            navigationRequest.value =
-                NavigationRequest(
-                    destination = RootDestination.Settings,
-                    settingsImportUri = settingsImportUri.toString(),
-                )
+        if (intent?.action == Intent.ACTION_VIEW && intent.data != null) {
+            val intentSnapshot = Intent(intent)
+            importClassificationJob?.cancel()
+            importClassificationJob =
+                lifecycleScope.launch {
+                    val settingsImportUri =
+                        withContext(Dispatchers.IO) {
+                            extractSettingsImportUri(intentSnapshot)
+                        }
+                    if (settingsImportUri != null) {
+                        navigationRequest.value =
+                            NavigationRequest(
+                                destination = RootDestination.Settings,
+                                settingsImportUri = settingsImportUri.toString(),
+                            )
+                    } else {
+                        handleIntentAfterImportClassification(intentSnapshot)
+                    }
+                }
             return
         }
+
+        handleIntentAfterImportClassification(intent)
+    }
+
+    private fun handleIntentAfterImportClassification(intent: Intent?) {
 
         if (isHomeOrLauncherLaunch(intent)) {
             val activeSettingsDetail = SettingsNavigationMemory.getLastOpenedSettingsDetail()

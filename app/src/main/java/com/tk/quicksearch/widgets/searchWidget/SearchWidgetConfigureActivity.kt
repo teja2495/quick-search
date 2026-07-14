@@ -150,7 +150,7 @@ class SearchWidgetConfigureActivity : ComponentActivity() {
                 glanceId = glanceId,
             )
         return LoadedWidgetPreferences(
-            preferences = prefs.toWidgetPreferences().enforceVariantConstraints(widgetVariant),
+            preferences = prefs.toWidgetPreferences(this@SearchWidgetConfigureActivity).enforceVariantConstraints(widgetVariant),
             hasStoredConfig = prefs.asMap().isNotEmpty(),
         )
     }
@@ -163,7 +163,7 @@ class SearchWidgetConfigureActivity : ComponentActivity() {
         val constrainedPrefs = prefs.enforceVariantConstraints(widgetVariant)
 
         updateAppWidgetState(context = this, glanceId = glanceId) { mutablePrefs ->
-            mutablePrefs.applyWidgetPreferences(constrainedPrefs)
+            mutablePrefs.applyWidgetPreferences(constrainedPrefs, this@SearchWidgetConfigureActivity)
         }
         SearchWidget(widgetVariant).update(this, glanceId)
     }

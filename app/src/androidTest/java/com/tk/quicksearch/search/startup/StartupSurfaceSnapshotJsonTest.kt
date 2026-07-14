@@ -10,7 +10,7 @@ import org.junit.Test
 
 class StartupSurfaceSnapshotJsonTest {
     @Test
-    fun `round trips snapshot payload`() {
+    fun roundTripsSnapshotPayload() {
         val source =
             StartupSurfaceSnapshot(
                 createdAtMillis = 1234L,
@@ -52,13 +52,13 @@ class StartupSurfaceSnapshotJsonTest {
     }
 
     @Test
-    fun `returns null for unsupported version`() {
+    fun returnsNullForUnsupportedVersion() {
         val raw = """{"version":99}"""
         assertNull(StartupSurfaceSnapshotJson.fromJson(raw))
     }
 
     @Test
-    fun `handles corrupt payload`() {
+    fun handlesCorruptPayload() {
         assertNull(StartupSurfaceSnapshotJson.fromJson("not-json"))
     }
 }

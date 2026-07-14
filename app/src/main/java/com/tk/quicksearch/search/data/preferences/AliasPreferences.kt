@@ -9,6 +9,8 @@ import com.tk.quicksearch.searchEngines.getDefaultShortcutCode
 open class AliasPreferences(
     context: Context,
 ) : BasePreferences(context) {
+    private val customizationStore = SearchCustomizationStore(context)
+
     fun areAliasesEnabled(): Boolean =
         getBooleanPref(BasePreferences.KEY_ALIASES_ENABLED, true)
 
@@ -21,18 +23,20 @@ open class AliasPreferences(
         val aliasKey = "${BasePreferences.KEY_ALIAS_CODE_PREFIX}${engine.name}"
         val legacyKey = "${BasePreferences.KEY_SHORTCUT_CODE_PREFIX_LEGACY}${engine.name}"
         val defaultCode = engine.getDefaultShortcutCode()
-        val aliasValue = prefs.getString(aliasKey, null)
+        val aliasValue = customizationStore.getString(aliasKey)
         if (aliasValue != null) {
             val normalizedAlias = normalizeShortcutCodeInput(aliasValue)
             return if (normalizedAlias.isEmpty()) {
                 ""
             } else if (isValidGeneralAliasCode(normalizedAlias)) {
                 if (aliasValue != normalizedAlias) {
-                    prefs.edit().putString(aliasKey, normalizedAlias).putString(legacyKey, normalizedAlias).apply()
+                    customizationStore.putString(aliasKey, normalizedAlias)
+                    customizationStore.putString(legacyKey, normalizedAlias)
                 }
                 normalizedAlias
             } else {
-                prefs.edit().remove(aliasKey).remove(legacyKey).apply()
+                customizationStore.putString(aliasKey, null)
+                customizationStore.putString(legacyKey, null)
                 ""
             }
         }
@@ -43,17 +47,19 @@ open class AliasPreferences(
             } else {
                 AliasPreferenceMigration.resolveAliasValue(
                     aliasValue = null,
-                    legacyShortcutValue = prefs.getString(legacyKey, null),
+                    legacyShortcutValue = customizationStore.getString(legacyKey),
                 )
             }
         if (migratedCode.isNullOrEmpty()) return defaultCode
 
         val normalizedMigrated = normalizeShortcutCodeInput(migratedCode)
         return if (isValidGeneralAliasCode(normalizedMigrated)) {
-            prefs.edit().putString(aliasKey, normalizedMigrated).putString(legacyKey, normalizedMigrated).apply()
+            customizationStore.putString(aliasKey, normalizedMigrated)
+            customizationStore.putString(legacyKey, normalizedMigrated)
             normalizedMigrated
         } else {
-            prefs.edit().remove(aliasKey).remove(legacyKey).apply()
+            customizationStore.putString(aliasKey, null)
+            customizationStore.putString(legacyKey, null)
             ""
         }
     }
@@ -66,13 +72,15 @@ open class AliasPreferences(
         val legacyKey = "${BasePreferences.KEY_SHORTCUT_CODE_PREFIX_LEGACY}${engine.name}"
         val normalizedCode = normalizeShortcutCodeInput(code)
         if (normalizedCode.isEmpty()) {
-            prefs.edit().putString(aliasKey, "").putString(legacyKey, "").apply()
+            customizationStore.putString(aliasKey, "")
+            customizationStore.putString(legacyKey, "")
             return
         }
         if (!isValidGeneralAliasCode(normalizedCode)) {
             return
         }
-        prefs.edit().putString(aliasKey, normalizedCode).putString(legacyKey, normalizedCode).apply()
+        customizationStore.putString(aliasKey, normalizedCode)
+        customizationStore.putString(legacyKey, normalizedCode)
     }
 
     fun getAliasCode(targetId: String): String? {
@@ -80,17 +88,18 @@ open class AliasPreferences(
         val legacyKey = "${BasePreferences.KEY_SHORTCUT_CODE_PREFIX_LEGACY}$targetId"
         val storedCode =
             AliasPreferenceMigration.resolveAliasValue(
-                aliasValue = prefs.getString(aliasKey, null),
-                legacyShortcutValue = prefs.getString(legacyKey, null),
+                aliasValue = customizationStore.getString(aliasKey),
+                legacyShortcutValue = customizationStore.getString(legacyKey),
             ) ?: return null
         val normalizedCode = normalizeShortcutCodeInput(storedCode)
-        if (prefs.getString(aliasKey, null).isNullOrEmpty() && isValidGeneralAliasCode(normalizedCode)) {
-            prefs.edit().putString(aliasKey, normalizedCode).apply()
+        if (customizationStore.getString(aliasKey).isNullOrEmpty() && isValidGeneralAliasCode(normalizedCode)) {
+            customizationStore.putString(aliasKey, normalizedCode)
         }
         return if (isValidGeneralAliasCode(normalizedCode)) {
             normalizedCode
         } else {
-            prefs.edit().remove(aliasKey).remove(legacyKey).apply()
+            customizationStore.putString(aliasKey, null)
+            customizationStore.putString(legacyKey, null)
             null
         }
     }
@@ -100,12 +109,12 @@ open class AliasPreferences(
         val legacyKey = "${BasePreferences.KEY_SHORTCUT_CODE_PREFIX_LEGACY}$targetId"
         val storedCode =
             AliasPreferenceMigration.resolveAliasValue(
-                aliasValue = prefs.getString(aliasKey, null),
-                legacyShortcutValue = prefs.getString(legacyKey, null),
+                aliasValue = customizationStore.getString(aliasKey),
+                legacyShortcutValue = customizationStore.getString(legacyKey),
             ) ?: return null
         val normalizedCode = normalizeShortcutCodeInput(storedCode)
-        if (prefs.getString(aliasKey, null).isNullOrEmpty() && normalizedCode.isNotEmpty()) {
-            prefs.edit().putString(aliasKey, normalizedCode).apply()
+        if (customizationStore.getString(aliasKey).isNullOrEmpty() && normalizedCode.isNotEmpty()) {
+            customizationStore.putString(aliasKey, normalizedCode)
         }
         return if (normalizedCode.isNotEmpty()) {
             normalizedCode
@@ -124,13 +133,15 @@ open class AliasPreferences(
         if (!isValidGeneralAliasCode(normalizedCode)) {
             return
         }
-        prefs.edit().putString(aliasKey, normalizedCode).putString(legacyKey, normalizedCode).apply()
+        customizationStore.putString(aliasKey, normalizedCode)
+        customizationStore.putString(legacyKey, normalizedCode)
     }
 
     fun clearAliasCode(targetId: String) {
         val aliasKey = "${BasePreferences.KEY_ALIAS_CODE_PREFIX}$targetId"
         val legacyKey = "${BasePreferences.KEY_SHORTCUT_CODE_PREFIX_LEGACY}$targetId"
-        prefs.edit().remove(aliasKey).remove(legacyKey).apply()
+        customizationStore.putString(aliasKey, null)
+        customizationStore.putString(legacyKey, null)
     }
 
     fun setAliasCodeAllowSingleChar(
@@ -141,10 +152,12 @@ open class AliasPreferences(
         val legacyKey = "${BasePreferences.KEY_SHORTCUT_CODE_PREFIX_LEGACY}$targetId"
         val normalizedCode = normalizeShortcutCodeInput(code)
         if (normalizedCode.isEmpty()) {
-            prefs.edit().remove(aliasKey).remove(legacyKey).apply()
+            customizationStore.putString(aliasKey, null)
+            customizationStore.putString(legacyKey, null)
             return
         }
-        prefs.edit().putString(aliasKey, normalizedCode).putString(legacyKey, normalizedCode).apply()
+        customizationStore.putString(aliasKey, normalizedCode)
+        customizationStore.putString(legacyKey, normalizedCode)
     }
 
     fun isAliasEnabled(engine: SearchEngine): Boolean {
@@ -168,4 +181,15 @@ open class AliasPreferences(
 
     fun getAllAliasCodes(): Map<SearchEngine, String> =
         SearchEngine.values().associateWith { getAliasCode(it) }
+
+    fun getAllAliasWordsById(): Map<String, String> =
+        customizationStore.snapshot().mapNotNull { (key, value) ->
+            if (!key.startsWith(BasePreferences.KEY_ALIAS_CODE_PREFIX)) return@mapNotNull null
+            val normalized = normalizeShortcutCodeInput(value as? String ?: return@mapNotNull null)
+            if (isValidGeneralAliasCode(normalized)) {
+                key.removePrefix(BasePreferences.KEY_ALIAS_CODE_PREFIX) to normalized
+            } else {
+                null
+            }
+        }.toMap()
 }

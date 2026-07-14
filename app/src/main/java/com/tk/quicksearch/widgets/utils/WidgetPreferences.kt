@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgets.utils
 
+import android.content.Context
 import android.os.Parcelable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -10,6 +11,7 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.search.data.assets.ManagedAssetStore
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
 import com.tk.quicksearch.widgets.searchWidget.MicAction
 import com.tk.quicksearch.widgets.searchWidget.MicAction.OFF
@@ -236,7 +238,7 @@ private fun normalizeCustomButtons(
     return normalized
 }
 
-fun Preferences.toWidgetPreferences(): WidgetPreferences {
+fun Preferences.toWidgetPreferences(context: Context): WidgetPreferences {
     // Handle theme migration from legacy separate color preferences
     val theme =
         this[WidgetKeys.THEME]?.let { themeString ->
@@ -259,12 +261,12 @@ fun Preferences.toWidgetPreferences(): WidgetPreferences {
 
     val customButtons =
         listOf(
-            CustomWidgetButtonAction.fromJson(this[WidgetKeys.CUSTOM_BUTTON_0]),
-            CustomWidgetButtonAction.fromJson(this[WidgetKeys.CUSTOM_BUTTON_1]),
-            CustomWidgetButtonAction.fromJson(this[WidgetKeys.CUSTOM_BUTTON_2]),
-            CustomWidgetButtonAction.fromJson(this[WidgetKeys.CUSTOM_BUTTON_3]),
-            CustomWidgetButtonAction.fromJson(this[WidgetKeys.CUSTOM_BUTTON_4]),
-            CustomWidgetButtonAction.fromJson(this[WidgetKeys.CUSTOM_BUTTON_5]),
+            customWidgetActionFromManagedJson(context, this[WidgetKeys.CUSTOM_BUTTON_0]),
+            customWidgetActionFromManagedJson(context, this[WidgetKeys.CUSTOM_BUTTON_1]),
+            customWidgetActionFromManagedJson(context, this[WidgetKeys.CUSTOM_BUTTON_2]),
+            customWidgetActionFromManagedJson(context, this[WidgetKeys.CUSTOM_BUTTON_3]),
+            customWidgetActionFromManagedJson(context, this[WidgetKeys.CUSTOM_BUTTON_4]),
+            customWidgetActionFromManagedJson(context, this[WidgetKeys.CUSTOM_BUTTON_5]),
         )
 
     return WidgetPreferences(
@@ -344,7 +346,10 @@ fun Preferences.toWidgetPreferences(): WidgetPreferences {
     ).coerceToValidRanges()
 }
 
-fun MutablePreferences.applyWidgetPreferences(config: WidgetPreferences) {
+fun MutablePreferences.applyWidgetPreferences(
+    config: WidgetPreferences,
+    context: Context,
+) {
     val validated = config.coerceToValidRanges()
     this[WidgetKeys.BORDER_COLOR] = validated.borderColor
     this[WidgetKeys.BORDER_COLOR_OPTION] = validated.borderColorOption.value
@@ -364,18 +369,66 @@ fun MutablePreferences.applyWidgetPreferences(config: WidgetPreferences) {
     this[WidgetKeys.INTERNAL_VERTICAL_PADDING] = validated.internalVerticalPaddingDp
     this[WidgetKeys.USE_DEVICE_THEME_BACKGROUND] = validated.useDeviceThemeBackground
     val customButtons = normalizeCustomButtons(validated.customButtons, WidgetButtonSlotConfig.MAX_COUNT)
-    customButtons.getOrNull(0)?.let { action -> this[WidgetKeys.CUSTOM_BUTTON_0] = action.toJson() }
+    customButtons.getOrNull(0)?.let { action -> this[WidgetKeys.CUSTOM_BUTTON_0] = action.toManagedJson(context) }
         ?: remove(WidgetKeys.CUSTOM_BUTTON_0)
-    customButtons.getOrNull(1)?.let { action -> this[WidgetKeys.CUSTOM_BUTTON_1] = action.toJson() }
+    customButtons.getOrNull(1)?.let { action -> this[WidgetKeys.CUSTOM_BUTTON_1] = action.toManagedJson(context) }
         ?: remove(WidgetKeys.CUSTOM_BUTTON_1)
-    customButtons.getOrNull(2)?.let { action -> this[WidgetKeys.CUSTOM_BUTTON_2] = action.toJson() }
+    customButtons.getOrNull(2)?.let { action -> this[WidgetKeys.CUSTOM_BUTTON_2] = action.toManagedJson(context) }
         ?: remove(WidgetKeys.CUSTOM_BUTTON_2)
-    customButtons.getOrNull(3)?.let { action -> this[WidgetKeys.CUSTOM_BUTTON_3] = action.toJson() }
+    customButtons.getOrNull(3)?.let { action -> this[WidgetKeys.CUSTOM_BUTTON_3] = action.toManagedJson(context) }
         ?: remove(WidgetKeys.CUSTOM_BUTTON_3)
-    customButtons.getOrNull(4)?.let { action -> this[WidgetKeys.CUSTOM_BUTTON_4] = action.toJson() }
+    customButtons.getOrNull(4)?.let { action -> this[WidgetKeys.CUSTOM_BUTTON_4] = action.toManagedJson(context) }
         ?: remove(WidgetKeys.CUSTOM_BUTTON_4)
-    customButtons.getOrNull(5)?.let { action -> this[WidgetKeys.CUSTOM_BUTTON_5] = action.toJson() }
+    customButtons.getOrNull(5)?.let { action -> this[WidgetKeys.CUSTOM_BUTTON_5] = action.toManagedJson(context) }
         ?: remove(WidgetKeys.CUSTOM_BUTTON_5)
+}
+
+private fun CustomWidgetButtonAction.toManagedJson(context: Context): String {
+    val json = org.json.JSONObject(toJson())
+    val store = ManagedAssetStore(context)
+    migrateWidgetIcon(json, "customIconBase64", "customIconAssetId", store)
+    migrateWidgetIcon(json, "iconBase64", "iconAssetId", store)
+    return json.toString()
+}
+
+private fun customWidgetActionFromManagedJson(
+    context: Context,
+    raw: String?,
+): CustomWidgetButtonAction? {
+    if (raw.isNullOrBlank()) return null
+    val json = runCatching { org.json.JSONObject(raw) }.getOrNull() ?: return null
+    val store = ManagedAssetStore(context)
+    restoreWidgetIcon(json, "customIconBase64", "customIconAssetId", store)
+    restoreWidgetIcon(json, "iconBase64", "iconAssetId", store)
+    return CustomWidgetButtonAction.fromJson(json.toString())
+}
+
+private fun migrateWidgetIcon(
+    json: org.json.JSONObject,
+    inlineKey: String,
+    assetKey: String,
+    store: ManagedAssetStore,
+) {
+    val encoded = json.optString(inlineKey).takeIf { it.isNotBlank() && it != "null" } ?: return
+    val digest = java.security.MessageDigest.getInstance("SHA-256")
+        .digest(encoded.toByteArray(Charsets.UTF_8))
+        .joinToString("") { "%02x".format(it) }
+    val logicalId = "${ManagedAssetStore.WIDGET_ICON_PREFIX}$digest"
+    if (store.putBase64(logicalId, encoded)) {
+        json.remove(inlineKey)
+        json.put(assetKey, logicalId)
+    }
+}
+
+private fun restoreWidgetIcon(
+    json: org.json.JSONObject,
+    inlineKey: String,
+    assetKey: String,
+    store: ManagedAssetStore,
+) {
+    if (json.optString(inlineKey).isNotBlank()) return
+    val logicalId = json.optString(assetKey).takeIf { it.isNotBlank() } ?: return
+    store.getBase64(logicalId)?.let { json.put(inlineKey, it) }
 }
 
 fun WidgetPreferences.enforceVariantConstraints(variant: WidgetVariant): WidgetPreferences {

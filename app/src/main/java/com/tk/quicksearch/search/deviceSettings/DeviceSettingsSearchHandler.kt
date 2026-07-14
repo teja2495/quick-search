@@ -103,13 +103,19 @@ class DeviceSettingsSearchHandler(
         queryContext: SearchQueryContext,
         recentSettingScores: Map<String, Int> = getRecentSettingScores(),
         enableFuzzyMatching: Boolean = false,
-    ): List<DeviceSetting> =
-        searchSettingsInternal(
+    ): List<DeviceSetting> {
+        // Unified secondary search invokes this on its IO worker. Resolve the catalog on first
+        // relevant query rather than during generic app startup.
+        if (availableSettings.isEmpty()) {
+            availableSettings = repository.loadShortcuts()
+        }
+        return searchSettingsInternal(
             queryContext = queryContext,
             excludedIds = userPreferences.getExcludedSettingIds(),
             recentSettingScores = recentSettingScores,
             enableFuzzyMatching = enableFuzzyMatching,
         )
+    }
 
     private fun searchSettingsInternal(
         queryContext: SearchQueryContext,

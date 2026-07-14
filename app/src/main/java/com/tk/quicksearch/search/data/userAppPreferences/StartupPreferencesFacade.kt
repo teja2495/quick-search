@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.data
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.AppSuggestionTabType
@@ -18,6 +19,47 @@ class StartupPreferencesFacade(
     private val parent: UserAppPreferences,
     private val context: Context
 ) {
+    private val centralPreferences =
+        context.getSharedPreferences(
+            com.tk.quicksearch.search.data.preferences.BasePreferences.PREFS_NAME,
+            Context.MODE_PRIVATE,
+        )
+    private val snapshotPreferences =
+        context.getSharedPreferences(SNAPSHOT_PREFS_NAME, Context.MODE_PRIVATE)
+    private val snapshotListener = SharedPreferences.OnSharedPreferenceChangeListener { source, key ->
+        if (key != null && key in SNAPSHOT_KEYS) {
+            val editor = snapshotPreferences.edit()
+            putSnapshotValue(editor, key, source.all[key])
+            editor.putInt(KEY_SNAPSHOT_VERSION, SNAPSHOT_VERSION).apply()
+        }
+    }
+
+    init {
+        centralPreferences.registerOnSharedPreferenceChangeListener(snapshotListener)
+    }
+
+    private fun loadStartupPreferenceSnapshot(source: SharedPreferences): Map<String, *> {
+        if (snapshotPreferences.getInt(KEY_SNAPSHOT_VERSION, 0) == SNAPSHOT_VERSION) {
+            return snapshotPreferences.all
+        }
+        val sourceValues = source.all
+        val editor = snapshotPreferences.edit().clear()
+        SNAPSHOT_KEYS.forEach { key -> putSnapshotValue(editor, key, sourceValues[key]) }
+        editor.putInt(KEY_SNAPSHOT_VERSION, SNAPSHOT_VERSION).commit()
+        return snapshotPreferences.all
+    }
+
+    private fun putSnapshotValue(editor: SharedPreferences.Editor, key: String, value: Any?) {
+        when (value) {
+            null -> editor.remove(key)
+            is String -> editor.putString(key, value)
+            is Boolean -> editor.putBoolean(key, value)
+            is Int -> editor.putInt(key, value)
+            is Long -> editor.putLong(key, value)
+            is Float -> editor.putFloat(key, value)
+            is Set<*> -> editor.putStringSet(key, value.filterIsInstance<String>().toSet())
+        }
+    }
 
     /**
      * Data class to hold all preferences needed during app startup for performance optimization.
@@ -114,7 +156,7 @@ class StartupPreferencesFacade(
                         com.tk.quicksearch.search.data.preferences.BasePreferences.PREFS_NAME,
                         android.content.Context.MODE_PRIVATE,
                 )
-        val allPrefs = prefs.all
+        val allPrefs = loadStartupPreferenceSnapshot(prefs)
 
         // Parse values from the batch read
         val enabledFileTypesNames =
@@ -541,7 +583,7 @@ class StartupPreferencesFacade(
                         com.tk.quicksearch.search.data.preferences.BasePreferences.PREFS_NAME,
                         android.content.Context.MODE_PRIVATE,
                 )
-        val allPrefs = prefs.all
+        val allPrefs = loadStartupPreferenceSnapshot(prefs)
 
         // Get app cache metadata in separate read (different SharedPreferences file)
         val appCachePrefs =
@@ -974,6 +1016,32 @@ class StartupPreferencesFacade(
                 oneHandedMode = oneHandedMode,
                 cachedAppsLastUpdate = cachedAppsLastUpdate,
                 startupPreferences = startupPreferences,
+        )
+    }
+
+    private companion object {
+        const val SNAPSHOT_PREFS_NAME = "startup_preferences_snapshot"
+        const val KEY_SNAPSHOT_VERSION = "snapshot_version"
+        const val SNAPSHOT_VERSION = 1
+        val SNAPSHOT_KEYS = setOf(
+            "enabled_file_types", "show_folders_in_results", "file_previews_enabled",
+            "show_system_files", "show_hidden_files", "folder_whitelist_patterns",
+            "folder_blacklist_patterns", "excluded_file_extensions", "one_handed_mode",
+            "bottom_search_bar_enabled", "unified_pinned_items_enabled", "search_hints_enabled",
+            "settings_icon_enabled", "top_result_indicator_enabled", "open_keyboard_on_launch",
+            "clear_query_on_launch", "auto_close_overlay", "overlay_mode_enabled",
+            "direct_dial_enabled", "direct_dial_choice_shown", "search_engine_onboarding_seen",
+            "wallpaper_background_alpha", "wallpaper_background_alpha_light",
+            "wallpaper_blur_radius", "wallpaper_blur_radius_light", "app_theme",
+            "overlay_gradient_theme", "overlay_theme_intensity", "font_scale_multiplier",
+            "use_system_font", "background_source", "custom_image_uri", "amazon_domain",
+            "pinned_packages", "hidden_packages_suggestions", "hidden_packages_results",
+            "recent_queries_enabled", "app_suggestions_enabled", "show_all_apps_button",
+            "include_non_launchable_apps_in_search", "selected_app_suggestion_tab",
+            "enabled_app_suggestion_tabs", "show_app_labels", "app_icon_shape",
+            "launcher_app_icon", "themed_icons_enabled", "device_theme_enabled",
+            "wallpaper_accent_enabled", "icon_pack_unsupported_icon_mask_enabled",
+            "phone_app_grid_columns", "app_icon_size_step",
         )
     }
 }

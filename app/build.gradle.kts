@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.oss.licenses)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.androidx.baselineprofile)
     id("kotlin-parcelize")
 }
 
@@ -70,7 +72,13 @@ android {
     }
 }
 
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 dependencies {
+
+    baselineProfile(project(":benchmark"))
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.androidx.core.ktx)
@@ -95,7 +103,11 @@ dependencies {
     implementation(libs.libphonenumber)
     implementation(libs.reorderable)
     implementation(libs.androidx.browser)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
     testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.room.testing)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

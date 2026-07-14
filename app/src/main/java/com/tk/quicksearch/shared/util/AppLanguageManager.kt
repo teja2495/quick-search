@@ -9,7 +9,7 @@ import android.os.LocaleList
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.preferences.BootstrapPreferences
 import java.util.Locale
 
 data class AppLanguageOption(
@@ -37,7 +37,7 @@ object AppLanguageManager {
         )
 
     fun applySavedAppLanguage(context: Context) {
-        val savedLanguageTag = UserAppPreferences(context).getAppLanguageTag()
+        val savedLanguageTag = BootstrapPreferences.getAppLanguageTag(context)
         val targetLocales = savedLanguageTag.toLocaleListCompat()
         if (AppCompatDelegate.getApplicationLocales() == targetLocales) return
 
@@ -50,7 +50,7 @@ object AppLanguageManager {
     }
 
     fun wrapContext(context: Context): Context {
-        val languageTag = UserAppPreferences(context).getAppLanguageTag()
+        val languageTag = BootstrapPreferences.getAppLanguageTag(context)
         if (languageTag.isNullOrBlank()) return context
 
         val locale = Locale.forLanguageTag(languageTag)
@@ -68,7 +68,9 @@ object AppLanguageManager {
         context: Context,
         languageTag: String?,
     ) {
-        UserAppPreferences(context).setAppLanguageTag(languageTag)
+        BootstrapPreferences.setAppLanguageTag(context, languageTag)
+        // Keep the legacy value for one release so downgrade and v1 backup behavior is stable.
+        com.tk.quicksearch.search.data.UserAppPreferences(context).setAppLanguageTag(languageTag)
         AppCompatDelegate.setApplicationLocales(languageTag.toLocaleListCompat())
         context.findActivity()?.recreate()
     }
@@ -76,7 +78,7 @@ object AppLanguageManager {
     fun getSelectedLanguageTag(context: Context): String? {
         val appLocales = AppCompatDelegate.getApplicationLocales().toLanguageTags()
         return when {
-            appLocales.isBlank() -> UserAppPreferences(context).getAppLanguageTag()
+            appLocales.isBlank() -> BootstrapPreferences.getAppLanguageTag(context)
             else -> appLocales.substringBefore(',').ifBlank { null }
         }
     }

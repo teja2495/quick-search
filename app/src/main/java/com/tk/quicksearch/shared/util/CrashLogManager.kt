@@ -28,7 +28,6 @@ object CrashLogManager {
         if (isInstalled) return
 
         val appContext = context.applicationContext
-        MemoryDiagnostics.install(appContext)
         val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             if (isHandlingCrash.compareAndSet(false, true)) {

@@ -13,11 +13,57 @@ data class ResultTrigger(
 class TriggerPreferences(
     context: Context,
 ) : BasePreferences(context) {
+    private val customizationStore = SearchCustomizationStore(context)
+
+    /** Partitions every trigger category from one SharedPreferences snapshot. */
+    fun getAllTriggerWordsById(): Map<String, String> {
+        val snapshot = customizationStore.snapshot()
+        return buildMap {
+            snapshot.forEach { (key, value) ->
+                val trigger = readTriggerValue(value) ?: return@forEach
+                when {
+                    key.startsWith(BasePreferences.KEY_TRIGGER_APP_SHORTCUT_PREFIX) ->
+                        put("shortcut:${key.removePrefix(BasePreferences.KEY_TRIGGER_APP_SHORTCUT_PREFIX)}", trigger.word)
+                    key.startsWith(BasePreferences.KEY_TRIGGER_APP_PREFIX) ->
+                        put("app:${key.removePrefix(BasePreferences.KEY_TRIGGER_APP_PREFIX)}", trigger.word)
+                    key.startsWith(BasePreferences.KEY_TRIGGER_CONTACT_ACTION_PREFIX) -> {
+                        val id = key.removePrefix(BasePreferences.KEY_TRIGGER_CONTACT_ACTION_PREFIX)
+                        val separatorIndex = id.indexOf(KEY_SEPARATOR)
+                        if (separatorIndex > 0 && separatorIndex < id.lastIndex) {
+                            val contactId = id.take(separatorIndex).toLongOrNull()
+                            val action = ContactCardAction.fromSerializedString(id.drop(separatorIndex + 1))
+                            if (contactId != null && action != null) {
+                                put("contactAction:$contactId:${action.toSerializedString()}", trigger.word)
+                            }
+                        }
+                    }
+                    key.startsWith(BasePreferences.KEY_TRIGGER_CONTACT_PREFIX) ->
+                        key.removePrefix(BasePreferences.KEY_TRIGGER_CONTACT_PREFIX).toLongOrNull()?.let {
+                            put("contact:$it", trigger.word)
+                        }
+                    key.startsWith(BasePreferences.KEY_TRIGGER_FILE_PREFIX) ->
+                        put("file:${key.removePrefix(BasePreferences.KEY_TRIGGER_FILE_PREFIX)}", trigger.word)
+                    key.startsWith(BasePreferences.KEY_TRIGGER_SETTING_PREFIX) ->
+                        put("setting:${key.removePrefix(BasePreferences.KEY_TRIGGER_SETTING_PREFIX)}", trigger.word)
+                    key.startsWith(BasePreferences.KEY_TRIGGER_NOTE_PREFIX) ->
+                        key.removePrefix(BasePreferences.KEY_TRIGGER_NOTE_PREFIX).toLongOrNull()?.let {
+                            put("note:$it", trigger.word)
+                        }
+                }
+            }
+        }
+    }
+
     private fun normalizeWord(word: String): String =
         SearchTextNormalizer.normalizeForSearch(word).trim().substringBefore(' ')
 
     private fun readTrigger(key: String): ResultTrigger? {
-        val stored = prefs.getString(key, null) ?: return null
+        val stored = customizationStore.getString(key) ?: return null
+        return readTriggerValue(stored)
+    }
+
+    private fun readTriggerValue(stored: Any?): ResultTrigger? {
+        if (stored !is String) return null
         return runCatching {
             val json = JSONObject(stored)
             val word = json.optString(KEY_WORD).trim()
@@ -38,14 +84,14 @@ class TriggerPreferences(
     ) {
         val word = trigger?.word?.let(::normalizeWord).orEmpty()
         if (word.isBlank()) {
-            prefs.edit().remove(key).apply()
+            customizationStore.putString(key, null)
             return
         }
         val json =
             JSONObject()
                 .put(KEY_WORD, word)
                 .put(KEY_AFTER_SPACE, trigger?.triggerAfterSpace == true)
-        prefs.edit().putString(key, json.toString()).apply()
+        customizationStore.putString(key, json.toString())
     }
 
     fun getAllAppTriggers(): Map<String, ResultTrigger> =
@@ -93,10 +139,10 @@ class TriggerPreferences(
         prefix: String,
         excludedPrefix: String? = null,
     ): Map<String, ResultTrigger> =
-        prefs.all.mapNotNull { (key, _) ->
+        customizationStore.snapshot().mapNotNull { (key, value) ->
             if (!key.startsWith(prefix)) return@mapNotNull null
             if (excludedPrefix != null && key.startsWith(excludedPrefix)) return@mapNotNull null
-            val trigger = readTrigger(key) ?: return@mapNotNull null
+            val trigger = readTriggerValue(value) ?: return@mapNotNull null
             key.removePrefix(prefix) to trigger
         }.toMap()
 
@@ -193,10 +239,10 @@ class TriggerPreferences(
         val normalizedQuery = normalizeWord(query)
         if (normalizedQuery.isBlank()) return emptySet()
 
-        return prefs.all.mapNotNull { (key, _) ->
+        return customizationStore.snapshot().mapNotNull { (key, value) ->
             if (!key.startsWith(prefix)) return@mapNotNull null
             if (excludedPrefix != null && key.startsWith(excludedPrefix)) return@mapNotNull null
-            val trigger = readTrigger(key) ?: return@mapNotNull null
+            val trigger = readTriggerValue(value) ?: return@mapNotNull null
             if (normalizeWord(trigger.word) == normalizedQuery) {
                 parseId(key.removePrefix(prefix))
             } else {

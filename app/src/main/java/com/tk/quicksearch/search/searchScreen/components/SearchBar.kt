@@ -90,7 +90,6 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.tk.quicksearch.R
@@ -120,7 +119,6 @@ private const val LeadingIconEnterInitialScale = 0.88f
 private const val LeadingIconExitTargetScale = 0.88f
 private const val PlaceholderHintTransitionDurationMs = 700
 private const val PlaceholderHintTransitionDelayMs = 120
-private const val StartupKeyboardDelayMs = 220L
 private const val LightSearchBarShadowAmbientAlpha = 0.38f
 private const val LightSearchBarShadowSpotAlpha = 0.62f
 private val AliasMorphTextStartPadding = DesignTokens.Spacing48 + DesignTokens.SpacingXSmall
@@ -308,16 +306,12 @@ internal fun PersistentSearchBar(
         }
     }
 
-    LaunchedEffect(autoFocusOnStart, startupSurfaceReady, hasLaidOutSearchField) {
+    LaunchedEffect(autoFocusOnStart, hasLaidOutSearchField) {
         if (!autoFocusOnStart) {
             hasCompletedStartupAutoFocus = true
             return@LaunchedEffect
         }
-        if (autoFocusOnStart && startupSurfaceReady && hasLaidOutSearchField) {
-            // Let first layout and startup state restoration settle before starting IME animation.
-            withFrameNanos { }
-            delay(StartupKeyboardDelayMs)
-            withFrameNanos { }
+        if (autoFocusOnStart && hasLaidOutSearchField) {
             focusRequester.requestFocus()
             keyboardController?.show()
             hasCompletedStartupAutoFocus = true

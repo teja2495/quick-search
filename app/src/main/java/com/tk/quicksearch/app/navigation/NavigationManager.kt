@@ -127,13 +127,13 @@ fun MainContent(
     context: Context,
     userPreferences: UserAppPreferences,
     searchViewModel: SearchViewModel,
+    isFirstLaunch: Boolean,
     onFirstLaunchCompleted: () -> Unit = {},
     onSearchBackPressed: () -> Unit = {},
     navigationRequest: NavigationRequest? = null,
     onNavigationRequestHandled: () -> Unit = {},
     onFinishActivity: () -> Unit = {},
 ) {
-    val isFirstLaunch = userPreferences.isFirstLaunch()
     var currentScreen by remember {
         mutableStateOf(
             when {
