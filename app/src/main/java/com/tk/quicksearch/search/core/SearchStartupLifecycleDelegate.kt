@@ -653,6 +653,7 @@ internal class SearchStartupLifecycleDelegate(
             it.copy(
                 amazonDomain = snapshot.amazonDomain,
                 directDialEnabled = snapshot.directDialEnabled,
+                numberSearchEnabled = userPreferences.isNumberSearchEnabled(),
                 assistantLaunchVoiceModeEnabled = snapshot.assistantLaunchVoiceModeEnabled,
                 disabledAppShortcutIds = userPreferences.getDisabledAppShortcutIds(),
                 recentQueriesEnabled = prefs.searchHistoryEnabled,

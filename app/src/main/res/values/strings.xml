@@ -382,6 +382,8 @@
     <string name="settings_calls_texts_title">Calls &amp; Texts</string>
     <string name="settings_direct_dial_desc">Place calls directly without opening the dialer. </string>
     <string name="settings_direct_dial_title">Direct Dial</string>
+    <string name="settings_number_search_title">Number search</string>
+    <string name="settings_number_search_desc">Search contacts using their phone numbers.</string>
     <string name="settings_messaging_app_not_installed">%s is not installed on your device</string>
     <string name="settings_messaging_card_title">Default Messaging App</string>
     <string name="settings_messaging_option_messages">Messages</string>

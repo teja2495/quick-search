@@ -38,6 +38,9 @@ internal interface SearchViewModelManagementApi {
     fun setDirectDialEnabled(enabled: Boolean, manual: Boolean = true) =
         managementApiDelegate.setDirectDialEnabled(enabled, manual)
 
+    fun setNumberSearchEnabled(enabled: Boolean) =
+        managementApiDelegate.setNumberSearchEnabled(enabled)
+
     fun setAssistantLaunchVoiceModeEnabled(enabled: Boolean) =
         managementApiDelegate.setAssistantLaunchVoiceModeEnabled(enabled)
 
@@ -379,6 +382,11 @@ class SearchViewModelManagementApiDelegate internal constructor(
             userPreferences.setDirectDialManuallyDisabled(!enabled)
         }
         updateFeatureState { it.copy(directDialEnabled = enabled) }
+    }
+
+    fun setNumberSearchEnabled(enabled: Boolean) {
+        userPreferences.setNumberSearchEnabled(enabled)
+        updateFeatureState { it.copy(numberSearchEnabled = enabled) }
     }
 
     fun setAssistantLaunchVoiceModeEnabled(enabled: Boolean) {

@@ -189,6 +189,10 @@ class UserAppPreferences(
 
     fun setDirectDialEnabled(enabled: Boolean) = contactPreferences.setDirectDialEnabled(enabled)
 
+    fun isNumberSearchEnabled(): Boolean = contactPreferences.isNumberSearchEnabled()
+
+    fun setNumberSearchEnabled(enabled: Boolean) = contactPreferences.setNumberSearchEnabled(enabled)
+
     fun hasSeenDirectDialChoice(): Boolean = contactPreferences.hasSeenDirectDialChoice()
 
     fun setHasSeenDirectDialChoice(seen: Boolean) =

@@ -85,6 +85,7 @@ data class SettingsScreenState(
     val themedIconsEnabled: Boolean = true,
     val deviceThemeEnabled: Boolean = false,
     val directDialEnabled: Boolean,
+    val numberSearchEnabled: Boolean,
     val disabledSections: Set<SearchSection>,
     val isSearchEngineCompactMode: Boolean,
     val searchEngineCompactRowCount: Int,
@@ -252,6 +253,7 @@ data class SettingsScreenState(
                 isSignalInstalled = isSignalInstalled,
                 isGoogleMeetInstalled = isGoogleMeetInstalled,
                 directDialEnabled = directDialEnabled,
+                numberSearchEnabled = numberSearchEnabled,
             )
 }
 
@@ -308,6 +310,7 @@ data class SettingsScreenCallbacks(
     val onToggleThemedIcons: (Boolean) -> Unit,
     val onToggleDeviceTheme: (Boolean) -> Unit,
     val onToggleDirectDial: (Boolean) -> Unit,
+    val onToggleNumberSearch: (Boolean) -> Unit,
     val onToggleSection: (SearchSection, Boolean) -> Unit,
     val onToggleSearchEngineCompactMode: (Boolean) -> Unit,
     val onSetSearchEngineCompactRowCount: (Int) -> Unit,
@@ -589,6 +592,7 @@ data class AppShortcutsSettingsState(
     val isSignalInstalled: Boolean,
     val isGoogleMeetInstalled: Boolean,
     val directDialEnabled: Boolean,
+    val numberSearchEnabled: Boolean,
 )
 
 data class SearchResultsSettingsCallbacks(

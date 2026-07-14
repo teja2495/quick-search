@@ -647,6 +647,8 @@ internal fun SettingsDetailLevel2Screen(
                                 onSetCallingApp = callbacks.onSetCallingApp,
                                 directDialEnabled = state.directDialEnabled,
                                 onToggleDirectDial = callbacks.onToggleDirectDial,
+                                numberSearchEnabled = state.numberSearchEnabled,
+                                onToggleNumberSearch = callbacks.onToggleNumberSearch,
                                 hasCallPermission = PermissionHelper.checkCallPermission(context),
                                 contactsSectionEnabled = true,
                                 isWhatsAppInstalled = state.isWhatsAppInstalled,

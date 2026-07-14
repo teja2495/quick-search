@@ -130,6 +130,7 @@ internal object SearchStateExtractor {
             showTodayEvents = s.showTodayEvents,
             hasDismissedSearchHistoryTip = s.hasDismissedSearchHistoryTip,
             directDialEnabled = s.directDialEnabled,
+            numberSearchEnabled = s.numberSearchEnabled,
             shouldShowUsagePermissionBanner = s.shouldShowUsagePermissionBanner,
             showRateQuickSearchCard = s.showRateQuickSearchCard,
         )

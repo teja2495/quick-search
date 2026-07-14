@@ -86,6 +86,12 @@ class ContactPreferences(
         setBooleanPref(BasePreferences.KEY_DIRECT_DIAL_MANUALLY_DISABLED, disabled)
     }
 
+    fun isNumberSearchEnabled(): Boolean = getBooleanPref(BasePreferences.KEY_NUMBER_SEARCH_ENABLED, false)
+
+    fun setNumberSearchEnabled(enabled: Boolean) {
+        setBooleanPref(BasePreferences.KEY_NUMBER_SEARCH_ENABLED, enabled)
+    }
+
     // ============================================================================
     // Custom Contact Card Actions
     // ============================================================================

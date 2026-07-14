@@ -481,6 +481,7 @@ data class SearchUiState(
         val pendingDirectCallNumber: String? = null,
         val pendingThirdPartyCall: PendingThirdPartyCall? = null,
         val directDialEnabled: Boolean = false,
+        val numberSearchEnabled: Boolean = false,
         val assistantLaunchVoiceModeEnabled: Boolean = false,
         // File display preferences
         val enabledFileTypes: Set<com.tk.quicksearch.search.models.FileType> =
@@ -756,6 +757,7 @@ fun SearchUiState(
                 showTodayEvents = features.showTodayEvents,
                 hasDismissedSearchHistoryTip = features.hasDismissedSearchHistoryTip,
                 directDialEnabled = features.directDialEnabled,
+                numberSearchEnabled = features.numberSearchEnabled,
                 assistantLaunchVoiceModeEnabled = features.assistantLaunchVoiceModeEnabled,
                 shouldShowUsagePermissionBanner = features.shouldShowUsagePermissionBanner,
                 showRateQuickSearchCard = features.showRateQuickSearchCard,

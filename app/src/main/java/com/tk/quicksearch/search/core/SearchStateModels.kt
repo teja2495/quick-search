@@ -200,6 +200,7 @@ data class SearchFeatureState(
         val showTodayEvents: Boolean = true,
         // Direct dial
         val directDialEnabled: Boolean = false,
+        val numberSearchEnabled: Boolean = false,
         // Assistant launch voice mode
         val assistantLaunchVoiceModeEnabled: Boolean = false,
         // Usage permission banner

@@ -110,6 +110,7 @@ internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState {
         isSignalInstalled = appShortcuts.isSignalInstalled,
         isGoogleMeetInstalled = appShortcuts.isGoogleMeetInstalled,
         directDialEnabled = appShortcuts.directDialEnabled,
+        numberSearchEnabled = appShortcuts.numberSearchEnabled,
     )
 }
 
@@ -332,6 +333,7 @@ private data class AppShortcutsMapperState(
     val isSignalInstalled: Boolean,
     val isGoogleMeetInstalled: Boolean,
     val directDialEnabled: Boolean,
+    val numberSearchEnabled: Boolean,
 )
 
 private fun SearchUiState.toAppShortcutsSettingsState() =
@@ -347,4 +349,5 @@ private fun SearchUiState.toAppShortcutsSettingsState() =
         isSignalInstalled = isSignalInstalled,
         isGoogleMeetInstalled = isGoogleMeetInstalled,
         directDialEnabled = directDialEnabled,
+        numberSearchEnabled = numberSearchEnabled,
     )

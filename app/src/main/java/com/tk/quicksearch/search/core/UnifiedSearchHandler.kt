@@ -176,6 +176,12 @@ class UnifiedSearchHandler(
                         val excludedContactIds =
                                 if (canSearchContacts) userPreferences.getExcludedContactIds()
                                 else emptySet()
+                        val allowNumberSearch =
+                                canSearchContacts && userPreferences.isNumberSearchEnabled()
+                        val useFuzzyContactSearch =
+                                enableFuzzyContactSearch &&
+                                        contactFuzzyPolicy.enabled &&
+                                        !(allowNumberSearch && queryContext.normalizedQuery.any(Char::isDigit))
                         val excludedFileUris =
                                 if (canSearchFiles) userPreferences.getExcludedFileUris()
                                 else emptySet()
@@ -221,10 +227,10 @@ class UnifiedSearchHandler(
                                                                                         limit =
                                                                                                 contactResultLimit,
                                                                                         enableFuzzyMatching =
-                                                                                                enableFuzzyContactSearch &&
-                                                                                                        contactFuzzyPolicy.enabled,
+                                                                                                useFuzzyContactSearch,
                                                                                         fuzzyCandidateLimit =
                                                                                                 contactFuzzyCandidateLimit,
+                                                                                        allowNumberSearch = allowNumberSearch,
                                                                                 )
                                                                         )
                                                                 },
@@ -438,11 +444,11 @@ class UnifiedSearchHandler(
                                         contactResults + nicknameContacts,
                                         queryContext,
                                         recencyIndex.contactScores,
-                                        enableFuzzyContactSearch &&
-                                                contactFuzzyPolicy.enabled,
+                                        useFuzzyContactSearch,
                                         contactFuzzyPolicy.minimumScore,
                                         contactFuzzyPolicy.maximumEditDistance,
                                         contactResultLimit,
+                                        allowNumberSearch,
                                 )
                         val filteredFiles =
                                 filterAndRankFiles(
@@ -650,6 +656,7 @@ class UnifiedSearchHandler(
                 fuzzyMinScore: Int,
                 fuzzyMaxEditDistance: Int,
                 resultLimit: Int,
+                allowNumberSearch: Boolean,
         ): List<ContactInfo> {
                 if (contacts.isEmpty()) return emptyList()
 
@@ -671,6 +678,8 @@ class UnifiedSearchHandler(
                                                 displayName = contact.displayName,
                                                 nickname = nickname,
                                                 query = queryContext,
+                                                phoneNumbers = contact.phoneNumbers,
+                                                allowNumberSearch = allowNumberSearch,
                                         )
                                 if (!DefaultSearchMatcher.isMatch(priority)) {
                                         null

@@ -117,6 +117,8 @@ fun FinalSetupScreen(
                         onSetMessagingApp = viewModel::setMessagingApp,
                         directDialEnabled = uiState.directDialEnabled,
                         onToggleDirectDial = viewModel::setDirectDialEnabled,
+                        numberSearchEnabled = uiState.numberSearchEnabled,
+                        onToggleNumberSearch = viewModel::setNumberSearchEnabled,
                         hasCallPermission = hasCallPermission,
                         contactsSectionEnabled = true,
                         isWhatsAppInstalled = uiState.isWhatsAppInstalled,

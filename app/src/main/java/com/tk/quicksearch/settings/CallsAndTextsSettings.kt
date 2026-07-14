@@ -100,6 +100,8 @@ fun MessagingSection(
     onSetCallingApp: (CallingApp) -> Unit = {},
     directDialEnabled: Boolean,
     onToggleDirectDial: (Boolean) -> Unit,
+    numberSearchEnabled: Boolean,
+    onToggleNumberSearch: (Boolean) -> Unit,
     hasCallPermission: Boolean,
     contactsSectionEnabled: Boolean = true,
     isWhatsAppInstalled: Boolean = false,
@@ -174,6 +176,8 @@ fun MessagingSection(
             DirectDialCard(
                 directDialEnabled = directDialEnabled,
                 onToggleDirectDial = onToggleDirectDial,
+                numberSearchEnabled = numberSearchEnabled,
+                onToggleNumberSearch = onToggleNumberSearch,
                 hasCallPermission = hasCallPermission,
             )
         }
@@ -213,6 +217,8 @@ fun MessagingSection(
 private fun DirectDialCard(
     directDialEnabled: Boolean,
     onToggleDirectDial: (Boolean) -> Unit,
+    numberSearchEnabled: Boolean,
+    onToggleNumberSearch: (Boolean) -> Unit,
     hasCallPermission: Boolean,
 ) {
     val context = LocalContext.current
@@ -252,6 +258,14 @@ private fun DirectDialCard(
                 }
             },
             isFirstItem = true,
+            isLastItem = false,
+        )
+        SettingsToggleRow(
+            title = stringResource(R.string.settings_number_search_title),
+            subtitle = stringResource(R.string.settings_number_search_desc),
+            checked = numberSearchEnabled,
+            onCheckedChange = onToggleNumberSearch,
+            isFirstItem = false,
             isLastItem = true,
         )
     }
@@ -579,6 +593,8 @@ fun CallsTextsSettingsSection(
     onSetCallingApp: (CallingApp) -> Unit,
     directDialEnabled: Boolean,
     onToggleDirectDial: (Boolean) -> Unit,
+    numberSearchEnabled: Boolean,
+    onToggleNumberSearch: (Boolean) -> Unit,
     hasCallPermission: Boolean,
     contactsSectionEnabled: Boolean = true,
     isWhatsAppInstalled: Boolean = false,
@@ -713,6 +729,8 @@ fun CallsTextsSettingsSection(
         onSetCallingApp = onSetCallingApp,
         directDialEnabled = directDialEnabled,
         onToggleDirectDial = onToggleDirectDial,
+        numberSearchEnabled = numberSearchEnabled,
+        onToggleNumberSearch = onToggleNumberSearch,
         hasCallPermission = hasCallPermission,
         contactsSectionEnabled = contactsSectionEnabled,
         isWhatsAppInstalled = isWhatsAppInstalled,

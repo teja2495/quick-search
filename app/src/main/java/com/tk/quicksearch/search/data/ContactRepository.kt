@@ -198,11 +198,21 @@ class ContactRepository(
     fun searchContacts(
         query: String,
         limit: Int,
+        allowNumberSearch: Boolean = false,
     ): List<ContactInfo> {
         if (query.isBlank() || limit <= 0 || !hasPermission()) return emptyList()
 
         val normalizedProviderQuery = SearchTextNormalizer.normalizeQueryWhitespace(query)
-        val contacts = queryContactsBySearch(normalizedProviderQuery, limit)
+        val contacts =
+            if (allowNumberSearch || normalizedProviderQuery.none(Char::isDigit)) {
+                queryContactsBySearch(normalizedProviderQuery, limit)
+            } else {
+                queryContactsByNameTokenFallback(
+                    query = normalizedProviderQuery,
+                    limit = limit,
+                    existingContactIds = emptySet(),
+                )
+            }
         if (contacts.size < limit) {
             val remaining = limit - contacts.size
             val fallbackContacts =

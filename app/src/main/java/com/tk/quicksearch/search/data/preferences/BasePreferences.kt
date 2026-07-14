@@ -467,6 +467,7 @@ abstract class BasePreferences(
         const val KEY_DIRECT_DIAL_ENABLED = "direct_dial_enabled"
         const val KEY_DIRECT_DIAL_CHOICE_SHOWN = "direct_dial_choice_shown"
         const val KEY_DIRECT_DIAL_MANUALLY_DISABLED = "direct_dial_manually_disabled"
+        const val KEY_NUMBER_SEARCH_ENABLED = "number_search_enabled"
 
         // File preferences keys
         const val KEY_PINNED_FILE_URIS = "pinned_file_uris"

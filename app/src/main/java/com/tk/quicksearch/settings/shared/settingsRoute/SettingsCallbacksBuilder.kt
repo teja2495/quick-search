@@ -91,6 +91,7 @@ internal fun buildSettingsScreenCallbacks(
         onToggleThemedIcons = viewModel::setThemedIconsEnabled,
         onToggleDeviceTheme = viewModel::setDeviceThemeEnabled,
         onToggleDirectDial = handlers.onToggleDirectDial,
+        onToggleNumberSearch = viewModel::setNumberSearchEnabled,
         onToggleSection = handlers.onToggleSection,
         onToggleSearchEngineCompactMode = viewModel::setSearchEngineCompactMode,
         onSetSearchEngineCompactRowCount = viewModel::setSearchEngineCompactRowCount,
