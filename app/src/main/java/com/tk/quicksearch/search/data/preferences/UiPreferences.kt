@@ -1127,10 +1127,12 @@ class UiPreferences(
         const val KEY_APP_ICON_SIZE_STEP = "app_icon_size_step"
         const val DEFAULT_PHONE_APP_GRID_COLUMNS = 4
         const val MIN_APP_ICON_SIZE_STEP = 0
-        const val MAX_APP_ICON_SIZE_STEP = 6
-        const val DEFAULT_APP_ICON_SIZE_STEP = MAX_APP_ICON_SIZE_STEP
+        const val MAX_APP_ICON_SIZE_STEP = 10
+        // Keep the existing default icon rendering while expressing it as 80%.
+        const val DEFAULT_APP_ICON_SIZE_STEP = 6
         private const val APP_ICON_SIZE_PERCENT_DELTA = 5
-        private const val MIN_APP_ICON_SIZE_PERCENT = 70
+        private const val MIN_APP_ICON_SIZE_PERCENT = 50
+        private const val DEFAULT_APP_ICON_SIZE_PERCENT = 80
         private const val MAX_APP_ICON_SIZE_PERCENT = 100
         const val DEFAULT_TOP_MATCHES_LIMIT = 3
         val TOP_MATCHES_LIMIT_OPTIONS = listOf(1, 3, 5, 7, 10)
@@ -1243,9 +1245,12 @@ class UiPreferences(
             val normalized = step.coerceIn(MIN_APP_ICON_SIZE_STEP, MAX_APP_ICON_SIZE_STEP)
             val percent =
                     MIN_APP_ICON_SIZE_PERCENT + (normalized * APP_ICON_SIZE_PERCENT_DELTA)
-            return percent / MAX_APP_ICON_SIZE_PERCENT.toFloat()
+            return percent / DEFAULT_APP_ICON_SIZE_PERCENT.toFloat()
         }
 
-        fun appIconSizePercent(step: Int): Int = (appIconSizeScale(step) * 100).toInt()
+        fun appIconSizePercent(step: Int): Int =
+                MIN_APP_ICON_SIZE_PERCENT +
+                        (step.coerceIn(MIN_APP_ICON_SIZE_STEP, MAX_APP_ICON_SIZE_STEP) *
+                                APP_ICON_SIZE_PERCENT_DELTA)
     }
 }
