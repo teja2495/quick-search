@@ -44,6 +44,8 @@ import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.searchEngines.AliasHandler
+import com.tk.quicksearch.settings.tasker.TaskerIntegrationScreen
+import com.tk.quicksearch.tools.tasker.TaskerIntegration
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.settings.AppShortcutsSettings.AppShortcutSource
@@ -409,6 +411,14 @@ internal fun SettingsDetailLevel2Screen(
                                     },
                                 )
                             },
+                            showTaskerIntegration = remember(context) {
+                                runCatching {
+                                    context.packageManager.getPackageInfo(TaskerIntegration.PACKAGE_NAME, 0)
+                                }.isSuccess
+                            },
+                            onNavigateToTaskerIntegration = {
+                                onNavigateToDetail(SettingsDetailType.TASKER_INTEGRATION)
+                            },
                             customTools = state.customTools,
                             disabledCustomToolIds = state.disabledCustomToolIds,
                             customToolAliases = state.shortcutCodes,
@@ -429,6 +439,22 @@ internal fun SettingsDetailLevel2Screen(
                             modifier = Modifier.fillMaxWidth().weight(1f),
                     )
                 }
+            } else if (detailType == SettingsDetailType.TASKER_INTEGRATION) {
+                TaskerIntegrationScreen(
+                    tools = state.taskerIntentTools,
+                    existingAliases = state.shortcutCodes,
+                    onAdd = callbacks.onAddTaskerIntentTool,
+                    onDelete = callbacks.onDeleteTaskerIntentTool,
+                    modifier = Modifier
+                        .settingsContentWidth()
+                        .fillMaxHeight()
+                        .align(Alignment.CenterHorizontally)
+                        .padding(
+                            start = DesignTokens.ContentHorizontalPadding,
+                            end = DesignTokens.ContentHorizontalPadding,
+                            bottom = DesignTokens.SectionTopPadding,
+                        ),
+                )
             } else if (detailType == SettingsDetailType.CUSTOM_TOOL_EDITOR) {
                 val pendingToolId = remember { CustomToolNavigationMemory.consumePendingToolId() }
                 val pendingAiBackedTool = remember { CustomToolNavigationMemory.consumePendingAiBackedTool() }

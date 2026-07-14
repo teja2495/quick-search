@@ -9,6 +9,7 @@ import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.tools.aiSearch.AiSearchHandler
 import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
+import com.tk.quicksearch.searchEngines.AliasValidator.hasTriggerAliasConflict
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
 import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
@@ -23,6 +24,7 @@ class AliasHandler(
     private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit,
     private val aiSearchHandler: AiSearchHandler,
     private val searchTargetsProvider: () -> List<SearchTarget>,
+    private val isTaskerInstalled: () -> Boolean,
 ) {
     data class FeatureAliasDefinition(
         val featureId: String,
@@ -136,6 +138,7 @@ class AliasHandler(
             }
         TOOL_ALIAS_IDS.forEach(::loadToolAlias)
         loadCustomToolAliases()
+        loadTaskerIntentAliases()
 
         SEARCH_SECTION_ALIAS_IDS.forEach { sectionAliasId ->
             val aliasCode = userPreferences.getAliasCodeAllowSingleChar(sectionAliasId).orEmpty()
@@ -155,6 +158,16 @@ class AliasHandler(
         val disabledCustomTools = userPreferences.getDisabledCustomTools()
         customTools.forEach { tool ->
             if (tool.id in disabledCustomTools) return@forEach
+            val alias = userPreferences.getAliasCode(tool.id).orEmpty().trim()
+            val normalized = if (isValidGeneralAliasCode(alias)) normalizeShortcutCodeInput(alias) else ""
+            aliasCodes = aliasCodes.toMutableMap().apply { put(tool.id, normalized) }
+            aliasEnabled = aliasEnabled.toMutableMap().apply { put(tool.id, normalized.isNotEmpty()) }
+        }
+    }
+
+    private fun loadTaskerIntentAliases() {
+        if (!isTaskerInstalled()) return
+        userPreferences.getTaskerIntentTools().forEach { tool ->
             val alias = userPreferences.getAliasCode(tool.id).orEmpty().trim()
             val normalized = if (isValidGeneralAliasCode(alias)) normalizeShortcutCodeInput(alias) else ""
             aliasCodes = aliasCodes.toMutableMap().apply { put(tool.id, normalized) }
@@ -269,17 +282,7 @@ class AliasHandler(
             if (!isConflictFree) {
                 return@launch
             }
-            val normalizedAliasToken =
-                SearchTextNormalizer.normalizeForSearch(normalizedCode).trim().substringBefore(' ')
-            if (normalizedAliasToken.isBlank()) {
-                return@launch
-            }
-            val hasTriggerConflict =
-                userPreferences.getAllTriggerWordsById().values.any { triggerWord ->
-                    SearchTextNormalizer.normalizeForSearch(triggerWord).trim().substringBefore(' ') ==
-                        normalizedAliasToken
-                }
-            if (hasTriggerConflict) {
+            if (hasTriggerAliasConflict(normalizedCode, userPreferences.getAllTriggerWordsById().values)) {
                 return@launch
             }
 
@@ -354,6 +357,7 @@ class AliasHandler(
         collectLeadingFeatureAliases(aliases)
         collectLeadingSectionAliases(aliases)
         collectLeadingCustomToolAliases(aliases)
+        collectLeadingTaskerIntentAliases(aliases)
         val match = AliasParser.detectPrefixAlias(query, aliases) ?: return null
         return Pair(match.queryWithoutAlias, match.target)
     }
@@ -422,6 +426,15 @@ class AliasHandler(
     private fun collectLeadingCustomToolAliases(aliases: MutableMap<String, AliasTarget>) {
         aliasCodes.forEach { (id, alias) ->
             if (id.startsWith("custom_tool:") && alias.isNotEmpty() && aliasEnabled[id] == true) {
+                aliases[alias.lowercase(Locale.getDefault())] = AliasTarget.Feature(id)
+            }
+        }
+    }
+
+    private fun collectLeadingTaskerIntentAliases(aliases: MutableMap<String, AliasTarget>) {
+        if (!isTaskerInstalled()) return
+        aliasCodes.forEach { (id, alias) ->
+            if (id.startsWith("tasker_intent:") && alias.isNotEmpty() && aliasEnabled[id] == true) {
                 aliases[alias.lowercase(Locale.getDefault())] = AliasTarget.Feature(id)
             }
         }

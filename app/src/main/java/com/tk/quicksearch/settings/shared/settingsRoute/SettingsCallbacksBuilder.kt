@@ -132,6 +132,8 @@ internal fun buildSettingsScreenCallbacks(
             viewModel.updateCustomTool(id, name, prompt, providerId, modelId, groundingEnabled, thinkingEnabled)
         },
         onDeleteCustomTool = viewModel::deleteCustomTool,
+        onAddTaskerIntentTool = viewModel::addTaskerIntentTool,
+        onDeleteTaskerIntentTool = viewModel::deleteTaskerIntentTool,
         onToggleCustomTool = viewModel::setCustomToolEnabled,
         onToggleAppSuggestions = viewModel::setAppSuggestionsEnabled,
         onToggleWebSuggestions = viewModel::setWebSuggestionsEnabled,

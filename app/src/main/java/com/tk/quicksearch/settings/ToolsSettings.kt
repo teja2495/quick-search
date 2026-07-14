@@ -11,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Construction
+import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,12 +21,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.CustomTool
+import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.settings.shared.SettingsCardItem
 import com.tk.quicksearch.settings.shared.SettingsNavigationRow
 import com.tk.quicksearch.settings.shared.ToolToggleCardModel
 import com.tk.quicksearch.settings.shared.ToolToggleRows
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.tools.tasker.TaskerIntegration
 
 @Composable
 fun ToolsSettingsSection(
@@ -37,6 +40,8 @@ fun ToolsSettingsSection(
         onToolInfoClick: (ToolSettingId) -> Unit,
         onToolConfigureClick: (ToolSettingId) -> Unit = {},
         onNavigateToGeminiApiSetup: () -> Unit = {},
+        showTaskerIntegration: Boolean = false,
+        onNavigateToTaskerIntegration: () -> Unit = {},
         customTools: List<CustomTool> = emptyList(),
         disabledCustomToolIds: Set<String> = emptySet(),
         customToolAliases: Map<String, String> = emptyMap(),
@@ -47,6 +52,7 @@ fun ToolsSettingsSection(
         modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
+    val taskerIcon = rememberAppIcon(TaskerIntegration.PACKAGE_NAME).bitmap
 
     Column(
             modifier =
@@ -78,6 +84,23 @@ fun ToolsSettingsSection(
                                         vertical = DesignTokens.CardVerticalPadding,
                                 ),
                 )
+            }
+            if (showTaskerIntegration) {
+                SettingsCard(modifier = Modifier.fillMaxWidth()) {
+                    SettingsNavigationRow(
+                        item = SettingsCardItem(
+                            title = stringResource(R.string.tasker_integration_title),
+                            description = stringResource(R.string.tasker_integration_description),
+                            icon = Icons.Rounded.Bolt,
+                            iconBitmap = taskerIcon,
+                            actionOnPress = onNavigateToTaskerIntegration,
+                        ),
+                        contentPadding = PaddingValues(
+                            horizontal = DesignTokens.CardHorizontalPadding,
+                            vertical = DesignTokens.CardVerticalPadding,
+                        ),
+                    )
+                }
             }
             ToolToggleRows(
                     tools =

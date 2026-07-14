@@ -98,7 +98,8 @@ private const val SEARCH_HINT_ROTATION_INTERVAL_MS = 5000L
 
 private data class ToolCardConfig(
         val label: String,
-        val icon: ImageVector,
+        val icon: ImageVector? = null,
+        val appIconPackage: String? = null,
         val onClick: () -> Unit,
 )
 
@@ -137,6 +138,7 @@ internal fun SearchScreenContent(
         onDictionarySearchClick: () -> Unit = {},
         onWordClockSearchClick: () -> Unit = {},
         onCustomToolSearchClick: () -> Unit = {},
+        onTaskerIntentClick: () -> Unit = {},
         onKeyboardSwitchToggle: () -> Unit,
         onOverlayNumberKeyboardUiChanged: ((Boolean, Boolean) -> Unit)? = null,
         onOverlayExpandRequest: () -> Unit = {},
@@ -217,6 +219,7 @@ internal fun SearchScreenContent(
     val isWordClockAliasMode = state.isWordClockAliasMode
     val isDictionaryAliasMode = state.isDictionaryAliasMode
     val activeCustomTool = state.detectedCustomToolId?.let { id -> state.customTools.find { it.id == id } }
+    val activeTaskerIntent = state.detectedTaskerIntentId?.let { id -> state.taskerIntentTools.find { it.id == id } }
     val triggerWords by
             produceState<Collection<String>>(
                     initialValue = emptyList(),
@@ -369,11 +372,13 @@ internal fun SearchScreenContent(
                     state.hasApiKey &&
                     !showCalculatorResult &&
                     state.AiSearchState.status == AiSearchStatus.Idle
+    val showTaskerIntentCard = activeTaskerIntent != null
     val isToolAliasMode =
             isCurrencyConverterAliasMode ||
                     isWordClockAliasMode ||
                     isDictionaryAliasMode ||
                     activeCustomTool != null
+                    || activeTaskerIntent != null
     val shouldShowNumberKeyboardOperators =
             isImeVisible && (manuallySwitchedToNumberKeyboard || isCalculatorMode)
     val showBottomSearchBar = showSearchField && state.bottomSearchBarEnabled
@@ -538,6 +543,7 @@ internal fun SearchScreenContent(
                     state.isWordClockAliasMode ||
                     state.isDictionaryAliasMode ||
                     state.detectedCustomToolId != null
+                    || state.detectedTaskerIntentId != null
     val deferTopMatchSubmitUntilAppsReady =
             state.query.isNotBlank() &&
                     state.isAppSearchInProgress &&
@@ -652,6 +658,15 @@ internal fun SearchScreenContent(
                                     label = activeCustomTool?.name.orEmpty(),
                                     icon = Icons.Rounded.Construction,
                                     onClick = onCustomToolSearchClick,
+                            )
+                    showTaskerIntentCard ->
+                            ToolCardConfig(
+                                    label = stringResource(
+                                            R.string.tasker_intent_action,
+                                            activeTaskerIntent?.name.orEmpty(),
+                                    ),
+                                    appIconPackage = com.tk.quicksearch.tools.tasker.TaskerIntegration.PACKAGE_NAME,
+                                    onClick = onTaskerIntentClick,
                             )
                     showWordClockSearchCard ->
                             ToolCardConfig(
@@ -858,6 +873,7 @@ internal fun SearchScreenContent(
                 isWordClockAliasMode = isWordClockAliasMode,
                 isDictionaryAliasMode = isDictionaryAliasMode,
                 detectedCustomToolId = state.detectedCustomToolId,
+                detectedTaskerIntentId = state.detectedTaskerIntentId,
                 activeToolType = activeToolType,
                 isCalculatorMode = isCalculatorMode,
                 placeholderText = searchHintText,
@@ -893,6 +909,10 @@ internal fun SearchScreenContent(
                     if (showCustomToolSearchCard) {
                         onCustomToolSearchClick()
                         return@PersistentSearchBar true // keep keyboard open
+                    }
+                    if (showTaskerIntentCard) {
+                        onTaskerIntentClick()
+                        return@PersistentSearchBar true
                     }
                     if (showWordClockSearchCard) {
                         onWordClockSearchClick()
@@ -1183,6 +1203,7 @@ internal fun SearchScreenContent(
                                         iconPackPackage = state.selectedIconPackPackage,
                                         toolActionLabel = activeToolCardConfig?.label,
                                         toolActionIcon = activeToolCardConfig?.icon,
+                                        toolActionAppIconPackage = activeToolCardConfig?.appIconPackage,
                                         onToolActionClick = activeToolCardConfig?.onClick,
                                         showOnlyToolAction = showOnlyToolActionInCompactSection,
                                 )
@@ -1240,6 +1261,7 @@ internal fun SearchScreenContent(
                                             iconPackPackage = state.selectedIconPackPackage,
                                             toolActionLabel = activeToolCardConfig.label,
                                             toolActionIcon = activeToolCardConfig.icon,
+                                            toolActionAppIconPackage = activeToolCardConfig.appIconPackage,
                                             onToolActionClick = activeToolCardConfig.onClick,
                                             showOnlyToolAction = true,
                                     )

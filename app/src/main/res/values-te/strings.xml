@@ -993,4 +993,17 @@
     <string name="widget_custom_button_change_colour">రంగు మార్చండి</string>
     <string name="widget_custom_button_choose_colour">ఫోల్డర్ రంగును ఎంచుకోండి</string>
     <string name="search_engine_google_translate">గూగుల్ అనువాదం</string>
+    <string name="tasker_integration_title">Tasker చర్యలు</string>
+    <string name="tasker_integration_description">బ్రాడ్‌కాస్ట్ ఇంటెంట్‌లను ఉపయోగించి Tasker చర్యలను సృష్టించండి.</string>
+    <string name="tasker_add_intent_title">Tasker బ్రాడ్‌కాస్ట్ ఇంటెంట్‌ను జోడించండి</string>
+    <string name="tasker_add_intent_description">Tasker యాప్‌లో, అదే చర్యతో Intent Received ప్రొఫైల్‌ను సృష్టించండి. క్విక్ సెర్చ్ క్వెరీని \"query\" ఎక్స్‌ట్రాలో పంపుతుంది.</string>
+    <string name="tasker_alias_conflict">ఈ మారుపేరు (alias) ఇప్పటికే ఉపయోగంలో ఉంది</string>
+    <string name="tasker_intent_name_label">బ్రాడ్‌కాస్ట్ ఇంటెంట్ పేరు</string>
+    <string name="tasker_broadcast_action_label">బ్రాడ్‌కాస్ట్ చర్య</string>
+    <string name="tasker_add_intent_button">ఇంటెంట్‌ను జోడించండి</string>
+    <string name="tasker_saved_alias">మారుపేరు: %1$s</string>
+    <string name="tasker_delete_intent">Tasker ఇంటెంట్‌ను తొలగించండి</string>
+    <string name="tasker_intent_action">Tasker ఇంటెంట్ (%1$s)</string>
+    <string name="tasker_not_installed">Tasker ఇన్‌స్టాల్ చేయబడలేదు</string>
+    <string name="tasker_broadcast_failed">Tasker బ్రాడ్‌కాస్ట్‌ను పంపలేకపోయాము</string>
 </resources>

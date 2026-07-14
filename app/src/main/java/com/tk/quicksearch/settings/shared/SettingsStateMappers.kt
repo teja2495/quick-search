@@ -99,6 +99,7 @@ internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState {
         dictionaryEnabled = tools.dictionaryEnabled,
         customTools = tools.customTools,
         disabledCustomToolIds = tools.disabledCustomToolIds,
+        taskerIntentTools = tools.taskerIntentTools,
         allAppShortcuts = appShortcuts.allAppShortcuts,
         allDeviceSettings = appShortcuts.allDeviceSettings,
         allApps = appShortcuts.allApps,
@@ -307,6 +308,7 @@ private data class ToolsMapperState(
     val dictionaryEnabled: Boolean,
     val customTools: List<CustomTool>,
     val disabledCustomToolIds: Set<String>,
+    val taskerIntentTools: List<com.tk.quicksearch.tools.tasker.TaskerIntentTool>,
 )
 
 private fun SearchUiState.toToolsSettingsState() =
@@ -319,6 +321,7 @@ private fun SearchUiState.toToolsSettingsState() =
         dictionaryEnabled = dictionaryEnabled,
         customTools = customTools,
         disabledCustomToolIds = disabledCustomToolIds,
+        taskerIntentTools = taskerIntentTools,
     )
 
 private data class AppShortcutsMapperState(

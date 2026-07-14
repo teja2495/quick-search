@@ -993,4 +993,17 @@
     <string name="widget_custom_button_change_colour">रंग बदलें</string>
     <string name="widget_custom_button_choose_colour">फ़ोल्डर का रंग चुनें</string>
     <string name="search_engine_google_translate">Google अनुवाद</string>
+    <string name="tasker_integration_title">Tasker क्रियाएं</string>
+    <string name="tasker_integration_description">ब्रॉडकास्ट इंटेंट का उपयोग करके Tasker क्रियाएं बनाएं।</string>
+    <string name="tasker_add_intent_title">Tasker ब्रॉडकास्ट इंटेंट जोड़ें</string>
+    <string name="tasker_add_intent_description">Tasker ऐप में, उसी एक्शन के साथ Intent Received प्रोफ़ाइल बनाएं। Quick Search \"query\" एक्स्ट्रा में क्वेरी भेजता है।</string>
+    <string name="tasker_alias_conflict">यह उपनाम (alias) पहले से उपयोग में है</string>
+    <string name="tasker_intent_name_label">ब्रॉडकास्ट इंटेंट नाम</string>
+    <string name="tasker_broadcast_action_label">ब्रॉडकास्ट एक्शन</string>
+    <string name="tasker_add_intent_button">इंटेंट जोड़ें</string>
+    <string name="tasker_saved_alias">उपनाम: %1$s</string>
+    <string name="tasker_delete_intent">Tasker इंटेंट हटाएं</string>
+    <string name="tasker_intent_action">Tasker इंटेंट (%1$s)</string>
+    <string name="tasker_not_installed">Tasker इंस्टॉल नहीं है</string>
+    <string name="tasker_broadcast_failed">Tasker ब्रॉडकास्ट नहीं भेजा जा सका</string>
 </resources>

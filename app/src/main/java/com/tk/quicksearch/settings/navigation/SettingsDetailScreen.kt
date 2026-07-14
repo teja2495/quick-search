@@ -519,6 +519,7 @@ internal fun SettingsDetailLevel1Screen(
                     SettingsDetailType.UNIT_CONVERTER_INFO,
                     SettingsDetailType.DATE_CALCULATOR_INFO,
                     SettingsDetailType.CUSTOM_TOOL_EDITOR,
+                    SettingsDetailType.TASKER_INTEGRATION,
                     SettingsDetailType.NICKNAMES,
                     SettingsDetailType.TRIGGERS,
                     -> Unit

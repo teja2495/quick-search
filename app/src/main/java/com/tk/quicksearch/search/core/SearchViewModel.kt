@@ -55,6 +55,9 @@ import com.tk.quicksearch.search.webSuggestions.WebSuggestionHandler
 import com.tk.quicksearch.searchEngines.SearchEngineManager
 import com.tk.quicksearch.searchEngines.SecondarySearchOrchestrator
 import com.tk.quicksearch.searchEngines.AliasHandler
+import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
+import com.tk.quicksearch.searchEngines.AliasValidator.hasTriggerAliasConflict
+import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.util.cachedDefaultHomeAppStatus
 import com.tk.quicksearch.shared.util.isLowRamDevice
@@ -65,8 +68,11 @@ import com.tk.quicksearch.tools.calculator.CalculatorHandler
 import com.tk.quicksearch.tools.dateCalculator.DateCalculatorHandler
 import com.tk.quicksearch.tools.aiSearch.AiSearchHandler
 import com.tk.quicksearch.tools.unitConverter.UnitConverterHandler
+import com.tk.quicksearch.tools.tasker.TaskerIntegration
+import com.tk.quicksearch.tools.tasker.TaskerIntentTool
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.ReentrantLock
+import java.util.UUID
 import kotlin.concurrent.withLock
 import kotlin.jvm.JvmName
 import kotlinx.coroutines.Dispatchers
@@ -309,7 +315,7 @@ class SearchViewModel(
     private val handlers: SearchHandlerContainer by lazy { SearchHandlerContainer(application = application, appContext = appContext, userPreferences = userPreferences, scope = viewModelScope, repository = repository, contactRepository = contactRepository, fileRepository = fileRepository, calendarRepository = calendarRepository, customCalendarEventRepository = customCalendarEventRepository, notesRepository = notesRepository, appShortcutRepository = appShortcutRepository, settingsShortcutRepository = settingsShortcutRepository, appSettingsRepository = appSettingsRepository, permissionManager = permissionManager, searchOperations = searchOperations, startupDispatcher = startupDispatcher, updateUiState = this::updateUiState, updateConfigState = this::updateConfigState, refreshSecondarySearches = this::refreshSecondarySearches, refreshAppShortcutsState = this::refreshAppShortcutsState, refreshAppSuggestions = this::refreshAppSuggestions, refreshDerivedState = this::refreshDerivedState, showToast = this::showToast, currentStateProvider = { uiState.value }, isLowRamDevice = isLowRamDevice(appContext)) }
     private val startupCoordinator by lazy { SearchStartupCoordinator(scope = viewModelScope, hasStartedStartupPhases = hasStartedStartupPhases, updateStartupPhase = { phase -> updateConfigState { it.copy(startupPhase = phase) } }, shouldReserveKeyboardStartupWindow = { openKeyboardOnLaunch }, loadCacheAndMinimalPrefsBlock = this::loadCacheAndMinimalPrefs, loadRemainingStartupPreferencesBlock = this::loadRemainingStartupPreferences, launchDeferredInitializationBlock = this::launchDeferredInitialization) }
     private val toolCoordinator by lazy { SearchToolCoordinator(appContext = appContext, scope = viewModelScope, workerDispatcher = Dispatchers.Default, userPreferences = userPreferences, calculatorHandler = handlers.calculatorHandler, unitConverterHandler = handlers.unitConverterHandler, dateCalculatorHandler = handlers.dateCalculatorHandler, currencyConverterHandler = handlers.currencyConverterHandler, wordClockHandler = handlers.wordClockHandler, dictionaryHandler = handlers.dictionaryHandler, toolAliasStateProvider = { ToolAliasState(lockedToolMode = lockedToolMode, lockedCurrencyConverterAlias = lockedCurrencyConverterAlias, lockedWordClockAlias = lockedWordClockAlias, lockedDictionaryAlias = lockedDictionaryAlias, lockedCustomToolId = lockedCustomToolId) }, hasApiKeyProvider = { _featureState.value.hasApiKey }, currentQueryProvider = { _resultsState.value.query }, clearInformationCardsExcept = this::clearInformationCardsExcept, updateResultsState = this::updateResultsState, showToast = this::showToast) }
-    private val queryCoordinator by lazy { SearchQueryCoordinator(scope = viewModelScope, workerDispatcher = Dispatchers.Default, handlers = handlers, toolCoordinator = toolCoordinator, userPreferences = userPreferences, appSearchDebounceMs = APP_SEARCH_DEBOUNCE_MS, aliasStateProvider = { SearchQueryAliasState(lockedShortcutTarget = lockedShortcutTarget, lockedAliasSearchSection = lockedAliasSearchSection, lockedToolMode = lockedToolMode, lockedCurrencyConverterAlias = lockedCurrencyConverterAlias, lockedWordClockAlias = lockedWordClockAlias, lockedDictionaryAlias = lockedDictionaryAlias, lockedCustomToolId = lockedCustomToolId) }, updateAliasState = { state -> lockedShortcutTarget = state.lockedShortcutTarget; lockedAliasSearchSection = state.lockedAliasSearchSection; lockedToolMode = state.lockedToolMode; lockedCurrencyConverterAlias = state.lockedCurrencyConverterAlias; lockedWordClockAlias = state.lockedWordClockAlias; lockedDictionaryAlias = state.lockedDictionaryAlias; lockedCustomToolId = state.lockedCustomToolId }, currentResultsStateProvider = { _resultsState.value }, updateUiState = this::updateUiState, updateResultsState = this::updateResultsState, clearInformationCardsExcept = this::clearInformationCardsExcept, getSearchableAppsSnapshot = this::getSearchableAppsSnapshot, getGridItemCount = this::getGridItemCount, loadAppShortcuts = this::loadAppShortcuts, refreshRecentItems = this::refreshRecentItems, refreshAliasRecentItems = this::refreshAliasRecentItems) }
+    private val queryCoordinator by lazy { SearchQueryCoordinator(scope = viewModelScope, workerDispatcher = Dispatchers.Default, handlers = handlers, toolCoordinator = toolCoordinator, userPreferences = userPreferences, appSearchDebounceMs = APP_SEARCH_DEBOUNCE_MS, aliasStateProvider = { SearchQueryAliasState(lockedShortcutTarget = lockedShortcutTarget, lockedAliasSearchSection = lockedAliasSearchSection, lockedToolMode = lockedToolMode, lockedCurrencyConverterAlias = lockedCurrencyConverterAlias, lockedWordClockAlias = lockedWordClockAlias, lockedDictionaryAlias = lockedDictionaryAlias, lockedCustomToolId = lockedCustomToolId, lockedTaskerIntentId = lockedTaskerIntentId) }, updateAliasState = { state -> lockedShortcutTarget = state.lockedShortcutTarget; lockedAliasSearchSection = state.lockedAliasSearchSection; lockedToolMode = state.lockedToolMode; lockedCurrencyConverterAlias = state.lockedCurrencyConverterAlias; lockedWordClockAlias = state.lockedWordClockAlias; lockedDictionaryAlias = state.lockedDictionaryAlias; lockedCustomToolId = state.lockedCustomToolId; lockedTaskerIntentId = state.lockedTaskerIntentId }, currentResultsStateProvider = { _resultsState.value }, updateUiState = this::updateUiState, updateResultsState = this::updateResultsState, clearInformationCardsExcept = this::clearInformationCardsExcept, getSearchableAppsSnapshot = this::getSearchableAppsSnapshot, getGridItemCount = this::getGridItemCount, loadAppShortcuts = this::loadAppShortcuts, refreshRecentItems = this::refreshRecentItems, refreshAliasRecentItems = this::refreshAliasRecentItems) }
     private val visibilityStateResolver by lazy { SearchVisibilityStateResolver() }
     private val appSuggestionSelector by lazy { AppSuggestionSelector(repository, userPreferences) }
     private val historyDelegate by lazy { SearchHistoryDelegate(scope = viewModelScope, userPreferences = userPreferences, contactRepository = contactRepository, fileRepository = fileRepository, settingsSearchHandler = handlers.settingsSearchHandler, appShortcutSearchHandler = handlers.appShortcutSearchHandler, appSettingsSearchHandler = handlers.appSettingsSearchHandler, calendarRepository = calendarRepository, notesRepository = notesRepository, featureStateProvider = { _featureState.value }, currentQueryProvider = { uiState.value.query }, updateResultsState = this::updateResultsState, updateUiState = this::updateUiState) }
@@ -421,6 +427,7 @@ class SearchViewModel(
     private var lockedWordClockAlias by legacyPreferenceState::lockedWordClockAlias
     private var lockedDictionaryAlias by legacyPreferenceState::lockedDictionaryAlias
     private var lockedCustomToolId by legacyPreferenceState::lockedCustomToolId
+    private var lockedTaskerIntentId by legacyPreferenceState::lockedTaskerIntentId
     private var clearQueryOnLaunch by legacyPreferenceState::clearQueryOnLaunch
     @set:JvmName("setAmazonDomainLegacy")
     private var amazonDomain by legacyPreferenceState::amazonDomain
@@ -579,6 +586,79 @@ class SearchViewModel(
             groundingEnabled = tool.groundingEnabled,
             thinkingEnabled = tool.thinkingEnabled,
         )
+    }
+    fun executeTaskerIntent() {
+        val toolId = lockedTaskerIntentId ?: return
+        val tool = _featureState.value.taskerIntentTools.find { it.id == toolId } ?: return
+        val query = _resultsState.value.query.trim()
+        if (query.isBlank()) return
+        val isInstalled = runCatching {
+            appContext.packageManager.getPackageInfo(TaskerIntegration.PACKAGE_NAME, 0)
+        }.isSuccess
+        if (!isInstalled) {
+            showToast(appContext.getString(R.string.tasker_not_installed))
+            return
+        }
+        runCatching {
+            appContext.sendBroadcast(
+                Intent(tool.broadcastAction).apply {
+                    setPackage(TaskerIntegration.PACKAGE_NAME)
+                    putExtra(TaskerIntegration.QUERY_EXTRA, query)
+                    putExtra(TaskerIntegration.SOURCE_EXTRA, TaskerIntegration.SOURCE_VALUE)
+                },
+            )
+        }.onSuccess {
+            clearQuery()
+        }.onFailure {
+            showToast(appContext.getString(R.string.tasker_broadcast_failed))
+        }
+    }
+
+    fun addTaskerIntentTool(alias: String, name: String, broadcastAction: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val normalizedAlias = normalizeShortcutCodeInput(alias)
+            val existingAliases = handlers.aliasHandler.reloadFromPreferences().shortcutCodes
+            if (
+                hasExactAliasConflict(normalizedAlias, existingAliases) ||
+                    hasTriggerAliasConflict(
+                        normalizedAlias,
+                        userPreferences.getAllTriggerWordsById().values,
+                    )
+            ) {
+                showToast(R.string.tasker_alias_conflict)
+                return@launch
+            }
+            val id = TaskerIntegration.TOOL_ID_PREFIX + UUID.randomUUID()
+            val tool = TaskerIntentTool(id, name.trim(), broadcastAction.trim())
+            val updated = userPreferences.getTaskerIntentTools() + tool
+            userPreferences.setTaskerIntentTools(updated)
+            userPreferences.setAliasCode(id, normalizedAlias)
+            val aliases = handlers.aliasHandler.reloadFromPreferences()
+            updateFeatureState {
+                it.copy(
+                    taskerIntentTools = updated,
+                    shortcutCodes = aliases.shortcutCodes,
+                    shortcutEnabled = aliases.shortcutEnabled,
+                )
+            }
+        }
+    }
+
+    fun deleteTaskerIntentTool(id: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val updated = userPreferences.getTaskerIntentTools().filterNot { it.id == id }
+            userPreferences.setTaskerIntentTools(updated)
+            userPreferences.clearAliasCode(id)
+            val aliases = handlers.aliasHandler.reloadFromPreferences()
+            updateFeatureState {
+                it.copy(
+                    taskerIntentTools = updated,
+                    shortcutCodes = aliases.shortcutCodes,
+                    shortcutEnabled = aliases.shortcutEnabled,
+                )
+            }
+            if (lockedTaskerIntentId == id) clearQuery()
+        }
     }
     fun activateSearchSectionFilter(section: SearchSection) =
             queryCoordinator.activateSearchSectionFilter(section)

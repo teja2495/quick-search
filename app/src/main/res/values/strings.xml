@@ -985,4 +985,17 @@
     <string name="settings_triggers_desc">View and manage trigger words you have set</string>
     <string name="settings_triggers_empty">You have no triggers set.</string>
     <string name="settings_triggers_title">Triggers</string>
+    <string name="tasker_integration_title">Tasker Actions</string>
+    <string name="tasker_integration_description">Create Tasker actions using broadcast intents.</string>
+    <string name="tasker_add_intent_title">Add Tasker Broadcast Intent</string>
+    <string name="tasker_add_intent_description">In Tasker app, create an Intent Received profile with the same action. Quick Search sends the query in the \"query\" extra.</string>
+    <string name="tasker_alias_conflict">This alias is already in use</string>
+    <string name="tasker_intent_name_label">Broadcast Intent Name</string>
+    <string name="tasker_broadcast_action_label">Broadcast Action</string>
+    <string name="tasker_add_intent_button">Add Intent</string>
+    <string name="tasker_saved_alias">Alias: %1$s</string>
+    <string name="tasker_delete_intent">Delete Tasker intent</string>
+    <string name="tasker_intent_action">Tasker Intent (%1$s)</string>
+    <string name="tasker_not_installed">Tasker is not installed</string>
+    <string name="tasker_broadcast_failed">Could not send the Tasker broadcast</string>
 </resources>

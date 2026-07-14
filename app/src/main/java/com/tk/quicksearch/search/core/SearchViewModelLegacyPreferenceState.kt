@@ -51,6 +51,7 @@ internal class SearchViewModelLegacyPreferenceState(
     var lockedWordClockAlias: Boolean = false
     var lockedDictionaryAlias: Boolean = false
     var lockedCustomToolId: String? = null
+    var lockedTaskerIntentId: String? = null
     var clearQueryOnLaunch: Boolean = clearQueryOnLaunch
     var amazonDomain: String? = null
 

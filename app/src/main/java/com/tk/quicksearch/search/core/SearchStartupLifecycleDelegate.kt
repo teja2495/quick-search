@@ -378,6 +378,7 @@ internal class SearchStartupLifecycleDelegate(
                     dictionaryEnabled = userPreferences.isDictionaryEnabled(),
                     customTools = customTools,
                     disabledCustomToolIds = userPreferences.getDisabledCustomTools(),
+                    taskerIntentTools = userPreferences.getTaskerIntentTools(),
                     // Unknown is intentionally optimistic for migrated installs. Encrypted
                     // preferences are reconciled in the long-idle/on-demand AI tier below.
                     hasApiKey = userPreferences.getConfiguredAiProviderHint() ?: true,
@@ -781,6 +782,7 @@ internal class SearchStartupLifecycleDelegate(
                         dictionaryEnabled = userPreferences.isDictionaryEnabled(),
                         customTools = customTools,
                         disabledCustomToolIds = userPreferences.getDisabledCustomTools(),
+                        taskerIntentTools = userPreferences.getTaskerIntentTools(),
                         hasApiKey = hasApiKey,
                         geminiApiKeyLast4 = geminiApiKey?.takeLast(4),
                         llmApiKeyLast4ByProvider = userPreferences.getLlmApiKeyLast4ByProvider(),

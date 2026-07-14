@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items as rowItems
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -54,6 +55,7 @@ import com.tk.quicksearch.searchEngines.compact.SearchEngineCard
 import com.tk.quicksearch.searchEngines.extendToScreenEdges
 import com.tk.quicksearch.searchEngines.shared.SearchTargetConstants
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
+import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.shared.util.isLandscape
 import com.tk.quicksearch.shared.util.isTablet
 import com.tk.quicksearch.shared.ui.theme.AppColors
@@ -131,6 +133,7 @@ fun SearchEngineIconsSection(
     iconPackPackage: String? = null,
     toolActionLabel: String? = null,
     toolActionIcon: ImageVector? = null,
+    toolActionAppIconPackage: String? = null,
     onToolActionClick: (() -> Unit)? = null,
     showOnlyToolAction: Boolean = false,
 ) {
@@ -202,6 +205,7 @@ fun SearchEngineIconsSection(
                         CompactToolActionContent(
                             label = toolActionLabel!!,
                             icon = toolActionIcon,
+                            appIconPackage = toolActionAppIconPackage,
                             onClick = onToolActionClick!!,
                             addTopPadding = true,
                         )
@@ -233,6 +237,7 @@ fun SearchEngineIconsSection(
                         CompactToolActionContent(
                             label = toolActionLabel ?: return@AnimatedVisibility,
                             icon = toolActionIcon,
+                            appIconPackage = toolActionAppIconPackage,
                             onClick = onToolActionClick ?: return@AnimatedVisibility,
                             addTopPadding = false,
                         )
@@ -296,10 +301,12 @@ private fun SearchEngineContent(
 private fun CompactToolActionContent(
     label: String,
     icon: ImageVector?,
+    appIconPackage: String?,
     onClick: () -> Unit,
     addTopPadding: Boolean,
 ) {
     val view = LocalView.current
+    val appIconResult = if (appIconPackage != null) rememberAppIcon(appIconPackage) else null
     Row(
         modifier =
             Modifier
@@ -341,7 +348,14 @@ private fun CompactToolActionContent(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (icon != null) {
+                if (appIconResult?.bitmap != null) {
+                    Image(
+                        bitmap = appIconResult.bitmap,
+                        contentDescription = null,
+                        modifier = Modifier.size(SearchEngineSectionConstants.ICON_SIZE),
+                    )
+                    Spacer(modifier = Modifier.width(SearchEngineSectionConstants.TOOL_ICON_TEXT_SPACING))
+                } else if (icon != null) {
                     Icon(
                         imageVector = icon,
                         contentDescription = null,

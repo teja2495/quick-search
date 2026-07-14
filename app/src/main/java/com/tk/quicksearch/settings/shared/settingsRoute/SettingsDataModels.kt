@@ -23,6 +23,7 @@ import com.tk.quicksearch.settings.AppShortcutsSettings.AppShortcutSource
 import com.tk.quicksearch.settings.settingsDetailScreen.AiBackedToolConfigId
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.tools.aiSearch.GeminiTextModel
+import com.tk.quicksearch.tools.tasker.TaskerIntentTool
 
 /**
  * Data class to hold all settings screen state and callbacks. Reduces parameter count and improves
@@ -100,6 +101,7 @@ data class SettingsScreenState(
     val dictionaryEnabled: Boolean,
     val customTools: List<CustomTool> = emptyList(),
     val disabledCustomToolIds: Set<String> = emptySet(),
+    val taskerIntentTools: List<TaskerIntentTool> = emptyList(),
     val appSuggestionsEnabled: Boolean,
     val enabledAppSuggestionTabs: Set<AppSuggestionTabType> = AppSuggestionTabType.DefaultEnabledTabs,
     val webSuggestionsEnabled: Boolean,
@@ -237,6 +239,7 @@ data class SettingsScreenState(
                 dictionaryEnabled = dictionaryEnabled,
                 customTools = customTools,
                 disabledCustomToolIds = disabledCustomToolIds,
+                taskerIntentTools = taskerIntentTools,
             )
 
     val appShortcuts: AppShortcutsSettingsState
@@ -333,6 +336,8 @@ data class SettingsScreenCallbacks(
     val onAddCustomTool: (name: String, prompt: String, providerId: AiSearchLlmProviderId, modelId: String, groundingEnabled: Boolean, aliasCode: String, thinkingEnabled: Boolean) -> Unit,
     val onUpdateCustomTool: (id: String, name: String, prompt: String, providerId: AiSearchLlmProviderId, modelId: String, groundingEnabled: Boolean, thinkingEnabled: Boolean) -> Unit,
     val onDeleteCustomTool: (String) -> Unit,
+    val onAddTaskerIntentTool: (String, String, String) -> Unit,
+    val onDeleteTaskerIntentTool: (String) -> Unit,
     val onToggleCustomTool: (String, Boolean) -> Unit,
     val onToggleAppSuggestions: (Boolean) -> Unit,
     val onToggleWebSuggestions: (Boolean) -> Unit,
@@ -578,6 +583,7 @@ data class ToolsSettingsState(
     val dictionaryEnabled: Boolean,
     val customTools: List<CustomTool> = emptyList(),
     val disabledCustomToolIds: Set<String> = emptySet(),
+    val taskerIntentTools: List<TaskerIntentTool> = emptyList(),
 )
 
 data class AppShortcutsSettingsState(

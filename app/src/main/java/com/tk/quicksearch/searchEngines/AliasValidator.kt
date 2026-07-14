@@ -1,5 +1,6 @@
 package com.tk.quicksearch.searchEngines
 
+import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import java.util.Locale
 
 /**
@@ -37,6 +38,21 @@ object AliasValidator {
         return existingAliases.values.any { existingAlias ->
             val normalizedExisting = normalizeShortcutCodeInput(existingAlias)
             normalizedExisting.isNotEmpty() && normalizedExisting == normalizedNew
+        }
+    }
+
+    /** Returns true when an alias would use the same leading token as an existing trigger. */
+    fun hasTriggerAliasConflict(
+        newAlias: String,
+        triggerWords: Collection<String>,
+    ): Boolean {
+        val normalizedAliasToken =
+            SearchTextNormalizer.normalizeForSearch(newAlias).trim().substringBefore(' ')
+        if (normalizedAliasToken.isBlank()) return false
+
+        return triggerWords.any { triggerWord ->
+            SearchTextNormalizer.normalizeForSearch(triggerWord).trim().substringBefore(' ') ==
+                normalizedAliasToken
         }
     }
 }

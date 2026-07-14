@@ -993,4 +993,17 @@
     <string name="widget_custom_button_change_colour">Αλλαγή χρώματος</string>
     <string name="widget_custom_button_choose_colour">Επιλογή χρώματος φακέλου</string>
     <string name="search_engine_google_translate">Μετάφραση Google</string>
+    <string name="tasker_integration_title">Ενέργειες Tasker</string>
+    <string name="tasker_integration_description">Δημιουργήστε ενέργειες Tasker χρησιμοποιώντας broadcast intents.</string>
+    <string name="tasker_add_intent_title">Προσθήκη Intent Εκπομπής Tasker</string>
+    <string name="tasker_add_intent_description">Στην εφαρμογή Tasker, δημιουργήστε ένα προφίλ Intent Received με την ίδια ενέργεια. Το Quick Search στέλνει το ερώτημα στο extra \"query\".</string>
+    <string name="tasker_alias_conflict">Αυτό το ψευδώνυμο χρησιμοποιείται ήδη</string>
+    <string name="tasker_intent_name_label">Όνομα Intent Εκπομπής</string>
+    <string name="tasker_broadcast_action_label">Ενέργεια Εκπομπής</string>
+    <string name="tasker_add_intent_button">Προσθήκη Intent</string>
+    <string name="tasker_saved_alias">Ψευδώνυμο: %1$s</string>
+    <string name="tasker_delete_intent">Διαγραφή intent Tasker</string>
+    <string name="tasker_intent_action">Intent Tasker (%1$s)</string>
+    <string name="tasker_not_installed">Το Tasker δεν είναι εγκατεστημένο</string>
+    <string name="tasker_broadcast_failed">Αδυναμία αποστολής της εκπομπής Tasker</string>
 </resources>

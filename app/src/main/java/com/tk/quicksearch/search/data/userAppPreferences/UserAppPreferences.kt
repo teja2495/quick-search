@@ -19,6 +19,7 @@ import com.tk.quicksearch.shared.util.isPhysicalKeyboardConnected
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.tools.aiSearch.CustomLlmProviderConfig
 import com.tk.quicksearch.tools.aiSearch.OpenAiModelCatalog
+import com.tk.quicksearch.tools.tasker.TaskerIntentTool
 
 /**
  * Stores user-driven overrides for the app grid such as hidden or pinned apps. Manages preferences
@@ -45,6 +46,7 @@ class UserAppPreferences(
     private val appShortcutPreferences by lazy { AppShortcutPreferences(context) }
     private val nicknamePreferences by lazy { NicknamePreferences(context) }
     private val triggerPreferences by lazy { TriggerPreferences(context) }
+    private val taskerIntentPreferences by lazy { TaskerIntentPreferences(context) }
     private val searchEnginePreferences by lazy { SearchEnginePreferences(context) }
     private val aliasPreferences by lazy { AliasPreferences(context) }
     private val geminiPreferences by lazy { GeminiPreferences(context) }
@@ -627,6 +629,10 @@ class UserAppPreferences(
 
     fun setDisabledCustomTools(disabled: Set<String>) =
             searchEnginePreferences.setDisabledCustomTools(disabled)
+
+    fun getTaskerIntentTools(): List<TaskerIntentTool> = taskerIntentPreferences.getTools()
+
+    fun setTaskerIntentTools(tools: List<TaskerIntentTool>) = taskerIntentPreferences.setTools(tools)
 
     // ============================================================================
     // Alias Preferences

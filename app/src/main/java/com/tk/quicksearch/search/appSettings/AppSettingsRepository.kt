@@ -8,6 +8,7 @@ import com.tk.quicksearch.search.core.SearchSectionRegistry
 import com.tk.quicksearch.search.data.preferences.RATE_QUICK_SEARCH_ENABLED
 import com.tk.quicksearch.search.utils.SearchQueryContext
 import com.tk.quicksearch.shared.util.isTablet
+import com.tk.quicksearch.tools.tasker.TaskerIntegration
 
 private val WHITESPACE_REGEX = "\\s+".toRegex()
 
@@ -72,6 +73,15 @@ class AppSettingsRepository(
                 destination = AppSettingsDestination.TOOLS,
                 keywords = listOf("calculator", "date", "time", "unit converter", "currency converter", "conversion", "alias"),
             )
+            if (isTaskerInstalled()) {
+                addNavigation(
+                    id = "app_settings_tasker_integration",
+                    titleRes = R.string.tasker_integration_title,
+                    descriptionRes = R.string.tasker_integration_description,
+                    destination = AppSettingsDestination.TASKER_INTEGRATION,
+                    keywords = listOf("tasker", "broadcast", "intent", "automation", "action", "alias"),
+                )
+            }
             addNavigation(
                 id = "app_settings_launch_options",
                 titleRes = R.string.settings_launch_options_title,
@@ -510,6 +520,11 @@ class AppSettingsRepository(
             ),
         )
     }
+
+    private fun isTaskerInstalled(): Boolean =
+        runCatching {
+            context.packageManager.getPackageInfo(TaskerIntegration.PACKAGE_NAME, 0)
+        }.isSuccess
 
     private fun MutableList<AppSettingResult>.addToggle(
         id: String,

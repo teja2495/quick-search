@@ -992,4 +992,17 @@
     <string name="widget_custom_button_change_colour">Cambia colore</string>
     <string name="widget_custom_button_choose_colour">Scegli il colore della cartella</string>
     <string name="search_engine_google_translate">Google Traduttore</string>
+    <string name="tasker_integration_title">Azioni Tasker</string>
+    <string name="tasker_integration_description">Crea azioni Tasker utilizzando intent broadcast.</string>
+    <string name="tasker_add_intent_title">Aggiungi intent broadcast Tasker</string>
+    <string name="tasker_add_intent_description">Nell\'app Tasker, crea un profil Intent Received con la stessa azione. Quick Search invia la query nell\'extra \"query\".</string>
+    <string name="tasker_alias_conflict">Questo alias è già in uso</string>
+    <string name="tasker_intent_name_label">Nome intent broadcast</string>
+    <string name="tasker_broadcast_action_label">Azione broadcast</string>
+    <string name="tasker_add_intent_button">Aggiungi intent</string>
+    <string name="tasker_saved_alias">Alias: %1$s</string>
+    <string name="tasker_delete_intent">Elimina intent Tasker</string>
+    <string name="tasker_intent_action">Intent Tasker (%1$s)</string>
+    <string name="tasker_not_installed">Tasker non è installato</string>
+    <string name="tasker_broadcast_failed">Impossibile inviare il broadcast di Tasker</string>
 </resources>

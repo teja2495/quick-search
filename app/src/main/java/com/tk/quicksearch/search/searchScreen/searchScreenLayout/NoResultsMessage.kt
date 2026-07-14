@@ -39,6 +39,7 @@ internal fun computeShouldShowNoResults(state: SearchUiState): Boolean {
         !state.isWordClockAliasMode &&
         !state.isDictionaryAliasMode &&
         state.detectedCustomToolId == null &&
+        state.detectedTaskerIntentId == null &&
         (
             !state.webSuggestionsEnabled ||
                 (queryLength >= 2 && state.webSuggestions.isEmpty())

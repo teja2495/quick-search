@@ -772,6 +772,7 @@ fun SearchRoute(
             onDictionarySearchClick = viewModel::executeDictionaryLookup,
             onWordClockSearchClick = viewModel::executeWordClockLookup,
             onCustomToolSearchClick = viewModel::executeCustomToolSearch,
+            onTaskerIntentClick = viewModel::executeTaskerIntent,
             onOpenToolsSettings = onOpenToolsSettings,
             onOpenCustomToolSettings = onOpenCustomToolSettings,
             onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,

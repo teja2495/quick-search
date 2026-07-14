@@ -194,6 +194,7 @@ fun SearchScreen(
     onDictionarySearchClick: () -> Unit = {},
     onWordClockSearchClick: () -> Unit = {},
     onCustomToolSearchClick: () -> Unit = {},
+    onTaskerIntentClick: () -> Unit = {},
     onCustomAction: (ContactInfo, ContactCardAction) -> Unit,
     onContactActionTrigger: (Long, ContactCardAction) -> Unit = { _, _ -> },
     getPrimaryContactCardAction: (Long) -> ContactCardAction?,
@@ -502,6 +503,7 @@ fun SearchScreen(
             onDictionarySearchClick = onDictionarySearchClick,
             onWordClockSearchClick = onWordClockSearchClick,
             onCustomToolSearchClick = onCustomToolSearchClick,
+            onTaskerIntentClick = onTaskerIntentClick,
             onKeyboardSwitchToggle = {
                 stateResult.setManuallySwitchedToNumberKeyboard(!stateResult.manuallySwitchedToNumberKeyboard)
             },

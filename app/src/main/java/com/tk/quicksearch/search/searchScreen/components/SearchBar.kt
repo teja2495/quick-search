@@ -157,6 +157,7 @@ internal fun PersistentSearchBar(
     isWordClockAliasMode: Boolean = false,
     isDictionaryAliasMode: Boolean = false,
     detectedCustomToolId: String? = null,
+    detectedTaskerIntentId: String? = null,
     activeToolType: SearchToolType? = null,
     isCalculatorMode: Boolean = false,
     placeholderText: String,
@@ -197,6 +198,7 @@ internal fun PersistentSearchBar(
             isWordClockAliasMode ||
             isDictionaryAliasMode ||
             detectedCustomToolId != null
+            || detectedTaskerIntentId != null
     val aliasVisualTransformation =
         rememberAliasHighlightVisualTransformation(
             enabledTargets = enabledTargets,
@@ -545,6 +547,7 @@ internal fun PersistentSearchBar(
                                     isWordClockAliasMode ||
                                     isDictionaryAliasMode ||
                                     detectedCustomToolId != null ||
+                                    detectedTaskerIntentId != null ||
                                     activeToolType != null ||
                                     isCalculatorMode) -> {
                                 onClearDetectedShortcut()

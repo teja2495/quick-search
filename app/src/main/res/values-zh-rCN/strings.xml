@@ -993,4 +993,17 @@
     <string name="widget_custom_button_change_colour">更改颜色</string>
     <string name="widget_custom_button_choose_colour">选择文件夹颜色</string>
     <string name="search_engine_google_translate">谷歌翻译</string>
+    <string name="tasker_integration_title">Tasker 操作</string>
+    <string name="tasker_integration_description">使用广播 Intent 创建 Tasker 操作。</string>
+    <string name="tasker_add_intent_title">添加 Tasker 广播 Intent</string>
+    <string name="tasker_add_intent_description">在 Tasker 应用中，创建一个具有相同 Action 的 Intent Received 配置文件。Quick Search 会在 \"query\" extra 中发送查询。</string>
+    <string name="tasker_alias_conflict">此别名已在使用中</string>
+    <string name="tasker_intent_name_label">广播 Intent 名称</string>
+    <string name="tasker_broadcast_action_label">广播 Action</string>
+    <string name="tasker_add_intent_button">添加 Intent</string>
+    <string name="tasker_saved_alias">别名：%1$s</string>
+    <string name="tasker_delete_intent">删除 Tasker Intent</string>
+    <string name="tasker_intent_action">Tasker Intent (%1$s)</string>
+    <string name="tasker_not_installed">未安装 Tasker</string>
+    <string name="tasker_broadcast_failed">无法发送 Tasker 广播</string>
 </resources>

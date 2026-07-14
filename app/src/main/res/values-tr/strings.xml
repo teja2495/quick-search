@@ -992,4 +992,17 @@
     <string name="widget_custom_button_change_colour">Rengi değiştir</string>
     <string name="widget_custom_button_choose_colour">Klasör rengini seç</string>
     <string name="search_engine_google_translate">Google Çeviri</string>
+    <string name="tasker_integration_title">Tasker Eylemleri</string>
+    <string name="tasker_integration_description">Yayın intent\'leri (broadcast intents) kullanarak Tasker eylemleri oluşturun.</string>
+    <string name="tasker_add_intent_title">Tasker Yayın Intent\'i Ekle</string>
+    <string name="tasker_add_intent_description">Tasker uygulamasında, aynı eyleme sahip bir Intent Received profili oluşturun. Quick Search, sorguyu \"query\" ekinde (extra) gönderir.</string>
+    <string name="tasker_alias_conflict">Bu takma ad zaten kullanımda</string>
+    <string name="tasker_intent_name_label">Yayın Intent Adı</string>
+    <string name="tasker_broadcast_action_label">Yayın Eylemi</string>
+    <string name="tasker_add_intent_button">Intent Ekle</string>
+    <string name="tasker_saved_alias">Takma Ad: %1$s</string>
+    <string name="tasker_delete_intent">Tasker intent\'ini sil</string>
+    <string name="tasker_intent_action">Tasker Intent\'i (%1$s)</string>
+    <string name="tasker_not_installed">Tasker yüklü değil</string>
+    <string name="tasker_broadcast_failed">Tasker yayını gönderilemedi</string>
 </resources>

@@ -16,6 +16,7 @@ import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.tools.aiSearch.GeminiModelCatalog
 import com.tk.quicksearch.tools.aiSearch.GeminiTextModel
+import com.tk.quicksearch.tools.tasker.TaskerIntentTool
 
 // IconPackInfo moved here to avoid circular imports
 data class IconPackInfo(
@@ -560,6 +561,7 @@ data class SearchUiState(
         val dictionaryEnabled: Boolean = true,
         val customTools: List<CustomTool> = emptyList(),
         val disabledCustomToolIds: Set<String> = emptySet(),
+        val taskerIntentTools: List<TaskerIntentTool> = emptyList(),
         val AiSearchState: AiSearchState = AiSearchState(),
         // Gemini
         val hasApiKey: Boolean = false,
@@ -593,6 +595,7 @@ data class SearchUiState(
         val isWordClockAliasMode: Boolean = false,
         val isDictionaryAliasMode: Boolean = false,
         val detectedCustomToolId: String? = null,
+        val detectedTaskerIntentId: String? = null,
         val webSuggestionWasSelected: Boolean = false,
         // Onboarding / hints
         val showSearchEngineOnboarding: Boolean = false,
@@ -694,6 +697,7 @@ fun SearchUiState(
                 isWordClockAliasMode = results.isWordClockAliasMode,
                 isDictionaryAliasMode = results.isDictionaryAliasMode,
                 detectedCustomToolId = results.detectedCustomToolId,
+                detectedTaskerIntentId = results.detectedTaskerIntentId,
                 recentItems = results.recentItems,
                 aliasRecentItems = results.aliasRecentItems,
                 recentResultRecencyIndex = results.recentResultRecencyIndex,
@@ -749,6 +753,7 @@ fun SearchUiState(
                 dictionaryEnabled = features.dictionaryEnabled,
                 customTools = features.customTools,
                 disabledCustomToolIds = features.disabledCustomToolIds,
+                taskerIntentTools = features.taskerIntentTools,
                 recentQueriesEnabled = features.recentQueriesEnabled,
                 topMatchesEnabled = features.topMatchesEnabled,
                 topMatchesLimit = features.topMatchesLimit,

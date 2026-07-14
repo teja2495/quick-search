@@ -1009,4 +1009,17 @@
     <string name="widget_custom_button_change_colour">Изменить цвет</string>
     <string name="widget_custom_button_choose_colour">Выбрать цвет папки</string>
     <string name="search_engine_google_translate">Google Переводчик</string>
+    <string name="tasker_integration_title">Действия Tasker</string>
+    <string name="tasker_integration_description">Создавайте действия Tasker с помощью широковещательных интентов (broadcast intents).</string>
+    <string name="tasker_add_intent_title">Добавить интент Tasker</string>
+    <string name="tasker_add_intent_description">В приложении Tasker создайте профиль Intent Received с таким же действием. Quick Search отправляет запрос в параметре \"query\".</string>
+    <string name="tasker_alias_conflict">Этот псевдоним уже используется</string>
+    <string name="tasker_intent_name_label">Имя интента</string>
+    <string name="tasker_broadcast_action_label">Действие трансляции (Broadcast Action)</string>
+    <string name="tasker_add_intent_button">Добавить интент</string>
+    <string name="tasker_saved_alias">Псевдоним: %1$s</string>
+    <string name="tasker_delete_intent">Удалить интент Tasker</string>
+    <string name="tasker_intent_action">Интент Tasker (%1$s)</string>
+    <string name="tasker_not_installed">Приложение Tasker не установлено</string>
+    <string name="tasker_broadcast_failed">Не удалось отправить трансляцию Tasker</string>
 </resources>

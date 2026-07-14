@@ -995,4 +995,17 @@
     <string name="widget_custom_button_change_colour">تغيير اللون</string>
     <string name="widget_custom_button_choose_colour">اختيار لون المجلد</string>
     <string name="search_engine_google_translate">ترجمة Google</string>
+    <string name="tasker_integration_title">إجراءات Tasker</string>
+    <string name="tasker_integration_description">إنشاء إجراءات Tasker باستخدام نوايا البث (broadcast intents).</string>
+    <string name="tasker_add_intent_title">إضافة نية بث لـ Tasker</string>
+    <string name="tasker_add_intent_description">في تطبيق Tasker، أنشئ ملفًا شخصيًا من نوع Intent Received بنفس الإجراء. يرسل Quick Search الاستعلام في حقل الملحق \"query\".</string>
+    <string name="tasker_alias_conflict">هذا الاسم المستعار مستخدم بالفعل</string>
+    <string name="tasker_intent_name_label">اسم نية البث</string>
+    <string name="tasker_broadcast_action_label">إجراء البث</string>
+    <string name="tasker_add_intent_button">إضافة نية</string>
+    <string name="tasker_saved_alias">الاسم المستعار: %1$s</string>
+    <string name="tasker_delete_intent">حذف نية Tasker</string>
+    <string name="tasker_intent_action">نية Tasker (%1$s)</string>
+    <string name="tasker_not_installed">Tasker غير مثبت</string>
+    <string name="tasker_broadcast_failed">تعذر إرسال بث Tasker</string>
 </resources>

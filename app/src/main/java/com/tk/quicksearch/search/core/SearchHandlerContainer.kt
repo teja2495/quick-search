@@ -40,6 +40,7 @@ import com.tk.quicksearch.tools.calculator.CalculatorHandler
 import com.tk.quicksearch.tools.dateCalculator.DateCalculatorHandler
 import com.tk.quicksearch.tools.aiSearch.AiSearchHandler
 import com.tk.quicksearch.tools.unitConverter.UnitConverterHandler
+import com.tk.quicksearch.tools.tasker.TaskerIntegration
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 
@@ -247,6 +248,11 @@ internal class SearchHandlerContainer(
             uiStateUpdater = updateUiState,
             aiSearchHandler = aiSearchHandler,
             searchTargetsProvider = { searchEngineManager.searchTargetsOrder },
+            isTaskerInstalled = {
+                runCatching {
+                    appContext.packageManager.getPackageInfo(TaskerIntegration.PACKAGE_NAME, 0)
+                }.isSuccess
+            },
         )
     }
 
