@@ -987,4 +987,10 @@
     <string name="settings_triggers_desc">आपके सेट किए गए ट्रिगर शब्द देखें और प्रबंधित करें</string>
     <string name="settings_triggers_empty">आपने कोई ट्रिगर सेट नहीं किया है।</string>
     <string name="settings_triggers_title">ट्रिगर्स</string>
+
+    <string name="settings_number_search_title">नंबर खोज</string>
+    <string name="settings_number_search_desc">फ़ोन नंबरों का उपयोग करके संपर्कों को खोजें।</string>
+    <string name="widget_custom_button_change_colour">रंग बदलें</string>
+    <string name="widget_custom_button_choose_colour">फ़ोल्डर का रंग चुनें</string>
+    <string name="search_engine_google_translate">Google अनुवाद</string>
 </resources>

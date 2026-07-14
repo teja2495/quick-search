@@ -140,6 +140,7 @@ sealed class CustomWidgetButtonAction : Parcelable {
         val isDirectory: Boolean,
         val relativePath: String?,
         val volumeName: String?,
+        val folderIconColorArgb: Int? = null,
         override val customIconBase64: String? = null,
     ) : CustomWidgetButtonAction() {
         @IgnoredOnParcel
@@ -168,6 +169,7 @@ sealed class CustomWidgetButtonAction : Parcelable {
                 .put(KEY_IS_DIRECTORY, isDirectory)
                 .put(KEY_RELATIVE_PATH, relativePath)
                 .put(KEY_VOLUME_NAME, volumeName)
+                .put(KEY_FOLDER_ICON_COLOR_ARGB, folderIconColorArgb)
                 .put(KEY_CUSTOM_ICON_BASE64, customIconBase64)
                 .toString()
     }
@@ -353,6 +355,10 @@ sealed class CustomWidgetButtonAction : Parcelable {
                             isDirectory = json.optBoolean(KEY_IS_DIRECTORY, false),
                             relativePath = json.optString(KEY_RELATIVE_PATH).nullIfBlankOrLiteralNull(),
                             volumeName = json.optString(KEY_VOLUME_NAME).nullIfBlankOrLiteralNull(),
+                            folderIconColorArgb =
+                                json
+                                    .takeIf { it.has(KEY_FOLDER_ICON_COLOR_ARGB) }
+                                    ?.optInt(KEY_FOLDER_ICON_COLOR_ARGB),
                         )
                     }
 
@@ -430,6 +436,8 @@ sealed class CustomWidgetButtonAction : Parcelable {
 
 private const val KEY_TYPE = "type"
 private const val KEY_CUSTOM_ICON_BASE64 = "customIconBase64"
+private const val KEY_FOLDER_ICON_COLOR_ARGB = "folderIconColorArgb"
+private const val LEGACY_FOLDER_ICON_COLOR_ARGB = 0xFF4F8F74.toInt()
 private const val KEY_PACKAGE_NAME = "packageName"
 private const val KEY_APP_NAME = "appName"
 private const val KEY_APP_LABEL = "appLabel"
@@ -658,4 +666,18 @@ internal fun CustomWidgetButtonAction.withCustomIcon(iconBase64: String?): Custo
         is CustomWidgetButtonAction.Setting -> copy(customIconBase64 = iconBase64)
         is CustomWidgetButtonAction.AppShortcut -> copy(customIconBase64 = iconBase64)
         is CustomWidgetButtonAction.Note -> copy(customIconBase64 = iconBase64)
+    }
+
+/** Returns a copy of a folder action with its built-in folder icon tint set to [colorArgb]. */
+internal fun CustomWidgetButtonAction.File.withFolderIconColor(
+    colorArgb: Int,
+): CustomWidgetButtonAction.File = copy(folderIconColorArgb = colorArgb)
+
+/**
+ * Returns a displayable folder tint, preserving a visible fallback for the initial release's
+ * zero-alpha colour values.
+ */
+internal fun CustomWidgetButtonAction.File.resolvedFolderIconColorArgb(): Int? =
+    folderIconColorArgb?.let { colorArgb ->
+        if ((colorArgb ushr 24) == 0) LEGACY_FOLDER_ICON_COLOR_ARGB else colorArgb
     }

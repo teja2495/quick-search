@@ -987,4 +987,10 @@
     <string name="settings_triggers_desc">查看并管理您设置的触发词</string>
     <string name="settings_triggers_empty">您当前未绑定设置过任何触发词。</string>
     <string name="settings_triggers_title">别名触发词</string>
+
+    <string name="settings_number_search_title">号码搜索</string>
+    <string name="settings_number_search_desc">使用电话号码搜索联系人。</string>
+    <string name="widget_custom_button_change_colour">更改颜色</string>
+    <string name="widget_custom_button_choose_colour">选择文件夹颜色</string>
+    <string name="search_engine_google_translate">谷歌翻译</string>
 </resources>

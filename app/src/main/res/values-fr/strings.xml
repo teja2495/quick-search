@@ -987,4 +987,10 @@
 <string name="settings_triggers_desc">Afficher et gérer les mots déclencheurs que vous avez définis</string>
 <string name="settings_triggers_empty">Vous n\'avez défini aucun déclencheur.</string>
 <string name="settings_triggers_title">Déclencheurs</string>
+
+    <string name="settings_number_search_title">Recherche par numéro</string>
+    <string name="settings_number_search_desc">Rechercher des contacts à l\'aide de leurs numéros de téléphone.</string>
+    <string name="widget_custom_button_change_colour">Changer la couleur</string>
+    <string name="widget_custom_button_choose_colour">Choisir la couleur du dossier</string>
+    <string name="search_engine_google_translate">Google Traduction</string>
 </resources>

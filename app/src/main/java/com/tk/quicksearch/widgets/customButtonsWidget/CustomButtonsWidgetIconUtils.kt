@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
+import androidx.core.content.ContextCompat
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.R
@@ -71,9 +72,18 @@ fun rememberWidgetButtonIcon(
         }
 
         is CustomWidgetButtonAction.File -> {
+            val folderIconColorArgb = action.resolvedFolderIconColorArgb()
             val customFileIconResId = customWidgetFileIconRes(action)
             if (customFileIconResId != null) {
                 WidgetButtonIcon(drawableResId = customFileIconResId, shouldTint = false)
+            } else if (action.isDirectory && folderIconColorArgb != null) {
+                loadTintedFolderBitmap(
+                    context = context,
+                    iconSizePx = iconSizePx,
+                    color = Color(folderIconColorArgb),
+                )?.let { bitmap ->
+                    WidgetButtonIcon(bitmap = bitmap, shouldTint = false)
+                } ?: WidgetButtonIcon(drawableResId = R.drawable.ic_widget_folder, shouldTint = true)
             } else {
                 val drawableResId =
                     if (action.isDirectory) {
@@ -94,6 +104,18 @@ fun rememberWidgetButtonIcon(
             WidgetButtonIcon(drawableResId = R.drawable.ic_widget_note, shouldTint = true)
         }
     }
+}
+
+private fun loadTintedFolderBitmap(
+    context: Context,
+    iconSizePx: Int,
+    color: Color,
+): Bitmap? {
+    val size = iconSizePx.coerceAtLeast(1)
+    return ContextCompat.getDrawable(context, R.drawable.ic_widget_folder)
+        ?.mutate()
+        ?.apply { setTint(color.toArgb()) }
+        ?.toBitmap(width = size, height = size)
 }
 
 private fun loadAppIconBitmap(

@@ -987,4 +987,10 @@
     <string name="settings_triggers_desc">మీరు సెట్ చేసిన ట్రిగ్గర్ పదాలను వీక్షించండి మరియు నిర్వహించండి</string>
     <string name="settings_triggers_empty">ట్రిగ్గర్‌లు ఏవీ సెట్ చేయబడలేదు.</string>
     <string name="settings_triggers_title">ట్రిగ్గర్‌లు</string>
+
+    <string name="settings_number_search_title">నెంబర్ శోధన</string>
+    <string name="settings_number_search_desc">ఫోన్ నెంబర్లను ఉపయోగించి కాంటాక్ట్‌లను శోధించండి.</string>
+    <string name="widget_custom_button_change_colour">రంగు మార్చండి</string>
+    <string name="widget_custom_button_choose_colour">ఫోల్డర్ రంగును ఎంచుకోండి</string>
+    <string name="search_engine_google_translate">గూగుల్ అనువాదం</string>
 </resources>

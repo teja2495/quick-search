@@ -127,6 +127,7 @@ fun CustomWidgetButtonIcon(
         }
 
         is CustomWidgetButtonAction.File -> {
+            val folderIconColorArgb = action.resolvedFolderIconColorArgb()
             val customIconRes = customWidgetFileIconRes(action)
             if (customIconRes != null) {
                 Icon(
@@ -139,7 +140,12 @@ fun CustomWidgetButtonIcon(
                 Icon(
                     imageVector = widgetFileIconVector(action),
                     contentDescription = action.contentDescription(),
-                    tint = tintColor,
+                    tint =
+                        if (action.isDirectory && folderIconColorArgb != null) {
+                            Color(folderIconColorArgb)
+                        } else {
+                            tintColor
+                        },
                     modifier = modifier.size(iconSize),
                 )
             }

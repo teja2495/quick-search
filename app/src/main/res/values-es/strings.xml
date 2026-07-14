@@ -987,4 +987,10 @@
     <string name="settings_triggers_desc">Ver y gestionar las palabras de activación que has configurado</string>
     <string name="settings_triggers_empty">No has configurado ningún activador.</string>
     <string name="settings_triggers_title">Activadores</string>
+
+    <string name="settings_number_search_title">Búsqueda por número</string>
+    <string name="settings_number_search_desc">Busca contactos usando sus números de teléfono.</string>
+    <string name="widget_custom_button_change_colour">Cambiar color</string>
+    <string name="widget_custom_button_choose_colour">Elegir color de la carpeta</string>
+    <string name="search_engine_google_translate">Traductor de Google</string>
 </resources>

@@ -28,11 +28,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Image
+import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Search
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
@@ -87,6 +89,7 @@ import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.NoteInfo
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
@@ -99,6 +102,16 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
+
+private val FolderIconColours =
+    listOf(
+        Color(0xFF4F8F74),
+        Color(0xFF3E83B5),
+        Color(0xFF8C6CBA),
+        Color(0xFFC67A48),
+        Color(0xFFB95F70),
+        Color(0xFF9A8641),
+    )
 
 @Composable
 fun CustomWidgetButtonsSection(
@@ -113,6 +126,7 @@ fun CustomWidgetButtonsSection(
     val scope = rememberCoroutineScope()
     var activeSlotIndex by remember { mutableStateOf<Int?>(null) }
     var iconEditSlotIndex by rememberSaveable { mutableStateOf<Int?>(null) }
+    var folderColourEditSlotIndex by rememberSaveable { mutableStateOf<Int?>(null) }
 
     val pickIconLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
@@ -176,7 +190,26 @@ fun CustomWidgetButtonsSection(
                 iconEditSlotIndex = index
                 pickIconLauncher.launch(arrayOf("image/*"))
             },
+            onChangeColour = { index -> folderColourEditSlotIndex = index },
         )
+    }
+
+    folderColourEditSlotIndex?.let { slotIndex ->
+        val folderAction = state.customButtons.normalizedSlots(maxButtons).getOrNull(slotIndex)
+        if (folderAction is CustomWidgetButtonAction.File && folderAction.isDirectory) {
+            FolderIconColourDialog(
+                selectedColour = folderAction.resolvedFolderIconColorArgb(),
+                onDismiss = { folderColourEditSlotIndex = null },
+                onColourSelected = { colour ->
+                    val updatedButtons = state.customButtons.normalizedSlots(maxButtons).toMutableList()
+                    updatedButtons[slotIndex] = folderAction.withFolderIconColor(colour.toArgb())
+                    onStateChange(state.copy(customButtons = updatedButtons))
+                    folderColourEditSlotIndex = null
+                },
+            )
+        } else {
+            folderColourEditSlotIndex = null
+        }
     }
 
     val slotIndex = activeSlotIndex
@@ -208,6 +241,7 @@ private fun CustomButtonsRow(
     onReorder: (List<CustomWidgetButtonAction?>) -> Unit,
     onReset: (Int) -> Unit,
     onChangeIcon: (Int) -> Unit,
+    onChangeColour: (Int) -> Unit,
 ) {
     val view = LocalView.current
     var draggingIndex by remember { mutableStateOf<Int?>(null) }
@@ -282,6 +316,25 @@ private fun CustomButtonsRow(
                                         onChangeIcon(index)
                                     },
                                 )
+                                if (action is CustomWidgetButtonAction.File && action.isDirectory) {
+                                    DropdownMenuItem(
+                                        text = {
+                                            Text(
+                                                text = stringResource(R.string.widget_custom_button_change_colour),
+                                            )
+                                        },
+                                        leadingIcon = {
+                                            Icon(
+                                                imageVector = Icons.Rounded.Palette,
+                                                contentDescription = null,
+                                            )
+                                        },
+                                        onClick = {
+                                            showMenu = false
+                                            onChangeColour(index)
+                                        },
+                                    )
+                                }
                                 DropdownMenuItem(
                                     text = { Text(text = stringResource(R.string.action_remove)) },
                                     leadingIcon = {
@@ -406,6 +459,25 @@ private fun CustomButtonsRow(
                                 onChangeIcon(index)
                             },
                         )
+                        if (action is CustomWidgetButtonAction.File && action.isDirectory) {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = stringResource(R.string.widget_custom_button_change_colour),
+                                    )
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Palette,
+                                        contentDescription = null,
+                                    )
+                                },
+                                onClick = {
+                                    showMenu = false
+                                    onChangeColour(index)
+                                },
+                            )
+                        }
                         DropdownMenuItem(
                             text = { Text(text = stringResource(R.string.action_remove)) },
                             leadingIcon = {
@@ -421,6 +493,51 @@ private fun CustomButtonsRow(
             }
         }
     }
+}
+
+@Composable
+private fun FolderIconColourDialog(
+    selectedColour: Int?,
+    onDismiss: () -> Unit,
+    onColourSelected: (Color) -> Unit,
+) {
+    AppAlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = stringResource(R.string.widget_custom_button_choose_colour)) },
+        text = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                FolderIconColours.forEach { colour ->
+                    val isSelected = selectedColour == colour.toArgb()
+                    Surface(
+                        onClick = { onColourSelected(colour) },
+                        modifier = Modifier.size(40.dp),
+                        shape = CircleShape,
+                        color = colour,
+                        border =
+                            if (isSelected) {
+                                BorderStroke(3.dp, MaterialTheme.colorScheme.onSurface)
+                            } else {
+                                null
+                            },
+                    ) {
+                        if (isSelected) {
+                            Icon(
+                                imageVector = Icons.Rounded.Check,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.padding(8.dp),
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+    )
 }
 
 @Composable

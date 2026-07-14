@@ -987,4 +987,10 @@
     <string name="settings_triggers_desc">Ver e gerenciar as palavras de ativação que você definiu</string>
     <string name="settings_triggers_empty">Você não tem ativadores definidos.</string>
     <string name="settings_triggers_title">Ativadores (Triggers)</string>
+
+    <string name="settings_number_search_title">Pesquisa por número</string>
+    <string name="settings_number_search_desc">Pesquisar contatos usando seus números de telefone.</string>
+    <string name="widget_custom_button_change_colour">Alterar cor</string>
+    <string name="widget_custom_button_choose_colour">Escolher cor da pasta</string>
+    <string name="search_engine_google_translate">Google Tradutor</string>
 </resources>
