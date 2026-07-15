@@ -80,9 +80,10 @@ class CustomOpenAiCompatibleLlmProvider(
             useSystemInstruction = request.useSystemInstruction,
             systemInstruction = request.systemInstruction,
             advancedPayloadJson =
-                providerConfig
-                    .advancedPayload
-                    ?.takeIf { providerConfig.advancedPayloadEnabled },
+                request.advancedPayloadJson
+                    ?: providerConfig
+                        .advancedPayload
+                        ?.takeIf { providerConfig.advancedPayloadEnabled },
         )
     }
 }

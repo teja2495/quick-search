@@ -75,6 +75,8 @@ data class CustomTool(
         val providerId: AiSearchLlmProviderId = AiSearchLlmProviderId.GEMINI,
         val groundingEnabled: Boolean = false,
         val thinkingEnabled: Boolean = false,
+        val advancedPayload: String? = null,
+        val advancedPayloadEnabled: Boolean = false,
 )
 
 sealed class SearchTarget {

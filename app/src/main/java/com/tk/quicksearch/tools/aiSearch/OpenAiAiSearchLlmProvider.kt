@@ -27,6 +27,7 @@ object OpenAiAiSearchLlmProvider : AiSearchLlmProvider {
             useGroundingWithGoogleSearch = request.useGroundingWithGoogleSearch,
             useSystemInstruction = request.useSystemInstruction,
             systemInstruction = request.systemInstruction,
+            advancedPayloadJson = request.advancedPayloadJson,
         )
     }
 }

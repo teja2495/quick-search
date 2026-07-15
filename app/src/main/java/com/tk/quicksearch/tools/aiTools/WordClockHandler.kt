@@ -78,6 +78,7 @@ class WordClockHandler(
                 }
         val groundingEnabled = userPreferences.isWordClockGroundingEnabled()
         val thinkingEnabled = userPreferences.isWordClockThinkingEnabled()
+        val advancedPayload = userPreferences.getWordClockAdvancedPayload()
         val currentTimeGmt = gmtTimeFormatter.format(Instant.now())
         val userMessage =
                 "Resolve this request into local clock time and date: ${confirmed.timeExpression}. " +
@@ -98,6 +99,7 @@ class WordClockHandler(
                                         useSystemInstruction = true,
                                         systemInstruction = WORD_CLOCK_SYSTEM_INSTRUCTION,
                                         responseMimeType = "application/json",
+                                        advancedPayloadJson = advancedPayload.second.takeIf { advancedPayload.first },
                                 ),
                 )
         return result.mapCatching { text ->

@@ -888,6 +888,12 @@ class UiPreferences(
         setBooleanPref(UiPreferences.KEY_CURRENCY_CONVERTER_THINKING_ENABLED, enabled)
     }
 
+    fun getCurrencyConverterAdvancedPayload(): Pair<Boolean, String> =
+        getAdvancedPayload(UiPreferences.KEY_CURRENCY_CONVERTER_ADVANCED_PAYLOAD, UiPreferences.KEY_CURRENCY_CONVERTER_ADVANCED_PAYLOAD_ENABLED)
+
+    fun setCurrencyConverterAdvancedPayload(payload: String?, enabled: Boolean) =
+        setAdvancedPayload(UiPreferences.KEY_CURRENCY_CONVERTER_ADVANCED_PAYLOAD, UiPreferences.KEY_CURRENCY_CONVERTER_ADVANCED_PAYLOAD_ENABLED, payload, enabled)
+
     fun getWordClockModel(): String =
         prefs.getString(UiPreferences.KEY_WORD_CLOCK_MODEL, null).orEmpty().ifBlank {
             getCurrencyConverterModel()
@@ -922,6 +928,12 @@ class UiPreferences(
         setBooleanPref(UiPreferences.KEY_WORD_CLOCK_THINKING_ENABLED, enabled)
     }
 
+    fun getWordClockAdvancedPayload(): Pair<Boolean, String> =
+        getAdvancedPayload(UiPreferences.KEY_WORD_CLOCK_ADVANCED_PAYLOAD, UiPreferences.KEY_WORD_CLOCK_ADVANCED_PAYLOAD_ENABLED)
+
+    fun setWordClockAdvancedPayload(payload: String?, enabled: Boolean) =
+        setAdvancedPayload(UiPreferences.KEY_WORD_CLOCK_ADVANCED_PAYLOAD, UiPreferences.KEY_WORD_CLOCK_ADVANCED_PAYLOAD_ENABLED, payload, enabled)
+
     fun getDictionaryModel(): String =
         prefs.getString(UiPreferences.KEY_DICTIONARY_MODEL, null).orEmpty().ifBlank {
             getCurrencyConverterModel()
@@ -947,6 +959,20 @@ class UiPreferences(
 
     fun setDictionaryGroundingEnabled(enabled: Boolean) {
         setBooleanPref(UiPreferences.KEY_DICTIONARY_GROUNDING_ENABLED, enabled)
+    }
+
+    fun getDictionaryAdvancedPayload(): Pair<Boolean, String> =
+        getAdvancedPayload(UiPreferences.KEY_DICTIONARY_ADVANCED_PAYLOAD, UiPreferences.KEY_DICTIONARY_ADVANCED_PAYLOAD_ENABLED)
+
+    fun setDictionaryAdvancedPayload(payload: String?, enabled: Boolean) =
+        setAdvancedPayload(UiPreferences.KEY_DICTIONARY_ADVANCED_PAYLOAD, UiPreferences.KEY_DICTIONARY_ADVANCED_PAYLOAD_ENABLED, payload, enabled)
+
+    private fun getAdvancedPayload(payloadKey: String, enabledKey: String): Pair<Boolean, String> =
+        getBooleanPref(enabledKey, false) to prefs.getString(payloadKey, "").orEmpty()
+
+    private fun setAdvancedPayload(payloadKey: String, enabledKey: String, payload: String?, enabled: Boolean) {
+        val normalized = payload?.trim().orEmpty()
+        prefs.edit().putString(payloadKey, normalized).putBoolean(enabledKey, enabled && normalized.isNotEmpty()).apply()
     }
 
     fun isDictionaryThinkingEnabled(): Boolean =
@@ -1213,6 +1239,12 @@ class UiPreferences(
         const val KEY_CURRENCY_CONVERTER_MODEL = "currency_converter_model"
         const val KEY_WORD_CLOCK_MODEL = "word_clock_model"
         const val KEY_DICTIONARY_MODEL = "dictionary_model"
+        const val KEY_CURRENCY_CONVERTER_ADVANCED_PAYLOAD = "currency_converter_advanced_payload"
+        const val KEY_CURRENCY_CONVERTER_ADVANCED_PAYLOAD_ENABLED = "currency_converter_advanced_payload_enabled"
+        const val KEY_WORD_CLOCK_ADVANCED_PAYLOAD = "word_clock_advanced_payload"
+        const val KEY_WORD_CLOCK_ADVANCED_PAYLOAD_ENABLED = "word_clock_advanced_payload_enabled"
+        const val KEY_DICTIONARY_ADVANCED_PAYLOAD = "dictionary_advanced_payload"
+        const val KEY_DICTIONARY_ADVANCED_PAYLOAD_ENABLED = "dictionary_advanced_payload_enabled"
         const val KEY_CURRENCY_CONVERTER_PROVIDER_ID = "currency_converter_provider_id"
         const val KEY_WORD_CLOCK_PROVIDER_ID = "word_clock_provider_id"
         const val KEY_DICTIONARY_PROVIDER_ID = "dictionary_provider_id"

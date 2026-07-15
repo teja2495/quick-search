@@ -967,6 +967,8 @@ internal class SearchPreferencesDelegate(
         modelId: String,
         groundingEnabled: Boolean,
         thinkingEnabled: Boolean,
+        advancedPayload: String?,
+        advancedPayloadEnabled: Boolean,
     ) {
         scope.launch(Dispatchers.IO) {
             val normalizedModelId = modelId.trim()
@@ -977,18 +979,21 @@ internal class SearchPreferencesDelegate(
                     userPreferences.setCurrencyConverterModel(normalizedModelId)
                     userPreferences.setCurrencyConverterGroundingEnabled(groundingEnabled)
                     userPreferences.setCurrencyConverterThinkingEnabled(thinkingEnabled)
+                    userPreferences.setCurrencyConverterAdvancedPayload(advancedPayload, advancedPayloadEnabled)
                 }
                 AiBackedToolConfigId.WORD_CLOCK -> {
                     userPreferences.setWordClockProviderId(providerId)
                     userPreferences.setWordClockModel(normalizedModelId)
                     userPreferences.setWordClockGroundingEnabled(groundingEnabled)
                     userPreferences.setWordClockThinkingEnabled(thinkingEnabled)
+                    userPreferences.setWordClockAdvancedPayload(advancedPayload, advancedPayloadEnabled)
                 }
                 AiBackedToolConfigId.DICTIONARY -> {
                     userPreferences.setDictionaryProviderId(providerId)
                     userPreferences.setDictionaryModel(normalizedModelId)
                     userPreferences.setDictionaryGroundingEnabled(groundingEnabled)
                     userPreferences.setDictionaryThinkingEnabled(thinkingEnabled)
+                    userPreferences.setDictionaryAdvancedPayload(advancedPayload, advancedPayloadEnabled)
                 }
             }
         }
@@ -1073,6 +1078,8 @@ internal class SearchPreferencesDelegate(
         groundingEnabled: Boolean = false,
         aliasCode: String = "",
         thinkingEnabled: Boolean = false,
+        advancedPayload: String? = null,
+        advancedPayloadEnabled: Boolean = false,
     ) {
         scope.launch(Dispatchers.IO) {
             val trimmedName = name.trim()
@@ -1087,6 +1094,8 @@ internal class SearchPreferencesDelegate(
                 providerId = providerId,
                 groundingEnabled = groundingEnabled,
                 thinkingEnabled = thinkingEnabled,
+                advancedPayload = advancedPayload?.trim()?.takeIf { it.isNotEmpty() },
+                advancedPayloadEnabled = advancedPayloadEnabled,
             )
             val existing = userPreferences.getCustomTools()
             val updated = existing + newTool
@@ -1116,6 +1125,8 @@ internal class SearchPreferencesDelegate(
         modelId: String,
         groundingEnabled: Boolean = false,
         thinkingEnabled: Boolean = false,
+        advancedPayload: String? = null,
+        advancedPayloadEnabled: Boolean = false,
     ) {
         scope.launch(Dispatchers.IO) {
             val trimmedName = name.trim()
@@ -1132,6 +1143,8 @@ internal class SearchPreferencesDelegate(
                             providerId = providerId,
                             groundingEnabled = groundingEnabled,
                             thinkingEnabled = thinkingEnabled,
+                            advancedPayload = advancedPayload?.trim()?.takeIf { it.isNotEmpty() },
+                            advancedPayloadEnabled = advancedPayloadEnabled,
                         )
                     } else {
                         tool

@@ -147,6 +147,8 @@ class SearchEnginePreferences(
                             providerId = providerId,
                             groundingEnabled = item.optBoolean("groundingEnabled", false),
                             thinkingEnabled = item.optBoolean("thinkingEnabled", false),
+                            advancedPayload = item.optString("advancedPayload").takeIf { it.isNotBlank() },
+                            advancedPayloadEnabled = item.optBoolean("advancedPayloadEnabled", false),
                         ),
                     )
                 }
@@ -166,6 +168,8 @@ class SearchEnginePreferences(
                     put("providerId", tool.providerId.storageValue)
                     put("groundingEnabled", tool.groundingEnabled)
                     put("thinkingEnabled", tool.thinkingEnabled)
+                    put("advancedPayload", tool.advancedPayload.orEmpty())
+                    put("advancedPayloadEnabled", tool.advancedPayloadEnabled)
                 }
             array.put(item)
         }

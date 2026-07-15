@@ -196,25 +196,29 @@ fun AiProviderSettingsSection(
                 if (aiSearchLlmProviderId.isCustom) {
                         val savedPayload = customAdvancedPayloadByProvider[aiSearchLlmProviderId]
                         AdvancedPayloadSettingsSection(
-                                providerId = aiSearchLlmProviderId,
                                 payload = savedPayload?.second.orEmpty(),
                                 enabled = savedPayload?.first == true,
-                                onSave = onSetCustomAdvancedPayload,
+                                onSave = { payload, enabled ->
+                                        onSetCustomAdvancedPayload(
+                                                aiSearchLlmProviderId,
+                                                payload,
+                                                enabled,
+                                        )
+                                },
                         )
                 }
         }
 }
 
 @Composable
-private fun AdvancedPayloadSettingsSection(
-        providerId: AiSearchLlmProviderId,
+fun AdvancedPayloadSettingsSection(
         payload: String,
         enabled: Boolean,
-        onSave: (AiSearchLlmProviderId, String?, Boolean) -> Unit,
+        onSave: (String?, Boolean) -> Unit,
 ) {
-        var payloadInput by remember(providerId, payload) { mutableStateOf(payload) }
-        var enabledInput by remember(providerId, enabled) { mutableStateOf(enabled) }
-        var hasJsonError by remember(providerId, payload) {
+        var payloadInput by remember(payload) { mutableStateOf(payload) }
+        var enabledInput by remember(enabled) { mutableStateOf(enabled) }
+        var hasJsonError by remember(payload) {
                 mutableStateOf(payload.isNotBlank() && !isValidJsonObject(payload))
         }
 
@@ -225,7 +229,7 @@ private fun AdvancedPayloadSettingsSection(
                 val trimmed = nextPayload.trim()
                 if (trimmed.isBlank()) {
                         hasJsonError = false
-                        onSave(providerId, null, false)
+                        onSave(null, false)
                         return true
                 }
                 if (!isValidJsonObject(trimmed)) {
@@ -234,7 +238,7 @@ private fun AdvancedPayloadSettingsSection(
                 }
                 hasJsonError = false
                 enabledInput = nextEnabled
-                onSave(providerId, trimmed, nextEnabled)
+                onSave(trimmed, nextEnabled)
                 return true
         }
 

@@ -20,6 +20,7 @@ data class LlmRequest(
     val useSystemInstruction: Boolean,
     val systemInstruction: String? = null,
     val responseMimeType: String = "text/plain",
+    val advancedPayloadJson: String? = null,
 )
 
 /** Current AI search LLM providers. */

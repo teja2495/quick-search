@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.CustomTool
 import com.tk.quicksearch.settings.shared.ModelFeatureSettingsCard
+import com.tk.quicksearch.settings.settingsDetailScreen.AdvancedPayloadSettingsSection
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
@@ -44,7 +45,7 @@ fun CustomToolEditorScreen(
     configuredProviderIds: Set<AiSearchLlmProviderId>,
     onRefreshAvailableGeminiModels: () -> Unit,
     onProviderModelSelected: (AiSearchLlmProviderId, String) -> Unit,
-    onSave: (name: String, prompt: String, providerId: AiSearchLlmProviderId, modelId: String, groundingEnabled: Boolean, aliasCode: String, thinkingEnabled: Boolean) -> Unit,
+    onSave: (name: String, prompt: String, providerId: AiSearchLlmProviderId, modelId: String, groundingEnabled: Boolean, aliasCode: String, thinkingEnabled: Boolean, advancedPayload: String?, advancedPayloadEnabled: Boolean) -> Unit,
     showNameInput: Boolean = true,
     showPromptInput: Boolean = true,
     showAliasInput: Boolean = true,
@@ -72,6 +73,12 @@ fun CustomToolEditorScreen(
     var thinkingEnabled by remember(existingTool?.id) {
         mutableStateOf(existingTool?.thinkingEnabled ?: false)
     }
+    var advancedPayloadInput by remember(existingTool?.id) {
+        mutableStateOf(existingTool?.advancedPayload.orEmpty())
+    }
+    var advancedPayloadEnabled by remember(existingTool?.id) {
+        mutableStateOf(existingTool?.advancedPayloadEnabled == true)
+    }
 
     val focusRequester = remember { FocusRequester() }
     val scrollState = rememberScrollState()
@@ -86,6 +93,22 @@ fun CustomToolEditorScreen(
 
     val selectedProviderModels = remember(selectedProviderInput, availableModelsByProvider, availableModels) {
         availableModelsByProvider[selectedProviderInput].orEmpty().ifEmpty { availableModels }
+    }
+
+    LaunchedEffect(selectedModelId, selectedProviderInput, availableModelsByProvider) {
+        val selectedProviderHasModel =
+            availableModelsByProvider[selectedProviderInput]?.any { it.id == selectedModelId } == true
+        if (selectedProviderInput.isCustom || selectedProviderHasModel) return@LaunchedEffect
+
+        val customProviderForSelectedModel =
+            availableModelsByProvider
+                .filterKeys { it.isCustom }
+                .filterValues { models -> models.any { it.id == selectedModelId } }
+                .keys
+                .singleOrNull()
+        if (customProviderForSelectedModel != null) {
+            selectedProviderInput = customProviderForSelectedModel
+        }
     }
 
     LaunchedEffect(existingTool?.id, selectedProviderModels, selectedModelId) {
@@ -104,6 +127,7 @@ fun CustomToolEditorScreen(
         selectedProviderInput != AiSearchLlmProviderId.OPENAI &&
             !selectedProviderInput.isCustom &&
             selectedProviderInput != AiSearchLlmProviderId.GROQ
+    val supportsAdvancedPayload = selectedProviderInput.isCustom
 
     val isNameValid = !showNameInput || nameInput.trim().isNotBlank()
     val isPromptValid = !showPromptInput || promptInput.trim().isNotBlank()
@@ -220,6 +244,17 @@ fun CustomToolEditorScreen(
                 showThinkingCheckbox = showThinkingToggle,
                 showGroundingCheckbox = showGroundingCheckbox,
             )
+
+            if (supportsAdvancedPayload) {
+                AdvancedPayloadSettingsSection(
+                    payload = advancedPayloadInput,
+                    enabled = advancedPayloadEnabled,
+                    onSave = { payload, enabled ->
+                        advancedPayloadInput = payload.orEmpty()
+                        advancedPayloadEnabled = enabled
+                    },
+                )
+            }
         }
 
         Column(
@@ -241,6 +276,10 @@ fun CustomToolEditorScreen(
                             groundingEnabled,
                             aliasInput.trim(),
                             if (showThinkingToggle) thinkingEnabled else false,
+                            advancedPayloadInput.trim().takeIf {
+                                supportsAdvancedPayload && advancedPayloadEnabled && it.isNotEmpty()
+                            },
+                            supportsAdvancedPayload && advancedPayloadEnabled,
                         )
                     }
                 },

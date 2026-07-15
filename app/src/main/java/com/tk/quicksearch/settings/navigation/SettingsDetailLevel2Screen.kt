@@ -473,6 +473,7 @@ internal fun SettingsDetailLevel2Screen(
                                 providerId = preferences.getCurrencyConverterProviderId(),
                                 groundingEnabled = preferences.isCurrencyConverterGroundingEnabled(),
                                 thinkingEnabled = preferences.isCurrencyConverterThinkingEnabled(),
+                                advancedPayload = preferences.getCurrencyConverterAdvancedPayload(),
                                 aliasFeatureId = AliasHandler.CURRENCY_CONVERTER_ALIAS_FEATURE_ID,
                             )
                             AiBackedToolConfigId.WORD_CLOCK -> BuiltInToolConfig(
@@ -482,6 +483,7 @@ internal fun SettingsDetailLevel2Screen(
                                 providerId = preferences.getWordClockProviderId(),
                                 groundingEnabled = preferences.isWordClockGroundingEnabled(),
                                 thinkingEnabled = preferences.isWordClockThinkingEnabled(),
+                                advancedPayload = preferences.getWordClockAdvancedPayload(),
                                 aliasFeatureId = AliasHandler.WORD_CLOCK_ALIAS_FEATURE_ID,
                             )
                             AiBackedToolConfigId.DICTIONARY -> BuiltInToolConfig(
@@ -491,6 +493,7 @@ internal fun SettingsDetailLevel2Screen(
                                 providerId = preferences.getDictionaryProviderId(),
                                 groundingEnabled = preferences.isDictionaryGroundingEnabled(),
                                 thinkingEnabled = preferences.isDictionaryThinkingEnabled(),
+                                advancedPayload = preferences.getDictionaryAdvancedPayload(),
                                 aliasFeatureId = AliasHandler.DICTIONARY_ALIAS_FEATURE_ID,
                             )
                         }
@@ -522,7 +525,7 @@ internal fun SettingsDetailLevel2Screen(
                     showPromptInput = builtInToolConfig == null,
                     showAliasInput = builtInToolConfig == null,
                     shouldAutoFocusTitle = builtInToolConfig == null && shouldAutoFocusTitle,
-                    onSave = { name, prompt, providerId, modelId, groundingEnabled, aliasCode, thinkingEnabled ->
+                    onSave = { name, prompt, providerId, modelId, groundingEnabled, aliasCode, thinkingEnabled, advancedPayload, advancedPayloadEnabled ->
                         if (builtInToolConfig != null) {
                             callbacks.onSetAiToolSettings(
                                 builtInToolConfig.toolId,
@@ -530,12 +533,14 @@ internal fun SettingsDetailLevel2Screen(
                                 modelId,
                                 groundingEnabled,
                                 thinkingEnabled,
+                                advancedPayload,
+                                advancedPayloadEnabled,
                             )
                         } else if (existingTool != null) {
-                            callbacks.onUpdateCustomTool(existingTool.id, name, prompt, providerId, modelId, groundingEnabled, thinkingEnabled)
+                            callbacks.onUpdateCustomTool(existingTool.id, name, prompt, providerId, modelId, groundingEnabled, thinkingEnabled, advancedPayload, advancedPayloadEnabled)
                             callbacks.onSetSearchSectionAlias(existingTool.id, aliasCode)
                         } else {
-                            callbacks.onAddCustomTool(name, prompt, providerId, modelId, groundingEnabled, aliasCode, thinkingEnabled)
+                            callbacks.onAddCustomTool(name, prompt, providerId, modelId, groundingEnabled, aliasCode, thinkingEnabled, advancedPayload, advancedPayloadEnabled)
                         }
                         callbacks.onBack()
                     },
@@ -971,6 +976,7 @@ private data class BuiltInToolConfig(
     val providerId: AiSearchLlmProviderId,
     val groundingEnabled: Boolean,
     val thinkingEnabled: Boolean,
+    val advancedPayload: Pair<Boolean, String>,
     val aliasFeatureId: String,
 ) {
     fun toCustomTool(): CustomTool =
@@ -982,5 +988,7 @@ private data class BuiltInToolConfig(
             providerId = providerId,
             groundingEnabled = groundingEnabled,
             thinkingEnabled = thinkingEnabled,
+            advancedPayload = advancedPayload.second,
+            advancedPayloadEnabled = advancedPayload.first,
         )
 }

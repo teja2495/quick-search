@@ -387,6 +387,7 @@ class AiSearchHandler(
         modelId: String,
         groundingEnabled: Boolean,
         thinkingEnabled: Boolean = false,
+        advancedPayloadJson: String? = null,
     ) {
         ensureInitialized()
         val trimmedQuery = query.trim()
@@ -445,6 +446,7 @@ class AiSearchHandler(
                                         !providerId.isCustom,
                                 useSystemInstruction = useSystemInstruction,
                                 systemInstruction = systemInstruction,
+                                advancedPayloadJson = advancedPayloadJson,
                             ),
                     )
 

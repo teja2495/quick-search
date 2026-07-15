@@ -1379,6 +1379,8 @@ class UserAppPreferences(
 
     fun getCurrencyConverterModel(): String = uiPreferences.getCurrencyConverterModel()
     fun setCurrencyConverterModel(modelId: String) = uiPreferences.setCurrencyConverterModel(modelId)
+    fun getCurrencyConverterAdvancedPayload(): Pair<Boolean, String> = uiPreferences.getCurrencyConverterAdvancedPayload()
+    fun setCurrencyConverterAdvancedPayload(payload: String?, enabled: Boolean) = uiPreferences.setCurrencyConverterAdvancedPayload(payload, enabled)
     fun getCurrencyConverterProviderId(): AiSearchLlmProviderId =
         uiPreferences.getCurrencyConverterProviderId()
     fun setCurrencyConverterProviderId(providerId: AiSearchLlmProviderId) =
@@ -1394,6 +1396,8 @@ class UserAppPreferences(
 
     fun getWordClockModel(): String = uiPreferences.getWordClockModel()
     fun setWordClockModel(modelId: String) = uiPreferences.setWordClockModel(modelId)
+    fun getWordClockAdvancedPayload(): Pair<Boolean, String> = uiPreferences.getWordClockAdvancedPayload()
+    fun setWordClockAdvancedPayload(payload: String?, enabled: Boolean) = uiPreferences.setWordClockAdvancedPayload(payload, enabled)
     fun getWordClockProviderId(): AiSearchLlmProviderId = uiPreferences.getWordClockProviderId()
     fun setWordClockProviderId(providerId: AiSearchLlmProviderId) =
         uiPreferences.setWordClockProviderId(providerId)
@@ -1408,6 +1412,8 @@ class UserAppPreferences(
 
     fun getDictionaryModel(): String = uiPreferences.getDictionaryModel()
     fun setDictionaryModel(modelId: String) = uiPreferences.setDictionaryModel(modelId)
+    fun getDictionaryAdvancedPayload(): Pair<Boolean, String> = uiPreferences.getDictionaryAdvancedPayload()
+    fun setDictionaryAdvancedPayload(payload: String?, enabled: Boolean) = uiPreferences.setDictionaryAdvancedPayload(payload, enabled)
     fun getDictionaryProviderId(): AiSearchLlmProviderId = uiPreferences.getDictionaryProviderId()
     fun setDictionaryProviderId(providerId: AiSearchLlmProviderId) =
         uiPreferences.setDictionaryProviderId(providerId)

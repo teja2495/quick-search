@@ -125,11 +125,11 @@ internal fun buildSettingsScreenCallbacks(
         onToggleCurrencyConverter = viewModel::setCurrencyConverterEnabled,
         onToggleWordClock = viewModel::setWordClockEnabled,
         onToggleDictionary = viewModel::setDictionaryEnabled,
-        onAddCustomTool = { name, prompt, providerId, modelId, groundingEnabled, aliasCode, thinkingEnabled ->
-            viewModel.addCustomTool(name, prompt, providerId, modelId, groundingEnabled, aliasCode, thinkingEnabled)
+        onAddCustomTool = { name, prompt, providerId, modelId, groundingEnabled, aliasCode, thinkingEnabled, advancedPayload, advancedPayloadEnabled ->
+            viewModel.addCustomTool(name, prompt, providerId, modelId, groundingEnabled, aliasCode, thinkingEnabled, advancedPayload, advancedPayloadEnabled)
         },
-        onUpdateCustomTool = { id, name, prompt, providerId, modelId, groundingEnabled, thinkingEnabled ->
-            viewModel.updateCustomTool(id, name, prompt, providerId, modelId, groundingEnabled, thinkingEnabled)
+        onUpdateCustomTool = { id, name, prompt, providerId, modelId, groundingEnabled, thinkingEnabled, advancedPayload, advancedPayloadEnabled ->
+            viewModel.updateCustomTool(id, name, prompt, providerId, modelId, groundingEnabled, thinkingEnabled, advancedPayload, advancedPayloadEnabled)
         },
         onDeleteCustomTool = viewModel::deleteCustomTool,
         onAddTaskerIntentTool = viewModel::addTaskerIntentTool,

@@ -59,6 +59,7 @@ class CurrencyConverterHandler(
                 }
         val groundingEnabled = userPreferences.isCurrencyConverterGroundingEnabled()
         val thinkingEnabled = userPreferences.isCurrencyConverterThinkingEnabled()
+        val advancedPayload = userPreferences.getCurrencyConverterAdvancedPayload()
         val userMessage =
                 "Convert ${confirmed.amount} ${confirmed.fromCurrency} to ${confirmed.toCurrency}. " +
                         "Original user query: ${confirmed.originalQuery}"
@@ -76,6 +77,7 @@ class CurrencyConverterHandler(
                                         useSystemInstruction = true,
                                         systemInstruction = CURRENCY_SYSTEM_INSTRUCTION,
                                         responseMimeType = "application/json",
+                                        advancedPayloadJson = advancedPayload.second.takeIf { advancedPayload.first },
                                 ),
                 )
         return result.mapCatching { text ->
@@ -98,6 +100,7 @@ class CurrencyConverterHandler(
                 }
         val groundingEnabled = userPreferences.isCurrencyConverterGroundingEnabled()
         val thinkingEnabled = userPreferences.isCurrencyConverterThinkingEnabled()
+        val advancedPayload = userPreferences.getCurrencyConverterAdvancedPayload()
         val result =
                 provider.fetchAnswer(
                         apiKey = apiKey,
@@ -112,6 +115,7 @@ class CurrencyConverterHandler(
                                         useSystemInstruction = true,
                                         systemInstruction = CURRENCY_SYSTEM_INSTRUCTION,
                                         responseMimeType = "application/json",
+                                        advancedPayloadJson = advancedPayload.second.takeIf { advancedPayload.first },
                                 ),
                 )
         return result.mapCatching { text ->

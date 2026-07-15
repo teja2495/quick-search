@@ -585,6 +585,7 @@ class SearchViewModel(
             modelId = tool.modelId,
             groundingEnabled = tool.groundingEnabled,
             thinkingEnabled = tool.thinkingEnabled,
+            advancedPayloadJson = tool.advancedPayload?.takeIf { tool.advancedPayloadEnabled },
         )
     }
     fun executeTaskerIntent() {

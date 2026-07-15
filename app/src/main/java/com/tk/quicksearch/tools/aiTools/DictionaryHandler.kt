@@ -67,6 +67,7 @@ class DictionaryHandler(
                 }
         val groundingEnabled = userPreferences.isDictionaryGroundingEnabled()
         val thinkingEnabled = userPreferences.isDictionaryThinkingEnabled()
+        val advancedPayload = userPreferences.getDictionaryAdvancedPayload()
         val userMessage =
                 "Provide a dictionary entry for: ${confirmed.term}. " +
                         "Original user query: ${confirmed.originalQuery}"
@@ -84,6 +85,7 @@ class DictionaryHandler(
                                         useSystemInstruction = true,
                                         systemInstruction = DICTIONARY_SYSTEM_INSTRUCTION,
                                         responseMimeType = "application/json",
+                                        advancedPayloadJson = advancedPayload.second.takeIf { advancedPayload.first },
                                 ),
                 )
         return result.mapCatching { text ->
