@@ -5,7 +5,6 @@ import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
 import android.os.SystemClock
-import android.util.TypedValue
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.ViewConfiguration
@@ -97,9 +96,9 @@ internal class WidgetPanelHost(
  * Detects long-press at the parent level via `onInterceptTouchEvent`, then takes over the gesture
  * and forwards drag deltas via callbacks so the user can long-press-and-drag in a single motion.
  *
- * Cancels the pending long-press aggressively in three ways: explicit ACTION_CANCEL, drag past
- * touch slop, or a child / ancestor calling `requestDisallowInterceptTouchEvent(true)` (e.g. a
- * Compose `verticalScroll` taking over the gesture).
+ * Cancels the pending long-press on explicit ACTION_CANCEL or after movement passes Android's
+ * standard touch slop. The surrounding Compose scroll also cancels pending presses as soon as it
+ * starts scrolling.
  */
 private class WidgetPanelHostView(
     context: Context,
@@ -132,16 +131,6 @@ private class WidgetPanelHostView(
 
     private val longPressTimeout = ViewConfiguration.getLongPressTimeout().toLong()
     private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
-    // Tighter Y-axis cancellation than Compose's scroll slop so that gradual vertical scrolls
-    // cancel the long-press timer before Compose claims the gesture and dispatches ACTION_CANCEL.
-    // Without this, a slow scroll that takes >500ms to exceed scaledTouchSlop can fire long-press
-    // mid-scroll. Picked small but above natural finger tremor (~1-3px).
-    private val verticalScrollCancelSlop =
-        TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            4f,
-            context.resources.displayMetrics,
-        )
     private var downRawX = 0f
     private var downRawY = 0f
     private var longPressFired = false
@@ -176,7 +165,7 @@ private class WidgetPanelHostView(
                 if (!longPressFired) {
                     if (
                         abs(ev.rawX - downRawX) > touchSlop ||
-                        abs(ev.rawY - downRawY) > verticalScrollCancelSlop
+                        abs(ev.rawY - downRawY) > touchSlop
                     ) {
                         removeCallbacks(longPressRunnable)
                     }
@@ -206,15 +195,6 @@ private class WidgetPanelHostView(
             }
         }
         return true
-    }
-
-    override fun requestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
-        if (disallowIntercept && !longPressFired) {
-            // A child (or Compose scroll above us) has taken over the gesture — bail out of the
-            // pending long-press so scrolling never escalates to edit mode.
-            removeCallbacks(longPressRunnable)
-        }
-        super.requestDisallowInterceptTouchEvent(disallowIntercept)
     }
 
     override fun onDetachedFromWindow() {

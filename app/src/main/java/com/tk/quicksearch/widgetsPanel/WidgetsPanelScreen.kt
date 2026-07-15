@@ -537,7 +537,6 @@ private fun WidgetPanelGrid(
         var hostDragStart by remember { mutableStateOf<PanelWidgetInfo?>(null) }
 
         val currentLaidOut by rememberUpdatedState(laidOut)
-        val currentSpecs by rememberUpdatedState(specs)
         val currentGridUnitWidthPx by rememberUpdatedState(gridUnitWidthPx)
         val currentGridUnitHeightPx by rememberUpdatedState(gridUnitHeightPx)
         val currentOnPersist by rememberUpdatedState(onPersist)
@@ -563,11 +562,10 @@ private fun WidgetPanelGrid(
                             .coerceAtLeast(0)
                     liveLayout =
                         moveWidgetToCell(
-                            widgets = liveLayout ?: currentLaidOut,
+                            widgets = currentLaidOut,
                             appWidgetId = id,
                             targetColumn = nextColumn,
                             targetRow = nextRow,
-                            specs = currentSpecs,
                         )
                 }
             }
@@ -608,11 +606,10 @@ private fun WidgetPanelGrid(
                         onMovePreview = { targetColumn, targetRow ->
                             liveLayout =
                                 moveWidgetToCell(
-                                    widgets = liveLayout ?: laidOut,
+                                    widgets = laidOut,
                                     appWidgetId = widget.appWidgetId,
                                     targetColumn = targetColumn,
                                     targetRow = targetRow,
-                                    specs = specs,
                                 )
                         },
                         onResizePreview = { resize ->

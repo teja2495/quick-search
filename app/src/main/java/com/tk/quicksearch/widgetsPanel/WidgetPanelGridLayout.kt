@@ -116,45 +116,96 @@ internal fun resolveWidgetGridLayout(
             )
     }
 
-    return widgets.map { placedById[it.appWidgetId] ?: it }
+    return compactEmptyRows(widgets.map { placedById[it.appWidgetId] ?: it })
 }
 
 /**
- * Tries to move a widget to the requested grid cell. If the cell is occupied by another widget,
- * snaps to the nearest free cell that fits the widget's span.
+ * Moves a widget to the requested grid cell and gives it priority over widgets already there.
+ * Widgets displaced by the move are placed in the nearest available cell, making every crossed
+ * cell respond during a drag instead of rejecting intermediate positions.
  */
 internal fun moveWidgetToCell(
     widgets: List<PanelWidgetInfo>,
     appWidgetId: Int,
     targetColumn: Int,
     targetRow: Int,
-    specs: Map<Int, WidgetGridSpec>,
 ): List<PanelWidgetInfo> {
     val current = widgets.firstOrNull { it.appWidgetId == appWidgetId } ?: return widgets
     val columnSpan = current.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN
     val rowSpan = current.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN
-    val occupied = buildOccupiedSet(widgets, excludeAppWidgetId = appWidgetId)
     val clampedTargetColumn = targetColumn.coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - columnSpan)
     val clampedTargetRow = targetRow.coerceAtLeast(0)
-    val placed =
-        if (canPlace(occupied, clampedTargetColumn, clampedTargetRow, columnSpan, rowSpan)) {
-            clampedTargetColumn to clampedTargetRow
-        } else {
-            findNearestAvailablePosition(
-                occupied = occupied,
-                targetColumn = clampedTargetColumn,
-                targetRow = clampedTargetRow,
-                columnSpan = columnSpan,
-                rowSpan = rowSpan,
-            )
-        }
-    return widgets.map { item ->
-        if (item.appWidgetId == appWidgetId) {
-            item.copy(column = placed.first, row = placed.second)
-        } else {
-            item
-        }
+    val moved =
+        current.copy(
+            column = clampedTargetColumn,
+            row = clampedTargetRow,
+        )
+    val crossedWidget =
+        widgets
+            .asSequence()
+            .filterNot { it.appWidgetId == appWidgetId }
+            .filter { widgetsOverlap(it, moved) }
+            .minByOrNull { item ->
+                abs((item.column ?: 0) - clampedTargetColumn) +
+                    abs((item.row ?: 0) - clampedTargetRow)
+            }
+    if (crossedWidget != null) {
+        val swappedLayout =
+            widgets.map { item ->
+                when (item.appWidgetId) {
+                    appWidgetId ->
+                        current.copy(
+                            column = crossedWidget.column ?: 0,
+                            row = crossedWidget.row ?: 0,
+                        )
+                    crossedWidget.appWidgetId ->
+                        crossedWidget.copy(
+                            column = current.column ?: 0,
+                            row = current.row ?: 0,
+                        )
+                    else -> item
+                }
+            }
+        if (isValidGridLayout(swappedLayout)) return swappedLayout
     }
+
+    val occupied = mutableSetOf<Pair<Int, Int>>()
+    markOccupied(
+        occupied = occupied,
+        column = clampedTargetColumn,
+        row = clampedTargetRow,
+        columnSpan = columnSpan,
+        rowSpan = rowSpan,
+    )
+
+    val placed = mutableMapOf(appWidgetId to moved)
+    widgets.filterNot { it.appWidgetId == appWidgetId }.forEach { item ->
+        val itemColumnSpan = item.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN
+        val itemRowSpan = item.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN
+        val itemColumn = (item.column ?: 0).coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - itemColumnSpan)
+        val itemRow = (item.row ?: 0).coerceAtLeast(0)
+        val position =
+            if (canPlace(occupied, itemColumn, itemRow, itemColumnSpan, itemRowSpan)) {
+                itemColumn to itemRow
+            } else {
+                findNearestAvailablePosition(
+                    occupied = occupied,
+                    targetColumn = itemColumn,
+                    targetRow = itemRow,
+                    columnSpan = itemColumnSpan,
+                    rowSpan = itemRowSpan,
+                )
+            }
+        markOccupied(
+            occupied = occupied,
+            column = position.first,
+            row = position.second,
+            columnSpan = itemColumnSpan,
+            rowSpan = itemRowSpan,
+        )
+        placed[item.appWidgetId] = item.copy(column = position.first, row = position.second)
+    }
+    return widgets.map { placed[it.appWidgetId] ?: it }
 }
 
 /**
@@ -245,6 +296,23 @@ private fun horizontallyOverlaps(a: PanelWidgetInfo, b: PanelWidgetInfo): Boolea
     val bLeft = b.column ?: 0
     val bRight = bLeft + (b.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN)
     return aLeft < bRight && bLeft < aRight
+}
+
+private fun widgetsOverlap(a: PanelWidgetInfo, b: PanelWidgetInfo): Boolean =
+    horizontallyOverlaps(a, b) && a.rowOrZero() < b.bottomRow() && b.rowOrZero() < a.bottomRow()
+
+private fun isValidGridLayout(widgets: List<PanelWidgetInfo>): Boolean {
+    widgets.forEachIndexed { index, widget ->
+        val column = widget.column ?: 0
+        val columnSpan = widget.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN
+        if (column < 0 || column + columnSpan > WIDGET_PANEL_GRID_COLUMNS || widget.rowOrZero() < 0) {
+            return false
+        }
+        for (otherIndex in index + 1 until widgets.size) {
+            if (widgetsOverlap(widget, widgets[otherIndex])) return false
+        }
+    }
+    return true
 }
 
 internal fun calculateGridColumnSpan(
@@ -346,25 +414,6 @@ internal fun calculateGridResize(
     )
 }
 
-private fun buildOccupiedSet(
-    widgets: List<PanelWidgetInfo>,
-    excludeAppWidgetId: Int,
-): Set<Pair<Int, Int>> {
-    val occupied = mutableSetOf<Pair<Int, Int>>()
-    widgets
-        .filterNot { it.appWidgetId == excludeAppWidgetId }
-        .forEach { item ->
-            markOccupied(
-                occupied = occupied,
-                column = item.column ?: 0,
-                row = item.row ?: 0,
-                columnSpan = item.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN,
-                rowSpan = item.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN,
-            )
-        }
-    return occupied
-}
-
 private fun dpToGridSpan(
     sizeDp: Float,
     cellSizeDp: Float,
@@ -389,6 +438,32 @@ private fun findFirstAvailablePosition(
             }
         }
         row++
+    }
+}
+
+/** Removes fully empty grid rows while preserving widget order, spans, and columns. */
+private fun compactEmptyRows(widgets: List<PanelWidgetInfo>): List<PanelWidgetInfo> {
+    if (widgets.isEmpty()) return widgets
+
+    val occupiedRows = mutableSetOf<Int>()
+    widgets.forEach { widget ->
+        val top = widget.row ?: 0
+        val bottom = top + (widget.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN)
+        for (row in top until bottom) occupiedRows += row
+    }
+
+    val highestBottom = occupiedRows.maxOrNull()?.plus(1) ?: return widgets
+    val emptyRowsBefore = IntArray(highestBottom)
+    var emptyRowCount = 0
+    for (row in 0 until highestBottom) {
+        emptyRowsBefore[row] = emptyRowCount
+        if (row !in occupiedRows) emptyRowCount++
+    }
+    if (emptyRowCount == 0) return widgets
+
+    return widgets.map { widget ->
+        val row = widget.row ?: 0
+        widget.copy(row = row - emptyRowsBefore[row])
     }
 }
 
