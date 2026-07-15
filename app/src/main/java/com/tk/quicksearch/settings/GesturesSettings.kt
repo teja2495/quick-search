@@ -39,6 +39,7 @@ import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
 import com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction
+import com.tk.quicksearch.shared.util.isDefaultHomeApp
 import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.settings.shared.SettingsCardItem
 import com.tk.quicksearch.settings.shared.SettingsNavigationRow
@@ -62,6 +63,7 @@ fun GesturesSettingsSection(
 ) {
     val context = LocalContext.current
     val preferences = remember(context) { UserAppPreferences(context.applicationContext) }
+    val isDefaultLauncher = context.isDefaultHomeApp()
     val searchState by searchViewModel.uiState.collectAsStateWithLifecycle()
     var actions by remember { mutableStateOf(SwipeDirection.entries.associateWith(preferences::actionFor)) }
     var customActions by remember { mutableStateOf(SwipeDirection.entries.associateWith(preferences::customActionFor)) }
@@ -252,11 +254,14 @@ fun GesturesSettingsSection(
                                     ),
                                 icon = direction.gestureIcon(),
                                 description =
-                                    if (direction == SwipeDirection.UP || direction == SwipeDirection.DOWN) {
+                                    if (direction == SwipeDirection.RIGHT && isDefaultLauncher) {
+                                        stringResource(R.string.settings_gesture_widget_panel)
+                                    } else if (direction == SwipeDirection.UP || direction == SwipeDirection.DOWN) {
                                         homeGestureDescription(homeActions.getValue(direction), homeCustomActions[direction])
                                     } else {
                                         gestureDescription(actions.getValue(direction), customActions[direction])
-                                    },
+                                },
+                                isEnabled = direction != SwipeDirection.RIGHT || !isDefaultLauncher,
                                 actionOnPress = {
                                     if (direction == SwipeDirection.UP || direction == SwipeDirection.DOWN) {
                                         selectedHomeVerticalDirection = direction

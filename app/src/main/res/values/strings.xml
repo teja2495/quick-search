@@ -82,6 +82,7 @@
     <string name="settings_gestures_title">Gestures</string>
     <string name="settings_gestures_desc">Customize swipe actions</string>
     <string name="settings_gesture_swipe_right">Swipe Right</string>
+    <string name="settings_gesture_widget_panel">Widget Panel</string>
     <string name="settings_gesture_swipe_left">Swipe Left</string>
     <string name="settings_gesture_swipe_up">Swipe Up</string>
     <string name="settings_gesture_swipe_down">Swipe Down</string>

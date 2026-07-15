@@ -39,6 +39,7 @@ data class SettingsCardItem(
     val iconBitmap: ImageBitmap? = null,
     val iconTint: Color? = null,
     val actionIcon: ImageVector = Icons.Rounded.ChevronRight,
+    val isEnabled: Boolean = true,
     val actionOnPress: () -> Unit,
 )
 
@@ -54,7 +55,7 @@ fun SettingsNavigationRow(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .clickable(onClick = item.actionOnPress)
+                .clickable(enabled = item.isEnabled, onClick = item.actionOnPress)
                 .padding(contentPadding),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -120,11 +121,13 @@ fun SettingsNavigationRow(
         }
 
         // Action icon
-        Icon(
-            imageVector = item.actionIcon,
-            contentDescription = stringResource(R.string.desc_navigate_forward),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(start = DesignTokens.SpacingSmall),
-        )
+        if (item.isEnabled) {
+            Icon(
+                imageVector = item.actionIcon,
+                contentDescription = stringResource(R.string.desc_navigate_forward),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = DesignTokens.SpacingSmall),
+            )
+        }
     }
 }

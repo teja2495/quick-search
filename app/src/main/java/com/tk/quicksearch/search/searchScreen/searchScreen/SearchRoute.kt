@@ -64,6 +64,7 @@ import com.tk.quicksearch.overlay.OverlayModeController
 import com.tk.quicksearch.shared.permissions.PermissionSettingsDialog
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.util.cachedDefaultHomeAppStatus
 import com.tk.quicksearch.shared.util.isDefaultHomeApp
 import com.tk.quicksearch.settings.shared.SettingsCommand
 import com.tk.quicksearch.settings.shared.applySettingsCommand
@@ -579,8 +580,18 @@ fun SearchRoute(
         preferences.registerOnSharedPreferenceChangeListener(listener)
         onDispose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
     }
+    var isDefaultLauncher by remember { mutableStateOf(context.cachedDefaultHomeAppStatus()) }
+    DisposableEffect(lifecycleOwner, context) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                isDefaultLauncher = context.isDefaultHomeApp()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
     val swipeNavigationModifier =
-        Modifier.pointerInput(quickNoteEnabled, swipeActions, customSwipeActions, uiState.query) {
+        Modifier.pointerInput(isDefaultLauncher, quickNoteEnabled, swipeActions, customSwipeActions, uiState.query) {
             var totalHorizontalDrag = 0f
             detectHorizontalDragGestures(
                 onDragStart = { totalHorizontalDrag = 0f },
@@ -589,14 +600,18 @@ fun SearchRoute(
                 },
                 onDragEnd = {
                     if (totalHorizontalDrag >= SWIPE_NAVIGATION_THRESHOLD_PX) {
-                        when (swipeActions[0]) {
-                            SwipeGestureAction.QUICK_NOTE -> if (quickNoteEnabled) openQuickNoteEditor()
-                            SwipeGestureAction.CUSTOM -> {
-                                com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
-                                    .fromJson(customSwipeActions[0])
-                                    ?.let { action -> context.startActivity(com.tk.quicksearch.widgets.customButtonsWidget.WidgetActionActivity.createIntent(context, action)) }
+                        if (isDefaultLauncher) {
+                            onOpenWidgetsPanelFromSwipe?.invoke()
+                        } else {
+                            when (swipeActions[0]) {
+                                SwipeGestureAction.QUICK_NOTE -> if (quickNoteEnabled) openQuickNoteEditor()
+                                SwipeGestureAction.CUSTOM -> {
+                                    com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
+                                        .fromJson(customSwipeActions[0])
+                                        ?.let { action -> context.startActivity(com.tk.quicksearch.widgets.customButtonsWidget.WidgetActionActivity.createIntent(context, action)) }
+                                }
+                                else -> Unit
                             }
-                            else -> Unit
                         }
                     } else if (totalHorizontalDrag <= -SWIPE_NAVIGATION_THRESHOLD_PX) {
                         when (swipeActions[1]) {
