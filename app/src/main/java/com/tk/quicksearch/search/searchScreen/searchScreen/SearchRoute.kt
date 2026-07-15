@@ -41,6 +41,9 @@ import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
 import com.tk.quicksearch.search.data.preferences.NotesPreferences
+import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
+import com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction
 import com.tk.quicksearch.search.appSettings.AppSettingResult
 import com.tk.quicksearch.search.appSettings.AppSettingResultAction
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination
@@ -498,6 +501,43 @@ fun SearchRoute(
         NotesPreferences(context.applicationContext)
     }
     var quickNoteEnabled by remember { mutableStateOf(notesPreferences.isQuickNoteEnabled()) }
+    val gesturePreferences = remember(context.applicationContext) {
+        UserAppPreferences(context.applicationContext)
+    }
+    var swipeActions by remember {
+        mutableStateOf(
+            listOf(
+                gesturePreferences.getSwipeRightAction(),
+                gesturePreferences.getSwipeLeftAction(),
+                gesturePreferences.getSwipeUpAction(),
+                gesturePreferences.getSwipeDownAction(),
+            ),
+        )
+    }
+    var customSwipeActions by remember {
+        mutableStateOf(
+            listOf(
+                gesturePreferences.getSwipeRightCustomAction(),
+                gesturePreferences.getSwipeLeftCustomAction(),
+                gesturePreferences.getSwipeUpCustomAction(),
+                gesturePreferences.getSwipeDownCustomAction(),
+            ),
+        )
+    }
+    var homeSwipeUpAction by remember {
+        mutableStateOf(gesturePreferences.getHomeSwipeUpAction())
+    }
+    var homeSwipeDownAction by remember {
+        mutableStateOf(gesturePreferences.getHomeSwipeDownAction())
+    }
+    var homeCustomSwipeActions by remember {
+        mutableStateOf(
+            listOf(
+                gesturePreferences.getHomeSwipeUpCustomAction(),
+                gesturePreferences.getHomeSwipeDownCustomAction(),
+            ),
+        )
+    }
     DisposableEffect(lifecycleOwner, notesPreferences) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
@@ -507,8 +547,40 @@ fun SearchRoute(
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
+    DisposableEffect(gesturePreferences) {
+        val preferences =
+            context.applicationContext.getSharedPreferences(
+                com.tk.quicksearch.search.data.preferences.BasePreferences.PREFS_NAME,
+                Context.MODE_PRIVATE,
+            )
+        val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
+            swipeActions =
+                listOf(
+                    gesturePreferences.getSwipeRightAction(),
+                    gesturePreferences.getSwipeLeftAction(),
+                    gesturePreferences.getSwipeUpAction(),
+                    gesturePreferences.getSwipeDownAction(),
+                )
+            customSwipeActions =
+                listOf(
+                    gesturePreferences.getSwipeRightCustomAction(),
+                    gesturePreferences.getSwipeLeftCustomAction(),
+                    gesturePreferences.getSwipeUpCustomAction(),
+                    gesturePreferences.getSwipeDownCustomAction(),
+                )
+            homeSwipeUpAction = gesturePreferences.getHomeSwipeUpAction()
+            homeSwipeDownAction = gesturePreferences.getHomeSwipeDownAction()
+            homeCustomSwipeActions =
+                listOf(
+                    gesturePreferences.getHomeSwipeUpCustomAction(),
+                    gesturePreferences.getHomeSwipeDownCustomAction(),
+                )
+        }
+        preferences.registerOnSharedPreferenceChangeListener(listener)
+        onDispose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
     val swipeNavigationModifier =
-        Modifier.pointerInput(quickNoteEnabled) {
+        Modifier.pointerInput(quickNoteEnabled, swipeActions, customSwipeActions, uiState.query) {
             var totalHorizontalDrag = 0f
             detectHorizontalDragGestures(
                 onDragStart = { totalHorizontalDrag = 0f },
@@ -517,13 +589,25 @@ fun SearchRoute(
                 },
                 onDragEnd = {
                     if (totalHorizontalDrag >= SWIPE_NAVIGATION_THRESHOLD_PX) {
-                        if (context.isDefaultHomeApp()) {
-                            onOpenWidgetsPanelFromSwipe?.invoke() ?: openQuickNoteEditor()
-                        } else if (quickNoteEnabled) {
-                            openQuickNoteEditor()
+                        when (swipeActions[0]) {
+                            SwipeGestureAction.QUICK_NOTE -> if (quickNoteEnabled) openQuickNoteEditor()
+                            SwipeGestureAction.CUSTOM -> {
+                                com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
+                                    .fromJson(customSwipeActions[0])
+                                    ?.let { action -> context.startActivity(com.tk.quicksearch.widgets.customButtonsWidget.WidgetActionActivity.createIntent(context, action)) }
+                            }
+                            else -> Unit
                         }
                     } else if (totalHorizontalDrag <= -SWIPE_NAVIGATION_THRESHOLD_PX) {
-                        onSettingsClick()
+                        when (swipeActions[1]) {
+                            SwipeGestureAction.SETTINGS -> onSettingsClick()
+                            SwipeGestureAction.CUSTOM -> {
+                                com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
+                                    .fromJson(customSwipeActions[1])
+                                    ?.let { action -> context.startActivity(com.tk.quicksearch.widgets.customButtonsWidget.WidgetActionActivity.createIntent(context, action)) }
+                            }
+                            else -> Unit
+                        }
                     }
                     totalHorizontalDrag = 0f
                 },
@@ -794,6 +878,14 @@ fun SearchRoute(
             onChangeWallpaperClick = {
                 launchSystemWallpaperPicker(context)
             },
+            swipeUpAction = swipeActions[2],
+            swipeDownAction = swipeActions[3],
+            swipeUpCustomActionJson = customSwipeActions[2],
+            swipeDownCustomActionJson = customSwipeActions[3],
+            homeSwipeUpAction = homeSwipeUpAction,
+            homeSwipeDownAction = homeSwipeDownAction,
+            homeSwipeUpCustomActionJson = homeCustomSwipeActions[0],
+            homeSwipeDownCustomActionJson = homeCustomSwipeActions[1],
         )
 
         if (overlaySnackbarHostState == null) {

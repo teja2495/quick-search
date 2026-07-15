@@ -43,6 +43,7 @@ import com.tk.quicksearch.search.data.CustomCalendarEventRepository
 import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.settings.settingsDetailScreen.GesturesSettingsSection
 import com.tk.quicksearch.searchEngines.AliasHandler
 import com.tk.quicksearch.settings.tasker.TaskerIntegrationScreen
 import com.tk.quicksearch.tools.tasker.TaskerIntegration
@@ -803,6 +804,10 @@ internal fun SettingsDetailLevel2Screen(
 
                         SettingsDetailType.TRIGGERS -> {
                             TriggerItemsScreen(modifier = Modifier.fillMaxWidth())
+                        }
+
+                        SettingsDetailType.GESTURES -> {
+                            GesturesSettingsSection(modifier = Modifier.fillMaxWidth())
                         }
 
                         SettingsDetailType.UNIT_CONVERTER_INFO -> {

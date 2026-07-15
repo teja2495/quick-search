@@ -86,6 +86,10 @@ import com.tk.quicksearch.tools.aiTools.CurrencyConversionIntentParser
 import com.tk.quicksearch.tools.aiTools.DictionaryIntentParser
 import com.tk.quicksearch.shared.util.cachedDefaultHomeAppStatus
 import com.tk.quicksearch.shared.util.openNotificationShade
+import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
+import com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction
+import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
+import com.tk.quicksearch.widgets.customButtonsWidget.WidgetActionActivity
 import com.tk.quicksearch.tools.aiTools.WordClockIntentParser
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
@@ -95,6 +99,18 @@ import kotlinx.coroutines.withContext
 private const val OPEN_KEYBOARD_ACTION_APPEAR_DELAY_MS = 200L
 private const val OPEN_KEYBOARD_COLD_START_SUPPRESS_MS = 1000L
 private const val SEARCH_HINT_ROTATION_INTERVAL_MS = 5000L
+
+private fun HomeSwipeGestureAction.performHomeGesture(actionJson: String?, context: android.content.Context) {
+    when (this) {
+        HomeSwipeGestureAction.NOTIFICATION_PANEL -> context.openNotificationShade()
+        HomeSwipeGestureAction.CUSTOM -> {
+            CustomWidgetButtonAction.fromJson(actionJson)?.let { action ->
+                context.startActivity(WidgetActionActivity.createIntent(context, action))
+            }
+        }
+        HomeSwipeGestureAction.NONE -> Unit
+    }
+}
 
 private data class ToolCardConfig(
         val label: String,
@@ -155,6 +171,14 @@ internal fun SearchScreenContent(
         showSearchField: Boolean = true,
         onOpenPermissionsSettings: () -> Unit = {},
         onChangeWallpaperClick: () -> Unit = {},
+        swipeUpAction: SwipeGestureAction = SwipeGestureAction.OPEN_KEYBOARD,
+        swipeDownAction: SwipeGestureAction = SwipeGestureAction.CLOSE_KEYBOARD_OR_NOTIFICATIONS,
+        swipeUpCustomActionJson: String? = null,
+        swipeDownCustomActionJson: String? = null,
+        homeSwipeUpAction: com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction = com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction.NONE,
+        homeSwipeDownAction: com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction = com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction.NOTIFICATION_PANEL,
+        homeSwipeUpCustomActionJson: String? = null,
+        homeSwipeDownCustomActionJson: String? = null,
         getAllTriggerWordsById: () -> Map<String, String> = { emptyMap() },
         getAllContactActionTriggers: () -> Map<com.tk.quicksearch.search.data.preferences.ContactActionTriggerKey, com.tk.quicksearch.search.data.preferences.ResultTrigger> = { emptyMap() },
         onContactActionTrigger: (Long, com.tk.quicksearch.search.contacts.models.ContactCardAction) -> Unit = { _, _ -> },
@@ -1122,14 +1146,27 @@ internal fun SearchScreenContent(
                     keyboardController?.show()
                 },
                 onLauncherOverscrollUp = {
-                    searchFocusRequester.requestFocus()
-                    keyboardController?.show()
+                    when {
+                        swipeUpAction == SwipeGestureAction.OPEN_KEYBOARD && !isImeVisible -> {
+                            searchFocusRequester.requestFocus()
+                            keyboardController?.show()
+                        }
+                        swipeUpAction == SwipeGestureAction.CLOSE_KEYBOARD_OR_NOTIFICATIONS && isImeVisible -> {
+                            keyboardController?.hide()
+                        }
+                        else -> homeSwipeUpAction.performHomeGesture(homeSwipeUpCustomActionJson, context)
+                    }
                 },
                 onLauncherOverscrollDown = {
-                    if (isImeVisible) {
-                        keyboardController?.hide()
-                    } else {
-                        context.openNotificationShade()
+                    when {
+                        swipeDownAction == SwipeGestureAction.OPEN_KEYBOARD && !isImeVisible -> {
+                            searchFocusRequester.requestFocus()
+                            keyboardController?.show()
+                        }
+                        swipeDownAction == SwipeGestureAction.CLOSE_KEYBOARD_OR_NOTIFICATIONS && isImeVisible -> {
+                            keyboardController?.hide()
+                        }
+                        else -> homeSwipeDownAction.performHomeGesture(homeSwipeDownCustomActionJson, context)
                     }
                 },
                 selectedTopMatchIndex = selectedTopMatchIndex,
@@ -1413,6 +1450,7 @@ internal fun SearchScreenContent(
                         onClick = {
                             hideOpenKeyboardActionInstantly = true
                             delayedOpenKeyboardActionVisible = false
+                            searchFocusRequester.requestFocus()
                             openKeyboardActionScope.launch {
                                 withFrameNanos { }
                                 keyboardController?.show()

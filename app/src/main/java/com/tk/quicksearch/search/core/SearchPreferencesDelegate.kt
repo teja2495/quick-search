@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.core
 import com.tk.quicksearch.overlay.OverlayModeController
 import com.tk.quicksearch.search.apps.IconPackService
 import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.tools.aiSearch.AiSearchHandler
@@ -692,6 +693,9 @@ internal class SearchPreferencesDelegate(
     }
 
     fun setSettingsIconEnabled(enabled: Boolean) {
+        if (!enabled && userPreferences.getSwipeLeftAction() != SwipeGestureAction.SETTINGS) {
+            return
+        }
         updateBooleanPreference(
             value = enabled,
             preferenceSetter = userPreferences::setSettingsIconEnabled,

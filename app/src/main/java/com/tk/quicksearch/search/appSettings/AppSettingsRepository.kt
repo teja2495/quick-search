@@ -230,6 +230,13 @@ class AppSettingsRepository(
                 keywords = listOf("shortcut word", "keyword"),
             )
             addNavigation(
+                id = "app_settings_gestures",
+                titleRes = R.string.settings_gestures_title,
+                descriptionRes = R.string.settings_gestures_desc,
+                destination = AppSettingsDestination.GESTURES,
+                keywords = listOf("swipe", "quick note", "keyboard", "notifications"),
+            )
+            addNavigation(
                 id = "app_settings_calendar_events",
                 titleRes = R.string.section_calendar,
                 descriptionRes = R.string.settings_calendar_view_all_events_desc,

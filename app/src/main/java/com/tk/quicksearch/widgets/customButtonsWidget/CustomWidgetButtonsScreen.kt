@@ -214,7 +214,7 @@ fun CustomWidgetButtonsSection(
 
     val slotIndex = activeSlotIndex
     if (slotIndex != null) {
-        CustomWidgetButtonDialog(
+        CustomWidgetButtonPickerDialog(
             currentAction = state.customButtons.normalizedSlots(maxButtons).getOrNull(slotIndex),
             searchState = searchState,
             iconPackPackage = iconPackPackage,
@@ -598,7 +598,7 @@ private fun CustomButtonSlotContent(
 }
 
 @Composable
-private fun CustomWidgetButtonDialog(
+fun CustomWidgetButtonPickerDialog(
     currentAction: CustomWidgetButtonAction?,
     searchState: SearchUiState,
     iconPackPackage: String?,

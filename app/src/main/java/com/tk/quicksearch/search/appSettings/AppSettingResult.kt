@@ -47,6 +47,7 @@ enum class AppSettingsDestination {
     CREATE_CALENDAR_EVENT,
     NICKNAMES,
     TRIGGERS,
+    GESTURES,
 }
 
 enum class AppSettingsToggleKey {

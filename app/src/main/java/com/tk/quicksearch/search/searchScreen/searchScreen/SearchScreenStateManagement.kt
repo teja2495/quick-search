@@ -350,7 +350,9 @@ internal fun SearchScreenStateManagement(
         overlayModeEnabled = state.overlayModeEnabled,
         oneHandedMode = state.oneHandedMode,
         reverseScrolling = alignResultsToBottom,
-        showKeyboardOnBoundaryReached = !(isDefaultLauncher && state.query.isBlank()),
+        // This is the established result-scroll behavior and remains independent from the
+        // configurable Home Gesture actions.
+        showKeyboardOnBoundaryReached = true,
         searchFocusRequester = searchFocusRequester,
     )
 

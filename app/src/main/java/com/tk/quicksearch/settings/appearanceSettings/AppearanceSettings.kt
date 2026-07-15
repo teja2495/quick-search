@@ -1,11 +1,13 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,6 +21,9 @@ import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.IconPackInfo
 import com.tk.quicksearch.search.core.LauncherAppIcon
 import com.tk.quicksearch.search.core.AppTheme
+import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.preferences.BasePreferences
+import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
 import com.tk.quicksearch.settings.AppearanceSettings.FontSizeCard
 import com.tk.quicksearch.settings.AppearanceSettings.IconPackPickerDialog
 import com.tk.quicksearch.settings.AppearanceSettings.AppIconCard
@@ -93,6 +98,26 @@ fun AppearanceSettingsSection(
         modifier: Modifier = Modifier,
 ) {
     val appearanceContext = androidx.compose.ui.platform.LocalContext.current
+    val gesturePreferences =
+        remember(appearanceContext) { UserAppPreferences(appearanceContext.applicationContext) }
+    var settingsIconRequired by remember {
+        mutableStateOf(gesturePreferences.getSwipeLeftAction() != SwipeGestureAction.SETTINGS)
+    }
+    DisposableEffect(gesturePreferences) {
+        val preferences =
+            appearanceContext.applicationContext.getSharedPreferences(
+                BasePreferences.PREFS_NAME,
+                Context.MODE_PRIVATE,
+            )
+        val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == BasePreferences.KEY_SWIPE_LEFT_ACTION) {
+                settingsIconRequired =
+                    gesturePreferences.getSwipeLeftAction() != SwipeGestureAction.SETTINGS
+            }
+        }
+        preferences.registerOnSharedPreferenceChangeListener(listener)
+        onDispose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
     var showIconPackDialog by remember { mutableStateOf(false) }
 
     val hasIconPacks = availableIconPacks.isNotEmpty()
@@ -203,9 +228,17 @@ fun AppearanceSettingsSection(
                 )
                 SettingsToggleRow(
                         title = stringResource(R.string.settings_icon_title),
-                        subtitle = stringResource(R.string.settings_icon_desc),
+                        subtitle =
+                            stringResource(
+                                if (settingsIconRequired) {
+                                    R.string.settings_icon_required_by_gesture_desc
+                                } else {
+                                    R.string.settings_icon_desc
+                                },
+                            ),
                         checked = settingsIconEnabled,
                         onCheckedChange = onToggleSettingsIcon,
+                        enabled = !settingsIconRequired,
                         extraVerticalPadding = 8.dp,
                         showDivider = false,
                 )

@@ -43,6 +43,7 @@ class UserAppPreferences(
     private val settingsPreferences by lazy { SettingsPreferences(context) }
     private val calendarPreferences by lazy { CalendarPreferences(context) }
     private val notesPreferences by lazy { NotesPreferences(context) }
+    private val gesturesPreferences by lazy { GesturesPreferences(context) }
     private val appShortcutPreferences by lazy { AppShortcutPreferences(context) }
     private val nicknamePreferences by lazy { NicknamePreferences(context) }
     private val triggerPreferences by lazy { TriggerPreferences(context) }
@@ -377,6 +378,58 @@ class UserAppPreferences(
     fun isQuickNoteEnabled(): Boolean = notesPreferences.isQuickNoteEnabled()
 
     fun setQuickNoteEnabled(enabled: Boolean) = notesPreferences.setQuickNoteEnabled(enabled)
+
+    // ============================================================================
+    // Gesture Preferences
+    // ============================================================================
+
+    fun getSwipeRightAction(): SwipeGestureAction = gesturesPreferences.getSwipeRightAction()
+
+    fun setSwipeRightAction(action: SwipeGestureAction) = gesturesPreferences.setSwipeRightAction(action)
+
+    fun getSwipeRightCustomAction(): String? = gesturesPreferences.getSwipeRightCustomAction()
+
+    fun setSwipeRightCustomAction(actionJson: String?) = gesturesPreferences.setSwipeRightCustomAction(actionJson)
+
+    fun getSwipeLeftAction(): SwipeGestureAction = gesturesPreferences.getSwipeLeftAction()
+
+    fun setSwipeLeftAction(action: SwipeGestureAction) = gesturesPreferences.setSwipeLeftAction(action)
+
+    fun getSwipeLeftCustomAction(): String? = gesturesPreferences.getSwipeLeftCustomAction()
+
+    fun setSwipeLeftCustomAction(actionJson: String?) = gesturesPreferences.setSwipeLeftCustomAction(actionJson)
+
+    fun getSwipeUpAction(): SwipeGestureAction = gesturesPreferences.getSwipeUpAction()
+
+    fun setSwipeUpAction(action: SwipeGestureAction) = gesturesPreferences.setSwipeUpAction(action)
+
+    fun getSwipeUpCustomAction(): String? = gesturesPreferences.getSwipeUpCustomAction()
+
+    fun setSwipeUpCustomAction(actionJson: String?) = gesturesPreferences.setSwipeUpCustomAction(actionJson)
+
+    fun getSwipeDownAction(): SwipeGestureAction = gesturesPreferences.getSwipeDownAction()
+
+    fun setSwipeDownAction(action: SwipeGestureAction) = gesturesPreferences.setSwipeDownAction(action)
+
+    fun getSwipeDownCustomAction(): String? = gesturesPreferences.getSwipeDownCustomAction()
+
+    fun setSwipeDownCustomAction(actionJson: String?) = gesturesPreferences.setSwipeDownCustomAction(actionJson)
+
+    fun getHomeSwipeUpAction(): HomeSwipeGestureAction = gesturesPreferences.getHomeSwipeUpAction()
+
+    fun setHomeSwipeUpAction(action: HomeSwipeGestureAction) = gesturesPreferences.setHomeSwipeUpAction(action)
+
+    fun getHomeSwipeUpCustomAction(): String? = gesturesPreferences.getHomeSwipeUpCustomAction()
+
+    fun setHomeSwipeUpCustomAction(actionJson: String?) = gesturesPreferences.setHomeSwipeUpCustomAction(actionJson)
+
+    fun getHomeSwipeDownAction(): HomeSwipeGestureAction = gesturesPreferences.getHomeSwipeDownAction()
+
+    fun setHomeSwipeDownAction(action: HomeSwipeGestureAction) = gesturesPreferences.setHomeSwipeDownAction(action)
+
+    fun getHomeSwipeDownCustomAction(): String? = gesturesPreferences.getHomeSwipeDownCustomAction()
+
+    fun setHomeSwipeDownCustomAction(actionJson: String?) = gesturesPreferences.setHomeSwipeDownCustomAction(actionJson)
 
     // ============================================================================
     // App Shortcut Preferences

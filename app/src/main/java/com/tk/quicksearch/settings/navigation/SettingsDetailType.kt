@@ -32,6 +32,7 @@ enum class SettingsDetailType {
     TASKER_INTEGRATION,
     NICKNAMES,
     TRIGGERS,
+    GESTURES,
 }
 
 internal data class SettingsDestinationSpec(
@@ -191,6 +192,11 @@ internal object SettingsDestinationRegistry {
                     titleResId = R.string.settings_triggers_title,
                     level = 2,
                     fallbackBackDestination = SettingsDetailType.SEARCH_RESULTS,
+                ),
+            SettingsDetailType.GESTURES to
+                SettingsDestinationSpec(
+                    titleResId = R.string.settings_gestures_title,
+                    level = 2,
                 ),
         )
 

@@ -522,6 +522,7 @@ internal fun SettingsDetailLevel1Screen(
                     SettingsDetailType.TASKER_INTEGRATION,
                     SettingsDetailType.NICKNAMES,
                     SettingsDetailType.TRIGGERS,
+                    SettingsDetailType.GESTURES,
                     -> Unit
                 }
             }
