@@ -665,10 +665,16 @@ private fun BoxScope.WidgetPanelGridItem(
     val x = (cellWidth + gap) * column
     val y = (rowHeight + gap) * row
 
+    // The widget being edited is the one under the finger during a drag/resize: snap it to its
+    // target so it tracks the gesture, while the others animate as they slide out of the way.
     val animatedX by animateDpAsState(targetValue = x, label = "widgetX")
     val animatedY by animateDpAsState(targetValue = y, label = "widgetY")
     val animatedWidth by animateDpAsState(targetValue = width, label = "widgetWidth")
     val animatedHeight by animateDpAsState(targetValue = height, label = "widgetHeight")
+    val offsetX = if (isEditing) x else animatedX
+    val offsetY = if (isEditing) y else animatedY
+    val renderWidth = if (isEditing) width else animatedWidth
+    val renderHeight = if (isEditing) height else animatedHeight
     val editScale by animateFloatAsState(
         targetValue = if (isEditing) 1.02f else 1f,
         label = "widgetEditScale",
@@ -693,11 +699,11 @@ private fun BoxScope.WidgetPanelGridItem(
     Box(
         modifier =
             Modifier
-                .size(width = animatedWidth, height = animatedHeight)
+                .size(width = renderWidth, height = renderHeight)
                 .offset {
                     IntOffset(
-                        x = with(density) { animatedX.roundToPx() },
-                        y = with(density) { animatedY.roundToPx() },
+                        x = with(density) { offsetX.roundToPx() },
+                        y = with(density) { offsetY.roundToPx() },
                     )
                 }
                 .zIndex(if (isEditing) 1f else 0f)

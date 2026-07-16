@@ -1,6 +1,5 @@
 package com.tk.quicksearch.widgetsPanel
 
-import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -120,9 +119,18 @@ internal fun resolveWidgetGridLayout(
 }
 
 /**
- * Moves a widget to the requested grid cell and gives it priority over widgets already there.
- * Widgets displaced by the move are placed in the nearest available cell, making every crossed
- * cell respond during a drag instead of rejecting intermediate positions.
+ * Reorders the dragged widget to the requested cell and re-stacks the whole layout so there are
+ * never gaps or overlaps, regardless of the widgets having different heights.
+ *
+ * The dragged widget's order position is decided by its *leading edge* crossing a neighbour's
+ * centre — its bottom edge when it sits below a neighbour, its top edge when above. A reorder
+ * therefore triggers only once the dragged widget is pushed past the midpoint of the neighbour it
+ * is crossing, which feels stable in both directions and works even when the two widgets have very
+ * different heights (a pure centre-vs-centre test can never lift a tall widget above a short one).
+ * Every widget then keeps its column and is packed into the topmost row where it fits — this both
+ * preserves side-by-side arrangements and closes any empty rows left behind by the move.
+ *
+ * All vertical positions are scaled by 2 so centres (row + rowSpan / 2) stay in integer space.
  */
 internal fun moveWidgetToCell(
     widgets: List<PanelWidgetInfo>,
@@ -135,77 +143,68 @@ internal fun moveWidgetToCell(
     val rowSpan = current.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN
     val clampedTargetColumn = targetColumn.coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - columnSpan)
     val clampedTargetRow = targetRow.coerceAtLeast(0)
-    val moved =
-        current.copy(
-            column = clampedTargetColumn,
-            row = clampedTargetRow,
-        )
-    val crossedWidget =
-        widgets
-            .asSequence()
-            .filterNot { it.appWidgetId == appWidgetId }
-            .filter { widgetsOverlap(it, moved) }
-            .minByOrNull { item ->
-                abs((item.column ?: 0) - clampedTargetColumn) +
-                    abs((item.row ?: 0) - clampedTargetRow)
+    val moved = current.copy(column = clampedTargetColumn, row = clampedTargetRow)
+
+    // Fast path: if the target rect lands on exactly one same-sized widget, swap the two. This
+    // keeps a clean swap for equal-size neighbours on either axis (e.g. two half-width widgets
+    // sitting side by side). Such a swap is always valid: the two rects were each in-bounds and
+    // occupied only by the other widget, so nothing else can overlap after the exchange.
+    val overlapping = widgets.filter { it.appWidgetId != appWidgetId && widgetsOverlap(it, moved) }
+    val swapTarget = overlapping.singleOrNull()
+    if (
+        swapTarget != null &&
+        (swapTarget.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN) == columnSpan &&
+        (swapTarget.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN) == rowSpan
+    ) {
+        return widgets.map { item ->
+            when (item.appWidgetId) {
+                appWidgetId -> current.copy(column = swapTarget.column, row = swapTarget.row)
+                swapTarget.appWidgetId -> swapTarget.copy(column = current.column, row = current.row)
+                else -> item
             }
-    if (crossedWidget != null) {
-        val swappedLayout =
-            widgets.map { item ->
-                when (item.appWidgetId) {
-                    appWidgetId ->
-                        current.copy(
-                            column = crossedWidget.column ?: 0,
-                            row = crossedWidget.row ?: 0,
-                        )
-                    crossedWidget.appWidgetId ->
-                        crossedWidget.copy(
-                            column = current.column ?: 0,
-                            row = current.row ?: 0,
-                        )
-                    else -> item
-                }
-            }
-        if (isValidGridLayout(swappedLayout)) return swappedLayout
+        }
     }
 
-    val occupied = mutableSetOf<Pair<Int, Int>>()
-    markOccupied(
-        occupied = occupied,
-        column = clampedTargetColumn,
-        row = clampedTargetRow,
-        columnSpan = columnSpan,
-        rowSpan = rowSpan,
-    )
+    val baseCenter = (current.row ?: 0) * 2 + rowSpan
+    val topEdge = clampedTargetRow * 2
+    val bottomEdge = (clampedTargetRow + rowSpan) * 2
 
-    val placed = mutableMapOf(appWidgetId to moved)
-    widgets.filterNot { it.appWidgetId == appWidgetId }.forEach { item ->
+    val others =
+        widgets
+            .filterNot { it.appWidgetId == appWidgetId }
+            .sortedWith(
+                compareBy(
+                    { (it.row ?: 0) * 2 + (it.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN) },
+                    { it.column ?: 0 },
+                ),
+            )
+    val insertionIndex =
+        others.count { item ->
+            val itemCenter = (item.row ?: 0) * 2 + (item.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN)
+            // Count neighbours that end up above the dragged widget.
+            if (itemCenter <= baseCenter) {
+                // Originally at/above: stays above until the dragged top rises past its centre.
+                topEdge >= itemCenter
+            } else {
+                // Originally below: moves above once the dragged bottom passes its centre.
+                bottomEdge > itemCenter
+            }
+        }
+
+    val ordered = others.toMutableList().apply { add(insertionIndex, moved) }
+
+    val occupied = mutableSetOf<Pair<Int, Int>>()
+    val placedById = mutableMapOf<Int, PanelWidgetInfo>()
+    ordered.forEach { item ->
         val itemColumnSpan = item.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN
         val itemRowSpan = item.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN
         val itemColumn = (item.column ?: 0).coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - itemColumnSpan)
-        val itemRow = (item.row ?: 0).coerceAtLeast(0)
-        val position =
-            if (canPlace(occupied, itemColumn, itemRow, itemColumnSpan, itemRowSpan)) {
-                itemColumn to itemRow
-            } else {
-                findNearestAvailablePosition(
-                    occupied = occupied,
-                    targetColumn = itemColumn,
-                    targetRow = itemRow,
-                    columnSpan = itemColumnSpan,
-                    rowSpan = itemRowSpan,
-                )
-            }
-        markOccupied(
-            occupied = occupied,
-            column = position.first,
-            row = position.second,
-            columnSpan = itemColumnSpan,
-            rowSpan = itemRowSpan,
-        )
-        placed[item.appWidgetId] = item.copy(column = position.first, row = position.second)
+        var row = 0
+        while (!canPlace(occupied, itemColumn, row, itemColumnSpan, itemRowSpan)) row++
+        markOccupied(occupied, itemColumn, row, itemColumnSpan, itemRowSpan)
+        placedById[item.appWidgetId] = item.copy(column = itemColumn, row = row)
     }
-    return widgets.map { placed[it.appWidgetId] ?: it }
+    return widgets.map { placedById[it.appWidgetId] ?: it }
 }
 
 /**
@@ -290,29 +289,15 @@ private fun PanelWidgetInfo.rowOrZero(): Int = row ?: 0
 private fun PanelWidgetInfo.bottomRow(): Int =
     (row ?: 0) + (rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN)
 
+private fun widgetsOverlap(a: PanelWidgetInfo, b: PanelWidgetInfo): Boolean =
+    horizontallyOverlaps(a, b) && a.rowOrZero() < b.bottomRow() && b.rowOrZero() < a.bottomRow()
+
 private fun horizontallyOverlaps(a: PanelWidgetInfo, b: PanelWidgetInfo): Boolean {
     val aLeft = a.column ?: 0
     val aRight = aLeft + (a.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN)
     val bLeft = b.column ?: 0
     val bRight = bLeft + (b.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN)
     return aLeft < bRight && bLeft < aRight
-}
-
-private fun widgetsOverlap(a: PanelWidgetInfo, b: PanelWidgetInfo): Boolean =
-    horizontallyOverlaps(a, b) && a.rowOrZero() < b.bottomRow() && b.rowOrZero() < a.bottomRow()
-
-private fun isValidGridLayout(widgets: List<PanelWidgetInfo>): Boolean {
-    widgets.forEachIndexed { index, widget ->
-        val column = widget.column ?: 0
-        val columnSpan = widget.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN
-        if (column < 0 || column + columnSpan > WIDGET_PANEL_GRID_COLUMNS || widget.rowOrZero() < 0) {
-            return false
-        }
-        for (otherIndex in index + 1 until widgets.size) {
-            if (widgetsOverlap(widget, widgets[otherIndex])) return false
-        }
-    }
-    return true
 }
 
 internal fun calculateGridColumnSpan(
@@ -465,35 +450,6 @@ private fun compactEmptyRows(widgets: List<PanelWidgetInfo>): List<PanelWidgetIn
         val row = widget.row ?: 0
         widget.copy(row = row - emptyRowsBefore[row])
     }
-}
-
-private fun findNearestAvailablePosition(
-    occupied: Set<Pair<Int, Int>>,
-    targetColumn: Int,
-    targetRow: Int,
-    columnSpan: Int,
-    rowSpan: Int,
-): Pair<Int, Int> {
-    var radius = 0
-    val maxRows = (occupied.maxOfOrNull { it.second } ?: targetRow) + rowSpan + 2
-    while (radius <= maxRows + WIDGET_PANEL_GRID_COLUMNS) {
-        var best: Pair<Int, Int>? = null
-        var bestDistance = Int.MAX_VALUE
-        for (row in (targetRow - radius)..(targetRow + radius)) {
-            if (row < 0) continue
-            for (column in 0..(WIDGET_PANEL_GRID_COLUMNS - columnSpan)) {
-                val distance = abs(column - targetColumn) + abs(row - targetRow)
-                if (distance > radius || distance >= bestDistance) continue
-                if (canPlace(occupied, column, row, columnSpan, rowSpan)) {
-                    best = column to row
-                    bestDistance = distance
-                }
-            }
-        }
-        if (best != null) return best
-        radius++
-    }
-    return targetColumn to targetRow
 }
 
 private fun canPlace(
