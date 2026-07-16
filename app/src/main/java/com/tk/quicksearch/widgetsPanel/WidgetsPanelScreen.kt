@@ -19,9 +19,11 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -59,18 +61,23 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -145,6 +152,10 @@ fun WidgetsPanelScreen(
     var showPicker by rememberSaveable { mutableStateOf(false) }
     var pendingRequest by remember { mutableStateOf<PendingWidgetRequest?>(null) }
     val panelScrollState = rememberScrollState()
+    // Window bounds of the scroll viewport, used to auto-scroll a widget back into view while it is
+    // being dragged near the top/bottom edge.
+    var scrollViewportTopPx by remember { mutableFloatStateOf(0f) }
+    var scrollViewportHeightPx by remember { mutableIntStateOf(0) }
     val widgetOptionsFactory =
         remember(configuration) {
             WidgetOptionsFactory(
@@ -391,6 +402,10 @@ fun WidgetsPanelScreen(
                     modifier =
                         Modifier
                             .weight(1f)
+                            .onGloballyPositioned { coordinates ->
+                                scrollViewportTopPx = coordinates.positionInWindow().y
+                                scrollViewportHeightPx = coordinates.size.height
+                            }
                             .verticalScroll(panelScrollState),
                     verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
                 ) {
@@ -405,6 +420,9 @@ fun WidgetsPanelScreen(
                             appWidgetHost = appWidgetHost,
                             editingWidgetId = editingWidgetId,
                             density = density,
+                            panelScrollState = panelScrollState,
+                            viewportTopPx = scrollViewportTopPx,
+                            viewportHeightPx = scrollViewportHeightPx,
                             onPersist = ::persistWidgets,
                             onSetEditingWidgetId = { id -> editingWidgetId = id },
                             onRemoveWidget = { widget ->
@@ -482,6 +500,9 @@ private fun WidgetPanelGrid(
     appWidgetHost: WidgetPanelHost,
     editingWidgetId: Int?,
     density: Density,
+    panelScrollState: ScrollState,
+    viewportTopPx: Float,
+    viewportHeightPx: Int,
     onPersist: (List<PanelWidgetInfo>) -> Unit,
     onSetEditingWidgetId: (Int?) -> Unit,
     onRemoveWidget: (PanelWidgetInfo) -> Unit,
@@ -535,6 +556,11 @@ private fun WidgetPanelGrid(
         var liveLayout by remember { mutableStateOf<List<PanelWidgetInfo>?>(null) }
         val displayLayout = liveLayout ?: laidOut
         var hostDragStart by remember { mutableStateOf<PanelWidgetInfo?>(null) }
+        // Scroll offset captured when a host drag begins, so the drag target can compensate for any
+        // auto-scroll and keep the widget under the finger (the host path works in screen coords).
+        var scrollAtDragStart by remember { mutableIntStateOf(0) }
+        // Window Y of the grid content box, used to locate the dragged widget for edge auto-scroll.
+        var gridTopPx by remember { mutableFloatStateOf(0f) }
 
         val currentLaidOut by rememberUpdatedState(laidOut)
         val currentGridUnitWidthPx by rememberUpdatedState(gridUnitWidthPx)
@@ -547,6 +573,7 @@ private fun WidgetPanelGrid(
                 val widget = currentLaidOut.firstOrNull { it.appWidgetId == id }
                 if (widget != null) {
                     hostDragStart = widget
+                    scrollAtDragStart = panelScrollState.value
                     currentOnSetEditing(id)
                 }
             }
@@ -554,11 +581,14 @@ private fun WidgetPanelGrid(
                 val start = hostDragStart
                 if (start != null && start.appWidgetId == id) {
                     val columnSpan = start.columnSpan ?: WIDGET_PANEL_DEFAULT_COLUMN_SPAN
+                    // Fold the auto-scroll distance into the vertical delta so the widget keeps
+                    // tracking the finger as the page scrolls under it.
+                    val scrollDelta = (panelScrollState.value - scrollAtDragStart).toFloat()
                     val nextColumn =
                         ((start.column ?: 0) + (dx / currentGridUnitWidthPx).roundToInt())
                             .coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - columnSpan)
                     val nextRow =
-                        ((start.row ?: 0) + (dy / currentGridUnitHeightPx).roundToInt())
+                        ((start.row ?: 0) + ((dy + scrollDelta) / currentGridUnitHeightPx).roundToInt())
                             .coerceAtLeast(0)
                     liveLayout =
                         moveWidgetToCell(
@@ -577,6 +607,46 @@ private fun WidgetPanelGrid(
             }
         }
 
+        // Auto-scroll the panel while a widget is being dragged near the viewport's top/bottom edge
+        // so the dragged widget stays visible. Speed ramps with how far past the edge margin it is.
+        val currentDisplayLayout by rememberUpdatedState(displayLayout)
+        val currentEditingWidgetId by rememberUpdatedState(editingWidgetId)
+        val currentViewportTopPx by rememberUpdatedState(viewportTopPx)
+        val currentViewportHeightPx by rememberUpdatedState(viewportHeightPx)
+        val isDragging = liveLayout != null
+        LaunchedEffect(isDragging) {
+            if (!isDragging) return@LaunchedEffect
+            val edgeMarginPx = with(density) { rowHeight.toPx() }
+            while (true) {
+                withFrameNanos {}
+                val viewportHeight = currentViewportHeightPx
+                if (viewportHeight <= 0) continue
+                val draggedId = currentEditingWidgetId ?: continue
+                val dragged =
+                    currentDisplayLayout.firstOrNull { it.appWidgetId == draggedId } ?: continue
+                val row = dragged.row ?: 0
+                val rowSpan = dragged.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN
+                val widgetTopPx = gridTopPx + with(density) { ((rowHeight + gap) * row).toPx() }
+                val widgetHeightPx =
+                    with(density) { (rowHeight * rowSpan + gap * (rowSpan - 1)).toPx() }
+                val widgetBottomPx = widgetTopPx + widgetHeightPx
+                val viewportTop = currentViewportTopPx
+                val viewportBottom = viewportTop + viewportHeight
+                val maxStep = viewportHeight / 45f
+                val overshootBottom = widgetBottomPx - (viewportBottom - edgeMarginPx)
+                val overshootTop = (viewportTop + edgeMarginPx) - widgetTopPx
+                val step =
+                    when {
+                        overshootBottom > 0f ->
+                            (overshootBottom / edgeMarginPx).coerceIn(0f, 1f) * maxStep
+                        overshootTop > 0f ->
+                            -((overshootTop / edgeMarginPx).coerceIn(0f, 1f) * maxStep)
+                        else -> 0f
+                    }
+                if (step != 0f) panelScrollState.scrollBy(step)
+            }
+        }
+
         val rows =
             displayLayout.maxOfOrNull { widget ->
                 (widget.row ?: 0) + (widget.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN)
@@ -588,7 +658,10 @@ private fun WidgetPanelGrid(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .height(panelHeight),
+                    .height(panelHeight)
+                    .onGloballyPositioned { coordinates ->
+                        gridTopPx = coordinates.positionInWindow().y
+                    },
         ) {
             displayLayout.forEach { widget ->
                 key(widget.appWidgetId) {
