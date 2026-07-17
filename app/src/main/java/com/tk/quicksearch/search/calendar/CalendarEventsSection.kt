@@ -18,7 +18,6 @@ import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.Repeat
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.DropdownMenu
@@ -294,39 +293,31 @@ internal fun CalendarEventRow(
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = formatCalendarEventDate(event),
+                text = if (isHomescreenTodayEvent) {
+                    listOf(
+                        formatCalendarEventDate(event),
+                        calendarRelativeDateLabel(event.startMillis),
+                    ).joinToString(" \u00b7 ")
+                } else {
+                    listOfNotNull(
+                        formatCalendarEventDate(event),
+                        recurrenceLabel,
+                    ).joinToString(" \u00b7 ")
+                },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            recurrenceLabel?.let { recurrence ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Repeat,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(12.dp),
-                    )
-                    Text(
-                        text = recurrence,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
+            if (!isHomescreenTodayEvent) {
+                Text(
+                    text = calendarRelativeDateLabel(event.startMillis),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
-            Text(
-                text = calendarRelativeDateLabel(event.startMillis),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
         }
 
         DropdownMenu(
