@@ -1,5 +1,5 @@
 - Customizable swipe gestures
-- Tasker integaration
+- Tasker integration
 - Option to turn off file previews
 - Option to increase app icon size
 - Search contacts with phone number (enable in settings)
