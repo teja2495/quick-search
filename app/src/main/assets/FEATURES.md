@@ -2,7 +2,7 @@
 
 This document highlights all the available features. It also includes details about hidden or non-obvious features that you might miss.
 
-**Version**: 3.6 (Updated May 19 2026)
+**Version**: 3.8 (Updated July 16 2026)
 
 ### Search
 
@@ -24,7 +24,7 @@ This document highlights all the available features. It also includes details ab
 - **Multi-App Search** - Type a query and tap any "search on" card to quickly search using that search engine. If compact mode is enabled, you can just tap on any icon in the search engine section above your keyboard.
 - **Browser Integration** - Installed browsers automatically appear as search engine options
 - **In-App Browser** - Option to open URLs inside the app instead of an external browser
-- **Supported Search Engines** (25 total): AI Search, Google, ChatGPT, Gemini, Perplexity, Grok, Google Maps, Google Drive, Google Photos, Google Play, YouTube, YouTube Music, Spotify, Reddit, Amazon, X (Twitter), Facebook Marketplace, Bing, DuckDuckGo, Brave, Startpage, You.com, AI Mode, Claude, Wikipedia
+- **Supported Search Engines** (26 total): AI Search, Google, ChatGPT, Gemini, Perplexity, Grok, Google Maps, Google Drive, Google Photos, Google Play, Google Translate, YouTube, YouTube Music, Spotify, Reddit, Amazon, X (Twitter), Facebook Marketplace, Bing, DuckDuckGo, Brave, Startpage, You.com, AI Mode, Claude, Wikipedia
 - **AI Search** - Configure your Gemini API key to see answers directly within Quick Search. 
 - **Custom Search Engines** - Add your own search engines from the Search Engines settings screen.
 - **Web Search Suggestions** - Web suggestions automatically appear when you type your query; you can disable them or change the count in settings.
@@ -61,6 +61,7 @@ This document highlights all the available features. It also includes details ab
 - **World Clock** - Check the current time across different time zones. Search for city names to see their current time instantly.
 - **Currency Converter** - Convert between currencies directly from the search bar. Example: "100 USD to EUR" to see the converted amount with the current exchange rate.
 - **Custom AI Tools** - Create your own tools for AI Search. This feature requires an API key to be configured.
+- **Tasker Integration** - Create Tasker actions with broadcast intents and trigger them from Quick Search using aliases. The current query is sent to Tasker as an extra.
 
 ---
 
@@ -95,7 +96,7 @@ Add aliases at the start of your query to quickly let the app know what you want
 Long-press on most results to open a context menu with quick actions.
 
 - **Triggers** - Long-press a result to add a trigger phrase. When you type that trigger and press space, Quick Search opens that result automatically.
-- **Pin / Unpin** - Pin or unpin apps, app shortcuts, contacts, files, and device settings so that they stay on your home screen when you open the app. Hold and drag any pinned item to reorder it. You can also long-press a pinned item and tap **Move Up** or **Move Down** to reorder it.
+- **Pin / Unpin** - Pin or unpin apps, app shortcuts, contacts, files, and device settings so that they stay on your home screen when you open the app. Hold and drag any pinned item to reorder it. You can also long-press a pinned item and tap **Move Up** or **Move Down** to reorder it. On the home screen, tap a pinned section header to expand or collapse its items.
 - **Add / Edit Nickname** - Add or edit nicknames for apps, app shortcuts, contacts, files, and device settings so you can search them using custom names.
 - **Exclude / Include** - Exclude individual contacts, app shortcuts, files, and device settings from results. You can include them again later by clearing them from Excluded Items list in Search Results settings.
 - **Add to Home Screen** - Add apps, app shortcuts, contacts, files, and device settings directly to your home screen as shortcuts for one-tap access.
@@ -179,13 +180,14 @@ Long-press on most results to open a context menu with quick actions.
 - **Excluded Extensions** - See and remove file extensions that are currently excluded from results.
 - **System & Hidden Files** - Show or hide system files and hidden files from file search results.
 - **Folder Filters (Whitelist / Blacklist)** - Configure which folders should be included or excluded for files search.
-- **File Previews** - Tap to preview PDFs and images directly within the app before opening them.
+- **File Previews** - Enable or disable previews for PDFs and images before opening them.
 
 ---
 
 ### Calls & Texts Settings
 
 - Can be accessed in Search Result settings page via Contacts Option
+- **Number Search** - Enable searching contacts by their phone numbers.
 - **Direct Dial** - Enable direct dialing from search results (tapping a phone result calls immediately instead of opening the dialer).
 - **Default Calling App** - Choose which app to show up as the default calling action in contact result cards (supported apps when installed: Google Meet, WhatsApp, Telegram, Signal).
 - **Default Messaging App** - Choose which app to show up as the default messaging action in the contact result cards (supported apps when installed: Google Meet, WhatsApp, Telegram, Signal).
@@ -220,12 +222,19 @@ Long-press on most results to open a context menu with quick actions.
 
 - **Top Result Indicator Toggle** - Option to hide the top result indicator for top results that can be opened with the keyboard.
 - **Open Keyboard Toggle** - Choose to disable automatic keyboard opening during app launch. This is useful if you want to use this app just to quickly access pinned items.
+- **Unified Pinned Items** - Combine pinned items from different sections into a single list on the home screen. This option is off by default.
 - **Clear Query** - The app clears your query by default when you reopen the app; you can choose to keep the query by disabling this toggle.
 - **Auto-Close App** - Option to toggle auto-close app after any action
 - **Language** - In-app language switcher to change the app language without changing your device language.
 - **Search Hints** - Option to show or hide the rotating search hints displayed in the search bar.
 - **Settings Icon** - Option to show or hide the settings icon in the search bar.
 - **Quick Note** - Option to disable the quick note feature (swipe left from home) if you don't use it.
+
+---
+
+### Gestures Settings
+
+- **Customizable Swipe Gestures** - Customize actions for left, right, up, and down gestures, including separate up/down actions from the home screen.
 
 ---
 
@@ -288,6 +297,7 @@ Long-press on most results to open a context menu with quick actions.
 - Long-press AI Search, Calculator or any tool result to copy it to clipboard.
 - You can send text to Quick Search by selecting Quick Search in phone's text-selection menu and share sheet.
 - Long press on any contact actions to add it to your launcher or add a trigger for it.
+- **Custom Widget Folder Icon Color** - Change the color of folder icons used by custom buttons in the widget.
 
 ---
 

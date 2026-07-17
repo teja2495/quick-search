@@ -324,7 +324,7 @@ internal fun SearchScreenContent(
                 isUnitConverterMode -> stringResource(R.string.unit_converter_enter_conversion_hint)
                 isCurrencyConverterAliasMode ->
                         stringResource(R.string.search_hint_currency_converter)
-                isWordClockAliasMode -> stringResource(R.string.search_hint_word_clock)
+                isWordClockAliasMode -> stringResource(R.string.search_hint_world_clock)
                 isDictionaryAliasMode -> stringResource(R.string.search_hint_dictionary)
                 activeCustomTool != null -> activeCustomTool.name
                 state.detectedAliasSearchSection != null ->

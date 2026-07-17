@@ -151,14 +151,24 @@ private fun renderAppsSection(
             ((appsParams.hasAppResults && appsParams.apps.isNotEmpty()) || appsParams.showAllAppsButton)
     ) {
         val shouldShowRateQuickSearchCard = appsParams.showRateQuickSearchCard
-        val renderRateQuickSearchCardFirst = shouldShowRateQuickSearchCard && appsParams.oneHandedMode
+        val shouldShowUpdateCard = appsParams.showUpdateCard
+        val renderPromptCardsFirst = (shouldShowUpdateCard || shouldShowRateQuickSearchCard) && appsParams.oneHandedMode
 
-        if (renderRateQuickSearchCardFirst) {
+        if (renderPromptCardsFirst) {
+            if (shouldShowUpdateCard) {
+                UpdateQuickSearchCard(
+                    showWallpaperBackground = appsParams.showWallpaperBackground,
+                    onClick = appsParams.onUpdateClick,
+                    onNotNowClick = appsParams.onUpdateNotNowClick,
+                )
+            }
+            if (shouldShowRateQuickSearchCard) {
             RateQuickSearchCard(
                 showWallpaperBackground = appsParams.showWallpaperBackground,
                 onClick = appsParams.onRateQuickSearchClick,
                 onNotNowClick = appsParams.onRateQuickSearchNotNowClick,
             )
+            }
         }
         AppGridView(
             apps = appsParams.apps,
@@ -205,7 +215,14 @@ private fun renderAppsSection(
             onGridAppeared = appsParams.onGridAppeared,
             suppressSuggestionsEnterAnimation = appsParams.suppressSuggestionsEnterAnimation,
         )
-        if (shouldShowRateQuickSearchCard && !renderRateQuickSearchCardFirst) {
+        if (!renderPromptCardsFirst && shouldShowUpdateCard) {
+            UpdateQuickSearchCard(
+                showWallpaperBackground = appsParams.showWallpaperBackground,
+                onClick = appsParams.onUpdateClick,
+                onNotNowClick = appsParams.onUpdateNotNowClick,
+            )
+        }
+        if (shouldShowRateQuickSearchCard && !renderPromptCardsFirst) {
             RateQuickSearchCard(
                 showWallpaperBackground = appsParams.showWallpaperBackground,
                 onClick = appsParams.onRateQuickSearchClick,

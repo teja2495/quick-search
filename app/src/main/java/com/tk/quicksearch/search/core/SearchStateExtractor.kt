@@ -135,6 +135,7 @@ internal object SearchStateExtractor {
             numberSearchEnabled = s.numberSearchEnabled,
             shouldShowUsagePermissionBanner = s.shouldShowUsagePermissionBanner,
             showRateQuickSearchCard = s.showRateQuickSearchCard,
+            showUpdateCard = s.showUpdateCard,
         )
 
     fun extractConfigState(s: SearchUiState) =

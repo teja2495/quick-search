@@ -766,6 +766,8 @@
      ============================================================================ -->
 <string name="release_notes_action_all_features">Tüm özellikler</string>
 <string name="release_notes_action_got_it">Anladım</string>
+<string name="update_card_title">Quick Search için yeni bir güncelleme mevcut!</string>
+<string name="action_update">Güncelle</string>
 <string name="release_notes_title">Quick Search v%1$s sürüm notları</string>
 <string name="release_notes_title_no_version">Quick Search sürüm notları</string>
 <string name="settings_backup_export_api_key_warning_message">Sorumluluk sana aittir. Dışa aktarılan API anahtarı şifrelenmez ve yedek dosyana erişimi olan herkes tarafından görüntülenebilir.</string>

@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.searchScreen
 
 import android.Manifest
+import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -34,6 +35,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tk.quicksearch.R
+import com.tk.quicksearch.app.UpdateHelper
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
@@ -674,6 +676,10 @@ fun SearchRoute(
                 viewModel.trackRecentAppSettingTap(RATE_QUICK_SEARCH_SETTING_ID)
                 viewModel.dismissRateQuickSearchForNow()
             },
+            onUpdateClick = {
+                (context as? Activity)?.let(UpdateHelper::startUpdate)
+            },
+            onUpdateNotNowClick = viewModel::dismissUpdateForNow,
             onContactClick = { contact: com.tk.quicksearch.search.models.ContactInfo ->
                 viewModel.openContact(contact)
             },

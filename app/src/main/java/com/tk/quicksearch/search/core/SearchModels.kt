@@ -622,6 +622,7 @@ data class SearchUiState(
         val shouldShowUsagePermissionBanner: Boolean = false,
         // Home screen prompt card
         val showRateQuickSearchCard: Boolean = false,
+        val showUpdateCard: Boolean = false,
         // Versioning for cache invalidation
         val contactActionsVersion: Int = 0,
         val nicknameUpdateVersion: Int = 0,
@@ -768,6 +769,7 @@ fun SearchUiState(
                 assistantLaunchVoiceModeEnabled = features.assistantLaunchVoiceModeEnabled,
                 shouldShowUsagePermissionBanner = features.shouldShowUsagePermissionBanner,
                 showRateQuickSearchCard = features.showRateQuickSearchCard,
+                showUpdateCard = features.showUpdateCard,
                 // ── SearchUiConfigState ───────────────────────────────────────────
                 startupPhase = config.startupPhase,
                 isInitializing = config.isInitializing,

@@ -119,7 +119,7 @@ class StartupCoordinator(
                 userPreferences.resetUpdateCheckSession()
 
                 val targetActivity = activity ?: return@launch
-                UpdateHelper.checkForUpdates(targetActivity, userPreferences)
+                UpdateHelper.checkForUpdates(targetActivity, userPreferences, viewModel::onUpdateAvailable)
             } finally {
                 Trace.endSection()
             }

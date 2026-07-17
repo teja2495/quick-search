@@ -767,6 +767,8 @@
          ============================================================================ -->
     <string name="release_notes_action_all_features">Todas las funciones</string>
     <string name="release_notes_action_got_it">Entendido</string>
+    <string name="update_card_title">¡Hay una nueva actualización disponible para Quick Search!</string>
+    <string name="action_update">Actualizar</string>
     <string name="release_notes_title">Notas de la versión de Quick Search v%1$s</string>
     <string name="release_notes_title_no_version">Notas de la versión de Quick Search</string>
     <string name="settings_backup_export_api_key_warning_message">Procede bajo tu propio riesgo. La clave API exportada no está encriptada y cualquier persona con acceso al archivo de respaldo podría verla.</string>

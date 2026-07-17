@@ -767,6 +767,8 @@
          ============================================================================ -->
     <string name="release_notes_action_all_features">सभी फ़ीचर्स</string>
     <string name="release_notes_action_got_it">समझ गया</string>
+    <string name="update_card_title">क्विक सर्च के लिए नया अपडेट उपलब्ध है!</string>
+    <string name="action_update">अपडेट करें</string>
     <string name="release_notes_title">Quick Search v%1$s रिलीज़ नोट्स</string>
     <string name="release_notes_title_no_version">Quick Search रिलीज़ नोट्स</string>
     <string name="settings_backup_export_api_key_warning_message">अपने जोखिम पर आगे बढ़ें। एक्सपोर्ट की गई API key एन्क्रिप्टेड नहीं होती और आपकी बैकअप फाइल तक पहुंच रखने वाला कोई भी इसे देख सकता है।</string>

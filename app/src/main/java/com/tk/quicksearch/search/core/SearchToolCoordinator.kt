@@ -358,7 +358,7 @@ internal class SearchToolCoordinator(
                     },
                     onFailure = { e ->
                         if (e is WordClockNotRecognizedException) {
-                            val msg = appContext.getString(R.string.word_clock_error_not_recognized)
+                            val msg = appContext.getString(R.string.world_clock_error_not_recognized)
                             updateResultsState { s ->
                                 s.copy(
                                     wordClockState =

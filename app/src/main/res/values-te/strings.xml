@@ -767,6 +767,8 @@
          ============================================================================ -->
     <string name="release_notes_action_all_features">అన్ని ఫీచర్లు</string>
     <string name="release_notes_action_got_it">అర్థమైంది</string>
+    <string name="update_card_title">క్విక్ సెర్చ్ కోసం కొత్త అప్‌డేట్ అందుబాటులో ఉంది!</string>
+    <string name="action_update">అప్‌డేట్ చేయండి</string>
     <string name="release_notes_title">Quick Search v%1$s రిలీజ్ నోట్స్</string>
     <string name="release_notes_title_no_version">Quick Search రిలీజ్ నోట్స్</string>
     <string name="settings_backup_export_api_key_warning_message">మీ స్వంత రిస్క్‌తోనే కొనసాగండి. ఎగుమతి చేసిన API కీ ఎన్‌క్రిప్ట్ చేయబడదు మరియు మీ బ్యాకప్ ఫైల్‌కు యాక్సెస్ ఉన్న ఎవరైనా దీనిని యాక్సెస్ చేయవచ్చు.</string>

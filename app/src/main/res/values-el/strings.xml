@@ -767,6 +767,8 @@
          ============================================================================ -->
     <string name="release_notes_action_all_features">Όλες οι δυνατότητες</string>
     <string name="release_notes_action_got_it">Κατανόησα</string>
+    <string name="update_card_title">Μια νέα ενημέρωση είναι διαθέσιμη για το Quick Search!</string>
+    <string name="action_update">Ενημέρωση</string>
     <string name="release_notes_title">Σημειώσεις έκδοσης Quick Search v%1$s</string>
     <string name="release_notes_title_no_version">Σημειώσεις έκδοσης Quick Search</string>
     <string name="settings_backup_export_api_key_warning_message">Προχωρήστε με δική σας ευθύνη. Το εξαγόμενο κλειδί API δεν είναι κρυπτογραφημένο και μπορεί να προσπελαστεί από οποιονδήποτε έχει πρόσβαση στο αρχείο αντιγράφου ασφαλείας.</string>

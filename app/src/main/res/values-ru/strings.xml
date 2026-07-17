@@ -783,6 +783,8 @@
      ============================================================================ -->
 <string name="release_notes_action_all_features">Все функции</string>
 <string name="release_notes_action_got_it">Понятно</string>
+<string name="update_card_title">Доступно новое обновление для Quick Search!</string>
+<string name="action_update">Обновить</string>
 <string name="release_notes_title">Примечания к релизу Quick Search v%1$s</string>
 <string name="release_notes_title_no_version">Примечания к релизу Quick Search</string>
 <string name="settings_backup_export_api_key_warning_message">Вы действуете на свой страх и риск. Экспортируемый API-ключ не зашифрован и может быть доступен любому, у кого есть доступ к вашему файлу резервной копии.</string>

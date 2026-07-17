@@ -767,6 +767,8 @@
          ============================================================================ -->
     <string name="release_notes_action_all_features">所有功能</string>
     <string name="release_notes_action_got_it">知道了</string>
+    <string name="update_card_title">Quick Search 有新更新可用！</string>
+    <string name="action_update">更新</string>
     <string name="release_notes_title">Quick Search v%1$s 版本更新日志</string>
     <string name="release_notes_title_no_version">Quick Search 版本更新日志</string>
     <string name="settings_backup_export_api_key_warning_message">继续操作需自行承担风险。导出的 API 密钥未经加密，任何能够访问您备份文件的人均可获取该密钥。</string>

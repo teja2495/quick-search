@@ -768,6 +768,8 @@
          ============================================================================ -->
     <string name="release_notes_action_all_features">كل الميزات</string>
     <string name="release_notes_action_got_it">حسناً</string>
+    <string name="update_card_title">يتوفر تحديث جديد لـ Quick Search!</string>
+    <string name="action_update">تحديث</string>
     <string name="release_notes_title">ملاحظات إصدار Quick Search v%1$s</string>
     <string name="release_notes_title_no_version">ملاحظات إصدار Quick Search</string>
     <string name="settings_backup_export_api_key_warning_message">المضي قدماً على مسؤوليتك الخاصة. مفتاح API المصدر لن يكون مشفراً ويمكن لأي شخص لديه وصول لملف النسخ الاحتياطي رؤيته.</string>

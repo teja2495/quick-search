@@ -210,6 +210,7 @@ data class SearchFeatureState(
         val shouldShowUsagePermissionBanner: Boolean = false,
         // Home screen prompt card
         val showRateQuickSearchCard: Boolean = false,
+        val showUpdateCard: Boolean = false,
 )
 
 // ---------------------------------------------------------------------------

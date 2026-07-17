@@ -81,8 +81,8 @@ object ToolSettingsRegistry {
             ToolSettingDefinition(
                 id = ToolSettingId.WORD_CLOCK,
                 aliasFeatureId = AliasHandler.WORD_CLOCK_ALIAS_FEATURE_ID,
-                titleResId = R.string.word_clock_toggle_title,
-                defaultDescriptionResId = R.string.word_clock_toggle_desc,
+                titleResId = R.string.world_clock_toggle_title,
+                defaultDescriptionResId = R.string.world_clock_toggle_desc,
                 requiresGeminiApiKey = true,
                 requiresGeminiDescriptionResId = R.string.currency_converter_requires_gemini_key,
                 icon = Icons.Rounded.AccessTime,

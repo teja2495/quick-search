@@ -198,7 +198,7 @@ internal fun SettingsDetailLevel2Screen(
                         if (detailType == SettingsDetailType.CUSTOM_TOOL_EDITOR) {
                             when (pendingAiBackedToolForEditor) {
                                 AiBackedToolConfigId.CURRENCY_CONVERTER -> R.string.currency_converter_toggle_title
-                                AiBackedToolConfigId.WORD_CLOCK -> R.string.word_clock_toggle_title
+                                AiBackedToolConfigId.WORD_CLOCK -> R.string.world_clock_toggle_title
                                 AiBackedToolConfigId.DICTIONARY -> R.string.dictionary_toggle_title
                                 null -> detailType.titleResId()
                             }
@@ -478,7 +478,7 @@ internal fun SettingsDetailLevel2Screen(
                             )
                             AiBackedToolConfigId.WORD_CLOCK -> BuiltInToolConfig(
                                 toolId = tool,
-                                title = context.getString(R.string.word_clock_toggle_title),
+                                title = context.getString(R.string.world_clock_toggle_title),
                                 modelId = preferences.getWordClockModel(),
                                 providerId = preferences.getWordClockProviderId(),
                                 groundingEnabled = preferences.isWordClockGroundingEnabled(),

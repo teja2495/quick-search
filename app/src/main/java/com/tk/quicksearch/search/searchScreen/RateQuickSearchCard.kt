@@ -38,6 +38,27 @@ internal fun RateQuickSearchCard(
     onNotNowClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    QuickSearchPromptCard(
+        title = stringResource(R.string.settings_feedback_rate_title),
+        description = stringResource(R.string.settings_feedback_rate_desc),
+        action = stringResource(R.string.action_rate),
+        showWallpaperBackground = showWallpaperBackground,
+        onClick = onClick,
+        onNotNowClick = onNotNowClick,
+        modifier = modifier,
+    )
+}
+
+@Composable
+internal fun QuickSearchPromptCard(
+    title: String,
+    description: String? = null,
+    action: String,
+    showWallpaperBackground: Boolean,
+    onClick: () -> Unit,
+    onNotNowClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val appIconResult =
         rememberAppIcon(
             packageName = QUICK_SEARCH_PACKAGE_NAME,
@@ -75,15 +96,17 @@ internal fun RateQuickSearchCard(
                     verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                 ) {
                     Text(
-                        text = stringResource(R.string.settings_feedback_rate_title),
+                        text = title,
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
-                    Text(
-                        text = stringResource(R.string.settings_feedback_rate_desc),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    description?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
                 IconButton(
                     onClick = onNotNowClick,
@@ -122,7 +145,7 @@ internal fun RateQuickSearchCard(
                         ),
                         shape = DesignTokens.ShapeFull,
                     ) {
-                        Text(text = stringResource(R.string.action_rate))
+                        Text(text = action)
                     }
                 }
                 Spacer(modifier = Modifier.size(RateCardDismissSize))

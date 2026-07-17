@@ -1,5 +1,8 @@
-- Expand/collapse pinned items
-- In-App language switcher
-- AI answers are saved to history along with queries
-- View all apps button below app suggestions (enable in settings)
-- Bug fixes and enhancements
+- Customizable swipe gestures
+- Tasker integaration
+- Option to turn off file previews
+- Option to increase app icon size
+- Search contacts with phone number (enable in settings)
+- Dial phone numbers directly from search
+- Get free API key guide for AI provider setup
+- Performance improvements and bug fixes

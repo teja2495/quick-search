@@ -8,5 +8,8 @@ object UpdateHelper {
     fun checkForUpdates(
         activity: Activity,
         userPreferences: UserAppPreferences,
+        onUpdateAvailable: () -> Unit,
     ) = Unit
+
+    fun startUpdate(activity: Activity) = Unit
 }

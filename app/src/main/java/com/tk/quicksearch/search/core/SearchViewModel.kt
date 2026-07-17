@@ -699,6 +699,13 @@ class SearchViewModel(
         userPreferences.recordRateQuickSearchDismissed()
         refreshRateQuickSearchCardState()
     }
+    fun onUpdateAvailable() {
+        updateFeatureState { it.copy(showUpdateCard = userPreferences.shouldShowUpdateCard()) }
+    }
+    fun dismissUpdateForNow() {
+        userPreferences.recordUpdateCardDismissed()
+        updateFeatureState { it.copy(showUpdateCard = false) }
+    }
     private fun computeEffectiveIsDarkMode(): Boolean {
         return when (_configState.value.appThemeMode) {
             AppThemeMode.DARK -> true

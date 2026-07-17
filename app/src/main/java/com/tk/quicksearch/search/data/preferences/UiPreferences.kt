@@ -1067,6 +1067,23 @@ class UiPreferences(
     }
 
     // ============================================================================
+    // App Update Prompt Preferences
+    // ============================================================================
+
+    fun shouldShowUpdateCard(): Boolean {
+        val lastDismissedAt = timingPrefs.getLong(UiPreferences.KEY_UPDATE_CARD_LAST_DISMISSED_AT, 0L)
+        return lastDismissedAt == 0L ||
+            System.currentTimeMillis() - lastDismissedAt >= UPDATE_CARD_DISMISS_COOLDOWN_MS
+    }
+
+    fun recordUpdateCardDismissed() {
+        timingPrefs
+            .edit()
+            .putLong(UiPreferences.KEY_UPDATE_CARD_LAST_DISMISSED_AT, System.currentTimeMillis())
+            .apply()
+    }
+
+    // ============================================================================
     // In-App Update Session Tracking
     // ============================================================================
 
@@ -1265,6 +1282,8 @@ class UiPreferences(
         const val KEY_RATE_QUICK_SEARCH_DISMISS_COUNT = "rate_quick_search_dismiss_count"
         const val KEY_RATE_QUICK_SEARCH_COMPLETED = "rate_quick_search_completed"
 
+        const val KEY_UPDATE_CARD_LAST_DISMISSED_AT = "update_card_last_dismissed_at"
+
         // In-app update session tracking keys
         const val KEY_UPDATE_CHECK_SHOWN_THIS_SESSION = "update_check_shown_this_session"
 
@@ -1273,6 +1292,7 @@ class UiPreferences(
         private const val RATE_QUICK_SEARCH_MIN_OPEN_COUNT = 6
         private const val RATE_QUICK_SEARCH_DISMISS_COOLDOWN_MS = 14 * DAY_IN_MILLIS
         private const val RATE_QUICK_SEARCH_MAX_DISMISS_COUNT = 2
+        private const val UPDATE_CARD_DISMISS_COOLDOWN_MS = 4 * DAY_IN_MILLIS
 
         fun appIconSizeScale(step: Int): Float {
             val normalized = step.coerceIn(MIN_APP_ICON_SIZE_STEP, MAX_APP_ICON_SIZE_STEP)

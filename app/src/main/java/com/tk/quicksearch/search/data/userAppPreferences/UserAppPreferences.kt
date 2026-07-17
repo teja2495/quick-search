@@ -1506,6 +1506,10 @@ class UserAppPreferences(
 
     fun shouldShowRateQuickSearchCard(): Boolean = uiPreferences.shouldShowRateQuickSearchCard()
 
+    fun shouldShowUpdateCard(): Boolean = uiPreferences.shouldShowUpdateCard()
+
+    fun recordUpdateCardDismissed() = uiPreferences.recordUpdateCardDismissed()
+
     // ============================================================================
     // In-App Update Session Tracking
     // ============================================================================

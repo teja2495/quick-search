@@ -828,7 +828,7 @@ private fun SearchBarLeadingIcon(
         LeadingIconState.WordClock -> {
             Icon(
                 imageVector = Icons.Rounded.AccessTime,
-                contentDescription = stringResource(R.string.word_clock_toggle_title),
+                contentDescription = stringResource(R.string.world_clock_toggle_title),
                 tint = iconTint,
                 modifier = Modifier.padding(start = DesignTokens.SpacingXSmall),
             )

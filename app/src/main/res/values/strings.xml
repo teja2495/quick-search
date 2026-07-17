@@ -763,6 +763,8 @@
          ============================================================================ -->
     <string name="release_notes_action_all_features">All Features</string>
     <string name="release_notes_action_got_it">Got it</string>
+    <string name="update_card_title">New update is available for Quick Search!</string>
+    <string name="action_update">Update</string>
     <string name="release_notes_title">Quick Search v%1$s Release Notes</string>
     <string name="release_notes_title_no_version">Quick Search Release Notes</string>
     <string name="settings_backup_export_api_key_warning_message">Proceed at your own risk. Exported API key is not encrypted and can be accessed by anyone who has access to your backup file.</string>

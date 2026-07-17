@@ -21,6 +21,7 @@ object UpdateHelper {
     fun checkForUpdates(
         activity: Activity,
         userPreferences: UserAppPreferences,
+        onUpdateAvailable: () -> Unit,
     ) {
         try {
             val appUpdateManager = AppUpdateManagerFactory.create(activity)
@@ -43,13 +44,8 @@ object UpdateHelper {
                     val isFlexibleUpdateAllowed = appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)
 
                     if (updateAvailable && isFlexibleUpdateAllowed) {
-                        Log.d(TAG, "Update available, starting flexible in-app update")
-
-                        appUpdateManager.startUpdateFlow(
-                            appUpdateInfo,
-                            activity,
-                            AppUpdateOptions.newBuilder(AppUpdateType.FLEXIBLE).build(),
-                        )
+                        Log.d(TAG, "Update available")
+                        onUpdateAvailable()
                     } else {
                         Log.d(TAG, "No update available or flexible update not allowed")
                     }
@@ -60,6 +56,19 @@ object UpdateHelper {
         } catch (e: Exception) {
             Log.e(TAG, "Error checking for updates", e)
             userPreferences.setUpdateCheckShownThisSession()
+        }
+    }
+
+    fun startUpdate(activity: Activity) {
+        val appUpdateManager = AppUpdateManagerFactory.create(activity)
+        appUpdateManager.appUpdateInfo.addOnSuccessListener { appUpdateInfo ->
+            if (appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
+                appUpdateManager.startUpdateFlow(
+                    appUpdateInfo,
+                    activity,
+                    AppUpdateOptions.newBuilder(AppUpdateType.FLEXIBLE).build(),
+                )
+            }
         }
     }
 }
