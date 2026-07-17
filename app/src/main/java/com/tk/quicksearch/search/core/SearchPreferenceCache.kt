@@ -49,7 +49,7 @@ internal data class SearchPreferenceCache(
     val lockedAliasSearchSection: SearchSection? = null,
     val lockedToolMode: SearchToolType? = null,
     val lockedCurrencyConverterAlias: Boolean = false,
-    val lockedWordClockAlias: Boolean = false,
+    val lockedWorldClockAlias: Boolean = false,
     val lockedDictionaryAlias: Boolean = false,
     val clearQueryOnLaunch: Boolean = false,
     val amazonDomain: String? = null,

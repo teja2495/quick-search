@@ -194,7 +194,7 @@ fun SearchScreen(
     onDismissSearchHistoryTip: () -> Unit = {},
     onCurrencyConversionClick: () -> Unit = {},
     onDictionarySearchClick: () -> Unit = {},
-    onWordClockSearchClick: () -> Unit = {},
+    onWorldClockSearchClick: () -> Unit = {},
     onCustomToolSearchClick: () -> Unit = {},
     onTaskerIntentClick: () -> Unit = {},
     onCustomAction: (ContactInfo, ContactCardAction) -> Unit,
@@ -505,7 +505,7 @@ fun SearchScreen(
                 when {
                     customToolId != null -> onOpenCustomToolSettings(customToolId)
                     cardsState.currencyConverterState.status != com.tk.quicksearch.search.core.CurrencyConverterStatus.Idle ||
-                        cardsState.wordClockState.status != com.tk.quicksearch.search.core.WordClockStatus.Idle ||
+                        cardsState.worldClockState.status != com.tk.quicksearch.search.core.WorldClockStatus.Idle ||
                         cardsState.dictionaryState.status != com.tk.quicksearch.search.core.DictionaryStatus.Idle ->
                         onOpenToolsSettings()
                     else -> onOpenAiSearchConfigure()
@@ -513,7 +513,7 @@ fun SearchScreen(
             },
             onCurrencyConversionClick = onCurrencyConversionClick,
             onDictionarySearchClick = onDictionarySearchClick,
-            onWordClockSearchClick = onWordClockSearchClick,
+            onWorldClockSearchClick = onWorldClockSearchClick,
             onCustomToolSearchClick = onCustomToolSearchClick,
             onTaskerIntentClick = onTaskerIntentClick,
             onKeyboardSwitchToggle = {

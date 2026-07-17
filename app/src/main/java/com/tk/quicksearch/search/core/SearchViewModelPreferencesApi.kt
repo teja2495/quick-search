@@ -17,7 +17,7 @@ internal interface SearchViewModelPreferencesApi {
     fun setCurrencyConverterEnabled(enabled: Boolean) =
         preferencesApiDelegate.setCurrencyConverterEnabled(enabled)
 
-    fun setWordClockEnabled(enabled: Boolean) = preferencesApiDelegate.setWordClockEnabled(enabled)
+    fun setWorldClockEnabled(enabled: Boolean) = preferencesApiDelegate.setWorldClockEnabled(enabled)
 
     fun setDictionaryEnabled(enabled: Boolean) = preferencesApiDelegate.setDictionaryEnabled(enabled)
 
@@ -268,7 +268,7 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
     fun setCurrencyConverterEnabled(enabled: Boolean) =
         preferencesDelegate.setCurrencyConverterEnabled(enabled)
 
-    fun setWordClockEnabled(enabled: Boolean) = preferencesDelegate.setWordClockEnabled(enabled)
+    fun setWorldClockEnabled(enabled: Boolean) = preferencesDelegate.setWorldClockEnabled(enabled)
 
     fun setDictionaryEnabled(enabled: Boolean) = preferencesDelegate.setDictionaryEnabled(enabled)
 

@@ -11,26 +11,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.core.WordClockState
-import com.tk.quicksearch.search.core.WordClockStatus
+import com.tk.quicksearch.search.core.WorldClockState
+import com.tk.quicksearch.search.core.WorldClockStatus
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 @Composable
-fun WordClockResult(
-        wordClockState: WordClockState,
+fun WorldClockResult(
+        worldClockState: WorldClockState,
         llmProviderId: AiSearchLlmProviderId = AiSearchLlmProviderId.GEMINI,
         showWallpaperBackground: Boolean = false,
         onGeminiModelInfoClick: () -> Unit = {},
 ) {
-    if (wordClockState.status == WordClockStatus.Idle) return
+    if (worldClockState.status == WorldClockStatus.Idle) return
 
     val showAttribution =
-            wordClockState.status == WordClockStatus.Success &&
-                    !wordClockState.wordClockText.isNullOrBlank()
+            worldClockState.status == WorldClockStatus.Success &&
+                    !worldClockState.worldClockText.isNullOrBlank()
 
     val copyText =
-            if (wordClockState.status == WordClockStatus.Success) {
-                wordClockState.wordClockText
+            if (worldClockState.status == WorldClockStatus.Success) {
+                worldClockState.worldClockText
             } else {
                 null
             }
@@ -38,7 +38,7 @@ fun WordClockResult(
     GeminiResultCard(
             showWallpaperBackground = showWallpaperBackground,
             showAttribution = showAttribution,
-            usedModelId = wordClockState.usedModelId,
+            usedModelId = worldClockState.usedModelId,
             llmProviderId = llmProviderId,
             isAttributionClickable = true,
             onGeminiModelInfoClick = onGeminiModelInfoClick,
@@ -49,14 +49,14 @@ fun WordClockResult(
                     modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
                     verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
             ) {
-                when (wordClockState.status) {
-                    WordClockStatus.Loading -> {
+                when (worldClockState.status) {
+                    WorldClockStatus.Loading -> {
                         GeminiLoadingAnimation()
                     }
-                    WordClockStatus.Success -> {
-                        val line1 = wordClockState.wordClockText.orEmpty()
-                        val placeLabel = wordClockState.placeText?.trim().orEmpty()
-                        val timeZoneLabel = wordClockState.timeZoneText?.trim().orEmpty()
+                    WorldClockStatus.Success -> {
+                        val line1 = worldClockState.worldClockText.orEmpty()
+                        val placeLabel = worldClockState.placeText?.trim().orEmpty()
+                        val timeZoneLabel = worldClockState.timeZoneText?.trim().orEmpty()
                         Column(
                                 modifier = Modifier.fillMaxWidth(),
                         ) {
@@ -65,7 +65,7 @@ fun WordClockResult(
                                     style = MaterialTheme.typography.displaySmall,
                                     color = MaterialTheme.colorScheme.onSurface,
                             )
-                            wordClockState.sourceTimeText?.takeIf { it.isNotBlank() }?.let { source ->
+                            worldClockState.sourceTimeText?.takeIf { it.isNotBlank() }?.let { source ->
                                 Text(
                                         text = source,
                                         style = MaterialTheme.typography.titleMedium,
@@ -98,15 +98,15 @@ fun WordClockResult(
                             }
                         }
                     }
-                    WordClockStatus.Error -> {
+                    WorldClockStatus.Error -> {
                         Text(
-                                text = wordClockState.errorMessage
+                                text = worldClockState.errorMessage
                                         ?: stringResource(R.string.direct_search_error_generic),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.error,
                         )
                     }
-                    WordClockStatus.Idle -> {}
+                    WorldClockStatus.Idle -> {}
                 }
             }
         }

@@ -374,7 +374,7 @@ internal class SearchStartupLifecycleDelegate(
                     unitConverterEnabled = userPreferences.isUnitConverterEnabled(),
                     dateCalculatorEnabled = userPreferences.isDateCalculatorEnabled(),
                     currencyConverterEnabled = userPreferences.isCurrencyConverterEnabled(),
-                    wordClockEnabled = userPreferences.isWordClockEnabled(),
+                    worldClockEnabled = userPreferences.isWorldClockEnabled(),
                     dictionaryEnabled = userPreferences.isDictionaryEnabled(),
                     customTools = customTools,
                     disabledCustomToolIds = userPreferences.getDisabledCustomTools(),
@@ -778,7 +778,7 @@ internal class SearchStartupLifecycleDelegate(
                         unitConverterEnabled = userPreferences.isUnitConverterEnabled(),
                         dateCalculatorEnabled = userPreferences.isDateCalculatorEnabled(),
                         currencyConverterEnabled = userPreferences.isCurrencyConverterEnabled(),
-                        wordClockEnabled = userPreferences.isWordClockEnabled(),
+                        worldClockEnabled = userPreferences.isWorldClockEnabled(),
                         dictionaryEnabled = userPreferences.isDictionaryEnabled(),
                         customTools = customTools,
                         disabledCustomToolIds = userPreferences.getDisabledCustomTools(),
@@ -847,7 +847,7 @@ internal class SearchStartupLifecycleDelegate(
         if (state.query.isBlank()) return false
         return state.AiSearchState.status != AiSearchStatus.Idle ||
             state.currencyConverterState.status != CurrencyConverterStatus.Idle ||
-            state.wordClockState.status != WordClockStatus.Idle ||
+            state.worldClockState.status != WorldClockStatus.Idle ||
             state.dictionaryState.status != DictionaryStatus.Idle
     }
 

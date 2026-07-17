@@ -60,7 +60,7 @@ import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.search.utils.FileUtils
 import com.tk.quicksearch.tools.aiTools.CurrencyConversionIntentParser
-import com.tk.quicksearch.tools.aiTools.WordClockIntentParser
+import com.tk.quicksearch.tools.aiTools.WorldClockIntentParser
 import com.tk.quicksearch.tools.aiTools.DictionaryIntentParser
 import com.tk.quicksearch.overlay.OverlayModeController
 import com.tk.quicksearch.shared.permissions.PermissionSettingsDialog
@@ -773,9 +773,9 @@ fun SearchRoute(
                         uiState.currencyConverterEnabled &&
                                 CurrencyConversionIntentParser.parseConfirmed(trimmedQuery) != null ->
                             viewModel.executeCurrencyConversion()
-                        uiState.wordClockEnabled &&
-                                WordClockIntentParser.parseConfirmed(trimmedQuery) != null ->
-                            viewModel.executeWordClockLookup()
+                        uiState.worldClockEnabled &&
+                                WorldClockIntentParser.parseConfirmed(trimmedQuery) != null ->
+                            viewModel.executeWorldClockLookup()
                         uiState.dictionaryEnabled &&
                                 DictionaryIntentParser.parseConfirmed(trimmedQuery) != null ->
                             viewModel.executeDictionaryLookup()
@@ -875,7 +875,7 @@ fun SearchRoute(
             onDismissSearchHistoryTip = viewModel::dismissSearchHistoryTip,
             onCurrencyConversionClick = viewModel::executeCurrencyConversion,
             onDictionarySearchClick = viewModel::executeDictionaryLookup,
-            onWordClockSearchClick = viewModel::executeWordClockLookup,
+            onWorldClockSearchClick = viewModel::executeWorldClockLookup,
             onCustomToolSearchClick = viewModel::executeCustomToolSearch,
             onTaskerIntentClick = viewModel::executeTaskerIntent,
             onOpenToolsSettings = onOpenToolsSettings,

@@ -54,7 +54,7 @@ internal data class SearchRuntimeState(
     var lockedAliasSearchSection: SearchSection? = null,
     var lockedToolMode: SearchToolType? = null,
     var lockedCurrencyConverterAlias: Boolean = false,
-    var lockedWordClockAlias: Boolean = false,
+    var lockedWorldClockAlias: Boolean = false,
     var lockedDictionaryAlias: Boolean = false,
     var lockedCustomToolId: String? = null,
     var clearQueryOnLaunch: Boolean = false,

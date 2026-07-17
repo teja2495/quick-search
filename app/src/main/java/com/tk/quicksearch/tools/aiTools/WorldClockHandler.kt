@@ -13,22 +13,22 @@ import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
-class WordClockNotRecognizedException : Exception()
+class WorldClockNotRecognizedException : Exception()
 
 private const val WORD_CLOCK_SYSTEM_INSTRUCTION =
-        "You are a world-clock and word-clock formatter. " +
+        "You are a world-clock formatter. " +
                 "Respond with ONLY a single JSON object (no markdown, no code fences). " +
-                "Schema: {\"word_clock_text\":\"<text>\",\"time_text\":\"<normalized input time>\",\"place_text\":\"<optional formatted place>\",\"time_zone_text\":\"<optional timezone>\"}. " +
-                "Set word_clock_text to the resolved local CLOCK TIME in 12-hour format with AM/PM (example: \"2:58 PM\"). " +
+                "Schema: {\"world_clock_text\":\"<text>\",\"time_text\":\"<normalized input time>\",\"place_text\":\"<optional formatted place>\",\"time_zone_text\":\"<optional timezone>\"}. " +
+                "Set world_clock_text to the resolved local CLOCK TIME in 12-hour format with AM/PM (example: \"2:58 PM\"). " +
                 "Set time_text to the resolved local DATE (example: \"Tuesday, March 31, 2026\"). " +
                 "If the request resolves to a city, set place_text to \"<City>, <Country>\" (example: \"Tokyo, Japan\"). " +
                 "For country-only/place-only requests, set place_text to the best canonical place label. " +
                 "Set time_zone_text to a human-friendly timezone with abbreviation in brackets and no UTC offset in brackets (example: \"India Standard Time (IST)\"). " +
                 "Treat location-based requests as valid (e.g., city, country, timezone like \"India\", \"Tokyo\", \"UTC+5:30\"). " +
                 "For location requests, resolve the CURRENT local time at that location before formatting. " +
-                "If the user query is not a word clock request, respond exactly: {\"error\":\"not_word_clock\"}."
+                "If the user query is not a world clock request, respond exactly: {\"error\":\"not_world_clock\"}."
 
-class WordClockHandler(
+class WorldClockHandler(
         private val context: Context,
         private val userPreferences: UserAppPreferences,
 ) {
@@ -39,21 +39,21 @@ class WordClockHandler(
     private val dateFormatter: DateTimeFormatter =
             DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy", Locale.ENGLISH)
 
-    fun parseModelResponse(raw: String): Result<WordClockModelResult> {
+    fun parseModelResponse(raw: String): Result<WorldClockModelResult> {
         val trimmed =
                 raw.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
         return runCatching {
             val obj = JSONObject(trimmed)
-            if (obj.optString("error") == "not_word_clock") {
-                throw WordClockNotRecognizedException()
+            if (obj.optString("error") == "not_world_clock") {
+                throw WorldClockNotRecognizedException()
             }
-            val wordClockText = obj.getString("word_clock_text").trim()
+            val worldClockText = obj.getString("world_clock_text").trim()
             val timeText = obj.optString("time_text").trim()
             val placeText = obj.optString("place_text").trim()
             val timeZoneText = normalizeTimeZoneText(obj.optString("time_zone_text").trim())
-            if (wordClockText.isBlank()) error("invalid")
-            WordClockModelResult(
-                    wordClockText = wordClockText,
+            if (worldClockText.isBlank()) error("invalid")
+            WorldClockModelResult(
+                    worldClockText = worldClockText,
                     sourceTimeText = timeText,
                     placeText = placeText,
                     timeZoneText = timeZoneText,
@@ -62,9 +62,9 @@ class WordClockHandler(
     }
 
     suspend fun convert(
-            confirmed: ConfirmedWordClockQuery,
-    ): Result<Pair<WordClockModelResult, String>> {
-        val providerId = userPreferences.getWordClockProviderId()
+            confirmed: ConfirmedWorldClockQuery,
+    ): Result<Pair<WorldClockModelResult, String>> {
+        val providerId = userPreferences.getWorldClockProviderId()
         val provider = AiSearchLlmProviderRegistry.get(providerId, context)
         val apiKey = userPreferences.getLlmApiKey(providerId)?.trim().orEmpty()
         if (apiKey.isEmpty()) {
@@ -73,12 +73,12 @@ class WordClockHandler(
             )
         }
         val modelId =
-                userPreferences.getWordClockModel().trim().ifBlank {
+                userPreferences.getWorldClockModel().trim().ifBlank {
                     provider.defaultModelId
                 }
-        val groundingEnabled = userPreferences.isWordClockGroundingEnabled()
-        val thinkingEnabled = userPreferences.isWordClockThinkingEnabled()
-        val advancedPayload = userPreferences.getWordClockAdvancedPayload()
+        val groundingEnabled = userPreferences.isWorldClockGroundingEnabled()
+        val thinkingEnabled = userPreferences.isWorldClockThinkingEnabled()
+        val advancedPayload = userPreferences.getWorldClockAdvancedPayload()
         val currentTimeGmt = gmtTimeFormatter.format(Instant.now())
         val userMessage =
                 "Resolve this request into local clock time and date: ${confirmed.timeExpression}. " +
@@ -137,7 +137,7 @@ class WordClockHandler(
         return abbr.takeIf { it.length in 2..6 }
     }
 
-    private fun resolveFixedLocationResult(timeExpression: String): WordClockModelResult? {
+    private fun resolveFixedLocationResult(timeExpression: String): WorldClockModelResult? {
         val normalized =
                 timeExpression.trim().lowercase(Locale.ENGLISH).replace(Regex("""[^\p{Alnum}\s]"""), " ")
                         .replace(Regex("""\s+"""), " ")
@@ -162,8 +162,8 @@ class WordClockHandler(
         val fullZoneName = now.zone.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
         val zoneAbbreviation = now.zone.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
 
-        return WordClockModelResult(
-                wordClockText = now.format(clockTimeFormatter),
+        return WorldClockModelResult(
+                worldClockText = now.format(clockTimeFormatter),
                 sourceTimeText = now.format(dateFormatter),
                 placeText = "United Kingdom",
                 timeZoneText = "$fullZoneName ($zoneAbbreviation)",
@@ -171,8 +171,8 @@ class WordClockHandler(
     }
 }
 
-data class WordClockModelResult(
-        val wordClockText: String,
+data class WorldClockModelResult(
+        val worldClockText: String,
         val sourceTimeText: String,
         val placeText: String,
         val timeZoneText: String,

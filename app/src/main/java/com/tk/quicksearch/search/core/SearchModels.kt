@@ -159,7 +159,7 @@ enum class CurrencyConverterStatus {
         Error,
 }
 
-enum class WordClockStatus {
+enum class WorldClockStatus {
         Idle,
         Loading,
         Success,
@@ -200,9 +200,9 @@ data class CurrencyConverterState(
         val errorMessage: String? = null,
 )
 
-data class WordClockState(
-        val status: WordClockStatus = WordClockStatus.Idle,
-        val wordClockText: String? = null,
+data class WorldClockState(
+        val status: WorldClockStatus = WorldClockStatus.Idle,
+        val worldClockText: String? = null,
         val sourceTimeText: String? = null,
         val placeText: String? = null,
         val timeZoneText: String? = null,
@@ -559,7 +559,7 @@ data class SearchUiState(
         val unitConverterEnabled: Boolean = true,
         val dateCalculatorEnabled: Boolean = true,
         val currencyConverterEnabled: Boolean = true,
-        val wordClockEnabled: Boolean = true,
+        val worldClockEnabled: Boolean = true,
         val dictionaryEnabled: Boolean = true,
         val customTools: List<CustomTool> = emptyList(),
         val disabledCustomToolIds: Set<String> = emptySet(),
@@ -585,7 +585,7 @@ data class SearchUiState(
         // Transient search state
         val calculatorState: CalculatorState = CalculatorState(),
         val currencyConverterState: CurrencyConverterState = CurrencyConverterState(),
-        val wordClockState: WordClockState = WordClockState(),
+        val worldClockState: WorldClockState = WorldClockState(),
         val dictionaryState: DictionaryState = DictionaryState(),
         val webSuggestions: List<String> = emptyList(),
         val webSuggestionsLoading: Boolean = false,
@@ -594,7 +594,7 @@ data class SearchUiState(
         val detectedShortcutTarget: SearchTarget? = null,
         val detectedAliasSearchSection: SearchSection? = null,
         val isCurrencyConverterAliasMode: Boolean = false,
-        val isWordClockAliasMode: Boolean = false,
+        val isWorldClockAliasMode: Boolean = false,
         val isDictionaryAliasMode: Boolean = false,
         val detectedCustomToolId: String? = null,
         val detectedTaskerIntentId: String? = null,
@@ -686,7 +686,7 @@ fun SearchUiState(
                 searchEnginesState = results.searchEnginesState,
                 calculatorState = results.calculatorState,
                 currencyConverterState = results.currencyConverterState,
-                wordClockState = results.wordClockState,
+                worldClockState = results.worldClockState,
                 dictionaryState = results.dictionaryState,
                 AiSearchState = results.AiSearchState,
                 webSuggestions = results.webSuggestions,
@@ -697,7 +697,7 @@ fun SearchUiState(
                 detectedShortcutTarget = results.detectedShortcutTarget,
                 detectedAliasSearchSection = results.detectedAliasSearchSection,
                 isCurrencyConverterAliasMode = results.isCurrencyConverterAliasMode,
-                isWordClockAliasMode = results.isWordClockAliasMode,
+                isWorldClockAliasMode = results.isWorldClockAliasMode,
                 isDictionaryAliasMode = results.isDictionaryAliasMode,
                 detectedCustomToolId = results.detectedCustomToolId,
                 detectedTaskerIntentId = results.detectedTaskerIntentId,
@@ -752,7 +752,7 @@ fun SearchUiState(
                 unitConverterEnabled = features.unitConverterEnabled,
                 dateCalculatorEnabled = features.dateCalculatorEnabled,
                 currencyConverterEnabled = features.currencyConverterEnabled,
-                wordClockEnabled = features.wordClockEnabled,
+                worldClockEnabled = features.worldClockEnabled,
                 dictionaryEnabled = features.dictionaryEnabled,
                 customTools = features.customTools,
                 disabledCustomToolIds = features.disabledCustomToolIds,

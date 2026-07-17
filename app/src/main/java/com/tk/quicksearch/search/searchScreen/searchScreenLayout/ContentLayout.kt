@@ -47,7 +47,7 @@ import com.tk.quicksearch.tools.aiSearch.CurrencyConverterResult
 import com.tk.quicksearch.tools.aiSearch.CalculatorResult
 import com.tk.quicksearch.tools.aiSearch.DictionaryResult
 import com.tk.quicksearch.tools.aiSearch.AiSearchResult
-import com.tk.quicksearch.tools.aiSearch.WordClockResult
+import com.tk.quicksearch.tools.aiSearch.WorldClockResult
 import com.tk.quicksearch.search.searchScreen.ExpandedSection
 import com.tk.quicksearch.search.searchScreen.InfoBanner
 import com.tk.quicksearch.search.searchScreen.hasAnySearchResults
@@ -89,7 +89,7 @@ fun ContentLayout(
     hideResults: Boolean,
     showCalculator: Boolean = false,
     showCurrencyConverter: Boolean = false,
-    showWordClock: Boolean = false,
+    showWorldClock: Boolean = false,
     showDictionary: Boolean = false,
     showAiSearch: Boolean = false,
     aiSearchState: AiSearchState? = null,
@@ -232,7 +232,7 @@ fun ContentLayout(
                 !showAiSearch &&
                 !showCalculator &&
                 !showCurrencyConverter &&
-                !showWordClock &&
+                !showWorldClock &&
                 !showDictionary &&
                 suggestionsNotEmpty &&
                 suggestionsEnabled &&
@@ -244,7 +244,7 @@ fun ContentLayout(
             !hasQuery &&
             state.detectedAliasSearchSection == null &&
             !state.isCurrencyConverterAliasMode &&
-            !state.isWordClockAliasMode &&
+            !state.isWorldClockAliasMode &&
             !state.isDictionaryAliasMode &&
             state.recentQueriesEnabled &&
             state.recentItems.isNotEmpty()
@@ -798,9 +798,9 @@ fun ContentLayout(
                 }
 
                 ItemPriorityConfig.ItemType.WORD_CLOCK_RESULT -> {
-                    if (showWordClock) {
-                        WordClockResult(
-                                wordClockState = state.wordClockState,
+                    if (showWorldClock) {
+                        WorldClockResult(
+                                worldClockState = state.worldClockState,
                                 llmProviderId = state.aiSearchLlmProviderId,
                                 showWallpaperBackground = effectiveShowWallpaperBackground,
                                 onGeminiModelInfoClick = onGeminiModelInfoClick,

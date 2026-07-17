@@ -35,7 +35,7 @@ import com.tk.quicksearch.searchEngines.SearchEngineManager
 import com.tk.quicksearch.searchEngines.SecondarySearchOrchestrator
 import com.tk.quicksearch.tools.aiTools.CurrencyConverterHandler
 import com.tk.quicksearch.tools.aiTools.DictionaryHandler
-import com.tk.quicksearch.tools.aiTools.WordClockHandler
+import com.tk.quicksearch.tools.aiTools.WorldClockHandler
 import com.tk.quicksearch.tools.calculator.CalculatorHandler
 import com.tk.quicksearch.tools.dateCalculator.DateCalculatorHandler
 import com.tk.quicksearch.tools.aiSearch.AiSearchHandler
@@ -181,7 +181,7 @@ internal class SearchHandlerContainer(
         CurrencyConverterHandler(appContext, userPreferences)
     }
 
-    val wordClockHandler by lazy { WordClockHandler(appContext, userPreferences) }
+    val worldClockHandler by lazy { WorldClockHandler(appContext, userPreferences) }
 
     val dictionaryHandler by lazy { DictionaryHandler(appContext, userPreferences) }
 

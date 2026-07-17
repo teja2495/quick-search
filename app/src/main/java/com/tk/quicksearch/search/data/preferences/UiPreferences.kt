@@ -827,10 +827,10 @@ class UiPreferences(
         setBooleanPref(UiPreferences.KEY_CURRENCY_CONVERTER_ENABLED, enabled)
     }
 
-    fun isWordClockEnabled(): Boolean =
+    fun isWorldClockEnabled(): Boolean =
             getBooleanPref(UiPreferences.KEY_WORD_CLOCK_ENABLED, true)
 
-    fun setWordClockEnabled(enabled: Boolean) {
+    fun setWorldClockEnabled(enabled: Boolean) {
         setBooleanPref(UiPreferences.KEY_WORD_CLOCK_ENABLED, enabled)
     }
 
@@ -894,44 +894,44 @@ class UiPreferences(
     fun setCurrencyConverterAdvancedPayload(payload: String?, enabled: Boolean) =
         setAdvancedPayload(UiPreferences.KEY_CURRENCY_CONVERTER_ADVANCED_PAYLOAD, UiPreferences.KEY_CURRENCY_CONVERTER_ADVANCED_PAYLOAD_ENABLED, payload, enabled)
 
-    fun getWordClockModel(): String =
+    fun getWorldClockModel(): String =
         prefs.getString(UiPreferences.KEY_WORD_CLOCK_MODEL, null).orEmpty().ifBlank {
             getCurrencyConverterModel()
         }
 
-    fun setWordClockModel(modelId: String) {
+    fun setWorldClockModel(modelId: String) {
         val normalized = modelId.trim()
         if (normalized.isEmpty()) return
         prefs.edit().putString(UiPreferences.KEY_WORD_CLOCK_MODEL, normalized).apply()
     }
 
-    fun getWordClockProviderId(): AiSearchLlmProviderId =
+    fun getWorldClockProviderId(): AiSearchLlmProviderId =
         AiSearchLlmProviderId.fromStorageValue(
             prefs.getString(UiPreferences.KEY_WORD_CLOCK_PROVIDER_ID, null),
         )
 
-    fun setWordClockProviderId(providerId: AiSearchLlmProviderId) {
+    fun setWorldClockProviderId(providerId: AiSearchLlmProviderId) {
         prefs.edit().putString(UiPreferences.KEY_WORD_CLOCK_PROVIDER_ID, providerId.storageValue).apply()
     }
 
-    fun isWordClockGroundingEnabled(): Boolean =
+    fun isWorldClockGroundingEnabled(): Boolean =
         getBooleanPref(UiPreferences.KEY_WORD_CLOCK_GROUNDING_ENABLED, true)
 
-    fun setWordClockGroundingEnabled(enabled: Boolean) {
+    fun setWorldClockGroundingEnabled(enabled: Boolean) {
         setBooleanPref(UiPreferences.KEY_WORD_CLOCK_GROUNDING_ENABLED, enabled)
     }
 
-    fun isWordClockThinkingEnabled(): Boolean =
+    fun isWorldClockThinkingEnabled(): Boolean =
         getBooleanPref(UiPreferences.KEY_WORD_CLOCK_THINKING_ENABLED, false)
 
-    fun setWordClockThinkingEnabled(enabled: Boolean) {
+    fun setWorldClockThinkingEnabled(enabled: Boolean) {
         setBooleanPref(UiPreferences.KEY_WORD_CLOCK_THINKING_ENABLED, enabled)
     }
 
-    fun getWordClockAdvancedPayload(): Pair<Boolean, String> =
+    fun getWorldClockAdvancedPayload(): Pair<Boolean, String> =
         getAdvancedPayload(UiPreferences.KEY_WORD_CLOCK_ADVANCED_PAYLOAD, UiPreferences.KEY_WORD_CLOCK_ADVANCED_PAYLOAD_ENABLED)
 
-    fun setWordClockAdvancedPayload(payload: String?, enabled: Boolean) =
+    fun setWorldClockAdvancedPayload(payload: String?, enabled: Boolean) =
         setAdvancedPayload(UiPreferences.KEY_WORD_CLOCK_ADVANCED_PAYLOAD, UiPreferences.KEY_WORD_CLOCK_ADVANCED_PAYLOAD_ENABLED, payload, enabled)
 
     fun getDictionaryModel(): String =

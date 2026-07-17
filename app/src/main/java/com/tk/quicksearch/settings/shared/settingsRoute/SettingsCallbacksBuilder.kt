@@ -110,7 +110,7 @@ internal fun buildSettingsScreenCallbacks(
         onSetCurrencyConverterAlias = { code ->
             viewModel.setAlias(AliasHandler.CURRENCY_CONVERTER_ALIAS_FEATURE_ID, code)
         },
-        onSetWordClockAlias = { code ->
+        onSetWorldClockAlias = { code ->
             viewModel.setAlias(AliasHandler.WORD_CLOCK_ALIAS_FEATURE_ID, code)
         },
         onSetDictionaryAlias = { code ->
@@ -123,7 +123,7 @@ internal fun buildSettingsScreenCallbacks(
         onToggleUnitConverter = viewModel::setUnitConverterEnabled,
         onToggleDateCalculator = viewModel::setDateCalculatorEnabled,
         onToggleCurrencyConverter = viewModel::setCurrencyConverterEnabled,
-        onToggleWordClock = viewModel::setWordClockEnabled,
+        onToggleWorldClock = viewModel::setWorldClockEnabled,
         onToggleDictionary = viewModel::setDictionaryEnabled,
         onAddCustomTool = { name, prompt, providerId, modelId, groundingEnabled, aliasCode, thinkingEnabled, advancedPayload, advancedPayloadEnabled ->
             viewModel.addCustomTool(name, prompt, providerId, modelId, groundingEnabled, aliasCode, thinkingEnabled, advancedPayload, advancedPayloadEnabled)

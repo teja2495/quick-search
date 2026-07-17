@@ -10,9 +10,9 @@ import com.tk.quicksearch.tools.aiTools.CurrencyNotRecognizedException
 import com.tk.quicksearch.tools.aiTools.DictionaryHandler
 import com.tk.quicksearch.tools.aiTools.DictionaryIntentParser
 import com.tk.quicksearch.tools.aiTools.DictionaryNotRecognizedException
-import com.tk.quicksearch.tools.aiTools.WordClockHandler
-import com.tk.quicksearch.tools.aiTools.WordClockIntentParser
-import com.tk.quicksearch.tools.aiTools.WordClockNotRecognizedException
+import com.tk.quicksearch.tools.aiTools.WorldClockHandler
+import com.tk.quicksearch.tools.aiTools.WorldClockIntentParser
+import com.tk.quicksearch.tools.aiTools.WorldClockNotRecognizedException
 import com.tk.quicksearch.tools.calculator.CalculatorHandler
 import com.tk.quicksearch.tools.dateCalculator.DateCalculatorHandler
 import com.tk.quicksearch.tools.unitConverter.UnitConverterHandler
@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 internal data class ToolAliasState(
     val lockedToolMode: SearchToolType?,
     val lockedCurrencyConverterAlias: Boolean,
-    val lockedWordClockAlias: Boolean,
+    val lockedWorldClockAlias: Boolean,
     val lockedDictionaryAlias: Boolean,
     val lockedCustomToolId: String? = null,
 )
@@ -38,7 +38,7 @@ internal class SearchToolCoordinator(
     private val unitConverterHandler: UnitConverterHandler,
     private val dateCalculatorHandler: DateCalculatorHandler,
     private val currencyConverterHandler: CurrencyConverterHandler,
-    private val wordClockHandler: WordClockHandler,
+    private val worldClockHandler: WorldClockHandler,
     private val dictionaryHandler: DictionaryHandler,
     private val toolAliasStateProvider: () -> ToolAliasState,
     private val hasApiKeyProvider: () -> Boolean,
@@ -49,14 +49,14 @@ internal class SearchToolCoordinator(
 ) {
     private var currencyConversionJob: Job? = null
     private var currencyConversionQueryVersion: Long = 0L
-    private var wordClockJob: Job? = null
-    private var wordClockQueryVersion: Long = 0L
+    private var worldClockJob: Job? = null
+    private var worldClockQueryVersion: Long = 0L
     private var dictionaryJob: Job? = null
     private var dictionaryQueryVersion: Long = 0L
 
     fun cancelAll() {
         currencyConversionJob?.cancel()
-        wordClockJob?.cancel()
+        worldClockJob?.cancel()
         dictionaryJob?.cancel()
     }
 
@@ -65,7 +65,7 @@ internal class SearchToolCoordinator(
             currencyConversionJob?.cancel()
         }
         if (activeCard != SearchViewModel.ActiveInformationCard.WORD_CLOCK) {
-            wordClockJob?.cancel()
+            worldClockJob?.cancel()
         }
         if (activeCard != SearchViewModel.ActiveInformationCard.DICTIONARY) {
             dictionaryJob?.cancel()
@@ -256,97 +256,97 @@ internal class SearchToolCoordinator(
             }
     }
 
-    fun scheduleWordClock(trimmedQuery: String, showingTool: Boolean) {
-        wordClockJob?.cancel()
+    fun scheduleWorldClock(trimmedQuery: String, showingTool: Boolean) {
+        worldClockJob?.cancel()
         val aliasState = toolAliasStateProvider()
-        val lockedWordClockAlias = aliasState.lockedWordClockAlias
+        val lockedWorldClockAlias = aliasState.lockedWorldClockAlias
         val hasApiKey = hasApiKeyProvider()
 
-        if ((!userPreferences.isWordClockEnabled() && !lockedWordClockAlias) || !hasApiKey) {
+        if ((!userPreferences.isWorldClockEnabled() && !lockedWorldClockAlias) || !hasApiKey) {
             updateResultsState { s ->
-                if (s.wordClockState.status == WordClockStatus.Idle) {
+                if (s.worldClockState.status == WorldClockStatus.Idle) {
                     s
                 } else {
-                    s.copy(wordClockState = WordClockState())
+                    s.copy(worldClockState = WorldClockState())
                 }
             }
             return
         }
         if (showingTool || trimmedQuery.isBlank()) {
             updateResultsState { s ->
-                if (s.wordClockState.status == WordClockStatus.Idle) {
+                if (s.worldClockState.status == WorldClockStatus.Idle) {
                     s
                 } else {
-                    s.copy(wordClockState = WordClockState())
+                    s.copy(worldClockState = WorldClockState())
                 }
             }
             return
         }
         val matchesCandidate =
-            if (lockedWordClockAlias) {
+            if (lockedWorldClockAlias) {
                 trimmedQuery.isNotBlank()
             } else {
-                WordClockIntentParser.isCandidate(trimmedQuery)
+                WorldClockIntentParser.isCandidate(trimmedQuery)
             }
         if (!matchesCandidate) {
             updateResultsState { s ->
-                if (s.wordClockState.status == WordClockStatus.Idle) {
+                if (s.worldClockState.status == WorldClockStatus.Idle) {
                     s
                 } else {
-                    s.copy(wordClockState = WordClockState())
+                    s.copy(worldClockState = WorldClockState())
                 }
             }
             return
         }
     }
 
-    fun executeWordClockLookup() {
+    fun executeWorldClockLookup() {
         val trimmedQuery = currentQueryProvider().trim()
         if (trimmedQuery.isBlank()) return
 
         val aliasState = toolAliasStateProvider()
-        if ((!userPreferences.isWordClockEnabled() && !aliasState.lockedWordClockAlias) ||
+        if ((!userPreferences.isWorldClockEnabled() && !aliasState.lockedWorldClockAlias) ||
             !hasApiKeyProvider()
         ) {
             return
         }
 
         val confirmed =
-            if (aliasState.lockedWordClockAlias) {
-                WordClockIntentParser.parseAliasConfirmed(trimmedQuery)
+            if (aliasState.lockedWorldClockAlias) {
+                WorldClockIntentParser.parseAliasConfirmed(trimmedQuery)
             } else {
-                WordClockIntentParser.parseConfirmed(trimmedQuery)
+                WorldClockIntentParser.parseConfirmed(trimmedQuery)
             }
                 ?: run {
-                    updateResultsState { s -> s.copy(wordClockState = WordClockState()) }
+                    updateResultsState { s -> s.copy(worldClockState = WorldClockState()) }
                     return
                 }
 
         clearInformationCardsExcept(SearchViewModel.ActiveInformationCard.WORD_CLOCK)
-        val version = ++wordClockQueryVersion
-        wordClockJob?.cancel()
-        wordClockJob =
+        val version = ++worldClockQueryVersion
+        worldClockJob?.cancel()
+        worldClockJob =
             scope.launch(workerDispatcher) {
                 updateResultsState { s ->
                     s.copy(
-                        wordClockState =
-                            WordClockState(
-                                status = WordClockStatus.Loading,
+                        worldClockState =
+                            WorldClockState(
+                                status = WorldClockStatus.Loading,
                                 activeQuery = trimmedQuery,
                             ),
                     )
                 }
-                val apiResult = wordClockHandler.convert(confirmed)
-                if (version != wordClockQueryVersion) return@launch
+                val apiResult = worldClockHandler.convert(confirmed)
+                if (version != worldClockQueryVersion) return@launch
                 if (currentQueryProvider().trim() != trimmedQuery) return@launch
                 apiResult.fold(
                     onSuccess = { (parsed, modelId) ->
                         updateResultsState { s ->
                             s.copy(
-                                wordClockState =
-                                    WordClockState(
-                                        status = WordClockStatus.Success,
-                                        wordClockText = parsed.wordClockText,
+                                worldClockState =
+                                    WorldClockState(
+                                        status = WorldClockStatus.Success,
+                                        worldClockText = parsed.worldClockText,
                                         sourceTimeText = parsed.sourceTimeText,
                                         placeText = parsed.placeText,
                                         timeZoneText = parsed.timeZoneText,
@@ -357,13 +357,13 @@ internal class SearchToolCoordinator(
                         }
                     },
                     onFailure = { e ->
-                        if (e is WordClockNotRecognizedException) {
+                        if (e is WorldClockNotRecognizedException) {
                             val msg = appContext.getString(R.string.world_clock_error_not_recognized)
                             updateResultsState { s ->
                                 s.copy(
-                                    wordClockState =
-                                        WordClockState(
-                                            status = WordClockStatus.Error,
+                                    worldClockState =
+                                        WorldClockState(
+                                            status = WorldClockStatus.Error,
                                             errorMessage = msg,
                                             activeQuery = trimmedQuery,
                                         ),
@@ -374,9 +374,9 @@ internal class SearchToolCoordinator(
                         val msg = e.message ?: appContext.getString(R.string.direct_search_error_generic)
                         updateResultsState { s ->
                             s.copy(
-                                wordClockState =
-                                    WordClockState(
-                                        status = WordClockStatus.Error,
+                                worldClockState =
+                                    WorldClockState(
+                                        status = WorldClockStatus.Error,
                                         errorMessage = msg,
                                         activeQuery = trimmedQuery,
                                     ),

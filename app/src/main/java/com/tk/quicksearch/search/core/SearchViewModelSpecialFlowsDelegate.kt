@@ -48,11 +48,11 @@ internal class SearchViewModelSpecialFlowsDelegate(
                     } else {
                         CurrencyConverterState()
                     },
-                wordClockState =
+                worldClockState =
                     if (activeCard == SearchViewModel.ActiveInformationCard.WORD_CLOCK) {
-                        state.wordClockState
+                        state.worldClockState
                     } else {
-                        WordClockState()
+                        WorldClockState()
                     },
                 dictionaryState =
                     if (activeCard == SearchViewModel.ActiveInformationCard.DICTIONARY) {

@@ -113,12 +113,12 @@ internal class SearchPreferencesDelegate(
         }
     }
 
-    fun setWordClockEnabled(enabled: Boolean) {
+    fun setWorldClockEnabled(enabled: Boolean) {
         scope.launch(Dispatchers.IO) {
-            userPreferences.setWordClockEnabled(enabled)
-            updateFeatureState { it.copy(wordClockEnabled = enabled) }
+            userPreferences.setWorldClockEnabled(enabled)
+            updateFeatureState { it.copy(worldClockEnabled = enabled) }
             if (!enabled) {
-                updateResultsState { it.copy(wordClockState = WordClockState()) }
+                updateResultsState { it.copy(worldClockState = WorldClockState()) }
             }
         }
     }
@@ -982,11 +982,11 @@ internal class SearchPreferencesDelegate(
                     userPreferences.setCurrencyConverterAdvancedPayload(advancedPayload, advancedPayloadEnabled)
                 }
                 AiBackedToolConfigId.WORD_CLOCK -> {
-                    userPreferences.setWordClockProviderId(providerId)
-                    userPreferences.setWordClockModel(normalizedModelId)
-                    userPreferences.setWordClockGroundingEnabled(groundingEnabled)
-                    userPreferences.setWordClockThinkingEnabled(thinkingEnabled)
-                    userPreferences.setWordClockAdvancedPayload(advancedPayload, advancedPayloadEnabled)
+                    userPreferences.setWorldClockProviderId(providerId)
+                    userPreferences.setWorldClockModel(normalizedModelId)
+                    userPreferences.setWorldClockGroundingEnabled(groundingEnabled)
+                    userPreferences.setWorldClockThinkingEnabled(thinkingEnabled)
+                    userPreferences.setWorldClockAdvancedPayload(advancedPayload, advancedPayloadEnabled)
                 }
                 AiBackedToolConfigId.DICTIONARY -> {
                     userPreferences.setDictionaryProviderId(providerId)

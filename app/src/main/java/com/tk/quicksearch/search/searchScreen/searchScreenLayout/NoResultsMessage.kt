@@ -36,7 +36,7 @@ internal fun computeShouldShowNoResults(state: SearchUiState): Boolean {
         state.detectedShortcutTarget == null &&
         state.detectedAliasSearchSection == null &&
         !state.isCurrencyConverterAliasMode &&
-        !state.isWordClockAliasMode &&
+        !state.isWorldClockAliasMode &&
         !state.isDictionaryAliasMode &&
         state.detectedCustomToolId == null &&
         state.detectedTaskerIntentId == null &&

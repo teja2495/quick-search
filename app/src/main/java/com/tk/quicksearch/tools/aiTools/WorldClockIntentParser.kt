@@ -1,37 +1,37 @@
 package com.tk.quicksearch.tools.aiTools
 
 /**
- * Detects "word clock" requests. Two-stage: cheap candidate scan, then extraction.
+ * Detects "world clock" requests. Two-stage: cheap candidate scan, then extraction.
  */
-object WordClockIntentParser {
+object WorldClockIntentParser {
     private val timeInPrefixRegex =
             Regex("""(?i)^time\s+in\s+(.+)$""")
 
     fun isCandidate(trimmedQuery: String): Boolean =
             timeInPrefixRegex.matches(trimmedQuery.trim())
 
-    fun parseConfirmed(trimmedQuery: String): ConfirmedWordClockQuery? {
+    fun parseConfirmed(trimmedQuery: String): ConfirmedWorldClockQuery? {
         val normalized = trimmedQuery.trim()
         val match = timeInPrefixRegex.matchEntire(normalized) ?: return null
         val extracted = match.groupValues[1].trim()
         if (extracted.isBlank()) return null
-        return ConfirmedWordClockQuery(
+        return ConfirmedWorldClockQuery(
                 timeExpression = extracted,
                 originalQuery = normalized,
         )
     }
 
-    fun parseAliasConfirmed(trimmedQuery: String): ConfirmedWordClockQuery? {
+    fun parseAliasConfirmed(trimmedQuery: String): ConfirmedWorldClockQuery? {
         val normalized = trimmedQuery.trim()
         if (normalized.isBlank()) return null
-        return ConfirmedWordClockQuery(
+        return ConfirmedWorldClockQuery(
                 timeExpression = normalized,
                 originalQuery = normalized,
         )
     }
 }
 
-data class ConfirmedWordClockQuery(
+data class ConfirmedWorldClockQuery(
         val timeExpression: String,
         val originalQuery: String,
 )

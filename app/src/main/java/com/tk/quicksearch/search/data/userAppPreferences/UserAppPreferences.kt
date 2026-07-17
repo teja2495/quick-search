@@ -1369,9 +1369,9 @@ class UserAppPreferences(
 
     fun setCurrencyConverterEnabled(enabled: Boolean) = uiPreferences.setCurrencyConverterEnabled(enabled)
 
-    fun isWordClockEnabled(): Boolean = uiPreferences.isWordClockEnabled()
+    fun isWorldClockEnabled(): Boolean = uiPreferences.isWorldClockEnabled()
 
-    fun setWordClockEnabled(enabled: Boolean) = uiPreferences.setWordClockEnabled(enabled)
+    fun setWorldClockEnabled(enabled: Boolean) = uiPreferences.setWorldClockEnabled(enabled)
 
     fun isDictionaryEnabled(): Boolean = uiPreferences.isDictionaryEnabled()
 
@@ -1394,21 +1394,21 @@ class UserAppPreferences(
     fun setCurrencyConverterThinkingEnabled(enabled: Boolean) =
         uiPreferences.setCurrencyConverterThinkingEnabled(enabled)
 
-    fun getWordClockModel(): String = uiPreferences.getWordClockModel()
-    fun setWordClockModel(modelId: String) = uiPreferences.setWordClockModel(modelId)
-    fun getWordClockAdvancedPayload(): Pair<Boolean, String> = uiPreferences.getWordClockAdvancedPayload()
-    fun setWordClockAdvancedPayload(payload: String?, enabled: Boolean) = uiPreferences.setWordClockAdvancedPayload(payload, enabled)
-    fun getWordClockProviderId(): AiSearchLlmProviderId = uiPreferences.getWordClockProviderId()
-    fun setWordClockProviderId(providerId: AiSearchLlmProviderId) =
-        uiPreferences.setWordClockProviderId(providerId)
-    fun isWordClockGroundingEnabled(): Boolean =
-        uiPreferences.isWordClockGroundingEnabled()
-    fun setWordClockGroundingEnabled(enabled: Boolean) =
-        uiPreferences.setWordClockGroundingEnabled(enabled)
-    fun isWordClockThinkingEnabled(): Boolean =
-        uiPreferences.isWordClockThinkingEnabled()
-    fun setWordClockThinkingEnabled(enabled: Boolean) =
-        uiPreferences.setWordClockThinkingEnabled(enabled)
+    fun getWorldClockModel(): String = uiPreferences.getWorldClockModel()
+    fun setWorldClockModel(modelId: String) = uiPreferences.setWorldClockModel(modelId)
+    fun getWorldClockAdvancedPayload(): Pair<Boolean, String> = uiPreferences.getWorldClockAdvancedPayload()
+    fun setWorldClockAdvancedPayload(payload: String?, enabled: Boolean) = uiPreferences.setWorldClockAdvancedPayload(payload, enabled)
+    fun getWorldClockProviderId(): AiSearchLlmProviderId = uiPreferences.getWorldClockProviderId()
+    fun setWorldClockProviderId(providerId: AiSearchLlmProviderId) =
+        uiPreferences.setWorldClockProviderId(providerId)
+    fun isWorldClockGroundingEnabled(): Boolean =
+        uiPreferences.isWorldClockGroundingEnabled()
+    fun setWorldClockGroundingEnabled(enabled: Boolean) =
+        uiPreferences.setWorldClockGroundingEnabled(enabled)
+    fun isWorldClockThinkingEnabled(): Boolean =
+        uiPreferences.isWorldClockThinkingEnabled()
+    fun setWorldClockThinkingEnabled(enabled: Boolean) =
+        uiPreferences.setWorldClockThinkingEnabled(enabled)
 
     fun getDictionaryModel(): String = uiPreferences.getDictionaryModel()
     fun setDictionaryModel(modelId: String) = uiPreferences.setDictionaryModel(modelId)

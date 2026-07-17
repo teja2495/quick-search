@@ -327,7 +327,7 @@ internal fun SettingsDetailLevel2Screen(
                                                             state.dateCalculatorEnabled
                                                     ToolSettingId.CURRENCY_CONVERTER ->
                                                             state.currencyConverterEnabled
-                                                    ToolSettingId.WORD_CLOCK -> state.wordClockEnabled
+                                                    ToolSettingId.WORD_CLOCK -> state.worldClockEnabled
                                                     ToolSettingId.DICTIONARY -> state.dictionaryEnabled
                                                 }
                                         definition.id to
@@ -363,7 +363,7 @@ internal fun SettingsDetailLevel2Screen(
                                 when (toolId) {
                                     ToolSettingId.CURRENCY_CONVERTER ->
                                             callbacks.onToggleCurrencyConverter(enabled)
-                                    ToolSettingId.WORD_CLOCK -> callbacks.onToggleWordClock(enabled)
+                                    ToolSettingId.WORD_CLOCK -> callbacks.onToggleWorldClock(enabled)
                                     else -> {
                                         val definition =
                                                 ToolSettingsRegistry.definitionFor(toolId)
@@ -479,11 +479,11 @@ internal fun SettingsDetailLevel2Screen(
                             AiBackedToolConfigId.WORD_CLOCK -> BuiltInToolConfig(
                                 toolId = tool,
                                 title = context.getString(R.string.world_clock_toggle_title),
-                                modelId = preferences.getWordClockModel(),
-                                providerId = preferences.getWordClockProviderId(),
-                                groundingEnabled = preferences.isWordClockGroundingEnabled(),
-                                thinkingEnabled = preferences.isWordClockThinkingEnabled(),
-                                advancedPayload = preferences.getWordClockAdvancedPayload(),
+                                modelId = preferences.getWorldClockModel(),
+                                providerId = preferences.getWorldClockProviderId(),
+                                groundingEnabled = preferences.isWorldClockGroundingEnabled(),
+                                thinkingEnabled = preferences.isWorldClockThinkingEnabled(),
+                                advancedPayload = preferences.getWorldClockAdvancedPayload(),
                                 aliasFeatureId = AliasHandler.WORD_CLOCK_ALIAS_FEATURE_ID,
                             )
                             AiBackedToolConfigId.DICTIONARY -> BuiltInToolConfig(

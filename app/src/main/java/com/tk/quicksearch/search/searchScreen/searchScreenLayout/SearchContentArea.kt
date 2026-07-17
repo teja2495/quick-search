@@ -136,7 +136,7 @@ fun SearchContentArea(
     onSearchHistoryCollapseRequested: () -> Unit = {},
     showCalculator: Boolean = false,
     showCurrencyConverter: Boolean = false,
-    showWordClock: Boolean = false,
+    showWorldClock: Boolean = false,
     showDictionary: Boolean = false,
     showAiSearch: Boolean = false,
     aiSearchState: AiSearchState? = null,
@@ -159,12 +159,12 @@ fun SearchContentArea(
                 showAiSearch ||
                 showCalculator ||
                 showCurrencyConverter ||
-                showWordClock ||
+                showWorldClock ||
                 showDictionary ||
                 (state.detectedShortcutTarget != null) ||
                 (state.detectedAliasSearchSection != null) ||
                 state.isCurrencyConverterAliasMode ||
-                state.isWordClockAliasMode ||
+                state.isWorldClockAliasMode ||
                 state.isDictionaryAliasMode ||
                 state.detectedCustomToolId != null
                 || state.detectedTaskerIntentId != null
@@ -183,7 +183,7 @@ fun SearchContentArea(
                     !showAiSearch &&
                     !showCalculator &&
                     !showCurrencyConverter &&
-                    !showWordClock &&
+                    !showWorldClock &&
                     !showDictionary
     val expandedSectionBottomInset = 80.dp
     val aliasExpandedSectionBottomInset = 12.dp
@@ -283,7 +283,7 @@ fun SearchContentArea(
                 shouldShowNoResults &&
                         !showCalculator &&
                         !showCurrencyConverter &&
-                        !showWordClock &&
+                        !showWorldClock &&
                         !showDictionary &&
                         !showAiSearch &&
                         !hasInlineSearchEngines
@@ -535,12 +535,12 @@ fun SearchContentArea(
                                         useOneHandedMode &&
                                                 !showAiSearch &&
                                                 !showCurrencyConverter &&
-                                                !showWordClock &&
+                                                !showWorldClock &&
                                                 !showDictionary,
                                 hideResults = hideOtherResults,
                                 showCalculator = showCalculator,
                                 showCurrencyConverter = showCurrencyConverter,
-                                showWordClock = showWordClock,
+                                showWorldClock = showWorldClock,
                                 showDictionary = showDictionary,
                                 showAiSearch = showAiSearch,
                                 aiSearchState = aiSearchState,

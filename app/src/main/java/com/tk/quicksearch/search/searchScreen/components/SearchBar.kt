@@ -154,7 +154,7 @@ internal fun PersistentSearchBar(
     detectedShortcutTarget: SearchTarget? = null,
     detectedAliasSearchSection: SearchSection? = null,
     isCurrencyConverterAliasMode: Boolean = false,
-    isWordClockAliasMode: Boolean = false,
+    isWorldClockAliasMode: Boolean = false,
     isDictionaryAliasMode: Boolean = false,
     detectedCustomToolId: String? = null,
     detectedTaskerIntentId: String? = null,
@@ -195,7 +195,7 @@ internal fun PersistentSearchBar(
             detectedAliasSearchSection != null ||
             activeToolType != null ||
             isCurrencyConverterAliasMode ||
-            isWordClockAliasMode ||
+            isWorldClockAliasMode ||
             isDictionaryAliasMode ||
             detectedCustomToolId != null
             || detectedTaskerIntentId != null
@@ -213,7 +213,7 @@ internal fun PersistentSearchBar(
             activeToolType == SearchToolType.UNIT_CONVERTER -> LeadingIconState.UnitConverter
             activeToolType == SearchToolType.CALCULATOR || isCalculatorMode -> LeadingIconState.Calculator
             isCurrencyConverterAliasMode -> LeadingIconState.CurrencyConverter
-            isWordClockAliasMode -> LeadingIconState.WordClock
+            isWorldClockAliasMode -> LeadingIconState.WorldClock
             isDictionaryAliasMode -> LeadingIconState.Dictionary
             detectedShortcutTarget != null -> LeadingIconState.Shortcut(detectedShortcutTarget)
             detectedAliasSearchSection != null -> LeadingIconState.Section(detectedAliasSearchSection)
@@ -544,7 +544,7 @@ internal fun PersistentSearchBar(
                                 (detectedShortcutTarget != null ||
                                     detectedAliasSearchSection != null ||
                                     isCurrencyConverterAliasMode ||
-                                    isWordClockAliasMode ||
+                                    isWorldClockAliasMode ||
                                     isDictionaryAliasMode ||
                                     detectedCustomToolId != null ||
                                     detectedTaskerIntentId != null ||
@@ -825,7 +825,7 @@ private fun SearchBarLeadingIcon(
             )
         }
 
-        LeadingIconState.WordClock -> {
+        LeadingIconState.WorldClock -> {
             Icon(
                 imageVector = Icons.Rounded.AccessTime,
                 contentDescription = stringResource(R.string.world_clock_toggle_title),
@@ -906,7 +906,7 @@ private sealed interface LeadingIconState {
 
     data object CurrencyConverter : LeadingIconState
 
-    data object WordClock : LeadingIconState
+    data object WorldClock : LeadingIconState
 
     data object Dictionary : LeadingIconState
 

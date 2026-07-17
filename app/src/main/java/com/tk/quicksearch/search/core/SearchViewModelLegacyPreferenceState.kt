@@ -48,7 +48,7 @@ internal class SearchViewModelLegacyPreferenceState(
     var lockedAliasSearchSection: SearchSection? = null
     var lockedToolMode: SearchToolType? = null
     var lockedCurrencyConverterAlias: Boolean = false
-    var lockedWordClockAlias: Boolean = false
+    var lockedWorldClockAlias: Boolean = false
     var lockedDictionaryAlias: Boolean = false
     var lockedCustomToolId: String? = null
     var lockedTaskerIntentId: String? = null
@@ -98,7 +98,7 @@ internal class SearchViewModelLegacyPreferenceState(
         lockedAliasSearchSection = prefCache.lockedAliasSearchSection
         lockedToolMode = prefCache.lockedToolMode
         lockedCurrencyConverterAlias = prefCache.lockedCurrencyConverterAlias
-        lockedWordClockAlias = prefCache.lockedWordClockAlias
+        lockedWorldClockAlias = prefCache.lockedWorldClockAlias
         lockedDictionaryAlias = prefCache.lockedDictionaryAlias
         clearQueryOnLaunch = prefCache.clearQueryOnLaunch
         amazonDomain = prefCache.amazonDomain

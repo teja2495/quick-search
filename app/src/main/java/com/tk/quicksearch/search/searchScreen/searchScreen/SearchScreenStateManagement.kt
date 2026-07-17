@@ -541,7 +541,7 @@ internal fun SearchScreenStateManagement(
                 state.detectedShortcutTarget != null ||
                     state.detectedAliasSearchSection != null ||
                     state.isCurrencyConverterAliasMode ||
-                    state.isWordClockAliasMode ||
+                    state.isWorldClockAliasMode ||
                     state.isDictionaryAliasMode,
         )
 

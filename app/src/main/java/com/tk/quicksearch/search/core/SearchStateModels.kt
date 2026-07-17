@@ -96,7 +96,7 @@ data class SearchResultsState(
         // Transient search state (calculator answer, AI search, web suggestions)
         val calculatorState: CalculatorState = CalculatorState(),
         val currencyConverterState: CurrencyConverterState = CurrencyConverterState(),
-        val wordClockState: WordClockState = WordClockState(),
+        val worldClockState: WorldClockState = WorldClockState(),
         val dictionaryState: DictionaryState = DictionaryState(),
         val AiSearchState: AiSearchState = AiSearchState(),
         val webSuggestions: List<String> = emptyList(),
@@ -107,7 +107,7 @@ data class SearchResultsState(
         val detectedShortcutTarget: SearchTarget? = null,
         val detectedAliasSearchSection: SearchSection? = null,
         val isCurrencyConverterAliasMode: Boolean = false,
-        val isWordClockAliasMode: Boolean = false,
+        val isWorldClockAliasMode: Boolean = false,
         val isDictionaryAliasMode: Boolean = false,
         val detectedCustomToolId: String? = null,
         val detectedTaskerIntentId: String? = null,
@@ -185,7 +185,7 @@ data class SearchFeatureState(
         val unitConverterEnabled: Boolean = true,
         val dateCalculatorEnabled: Boolean = true,
         val currencyConverterEnabled: Boolean = true,
-        val wordClockEnabled: Boolean = true,
+        val worldClockEnabled: Boolean = true,
         val dictionaryEnabled: Boolean = true,
         // Custom tools
         val customTools: List<CustomTool> = emptyList(),

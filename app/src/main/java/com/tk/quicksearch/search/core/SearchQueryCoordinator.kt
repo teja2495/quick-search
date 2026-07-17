@@ -16,7 +16,7 @@ internal data class SearchQueryAliasState(
     val lockedAliasSearchSection: SearchSection?,
     val lockedToolMode: SearchToolType?,
     val lockedCurrencyConverterAlias: Boolean,
-    val lockedWordClockAlias: Boolean,
+    val lockedWorldClockAlias: Boolean,
     val lockedDictionaryAlias: Boolean,
     val lockedCustomToolId: String? = null,
     val lockedTaskerIntentId: String? = null,
@@ -76,11 +76,11 @@ internal class SearchQueryCoordinator(
                 detectedShortcutTarget = null,
                 detectedAliasSearchSection = section,
                 isCurrencyConverterAliasMode = false,
-                isWordClockAliasMode = false,
+                isWorldClockAliasMode = false,
                 isDictionaryAliasMode = false,
                 calculatorState = CalculatorState(),
                 currencyConverterState = CurrencyConverterState(),
-                wordClockState = WordClockState(),
+                worldClockState = WorldClockState(),
                 dictionaryState = DictionaryState(),
                 searchResults = emptyList(),
                 isAppSearchInProgress = false,
@@ -109,13 +109,13 @@ internal class SearchQueryCoordinator(
                 detectedShortcutTarget = null,
                 detectedAliasSearchSection = null,
                 isCurrencyConverterAliasMode = false,
-                isWordClockAliasMode = false,
+                isWorldClockAliasMode = false,
                 isDictionaryAliasMode = false,
                 detectedCustomToolId = null,
                 detectedTaskerIntentId = null,
                 calculatorState = CalculatorState(),
                 currencyConverterState = CurrencyConverterState(),
-                wordClockState = WordClockState(),
+                worldClockState = WorldClockState(),
                 dictionaryState = DictionaryState(),
             )
         }
@@ -148,7 +148,7 @@ internal class SearchQueryCoordinator(
                 lockedAliasSearchSection = section,
                 lockedToolMode = toolMode,
                 lockedCurrencyConverterAlias = if (isExclusive) false else current.lockedCurrencyConverterAlias,
-                lockedWordClockAlias = if (isExclusive) false else current.lockedWordClockAlias,
+                lockedWorldClockAlias = if (isExclusive) false else current.lockedWorldClockAlias,
                 lockedDictionaryAlias = if (isExclusive) false else current.lockedDictionaryAlias,
                 lockedCustomToolId = if (isExclusive) null else current.lockedCustomToolId,
                 lockedTaskerIntentId = if (isExclusive) null else current.lockedTaskerIntentId,
@@ -163,7 +163,7 @@ internal class SearchQueryCoordinator(
                 lockedAliasSearchSection = null,
                 lockedToolMode = null,
                 lockedCurrencyConverterAlias = false,
-                lockedWordClockAlias = false,
+                lockedWorldClockAlias = false,
                 lockedDictionaryAlias = false,
                 lockedCustomToolId = null,
                 lockedTaskerIntentId = null,
@@ -206,7 +206,7 @@ internal class SearchQueryCoordinator(
             aliasState.lockedAliasSearchSection != null ||
             aliasState.lockedShortcutTarget != null ||
             aliasState.lockedCurrencyConverterAlias ||
-            aliasState.lockedWordClockAlias ||
+            aliasState.lockedWorldClockAlias ||
             aliasState.lockedDictionaryAlias ||
             aliasState.lockedCustomToolId != null ||
             aliasState.lockedTaskerIntentId != null
@@ -232,7 +232,7 @@ internal class SearchQueryCoordinator(
                     lockedAliasSearchSection = null,
                     lockedToolMode = null,
                     lockedCurrencyConverterAlias = false,
-                    lockedWordClockAlias = false,
+                    lockedWorldClockAlias = false,
                     lockedDictionaryAlias = false,
                     lockedCustomToolId = null,
                     lockedTaskerIntentId = featureId,
@@ -253,7 +253,7 @@ internal class SearchQueryCoordinator(
                     lockedAliasSearchSection = null,
                     lockedToolMode = null,
                     lockedCurrencyConverterAlias = false,
-                    lockedWordClockAlias = false,
+                    lockedWorldClockAlias = false,
                     lockedDictionaryAlias = false,
                     lockedCustomToolId = featureId,
                     lockedTaskerIntentId = null,
@@ -284,7 +284,7 @@ internal class SearchQueryCoordinator(
                     lockedCurrencyConverterAlias =
                         standaloneMode ==
                             AliasHandler.StandaloneFeatureAliasMode.CURRENCY_CONVERTER,
-                    lockedWordClockAlias =
+                    lockedWorldClockAlias =
                         standaloneMode == AliasHandler.StandaloneFeatureAliasMode.WORD_CLOCK,
                     lockedDictionaryAlias =
                         standaloneMode == AliasHandler.StandaloneFeatureAliasMode.DICTIONARY,
@@ -305,7 +305,7 @@ internal class SearchQueryCoordinator(
         updateAliasState(
             current.copy(
                 lockedCurrencyConverterAlias = false,
-                lockedWordClockAlias = false,
+                lockedWorldClockAlias = false,
                 lockedDictionaryAlias = false,
                 lockedCustomToolId = null,
                 lockedTaskerIntentId = null,
@@ -399,11 +399,11 @@ internal class SearchQueryCoordinator(
         ) {
             updateResultsState { it.copy(currencyConverterState = CurrencyConverterState()) }
         }
-        val wordClockState = currentResultsStateProvider().wordClockState
-        if (wordClockState.status != WordClockStatus.Idle &&
-            (wordClockState.activeQuery == null || wordClockState.activeQuery != trimmedQuery)
+        val worldClockState = currentResultsStateProvider().worldClockState
+        if (worldClockState.status != WorldClockStatus.Idle &&
+            (worldClockState.activeQuery == null || worldClockState.activeQuery != trimmedQuery)
         ) {
-            updateResultsState { it.copy(wordClockState = WordClockState()) }
+            updateResultsState { it.copy(worldClockState = WorldClockState()) }
         }
         val dictionaryState = currentResultsStateProvider().dictionaryState
         if (dictionaryState.status != DictionaryStatus.Idle &&
@@ -419,7 +419,7 @@ internal class SearchQueryCoordinator(
                     aliasState.lockedAliasSearchSection != null ||
                     aliasState.lockedToolMode != null ||
                     aliasState.lockedCurrencyConverterAlias ||
-                    aliasState.lockedWordClockAlias ||
+                    aliasState.lockedWorldClockAlias ||
                     aliasState.lockedDictionaryAlias ||
                     aliasState.lockedCustomToolId != null
                     || aliasState.lockedTaskerIntentId != null
@@ -441,7 +441,7 @@ internal class SearchQueryCoordinator(
                         noteResults = emptyList(),
                         AiSearchState = AiSearchState(),
                         currencyConverterState = CurrencyConverterState(),
-                        wordClockState = WordClockState(),
+                        worldClockState = WorldClockState(),
                         dictionaryState = DictionaryState(),
                         calculatorState =
                             aliasState.lockedToolMode?.let(::createToolModeState)
@@ -452,7 +452,7 @@ internal class SearchQueryCoordinator(
                         detectedShortcutTarget = aliasState.lockedShortcutTarget,
                         detectedAliasSearchSection = aliasState.lockedAliasSearchSection,
                         isCurrencyConverterAliasMode = aliasState.lockedCurrencyConverterAlias,
-                        isWordClockAliasMode = aliasState.lockedWordClockAlias,
+                        isWorldClockAliasMode = aliasState.lockedWorldClockAlias,
                         isDictionaryAliasMode = aliasState.lockedDictionaryAlias,
                         detectedCustomToolId = aliasState.lockedCustomToolId,
                         detectedTaskerIntentId = aliasState.lockedTaskerIntentId,
@@ -483,7 +483,7 @@ internal class SearchQueryCoordinator(
                     noteResults = emptyList(),
                     AiSearchState = AiSearchState(),
                     currencyConverterState = CurrencyConverterState(),
-                    wordClockState = WordClockState(),
+                    worldClockState = WorldClockState(),
                     dictionaryState = DictionaryState(),
                     calculatorState =
                         if (clearShortcutWhenBlank || lockedMode == null) {
@@ -500,8 +500,8 @@ internal class SearchQueryCoordinator(
                         if (clearShortcutWhenBlank) null else updatedAliasState.lockedAliasSearchSection,
                     isCurrencyConverterAliasMode =
                         !clearShortcutWhenBlank && updatedAliasState.lockedCurrencyConverterAlias,
-                    isWordClockAliasMode =
-                        !clearShortcutWhenBlank && updatedAliasState.lockedWordClockAlias,
+                    isWorldClockAliasMode =
+                        !clearShortcutWhenBlank && updatedAliasState.lockedWorldClockAlias,
                     isDictionaryAliasMode =
                         !clearShortcutWhenBlank && updatedAliasState.lockedDictionaryAlias,
                     detectedCustomToolId =
@@ -552,7 +552,7 @@ internal class SearchQueryCoordinator(
                 detectedAliasSearchSection = detectedAliasSearchSection,
                 skipLocalTools =
                     aliasState.lockedCurrencyConverterAlias ||
-                        aliasState.lockedWordClockAlias ||
+                        aliasState.lockedWorldClockAlias ||
                         aliasState.lockedDictionaryAlias ||
                         aliasState.lockedCustomToolId != null ||
                         aliasState.lockedTaskerIntentId != null,
@@ -578,7 +578,7 @@ internal class SearchQueryCoordinator(
         val shouldOnlySearchApps = detectedAliasSearchSection == SearchSection.APPS
         val shouldSkipAppSearchDueToAlias =
             aliasState.lockedCurrencyConverterAlias ||
-                aliasState.lockedWordClockAlias ||
+                aliasState.lockedWorldClockAlias ||
                 aliasState.lockedDictionaryAlias ||
                 aliasState.lockedCustomToolId != null ||
                 aliasState.lockedTaskerIntentId != null ||
@@ -587,7 +587,7 @@ internal class SearchQueryCoordinator(
             !showingTool &&
                 detectedTarget == null &&
                 !aliasState.lockedCurrencyConverterAlias &&
-                !aliasState.lockedWordClockAlias &&
+                !aliasState.lockedWorldClockAlias &&
                 !aliasState.lockedDictionaryAlias &&
                 aliasState.lockedCustomToolId == null &&
                 aliasState.lockedTaskerIntentId == null &&
@@ -625,7 +625,7 @@ internal class SearchQueryCoordinator(
                 detectedShortcutTarget = detectedTarget,
                 detectedAliasSearchSection = detectedAliasSearchSection,
                 isCurrencyConverterAliasMode = aliasState.lockedCurrencyConverterAlias,
-                isWordClockAliasMode = aliasState.lockedWordClockAlias,
+                isWorldClockAliasMode = aliasState.lockedWorldClockAlias,
                 isDictionaryAliasMode = aliasState.lockedDictionaryAlias,
                 detectedCustomToolId = aliasState.lockedCustomToolId,
                 detectedTaskerIntentId = aliasState.lockedTaskerIntentId,
@@ -704,7 +704,7 @@ internal class SearchQueryCoordinator(
                         webSuggestionsLoading = false,
                     )
                 }
-            } else if (aliasState.lockedWordClockAlias || aliasState.lockedDictionaryAlias || aliasState.lockedCustomToolId != null || aliasState.lockedTaskerIntentId != null) {
+            } else if (aliasState.lockedWorldClockAlias || aliasState.lockedDictionaryAlias || aliasState.lockedCustomToolId != null || aliasState.lockedTaskerIntentId != null) {
                 secondarySearchOrchestrator.cancel()
                 updateResultsState {
                     it.copy(
@@ -753,7 +753,7 @@ internal class SearchQueryCoordinator(
             trimmedQuery = trimmedQuery,
             showingTool = showingTool,
         )
-        toolCoordinator.scheduleWordClock(
+        toolCoordinator.scheduleWorldClock(
             trimmedQuery = trimmedQuery,
             showingTool = showingTool,
         )

@@ -60,7 +60,7 @@ import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchSectionUiMetadataRegistry
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SectionRenderParams
-import com.tk.quicksearch.search.core.WordClockStatus
+import com.tk.quicksearch.search.core.WorldClockStatus
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.isLikelyWebUrl
 import com.tk.quicksearch.search.core.rememberSectionRenderContext
@@ -90,7 +90,7 @@ import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
 import com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
 import com.tk.quicksearch.widgets.customButtonsWidget.WidgetActionActivity
-import com.tk.quicksearch.tools.aiTools.WordClockIntentParser
+import com.tk.quicksearch.tools.aiTools.WorldClockIntentParser
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -152,7 +152,7 @@ internal fun SearchScreenContent(
         onGeminiModelInfoClick: () -> Unit = {},
         onCurrencyConversionClick: () -> Unit = {},
         onDictionarySearchClick: () -> Unit = {},
-        onWordClockSearchClick: () -> Unit = {},
+        onWorldClockSearchClick: () -> Unit = {},
         onCustomToolSearchClick: () -> Unit = {},
         onTaskerIntentClick: () -> Unit = {},
         onKeyboardSwitchToggle: () -> Unit,
@@ -240,7 +240,7 @@ internal fun SearchScreenContent(
     val isUnitConverterMode = state.calculatorState.isUnitConverterMode
     val activeToolType = if (isToolMode) state.calculatorState.toolType else null
     val isCurrencyConverterAliasMode = state.isCurrencyConverterAliasMode
-    val isWordClockAliasMode = state.isWordClockAliasMode
+    val isWorldClockAliasMode = state.isWorldClockAliasMode
     val isDictionaryAliasMode = state.isDictionaryAliasMode
     val activeCustomTool = state.detectedCustomToolId?.let { id -> state.customTools.find { it.id == id } }
     val activeTaskerIntent = state.detectedTaskerIntentId?.let { id -> state.taskerIntentTools.find { it.id == id } }
@@ -276,7 +276,7 @@ internal fun SearchScreenContent(
         state.unitConverterEnabled,
         state.dateCalculatorEnabled,
         state.currencyConverterEnabled,
-        state.wordClockEnabled,
+        state.worldClockEnabled,
         state.dictionaryEnabled,
     ) {
         val gated = listOf(
@@ -290,7 +290,7 @@ internal fun SearchScreenContent(
             cycleHints[7] to state.unitConverterEnabled,
             cycleHints[8] to state.dateCalculatorEnabled,
             cycleHints[9] to state.calculatorEnabled,
-            cycleHints[10] to (state.wordClockEnabled && state.hasApiKey),
+            cycleHints[10] to (state.worldClockEnabled && state.hasApiKey),
             cycleHints[11] to (state.dictionaryEnabled && state.hasApiKey),
         )
         listOf(hintSearchAnything) + gated.filter { it.second }.map { it.first }.shuffled()
@@ -300,7 +300,7 @@ internal fun SearchScreenContent(
             !isCalculatorMode &&
                     !isUnitConverterMode &&
                     !isCurrencyConverterAliasMode &&
-                    !isWordClockAliasMode &&
+                    !isWorldClockAliasMode &&
                     !isDictionaryAliasMode &&
                     activeCustomTool == null &&
                     state.detectedAliasSearchSection == null
@@ -324,7 +324,7 @@ internal fun SearchScreenContent(
                 isUnitConverterMode -> stringResource(R.string.unit_converter_enter_conversion_hint)
                 isCurrencyConverterAliasMode ->
                         stringResource(R.string.search_hint_currency_converter)
-                isWordClockAliasMode -> stringResource(R.string.search_hint_world_clock)
+                isWorldClockAliasMode -> stringResource(R.string.search_hint_world_clock)
                 isDictionaryAliasMode -> stringResource(R.string.search_hint_dictionary)
                 activeCustomTool != null -> activeCustomTool.name
                 state.detectedAliasSearchSection != null ->
@@ -339,9 +339,9 @@ internal fun SearchScreenContent(
     val showCurrencyConverter =
             (state.currencyConverterEnabled || isCurrencyConverterAliasMode) &&
                     state.currencyConverterState.status != CurrencyConverterStatus.Idle
-    val showWordClock =
-            (state.wordClockEnabled || isWordClockAliasMode) &&
-                    state.wordClockState.status != WordClockStatus.Idle
+    val showWorldClock =
+            (state.worldClockEnabled || isWorldClockAliasMode) &&
+                    state.worldClockState.status != WorldClockStatus.Idle
     val showDictionary =
             (state.dictionaryEnabled || isDictionaryAliasMode) &&
                     state.dictionaryState.status != DictionaryStatus.Idle
@@ -357,7 +357,7 @@ internal fun SearchScreenContent(
                     state.hasApiKey &&
                     !showCalculatorResult &&
                     !showCurrencyConverter &&
-                    !showWordClock &&
+                    !showWorldClock &&
                     !showDictionary &&
                     if (isCurrencyConverterAliasMode) {
                         true // always show when alias mode is active
@@ -370,7 +370,7 @@ internal fun SearchScreenContent(
                     state.hasApiKey &&
                     !showCalculatorResult &&
                     !showCurrencyConverter &&
-                    !showWordClock &&
+                    !showWorldClock &&
                     !showDictionary &&
                     if (isDictionaryAliasMode) {
                         true
@@ -378,18 +378,18 @@ internal fun SearchScreenContent(
                         trimmedQuery.isNotBlank() &&
                                 DictionaryIntentParser.parseConfirmed(trimmedQuery) != null
                     }
-    val showWordClockSearchCard =
-            (state.wordClockEnabled || isWordClockAliasMode) &&
+    val showWorldClockSearchCard =
+            (state.worldClockEnabled || isWorldClockAliasMode) &&
                     state.hasApiKey &&
                     !showCalculatorResult &&
                     !showCurrencyConverter &&
-                    !showWordClock &&
+                    !showWorldClock &&
                     !showDictionary &&
-                    if (isWordClockAliasMode) {
+                    if (isWorldClockAliasMode) {
                         true
                     } else {
                         trimmedQuery.isNotBlank() &&
-                                WordClockIntentParser.parseConfirmed(trimmedQuery) != null
+                                WorldClockIntentParser.parseConfirmed(trimmedQuery) != null
                     }
     val showCustomToolSearchCard =
             activeCustomTool != null &&
@@ -399,7 +399,7 @@ internal fun SearchScreenContent(
     val showTaskerIntentCard = activeTaskerIntent != null
     val isToolAliasMode =
             isCurrencyConverterAliasMode ||
-                    isWordClockAliasMode ||
+                    isWorldClockAliasMode ||
                     isDictionaryAliasMode ||
                     activeCustomTool != null
                     || activeTaskerIntent != null
@@ -482,7 +482,7 @@ internal fun SearchScreenContent(
                             state.detectedShortcutTarget == null &&
                             state.detectedAliasSearchSection == null &&
                             !isCurrencyConverterAliasMode &&
-                            !isWordClockAliasMode &&
+                            !isWorldClockAliasMode &&
                             !isDictionaryAliasMode &&
                             activeCustomTool == null
             ) {
@@ -547,7 +547,7 @@ internal fun SearchScreenContent(
             if (shouldShowTopResultIndicator &&
                     !showCurrencyConverterSearchCard &&
                     !showDictionarySearchCard &&
-                    !showWordClockSearchCard &&
+                    !showWorldClockSearchCard &&
                     !hasSuffixAliasKeywordAtQueryEnd) {
                 predictedTarget
             } else null
@@ -559,12 +559,12 @@ internal fun SearchScreenContent(
                     state.calculatorState.dateDiffLabel != null ||
                     state.calculatorState.timeResultLabel != null ||
                     showCurrencyConverter ||
-                    showWordClock ||
+                    showWorldClock ||
                     showDictionary ||
                     state.detectedShortcutTarget != null ||
                     state.detectedAliasSearchSection != null ||
                     state.isCurrencyConverterAliasMode ||
-                    state.isWordClockAliasMode ||
+                    state.isWorldClockAliasMode ||
                     state.isDictionaryAliasMode ||
                     state.detectedCustomToolId != null
                     || state.detectedTaskerIntentId != null
@@ -692,11 +692,11 @@ internal fun SearchScreenContent(
                                     appIconPackage = com.tk.quicksearch.tools.tasker.TaskerIntegration.PACKAGE_NAME,
                                     onClick = onTaskerIntentClick,
                             )
-                    showWordClockSearchCard ->
+                    showWorldClockSearchCard ->
                             ToolCardConfig(
                                     label = stringResource(R.string.get_time),
                                     icon = Icons.Rounded.AccessTime,
-                                    onClick = onWordClockSearchClick,
+                                    onClick = onWorldClockSearchClick,
                             )
                     else -> null
                 }
@@ -894,7 +894,7 @@ internal fun SearchScreenContent(
                 detectedShortcutTarget = state.detectedShortcutTarget,
                 detectedAliasSearchSection = state.detectedAliasSearchSection,
                 isCurrencyConverterAliasMode = isCurrencyConverterAliasMode,
-                isWordClockAliasMode = isWordClockAliasMode,
+                isWorldClockAliasMode = isWorldClockAliasMode,
                 isDictionaryAliasMode = isDictionaryAliasMode,
                 detectedCustomToolId = state.detectedCustomToolId,
                 detectedTaskerIntentId = state.detectedTaskerIntentId,
@@ -938,8 +938,8 @@ internal fun SearchScreenContent(
                         onTaskerIntentClick()
                         return@PersistentSearchBar true
                     }
-                    if (showWordClockSearchCard) {
-                        onWordClockSearchClick()
+                    if (showWorldClockSearchCard) {
+                        onWorldClockSearchClick()
                         return@PersistentSearchBar true // keep keyboard open
                     }
 
@@ -1135,7 +1135,7 @@ internal fun SearchScreenContent(
                 showOpenSettingsOption = !state.settingsIconEnabled,
                 showCalculator = state.calculatorState.isToolMode || state.calculatorState.result != null || state.calculatorState.parsedDateMillis != null || state.calculatorState.dateDiffLabel != null || state.calculatorState.timeResultLabel != null,
                 showCurrencyConverter = showCurrencyConverter,
-                showWordClock = showWordClock,
+                showWorldClock = showWorldClock,
                 showDictionary = showDictionary,
                 showAiSearch = state.AiSearchState.status != AiSearchStatus.Idle,
                 aiSearchState = state.AiSearchState,
