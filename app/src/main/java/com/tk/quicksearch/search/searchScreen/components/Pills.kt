@@ -95,6 +95,7 @@ internal fun PhoneCallPill(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val isDarkTheme = LocalAppIsDarkTheme.current
     val phoneAppIcon =
         remember(context) {
             runCatching {
@@ -104,14 +105,20 @@ internal fun PhoneCallPill(
             }.getOrNull()
         }
     val interactionSource = remember { MutableInteractionSource() }
+    val borderColor =
+        if (isDarkTheme) {
+            AppColors.Accent.copy(alpha = 0.22f)
+        } else {
+            Color.Black.copy(alpha = 0.1f)
+        }
 
     Surface(
         modifier = modifier,
         onClick = onClick,
         interactionSource = interactionSource,
         shape = DesignTokens.ShapeFull,
-        color = if (LocalAppIsDarkTheme.current) Color.Black else Color.White,
-        border = BorderStroke(DesignTokens.KeyboardPillBorderStrokeWidth, AppColors.ActionPhone),
+        color = if (isDarkTheme) Color.Black else Color.White,
+        border = BorderStroke(DesignTokens.KeyboardPillBorderStrokeWidth, borderColor),
         tonalElevation = DesignTokens.ElevationLevel0,
     ) {
         Row(
@@ -143,7 +150,7 @@ internal fun PhoneCallPill(
             Text(
                 text = stringResource(R.string.contact_method_call_label),
                 style = MaterialTheme.typography.labelSmall,
-                color = if (LocalAppIsDarkTheme.current) Color.White else Color.Black,
+                color = if (isDarkTheme) Color.White else Color.Black,
                 fontWeight = FontWeight.Medium,
             )
         }

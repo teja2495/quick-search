@@ -40,7 +40,7 @@
 <string name="search_hint_notes">Notlarda ara…</string>
 <string name="search_hint_settings">Cihaz ayarlarında ara…</string>
 <string name="search_hint_static">Her şeyi ara</string>
-<string name="search_hint_word_clock">Yerel saati öğrenmek için bir yer girin</string>
+<string name="search_hint_world_clock">Yerel saati öğrenmek için bir yer girin</string>
 <string-array name="search_hints_cycle">
     <item>Kişilerde ara</item>
     <item>Dosyalarda ara</item>
@@ -842,9 +842,9 @@
 <string name="unit_converter_info_title">Birim dönüştürücü</string>
 <string name="unit_converter_invalid_or_unsupported_query">Geçersiz veya desteklenmeyen dönüşüm</string>
 <string name="unit_converter_toggle_action_desc">Birim dönüştürücüyü aç veya kapat</string>
-<string name="word_clock_error_not_recognized">Bu saat isteği çözümlenemedi. Bir şehir, ülke, saat dilimi veya net bir saat girmeyi dene.</string>
-<string name="word_clock_toggle_desc">Örnek: Time in Tokyo</string>
-<string name="word_clock_toggle_title">Dünya saati</string>
+<string name="world_clock_error_not_recognized">Bu saat isteği çözümlenemedi. Bir şehir, ülke, saat dilimi veya net bir saat girmeyi dene.</string>
+<string name="world_clock_toggle_desc">Örnek: Time in Tokyo</string>
+<string name="world_clock_toggle_title">Dünya saati</string>
 
 <!-- ============================================================================
      Widgets &amp; Shortcuts

@@ -32,7 +32,7 @@
     <string name="search_hint_notes">Search Notes…</string>
     <string name="search_hint_settings">Search Device Settings…</string>
     <string name="search_hint_static">Search Anything</string>
-    <string name="search_hint_word_clock">Enter any place to get their local time</string>
+    <string name="search_hint_world_clock">Enter any place to get their local time</string>
     <string-array name="search_hints_cycle">
         <item >Search Contacts</item>
         <item >Search Files</item>
@@ -839,9 +839,9 @@
     <string name="unit_converter_info_title">Unit Converter</string>
     <string name="unit_converter_invalid_or_unsupported_query">Invalid or unsupported conversion</string>
     <string name="unit_converter_toggle_action_desc">Toggle unit converter on or off</string>
-    <string name="word_clock_error_not_recognized">Couldn’t resolve that time request. Try a city, country, timezone, or explicit time.</string>
-    <string name="word_clock_toggle_desc">Example: Time in Tokyo</string>
-    <string name="word_clock_toggle_title">Word Clock</string>
+    <string name="world_clock_error_not_recognized">Couldn’t resolve that time request. Try a city, country, timezone, or explicit time.</string>
+    <string name="world_clock_toggle_desc">Example: Time in Tokyo</string>
+    <string name="world_clock_toggle_title">World Clock</string>
 
     <!-- ============================================================================
          Widgets &amp; Shortcuts

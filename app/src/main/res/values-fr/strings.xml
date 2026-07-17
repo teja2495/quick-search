@@ -41,7 +41,7 @@
 <string name="search_hint_notes">Rechercher des notes…</string>
 <string name="search_hint_settings">Rechercher dans les paramètres de l\'appareil…</string>
 <string name="search_hint_static">Tout rechercher</string>
-<string name="search_hint_word_clock">Saisissez un lieu pour obtenir l\'heure locale</string>
+<string name="search_hint_world_clock">Saisissez un lieu pour obtenir l\'heure locale</string>
 <string-array name="search_hints_cycle">
     <item >Rechercher des contacts</item>
     <item >Rechercher des fichiers</item>
@@ -843,9 +843,9 @@
 <string name="unit_converter_info_title">Convertisseur d\'unités</string>
 <string name="unit_converter_invalid_or_unsupported_query">Conversion non valide ou non prise en charge</string>
 <string name="unit_converter_toggle_action_desc">Activer ou désactiver le convertisseur d\'unités</string>
-<string name="word_clock_error_not_recognized">Impossible de récupérer l\'heure demandée. Essayez avec une ville, un pays, un fuseau horaire ou une heure précise.</string>
-<string name="word_clock_toggle_desc">Exemple : Time in Tokyo</string>
-<string name="word_clock_toggle_title">Horloge mondiale</string>
+<string name="world_clock_error_not_recognized">Impossible de récupérer l\'heure demandée. Essayez avec une ville, un pays, un fuseau horaire ou une heure précise.</string>
+<string name="world_clock_toggle_desc">Exemple : Time in Tokyo</string>
+<string name="world_clock_toggle_title">Horloge mondiale</string>
 
 <!-- ============================================================================
      Widgets &amp; Shortcuts

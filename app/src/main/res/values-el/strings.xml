@@ -41,7 +41,7 @@
     <string name="search_hint_notes">Αναζήτηση στις σημειώσεις…</string>
     <string name="search_hint_settings">Αναζήτηση στις ρυθμίσεις συσκευής…</string>
     <string name="search_hint_static">Αναζήτηση για οτιδήποτε</string>
-    <string name="search_hint_word_clock">Εισαγάγετε μια τοποθεσία για να δείτε την τοπική ώρα</string>
+    <string name="search_hint_world_clock">Εισαγάγετε μια τοποθεσία για να δείτε την τοπική ώρα</string>
     <string-array name="search_hints_cycle">
         <item >Αναζήτηση επαφών</item>
         <item >Αναζήτηση αρχείων</item>
@@ -843,9 +843,9 @@
     <string name="unit_converter_info_title">Μετατροπέας μονάδων</string>
     <string name="unit_converter_invalid_or_unsupported_query">Μη έγκυρη ή μη υποστηριζόμενη μετατροπή</string>
     <string name="unit_converter_toggle_action_desc">Ενεργοποίηση ή απενεργοποίηση μετατροπέα μονάδων</string>
-    <string name="word_clock_error_not_recognized">Δεν ήταν δυνατή η επίλυση αυτού του αιτήματος ώρας. Δοκιμάστε μια πόλη, χώρα, ζώνη ώρας ή συγκεκριμένη ώρα.</string>
-    <string name="word_clock_toggle_desc">Παράδειγμα: Time in Tokyo</string>
-    <string name="word_clock_toggle_title">Παγκόσμιο ρολόι</string>
+    <string name="world_clock_error_not_recognized">Δεν ήταν δυνατή η επίλυση αυτού του αιτήματος ώρας. Δοκιμάστε μια πόλη, χώρα, ζώνη ώρας ή συγκεκριμένη ώρα.</string>
+    <string name="world_clock_toggle_desc">Παράδειγμα: Time in Tokyo</string>
+    <string name="world_clock_toggle_title">Παγκόσμιο ρολόι</string>
 
     <!-- ============================================================================
          Widgets &amp; Shortcuts

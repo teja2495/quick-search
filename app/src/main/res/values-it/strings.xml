@@ -40,7 +40,7 @@
     <string name="search_hint_notes">Cerca nelle note…</string>
     <string name="search_hint_settings">Cerca nelle impostazioni del dispositivo…</string>
     <string name="search_hint_static">Cerca ovunque</string>
-    <string name="search_hint_word_clock">Inserisci una località per vedere l\u2019ora locale</string>
+    <string name="search_hint_world_clock">Inserisci una località per vedere l\u2019ora locale</string>
     <string-array name="search_hints_cycle">
         <item>Cerca nei contatti</item>
         <item>Cerca nei file</item>
@@ -842,9 +842,9 @@
     <string name="unit_converter_info_title">Convertitore di unità</string>
     <string name="unit_converter_invalid_or_unsupported_query">Conversione non valida o non supportata</string>
     <string name="unit_converter_toggle_action_desc">Attiva o disattiva il convertitore di unità</string>
-    <string name="word_clock_error_not_recognized">Impossibile risolvere la richiesta oraria. Prova a inserire una città, un Paese, un fuso orario o un orario esplicito.</string>
-    <string name="word_clock_toggle_desc">Esempio: Time in Tokyo</string>
-    <string name="word_clock_toggle_title">Orologio mondiale</string>
+    <string name="world_clock_error_not_recognized">Impossibile risolvere la richiesta oraria. Prova a inserire una città, un Paese, un fuso orario o un orario esplicito.</string>
+    <string name="world_clock_toggle_desc">Esempio: Time in Tokyo</string>
+    <string name="world_clock_toggle_title">Orologio mondiale</string>
 
     <!-- ============================================================================
          Widgets &amp; Shortcuts

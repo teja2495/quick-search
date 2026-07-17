@@ -41,7 +41,7 @@
 <string name="search_hint_notes">Искать в заметках…</string>
 <string name="search_hint_settings">Искать в настройках устройства…</string>
 <string name="search_hint_static">Искать везде</string>
-<string name="search_hint_word_clock">Введите любое место, чтобы узнать местное время</string>
+<string name="search_hint_world_clock">Введите любое место, чтобы узнать местное время</string>
 <string-array name="search_hints_cycle">
     <item>Искать в контактах</item>
     <item>Искать в файлах</item>
@@ -859,9 +859,9 @@
 <string name="unit_converter_info_title">Конвертер величин</string>
 <string name="unit_converter_invalid_or_unsupported_query">Неверное или неподдерживаемое преобразование</string>
 <string name="unit_converter_toggle_action_desc">Включить или отключить конвертер величин</string>
-<string name="word_clock_error_not_recognized">Не удалось обработать запрос времени. Попробуйте указать город, страну, часовой пояс или точное время.</string>
-<string name="word_clock_toggle_desc">Пример: Time in Tokyo</string>
-<string name="word_clock_toggle_title">Мировое время</string>
+<string name="world_clock_error_not_recognized">Не удалось обработать запрос времени. Попробуйте указать город, страну, часовой пояс или точное время.</string>
+<string name="world_clock_toggle_desc">Пример: Time in Tokyo</string>
+<string name="world_clock_toggle_title">Мировое время</string>
 
 <!-- ============================================================================
      Widgets &amp; Shortcuts

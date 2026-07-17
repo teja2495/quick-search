@@ -41,7 +41,7 @@
     <string name="search_hint_notes">नोट्स खोजें…</string>
     <string name="search_hint_settings">डिवाइस सेटिंग्स खोजें…</string>
     <string name="search_hint_static">कुछ भी खोजें</string>
-    <string name="search_hint_word_clock">स्थानीय समय पाने के लिए कोई भी जगह दर्ज करें</string>
+    <string name="search_hint_world_clock">स्थानीय समय पाने के लिए कोई भी जगह दर्ज करें</string>
     <string-array name="search_hints_cycle">
         <item >कॉन्टैक्ट्स खोजें</item>
         <item >फाइलें खोजें</item>
@@ -843,9 +843,9 @@
     <string name="unit_converter_info_title">यूनिट कन्वर्टर</string>
     <string name="unit_converter_invalid_or_unsupported_query">अमान्य या असमर्थित रूपांतरण</string>
     <string name="unit_converter_toggle_action_desc">यूनिट कन्वर्टर चालू या बंद करें</string>
-    <string name="word_clock_error_not_recognized">समय से जुड़े इस अनुरोध को हल नहीं किया जा सका। शहर, देश, टाइमज़ोन या स्पष्ट समय आज़माएं।</string>
-    <string name="word_clock_toggle_desc">उदाहरण: Time in Tokyo</string>
-    <string name="word_clock_toggle_title">वर्ड क्लॉक</string>
+    <string name="world_clock_error_not_recognized">समय से जुड़े इस अनुरोध को हल नहीं किया जा सका। शहर, देश, टाइमज़ोन या स्पष्ट समय आज़माएं।</string>
+    <string name="world_clock_toggle_desc">उदाहरण: Time in Tokyo</string>
+    <string name="world_clock_toggle_title">वर्ल्ड क्लॉक</string>
 
     <!-- ============================================================================
          Widgets &amp; Shortcuts
