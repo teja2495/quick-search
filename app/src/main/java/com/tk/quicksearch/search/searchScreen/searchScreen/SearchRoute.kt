@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -75,6 +76,8 @@ import com.tk.quicksearch.settings.settingsDetailScreen.NotesNavigationMemory
 import com.tk.quicksearch.search.data.CustomCalendarEventRepository
 import com.tk.quicksearch.settings.settingsDetailScreen.CustomEventEditDialog
 import com.tk.quicksearch.search.searchScreen.SearchScreen as SearchScreenComposable
+import com.tk.quicksearch.search.searchScreen.HomeHorizontalSwipe
+import com.tk.quicksearch.search.searchScreen.LocalHomeHorizontalSwipeHandler
 import com.tk.quicksearch.search.searchScreen.ExcludeUndoSnackbarHost
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -592,6 +595,36 @@ fun SearchRoute(
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
+    val handleHomeHorizontalSwipe: (HomeHorizontalSwipe) -> Unit = { swipe ->
+        when (swipe) {
+            HomeHorizontalSwipe.RIGHT -> {
+                if (isDefaultLauncher) {
+                    onOpenWidgetsPanelFromSwipe?.invoke()
+                } else {
+                    when (swipeActions[0]) {
+                        SwipeGestureAction.QUICK_NOTE -> if (quickNoteEnabled) openQuickNoteEditor()
+                        SwipeGestureAction.CUSTOM -> {
+                            com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
+                                .fromJson(customSwipeActions[0])
+                                ?.let { action -> context.startActivity(com.tk.quicksearch.widgets.customButtonsWidget.WidgetActionActivity.createIntent(context, action)) }
+                        }
+                        else -> Unit
+                    }
+                }
+            }
+            HomeHorizontalSwipe.LEFT -> {
+                when (swipeActions[1]) {
+                    SwipeGestureAction.SETTINGS -> onSettingsClick()
+                    SwipeGestureAction.CUSTOM -> {
+                        com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
+                            .fromJson(customSwipeActions[1])
+                            ?.let { action -> context.startActivity(com.tk.quicksearch.widgets.customButtonsWidget.WidgetActionActivity.createIntent(context, action)) }
+                    }
+                    else -> Unit
+                }
+            }
+        }
+    }
     val swipeNavigationModifier =
         Modifier.pointerInput(isDefaultLauncher, quickNoteEnabled, swipeActions, customSwipeActions, uiState.query) {
             var totalHorizontalDrag = 0f
@@ -602,29 +635,9 @@ fun SearchRoute(
                 },
                 onDragEnd = {
                     if (totalHorizontalDrag >= SWIPE_NAVIGATION_THRESHOLD_PX) {
-                        if (isDefaultLauncher) {
-                            onOpenWidgetsPanelFromSwipe?.invoke()
-                        } else {
-                            when (swipeActions[0]) {
-                                SwipeGestureAction.QUICK_NOTE -> if (quickNoteEnabled) openQuickNoteEditor()
-                                SwipeGestureAction.CUSTOM -> {
-                                    com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
-                                        .fromJson(customSwipeActions[0])
-                                        ?.let { action -> context.startActivity(com.tk.quicksearch.widgets.customButtonsWidget.WidgetActionActivity.createIntent(context, action)) }
-                                }
-                                else -> Unit
-                            }
-                        }
+                        handleHomeHorizontalSwipe(HomeHorizontalSwipe.RIGHT)
                     } else if (totalHorizontalDrag <= -SWIPE_NAVIGATION_THRESHOLD_PX) {
-                        when (swipeActions[1]) {
-                            SwipeGestureAction.SETTINGS -> onSettingsClick()
-                            SwipeGestureAction.CUSTOM -> {
-                                com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
-                                    .fromJson(customSwipeActions[1])
-                                    ?.let { action -> context.startActivity(com.tk.quicksearch.widgets.customButtonsWidget.WidgetActionActivity.createIntent(context, action)) }
-                            }
-                            else -> Unit
-                        }
+                        handleHomeHorizontalSwipe(HomeHorizontalSwipe.LEFT)
                     }
                     totalHorizontalDrag = 0f
                 },
@@ -644,13 +657,14 @@ fun SearchRoute(
     }
 
     Box(modifier = containerModifier) {
-        SearchScreenComposable(
-            modifier =
-                if (isOverlayPresentation) {
-                    Modifier.fillMaxWidth().then(swipeNavigationModifier)
-                } else {
-                    Modifier.fillMaxSize().then(swipeNavigationModifier)
-                },
+        CompositionLocalProvider(LocalHomeHorizontalSwipeHandler provides handleHomeHorizontalSwipe) {
+            SearchScreenComposable(
+                modifier =
+                    if (isOverlayPresentation) {
+                        Modifier.fillMaxWidth().then(swipeNavigationModifier)
+                    } else {
+                        Modifier.fillMaxSize().then(swipeNavigationModifier)
+                    },
             state = uiState,
             onQueryChanged = viewModel::onQueryChange,
             onSelectRetainedQueryHandled = viewModel::consumeRetainedQuerySelectionRequest,
@@ -907,7 +921,8 @@ fun SearchRoute(
             homeSwipeDownAction = homeSwipeDownAction,
             homeSwipeUpCustomActionJson = homeCustomSwipeActions[0],
             homeSwipeDownCustomActionJson = homeCustomSwipeActions[1],
-        )
+            )
+        }
 
         if (overlaySnackbarHostState == null) {
             ExcludeUndoSnackbarHost(

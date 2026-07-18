@@ -13,10 +13,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Archive
 import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.CalendarMonth
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
@@ -330,8 +330,8 @@ internal fun CalendarEventRow(
             val menuItems = if (isHomescreenTodayEvent) {
                 listOf(
                     CalendarMenuItem(
-                        textResId = R.string.action_archive_today_event,
-                        icon = { Icon(imageVector = Icons.Rounded.Archive, contentDescription = null) },
+                        textResId = R.string.dialog_done,
+                        icon = { Icon(imageVector = Icons.Rounded.Check, contentDescription = null) },
                         onClick = {
                             showMenu = false
                             onArchive(event)

@@ -100,6 +100,8 @@ import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
+import com.tk.quicksearch.search.searchScreen.HomeHorizontalSwipe
+import com.tk.quicksearch.search.searchScreen.LocalHomeHorizontalSwipeHandler
 import com.tk.quicksearch.search.searchScreen.components.ExpandButton
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -227,6 +229,7 @@ fun AppGridView(
         onGridAppeared: (() -> Unit)? = null,
         suppressSuggestionsEnterAnimation: Boolean = false,
 ) {
+    val onHomeHorizontalSwipe = LocalHomeHorizontalSwipeHandler.current
     val pinnedTitle = stringResource(R.string.app_suggestions_tab_pinned)
     val recentsTitle = stringResource(R.string.app_suggestions_tab_recent)
     val newUpdatedTitle = stringResource(R.string.app_suggestions_tab_new_updated)
@@ -333,7 +336,7 @@ fun AppGridView(
     val density = LocalDensity.current
     val tabSwipeModifier =
             if (suggestionTabs.size > 1) {
-                Modifier.pointerInput(suggestionTabs, selectedSuggestionTabIndex) {
+                Modifier.pointerInput(suggestionTabs, selectedSuggestionTabIndex, onHomeHorizontalSwipe) {
                     var dragAmount = 0f
                     detectHorizontalDragGestures(
                             onDragStart = { dragAmount = 0f },
@@ -345,9 +348,13 @@ fun AppGridView(
                                     dragAmount > SuggestionTabSwipeThresholdPx &&
                                             selectedSuggestionTabIndex > 0 ->
                                             selectSuggestionTab(selectedSuggestionTabIndex - 1)
+                                    dragAmount > SuggestionTabSwipeThresholdPx ->
+                                            onHomeHorizontalSwipe(HomeHorizontalSwipe.RIGHT)
                                     dragAmount < -SuggestionTabSwipeThresholdPx &&
                                             selectedSuggestionTabIndex < suggestionTabs.lastIndex ->
                                             selectSuggestionTab(selectedSuggestionTabIndex + 1)
+                                    dragAmount < -SuggestionTabSwipeThresholdPx ->
+                                            onHomeHorizontalSwipe(HomeHorizontalSwipe.LEFT)
                                 }
                                 dragAmount = 0f
                             },
