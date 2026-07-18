@@ -40,6 +40,30 @@ class StartupStorageMigrationTest {
     }
 
     @Test
+    fun startupPreferencesIgnoreStaleDuplicatedSnapshot() {
+        val central = context.getSharedPreferences(BasePreferences.PREFS_NAME, Context.MODE_PRIVATE)
+        central.edit()
+            .putBoolean("one_handed_mode", true)
+            .putFloat("wallpaper_blur_radius", 18f)
+            .putFloat("wallpaper_background_alpha", 0.35f)
+            .commit()
+        context.getSharedPreferences("startup_preferences_snapshot", Context.MODE_PRIVATE)
+            .edit()
+            .clear()
+            .putInt("snapshot_version", 1)
+            .putBoolean("one_handed_mode", false)
+            .putFloat("wallpaper_blur_radius", 0f)
+            .putFloat("wallpaper_background_alpha", 1f)
+            .commit()
+
+        val startup = UserAppPreferences(context).getStartupPreferences()
+
+        assertTrue(startup.oneHandedMode)
+        assertEquals(18f, startup.wallpaperBlurRadius)
+        assertEquals(0.35f, startup.wallpaperBackgroundAlpha)
+    }
+
+    @Test
     fun triggerMigrationPartitionsOverlappingPrefixes() {
         context.getSharedPreferences("search_customization_index", Context.MODE_PRIVATE).edit().clear().commit()
         val legacy = context.getSharedPreferences(BasePreferences.PREFS_NAME, Context.MODE_PRIVATE)
