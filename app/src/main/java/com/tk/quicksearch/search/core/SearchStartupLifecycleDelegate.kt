@@ -522,6 +522,11 @@ internal class SearchStartupLifecycleDelegate(
                 // settings do the same on their IO search path. Refresh app shortcuts only in
                 // the long-idle tier; their bounded cache was already loaded above.
                 loadAppShortcuts()
+
+                // The persisted package is applied to initial state before first render. Keep the
+                // PackageManager scan out of the critical path and only validate/discover packs
+                // after the optional-startup idle window.
+                iconPackHandler.refreshIconPacks()
             }
 
             launch(Dispatchers.IO) {

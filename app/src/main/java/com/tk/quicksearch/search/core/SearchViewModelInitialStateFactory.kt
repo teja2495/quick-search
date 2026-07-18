@@ -103,6 +103,7 @@ internal object SearchViewModelInitialStateFactory {
                 backgroundSource = initialBackgroundSource,
                 customImageUri = initialCustomImageUri,
                 startupBackgroundPreviewPath = initialPreviewPath,
+                selectedIconPackPackage = startupPreferencesReader.getSelectedIconPackPackage(),
                 oneHandedMode =
                     startupSnapshot?.oneHandedMode ?: startupPreferencesReader.isOneHandedMode(),
                 bottomSearchBarEnabled = startupPreferencesReader.isBottomSearchBarEnabled(),

@@ -4,12 +4,14 @@ import android.content.Context
 import android.util.Base64
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.tk.quicksearch.search.core.SearchViewModelInitialStateFactory
 import com.tk.quicksearch.search.data.assets.ManagedAssetStore
 import com.tk.quicksearch.search.data.notes.NotesRoomStore
 import com.tk.quicksearch.search.data.preferences.BasePreferences
 import com.tk.quicksearch.search.data.preferences.BootstrapPreferences
 import com.tk.quicksearch.search.data.preferences.TriggerPreferences
 import com.tk.quicksearch.search.models.NoteInfo
+import com.tk.quicksearch.search.startup.StartupSurfaceStore
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -61,6 +63,27 @@ class StartupStorageMigrationTest {
         assertTrue(startup.oneHandedMode)
         assertEquals(18f, startup.wallpaperBlurRadius)
         assertEquals(0.35f, startup.wallpaperBackgroundAlpha)
+    }
+
+    @Test
+    fun initialSearchStateRestoresSelectedIconPack() {
+        val preferences = UserAppPreferences(context)
+        val selectedPackage = "com.example.iconpack"
+        preferences.setSelectedIconPackPackage(selectedPackage)
+
+        try {
+            val initialState =
+                SearchViewModelInitialStateFactory.create(
+                    appContext = context,
+                    startupPreferencesReader = preferences,
+                    startupSurfaceStore = StartupSurfaceStore(context),
+                    inMemoryRetainedQuery = "",
+                )
+
+            assertEquals(selectedPackage, initialState.configState.selectedIconPackPackage)
+        } finally {
+            preferences.setSelectedIconPackPackage(null)
+        }
     }
 
     @Test

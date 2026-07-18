@@ -277,6 +277,7 @@ Long-press on most results to open a context menu with quick actions.
 ### Hidden / Non-Obvious Features
 
 - Swipe left to quickly write a note.
+- **Reorder Quick Note** - When Quick Search is set as your launcher, hold and drag the Quick Note header to reorder it on the home screen.
 - **Search Icon tap behavior** - Tap on the Search icon in search bar to narrow down your search to a specific type. 
 - **URL Detection in Search Bar** - Paste or type a URL in the search bar to open it quickly in your installed browsers of your choice.
 - **App Search** - Acronym matching is supported for app search. For example, you can search for "yt" to find "YouTube."
