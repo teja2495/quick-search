@@ -17,6 +17,11 @@ data class PanelWidgetInfo(
     val rowSpan: Int? = null,
 )
 
+internal const val QUICK_NOTE_PANEL_WIDGET_ID = -2
+
+internal fun PanelWidgetInfo.isQuickNoteWidget(): Boolean =
+    appWidgetId == QUICK_NOTE_PANEL_WIDGET_ID
+
 class WidgetsPanelPreferences(
     context: Context,
 ) : BasePreferences(context) {
@@ -74,6 +79,25 @@ class WidgetsPanelPreferences(
         prefs.edit().putString(KEY_WIDGETS_PANEL_ITEMS, array.toString()).apply()
     }
 
+    fun getQuickNoteWidget(): PanelWidgetInfo =
+        PanelWidgetInfo(
+            appWidgetId = QUICK_NOTE_PANEL_WIDGET_ID,
+            providerPackage = "",
+            providerClassName = "",
+            column = prefs.getInt(KEY_QUICK_NOTE_COLUMN, 0).coerceAtLeast(0),
+            row = prefs.getInt(KEY_QUICK_NOTE_ROW, 0).coerceAtLeast(0),
+            columnSpan = WIDGET_PANEL_GRID_COLUMNS,
+            rowSpan = WIDGET_PANEL_DEFAULT_ROW_SPAN,
+        )
+
+    fun setQuickNoteWidget(widget: PanelWidgetInfo) {
+        require(widget.isQuickNoteWidget())
+        prefs.edit()
+            .putInt(KEY_QUICK_NOTE_COLUMN, widget.column ?: 0)
+            .putInt(KEY_QUICK_NOTE_ROW, widget.row ?: 0)
+            .apply()
+    }
+
     fun addWidget(
         appWidgetId: Int,
         provider: ComponentName,
@@ -108,6 +132,8 @@ class WidgetsPanelPreferences(
         const val FIELD_ROW = "row"
         const val FIELD_COLUMN_SPAN = "columnSpan"
         const val FIELD_ROW_SPAN = "rowSpan"
+        const val KEY_QUICK_NOTE_COLUMN = "quick_note_widget_column"
+        const val KEY_QUICK_NOTE_ROW = "quick_note_widget_row"
     }
 }
 

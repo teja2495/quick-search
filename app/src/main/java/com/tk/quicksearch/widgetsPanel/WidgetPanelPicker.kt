@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -71,6 +72,7 @@ import kotlinx.coroutines.withContext
 private const val WIDGET_PREVIEW_FALLBACK_SIZE_PX = 96
 private val WIDGET_PANEL_GRID_ROW_HEIGHT_DP = 80f
 private val WIDGET_PANEL_GRID_GAP_DP = 8f
+private val WidgetPickerHeight = 720.dp
 
 private data class WidgetPickerApp(
     val packageName: String,
@@ -165,7 +167,7 @@ internal fun WidgetPickerSheet(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .heightIn(max = 720.dp)
+                        .height(WidgetPickerHeight)
                         .padding(top = DesignTokens.SpacingMedium)
                         .padding(horizontal = DesignTokens.ContentHorizontalPadding)
                         .padding(bottom = DesignTokens.SpacingLarge),

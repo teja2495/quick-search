@@ -1,6 +1,8 @@
 package com.tk.quicksearch.widgetsPanel
 
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -43,7 +46,12 @@ private val QuickNoteHeight = 164.dp
 private val QuickNoteFocusedHeight = 280.dp
 
 @Composable
-internal fun CompactQuickNoteWidget(modifier: Modifier = Modifier) {
+internal fun CompactQuickNoteWidget(
+    modifier: Modifier = Modifier,
+    onDragStart: () -> Unit = {},
+    onDrag: (x: Float, y: Float) -> Unit = { _, _ -> },
+    onDragEnd: () -> Unit = {},
+) {
     val context = LocalContext.current
     val repository = remember(context) { NotesRepository(context) }
     val linkColor = AppColors.LinkColor
@@ -116,11 +124,28 @@ internal fun CompactQuickNoteWidget(modifier: Modifier = Modifier) {
                     .padding(DesignTokens.CardHorizontalPadding),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
         ) {
-            Text(
-                text = stringResource(R.string.notes_quick_note_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .pointerInput(Unit) {
+                            detectDragGesturesAfterLongPress(
+                                onDragStart = { onDragStart() },
+                                onDrag = { change, dragAmount ->
+                                    change.consume()
+                                    onDrag(dragAmount.x, dragAmount.y)
+                                },
+                                onDragEnd = onDragEnd,
+                                onDragCancel = onDragEnd,
+                            )
+                        },
+            ) {
+                Text(
+                    text = stringResource(R.string.notes_quick_note_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
             HorizontalDivider(color = AppColors.SettingsDivider)
             BasicTextField(
                 value = bodyInput,

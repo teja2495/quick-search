@@ -148,6 +148,7 @@ fun WidgetsPanelScreen(
     val isQuickNoteEnabled = remember(appContext) { notesPreferences.isQuickNoteEnabled() }
 
     var widgets by remember { mutableStateOf(preferences.getWidgets()) }
+    var quickNoteWidget by remember { mutableStateOf(preferences.getQuickNoteWidget()) }
     var editingWidgetId by remember { mutableStateOf<Int?>(null) }
     var showPicker by rememberSaveable { mutableStateOf(false) }
     var pendingRequest by remember { mutableStateOf<PendingWidgetRequest?>(null) }
@@ -169,6 +170,14 @@ fun WidgetsPanelScreen(
         if (next == widgets) return
         widgets = next
         preferences.setWidgets(next)
+    }
+
+    fun persistPanelItems(next: List<PanelWidgetInfo>) {
+        next.firstOrNull { it.isQuickNoteWidget() }?.let { quickNote ->
+            quickNoteWidget = quickNote
+            preferences.setQuickNoteWidget(quickNote)
+        }
+        persistWidgets(next.filterNot { it.isQuickNoteWidget() })
     }
 
     LaunchedEffect(widgets) {
@@ -409,13 +418,14 @@ fun WidgetsPanelScreen(
                             .verticalScroll(panelScrollState),
                     verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
                 ) {
-                    if (isQuickNoteEnabled) {
-                        CompactQuickNoteWidget(modifier = Modifier.fillMaxWidth())
-                    }
-
-                    if (widgets.isNotEmpty()) {
+                    val panelItems =
+                        buildList {
+                            if (isQuickNoteEnabled) add(quickNoteWidget)
+                            addAll(widgets)
+                        }
+                    if (panelItems.isNotEmpty()) {
                         WidgetPanelGrid(
-                            widgets = widgets,
+                            widgets = panelItems,
                             appWidgetManager = appWidgetManager,
                             appWidgetHost = appWidgetHost,
                             editingWidgetId = editingWidgetId,
@@ -423,9 +433,10 @@ fun WidgetsPanelScreen(
                             panelScrollState = panelScrollState,
                             viewportTopPx = scrollViewportTopPx,
                             viewportHeightPx = scrollViewportHeightPx,
-                            onPersist = ::persistWidgets,
+                            onPersist = ::persistPanelItems,
                             onSetEditingWidgetId = { id -> editingWidgetId = id },
                             onRemoveWidget = { widget ->
+                                if (widget.isQuickNoteWidget()) return@WidgetPanelGrid
                                 appWidgetHost.deleteAppWidgetId(widget.appWidgetId)
                                 persistWidgets(
                                     preferences.removeWidget(widget.appWidgetId),
@@ -521,28 +532,35 @@ private fun WidgetPanelGrid(
         val specs =
             remember(widgets, appWidgetManager, cellWidth) {
                 widgets.associate { widget ->
-                    val info = appWidgetManager.getAppWidgetInfo(widget.appWidgetId)
-                    val minWidthDp =
-                        (info?.minResizeWidth?.takeIf { it > 0 } ?: info?.minWidth ?: 0)
-                            .let { with(density) { it.toDp().value } }
-                    val minHeightDp =
-                        (info?.minResizeHeight?.takeIf { it > 0 } ?: info?.minHeight ?: 0)
-                            .let { with(density) { it.toDp().value } }
                     widget.appWidgetId to
-                        WidgetGridSpec(
-                            minColumnSpan =
-                                calculateGridColumnSpan(
-                                    minWidthDp = minWidthDp,
-                                    cellWidthDp = cellWidth.value,
-                                    gapDp = gap.value,
-                                ),
-                            minRowSpan =
-                                calculateGridRowSpan(
-                                    minHeightDp = minHeightDp,
-                                    rowHeightDp = rowHeight.value,
-                                    gapDp = gap.value,
-                                ),
-                        )
+                        if (widget.isQuickNoteWidget()) {
+                            WidgetGridSpec(
+                                minColumnSpan = WIDGET_PANEL_GRID_COLUMNS,
+                                minRowSpan = WIDGET_PANEL_DEFAULT_ROW_SPAN,
+                            )
+                        } else {
+                            val info = appWidgetManager.getAppWidgetInfo(widget.appWidgetId)
+                            val minWidthDp =
+                                (info?.minResizeWidth?.takeIf { it > 0 } ?: info?.minWidth ?: 0)
+                                    .let { with(density) { it.toDp().value } }
+                            val minHeightDp =
+                                (info?.minResizeHeight?.takeIf { it > 0 } ?: info?.minHeight ?: 0)
+                                    .let { with(density) { it.toDp().value } }
+                            WidgetGridSpec(
+                                minColumnSpan =
+                                    calculateGridColumnSpan(
+                                        minWidthDp = minWidthDp,
+                                        cellWidthDp = cellWidth.value,
+                                        gapDp = gap.value,
+                                    ),
+                                minRowSpan =
+                                    calculateGridRowSpan(
+                                        minHeightDp = minHeightDp,
+                                        rowHeightDp = rowHeight.value,
+                                        gapDp = gap.value,
+                                    ),
+                            )
+                        }
                 }
             }
 
@@ -556,6 +574,7 @@ private fun WidgetPanelGrid(
         var liveLayout by remember { mutableStateOf<List<PanelWidgetInfo>?>(null) }
         val displayLayout = liveLayout ?: laidOut
         var hostDragStart by remember { mutableStateOf<PanelWidgetInfo?>(null) }
+        var quickNoteDragStart by remember { mutableStateOf<PanelWidgetInfo?>(null) }
         // Scroll offset captured when a host drag begins, so the drag target can compensate for any
         // auto-scroll and keep the widget under the finger (the host path works in screen coords).
         var scrollAtDragStart by remember { mutableIntStateOf(0) }
@@ -567,6 +586,24 @@ private fun WidgetPanelGrid(
         val currentGridUnitHeightPx by rememberUpdatedState(gridUnitHeightPx)
         val currentOnPersist by rememberUpdatedState(onPersist)
         val currentOnSetEditing by rememberUpdatedState(onSetEditingWidgetId)
+
+        fun moveQuickNoteBy(totalDragX: Float, totalDragY: Float) {
+            val start = quickNoteDragStart ?: return
+            val columnSpan = start.columnSpan ?: WIDGET_PANEL_GRID_COLUMNS
+            val nextColumn =
+                ((start.column ?: 0) + (totalDragX / gridUnitWidthPx).roundToInt())
+                    .coerceIn(0, WIDGET_PANEL_GRID_COLUMNS - columnSpan)
+            val nextRow =
+                ((start.row ?: 0) + (totalDragY / gridUnitHeightPx).roundToInt())
+                    .coerceAtLeast(0)
+            liveLayout =
+                moveWidgetToCell(
+                    widgets = laidOut,
+                    appWidgetId = QUICK_NOTE_PANEL_WIDGET_ID,
+                    targetColumn = nextColumn,
+                    targetRow = nextRow,
+                )
+        }
 
         SideEffect {
             appWidgetHost.onWidgetLongPress = { id ->
@@ -702,6 +739,19 @@ private fun WidgetPanelGrid(
                         onRemove = { onRemoveWidget(widget) },
                         onConfigure = { intent -> onConfigureWidget(widget, intent) },
                         packageManager = packageManager,
+                        onQuickNoteDragStart = {
+                            quickNoteDragStart = widget
+                            onSetEditingWidgetId(widget.appWidgetId)
+                        },
+                        onQuickNoteDrag = { totalDragX, totalDragY ->
+                            moveQuickNoteBy(totalDragX, totalDragY)
+                        },
+                        onQuickNoteDragEnd = {
+                            val final = liveLayout
+                            liveLayout = null
+                            quickNoteDragStart = null
+                            if (final != null && final != laidOut) onPersist(final)
+                        },
                     )
                 }
             }
@@ -727,6 +777,9 @@ private fun BoxScope.WidgetPanelGridItem(
     onRemove: () -> Unit,
     onConfigure: (Intent) -> Unit,
     packageManager: PackageManager,
+    onQuickNoteDragStart: () -> Unit,
+    onQuickNoteDrag: (totalDragX: Float, totalDragY: Float) -> Unit,
+    onQuickNoteDragEnd: () -> Unit,
 ) {
     val density = LocalDensity.current
     val column = widget.column ?: 0
@@ -752,6 +805,20 @@ private fun BoxScope.WidgetPanelGridItem(
         targetValue = if (isEditing) 1.02f else 1f,
         label = "widgetEditScale",
     )
+
+    if (widget.isQuickNoteWidget()) {
+        QuickNotePanelGridItem(
+            widget = widget,
+            isEditing = isEditing,
+            cellWidth = cellWidth,
+            rowHeight = rowHeight,
+            gap = gap,
+            onDragStart = onQuickNoteDragStart,
+            onDrag = onQuickNoteDrag,
+            onDragEnd = onQuickNoteDragEnd,
+        )
+        return
+    }
 
     val providerInfo = remember(widget.appWidgetId, appWidgetManager) {
         appWidgetManager.getAppWidgetInfo(widget.appWidgetId)
@@ -813,6 +880,72 @@ private fun BoxScope.WidgetPanelGridItem(
                 onInteractionEnd = onInteractionEnd,
                 onRemove = onRemove,
                 onConfigure = { configureIntent?.let(onConfigure) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun BoxScope.QuickNotePanelGridItem(
+    widget: PanelWidgetInfo,
+    isEditing: Boolean,
+    cellWidth: Dp,
+    rowHeight: Dp,
+    gap: Dp,
+    onDragStart: () -> Unit,
+    onDrag: (totalDragX: Float, totalDragY: Float) -> Unit,
+    onDragEnd: () -> Unit,
+) {
+    val density = LocalDensity.current
+    val column = widget.column ?: 0
+    val row = widget.row ?: 0
+    val columnSpan = widget.columnSpan ?: WIDGET_PANEL_GRID_COLUMNS
+    val rowSpan = widget.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN
+    val width = cellWidth * columnSpan + gap * (columnSpan - 1)
+    val height = rowHeight * rowSpan + gap * (rowSpan - 1)
+    val x = (cellWidth + gap) * column
+    val y = (rowHeight + gap) * row
+    val animatedY by animateDpAsState(targetValue = y, label = "quickNoteWidgetY")
+    val offsetY = if (isEditing) y else animatedY
+    var totalDragX by remember { mutableFloatStateOf(0f) }
+    var totalDragY by remember { mutableFloatStateOf(0f) }
+
+    Box(
+        modifier =
+            Modifier
+                .size(width = width, height = height)
+                .offset {
+                    IntOffset(
+                        x = with(density) { x.roundToPx() },
+                        y = with(density) { offsetY.roundToPx() },
+                    )
+                }
+                .zIndex(if (isEditing) 1f else 0f),
+    ) {
+        CompactQuickNoteWidget(
+            modifier = Modifier.fillMaxSize(),
+            onDragStart = {
+                totalDragX = 0f
+                totalDragY = 0f
+                onDragStart()
+            },
+            onDrag = { dragX, dragY ->
+                totalDragX += dragX
+                totalDragY += dragY
+                onDrag(totalDragX, totalDragY)
+            },
+            onDragEnd = onDragEnd,
+        )
+        if (isEditing) {
+            Box(
+                modifier =
+                    Modifier
+                        .matchParentSize()
+                        .border(
+                            width = WidgetEditBorderWidth,
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = DesignTokens.ExtraLargeCardShape,
+                        ),
             )
         }
     }
