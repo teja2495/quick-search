@@ -92,6 +92,7 @@
     <string name="settings_gestures_title">जेस्चर</string>
     <string name="settings_gestures_desc">स्वाइप क्रियाओं को कस्टमाइज़ करें</string>
     <string name="settings_gesture_swipe_right">दाएँ स्वाइप करें</string>
+    <string name="settings_gesture_widget_panel">विजेट पैनल</string>
     <string name="settings_gesture_swipe_left">बाएँ स्वाइप करें</string>
     <string name="settings_gesture_swipe_up">ऊपर स्वाइप करें</string>
     <string name="settings_gesture_swipe_down">नीचे स्वाइप करें</string>

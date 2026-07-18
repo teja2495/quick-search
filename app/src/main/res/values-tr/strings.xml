@@ -91,6 +91,7 @@
 <string name="settings_gestures_title">Hareketler</string>
 <string name="settings_gestures_desc">Kaydırma işlemlerini özelleştir</string>
 <string name="settings_gesture_swipe_right">Sağa Kaydır</string>
+<string name="settings_gesture_widget_panel">Widget Paneli</string>
 <string name="settings_gesture_swipe_left">Sola Kaydır</string>
 <string name="settings_gesture_swipe_up">Yukarı Kaydır</string>
 <string name="settings_gesture_swipe_down">Aşağı Kaydır</string>

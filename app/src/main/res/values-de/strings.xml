@@ -92,6 +92,7 @@
     <string name="settings_gestures_title">Gesten</string>
     <string name="settings_gestures_desc">Wischgesten anpassen</string>
     <string name="settings_gesture_swipe_right">Nach rechts wischen</string>
+    <string name="settings_gesture_widget_panel">Widget-Panel</string>
     <string name="settings_gesture_swipe_left">Nach links wischen</string>
     <string name="settings_gesture_swipe_up">Nach oben wischen</string>
     <string name="settings_gesture_swipe_down">Nach unten wischen</string>

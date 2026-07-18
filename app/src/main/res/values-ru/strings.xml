@@ -92,6 +92,7 @@
 <string name="settings_gestures_title">Жесты</string>
 <string name="settings_gestures_desc">Настройка жестов смахивания</string>
 <string name="settings_gesture_swipe_right">Смахивание вправо</string>
+<string name="settings_gesture_widget_panel">Панель виджетов</string>
 <string name="settings_gesture_swipe_left">Смахивание влево</string>
 <string name="settings_gesture_swipe_up">Смахивание вверх</string>
 <string name="settings_gesture_swipe_down">Смахивание вниз</string>

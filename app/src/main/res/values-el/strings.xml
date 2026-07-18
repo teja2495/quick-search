@@ -92,6 +92,7 @@
     <string name="settings_gestures_title">Χειρονομίες</string>
     <string name="settings_gestures_desc">Προσαρμογή ενεργειών σάρωσης</string>
     <string name="settings_gesture_swipe_right">Σάρωση δεξιά</string>
+    <string name="settings_gesture_widget_panel">Πίνακας widget</string>
     <string name="settings_gesture_swipe_left">Σάρωση αριστερά</string>
     <string name="settings_gesture_swipe_up">Σάρωση προς τα πάνω</string>
     <string name="settings_gesture_swipe_down">Σάρωση προς τα κάτω</string>

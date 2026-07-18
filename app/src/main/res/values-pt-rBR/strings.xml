@@ -92,6 +92,7 @@
     <string name="settings_gestures_title">Gestos</string>
     <string name="settings_gestures_desc">Personalizar ações de deslizar</string>
     <string name="settings_gesture_swipe_right">Deslizar para a direita</string>
+    <string name="settings_gesture_widget_panel">Painel de widgets</string>
     <string name="settings_gesture_swipe_left">Deslizar para a esquerda</string>
     <string name="settings_gesture_swipe_up">Deslizar para cima</string>
     <string name="settings_gesture_swipe_down">Deslizar para baixo</string>

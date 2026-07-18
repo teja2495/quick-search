@@ -92,6 +92,7 @@
     <string name="settings_gestures_title">手势</string>
     <string name="settings_gestures_desc">自定义滑动手势</string>
     <string name="settings_gesture_swipe_right">向右滑动</string>
+    <string name="settings_gesture_widget_panel">小部件面板</string>
     <string name="settings_gesture_swipe_left">向左滑动</string>
     <string name="settings_gesture_swipe_up">向上滑动</string>
     <string name="settings_gesture_swipe_down">向下滑动</string>

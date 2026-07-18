@@ -91,6 +91,7 @@
     <string name="settings_gestures_title">Gesti</string>
     <string name="settings_gestures_desc">Personalizza le azioni di scorrimento</string>
     <string name="settings_gesture_swipe_right">Scorri a destra</string>
+    <string name="settings_gesture_widget_panel">Pannello widget</string>
     <string name="settings_gesture_swipe_left">Scorri a sinistra</string>
     <string name="settings_gesture_swipe_up">Scorri verso l\'alto</string>
     <string name="settings_gesture_swipe_down">Scorri verso il basso</string>

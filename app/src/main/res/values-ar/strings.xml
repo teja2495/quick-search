@@ -93,6 +93,7 @@
     <string name="settings_gestures_title">الإيماءات</string>
     <string name="settings_gestures_desc">تخصيص إجراءات السحب</string>
     <string name="settings_gesture_swipe_right">السحب لليمين</string>
+    <string name="settings_gesture_widget_panel">لوحة عناصر واجهة المستخدم</string>
     <string name="settings_gesture_swipe_left">السحب لليسار</string>
     <string name="settings_gesture_swipe_up">السحب للأعلى</string>
     <string name="settings_gesture_swipe_down">السحب للأسفل</string>

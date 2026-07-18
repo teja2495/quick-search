@@ -92,6 +92,7 @@
 <string name="settings_gestures_title">Gestes</string>
 <string name="settings_gestures_desc">Personnaliser les actions de balayage</string>
 <string name="settings_gesture_swipe_right">Balayer vers la droite</string>
+<string name="settings_gesture_widget_panel">Panneau de widgets</string>
 <string name="settings_gesture_swipe_left">Balayer vers la gauche</string>
 <string name="settings_gesture_swipe_up">Balayer vers le haut</string>
 <string name="settings_gesture_swipe_down">Balayer vers le bas</string>

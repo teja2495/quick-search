@@ -92,6 +92,7 @@
     <string name="settings_gestures_title">హావాభావాలు</string>
     <string name="settings_gestures_desc">స్వైప్ చర్యలను అనుకూలీకరించండి</string>
     <string name="settings_gesture_swipe_right">కుడికి స్వైప్ చేయండి</string>
+    <string name="settings_gesture_widget_panel">విడ్జెట్ ప్యానెల్</string>
     <string name="settings_gesture_swipe_left">ఎడమకు స్వైప్ చేయండి</string>
     <string name="settings_gesture_swipe_up">పైకి స్వైప్ చేయండి</string>
     <string name="settings_gesture_swipe_down">క్రిందికి స్వైప్ చేయండి</string>
