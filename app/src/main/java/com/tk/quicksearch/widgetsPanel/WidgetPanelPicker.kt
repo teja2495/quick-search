@@ -70,6 +70,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 private const val WIDGET_PREVIEW_FALLBACK_SIZE_PX = 96
+private const val MAX_WIDGET_PREVIEW_DIMENSION_PX = 1024
+private const val MAX_WIDGET_PREVIEW_PIXELS = 1_048_576
 private val WIDGET_PANEL_GRID_ROW_HEIGHT_DP = 80f
 private val WIDGET_PANEL_GRID_GAP_DP = 8f
 private val WidgetPickerHeight = 720.dp
@@ -558,14 +560,26 @@ private fun DrawableImage(
     }
     val bitmap =
         remember(drawable) {
-            val width =
+            val sourceWidth =
                 drawable.intrinsicWidth
                     .takeIf { it > 0 }
                     ?: WIDGET_PREVIEW_FALLBACK_SIZE_PX
-            val height =
+            val sourceHeight =
                 drawable.intrinsicHeight
                     .takeIf { it > 0 }
                     ?: WIDGET_PREVIEW_FALLBACK_SIZE_PX
+            val scale =
+                minOf(
+                    1f,
+                    MAX_WIDGET_PREVIEW_DIMENSION_PX.toFloat() / sourceWidth,
+                    MAX_WIDGET_PREVIEW_DIMENSION_PX.toFloat() / sourceHeight,
+                    kotlin.math.sqrt(
+                        MAX_WIDGET_PREVIEW_PIXELS.toFloat() /
+                            (sourceWidth.toFloat() * sourceHeight.toFloat()),
+                    ).coerceAtMost(1f),
+                )
+            val width = (sourceWidth * scale).toInt().coerceAtLeast(1)
+            val height = (sourceHeight * scale).toInt().coerceAtLeast(1)
             runCatching {
                 drawable.toBitmap(width = width, height = height).asImageBitmap()
             }.getOrNull()

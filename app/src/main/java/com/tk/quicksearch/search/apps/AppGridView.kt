@@ -303,9 +303,10 @@ fun AppGridView(
     val minSuggestionGridItems = (rowCount * getAppGridColumns(phoneColumnOverride)).coerceAtLeast(1)
     val suggestionFallbackApps = remember(pinnedAndRecentApps, apps) { pinnedAndRecentApps + apps }
     val selectedSuggestionTabType = suggestionTabs.getOrNull(selectedSuggestionTabIndex)?.type
+    val selectedSuggestionTabItem = suggestionTabs.getOrNull(selectedSuggestionTabIndex)
     val activeApps =
-            if (suggestionTabs.isNotEmpty()) {
-                val selectedTab = suggestionTabs[selectedSuggestionTabIndex]
+            if (selectedSuggestionTabItem != null) {
+                val selectedTab = selectedSuggestionTabItem
                 if (selectedTab.type == AppSuggestionTabType.PINNED) {
                     selectedTab.apps
                 } else {
@@ -416,9 +417,10 @@ fun AppGridView(
                 }
                 if (suggestionTabs.size > 1 && !isSearching) {
                     AnimatedContent(
-                            targetState = selectedSuggestionTabIndex,
+                            targetState = requireNotNull(selectedSuggestionTabItem),
+                            contentKey = { it.type },
                             transitionSpec = {
-                                val movingForward = targetState > initialState
+                                val movingForward = targetState.type.ordinal > initialState.type.ordinal
                                 val stiffness = Spring.StiffnessMediumLow
                                 if (movingForward) {
                                     slideInHorizontally(
@@ -441,8 +443,7 @@ fun AppGridView(
                                 }
                             },
                             label = "appSuggestionTabSlide",
-                    ) { selectedIndex ->
-                        val selectedTab = suggestionTabs[selectedIndex]
+                    ) { selectedTab ->
                         AppGrid(
                                 apps =
                                         if (

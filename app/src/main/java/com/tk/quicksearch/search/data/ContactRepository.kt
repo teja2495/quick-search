@@ -2,6 +2,7 @@ package com.tk.quicksearch.search.data
 
 import android.content.Context
 import android.database.Cursor
+import android.database.sqlite.SQLiteException
 import android.net.Uri
 import android.provider.ContactsContract
 import android.util.Log
@@ -301,13 +302,20 @@ class ContactRepository(
     ): LinkedHashMap<Long, MutableContact> {
         val filterUri = Uri.withAppendedPath(ContactsContract.CommonDataKinds.Phone.CONTENT_FILTER_URI, Uri.encode(query))
         val cursor =
-            contentResolver.query(
-                filterUri,
-                PHONE_PROJECTION,
-                null,
-                null,
-                SORT_ORDER,
-            ) ?: return LinkedHashMap()
+            try {
+                contentResolver.query(
+                    filterUri,
+                    PHONE_PROJECTION,
+                    null,
+                    null,
+                    SORT_ORDER,
+                )
+            } catch (exception: SQLiteException) {
+                // Some OEM Contacts providers fail while resolving CONTENT_FILTER_URI. Returning no
+                // provider-filtered matches lets searchContacts continue with the name-token fallback.
+                Log.w(TAG, "Contacts filter query failed; using name-token fallback", exception)
+                null
+            } ?: return LinkedHashMap()
 
         return cursor.use { processPhoneCursor(it, limit) }
     }
