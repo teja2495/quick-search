@@ -316,6 +316,11 @@ fun ContentLayout(
             !isSectionAliasMode &&
             !deferNonAppContentUntilAppsReady &&
             topMatches.isNotEmpty()
+    val hasMoreResults =
+        hasMoreResults(
+            renderingState = renderingState,
+            sectionContext = sectionContextForRecentHistoryExpansion,
+        )
     val regularSectionParams =
         if (showTopMatches) {
             sectionParams.copy(
@@ -608,16 +613,18 @@ fun ContentLayout(
                 reverseOrder = false,
                 modifier = Modifier.fillMaxWidth(),
             )
-            Text(
-                text = stringResource(R.string.more_results_title),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier =
-                    Modifier.padding(
-                        horizontal = DesignTokens.SpacingLarge,
-                        vertical = DesignTokens.SpacingXSmall,
-                ),
-            )
+            if (hasMoreResults) {
+                Text(
+                    text = stringResource(R.string.more_results_title),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier =
+                        Modifier.padding(
+                            horizontal = DesignTokens.SpacingLarge,
+                            vertical = DesignTokens.SpacingXSmall,
+                        ),
+                )
+            }
         }
 
         finalLayoutOrder.forEach { itemType ->
@@ -943,6 +950,19 @@ fun ContentLayout(
         }
     }
 }
+
+private fun hasMoreResults(
+    renderingState: SectionRenderingState,
+    sectionContext: SectionRenderContext,
+): Boolean =
+    (sectionContext.shouldRenderApps && renderingState.displayApps.isNotEmpty()) ||
+        (sectionContext.shouldRenderAppShortcuts && sectionContext.appShortcutsList.isNotEmpty()) ||
+        (sectionContext.shouldRenderContacts && sectionContext.contactsList.isNotEmpty()) ||
+        (sectionContext.shouldRenderFiles && sectionContext.filesList.isNotEmpty()) ||
+        (sectionContext.shouldRenderSettings && sectionContext.settingsList.isNotEmpty()) ||
+        (sectionContext.shouldRenderAppSettings && sectionContext.appSettingsList.isNotEmpty()) ||
+        (sectionContext.shouldRenderCalendar && sectionContext.calendarEventsList.isNotEmpty()) ||
+        (sectionContext.shouldRenderNotes && sectionContext.notesList.isNotEmpty())
 
 private fun SearchSection.supportsPinnedHomeCollapse(): Boolean =
     when (this) {

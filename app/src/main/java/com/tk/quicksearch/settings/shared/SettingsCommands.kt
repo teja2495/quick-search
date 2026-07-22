@@ -115,6 +115,7 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
                 AppSettingsToggleKey.FILE_PREVIEWS -> setFilePreviewsEnabled(command.enabled)
                 AppSettingsToggleKey.SHOW_SYSTEM_FILES -> setShowSystemFiles(command.enabled)
                 AppSettingsToggleKey.DIRECT_DIAL -> setDirectDialEnabled(command.enabled)
+                AppSettingsToggleKey.NUMBER_SEARCH -> setNumberSearchEnabled(command.enabled)
                 AppSettingsToggleKey.ASSISTANT_LAUNCH_VOICE_MODE ->
                     setAssistantLaunchVoiceModeEnabled(command.enabled)
                 AppSettingsToggleKey.WALLPAPER_ACCENT ->
@@ -197,6 +198,7 @@ internal fun SearchUiState.isAppSettingToggleEnabled(toggleKey: AppSettingsToggl
         AppSettingsToggleKey.FILE_PREVIEWS -> filePreviewsEnabled
         AppSettingsToggleKey.SHOW_SYSTEM_FILES -> showSystemFiles
         AppSettingsToggleKey.DIRECT_DIAL -> directDialEnabled
+        AppSettingsToggleKey.NUMBER_SEARCH -> numberSearchEnabled
         AppSettingsToggleKey.ASSISTANT_LAUNCH_VOICE_MODE -> assistantLaunchVoiceModeEnabled
         AppSettingsToggleKey.WALLPAPER_ACCENT -> wallpaperAccentEnabled
         AppSettingsToggleKey.THEMED_ICONS -> themedIconsEnabled

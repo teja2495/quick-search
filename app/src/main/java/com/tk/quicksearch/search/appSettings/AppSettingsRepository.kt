@@ -165,6 +165,13 @@ class AppSettingsRepository(
                 destination = AppSettingsDestination.CALLS_TEXTS,
                 keywords = listOf("texting"),
             )
+            addToggle(
+                id = "app_toggle_number_search",
+                titleRes = R.string.settings_number_search_title,
+                descriptionRes = R.string.settings_number_search_desc,
+                toggleKey = AppSettingsToggleKey.NUMBER_SEARCH,
+                keywords = listOf("phone", "phone number", "contacts"),
+            )
             addNavigation(
                 id = "app_settings_files",
                 titleRes = R.string.settings_file_types_title,
