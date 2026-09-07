@@ -51,6 +51,7 @@ import com.tk.quicksearch.search.other.OtherSearchItemId
 import com.tk.quicksearch.search.other.ScreenTimeRepository
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
+import com.tk.quicksearch.search.startup.StartupHomeSurfaceSnapshot
 import com.tk.quicksearch.search.startup.StartupSurfaceSnapshot
 import com.tk.quicksearch.search.startup.StartupSurfaceStore
 import com.tk.quicksearch.search.webSuggestions.WebSuggestionHandler
@@ -73,6 +74,7 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import kotlin.jvm.JvmName
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -81,6 +83,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -158,7 +164,7 @@ class SearchViewModel(
     private val _resultsState = MutableStateFlow(initialResultsState)
     val resultsState: StateFlow<SearchResultsState> = _resultsState.asStateFlow()
     // Updated only when OS grants/revokes a permission
-    private val _permissionState = MutableStateFlow(SearchPermissionState())
+    private val _permissionState = MutableStateFlow(initialState.permissionState)
     val permissionState: StateFlow<SearchPermissionState> = _permissionState.asStateFlow()
     // Updated only when the user changes settings
     private val _featureState =
@@ -196,7 +202,7 @@ class SearchViewModel(
                             initialValue =
                                             SearchUiState(
                                             results = initialResultsState,
-                                            permissions = SearchPermissionState(),
+                                            permissions = initialState.permissionState,
                                             features = initialState.featureState,
                                             config = initialConfigState,
                                     ),
@@ -520,6 +526,36 @@ class SearchViewModel(
         // Initialize services after all handlers are available
         initializeServices()
         setupAiSearchStateListener()
+        setupStartupHomeSurfaceCacheListener()
+    }
+
+    @OptIn(FlowPreview::class)
+    private fun setupStartupHomeSurfaceCacheListener() {
+        if (!instantStartupSurfaceEnabled) return
+        viewModelScope.launch(Dispatchers.Default) {
+            _resultsState
+                .map { results ->
+                    StartupHomeSurfaceSnapshot(
+                        pinnedApps = results.pinnedApps,
+                        recentApps = results.recentApps,
+                        pinnedContacts = results.pinnedContacts,
+                        pinnedFiles = results.pinnedFiles,
+                        pinnedSettings = results.pinnedSettings,
+                        pinnedCalendarEvents = results.pinnedCalendarEvents,
+                        pinnedNotes = results.pinnedNotes,
+                        pinnedAppShortcuts = results.pinnedAppShortcuts,
+                        recentItems = results.recentItems,
+                    ).bounded()
+                }
+                .distinctUntilChanged()
+                .drop(1)
+                .debounce(100L)
+                .collect {
+                    if (isStartupComplete) {
+                        saveStartupSurfaceSnapshotAsync(allowDuringQuery = true)
+                    }
+                }
+        }
     }
     fun startStartupPhasesAfterFirstFrame() {
         startupCoordinator.startStartupPhases()

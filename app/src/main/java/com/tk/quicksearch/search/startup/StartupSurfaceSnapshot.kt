@@ -10,7 +10,7 @@ import com.tk.quicksearch.search.models.AppInfo
 import org.json.JSONArray
 import org.json.JSONObject
 
-private const val SNAPSHOT_VERSION = 1
+private const val SNAPSHOT_VERSION = 2
 
 /**
  * Small persisted snapshot used to pre-hydrate the first visible search surface on cold start.
@@ -38,6 +38,7 @@ data class StartupSurfaceSnapshot(
     val phoneAppGridColumns: Int = com.tk.quicksearch.search.data.preferences.UiPreferences.DEFAULT_PHONE_APP_GRID_COLUMNS,
     val appIconSizeStep: Int = com.tk.quicksearch.search.data.preferences.UiPreferences.DEFAULT_APP_ICON_SIZE_STEP,
     val suggestedApps: List<AppInfo>,
+    val homeSurface: StartupHomeSurfaceSnapshot = StartupHomeSurfaceSnapshot(),
     val searchTargetsOrder: List<SearchTarget> = emptyList(),
     val disabledSearchTargetIds: Set<String> = emptySet(),
     val isSearchEngineCompactMode: Boolean = false,
@@ -67,6 +68,7 @@ internal object StartupSurfaceSnapshotJson {
     private const val KEY_PHONE_APP_GRID_COLUMNS = "phoneAppGridColumns"
     private const val KEY_APP_ICON_SIZE_STEP = "appIconSizeStep"
     private const val KEY_SUGGESTED_APPS = "suggestedApps"
+    private const val KEY_HOME_SURFACE = "homeSurface"
     private const val KEY_SEARCH_TARGETS_ORDER = "searchTargetsOrder"
     private const val KEY_DISABLED_SEARCH_TARGET_IDS = "disabledSearchTargetIds"
     private const val KEY_SEARCH_ENGINE_COMPACT_MODE = "isSearchEngineCompactMode"
@@ -145,6 +147,7 @@ internal object StartupSurfaceSnapshotJson {
                         )
                     }
                 })
+                put(KEY_HOME_SURFACE, StartupHomeSurfaceSnapshotJson.toJson(snapshot.homeSurface))
                 put(
                     KEY_SEARCH_TARGETS_ORDER,
                     JSONArray().apply {
@@ -169,7 +172,7 @@ internal object StartupSurfaceSnapshotJson {
         return runCatching {
             val root = JSONObject(raw)
             val version = root.optInt(KEY_VERSION, SNAPSHOT_VERSION)
-            if (version != SNAPSHOT_VERSION) return null
+            if (version !in 1..SNAPSHOT_VERSION) return null
 
             val backgroundSource =
                 root.optString(KEY_BACKGROUND_SOURCE)
@@ -215,6 +218,8 @@ internal object StartupSurfaceSnapshotJson {
                         com.tk.quicksearch.search.data.preferences.UiPreferences.DEFAULT_APP_ICON_SIZE_STEP,
                     ),
                 suggestedApps = suggestedApps,
+                homeSurface =
+                    StartupHomeSurfaceSnapshotJson.fromJson(root.optJSONObject(KEY_HOME_SURFACE)),
                 searchTargetsOrder =
                     root.optJSONArray(KEY_SEARCH_TARGETS_ORDER)
                         ?.toSearchTargetList()

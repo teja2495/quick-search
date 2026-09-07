@@ -4,8 +4,11 @@ import android.content.Context
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.data.filterAvailableStartupApps
 import com.tk.quicksearch.search.data.preferences.UiPreferences
+import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
+import com.tk.quicksearch.search.searchHistory.RecentSearchItem
 import com.tk.quicksearch.search.startup.StartupSurfaceSnapshot
 import com.tk.quicksearch.search.startup.StartupSurfaceStore
+import com.tk.quicksearch.search.utils.PermissionUtils
 import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.shared.util.isLowRamDevice
 import com.tk.quicksearch.app.startup.StartupTrace
@@ -14,6 +17,7 @@ internal data class SearchViewModelInitialState(
     val instantStartupSurfaceEnabled: Boolean,
     val startupSnapshot: StartupSurfaceSnapshot?,
     val resultsState: SearchResultsState,
+    val permissionState: SearchPermissionState,
     val featureState: SearchFeatureState,
     val configState: SearchUiConfigState,
 )
@@ -29,11 +33,29 @@ internal object SearchViewModelInitialStateFactory {
         val startupSnapshot =
             if (instantStartupSurfaceEnabled) {
                 startupSurfaceStore.loadSnapshot()?.let { snapshot ->
+                    val cachedHome = snapshot.homeSurface
+                    val availableStartupApps =
+                        filterAvailableStartupApps(
+                            context = appContext,
+                            apps =
+                                (snapshot.suggestedApps + cachedHome.pinnedApps + cachedHome.recentApps)
+                                    .distinctBy { it.launchCountKey() },
+                        )
+                    val availableAppKeys =
+                        availableStartupApps.mapTo(mutableSetOf()) { it.launchCountKey() }
                     snapshot.copy(
                         suggestedApps =
-                            filterAvailableStartupApps(
-                                context = appContext,
-                                apps = snapshot.suggestedApps,
+                            snapshot.suggestedApps.filter { it.launchCountKey() in availableAppKeys },
+                        homeSurface =
+                            cachedHome.copy(
+                                pinnedApps =
+                                    cachedHome.pinnedApps.filter {
+                                        it.launchCountKey() in availableAppKeys
+                                    },
+                                recentApps =
+                                    cachedHome.recentApps.filter {
+                                        it.launchCountKey() in availableAppKeys
+                                    },
                             ),
                     )
                 }
@@ -68,6 +90,48 @@ internal object SearchViewModelInitialStateFactory {
             }
 
         val clearQueryOnLaunch = startupPreferencesReader.isClearQueryOnLaunchEnabled()
+        val hasContactPermission = PermissionUtils.hasContactsPermission(appContext)
+        val hasFilePermission = PermissionUtils.hasFileAccessPermission(appContext)
+        val hasCalendarPermission = PermissionUtils.hasCalendarPermission(appContext)
+        val cachedHome = startupSnapshot?.homeSurface
+        val pinnedAppKeys = startupPreferencesReader.getPinnedPackages()
+        val pinnedContactIds = startupPreferencesReader.getPinnedContactIds()
+        val pinnedFileUris = startupPreferencesReader.getPinnedFileUris()
+        val pinnedSettingIds = startupPreferencesReader.getPinnedSettingIds()
+        val pinnedCalendarEventIds = startupPreferencesReader.getPinnedCalendarEventIds()
+        val pinnedNoteIds = startupPreferencesReader.getPinnedNoteIds()
+        val pinnedAppShortcutIds = startupPreferencesReader.getPinnedAppShortcutIds()
+        val currentRecentItemKeys =
+            if (startupPreferencesReader.areRecentQueriesEnabled()) {
+                buildSet {
+                    startupPreferencesReader.getRecentItems()
+                        .filterIsInstance<RecentSearchEntry.Query>()
+                        .forEach { add(it.stableKey) }
+                    startupPreferencesReader.getRecentResultOpens()
+                        .forEach { add(it.stableKey) }
+                }
+            } else {
+                emptySet()
+            }
+        val cachedRecentItems =
+            if (startupPreferencesReader.areRecentQueriesEnabled()) {
+                cachedHome?.recentItems.orEmpty().filter { item ->
+                    item.entry.stableKey in currentRecentItemKeys &&
+                        when (item) {
+                            is RecentSearchItem.Contact ->
+                                hasContactPermission && item.entry.contactId !in pinnedContactIds
+                            is RecentSearchItem.File ->
+                                hasFilePermission && item.entry.uri !in pinnedFileUris
+                            is RecentSearchItem.Setting -> item.entry.id !in pinnedSettingIds
+                            is RecentSearchItem.AppShortcut ->
+                                item.entry.shortcutKey !in pinnedAppShortcutIds
+                            is RecentSearchItem.Note -> item.entry.noteId !in pinnedNoteIds
+                            else -> true
+                        }
+                }
+            } else {
+                emptyList()
+            }
         val hasCachedEnabledSearchTargets =
             startupSnapshot?.let { snapshot ->
                 snapshot.searchTargetsOrder.any { target ->
@@ -78,10 +142,43 @@ internal object SearchViewModelInitialStateFactory {
         val initialResultsState =
             SearchResultsState(
                 query = if (clearQueryOnLaunch) "" else inMemoryRetainedQuery,
-                // Suggestions are intentionally withheld until their startup usage refresh has
-                // completed, preventing a cached order from visibly rearranging after first draw.
-                recentApps = emptyList(),
+                recentApps = cachedHome?.recentApps.orEmpty(),
+                pinnedApps =
+                    cachedHome?.pinnedApps.orEmpty().filter {
+                        it.launchCountKey() in pinnedAppKeys
+                    },
                 pinnedNonAppItemOrder = startupPreferencesReader.getPinnedNonAppItemOrder(),
+                pinnedContacts =
+                    if (hasContactPermission) {
+                        cachedHome?.pinnedContacts.orEmpty().filter { it.contactId in pinnedContactIds }
+                    } else {
+                        emptyList()
+                    },
+                pinnedFiles =
+                    if (hasFilePermission) {
+                        cachedHome?.pinnedFiles.orEmpty().filter {
+                            it.uri.toString() in pinnedFileUris
+                        }
+                    } else {
+                        emptyList()
+                    },
+                pinnedSettings =
+                    cachedHome?.pinnedSettings.orEmpty().filter { it.id in pinnedSettingIds },
+                pinnedCalendarEvents =
+                    if (hasCalendarPermission) {
+                        cachedHome?.pinnedCalendarEvents.orEmpty().filter {
+                            it.eventId in pinnedCalendarEventIds
+                        }
+                    } else {
+                        emptyList()
+                    },
+                pinnedNotes =
+                    cachedHome?.pinnedNotes.orEmpty().filter { it.noteId in pinnedNoteIds },
+                pinnedAppShortcuts =
+                    cachedHome?.pinnedAppShortcuts.orEmpty().filter {
+                        "${it.packageName}:${it.id}" in pinnedAppShortcutIds
+                    },
+                recentItems = cachedRecentItems,
                 indexedAppCount = startupSnapshot?.suggestedApps?.size ?: 0,
                 searchEnginesState =
                     if (startupSnapshot?.isSearchEngineCompactMode == true && hasCachedEnabledSearchTargets) {
@@ -117,6 +214,14 @@ internal object SearchViewModelInitialStateFactory {
                 topMatchesSectionOrder = startupPreferencesReader.getTopMatchesSectionOrder(),
                 disabledTopMatchesSections = startupPreferencesReader.getDisabledTopMatchesSections(),
                 showRateQuickSearchCard = startupPreferencesReader.shouldShowRateQuickSearchCard(),
+                recentQueriesEnabled = startupPreferencesReader.areRecentQueriesEnabled(),
+            )
+
+        val initialPermissionState =
+            SearchPermissionState(
+                hasContactPermission = hasContactPermission,
+                hasFilePermission = hasFilePermission,
+                hasCalendarPermission = hasCalendarPermission,
             )
 
         val initialConfigState =
@@ -199,6 +304,7 @@ internal object SearchViewModelInitialStateFactory {
             instantStartupSurfaceEnabled = instantStartupSurfaceEnabled,
             startupSnapshot = startupSnapshot,
             resultsState = initialResultsState,
+            permissionState = initialPermissionState,
             featureState = initialFeatureState,
             configState = initialConfigState,
         )

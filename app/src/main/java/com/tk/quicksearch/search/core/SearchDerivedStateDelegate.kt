@@ -6,6 +6,7 @@ import android.os.SystemClock
 import com.tk.quicksearch.search.apps.AppSearchPerformanceLogger
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
+import com.tk.quicksearch.search.startup.StartupHomeSurfaceSnapshot
 import com.tk.quicksearch.search.startup.StartupSurfaceSnapshot
 import com.tk.quicksearch.search.startup.StartupSurfaceStore
 import com.tk.quicksearch.shared.util.PackageConstants
@@ -395,6 +396,18 @@ internal class SearchDerivedStateDelegate(
                     phoneAppGridColumns = config.phoneAppGridColumns,
                     appIconSizeStep = config.appIconSizeStep,
                     suggestedApps = startupSuggestions,
+                    homeSurface =
+                        StartupHomeSurfaceSnapshot(
+                            pinnedApps = results.pinnedApps,
+                            recentApps = results.recentApps,
+                            pinnedContacts = results.pinnedContacts,
+                            pinnedFiles = results.pinnedFiles,
+                            pinnedSettings = results.pinnedSettings,
+                            pinnedCalendarEvents = results.pinnedCalendarEvents,
+                            pinnedNotes = results.pinnedNotes,
+                            pinnedAppShortcuts = results.pinnedAppShortcuts,
+                            recentItems = results.recentItems,
+                        ).bounded(),
                     searchTargetsOrder = features.searchTargetsOrder,
                     disabledSearchTargetIds = features.disabledSearchTargetIds,
                     isSearchEngineCompactMode = features.isSearchEngineCompactMode,
