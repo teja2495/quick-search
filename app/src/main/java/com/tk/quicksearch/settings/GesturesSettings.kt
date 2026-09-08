@@ -108,6 +108,7 @@ fun GesturesSettingsSection(
     var homeCustomPickerGesture by remember { mutableStateOf<HomeGesture?>(null) }
     var selectedKeyboardAction by remember { mutableStateOf<SwipeGestureAction?>(null) }
     var selectedHomeGesture by remember { mutableStateOf<HomeGesture?>(null) }
+    var showLockScreenAccessibilityDisclosure by remember { mutableStateOf(false) }
     var homeActions by remember {
         mutableStateOf(
             HomeGesture.entries.associateWith { gesture ->
@@ -372,7 +373,8 @@ fun GesturesSettingsSection(
                     homeAliasTargets = homeAliasTargets + (gesture to null)
                     selectedHomeGesture = null
                 } else {
-                    context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                    selectedHomeGesture = null
+                    showLockScreenAccessibilityDisclosure = true
                 }
             },
             onPickCustom = {
@@ -408,6 +410,16 @@ fun GesturesSettingsSection(
             onDeleteCustom = ::deleteCustomAction,
             onDeleteAlias = ::deleteAliasTarget,
             onDismiss = { selectedHomeGesture = null },
+        )
+    }
+
+    if (showLockScreenAccessibilityDisclosure) {
+        LockScreenAccessibilityDisclosureDialog(
+            onAgree = {
+                showLockScreenAccessibilityDisclosure = false
+                context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            },
+            onDismiss = { showLockScreenAccessibilityDisclosure = false },
         )
     }
 
@@ -638,6 +650,28 @@ private fun HomeVerticalGestureDialog(
             }
         },
         confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.dialog_cancel)) } },
+    )
+}
+
+@Composable
+private fun LockScreenAccessibilityDisclosureDialog(
+    onAgree: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AppAlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.accessibility_lock_screen_disclosure_title)) },
+        text = { Text(stringResource(R.string.accessibility_lock_screen_disclosure_message)) },
+        confirmButton = {
+            TextButton(onClick = onAgree) {
+                Text(stringResource(R.string.action_agree))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.action_not_now))
+            }
+        },
     )
 }
 

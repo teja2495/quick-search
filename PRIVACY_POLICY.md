@@ -1,6 +1,6 @@
 # Quick Search – Privacy Policy
 
-Last updated: 2025-12-10
+Last updated: 2026-09-08
 
 Quick Search is an Android app that lets you search apps, contacts, device files, and the web from a single screen. This policy explains what data the app accesses, how it is used, and your choices.
 
@@ -9,6 +9,7 @@ Quick Search is an Android app that lets you search apps, contacts, device files
 - Apps: App names, package IDs, and last-used timestamps (requires Usage Access) to rank and show recently used apps.
 - Contacts (optional): Contact names, phone numbers, and your chosen “preferred number” when you enable contact search.
 - Files (optional): File names, types, URIs, and basic metadata from MediaStore to show matching files; no file contents are read.
+- Accessibility service (optional): When you enable the Lock Screen gesture, Quick Search uses Android's AccessibilityService API only to perform the system Lock Screen action after you double-tap the Home screen. Through this service, Quick Search does not read, collect, store, or share screen content or other personal data.
 - Preferences: Hidden/pinned apps, contacts, files, nicknames, section order, layout choices, aliases, and widget settings stored locally in SharedPreferences. Sensitive items such as the optional Gemini API key are stored with EncryptedSharedPreferences when available.
 - Direct answers (optional): If you add a Gemini API key and use AI answers, the query and any personal context you provide are sent to Google’s Generative Language API to generate a response. Request/response bodies may be logged to your device’s logcat for troubleshooting and are not sent to the developer.
 - Network calls: Other web searches you launch (Google, Maps, Play, Reddit, YouTube, Amazon, ChatGPT/Perplexity/Grok links, etc.) are opened in the chosen browser/app and handled under those providers’ policies.
@@ -32,6 +33,7 @@ Quick Search is an Android app that lets you search apps, contacts, device files
 - Contacts (optional): Needed to search and act on your contacts.
 - Storage/Media (optional): Needed to search files on the device.
 - Network: Used only when you open an external search or request a direct AI answer.
+- Accessibility service (optional): Used only to lock the device when you invoke the configured double-tap Home gesture. You must explicitly agree before Quick Search opens Android's Accessibility settings, and you can disable the service at any time in Android settings.
 - QUERY_ALL_PACKAGES (manifest): Declared to surface installed apps in the launcher grid.
 
 ## Security
@@ -41,6 +43,7 @@ Quick Search is an Android app that lets you search apps, contacts, device files
 ## Your choices
 - Do not enter a Gemini API key if you do not want queries sent to Google for direct answers; remove the key and personal context in settings to stop further use.
 - Turn off or decline Contacts/Storage permissions to keep those data types inaccessible.
+- Choose “Not now” when asked about Accessibility access, or disable “Quick Search Lock Screen” in Android's Accessibility settings, to keep the Lock Screen gesture inactive.
 - Clear app data or uninstall to remove local preferences and caches; use in-app options to clear cached apps or edit pinned/hidden items.
 
 ## Children

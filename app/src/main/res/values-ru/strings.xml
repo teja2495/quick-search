@@ -110,6 +110,8 @@
 <string name="settings_gesture_close_keyboard_notifications">Закрыть клавиатуру / Открыть уведомления</string>
 <string name="settings_gesture_close_keyboard">Закрыть клавиатуру</string>
 <string name="settings_gesture_notification_panel">Панель уведомлений</string>
+<string name="accessibility_lock_screen_disclosure_title">Специальные возможности для блокировки экрана</string>
+<string name="accessibility_lock_screen_disclosure_message">Quick Search использует API AccessibilityService Android только для блокировки устройства при двойном нажатии на главный экран. Через эту службу Quick Search не читает, не собирает, не хранит и не передает содержимое экрана или другие персональные данные.</string>
 <string name="settings_gesture_none">Нет</string>
 <string name="settings_gesture_custom">Вручную (приложения, файлы и др.)</string>
 <string name="settings_keyboard_gestures_title">Жесты клавиатуры (Главный экран)</string>
@@ -138,6 +140,7 @@
 <string name="action_uninstall_app">Удалить</string>
 <string name="action_rate">Оценить сейчас</string>
 <string name="action_not_now">Не сейчас</string>
+<string name="action_agree">Согласен</string>
 <string name="action_unpin_app">Открепить</string>
 <string name="alias_trigger_after_space">Триггер после пробела</string>
 <string name="common_action_add">Добавить</string>

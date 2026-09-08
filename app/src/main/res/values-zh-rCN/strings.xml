@@ -110,6 +110,8 @@
     <string name="settings_gesture_close_keyboard_notifications">关闭键盘 / 打开通知</string>
     <string name="settings_gesture_close_keyboard">关闭键盘</string>
     <string name="settings_gesture_notification_panel">通知面板</string>
+    <string name="accessibility_lock_screen_disclosure_title">锁定屏幕的无障碍访问权限</string>
+    <string name="accessibility_lock_screen_disclosure_message">Quick Search 仅在您双击主屏幕时使用 Android AccessibilityService API 锁定设备。Quick Search 不会通过此服务读取、收集、存储或分享您的屏幕内容或其他个人数据。</string>
     <string name="settings_gesture_none">无</string>
     <string name="settings_gesture_custom">自定义 (应用、文件等)</string>
     <string name="settings_keyboard_gestures_title">键盘手势 (主屏幕)</string>
@@ -138,6 +140,7 @@
     <string name="action_uninstall_app">卸载</string>
     <string name="action_rate">立即评分</string>
     <string name="action_not_now">暂不</string>
+    <string name="action_agree">同意</string>
     <string name="action_unpin_app">取消固定</string>
     <string name="alias_trigger_after_space">在空格后触发</string>
     <string name="common_action_add">添加</string>

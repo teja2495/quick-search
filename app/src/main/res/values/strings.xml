@@ -106,6 +106,8 @@
     <string name="settings_gesture_lock_screen_requires_accessibility">Requires Accessibility Permission</string>
     <string name="accessibility_lock_screen_service_label">Quick Search Lock Screen</string>
     <string name="accessibility_lock_screen_service_description">Allows Quick Search to lock the screen from the Home double-tap gesture. It does not read screen content.</string>
+    <string name="accessibility_lock_screen_disclosure_title">Accessibility access for Lock Screen</string>
+    <string name="accessibility_lock_screen_disclosure_message">Quick Search uses Android’s AccessibilityService API only to lock your device when you double-tap the Home screen. Through this service, Quick Search does not read, collect, store, or share your screen content or other personal data.</string>
     <string name="settings_gesture_none">None</string>
     <string name="settings_gesture_custom">Custom (Apps, Files etc.)</string>
     <string name="settings_keyboard_gestures_title">Keyboard Gestures (Home)</string>
@@ -134,6 +136,7 @@
     <string name="action_uninstall_app">Uninstall</string>
     <string name="action_rate">Rate Now</string>
     <string name="action_not_now">Not now</string>
+    <string name="action_agree">Agree</string>
     <string name="action_unpin_app">Unpin</string>
     <string name="alias_trigger_after_space">Trigger after space</string>
     <string name="common_action_add">Add</string>

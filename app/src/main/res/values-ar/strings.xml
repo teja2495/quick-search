@@ -111,6 +111,8 @@
     <string name="settings_gesture_close_keyboard_notifications">إغلاق لوحة المفاتيح / فتح الإشعارات</string>
     <string name="settings_gesture_close_keyboard">إغلاق لوحة المفاتيح</string>
     <string name="settings_gesture_notification_panel">لوحة الإشعارات</string>
+    <string name="accessibility_lock_screen_disclosure_title">إمكانية الوصول لقفل الشاشة</string>
+    <string name="accessibility_lock_screen_disclosure_message">يستخدم Quick Search واجهة AccessibilityService في Android فقط لقفل جهازك عند النقر المزدوج على الشاشة الرئيسية. ومن خلال هذه الخدمة، لا يقرأ Quick Search محتوى شاشتك أو بياناتك الشخصية الأخرى ولا يجمعها أو يخزنها أو يشاركها.</string>
     <string name="settings_gesture_none">بلا</string>
     <string name="settings_gesture_custom">مخصص (التطبيقات، الملفات، إلخ.)</string>
     <string name="settings_keyboard_gestures_title">إيماءات لوحة المفاتيح (الرئيسية)</string>
@@ -139,6 +141,7 @@
     <string name="action_uninstall_app">إلغاء تثبيت التطبيق</string>
     <string name="action_rate">قيّم الآن</string>
     <string name="action_not_now">ليس الآن</string>
+    <string name="action_agree">أوافق</string>
     <string name="action_unpin_app">إلغاء التثبيت</string>
     <string name="alias_trigger_after_space">تفعيل كلمة التشغيل بعد مسافة</string>
     <string name="common_action_add">إضافة</string>

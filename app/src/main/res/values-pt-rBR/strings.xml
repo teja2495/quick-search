@@ -110,6 +110,8 @@
     <string name="settings_gesture_close_keyboard_notifications">Fechar teclado / Abrir notificações</string>
     <string name="settings_gesture_close_keyboard">Fechar teclado</string>
     <string name="settings_gesture_notification_panel">Painel de notificações</string>
+    <string name="accessibility_lock_screen_disclosure_title">Acesso de acessibilidade para bloquear a tela</string>
+    <string name="accessibility_lock_screen_disclosure_message">O Quick Search usa a API AccessibilityService do Android somente para bloquear seu dispositivo quando você toca duas vezes na tela inicial. Por meio desse serviço, o Quick Search não lê, coleta, armazena nem compartilha o conteúdo da tela ou outros dados pessoais.</string>
     <string name="settings_gesture_none">Nenhum</string>
     <string name="settings_gesture_custom">Personalizado (Apps, arquivos etc.)</string>
     <string name="settings_keyboard_gestures_title">Gestos do teclado (Início)</string>
@@ -138,6 +140,7 @@
     <string name="action_uninstall_app">Desinstalar</string>
     <string name="action_rate">Avaliar agora</string>
     <string name="action_not_now">Agora não</string>
+    <string name="action_agree">Concordo</string>
     <string name="action_unpin_app">Desafixar</string>
     <string name="alias_trigger_after_space">Ativar após o espaço</string>
     <string name="common_action_add">Adicionar</string>

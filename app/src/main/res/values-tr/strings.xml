@@ -109,6 +109,8 @@
 <string name="settings_gesture_close_keyboard_notifications">Klavyeyi Kapat / Bildirimleri Aç</string>
 <string name="settings_gesture_close_keyboard">Klavyeyi Kapat</string>
 <string name="settings_gesture_notification_panel">Bildirim Paneli</string>
+<string name="accessibility_lock_screen_disclosure_title">Ekran kilidi için erişilebilirlik erişimi</string>
+<string name="accessibility_lock_screen_disclosure_message">Quick Search, Android AccessibilityService API’sini yalnızca Ana ekrana iki kez dokunduğunuzda cihazınızı kilitlemek için kullanır. Quick Search bu hizmet aracılığıyla ekran içeriğinizi veya diğer kişisel verilerinizi okumaz, toplamaz, saklamaz ya da paylaşmaz.</string>
 <string name="settings_gesture_none">Hiçbiri</string>
 <string name="settings_gesture_custom">Özel (Uygulamalar, Dosyalar vb.)</string>
 <string name="settings_keyboard_gestures_title">Klavye Hareketleri (Ana Ekran)</string>
@@ -137,6 +139,7 @@
 <string name="action_uninstall_app">Yüklemeyi kaldır</string>
 <string name="action_rate">Şimdi değerlendir</string>
 <string name="action_not_now">Şimdi değil</string>
+<string name="action_agree">Kabul ediyorum</string>
 <string name="action_unpin_app">Sabitlemeyi kaldır</string>
 <string name="alias_trigger_after_space">Boşluktan sonra tetikle</string>
 <string name="common_action_add">Ekle</string>

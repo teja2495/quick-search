@@ -110,6 +110,8 @@
     <string name="settings_gesture_close_keyboard_notifications">कीबोर्ड बंद करें / नोटिफिकेशन खोलें</string>
     <string name="settings_gesture_close_keyboard">कीबोर्ड बंद करें</string>
     <string name="settings_gesture_notification_panel">नोटिफिकेशन पैनल</string>
+    <string name="accessibility_lock_screen_disclosure_title">स्क्रीन लॉक के लिए सुलभता ऐक्सेस</string>
+    <string name="accessibility_lock_screen_disclosure_message">Quick Search Android की AccessibilityService API का उपयोग केवल तब आपके डिवाइस को लॉक करने के लिए करता है, जब आप होम स्क्रीन पर दो बार टैप करते हैं। इस सेवा के माध्यम से Quick Search आपकी स्क्रीन की सामग्री या अन्य निजी डेटा को पढ़ता, एकत्र करता, संग्रहीत या साझा नहीं करता है।</string>
     <string name="settings_gesture_none">कोई नहीं</string>
     <string name="settings_gesture_custom">कस्टम (ऐप्स, फ़ाइलें आदि)</string>
     <string name="settings_keyboard_gestures_title">कीबोर्ड जेस्चर (होम)</string>
@@ -138,6 +140,7 @@
     <string name="action_uninstall_app">अनइंस्टॉल करें</string>
     <string name="action_rate">अभी रेट करें</string>
     <string name="action_not_now">अभी नहीं</string>
+    <string name="action_agree">सहमत हूँ</string>
     <string name="action_unpin_app">अनपिन करें</string>
     <string name="alias_trigger_after_space">स्पेस के बाद ट्रिगर</string>
     <string name="common_action_add">जोड़ें</string>

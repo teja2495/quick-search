@@ -110,6 +110,8 @@
     <string name="settings_gesture_close_keyboard_notifications">Tastatur schließen / Benachrichtigungen öffnen</string>
     <string name="settings_gesture_close_keyboard">Tastatur schließen</string>
     <string name="settings_gesture_notification_panel">Benachrichtigungsleiste</string>
+    <string name="accessibility_lock_screen_disclosure_title">Bedienungshilfenzugriff für die Bildschirmsperre</string>
+    <string name="accessibility_lock_screen_disclosure_message">Quick Search verwendet die AccessibilityService API von Android ausschließlich, um dein Gerät zu sperren, wenn du zweimal auf den Startbildschirm tippst. Quick Search liest, erfasst, speichert oder teilt über diesen Dienst weder Bildschirminhalte noch andere personenbezogene Daten.</string>
     <string name="settings_gesture_none">Keine</string>
     <string name="settings_gesture_custom">Benutzerdefiniert (Apps, Dateien usw.)</string>
     <string name="settings_keyboard_gestures_title">Tastaturgesten (Startseite)</string>
@@ -138,6 +140,7 @@
     <string name="action_uninstall_app">Deinstallieren</string>
     <string name="action_rate">Jetzt bewerten</string>
     <string name="action_not_now">Nicht jetzt</string>
+    <string name="action_agree">Zustimmen</string>
     <string name="action_unpin_app">Lösen</string>
     <string name="alias_trigger_after_space">Nach Leerzeichen auslösen</string>
     <string name="common_action_add">Hinzufügen</string>
