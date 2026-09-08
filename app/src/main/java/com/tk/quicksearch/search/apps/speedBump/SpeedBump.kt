@@ -14,7 +14,7 @@ import android.content.Context
  */
 object SpeedBump {
     /** How long the interstitial runs before the app is launched. */
-    const val DELAY_MILLIS = 5_000L
+    const val DELAY_MILLIS = 6_000L
 
     private const val PreferencesName = "speed_bump_state"
     private const val BumpedPackagesKey = "bumped_packages"

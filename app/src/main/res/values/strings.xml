@@ -1103,7 +1103,7 @@
     <string name="speed_bump_dont_open">Don\u2019t Open</string>
     <string name="speed_bump_explainer_body">This feature adds a short delay before opening an app, giving you a moment to decide whether you really want to open it. It can help prevent compulsive app opening and reduce addictive habits.</string>
     <string name="speed_bump_explainer_just_enabled">You just turned it on for %1$s</string>
-    <string name="speed_bump_overlay_prompt">Opening %1$s soon. Tap the button below if you don\u2019t want to continue.</string>
+    <string name="speed_bump_overlay_prompt">Opening %1$s soon…</string>
     <string name="speed_bump_overlay_title">Take a deep breath</string>
     <string name="speed_bump_title">SpeedBump</string>
 </resources>

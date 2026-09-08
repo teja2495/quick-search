@@ -1110,7 +1110,7 @@
     <string name="speed_bump_dont_open">न खोलें</string>
     <string name="speed_bump_explainer_body">यह सुविधा ऐप खुलने से पहले एक छोटी देरी जोड़ती है, जिससे आपको यह तय करने का पल मिलता है कि आप वाकई इसे खोलना चाहते हैं या नहीं। यह बाध्यकारी रूप से ऐप खोलने से रोकने और लत जैसी आदतों को कम करने में मदद कर सकती है।</string>
     <string name="speed_bump_explainer_just_enabled">आपने इसे अभी %1$s के लिए चालू किया</string>
-    <string name="speed_bump_overlay_prompt">%1$s जल्द ही खुलेगा। अगर आप जारी नहीं रखना चाहते तो नीचे दिए बटन पर टैप करें।</string>
+    <string name="speed_bump_overlay_prompt">%1$s जल्द ही खुलेगा…</string>
     <string name="speed_bump_overlay_title">एक गहरी सांस लें</string>
     <string name="speed_bump_title">SpeedBump</string>
 </resources>

@@ -1112,7 +1112,7 @@
     <string name="speed_bump_dont_open">لا تفتح</string>
     <string name="speed_bump_explainer_body">تضيف هذه الميزة تأخيرًا قصيرًا قبل فتح أي تطبيق، ما يمنحك لحظة لتقرر إن كنت تريد فتحه فعلًا. يمكن أن يساعد ذلك في منع فتح التطبيقات باندفاع والحد من العادات الإدمانية.</string>
     <string name="speed_bump_explainer_just_enabled">لقد فعّلتها للتو لـ %1$s</string>
-    <string name="speed_bump_overlay_prompt">سيُفتح %1$s قريبًا. اضغط الزر أدناه إذا كنت لا تريد المتابعة.</string>
+    <string name="speed_bump_overlay_prompt">سيُفتح %1$s قريبًا…</string>
     <string name="speed_bump_overlay_title">خذ نفسًا عميقًا</string>
     <string name="speed_bump_title">SpeedBump</string>
 </resources>

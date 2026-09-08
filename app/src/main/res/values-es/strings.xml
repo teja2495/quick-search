@@ -1110,7 +1110,7 @@
     <string name="speed_bump_dont_open">No abrir</string>
     <string name="speed_bump_explainer_body">Esta función añade un breve retraso antes de abrir una aplicación, dándote un momento para decidir si realmente quieres abrirla. Puede ayudar a evitar abrir aplicaciones de forma compulsiva y a reducir hábitos adictivos.</string>
     <string name="speed_bump_explainer_just_enabled">Acabas de activarlo para %1$s</string>
-    <string name="speed_bump_overlay_prompt">%1$s se abrirá pronto. Toca el botón de abajo si no quieres continuar.</string>
+    <string name="speed_bump_overlay_prompt">%1$s se abrirá pronto…</string>
     <string name="speed_bump_overlay_title">Respira hondo</string>
     <string name="speed_bump_title">SpeedBump</string>
 </resources>

@@ -1130,7 +1130,7 @@
     <string name="speed_bump_dont_open">Не открывать</string>
     <string name="speed_bump_explainer_body">Эта функция добавляет короткую задержку перед открытием приложения, давая вам момент решить, действительно ли вы хотите его открыть. Это помогает не открывать приложения импульсивно и снижает привыкание.</string>
     <string name="speed_bump_explainer_just_enabled">Вы только что включили её для %1$s</string>
-    <string name="speed_bump_overlay_prompt">%1$s скоро откроется. Нажмите кнопку ниже, если не хотите продолжать.</string>
+    <string name="speed_bump_overlay_prompt">%1$s скоро откроется…</string>
     <string name="speed_bump_overlay_title">Сделайте глубокий вдох</string>
     <string name="speed_bump_title">SpeedBump</string>
 </resources>

@@ -1110,7 +1110,7 @@
     <string name="speed_bump_dont_open">Να μην ανοίξει</string>
     <string name="speed_bump_explainer_body">Αυτή η λειτουργία προσθέτει μια σύντομη καθυστέρηση πριν ανοίξει μια εφαρμογή, δίνοντάς σου μια στιγμή να αποφασίσεις αν θέλεις πραγματικά να την ανοίξεις. Μπορεί να βοηθήσει να αποφύγεις το παρορμητικό άνοιγμα εφαρμογών και να μειώσεις εθιστικές συνήθειες.</string>
     <string name="speed_bump_explainer_just_enabled">Μόλις το ενεργοποίησες για %1$s</string>
-    <string name="speed_bump_overlay_prompt">Το %1$s θα ανοίξει σύντομα. Πάτησε το κουμπί παρακάτω αν δεν θέλεις να συνεχίσεις.</string>
+    <string name="speed_bump_overlay_prompt">Το %1$s θα ανοίξει σύντομα…</string>
     <string name="speed_bump_overlay_title">Πάρε μια βαθιά ανάσα</string>
     <string name="speed_bump_title">SpeedBump</string>
 </resources>

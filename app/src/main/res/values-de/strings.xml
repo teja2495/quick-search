@@ -1110,7 +1110,7 @@
     <string name="speed_bump_dont_open">Nicht öffnen</string>
     <string name="speed_bump_explainer_body">Diese Funktion fügt eine kurze Verzögerung ein, bevor eine App geöffnet wird, damit du einen Moment hast, um zu entscheiden, ob du sie wirklich öffnen willst. Das kann zwanghaftes Öffnen von Apps verhindern und suchtartige Gewohnheiten verringern.</string>
     <string name="speed_bump_explainer_just_enabled">Du hast sie gerade für %1$s aktiviert</string>
-    <string name="speed_bump_overlay_prompt">%1$s wird gleich geöffnet. Tippe unten auf die Schaltfläche, wenn du nicht fortfahren möchtest.</string>
+    <string name="speed_bump_overlay_prompt">%1$s wird gleich geöffnet…</string>
     <string name="speed_bump_overlay_title">Atme tief durch</string>
     <string name="speed_bump_title">SpeedBump</string>
 </resources>

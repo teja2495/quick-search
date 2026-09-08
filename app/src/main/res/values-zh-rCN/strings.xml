@@ -1100,7 +1100,7 @@
     <string name="speed_bump_dont_open">不要打开</string>
     <string name="speed_bump_explainer_body">此功能会在打开应用前加入一段短暂延迟，让你有片刻时间决定是否真的想打开它。这有助于避免强迫性地打开应用，减少成瘾习惯。</string>
     <string name="speed_bump_explainer_just_enabled">你刚刚为 %1$s 开启了此功能</string>
-    <string name="speed_bump_overlay_prompt">%1$s 即将打开。如果你不想继续，请点按下方按钮。</string>
+    <string name="speed_bump_overlay_prompt">%1$s 即将打开…</string>
     <string name="speed_bump_overlay_title">深呼吸一下</string>
     <string name="speed_bump_title">SpeedBump</string>
 </resources>

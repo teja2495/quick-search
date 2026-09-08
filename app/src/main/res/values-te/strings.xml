@@ -1110,7 +1110,7 @@
     <string name="speed_bump_dont_open">తెరవవద్దు</string>
     <string name="speed_bump_explainer_body">ఈ ఫీచర్ యాప్ తెరవడానికి ముందు కొద్దిపాటి ఆలస్యాన్ని జోడిస్తుంది, తద్వారా మీరు నిజంగా దీన్ని తెరవాలనుకుంటున్నారా అని నిర్ణయించుకునే క్షణం దొరుకుతుంది. ఇది అనాలోచితంగా యాప్‌లు తెరవడాన్ని నివారించి, వ్యసన అలవాట్లను తగ్గించడంలో సాయపడుతుంది.</string>
     <string name="speed_bump_explainer_just_enabled">మీరు దీన్ని ఇప్పుడే %1$s కోసం ఆన్ చేశారు</string>
-    <string name="speed_bump_overlay_prompt">%1$s త్వరలో తెరుచుకుంటుంది. మీరు కొనసాగించకూడదనుకుంటే కింది బటన్‌ను నొక్కండి.</string>
+    <string name="speed_bump_overlay_prompt">%1$s త్వరలో తెరుచుకుంటుంది…</string>
     <string name="speed_bump_overlay_title">ఒక దీర్ఘ శ్వాస తీసుకోండి</string>
     <string name="speed_bump_title">SpeedBump</string>
 </resources>

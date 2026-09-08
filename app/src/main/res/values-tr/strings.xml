@@ -1109,7 +1109,7 @@
     <string name="speed_bump_dont_open">Açma</string>
     <string name="speed_bump_explainer_body">Bu özellik bir uygulama açılmadan önce kısa bir gecikme ekler ve gerçekten açmak isteyip istemediğine karar vermen için sana bir an tanır. Uygulamaları dürtüsel olarak açmayı önlemeye ve bağımlılık yapan alışkanlıkları azaltmaya yardımcı olabilir.</string>
     <string name="speed_bump_explainer_just_enabled">Az önce %1$s için açtın</string>
-    <string name="speed_bump_overlay_prompt">%1$s birazdan açılacak. Devam etmek istemiyorsan aşağıdaki düğmeye dokun.</string>
+    <string name="speed_bump_overlay_prompt">%1$s birazdan açılacak…</string>
     <string name="speed_bump_overlay_title">Derin bir nefes al</string>
     <string name="speed_bump_title">SpeedBump</string>
 </resources>
