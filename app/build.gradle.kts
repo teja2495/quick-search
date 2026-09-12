@@ -15,7 +15,7 @@ android {
         applicationId = "com.tk.quicksearch"
         minSdk = 24
         targetSdk = 36
-        versionCode = 81
+        versionCode = 82
         versionName = "4.3"
         manifestPlaceholders["profileCaptureExported"] =
             providers.gradleProperty("profileCapture").orElse("false").get().toBoolean()
