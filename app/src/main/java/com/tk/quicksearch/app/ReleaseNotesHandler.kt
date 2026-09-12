@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.shared.permissions.shouldShowAccessibilityDisclosure
 
 class ReleaseNotesHandler(
     private val application: Application,
@@ -65,13 +66,17 @@ class ReleaseNotesHandler(
                 (lastSeenCode == null || lastSeenCode != currentVersionCode)
 
         if (!nameChanged && !versionCodeChanged) {
-            if (userPreferences.isAccessibilityPermissionDisclaimerPending()) {
+            if (shouldShowAccessibilityDisclosure &&
+                userPreferences.isAccessibilityPermissionDisclaimerPending()
+            ) {
                 showAccessibilityPermissionDisclaimer()
             }
             return
         }
 
-        if (!userPreferences.hasSeenAccessibilityPermissionDisclaimer()) {
+        if (shouldShowAccessibilityDisclosure &&
+            !userPreferences.hasSeenAccessibilityPermissionDisclaimer()
+        ) {
             userPreferences.setAccessibilityPermissionDisclaimerPending(true)
         }
 
@@ -102,7 +107,8 @@ class ReleaseNotesHandler(
                 showReleaseNotesDialog = false,
                 releaseNotesVersionName = versionToStore,
                 showAccessibilityPermissionDisclaimer =
-                    userPreferences.isAccessibilityPermissionDisclaimerPending(),
+                    shouldShowAccessibilityDisclosure &&
+                        userPreferences.isAccessibilityPermissionDisclaimerPending(),
             )
         }
     }
@@ -114,6 +120,8 @@ class ReleaseNotesHandler(
     }
 
     private fun showAccessibilityPermissionDisclaimer() {
-        uiStateUpdater { it.copy(showAccessibilityPermissionDisclaimer = true) }
+        if (shouldShowAccessibilityDisclosure) {
+            uiStateUpdater { it.copy(showAccessibilityPermissionDisclaimer = true) }
+        }
     }
 }

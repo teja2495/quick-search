@@ -399,7 +399,11 @@ fun PermissionsCardSection(
                     isMandatory = false,
                     onToggleChange = { enabled ->
                         if (enabled && !accessibilityPermissionState.isGranted) {
-                            showAccessibilityDisclosure = true
+                            if (shouldShowAccessibilityDisclosure) {
+                                showAccessibilityDisclosure = true
+                            } else {
+                                context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                            }
                         }
                     },
                 ),

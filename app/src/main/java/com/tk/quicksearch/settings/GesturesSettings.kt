@@ -62,6 +62,7 @@ import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
 import com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction
 import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
 import com.tk.quicksearch.shared.permissions.LockScreenAccessibilityDisclosureDialog
+import com.tk.quicksearch.shared.permissions.shouldShowAccessibilityDisclosure
 import com.tk.quicksearch.shared.util.isDefaultHomeApp
 import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.settings.shared.SettingsCardItem
@@ -375,7 +376,11 @@ fun GesturesSettingsSection(
                     selectedHomeGesture = null
                 } else {
                     selectedHomeGesture = null
-                    showLockScreenAccessibilityDisclosure = true
+                    if (shouldShowAccessibilityDisclosure) {
+                        showLockScreenAccessibilityDisclosure = true
+                    } else {
+                        context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                    }
                 }
             },
             onPickCustom = {
