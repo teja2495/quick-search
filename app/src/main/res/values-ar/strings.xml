@@ -111,7 +111,7 @@
     <string name="settings_gesture_close_keyboard_notifications">إغلاق لوحة المفاتيح / فتح الإشعارات</string>
     <string name="settings_gesture_close_keyboard">إغلاق لوحة المفاتيح</string>
     <string name="settings_gesture_notification_panel">لوحة الإشعارات</string>
-    <string name="accessibility_lock_screen_disclosure_title">إمكانية الوصول لقفل الشاشة</string>
+    <string name="accessibility_permission_disclaimer_title">إخلاء مسؤولية إذن إمكانية الوصول</string>
     <string name="accessibility_lock_screen_disclosure_message">يستخدم Quick Search واجهة AccessibilityService في Android فقط لقفل جهازك عند النقر المزدوج على الشاشة الرئيسية. ومن خلال هذه الخدمة، لا يقرأ Quick Search محتوى شاشتك أو بياناتك الشخصية الأخرى ولا يجمعها أو يخزنها أو يشاركها.</string>
     <string name="settings_gesture_none">بلا</string>
     <string name="settings_gesture_custom">مخصص (التطبيقات، الملفات، إلخ.)</string>
@@ -973,6 +973,10 @@
          ============================================================================ -->
     <string name="permissions_calendar_desc">مطلوب للبحث في أحداث التقويم الخاص بك.</string>
     <string name="permissions_calling_desc">مطلوب للاتصال بجهات الاتصال الخاصة بك مباشرة دون فتح لوحة الاتصال.</string>
+    <string name="settings_notifications_permission_title">الإشعارات</string>
+    <string name="permissions_notifications_desc">مطلوب لتثبيت نتائج البحث في لوحة الإشعارات</string>
+    <string name="permissions_accessibility_lock_screen_title">إمكانية الوصول</string>
+    <string name="permissions_accessibility_lock_screen_desc">يسمح لإيماءة النقر المزدوج بقفل جهازك.</string>
     <string name="permissions_contacts_desc">مطلوب للبحث في جهات الاتصال الخاصة بك.</string>
     <string name="permissions_files_desc">مطلوب للبحث في ملفاتك ومستنداتك المختلفة.</string>
     <string name="permissions_files_title">إذن الوصول إلى الملفات</string>
@@ -980,7 +984,8 @@
     <string name="permissions_mandatory_indicator">*</string>
     <string name="permissions_reminder_dialog_message">إذا غيرت رأيك لاحقاً بشأن إذن %1$s، يمكنك منحه في أي وقت من إعدادات التطبيق.</string>
     <string name="permissions_reminder_dialog_title">الأذونات غير ممنوحة</string>
-    <string name="permissions_screen_subtitle">تساعد هذه الأذونات على تفعيل ميزات إضافية وهي اختيارية تماماً، مع الحفاظ على خصوصية بياناتك محلياً على جهازك.</string>
+    <string name="permissions_screen_subtitle">جميع الأذونات هنا اختيارية. ولا تُستخدم إلا لفتح ميزات إضافية. تظل بياناتك على جهازك.</string>
+    <string name="permissions_screen_optional_emphasis">اختيارية</string>
     <string name="permissions_usage_desc">مطلوب لعرض تطبيقاتك المستخدمة مؤخراً في قسم الاقتراحات.</string>
     <string name="setup_action_next">التالي</string>
     <string name="setup_action_start">ابدأ البحث الآن!</string>

@@ -11,6 +11,7 @@ import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.permissions.PermissionCardTexts
 import com.tk.quicksearch.shared.permissions.PermissionsCardSection
+import com.tk.quicksearch.shared.permissions.permissionsScreenSubtitle
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -29,7 +30,7 @@ fun PermissionsSettings(
 ) {
     Column(modifier = modifier) {
         Text(
-            text = stringResource(R.string.permissions_screen_subtitle),
+            text = permissionsScreenSubtitle(),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = DesignTokens.SpacingLarge),
@@ -48,11 +49,17 @@ fun PermissionsSettings(
                     calendarDescription = stringResource(R.string.permissions_calendar_desc),
                     callingTitle = stringResource(R.string.settings_call_permission_title),
                     callingDescription = stringResource(R.string.permissions_calling_desc),
+                    notificationsTitle = stringResource(R.string.settings_notifications_permission_title),
+                    notificationsDescription = stringResource(R.string.permissions_notifications_desc),
+                    accessibilityTitle = stringResource(R.string.permissions_accessibility_lock_screen_title),
+                    accessibilityDescription = stringResource(R.string.permissions_accessibility_lock_screen_desc),
                     backgroundUsageTitle = stringResource(R.string.permissions_background_usage_title),
                     backgroundUsageDescription = stringResource(R.string.permissions_background_usage_desc),
                 ),
             modifier = Modifier.fillMaxWidth(),
             showCalendarPermission = true,
+            showCallingPermission = true,
+            showNotificationsPermission = true,
             showBackgroundUsage = true,
             onRequestUsagePermission = onRequestUsagePermission,
             onRequestContactPermission = onRequestContactPermission,

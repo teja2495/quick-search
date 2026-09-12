@@ -5,6 +5,7 @@ import com.tk.quicksearch.settings.shared.SettingsScreenCallbacks as SharedSetti
 import com.tk.quicksearch.settings.shared.SettingsScreenState as SharedSettingsScreenState
 import android.content.Intent
 import android.net.Uri
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -85,6 +86,7 @@ import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.shared.featureFlags.FeatureFlag
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
+import com.tk.quicksearch.shared.permissions.LockScreenAccessibilityDisclosureDialog
 import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -135,6 +137,8 @@ fun SettingsScreen(
     releaseNotesVersionName: String?,
     onOpenReleaseNotes: () -> Unit,
     onReleaseNotesAcknowledged: () -> Unit,
+    showAccessibilityPermissionDisclaimer: Boolean,
+    onAccessibilityPermissionDisclaimerDismissed: () -> Unit,
     onSettingsImported: () -> Unit = {},
     pendingImportUri: String? = null,
     onPendingImportUriConsumed: () -> Unit = {},
@@ -574,6 +578,16 @@ fun SettingsScreen(
                 onReleaseNotesAcknowledged()
                 onNavigateToDetail(SettingsDetailType.FEATURES_LIST)
             },
+        )
+    }
+
+    if (showAccessibilityPermissionDisclaimer) {
+        LockScreenAccessibilityDisclosureDialog(
+            onAgree = {
+                onAccessibilityPermissionDisclaimerDismissed()
+                context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            },
+            onDismiss = onAccessibilityPermissionDisclaimerDismissed,
         )
     }
 

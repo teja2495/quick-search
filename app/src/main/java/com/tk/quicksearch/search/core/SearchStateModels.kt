@@ -301,6 +301,7 @@ data class SearchUiConfigState(
         val hasSeenOverlayAssistantTip: Boolean = true,
         val showReleaseNotesDialog: Boolean = false,
         val releaseNotesVersionName: String? = null,
+        val showAccessibilityPermissionDisclaimer: Boolean = false,
         // Transient dialog state (ephemeral UI overlays unrelated to search query)
         val phoneNumberSelection: PhoneNumberSelection? = null,
         val directDialChoice: DirectDialChoice? = null,

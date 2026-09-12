@@ -110,7 +110,7 @@
     <string name="settings_gesture_close_keyboard_notifications">关闭键盘 / 打开通知</string>
     <string name="settings_gesture_close_keyboard">关闭键盘</string>
     <string name="settings_gesture_notification_panel">通知面板</string>
-    <string name="accessibility_lock_screen_disclosure_title">锁定屏幕的无障碍访问权限</string>
+<string name="accessibility_permission_disclaimer_title">无障碍权限免责声明</string>
     <string name="accessibility_lock_screen_disclosure_message">Quick Search 仅在您双击主屏幕时使用 Android AccessibilityService API 锁定设备。Quick Search 不会通过此服务读取、收集、存储或分享您的屏幕内容或其他个人数据。</string>
     <string name="settings_gesture_none">无</string>
     <string name="settings_gesture_custom">自定义 (应用、文件等)</string>
@@ -962,6 +962,10 @@
          ============================================================================ -->
     <string name="permissions_calendar_desc">开启此项以检索并展示您设备系统日历中的日程事件。</string>
     <string name="permissions_calling_desc">允许直接呼叫您的联系人，省去跳转并开启系统拨号盘的步骤。</string>
+    <string name="settings_notifications_permission_title">通知</string>
+    <string name="permissions_notifications_desc">用于将搜索结果固定到通知面板</string>
+    <string name="permissions_accessibility_lock_screen_title">无障碍</string>
+    <string name="permissions_accessibility_lock_screen_desc">允许使用双击手势锁定设备。</string>
     <string name="permissions_contacts_desc">允许检索、匹配并展示您设备通讯录中的联系人信息。</string>
     <string name="permissions_files_desc">用于在您的个人文档、下载内容和其他本地文件中开展精确检索。</string>
     <string name="permissions_files_title">文件读写权限</string>
@@ -969,7 +973,8 @@
     <string name="permissions_mandatory_indicator">*</string>
     <string name="permissions_reminder_dialog_message">若您后续改变了关于 %1$s 权限的想法，可以随时前往应用系统设置页面内重新授予该项权限。</string>
     <string name="permissions_reminder_dialog_title">权限未授予</string>
-    <string name="permissions_screen_subtitle">这些系统权限可以解锁更多高级功能。它们是可选的。您的数据将保存在本地设备中。</string>
+    <string name="permissions_screen_subtitle">此处的所有权限均为可选权限。它们仅用于解锁其他功能。您的数据会保留在您的设备上。</string>
+    <string name="permissions_screen_optional_emphasis">可选</string>
     <string name="permissions_usage_desc">用于在智能建议面板中优先展示您近期最常使用或新运行的应用。</string>
     <string name="setup_action_next">下一步</string>
     <string name="setup_action_start">开始搜索！</string>

@@ -110,7 +110,7 @@
     <string name="settings_gesture_close_keyboard_notifications">Fechar teclado / Abrir notificações</string>
     <string name="settings_gesture_close_keyboard">Fechar teclado</string>
     <string name="settings_gesture_notification_panel">Painel de notificações</string>
-    <string name="accessibility_lock_screen_disclosure_title">Acesso de acessibilidade para bloquear a tela</string>
+    <string name="accessibility_permission_disclaimer_title">Aviso sobre a permissão de acessibilidade</string>
     <string name="accessibility_lock_screen_disclosure_message">O Quick Search usa a API AccessibilityService do Android somente para bloquear seu dispositivo quando você toca duas vezes na tela inicial. Por meio desse serviço, o Quick Search não lê, coleta, armazena nem compartilha o conteúdo da tela ou outros dados pessoais.</string>
     <string name="settings_gesture_none">Nenhum</string>
     <string name="settings_gesture_custom">Personalizado (Apps, arquivos etc.)</string>
@@ -972,6 +972,10 @@
          ============================================================================ -->
     <string name="permissions_calendar_desc">Necessário para pesquisar os eventos do seu calendário.</string>
     <string name="permissions_calling_desc">Necessário para ligar para seus contatos diretamente sem abrir o discador.</string>
+    <string name="settings_notifications_permission_title">Notificações</string>
+    <string name="permissions_notifications_desc">Necessário para fixar resultados da pesquisa no painel de notificações</string>
+    <string name="permissions_accessibility_lock_screen_title">Acessibilidade</string>
+    <string name="permissions_accessibility_lock_screen_desc">Permite que o gesto de toque duplo bloqueie seu dispositivo.</string>
     <string name="permissions_contacts_desc">Necessário para pesquisar seus contatos.</string>
     <string name="permissions_files_desc">Necessário para pesquisar em seus documentos e outros arquivos.</string>
     <string name="permissions_files_title">Acesso aos arquivos</string>
@@ -979,7 +983,8 @@
     <string name="permissions_mandatory_indicator">*</string>
     <string name="permissions_reminder_dialog_message">Se você mudar de ideia mais tarde sobre a permissão de %1$s, poderá concedê-la nas configurações do app.</string>
     <string name="permissions_reminder_dialog_title">Permissões não concedidas</string>
-    <string name="permissions_screen_subtitle">Estas permissões liberam recursos adicionais. Elas são opcionais. Seus dados permanecem no seu dispositivo.</string>
+    <string name="permissions_screen_subtitle">Todas as permissões aqui são opcionais. Elas são usadas apenas para liberar recursos adicionais. Seus dados permanecem no seu dispositivo.</string>
+    <string name="permissions_screen_optional_emphasis">opcionais</string>
     <string name="permissions_usage_desc">Necessário para mostrar seus aplicativos usados recentemente nas sugestões.</string>
     <string name="setup_action_next">Avançar</string>
     <string name="setup_action_start">Começar a pesquisar!</string>

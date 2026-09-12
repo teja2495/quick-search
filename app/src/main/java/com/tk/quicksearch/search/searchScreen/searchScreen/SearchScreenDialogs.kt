@@ -66,6 +66,7 @@ internal fun SearchScreenDialogLogic(
     onDismissContactMethods: () -> Unit,
     onReleaseNotesAcknowledged: () -> Unit,
     onReleaseNotesViewAllFeatures: () -> Unit,
+    onAccessibilityPermissionDisclaimerDismissed: () -> Unit,
     onDismissNicknameDialog: () -> Unit,
     onDismissTriggerDialog: () -> Unit,
     onSaveAppNickname: (com.tk.quicksearch.search.models.AppInfo, String?) -> Unit,
@@ -257,6 +258,8 @@ internal fun SearchScreenDialogLogic(
         onDismissContactMethods = onDismissContactMethods,
         onReleaseNotesAcknowledged = onReleaseNotesAcknowledged,
         onReleaseNotesViewAllFeatures = onReleaseNotesViewAllFeatures,
+        onAccessibilityPermissionDisclaimerDismissed =
+            onAccessibilityPermissionDisclaimerDismissed,
         onDismissNicknameDialog = onDismissNicknameDialog,
         onDismissTriggerDialog = onDismissTriggerDialog,
         onSaveAppNickname = onSaveAppNickname,

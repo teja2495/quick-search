@@ -110,7 +110,7 @@
 <string name="settings_gesture_close_keyboard_notifications">Закрыть клавиатуру / Открыть уведомления</string>
 <string name="settings_gesture_close_keyboard">Закрыть клавиатуру</string>
 <string name="settings_gesture_notification_panel">Панель уведомлений</string>
-<string name="accessibility_lock_screen_disclosure_title">Специальные возможности для блокировки экрана</string>
+<string name="accessibility_permission_disclaimer_title">Уведомление о разрешении специальных возможностей</string>
 <string name="accessibility_lock_screen_disclosure_message">Quick Search использует API AccessibilityService Android только для блокировки устройства при двойном нажатии на главный экран. Через эту службу Quick Search не читает, не собирает, не хранит и не передает содержимое экрана или другие персональные данные.</string>
 <string name="settings_gesture_none">Нет</string>
 <string name="settings_gesture_custom">Вручную (приложения, файлы и др.)</string>
@@ -992,6 +992,10 @@
      ============================================================================ -->
 <string name="permissions_calendar_desc">Требуется для поиска событий в вашем календаре.</string>
 <string name="permissions_calling_desc">Требуется для совершения звонков контактам напрямую без открытия номеронабирателя.</string>
+<string name="settings_notifications_permission_title">Уведомления</string>
+<string name="permissions_notifications_desc">Требуется для закрепления результатов поиска на панели уведомлений</string>
+<string name="permissions_accessibility_lock_screen_title">Специальные возможности</string>
+<string name="permissions_accessibility_lock_screen_desc">Позволяет блокировать устройство с помощью жеста двойного нажатия.</string>
 <string name="permissions_contacts_desc">Требуется для поиска по вашим контактам.</string>
 <string name="permissions_files_desc">Требуется для поиска по вашим документам и другим файлам.</string>
 <string name="permissions_files_title">Доступ к файлам</string>
@@ -999,7 +1003,8 @@
 <string name="permissions_mandatory_indicator">*</string>
 <string name="permissions_reminder_dialog_message">Если вы позже передумаете насчет разрешения «%1$s», вы сможете предоставить его в настройках приложения.</string>
 <string name="permissions_reminder_dialog_title">Разрешения не предоставлены</string>
-<string name="permissions_screen_subtitle">Эти разрешения открывают дополнительные функции. Они не являются обязательными. Ваши данные остаются на устройстве.</string>
+<string name="permissions_screen_subtitle">Все разрешения здесь необязательны. Они используются только для разблокировки дополнительных функций. Ваши данные остаются на устройстве.</string>
+<string name="permissions_screen_optional_emphasis">необязательны</string>
 <string name="permissions_usage_desc">Требуется для отображения недавно использованных приложений в подсказках.</string>
 <string name="setup_action_next">Далее</string>
 <string name="setup_action_start">Начать поиск!</string>

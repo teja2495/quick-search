@@ -110,7 +110,7 @@
     <string name="settings_gesture_close_keyboard_notifications">कीबोर्ड बंद करें / नोटिफिकेशन खोलें</string>
     <string name="settings_gesture_close_keyboard">कीबोर्ड बंद करें</string>
     <string name="settings_gesture_notification_panel">नोटिफिकेशन पैनल</string>
-    <string name="accessibility_lock_screen_disclosure_title">स्क्रीन लॉक के लिए सुलभता ऐक्सेस</string>
+<string name="accessibility_permission_disclaimer_title">सुलभता अनुमति अस्वीकरण</string>
     <string name="accessibility_lock_screen_disclosure_message">Quick Search Android की AccessibilityService API का उपयोग केवल तब आपके डिवाइस को लॉक करने के लिए करता है, जब आप होम स्क्रीन पर दो बार टैप करते हैं। इस सेवा के माध्यम से Quick Search आपकी स्क्रीन की सामग्री या अन्य निजी डेटा को पढ़ता, एकत्र करता, संग्रहीत या साझा नहीं करता है।</string>
     <string name="settings_gesture_none">कोई नहीं</string>
     <string name="settings_gesture_custom">कस्टम (ऐप्स, फ़ाइलें आदि)</string>
@@ -972,6 +972,10 @@
          ============================================================================ -->
     <string name="permissions_calendar_desc">आपके कैलेंडर इवेंट्स खोजने के लिए आवश्यक।</string>
     <string name="permissions_calling_desc">डायलर खोले बिना आपके कॉन्टैक्ट्स को सीधे कॉल करने के लिए आवश्यक।</string>
+    <string name="settings_notifications_permission_title">सूचनाएं</string>
+    <string name="permissions_notifications_desc">खोज परिणामों को सूचना पैनल में पिन करने के लिए आवश्यक</string>
+    <string name="permissions_accessibility_lock_screen_title">सुलभता</string>
+    <string name="permissions_accessibility_lock_screen_desc">डबल-टैप जेस्चर से आपका डिवाइस लॉक किया जा सकता है।</string>
     <string name="permissions_contacts_desc">आपके कॉन्टैक्ट्स खोजने के लिए आवश्यक।</string>
     <string name="permissions_files_desc">आपके दस्तावेज़ों और अन्य फाइलों में खोजने के लिए आवश्यक।</string>
     <string name="permissions_files_title">फाइल पहुंच</string>
@@ -979,7 +983,8 @@
     <string name="permissions_mandatory_indicator">*</string>
     <string name="permissions_reminder_dialog_message">यदि बाद में आप %1$s अनुमति के बारे में अपना निर्णय बदलते हैं, तो आप ऐप सेटिंग्स से अनुमति दे सकते हैं।</string>
     <string name="permissions_reminder_dialog_title">अनुमतियां प्रदान नहीं की गईं</string>
-    <string name="permissions_screen_subtitle">ये अनुमतियां अतिरिक्त फ़ीचर्स अनलॉक करती हैं। ये वैकल्पिक हैं। आपका डेटा आपके डिवाइस पर ही रहता है।</string>
+    <string name="permissions_screen_subtitle">यहाँ सभी अनुमतियाँ वैकल्पिक हैं। इनका उपयोग केवल अतिरिक्त सुविधाएँ अनलॉक करने के लिए किया जाता है। आपका डेटा आपके डिवाइस पर ही रहता है।</string>
+    <string name="permissions_screen_optional_emphasis">वैकल्पिक</string>
     <string name="permissions_usage_desc">सुझावों में हाल ही में उपयोग किए गए ऐप्स दिखाने के लिए आवश्यक।</string>
     <string name="setup_action_next">आगे</string>
     <string name="setup_action_start">खोज शुरू करें!</string>

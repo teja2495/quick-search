@@ -110,7 +110,7 @@
     <string name="settings_gesture_close_keyboard_notifications">కీబోర్డ్ మూసివేయి / నోటిఫికేషన్‌లను తెరవండి</string>
     <string name="settings_gesture_close_keyboard">కీబోర్డ్ మూసివేయి</string>
     <string name="settings_gesture_notification_panel">నోటిఫికేషన్ ప్యానెల్</string>
-    <string name="accessibility_lock_screen_disclosure_title">స్క్రీన్ లాక్ కోసం యాక్సెసిబిలిటీ యాక్సెస్</string>
+<string name="accessibility_permission_disclaimer_title">యాక్సెసిబిలిటీ అనుమతి నిరాకరణ</string>
     <string name="accessibility_lock_screen_disclosure_message">మీరు హోమ్ స్క్రీన్‌పై రెండుసార్లు ట్యాప్ చేసినప్పుడు మీ పరికరాన్ని లాక్ చేయడానికి మాత్రమే Quick Search Android AccessibilityService APIని ఉపయోగిస్తుంది. ఈ సేవ ద్వారా Quick Search మీ స్క్రీన్ కంటెంట్‌ను లేదా ఇతర వ్యక్తిగత డేటాను చదవదు, సేకరించదు, నిల్వ చేయదు లేదా పంచుకోదు.</string>
     <string name="settings_gesture_none">ఏదీ లేదు</string>
     <string name="settings_gesture_custom">అనుకూలమైనవి (యాప్‌లు, ఫైల్‌లు మొదలైనవి)</string>
@@ -972,6 +972,10 @@
          ============================================================================ -->
     <string name="permissions_calendar_desc">మీ క్యాలెండర్ ఈవెంట్‌లను శోధించడానికి అవసరం.</string>
     <string name="permissions_calling_desc">డయలర్ తెరవకుండానే మీ పరిచయాలకు నేరుగా కాల్ చేయడానికి అవసరం.</string>
+    <string name="settings_notifications_permission_title">నోటిఫికేషన్‌లు</string>
+    <string name="permissions_notifications_desc">శోధన ఫలితాలను నోటిఫికేషన్ ప్యానెల్‌కు పిన్ చేయడానికి అవసరం</string>
+    <string name="permissions_accessibility_lock_screen_title">యాక్సెసిబిలిటీ</string>
+    <string name="permissions_accessibility_lock_screen_desc">రెండుసార్లు ట్యాప్ చేసే సంజ్ఞతో మీ పరికరాన్ని లాక్ చేయడానికి అనుమతిస్తుంది.</string>
     <string name="permissions_contacts_desc">మీ పరిచయాలను శోధించడానికి అవసరం.</string>
     <string name="permissions_files_desc">మీ పత్రాలు మరియు ఇతర ఫైళ్లను శోధించడానికి అవసరం.</string>
     <string name="permissions_files_title">ఫైళ్ల యాక్సెస్</string>
@@ -979,7 +983,8 @@
     <string name="permissions_mandatory_indicator">*</string>
     <string name="permissions_reminder_dialog_message">ఒకవేళ మీరు తర్వాత %1$s అనుమతి గురించి మీ నిర్ణయాన్ని మార్చుకుంటే, మీరు యాప్ సెట్టింగ్‌ల నుండి అనుమతిని మంజూరు చేయవచ్చు.</string>
     <string name="permissions_reminder_dialog_title">అనుమతులు మంజూరు చేయబడలేదు</string>
-    <string name="permissions_screen_subtitle">ఈ అనుమతులు అదనపు ఫీచర్లను అన్‌లాక్ చేస్తాయి. ఇవి ఐచ్ఛికం. మీ డేటా మీ పరికరంలోనే ఉంటుంది.</string>
+    <string name="permissions_screen_subtitle">ఇక్కడి అనుమతులన్నీ ఐచ్ఛికం. అవి అదనపు ఫీచర్‌లను అన్‌లాక్ చేయడానికి మాత్రమే ఉపయోగించబడతాయి. మీ డేటా మీ పరికరంలోనే ఉంటుంది.</string>
+    <string name="permissions_screen_optional_emphasis">ఐచ్ఛికం</string>
     <string name="permissions_usage_desc">మీరు ఇటీవల ఉపయోగించిన యాప్‌లను సూచనలలో చూపించడానికి అవసరం.</string>
     <string name="setup_action_next">తదుపరి</string>
     <string name="setup_action_start">శోధించడం ప్రారంభించండి!</string>

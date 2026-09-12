@@ -898,6 +898,8 @@ fun SearchRoute(
                 viewModel.acknowledgeReleaseNotes()
                 onOpenReleaseNotesFeatures()
             },
+            onAccessibilityPermissionDisclaimerDismissed =
+                viewModel::dismissAccessibilityPermissionDisclaimer,
             onWebSuggestionClick = { suggestion: String ->
                 viewModel.onWebSuggestionTap(suggestion)
             },

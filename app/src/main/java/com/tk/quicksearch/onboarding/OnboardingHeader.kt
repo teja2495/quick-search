@@ -7,6 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 @Composable
@@ -15,6 +16,7 @@ fun OnboardingHeader(
     currentStep: Int,
     totalSteps: Int,
     modifier: Modifier = Modifier,
+    topPadding: Dp = DesignTokens.Spacing40,
 ) {
     Text(
         text = title,
@@ -23,6 +25,6 @@ fun OnboardingHeader(
         color = MaterialTheme.colorScheme.onSurface,
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = DesignTokens.Spacing40, bottom = DesignTokens.SpacingSmall),
+            .padding(top = topPadding, bottom = DesignTokens.SpacingSmall),
     )
 }

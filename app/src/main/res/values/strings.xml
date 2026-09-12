@@ -106,7 +106,7 @@
     <string name="settings_gesture_lock_screen_requires_accessibility">Requires Accessibility Permission</string>
     <string name="accessibility_lock_screen_service_label">Quick Search Lock Screen</string>
     <string name="accessibility_lock_screen_service_description">Allows Quick Search to lock the screen from the Home double-tap gesture. It does not read screen content.</string>
-    <string name="accessibility_lock_screen_disclosure_title">Accessibility access for Lock Screen</string>
+    <string name="accessibility_permission_disclaimer_title">Accessibility Permission Disclaimer</string>
     <string name="accessibility_lock_screen_disclosure_message">Quick Search uses Android’s AccessibilityService API only to lock your device when you double-tap the Home screen. Through this service, Quick Search does not read, collect, store, or share your screen content or other personal data.</string>
     <string name="settings_gesture_none">None</string>
     <string name="settings_gesture_custom">Custom (Apps, Files etc.)</string>
@@ -973,6 +973,10 @@
          ============================================================================ -->
     <string name="permissions_calendar_desc">Required to search your calendar events.</string>
     <string name="permissions_calling_desc">Required to call your contacts directly without opening the dialer.</string>
+    <string name="settings_notifications_permission_title">Notifications</string>
+    <string name="permissions_notifications_desc">Required to pin search results to notification panel</string>
+    <string name="permissions_accessibility_lock_screen_title">Accessibility</string>
+    <string name="permissions_accessibility_lock_screen_desc">Allows the double-tap gesture to lock your device.</string>
     <string name="permissions_contacts_desc">Required to search your contacts.</string>
     <string name="permissions_files_desc">Required to search through your documents and other files.</string>
     <string name="permissions_files_title">Files Access</string>
@@ -980,7 +984,8 @@
     <string name="permissions_mandatory_indicator">*</string>
     <string name="permissions_reminder_dialog_message">If you later change your mind about %1$s permission, you can grant the permission from app settings.</string>
     <string name="permissions_reminder_dialog_title">Permissions Not Granted</string>
-    <string name="permissions_screen_subtitle">These permissions unlock additional features. They are optional. Your data stays on your device.</string>
+    <string name="permissions_screen_subtitle">All permissions here are optional. They are only used to unlock additional features. Your data stays on your device.</string>
+    <string name="permissions_screen_optional_emphasis">optional</string>
     <string name="permissions_usage_desc">Required to show your recently used apps in suggestions.</string>
     <string name="setup_action_next">Next</string>
     <string name="setup_action_start">Start Searching!</string>

@@ -744,6 +744,32 @@ class UiPreferences(
         sessionPrefs.edit().putLong(UiPreferences.KEY_LAST_SEEN_VERSION_CODE, versionCode).apply()
     }
 
+    fun isAccessibilityPermissionDisclaimerPending(): Boolean =
+        firstLaunchPrefs.getBoolean(
+            UiPreferences.KEY_ACCESSIBILITY_PERMISSION_DISCLAIMER_PENDING,
+            false,
+        )
+
+    fun setAccessibilityPermissionDisclaimerPending(pending: Boolean) {
+        firstLaunchPrefs
+            .edit()
+            .putBoolean(UiPreferences.KEY_ACCESSIBILITY_PERMISSION_DISCLAIMER_PENDING, pending)
+            .apply()
+    }
+
+    fun hasSeenAccessibilityPermissionDisclaimer(): Boolean =
+        firstLaunchPrefs.getBoolean(
+            UiPreferences.KEY_HAS_SEEN_ACCESSIBILITY_PERMISSION_DISCLAIMER,
+            false,
+        )
+
+    fun setHasSeenAccessibilityPermissionDisclaimer(seen: Boolean) {
+        firstLaunchPrefs
+            .edit()
+            .putBoolean(UiPreferences.KEY_HAS_SEEN_ACCESSIBILITY_PERMISSION_DISCLAIMER, seen)
+            .apply()
+    }
+
     fun getUsagePermissionBannerDismissCount(): Int =
             firstLaunchPrefs.getInt(UiPreferences.KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT, 0)
 
@@ -1320,6 +1346,10 @@ class UiPreferences(
         const val TOP_MATCHES_SECTION_ORDER_SEPARATOR = ","
         const val KEY_LAST_SEEN_VERSION = "last_seen_version"
         const val KEY_LAST_SEEN_VERSION_CODE = "last_seen_version_code"
+        const val KEY_ACCESSIBILITY_PERMISSION_DISCLAIMER_PENDING =
+            "accessibility_permission_disclaimer_pending"
+        const val KEY_HAS_SEEN_ACCESSIBILITY_PERMISSION_DISCLAIMER =
+            "has_seen_accessibility_permission_disclaimer"
         const val KEY_AI_SEARCH_SETUP_EXPANDED = "direct_search_setup_expanded"
         const val KEY_DISABLED_SEARCH_ENGINES_EXPANDED = "disabled_search_engines_expanded"
         const val KEY_HOME_PINNED_SECTION_EXPANDED_PREFIX = "home_pinned_section_expanded_"

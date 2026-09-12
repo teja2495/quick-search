@@ -3,6 +3,7 @@ package com.tk.quicksearch.onboarding.permissionScreen
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -25,6 +26,8 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -45,9 +48,18 @@ fun PermissionCard(
     items: List<PermissionCardItem>,
     cardContainer: @Composable (modifier: Modifier, content: @Composable () -> Unit) -> Unit,
     modifier: Modifier = Modifier,
+    itemContentPadding: PaddingValues = PaddingValues(DesignTokens.SpacingXLarge),
+    internalScrollEnabled: Boolean = false,
 ) {
     cardContainer(modifier) {
-        Column {
+        Column(
+            modifier =
+                if (internalScrollEnabled) {
+                    Modifier.verticalScroll(rememberScrollState())
+                } else {
+                    Modifier
+                },
+        ) {
             items.forEachIndexed { index, item ->
                 PermissionItem(
                     title = item.title,
@@ -57,6 +69,7 @@ fun PermissionCard(
                     onToggleChange = item.onToggleChange,
                     isNavigationItem = item.isNavigationItem,
                     onNavigationClick = item.onNavigationClick,
+                    contentPadding = itemContentPadding,
                 )
 
                 if (index < items.lastIndex) {
@@ -85,6 +98,7 @@ fun PermissionItem(
     isNavigationItem: Boolean,
     onNavigationClick: () -> Unit,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(DesignTokens.SpacingXLarge),
 ) {
     val view = LocalView.current
     Row(
@@ -92,7 +106,7 @@ fun PermissionItem(
             modifier
                 .fillMaxWidth()
                 .clickable(enabled = isNavigationItem, onClick = onNavigationClick)
-                .padding(DesignTokens.SpacingXLarge),
+                .padding(contentPadding),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {

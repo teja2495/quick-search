@@ -458,6 +458,10 @@ fun SettingsRoute(
         releaseNotesVersionName = uiState.releaseNotesVersionName,
         onOpenReleaseNotes = viewModel::showReleaseNotes,
         onReleaseNotesAcknowledged = viewModel::acknowledgeReleaseNotes,
+        showAccessibilityPermissionDisclaimer =
+            uiState.showAccessibilityPermissionDisclaimer,
+        onAccessibilityPermissionDisclaimerDismissed =
+            viewModel::dismissAccessibilityPermissionDisclaimer,
         onSettingsImported = viewModel::onSettingsImported,
         pendingImportUri = pendingImportUri,
         onPendingImportUriConsumed = onPendingImportUriConsumed,

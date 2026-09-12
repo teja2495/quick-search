@@ -110,7 +110,7 @@
     <string name="settings_gesture_close_keyboard_notifications">Tastatur schließen / Benachrichtigungen öffnen</string>
     <string name="settings_gesture_close_keyboard">Tastatur schließen</string>
     <string name="settings_gesture_notification_panel">Benachrichtigungsleiste</string>
-    <string name="accessibility_lock_screen_disclosure_title">Bedienungshilfenzugriff für die Bildschirmsperre</string>
+    <string name="accessibility_permission_disclaimer_title">Hinweis zur Berechtigung für Bedienungshilfen</string>
     <string name="accessibility_lock_screen_disclosure_message">Quick Search verwendet die AccessibilityService API von Android ausschließlich, um dein Gerät zu sperren, wenn du zweimal auf den Startbildschirm tippst. Quick Search liest, erfasst, speichert oder teilt über diesen Dienst weder Bildschirminhalte noch andere personenbezogene Daten.</string>
     <string name="settings_gesture_none">Keine</string>
     <string name="settings_gesture_custom">Benutzerdefiniert (Apps, Dateien usw.)</string>
@@ -972,6 +972,10 @@
          ============================================================================ -->
     <string name="permissions_calendar_desc">Erforderlich, um Kalendertermine zu durchsuchen.</string>
     <string name="permissions_calling_desc">Erforderlich, um Kontakte direkt anzurufen, ohne die Telefon-App zu öffnen.</string>
+    <string name="settings_notifications_permission_title">Benachrichtigungen</string>
+    <string name="permissions_notifications_desc">Erforderlich, um Suchergebnisse im Benachrichtigungsfeld anzuheften</string>
+    <string name="permissions_accessibility_lock_screen_title">Bedienungshilfen</string>
+    <string name="permissions_accessibility_lock_screen_desc">Ermöglicht es, das Gerät mit der Doppeltipp-Geste zu sperren.</string>
     <string name="permissions_contacts_desc">Erforderlich, um Kontakte zu durchsuchen.</string>
     <string name="permissions_files_desc">Erforderlich, um Dokumente und andere Dateien zu durchsuchen.</string>
     <string name="permissions_files_title">Dateizugriff</string>
@@ -979,7 +983,8 @@
     <string name="permissions_mandatory_indicator">*</string>
     <string name="permissions_reminder_dialog_message">Wenn du es dir bezüglich der Berechtigung für %1$s später anders überlegst, kannst du sie in den App-Einstellungen erteilen.</string>
     <string name="permissions_reminder_dialog_title">Berechtigungen nicht erteilt</string>
-    <string name="permissions_screen_subtitle">Diese Berechtigungen schalten zusätzliche Funktionen frei. Sie sind optional. Deine Daten bleiben auf deinem Gerät.</string>
+    <string name="permissions_screen_subtitle">Alle Berechtigungen hier sind optional. Sie werden nur verwendet, um zusätzliche Funktionen freizuschalten. Deine Daten bleiben auf deinem Gerät.</string>
+    <string name="permissions_screen_optional_emphasis">optional</string>
     <string name="permissions_usage_desc">Erforderlich, um zuletzt verwendete Apps in Vorschlägen anzuzeigen.</string>
     <string name="setup_action_next">Weiter</string>
     <string name="setup_action_start">Suche starten!</string>

@@ -1,9 +1,13 @@
 package com.tk.quicksearch.shared.permissions
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -24,6 +28,8 @@ import com.tk.quicksearch.search.data.AppsRepository
 import com.tk.quicksearch.search.data.CalendarRepository
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
+import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 data class PermissionCardTexts(
     val usageTitle: String,
@@ -36,6 +42,10 @@ data class PermissionCardTexts(
     val calendarDescription: String,
     val callingTitle: String,
     val callingDescription: String,
+    val notificationsTitle: String,
+    val notificationsDescription: String,
+    val accessibilityTitle: String,
+    val accessibilityDescription: String,
     val backgroundUsageTitle: String,
     val backgroundUsageDescription: String,
 )
@@ -46,6 +56,8 @@ data class PermissionCardStates(
     val files: PermissionState = PermissionState.initial(),
     val calendar: PermissionState = PermissionState.initial(),
     val calling: PermissionState = PermissionState.initial(),
+    val notifications: PermissionState = PermissionState.initial(),
+    val accessibility: PermissionState = PermissionState.initial(),
 )
 
 @Composable
@@ -53,14 +65,18 @@ fun PermissionsCardSection(
     texts: PermissionCardTexts,
     cardContainer: @Composable (modifier: Modifier, content: @Composable () -> Unit) -> Unit,
     modifier: Modifier = Modifier,
+    itemContentPadding: PaddingValues = PaddingValues(DesignTokens.SpacingXLarge),
+    internalScrollEnabled: Boolean = false,
     showCalendarPermission: Boolean = true,
     showCallingPermission: Boolean = true,
+    showNotificationsPermission: Boolean = true,
     showBackgroundUsage: Boolean = false,
     onRequestUsagePermission: () -> Unit = {},
     onRequestContactPermission: () -> Unit = {},
     onRequestFilePermission: () -> Unit = {},
     onRequestCalendarPermission: () -> Unit = {},
     onRequestCallPermission: () -> Unit = {},
+    onRequestNotificationsPermission: () -> Unit = {},
     onStatesChanged: (PermissionCardStates) -> Unit = {},
 ) {
     val context = LocalContext.current
@@ -68,6 +84,10 @@ fun PermissionsCardSection(
     val contactRepository = remember { ContactRepository(context) }
     val fileRepository = remember { FileSearchRepository(context) }
     val calendarRepository = remember { CalendarRepository(context) }
+    var showAccessibilityDisclosure by remember { mutableStateOf(false) }
+    var accessibilityPermissionState by remember {
+        mutableStateOf(createInitialPermissionState(LockScreenAccessibilityService.isEnabled(context)))
+    }
 
     var usagePermissionState by remember {
         mutableStateOf(createInitialPermissionState(appsRepository.hasUsageAccess()))
@@ -89,6 +109,36 @@ fun PermissionsCardSection(
             ),
         )
     }
+    var notificationsPermissionState by remember {
+        mutableStateOf(createInitialPermissionState(hasNotificationsPermission(context)))
+    }
+
+    val notificationsPermissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+        ) { notificationsGranted ->
+            val notificationsWasPreviouslyDenied = notificationsPermissionState.wasDenied
+            val shouldShowNotificationsRationale =
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                    PermissionHelper.shouldShowRuntimePermissionRationale(
+                        context = context,
+                        permission = Manifest.permission.POST_NOTIFICATIONS,
+                    )
+            val shouldOpenNotificationsSettings =
+                !notificationsGranted &&
+                    notificationsWasPreviouslyDenied &&
+                    !shouldShowNotificationsRationale
+            notificationsPermissionState =
+                updatePermissionState(
+                    isGranted = notificationsGranted,
+                    isEnabled = notificationsGranted,
+                    wasDenied = !notificationsGranted,
+                )
+
+            if (shouldOpenNotificationsSettings) {
+                PermissionHelper.launchAppSettingsRequest(context)
+            }
+        }
 
     val multiplePermissionsLauncher =
         rememberLauncherForActivityResult(
@@ -232,6 +282,17 @@ fun PermissionsCardSection(
                             callingPermissionState.copy(isGranted = false)
                         }
 
+                    val notificationsGranted = hasNotificationsPermission(context)
+                    notificationsPermissionState =
+                        if (notificationsGranted) {
+                            updatePermissionState(isGranted = true, isEnabled = true, wasDenied = false)
+                        } else {
+                            notificationsPermissionState.copy(isGranted = false)
+                        }
+
+                    val hasAccessibilityPermission = LockScreenAccessibilityService.isEnabled(context)
+                    accessibilityPermissionState = updatePermissionState(hasAccessibilityPermission, hasAccessibilityPermission)
+
                 }
             }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -247,6 +308,9 @@ fun PermissionsCardSection(
             files = filesPermissionState,
             calendar = if (showCalendarPermission) calendarPermissionState else PermissionState.granted(),
             calling = if (showCallingPermission) callingPermissionState else PermissionState.granted(),
+            notifications =
+                if (showNotificationsPermission) notificationsPermissionState else PermissionState.granted(),
+            accessibility = accessibilityPermissionState,
         )
     LaunchedEffect(states) {
         onStatesChanged(states)
@@ -327,6 +391,19 @@ fun PermissionsCardSection(
                     ),
                 )
             }
+            add(
+                PermissionCardItem(
+                    title = texts.accessibilityTitle,
+                    description = texts.accessibilityDescription,
+                    permissionState = accessibilityPermissionState,
+                    isMandatory = false,
+                    onToggleChange = { enabled ->
+                        if (enabled && !accessibilityPermissionState.isGranted) {
+                            showAccessibilityDisclosure = true
+                        }
+                    },
+                ),
+            )
             if (showCallingPermission) {
                 add(
                     PermissionCardItem(
@@ -341,6 +418,30 @@ fun PermissionsCardSection(
                                     multiplePermissionsLauncher.launch(arrayOf(Manifest.permission.CALL_PHONE))
                                 }.onFailure {
                                     PermissionHelper.launchAppSettingsRequest(context)
+                                }
+                            }
+                        },
+                    ),
+                )
+            }
+            if (showNotificationsPermission) {
+                add(
+                    PermissionCardItem(
+                        title = texts.notificationsTitle,
+                        description = texts.notificationsDescription,
+                        permissionState = notificationsPermissionState,
+                        isMandatory = false,
+                        onToggleChange = { enabled ->
+                            if (enabled && !notificationsPermissionState.isGranted) {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                    runCatching {
+                                        notificationsPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                    }.onFailure {
+                                        PermissionHelper.launchAppSettingsRequest(context)
+                                    }
+                                    onRequestNotificationsPermission()
+                                } else {
+                                    notificationsPermissionState = PermissionState.granted()
                                 }
                             }
                         },
@@ -368,8 +469,25 @@ fun PermissionsCardSection(
         items = items,
         modifier = modifier,
         cardContainer = cardContainer,
+        itemContentPadding = itemContentPadding,
+        internalScrollEnabled = internalScrollEnabled,
     )
+
+    if (showAccessibilityDisclosure) {
+        LockScreenAccessibilityDisclosureDialog(
+            onAgree = {
+                showAccessibilityDisclosure = false
+                context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            },
+            onDismiss = { showAccessibilityDisclosure = false },
+        )
+    }
 }
+
+private fun hasNotificationsPermission(context: android.content.Context): Boolean =
+    Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+        ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
+        PackageManager.PERMISSION_GRANTED
 
 private fun createInitialPermissionState(isGranted: Boolean): PermissionState =
     if (isGranted) {

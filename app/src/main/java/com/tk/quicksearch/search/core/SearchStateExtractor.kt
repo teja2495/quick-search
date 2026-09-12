@@ -218,6 +218,7 @@ internal object SearchStateExtractor {
             hasSeenOverlayAssistantTip = s.hasSeenOverlayAssistantTip,
             showReleaseNotesDialog = s.showReleaseNotesDialog,
             releaseNotesVersionName = s.releaseNotesVersionName,
+            showAccessibilityPermissionDisclaimer = s.showAccessibilityPermissionDisclaimer,
             phoneNumberSelection = s.phoneNumberSelection,
             directDialChoice = s.directDialChoice,
             contactMethodsBottomSheet = s.contactMethodsBottomSheet,

@@ -187,6 +187,7 @@ fun SearchScreen(
     onDismissDirectDialChoice: () -> Unit,
     onReleaseNotesAcknowledged: () -> Unit,
     onReleaseNotesViewAllFeatures: () -> Unit = {},
+    onAccessibilityPermissionDisclaimerDismissed: () -> Unit = {},
     onWebSuggestionClick: (String) -> Unit = {},
     onSearchEngineOnboardingDismissed: () -> Unit = {},
     onContactActionHintDismissed: () -> Unit = {},
@@ -613,6 +614,8 @@ fun SearchScreen(
         onDismissContactMethods = onDismissContactMethods,
         onReleaseNotesAcknowledged = onReleaseNotesAcknowledged,
         onReleaseNotesViewAllFeatures = onReleaseNotesViewAllFeatures,
+        onAccessibilityPermissionDisclaimerDismissed =
+            onAccessibilityPermissionDisclaimerDismissed,
         onDismissNicknameDialog = { stateResult.setNicknameDialogState(null) },
         onDismissTriggerDialog = { stateResult.setTriggerDialogState(null) },
         onSaveAppNickname = { app, nickname ->

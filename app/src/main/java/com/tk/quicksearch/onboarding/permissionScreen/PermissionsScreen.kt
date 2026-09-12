@@ -2,6 +2,7 @@ package com.tk.quicksearch.onboarding.permissionScreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -10,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
@@ -37,6 +37,7 @@ import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.shared.permissions.PermissionCardStates
 import com.tk.quicksearch.shared.permissions.PermissionCardTexts
 import com.tk.quicksearch.shared.permissions.PermissionsCardSection
+import com.tk.quicksearch.shared.permissions.permissionsScreenSubtitle
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.settings.shared.SettingsCard
@@ -79,21 +80,23 @@ fun PermissionsScreen(
             title = stringResource(R.string.settings_permissions_title),
             currentStep = currentStep,
             totalSteps = totalSteps,
+            topPadding = DesignTokens.SpacingXXLarge,
         )
 
         Text(
-            text = stringResource(R.string.permissions_screen_subtitle),
-            style = MaterialTheme.typography.titleMedium,
+            text = permissionsScreenSubtitle(),
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Start,
             modifier = Modifier.padding(top = DesignTokens.SpacingSmall),
         )
 
-        Spacer(modifier = Modifier.height(DesignTokens.OnboardingSectionSpacing))
+        Spacer(modifier = Modifier.height(DesignTokens.SpacingXLarge))
 
         Column(
-            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
+            modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Center,
         ) {
             PermissionsCardSection(
                 texts =
@@ -108,12 +111,21 @@ fun PermissionsScreen(
                         calendarDescription = stringResource(R.string.permissions_calendar_desc),
                         callingTitle = stringResource(R.string.settings_call_permission_title),
                         callingDescription = stringResource(R.string.permissions_calling_desc),
+                        notificationsTitle = stringResource(R.string.settings_notifications_permission_title),
+                        notificationsDescription = stringResource(R.string.permissions_notifications_desc),
+                        accessibilityTitle = stringResource(R.string.permissions_accessibility_lock_screen_title),
+                        accessibilityDescription = stringResource(R.string.permissions_accessibility_lock_screen_desc),
                         backgroundUsageTitle = stringResource(R.string.permissions_background_usage_title),
                         backgroundUsageDescription = stringResource(R.string.permissions_background_usage_desc),
                 ),
-                modifier = Modifier.fillMaxWidth(),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(DesignTokens.OnboardingPermissionCardViewportHeight),
+                internalScrollEnabled = true,
                 showCalendarPermission = true,
-                showCallingPermission = false,
+                showCallingPermission = true,
+                showNotificationsPermission = true,
                 cardContainer = { cardModifier, content ->
                     SettingsCard(modifier = cardModifier) {
                         content()
@@ -132,7 +144,9 @@ fun PermissionsScreen(
                         !permissionStates.contacts.isGranted ||
                         !permissionStates.files.isGranted ||
                         !permissionStates.calendar.isGranted ||
-                        !permissionStates.calling.isGranted
+                        !permissionStates.calling.isGranted ||
+                        !permissionStates.notifications.isGranted ||
+                        !permissionStates.accessibility.isGranted
 
                 if (hasUngrantedPermissions) {
                     showPermissionReminderDialog = true
@@ -158,7 +172,7 @@ fun PermissionsScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(DesignTokens.OnboardingSectionSpacing))
+        Spacer(modifier = Modifier.height(DesignTokens.SpacingXLarge))
     }
     } // end SettingsScreenBackground
 
@@ -170,6 +184,8 @@ fun PermissionsScreen(
             filesPermissionState = permissionStates.files,
             calendarPermissionState = permissionStates.calendar,
             callingPermissionState = permissionStates.calling,
+            notificationsPermissionState = permissionStates.notifications,
+            accessibilityPermissionState = permissionStates.accessibility,
             onDismiss = { showPermissionReminderDialog = false },
             onContinue = {
                 showPermissionReminderDialog = false
@@ -189,6 +205,8 @@ private fun PermissionReminderDialog(
     filesPermissionState: PermissionState,
     calendarPermissionState: PermissionState,
     callingPermissionState: PermissionState,
+    notificationsPermissionState: PermissionState,
+    accessibilityPermissionState: PermissionState,
     onDismiss: () -> Unit,
     onContinue: () -> Unit,
 ) {
@@ -199,6 +217,8 @@ private fun PermissionReminderDialog(
             stringResource(R.string.permissions_files_title).takeIf { !filesPermissionState.isGranted },
             stringResource(R.string.settings_calendar_permission_title).takeIf { !calendarPermissionState.isGranted },
             stringResource(R.string.settings_call_permission_title).takeIf { !callingPermissionState.isGranted },
+            stringResource(R.string.settings_notifications_permission_title).takeIf { !notificationsPermissionState.isGranted },
+            stringResource(R.string.permissions_accessibility_lock_screen_title).takeIf { !accessibilityPermissionState.isGranted },
         ).joinToString(", ")
 
     Dialog(

@@ -109,7 +109,7 @@
 <string name="settings_gesture_close_keyboard_notifications">Klavyeyi Kapat / Bildirimleri Aç</string>
 <string name="settings_gesture_close_keyboard">Klavyeyi Kapat</string>
 <string name="settings_gesture_notification_panel">Bildirim Paneli</string>
-<string name="accessibility_lock_screen_disclosure_title">Ekran kilidi için erişilebilirlik erişimi</string>
+<string name="accessibility_permission_disclaimer_title">Erişilebilirlik İzni Bildirimi</string>
 <string name="accessibility_lock_screen_disclosure_message">Quick Search, Android AccessibilityService API’sini yalnızca Ana ekrana iki kez dokunduğunuzda cihazınızı kilitlemek için kullanır. Quick Search bu hizmet aracılığıyla ekran içeriğinizi veya diğer kişisel verilerinizi okumaz, toplamaz, saklamaz ya da paylaşmaz.</string>
 <string name="settings_gesture_none">Hiçbiri</string>
 <string name="settings_gesture_custom">Özel (Uygulamalar, Dosyalar vb.)</string>
@@ -971,6 +971,10 @@
      ============================================================================ -->
 <string name="permissions_calendar_desc">Takvim etkinliklerinde arama yapmak için gereklidir.</string>
 <string name="permissions_calling_desc">Arama ekranını açmadan kişilerini doğrudan aramak için gereklidir.</string>
+<string name="settings_notifications_permission_title">Bildirimler</string>
+<string name="permissions_notifications_desc">Arama sonuçlarını bildirim paneline sabitlemek için gereklidir</string>
+<string name="permissions_accessibility_lock_screen_title">Erişilebilirlik</string>
+<string name="permissions_accessibility_lock_screen_desc">Çift dokunma hareketinin cihazınızı kilitlemesini sağlar.</string>
 <string name="permissions_contacts_desc">Kişilerinde arama yapmak için gereklidir.</string>
 <string name="permissions_files_desc">Belgelerin ve diğer dosyaların arasında arama yapmak için gereklidir.</string>
 <string name="permissions_files_title">Dosya erişimi</string>
@@ -978,7 +982,8 @@
 <string name="permissions_mandatory_indicator">*</string>
 <string name="permissions_reminder_dialog_message">Daha sonra %1$s izni hakkında fikrini değiştirirsen, uygulama ayarlarından bu izni verebilirsin.</string>
 <string name="permissions_reminder_dialog_title">İzinler verilmedi</string>
-<string name="permissions_screen_subtitle">Bu izinler ek özellikleri kullanmanı sağlar. İsteğe bağlıdır. Verilerin cihazında kalır.</string>
+<string name="permissions_screen_subtitle">Buradaki tüm izinler isteğe bağlıdır. Yalnızca ek özelliklerin kilidini açmak için kullanılırlar. Verilerin cihazında kalır.</string>
+<string name="permissions_screen_optional_emphasis">isteğe bağlıdır</string>
 <string name="permissions_usage_desc">Son kullandığın uygulamaları önerilerde göstermek için gereklidir.</string>
 <string name="setup_action_next">Sonraki</string>
 <string name="setup_action_start">Aramaya başla!</string>

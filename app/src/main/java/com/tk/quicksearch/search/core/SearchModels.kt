@@ -641,6 +641,7 @@ data class SearchUiState(
         // Release notes dialog
         val showReleaseNotesDialog: Boolean = false,
         val releaseNotesVersionName: String? = null,
+        val showAccessibilityPermissionDisclaimer: Boolean = false,
         // Transient search state
         val calculatorState: CalculatorState = CalculatorState(),
         val currencyConverterState: CurrencyConverterState = CurrencyConverterState(),
@@ -921,6 +922,8 @@ fun SearchUiState(
                 hasSeenOverlayAssistantTip = config.hasSeenOverlayAssistantTip,
                 showReleaseNotesDialog = config.showReleaseNotesDialog,
                 releaseNotesVersionName = config.releaseNotesVersionName,
+                showAccessibilityPermissionDisclaimer =
+                    config.showAccessibilityPermissionDisclaimer,
                 phoneNumberSelection = config.phoneNumberSelection,
                 directDialChoice = config.directDialChoice,
                 contactMethodsBottomSheet = config.contactMethodsBottomSheet,

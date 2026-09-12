@@ -110,7 +110,7 @@
 <string name="settings_gesture_close_keyboard_notifications">Fermer le clavier / Ouvrir les notifications</string>
 <string name="settings_gesture_close_keyboard">Fermer le clavier</string>
 <string name="settings_gesture_notification_panel">Panneau de notifications</string>
-<string name="accessibility_lock_screen_disclosure_title">Accès via les services d’accessibilité pour verrouiller l’écran</string>
+<string name="accessibility_permission_disclaimer_title">Avis relatif à l’autorisation d’accessibilité</string>
 <string name="accessibility_lock_screen_disclosure_message">Quick Search utilise l’API AccessibilityService d’Android uniquement pour verrouiller votre appareil lorsque vous appuyez deux fois sur l’écran d’accueil. Par l’intermédiaire de ce service, Quick Search ne lit, ne collecte, ne stocke et ne partage ni le contenu de votre écran ni aucune autre donnée personnelle.</string>
 <string name="settings_gesture_none">Aucun</string>
 <string name="settings_gesture_custom">Personnalisé (Applications, fichiers, etc.)</string>
@@ -972,6 +972,10 @@
      ============================================================================ -->
 <string name="permissions_calendar_desc">Requis pour rechercher les événements de votre agenda.</string>
 <string name="permissions_calling_desc">Requis pour appeler vos contacts directement sans ouvrir le clavier numérique.</string>
+<string name="settings_notifications_permission_title">Notifications</string>
+<string name="permissions_notifications_desc">Requis pour épingler les résultats de recherche dans le panneau de notifications</string>
+<string name="permissions_accessibility_lock_screen_title">Accessibilité</string>
+<string name="permissions_accessibility_lock_screen_desc">Permet au geste de double appui de verrouiller votre appareil.</string>
 <string name="permissions_contacts_desc">Requis pour rechercher vos contacts.</string>
 <string name="permissions_files_desc">Requis pour rechercher parmi vos documents et autres fichiers.</string>
 <string name="permissions_files_title">Accès aux fichiers</string>
@@ -979,7 +983,8 @@
 <string name="permissions_mandatory_indicator">*</string>
 <string name="permissions_reminder_dialog_message">Si vous changez d\'avis plus tard concernant l\'autorisation %1$s, vous pourrez l\'accorder depuis les paramètres de l\'application.</string>
 <string name="permissions_reminder_dialog_title">Autorisations non accordées</string>
-<string name="permissions_screen_subtitle">Ces autorisations débloquent des fonctionnalités supplémentaires. Elles sont facultatives. Vos données restent sur votre appareil.</string>
+<string name="permissions_screen_subtitle">Toutes les autorisations ici sont facultatives. Elles sont uniquement utilisées pour débloquer des fonctionnalités supplémentaires. Vos données restent sur votre appareil.</string>
+<string name="permissions_screen_optional_emphasis">facultatives</string>
 <string name="permissions_usage_desc">Requis pour afficher vos applications récemment utilisées dans les suggestions.</string>
 <string name="setup_action_next">Suivant</string>
 <string name="setup_action_start">Lancer la recherche !</string>

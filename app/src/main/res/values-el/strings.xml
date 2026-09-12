@@ -110,7 +110,7 @@
     <string name="settings_gesture_close_keyboard_notifications">Κλείσιμο πληκτρολογίου / Άνοιγμα ειδοποιήσεων</string>
     <string name="settings_gesture_close_keyboard">Κλείσιμο πληκτρολογίου</string>
     <string name="settings_gesture_notification_panel">Πίνακας ειδοποιήσεων</string>
-    <string name="accessibility_lock_screen_disclosure_title">Πρόσβαση προσβασιμότητας για το κλείδωμα οθόνης</string>
+<string name="accessibility_permission_disclaimer_title">Αποποίηση ευθύνης άδειας προσβασιμότητας</string>
     <string name="accessibility_lock_screen_disclosure_message">Το Quick Search χρησιμοποιεί το AccessibilityService API του Android μόνο για να κλειδώνει τη συσκευή σας όταν πατάτε δύο φορές την αρχική οθόνη. Μέσω αυτής της υπηρεσίας, το Quick Search δεν διαβάζει, συλλέγει, αποθηκεύει ή κοινοποιεί το περιεχόμενο της οθόνης σας ή άλλα προσωπικά δεδομένα.</string>
     <string name="settings_gesture_none">Κανένα</string>
     <string name="settings_gesture_custom">Προσαρμοσμένο (Εφαρμογές, Αρχεία κ.λπ.)</string>
@@ -972,6 +972,10 @@
          ============================================================================ -->
     <string name="permissions_calendar_desc">Απαραίτητο για την αναζήτηση συμβάντων στο ημερολόγιό σας.</string>
     <string name="permissions_calling_desc">Απαραίτητο για την απευθείας κλήση των επαφών σας χωρίς το άνοιγμα της εφαρμογής κλήσεων.</string>
+    <string name="settings_notifications_permission_title">Ειδοποιήσεις</string>
+    <string name="permissions_notifications_desc">Απαιτείται για το καρφίτσωμα αποτελεσμάτων αναζήτησης στον πίνακα ειδοποιήσεων</string>
+    <string name="permissions_accessibility_lock_screen_title">Προσβασιμότητα</string>
+    <string name="permissions_accessibility_lock_screen_desc">Επιτρέπει στη χειρονομία διπλού πατήματος να κλειδώνει τη συσκευή σας.</string>
     <string name="permissions_contacts_desc">Απαραίτητο για την αναζήτηση των επαφών σας.</string>
     <string name="permissions_files_desc">Απαραίτητο για την αναζήτηση στα έγγραφα και τα υπόλοιπα αρχεία σας.</string>
     <string name="permissions_files_title">Πρόσβαση σε αρχεία</string>
@@ -979,7 +983,8 @@
     <string name="permissions_mandatory_indicator">*</string>
     <string name="permissions_reminder_dialog_message">Εάν αλλάξετε γνώμη αργότερα σχετικά με την άδεια %1$s, μπορείτε να τη χορηγήσετε μέσα από τις ρυθμίσεις της εφαρμογής.</string>
     <string name="permissions_reminder_dialog_title">Οι άδειες δεν χορηγήθηκαν</string>
-    <string name="permissions_screen_subtitle">Αυτές οι άδειες ξεκλειδώνουν πρόσθετες δυνατότητες. Είναι προαιρετικές. Τα δεδομένα σας παραμένουν στη συσκευή σας.</string>
+    <string name="permissions_screen_subtitle">Όλες οι άδειες εδώ είναι προαιρετικές. Χρησιμοποιούνται μόνο για το ξεκλείδωμα πρόσθετων λειτουργιών. Τα δεδομένα σας παραμένουν στη συσκευή σας.</string>
+    <string name="permissions_screen_optional_emphasis">προαιρετικές</string>
     <string name="permissions_usage_desc">Απαραίτητο για την εμφάνιση των πρόσφατα χρησιμοποιημένων εφαρμογών σας στις προτάσεις.</string>
     <string name="setup_action_next">Επόμενο</string>
     <string name="setup_action_start">Έναρξη αναζήτησης!</string>

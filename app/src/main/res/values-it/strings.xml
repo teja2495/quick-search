@@ -109,7 +109,7 @@
     <string name="settings_gesture_close_keyboard_notifications">Chiudi tastiera / Apri notifiche</string>
     <string name="settings_gesture_close_keyboard">Chiudi tastiera</string>
     <string name="settings_gesture_notification_panel">Pannello delle notifiche</string>
-    <string name="accessibility_lock_screen_disclosure_title">Accesso facilitato per il blocco schermo</string>
+    <string name="accessibility_permission_disclaimer_title">Informativa sull’autorizzazione di accessibilità</string>
     <string name="accessibility_lock_screen_disclosure_message">Quick Search usa l’API AccessibilityService di Android esclusivamente per bloccare il dispositivo quando tocchi due volte la schermata Home. Tramite questo servizio, Quick Search non legge, raccoglie, archivia o condivide il contenuto dello schermo o altri dati personali.</string>
     <string name="settings_gesture_none">Nessuno</string>
     <string name="settings_gesture_custom">Personalizzato (App, file ecc.)</string>
@@ -971,6 +971,10 @@
          ============================================================================ -->
     <string name="permissions_calendar_desc">Richiesta per cercare gli eventi del tuo calendario.</string>
     <string name="permissions_calling_desc">Richiesta per chiamare i tuoi contatti direttamente senza aprire il tastierino telefonico.</string>
+    <string name="settings_notifications_permission_title">Notifiche</string>
+    <string name="permissions_notifications_desc">Necessario per fissare i risultati di ricerca nel pannello delle notifiche</string>
+    <string name="permissions_accessibility_lock_screen_title">Accessibilità</string>
+    <string name="permissions_accessibility_lock_screen_desc">Consente al gesto del doppio tocco di bloccare il dispositivo.</string>
     <string name="permissions_contacts_desc">Richiesta per cercare tra i tuoi contatti.</string>
     <string name="permissions_files_desc">Richiesta per cercare tra i tuoi documenti e altri file.</string>
     <string name="permissions_files_title">Accesso ai file</string>
@@ -978,7 +982,8 @@
     <string name="permissions_mandatory_indicator">*</string>
     <string name="permissions_reminder_dialog_message">Se in seguito dovessi cambiare idea sull\u2019autorizzazione %1$s, potrai concederla dalle impostazioni dell\u2019app.</string>
     <string name="permissions_reminder_dialog_title">Autorizzazioni non concesse</string>
-    <string name="permissions_screen_subtitle">Queste autorizzazioni sbloccano funzionalità aggiuntive. Sono facoltative. I tuoi dati rimangono sul tuo dispositivo.</string>
+    <string name="permissions_screen_subtitle">Tutte le autorizzazioni qui sono facoltative. Vengono utilizzate solo per sbloccare funzionalità aggiuntive. I tuoi dati rimangono sul tuo dispositivo.</string>
+    <string name="permissions_screen_optional_emphasis">facoltative</string>
     <string name="permissions_usage_desc">Richiesta per mostrare le app usate di recente nei suggerimenti.</string>
     <string name="setup_action_next">Avanti</string>
     <string name="setup_action_start">Inizia a cercare!</string>

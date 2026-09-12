@@ -44,6 +44,8 @@ class ReleaseNotesHandler(
         val currentVersionCode = getCurrentVersionCode()
 
         if (userPreferences.isFirstLaunch()) {
+            userPreferences.setAccessibilityPermissionDisclaimerPending(false)
+            userPreferences.setHasSeenAccessibilityPermissionDisclaimer(true)
             userPreferences.setLastSeenVersionName(currentVersion)
             currentVersionCode?.let { userPreferences.setLastSeenVersionCode(it) }
             return
@@ -63,7 +65,14 @@ class ReleaseNotesHandler(
                 (lastSeenCode == null || lastSeenCode != currentVersionCode)
 
         if (!nameChanged && !versionCodeChanged) {
+            if (userPreferences.isAccessibilityPermissionDisclaimerPending()) {
+                showAccessibilityPermissionDisclaimer()
+            }
             return
+        }
+
+        if (!userPreferences.hasSeenAccessibilityPermissionDisclaimer()) {
+            userPreferences.setAccessibilityPermissionDisclaimerPending(true)
         }
 
         showReleaseNotes(currentVersion)
@@ -92,7 +101,19 @@ class ReleaseNotesHandler(
             it.copy(
                 showReleaseNotesDialog = false,
                 releaseNotesVersionName = versionToStore,
+                showAccessibilityPermissionDisclaimer =
+                    userPreferences.isAccessibilityPermissionDisclaimerPending(),
             )
         }
+    }
+
+    fun dismissAccessibilityPermissionDisclaimer() {
+        userPreferences.setAccessibilityPermissionDisclaimerPending(false)
+        userPreferences.setHasSeenAccessibilityPermissionDisclaimer(true)
+        uiStateUpdater { it.copy(showAccessibilityPermissionDisclaimer = false) }
+    }
+
+    private fun showAccessibilityPermissionDisclaimer() {
+        uiStateUpdater { it.copy(showAccessibilityPermissionDisclaimer = true) }
     }
 }

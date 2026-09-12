@@ -1323,6 +1323,18 @@ class UserAppPreferences(
     fun setLastSeenVersionCode(versionCode: Long) =
             uiPreferences.setLastSeenVersionCode(versionCode)
 
+    fun isAccessibilityPermissionDisclaimerPending(): Boolean =
+            uiPreferences.isAccessibilityPermissionDisclaimerPending()
+
+    fun setAccessibilityPermissionDisclaimerPending(pending: Boolean) =
+            uiPreferences.setAccessibilityPermissionDisclaimerPending(pending)
+
+    fun hasSeenAccessibilityPermissionDisclaimer(): Boolean =
+            uiPreferences.hasSeenAccessibilityPermissionDisclaimer()
+
+    fun setHasSeenAccessibilityPermissionDisclaimer(seen: Boolean) =
+            uiPreferences.setHasSeenAccessibilityPermissionDisclaimer(seen)
+
     fun getUsagePermissionBannerDismissCount(): Int =
             uiPreferences.getUsagePermissionBannerDismissCount()
 

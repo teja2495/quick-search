@@ -61,6 +61,7 @@ import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
 import com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction
 import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
+import com.tk.quicksearch.shared.permissions.LockScreenAccessibilityDisclosureDialog
 import com.tk.quicksearch.shared.util.isDefaultHomeApp
 import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.settings.shared.SettingsCardItem
@@ -650,28 +651,6 @@ private fun HomeVerticalGestureDialog(
             }
         },
         confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.dialog_cancel)) } },
-    )
-}
-
-@Composable
-private fun LockScreenAccessibilityDisclosureDialog(
-    onAgree: () -> Unit,
-    onDismiss: () -> Unit,
-) {
-    AppAlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.accessibility_lock_screen_disclosure_title)) },
-        text = { Text(stringResource(R.string.accessibility_lock_screen_disclosure_message)) },
-        confirmButton = {
-            TextButton(onClick = onAgree) {
-                Text(stringResource(R.string.action_agree))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.action_not_now))
-            }
-        },
     )
 }
 

@@ -1,6 +1,9 @@
 package com.tk.quicksearch.search.searchScreen.dialogs
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.contacts.dialogs.ContactActionsPopup
@@ -18,6 +21,7 @@ import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.NoteInfo
+import com.tk.quicksearch.shared.permissions.LockScreenAccessibilityDisclosureDialog
 
 /**
  * Composable that manages all dialogs for SearchScreen
@@ -37,6 +41,7 @@ internal fun SearchScreenDialogs(
     onDismissContactMethods: () -> Unit,
     onReleaseNotesAcknowledged: () -> Unit,
     onReleaseNotesViewAllFeatures: () -> Unit,
+    onAccessibilityPermissionDisclaimerDismissed: () -> Unit,
     onDismissNicknameDialog: () -> Unit,
     onDismissTriggerDialog: () -> Unit,
     onSaveAppNickname: (AppInfo, String?) -> Unit,
@@ -57,6 +62,8 @@ internal fun SearchScreenDialogs(
     getLastShownPhoneNumber: (Long) -> String?,
     setLastShownPhoneNumber: (Long, String) -> Unit,
 ) {
+    val context = LocalContext.current
+
     // Phone number selection dialog
     state.phoneNumberSelection?.let { selection ->
         PhoneNumberSelectionDialog(
@@ -104,6 +111,16 @@ internal fun SearchScreenDialogs(
             versionName = state.releaseNotesVersionName,
             onAcknowledge = onReleaseNotesAcknowledged,
             onViewAllFeatures = onReleaseNotesViewAllFeatures,
+        )
+    }
+
+    if (state.showAccessibilityPermissionDisclaimer) {
+        LockScreenAccessibilityDisclosureDialog(
+            onAgree = {
+                onAccessibilityPermissionDisclaimerDismissed()
+                context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            },
+            onDismiss = onAccessibilityPermissionDisclaimerDismissed,
         )
     }
 
