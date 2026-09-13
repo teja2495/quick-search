@@ -1,7 +1,9 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.CheckCircle
@@ -17,6 +19,7 @@ import com.tk.quicksearch.search.appSettings.AppSettingsToggleKey
 import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.settings.shared.SettingsCommand
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.isDefaultHomeApp
 import com.tk.quicksearch.shared.util.rememberPhysicalKeyboardConnected
 
@@ -30,7 +33,7 @@ fun MoreOptionsSettings(
     val isDefaultLauncher = context.isDefaultHomeApp()
     val isPhysicalKeyboardConnected = rememberPhysicalKeyboardConnected()
 
-    val toggleItems =
+    val appToggleItems =
         listOf(
             ToggleItem(
                 key = AppSettingsToggleKey.SHOW_ALL_APPS_BUTTON,
@@ -45,6 +48,23 @@ fun MoreOptionsSettings(
                 leadingIcon = Icons.Rounded.Apps,
             ),
             ToggleItem(
+                key = AppSettingsToggleKey.TOP_RESULT_INDICATOR,
+                titleRes = R.string.top_result_indicator_toggle_title,
+                subtitleRes = R.string.top_result_indicator_toggle_desc,
+                leadingIcon = Icons.Rounded.CheckCircle,
+            ),
+        )
+            .filterNot {
+                isPhysicalKeyboardConnected &&
+                    it.key == AppSettingsToggleKey.TOP_RESULT_INDICATOR
+            }
+            .filterNot {
+                it.key == AppSettingsToggleKey.TOP_RESULT_INDICATOR &&
+                    !isToggleEnabled(AppSettingsToggleKey.OPEN_TOP_RESULT_USING_KEYBOARD)
+            }
+    val otherToggleItems =
+        listOf(
+            ToggleItem(
                 key = AppSettingsToggleKey.SHOW_IN_RECENTS,
                 titleRes = R.string.show_in_recents_toggle_title,
                 subtitleRes = R.string.show_in_recents_toggle_desc,
@@ -55,12 +75,6 @@ fun MoreOptionsSettings(
                 titleRes = R.string.open_top_result_using_keyboard_toggle_title,
                 subtitleRes = R.string.open_top_result_using_keyboard_toggle_desc,
                 leadingIcon = Icons.Rounded.Keyboard,
-            ),
-            ToggleItem(
-                key = AppSettingsToggleKey.TOP_RESULT_INDICATOR,
-                titleRes = R.string.top_result_indicator_toggle_title,
-                subtitleRes = R.string.top_result_indicator_toggle_desc,
-                leadingIcon = Icons.Rounded.CheckCircle,
             ),
             ToggleItem(
                 key = AppSettingsToggleKey.OPEN_KEYBOARD,
@@ -81,20 +95,36 @@ fun MoreOptionsSettings(
                 leadingIcon = Icons.Rounded.Close,
             ),
         )
-            .filterNot {
-                isPhysicalKeyboardConnected &&
-                    it.key == AppSettingsToggleKey.TOP_RESULT_INDICATOR
-            }
-            .filterNot {
-                it.key == AppSettingsToggleKey.TOP_RESULT_INDICATOR &&
-                    !isToggleEnabled(AppSettingsToggleKey.OPEN_TOP_RESULT_USING_KEYBOARD)
-            }
 
+    Column(modifier = modifier.fillMaxWidth()) {
+        MoreOptionsToggleCard(
+            items = appToggleItems,
+            isDefaultLauncher = isDefaultLauncher,
+            isToggleEnabled = isToggleEnabled,
+            onApplySettingsCommand = onApplySettingsCommand,
+        )
+        Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
+        MoreOptionsToggleCard(
+            items = otherToggleItems,
+            isDefaultLauncher = isDefaultLauncher,
+            isToggleEnabled = isToggleEnabled,
+            onApplySettingsCommand = onApplySettingsCommand,
+        )
+    }
+}
+
+@Composable
+private fun MoreOptionsToggleCard(
+    items: List<ToggleItem>,
+    isDefaultLauncher: Boolean,
+    isToggleEnabled: (AppSettingsToggleKey) -> Boolean,
+    onApplySettingsCommand: (SettingsCommand) -> Unit,
+) {
     SettingsCard(
-        modifier = modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Column {
-            toggleItems.forEachIndexed { index, item ->
+            items.forEachIndexed { index, item ->
                 val isItemEnabled = if (item.key == AppSettingsToggleKey.AUTO_CLOSE_OVERLAY) !isDefaultLauncher else true
                 val itemSubtitle = if (item.key == AppSettingsToggleKey.AUTO_CLOSE_OVERLAY && isDefaultLauncher) {
                     stringResource(R.string.settings_overlay_mode_desc_launcher_blocked)
@@ -116,7 +146,7 @@ fun MoreOptionsSettings(
                     },
                     leadingIcon = item.leadingIcon,
                     isFirstItem = index == 0,
-                    isLastItem = index == toggleItems.lastIndex,
+                    isLastItem = index == items.lastIndex,
                 )
             }
         }
