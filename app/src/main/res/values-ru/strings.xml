@@ -105,6 +105,7 @@
 <string name="settings_gesture_swipe_down">Смахивание вниз</string>
 <string name="settings_gesture_swipe_up_home">Смахивание вверх (Главный экран)</string>
 <string name="settings_gesture_swipe_down_home">Смахивание вниз (Главный экран)</string>
+<string name="settings_gesture_close_quick_search">Закрыть Quick Search</string>
 <string name="settings_gesture_double_tap_home">Двойное нажатие (Главный экран)</string>
 <string name="settings_gesture_settings">Настройки</string>
 <string name="settings_gesture_close_keyboard_notifications">Закрыть клавиатуру / Открыть уведомления</string>

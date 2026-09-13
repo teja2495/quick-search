@@ -105,6 +105,7 @@
     <string name="settings_gesture_swipe_down">Σάρωση προς τα κάτω</string>
     <string name="settings_gesture_swipe_up_home">Σάρωση προς τα πάνω (Αρχική)</string>
 <string name="settings_gesture_swipe_down_home">Σάρωση προς τα κάτω (Αρχική)</string>
+<string name="settings_gesture_close_quick_search">Κλείσιμο του Quick Search</string>
 <string name="settings_gesture_double_tap_home">Διπλό πάτημα (Αρχική)</string>
     <string name="settings_gesture_settings">Ρυθμίσεις</string>
     <string name="settings_gesture_close_keyboard_notifications">Κλείσιμο πληκτρολογίου / Άνοιγμα ειδοποιήσεων</string>

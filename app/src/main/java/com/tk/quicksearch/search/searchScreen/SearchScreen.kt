@@ -235,6 +235,7 @@ fun SearchScreen(
     homeSwipeDownAliasTarget: String? = null,
     homeDoubleTapAliasTarget: String? = null,
     onGestureAliasTarget: (Enum<*>, String) -> Unit = { _, _ -> },
+    onCloseQuickSearch: () -> Unit = {},
 ) {
     val directAnswerContactName = stringResource(R.string.direct_answer_contact_name)
 
@@ -575,6 +576,7 @@ fun SearchScreen(
             homeSwipeDownAliasTarget = homeSwipeDownAliasTarget,
             homeDoubleTapAliasTarget = homeDoubleTapAliasTarget,
             onGestureAliasTarget = onGestureAliasTarget,
+            onCloseQuickSearch = onCloseQuickSearch,
             getAllTriggerWordsById = getAllTriggerWordsById,
             getAllContactActionTriggers = getAllContactActionTriggers,
             onContactActionTrigger = onContactActionTrigger,

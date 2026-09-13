@@ -105,6 +105,7 @@
     <string name="settings_gesture_swipe_down">向下滑动</string>
     <string name="settings_gesture_swipe_up_home">向上滑动 (主屏幕)</string>
     <string name="settings_gesture_swipe_down_home">向下滑动 (主屏幕)</string>
+    <string name="settings_gesture_close_quick_search">关闭 Quick Search</string>
     <string name="settings_gesture_double_tap_home">双击 (主屏幕)</string>
     <string name="settings_gesture_settings">设置</string>
     <string name="settings_gesture_close_keyboard_notifications">关闭键盘 / 打开通知</string>

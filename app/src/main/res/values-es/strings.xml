@@ -105,6 +105,7 @@
     <string name="settings_gesture_swipe_down">Deslizar hacia abajo</string>
     <string name="settings_gesture_swipe_up_home">Deslizar hacia arriba (Inicio)</string>
 <string name="settings_gesture_swipe_down_home">Deslizar hacia abajo (Inicio)</string>
+<string name="settings_gesture_close_quick_search">Cerrar Quick Search</string>
 <string name="settings_gesture_double_tap_home">Tocar dos veces (Inicio)</string>
     <string name="settings_gesture_settings">Ajustes</string>
     <string name="settings_gesture_close_keyboard_notifications">Cerrar teclado / Abrir notificaciones</string>

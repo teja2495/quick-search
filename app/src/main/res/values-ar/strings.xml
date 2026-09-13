@@ -106,6 +106,7 @@
     <string name="settings_gesture_swipe_down">السحب للأسفل</string>
     <string name="settings_gesture_swipe_up_home">السحب للأعلى (الرئيسية)</string>
 <string name="settings_gesture_swipe_down_home">السحب للأسفل (الرئيسية)</string>
+<string name="settings_gesture_close_quick_search">إغلاق البحث السريع</string>
 <string name="settings_gesture_double_tap_home">النقر المزدوج (الرئيسية)</string>
     <string name="settings_gesture_settings">الإعدادات</string>
     <string name="settings_gesture_close_keyboard_notifications">إغلاق لوحة المفاتيح / فتح الإشعارات</string>

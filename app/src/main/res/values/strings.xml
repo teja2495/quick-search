@@ -97,6 +97,7 @@
     <string name="settings_gesture_swipe_down">Swipe Down</string>
     <string name="settings_gesture_swipe_up_home">Swipe Up (Home)</string>
     <string name="settings_gesture_swipe_down_home">Swipe Down (Home)</string>
+    <string name="settings_gesture_close_quick_search">Close Quick Search</string>
     <string name="settings_gesture_double_tap_home">Double Tap (Home)</string>
     <string name="settings_gesture_settings">Settings</string>
     <string name="settings_gesture_close_keyboard_notifications">Close Keyboard / Open Notifications</string>

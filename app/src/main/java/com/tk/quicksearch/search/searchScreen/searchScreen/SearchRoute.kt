@@ -601,6 +601,11 @@ fun SearchRoute(
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
+    val closeQuickSearch: () -> Unit = {
+        if (!isDefaultLauncher) {
+            if (isOverlayPresentation) onOverlayDismissRequest?.invoke() else onCloseAppRequest?.invoke()
+        }
+    }
     val handleHomeHorizontalSwipe: (HomeHorizontalSwipe) -> Unit = { swipe ->
         when (swipe) {
             HomeHorizontalSwipe.RIGHT -> {
@@ -608,6 +613,7 @@ fun SearchRoute(
                     if (isLauncherSwipeRightEnabled) onOpenWidgetsPanelFromSwipe?.invoke()
                 } else {
                     when (swipeActions[0]) {
+                        SwipeGestureAction.CLOSE_QUICK_SEARCH -> closeQuickSearch()
                         SwipeGestureAction.WIDGETS_PANEL -> onOpenWidgetsPanelFromSwipe?.invoke()
                         SwipeGestureAction.CUSTOM -> {
                             com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
@@ -622,6 +628,7 @@ fun SearchRoute(
             }
             HomeHorizontalSwipe.LEFT -> {
                 when (swipeActions[1]) {
+                    SwipeGestureAction.CLOSE_QUICK_SEARCH -> closeQuickSearch()
                     SwipeGestureAction.SETTINGS -> onSettingsClick()
                     SwipeGestureAction.CUSTOM -> {
                         com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
@@ -969,7 +976,8 @@ fun SearchRoute(
                     else -> Unit
                 }
             },
-            )
+            onCloseQuickSearch = closeQuickSearch,
+        )
         }
 
         if (overlaySnackbarHostState == null) {

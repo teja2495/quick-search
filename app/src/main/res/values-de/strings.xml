@@ -105,6 +105,7 @@
     <string name="settings_gesture_swipe_down">Nach unten wischen</string>
     <string name="settings_gesture_swipe_up_home">Nach oben wischen (Startseite)</string>
 <string name="settings_gesture_swipe_down_home">Nach unten wischen (Startseite)</string>
+<string name="settings_gesture_close_quick_search">Quick Search schließen</string>
 <string name="settings_gesture_double_tap_home">Doppeltippen (Startseite)</string>
     <string name="settings_gesture_settings">Einstellungen</string>
     <string name="settings_gesture_close_keyboard_notifications">Tastatur schließen / Benachrichtigungen öffnen</string>

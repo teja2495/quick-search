@@ -104,6 +104,7 @@
     <string name="settings_gesture_swipe_down">Scorri verso il basso</string>
     <string name="settings_gesture_swipe_up_home">Scorri verso l\'alto (Home)</string>
 <string name="settings_gesture_swipe_down_home">Scorri verso il basso (Home)</string>
+<string name="settings_gesture_close_quick_search">Chiudi Quick Search</string>
 <string name="settings_gesture_double_tap_home">Doppio tocco (Home)</string>
     <string name="settings_gesture_settings">Impostazioni</string>
     <string name="settings_gesture_close_keyboard_notifications">Chiudi tastiera / Apri notifiche</string>

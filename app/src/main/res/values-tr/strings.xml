@@ -104,6 +104,7 @@
 <string name="settings_gesture_swipe_down">Aşağı Kaydır</string>
 <string name="settings_gesture_swipe_up_home">Yukarı Kaydır (Ana Ekran)</string>
 <string name="settings_gesture_swipe_down_home">Aşağı Kaydır (Ana Ekran)</string>
+<string name="settings_gesture_close_quick_search">Quick Search\'i kapat</string>
 <string name="settings_gesture_double_tap_home">Çift Dokunma (Ana Ekran)</string>
 <string name="settings_gesture_settings">Ayarlar</string>
 <string name="settings_gesture_close_keyboard_notifications">Klavyeyi Kapat / Bildirimleri Aç</string>

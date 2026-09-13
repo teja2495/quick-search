@@ -105,6 +105,7 @@
     <string name="settings_gesture_swipe_down">नीचे स्वाइप करें</string>
     <string name="settings_gesture_swipe_up_home">ऊपर स्वाइप करें (होम)</string>
 <string name="settings_gesture_swipe_down_home">नीचे स्वाइप करें (होम)</string>
+<string name="settings_gesture_close_quick_search">Quick Search बंद करें</string>
 <string name="settings_gesture_double_tap_home">डबल टैप (होम)</string>
     <string name="settings_gesture_settings">सेटिंग्स</string>
     <string name="settings_gesture_close_keyboard_notifications">कीबोर्ड बंद करें / नोटिफिकेशन खोलें</string>

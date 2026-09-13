@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.data.preferences
 import android.content.Context
 
 enum class SwipeGestureAction {
+    CLOSE_QUICK_SEARCH,
     WIDGETS_PANEL,
     SETTINGS,
     OPEN_KEYBOARD,
@@ -14,6 +15,7 @@ enum class SwipeGestureAction {
 }
 
 enum class HomeSwipeGestureAction {
+    CLOSE_QUICK_SEARCH,
     LOCK_SCREEN,
     NOTIFICATION_PANEL,
     CUSTOM,

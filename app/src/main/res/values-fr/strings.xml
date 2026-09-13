@@ -105,6 +105,7 @@
 <string name="settings_gesture_swipe_down">Balayer vers le bas</string>
 <string name="settings_gesture_swipe_up_home">Balayer vers le haut (Accueil)</string>
 <string name="settings_gesture_swipe_down_home">Balayer vers le bas (Accueil)</string>
+<string name="settings_gesture_close_quick_search">Fermer Quick Search</string>
 <string name="settings_gesture_double_tap_home">Appui double (Accueil)</string>
 <string name="settings_gesture_settings">Paramètres</string>
 <string name="settings_gesture_close_keyboard_notifications">Fermer le clavier / Ouvrir les notifications</string>

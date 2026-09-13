@@ -105,6 +105,7 @@
     <string name="settings_gesture_swipe_down">క్రిందికి స్వైప్ చేయండి</string>
     <string name="settings_gesture_swipe_up_home">పైకి స్వైప్ చేయండి (హోమ్)</string>
     <string name="settings_gesture_swipe_down_home">క్రిందికి స్వైప్ చేయండి (హోమ్)</string>
+    <string name="settings_gesture_close_quick_search">Quick Searchని మూసివేయండి</string>
     <string name="settings_gesture_double_tap_home">రెండుసార్లు నొక్కండి (హోమ్)</string>
     <string name="settings_gesture_settings">సెట్టింగులు</string>
     <string name="settings_gesture_close_keyboard_notifications">కీబోర్డ్ మూసివేయి / నోటిఫికేషన్‌లను తెరవండి</string>
