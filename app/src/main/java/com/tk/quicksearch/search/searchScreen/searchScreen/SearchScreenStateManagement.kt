@@ -171,8 +171,6 @@ internal fun SearchScreenStateManagement(
     onCustomizeSearchEnginesClick: () -> Unit,
     onOpenAiSearchConfigure: () -> Unit,
     onDeleteRecentItem: (RecentSearchEntry) -> Unit,
-    onOpenSearchHistorySettings: () -> Unit,
-    onDismissSearchHistoryTip: () -> Unit,
     onWelcomeAnimationCompleted: (() -> Unit)?,
     onWallpaperLoaded: (() -> Unit)?,
     onSystemWallpaperChanged: (() -> Unit)?,

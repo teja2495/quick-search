@@ -247,8 +247,6 @@
     <string name="recent_queries_toggle_title">శోధన చరిత్ర</string>
     <string name="search_history_tab_recently_opened">ఫలితాలు</string>
     <string name="search_history_tab_searches">శోధనలు</string>
-    <string name="search_history_tip_link">సెట్టింగ్‌లు</string>
-    <string name="search_history_tip_message">మీరు శోధన చరిత్రను ఇక్కడ నిలిపివేయవచ్చు:</string>
     <string name="search_section_app_settings_toggle_desc">యాప్ సెట్టింగ్‌ల శోధనను ఆన్ లేదా ఆఫ్ చేయి</string>
     <string name="search_section_app_settings_toggle_title">యాప్ సెట్టింగ్‌ల శోధన</string>
     <string name="search_section_app_shortcuts_toggle_desc">యాప్ షార్ట్‌కట్‌ల శోధనను ఆన్ లేదా ఆఫ్ చేయి</string>

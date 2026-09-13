@@ -119,8 +119,6 @@ fun ContentLayout(
     onSearchTargetClick: (String, SearchTarget) -> Unit = { _, _ -> },
     onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
     onClearRecentItems: () -> Unit = {},
-    onOpenSearchHistorySettings: () -> Unit = {},
-    onDismissSearchHistoryTip: () -> Unit = {},
     onGeminiModelInfoClick: () -> Unit = {},
     onSearchHistoryExpandedChange: (Boolean) -> Unit = {},
     searchHistoryCollapseRequestKey: Int = 0,
@@ -680,9 +678,6 @@ fun ContentLayout(
                     onDeleteRecentItem =
                     onDeleteRecentItem,
                     onClearRecentItems = onClearRecentItems,
-                    showSearchHistoryTip = !state.hasDismissedSearchHistoryTip,
-                    onOpenSearchHistorySettings = onOpenSearchHistorySettings,
-                    onDismissSearchHistoryTip = onDismissSearchHistoryTip,
                     isExpanded = searchHistoryExpanded,
                     collapsedItemCount = state.recentQueriesDisplayCount,
                     reverseCollapsedItems = state.oneHandedMode,

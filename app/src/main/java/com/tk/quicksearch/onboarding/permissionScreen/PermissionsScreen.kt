@@ -143,10 +143,7 @@ fun PermissionsScreen(
                     !permissionStates.usage.isGranted ||
                         !permissionStates.contacts.isGranted ||
                         !permissionStates.files.isGranted ||
-                        !permissionStates.calendar.isGranted ||
-                        !permissionStates.calling.isGranted ||
-                        !permissionStates.notifications.isGranted ||
-                        !permissionStates.accessibility.isGranted
+                        !permissionStates.calendar.isGranted
 
                 if (hasUngrantedPermissions) {
                     showPermissionReminderDialog = true
@@ -183,9 +180,6 @@ fun PermissionsScreen(
             contactsPermissionState = permissionStates.contacts,
             filesPermissionState = permissionStates.files,
             calendarPermissionState = permissionStates.calendar,
-            callingPermissionState = permissionStates.calling,
-            notificationsPermissionState = permissionStates.notifications,
-            accessibilityPermissionState = permissionStates.accessibility,
             onDismiss = { showPermissionReminderDialog = false },
             onContinue = {
                 showPermissionReminderDialog = false
@@ -204,9 +198,6 @@ private fun PermissionReminderDialog(
     contactsPermissionState: PermissionState,
     filesPermissionState: PermissionState,
     calendarPermissionState: PermissionState,
-    callingPermissionState: PermissionState,
-    notificationsPermissionState: PermissionState,
-    accessibilityPermissionState: PermissionState,
     onDismiss: () -> Unit,
     onContinue: () -> Unit,
 ) {
@@ -216,9 +207,6 @@ private fun PermissionReminderDialog(
             stringResource(R.string.contacts_action_button_contacts).takeIf { !contactsPermissionState.isGranted },
             stringResource(R.string.permissions_files_title).takeIf { !filesPermissionState.isGranted },
             stringResource(R.string.settings_calendar_permission_title).takeIf { !calendarPermissionState.isGranted },
-            stringResource(R.string.settings_call_permission_title).takeIf { !callingPermissionState.isGranted },
-            stringResource(R.string.settings_notifications_permission_title).takeIf { !notificationsPermissionState.isGranted },
-            stringResource(R.string.permissions_accessibility_lock_screen_title).takeIf { !accessibilityPermissionState.isGranted },
         ).joinToString(", ")
 
     Dialog(

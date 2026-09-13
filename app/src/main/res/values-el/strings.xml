@@ -247,8 +247,6 @@
     <string name="recent_queries_toggle_title">Ιστορικό αναζήτησης</string>
     <string name="search_history_tab_recently_opened">Αποτελέσματα</string>
     <string name="search_history_tab_searches">Αναζητήσεις</string>
-    <string name="search_history_tip_link">ρυθμίσεις</string>
-    <string name="search_history_tip_message">Μπορείτε να απενεργοποιήσετε το ιστορικό αναζήτησης στις</string>
     <string name="search_section_app_settings_toggle_desc">Ενεργοποίηση ή απενεργοποίηση αναζήτησης ρυθμίσεων εφαρμογών</string>
     <string name="search_section_app_settings_toggle_title">Αναζήτηση ρυθμίσεων εφαρμογών</string>
     <string name="search_section_app_shortcuts_toggle_desc">Ενεργοποίηση ή απενεργοποίηση αναζήτησης συντομεύσεων εφαρμογών</string>

@@ -215,8 +215,6 @@ internal object SearchViewModelInitialStateFactory {
                 disabledTopMatchesSections = startupPreferencesReader.getDisabledTopMatchesSections(),
                 showRateQuickSearchCard = startupPreferencesReader.shouldShowRateQuickSearchCard(),
                 recentQueriesEnabled = startupPreferencesReader.areRecentQueriesEnabled(),
-                hasDismissedSearchHistoryTip =
-                    startupPreferencesReader.hasDismissedSearchHistoryTip(),
             )
 
         val initialPermissionState =

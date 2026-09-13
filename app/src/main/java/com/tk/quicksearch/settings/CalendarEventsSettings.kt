@@ -61,6 +61,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalConfiguration
@@ -313,6 +314,7 @@ fun CalendarEventsSettingsSection(
                             dateLabel = formatCalendarEventDate(eventGroup.nearestInstance),
                             relativeLabel = calendarRelativeDateLabel(eventGroup.nearestInstance),
                             recurrenceLabel = recurrenceLabel,
+                            isPast = eventGroup.nearestInstance.endMillis < nowMillis,
                             onClick = {
                                 if (eventGroup.eventId < 0) {
                                     // Custom event — open edit dialog
@@ -895,12 +897,14 @@ private fun CalendarEventManagementRow(
     dateLabel: String,
     relativeLabel: String,
     recurrenceLabel: String?,
+    isPast: Boolean,
     onClick: () -> Unit,
 ) {
     Row(
         modifier =
             Modifier
                 .fillMaxWidth()
+                .alpha(if (isPast) 0.65f else 1f)
                 .clickable(onClick = onClick)
                 .padding(
                     horizontal = DesignTokens.CardHorizontalPadding,

@@ -243,8 +243,6 @@
     <string name="recent_queries_toggle_title">Search History</string>
     <string name="search_history_tab_recently_opened">Results</string>
     <string name="search_history_tab_searches">Searches</string>
-    <string name="search_history_tip_link">settings</string>
-    <string name="search_history_tip_message">You can disable search history in</string>
     <string name="search_section_app_settings_toggle_desc">Turn app settings search on or off</string>
     <string name="search_section_app_settings_toggle_title">App Settings Search</string>
     <string name="search_section_app_shortcuts_toggle_desc">Turn app shortcuts search on or off</string>

@@ -1303,11 +1303,6 @@ class UserAppPreferences(
 
     fun setHasSeenContactActionHint(seen: Boolean) = uiPreferences.setHasSeenContactActionHint(seen)
 
-    fun hasDismissedSearchHistoryTip(): Boolean = uiPreferences.hasDismissedSearchHistoryTip()
-
-    fun setSearchHistoryTipDismissed(dismissed: Boolean) =
-            uiPreferences.setSearchHistoryTipDismissed(dismissed)
-
     fun hasSeenOverlayAssistantTip(): Boolean = uiPreferences.hasSeenOverlayAssistantTip()
 
     fun setHasSeenOverlayAssistantTip(seen: Boolean) =

@@ -246,8 +246,6 @@
 <string name="recent_queries_toggle_title">Arama geçmişi</string>
 <string name="search_history_tab_recently_opened">Sonuçlar</string>
 <string name="search_history_tab_searches">Aramalar</string>
-<string name="search_history_tip_link">ayarlar</string>
-<string name="search_history_tip_message">Arama geçmişini şuradan devre dışı bırakabilirsiniz:</string>
 <string name="search_section_app_settings_toggle_desc">Uygulama ayarları aramasını aç veya kapat</string>
 <string name="search_section_app_settings_toggle_title">Uygulama ayarları araması</string>
 <string name="search_section_app_shortcuts_toggle_desc">Uygulama kısayolları aramasını aç veya kapat</string>

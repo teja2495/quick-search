@@ -207,7 +207,6 @@ data class SearchFeatureState(
         val fuzzySearchEnabled: Boolean = true,
         val fuzzySearchAvailable: Boolean = true,
         val secondaryRankingSignal: SecondaryRankingSignal = SecondaryRankingSignal.DEFAULT,
-        val hasDismissedSearchHistoryTip: Boolean = false,
         // Top matches
         val topMatchesEnabled: Boolean = false,
         val topMatchesLimit: Int = UiPreferences.DEFAULT_TOP_MATCHES_LIMIT,

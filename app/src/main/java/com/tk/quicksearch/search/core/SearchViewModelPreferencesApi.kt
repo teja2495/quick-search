@@ -114,7 +114,6 @@ internal interface SearchViewModelPreferencesApi {
 
     fun setShowTodayEvents(enabled: Boolean) = preferencesApiDelegate.setShowTodayEvents(enabled)
 
-    fun dismissSearchHistoryTip() = preferencesApiDelegate.dismissSearchHistoryTip()
 
     fun setWallpaperBackgroundAlpha(alpha: Float) =
         preferencesApiDelegate.setWallpaperBackgroundAlpha(alpha)
@@ -395,7 +394,6 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
 
     fun archiveTodayCalendarEvent(eventId: Long) = preferencesDelegate.archiveTodayCalendarEvent(eventId)
 
-    fun dismissSearchHistoryTip() = preferencesDelegate.dismissSearchHistoryTip()
 
     fun setWallpaperBackgroundAlpha(alpha: Float) =
         preferencesDelegate.setWallpaperBackgroundAlpha(alpha)

@@ -248,8 +248,6 @@
     <string name="recent_queries_toggle_title">سجل البحث</string>
     <string name="search_history_tab_recently_opened">النتائج</string>
     <string name="search_history_tab_searches">عمليات البحث</string>
-    <string name="search_history_tip_link">الإعدادات</string>
-    <string name="search_history_tip_message">يمكنك تعطيل سجل البحث في</string>
     <string name="search_section_app_settings_toggle_desc">تفعيل أو تعطيل البحث في إعدادات التطبيقات</string>
     <string name="search_section_app_settings_toggle_title">البحث في إعدادات التطبيقات</string>
     <string name="search_section_app_shortcuts_toggle_desc">تفعيل أو تعطيل البحث في اختصارات التطبيقات</string>

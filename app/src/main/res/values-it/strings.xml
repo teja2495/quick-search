@@ -246,8 +246,6 @@
     <string name="recent_queries_toggle_title">Cronologia ricerche</string>
     <string name="search_history_tab_recently_opened">Risultati</string>
     <string name="search_history_tab_searches">Ricerche</string>
-    <string name="search_history_tip_link">impostazioni</string>
-    <string name="search_history_tip_message">Puoi disattivare la cronologia delle ricerche in</string>
     <string name="search_section_app_settings_toggle_desc">Attiva o disattiva la ricerca nelle impostazioni dell\u2019app</string>
     <string name="search_section_app_settings_toggle_title">Ricerca impostazioni app</string>
     <string name="search_section_app_shortcuts_toggle_desc">Attiva o disattiva la ricerca nelle scorciatoie dell\u2019app</string>

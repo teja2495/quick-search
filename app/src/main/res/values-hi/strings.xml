@@ -247,8 +247,6 @@
     <string name="recent_queries_toggle_title">खोज इतिहास</string>
     <string name="search_history_tab_recently_opened">परिणाम</string>
     <string name="search_history_tab_searches">खोजें</string>
-    <string name="search_history_tip_link">सेटिंग्स</string>
-    <string name="search_history_tip_message">आप खोज इतिहास यहां बंद कर सकते हैं</string>
     <string name="search_section_app_settings_toggle_desc">ऐप सेटिंग्स खोज को चालू या बंद करें</string>
     <string name="search_section_app_settings_toggle_title">ऐप सेटिंग्स खोज</string>
     <string name="search_section_app_shortcuts_toggle_desc">ऐप शॉर्टकट खोज को चालू या बंद करें</string>

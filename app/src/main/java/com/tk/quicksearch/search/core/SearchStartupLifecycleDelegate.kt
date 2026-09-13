@@ -945,7 +945,6 @@ internal class SearchStartupLifecycleDelegate(
                 topMatchesSectionOrder = userPreferences.getTopMatchesSectionOrder(),
                 disabledTopMatchesSections = userPreferences.getDisabledTopMatchesSections(),
                 shouldShowUsagePermissionBanner = userPreferences.shouldShowUsagePermissionBanner(),
-                hasDismissedSearchHistoryTip = userPreferences.hasDismissedSearchHistoryTip(),
             )
         }
 

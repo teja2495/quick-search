@@ -49,10 +49,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -85,7 +82,6 @@ import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
 import com.tk.quicksearch.search.searchScreen.components.ExpandButton
 import com.tk.quicksearch.searchEngines.SearchTargetQueryShortcutActivity
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
-import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
@@ -132,9 +128,6 @@ fun SearchHistorySection(
     onAppSettingAppResultRowCountChange: (Int) -> Unit = {},
     onDeleteRecentItem: (RecentSearchEntry) -> Unit,
     onClearRecentItems: (() -> Unit)? = null,
-    showSearchHistoryTip: Boolean = false,
-    onOpenSearchHistorySettings: () -> Unit = {},
-    onDismissSearchHistoryTip: () -> Unit = {},
     isExpanded: Boolean? = null,
     collapsedItemCount: Int = SearchScreenConstants.INITIAL_RESULT_COUNT,
     reverseCollapsedItems: Boolean = false,
@@ -277,10 +270,6 @@ fun SearchHistorySection(
                         onClearRecentItems != null &&
                         displayItems.isNotEmpty()
                 displayItems.forEachIndexed { index, item ->
-                    val showTipBelowFirstItem =
-                        !displayAsExpanded &&
-                            showSearchHistoryTip &&
-                            index == 0
                     val baseShowDivider = index < displayItems.lastIndex || showClearAllHistory
                     RecentSearchItemRow(
                         item = item,
@@ -311,22 +300,10 @@ fun SearchHistorySection(
                         appSettingAppResultRowCount = appSettingAppResultRowCount,
                         onAppSettingAppResultRowCountChange = onAppSettingAppResultRowCountChange,
                         onDeleteRecentItem = onDeleteRecentItem,
-                        showDivider = if (showTipBelowFirstItem) false else baseShowDivider,
+                        showDivider = baseShowDivider,
                         showWallpaperBackground = showWallpaperBackground,
                         overlayDividerColor = overlayDividerColor,
                     )
-                    if (showTipBelowFirstItem) {
-                        InlineSearchHistoryTip(
-                            onOpenSearchHistorySettings = onOpenSearchHistorySettings,
-                            onDismiss = onDismissSearchHistoryTip,
-                        )
-                        if (baseShowDivider) {
-                            HorizontalDivider(
-                                modifier = Modifier.padding(horizontal = dividerPadding(item)),
-                                color = dividerColor(showWallpaperBackground, overlayDividerColor),
-                            )
-                        }
-                    }
                 }
 
                 if (showClearAllHistory) {
@@ -816,62 +793,6 @@ private fun resolveAppShortcutHistorySubtext(shortcut: StaticShortcut): String? 
     } else {
         null
     }
-}
-
-@Composable
-private fun InlineSearchHistoryTip(
-    onOpenSearchHistorySettings: () -> Unit,
-    onDismiss: () -> Unit,
-) {
-    val linkTag = "search_history_settings"
-    val tipMessage = stringResource(R.string.search_history_tip_message)
-    val linkText = stringResource(R.string.search_history_tip_link)
-    val fullText = "$tipMessage $linkText"
-    val annotatedText =
-        buildAnnotatedString {
-            append(fullText)
-            val startIndex = fullText.indexOf(linkText)
-            if (startIndex >= 0) {
-                val endIndex = startIndex + linkText.length
-                addStyle(
-                    style =
-                        SpanStyle(
-                            color = AppColors.LinkColor,
-                            textDecoration = TextDecoration.Underline,
-                        ),
-                    start = startIndex,
-                    end = endIndex,
-                )
-                addStringAnnotation(
-                    tag = linkTag,
-                    annotation = linkText,
-                    start = startIndex,
-                    end = endIndex,
-                )
-            }
-        }
-
-    TipBanner(
-        annotatedText = annotatedText,
-        onTextClick = { offset ->
-            val annotations =
-                annotatedText.getStringAnnotations(
-                    tag = linkTag,
-                    start = offset,
-                    end = offset,
-                )
-            if (annotations.isNotEmpty()) {
-                onOpenSearchHistorySettings()
-            }
-        },
-        onDismiss = onDismiss,
-        modifier =
-            Modifier.padding(
-                start = QUERY_ICON_START_PADDING.dp,
-                end = QUERY_TEXT_END_PADDING.dp,
-                bottom = DesignTokens.SpacingSmall,
-            ),
-    )
 }
 
 @Composable

@@ -109,7 +109,6 @@ private fun launchSystemWallpaperPicker(context: Context) {
 fun SearchRoute(
     modifier: Modifier = Modifier,
     onSettingsClick: () -> Unit = {},
-    onOpenSearchHistorySettings: () -> Unit = {},
     onSearchEngineLongPress: () -> Unit = {},
     onCustomizeSearchEnginesClick: () -> Unit = {},
     onOpenAiSearchConfigure: () -> Unit = {},
@@ -920,8 +919,6 @@ fun SearchRoute(
             onAiFollowUpSubmit = viewModel::submitAiFollowUp,
             onDeleteRecentItem = viewModel::deleteRecentItem,
             onClearRecentItems = viewModel::clearRecentItems,
-            onOpenSearchHistorySettings = onOpenSearchHistorySettings,
-            onDismissSearchHistoryTip = viewModel::dismissSearchHistoryTip,
             onCurrencyConversionClick = viewModel::executeCurrencyConversion,
             onDictionarySearchClick = viewModel::executeDictionaryLookup,
             onWeatherSearchClick = viewModel::executeWeatherLookup,

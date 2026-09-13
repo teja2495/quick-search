@@ -201,8 +201,6 @@ fun SearchScreen(
     onConsumeContactActionRequest: () -> Unit = {},
     onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
     onClearRecentItems: () -> Unit = {},
-    onOpenSearchHistorySettings: () -> Unit = {},
-    onDismissSearchHistoryTip: () -> Unit = {},
     onCurrencyConversionClick: () -> Unit = {},
     onDictionarySearchClick: () -> Unit = {},
     onWeatherSearchClick: () -> Unit = {},
@@ -352,8 +350,6 @@ fun SearchScreen(
         onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
         onOpenAiSearchConfigure = onOpenAiSearchConfigure,
         onDeleteRecentItem = onDeleteRecentItem,
-        onOpenSearchHistorySettings = onOpenSearchHistorySettings,
-        onDismissSearchHistoryTip = onDismissSearchHistoryTip,
         onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
         onWallpaperLoaded = onWallpaperLoaded,
         onSystemWallpaperChanged = onSystemWallpaperChanged,
@@ -529,8 +525,6 @@ fun SearchScreen(
             onAiFollowUpSubmit = onAiFollowUpSubmit,
             onDeleteRecentItem = onDeleteRecentItem,
             onClearRecentItems = onClearRecentItems,
-            onOpenSearchHistorySettings = onOpenSearchHistorySettings,
-            onDismissSearchHistoryTip = onDismissSearchHistoryTip,
             onGeminiModelInfoClick = {
                 val cardsState = stateResult.effectiveStateForCards
                 val customToolId = cardsState.detectedCustomToolId

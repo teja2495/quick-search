@@ -397,13 +397,6 @@ internal class SearchPreferencesDelegate(
         }
     }
 
-    fun dismissSearchHistoryTip() {
-        scope.launch(Dispatchers.IO) {
-            userPreferences.setSearchHistoryTipDismissed(true)
-            updateFeatureState { it.copy(hasDismissedSearchHistoryTip = true) }
-        }
-    }
-
     fun setWallpaperBackgroundAlpha(alpha: Float) {
         scope.launch(Dispatchers.IO) {
             val sanitizedAlpha = alpha.coerceIn(0f, 1f)

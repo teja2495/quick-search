@@ -247,8 +247,6 @@
     <string name="recent_queries_toggle_title">Historial de búsqueda</string>
     <string name="search_history_tab_recently_opened">Resultados</string>
     <string name="search_history_tab_searches">Búsquedas</string>
-    <string name="search_history_tip_link">ajustes</string>
-    <string name="search_history_tip_message">Puedes desactivar el historial de búsqueda en</string>
     <string name="search_section_app_settings_toggle_desc">Activa o desactiva la búsqueda en los ajustes de la app</string>
     <string name="search_section_app_settings_toggle_title">Buscar en ajustes de la app</string>
     <string name="search_section_app_shortcuts_toggle_desc">Activa o desactiva la búsqueda en los accesos directos de la app</string>

@@ -247,8 +247,6 @@
     <string name="recent_queries_toggle_title">搜索历史</string>
     <string name="search_history_tab_recently_opened">结果</string>
     <string name="search_history_tab_searches">搜索记录</string>
-    <string name="search_history_tip_link">设置</string>
-    <string name="search_history_tip_message">您可以在此处停用搜索历史记录：</string>
     <string name="search_section_app_settings_toggle_desc">开启或关闭应用设置的搜索</string>
     <string name="search_section_app_settings_toggle_title">应用设置搜索</string>
     <string name="search_section_app_shortcuts_toggle_desc">开启或关闭应用快捷方式的搜索</string>

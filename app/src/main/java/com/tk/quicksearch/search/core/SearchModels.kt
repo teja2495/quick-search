@@ -669,7 +669,6 @@ data class SearchUiState(
         val showSearchBarWelcomeAnimation: Boolean = false,
         val showContactActionHint: Boolean = false,
         val hasSeenOverlayAssistantTip: Boolean = true,
-        val hasDismissedSearchHistoryTip: Boolean = false,
         // Recent items
         val recentItems: List<RecentSearchItem> = emptyList(),
         val aliasRecentItems: List<RecentSearchItem> = emptyList(),
@@ -851,7 +850,6 @@ fun SearchUiState(
                 topMatchesSectionOrder = features.topMatchesSectionOrder,
                 disabledTopMatchesSections = features.disabledTopMatchesSections,
                 showTodayEvents = features.showTodayEvents,
-                hasDismissedSearchHistoryTip = features.hasDismissedSearchHistoryTip,
                 directDialEnabled = features.directDialEnabled,
                 numberSearchEnabled = features.numberSearchEnabled,
                 assistantLaunchVoiceModeEnabled = features.assistantLaunchVoiceModeEnabled,

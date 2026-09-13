@@ -247,8 +247,6 @@
 <string name="recent_queries_toggle_title">История поиска</string>
 <string name="search_history_tab_recently_opened">Результаты</string>
 <string name="search_history_tab_searches">Запросы</string>
-<string name="search_history_tip_link">настройках</string>
-<string name="search_history_tip_message">Вы можете отключить сохранение истории поиска в</string>
 <string name="search_section_app_settings_toggle_desc">Включить или отключить поиск по настройкам приложений</string>
 <string name="search_section_app_settings_toggle_title">Поиск по настройкам приложений</string>
 <string name="search_section_app_shortcuts_toggle_desc">Включить или отключить поиск по ярлыкам приложений</string>

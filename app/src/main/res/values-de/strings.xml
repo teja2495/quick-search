@@ -247,8 +247,6 @@
     <string name="recent_queries_toggle_title">Suchverlauf</string>
     <string name="search_history_tab_recently_opened">Ergebnisse</string>
     <string name="search_history_tab_searches">Suchen</string>
-    <string name="search_history_tip_link">Einstellungen</string>
-    <string name="search_history_tip_message">Deaktiviere den Suchverlauf in den</string>
     <string name="search_section_app_settings_toggle_desc">App-Einstellungssuche ein- oder ausschalten</string>
     <string name="search_section_app_settings_toggle_title">App-Einstellungssuche</string>
     <string name="search_section_app_shortcuts_toggle_desc">App-Verknüpfungssuche ein- oder ausschalten</string>

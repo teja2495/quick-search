@@ -624,9 +624,6 @@ private fun NavigationContent(
                                 ),
                         )
                     },
-                    onOpenSearchHistorySettings = {
-                        navigateToSettings(SettingsDetailType.SEARCH_RESULTS)
-                    },
                     onOpenNotesDetail = {
                         val destination =
                             if (it != null) {
