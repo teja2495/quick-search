@@ -1782,10 +1782,7 @@ internal fun SearchScreenContent(
     } 
 }
 
-private fun String.isPhoneNumberQuery(): Boolean =
-        isNotEmpty() &&
-                if (first() == '+') {
-                    length > 1 && drop(1).all(Char::isDigit)
-                } else {
-                    all(Char::isDigit)
-                }
+private fun String.isPhoneNumberQuery(): Boolean {
+    val digits = if (startsWith('+')) drop(1) else this
+    return digits.length >= 3 && digits.all(Char::isDigit)
+}

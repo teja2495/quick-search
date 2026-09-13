@@ -252,7 +252,7 @@ internal fun NumberKeyboardOperatorPills(
     showWallpaperBackground: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
-    val operators = remember { listOf("+", "-", "*", "/", "(", ")") }
+    val operators = remember { listOf("+", "-", "×", "/", "(", ")") }
     val isDarkTheme = LocalAppIsDarkTheme.current
     val containerBackgroundColor =
         when {

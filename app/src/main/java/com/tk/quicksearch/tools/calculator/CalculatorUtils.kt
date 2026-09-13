@@ -28,6 +28,9 @@ object CalculatorUtils {
                 trimmed.contains('-') ||
                 trimmed.contains('*') ||
                 trimmed.contains('/') ||
+                trimmed.contains('×') ||
+                trimmed.contains('÷') ||
+                trimmed.contains('·') ||
                 trimmed.contains('(') ||
                 trimmed.contains(')') ||
                 trimmed.contains('%')
