@@ -122,6 +122,7 @@ internal fun buildSettingsScreenCallbacks(
         onToggleCalculator = viewModel::setCalculatorEnabled,
         onToggleUnitConverter = viewModel::setUnitConverterEnabled,
         onToggleDateCalculator = viewModel::setDateCalculatorEnabled,
+        onToggleColorVisualizer = viewModel::setColorVisualizerEnabled,
         onToggleCurrencyConverter = viewModel::setCurrencyConverterEnabled,
         onToggleWorldClock = viewModel::setWorldClockEnabled,
         onToggleDictionary = viewModel::setDictionaryEnabled,

@@ -38,6 +38,7 @@ import com.tk.quicksearch.tools.aiTools.DictionaryHandler
 import com.tk.quicksearch.tools.aiTools.WeatherHandler
 import com.tk.quicksearch.tools.aiTools.WorldClockHandler
 import com.tk.quicksearch.tools.calculator.CalculatorHandler
+import com.tk.quicksearch.tools.colorVisualizer.ColorVisualizerHandler
 import com.tk.quicksearch.tools.dateCalculator.DateCalculatorHandler
 import com.tk.quicksearch.tools.aiSearch.AiSearchHandler
 import com.tk.quicksearch.tools.unitConverter.UnitConverterHandler
@@ -176,6 +177,10 @@ internal class SearchHandlerContainer(
 
     val dateCalculatorHandler by lazy {
         DateCalculatorHandler(userPreferences = userPreferences)
+    }
+
+    val colorVisualizerHandler by lazy {
+        ColorVisualizerHandler(userPreferences = userPreferences)
     }
 
     val currencyConverterHandler by lazy {

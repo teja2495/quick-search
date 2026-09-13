@@ -210,6 +210,7 @@ enum class SearchToolType {
         CALCULATOR,
         UNIT_CONVERTER,
         DATE_CALCULATOR,
+        COLOR_VISUALIZER,
 }
 
 data class AiSearchState(
@@ -278,6 +279,9 @@ data class CalculatorState(
         val isCalculatorMode: Boolean = false,
         val isUnitConverterMode: Boolean = false,
         val isDateCalculatorMode: Boolean = false,
+        val isColorVisualizerMode: Boolean = false,
+        /** Parsed opaque ARGB color for the Color Visualizer tool. */
+        val colorArgb: Int? = null,
         val toolType: SearchToolType = SearchToolType.CALCULATOR,
         val showInvalidExpression: Boolean = false,
         /** Epoch millis for the date parsed by the date calculator tool. */
@@ -297,7 +301,7 @@ data class CalculatorState(
         val timeContextLabel2: String? = null,
 ) {
         val isToolMode: Boolean
-                get() = isCalculatorMode || isUnitConverterMode || isDateCalculatorMode
+                get() = isCalculatorMode || isUnitConverterMode || isDateCalculatorMode || isColorVisualizerMode
 }
 
 data class PhoneNumberSelection(
@@ -614,6 +618,7 @@ data class SearchUiState(
         val calculatorEnabled: Boolean = true,
         val unitConverterEnabled: Boolean = true,
         val dateCalculatorEnabled: Boolean = true,
+        val colorVisualizerEnabled: Boolean = true,
         val currencyConverterEnabled: Boolean = true,
         val worldClockEnabled: Boolean = true,
         val dictionaryEnabled: Boolean = true,
@@ -830,6 +835,7 @@ fun SearchUiState(
                 calculatorEnabled = features.calculatorEnabled,
                 unitConverterEnabled = features.unitConverterEnabled,
                 dateCalculatorEnabled = features.dateCalculatorEnabled,
+                colorVisualizerEnabled = features.colorVisualizerEnabled,
                 currencyConverterEnabled = features.currencyConverterEnabled,
                 worldClockEnabled = features.worldClockEnabled,
                 dictionaryEnabled = features.dictionaryEnabled,

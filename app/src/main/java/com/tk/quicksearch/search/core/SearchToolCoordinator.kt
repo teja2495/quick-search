@@ -16,6 +16,7 @@ import com.tk.quicksearch.tools.aiTools.ConfirmedWeatherQuery
 import com.tk.quicksearch.tools.aiTools.WeatherHandler
 import com.tk.quicksearch.tools.aiTools.WeatherIntentParser
 import com.tk.quicksearch.tools.calculator.CalculatorHandler
+import com.tk.quicksearch.tools.colorVisualizer.ColorVisualizerHandler
 import com.tk.quicksearch.tools.dateCalculator.DateCalculatorHandler
 import com.tk.quicksearch.tools.unitConverter.UnitConverterHandler
 import kotlinx.coroutines.CoroutineDispatcher
@@ -40,6 +41,7 @@ internal class SearchToolCoordinator(
     private val calculatorHandler: CalculatorHandler,
     private val unitConverterHandler: UnitConverterHandler,
     private val dateCalculatorHandler: DateCalculatorHandler,
+    private val colorVisualizerHandler: ColorVisualizerHandler,
     private val currencyConverterHandler: CurrencyConverterHandler,
     private val worldClockHandler: WorldClockHandler,
     private val dictionaryHandler: DictionaryHandler,
@@ -106,6 +108,12 @@ internal class SearchToolCoordinator(
                         query = trimmedQuery,
                         forceDateCalculatorMode = true,
                     )
+
+                SearchToolType.COLOR_VISUALIZER ->
+                    colorVisualizerHandler.processQuery(
+                        query = trimmedQuery,
+                        forceColorVisualizerMode = true,
+                    )
             }
         }
 
@@ -129,6 +137,15 @@ internal class SearchToolCoordinator(
             )
         if (unitConverterResult.result != null) {
             return unitConverterResult
+        }
+
+        val colorVisualizerResult =
+            colorVisualizerHandler.processQuery(
+                query = trimmedQuery,
+                forceColorVisualizerMode = false,
+            )
+        if (colorVisualizerResult.colorArgb != null) {
+            return colorVisualizerResult
         }
 
         return dateCalculatorHandler.processQuery(

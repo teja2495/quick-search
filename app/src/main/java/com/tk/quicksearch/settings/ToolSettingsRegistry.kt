@@ -6,6 +6,7 @@ import androidx.compose.material.icons.rounded.AccessTime
 import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.CurrencyExchange
+import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Cloud
 import androidx.compose.material.icons.rounded.Straighten
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -18,6 +19,7 @@ enum class ToolSettingId {
     UNIT_CONVERTER,
     DATE_CALCULATOR,
     CURRENCY_CONVERTER,
+    COLOR_VISUALIZER,
     WORD_CLOCK,
     DICTIONARY,
     WEATHER,
@@ -25,7 +27,7 @@ enum class ToolSettingId {
 
 data class ToolSettingDefinition(
     val id: ToolSettingId,
-    val aliasFeatureId: String,
+    val aliasFeatureId: String? = null,
     val titleResId: Int,
     val defaultDescriptionResId: Int,
     val requiresGeminiApiKey: Boolean = false,
@@ -76,6 +78,13 @@ object ToolSettingsRegistry {
                 titleResId = R.string.currency_converter_toggle_title,
                 defaultDescriptionResId = R.string.currency_converter_toggle_desc,
                 icon = Icons.Rounded.CurrencyExchange,
+            ),
+            ToolSettingDefinition(
+                id = ToolSettingId.COLOR_VISUALIZER,
+                titleResId = R.string.color_visualizer_toggle_title,
+                defaultDescriptionResId = R.string.color_visualizer_toggle_desc,
+                icon = Icons.Rounded.Palette,
+                toggleKey = AppSettingsToggleKey.COLOR_VISUALIZER,
             ),
             ToolSettingDefinition(
                 id = ToolSettingId.WORD_CLOCK,

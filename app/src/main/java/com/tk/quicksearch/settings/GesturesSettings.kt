@@ -993,7 +993,9 @@ private fun GestureToolPickerDialog(
     onDismiss: () -> Unit,
     onSelect: (String) -> Unit,
 ) {
-    val tools = ToolSettingsRegistry.definitions.map { GestureToolItem(it.aliasFeatureId, stringResource(it.titleResId), it.icon) } +
+    val tools = ToolSettingsRegistry.definitions.mapNotNull { definition ->
+        definition.aliasFeatureId?.let { GestureToolItem(it, stringResource(definition.titleResId), definition.icon) }
+    } +
         state.customTools.filterNot { it.id in state.disabledCustomToolIds }.map { GestureToolItem(it.id, it.name, Icons.Rounded.Build) } +
         state.taskerIntentTools.map { GestureToolItem(it.id, it.name, Icons.Rounded.Build) }
     AppAlertDialog(
@@ -1090,7 +1092,9 @@ private fun allGestureAliasItems(
 
 @Composable
 private fun gestureToolItems(state: com.tk.quicksearch.search.core.SearchUiState): List<Pair<String, String>> =
-    ToolSettingsRegistry.definitions.map { it.aliasFeatureId to stringResource(it.titleResId) } +
+    ToolSettingsRegistry.definitions.mapNotNull { definition ->
+        definition.aliasFeatureId?.let { it to stringResource(definition.titleResId) }
+    } +
         state.customTools
             .filterNot { it.id in state.disabledCustomToolIds }
             .map { it.id to it.name } +

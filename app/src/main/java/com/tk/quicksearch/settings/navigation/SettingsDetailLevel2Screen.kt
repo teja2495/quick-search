@@ -327,6 +327,8 @@ internal fun SettingsDetailLevel2Screen(
                                                             state.unitConverterEnabled
                                                     ToolSettingId.DATE_CALCULATOR ->
                                                             state.dateCalculatorEnabled
+                                                    ToolSettingId.COLOR_VISUALIZER ->
+                                                            state.colorVisualizerEnabled
                                                     ToolSettingId.CURRENCY_CONVERTER ->
                                                             state.currencyConverterEnabled
                                                     ToolSettingId.WORD_CLOCK -> state.worldClockEnabled
@@ -337,10 +339,8 @@ internal fun SettingsDetailLevel2Screen(
                                                 ToolSettingUiState(
                                                         enabled = enabled,
                                                         aliasCode =
-                                                                state.shortcutCodes[
-                                                                                definition
-                                                                                        .aliasFeatureId
-                                                                        ]
+                                                                definition.aliasFeatureId
+                                                                        ?.let { state.shortcutCodes[it] }
                                                                         .orEmpty(),
                                                 )
                                     },
@@ -349,7 +349,9 @@ internal fun SettingsDetailLevel2Screen(
                             onToolAliasChange = { toolId, code ->
                                 val definition =
                                         ToolSettingsRegistry.definitionFor(toolId) ?: return@ToolsSettingsSection
-                                callbacks.onSetSearchSectionAlias(definition.aliasFeatureId, code)
+                                definition.aliasFeatureId?.let {
+                                    callbacks.onSetSearchSectionAlias(it, code)
+                                }
                             },
                             onToolToggle = { toolId, enabled ->
                                 val requiresGeminiApiKey =
@@ -364,6 +366,8 @@ internal fun SettingsDetailLevel2Screen(
                                     return@ToolsSettingsSection
                                 }
                                 when (toolId) {
+                                    ToolSettingId.COLOR_VISUALIZER ->
+                                            callbacks.onToggleColorVisualizer(enabled)
                                     ToolSettingId.CURRENCY_CONVERTER ->
                                             callbacks.onToggleCurrencyConverter(enabled)
                                     ToolSettingId.WORD_CLOCK -> callbacks.onToggleWorldClock(enabled)

@@ -956,6 +956,13 @@ class UiPreferences(
         setBooleanPref(UiPreferences.KEY_CURRENCY_CONVERTER_ENABLED, enabled)
     }
 
+    fun isColorVisualizerEnabled(): Boolean =
+            getBooleanPref(UiPreferences.KEY_COLOR_VISUALIZER_ENABLED, true)
+
+    fun setColorVisualizerEnabled(enabled: Boolean) {
+        setBooleanPref(UiPreferences.KEY_COLOR_VISUALIZER_ENABLED, enabled)
+    }
+
     fun isWorldClockEnabled(): Boolean =
             getBooleanPref(UiPreferences.KEY_WORD_CLOCK_ENABLED, true)
 
@@ -1410,6 +1417,7 @@ class UiPreferences(
         const val KEY_UNIT_CONVERTER_ENABLED = "unit_converter_enabled"
         const val KEY_DATE_CALCULATOR_ENABLED = "date_calculator_enabled"
         const val KEY_CURRENCY_CONVERTER_ENABLED = "currency_converter_enabled"
+        const val KEY_COLOR_VISUALIZER_ENABLED = "color_visualizer_enabled"
         const val KEY_WORD_CLOCK_ENABLED = "word_clock_enabled"
         const val KEY_DICTIONARY_ENABLED = "dictionary_enabled"
         const val KEY_CURRENCY_CONVERTER_MODEL = "currency_converter_model"

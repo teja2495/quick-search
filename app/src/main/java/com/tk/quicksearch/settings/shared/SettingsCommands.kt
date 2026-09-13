@@ -107,6 +107,7 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
                 AppSettingsToggleKey.CALCULATOR -> setCalculatorEnabled(command.enabled)
                 AppSettingsToggleKey.UNIT_CONVERTER -> setUnitConverterEnabled(command.enabled)
                 AppSettingsToggleKey.DATE_CALCULATOR -> setDateCalculatorEnabled(command.enabled)
+                AppSettingsToggleKey.COLOR_VISUALIZER -> setColorVisualizerEnabled(command.enabled)
                 AppSettingsToggleKey.APP_SUGGESTIONS -> setAppSuggestionsEnabled(command.enabled)
                 AppSettingsToggleKey.SHOW_ALL_APPS_BUTTON -> setShowAllAppsButton(command.enabled)
                 AppSettingsToggleKey.INCLUDE_NON_LAUNCHABLE_APPS_IN_SEARCH ->
@@ -211,6 +212,7 @@ internal fun SearchUiState.isAppSettingToggleEnabled(toggleKey: AppSettingsToggl
         AppSettingsToggleKey.CALCULATOR -> calculatorEnabled
         AppSettingsToggleKey.UNIT_CONVERTER -> unitConverterEnabled
         AppSettingsToggleKey.DATE_CALCULATOR -> dateCalculatorEnabled
+        AppSettingsToggleKey.COLOR_VISUALIZER -> colorVisualizerEnabled
         AppSettingsToggleKey.APP_SUGGESTIONS -> appSuggestionsEnabled
         AppSettingsToggleKey.SHOW_ALL_APPS_BUTTON -> showAllAppsButton
         AppSettingsToggleKey.INCLUDE_NON_LAUNCHABLE_APPS_IN_SEARCH ->

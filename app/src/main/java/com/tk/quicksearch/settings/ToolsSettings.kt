@@ -131,13 +131,15 @@ fun ToolsSettingsSection(
                                         },
                                         leadingIcon = definition.icon,
                                         aliasCode =
-                                                if (isAvailable) {
+                                                if (isAvailable && definition.aliasFeatureId != null) {
                                                     toolState.aliasCode
                                                 } else {
                                                     null
                                                 },
                                         onAliasCodeChange = { alias ->
-                                            onToolAliasChange(definition.id, alias)
+                                            if (definition.aliasFeatureId != null) {
+                                                onToolAliasChange(definition.id, alias)
+                                            }
                                         },
                                         existingShortcuts = existingShortcuts,
                                         aliasFeatureId = definition.aliasFeatureId,

@@ -884,6 +884,9 @@
 <string name="currency_converter_requires_gemini_key">Требуется API-ключ AI-провайдера</string>
 <string name="currency_converter_toggle_desc">Пример: 100 USD в INR</string>
     <string name="currency_converter_toggle_title">Конвертер валют</string>
+    <string name="color_visualizer_toggle_title">Визуализатор цветов</string>
+    <string name="color_visualizer_toggle_desc">Примеры: #FF0000, rgb(255, 0, 0)</string>
+    <string name="color_visualizer_invalid_input">Введите шестнадцатеричный цвет или RGB</string>
     <string name="currency_converter_updated">Обновлено %1$s</string>
 <string name="date_calculator_category_absolute_time">Абсолютное время</string>
 <string name="date_calculator_category_date_differences">Разница между датами</string>

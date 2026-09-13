@@ -411,6 +411,13 @@ class AppSettingsRepository(
                 keywords = listOf("examples"),
             )
             addToggle(
+                id = "app_toggle_color_visualizer",
+                titleRes = R.string.color_visualizer_toggle_title,
+                descriptionRes = R.string.color_visualizer_toggle_desc,
+                toggleKey = AppSettingsToggleKey.COLOR_VISUALIZER,
+                keywords = listOf("color", "colour", "hex", "rgb"),
+            )
+            addToggle(
                 id = "app_toggle_dictionary",
                 titleRes = R.string.dictionary_toggle_title,
                 descriptionRes = R.string.dictionary_toggle_desc,

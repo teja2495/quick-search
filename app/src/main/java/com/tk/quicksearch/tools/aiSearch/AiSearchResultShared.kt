@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material.icons.rounded.CalendarMonth
+import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Straighten
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -315,12 +316,16 @@ internal fun CalculatorAttributionRow(
             when (toolType) {
                 SearchToolType.UNIT_CONVERTER -> R.string.unit_converter_info_title
                 SearchToolType.DATE_CALCULATOR -> R.string.date_calculator_info_title
+                SearchToolType.COLOR_VISUALIZER -> R.string.color_visualizer_toggle_title
+                SearchToolType.CALCULATOR -> R.string.calculator_toggle_title
                 else -> R.string.calculator_toggle_title
             }
     val icon =
             when (toolType) {
                 SearchToolType.UNIT_CONVERTER -> Icons.Rounded.Straighten
                 SearchToolType.DATE_CALCULATOR -> Icons.Rounded.CalendarMonth
+                SearchToolType.COLOR_VISUALIZER -> Icons.Rounded.Palette
+                SearchToolType.CALCULATOR -> Icons.Rounded.Calculate
                 else -> Icons.Rounded.Calculate
             }
     Row(

@@ -48,6 +48,7 @@ import com.tk.quicksearch.search.webSuggestions.WebSuggestionsSection
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.homeTextColor
 import com.tk.quicksearch.tools.aiSearch.CurrencyConverterResult
+import com.tk.quicksearch.tools.aiSearch.ColorVisualizerResult
 import com.tk.quicksearch.tools.aiSearch.CalculatorResult
 import com.tk.quicksearch.tools.aiSearch.DictionaryResult
 import com.tk.quicksearch.tools.aiSearch.AiSearchResult
@@ -974,11 +975,18 @@ fun ContentLayout(
 
                 ItemPriorityConfig.ItemType.CALCULATOR_RESULT -> {
                     if (showCalculator) {
-                        CalculatorResult(
-                            calculatorState = state.calculatorState,
-                            showWallpaperBackground =
-                                effectiveShowWallpaperBackground,
-                        )
+                        if (state.calculatorState.toolType == com.tk.quicksearch.search.core.SearchToolType.COLOR_VISUALIZER) {
+                            ColorVisualizerResult(
+                                calculatorState = state.calculatorState,
+                                showWallpaperBackground = effectiveShowWallpaperBackground,
+                            )
+                        } else {
+                            CalculatorResult(
+                                calculatorState = state.calculatorState,
+                                showWallpaperBackground =
+                                    effectiveShowWallpaperBackground,
+                            )
+                        }
                     }
                 }
 

@@ -14,6 +14,9 @@ internal interface SearchViewModelPreferencesApi {
     fun setDateCalculatorEnabled(enabled: Boolean) =
         preferencesApiDelegate.setDateCalculatorEnabled(enabled)
 
+    fun setColorVisualizerEnabled(enabled: Boolean) =
+        preferencesApiDelegate.setColorVisualizerEnabled(enabled)
+
     fun setCurrencyConverterEnabled(enabled: Boolean) =
         preferencesApiDelegate.setCurrencyConverterEnabled(enabled)
 
@@ -305,6 +308,8 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
     fun setUnitConverterEnabled(enabled: Boolean) = preferencesDelegate.setUnitConverterEnabled(enabled)
 
     fun setDateCalculatorEnabled(enabled: Boolean) = preferencesDelegate.setDateCalculatorEnabled(enabled)
+
+    fun setColorVisualizerEnabled(enabled: Boolean) = preferencesDelegate.setColorVisualizerEnabled(enabled)
 
     fun setCurrencyConverterEnabled(enabled: Boolean) =
         preferencesDelegate.setCurrencyConverterEnabled(enabled)

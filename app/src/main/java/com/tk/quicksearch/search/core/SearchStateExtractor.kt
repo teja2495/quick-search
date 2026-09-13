@@ -124,6 +124,7 @@ internal object SearchStateExtractor {
             calculatorEnabled = s.calculatorEnabled,
             unitConverterEnabled = s.unitConverterEnabled,
             dateCalculatorEnabled = s.dateCalculatorEnabled,
+            colorVisualizerEnabled = s.colorVisualizerEnabled,
             currencyConverterEnabled = s.currencyConverterEnabled,
             worldClockEnabled = s.worldClockEnabled,
             dictionaryEnabled = s.dictionaryEnabled,

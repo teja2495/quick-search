@@ -405,6 +405,11 @@ internal class SearchQueryCoordinator(
                     isDateCalculatorMode = true,
                     toolType = SearchToolType.DATE_CALCULATOR,
                 )
+            SearchToolType.COLOR_VISUALIZER ->
+                CalculatorState(
+                    isColorVisualizerMode = true,
+                    toolType = SearchToolType.COLOR_VISUALIZER,
+                )
         }
 
     private fun resolveToolState(

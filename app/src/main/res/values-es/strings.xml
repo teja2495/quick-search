@@ -864,6 +864,9 @@
     <string name="currency_converter_requires_gemini_key">Requiere una clave API de un AI Provider</string>
     <string name="currency_converter_toggle_desc">Ejemplo: 100 USD to INR</string>
     <string name="currency_converter_toggle_title">Conversor de divisas</string>
+    <string name="color_visualizer_toggle_title">Visualizador de colores</string>
+    <string name="color_visualizer_toggle_desc">Ejemplos: #FF0000, rgb(255, 0, 0)</string>
+    <string name="color_visualizer_invalid_input">Introduce un color hexadecimal o RGB</string>
     <string name="currency_converter_updated">Actualizado %1$s</string>
     <string name="date_calculator_category_absolute_time">Hora absoluta</string>
     <string name="date_calculator_category_date_differences">Diferencias de fechas</string>

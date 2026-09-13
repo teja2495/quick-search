@@ -1440,6 +1440,10 @@ class UserAppPreferences(
 
     fun setCurrencyConverterEnabled(enabled: Boolean) = uiPreferences.setCurrencyConverterEnabled(enabled)
 
+    fun isColorVisualizerEnabled(): Boolean = uiPreferences.isColorVisualizerEnabled()
+
+    fun setColorVisualizerEnabled(enabled: Boolean) = uiPreferences.setColorVisualizerEnabled(enabled)
+
     fun isWorldClockEnabled(): Boolean = uiPreferences.isWorldClockEnabled()
 
     fun setWorldClockEnabled(enabled: Boolean) = uiPreferences.setWorldClockEnabled(enabled)

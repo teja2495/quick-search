@@ -108,6 +108,13 @@ internal class SearchPreferencesDelegate(
         }
     }
 
+    fun setColorVisualizerEnabled(enabled: Boolean) {
+        scope.launch(Dispatchers.IO) {
+            userPreferences.setColorVisualizerEnabled(enabled)
+            updateFeatureState { it.copy(colorVisualizerEnabled = enabled) }
+        }
+    }
+
     fun setCurrencyConverterEnabled(enabled: Boolean) {
         scope.launch(Dispatchers.IO) {
             userPreferences.setCurrencyConverterEnabled(enabled)

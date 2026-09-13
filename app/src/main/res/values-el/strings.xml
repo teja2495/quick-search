@@ -864,6 +864,9 @@
     <string name="currency_converter_requires_gemini_key">Απαιτείται ένα κλειδί API παρόχου AI</string>
     <string name="currency_converter_toggle_desc">Παράδειγμα: 100 USD to INR</string>
     <string name="currency_converter_toggle_title">Μετατροπέας νομισμάτων</string>
+    <string name="color_visualizer_toggle_title">Οπτικοποίηση χρώματος</string>
+    <string name="color_visualizer_toggle_desc">Παραδείγματα: #FF0000, rgb(255, 0, 0)</string>
+    <string name="color_visualizer_invalid_input">Εισαγάγετε ένα χρώμα hex ή RGB</string>
     <string name="currency_converter_updated">Ενημερώθηκε %1$s</string>
     <string name="date_calculator_category_absolute_time">Απόλυτος χρόνος</string>
     <string name="date_calculator_category_date_differences">Διαφορές ημερομηνιών</string>

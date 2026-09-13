@@ -864,6 +864,9 @@
     <string name="currency_converter_requires_gemini_key">AI ప్రొవైడర్ API కీ అవసరం</string>
     <string name="currency_converter_toggle_desc">ఉదాహరణ: 100 USD to INR</string>
     <string name="currency_converter_toggle_title">కరెన్సీ కన్వర్టర్</string>
+    <string name="color_visualizer_toggle_title">రంగు విజువలైజర్</string>
+    <string name="color_visualizer_toggle_desc">ఉదాహరణలు: #FF0000, rgb(255, 0, 0)</string>
+    <string name="color_visualizer_invalid_input">హెక్స్ లేదా RGB రంగును నమోదు చేయండి</string>
     <string name="currency_converter_updated">నవీకరించబడింది %1$s</string>
     <string name="date_calculator_category_absolute_time">నిర్దిష్ట సమయం</string>
     <string name="date_calculator_category_date_differences">తేదీ వ్యత్యాసాలు</string>

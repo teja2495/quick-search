@@ -863,6 +863,9 @@
 <string name="currency_converter_requires_gemini_key">Bir AI sağlayıcı API anahtarı gerektirir</string>
 <string name="currency_converter_toggle_desc">Örnek: 100 USD to INR</string>
     <string name="currency_converter_toggle_title">Döviz dönüştürücü</string>
+    <string name="color_visualizer_toggle_title">Renk Görselleştirici</string>
+    <string name="color_visualizer_toggle_desc">Örnekler: #FF0000, rgb(255, 0, 0)</string>
+    <string name="color_visualizer_invalid_input">Bir hex veya RGB rengi girin</string>
     <string name="currency_converter_updated">Güncellendi %1$s</string>
 <string name="date_calculator_category_absolute_time">Mutlak zaman</string>
 <string name="date_calculator_category_date_differences">Tarih farkları</string>

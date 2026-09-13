@@ -854,6 +854,9 @@
     <string name="currency_converter_requires_gemini_key">此功能需要配置 AI 提供商的 API 密钥</string>
     <string name="currency_converter_toggle_desc">例如：100 USD to INR</string>
     <string name="currency_converter_toggle_title">货币转换器</string>
+    <string name="color_visualizer_toggle_title">颜色可视化工具</string>
+    <string name="color_visualizer_toggle_desc">示例：#FF0000、rgb(255, 0, 0)</string>
+    <string name="color_visualizer_invalid_input">请输入十六进制或 RGB 颜色</string>
     <string name="currency_converter_updated">更新于 %1$s</string>
     <string name="date_calculator_category_absolute_time">绝对时间</string>
     <string name="date_calculator_category_date_differences">日期差异</string>
