@@ -1085,6 +1085,7 @@
     <string name="search_engine_google_translate">谷歌翻译</string>
     <string name="search_engine_kagi">Kagi</string>
     <string name="search_engine_kagi_assistant">Kagi Assistant</string>
+    <string name="search_engine_muse">Muse</string>
     <string name="tasker_integration_title">Tasker 操作</string>
     <string name="tasker_integration_description">使用广播 Intent 创建 Tasker 操作。</string>
     <string name="tasker_add_intent_title">添加 Tasker 广播 Intent</string>

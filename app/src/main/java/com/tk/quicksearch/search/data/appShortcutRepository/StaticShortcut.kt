@@ -314,9 +314,11 @@ internal fun resolveSearchTargetIconBase64(context: Context, target: SearchTarge
                         loadAppIconBase64(context, packageName)
                     }
             installedAppIconBase64
-                ?: AppCompatResources.getDrawable(context, target.engine.getDrawableResId())
-                    ?.toBitmap(width = 96, height = 96)
-                    ?.let(::bitmapToBase64Png)
+                ?: target.engine.getDrawableResId()?.let { drawableResId ->
+                    AppCompatResources.getDrawable(context, drawableResId)
+                        ?.toBitmap(width = 96, height = 96)
+                        ?.let(::bitmapToBase64Png)
+                }
         }
 
         is SearchTarget.Browser -> {

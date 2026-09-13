@@ -90,6 +90,7 @@ fun SearchTargetIcon(
                     contentScale = ContentScale.Fit,
                 )
             } else if (!targetEngine.isInstallOnlyEngine()) {
+                val drawableResId = targetEngine.getDrawableResId() ?: return
                 val backgroundColor = MaterialTheme.colorScheme.background
                 val isLightMode =
                     backgroundColor.red > 0.9f &&
@@ -98,7 +99,7 @@ fun SearchTargetIcon(
 
                 if (targetEngine == SearchEngine.WIKIPEDIA) {
                     Icon(
-                        painter = painterResource(id = targetEngine.getDrawableResId()),
+                        painter = painterResource(id = drawableResId),
                         contentDescription = targetEngine.getContentDescription(),
                         modifier = modifier.size(iconSize),
                         tint = if (isLightMode) Color.Black else Color.White,
@@ -107,7 +108,7 @@ fun SearchTargetIcon(
                     when (style) {
                         IconRenderStyle.SIMPLE -> {
                             Icon(
-                                painter = painterResource(id = targetEngine.getDrawableResId()),
+                                painter = painterResource(id = drawableResId),
                                 contentDescription = targetEngine.getContentDescription(),
                                 modifier = modifier.size(iconSize),
                                 tint = Color.Unspecified,
@@ -178,7 +179,7 @@ fun SearchTargetIcon(
                                 } else null
 
                             Image(
-                                painter = painterResource(id = targetEngine.getDrawableResId()),
+                                painter = painterResource(id = drawableResId),
                                 contentDescription = targetEngine.getContentDescription(),
                                 modifier = modifier.size(iconSize),
                                 contentScale = ContentScale.Fit,

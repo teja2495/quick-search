@@ -1097,6 +1097,7 @@
     <string name="search_engine_google_translate">ترجمة Google</string>
     <string name="search_engine_kagi">Kagi</string>
     <string name="search_engine_kagi_assistant">Kagi Assistant</string>
+    <string name="search_engine_muse">Muse</string>
     <string name="tasker_integration_title">إجراءات Tasker</string>
     <string name="tasker_integration_description">إنشاء إجراءات Tasker باستخدام نوايا البث (broadcast intents).</string>
     <string name="tasker_add_intent_title">إضافة نية بث لـ Tasker</string>

@@ -56,6 +56,7 @@ enum class SearchEngine {
         GOOGLE_TRANSLATE,
         KAGI,
         KAGI_ASSISTANT,
+        MUSE,
 }
 
 data class BrowserApp(

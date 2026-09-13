@@ -40,6 +40,15 @@ internal object SearchEngineIntents {
             text = query.trim(),
         )
 
+    internal fun buildMuseShareIntentSpec(query: String) =
+        ShareIntentSpec(
+            action = Intent.ACTION_SEND,
+            packageName = PackageConstants.MUSE_PACKAGE,
+            className = MUSE_SHARE_ACTIVITY,
+            mimeType = "text/plain",
+            text = query.trim(),
+        )
+
     internal data class KagiAssistantLaunchSpec(
         val uriString: String,
         val text: String?,
@@ -74,6 +83,7 @@ internal object SearchEngineIntents {
             SearchEngineNativeLaunchMode.GOOGLE_TRANSLATE -> ::openGoogleTranslate
             SearchEngineNativeLaunchMode.KAGI -> ::openKagi
             SearchEngineNativeLaunchMode.KAGI_ASSISTANT -> ::openKagiAssistant
+            SearchEngineNativeLaunchMode.MUSE -> ::openMuse
             SearchEngineNativeLaunchMode.FDROID -> ::openFdroid
             SearchEngineNativeLaunchMode.NONE -> null
         }
@@ -587,6 +597,55 @@ internal object SearchEngineIntents {
         openWebUrl(context, buildSearchUrl(trimmedQuery, SearchEngine.KAGI_ASSISTANT))
     }
 
+    /** Opens Muse with the query via share intent when installed; otherwise opens web URL. */
+    fun openMuse(
+        context: Application,
+        query: String,
+    ) {
+        val launchIntent =
+            context.packageManager.getLaunchIntentForPackage(
+                PackageConstants.MUSE_PACKAGE,
+            )
+
+        if (launchIntent == null) {
+            openWebUrl(context, buildSearchUrl(query, SearchEngine.MUSE))
+            return
+        }
+
+        if (query.isBlank()) {
+            launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            try {
+                context.startActivity(launchIntent)
+                return
+            } catch (e: Exception) {
+                Log.w("MuseLaunch", "Failed to launch Muse: ${e.message}")
+            }
+            openWebUrl(context, buildSearchUrl(query, SearchEngine.MUSE))
+            return
+        }
+
+        val spec = buildMuseShareIntentSpec(query)
+        val shareIntent =
+            Intent(spec.action).apply {
+                setClassName(spec.packageName, spec.className)
+                type = spec.mimeType
+                putExtra(Intent.EXTRA_TEXT, spec.text)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        if (IntentUtils.canResolveIntent(context, shareIntent)) {
+            try {
+                context.startActivity(shareIntent)
+                return
+            } catch (e: ActivityNotFoundException) {
+                Log.w("MuseLaunch", "Share intent failed: ${e.message}")
+            } catch (e: SecurityException) {
+                Log.w("MuseLaunch", "Share security exception: ${e.message}")
+            }
+        }
+
+        openWebUrl(context, buildSearchUrl(query, SearchEngine.MUSE))
+    }
+
     /** Opens a web URL in a browser. */
     private fun openWebUrl(
         context: Application,
@@ -637,4 +696,5 @@ internal object SearchEngineIntents {
     private const val KAGI_HOME_ACTIVITY = "com.kagi.search.HomeActivity"
     private const val KAGI_ASSISTANT_MAIN_ACTIVITY = "com.kagi.assistant.MainActivity"
     private const val KAGI_ASSISTANT_NEW_THREAD_URI = "com.kagi.assistant://thread/new"
+    private const val MUSE_SHARE_ACTIVITY = "com.facebook.aura.share.AuraShareIntentHandlerActivity"
 }

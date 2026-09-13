@@ -29,11 +29,12 @@ enum class SearchEngineNativeLaunchMode {
     KAGI,
     KAGI_ASSISTANT,
     FDROID,
+    MUSE,
 }
 
 data class SearchEngineDefinition(
     val engine: SearchEngine,
-    @DrawableRes val drawableResId: Int,
+    @DrawableRes val drawableResId: Int? = null,
     @StringRes val contentDescriptionResId: Int,
     val urlTemplate: String,
     val defaultShortcutCode: String,
@@ -336,7 +337,6 @@ object SearchEngineRegistry {
             ),
             SearchEngineDefinition(
                 engine = SearchEngine.KAGI_ASSISTANT,
-                drawableResId = R.drawable.kagi_assistant,
                 contentDescriptionResId = R.string.search_engine_kagi_assistant,
                 urlTemplate = "https://assistant.kagi.com/?q=%s",
                 defaultShortcutCode = "kas",
@@ -344,6 +344,16 @@ object SearchEngineRegistry {
                 appPackages = listOf(PackageConstants.KAGI_ASSISTANT_PACKAGE),
                 installOnly = true,
                 nativeLaunchMode = SearchEngineNativeLaunchMode.KAGI_ASSISTANT,
+            ),
+            SearchEngineDefinition(
+                engine = SearchEngine.MUSE,
+                contentDescriptionResId = R.string.search_engine_muse,
+                urlTemplate = "https://muse.ai/?q=%s",
+                defaultShortcutCode = "mse",
+                homeUrl = "https://muse.ai",
+                appPackages = listOf(PackageConstants.MUSE_PACKAGE),
+                installOnly = true,
+                nativeLaunchMode = SearchEngineNativeLaunchMode.MUSE,
             ),
         )
 

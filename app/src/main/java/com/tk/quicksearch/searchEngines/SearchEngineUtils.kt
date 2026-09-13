@@ -8,7 +8,7 @@ import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.search.core.SearchEngine
 
 @DrawableRes
-fun SearchEngine.getDrawableResId(): Int =
+fun SearchEngine.getDrawableResId(): Int? =
     SearchEngineRegistry.get(this).drawableResId
 
 fun SearchEngine.getAppPackageCandidates(): List<String> =

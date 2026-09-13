@@ -1095,6 +1095,7 @@
     <string name="search_engine_google_translate">Google Traduction</string>
     <string name="search_engine_kagi">Kagi</string>
     <string name="search_engine_kagi_assistant">Kagi Assistant</string>
+    <string name="search_engine_muse">Muse</string>
     <string name="tasker_integration_title">Actions Tasker</string>
     <string name="tasker_integration_description">Créez des actions Tasker en utilisant des intents de diffusion (broadcast).</string>
     <string name="tasker_add_intent_title">Ajouter un intent de diffusion Tasker</string>

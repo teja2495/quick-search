@@ -41,4 +41,5 @@ object PackageConstants {
     const val SPOTIFY_PACKAGE = "com.spotify.music"
     const val AMAZON_PACKAGE = "com.amazon.mShop.android.shopping"
     const val CLAUDE_PACKAGE = "com.anthropic.claude"
+    const val MUSE_PACKAGE = "com.facebook.aura"
 }
