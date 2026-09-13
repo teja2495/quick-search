@@ -75,6 +75,7 @@
     <string name="icon_picker_title">Cambiar icono de "%1$s"</string>
     <string name="action_change_wallpaper">Cambiar fondo de pantalla</string>
     <string name="action_clear_all_history">Borrar historial</string>
+    <string name="action_copy_content">Copiar contenido</string>
     <string name="action_edit_icon">Editar icono</string>
     <string name="action_edit_nickname">Editar apodo</string>
     <string name="action_edit_trigger">Editar activador</string>

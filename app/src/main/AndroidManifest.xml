@@ -377,6 +377,10 @@
             android:name=".pinnedNotifications.PinnedNotificationUnpinReceiver"
             android:exported="false" />
 
+        <receiver
+            android:name=".pinnedNotifications.PinnedNotificationCopyContentReceiver"
+            android:exported="false" />
+
         <!-- Widget Receivers -->
         <receiver
             android:name=".widgets.searchWidget.SearchWidgetReceiver"

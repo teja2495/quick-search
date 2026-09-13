@@ -75,6 +75,7 @@
     <string name="icon_picker_title">更改“%1$s”的图标</string>
     <string name="action_change_wallpaper">更改壁纸</string>
     <string name="action_clear_all_history">清空历史记录</string>
+    <string name="action_copy_content">复制内容</string>
     <string name="action_edit_icon">编辑图标</string>
     <string name="action_edit_nickname">编辑昵称</string>
     <string name="action_edit_trigger">编辑触发词</string>

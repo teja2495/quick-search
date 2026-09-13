@@ -180,7 +180,23 @@ object PinnedNotifications {
             .setShowWhen(false)
             .setCategory(NotificationCompat.CATEGORY_STATUS)
             .setDeleteIntent(restorePendingIntent(context, notificationId))
-            .addAction(R.drawable.ic_unpin, context.getString(R.string.action_unpin_app), unpinPendingIntent)
+        if (action is CustomWidgetButtonAction.Note && action.markdownContent.isNotBlank()) {
+            val copyIntent = Intent(context, PinnedNotificationCopyContentReceiver::class.java)
+                .putExtra(PinnedNotificationCopyContentReceiver.ExtraContent, action.markdownContent)
+                .setData(android.net.Uri.parse("quicksearch://copy-content/${action.stableKey().hashCode()}"))
+            val copyPendingIntent = PendingIntent.getBroadcast(
+                context,
+                notificationId,
+                copyIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+            builder.addAction(
+                R.drawable.ic_copy_content,
+                context.getString(R.string.action_copy_content),
+                copyPendingIntent,
+            )
+        }
+        builder.addAction(R.drawable.ic_unpin, context.getString(R.string.action_unpin_app), unpinPendingIntent)
         largeIcon?.let(builder::setLargeIcon)
         if (action is CustomWidgetButtonAction.Note && action.markdownContent.isNotBlank()) {
             val noteContent = action.markdownContent.normalizedNotificationText()

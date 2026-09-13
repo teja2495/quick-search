@@ -74,6 +74,7 @@
     <string name="icon_picker_title">Cambia icona per "%1$s"</string>
     <string name="action_change_wallpaper">Cambia sfondo</string>
     <string name="action_clear_all_history">Cancella cronologia</string>
+    <string name="action_copy_content">Copia contenuto</string>
     <string name="action_edit_icon">Modifica icona</string>
     <string name="action_edit_nickname">Modifica soprannome</string>
     <string name="action_edit_trigger">Modifica trigger</string>

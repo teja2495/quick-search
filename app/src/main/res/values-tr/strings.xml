@@ -74,6 +74,7 @@
 <string name="icon_picker_title">"%1$s" için simgeyi değiştir</string>
 <string name="action_change_wallpaper">Duvar kağıdını değiştir</string>
 <string name="action_clear_all_history">Geçmişi temizle</string>
+<string name="action_copy_content">İçeriği kopyala</string>
 <string name="action_edit_icon">Simgeyi düzenle</string>
 <string name="action_edit_nickname">Takma adı düzenle</string>
 <string name="action_edit_trigger">Tetikleyiciyi düzenle</string>

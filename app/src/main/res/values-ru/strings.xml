@@ -75,6 +75,7 @@
 <string name="icon_picker_title">Изменить значок для «%1$s»</string>
 <string name="action_change_wallpaper">Изменить обои</string>
 <string name="action_clear_all_history">Очистить историю</string>
+<string name="action_copy_content">Копировать содержимое</string>
     <string name="action_edit_icon">Редактировать значок</string>
 <string name="action_edit_nickname">Изменить псевдоним</string>
 <string name="action_edit_trigger">Изменить триггер</string>

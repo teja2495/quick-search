@@ -75,6 +75,7 @@
     <string name="icon_picker_title">Αλλαγή εικονιδίου για το "%1$s"</string>
     <string name="action_change_wallpaper">Αλλαγή ταπετσαρίας</string>
     <string name="action_clear_all_history">Εκκαθάριση ιστορικού</string>
+    <string name="action_copy_content">Αντιγραφή περιεχομένου</string>
     <string name="action_edit_icon">Επεξεργασία εικονιδίου</string>
     <string name="action_edit_nickname">Επεξεργασία ψευδωνύμου</string>
     <string name="action_edit_trigger">Επεξεργασία ενεργοποίησης</string>

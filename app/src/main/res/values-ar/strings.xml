@@ -76,6 +76,7 @@
     <string name="icon_picker_title">تغيير أيقونة "%1$s"</string>
     <string name="action_change_wallpaper">تغيير الخلفية</string>
     <string name="action_clear_all_history">مسح سجل البحث</string>
+    <string name="action_copy_content">نسخ المحتوى</string>
     <string name="action_edit_icon">تعديل الأيقونة</string>
     <string name="action_edit_nickname">تعديل اللقب</string>
     <string name="action_edit_trigger">تعديل كلمة التشغيل</string>

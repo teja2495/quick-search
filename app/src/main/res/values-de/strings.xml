@@ -75,6 +75,7 @@
     <string name="icon_picker_title">Symbol für „%1$s“ ändern</string>
     <string name="action_change_wallpaper">Hintergrundbild ändern</string>
     <string name="action_clear_all_history">Verlauf löschen</string>
+    <string name="action_copy_content">Inhalt kopieren</string>
     <string name="action_edit_icon">Symbol bearbeiten</string>
     <string name="action_edit_nickname">Spitzname bearbeiten</string>
     <string name="action_edit_trigger">Auslöser bearbeiten</string>

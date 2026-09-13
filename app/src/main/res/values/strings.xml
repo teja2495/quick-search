@@ -67,6 +67,7 @@
     <string name="icon_picker_title">Change icon for "%1$s"</string>
     <string name="action_change_wallpaper">Change Wallpaper</string>
     <string name="action_clear_all_history">Clear History</string>
+    <string name="action_copy_content">Copy Content</string>
     <string name="action_edit_icon">Edit Icon</string>
     <string name="action_edit_nickname">Edit Nickname</string>
     <string name="action_edit_trigger">Edit Trigger</string>

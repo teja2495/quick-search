@@ -75,6 +75,7 @@
     <string name="icon_picker_title">"%1$s" के लिए आइकन बदलें</string>
     <string name="action_change_wallpaper">वॉलपेपर बदलें</string>
     <string name="action_clear_all_history">इतिहास साफ करें</string>
+    <string name="action_copy_content">सामग्री कॉपी करें</string>
     <string name="action_edit_icon">आइकन संपादित करें</string>
     <string name="action_edit_nickname">निकनेम संपादित करें</string>
     <string name="action_edit_trigger">ट्रिगर संपादित करें</string>

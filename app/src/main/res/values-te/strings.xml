@@ -75,6 +75,7 @@
     <string name="icon_picker_title">"%1$s" కోసం చిహ్నాన్ని మార్చండి</string>
     <string name="action_change_wallpaper">వాల్‌పేపర్ మార్చు</string>
     <string name="action_clear_all_history">చరిత్రను క్లియర్ చేయి</string>
+    <string name="action_copy_content">కంటెంట్‌ను కాపీ చేయండి</string>
     <string name="action_edit_icon">ఐకాన్ సవరించు</string>
     <string name="action_edit_nickname">మారుపేరును సవరించు</string>
     <string name="action_edit_trigger">ట్రిగ్గర్‌ను సవరించు</string>
