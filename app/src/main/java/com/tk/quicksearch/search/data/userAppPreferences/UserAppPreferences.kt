@@ -1374,6 +1374,11 @@ class UserAppPreferences(
 
     fun setShowInRecents(enabled: Boolean) = uiPreferences.setShowInRecents(enabled)
 
+    fun areNotificationDotsEnabled(): Boolean = uiPreferences.areNotificationDotsEnabled()
+
+    fun setNotificationDotsEnabled(enabled: Boolean) =
+            uiPreferences.setNotificationDotsEnabled(enabled)
+
     fun getSelectedAppSuggestionTab(): AppSuggestionTabType =
             uiPreferences.getSelectedAppSuggestionTab()
 

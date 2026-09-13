@@ -285,6 +285,9 @@
     <string name="open_top_result_using_keyboard_toggle_desc">La touche Entrée/Terminé ouvrira le premier résultat</string>
 <string name="include_non_launchable_apps_toggle_title">Applications non lançables</string>
 <string name="include_non_launchable_apps_toggle_desc">Inclure les applications sans activité de lancement dans les résultats de recherche.</string>
+    <string name="notification_dots_toggle_title">Points de notification</string>
+    <string name="notification_dots_toggle_desc">Afficher des points de notification sur les applications qui ont des notifications</string>
+    <string name="desc_notification_dot">A des notifications</string>
     <string name="show_in_recents_toggle_title">Afficher dans les applications récentes</string>
     <string name="show_in_recents_toggle_desc">Afficher Quick Search dans les applications récentes de votre appareil</string>
 <string name="web_search_suggestions_title">Suggestions Web</string>
@@ -976,8 +979,9 @@
      ============================================================================ -->
 <string name="permissions_calendar_desc">Requis pour rechercher les événements de votre agenda.</string>
 <string name="permissions_calling_desc">Requis pour appeler vos contacts directement sans ouvrir le clavier numérique.</string>
-<string name="settings_notifications_permission_title">Notifications</string>
+<string name="settings_notifications_permission_title">Publier des notifications</string>
 <string name="permissions_notifications_desc">Requis pour épingler les résultats de recherche dans le panneau de notifications</string>
+    <string name="permissions_notification_access_desc">Requis pour afficher des points de notification sur les applications qui ont des notifications.</string>
 <string name="permissions_accessibility_lock_screen_title">Accessibilité</string>
 <string name="permissions_accessibility_lock_screen_desc">Permet au geste de double appui de verrouiller votre appareil.</string>
 <string name="permissions_contacts_desc">Requis pour rechercher vos contacts.</string>

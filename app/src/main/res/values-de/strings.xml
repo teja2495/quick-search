@@ -285,6 +285,9 @@
     <string name="open_top_result_using_keyboard_toggle_desc">Die Eingabe-/Fertig-Taste öffnet das Top-Ergebnis</string>
     <string name="include_non_launchable_apps_toggle_title">Nicht startbare Apps</string>
     <string name="include_non_launchable_apps_toggle_desc">Apps ohne Start-Aktivität in den Suchergebnissen anzeigen.</string>
+    <string name="notification_dots_toggle_title">Benachrichtigungspunkte</string>
+    <string name="notification_dots_toggle_desc">Benachrichtigungspunkte auf Apps mit Benachrichtigungen anzeigen</string>
+    <string name="desc_notification_dot">Hat Benachrichtigungen</string>
     <string name="show_in_recents_toggle_title">In "Zuletzt verwendet" anzeigen</string>
     <string name="show_in_recents_toggle_desc">Quick Search in den zuletzt verwendeten Apps auf deinem Gerät anzeigen</string>
     <string name="web_search_suggestions_title">Web-Vorschläge</string>
@@ -976,8 +979,9 @@
          ============================================================================ -->
     <string name="permissions_calendar_desc">Erforderlich, um Kalendertermine zu durchsuchen.</string>
     <string name="permissions_calling_desc">Erforderlich, um Kontakte direkt anzurufen, ohne die Telefon-App zu öffnen.</string>
-    <string name="settings_notifications_permission_title">Benachrichtigungen</string>
+    <string name="settings_notifications_permission_title">Benachrichtigungen senden</string>
     <string name="permissions_notifications_desc">Erforderlich, um Suchergebnisse im Benachrichtigungsfeld anzuheften</string>
+    <string name="permissions_notification_access_desc">Erforderlich, um Benachrichtigungspunkte auf Apps mit Benachrichtigungen anzuzeigen.</string>
     <string name="permissions_accessibility_lock_screen_title">Bedienungshilfen</string>
     <string name="permissions_accessibility_lock_screen_desc">Ermöglicht es, das Gerät mit der Doppeltipp-Geste zu sperren.</string>
     <string name="permissions_contacts_desc">Erforderlich, um Kontakte zu durchsuchen.</string>

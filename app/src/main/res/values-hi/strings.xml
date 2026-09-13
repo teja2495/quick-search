@@ -285,6 +285,9 @@
     <string name="open_top_result_using_keyboard_toggle_desc">कीबोर्ड की Enter/Done कुंजी शीर्ष परिणाम खोलेगी</string>
     <string name="include_non_launchable_apps_toggle_title">लॉन्च न होने वाले ऐप्स</string>
     <string name="include_non_launchable_apps_toggle_desc">खोज परिणामों में उन ऐप्स को शामिल करें जिनमें कोई लॉन्च गतिविधि नहीं है।</string>
+    <string name="notification_dots_toggle_title">नोटिफ़िकेशन डॉट्स</string>
+    <string name="notification_dots_toggle_desc">जिन ऐप्स पर नोटिफ़िकेशन हैं उन पर नोटिफ़िकेशन डॉट्स दिखाएँ</string>
+    <string name="desc_notification_dot">नोटिफ़िकेशन हैं</string>
     <string name="show_in_recents_toggle_title">हाल की ऐप्स में दिखाएँ</string>
     <string name="show_in_recents_toggle_desc">Quick Search को अपने डिवाइस की हाल की ऐप्स में दिखाएँ</string>
     <string name="web_search_suggestions_title">वेब सुझाव</string>
@@ -976,8 +979,9 @@
          ============================================================================ -->
     <string name="permissions_calendar_desc">आपके कैलेंडर इवेंट्स खोजने के लिए आवश्यक।</string>
     <string name="permissions_calling_desc">डायलर खोले बिना आपके कॉन्टैक्ट्स को सीधे कॉल करने के लिए आवश्यक।</string>
-    <string name="settings_notifications_permission_title">सूचनाएं</string>
+    <string name="settings_notifications_permission_title">पोस्ट नोटिफ़िकेशन</string>
     <string name="permissions_notifications_desc">खोज परिणामों को सूचना पैनल में पिन करने के लिए आवश्यक</string>
+    <string name="permissions_notification_access_desc">जिन ऐप्स पर नोटिफ़िकेशन हैं उन पर नोटिफ़िकेशन डॉट्स दिखाने के लिए आवश्यक।</string>
     <string name="permissions_accessibility_lock_screen_title">सुलभता</string>
     <string name="permissions_accessibility_lock_screen_desc">डबल-टैप जेस्चर से आपका डिवाइस लॉक किया जा सकता है।</string>
     <string name="permissions_contacts_desc">आपके कॉन्टैक्ट्स खोजने के लिए आवश्यक।</string>

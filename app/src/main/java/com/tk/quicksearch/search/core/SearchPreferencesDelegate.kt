@@ -193,6 +193,14 @@ internal class SearchPreferencesDelegate(
         )
     }
 
+    fun setNotificationDotsEnabled(enabled: Boolean) {
+        updateBooleanPreference(
+            value = enabled,
+            preferenceSetter = userPreferences::setNotificationDotsEnabled,
+            stateUpdater = { updateConfigState { state -> state.copy(notificationDotsEnabled = it) } },
+        )
+    }
+
     fun setShowAllAppsButton(enabled: Boolean) {
         updateBooleanPreference(
             value = enabled,

@@ -63,6 +63,7 @@ import com.tk.quicksearch.tools.aiTools.WorldClockIntentParser
 import com.tk.quicksearch.tools.aiTools.DictionaryIntentParser
 import com.tk.quicksearch.tools.aiTools.WeatherIntentParser
 import com.tk.quicksearch.overlay.OverlayModeController
+import com.tk.quicksearch.search.apps.notificationDots.rememberNotificationDotsCheckedChange
 import com.tk.quicksearch.search.apps.speedBump.SpeedBump
 import com.tk.quicksearch.search.apps.speedBump.SpeedBumpOverlay
 import com.tk.quicksearch.shared.permissions.PermissionSettingsDialog
@@ -399,9 +400,20 @@ fun SearchRoute(
             )
         }
 
+    val onNotificationDotsCheckedChange =
+        rememberNotificationDotsCheckedChange { enabled ->
+            viewModel.applySettingsCommand(
+                SettingsCommand.Toggle(
+                    key = AppSettingsToggleKey.NOTIFICATION_DOTS,
+                    enabled = enabled,
+                ),
+            )
+        }
+
     val onAppSettingToggle: (AppSettingResult, Boolean) -> Unit = { setting, enabled ->
         viewModel.trackRecentAppSettingTap(setting.id)
         when (val toggleKey = setting.toggleKey) {
+            AppSettingsToggleKey.NOTIFICATION_DOTS -> onNotificationDotsCheckedChange(enabled)
             AppSettingsToggleKey.OVERLAY_MODE -> {
                 val isDefaultHomeApp = context.isDefaultHomeApp()
                 val shouldEnableOverlay = enabled && !isDefaultHomeApp

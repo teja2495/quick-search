@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.core
 
 import android.content.Context
+import com.tk.quicksearch.search.apps.notificationDots.NotificationDotsPermission
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.data.filterAvailableStartupApps
 import com.tk.quicksearch.search.data.preferences.UiPreferences
@@ -295,6 +296,9 @@ internal object SearchViewModelInitialStateFactory {
                 includeNonLaunchableAppsInSearch =
                     startupPreferencesReader.shouldIncludeNonLaunchableAppsInSearch(),
                 showInRecents = startupPreferencesReader.shouldShowInRecents(),
+                notificationDotsEnabled =
+                    startupPreferencesReader.areNotificationDotsEnabled() &&
+                        NotificationDotsPermission.canEnableNotificationDots(appContext),
                 selectedAppSuggestionTab = startupPreferencesReader.getSelectedAppSuggestionTab(),
                 enabledAppSuggestionTabs = startupPreferencesReader.getEnabledAppSuggestionTabs(),
                 selectRetainedQuery = !clearQueryOnLaunch && inMemoryRetainedQuery.isNotEmpty(),

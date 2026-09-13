@@ -38,6 +38,9 @@ import com.tk.quicksearch.search.apps.AppGridView
 import com.tk.quicksearch.search.apps.AppItemDropdownMenu
 import com.tk.quicksearch.search.apps.AppSearchInitials
 import com.tk.quicksearch.search.apps.AppSearchPolicy
+import com.tk.quicksearch.search.apps.notificationDots.AppNotificationDot
+import com.tk.quicksearch.search.apps.notificationDots.hasNotificationDot
+import com.tk.quicksearch.search.apps.notificationDots.rememberNotificationDotKeys
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.calendar.CalendarEventRow
 import com.tk.quicksearch.search.common.AddToHomeHandler
@@ -828,6 +831,7 @@ private fun TopMatchAppGrid(
         predictedTarget = if (isPredicted) params.predictedTarget else null,
         suppressTopResultIndicator = !isPredicted,
         showWallpaperBackground = params.showWallpaperBackground,
+        notificationDotsEnabled = params.notificationDotsEnabled,
     )
 }
 
@@ -839,6 +843,7 @@ private fun TopMatchAppRow(
     isPredicted: Boolean,
 ) {
     if (params == null) return
+    val notificationDotKeys = rememberNotificationDotKeys(params.notificationDotsEnabled)
     val view = LocalView.current
     val context = LocalContext.current
     val addToHomeHandler = remember(context) { AddToHomeHandler(context) }
@@ -894,6 +899,7 @@ private fun TopMatchAppRow(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(24.dp),
                 )
+                AppNotificationDot(visible = app.hasNotificationDot(notificationDotKeys))
             }
 
             Text(

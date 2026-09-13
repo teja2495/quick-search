@@ -425,6 +425,16 @@
         </service>
 
         <service
+            android:name=".search.apps.notificationDots.NotificationDotsListenerService"
+            android:exported="true"
+            android:label="@string/notification_dots_toggle_title"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <service
             android:name=".tile.QuickSearchTileService"
             android:exported="true"
             android:icon="@drawable/ic_widget_search"

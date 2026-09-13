@@ -92,6 +92,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.zIndex
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.apps.notificationDots.AppNotificationDot
+import com.tk.quicksearch.search.apps.notificationDots.NotificationDotsPermission
+import com.tk.quicksearch.search.apps.notificationDots.hasNotificationDot
+import com.tk.quicksearch.search.apps.notificationDots.rememberNotificationDotKeys
 import com.tk.quicksearch.search.common.AddToHomeHandler
 import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.app.startup.StartupTrace
@@ -233,9 +237,17 @@ fun AppGridView(
         appIconShape: AppIconShape = AppIconShape.DEFAULT,
         themedIconsEnabled: Boolean = true,
         showWallpaperBackground: Boolean = false,
+        notificationDotsEnabled: Boolean = false,
         onGridAppeared: (() -> Unit)? = null,
         suppressSuggestionsEnterAnimation: Boolean = false,
 ) {
+    val notificationDotKeys = rememberNotificationDotKeys(notificationDotsEnabled)
+    val context = LocalContext.current
+    LaunchedEffect(notificationDotsEnabled) {
+        if (notificationDotsEnabled) {
+            NotificationDotsPermission.requestRebind(context)
+        }
+    }
     val onHomeHorizontalSwipe = LocalHomeHorizontalSwipeHandler.current
     val pinnedTitle = stringResource(R.string.app_suggestions_tab_pinned)
     val recentsTitle = stringResource(R.string.app_suggestions_tab_recent)
@@ -525,6 +537,7 @@ fun AppGridView(
                                 appIconShape = appIconShape,
                                 themedIconsEnabled = themedIconsEnabled,
                                 showWallpaperBackground = showWallpaperBackground,
+                                notificationDotKeys = notificationDotKeys,
                                 showPinnedIndicators =
                                         AppSuggestionTabType.PINNED !in enabledSuggestionTabs,
                                 reorderPinnedApps = selectedTab.type == AppSuggestionTabType.PINNED,
@@ -560,6 +573,7 @@ fun AppGridView(
                             appIconShape = appIconShape,
                             themedIconsEnabled = themedIconsEnabled,
                             showWallpaperBackground = showWallpaperBackground,
+                            notificationDotKeys = notificationDotKeys,
                             showPinnedIndicators =
                                     !isSearching &&
                                             AppSuggestionTabType.PINNED !in enabledSuggestionTabs,
@@ -615,6 +629,7 @@ fun AppGridView(
                 appIconSizeStep = appIconSizeStep,
                 iconPackPackage = iconPackPackage,
                 appIconShape = appIconShape,
+                notificationDotKeys = notificationDotKeys,
         )
     }
 }
@@ -641,6 +656,7 @@ private fun AllAppsDialog(
         appIconSizeStep: Int,
         iconPackPackage: String?,
         appIconShape: AppIconShape,
+        notificationDotKeys: Set<String> = emptySet(),
 ) {
     val dialogColumns = getAppGridColumns(phoneColumnOverride)
     val context = LocalContext.current
@@ -689,6 +705,7 @@ private fun AllAppsDialog(
                                     appIconSizeStep = appIconSizeStep,
                                     iconPackPackage = iconPackPackage,
                                     appIconShape = appIconShape,
+                                    notificationDotKeys = notificationDotKeys,
                                     onClick = { onAppClick(app) },
                                     shortcuts = shortcutsByPackage[app.packageName].orEmpty(),
                                     appActions =
@@ -757,6 +774,7 @@ private fun AllAppsDialogGridItem(
         appIconSizeStep: Int,
         iconPackPackage: String?,
         appIconShape: AppIconShape,
+        notificationDotKeys: Set<String>,
         onClick: () -> Unit,
         shortcuts: List<StaticShortcut>,
         appActions: AppActions,
@@ -816,6 +834,7 @@ private fun AllAppsDialogGridItem(
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(iconSize),
                 )
+                AppNotificationDot(visible = app.hasNotificationDot(notificationDotKeys))
             }
             Text(
                     text = app.appName,
@@ -987,6 +1006,7 @@ private fun AppGrid(
         appIconShape: AppIconShape,
         themedIconsEnabled: Boolean = true,
         showWallpaperBackground: Boolean = false,
+        notificationDotKeys: Set<String> = emptySet(),
         showPinnedIndicators: Boolean = false,
         reorderPinnedApps: Boolean = false,
         scrollableRowCount: Int? = null,
@@ -1253,6 +1273,7 @@ private fun AppGrid(
                             appIconShape = appIconShape,
                             themedIconsEnabled = themedIconsEnabled,
                             showWallpaperBackground = showWallpaperBackground,
+                            notificationDotKeys = notificationDotKeys,
                             showPinnedIndicators = showPinnedIndicators,
                             onItemMeasured = { height ->
                                 measuredItemHeightPx = height.toFloat()
@@ -1284,6 +1305,7 @@ private fun AppGrid(
                                 appIconShape = appIconShape,
                                 themedIconsEnabled = themedIconsEnabled,
                                 showWallpaperBackground = showWallpaperBackground,
+                                notificationDotKeys = notificationDotKeys,
                                 showPinnedIndicators = showPinnedIndicators,
                                 isDragging = isThisDragging,
                                 dragOffset =
@@ -1328,6 +1350,7 @@ private fun AppGridItem(
         appIconShape: AppIconShape = AppIconShape.DEFAULT,
         themedIconsEnabled: Boolean = true,
         showWallpaperBackground: Boolean = false,
+        notificationDotKeys: Set<String> = emptySet(),
         showPinnedIndicators: Boolean = false,
         isDragging: Boolean = false,
         dragOffset: IntOffset? = null,
@@ -1515,6 +1538,7 @@ private fun AppGridItem(
                     themedIconsEnabled = themedIconsEnabled,
                     showWallpaperBackground = showWallpaperBackground,
                     showPinnedIndicator = showPinnedIndicators && appState.isPinned,
+                    showNotificationDot = appInfo.hasNotificationDot(notificationDotKeys),
             )
             if (appState.showAppLabel) {
                 AppLabelText(
@@ -1568,6 +1592,7 @@ private fun AppIconSurface(
         themedIconsEnabled: Boolean = true,
         showWallpaperBackground: Boolean = false,
         showPinnedIndicator: Boolean = false,
+        showNotificationDot: Boolean = false,
 ) {
     val view = LocalView.current
     val context = LocalContext.current
@@ -1795,6 +1820,15 @@ private fun AppIconSurface(
                         tint = colorScheme.onSurfaceVariant.copy(alpha = 0.65f),
                 )
             }
+            AppNotificationDot(
+                    visible = showNotificationDot,
+                    modifier =
+                            if (showPinnedIndicator) {
+                                Modifier.padding(top = pinnedIndicatorInset + 12.dp, end = pinnedIndicatorInset)
+                            } else {
+                                Modifier.padding(top = pinnedIndicatorInset, end = pinnedIndicatorInset)
+                            },
+            )
         }
     }
 }

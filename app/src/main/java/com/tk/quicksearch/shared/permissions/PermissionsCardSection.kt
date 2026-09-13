@@ -24,6 +24,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionCard
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionCardItem
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionState
+import com.tk.quicksearch.search.apps.notificationDots.NotificationDotsPermission
 import com.tk.quicksearch.search.data.AppsRepository
 import com.tk.quicksearch.search.data.CalendarRepository
 import com.tk.quicksearch.search.data.ContactRepository
@@ -44,6 +45,8 @@ data class PermissionCardTexts(
     val callingDescription: String,
     val notificationsTitle: String,
     val notificationsDescription: String,
+    val notificationAccessTitle: String,
+    val notificationAccessDescription: String,
     val accessibilityTitle: String,
     val accessibilityDescription: String,
     val backgroundUsageTitle: String,
@@ -57,6 +60,7 @@ data class PermissionCardStates(
     val calendar: PermissionState = PermissionState.initial(),
     val calling: PermissionState = PermissionState.initial(),
     val notifications: PermissionState = PermissionState.initial(),
+    val notificationAccess: PermissionState = PermissionState.initial(),
     val accessibility: PermissionState = PermissionState.initial(),
 )
 
@@ -111,6 +115,13 @@ fun PermissionsCardSection(
     }
     var notificationsPermissionState by remember {
         mutableStateOf(createInitialPermissionState(hasNotificationsPermission(context)))
+    }
+    var notificationAccessPermissionState by remember {
+        mutableStateOf(
+            createInitialPermissionState(
+                NotificationDotsPermission.hasNotificationListenerAccess(context),
+            ),
+        )
     }
 
     val notificationsPermissionLauncher =
@@ -290,6 +301,11 @@ fun PermissionsCardSection(
                             notificationsPermissionState.copy(isGranted = false)
                         }
 
+                    val hasNotificationAccess =
+                        NotificationDotsPermission.hasNotificationListenerAccess(context)
+                    notificationAccessPermissionState =
+                        updatePermissionState(hasNotificationAccess, hasNotificationAccess)
+
                     val hasAccessibilityPermission = LockScreenAccessibilityService.isEnabled(context)
                     accessibilityPermissionState = updatePermissionState(hasAccessibilityPermission, hasAccessibilityPermission)
 
@@ -310,6 +326,7 @@ fun PermissionsCardSection(
             calling = if (showCallingPermission) callingPermissionState else PermissionState.granted(),
             notifications =
                 if (showNotificationsPermission) notificationsPermissionState else PermissionState.granted(),
+            notificationAccess = notificationAccessPermissionState,
             accessibility = accessibilityPermissionState,
         )
     LaunchedEffect(states) {
@@ -452,6 +469,19 @@ fun PermissionsCardSection(
                     ),
                 )
             }
+            add(
+                PermissionCardItem(
+                    title = texts.notificationAccessTitle,
+                    description = texts.notificationAccessDescription,
+                    permissionState = notificationAccessPermissionState,
+                    isMandatory = false,
+                    onToggleChange = { enabled ->
+                        if (enabled && !notificationAccessPermissionState.isGranted) {
+                            NotificationDotsPermission.openNotificationListenerSettings(context)
+                        }
+                    },
+                ),
+            )
             if (showBackgroundUsage) {
                 add(
                     PermissionCardItem(

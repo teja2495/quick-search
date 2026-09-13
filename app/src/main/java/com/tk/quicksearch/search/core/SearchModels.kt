@@ -607,6 +607,7 @@ data class SearchUiState(
         val showAllAppsButton: Boolean = false,
         val includeNonLaunchableAppsInSearch: Boolean = false,
         val showInRecents: Boolean = false,
+        val notificationDotsEnabled: Boolean = false,
         val selectedAppSuggestionTab: AppSuggestionTabType = AppSuggestionTabType.RECENTS,
         val enabledAppSuggestionTabs: Set<AppSuggestionTabType> = AppSuggestionTabType.DefaultEnabledTabs,
         // Section visibility preferences
@@ -907,6 +908,7 @@ fun SearchUiState(
                 showAllAppsButton = config.showAllAppsButton,
                 includeNonLaunchableAppsInSearch = config.includeNonLaunchableAppsInSearch,
                 showInRecents = config.showInRecents,
+                notificationDotsEnabled = config.notificationDotsEnabled,
                 selectedAppSuggestionTab = config.selectedAppSuggestionTab,
                 enabledAppSuggestionTabs = config.enabledAppSuggestionTabs,
                 selectedIconPackPackage = config.selectedIconPackPackage,

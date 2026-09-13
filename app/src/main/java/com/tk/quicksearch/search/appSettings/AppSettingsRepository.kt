@@ -437,6 +437,13 @@ class AppSettingsRepository(
                 toggleKey = AppSettingsToggleKey.APP_SUGGESTIONS,
             )
             addToggle(
+                id = "app_toggle_notification_dots",
+                titleRes = R.string.notification_dots_toggle_title,
+                descriptionRes = R.string.notification_dots_toggle_desc,
+                toggleKey = AppSettingsToggleKey.NOTIFICATION_DOTS,
+                keywords = listOf("badge", "notification", "dot", "unread"),
+            )
+            addToggle(
                 id = "app_toggle_show_all_apps_button",
                 titleRes = R.string.settings_app_shortcuts_filter_all_apps,
                 descriptionRes = R.string.show_all_apps_button_toggle_desc,

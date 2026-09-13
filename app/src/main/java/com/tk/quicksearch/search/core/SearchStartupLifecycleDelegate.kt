@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.core
 
+import com.tk.quicksearch.search.apps.notificationDots.NotificationDotsPermission
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.isUserCreatedShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
@@ -370,7 +371,15 @@ internal class SearchStartupLifecycleDelegate(
 
             sectionManager.refreshDisabledSections()
         }
+        disableNotificationDotsIfPermissionMissing()
         return changed
+    }
+
+    private fun disableNotificationDotsIfPermissionMissing() {
+        if (!configStateProvider().notificationDotsEnabled) return
+        if (NotificationDotsPermission.canEnableNotificationDots(applicationProvider())) return
+        userPreferences.setNotificationDotsEnabled(false)
+        updateConfigState { it.copy(notificationDotsEnabled = false) }
     }
 
     fun launchDeferredInitialization() {

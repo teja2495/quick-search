@@ -70,6 +70,9 @@ internal interface SearchViewModelPreferencesApi {
 
     fun setShowInRecents(enabled: Boolean) = preferencesApiDelegate.setShowInRecents(enabled)
 
+    fun setNotificationDotsEnabled(enabled: Boolean) =
+        preferencesApiDelegate.setNotificationDotsEnabled(enabled)
+
     fun setSelectedAppSuggestionTab(tab: AppSuggestionTabType) =
         preferencesApiDelegate.setSelectedAppSuggestionTab(tab)
 
@@ -363,6 +366,9 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
         preferencesDelegate.setIncludeNonLaunchableAppsInSearch(enabled)
 
     fun setShowInRecents(enabled: Boolean) = preferencesDelegate.setShowInRecents(enabled)
+
+    fun setNotificationDotsEnabled(enabled: Boolean) =
+        preferencesDelegate.setNotificationDotsEnabled(enabled)
 
     fun setSelectedAppSuggestionTab(tab: AppSuggestionTabType) =
         preferencesDelegate.setSelectedAppSuggestionTab(tab)

@@ -284,6 +284,9 @@
 <string name="open_top_result_using_keyboard_toggle_desc">Klavyedeki Enter/Bitti tuşu en iyi sonucu açar</string>
 <string name="include_non_launchable_apps_toggle_title">Başlatılamayan Uygulamalar</string>
 <string name="include_non_launchable_apps_toggle_desc">Arama sonuçlarında başlatma etkinliği olmayan uygulamaları da göster.</string>
+    <string name="notification_dots_toggle_title">Bildirim noktaları</string>
+    <string name="notification_dots_toggle_desc">Bildirimi olan uygulamalarda bildirim noktalarını göster</string>
+    <string name="desc_notification_dot">Bildirimleri var</string>
     <string name="show_in_recents_toggle_title">Son kullanılanlarda göster</string>
     <string name="show_in_recents_toggle_desc">Quick Search\'ü cihazınızın son kullanılan uygulamalarında göster</string>
 <string name="web_search_suggestions_title">Web önerileri</string>
@@ -975,8 +978,9 @@
      ============================================================================ -->
 <string name="permissions_calendar_desc">Takvim etkinliklerinde arama yapmak için gereklidir.</string>
 <string name="permissions_calling_desc">Arama ekranını açmadan kişilerini doğrudan aramak için gereklidir.</string>
-<string name="settings_notifications_permission_title">Bildirimler</string>
+<string name="settings_notifications_permission_title">Bildirim gönderme</string>
 <string name="permissions_notifications_desc">Arama sonuçlarını bildirim paneline sabitlemek için gereklidir</string>
+    <string name="permissions_notification_access_desc">Bildirimi olan uygulamalarda bildirim noktalarını göstermek için gereklidir.</string>
 <string name="permissions_accessibility_lock_screen_title">Erişilebilirlik</string>
 <string name="permissions_accessibility_lock_screen_desc">Çift dokunma hareketinin cihazınızı kilitlemesini sağlar.</string>
 <string name="permissions_contacts_desc">Kişilerinde arama yapmak için gereklidir.</string>

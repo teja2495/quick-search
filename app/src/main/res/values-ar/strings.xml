@@ -286,6 +286,9 @@
     <string name="open_top_result_using_keyboard_toggle_desc">سيؤدي مفتاح الإدخال/تم في لوحة المفاتيح إلى فتح أفضل نتيجة</string>
     <string name="include_non_launchable_apps_toggle_title">تطبيقات غير قابلة للتشغيل</string>
     <string name="include_non_launchable_apps_toggle_desc">تضمين التطبيقات التي لا تحتوي على نشاط تشغيل في نتائج البحث.</string>
+    <string name="notification_dots_toggle_title">نقاط الإشعارات</string>
+    <string name="notification_dots_toggle_desc">إظهار نقاط الإشعارات على التطبيقات التي لديها إشعارات</string>
+    <string name="desc_notification_dot">يحتوي على إشعارات</string>
     <string name="show_in_recents_toggle_title">إظهار في التطبيقات الحديثة</string>
     <string name="show_in_recents_toggle_desc">إظهار Quick Search في التطبيقات الحديثة على جهازك</string>
     <string name="web_search_suggestions_title">اقتراحات الويب</string>
@@ -977,8 +980,9 @@
          ============================================================================ -->
     <string name="permissions_calendar_desc">مطلوب للبحث في أحداث التقويم الخاص بك.</string>
     <string name="permissions_calling_desc">مطلوب للاتصال بجهات الاتصال الخاصة بك مباشرة دون فتح لوحة الاتصال.</string>
-    <string name="settings_notifications_permission_title">الإشعارات</string>
+    <string name="settings_notifications_permission_title">نشر الإشعارات</string>
     <string name="permissions_notifications_desc">مطلوب لتثبيت نتائج البحث في لوحة الإشعارات</string>
+    <string name="permissions_notification_access_desc">مطلوب لإظهار نقاط الإشعارات على التطبيقات التي لديها إشعارات.</string>
     <string name="permissions_accessibility_lock_screen_title">إمكانية الوصول</string>
     <string name="permissions_accessibility_lock_screen_desc">يسمح لإيماءة النقر المزدوج بقفل جهازك.</string>
     <string name="permissions_contacts_desc">مطلوب للبحث في جهات الاتصال الخاصة بك.</string>

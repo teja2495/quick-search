@@ -376,6 +376,7 @@ data class AppsSectionParams(
     val predictedTarget: PredictedSubmitTarget? = null,
     val suppressTopResultIndicator: Boolean = false,
     val showWallpaperBackground: Boolean = false,
+    val notificationDotsEnabled: Boolean = false,
     val showRateQuickSearchCard: Boolean = false,
     val onRateQuickSearchClick: () -> Unit = {},
     val onRateQuickSearchNotNowClick: () -> Unit = {},
@@ -965,6 +966,7 @@ internal fun buildSectionParams(
             startupPhase = state.startupPhase,
             isOverlayPresentation = isOverlayPresentation,
             showWallpaperBackground = state.showWallpaperBackground,
+            notificationDotsEnabled = state.notificationDotsEnabled,
             showRateQuickSearchCard =
                 state.showRateQuickSearchCard &&
                     !derivedState.isSearching &&

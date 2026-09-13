@@ -113,6 +113,7 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
                 AppSettingsToggleKey.INCLUDE_NON_LAUNCHABLE_APPS_IN_SEARCH ->
                     setIncludeNonLaunchableAppsInSearch(command.enabled)
                 AppSettingsToggleKey.SHOW_IN_RECENTS -> setShowInRecents(command.enabled)
+                AppSettingsToggleKey.NOTIFICATION_DOTS -> setNotificationDotsEnabled(command.enabled)
                 AppSettingsToggleKey.WEB_SUGGESTIONS -> setWebSuggestionsEnabled(command.enabled)
                 AppSettingsToggleKey.RECENT_QUERIES -> setRecentQueriesEnabled(command.enabled)
                 AppSettingsToggleKey.FUZZY_SEARCH -> setFuzzySearchEnabled(command.enabled)
@@ -218,6 +219,7 @@ internal fun SearchUiState.isAppSettingToggleEnabled(toggleKey: AppSettingsToggl
         AppSettingsToggleKey.INCLUDE_NON_LAUNCHABLE_APPS_IN_SEARCH ->
             includeNonLaunchableAppsInSearch
         AppSettingsToggleKey.SHOW_IN_RECENTS -> showInRecents
+        AppSettingsToggleKey.NOTIFICATION_DOTS -> notificationDotsEnabled
         AppSettingsToggleKey.WEB_SUGGESTIONS -> webSuggestionsEnabled
         AppSettingsToggleKey.RECENT_QUERIES -> recentQueriesEnabled
         AppSettingsToggleKey.FUZZY_SEARCH -> fuzzySearchEnabled

@@ -9,6 +9,7 @@ import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Keyboard
+import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,6 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.appSettings.AppSettingsToggleKey
+import com.tk.quicksearch.search.apps.notificationDots.rememberNotificationDotsCheckedChange
 import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.settings.shared.SettingsCommand
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
@@ -33,8 +35,23 @@ fun MoreOptionsSettings(
     val isDefaultLauncher = context.isDefaultHomeApp()
     val isPhysicalKeyboardConnected = rememberPhysicalKeyboardConnected()
 
+    val onNotificationDotsCheckedChange =
+        rememberNotificationDotsCheckedChange { enabled ->
+            onApplySettingsCommand(
+                SettingsCommand.Toggle(
+                    key = AppSettingsToggleKey.NOTIFICATION_DOTS,
+                    enabled = enabled,
+                ),
+            )
+        }
     val appToggleItems =
         listOf(
+            ToggleItem(
+                key = AppSettingsToggleKey.NOTIFICATION_DOTS,
+                titleRes = R.string.notification_dots_toggle_title,
+                subtitleRes = R.string.notification_dots_toggle_desc,
+                leadingIcon = Icons.Rounded.Notifications,
+            ),
             ToggleItem(
                 key = AppSettingsToggleKey.SHOW_ALL_APPS_BUTTON,
                 titleRes = R.string.settings_app_shortcuts_filter_all_apps,
@@ -47,21 +64,7 @@ fun MoreOptionsSettings(
                 subtitleRes = R.string.include_non_launchable_apps_toggle_desc,
                 leadingIcon = Icons.Rounded.Apps,
             ),
-            ToggleItem(
-                key = AppSettingsToggleKey.TOP_RESULT_INDICATOR,
-                titleRes = R.string.top_result_indicator_toggle_title,
-                subtitleRes = R.string.top_result_indicator_toggle_desc,
-                leadingIcon = Icons.Rounded.CheckCircle,
-            ),
         )
-            .filterNot {
-                isPhysicalKeyboardConnected &&
-                    it.key == AppSettingsToggleKey.TOP_RESULT_INDICATOR
-            }
-            .filterNot {
-                it.key == AppSettingsToggleKey.TOP_RESULT_INDICATOR &&
-                    !isToggleEnabled(AppSettingsToggleKey.OPEN_TOP_RESULT_USING_KEYBOARD)
-            }
     val otherToggleItems =
         listOf(
             ToggleItem(
@@ -75,6 +78,12 @@ fun MoreOptionsSettings(
                 titleRes = R.string.open_top_result_using_keyboard_toggle_title,
                 subtitleRes = R.string.open_top_result_using_keyboard_toggle_desc,
                 leadingIcon = Icons.Rounded.Keyboard,
+            ),
+            ToggleItem(
+                key = AppSettingsToggleKey.TOP_RESULT_INDICATOR,
+                titleRes = R.string.top_result_indicator_toggle_title,
+                subtitleRes = R.string.top_result_indicator_toggle_desc,
+                leadingIcon = Icons.Rounded.CheckCircle,
             ),
             ToggleItem(
                 key = AppSettingsToggleKey.OPEN_KEYBOARD,
@@ -95,6 +104,14 @@ fun MoreOptionsSettings(
                 leadingIcon = Icons.Rounded.Close,
             ),
         )
+            .filterNot {
+                isPhysicalKeyboardConnected &&
+                    it.key == AppSettingsToggleKey.TOP_RESULT_INDICATOR
+            }
+            .filterNot {
+                it.key == AppSettingsToggleKey.TOP_RESULT_INDICATOR &&
+                    !isToggleEnabled(AppSettingsToggleKey.OPEN_TOP_RESULT_USING_KEYBOARD)
+            }
 
     Column(modifier = modifier.fillMaxWidth()) {
         MoreOptionsToggleCard(
@@ -102,6 +119,7 @@ fun MoreOptionsSettings(
             isDefaultLauncher = isDefaultLauncher,
             isToggleEnabled = isToggleEnabled,
             onApplySettingsCommand = onApplySettingsCommand,
+            onNotificationDotsCheckedChange = onNotificationDotsCheckedChange,
         )
         Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
         MoreOptionsToggleCard(
@@ -109,6 +127,7 @@ fun MoreOptionsSettings(
             isDefaultLauncher = isDefaultLauncher,
             isToggleEnabled = isToggleEnabled,
             onApplySettingsCommand = onApplySettingsCommand,
+            onNotificationDotsCheckedChange = onNotificationDotsCheckedChange,
         )
     }
 }
@@ -119,6 +138,7 @@ private fun MoreOptionsToggleCard(
     isDefaultLauncher: Boolean,
     isToggleEnabled: (AppSettingsToggleKey) -> Boolean,
     onApplySettingsCommand: (SettingsCommand) -> Unit,
+    onNotificationDotsCheckedChange: (Boolean) -> Unit,
 ) {
     SettingsCard(
         modifier = Modifier.fillMaxWidth(),
@@ -137,12 +157,16 @@ private fun MoreOptionsToggleCard(
                     checked = isToggleEnabled(item.key),
                     enabled = isItemEnabled,
                     onCheckedChange = { enabled ->
-                        onApplySettingsCommand(
-                            SettingsCommand.Toggle(
-                                key = item.key,
-                                enabled = enabled,
-                            ),
-                        )
+                        if (item.key == AppSettingsToggleKey.NOTIFICATION_DOTS) {
+                            onNotificationDotsCheckedChange(enabled)
+                        } else {
+                            onApplySettingsCommand(
+                                SettingsCommand.Toggle(
+                                    key = item.key,
+                                    enabled = enabled,
+                                ),
+                            )
+                        }
                     },
                     leadingIcon = item.leadingIcon,
                     isFirstItem = index == 0,

@@ -285,6 +285,9 @@
     <string name="open_top_result_using_keyboard_toggle_desc">Το πλήκτρο Enter/Τέλος ανοίγει το κορυφαίο αποτέλεσμα</string>
     <string name="include_non_launchable_apps_toggle_title">Μη εκκινήσιμες εφαρμογές</string>
     <string name="include_non_launchable_apps_toggle_desc">Συμπερίληψη εφαρμογών που δεν έχουν δραστηριότητα εκκίνησης στα αποτελέσματα αναζήτησης.</string>
+    <string name="notification_dots_toggle_title">Τελείες ειδοποιήσεων</string>
+    <string name="notification_dots_toggle_desc">Εμφάνιση τελειών ειδοποιήσεων στις εφαρμογές που έχουν ειδοποιήσεις</string>
+    <string name="desc_notification_dot">Έχει ειδοποιήσεις</string>
     <string name="show_in_recents_toggle_title">Εμφάνιση στα Πρόσφατα</string>
     <string name="show_in_recents_toggle_desc">Εμφάνιση του Quick Search στις πρόσφατες εφαρμογές της συσκευής σας</string>
     <string name="web_search_suggestions_title">Προτάσεις ιστού</string>
@@ -976,8 +979,9 @@
          ============================================================================ -->
     <string name="permissions_calendar_desc">Απαραίτητο για την αναζήτηση συμβάντων στο ημερολόγιό σας.</string>
     <string name="permissions_calling_desc">Απαραίτητο για την απευθείας κλήση των επαφών σας χωρίς το άνοιγμα της εφαρμογής κλήσεων.</string>
-    <string name="settings_notifications_permission_title">Ειδοποιήσεις</string>
+    <string name="settings_notifications_permission_title">Δημοσίευση ειδοποιήσεων</string>
     <string name="permissions_notifications_desc">Απαιτείται για το καρφίτσωμα αποτελεσμάτων αναζήτησης στον πίνακα ειδοποιήσεων</string>
+    <string name="permissions_notification_access_desc">Απαιτείται για την εμφάνιση τελειών ειδοποιήσεων στις εφαρμογές που έχουν ειδοποιήσεις.</string>
     <string name="permissions_accessibility_lock_screen_title">Προσβασιμότητα</string>
     <string name="permissions_accessibility_lock_screen_desc">Επιτρέπει στη χειρονομία διπλού πατήματος να κλειδώνει τη συσκευή σας.</string>
     <string name="permissions_contacts_desc">Απαραίτητο για την αναζήτηση των επαφών σας.</string>

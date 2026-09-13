@@ -285,6 +285,9 @@
     <string name="open_top_result_using_keyboard_toggle_desc">A tecla Enter/Concluído abrirá o principal resultado</string>
     <string name="include_non_launchable_apps_toggle_title">Aplicativos não inicializáveis</string>
     <string name="include_non_launchable_apps_toggle_desc">Incluir aplicativos que não possuem uma atividade de inicialização nos resultados de pesquisa.</string>
+    <string name="notification_dots_toggle_title">Pontos de notificação</string>
+    <string name="notification_dots_toggle_desc">Mostrar pontos de notificação nos apps que têm notificações</string>
+    <string name="desc_notification_dot">Tem notificações</string>
     <string name="show_in_recents_toggle_title">Mostrar em Recentes</string>
     <string name="show_in_recents_toggle_desc">Mostrar o Quick Search nos apps recentes do seu dispositivo</string>
     <string name="web_search_suggestions_title">Sugestões da web</string>
@@ -976,8 +979,9 @@
          ============================================================================ -->
     <string name="permissions_calendar_desc">Necessário para pesquisar os eventos do seu calendário.</string>
     <string name="permissions_calling_desc">Necessário para ligar para seus contatos diretamente sem abrir o discador.</string>
-    <string name="settings_notifications_permission_title">Notificações</string>
+    <string name="settings_notifications_permission_title">Publicar notificações</string>
     <string name="permissions_notifications_desc">Necessário para fixar resultados da pesquisa no painel de notificações</string>
+    <string name="permissions_notification_access_desc">Necessário para mostrar pontos de notificação nos apps que têm notificações.</string>
     <string name="permissions_accessibility_lock_screen_title">Acessibilidade</string>
     <string name="permissions_accessibility_lock_screen_desc">Permite que o gesto de toque duplo bloqueie seu dispositivo.</string>
     <string name="permissions_contacts_desc">Necessário para pesquisar seus contatos.</string>

@@ -113,6 +113,8 @@ fun PermissionsScreen(
                         callingDescription = stringResource(R.string.permissions_calling_desc),
                         notificationsTitle = stringResource(R.string.settings_notifications_permission_title),
                         notificationsDescription = stringResource(R.string.permissions_notifications_desc),
+                        notificationAccessTitle = stringResource(R.string.settings_shortcut_notification_listener),
+                        notificationAccessDescription = stringResource(R.string.permissions_notification_access_desc),
                         accessibilityTitle = stringResource(R.string.permissions_accessibility_lock_screen_title),
                         accessibilityDescription = stringResource(R.string.permissions_accessibility_lock_screen_desc),
                         backgroundUsageTitle = stringResource(R.string.permissions_background_usage_title),
@@ -143,7 +145,8 @@ fun PermissionsScreen(
                     !permissionStates.usage.isGranted ||
                         !permissionStates.contacts.isGranted ||
                         !permissionStates.files.isGranted ||
-                        !permissionStates.calendar.isGranted
+                        !permissionStates.calendar.isGranted ||
+                        !permissionStates.notificationAccess.isGranted
 
                 if (hasUngrantedPermissions) {
                     showPermissionReminderDialog = true
@@ -180,6 +183,7 @@ fun PermissionsScreen(
             contactsPermissionState = permissionStates.contacts,
             filesPermissionState = permissionStates.files,
             calendarPermissionState = permissionStates.calendar,
+            notificationAccessPermissionState = permissionStates.notificationAccess,
             onDismiss = { showPermissionReminderDialog = false },
             onContinue = {
                 showPermissionReminderDialog = false
@@ -198,6 +202,7 @@ private fun PermissionReminderDialog(
     contactsPermissionState: PermissionState,
     filesPermissionState: PermissionState,
     calendarPermissionState: PermissionState,
+    notificationAccessPermissionState: PermissionState,
     onDismiss: () -> Unit,
     onContinue: () -> Unit,
 ) {
@@ -207,6 +212,7 @@ private fun PermissionReminderDialog(
             stringResource(R.string.contacts_action_button_contacts).takeIf { !contactsPermissionState.isGranted },
             stringResource(R.string.permissions_files_title).takeIf { !filesPermissionState.isGranted },
             stringResource(R.string.settings_calendar_permission_title).takeIf { !calendarPermissionState.isGranted },
+            stringResource(R.string.settings_shortcut_notification_listener).takeIf { !notificationAccessPermissionState.isGranted },
         ).joinToString(", ")
 
     Dialog(

@@ -285,6 +285,9 @@
     <string name="open_top_result_using_keyboard_toggle_desc">కీబోర్డ్ Enter/Done కీ అగ్ర ఫలితాన్ని తెరుస్తుంది</string>
     <string name="include_non_launchable_apps_toggle_title">ప్రారంభించలేని యాప్‌లు</string>
     <string name="include_non_launchable_apps_toggle_desc">సెర్చ్ ఫలితాలలో లాంచ్ యాక్టివిటీ లేని యాప్‌లను చేర్చండి.</string>
+    <string name="notification_dots_toggle_title">నోటిఫికేషన్ డాట్‌లు</string>
+    <string name="notification_dots_toggle_desc">నోటిఫికేషన్‌లు ఉన్న యాప్‌లపై నోటిఫికేషన్ డాట్‌లను చూపించు</string>
+    <string name="desc_notification_dot">నోటిఫికేషన్‌లు ఉన్నాయి</string>
     <string name="show_in_recents_toggle_title">ఇటీవలివాటిలో చూపించు</string>
     <string name="show_in_recents_toggle_desc">మీ పరికరంలోని ఇటీవలి యాప్‌లలో Quick Searchను చూపించు</string>
     <string name="web_search_suggestions_title">వెబ్ సూచనలు</string>
@@ -976,8 +979,9 @@
          ============================================================================ -->
     <string name="permissions_calendar_desc">మీ క్యాలెండర్ ఈవెంట్‌లను శోధించడానికి అవసరం.</string>
     <string name="permissions_calling_desc">డయలర్ తెరవకుండానే మీ పరిచయాలకు నేరుగా కాల్ చేయడానికి అవసరం.</string>
-    <string name="settings_notifications_permission_title">నోటిఫికేషన్‌లు</string>
+    <string name="settings_notifications_permission_title">పోస్ట్ నోటిఫికేషన్‌లు</string>
     <string name="permissions_notifications_desc">శోధన ఫలితాలను నోటిఫికేషన్ ప్యానెల్‌కు పిన్ చేయడానికి అవసరం</string>
+    <string name="permissions_notification_access_desc">నోటిఫికేషన్‌లు ఉన్న యాప్‌లపై నోటిఫికేషన్ డాట్‌లను చూపించడానికి అవసరం.</string>
     <string name="permissions_accessibility_lock_screen_title">యాక్సెసిబిలిటీ</string>
     <string name="permissions_accessibility_lock_screen_desc">రెండుసార్లు ట్యాప్ చేసే సంజ్ఞతో మీ పరికరాన్ని లాక్ చేయడానికి అనుమతిస్తుంది.</string>
     <string name="permissions_contacts_desc">మీ పరిచయాలను శోధించడానికి అవసరం.</string>

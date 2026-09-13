@@ -284,6 +284,9 @@
     <string name="open_top_result_using_keyboard_toggle_desc">Il tasto Invio/Fine della tastiera aprirà il miglior risultato</string>
     <string name="include_non_launchable_apps_toggle_title">App non avviabili</string>
     <string name="include_non_launchable_apps_toggle_desc">Includi le app che non hanno un\'attività di avvio nei risultati di ricerca.</string>
+    <string name="notification_dots_toggle_title">Pallini di notifica</string>
+    <string name="notification_dots_toggle_desc">Mostra i pallini di notifica sulle app che hanno notifiche</string>
+    <string name="desc_notification_dot">Ha notifiche</string>
     <string name="show_in_recents_toggle_title">Mostra nelle app recenti</string>
     <string name="show_in_recents_toggle_desc">Mostra Quick Search nelle app recenti del tuo dispositivo</string>
     <string name="web_search_suggestions_title">Suggerimenti web</string>
@@ -975,8 +978,9 @@
          ============================================================================ -->
     <string name="permissions_calendar_desc">Richiesta per cercare gli eventi del tuo calendario.</string>
     <string name="permissions_calling_desc">Richiesta per chiamare i tuoi contatti direttamente senza aprire il tastierino telefonico.</string>
-    <string name="settings_notifications_permission_title">Notifiche</string>
+    <string name="settings_notifications_permission_title">Pubblica notifiche</string>
     <string name="permissions_notifications_desc">Necessario per fissare i risultati di ricerca nel pannello delle notifiche</string>
+    <string name="permissions_notification_access_desc">Necessario per mostrare i pallini di notifica sulle app che hanno notifiche.</string>
     <string name="permissions_accessibility_lock_screen_title">Accessibilità</string>
     <string name="permissions_accessibility_lock_screen_desc">Consente al gesto del doppio tocco di bloccare il dispositivo.</string>
     <string name="permissions_contacts_desc">Richiesta per cercare tra i tuoi contatti.</string>

@@ -281,6 +281,9 @@
     <string name="open_top_result_using_keyboard_toggle_desc">Keyboard enter/done key will open top result</string>
     <string name="include_non_launchable_apps_toggle_title">Non-Launchable Apps</string>
     <string name="include_non_launchable_apps_toggle_desc">Include apps that don’t have a launch activity in search results.</string>
+    <string name="notification_dots_toggle_title">Notification Dots</string>
+    <string name="notification_dots_toggle_desc">Show notification dots on apps that have notifications</string>
+    <string name="desc_notification_dot">Has notifications</string>
     <string name="show_in_recents_toggle_title">Show in Recents</string>
     <string name="show_in_recents_toggle_desc">Show Quick Search in your device’s recent apps</string>
     <string name="web_search_suggestions_title">Web Suggestions</string>
@@ -977,8 +980,9 @@
          ============================================================================ -->
     <string name="permissions_calendar_desc">Required to search your calendar events.</string>
     <string name="permissions_calling_desc">Required to call your contacts directly without opening the dialer.</string>
-    <string name="settings_notifications_permission_title">Notifications</string>
+    <string name="settings_notifications_permission_title">Post Notifications</string>
     <string name="permissions_notifications_desc">Required to pin search results to notification panel</string>
+    <string name="permissions_notification_access_desc">Required to show notification dots on apps that have notifications.</string>
     <string name="permissions_accessibility_lock_screen_title">Accessibility</string>
     <string name="permissions_accessibility_lock_screen_desc">Allows the double-tap gesture to lock your device.</string>
     <string name="permissions_contacts_desc">Required to search your contacts.</string>

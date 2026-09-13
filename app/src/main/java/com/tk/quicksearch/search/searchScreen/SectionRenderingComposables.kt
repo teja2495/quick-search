@@ -229,6 +229,7 @@ private fun renderAppsSection(
             predictedTarget = appsParams.predictedTarget,
             suppressTopResultIndicator = appsParams.suppressTopResultIndicator,
             showWallpaperBackground = appsParams.showWallpaperBackground,
+            notificationDotsEnabled = appsParams.notificationDotsEnabled,
             onGridAppeared = appsParams.onGridAppeared,
             suppressSuggestionsEnterAnimation = appsParams.suppressSuggestionsEnterAnimation,
         )

@@ -285,6 +285,9 @@
 <string name="open_top_result_using_keyboard_toggle_desc">Клавиша Enter/Готово откроет лучший результат</string>
 <string name="include_non_launchable_apps_toggle_title">Не запускаемые приложения</string>
 <string name="include_non_launchable_apps_toggle_desc">Показывать в результатах поиска приложения без активности запуска.</string>
+    <string name="notification_dots_toggle_title">Точки уведомлений</string>
+    <string name="notification_dots_toggle_desc">Показывать точки уведомлений на приложениях с уведомлениями</string>
+    <string name="desc_notification_dot">Есть уведомления</string>
     <string name="show_in_recents_toggle_title">Показывать в недавних</string>
     <string name="show_in_recents_toggle_desc">Показывать Quick Search в списке недавних приложений устройства</string>
 <string name="web_search_suggestions_title">Поисковые подсказки</string>
@@ -996,8 +999,9 @@
      ============================================================================ -->
 <string name="permissions_calendar_desc">Требуется для поиска событий в вашем календаре.</string>
 <string name="permissions_calling_desc">Требуется для совершения звонков контактам напрямую без открытия номеронабирателя.</string>
-<string name="settings_notifications_permission_title">Уведомления</string>
+<string name="settings_notifications_permission_title">Отправка уведомлений</string>
 <string name="permissions_notifications_desc">Требуется для закрепления результатов поиска на панели уведомлений</string>
+    <string name="permissions_notification_access_desc">Требуется для отображения точек уведомлений на приложениях с уведомлениями.</string>
 <string name="permissions_accessibility_lock_screen_title">Специальные возможности</string>
 <string name="permissions_accessibility_lock_screen_desc">Позволяет блокировать устройство с помощью жеста двойного нажатия.</string>
 <string name="permissions_contacts_desc">Требуется для поиска по вашим контактам.</string>
