@@ -480,6 +480,11 @@ open class MainActivity : ComponentActivity() {
             if (shouldNavigateHomeOnRelaunch) {
                 navigationRequest.value = NavigationRequest(destination = RootDestination.Search)
             }
+            // HomeActivity is singleTask, so returning to the launcher can deliver a new HOME
+            // intent without stopping the existing search surface first.
+            if (isHomeGestureLaunch && userPreferences.isClearQueryOnLaunchEnabled()) {
+                searchViewModel.clearQuery()
+            }
         }
 
         val incomingText = extractTextFromIntent(intent)

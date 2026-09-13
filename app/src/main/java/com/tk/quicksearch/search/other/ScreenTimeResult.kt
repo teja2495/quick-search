@@ -41,7 +41,6 @@ import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.AppColors
-import com.tk.quicksearch.shared.ui.theme.homeTextColor
 
 @Composable
 fun OtherSearchResults(
@@ -119,7 +118,7 @@ internal fun ScreenTimeResultCard(
                                 stringResource(R.string.other_screen_time_today_title),
                             ),
                         style = MaterialTheme.typography.labelLarge,
-                        color = homeTextColor().copy(alpha = 0.7f),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                         maxLines = 2,
                     )
                     when (state) {
@@ -128,7 +127,7 @@ internal fun ScreenTimeResultCard(
                                 text = formatScreenTime(state.durationMillis),
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.Medium,
-                                color = homeTextColor(),
+                                color = MaterialTheme.colorScheme.onSurface,
                                 maxLines = 1,
                             )
                         ScreenTimeState.Hidden,
@@ -140,7 +139,7 @@ internal fun ScreenTimeResultCard(
                 if (state is ScreenTimeState.Available && state.topApps.isNotEmpty()) {
                     VerticalDivider(
                         modifier = Modifier.height(100.dp),
-                        color = homeTextColor().copy(alpha = 0.12f),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
                     )
                     Column(
                         modifier = Modifier.weight(1.15f),
@@ -222,7 +221,7 @@ private fun ScreenTimeAppUsageRow(
                     imageVector = Icons.Rounded.Apps,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp),
-                    tint = homeTextColor().copy(alpha = 0.7f),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
@@ -234,14 +233,14 @@ private fun ScreenTimeAppUsageRow(
                 text = app.appName,
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Medium,
-                color = homeTextColor(),
+                color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
                 text = formatScreenTime(app.durationMillis, minimumOneMinute = true),
                 style = MaterialTheme.typography.labelSmall,
-                color = homeTextColor().copy(alpha = 0.62f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.62f),
                 maxLines = 1,
             )
         }
