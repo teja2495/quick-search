@@ -272,7 +272,11 @@ class NavigationHandler(
     fun openCalendarEvent(event: CalendarEventInfo) {
         userPreferences.recordCalendarEventOpen(event.eventId)
         mainHandler.post {
-            IntentHelpers.openCalendarEvent(application, event.eventId) { stringResId, _ ->
+            IntentHelpers.openCalendarEvent(
+                context = application,
+                eventId = event.eventId,
+                calendarPackageName = userPreferences.getDefaultCalendarPackage(),
+            ) { stringResId, _ ->
                 showToastCallback(stringResId, null)
             }
         }

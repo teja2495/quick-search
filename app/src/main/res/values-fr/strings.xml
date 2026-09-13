@@ -550,6 +550,7 @@
 <string name="settings_calendar_permission_title">Agenda</string>
 <string name="settings_calendar_show_today_events_desc">Afficher les événements d\'aujourd\'hui sur l\'écran d\'accueil.</string>
 <string name="settings_calendar_show_today_events_title">Afficher les événements du jour</string>
+    <string name="settings_calendar_default_title">Ouvrir les événements dans...</string>
 <string name="settings_calendar_view_all_events_desc">Voir tous les événements</string>
 
 <!-- ============================================================================

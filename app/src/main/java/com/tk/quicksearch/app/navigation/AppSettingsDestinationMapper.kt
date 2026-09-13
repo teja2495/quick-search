@@ -45,4 +45,5 @@ internal fun AppSettingsDestination.toSettingsDetailTypeOrNull(): SettingsDetail
         AppSettingsDestination.CREATE_NOTE,
         AppSettingsDestination.NOTES_LIST,
         AppSettingsDestination.CREATE_CALENDAR_EVENT -> null
+        AppSettingsDestination.OPEN_EVENTS_IN -> null
     }

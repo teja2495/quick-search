@@ -28,6 +28,7 @@ enum class AppSettingsDestination {
     EXCLUDED_ITEMS,
     AI_SEARCH_CONFIGURE,
     CALENDAR_EVENTS,
+    OPEN_EVENTS_IN,
     RELOAD_APPS,
     RELOAD_CONTACTS,
     RELOAD_FILES,

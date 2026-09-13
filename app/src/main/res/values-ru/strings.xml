@@ -570,6 +570,7 @@
 <string name="settings_calendar_permission_title">Календарь</string>
 <string name="settings_calendar_show_today_events_desc">Показывать сегодняшние события на главном экране.</string>
 <string name="settings_calendar_show_today_events_title">Показывать события на сегодня</string>
+    <string name="settings_calendar_default_title">Открывать события в...</string>
     <string name="settings_calendar_view_all_events_desc">Просмотреть все события</string>
 
 <!-- ============================================================================

@@ -550,6 +550,7 @@
     <string name="settings_calendar_permission_title">Kalender</string>
     <string name="settings_calendar_show_today_events_desc">Heutige Ereignisse auf dem Startbildschirm anzeigen.</string>
     <string name="settings_calendar_show_today_events_title">Heutige Ereignisse anzeigen</string>
+    <string name="settings_calendar_default_title">Ereignisse öffnen in...</string>
     <string name="settings_calendar_view_all_events_desc">Alle Ereignisse anzeigen</string>
 
     <!-- ============================================================================

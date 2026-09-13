@@ -550,6 +550,7 @@
     <string name="settings_calendar_permission_title">Calendário</string>
     <string name="settings_calendar_show_today_events_desc">Mostrar os eventos de hoje na tela inicial.</string>
     <string name="settings_calendar_show_today_events_title">Mostrar eventos de hoje</string>
+    <string name="settings_calendar_default_title">Abrir eventos em...</string>
     <string name="settings_calendar_view_all_events_desc">Ver todos os eventos</string>
 
     <!-- ============================================================================

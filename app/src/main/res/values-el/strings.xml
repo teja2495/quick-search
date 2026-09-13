@@ -550,6 +550,7 @@
     <string name="settings_calendar_permission_title">Ημερολόγιο</string>
     <string name="settings_calendar_show_today_events_desc">Εμφάνιση των σημερινών συμβάντων στην αρχική οθόνη.</string>
     <string name="settings_calendar_show_today_events_title">Εμφάνιση σημερινών συμβάντων</string>
+    <string name="settings_calendar_default_title">Άνοιγμα συμβάντων σε...</string>
     <string name="settings_calendar_view_all_events_desc">Προβολή όλων των συμβάντων</string>
 
     <!-- ============================================================================

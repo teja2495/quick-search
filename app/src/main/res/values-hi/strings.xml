@@ -550,6 +550,7 @@
     <string name="settings_calendar_permission_title">कैलेंडर</string>
     <string name="settings_calendar_show_today_events_desc">होम स्क्रीन पर आज के इवेंट्स दिखाएं।</string>
     <string name="settings_calendar_show_today_events_title">आज के इवेंट्स दिखाएं</string>
+    <string name="settings_calendar_default_title">इवेंट्स इसमें खोलें...</string>
     <string name="settings_calendar_view_all_events_desc">सभी इवेंट्स देखें</string>
 
     <!-- ============================================================================

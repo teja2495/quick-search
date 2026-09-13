@@ -551,6 +551,7 @@
     <string name="settings_calendar_permission_title">التقويم</string>
     <string name="settings_calendar_show_today_events_desc">عرض أحداث اليوم على الشاشة الرئيسية.</string>
     <string name="settings_calendar_show_today_events_title">عرض أحداث اليوم</string>
+    <string name="settings_calendar_default_title">فتح الأحداث في...</string>
     <string name="settings_calendar_view_all_events_desc">عرض جميع الأحداث</string>
 
     <!-- ============================================================================

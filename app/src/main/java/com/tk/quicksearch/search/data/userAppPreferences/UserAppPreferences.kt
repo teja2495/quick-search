@@ -366,6 +366,11 @@ class UserAppPreferences(
 
     fun setShowTodayEvents(show: Boolean) = calendarPreferences.setShowTodayEvents(show)
 
+    fun getDefaultCalendarPackage(): String? = calendarPreferences.getDefaultCalendarPackage()
+
+    fun setDefaultCalendarPackage(packageName: String?) =
+        calendarPreferences.setDefaultCalendarPackage(packageName)
+
     fun getArchivedTodayEventIds(): Set<Long> = calendarPreferences.getArchivedTodayEventIds()
 
     fun archiveTodayCalendarEvent(eventId: Long): Set<Long> = calendarPreferences.archiveTodayEvent(eventId)

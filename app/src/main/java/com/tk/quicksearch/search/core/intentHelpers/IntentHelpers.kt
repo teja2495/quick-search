@@ -11,6 +11,8 @@ import com.tk.quicksearch.search.models.DeviceFile
 
 /** Helper functions for creating and launching intents. */
 object IntentHelpers {
+    private const val CALENDAR_EVENT_MIME_TYPE = "vnd.android.cursor.item/event"
+
     /** Opens usage access settings for the app. */
     fun openUsageAccessSettings(context: Application) {
         AppSettingsIntents.openUsageAccessSettings(context)
@@ -113,11 +115,16 @@ object IntentHelpers {
     fun openCalendarEvent(
         context: Application,
         eventId: Long,
+        calendarPackageName: String? = null,
         onShowToast: ((Int, String?) -> Unit)? = null,
     ) {
         val intent =
             Intent(Intent.ACTION_VIEW).apply {
-                data = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, eventId)
+                setDataAndType(
+                    ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, eventId),
+                    CALENDAR_EVENT_MIME_TYPE,
+                )
+                calendarPackageName?.let(::setPackage)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
         if (!IntentUtils.canResolveIntent(context, intent)) {

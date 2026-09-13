@@ -548,6 +548,7 @@
     <string name="settings_calendar_permission_title">Calendar</string>
     <string name="settings_calendar_show_today_events_desc">Show today\'s events in home screen.</string>
     <string name="settings_calendar_show_today_events_title">Show Today\'s Events</string>
+    <string name="settings_calendar_default_title">Open Events in...</string>
     <string name="settings_calendar_view_all_events_desc">View all events</string>
 
     <!-- ============================================================================

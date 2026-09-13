@@ -46,6 +46,14 @@ class CalendarPreferences(
 
     fun setShowTodayEvents(value: Boolean) = setBooleanPref(BasePreferences.KEY_CALENDAR_SHOW_TODAY_EVENTS, value)
 
+    /** Null means to let Android use the system default calendar handler. */
+    fun getDefaultCalendarPackage(): String? =
+        prefs.getString(BasePreferences.KEY_DEFAULT_CALENDAR_PACKAGE, null)?.takeIf(String::isNotBlank)
+
+    fun setDefaultCalendarPackage(packageName: String?) {
+        prefs.edit().putString(BasePreferences.KEY_DEFAULT_CALENDAR_PACKAGE, packageName).apply()
+    }
+
     fun getArchivedTodayEventIds(): Set<Long> {
         clearArchivedTodayEventsIfStale()
         return getPinnedLongItems(BasePreferences.KEY_ARCHIVED_TODAY_CALENDAR_EVENT_IDS)

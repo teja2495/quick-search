@@ -540,6 +540,7 @@
     <string name="settings_calendar_permission_title">日历</string>
     <string name="settings_calendar_show_today_events_desc">在主屏幕上显示今天的日程。</string>
     <string name="settings_calendar_show_today_events_title">显示今日日程</string>
+    <string name="settings_calendar_default_title">在此打开日程...</string>
     <string name="settings_calendar_view_all_events_desc">查看所有日程</string>
 
     <!-- ============================================================================

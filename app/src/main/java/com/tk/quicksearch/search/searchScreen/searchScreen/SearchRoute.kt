@@ -75,7 +75,9 @@ import com.tk.quicksearch.settings.shared.applySettingsCommand
 import com.tk.quicksearch.settings.shared.isAppSettingToggleEnabled
 import com.tk.quicksearch.settings.settingsDetailScreen.NotesNavigationMemory
 import com.tk.quicksearch.search.data.CustomCalendarEventRepository
+import com.tk.quicksearch.search.data.preferences.CalendarPreferences
 import com.tk.quicksearch.settings.settingsDetailScreen.CustomEventEditDialog
+import com.tk.quicksearch.settings.settingsDetailScreen.DefaultCalendarDialog
 import com.tk.quicksearch.settings.settingsDetailScreen.SecondaryRankingDialog
 import com.tk.quicksearch.settings.AppearanceSettings.IconPackPickerDialog
 import com.tk.quicksearch.search.searchScreen.SearchScreen as SearchScreenComposable
@@ -318,6 +320,7 @@ fun SearchRoute(
     var showPermissionSettingsDialog by remember { mutableStateOf(false) }
     var showSecondaryRankingDialog by remember { mutableStateOf(false) }
     var showIconPackDialog by remember { mutableStateOf(false) }
+    var showDefaultCalendarDialog by remember { mutableStateOf(false) }
     var pendingPermissionSettingsAction by remember { mutableStateOf<(() -> Unit)?>(null) }
     var pendingPermissionSettingsType by remember { mutableStateOf<Int?>(null) }
     var pendingDirectDialToggleFromAppSetting by remember { mutableStateOf(false) }
@@ -326,6 +329,8 @@ fun SearchRoute(
     // Non-null while a SpeedBump app is waiting out its interstitial before launching.
     var speedBumpApp by remember { mutableStateOf<com.tk.quicksearch.search.models.AppInfo?>(null) }
     val customCalendarEventRepository = remember(context) { CustomCalendarEventRepository(context) }
+    val calendarPreferences = remember(context) { CalendarPreferences(context) }
+    var defaultCalendarPackage by remember { mutableStateOf(calendarPreferences.getDefaultCalendarPackage()) }
 
     val callPermissionLauncher =
         if (context is android.app.Activity) {
@@ -447,6 +452,10 @@ fun SearchRoute(
             if (destination == AppSettingsDestination.ICON_PACKS) {
                 viewModel.refreshIconPacks()
                 showIconPackDialog = true
+                return@appSettingClick
+            }
+            if (destination == AppSettingsDestination.OPEN_EVENTS_IN) {
+                showDefaultCalendarDialog = true
                 return@appSettingClick
             }
             if (destination == AppSettingsDestination.RATE_QUICK_SEARCH) {
@@ -1039,6 +1048,18 @@ fun SearchRoute(
                 onDownloadIconPacks = viewModel::searchIconPacks,
                 onResetAllIcons = viewModel::resetAllAppIconsToDefault,
                 onDismiss = { showIconPackDialog = false },
+            )
+        }
+
+        if (showDefaultCalendarDialog) {
+            DefaultCalendarDialog(
+                selectedPackageName = defaultCalendarPackage,
+                onCalendarSelected = { packageName ->
+                    defaultCalendarPackage = packageName
+                    calendarPreferences.setDefaultCalendarPackage(packageName)
+                    showDefaultCalendarDialog = false
+                },
+                onDismiss = { showDefaultCalendarDialog = false },
             )
         }
 

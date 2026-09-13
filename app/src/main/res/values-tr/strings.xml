@@ -549,6 +549,7 @@
 <string name="settings_calendar_permission_title">Takvim</string>
 <string name="settings_calendar_show_today_events_desc">Bugünün etkinliklerini ana ekranda göster.</string>
 <string name="settings_calendar_show_today_events_title">Bugünün etkinliklerini göster</string>
+    <string name="settings_calendar_default_title">Etkinlikleri şurada aç...</string>
 <string name="settings_calendar_view_all_events_desc">Tüm etkinlikleri görüntüle</string>
 
 <!-- ============================================================================

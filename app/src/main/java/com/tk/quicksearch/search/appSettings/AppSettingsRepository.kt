@@ -256,6 +256,12 @@ class AppSettingsRepository(
                 descriptionRes = R.string.settings_calendar_view_all_events_desc,
                 destination = AppSettingsDestination.CALENDAR_EVENTS,
             )
+            addNavigation(
+                id = "app_settings_open_events_in",
+                titleRes = R.string.settings_calendar_default_title,
+                destination = AppSettingsDestination.OPEN_EVENTS_IN,
+                keywords = listOf("calendar app", "open calendar", "event app"),
+            )
             addToggle(
                 id = "app_toggle_calendar_today_events",
                 titleRes = R.string.settings_calendar_show_today_events_title,

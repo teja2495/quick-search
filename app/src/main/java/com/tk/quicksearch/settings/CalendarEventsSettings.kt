@@ -1,10 +1,15 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import android.provider.CalendarContract
 import android.text.format.DateFormat
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,6 +44,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
@@ -74,7 +81,9 @@ import com.tk.quicksearch.search.data.preferences.CalendarPreferences
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.settings.AppShortcutsSettings.shortcutMatchPriority
 import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.settings.shared.SettingsCardItem
 import com.tk.quicksearch.settings.shared.SettingsManagementSearchBar
+import com.tk.quicksearch.settings.shared.SettingsNavigationRow
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.theme.AppColors
@@ -93,6 +102,11 @@ private data class CalendarEventGroup(
     val title: String,
     val nearestInstance: CalendarEventInfo,
     val instances: List<CalendarEventInfo>,
+)
+
+private data class CalendarAppTarget(
+    val packageName: String,
+    val label: String,
 )
 
 private val CalendarSettingsBarCornerShape = RoundedCornerShape(28.dp)
@@ -121,7 +135,17 @@ fun CalendarEventsSettingsSection(
     var editingCustomEvent by remember { mutableStateOf<CalendarEventInfo?>(null) }
     var showTodayEvents by remember { mutableStateOf(calendarPreferences.getShowTodayEvents()) }
     var includePastEvents by remember { mutableStateOf(calendarPreferences.getIncludePastEvents()) }
+    var defaultCalendarPackage by remember { mutableStateOf(calendarPreferences.getDefaultCalendarPackage()) }
+    var showDefaultCalendarDialog by remember { mutableStateOf(false) }
     var localRefreshToken by remember { mutableIntStateOf(0) }
+
+    val calendarApps by produceState(initialValue = emptyList(), context) {
+        value = withContext(Dispatchers.IO) { discoverCalendarApps(context) }
+    }
+    val defaultCalendarLabel =
+        calendarApps.firstOrNull { it.packageName == defaultCalendarPackage }?.label
+            ?: defaultCalendarPackage
+            ?: stringResource(R.string.common_theme_system)
 
     DisposableEffect(lifecycleOwner, calendarRepository) {
         val observer =
@@ -204,6 +228,24 @@ fun CalendarEventsSettingsSection(
         SettingsCard(
             modifier = Modifier.fillMaxWidth().padding(bottom = DesignTokens.SectionTopPadding),
         ) {
+            SettingsNavigationRow(
+                item =
+                    SettingsCardItem(
+                        title = stringResource(R.string.settings_calendar_default_title),
+                        description =
+                            stringResource(
+                                R.string.settings_app_language_desc,
+                                defaultCalendarLabel,
+                            ),
+                        actionOnPress = { showDefaultCalendarDialog = true },
+                    ),
+                contentPadding =
+                    PaddingValues(
+                        horizontal = DesignTokens.CardHorizontalPadding,
+                        vertical = DesignTokens.CardVerticalPadding,
+                    ),
+            )
+            HorizontalDivider(color = AppColors.SettingsDivider)
             SettingsToggleRow(
                 title = stringResource(R.string.settings_calendar_show_today_events_title),
                 subtitle = stringResource(R.string.settings_calendar_show_today_events_desc),
@@ -212,7 +254,7 @@ fun CalendarEventsSettingsSection(
                     showTodayEvents = enabled
                     calendarPreferences.setShowTodayEvents(enabled)
                 },
-                isFirstItem = true,
+                isFirstItem = false,
                 isLastItem = false,
             )
             SettingsToggleRow(
@@ -320,7 +362,133 @@ fun CalendarEventsSettingsSection(
             },
         )
     }
+
+    if (showDefaultCalendarDialog) {
+        DefaultCalendarDialog(
+            selectedPackageName = defaultCalendarPackage,
+            onCalendarSelected = { packageName ->
+                defaultCalendarPackage = packageName
+                calendarPreferences.setDefaultCalendarPackage(packageName)
+                showDefaultCalendarDialog = false
+            },
+            onDismiss = { showDefaultCalendarDialog = false },
+        )
+    }
 }
+
+@Composable
+internal fun DefaultCalendarDialog(
+    selectedPackageName: String?,
+    onCalendarSelected: (String?) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val context = LocalContext.current
+    val maxOptionsHeight = LocalConfiguration.current.screenHeightDp.dp * 0.5f
+    val calendarApps by produceState(initialValue = emptyList(), context) {
+        value = withContext(Dispatchers.IO) { discoverCalendarApps(context) }
+    }
+    AppAlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.settings_calendar_default_title)) },
+        text = {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth().heightIn(max = maxOptionsHeight),
+            ) {
+                item(key = "system") {
+                    CalendarAppOptionRow(
+                    label = stringResource(R.string.common_theme_system),
+                        selected = selectedPackageName == null,
+                        onClick = { onCalendarSelected(null) },
+                    )
+                }
+                items(calendarApps, key = CalendarAppTarget::packageName) { app ->
+                    CalendarAppOptionRow(
+                        label = app.label,
+                        packageName = app.packageName,
+                        selected = selectedPackageName == app.packageName,
+                        onClick = { onCalendarSelected(app.packageName) },
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.dialog_done)) }
+        },
+    )
+}
+
+@Composable
+private fun CalendarAppOptionRow(
+    label: String,
+    packageName: String? = null,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable(onClick = onClick),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RadioButton(selected = selected, onClick = null)
+        Column(modifier = Modifier.padding(start = DesignTokens.SpacingMedium)) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            packageName?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
+private fun discoverCalendarApps(context: android.content.Context): List<CalendarAppTarget> {
+    val intent =
+        Intent(Intent.ACTION_VIEW).setDataAndType(
+            CalendarContract.Events.CONTENT_URI,
+            "vnd.android.cursor.item/event",
+        )
+    val packageManager = context.packageManager
+    val activities =
+        runCatching {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.queryIntentActivities(
+                    intent,
+                    PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_ALL.toLong()),
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                packageManager.queryIntentActivities(intent, PackageManager.MATCH_ALL)
+            }
+        }.getOrDefault(emptyList())
+    return activities
+        .mapNotNull { activity ->
+            activity.activityInfo?.packageName?.let { packageName ->
+                CalendarAppTarget(
+                    packageName = packageName,
+                    label = calendarAppDisplayLabel(
+                        packageName = packageName,
+                        fallbackLabel = activity.loadLabel(packageManager).toString(),
+                    ),
+                )
+            }
+        }
+        .distinctBy(CalendarAppTarget::packageName)
+        .sortedBy { it.label.lowercase() }
+}
+
+private fun calendarAppDisplayLabel(
+    packageName: String,
+    fallbackLabel: String,
+): String =
+    when (packageName) {
+        "com.google.android.calendar" -> "Google Calendar"
+        "com.samsung.android.calendar" -> "Samsung Calendar"
+        else -> fallbackLabel.ifBlank { packageName }
+    }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)

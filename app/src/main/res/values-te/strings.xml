@@ -550,6 +550,7 @@
     <string name="settings_calendar_permission_title">క్యాలెండర్</string>
     <string name="settings_calendar_show_today_events_desc">ఈరోజు ఈవెంట్‌లను హోమ్ స్క్రీన్‌లో చూపించు.</string>
     <string name="settings_calendar_show_today_events_title">ఈరోజు ఈవెంట్‌లను చూపించు</string>
+    <string name="settings_calendar_default_title">ఈవెంట్‌లను ఇందులో తెరవండి...</string>
     <string name="settings_calendar_view_all_events_desc">అన్ని ఈవెంట్‌లను చూడండి</string>
 
     <!-- ============================================================================
