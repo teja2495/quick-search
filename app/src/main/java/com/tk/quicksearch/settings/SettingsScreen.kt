@@ -405,6 +405,16 @@ fun SettingsScreen(
                             },
                         ),
                     )
+                    add(
+                        SettingsCardItem(
+                            title = stringResource(R.string.settings_more_options_title),
+                            description = stringResource(R.string.settings_more_options_desc),
+                            icon = Icons.Rounded.Tune,
+                            actionOnPress = {
+                                onNavigateToDetail(SettingsDetailType.MORE_OPTIONS)
+                            },
+                        ),
+                    )
                 }
 
             SettingsCard(
@@ -452,27 +462,6 @@ fun SettingsScreen(
                                 icon = Icons.Rounded.Translate,
                                 actionOnPress = {
                                     showLanguageDialog = true
-                                },
-                            ),
-                        contentPadding =
-                            PaddingValues(
-                                horizontal = DesignTokens.SpacingXXLarge,
-                                vertical = DesignTokens.SpacingLarge,
-                            ),
-                    )
-
-                    HorizontalDivider(
-                        color = AppColors.SettingsDivider,
-                    )
-
-                    SettingsNavigationRow(
-                        item =
-                            SettingsCardItem(
-                                title = stringResource(R.string.settings_more_options_title),
-                                description = stringResource(R.string.settings_more_options_desc),
-                                icon = Icons.Rounded.Tune,
-                                actionOnPress = {
-                                    onNavigateToDetail(SettingsDetailType.MORE_OPTIONS)
                                 },
                             ),
                         contentPadding =
