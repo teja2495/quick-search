@@ -78,4 +78,20 @@ class SearchEngineRegistryContractTest {
         assertEquals("text/plain", spec.mimeType)
         assertEquals("privacy search", spec.text)
     }
+
+    @Test
+    fun kagiAssistantLaunchSpecPrefillsNewThreadText() {
+        val spec = SearchEngineIntents.buildKagiAssistantLaunchSpec("  ask assistant  ")
+
+        assertEquals("ask assistant", spec.text)
+        assertEquals("com.kagi.assistant://thread/new?text=ask%20assistant", spec.uriString)
+    }
+
+    @Test
+    fun kagiAssistantLaunchSpecOmitsTextWhenQueryIsBlank() {
+        val spec = SearchEngineIntents.buildKagiAssistantLaunchSpec("   ")
+
+        assertNull(spec.text)
+        assertEquals("com.kagi.assistant://thread/new", spec.uriString)
+    }
 }

@@ -1114,6 +1114,7 @@
     <string name="widget_custom_button_choose_colour">Выбрать цвет папки</string>
     <string name="search_engine_google_translate">Google Переводчик</string>
     <string name="search_engine_kagi">Kagi</string>
+    <string name="search_engine_kagi_assistant">Kagi Assistant</string>
     <string name="tasker_integration_title">Действия Tasker</string>
     <string name="tasker_integration_description">Создавайте действия Tasker с помощью широковещательных интентов (broadcast intents).</string>
     <string name="tasker_add_intent_title">Добавить интент Tasker</string>

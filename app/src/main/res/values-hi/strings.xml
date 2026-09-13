@@ -1094,6 +1094,7 @@
     <string name="widget_custom_button_choose_colour">फ़ोल्डर का रंग चुनें</string>
     <string name="search_engine_google_translate">Google अनुवाद</string>
     <string name="search_engine_kagi">Kagi</string>
+    <string name="search_engine_kagi_assistant">Kagi Assistant</string>
     <string name="tasker_integration_title">Tasker क्रियाएं</string>
     <string name="tasker_integration_description">ब्रॉडकास्ट इंटेंट का उपयोग करके Tasker क्रियाएं बनाएं।</string>
     <string name="tasker_add_intent_title">Tasker ब्रॉडकास्ट इंटेंट जोड़ें</string>

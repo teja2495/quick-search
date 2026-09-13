@@ -1094,6 +1094,7 @@
     <string name="widget_custom_button_choose_colour">Επιλογή χρώματος φακέλου</string>
     <string name="search_engine_google_translate">Μετάφραση Google</string>
     <string name="search_engine_kagi">Kagi</string>
+    <string name="search_engine_kagi_assistant">Kagi Assistant</string>
     <string name="tasker_integration_title">Ενέργειες Tasker</string>
     <string name="tasker_integration_description">Δημιουργήστε ενέργειες Tasker χρησιμοποιώντας broadcast intents.</string>
     <string name="tasker_add_intent_title">Προσθήκη Intent Εκπομπής Tasker</string>

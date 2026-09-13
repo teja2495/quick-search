@@ -27,6 +27,7 @@ enum class SearchEngineNativeLaunchMode {
     GROK,
     GOOGLE_TRANSLATE,
     KAGI,
+    KAGI_ASSISTANT,
     FDROID,
 }
 
@@ -332,6 +333,17 @@ object SearchEngineRegistry {
                 appPackages = listOf(PackageConstants.KAGI_PACKAGE),
                 defaultDisableIfAppMissing = true,
                 nativeLaunchMode = SearchEngineNativeLaunchMode.KAGI,
+            ),
+            SearchEngineDefinition(
+                engine = SearchEngine.KAGI_ASSISTANT,
+                drawableResId = R.drawable.kagi_assistant,
+                contentDescriptionResId = R.string.search_engine_kagi_assistant,
+                urlTemplate = "https://assistant.kagi.com/?q=%s",
+                defaultShortcutCode = "kas",
+                homeUrl = "https://assistant.kagi.com",
+                appPackages = listOf(PackageConstants.KAGI_ASSISTANT_PACKAGE),
+                installOnly = true,
+                nativeLaunchMode = SearchEngineNativeLaunchMode.KAGI_ASSISTANT,
             ),
         )
 

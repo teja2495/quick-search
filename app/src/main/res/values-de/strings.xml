@@ -1094,6 +1094,7 @@
     <string name="widget_custom_button_choose_colour">Ordnerfarbe wählen</string>
     <string name="search_engine_google_translate">Google Übersetzer</string>
     <string name="search_engine_kagi">Kagi</string>
+    <string name="search_engine_kagi_assistant">Kagi Assistant</string>
     <string name="tasker_integration_title">Tasker-Aktionen</string>
     <string name="tasker_integration_description">Erstellen Sie Tasker-Aktionen mithilfe von Broadcast-Intents.</string>
     <string name="tasker_add_intent_title">Tasker-Broadcast-Intent hinzufügen</string>

@@ -22,6 +22,7 @@ object PackageConstants {
     const val GOOGLE_PHOTOS_PACKAGE_NAME = "com.google.android.apps.photos"
     const val GOOGLE_TRANSLATE_PACKAGE = "com.google.android.apps.translate"
     const val KAGI_PACKAGE = "com.kagi.search"
+    const val KAGI_ASSISTANT_PACKAGE = "com.kagi.assistant"
     const val YOU_COM_PACKAGE_NAME = "com.you.browser"
     const val WIKIPEDIA_PACKAGE_NAME = "org.wikipedia"
     const val STARTPAGE_PACKAGE_NAME = "com.startpage.app"

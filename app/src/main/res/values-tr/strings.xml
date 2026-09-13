@@ -1093,6 +1093,7 @@
     <string name="widget_custom_button_choose_colour">Klasör rengini seç</string>
     <string name="search_engine_google_translate">Google Çeviri</string>
     <string name="search_engine_kagi">Kagi</string>
+    <string name="search_engine_kagi_assistant">Kagi Assistant</string>
     <string name="tasker_integration_title">Tasker Eylemleri</string>
     <string name="tasker_integration_description">Yayın intent\'leri (broadcast intents) kullanarak Tasker eylemleri oluşturun.</string>
     <string name="tasker_add_intent_title">Tasker Yayın Intent\'i Ekle</string>

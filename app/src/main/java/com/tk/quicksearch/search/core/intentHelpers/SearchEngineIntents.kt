@@ -6,6 +6,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import java.net.URLEncoder
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.searchEngines.buildSearchUrl
@@ -39,6 +40,24 @@ internal object SearchEngineIntents {
             text = query.trim(),
         )
 
+    internal data class KagiAssistantLaunchSpec(
+        val uriString: String,
+        val text: String?,
+    )
+
+    internal fun buildKagiAssistantLaunchSpec(query: String): KagiAssistantLaunchSpec {
+        val trimmedQuery = query.trim().ifEmpty { null }
+        val uriString =
+            if (trimmedQuery == null) {
+                KAGI_ASSISTANT_NEW_THREAD_URI
+            } else {
+                "$KAGI_ASSISTANT_NEW_THREAD_URI?text=${
+                    URLEncoder.encode(trimmedQuery, "UTF-8").replace("+", "%20")
+                }"
+            }
+        return KagiAssistantLaunchSpec(uriString = uriString, text = trimmedQuery)
+    }
+
     fun getNativeHandler(searchEngine: SearchEngine): NativeSearchHandler? =
         when (searchEngine.getNativeLaunchMode()) {
             SearchEngineNativeLaunchMode.CHATGPT -> ::openChatGpt
@@ -54,6 +73,7 @@ internal object SearchEngineIntents {
             SearchEngineNativeLaunchMode.GROK -> ::openGrok
             SearchEngineNativeLaunchMode.GOOGLE_TRANSLATE -> ::openGoogleTranslate
             SearchEngineNativeLaunchMode.KAGI -> ::openKagi
+            SearchEngineNativeLaunchMode.KAGI_ASSISTANT -> ::openKagiAssistant
             SearchEngineNativeLaunchMode.FDROID -> ::openFdroid
             SearchEngineNativeLaunchMode.NONE -> null
         }
@@ -541,6 +561,32 @@ internal object SearchEngineIntents {
         openWebUrl(context, buildSearchUrl(spec.text, SearchEngine.KAGI))
     }
 
+    /** Opens Kagi Assistant's new-thread deep link with the query prefilled. */
+    fun openKagiAssistant(
+        context: Application,
+        query: String,
+    ) {
+        val trimmedQuery = query.trim()
+        val spec = buildKagiAssistantLaunchSpec(trimmedQuery)
+        val appSearchIntent =
+            Intent(Intent.ACTION_VIEW, Uri.parse(spec.uriString)).apply {
+                setClassName(PackageConstants.KAGI_ASSISTANT_PACKAGE, KAGI_ASSISTANT_MAIN_ACTIVITY)
+                addCategory(Intent.CATEGORY_BROWSABLE)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            }
+
+        if (IntentUtils.canResolveIntent(context, appSearchIntent)) {
+            try {
+                context.startActivity(appSearchIntent)
+                return
+            } catch (_: ActivityNotFoundException) {
+            } catch (_: SecurityException) {
+            }
+        }
+
+        openWebUrl(context, buildSearchUrl(trimmedQuery, SearchEngine.KAGI_ASSISTANT))
+    }
+
     /** Opens a web URL in a browser. */
     private fun openWebUrl(
         context: Application,
@@ -589,4 +635,6 @@ internal object SearchEngineIntents {
     }
 
     private const val KAGI_HOME_ACTIVITY = "com.kagi.search.HomeActivity"
+    private const val KAGI_ASSISTANT_MAIN_ACTIVITY = "com.kagi.assistant.MainActivity"
+    private const val KAGI_ASSISTANT_NEW_THREAD_URI = "com.kagi.assistant://thread/new"
 }

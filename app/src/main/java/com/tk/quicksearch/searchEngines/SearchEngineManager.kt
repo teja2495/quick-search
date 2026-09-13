@@ -305,13 +305,25 @@ class SearchEngineManager(
 
     fun refreshBrowserTargets() {
         scope.launch(Dispatchers.IO) {
+            val hasGemini = userPreferences.hasAnyLlmApiKey()
+            val availableEngines = getAvailableEngines(hasGemini)
+            val availableEngineNames = availableEngines.map { it.name }.toSet()
             val availableBrowsers = loadInstalledBrowsers()
             val existingBrowserIds =
                 searchTargetsOrder
                     .filterIsInstance<SearchTarget.Browser>()
                     .map { buildBrowserId(it.app.packageName) }
                     .toSet()
-            val updatedOrder = mergeBrowsers(searchTargetsOrder, availableBrowsers)
+            val orderWithoutUnavailableEngines =
+                searchTargetsOrder.filterNot { target ->
+                    target is SearchTarget.Engine && target.engine !in availableEngines
+                }
+            val withAvailableEngines =
+                applyAiSearchAvailability(
+                    mergeMissingEngines(orderWithoutUnavailableEngines, availableEngines),
+                    hasGemini,
+                )
+            val updatedOrder = mergeBrowsers(withAvailableEngines, availableBrowsers)
             val browserIds =
                 availableBrowsers.map { buildBrowserId(it.packageName) }.toSet()
             val updatedDisabled =
@@ -321,7 +333,11 @@ class SearchEngineManager(
             val cleanedDisabled =
                 updatedDisabled
                     .filterNot { id ->
-                        id.startsWith(BROWSER_ID_PREFIX) && id !in browserIds
+                        when {
+                            id.startsWith(BROWSER_ID_PREFIX) -> id !in browserIds
+                            id.startsWith(CUSTOM_ID_PREFIX) -> false
+                            else -> id !in availableEngineNames
+                        }
                     }.toSet()
 
             if (updatedOrder != searchTargetsOrder || cleanedDisabled != disabledSearchTargetIds) {

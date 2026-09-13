@@ -1038,6 +1038,7 @@
     <string name="search_engine_google_play">Google Play</string>
     <string name="search_engine_grok">Grok</string>
     <string name="search_engine_kagi">Kagi</string>
+    <string name="search_engine_kagi_assistant">Kagi Assistant</string>
     <string name="search_engine_onboarding_description">When you type your search query and tap on any of these search engines, it will trigger search within these apps. You can modify them by long pressing.</string>
     <string name="search_engine_perplexity">Perplexity</string>
     <string name="search_engine_reddit">Reddit</string>
