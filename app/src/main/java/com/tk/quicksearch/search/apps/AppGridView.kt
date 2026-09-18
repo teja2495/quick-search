@@ -82,6 +82,7 @@ import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -121,7 +122,20 @@ import com.tk.quicksearch.shared.ui.theme.homeTextColor
 import com.tk.quicksearch.shared.ui.theme.LocalIsSystemWallpaperActive
 import com.tk.quicksearch.shared.ui.theme.LocalWallpaperDynamicAccentActive
 import com.tk.quicksearch.shared.util.getAppGridColumns
+import com.tk.quicksearch.search.folders.AppFolder
+import com.tk.quicksearch.search.folders.AppFolderMember
+import com.tk.quicksearch.search.folders.AppGridFolderActions
+import com.tk.quicksearch.search.folders.FolderContentsPopup
+import com.tk.quicksearch.search.folders.FolderGridItem
+import com.tk.quicksearch.search.folders.appFolderMemberKey
+import com.tk.quicksearch.search.folders.ResolvedAppFolder
+import com.tk.quicksearch.search.folders.folderMergePreview
+import com.tk.quicksearch.search.folders.resolveAppFolders
+import com.tk.quicksearch.search.folders.shortcutGridKey
 import com.tk.quicksearch.shared.util.hapticConfirm
+import com.tk.quicksearch.shared.util.hapticToggle
+import kotlinx.coroutines.delay
+import kotlin.math.abs
 import kotlin.math.min
 import java.util.Locale
 
@@ -147,6 +161,19 @@ private const val UnsupportedThemedIconGlyphScale = 0.62f
 private const val UnsupportedThemedIconGlyphAlpha = 0.72f
 internal const val DraggedPinnedAppScale = 1.08f
 internal const val DraggedPinnedAppAlpha = 0.92f
+internal const val MergeSourcePinnedAppScale = 0.92f
+// How long a dragged item must rest on another item's center before a drop creates a folder.
+private const val FolderMergeDwellMillis = 200L
+// While merging is possible, reorders wait for the dragged item to rest this long on another
+// cell, so the drag can pass over an item's edge toward its center without the item moving away.
+private const val MergeableReorderDelayMillis = 100L
+// Movement that counts as no longer resting, restarting the reorder or merge wait.
+private val MergeableReorderRestSlop = 12.dp
+// Share of a cell, centered on its item, where a dragged item starts merging instead of reordering
+// (roughly where the two icons mostly overlap), and the larger share it can drift within once it is
+// resting on that item. Resting anywhere else on the cell reorders.
+private const val FolderMergeEnterZoneFraction = 0.4f
+private const val FolderMergeStayZoneFraction = 0.6f
 private val AllAppsDialogIconSurfaceSize = DesignTokens.AppIconSize
 private val AllAppsDialogRowSpacing = DesignTokens.SpacingXXSmall
 
@@ -163,9 +190,61 @@ private sealed interface AppGridEntry {
     }
 
     data class Shortcut(val shortcut: StaticShortcut) : AppGridEntry {
-        override val key: String get() = "shortcut:${shortcutKey(shortcut)}"
+        override val key: String get() = shortcutGridKey(shortcut)
+    }
+
+    data class Folder(val folder: ResolvedAppFolder) : AppGridEntry {
+        override val key: String get() = folder.folder.gridKey
     }
 }
+
+private fun AppGridEntry.folderMemberKey(): String? =
+        when (this) {
+            is AppGridEntry.App -> appFolderMemberKey(app)
+            is AppGridEntry.Shortcut -> appFolderMemberKey(shortcut)
+            is AppGridEntry.Folder -> null
+        }
+
+/**
+ * The cell under the dragged item's center. [offsetFractionX] and [offsetFractionY] are the
+ * center's distance from that cell's item center, as a share of the item's width and height.
+ */
+private data class DragCellHit(
+        val index: Int,
+        val isOnItem: Boolean,
+        val offsetFractionX: Float,
+        val offsetFractionY: Float,
+) {
+    fun isInMergeZone(zoneFraction: Float): Boolean =
+            isOnItem &&
+                    offsetFractionX <= zoneFraction / 2f &&
+                    offsetFractionY <= zoneFraction / 2f
+}
+
+/** An item the dragged one is over, waiting for it to rest near ([anchorX], [anchorY]) to merge. */
+private data class MergeCandidate(
+        val key: String,
+        val anchorX: Float,
+        val anchorY: Float,
+)
+
+/** A reorder waiting for the dragged item to rest on cell [index] near ([anchorX], [anchorY]). */
+private data class PendingReorder(
+        val index: Int,
+        val anchorX: Float,
+        val anchorY: Float,
+)
+
+/**
+ * An area outside a reorderable grid that takes dropped items, hit-tested against the dragged
+ * item's center in root coordinates. [onActiveChange] reports an item being held or dragged.
+ */
+private class AppGridDropTarget(
+        val contains: (rootPosition: Offset) -> Boolean,
+        val onActiveChange: (Boolean) -> Unit,
+        val onHoverChange: (Boolean) -> Unit,
+        val onDrop: (AppGridEntry) -> Unit,
+)
 
 private data class PinnedAppDragState(
         val key: String,
@@ -263,6 +342,8 @@ fun AppGridView(
         onReorderPinnedAppGrid: (List<String>, List<AppInfo>, List<StaticShortcut>) -> Unit =
                 { _, _, _ -> },
         pinnedGridShortcutActions: AppGridShortcutActions? = null,
+        appFolders: List<AppFolder> = emptyList(),
+        folderActions: AppGridFolderActions? = null,
 ) {
     val notificationDotKeys = rememberNotificationDotKeys(notificationDotsEnabled)
     val context = LocalContext.current
@@ -287,6 +368,23 @@ fun AppGridView(
                                 .thenBy { it.userHandleId ?: Int.MIN_VALUE },
                 )
             }
+    // Folders only live in the Pinned tab, which can't be turned off while suggestions are on.
+    val pinnedFolders =
+            remember(appFolders, allApps, appShortcuts, disabledShortcutIds, isSearching) {
+                if (isSearching) {
+                    emptyList()
+                } else {
+                    resolveAppFolders(appFolders, allApps, appShortcuts, disabledShortcutIds)
+                }
+            }
+    // Members are unpinned when moved into a folder; hiding them here too avoids a flash of their
+    // old tiles until the pinned lists refresh.
+    val folderMemberKeys =
+            remember(pinnedFolders) {
+                pinnedFolders.flatMapTo(HashSet()) { folder -> folder.members.map { it.memberKey } }
+            }
+    val hasPinnedGridItems =
+            pinnedApps.isNotEmpty() || pinnedGridShortcuts.isNotEmpty() || pinnedFolders.isNotEmpty()
     val suggestionTabs =
             remember(
                     hasUsagePermission,
@@ -297,6 +395,7 @@ fun AppGridView(
                     mostUsedTitle,
                     pinnedApps,
                     pinnedGridShortcuts,
+                    hasPinnedGridItems,
                     newOrUpdatedApps,
                     pinnedAndRecentApps,
                     mostUsedApps,
@@ -333,7 +432,7 @@ fun AppGridView(
                             add(AppSuggestionTab(AppSuggestionTabType.NEW_UPDATED, newUpdatedTitle, newOrUpdatedApps))
                         }
                         if (
-                            (pinnedApps.isNotEmpty() || pinnedGridShortcuts.isNotEmpty()) &&
+                            hasPinnedGridItems &&
                                 AppSuggestionTabType.PINNED in enabledSuggestionTabs
                         ) {
                             add(AppSuggestionTab(AppSuggestionTabType.PINNED, pinnedTitle, pinnedApps))
@@ -348,7 +447,7 @@ fun AppGridView(
                 } else {
                     buildList {
                         if (
-                            (pinnedApps.isNotEmpty() || pinnedGridShortcuts.isNotEmpty()) &&
+                            hasPinnedGridItems &&
                                 AppSuggestionTabType.PINNED in enabledSuggestionTabs
                         ) {
                             add(AppSuggestionTab(AppSuggestionTabType.PINNED, pinnedTitle, pinnedApps))
@@ -402,33 +501,60 @@ fun AppGridView(
                 AppSuggestionTabType.RECENTS in enabledSuggestionTabs -> AppSuggestionTabType.RECENTS
                 else -> AppSuggestionTabType.MOST_USED
             }
-    // Interleaves pinned apps and shortcuts by the saved grid order while keeping each one's own
-    // pinned order authoritative, so reorders made elsewhere still apply.
-    fun orderedPinnedEntries(pinned: List<AppInfo>): List<AppGridEntry> {
-        val appEntries = pinned.map { AppGridEntry.App(it) }
-        val shortcutEntries = pinnedGridShortcuts.map { AppGridEntry.Shortcut(it) }
-        if (shortcutEntries.isEmpty()) return appEntries
+    // Interleaves pinned apps, shortcuts and (in the Pinned tab) folders by the saved grid order
+    // while keeping the apps' and shortcuts' own pinned orders authoritative, so reorders made
+    // elsewhere still apply. Folders have no order of their own, so the grid order places them.
+    fun orderedPinnedEntries(pinned: List<AppInfo>, includeFolders: Boolean): List<AppGridEntry> {
+        val appEntries =
+                pinned
+                        .filterNot { includeFolders && appFolderMemberKey(it) in folderMemberKeys }
+                        .map { AppGridEntry.App(it) }
+        val shortcutEntries =
+                pinnedGridShortcuts
+                        .filterNot { includeFolders && appFolderMemberKey(it) in folderMemberKeys }
+                        .map { AppGridEntry.Shortcut(it) }
         val rank = pinnedAppGridOrder.withIndex().associate { (index, key) -> key to index }
+        val folderEntries =
+                if (includeFolders) {
+                    pinnedFolders
+                            .map { AppGridEntry.Folder(it) }
+                            .sortedBy { rank[it.key] ?: Int.MAX_VALUE }
+                } else {
+                    emptyList()
+                }
+        if (shortcutEntries.isEmpty() && folderEntries.isEmpty()) return appEntries
         val appIterator = appEntries.iterator()
         val shortcutIterator = shortcutEntries.iterator()
-        return (appEntries + shortcutEntries)
+        val folderIterator = folderEntries.iterator()
+        return (appEntries + shortcutEntries + folderEntries)
                 .sortedBy { rank[it.key] ?: Int.MAX_VALUE }
-                .map { if (it is AppGridEntry.App) appIterator.next() else shortcutIterator.next() }
+                .map { entry ->
+                    when (entry) {
+                        is AppGridEntry.App -> appIterator.next()
+                        is AppGridEntry.Shortcut -> shortcutIterator.next()
+                        is AppGridEntry.Folder -> folderIterator.next()
+                    }
+                }
     }
     fun gridEntriesFor(tabType: AppSuggestionTabType?, tabApps: List<AppInfo>): List<AppGridEntry> {
+        if (tabType == AppSuggestionTabType.PINNED) {
+            return orderedPinnedEntries(tabApps, includeFolders = true)
+        }
         if (tabType != pinnedShortcutsTabType || pinnedGridShortcuts.isEmpty()) {
             return tabApps.map { AppGridEntry.App(it) }
         }
-        if (tabType == AppSuggestionTabType.PINNED) return orderedPinnedEntries(tabApps)
         val leadingPinnedCount = min(pinnedApps.size, suggestionSlotCount)
         val appSlots = (suggestionSlotCount - pinnedGridShortcuts.size).coerceAtLeast(leadingPinnedCount)
         val limitedApps = tabApps.take(appSlots)
-        return orderedPinnedEntries(limitedApps.take(leadingPinnedCount)) +
+        return orderedPinnedEntries(limitedApps.take(leadingPinnedCount), includeFolders = false) +
                 limitedApps.drop(leadingPinnedCount).map { AppGridEntry.App(it) }
+    }
+    val pinnedTabOrderKeys: () -> List<String> = {
+        orderedPinnedEntries(pinnedApps, includeFolders = true).map { it.key }
     }
     val onReorderPinnedEntries: (List<AppGridEntry>) -> Unit = { entries ->
         val reorderedApps = entries.filterIsInstance<AppGridEntry.App>().map { it.app }
-        if (pinnedGridShortcuts.isEmpty()) {
+        if (pinnedGridShortcuts.isEmpty() && pinnedFolders.isEmpty()) {
             onReorderPinnedApps(reorderedApps)
         } else {
             onReorderPinnedAppGrid(
@@ -439,6 +565,21 @@ fun AppGridView(
         }
     }
     val activeGridEntries = gridEntriesFor(selectedSuggestionTabItem?.type, activeApps)
+    var openFolderId by remember { mutableStateOf<String?>(null) }
+    val onMergePinnedEntries: ((AppGridEntry, AppGridEntry, List<AppGridEntry>) -> Unit)? =
+            folderActions?.let { actions ->
+                { dragged, target, entries ->
+                    val orderKeys = entries.map { it.key }
+                    if (target is AppGridEntry.Folder) {
+                        actions.onAddToFolder(target.folder.id, dragged.key, orderKeys)
+                    } else {
+                        actions.onCreateFolder(target.key, dragged.key, orderKeys)
+                    }
+                }
+            }
+    val onDeletePinnedFolder: (ResolvedAppFolder) -> Unit = { folder ->
+        folderActions?.onDeleteFolder?.invoke(folder.id, pinnedTabOrderKeys())
+    }
     val shortcutsByPackage =
             remember(appShortcuts, disabledShortcutIds) {
                 appShortcuts
@@ -621,6 +762,9 @@ fun AppGridView(
                                 showPinnedIndicators =
                                         AppSuggestionTabType.PINNED !in enabledSuggestionTabs,
                                 reorderPinnedApps = selectedTab.type == AppSuggestionTabType.PINNED,
+                                onMergeEntries = onMergePinnedEntries,
+                                onFolderClick = { openFolderId = it.id },
+                                onDeleteFolder = onDeletePinnedFolder,
                         )
                     }
                 } else {
@@ -662,6 +806,9 @@ fun AppGridView(
                                             AppSuggestionTabType.PINNED !in enabledSuggestionTabs,
                             reorderPinnedApps =
                                     selectedSuggestionTabType == AppSuggestionTabType.PINNED,
+                            onMergeEntries = onMergePinnedEntries,
+                            onFolderClick = { openFolderId = it.id },
+                            onDeleteFolder = onDeletePinnedFolder,
                     )
                 }
                 if (shouldShowAllAppsButton) {
@@ -683,6 +830,106 @@ fun AppGridView(
                     usePillBackground = true,
                     showWallpaperBackground = showWallpaperBackground,
                     icon = Icons.Rounded.ChevronRight,
+            )
+        }
+    }
+
+    val openFolder = openFolderId?.let { id -> pinnedFolders.firstOrNull { it.id == id } }
+    LaunchedEffect(openFolder == null) {
+        // Closed for good once the folder is gone, e.g. after its last item is removed.
+        if (openFolder == null) openFolderId = null
+    }
+    if (openFolder != null && folderActions != null) {
+        FolderContentsPopup(
+                folder = openFolder,
+                onRename = { name -> folderActions.onRenameFolder(openFolder.id, name) },
+                onDismiss = { openFolderId = null },
+        ) { removeZone, dismiss ->
+            val memberEntries =
+                    remember(openFolder.members) {
+                        openFolder.members.map { member ->
+                            when (member) {
+                                is AppFolderMember.App -> AppGridEntry.App(member.app)
+                                is AppFolderMember.Shortcut -> AppGridEntry.Shortcut(member.shortcut)
+                            }
+                        }
+                    }
+            // Members count as pinned: their menus offer "Unpin", which takes them out of the
+            // folder and the Pinned tab.
+            val memberAppKeys =
+                    remember(openFolder.members) {
+                        openFolder.members.mapNotNullTo(HashSet()) { member ->
+                            (member as? AppFolderMember.App)?.app?.launchCountKey()
+                        }
+                    }
+            val unpinMember: (String) -> Unit = { memberKey ->
+                folderActions.onUnpinFromFolder(openFolder.id, memberKey, pinnedTabOrderKeys())
+            }
+            AppGrid(
+                    entries = memberEntries,
+                    shortcutActions =
+                            pinnedGridShortcutActions?.copy(
+                                    onTogglePin = { shortcut ->
+                                        unpinMember(appFolderMemberKey(shortcut))
+                                    },
+                            ),
+                    isSearching = false,
+                    onAppClick = { app ->
+                        dismiss()
+                        onAppClick(app)
+                    },
+                    onAppShortcutClick = { shortcut ->
+                        dismiss()
+                        onAppShortcutClick(shortcut)
+                    },
+                    onAppInfoClick = onAppInfoClick,
+                    onUninstallClick = onUninstallClick,
+                    onHideApp = onHideApp,
+                    onDisableAppShortcut = onDisableAppShortcut,
+                    onPinApp = onPinApp,
+                    onUnpinApp = { app -> unpinMember(appFolderMemberKey(app)) },
+                    onReorderPinnedEntries = { entries ->
+                        folderActions.onReorderFolder(
+                                openFolder.id,
+                                entries.mapNotNull { it.folderMemberKey() },
+                        )
+                    },
+                    onNicknameClick = onNicknameClick,
+                    onTriggerClick = onTriggerClick,
+                    onOpenInSplitScreen = onOpenInSplitScreen,
+                    getAppNickname = getAppNickname,
+                    getAppTrigger = getAppTrigger,
+                    pinnedPackageNames = memberAppKeys,
+                    shortcutsByPackage = shortcutsByPackage,
+                    phoneColumnOverride = phoneColumnOverride,
+                    appIconSizeStep = appIconSizeStep,
+                    iconPackPackage = iconPackPackage,
+                    showAppLabels = true,
+                    oneHandedMode = false,
+                    isOverlayPresentation = false,
+                    predictedTarget = null,
+                    suppressTopResultIndicator = true,
+                    appIconShape = appIconShape,
+                    themedIconsEnabled = themedIconsEnabled,
+                    notificationDotKeys = notificationDotKeys,
+                    reorderPinnedApps = true,
+                    // Dropping a member on the popup's remove zone takes it out of the folder.
+                    // The popup stays open unless that empties the folder.
+                    dropTarget =
+                            AppGridDropTarget(
+                                    contains = removeZone::contains,
+                                    onActiveChange = { removeZone.isActive = it },
+                                    onHoverChange = { removeZone.isHovered = it },
+                                    onDrop = { entry ->
+                                        entry.folderMemberKey()?.let { memberKey ->
+                                            folderActions.onRemoveFromFolder(
+                                                    openFolder.id,
+                                                    memberKey,
+                                                    pinnedTabOrderKeys(),
+                                            )
+                                        }
+                                    },
+                            ),
             )
         }
     }
@@ -1103,9 +1350,37 @@ private fun AppGrid(
         reorderPinnedApps: Boolean = false,
         scrollableRowCount: Int? = null,
         shortcutActions: AppGridShortcutActions? = null,
+        onMergeEntries: ((AppGridEntry, AppGridEntry, List<AppGridEntry>) -> Unit)? = null,
+        onFolderClick: (ResolvedAppFolder) -> Unit = {},
+        onDeleteFolder: (ResolvedAppFolder) -> Unit = {},
+        dropTarget: AppGridDropTarget? = null,
 ) {
-    var displayedEntries by remember(entries, reorderPinnedApps) { mutableStateOf(entries) }
+    var displayedEntries by remember(reorderPinnedApps) { mutableStateOf(entries) }
+    var displayedSourceEntries by remember(reorderPinnedApps) { mutableStateOf(entries) }
     var dragState by remember { mutableStateOf<PinnedAppDragState?>(null) }
+    // Takes new entries except mid-drag: a background refresh (e.g. the app list loading after
+    // launch) would otherwise reset the grid under the finger and drop the reorder in progress.
+    if (dragState == null && entries != displayedSourceEntries) {
+        displayedSourceEntries = entries
+        displayedEntries = entries
+    }
+    // Item the dragged one is resting on; merging arms once it has stayed still there for the
+    // dwell, so sliding across an item's center doesn't merge.
+    var mergeCandidate by remember { mutableStateOf<MergeCandidate?>(null) }
+    var isMergeArmed by remember { mutableStateOf(false) }
+    var pendingReorder by remember { mutableStateOf<PendingReorder?>(null) }
+    // The dragged item is over [dropTarget], so dropping it hands it over.
+    var isOverDropTarget by remember { mutableStateOf(false) }
+    val gridCoordinatesHolder = remember { arrayOfNulls<LayoutCoordinates>(1) }
+    val view = LocalView.current
+    LaunchedEffect(mergeCandidate) {
+        isMergeArmed = false
+        if (mergeCandidate == null) return@LaunchedEffect
+        delay(FolderMergeDwellMillis)
+        isMergeArmed = true
+        hapticToggle(view)()
+    }
+    val armedMergeTargetKey = mergeCandidate?.key?.takeIf { isMergeArmed }
     var measuredItemHeightPx by remember { mutableStateOf(0f) }
     val maxVisibleColumns = getAppGridColumns(phoneColumnOverride)
     val columns =
@@ -1147,7 +1422,10 @@ private fun AppGrid(
     }
     val density = LocalDensity.current
 
-    BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
+    BoxWithConstraints(
+            modifier =
+                    modifier.fillMaxWidth().onGloballyPositioned { gridCoordinatesHolder[0] = it },
+    ) {
         val horizontalSpacing = DesignTokens.SpacingMedium
         val widthRoundingSlack =
                 if (columns > 1) AppGridWidthRoundingSlack else 0.dp
@@ -1161,6 +1439,8 @@ private fun AppGrid(
                     ).coerceAtLeast(0.dp)
                 }
         val spacingPx = with(LocalDensity.current) { horizontalSpacing.toPx() }
+        val rowSpacingPx = with(LocalDensity.current) { AppGridRowSpacing.toPx() }
+        val reorderRestSlopPx = with(LocalDensity.current) { MergeableReorderRestSlop.toPx() }
         val rowItemWidthPx = with(LocalDensity.current) { rowItemWidth.toPx() }
         val scrollContainerHeight =
                 scrollableRowCount?.takeIf { it > 0 }?.let { visibleRows ->
@@ -1224,22 +1504,69 @@ private fun AppGrid(
                     appsInPersistedGridOrder(reorderedVisualApps, columns, oneHandedMode)
         }
 
-        fun targetIndexForDrag(state: PinnedAppDragState): Int {
+        // The dragged item's center, in grid coordinates.
+        fun dragCenter(state: PinnedAppDragState): Offset {
             val itemHeightPx = measuredItemHeightPx.takeIf { it > 0f } ?: rowItemWidthPx
             val startColumn = state.startIndex % columns
             val startRow = state.startIndex / columns
-            val targetColumn =
-                    ((startColumn * (rowItemWidthPx + spacingPx) + rowItemWidthPx / 2f + state.offsetX) /
-                            (rowItemWidthPx + spacingPx))
-                            .toInt()
-                            .coerceIn(0, columns - 1)
-            val targetRow =
-                    ((startRow * (itemHeightPx + spacingPx) + itemHeightPx / 2f + state.offsetY) /
-                            (itemHeightPx + spacingPx))
-                            .toInt()
-                            .coerceAtLeast(0)
+            return Offset(
+                    startColumn * (rowItemWidthPx + spacingPx) + rowItemWidthPx / 2f + state.offsetX,
+                    startRow * (itemHeightPx + rowSpacingPx) + itemHeightPx / 2f + state.offsetY,
+            )
+        }
+
+        // The cell under the dragged item's center, and how far the center is from that cell's
+        // item center.
+        fun cellHitForDrag(state: PinnedAppDragState): DragCellHit {
+            val itemHeightPx = measuredItemHeightPx.takeIf { it > 0f } ?: rowItemWidthPx
+            val cellWidthPx = rowItemWidthPx + spacingPx
+            val cellHeightPx = itemHeightPx + rowSpacingPx
+            val (centerX, centerY) = dragCenter(state)
+            val targetColumn = (centerX / cellWidthPx).toInt().coerceIn(0, columns - 1)
+            val targetRow = (centerY / cellHeightPx).toInt().coerceAtLeast(0)
             val maxTargetIndex = min(displayedEntries.lastIndex, visibleAppLimit - 1)
-            return (targetRow * columns + targetColumn).coerceIn(0, maxTargetIndex)
+            val rawIndex = targetRow * columns + targetColumn
+            val targetIndex = rawIndex.coerceIn(0, maxTargetIndex)
+            val offsetFromItemCenterX =
+                    centerX - (targetColumn * cellWidthPx + rowItemWidthPx / 2f)
+            val offsetFromItemCenterY =
+                    centerY - (targetRow * cellHeightPx + itemHeightPx / 2f)
+            return DragCellHit(
+                    index = targetIndex,
+                    isOnItem = centerX >= 0f && centerY >= 0f && rawIndex == targetIndex,
+                    offsetFractionX = abs(offsetFromItemCenterX) / rowItemWidthPx.coerceAtLeast(1f),
+                    offsetFractionY = abs(offsetFromItemCenterY) / itemHeightPx.coerceAtLeast(1f),
+            )
+        }
+
+        // Moves the dragged item to [targetIndex], keeping it under the finger.
+        fun reorderDraggedItem(targetIndex: Int) {
+            val state = dragState ?: return
+            val currentIndex =
+                    appsInVisualGridOrder(displayedEntries, columns, oneHandedMode)
+                            .indexOfFirst { it.key == state.key }
+            if (currentIndex < 0 || targetIndex == currentIndex) return
+            val itemHeightPx = measuredItemHeightPx.takeIf { it > 0f } ?: rowItemWidthPx
+            val oldCol = currentIndex % columns
+            val oldRow = currentIndex / columns
+            val newCol = targetIndex % columns
+            val newRow = targetIndex / columns
+            val layoutShiftX = (newCol - oldCol) * (rowItemWidthPx + spacingPx)
+            val layoutShiftY = (newRow - oldRow) * (itemHeightPx + rowSpacingPx)
+            movePinnedApp(state, targetIndex)
+            dragState =
+                    state.copy(
+                            startIndex = targetIndex,
+                            offsetX = state.offsetX - layoutShiftX,
+                            offsetY = state.offsetY - layoutShiftY,
+                    )
+        }
+        val currentReorderDraggedItem by rememberUpdatedState(::reorderDraggedItem)
+        LaunchedEffect(pendingReorder) {
+            val pending = pendingReorder ?: return@LaunchedEffect
+            delay(MergeableReorderDelayMillis)
+            currentReorderDraggedItem(pending.index)
+            pendingReorder = null
         }
 
         val context = LocalContext.current
@@ -1300,6 +1627,8 @@ private fun AppGrid(
                     appsInVisualGridOrder(displayedEntries, columns, oneHandedMode)
                             .indexOfFirst { it.key == entry.key }
             if (index >= 0) {
+                mergeCandidate = null
+                pendingReorder = null
                 dragState =
                         PinnedAppDragState(
                                 key = entry.key,
@@ -1309,6 +1638,9 @@ private fun AppGrid(
                         )
             }
         }
+        // Resting on another item's center arms a merge; elsewhere the drag reorders. While merging
+        // is possible, a reorder only happens once the dragged item rests on another cell, so
+        // items don't slide out from under it on the way to their center. Folders never merge.
         val handleDrag: (Float, Float) -> Unit = handleDrag@{ dragX, dragY ->
             if (!reorderPinnedApps) return@handleDrag
             val currentState = dragState ?: return@handleDrag
@@ -1317,32 +1649,119 @@ private fun AppGrid(
                             offsetX = currentState.offsetX + dragX,
                             offsetY = currentState.offsetY + dragY,
                     )
-            val currentIndex =
-                    appsInVisualGridOrder(displayedEntries, columns, oneHandedMode)
-                            .indexOfFirst { it.key == updatedState.key }
-            val targetIndex = targetIndexForDrag(updatedState)
-            if (currentIndex >= 0 && targetIndex != currentIndex) {
-                val itemHeightPx =
-                        measuredItemHeightPx.takeIf { it > 0f } ?: rowItemWidthPx
-                val oldCol = currentIndex % columns
-                val oldRow = currentIndex / columns
-                val newCol = targetIndex % columns
-                val newRow = targetIndex / columns
-                val layoutShiftX = (newCol - oldCol) * (rowItemWidthPx + spacingPx)
-                val layoutShiftY = (newRow - oldRow) * (itemHeightPx + spacingPx)
-                movePinnedApp(updatedState, targetIndex)
-                dragState =
-                        updatedState.copy(
-                                startIndex = targetIndex,
-                                offsetX = updatedState.offsetX - layoutShiftX,
-                                offsetY = updatedState.offsetY - layoutShiftY,
-                        )
-            } else {
-                dragState = updatedState
+            dragState = updatedState
+            if (dropTarget != null) {
+                val rootCenter =
+                        gridCoordinatesHolder[0]
+                                ?.takeIf { it.isAttached }
+                                ?.localToRoot(dragCenter(updatedState))
+                val isOver = rootCenter != null && dropTarget.contains(rootCenter)
+                if (isOver != isOverDropTarget) {
+                    isOverDropTarget = isOver
+                    dropTarget.onHoverChange(isOver)
+                    if (isOver) hapticToggle(view)()
+                }
+                if (isOver) {
+                    mergeCandidate = null
+                    pendingReorder = null
+                    return@handleDrag
+                }
+            }
+            val visualEntries = appsInVisualGridOrder(displayedEntries, columns, oneHandedMode)
+            val currentIndex = visualEntries.indexOfFirst { it.key == updatedState.key }
+            if (currentIndex < 0) return@handleDrag
+            val hit = cellHitForDrag(updatedState)
+            val canMerge =
+                    onMergeEntries != null && visualEntries[currentIndex] !is AppGridEntry.Folder
+            val hitKey = visualEntries.getOrNull(hit.index)?.key
+            val mergeZoneFraction =
+                    if (hitKey != null && hitKey == mergeCandidate?.key) {
+                        FolderMergeStayZoneFraction
+                    } else {
+                        FolderMergeEnterZoneFraction
+                    }
+            if (
+                canMerge &&
+                    hitKey != null &&
+                    hit.index != currentIndex &&
+                    hit.isInMergeZone(mergeZoneFraction)
+            ) {
+                pendingReorder = null
+                val candidate = mergeCandidate
+                val stillResting =
+                        candidate != null &&
+                                candidate.key == hitKey &&
+                                (
+                                    isMergeArmed ||
+                                        (
+                                            abs(updatedState.offsetX - candidate.anchorX) <= reorderRestSlopPx &&
+                                                abs(updatedState.offsetY - candidate.anchorY) <= reorderRestSlopPx
+                                        )
+                                )
+                if (!stillResting) {
+                    mergeCandidate =
+                            MergeCandidate(
+                                    key = hitKey,
+                                    anchorX = updatedState.offsetX,
+                                    anchorY = updatedState.offsetY,
+                            )
+                }
+                return@handleDrag
+            }
+            mergeCandidate = null
+            when {
+                hit.index == currentIndex -> pendingReorder = null
+                canMerge -> {
+                    val pending = pendingReorder
+                    val stillResting =
+                            pending != null &&
+                                    pending.index == hit.index &&
+                                    abs(updatedState.offsetX - pending.anchorX) <= reorderRestSlopPx &&
+                                    abs(updatedState.offsetY - pending.anchorY) <= reorderRestSlopPx
+                    if (!stillResting) {
+                        pendingReorder =
+                                PendingReorder(
+                                        index = hit.index,
+                                        anchorX = updatedState.offsetX,
+                                        anchorY = updatedState.offsetY,
+                                )
+                    }
+                }
+                else -> reorderDraggedItem(hit.index)
             }
         }
-        val handleDragEnd: () -> Unit = handleEnd@{
+        val handleDragEnd: (Boolean) -> Unit = handleEnd@{ completed ->
             if (!reorderPinnedApps) return@handleEnd
+            val state = dragState
+            val mergeTarget =
+                    armedMergeTargetKey
+                            ?.takeIf { completed }
+                            ?.let { key -> displayedEntries.firstOrNull { it.key == key } }
+            val draggedEntry = state?.let { displayedEntries.firstOrNull { it.key == state.key } }
+            val pendingIndex = pendingReorder?.index
+            val droppedOnTarget = completed && isOverDropTarget
+            mergeCandidate = null
+            isMergeArmed = false
+            pendingReorder = null
+            isOverDropTarget = false
+            dropTarget?.onHoverChange(false)
+            if (droppedOnTarget && draggedEntry != null && dropTarget != null) {
+                dragState = null
+                // The grid keeps any reorder made so far, without the item.
+                displayedEntries = displayedEntries.filterNot { it.key == draggedEntry.key }
+                onReorderPinnedEntries(displayedEntries)
+                dropTarget.onDrop(draggedEntry)
+                return@handleEnd
+            }
+            if (mergeTarget != null && draggedEntry != null && onMergeEntries != null) {
+                dragState = null
+                // The merge saves the order itself; showing it without the dragged item avoids
+                // a flash of the old tile until the new folder arrives.
+                onMergeEntries(draggedEntry, mergeTarget, displayedEntries)
+                displayedEntries = displayedEntries.filterNot { it.key == draggedEntry.key }
+                return@handleEnd
+            }
+            if (completed && pendingIndex != null) reorderDraggedItem(pendingIndex)
             dragState = null
             onReorderPinnedEntries(displayedEntries)
         }
@@ -1368,7 +1787,23 @@ private fun AppGrid(
                         items = orderedEntries,
                         key = { entry -> entry.key },
                 ) { entry ->
-                    if (entry is AppGridEntry.Shortcut) {
+                    if (entry is AppGridEntry.Folder) {
+                        FolderGridItem(
+                                modifier = Modifier.fillMaxWidth(),
+                                folder = entry.folder,
+                                onClick = { onFolderClick(entry.folder) },
+                                onDelete = { onDeleteFolder(entry.folder) },
+                                iconPackPackage = iconPackPackage,
+                                showLabel = showAppLabels,
+                                isOverlayPresentation = isOverlayPresentation,
+                                appIconSizeStep = appIconSizeStep,
+                                appIconShape = appIconShape,
+                                showWallpaperBackground = showWallpaperBackground,
+                                onItemMeasured = { height ->
+                                    measuredItemHeightPx = height.toFloat()
+                                },
+                        )
+                    } else if (entry is AppGridEntry.Shortcut) {
                         AppShortcutGridItem(
                                 modifier = Modifier.fillMaxWidth(),
                                 shortcut = entry.shortcut,
@@ -1418,26 +1853,40 @@ private fun AppGrid(
                 orderedEntries.forEach { entry ->
                     key(entry.key) {
                         val isThisDragging = entry.key == dragState?.key
-                        if (entry is AppGridEntry.Shortcut) {
-                            AppShortcutGridItem(
-                                    modifier = Modifier.width(rowItemWidth),
-                                    shortcut = entry.shortcut,
-                                    onClick = onAppShortcutClick,
-                                    actions = shortcutActions,
+                        val isMergeTarget = entry.key == armedMergeTargetKey
+                        // Also shrinks an item about to be dropped on the drop target.
+                        val isMergeSource =
+                                isThisDragging && (armedMergeTargetKey != null || isOverDropTarget)
+                        val entryDragOffset =
+                                if (isThisDragging) {
+                                    dragState?.let {
+                                        IntOffset(it.offsetX.toInt(), it.offsetY.toInt())
+                                    }
+                                } else {
+                                    null
+                                }
+                        val tileModifier =
+                                Modifier.width(rowItemWidth)
+                                        .animatePinnedGridPlacement(
+                                                enabled = reorderPinnedApps,
+                                                isDragging = isThisDragging,
+                                                dragOffset = entryDragOffset,
+                                        )
+                        if (entry is AppGridEntry.Folder) {
+                            FolderGridItem(
+                                    modifier = tileModifier,
+                                    folder = entry.folder,
+                                    onClick = { onFolderClick(entry.folder) },
+                                    onDelete = { onDeleteFolder(entry.folder) },
                                     iconPackPackage = iconPackPackage,
                                     showLabel = showAppLabels,
                                     isOverlayPresentation = isOverlayPresentation,
                                     appIconSizeStep = appIconSizeStep,
                                     appIconShape = appIconShape,
+                                    showWallpaperBackground = showWallpaperBackground,
                                     isDragging = isThisDragging,
-                                    dragOffset =
-                                            if (isThisDragging) {
-                                                dragState?.let {
-                                                    IntOffset(it.offsetX.toInt(), it.offsetY.toInt())
-                                                }
-                                            } else {
-                                                null
-                                            },
+                                    isMergeTarget = isMergeTarget,
+                                    dragOffset = entryDragOffset,
                                     onItemMeasured = { height ->
                                         measuredItemHeightPx = height.toFloat()
                                     },
@@ -1450,11 +1899,40 @@ private fun AppGrid(
                                     onPinnedDrag = if (reorderPinnedApps) handleDrag else null,
                                     onPinnedDragEnd = if (reorderPinnedApps) handleDragEnd else null,
                             )
+                        } else if (entry is AppGridEntry.Shortcut) {
+                            AppShortcutGridItem(
+                                    modifier = tileModifier,
+                                    shortcut = entry.shortcut,
+                                    onClick = onAppShortcutClick,
+                                    actions = shortcutActions,
+                                    iconPackPackage = iconPackPackage,
+                                    showLabel = showAppLabels,
+                                    isOverlayPresentation = isOverlayPresentation,
+                                    appIconSizeStep = appIconSizeStep,
+                                    appIconShape = appIconShape,
+                                    showWallpaperBackground = showWallpaperBackground,
+                                    isDragging = isThisDragging,
+                                    isMergeSource = isMergeSource,
+                                    isMergeTarget = isMergeTarget,
+                                    dragOffset = entryDragOffset,
+                                    onItemMeasured = { height ->
+                                        measuredItemHeightPx = height.toFloat()
+                                    },
+                                    onPinnedDragStart =
+                                            if (reorderPinnedApps) {
+                                                { handleDragStart(entry) }
+                                            } else {
+                                                null
+                                            },
+                                    onPinnedDrag = if (reorderPinnedApps) handleDrag else null,
+                                    onPinnedDragEnd = if (reorderPinnedApps) handleDragEnd else null,
+                                    onHoldChange = dropTarget?.onActiveChange,
+                            )
                         } else {
                             val app = (entry as AppGridEntry.App).app
                             val appShortcuts = shortcutsByPackage[app.packageName].orEmpty()
                             AppGridItem(
-                                    modifier = Modifier.width(rowItemWidth),
+                                    modifier = tileModifier,
                                     appInfo = app,
                                     shortcuts = appShortcuts,
                                     appActions = createAppActions(app),
@@ -1469,14 +1947,9 @@ private fun AppGrid(
                                     notificationDotKeys = notificationDotKeys,
                                     showPinnedIndicators = showPinnedIndicators,
                                     isDragging = isThisDragging,
-                                    dragOffset =
-                                            if (isThisDragging) {
-                                                dragState?.let {
-                                                    IntOffset(it.offsetX.toInt(), it.offsetY.toInt())
-                                                }
-                                            } else {
-                                                null
-                                            },
+                                    isMergeSource = isMergeSource,
+                                    isMergeTarget = isMergeTarget,
+                                    dragOffset = entryDragOffset,
                                     onItemMeasured = { height ->
                                         measuredItemHeightPx = height.toFloat()
                                     },
@@ -1488,6 +1961,7 @@ private fun AppGrid(
                                             },
                                     onPinnedDrag = if (reorderPinnedApps) handleDrag else null,
                                     onPinnedDragEnd = if (reorderPinnedApps) handleDragEnd else null,
+                                    onHoldChange = dropTarget?.onActiveChange,
                             )
                         }
                     }
@@ -1519,7 +1993,10 @@ private fun AppGridItem(
         onItemMeasured: (Int) -> Unit = {},
         onPinnedDragStart: (() -> Unit)? = null,
         onPinnedDrag: ((Float, Float) -> Unit)? = null,
-        onPinnedDragEnd: (() -> Unit)? = null,
+        onPinnedDragEnd: ((Boolean) -> Unit)? = null,
+        isMergeSource: Boolean = false,
+        isMergeTarget: Boolean = false,
+        onHoldChange: ((Boolean) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val view = LocalView.current
@@ -1578,7 +2055,12 @@ private fun AppGridItem(
     var isLocalDragging by remember { mutableStateOf(false) }
     val showDraggedPresentation = isDragging || isLocalDragging
     val dragScale by animateFloatAsState(
-            targetValue = if (showDraggedPresentation) DraggedPinnedAppScale else 1f,
+            targetValue =
+                    when {
+                        showDraggedPresentation && isMergeSource -> MergeSourcePinnedAppScale
+                        showDraggedPresentation -> DraggedPinnedAppScale
+                        else -> 1f
+                    },
             animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
             label = "pinnedAppDragScale",
     )
@@ -1591,11 +2073,12 @@ private fun AppGridItem(
             rememberPinnedGridDragModifier(
                     key = appInfo.launchCountKey(),
                     onClick = appActions.onClick,
-                    onShowOptionsChange = { showOptions = it },
+                    onShowOptions = { showOptions = true },
                     onLocalDraggingChange = { isLocalDragging = it },
                     onPinnedDragStart = onPinnedDragStart,
                     onPinnedDrag = onPinnedDrag,
                     onPinnedDragEnd = onPinnedDragEnd,
+                    onHoldChange = onHoldChange,
             )
 
     Box(
@@ -1647,7 +2130,15 @@ private fun AppGridItem(
                     appName = appInfo.appName,
                     onClick = { if (!showOptions) appActions.onClick() },
                     onLongClick = if (isDraggable) null else ({ showOptions = true }),
-                    gestureModifier = Modifier.appSwipeGestures(appInfo).then(dragModifier),
+                    gestureModifier =
+                            Modifier.folderMergePreview(
+                                            active = isMergeTarget,
+                                            iconSize = appIconSize,
+                                            appIconShape = appIconShape,
+                                            showWallpaperBackground = showWallpaperBackground,
+                                    )
+                                    .appSwipeGestures(appInfo)
+                                    .then(dragModifier),
                     clickGesturesEnabled = !isDraggable,
                     appIconSurfaceSize = appIconSurfaceSize,
                     appIconSize = appIconSize,

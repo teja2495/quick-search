@@ -238,6 +238,8 @@ private fun renderAppsSection(
             pinnedAppGridOrder = appsParams.pinnedAppGridOrder,
             onReorderPinnedAppGrid = appsParams.onReorderPinnedAppGrid,
             pinnedGridShortcutActions = appsParams.pinnedGridShortcutActions,
+            appFolders = appsParams.appFolders,
+            folderActions = appsParams.appFolderActions,
         )
         if (!renderPromptCardsFirst && shouldShowUpdateCard) {
             UpdateQuickSearchCard(

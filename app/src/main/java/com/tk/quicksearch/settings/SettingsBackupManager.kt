@@ -5,6 +5,7 @@ import android.net.Uri
 import com.tk.quicksearch.search.data.preferences.BasePreferences
 import com.tk.quicksearch.search.data.preferences.CustomLlmProviderPreferences
 import com.tk.quicksearch.search.data.preferences.GeminiPreferences
+import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.data.notes.NotesRoomStore
 import com.tk.quicksearch.search.data.UserAppPreferences
@@ -384,7 +385,9 @@ object SettingsBackupManager {
             key == BasePreferences.KEY_PINNED_NOTE_IDS ||
             key == BasePreferences.KEY_PINNED_NOTE_ORDER ||
             key == BasePreferences.KEY_PINNED_APP_SHORTCUTS ||
-            key == BasePreferences.KEY_PINNED_APP_SHORTCUT_ORDER
+            key == BasePreferences.KEY_PINNED_APP_SHORTCUT_ORDER ||
+            key == BasePreferences.KEY_APP_FOLDERS ||
+            key == UiPreferences.KEY_PINNED_APP_GRID_ORDER
     }
 
     private fun isShortcutKey(

@@ -136,6 +136,8 @@
     <string name="notification_pinned_item_type_file">File</string>
     <string name="notification_pinned_item_type_note">Note</string>
     <string name="action_remove">Remove</string>
+    <string name="folder_name_placeholder">Add folder name</string>
+    <string name="folder_remove_from_folder">Remove from folder</string>
     <string name="app_swipe_current_action">Current Action</string>
     <string name="app_swipe_up_picker_title">Select Swipe up action for %1$s</string>
     <string name="app_swipe_down_picker_title">Select Swipe down action for %1$s</string>
@@ -235,7 +237,6 @@
          ============================================================================ -->
     <string name="app_suggestions_tab_new_updated">New/Updated</string>
     <string name="app_suggestions_tab_pinned">Pinned</string>
-    <string name="app_suggestions_tab_pinned_disabled_description">Pinned apps will still appear in %1$s tab</string>
     <string name="app_suggestions_tab_recent">Recents</string>
     <string name="app_suggestions_tabs_dialog_message">Choose which app suggestion tabs appear on the home screen.</string>
     <string name="app_suggestions_tabs_dialog_title">App Suggestion Tabs</string>

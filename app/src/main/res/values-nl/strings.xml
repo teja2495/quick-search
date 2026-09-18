@@ -148,6 +148,8 @@
     <string name="notification_pinned_item_type_file">Bestand</string>
     <string name="notification_pinned_item_type_note">Notitie</string>
     <string name="action_remove">Verwijderen</string>
+    <string name="folder_name_placeholder">Mapnaam toevoegen</string>
+    <string name="folder_remove_from_folder">Uit map verwijderen</string>
     <string name="app_swipe_current_action">Huidige actie</string>
     <string name="app_swipe_up_picker_title">Kies actie bij omhoog vegen voor %1$s</string>
     <string name="app_swipe_down_picker_title">Kies actie bij omlaag vegen voor %1$s</string>
@@ -251,7 +253,6 @@
 
     <string name="app_suggestions_tab_new_updated">Nieuw/Bijgewerkt</string>
     <string name="app_suggestions_tab_pinned">Vastgemaakt</string>
-    <string name="app_suggestions_tab_pinned_disabled_description">Vastgemaakte apps verschijnen nog steeds op het tabblad %1$s</string>
     <string name="app_suggestions_tab_recent">Recent</string>
     <string name="app_suggestions_tabs_dialog_message">Kies welke appsuggestie-tabbladen op het startscherm worden weergegeven.</string>
     <string name="app_suggestions_tabs_dialog_title">Suggestietabbladen</string>

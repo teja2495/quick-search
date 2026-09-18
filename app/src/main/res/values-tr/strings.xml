@@ -139,6 +139,8 @@
     <string name="notification_pinned_item_type_file">Dosya</string>
     <string name="notification_pinned_item_type_note">Not</string>
 <string name="action_remove">Kaldır</string>
+<string name="folder_name_placeholder">Klasör adı ekle</string>
+<string name="folder_remove_from_folder">Klasörden kaldır</string>
 <string name="app_swipe_current_action">Geçerli eylem</string>
 <string name="app_swipe_up_picker_title">%1$s için yukarı kaydırma eylemini seçin</string>
 <string name="app_swipe_down_picker_title">%1$s için aşağı kaydırma eylemini seçin</string>
@@ -238,7 +240,6 @@
      ============================================================================ -->
 <string name="app_suggestions_tab_new_updated">Yeni/Güncellenen</string>
 <string name="app_suggestions_tab_pinned">Sabitlenenler</string>
-    <string name="app_suggestions_tab_pinned_disabled_description">Sabitlenmiş uygulamalar %1$s sekmesinde görünmeye devam eder</string>
 <string name="app_suggestions_tab_recent">Son kullanılanlar</string>
 <string name="app_suggestions_tabs_dialog_message">Ana ekranda hangi uygulama önerisi sekmelerinin görüneceğini seçin.</string>
 <string name="app_suggestions_tabs_dialog_title">Uygulama Önerisi Sekmeleri</string>

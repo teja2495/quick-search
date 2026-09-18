@@ -140,6 +140,8 @@
     <string name="notification_pinned_item_type_file">文件</string>
     <string name="notification_pinned_item_type_note">笔记</string>
     <string name="action_remove">移除</string>
+    <string name="folder_name_placeholder">添加文件夹名称</string>
+    <string name="folder_remove_from_folder">从文件夹中移除</string>
     <string name="app_swipe_current_action">当前操作</string>
     <string name="app_swipe_up_picker_title">为 %1$s 选择上滑操作</string>
     <string name="app_swipe_down_picker_title">为 %1$s 选择下滑操作</string>
@@ -239,7 +241,6 @@
          ============================================================================ -->
     <string name="app_suggestions_tab_new_updated">新增/更新</string>
     <string name="app_suggestions_tab_pinned">已固定</string>
-    <string name="app_suggestions_tab_pinned_disabled_description">已固定的应用仍会显示在%1$s标签页中</string>
     <string name="app_suggestions_tab_recent">最近使用</string>
     <string name="app_suggestions_tabs_dialog_message">选择要在主屏幕上显示哪些应用建议标签页。</string>
     <string name="app_suggestions_tabs_dialog_title">应用建议标签页</string>

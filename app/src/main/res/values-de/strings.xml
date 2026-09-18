@@ -140,6 +140,8 @@
     <string name="notification_pinned_item_type_file">Datei</string>
     <string name="notification_pinned_item_type_note">Notiz</string>
     <string name="action_remove">Entfernen</string>
+    <string name="folder_name_placeholder">Ordnernamen hinzufügen</string>
+    <string name="folder_remove_from_folder">Aus Ordner entfernen</string>
     <string name="app_swipe_current_action">Aktuelle Aktion</string>
     <string name="app_swipe_up_picker_title">Aktion für Nach-oben-Wischen bei %1$s auswählen</string>
     <string name="app_swipe_down_picker_title">Aktion für Nach-unten-Wischen bei %1$s auswählen</string>
@@ -239,7 +241,6 @@
          ============================================================================ -->
     <string name="app_suggestions_tab_new_updated">Neu/Aktualisiert</string>
     <string name="app_suggestions_tab_pinned">Angeheftet</string>
-    <string name="app_suggestions_tab_pinned_disabled_description">Angeheftete Apps werden weiterhin im Tab „%1$s“ angezeigt</string>
     <string name="app_suggestions_tab_recent">Zuletzt verwendet</string>
     <string name="app_suggestions_tabs_dialog_message">Wählen Sie aus, welche App-Vorschlagstabs auf dem Startbildschirm angezeigt werden.</string>
     <string name="app_suggestions_tabs_dialog_title">App-Vorschlagstabs</string>

@@ -527,6 +527,7 @@ class SearchViewModel(
         initializeServices()
         setupAiSearchStateListener()
         setupStartupHomeSurfaceCacheListener()
+        managementApiDelegate.folderManager.observeAvailability(uiState)
     }
 
     @OptIn(FlowPreview::class)

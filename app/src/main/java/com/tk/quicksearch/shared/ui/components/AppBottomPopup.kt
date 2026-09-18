@@ -70,6 +70,8 @@ import kotlin.math.roundToInt
  * @param contentBottomPadding Padding below the scrollable content, inside the card.
  * @param contentHorizontalPadding Padding on both sides of the scrollable content, inside the card.
  * @param contentTopPadding Padding above scrollable content when there is no fixed top content.
+ * @param showCloseButton Whether the header shows a close button after the title.
+ * @param bottomOverlay Optional content drawn over the popup's bottom edge, clipped to its shape.
  * @param content Content rendered inside the scrollable dark card.
  */
 @Composable
@@ -92,6 +94,8 @@ fun AppBottomPopup(
     contentBottomPadding: Dp = 24.dp,
     contentHorizontalPadding: Dp = 16.dp,
     contentScrollable: Boolean = true,
+    bottomOverlay: (@Composable BoxScope.() -> Unit)? = null,
+    showCloseButton: Boolean = true,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val defaultMaxCardHeight = LocalConfiguration.current.screenHeightDp.dp * 0.72f
@@ -146,124 +150,129 @@ fun AppBottomPopup(
                 color = containerColor,
                 contentColor = MaterialTheme.colorScheme.onSurface,
             ) {
-                Column(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .clickable(
-                                indication = null,
-                                interactionSource = remember { MutableInteractionSource() },
-                                onClick = {},
-                            )
-                            .padding(horizontal = 12.dp, vertical = 24.dp)
-                            .then(
-                                if (drawerHeight != null) Modifier.height(drawerHeight)
-                                else Modifier,
-                            ),
-                    verticalArrangement = Arrangement.spacedBy(contentSpacing),
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(headerSpacing),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        if (leadingContent != null) {
-                            leadingContent()
-                        }
-                        Box(modifier = Modifier.weight(1f)) {
-                            title()
-                        }
-                        IconButton(onClick = onDismiss, modifier = Modifier.size(40.dp)) {
-                            Icon(
-                                imageVector = Icons.Rounded.Close,
-                                contentDescription = stringResource(R.string.dialog_cancel),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-
-                    aboveCardContent?.invoke()
-
-                    Card(
+                Box {
+                    Column(
                         modifier =
-                            Modifier.fillMaxWidth().then(
-                                when {
-                                    drawerHeight != null -> Modifier.weight(1f)
-                                    innerCardHeight != null -> Modifier.height(innerCardHeight)
-                                    else -> Modifier.heightIn(max = resolvedMaxCardHeight)
-                                },
-                            ),
-                        colors = CardDefaults.cardColors(containerColor = contentCardColor),
-                        shape = MaterialTheme.shapes.large,
+                            Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    indication = null,
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    onClick = {},
+                                )
+                                .padding(horizontal = 12.dp, vertical = 24.dp)
+                                .then(
+                                    if (drawerHeight != null) Modifier.height(drawerHeight)
+                                    else Modifier,
+                                ),
+                        verticalArrangement = Arrangement.spacedBy(contentSpacing),
                     ) {
-                        if (fixedTopContent == null) {
-                            val scrollState = rememberScrollState()
-                            Column(
-                                modifier =
-                                        Modifier
-                                            .fillMaxWidth()
-                                            .then(
-                                                if (contentScrollable) Modifier.verticalScroll(scrollState)
-                                                else Modifier.fillMaxSize(),
-                                            )
-                                        .padding(
-                                            start = contentHorizontalPadding,
-                                            top = contentTopPadding,
-                                            end = contentHorizontalPadding,
-                                            bottom = contentBottomPadding,
-                                        ),
-                                verticalArrangement = Arrangement.spacedBy(20.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                content = content,
-                            )
-                        } else {
-                            Column(
-                                modifier =
-                                    Modifier.fillMaxWidth().then(
-                                        if (innerCardHeight != null) Modifier.height(innerCardHeight)
-                                        else Modifier.heightIn(max = resolvedMaxCardHeight),
-                                    ),
-                            ) {
-                                Column(
-                                    modifier =
-                                        Modifier
-                                            .fillMaxWidth()
-                                            .padding(
-                                                start = 16.dp,
-                                                top = 20.dp,
-                                                end = 16.dp,
-                                                bottom = 12.dp,
-                                            ),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                ) {
-                                    fixedTopContent()
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(headerSpacing),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            if (leadingContent != null) {
+                                leadingContent()
+                            }
+                            Box(modifier = Modifier.weight(1f)) {
+                                title()
+                            }
+                            if (showCloseButton) {
+                                IconButton(onClick = onDismiss, modifier = Modifier.size(40.dp)) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Close,
+                                        contentDescription = stringResource(R.string.dialog_cancel),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
                                 }
-                                if (showFixedTopDivider) {
-                                    HorizontalDivider()
-                                }
+                            }
+                        }
+
+                        aboveCardContent?.invoke()
+
+                        Card(
+                            modifier =
+                                Modifier.fillMaxWidth().then(
+                                    when {
+                                        drawerHeight != null -> Modifier.weight(1f)
+                                        innerCardHeight != null -> Modifier.height(innerCardHeight)
+                                        else -> Modifier.heightIn(max = resolvedMaxCardHeight)
+                                    },
+                                ),
+                            colors = CardDefaults.cardColors(containerColor = contentCardColor),
+                            shape = MaterialTheme.shapes.large,
+                        ) {
+                            if (fixedTopContent == null) {
                                 val scrollState = rememberScrollState()
                                 Column(
                                     modifier =
-                                        Modifier
-                                            .fillMaxWidth()
-                                            .weight(1f, fill = !contentScrollable)
-                                            .then(
-                                                if (contentScrollable) Modifier.verticalScroll(scrollState)
-                                                else Modifier,
-                                            )
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .then(
+                                                    if (contentScrollable) Modifier.verticalScroll(scrollState)
+                                                    else Modifier.fillMaxSize(),
+                                                )
                                             .padding(
-                                                start = 16.dp,
-                                                top = 12.dp,
-                                                end = 16.dp,
+                                                start = contentHorizontalPadding,
+                                                top = contentTopPadding,
+                                                end = contentHorizontalPadding,
                                                 bottom = contentBottomPadding,
                                             ),
                                     verticalArrangement = Arrangement.spacedBy(20.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     content = content,
                                 )
+                            } else {
+                                Column(
+                                    modifier =
+                                        Modifier.fillMaxWidth().then(
+                                            if (innerCardHeight != null) Modifier.height(innerCardHeight)
+                                            else Modifier.heightIn(max = resolvedMaxCardHeight),
+                                        ),
+                                ) {
+                                    Column(
+                                        modifier =
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .padding(
+                                                    start = 16.dp,
+                                                    top = 20.dp,
+                                                    end = 16.dp,
+                                                    bottom = 12.dp,
+                                                ),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                    ) {
+                                        fixedTopContent()
+                                    }
+                                    if (showFixedTopDivider) {
+                                        HorizontalDivider()
+                                    }
+                                    val scrollState = rememberScrollState()
+                                    Column(
+                                        modifier =
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .weight(1f, fill = !contentScrollable)
+                                                .then(
+                                                    if (contentScrollable) Modifier.verticalScroll(scrollState)
+                                                    else Modifier,
+                                                )
+                                                .padding(
+                                                    start = 16.dp,
+                                                    top = 12.dp,
+                                                    end = 16.dp,
+                                                    bottom = contentBottomPadding,
+                                                ),
+                                        verticalArrangement = Arrangement.spacedBy(20.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        content = content,
+                                    )
+                                }
                             }
                         }
                     }
+                    bottomOverlay?.invoke(this)
                 }
             }
             // Dialogs are separate windows, so screen-level overlays (e.g. the undo snackbar)

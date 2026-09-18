@@ -445,6 +445,7 @@ abstract class BasePreferences(
         const val KEY_APP_ICON_OVERRIDE_PREFIX = "app_icon_override_"
         const val KEY_RECENT_APP_LAUNCHES = "recent_app_launches"
         const val KEY_PINNED_NON_APP_ITEM_ORDER = "pinned_non_app_item_order"
+        const val KEY_APP_FOLDERS = "app_folders"
 
         // Contact preferences keys
         const val KEY_PINNED_CONTACT_IDS = "pinned_contact_ids"

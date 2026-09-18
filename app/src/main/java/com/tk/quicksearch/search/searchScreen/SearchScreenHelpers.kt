@@ -143,7 +143,9 @@ private fun AppsSectionParams.activeHomeSuggestionTab(): AppSuggestionTabType? {
             if (hasUsagePermission && AppSuggestionTabType.NEW_UPDATED in enabledSuggestionTabs) {
                 add(AppSuggestionTabType.NEW_UPDATED)
             }
-            if (pinnedApps.isNotEmpty() && AppSuggestionTabType.PINNED in enabledSuggestionTabs) {
+            val hasPinnedGridItems =
+                pinnedApps.isNotEmpty() || pinnedGridAppShortcuts.isNotEmpty() || appFolders.isNotEmpty()
+            if (hasPinnedGridItems && AppSuggestionTabType.PINNED in enabledSuggestionTabs) {
                 add(AppSuggestionTabType.PINNED)
             }
             if (AppSuggestionTabType.RECENTS in enabledSuggestionTabs) {
@@ -392,6 +394,8 @@ data class AppsSectionParams(
     val onReorderPinnedAppGrid: (List<String>, List<AppInfo>, List<StaticShortcut>) -> Unit =
         { _, _, _ -> },
     val pinnedGridShortcutActions: com.tk.quicksearch.search.apps.AppGridShortcutActions? = null,
+    val appFolders: List<com.tk.quicksearch.search.folders.AppFolder> = emptyList(),
+    val appFolderActions: com.tk.quicksearch.search.folders.AppGridFolderActions? = null,
 )
 
 /** Data class for Calendar section parameters */
@@ -518,6 +522,7 @@ internal fun buildSectionParams(
     onUnpinApp: (AppInfo) -> Unit,
     onReorderPinnedApps: (List<AppInfo>) -> Unit,
     onReorderPinnedAppGrid: (List<String>, List<AppInfo>, List<StaticShortcut>) -> Unit,
+    appFolderActions: com.tk.quicksearch.search.folders.AppGridFolderActions?,
     onSuggestionTabSelected: (AppSuggestionTabType) -> Unit,
     onRateQuickSearchClick: () -> Unit,
     onRateQuickSearchNotNowClick: () -> Unit,
@@ -999,6 +1004,8 @@ internal fun buildSectionParams(
                 },
             pinnedAppGridOrder = state.pinnedAppGridOrder,
             onReorderPinnedAppGrid = onReorderPinnedAppGrid,
+            appFolders = state.appFolders,
+            appFolderActions = appFolderActions,
             pinnedGridShortcutActions =
                 com.tk.quicksearch.search.apps.AppGridShortcutActions(
                     onTogglePin = appShortcutParams.onTogglePin,

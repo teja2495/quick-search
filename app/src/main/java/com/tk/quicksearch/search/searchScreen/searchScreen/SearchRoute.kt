@@ -935,6 +935,18 @@ fun SearchRoute(
             onUnpinApp = viewModel::unpinApp,
             onReorderPinnedApps = viewModel::reorderPinnedApps,
             onReorderPinnedAppGrid = viewModel::reorderPinnedAppGrid,
+            appFolderActions =
+                remember(viewModel) {
+                    com.tk.quicksearch.search.folders.AppGridFolderActions(
+                        onCreateFolder = viewModel::createAppFolder,
+                        onAddToFolder = viewModel::addToAppFolder,
+                        onRemoveFromFolder = viewModel::removeFromAppFolder,
+                        onUnpinFromFolder = viewModel::unpinFromAppFolder,
+                        onReorderFolder = viewModel::reorderAppFolder,
+                        onRenameFolder = viewModel::renameAppFolder,
+                        onDeleteFolder = viewModel::deleteAppFolder,
+                    )
+                },
             onSuggestionTabSelected = viewModel::setSelectedAppSuggestionTab,
             onRateQuickSearchClick = { onAppSettingClick(rateQuickSearchSetting) },
             onRateQuickSearchNotNowClick = {

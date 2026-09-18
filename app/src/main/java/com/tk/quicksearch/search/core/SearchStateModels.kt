@@ -217,6 +217,7 @@ data class SearchFeatureState(
         val homePinnedSectionOrder: List<SearchSection> = UiPreferences.DEFAULT_HOME_PINNED_SECTION_ORDER,
         val pinnedAppShortcutsInAppGrid: Boolean = false,
         val pinnedAppGridOrder: List<String> = emptyList(),
+        val appFolders: List<com.tk.quicksearch.search.folders.AppFolder> = emptyList(),
         // Calendar
         val showTodayEvents: Boolean = true,
         // Direct dial

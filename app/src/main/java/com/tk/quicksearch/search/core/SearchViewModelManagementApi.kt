@@ -222,6 +222,27 @@ internal interface SearchViewModelManagementApi {
         shortcuts: List<StaticShortcut>,
     ) = managementApiDelegate.reorderPinnedAppGrid(orderKeys, apps, shortcuts)
 
+    fun createAppFolder(targetKey: String, draggedKey: String, orderKeys: List<String>) =
+        managementApiDelegate.folderManager.createFolder(targetKey, draggedKey, orderKeys)
+
+    fun addToAppFolder(folderId: String, draggedKey: String, orderKeys: List<String>) =
+        managementApiDelegate.folderManager.addToFolder(folderId, draggedKey, orderKeys)
+
+    fun removeFromAppFolder(folderId: String, memberKey: String, orderKeys: List<String>) =
+        managementApiDelegate.folderManager.removeFromFolder(folderId, memberKey, orderKeys)
+
+    fun unpinFromAppFolder(folderId: String, memberKey: String, orderKeys: List<String>) =
+        managementApiDelegate.folderManager.removeFromFolder(folderId, memberKey, orderKeys, repin = false)
+
+    fun reorderAppFolder(folderId: String, memberKeys: List<String>) =
+        managementApiDelegate.folderManager.reorderFolderMembers(folderId, memberKeys)
+
+    fun renameAppFolder(folderId: String, name: String) =
+        managementApiDelegate.folderManager.renameFolder(folderId, name)
+
+    fun deleteAppFolder(folderId: String, orderKeys: List<String>) =
+        managementApiDelegate.folderManager.deleteFolder(folderId, orderKeys)
+
     fun excludeAppShortcut(shortcut: StaticShortcut) = managementApiDelegate.excludeAppShortcut(shortcut)
 
     fun setAppShortcutNickname(shortcut: StaticShortcut, nickname: String?) =
@@ -355,6 +376,20 @@ class SearchViewModelManagementApiDelegate internal constructor(
     private val lockedAliasSearchSectionProvider: () -> SearchSection?,
     private val refreshRecentItems: () -> Unit,
 ) {
+    val folderManager by lazy {
+        com.tk.quicksearch.search.folders.FolderManager(
+            scope = scope,
+            userPreferences = userPreferences,
+            resultsStateProvider = resultsStateProvider,
+            updateFeatureState = updateFeatureState,
+            pinApp = ::pinApp,
+            unpinApp = ::unpinApp,
+            pinShortcut = ::pinAppShortcut,
+            unpinShortcut = ::unpinAppShortcut,
+            reorderPinnedAppGrid = ::reorderPinnedAppGrid,
+        )
+    }
+
     fun deleteRecentItem(entry: RecentSearchEntry) {
         historyDelegate.deleteRecentItem(entry, lockedAliasSearchSectionProvider())
     }

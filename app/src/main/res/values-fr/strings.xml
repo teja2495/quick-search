@@ -140,6 +140,8 @@
     <string name="notification_pinned_item_type_file">Fichier</string>
     <string name="notification_pinned_item_type_note">Note</string>
 <string name="action_remove">Supprimer</string>
+<string name="folder_name_placeholder">Ajouter un nom de dossier</string>
+<string name="folder_remove_from_folder">Retirer du dossier</string>
 <string name="app_swipe_current_action">Action actuelle</string>
 <string name="app_swipe_up_picker_title">Choisir l\'action du balayage vers le haut pour %1$s</string>
 <string name="app_swipe_down_picker_title">Choisir l\'action du balayage vers le bas pour %1$s</string>
@@ -239,7 +241,6 @@
      ============================================================================ -->
 <string name="app_suggestions_tab_new_updated">Nouveautés/Mises à jour</string>
 <string name="app_suggestions_tab_pinned">Épinglées</string>
-    <string name="app_suggestions_tab_pinned_disabled_description">Les applications épinglées apparaîtront toujours dans l’onglet %1$s</string>
 <string name="app_suggestions_tab_recent">Récents</string>
 <string name="app_suggestions_tabs_dialog_message">Choisissez les onglets de suggestions d\'applications à afficher sur l\'écran d\'accueil.</string>
 <string name="app_suggestions_tabs_dialog_title">Onglets de suggestions d\'applications</string>

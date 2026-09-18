@@ -145,6 +145,8 @@
     <string name="notification_pinned_item_type_file">File</string>
     <string name="notification_pinned_item_type_note">Catatan</string>
     <string name="action_remove">Hapus</string>
+    <string name="folder_name_placeholder">Tambahkan nama folder</string>
+    <string name="folder_remove_from_folder">Hapus dari folder</string>
     <string name="app_swipe_current_action">Tindakan Saat Ini</string>
     <string name="app_swipe_up_picker_title">Pilih tindakan Geser ke atas untuk %1$s</string>
     <string name="app_swipe_down_picker_title">Pilih tindakan Geser ke bawah untuk %1$s</string>
@@ -244,7 +246,6 @@
          ============================================================================ -->
     <string name="app_suggestions_tab_new_updated">Baru/Diperbarui</string>
     <string name="app_suggestions_tab_pinned">Disematkan</string>
-    <string name="app_suggestions_tab_pinned_disabled_description">Aplikasi yang disematkan akan tetap muncul di tab %1$s</string>
     <string name="app_suggestions_tab_recent">Terbaru</string>
     <string name="app_suggestions_tabs_dialog_message">Pilih tab saran aplikasi yang ditampilkan di layar utama.</string>
     <string name="app_suggestions_tabs_dialog_title">Tab Saran Aplikasi</string>

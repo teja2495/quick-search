@@ -145,6 +145,8 @@
     <string name="notification_pinned_item_type_file">ファイル</string>
     <string name="notification_pinned_item_type_note">メモ</string>
     <string name="action_remove">削除</string>
+    <string name="folder_name_placeholder">フォルダ名を追加</string>
+    <string name="folder_remove_from_folder">フォルダから削除</string>
     <string name="app_swipe_current_action">現在のアクション</string>
     <string name="app_swipe_up_picker_title">「%1$s」の上スワイプ操作を選択</string>
     <string name="app_swipe_down_picker_title">「%1$s」の下スワイプ操作を選択</string>
@@ -244,7 +246,6 @@
          ============================================================================ -->
     <string name="app_suggestions_tab_new_updated">新規/更新</string>
     <string name="app_suggestions_tab_pinned">固定</string>
-    <string name="app_suggestions_tab_pinned_disabled_description">固定されたアプリは引き続き「%1$s」タブに表示されます</string>
     <string name="app_suggestions_tab_recent">最近</string>
     <string name="app_suggestions_tabs_dialog_message">ホーム画面に表示するアプリ候補タブを選択してください。</string>
     <string name="app_suggestions_tabs_dialog_title">アプリ候補タブ</string>

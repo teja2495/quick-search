@@ -141,6 +141,8 @@
     <string name="notification_pinned_item_type_file">ملف</string>
     <string name="notification_pinned_item_type_note">ملاحظة</string>
     <string name="action_remove">إزالة</string>
+    <string name="folder_name_placeholder">أضف اسم المجلد</string>
+    <string name="folder_remove_from_folder">إزالة من المجلد</string>
     <string name="app_swipe_current_action">الإجراء الحالي</string>
     <string name="app_swipe_up_picker_title">اختر إجراء السحب لأعلى لـ %1$s</string>
     <string name="app_swipe_down_picker_title">اختر إجراء السحب لأسفل لـ %1$s</string>
@@ -240,7 +242,6 @@
          ============================================================================ -->
     <string name="app_suggestions_tab_new_updated">جديد/محدث</string>
     <string name="app_suggestions_tab_pinned">مثبت</string>
-    <string name="app_suggestions_tab_pinned_disabled_description">ستظل التطبيقات المثبتة ظاهرة في تبويب %1$s</string>
     <string name="app_suggestions_tab_recent">الأخيرة</string>
     <string name="app_suggestions_tabs_dialog_message">اختر تبويبات اقتراحات التطبيقات التي تظهر على الشاشة الرئيسية.</string>
     <string name="app_suggestions_tabs_dialog_title">تبويبات اقتراحات التطبيقات</string>

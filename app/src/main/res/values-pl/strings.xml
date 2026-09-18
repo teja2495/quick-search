@@ -145,6 +145,8 @@
     <string name="notification_pinned_item_type_file">Plik</string>
     <string name="notification_pinned_item_type_note">Notatka</string>
     <string name="action_remove">Usuń</string>
+    <string name="folder_name_placeholder">Dodaj nazwę folderu</string>
+    <string name="folder_remove_from_folder">Usuń z folderu</string>
     <string name="app_swipe_current_action">Bieżące działanie</string>
     <string name="app_swipe_up_picker_title">Wybierz działanie gestu w górę dla %1$s</string>
     <string name="app_swipe_down_picker_title">Wybierz działanie gestu w dół dla %1$s</string>
@@ -244,7 +246,6 @@
          ============================================================================ -->
     <string name="app_suggestions_tab_new_updated">Nowe/Zaktualizowane</string>
     <string name="app_suggestions_tab_pinned">Przypięte</string>
-    <string name="app_suggestions_tab_pinned_disabled_description">Przypięte aplikacje nadal będą widoczne na karcie %1$s</string>
     <string name="app_suggestions_tab_recent">Ostatnie</string>
     <string name="app_suggestions_tabs_dialog_message">Wybierz karty sugestii aplikacji, które mają być widoczne na ekranie głównym.</string>
     <string name="app_suggestions_tabs_dialog_title">Karty sugestii aplikacji</string>

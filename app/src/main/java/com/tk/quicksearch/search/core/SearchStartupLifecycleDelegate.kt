@@ -962,6 +962,7 @@ internal class SearchStartupLifecycleDelegate(
                 homePinnedSectionOrder = userPreferences.getHomePinnedSectionOrder(),
                 pinnedAppShortcutsInAppGrid = userPreferences.isPinnedAppShortcutsInAppGridEnabled(),
                 pinnedAppGridOrder = userPreferences.getPinnedAppGridOrder(),
+                appFolders = userPreferences.getAppFolders(),
                 shouldShowUsagePermissionBanner = userPreferences.shouldShowUsagePermissionBanner(),
             )
         }

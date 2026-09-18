@@ -24,7 +24,8 @@ internal class SearchVisibilityStateResolver {
             !state.hasUsagePermission -> ScreenVisibilityState.NoPermissions
             state.query.isBlank() &&
                 state.recentApps.isEmpty() &&
-                state.pinnedApps.isEmpty() ->
+                state.pinnedApps.isEmpty() &&
+                state.appFolders.isEmpty() ->
                 ScreenVisibilityState.Empty
             else -> ScreenVisibilityState.Content
         }
@@ -39,6 +40,7 @@ internal class SearchVisibilityStateResolver {
                 val hasContent =
                     state.recentApps.isNotEmpty() ||
                         state.pinnedApps.isNotEmpty() ||
+                        state.appFolders.isNotEmpty() ||
                         (state.showAllAppsButton && state.allApps.any { it.hasLaunchIntent })
                 if (hasContent) {
                     AppsSectionVisibility.ShowingResults(hasPinned = state.pinnedApps.isNotEmpty())
