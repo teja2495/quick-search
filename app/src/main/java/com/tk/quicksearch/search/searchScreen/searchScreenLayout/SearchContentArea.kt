@@ -681,6 +681,7 @@ fun SearchContentArea(
                                 onOpenPermissionsSettings = onOpenPermissionsSettings,
                                 onHomePinnedSectionOrderChange = onHomePinnedSectionOrderChange,
                                 selectedTopMatchIndex = selectedTopMatchIndex,
+                                isScrollInProgress = { scrollState.isScrollInProgress },
                             )
                         }
                     }

@@ -110,6 +110,7 @@
     <string name="settings_gestures_desc">スワイプ操作をカスタマイズ</string>
     <string name="settings_gesture_swipe_right">右にスワイプ</string>
     <string name="settings_gesture_widget_panel">ウィジェットパネル</string>
+    <string name="widget_pinned_to_home">ホームに固定しました</string>
     <string name="settings_gesture_swipe_left">左にスワイプ</string>
     <string name="settings_gesture_swipe_up">上にスワイプ</string>
     <string name="settings_gesture_swipe_down">下にスワイプ</string>

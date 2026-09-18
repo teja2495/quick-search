@@ -88,7 +88,20 @@ internal class WidgetPanelHost(
         liveViews.forEach { it.cancelPendingLongPress() }
     }
 
+    /**
+     * Starts listening for widget updates. Every surface that hosts panel widgets (the panel and
+     * Home) uses the same host id, and the system keeps only the most recent listener per host id,
+     * so the newest surface takes over updates and hands them back when it is released.
+     */
+    fun startListeningShared() {
+        activeHosts.remove(this)
+        activeHosts.add(this)
+        startListening()
+    }
+
     fun release() {
+        val wasActiveListener = activeHosts.lastOrNull() === this
+        activeHosts.remove(this)
         val releasedViewCount = liveViews.size
         liveViews.toList().forEach { it.releaseCallbacks() }
         liveViews.clear()
@@ -97,10 +110,20 @@ internal class WidgetPanelHost(
         onWidgetDragEnd = null
         onWidgetTouch = null
         isScrollInProgressProvider = { false }
-        stopListening()
+        val nextListener = activeHosts.lastOrNull()
+        if (nextListener == null) {
+            stopListening()
+        } else if (wasActiveListener) {
+            nextListener.startListening()
+        }
         clearViews()
         MemoryDiagnostics.widgetViewsReleased(releasedViewCount)
         MemoryDiagnostics.widgetHostReleased()
+    }
+
+    private companion object {
+        // Main-thread only: hosts are created and released from composition effects.
+        val activeHosts = mutableListOf<WidgetPanelHost>()
     }
 }
 
@@ -170,6 +193,7 @@ private class WidgetPanelHostView(
     private var longPressArmed = false
     private var dragHandled = false
     private var focusClearTouch = false
+    private var cancellingChildren = false
     private val longPressRunnable =
         Runnable {
             if (!longPressArmed || longPressFired) return@Runnable
@@ -231,12 +255,19 @@ private class WidgetPanelHostView(
             }
         }
         if (focusClearTouch) return true
-        return super.dispatchTouchEvent(ev)
+        val handled = super.dispatchTouchEvent(ev)
+        // Claim the gesture on down while a long-press can still fire. Otherwise a press on a
+        // non-clickable part of the widget is declined, the host (e.g. Compose interop) stops
+        // delivering the rest of the gesture, and the drag after the long-press never arrives.
+        return handled || (ev.actionMasked == MotionEvent.ACTION_DOWN && longPressArmed)
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean = longPressFired
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        // The synthetic cancel sent to the widget's children must not end the drag that the
+        // long-press just started.
+        if (cancellingChildren) return true
         if (!dragHandled) return super.onTouchEvent(event)
         when (event.actionMasked) {
             MotionEvent.ACTION_MOVE -> {
@@ -262,7 +293,14 @@ private class WidgetPanelHostView(
         val now = SystemClock.uptimeMillis()
         val cancel =
             MotionEvent.obtain(now, now, MotionEvent.ACTION_CANCEL, 0f, 0f, 0)
-        super.dispatchTouchEvent(cancel)
-        cancel.recycle()
+        // With no child touch target (the press landed on a non-clickable part of the widget),
+        // ViewGroup delivers this cancel to our own onTouchEvent.
+        cancellingChildren = true
+        try {
+            super.dispatchTouchEvent(cancel)
+        } finally {
+            cancellingChildren = false
+            cancel.recycle()
+        }
     }
 }

@@ -110,6 +110,7 @@
     <string name="settings_gestures_desc">Dostosuj gesty przesunięcia</string>
     <string name="settings_gesture_swipe_right">Przesunięcie w prawo</string>
     <string name="settings_gesture_widget_panel">Panel widżetów</string>
+    <string name="widget_pinned_to_home">Przypięto do ekranu głównego</string>
     <string name="settings_gesture_swipe_left">Przesunięcie w lewo</string>
     <string name="settings_gesture_swipe_up">Przesunięcie w górę</string>
     <string name="settings_gesture_swipe_down">Przesunięcie w dół</string>

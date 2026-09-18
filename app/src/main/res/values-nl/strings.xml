@@ -113,6 +113,7 @@
     <string name="settings_gestures_desc">Veegacties aanpassen</string>
     <string name="settings_gesture_swipe_right">Naar rechts vegen</string>
     <string name="settings_gesture_widget_panel">Widgetpaneel</string>
+    <string name="widget_pinned_to_home">Vastgezet op Start</string>
     <string name="settings_gesture_swipe_left">Naar links vegen</string>
     <string name="settings_gesture_swipe_up">Omhoog vegen</string>
     <string name="settings_gesture_swipe_down">Omlaag vegen</string>

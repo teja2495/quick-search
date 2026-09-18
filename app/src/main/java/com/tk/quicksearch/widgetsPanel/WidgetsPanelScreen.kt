@@ -51,6 +51,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -96,6 +97,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
+import android.widget.Toast
 import androidx.core.os.bundleOf
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppTheme
@@ -114,24 +116,24 @@ import kotlin.math.roundToInt
 
 private const val WIDGET_PANEL_HOST_ID = 8291
 private const val WIDGET_PANEL_SWIPE_THRESHOLD_PX = 140f
-private val WidgetPanelGridRowHeight = 80.dp
-private val WidgetPanelGridGap = 8.dp
+internal val WidgetPanelGridRowHeight = 80.dp
+internal val WidgetPanelGridGap = 8.dp
 private val WidgetResizeEdgeHitLong = 64.dp
 private val WidgetResizeEdgeHitShort = 32.dp
 private val WidgetResizeVisualLong = 32.dp
-private val WidgetResizeVisualShort = 8.dp
+internal val WidgetResizeVisualShort = 8.dp
 private val WidgetActionButtonSize = 30.dp
 private val WidgetEditRingWidth = 2.dp
 
 // Centers action buttons on the 45° point of the 20dp card-corner arc
 // (20dp × (1 − 1/√2) ≈ 6dp in from each edge, minus the 15dp button radius).
-private val WidgetActionButtonCornerOffset = 9.dp
+internal val WidgetActionButtonCornerOffset = 9.dp
 private val WidgetEditBorderWidth = 1.dp
 
 // How far edit badges and resize handles can extend past a widget's top edge.
 private val WidgetEditOverhang = 8.dp
 private val WidgetPanelBottomScrollSpace = 150.dp
-private val WidgetLayoutMotion =
+internal val WidgetLayoutMotion =
     spring<Dp>(
         dampingRatio = Spring.DampingRatioNoBouncy,
         stiffness = Spring.StiffnessMediumLow,
@@ -142,7 +144,7 @@ private data class PendingWidgetRequest(
     val provider: AppWidgetProviderInfo,
 )
 
-private enum class ResizeEdge(
+internal enum class ResizeEdge(
     val xSign: Int,
     val ySign: Int,
     val alignment: Alignment,
@@ -215,6 +217,22 @@ fun WidgetsPanelScreen(
         if (next == widgets) return
         widgets = next
         preferences.setWidgets(next)
+        HomePinnedWidgetsStore.publish(next)
+    }
+
+    fun pinWidgetToHome(widget: PanelWidgetInfo) {
+        if (widget.isQuickNoteWidget() || widget.home != null) return
+        persistWidgets(
+            widgets.map { item ->
+                if (item.appWidgetId == widget.appWidgetId) {
+                    item.copy(home = defaultHomePlacement(item, widgets))
+                } else {
+                    item
+                }
+            },
+        )
+        editingWidgetId = null
+        Toast.makeText(context, R.string.widget_pinned_to_home, Toast.LENGTH_SHORT).show()
     }
 
     fun persistPanelItems(next: List<PanelWidgetInfo>) {
@@ -237,6 +255,7 @@ fun WidgetsPanelScreen(
                 columnSpan = columnSpan,
                 rowSpan = rowSpan,
             )
+        HomePinnedWidgetsStore.publish(widgets)
         editingWidgetId = null
         showPicker = false
         pendingRequest = null
@@ -352,7 +371,7 @@ fun WidgetsPanelScreen(
 
     DisposableEffect(appWidgetHost) {
         appWidgetHost.isScrollInProgressProvider = { panelScrollState.isScrollInProgress }
-        appWidgetHost.startListening()
+        appWidgetHost.startListeningShared()
         onDispose {
             appWidgetHost.release()
         }
@@ -576,6 +595,7 @@ fun WidgetsPanelScreen(
                                     runCatching { configureExistingLauncher.launch(configureIntent) }
                                     editingWidgetId = null
                                 },
+                                onPinWidgetToHome = ::pinWidgetToHome,
                                 packageManager = packageManager,
                                 modifier = Modifier.fillMaxWidth(),
                             )
@@ -663,6 +683,7 @@ private fun WidgetPanelGrid(
     onQuickNoteFocusChanged: (Boolean) -> Unit,
     onRemoveWidget: (PanelWidgetInfo) -> Unit,
     onConfigureWidget: (PanelWidgetInfo, Intent) -> Unit,
+    onPinWidgetToHome: (PanelWidgetInfo) -> Unit,
     packageManager: PackageManager,
     modifier: Modifier = Modifier,
 ) {
@@ -891,6 +912,7 @@ private fun WidgetPanelGrid(
                         },
                         onRemove = { onRemoveWidget(widget) },
                         onConfigure = { intent -> onConfigureWidget(widget, intent) },
+                        onPinToHome = { onPinWidgetToHome(widget) },
                         packageManager = packageManager,
                         onQuickNoteDragStart = {
                             quickNoteDragStart = widget
@@ -930,6 +952,7 @@ private fun BoxScope.WidgetPanelGridItem(
     onInteractionEnd: () -> Unit,
     onRemove: () -> Unit,
     onConfigure: (Intent) -> Unit,
+    onPinToHome: () -> Unit,
     packageManager: PackageManager,
     onQuickNoteDragStart: () -> Unit,
     onQuickNoteDrag: (totalDragX: Float, totalDragY: Float) -> Unit,
@@ -1012,7 +1035,7 @@ private fun BoxScope.WidgetPanelGridItem(
                 },
     ) {
         HostedWidget(
-            widget = widget,
+            appWidgetId = widget.appWidgetId,
             providerInfo = providerInfo,
             appWidgetManager = appWidgetManager,
             appWidgetHost = appWidgetHost,
@@ -1034,11 +1057,13 @@ private fun BoxScope.WidgetPanelGridItem(
                 minColumnSpan = spec?.minColumnSpan ?: 1,
                 minRowSpan = spec?.minRowSpan ?: 1,
                 hasConfigure = configureIntent != null,
+                canPinToHome = widget.home == null,
                 onMovePreview = onMovePreview,
                 onResizePreview = onResizePreview,
                 onInteractionEnd = onInteractionEnd,
                 onRemove = onRemove,
                 onConfigure = { configureIntent?.let(onConfigure) },
+                onPinToHome = onPinToHome,
             )
         }
     }
@@ -1178,8 +1203,8 @@ private fun BoxScope.QuickNoteEditOverlay(
 }
 
 @Composable
-private fun HostedWidget(
-    widget: PanelWidgetInfo,
+internal fun HostedWidget(
+    appWidgetId: Int,
     providerInfo: AppWidgetProviderInfo,
     appWidgetManager: AppWidgetManager,
     appWidgetHost: WidgetPanelHost,
@@ -1212,16 +1237,16 @@ private fun HostedWidget(
 
     AndroidView(
         factory = { ctx ->
-            appWidgetHost.createView(ctx, widget.appWidgetId, providerInfo).apply {
-                setAppWidget(widget.appWidgetId, providerInfo)
+            appWidgetHost.createView(ctx, appWidgetId, providerInfo).apply {
+                setAppWidget(appWidgetId, providerInfo)
                 layoutParams = ViewGroup.LayoutParams(widthPx, heightPx)
-                appWidgetManager.updateAppWidgetOptions(widget.appWidgetId, displayOptions)
+                appWidgetManager.updateAppWidgetOptions(appWidgetId, displayOptions)
                 updateAppWidgetSize(displayOptions, widthDp, heightDp, widthDp, heightDp)
             }
         },
         update = { hostView ->
             hostView.layoutParams = ViewGroup.LayoutParams(widthPx, heightPx)
-            appWidgetManager.updateAppWidgetOptions(widget.appWidgetId, displayOptions)
+            appWidgetManager.updateAppWidgetOptions(appWidgetId, displayOptions)
             hostView.updateAppWidgetSize(displayOptions, widthDp, heightDp, widthDp, heightDp)
         },
         modifier = modifier,
@@ -1239,11 +1264,13 @@ private fun BoxScope.WidgetEditOverlay(
     minColumnSpan: Int,
     minRowSpan: Int,
     hasConfigure: Boolean,
+    canPinToHome: Boolean,
     onMovePreview: (column: Int, row: Int) -> Unit,
     onResizePreview: (WidgetGridResize) -> Unit,
     onInteractionEnd: () -> Unit,
     onRemove: () -> Unit,
     onConfigure: () -> Unit,
+    onPinToHome: () -> Unit,
 ) {
     val currentColumn by rememberUpdatedState(column)
     val currentRow by rememberUpdatedState(row)
@@ -1315,31 +1342,53 @@ private fun BoxScope.WidgetEditOverlay(
             )
         }
 
+        WidgetEditActionButtons(
+            onRemove = onRemove,
+            onConfigure = onConfigure.takeIf { hasConfigure },
+            onPinToHome = onPinToHome.takeIf { canPinToHome },
+        )
+    }
+}
+
+/**
+ * Edit badges grouped at the widget's top-end corner, ordered Pin, Settings, Remove. Unavailable
+ * actions are omitted so the remaining badges stay packed against the corner.
+ */
+@Composable
+internal fun BoxScope.WidgetEditActionButtons(
+    onRemove: () -> Unit,
+    onConfigure: (() -> Unit)?,
+    onPinToHome: (() -> Unit)? = null,
+) {
+    Row(
+        modifier =
+            Modifier
+                .align(Alignment.TopEnd)
+                .offset(x = WidgetActionButtonCornerOffset, y = -WidgetActionButtonCornerOffset),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
+    ) {
+        onPinToHome?.let { onClick ->
+            WidgetActionButton(
+                icon = Icons.Rounded.PushPin,
+                tint = MaterialTheme.colorScheme.onPrimary,
+                background = MaterialTheme.colorScheme.primary,
+                onClick = onClick,
+            )
+        }
+        onConfigure?.let { onClick ->
+            WidgetActionButton(
+                icon = Icons.Rounded.Settings,
+                tint = MaterialTheme.colorScheme.onPrimary,
+                background = MaterialTheme.colorScheme.primary,
+                onClick = onClick,
+            )
+        }
         WidgetActionButton(
             icon = Icons.Rounded.Close,
             tint = MaterialTheme.colorScheme.onError,
             background = MaterialTheme.colorScheme.error,
             onClick = onRemove,
-            modifier =
-                Modifier
-                    .align(Alignment.TopEnd)
-                    .offset(x = WidgetActionButtonCornerOffset, y = -WidgetActionButtonCornerOffset),
         )
-        if (hasConfigure) {
-            WidgetActionButton(
-                icon = Icons.Rounded.Settings,
-                tint = MaterialTheme.colorScheme.onPrimary,
-                background = MaterialTheme.colorScheme.primary,
-                onClick = onConfigure,
-                modifier =
-                    Modifier
-                        .align(Alignment.TopStart)
-                        .offset(
-                            x = -WidgetActionButtonCornerOffset,
-                            y = -WidgetActionButtonCornerOffset,
-                        ),
-            )
-        }
     }
 }
 
@@ -1348,7 +1397,7 @@ private fun BoxScope.WidgetEditOverlay(
  * overlay itself would draw after its children and paint over the action buttons and handles.
  */
 @Composable
-private fun BoxScope.WidgetEditBorder() {
+internal fun BoxScope.WidgetEditBorder() {
     Box(
         modifier =
             Modifier
@@ -1362,7 +1411,7 @@ private fun BoxScope.WidgetEditBorder() {
 }
 
 @Composable
-private fun WidgetActionButton(
+internal fun WidgetActionButton(
     icon: ImageVector,
     tint: Color,
     background: Color,
@@ -1392,7 +1441,7 @@ private fun WidgetActionButton(
 }
 
 @Composable
-private fun EdgeResizeHandle(
+internal fun EdgeResizeHandle(
     edge: ResizeEdge,
     startColumn: Int,
     startRow: Int,
@@ -1620,7 +1669,7 @@ private fun isWidgetConfigurationOptional(provider: AppWidgetProviderInfo): Bool
         AppWidgetProviderInfo.WIDGET_FEATURE_CONFIGURATION_OPTIONAL != 0
 }
 
-private fun isWidgetConfigureActivityAccessible(
+internal fun isWidgetConfigureActivityAccessible(
     packageManager: PackageManager,
     componentName: android.content.ComponentName,
 ): Boolean {

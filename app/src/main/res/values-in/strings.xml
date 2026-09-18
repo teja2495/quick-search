@@ -110,6 +110,7 @@
     <string name="settings_gestures_desc">Sesuaikan tindakan geser</string>
     <string name="settings_gesture_swipe_right">Geser ke Kanan</string>
     <string name="settings_gesture_widget_panel">Panel Widget</string>
+    <string name="widget_pinned_to_home">Disematkan ke Beranda</string>
     <string name="settings_gesture_swipe_left">Geser ke Kiri</string>
     <string name="settings_gesture_swipe_up">Geser ke Atas</string>
     <string name="settings_gesture_swipe_down">Geser ke Bawah</string>
