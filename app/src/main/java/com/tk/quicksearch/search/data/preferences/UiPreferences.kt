@@ -803,6 +803,16 @@ class UiPreferences(
             .apply()
     }
 
+    fun hasSeenSnippetIntro(): Boolean =
+        firstLaunchPrefs.getBoolean(UiPreferences.KEY_HAS_SEEN_SNIPPET_INTRO, false)
+
+    fun setHasSeenSnippetIntro(seen: Boolean) {
+        firstLaunchPrefs
+            .edit()
+            .putBoolean(UiPreferences.KEY_HAS_SEEN_SNIPPET_INTRO, seen)
+            .apply()
+    }
+
     fun getUsagePermissionBannerDismissCount(): Int =
             firstLaunchPrefs.getInt(UiPreferences.KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT, 0)
 
@@ -1405,8 +1415,11 @@ class UiPreferences(
         const val KEY_LAST_SEEN_VERSION_CODE = "last_seen_version_code"
         const val KEY_ACCESSIBILITY_PERMISSION_DISCLAIMER_PENDING =
             "accessibility_permission_disclaimer_pending"
+        // Bumped to _v2 when the service gained snippet expansion: the disclosure text changed
+        // materially, so every existing user is shown it once more.
         const val KEY_HAS_SEEN_ACCESSIBILITY_PERMISSION_DISCLAIMER =
-            "has_seen_accessibility_permission_disclaimer"
+            "has_seen_accessibility_permission_disclaimer_v2"
+        const val KEY_HAS_SEEN_SNIPPET_INTRO = "has_seen_snippet_intro"
         const val KEY_AI_SEARCH_SETUP_EXPANDED = "direct_search_setup_expanded"
         const val KEY_DISABLED_SEARCH_ENGINES_EXPANDED = "disabled_search_engines_expanded"
         const val KEY_HOME_PINNED_SECTION_EXPANDED_PREFIX = "home_pinned_section_expanded_"

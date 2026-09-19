@@ -147,6 +147,7 @@ object PinnedNotifications {
             iconSizePx = iconSize,
             textIconColor = Color.White,
             iconPackPackage = iconPackPackage,
+            badgeShortcutWithAppIcon = true,
         )
         val largeIcon = notificationIconBitmap(context, action, icon.bitmap, icon.drawableResId, iconSize)
             ?: icon.drawableResId?.let { drawableResId ->
@@ -248,6 +249,7 @@ object PinnedNotifications {
                 iconSizePx = iconSize,
                 textIconColor = Color.White,
                 iconPackPackage = iconPackPackage,
+                badgeShortcutWithAppIcon = true,
             )
         return RemoteViews(context.packageName, R.layout.notification_pinned_item).apply {
             notificationIconBitmap(context, action, icon.bitmap, icon.drawableResId, iconSize)?.let {

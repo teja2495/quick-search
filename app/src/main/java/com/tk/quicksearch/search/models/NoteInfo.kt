@@ -6,4 +6,6 @@ data class NoteInfo(
     val markdownContent: String,
     val createdAtMillis: Long,
     val updatedAtMillis: Long,
+    val isSnippet: Boolean = false,
+    val keyword: String = "",
 )

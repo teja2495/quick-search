@@ -17,15 +17,21 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.TextSnippet
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.ContentCopy
+import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.EditNote
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,6 +48,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -54,6 +61,8 @@ import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.data.preferences.NotesPreferences
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.notes.NotesTextUtils
+import com.tk.quicksearch.search.notes.copyNoteContentToClipboard
+import com.tk.quicksearch.settings.shared.AliasPill
 import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.settings.shared.SettingsNavigationToggleRow
 import com.tk.quicksearch.settings.shared.SettingsManagementSearchBar
@@ -70,6 +79,7 @@ fun NotesSettingsBottomBar(
     onQueryChange: (String) -> Unit,
     onClear: () -> Unit,
     onNewNote: () -> Unit,
+    onNewSnippet: () -> Unit,
     multiSelectActive: Boolean,
     selectedNoteCount: Int,
     onDeleteSelected: () -> Unit,
@@ -128,18 +138,47 @@ fun NotesSettingsBottomBar(
                 fillMaxWidth = false,
                 focusRequester = searchFocusRequester,
             )
-            FloatingActionButton(
-                onClick = onNewNote,
-                modifier = Modifier.size(48.dp),
-                shape = NotesSettingsBarCornerShape,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Add,
-                    contentDescription = stringResource(R.string.notes_create_note_cta),
-                    modifier = Modifier.size(24.dp),
-                )
+            Box {
+                var showCreateMenu by remember { mutableStateOf(false) }
+                FloatingActionButton(
+                    onClick = { showCreateMenu = true },
+                    modifier = Modifier.size(48.dp),
+                    shape = NotesSettingsBarCornerShape,
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Add,
+                        contentDescription = stringResource(R.string.notes_create_note_cta),
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
+                DropdownMenu(
+                    expanded = showCreateMenu,
+                    onDismissRequest = { showCreateMenu = false },
+                    shape = RoundedCornerShape(24.dp),
+                    containerColor = AppColors.DialogBackground,
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.notes_create_note_cta)) },
+                        onClick = {
+                            showCreateMenu = false
+                            onNewNote()
+                        },
+                        leadingIcon = { Icon(Icons.Rounded.Description, contentDescription = null) },
+                    )
+                    HorizontalDivider()
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.notes_create_snippet_cta)) },
+                        onClick = {
+                            showCreateMenu = false
+                            onNewSnippet()
+                        },
+                        leadingIcon = {
+                            Icon(Icons.AutoMirrored.Rounded.TextSnippet, contentDescription = null)
+                        },
+                    )
+                }
             }
         } else {
             FloatingActionButton(
@@ -153,30 +192,46 @@ fun NotesSettingsBottomBar(
                     modifier = Modifier.size(22.dp),
                 )
             }
-            ExtendedFloatingActionButton(
+            NotesCreateButton(
+                text = stringResource(R.string.notes_create_note_cta),
                 onClick = onNewNote,
-                expanded = true,
                 modifier = Modifier.weight(1f),
-                shape = NotesSettingsBarCornerShape,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                text = { Text(text = stringResource(R.string.notes_create_note_cta)) },
-                icon = {
-                    Icon(
-                        imageVector = Icons.Rounded.Add,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp),
-                    )
-                },
+            )
+            NotesCreateButton(
+                text = stringResource(R.string.notes_create_snippet_cta),
+                onClick = onNewSnippet,
+                modifier = Modifier.weight(1f),
             )
         }
     }
 }
 
 @Composable
+private fun NotesCreateButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    ExtendedFloatingActionButton(
+        onClick = onClick,
+        modifier = modifier,
+        shape = NotesSettingsBarCornerShape,
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+    ) {
+        // Text-only so both labels fit beside the search button on narrow phones.
+        Text(
+            text = text,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+@Composable
 fun NotesSettingsSection(
     searchQuery: String = "",
-    onOpenNoteEditor: (Long?) -> Unit,
+    onOpenNoteEditor: (noteId: Long?, isSnippet: Boolean) -> Unit,
     multiSelectActive: Boolean,
     selectedNoteIds: Set<Long>,
     onEnterMultiSelect: (Long) -> Unit,
@@ -205,7 +260,8 @@ fun NotesSettingsSection(
             } else {
                 userNotes.filter { note ->
                     note.title.lowercase(locale).contains(normalizedSearchQuery) ||
-                        note.markdownContent.lowercase(locale).contains(normalizedSearchQuery)
+                        note.markdownContent.lowercase(locale).contains(normalizedSearchQuery) ||
+                        note.keyword.lowercase(locale).contains(normalizedSearchQuery)
                 }
             }
         }
@@ -240,7 +296,7 @@ fun NotesSettingsSection(
                         notesPreferences.setQuickNoteEnabled(enabled)
                     },
                     leadingIcon = Icons.Rounded.EditNote,
-                    onRowClick = { onOpenNoteEditor(note.noteId) },
+                    onRowClick = { onOpenNoteEditor(note.noteId, false) },
                 )
             }
         }
@@ -266,7 +322,6 @@ fun NotesSettingsSection(
                 } else {
                     NotesList(
                         notes = filteredNotes,
-                        repository = repository,
                         selectedNoteIds = selectedNoteIds,
                         multiSelectActive = multiSelectActive,
                         onOpenNoteEditor = onOpenNoteEditor,
@@ -282,10 +337,9 @@ fun NotesSettingsSection(
 @Composable
 private fun NotesList(
     notes: List<NoteInfo>,
-    repository: NotesRepository,
     selectedNoteIds: Set<Long>,
     multiSelectActive: Boolean,
-    onOpenNoteEditor: (Long?) -> Unit,
+    onOpenNoteEditor: (noteId: Long?, isSnippet: Boolean) -> Unit,
     onEnterMultiSelect: (Long) -> Unit,
     onToggleNoteSelected: (Long) -> Unit,
 ) {
@@ -299,10 +353,9 @@ private fun NotesList(
         ) { index, note ->
             NoteListRow(
                 note = note,
-                isPinned = repository.isPinned(note.noteId),
                 selectionMode = multiSelectActive,
                 isSelected = selectedNoteIds.contains(note.noteId),
-                onOpen = { onOpenNoteEditor(note.noteId) },
+                onOpen = { onOpenNoteEditor(note.noteId, note.isSnippet) },
                 onLongPress = { onEnterMultiSelect(note.noteId) },
                 onToggleSelected = { onToggleNoteSelected(note.noteId) },
             )
@@ -317,13 +370,13 @@ private fun NotesList(
 @Composable
 private fun NoteListRow(
     note: NoteInfo,
-    isPinned: Boolean,
     selectionMode: Boolean,
     isSelected: Boolean,
     onOpen: () -> Unit,
     onLongPress: () -> Unit,
     onToggleSelected: () -> Unit,
 ) {
+    val context = LocalContext.current
     val contentModifier =
         if (selectionMode) {
             Modifier.combinedClickable(onClick = onToggleSelected, onLongClick = onLongPress)
@@ -346,6 +399,18 @@ private fun NoteListRow(
             Checkbox(
                 checked = isSelected,
                 onCheckedChange = { onToggleSelected() },
+            )
+        } else {
+            Icon(
+                imageVector =
+                    if (note.isSnippet) {
+                        Icons.AutoMirrored.Rounded.TextSnippet
+                    } else {
+                        Icons.Rounded.Description
+                    },
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(end = DesignTokens.SpacingXSmall).size(24.dp),
             )
         }
         androidx.compose.foundation.layout.Column(
@@ -373,11 +438,23 @@ private fun NoteListRow(
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
             )
-            if (isPinned) {
-                Text(
-                    text = stringResource(R.string.action_pin_app),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary,
+            if (note.isSnippet && note.keyword.isNotBlank()) {
+                AliasPill(
+                    text = AnnotatedString(note.keyword),
+                    onClick = null,
+                    modifier = Modifier.padding(top = DesignTokens.SpacingXXSmall),
+                )
+            }
+        }
+        if (note.isSnippet && !selectionMode) {
+            IconButton(
+                onClick = { copyNoteContentToClipboard(context, note.markdownContent) },
+                enabled = note.markdownContent.isNotEmpty(),
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.ContentCopy,
+                    contentDescription = stringResource(R.string.notes_copy_to_clipboard_desc),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }

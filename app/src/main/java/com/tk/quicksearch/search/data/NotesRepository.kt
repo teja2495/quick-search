@@ -9,6 +9,7 @@ import com.tk.quicksearch.search.data.preferences.TriggerPreferences
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.models.SecondaryRankingSignal
 import com.tk.quicksearch.search.notes.NotesTextUtils
+import com.tk.quicksearch.search.notes.SnippetKeywordCache
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.Locale
@@ -53,6 +54,7 @@ class NotesRepository(
 
         val pinnedIds = getPinnedNoteIds()
         val triggerMatchingIds = triggerPreferences.findNotesWithMatchingTrigger(query)
+        val normalizedKeywordQuery = normalizeKeyword(query)
         return readNotes()
             .mapNotNull { note ->
                 val normalizedTitle = NotesTextUtils.normalize(note.title)
@@ -63,7 +65,13 @@ class NotesRepository(
                         NotesTextUtils.normalize(
                             NotesTextUtils.toSearchablePlainText(note.markdownContent),
                         ).contains(normalizedQuery)
-                val triggerMatches = triggerMatchingIds.contains(note.noteId)
+                val triggerMatches =
+                    triggerMatchingIds.contains(note.noteId) ||
+                        (
+                            note.isSnippet &&
+                                note.keyword.isNotBlank() &&
+                                normalizeKeyword(note.keyword) == normalizedKeywordQuery
+                        )
                 if (!titleContains && !bodyContains && !triggerMatches) {
                     return@mapNotNull null
                 }
@@ -93,6 +101,8 @@ class NotesRepository(
     fun createNote(
         title: String,
         markdownContent: String,
+        isSnippet: Boolean = false,
+        keyword: String = "",
     ): NoteInfo {
         val now = System.currentTimeMillis()
         val note =
@@ -102,16 +112,20 @@ class NotesRepository(
                 markdownContent = markdownContent,
                 createdAtMillis = now,
                 updatedAtMillis = now,
+                isSnippet = isSnippet,
+                keyword = if (isSnippet) keyword.trim() else "",
             )
         val notes = readNotes().toMutableList().apply { add(note) }
         writeNotes(notes)
         return note
     }
 
+    /** Updates a note. [keyword] is applied only to snippets; `null` keeps the stored keyword. */
     fun updateNote(
         noteId: Long,
         title: String,
         markdownContent: String,
+        keyword: String? = null,
     ): NoteInfo? {
         val quickNoteId = ensureQuickNoteExists().noteId
         val notes = readNotes().toMutableList()
@@ -127,12 +141,32 @@ class NotesRepository(
                         title.trim()
                     },
                 markdownContent = markdownContent,
+                keyword =
+                    if (current.isSnippet && keyword != null) {
+                        keyword.trim()
+                    } else {
+                        current.keyword
+                    },
                 updatedAtMillis = System.currentTimeMillis(),
             )
         notes[index] = updated
         writeNotes(notes)
         PinnedNotifications.updatePinnedNote(appContext, updated)
         return updated
+    }
+
+    /** True when another snippet (other than [excludeNoteId]) already uses [keyword], ignoring case. */
+    fun isSnippetKeywordTaken(
+        keyword: String,
+        excludeNoteId: Long = -1L,
+    ): Boolean {
+        val normalized = normalizeKeyword(keyword)
+        if (normalized.isBlank()) return false
+        return readNotes().any { note ->
+            note.isSnippet &&
+                note.noteId != excludeNoteId &&
+                normalizeKeyword(note.keyword) == normalized
+        }
     }
 
     fun stageDelete(noteId: Long): NoteInfo? {
@@ -181,6 +215,8 @@ class NotesRepository(
 
     fun isQuickNote(noteId: Long): Boolean = noteId > 0L && notesPreferences.getQuickNoteId() == noteId
 
+    private fun normalizeKeyword(keyword: String): String = keyword.trim().lowercase(Locale.getDefault())
+
     private fun readNotes(): List<NoteInfo> {
         return notesStore.getAll().also { notes ->
             notes.maxOfOrNull(NoteInfo::noteId)?.let { notesPreferences.ensureNoteIdCounterAtLeast(it + 1L) }
@@ -189,6 +225,8 @@ class NotesRepository(
 
     private fun writeNotes(notes: List<NoteInfo>) {
         notesStore.replaceAll(notes)
+        // Every mutation funnels through here, so this is the one place the expander cache needs.
+        SnippetKeywordCache.publish(notes)
         val jsonArray = JSONArray()
         notes.forEach { note ->
             jsonArray.put(
@@ -197,7 +235,9 @@ class NotesRepository(
                     .put(FIELD_TITLE, note.title)
                     .put(FIELD_MARKDOWN, note.markdownContent)
                     .put(FIELD_CREATED_AT, note.createdAtMillis)
-                    .put(FIELD_UPDATED_AT, note.updatedAtMillis),
+                    .put(FIELD_UPDATED_AT, note.updatedAtMillis)
+                    .put(FIELD_IS_SNIPPET, note.isSnippet)
+                    .put(FIELD_KEYWORD, note.keyword),
             )
         }
         notesPreferences.setNotesJson(jsonArray.toString())
@@ -255,5 +295,7 @@ class NotesRepository(
         const val FIELD_MARKDOWN = "markdown"
         const val FIELD_CREATED_AT = "createdAtMillis"
         const val FIELD_UPDATED_AT = "updatedAtMillis"
+        const val FIELD_IS_SNIPPET = "isSnippet"
+        const val FIELD_KEYWORD = "keyword"
     }
 }

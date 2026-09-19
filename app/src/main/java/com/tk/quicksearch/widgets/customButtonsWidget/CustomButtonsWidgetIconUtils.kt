@@ -21,6 +21,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.contacts.contactInitials
+import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.AppShortcutRepository.loadShortcutIconAndroidBitmap
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.managers.IconPackManager
 import com.tk.quicksearch.search.common.UserHandleUtils
@@ -38,6 +40,7 @@ fun rememberWidgetButtonIcon(
     iconSizePx: Int,
     textIconColor: Color,
     iconPackPackage: String?,
+    badgeShortcutWithAppIcon: Boolean = false,
 ): WidgetButtonIcon {
     // User-set custom icon takes precedence over all type-specific icons.
     action.customIconBase64?.let { encoded ->
@@ -69,9 +72,21 @@ fun rememberWidgetButtonIcon(
         }
 
         is CustomWidgetButtonAction.AppShortcut -> {
+            val shortcutBitmap =
+                if (badgeShortcutWithAppIcon) {
+                    // Match the app grid, which resolves icons live (LauncherApps, then app
+                    // resources) rather than relying only on the persisted embedded icon.
+                    loadShortcutIconAndroidBitmap(context, action.toStaticShortcut(), iconSizePx)
+                } else {
+                    loadShortcutIconBitmap(context, action, iconSizePx)
+                }
+            val appBitmap = loadAppIconBitmap(context, action.packageName, iconSizePx, iconPackPackage)
             val bitmap =
-                loadShortcutIconBitmap(context, action, iconSizePx)
-                    ?: loadAppIconBitmap(context, action.packageName, iconSizePx, iconPackPackage)
+                if (badgeShortcutWithAppIcon && shortcutBitmap != null && appBitmap != null) {
+                    createAppBadgedShortcutBitmap(shortcutBitmap, appBitmap, iconSizePx)
+                } else {
+                    shortcutBitmap ?: appBitmap
+                }
             bitmap?.let { WidgetButtonIcon(bitmap = it, shouldTint = false) }
                 ?: WidgetButtonIcon(drawableResId = R.drawable.ic_widget_search, shouldTint = true)
         }
@@ -115,6 +130,48 @@ fun rememberWidgetButtonIcon(
         }
     }
 }
+
+private fun CustomWidgetButtonAction.AppShortcut.toStaticShortcut() =
+    StaticShortcut(
+        packageName = packageName,
+        appLabel = appLabel,
+        id = id,
+        shortLabel = shortLabel,
+        longLabel = longLabel,
+        iconResId = iconResId,
+        iconBase64 = iconBase64,
+        enabled = enabled,
+        intents = intents,
+    )
+
+/**
+ * Mirrors the app grid's shortcut presentation: the shortcut icon with the owning app's icon
+ * badged at the bottom-right. The main icon is shrunk slightly so the badge's outward offset
+ * stays within the bitmap bounds.
+ */
+private fun createAppBadgedShortcutBitmap(
+    shortcutBitmap: Bitmap,
+    appBitmap: Bitmap,
+    iconSizePx: Int,
+): Bitmap {
+    val size = iconSizePx.coerceAtLeast(1)
+    val mainSize = size / (1f + ShortcutAppBadgeScale * ShortcutBadgeOffsetScale)
+    val badgeSize = mainSize * ShortcutAppBadgeScale
+    val output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(output)
+    val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+    canvas.drawBitmap(shortcutBitmap, null, android.graphics.RectF(0f, 0f, mainSize, mainSize), paint)
+    canvas.drawBitmap(
+        appBitmap,
+        null,
+        android.graphics.RectF(size - badgeSize, size - badgeSize, size.toFloat(), size.toFloat()),
+        paint,
+    )
+    return output
+}
+
+private const val ShortcutAppBadgeScale = 0.42f
+private const val ShortcutBadgeOffsetScale = 0.2f
 
 private fun loadTintedFolderBitmap(
     context: Context,

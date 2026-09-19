@@ -322,6 +322,13 @@ class AppSettingsRepository(
                 keywords = listOf("new note", "memo", "write"),
             )
             addNavigation(
+                id = "app_settings_create_snippet",
+                titleRes = R.string.app_settings_search_create_snippet_title,
+                descriptionRes = R.string.app_settings_search_create_snippet_desc,
+                destination = AppSettingsDestination.CREATE_SNIPPET,
+                keywords = listOf("new snippet", "text snippet", "keyword", "clipboard"),
+            )
+            addNavigation(
                 id = "app_settings_notes_list",
                 titleRes = R.string.section_notes,
                 descriptionRes = R.string.settings_notes_view_all_desc,

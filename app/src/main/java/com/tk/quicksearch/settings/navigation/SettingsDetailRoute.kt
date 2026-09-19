@@ -47,6 +47,8 @@ fun SettingsDetailRoute(
         sourceDetailType: SettingsDetailType? = null,
         onNavigateToDetail: (SettingsDetailType) -> Unit = {},
         onNavigateToSearch: () -> Unit = {},
+        // Back to search from a page opened from search; slides the opposite way to the swipe gesture.
+        onNavigateBackToSearch: () -> Unit = onNavigateToSearch,
         onRequestUsagePermission: () -> Unit = {},
         onRequestContactPermission: () -> Unit = {},
         onRequestFilePermission: () -> Unit = {},
@@ -252,7 +254,7 @@ fun SettingsDetailRoute(
             if (detailType.isLevel2()) {
                 {
                     if (detailType == SettingsDetailType.NOTE_EDITOR && sourceDetailType == null) {
-                        onNavigateToSearch()
+                        onNavigateBackToSearch()
                     } else {
                         val destination = detailType.resolveBackDestination(sourceDetailType)
                         if (destination == null) {

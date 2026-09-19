@@ -579,7 +579,9 @@ object SettingsBackupManager {
                         .put("title", note.title)
                         .put("markdown", note.markdownContent)
                         .put("createdAtMillis", note.createdAtMillis)
-                        .put("updatedAtMillis", note.updatedAtMillis),
+                        .put("updatedAtMillis", note.updatedAtMillis)
+                        .put("isSnippet", note.isSnippet)
+                        .put("keyword", note.keyword),
                 )
             }
         }
@@ -598,6 +600,8 @@ object SettingsBackupManager {
                         markdownContent = item.optString("markdown").orEmpty(),
                         createdAtMillis = createdAt,
                         updatedAtMillis = item.optLong("updatedAtMillis", createdAt),
+                        isSnippet = item.optBoolean("isSnippet", false),
+                        keyword = item.optString("keyword").orEmpty(),
                     ),
                 )
             }

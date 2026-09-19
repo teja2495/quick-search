@@ -52,6 +52,10 @@ internal fun handleAppSettingsDestination(
             NotesNavigationMemory.setPendingNoteId(null)
             handlers.onOpenSettingsDetail(SettingsDetailType.NOTE_EDITOR)
         }
+        AppSettingsDestination.CREATE_SNIPPET -> {
+            NotesNavigationMemory.setPendingNoteId(null, isSnippet = true)
+            handlers.onOpenSettingsDetail(SettingsDetailType.NOTE_EDITOR)
+        }
         AppSettingsDestination.NOTES_LIST -> handlers.onOpenSettingsDetail(SettingsDetailType.NOTES)
         AppSettingsDestination.CREATE_CALENDAR_EVENT -> handlers.onCreateCalendarEvent()
         else -> Unit
