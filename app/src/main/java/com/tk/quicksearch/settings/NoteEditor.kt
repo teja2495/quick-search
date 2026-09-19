@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.net.Uri
+import android.provider.Settings
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -14,6 +15,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,9 +29,13 @@ import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -69,7 +75,11 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.NotesRepository
+import com.tk.quicksearch.search.data.preferences.UiPreferences
+import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
+import com.tk.quicksearch.shared.permissions.SnippetIntroDialog
 import com.tk.quicksearch.search.notes.NotesTextUtils
+import com.tk.quicksearch.search.notes.copyNoteContentToClipboard
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.Dispatchers
@@ -80,6 +90,7 @@ import kotlinx.coroutines.withContext
 private const val NOTE_EDITOR_BACK_SWIPE_THRESHOLD_PX = 140f
 private const val NOTE_EDITOR_TITLE_FIELD = "title"
 private const val NOTE_EDITOR_BODY_FIELD = "body"
+private const val NOTE_EDITOR_KEYWORD_FIELD = "keyword"
 
 private tailrec fun Context.findActivity(): Activity? =
     when (this) {
@@ -211,6 +222,7 @@ fun NoteEditor(
     onNavigateToNotes: () -> Unit,
     onNavigateToSearch: () -> Unit = {},
     onDeleteToolbarState: (canDelete: Boolean, onConfirmedDelete: () -> Unit) -> Unit = { _, _ -> },
+    onSnippetModeResolved: (isSnippet: Boolean) -> Unit = {},
     hideTopBar: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
@@ -218,6 +230,7 @@ fun NoteEditor(
     val density = LocalDensity.current
     val linkColor = MaterialTheme.colorScheme.primary
     val repository = remember(context) { NotesRepository(context) }
+    val uiPreferences = remember(context) { UiPreferences(context) }
 
     var activeNoteId by rememberSaveable { mutableStateOf(-1L) }
     var titleInput by rememberSaveable(stateSaver = TextFieldValue.Saver) {
@@ -226,24 +239,36 @@ fun NoteEditor(
     var bodyInput by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(""))
     }
+    var keywordInput by rememberSaveable { mutableStateOf("") }
+    var isSnippet by rememberSaveable { mutableStateOf(false) }
+    var keywordTaken by remember { mutableStateOf(false) }
     var contentBaselineTitle by rememberSaveable { mutableStateOf<String?>(null) }
     var contentBaselineBody by rememberSaveable { mutableStateOf<String?>(null) }
+    var contentBaselineKeyword by rememberSaveable { mutableStateOf<String?>(null) }
     var isNewNoteEntry by rememberSaveable { mutableStateOf(false) }
     var isQuickNote by rememberSaveable { mutableStateOf(false) }
     var editorInitialized by rememberSaveable { mutableStateOf(false) }
     var focusedEditorField by rememberSaveable { mutableStateOf<String?>(null) }
     var initialFocusRequested by remember { mutableStateOf(false) }
+    var showSnippetIntro by rememberSaveable { mutableStateOf(false) }
+    var snippetIntroChecked by rememberSaveable { mutableStateOf(false) }
     val persistOnLeave = remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
-        if (editorInitialized) return@LaunchedEffect
+        if (editorInitialized) {
+            onSnippetModeResolved(isSnippet)
+            return@LaunchedEffect
+        }
         val pendingId = NotesNavigationMemory.consumePendingNoteId()
+        val pendingIsSnippet = NotesNavigationMemory.consumePendingIsSnippet()
         if (pendingId != null) {
             isNewNoteEntry = false
             val note = withContext(Dispatchers.IO) { repository.getNoteById(pendingId) }
             if (note != null) {
                 activeNoteId = note.noteId
                 isQuickNote = repository.isQuickNote(note.noteId)
+                isSnippet = note.isSnippet
+                keywordInput = note.keyword
                 titleInput =
                     applyNoteLinkHighlighting(
                         TextFieldValue(
@@ -266,15 +291,39 @@ fun NoteEditor(
         } else {
             isNewNoteEntry = true
             isQuickNote = false
+            isSnippet = pendingIsSnippet
         }
         contentBaselineTitle = titleInput.text
         contentBaselineBody = bodyInput.text
+        contentBaselineKeyword = keywordInput
         editorInitialized = true
+        onSnippetModeResolved(isSnippet)
+    }
+
+    // Gated on editorInitialized because isSnippet is only resolved by the effect above.
+    LaunchedEffect(editorInitialized) {
+        if (!editorInitialized || snippetIntroChecked) return@LaunchedEffect
+        snippetIntroChecked = true
+        if (isNewNoteEntry && isSnippet && !uiPreferences.hasSeenSnippetIntro()) {
+            showSnippetIntro = true
+        }
+    }
+
+    LaunchedEffect(isSnippet, keywordInput, activeNoteId) {
+        if (!isSnippet || keywordInput.isBlank()) {
+            keywordTaken = false
+            return@LaunchedEffect
+        }
+        val excludeId = activeNoteId
+        keywordTaken =
+            withContext(Dispatchers.IO) { repository.isSnippetKeywordTaken(keywordInput, excludeId) }
     }
 
     val hasEdits =
         if (contentBaselineTitle != null && contentBaselineBody != null) {
-            titleInput.text != contentBaselineTitle || bodyInput.text != contentBaselineBody
+            titleInput.text != contentBaselineTitle ||
+                bodyInput.text != contentBaselineBody ||
+                keywordInput != contentBaselineKeyword
         } else {
             false
         }
@@ -284,15 +333,20 @@ fun NoteEditor(
     val scrollBodyToCaretScope = rememberCoroutineScope()
     val titleFocusRequester = remember { FocusRequester() }
     val bodyFocusRequester = remember { FocusRequester() }
+    val keywordFocusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    LaunchedEffect(editorInitialized, contentBaselineTitle, contentBaselineBody, hideTopBar) {
+    LaunchedEffect(editorInitialized, contentBaselineTitle, contentBaselineBody, hideTopBar, showSnippetIntro) {
         if (!editorInitialized || initialFocusRequested) return@LaunchedEffect
+        // Otherwise the keyboard pops up behind the intro dialog and shifts the layout under it.
+        if (showSnippetIntro) return@LaunchedEffect
         if (contentBaselineTitle == null || contentBaselineBody == null) return@LaunchedEffect
         delay(50)
         when (focusedEditorField) {
             NOTE_EDITOR_TITLE_FIELD -> titleFocusRequester.requestFocus()
             NOTE_EDITOR_BODY_FIELD -> bodyFocusRequester.requestFocus()
+            NOTE_EDITOR_KEYWORD_FIELD ->
+                if (isSnippet) keywordFocusRequester.requestFocus() else bodyFocusRequester.requestFocus()
             null ->
                 when {
                     hideTopBar -> bodyFocusRequester.requestFocus()
@@ -307,22 +361,34 @@ fun NoteEditor(
     fun persistNote() {
         val title = titleInput.text.trim()
         val body = bodyInput.text
-        if (title.isBlank() && body.isBlank()) return
+        val keyword = keywordInput.trim()
+        if (title.isBlank() && body.isBlank() && (!isSnippet || keyword.isBlank())) return
 
+        // A keyword already used by another snippet is never saved; the stored keyword is kept instead.
+        val savableKeyword =
+            if (isSnippet && !repository.isSnippetKeywordTaken(keyword, activeNoteId)) keyword else null
+        if (activeNoteId <= 0L && title.isBlank() && body.isBlank() && savableKeyword.isNullOrBlank()) return
         if (activeNoteId > 0L) {
-            repository.updateNote(activeNoteId, title, body)
+            repository.updateNote(activeNoteId, title, body, savableKeyword)
         } else {
-            val created = repository.createNote(title = title, markdownContent = body)
+            val created =
+                repository.createNote(
+                    title = title,
+                    markdownContent = body,
+                    isSnippet = isSnippet,
+                    keyword = savableKeyword.orEmpty(),
+                )
             activeNoteId = created.noteId
         }
     }
 
-    LaunchedEffect(hasEdits, titleInput.text, bodyInput.text) {
+    LaunchedEffect(hasEdits, titleInput.text, bodyInput.text, keywordInput) {
         if (!hasEdits) return@LaunchedEffect
         delay(450)
         persistNote()
         contentBaselineTitle = titleInput.text
         contentBaselineBody = bodyInput.text
+        contentBaselineKeyword = keywordInput
     }
 
     val currentPersist by rememberUpdatedState(newValue = ::persistNote)
@@ -371,6 +437,21 @@ fun NoteEditor(
             )
         }
 
+    if (showSnippetIntro) {
+        fun acknowledgeSnippetIntro() {
+            uiPreferences.setHasSeenSnippetIntro(true)
+            showSnippetIntro = false
+        }
+        SnippetIntroDialog(
+            isAccessibilityEnabled = LockScreenAccessibilityService.isEnabled(context),
+            onGrantPermission = {
+                acknowledgeSnippetIntro()
+                runCatching { context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
+            },
+            onContinueWithout = { acknowledgeSnippetIntro() },
+        )
+    }
+
     Column(
         modifier =
             modifier
@@ -399,47 +480,78 @@ fun NoteEditor(
                             .padding(bottom = DesignTokens.CardBottomPadding),
                     verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                 ) {
-                    LinkStyledNoteTextField(
-                        value = titleInput,
-                        onValueChange = {
-                            if (!isQuickNote) {
-                                titleInput = applyNoteLinkHighlighting(it, linkColor)
-                            }
-                        },
+                    Row(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
                                 .padding(top = DesignTokens.SpacingLarge),
-                        textStyle =
-                            MaterialTheme.typography.headlineSmall.copy(
-                                color = MaterialTheme.colorScheme.onSurface,
-                            ),
-                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                        singleLine = true,
-                        maxLines = 1,
-                        minLines = 1,
-                        focusRequester = titleFocusRequester,
-                        density = density,
-                        context = context,
-                        readOnly = isQuickNote,
-                        onFocusChanged = { isFocused ->
-                            if (isFocused) focusedEditorField = NOTE_EDITOR_TITLE_FIELD
-                        },
-                        onTextLayout = {},
-                        decorationBox = { inner ->
-                            if (titleInput.text.isBlank()) {
-                                Text(
-                                    text = stringResource(R.string.notes_title_hint),
-                                    style = MaterialTheme.typography.headlineSmall,
-                                    color =
-                                        MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                                            alpha = 0.55f,
-                                        ),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        LinkStyledNoteTextField(
+                            value = titleInput,
+                            onValueChange = {
+                                if (!isQuickNote) {
+                                    titleInput = applyNoteLinkHighlighting(it, linkColor)
+                                }
+                            },
+                            modifier = Modifier.weight(1f),
+                            textStyle =
+                                MaterialTheme.typography.headlineSmall.copy(
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                ),
+                            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                            singleLine = true,
+                            maxLines = 1,
+                            minLines = 1,
+                            focusRequester = titleFocusRequester,
+                            density = density,
+                            context = context,
+                            readOnly = isQuickNote,
+                            onFocusChanged = { isFocused ->
+                                if (isFocused) focusedEditorField = NOTE_EDITOR_TITLE_FIELD
+                            },
+                            onTextLayout = {},
+                            decorationBox = { inner ->
+                                if (titleInput.text.isBlank()) {
+                                    Text(
+                                        text = stringResource(R.string.notes_title_hint),
+                                        style = MaterialTheme.typography.headlineSmall,
+                                        color =
+                                            MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                                alpha = 0.55f,
+                                            ),
+                                    )
+                                }
+                                inner()
+                            },
+                        )
+                        if (isSnippet) {
+                            IconButton(
+                                onClick = { copyNoteContentToClipboard(context, bodyInput.text) },
+                                enabled = bodyInput.text.isNotEmpty(),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.ContentCopy,
+                                    contentDescription = stringResource(R.string.notes_copy_to_clipboard_desc),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
-                            inner()
-                        },
-                    )
+                        }
+                    }
+
+                    if (isSnippet) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(vertical = DesignTokens.SpacingSmall),
+                            color = AppColors.SettingsDivider,
+                        )
+                        SnippetKeywordField(
+                            value = keywordInput,
+                            onValueChange = { keywordInput = it },
+                            isTaken = keywordTaken,
+                            focusRequester = keywordFocusRequester,
+                            onFocused = { focusedEditorField = NOTE_EDITOR_KEYWORD_FIELD },
+                        )
+                    }
 
                     HorizontalDivider(
                         modifier = Modifier.padding(vertical = DesignTokens.SpacingSmall),
@@ -484,7 +596,14 @@ fun NoteEditor(
                         decorationBox = { inner ->
                             if (bodyInput.text.isBlank()) {
                                 Text(
-                                    text = stringResource(R.string.notes_body_hint),
+                                    text =
+                                        stringResource(
+                                            if (isSnippet) {
+                                                R.string.notes_snippet_body_hint
+                                            } else {
+                                                R.string.notes_body_hint
+                                            },
+                                        ),
                                     style = MaterialTheme.typography.bodyLarge,
                                     color =
                                         MaterialTheme.colorScheme.onSurfaceVariant.copy(
@@ -506,6 +625,63 @@ fun NoteEditor(
                             .width(DesignTokens.SpacingXXSmall),
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun SnippetKeywordField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    isTaken: Boolean,
+    focusRequester: FocusRequester,
+    onFocused: () -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = stringResource(R.string.notes_snippet_keyword_prefix),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            BasicTextField(
+                value = value,
+                // Keywords are a single word, so whitespace is dropped as it is typed or pasted.
+                onValueChange = { onValueChange(it.filterNot(Char::isWhitespace)) },
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .focusRequester(focusRequester)
+                        .onFocusChanged { if (it.isFocused) onFocused() },
+                textStyle =
+                    MaterialTheme.typography.titleMedium.copy(
+                        color =
+                            if (isTaken) {
+                                MaterialTheme.colorScheme.error
+                            } else {
+                                MaterialTheme.colorScheme.primary
+                            },
+                    ),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                singleLine = true,
+                decorationBox = { inner ->
+                    if (value.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.notes_snippet_keyword_hint),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f),
+                        )
+                    }
+                    inner()
+                },
+            )
+        }
+        if (isTaken) {
+            Text(
+                text = stringResource(R.string.notes_snippet_keyword_taken),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+            )
         }
     }
 }

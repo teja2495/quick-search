@@ -72,6 +72,8 @@ class NotesRoomStore(context: Context) {
                         markdownContent = entry.optString("markdown").orEmpty(),
                         createdAtMillis = createdAt,
                         updatedAtMillis = entry.optLong("updatedAtMillis", createdAt),
+                        isSnippet = entry.optBoolean("isSnippet", false),
+                        keyword = entry.optString("keyword").orEmpty(),
                     ),
                 )
             }

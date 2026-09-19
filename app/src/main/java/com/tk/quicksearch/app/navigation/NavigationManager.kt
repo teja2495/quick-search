@@ -803,6 +803,15 @@ private fun SettingsNavigationContent(
                         onDestinationChange(RootDestination.Search)
                     }
                 },
+                onNavigateBackToSearch = {
+                    onRootAnimationDirectionChange(SwipeAnimationDirection.RIGHT)
+                    onSettingsDetailTypeChange(null)
+                    if (uiState.overlayModeEnabled) {
+                        onFinishActivity()
+                    } else {
+                        onDestinationChange(RootDestination.Search)
+                    }
+                },
                 onRequestUsagePermission = {
                     PermissionHelper.launchUsageAccessRequest(context)
                 },

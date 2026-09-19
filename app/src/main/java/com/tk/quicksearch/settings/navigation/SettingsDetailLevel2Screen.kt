@@ -120,6 +120,13 @@ internal fun SettingsDetailLevel2Screen(
     var noteEditorCanDelete by remember { mutableStateOf(false) }
     var noteEditorOnConfirmedDelete by remember { mutableStateOf<(() -> Unit)?>(null) }
     var showNoteDeleteConfirm by remember { mutableStateOf(false) }
+    var noteEditorIsSnippet by
+        remember(detailType) {
+            mutableStateOf(
+                detailType == SettingsDetailType.NOTE_EDITOR &&
+                    NotesNavigationMemory.peekPendingIsSnippet(),
+            )
+        }
     val pendingAiBackedToolForEditor =
         remember(detailType) {
             if (detailType == SettingsDetailType.CUSTOM_TOOL_EDITOR) {
@@ -212,6 +219,8 @@ internal fun SettingsDetailLevel2Screen(
                                 AiBackedToolConfigId.WEATHER -> R.string.weather_toggle_title
                                 null -> detailType.titleResId()
                             }
+                        } else if (detailType == SettingsDetailType.NOTE_EDITOR && noteEditorIsSnippet) {
+                            R.string.notes_snippet_editor_title
                         } else {
                             detailType.titleResId()
                         }
@@ -649,8 +658,8 @@ internal fun SettingsDetailLevel2Screen(
             } else if (detailType == SettingsDetailType.NOTES) {
                 NotesSettingsSection(
                     searchQuery = notesSearchQuery,
-                    onOpenNoteEditor = { noteId ->
-                        NotesNavigationMemory.setPendingNoteId(noteId)
+                    onOpenNoteEditor = { noteId, isSnippet ->
+                        NotesNavigationMemory.setPendingNoteId(noteId, isSnippet = isSnippet)
                         onNavigateToDetail(SettingsDetailType.NOTE_EDITOR)
                     },
                     multiSelectActive = notesMultiSelectActive,
@@ -692,6 +701,7 @@ internal fun SettingsDetailLevel2Screen(
                                 null
                             }
                     },
+                    onSnippetModeResolved = { noteEditorIsSnippet = it },
                     hideTopBar = hideNoteEditorAppBar,
                     modifier =
                         Modifier
@@ -944,6 +954,10 @@ internal fun SettingsDetailLevel2Screen(
                 onClear = { notesSearchQuery = "" },
                 onNewNote = {
                     NotesNavigationMemory.setPendingNoteId(null)
+                    onNavigateToDetail(SettingsDetailType.NOTE_EDITOR)
+                },
+                onNewSnippet = {
+                    NotesNavigationMemory.setPendingNoteId(null, isSnippet = true)
                     onNavigateToDetail(SettingsDetailType.NOTE_EDITOR)
                 },
                 multiSelectActive = notesMultiSelectActive,

@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.TextSnippet
+import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.Description
@@ -23,6 +25,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -31,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.pinnedNotifications.PinnedNotifications
+import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
@@ -55,11 +60,15 @@ import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContaine
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentPadding
 import com.tk.quicksearch.search.searchScreen.components.LocalSearchResultQuery
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
+import com.tk.quicksearch.settings.shared.AliasPill
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
 import com.tk.quicksearch.shared.util.hapticConfirm
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun NotesResultsSection(
@@ -192,6 +201,7 @@ internal fun NoteRow(
     var showDeleteConfirm by remember { mutableStateOf(false) }
     val rowView = LocalView.current
     val context = LocalContext.current
+    val copyScope = rememberCoroutineScope()
     val query = LocalSearchResultQuery.current
     val title = note.title.ifBlank { stringResource(R.string.notes_untitled) }
     val notificationAction =
@@ -235,7 +245,12 @@ internal fun NoteRow(
             verticalAlignment = Alignment.Top,
         ) {
             Icon(
-                imageVector = Icons.Rounded.Description,
+                imageVector =
+                    if (note.isSnippet) {
+                        Icons.AutoMirrored.Rounded.TextSnippet
+                    } else {
+                        Icons.Rounded.Description
+                    },
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 7.dp, top = 1.dp).size(24.dp),
@@ -258,6 +273,38 @@ internal fun NoteRow(
                     maxLines = if (matchingPreview != null) 5 else 3,
                     overflow = TextOverflow.Ellipsis,
                 )
+                if (note.isSnippet && note.keyword.isNotBlank()) {
+                    AliasPill(
+                        text = rememberQueryHighlightedText(note.keyword, query),
+                        onClick = null,
+                        textColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 2.dp),
+                    )
+                }
+            }
+
+            if (note.isSnippet) {
+                IconButton(
+                    onClick = {
+                        hapticConfirm(rowView)()
+                        copyScope.launch {
+                            // Cached home rows hold a truncated preview, so copy the stored body.
+                            val content =
+                                withContext(Dispatchers.IO) {
+                                    NotesRepository(context).getNoteById(note.noteId)?.markdownContent
+                                } ?: note.markdownContent
+                            copyNoteContentToClipboard(context, content)
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.CenterVertically).size(40.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.ContentCopy,
+                        contentDescription = stringResource(R.string.notes_copy_to_clipboard_desc),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
             }
 
             DropdownMenu(

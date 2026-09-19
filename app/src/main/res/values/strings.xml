@@ -114,10 +114,10 @@
     <string name="settings_gesture_notification_panel">Notification Panel</string>
     <string name="settings_gesture_lock_screen">Lock Screen</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">Requires Accessibility Permission</string>
-    <string name="accessibility_lock_screen_service_label">Quick Search Lock Screen</string>
-    <string name="accessibility_lock_screen_service_description">Allows Quick Search to lock the screen from the Home double-tap gesture. It does not read screen content.</string>
+    <string name="accessibility_lock_screen_service_label">Quick Search</string>
+    <string name="accessibility_lock_screen_service_description">Allows Quick Search to lock the screen from the Home double-tap gesture, and to expand snippet keywords into their full text as you type. Text is checked on your device only, and is never collected, stored, or shared.</string>
     <string name="accessibility_permission_disclaimer_title">Accessibility Permission Disclaimer</string>
-    <string name="accessibility_lock_screen_disclosure_message">Quick Search uses Android’s AccessibilityService API only to lock your device when you double-tap the Home screen. Through this service, Quick Search does not read, collect, store, or share your screen content or other personal data.</string>
+    <string name="accessibility_lock_screen_disclosure_message">Quick Search uses Android’s AccessibilityService API for two features:\n\n• Lock screen — locks your device when you double-tap the Home screen.\n• Snippets — watches for snippet keywords you type in other apps and replaces them with the full text.\n\nFor snippets, Quick Search reads the text you type only to match it against your own snippet keywords. This happens entirely on your device. Quick Search does not collect, store, or share what you type, and never reads password fields.</string>
     <string name="settings_gesture_none">None</string>
     <string name="settings_gesture_custom">Custom (Apps, Files etc.)</string>
     <string name="settings_keyboard_gestures_title">Keyboard Gestures (Home)</string>
@@ -281,7 +281,7 @@
     <string name="section_apps">Apps</string>
     <string name="section_calendar">Calendar Events</string>
     <string name="section_files">Files</string>
-    <string name="section_notes">Notes</string>
+    <string name="section_notes">Notes &amp; Snippets</string>
     <string name="section_settings">Device Settings</string>
     <string name="top_match_title">Top Match</string>
     <string name="top_matches_count_label">No. of matches</string>
@@ -582,8 +582,24 @@
          ============================================================================ -->
     <string name="app_settings_search_create_note_desc">Start a new note in the editor</string>
     <string name="app_settings_search_create_note_title">Create note</string>
+    <string name="app_settings_search_create_snippet_desc">Start a new snippet in the editor</string>
+    <string name="app_settings_search_create_snippet_title">Create snippet</string>
     <string name="notes_body_hint">Write your note here</string>
     <string name="notes_create_note_cta">New Note</string>
+    <string name="notes_create_snippet_cta">New Snippet</string>
+    <string name="notes_snippet_editor_title">Snippet Editor</string>
+    <string name="notes_snippet_body_hint">Write your snippet here</string>
+    <string name="notes_snippet_keyword_prefix">Keyword:\u0020</string>
+    <string name="notes_snippet_keyword_hint">one word</string>
+    <string name="notes_snippet_keyword_taken">This keyword is already used by another snippet</string>
+    <string name="notes_snippet_intro_title">About Snippets</string>
+    <string name="notes_snippet_intro_message">A snippet is a shortcut for text you type often. Give it a keyword, and whenever you type that keyword in any app, Quick Search replaces it with the full text.</string>
+    <string name="notes_snippet_intro_needs_permission">This needs Accessibility permission. Without it, a snippet still works as a note with a quick copy button — you just have to paste it yourself.</string>
+    <string name="notes_snippet_intro_grant">Enable expansion</string>
+    <string name="notes_snippet_intro_skip">Continue without it</string>
+    <string name="notes_snippet_intro_already_enabled">Accessibility permission is already granted, so your snippets will expand as you type.</string>
+    <string name="notes_copy_to_clipboard_desc">Copy to clipboard</string>
+    <string name="notes_copied_to_clipboard">Copied to clipboard</string>
     <string name="notes_delete_confirm_message">This note will be permanently deleted.</string>
     <string name="notes_delete_confirm_title">Delete this note?</string>
     <string name="notes_delete_note_desc">Delete note</string>
@@ -597,7 +613,7 @@
     <string name="notes_quick_note_toggle_desc">Open Quick Note from swipe navigation</string>
     <string name="notes_title_hint">Title</string>
     <string name="notes_untitled">Untitled</string>
-    <string name="settings_notes_view_all_desc">View all notes</string>
+    <string name="settings_notes_view_all_desc">View all notes &amp; snippets</string>
 
     <!-- ============================================================================
          Device Settings Shortcuts

@@ -46,6 +46,7 @@ enum class AppSettingsDestination {
     GEMINI_API,
     API_KEY_SETUP,
     CREATE_NOTE,
+    CREATE_SNIPPET,
     NOTES_LIST,
     CREATE_CALENDAR_EVENT,
     NICKNAMES,

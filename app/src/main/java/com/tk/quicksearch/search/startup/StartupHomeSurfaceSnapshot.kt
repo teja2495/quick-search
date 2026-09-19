@@ -279,6 +279,8 @@ internal object StartupHomeSurfaceSnapshotJson {
         put("markdownContent", note.markdownContent.take(MAX_CACHED_NOTE_PREVIEW_CHARS))
         put("createdAtMillis", note.createdAtMillis)
         put("updatedAtMillis", note.updatedAtMillis)
+        put("isSnippet", note.isSnippet)
+        put("keyword", note.keyword)
     }
 
     private fun noteFromJson(json: JSONObject): NoteInfo? {
@@ -289,6 +291,8 @@ internal object StartupHomeSurfaceSnapshotJson {
             markdownContent = json.optString("markdownContent"),
             createdAtMillis = json.optLong("createdAtMillis"),
             updatedAtMillis = json.optLong("updatedAtMillis"),
+            isSnippet = json.optBoolean("isSnippet", false),
+            keyword = json.optString("keyword"),
         )
     }
 

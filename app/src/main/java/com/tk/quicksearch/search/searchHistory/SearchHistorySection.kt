@@ -21,6 +21,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.automirrored.rounded.TextSnippet
 import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.DropdownMenu
@@ -721,7 +722,12 @@ private fun RecentNoteRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-            imageVector = Icons.Rounded.Description,
+            imageVector =
+                if (note.isSnippet) {
+                    Icons.AutoMirrored.Rounded.TextSnippet
+                } else {
+                    Icons.Rounded.Description
+                },
             contentDescription = null,
             tint = iconColor,
             modifier =

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.data.notes
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.tk.quicksearch.search.models.NoteInfo
@@ -11,10 +12,12 @@ data class NoteEntity(
     val markdownContent: String,
     val createdAtMillis: Long,
     val updatedAtMillis: Long,
+    @ColumnInfo(defaultValue = "0") val isSnippet: Boolean,
+    @ColumnInfo(defaultValue = "") val keyword: String,
 )
 
 internal fun NoteEntity.toModel() =
-    NoteInfo(noteId, title, markdownContent, createdAtMillis, updatedAtMillis)
+    NoteInfo(noteId, title, markdownContent, createdAtMillis, updatedAtMillis, isSnippet, keyword)
 
 internal fun NoteInfo.toEntity() =
-    NoteEntity(noteId, title, markdownContent, createdAtMillis, updatedAtMillis)
+    NoteEntity(noteId, title, markdownContent, createdAtMillis, updatedAtMillis, isSnippet, keyword)

@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -87,6 +88,13 @@ internal fun rememberShortcutIcon(
         }
     return iconState.value
 }
+
+/** Blocking variant of [rememberShortcutIcon] for non-Compose surfaces such as notifications. */
+fun loadShortcutIconAndroidBitmap(
+    context: Context,
+    shortcut: StaticShortcut,
+    iconSizePx: Int,
+): Bitmap? = loadShortcutIconBitmap(context, shortcut, iconSizePx)?.asAndroidBitmap()
 
 private fun loadShortcutIconBitmap(
     context: Context,
