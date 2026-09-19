@@ -25,10 +25,10 @@ fun calendarHomeScheduleLabel(
 ): String {
     if (event.allDay) return stringResource(R.string.calendar_relative_today)
     if (nowMillis in event.startMillis..event.endMillis) {
-        return "${formatCalendarEventStartTime(event.startMillis)} · ${stringResource(R.string.calendar_relative_now)}"
+        return "${formatCalendarEventStartTime(event.startMillis)} • ${stringResource(R.string.calendar_relative_now)}"
     }
 
-    return "${formatCalendarEventStartTime(event.startMillis)} · ${calendarRelativeTimeLabel(event.startMillis, nowMillis)}"
+    return "${formatCalendarEventStartTime(event.startMillis)} • ${calendarRelativeTimeLabel(event.startMillis, nowMillis)}"
 }
 
 fun isCalendarEventCurrentlyRelevant(
@@ -135,17 +135,13 @@ fun calendarRelativeDateLabel(
 fun calendarRelativeDateLabel(
     event: CalendarEventInfo,
     nowMillis: Long = System.currentTimeMillis(),
-): String {
-    val relativeLabel = calendarRelativeDateLabel(event.startMillis, event.allDay, nowMillis)
-    return if (event.allDay) relativeLabel
-    else "${formatCalendarEventStartTime(event.startMillis)} · $relativeLabel"
-}
+): String = calendarRelativeDateLabel(event.startMillis, event.allDay, nowMillis)
 
 @Composable
-private fun calendarRelativeDateLabel(
+fun calendarRelativeDateLabel(
     eventStartMillis: Long,
     isAllDay: Boolean,
-    nowMillis: Long,
+    nowMillis: Long = System.currentTimeMillis(),
 ): String {
     val zoneId = ZoneId.systemDefault()
     val today = Instant.ofEpochMilli(nowMillis).atZone(zoneId).toLocalDate()

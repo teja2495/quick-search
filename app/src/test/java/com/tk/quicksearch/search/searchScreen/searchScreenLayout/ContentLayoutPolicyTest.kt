@@ -21,6 +21,7 @@ class ContentLayoutPolicyTest {
                 ItemPriorityConfig.ItemType.CONTACTS_SECTION,
                 ItemPriorityConfig.ItemType.FILES_SECTION,
                 ItemPriorityConfig.ItemType.CALENDAR_SECTION,
+                ItemPriorityConfig.ItemType.REMINDERS_SECTION,
                 ItemPriorityConfig.ItemType.NOTES_SECTION,
                 ItemPriorityConfig.ItemType.SETTINGS_SECTION,
                 ItemPriorityConfig.ItemType.APP_SETTINGS_SECTION,
@@ -54,9 +55,10 @@ class ContentLayoutPolicyTest {
                 ItemPriorityConfig.ItemType.APP_SHORTCUTS_SECTION,
                 ItemPriorityConfig.ItemType.CALENDAR_SECTION,
                 ItemPriorityConfig.ItemType.FILES_SECTION,
+                ItemPriorityConfig.ItemType.REMINDERS_SECTION,
                 ItemPriorityConfig.ItemType.APP_SETTINGS_SECTION,
             ),
-            order.takeLast(7),
+            order.takeLast(8),
         )
     }
 

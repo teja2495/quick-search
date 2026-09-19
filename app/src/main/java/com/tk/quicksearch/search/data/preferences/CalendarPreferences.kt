@@ -65,16 +65,11 @@ class CalendarPreferences(
         return pinLongItem(BasePreferences.KEY_ARCHIVED_TODAY_CALENDAR_EVENT_IDS, eventId)
     }
 
+    /** Calendar events created inside Quick Search before reminders replaced them; read only to migrate them. */
     fun getCustomEventsJson(): String = prefs.getString(BasePreferences.KEY_CUSTOM_CALENDAR_EVENTS_DATA, null).orEmpty()
 
     fun setCustomEventsJson(json: String) {
         prefs.edit().putString(BasePreferences.KEY_CUSTOM_CALENDAR_EVENTS_DATA, json).apply()
-    }
-
-    fun nextCustomEventId(): Long {
-        val counter = prefs.getLong(BasePreferences.KEY_CUSTOM_CALENDAR_EVENT_ID_COUNTER, 1L)
-        prefs.edit().putLong(BasePreferences.KEY_CUSTOM_CALENDAR_EVENT_ID_COUNTER, counter + 1L).apply()
-        return -counter
     }
 
     private fun clearArchivedTodayEventsIfStale() {

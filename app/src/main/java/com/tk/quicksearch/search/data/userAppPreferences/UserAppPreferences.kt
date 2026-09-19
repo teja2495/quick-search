@@ -44,6 +44,7 @@ class UserAppPreferences(
     private val settingsPreferences by lazy { SettingsPreferences(context) }
     private val calendarPreferences by lazy { CalendarPreferences(context) }
     private val notesPreferences by lazy { NotesPreferences(context) }
+    private val reminderPreferences by lazy { ReminderPreferences(context) }
     private val gesturesPreferences by lazy { GesturesPreferences(context) }
     private val appShortcutPreferences by lazy { AppShortcutPreferences(context) }
     private val nicknamePreferences by lazy { NicknamePreferences(context) }
@@ -404,6 +405,26 @@ class UserAppPreferences(
     fun isQuickNoteEnabled(): Boolean = notesPreferences.isQuickNoteEnabled()
 
     fun setQuickNoteEnabled(enabled: Boolean) = notesPreferences.setQuickNoteEnabled(enabled)
+
+    // ============================================================================
+    // Reminder Preferences
+    // ============================================================================
+
+    fun getPinnedReminderIds(): Set<Long> = reminderPreferences.getPinnedReminderIds()
+
+    fun getPinnedReminderOrder(): List<Long> = reminderPreferences.getPinnedReminderOrder()
+
+    fun setPinnedReminderOrder(order: List<Long>): List<Long> =
+            reminderPreferences.setPinnedReminderOrder(order)
+
+    fun pinReminder(reminderId: Long): Set<Long> = reminderPreferences.pinReminder(reminderId)
+
+    fun unpinReminder(reminderId: Long): Set<Long> = reminderPreferences.unpinReminder(reminderId)
+
+
+    fun getIncludePastReminders(): Boolean = reminderPreferences.getIncludePastReminders()
+
+    fun setIncludePastReminders(value: Boolean) = reminderPreferences.setIncludePastReminders(value)
 
     // ============================================================================
     // Gesture Preferences

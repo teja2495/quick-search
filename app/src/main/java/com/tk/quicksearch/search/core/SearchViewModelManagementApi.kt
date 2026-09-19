@@ -9,6 +9,7 @@ import com.tk.quicksearch.search.data.preferences.ResultTrigger
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.CalendarEventInfo
+import com.tk.quicksearch.search.models.ReminderInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.NoteInfo
@@ -191,6 +192,13 @@ internal interface SearchViewModelManagementApi {
     fun getCalendarEventNickname(eventId: Long): String? =
         managementApiDelegate.getCalendarEventNickname(eventId)
 
+    fun pinReminder(reminder: ReminderInfo) = managementApiDelegate.pinReminder(reminder)
+
+    fun unpinReminder(reminder: ReminderInfo) = managementApiDelegate.unpinReminder(reminder)
+
+    fun movePinnedReminder(reminder: ReminderInfo, moveUp: Boolean) =
+        managementApiDelegate.movePinnedReminder(reminder, moveUp)
+
     fun pinNote(noteInfo: NoteInfo) = managementApiDelegate.pinNote(noteInfo)
 
     fun unpinNote(noteInfo: NoteInfo) = managementApiDelegate.unpinNote(noteInfo)
@@ -346,6 +354,7 @@ class SearchViewModelManagementApiDelegate internal constructor(
     private val fileManager: () -> com.tk.quicksearch.search.files.FileManagementHandler,
     private val settingsManager: () -> com.tk.quicksearch.search.deviceSettings.DeviceSettingsManagementHandler,
     private val calendarManager: () -> com.tk.quicksearch.search.calendar.CalendarManagementHandler,
+    private val reminderManager: () -> ReminderManagementHandler,
     private val appShortcutManager: () -> com.tk.quicksearch.search.appShortcuts.AppShortcutManagementHandler,
     private val notesRepository: () -> com.tk.quicksearch.search.data.NotesRepository,
     private val appSearchManager: () -> com.tk.quicksearch.search.apps.AppSearchManager,
@@ -673,6 +682,35 @@ class SearchViewModelManagementApiDelegate internal constructor(
 
     fun getCalendarEventNickname(eventId: Long): String? = userPreferences.getCalendarEventNickname(eventId)
 
+    fun pinReminder(reminder: ReminderInfo) {
+        reminderManager().pinItem(reminder)
+        appendPinnedNonAppItem(reminder.pinnedNonAppItemKey())
+    }
+
+    fun unpinReminder(reminder: ReminderInfo) {
+        reminderManager().unpinItem(reminder)
+        removePinnedNonAppItem(reminder.pinnedNonAppItemKey())
+    }
+
+    fun movePinnedReminder(reminder: ReminderInfo, moveUp: Boolean) {
+        updateUiState { state ->
+            val reordered =
+                state.pinnedReminders.moveItem(
+                    item = reminder,
+                    moveUp = moveUp,
+                    sameItem = { a, b -> a.reminderId == b.reminderId },
+                )
+            if (reordered != null) {
+                userPreferences.setPinnedReminderOrder(reordered.map { it.reminderId })
+            }
+            val updatedOrder = movePinnedNonAppItem(state, reminder.pinnedNonAppItemKey(), moveUp)
+            state.copy(
+                pinnedReminders = reordered ?: state.pinnedReminders,
+                pinnedNonAppItemOrder = updatedOrder,
+            )
+        }
+    }
+
     fun pinNote(noteInfo: NoteInfo) {
         scope.launch(Dispatchers.IO) {
             notesRepository().pinNote(noteInfo.noteId)
@@ -986,6 +1024,8 @@ private fun CalendarEventInfo.pinnedNonAppItemKey(): String = "calendar:$eventId
 
 private fun NoteInfo.pinnedNonAppItemKey(): String = "note:$noteId"
 
+private fun ReminderInfo.pinnedNonAppItemKey(): String = "reminder:$reminderId"
+
 private fun StaticShortcut.pinnedNonAppItemKey(): String = "shortcut:${shortcutKey(this)}"
 
 private fun SearchUiState.completePinnedNonAppItemOrder(): List<String> {
@@ -996,6 +1036,7 @@ private fun SearchUiState.completePinnedNonAppItemOrder(): List<String> {
             addAll(pinnedContacts.map { it.pinnedNonAppItemKey() })
             addAll(pinnedFiles.map { it.pinnedNonAppItemKey() })
             addAll(pinnedCalendarEvents.map { it.pinnedNonAppItemKey() })
+            addAll(pinnedReminders.map { it.pinnedNonAppItemKey() })
             addAll(pinnedSettings.map { it.pinnedNonAppItemKey() })
             addAll(pinnedNotes.map { it.pinnedNonAppItemKey() })
         }

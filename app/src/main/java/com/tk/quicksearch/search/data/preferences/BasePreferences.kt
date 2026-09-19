@@ -494,6 +494,14 @@ abstract class BasePreferences(
         const val KEY_NOTE_ID_COUNTER = "note_id_counter"
         const val KEY_QUICK_NOTE_ID = "quick_note_id"
         const val KEY_QUICK_NOTE_ENABLED = "quick_note_enabled"
+
+        // Reminders preferences keys
+        const val KEY_REMINDERS_DATA = "reminders_data"
+        const val KEY_REMINDER_ID_COUNTER = "reminder_id_counter"
+        const val KEY_PINNED_REMINDER_IDS = "pinned_reminder_ids"
+        const val KEY_PINNED_REMINDER_ORDER = "pinned_reminder_order"
+        const val KEY_INCLUDE_PAST_REMINDERS = "include_past_reminders"
+        const val KEY_REMINDER_PERMISSIONS_REQUESTED = "reminder_permissions_requested"
         const val KEY_SWIPE_RIGHT_ACTION = "swipe_right_action"
         const val KEY_SWIPE_LEFT_ACTION = "swipe_left_action"
         const val KEY_SWIPE_UP_ACTION = "swipe_up_action"

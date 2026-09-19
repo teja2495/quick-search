@@ -13,6 +13,8 @@ import com.tk.quicksearch.search.searchScreen.ExpandedSection
 import com.tk.quicksearch.search.searchScreen.FilesSectionParams
 import com.tk.quicksearch.search.searchScreen.CalendarSectionParams
 import com.tk.quicksearch.search.searchScreen.NotesSectionParams
+import com.tk.quicksearch.search.searchScreen.RemindersSectionParams
+import com.tk.quicksearch.search.models.ReminderInfo
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
 import com.tk.quicksearch.search.searchScreen.SettingsSectionParams
 import com.tk.quicksearch.search.models.CalendarEventInfo
@@ -75,6 +77,14 @@ fun shouldShowCalendarSection(
         hasPermission = calendarParams.hasPermission,
         hasResults = renderingState.hasCalendarResults,
     )
+
+fun shouldShowRemindersSection(renderingState: SectionRenderingState): Boolean =
+    renderingState.hasReminderResults &&
+        renderingState.shouldShowReminders &&
+        (
+            renderingState.expandedSection == ExpandedSection.NONE ||
+                renderingState.expandedSection == ExpandedSection.REMINDERS
+        )
 
 fun shouldShowNotesSection(renderingState: SectionRenderingState): Boolean =
     renderingState.hasNoteResults &&
@@ -203,6 +213,7 @@ fun rememberSectionRenderContext(
     appsParams: AppsSectionParams?,
     isSearching: Boolean,
     oneHandedMode: Boolean,
+    remindersParams: RemindersSectionParams? = null,
 ): SectionRenderContext {
     val isContactsExpanded = renderingState.expandedSection == ExpandedSection.CONTACTS
     val isFilesExpanded = renderingState.expandedSection == ExpandedSection.FILES
@@ -211,6 +222,7 @@ fun rememberSectionRenderContext(
     val isCalendarExpanded = renderingState.expandedSection == ExpandedSection.CALENDAR
     val isAppShortcutsExpanded = renderingState.expandedSection == ExpandedSection.APP_SHORTCUTS
     val isNotesExpanded = renderingState.expandedSection == ExpandedSection.NOTES
+    val isRemindersExpanded = renderingState.expandedSection == ExpandedSection.REMINDERS
 
     // Determine visibility based on state (Search vs Pinned)
     val shouldRenderApps: Boolean
@@ -221,6 +233,7 @@ fun rememberSectionRenderContext(
     val shouldRenderAppSettings: Boolean
     val shouldRenderCalendar: Boolean
     val shouldRenderNotes: Boolean
+    val shouldRenderReminders: Boolean
     val hideSectionedPinnedNonAppItems =
         !isSearching &&
             state.unifiedPinnedItemsEnabled &&
@@ -238,7 +251,8 @@ fun rememberSectionRenderContext(
                         !isAppSettingsExpanded &&
                         !isAppShortcutsExpanded &&
                         !isCalendarExpanded &&
-                        !isNotesExpanded
+                        !isNotesExpanded &&
+                        !isRemindersExpanded
                 }
 
                 else -> {
@@ -253,7 +267,8 @@ fun rememberSectionRenderContext(
                         !isAppSettingsExpanded &&
                         !isAppShortcutsExpanded &&
                         !isCalendarExpanded &&
-                        !isNotesExpanded
+                        !isNotesExpanded &&
+                        !isRemindersExpanded
                 }
 
                 else -> {
@@ -268,7 +283,8 @@ fun rememberSectionRenderContext(
                         !isAppSettingsExpanded &&
                         !isAppShortcutsExpanded &&
                         !isCalendarExpanded &&
-                        !isNotesExpanded
+                        !isNotesExpanded &&
+                        !isRemindersExpanded
                 }
 
                 else -> {
@@ -283,7 +299,8 @@ fun rememberSectionRenderContext(
                         !isSettingsExpanded &&
                         !isAppSettingsExpanded &&
                         !isCalendarExpanded &&
-                        !isNotesExpanded
+                        !isNotesExpanded &&
+                        !isRemindersExpanded
                 }
 
                 else -> {
@@ -299,7 +316,8 @@ fun rememberSectionRenderContext(
                         !isContactsExpanded &&
                         !isAppShortcutsExpanded &&
                         !isCalendarExpanded &&
-                        !isNotesExpanded
+                        !isNotesExpanded &&
+                        !isRemindersExpanded
                 }
 
                 else -> {
@@ -314,7 +332,8 @@ fun rememberSectionRenderContext(
                 !isContactsExpanded &&
                 !isAppShortcutsExpanded &&
                 !isCalendarExpanded &&
-                !isNotesExpanded
+                !isNotesExpanded &&
+                !isRemindersExpanded
         shouldRenderCalendar =
             when (state.calendarSectionState) {
                 is CalendarSectionVisibility.ShowingResults -> {
@@ -323,6 +342,21 @@ fun rememberSectionRenderContext(
                         !isAppShortcutsExpanded &&
                         !isSettingsExpanded &&
                         !isAppSettingsExpanded &&
+                        !isNotesExpanded &&
+                        !isRemindersExpanded
+                }
+
+                else -> false
+            }
+        shouldRenderReminders =
+            when (state.remindersSectionState) {
+                is RemindersSectionVisibility.ShowingResults -> {
+                    !isFilesExpanded &&
+                        !isContactsExpanded &&
+                        !isAppShortcutsExpanded &&
+                        !isSettingsExpanded &&
+                        !isAppSettingsExpanded &&
+                        !isCalendarExpanded &&
                         !isNotesExpanded
                 }
 
@@ -336,7 +370,8 @@ fun rememberSectionRenderContext(
                         !isAppShortcutsExpanded &&
                         !isSettingsExpanded &&
                         !isAppSettingsExpanded &&
-                        !isCalendarExpanded
+                        !isCalendarExpanded &&
+                        !isRemindersExpanded
                 }
 
                 else -> false
@@ -404,6 +439,16 @@ fun rememberSectionRenderContext(
 
                 else -> false
             }
+        shouldRenderReminders =
+            when {
+                hideSectionedPinnedNonAppItems -> false
+                state.remindersSectionState is RemindersSectionVisibility.ShowingResults -> {
+                    renderingState.hasPinnedReminders ||
+                        state.detectedAliasSearchSection == SearchSection.REMINDERS
+                }
+
+                else -> false
+            }
         shouldRenderNotes =
             when {
                 hideSectionedPinnedNonAppItems -> false
@@ -425,6 +470,19 @@ fun rememberSectionRenderContext(
         shouldRenderAppSettings = shouldRenderAppSettings,
         shouldRenderCalendar = shouldRenderCalendar,
         shouldRenderNotes = shouldRenderNotes,
+        shouldRenderReminders = shouldRenderReminders,
+        isRemindersExpanded = isRemindersExpanded || !isSearching,
+        remindersList =
+            if (hideSectionedPinnedNonAppItems) {
+                emptyList()
+            } else if (isSearching || state.detectedAliasSearchSection == SearchSection.REMINDERS) {
+                renderingState.reminderResults
+            } else {
+                renderingState.pinnedReminders
+            },
+        showAllRemindersResults = !isSearching,
+        showRemindersExpandControls = isSearching,
+        remindersExpandClick = remindersParams?.onExpandClick ?: {},
         isFilesExpanded = isFilesExpanded || !isSearching,
         isContactsExpanded = isContactsExpanded || !isSearching,
         isDeviceSettingsExpanded = isSettingsExpanded || !isSearching,
@@ -548,6 +606,7 @@ data class SectionRenderParams(
     val settingsParams: SettingsSectionParams? = null,
     val calendarParams: CalendarSectionParams? = null,
     val notesParams: NotesSectionParams? = null,
+    val remindersParams: RemindersSectionParams? = null,
     val appShortcutsParams: AppShortcutsSectionParams? = null,
     val appsParams: AppsSectionParams? = null,
     val isReversed: Boolean,
@@ -587,6 +646,12 @@ data class SectionRenderContext(
     val appShortcutsExpandClick: () -> Unit = {},
     val calendarExpandClick: () -> Unit = {},
     val notesExpandClick: () -> Unit = {},
+    val shouldRenderReminders: Boolean = false,
+    val isRemindersExpanded: Boolean = false,
+    val remindersList: List<ReminderInfo> = emptyList(),
+    val showAllRemindersResults: Boolean = false,
+    val showRemindersExpandControls: Boolean = false,
+    val remindersExpandClick: () -> Unit = {},
     val shouldRenderSettings: Boolean = false,
     val shouldRenderAppSettings: Boolean = false,
     val isDeviceSettingsExpanded: Boolean = false,

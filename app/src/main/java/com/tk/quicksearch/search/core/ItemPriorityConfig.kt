@@ -50,6 +50,7 @@ object ItemPriorityConfig {
         CONTACTS_SECTION,
         SETTINGS_SECTION,
         CALENDAR_SECTION,
+        REMINDERS_SECTION,
         NOTES_SECTION,
         APP_SETTINGS_SECTION,
 

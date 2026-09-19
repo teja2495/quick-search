@@ -34,7 +34,6 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -43,9 +42,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.data.CustomCalendarEventRepository
 import com.tk.quicksearch.search.models.CalendarEventInfo
-import com.tk.quicksearch.settings.settingsDetailScreen.CustomEventEditDialog
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
@@ -116,24 +113,13 @@ fun CalendarEventsSection(
     }
     if (events.isEmpty()) return
 
-    val context = LocalContext.current
-    val customRepo = remember(context) { CustomCalendarEventRepository(context) }
-    // Local overrides applied after edit/delete so display updates without waiting for re-search
-    var localOverrides by remember { mutableStateOf<Map<Long, CalendarEventInfo?>>(emptyMap()) }
-    val effectiveEvents = remember(events, localOverrides) {
-        if (localOverrides.isEmpty()) events
-        else events.mapNotNull { event ->
-            if (event.eventId in localOverrides) localOverrides[event.eventId]
-            else event
-        }
-    }
-    val effectiveCollapsedEvents = remember(collapsedEvents, effectiveEvents) {
+    val effectiveCollapsedEvents = remember(collapsedEvents, events) {
         collapsedEvents
             ?.mapNotNull { collapsedEvent ->
-                effectiveEvents.firstOrNull { it.eventId == collapsedEvent.eventId }
+                events.firstOrNull { it.eventId == collapsedEvent.eventId }
             }
             ?.sortedBy { it.startMillis }
-            ?: effectiveEvents
+            ?: events
     }
     val nowMillis by produceState(initialValue = System.currentTimeMillis()) {
         while (true) {
@@ -143,30 +129,29 @@ fun CalendarEventsSection(
     }
     val collapsedDisplayEvents =
         if (isHomeScreenMode) {
-            if (effectiveEvents.size == 1) {
-                effectiveEvents
+            if (events.size == 1) {
+                events
             } else {
-                effectiveEvents.filter { event ->
+                events.filter { event ->
                     event.allDay || isCalendarEventCurrentlyRelevant(event, nowMillis)
                 }
             }
         } else {
             effectiveCollapsedEvents.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
         }
-    var editingCustomEvent by remember { mutableStateOf<CalendarEventInfo?>(null) }
 
     val predictedEventId = (predictedTarget as? PredictedSubmitTarget.Calendar)?.eventId
-    val hasPredictedEvent = predictedEventId != null && effectiveEvents.any { it.eventId == predictedEventId }
+    val hasPredictedEvent = predictedEventId != null && events.any { it.eventId == predictedEventId }
     val displayAsExpanded = isExpanded || showAllResults
-    val useCardLevelPrediction = hasPredictedEvent && (!displayAsExpanded || effectiveEvents.size == 1)
+    val useCardLevelPrediction = hasPredictedEvent && (!displayAsExpanded || events.size == 1)
     val overlayDividerColor = LocalOverlayDividerColor.current
     val overlayCardColor = LocalOverlayResultCardColor.current
     val scrollState = rememberScrollState()
     val shouldUseInternalScroll = isExpanded && allowInternalScroll
 
     ExpandableResultsCard(
-        resultCount = effectiveEvents.size,
-        hasAdditionalResults = effectiveEvents.size > collapsedDisplayEvents.size,
+        resultCount = events.size,
+        hasAdditionalResults = events.size > collapsedDisplayEvents.size,
         isExpanded = isExpanded,
         showAllResults = showAllResults,
         isTopPredicted = useCardLevelPrediction,
@@ -180,7 +165,7 @@ fun CalendarEventsSection(
     ) { contentModifier, cardState ->
         val displayEvents =
             if (cardState.displayAsExpanded) {
-                effectiveEvents
+                events
             } else {
                 collapsedDisplayEvents
             }
@@ -217,13 +202,7 @@ fun CalendarEventsSection(
                             isPinned = isPinned,
                             isExcluded = excludedEventIds.contains(event.eventId),
                             hasNickname = !getEventNickname(event.eventId).isNullOrBlank(),
-                            onClick = { clickedEvent ->
-                                if (clickedEvent.eventId < 0) {
-                                    editingCustomEvent = clickedEvent
-                                } else {
-                                    onEventClick(clickedEvent)
-                                }
-                            },
+                            onClick = onEventClick,
                             onTogglePin = onTogglePin,
                             onMovePinned = onMovePinned,
                             onExclude = onExclude,
@@ -253,23 +232,6 @@ fun CalendarEventsSection(
                 }
             }
         }
-    }
-
-    editingCustomEvent?.let { event ->
-        CustomEventEditDialog(
-            event = event,
-            onDismiss = { editingCustomEvent = null },
-            onSave = { title, dateTimeMillis, allDay ->
-                val updated = customRepo.updateCustomEvent(event.eventId, title, dateTimeMillis, allDay)
-                localOverrides = localOverrides + (event.eventId to updated)
-                editingCustomEvent = null
-            },
-            onDelete = {
-                customRepo.deleteCustomEvent(event.eventId)
-                localOverrides = localOverrides + (event.eventId to null)
-                editingCustomEvent = null
-            },
-        )
     }
 }
 

@@ -23,6 +23,7 @@ import com.tk.quicksearch.search.core.SectionRenderParams
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsResultsSection
 import com.tk.quicksearch.search.files.FileResultsSection
 import com.tk.quicksearch.search.notes.NotesResultsSection
+import com.tk.quicksearch.search.reminders.RemindersResultsSection
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.homeTextColor
@@ -47,6 +48,7 @@ fun renderSection(
         SearchSection.APP_SHORTCUTS -> renderAppShortcutsSection(params, sectionContext)
         SearchSection.SETTINGS -> renderSettingsSection(params, sectionContext)
         SearchSection.CALENDAR -> renderCalendarSection(params, sectionContext)
+        SearchSection.REMINDERS -> renderRemindersSection(params, sectionContext)
         SearchSection.NOTES -> renderNotesSection(params, sectionContext)
         SearchSection.APP_SETTINGS -> renderAppSettingsSection(params, sectionContext)
     }
@@ -449,6 +451,32 @@ private fun renderCalendarSection(
             fillExpandedHeight = false,
             isHomeScreenMode = false,
             showPinnedItemMenu = context.showAllCalendarResults,
+        )
+    }
+}
+
+@Composable
+private fun renderRemindersSection(
+    params: SectionRenderParams,
+    context: SectionRenderContext,
+) {
+    val remindersParams = params.remindersParams ?: return
+    if (context.shouldRenderReminders) {
+        RemindersResultsSection(
+            reminders = context.remindersList,
+            isExpanded = context.isRemindersExpanded,
+            pinnedReminderIds = remindersParams.pinnedReminderIds,
+            onReminderClick = remindersParams.onReminderClick,
+            onTogglePin = remindersParams.onTogglePin,
+            onMovePinned = remindersParams.onMovePinned,
+            onMarkDone = remindersParams.onMarkDone,
+            onDelete = remindersParams.onDelete,
+            showAllResults = context.showAllRemindersResults,
+            showExpandControls = context.showRemindersExpandControls,
+            onExpandClick = context.remindersExpandClick,
+            showWallpaperBackground = remindersParams.showWallpaperBackground,
+            expandedCardMaxHeight = remindersParams.expandedCardMaxHeight,
+            showPinnedItemMenu = context.showAllRemindersResults,
         )
     }
 }

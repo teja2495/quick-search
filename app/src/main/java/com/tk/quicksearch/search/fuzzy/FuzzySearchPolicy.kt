@@ -76,7 +76,9 @@ object FuzzySearchPolicyResolver {
             SearchSection.APP_SETTINGS -> APP_SETTINGS_POLICY
             SearchSection.CALENDAR -> CALENDAR_POLICY
             SearchSection.APP_SHORTCUTS -> APP_SHORTCUT_POLICY
-            SearchSection.NOTES -> NOTES_POLICY
+            SearchSection.NOTES,
+            SearchSection.REMINDERS,
+            -> NOTES_POLICY
         }
 
     private fun FuzzySearchPolicy.withLowRamOverride(): FuzzySearchPolicy =

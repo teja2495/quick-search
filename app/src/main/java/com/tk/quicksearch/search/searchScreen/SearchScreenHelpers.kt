@@ -14,6 +14,8 @@ import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.NoteInfo
+import com.tk.quicksearch.search.models.ReminderInfo
+import com.tk.quicksearch.reminders.ReminderEditorRequests
 import com.tk.quicksearch.searchEngines.AliasParser
 import com.tk.quicksearch.searchEngines.defaultBrowserTarget
 import com.tk.quicksearch.searchEngines.getId
@@ -443,6 +445,30 @@ data class NotesSectionParams(
     val expandedCardMaxHeight: Dp = SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT,
 )
 
+/** Reminder callbacks supplied by the route; defaults keep other callers compiling. */
+data class ReminderSectionActions(
+    val onPin: (ReminderInfo) -> Unit = {},
+    val onUnpin: (ReminderInfo) -> Unit = {},
+    val onMovePinned: (ReminderInfo, Boolean) -> Unit = { _, _ -> },
+    val onMarkDone: (ReminderInfo) -> Unit = {},
+    val onDelete: (ReminderInfo) -> Unit = {},
+)
+
+/** Data class for Reminders section parameters */
+data class RemindersSectionParams(
+    val pinnedReminderIds: Set<Long>,
+    val onReminderClick: (ReminderInfo) -> Unit,
+    val onTogglePin: (ReminderInfo) -> Unit,
+    val onMovePinned: (ReminderInfo, Boolean) -> Unit = { _, _ -> },
+    val onMarkDone: (ReminderInfo) -> Unit,
+    val onDelete: (ReminderInfo) -> Unit = {},
+    val showExpandControls: Boolean,
+    val onExpandClick: () -> Unit,
+    val showWallpaperBackground: Boolean,
+    val predictedTarget: PredictedSubmitTarget? = null,
+    val expandedCardMaxHeight: Dp = SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT,
+)
+
 /** Helper function to build all the section parameters needed by SearchScreenContent */
 @Composable
 internal fun buildSectionParams(
@@ -540,8 +566,10 @@ internal fun buildSectionParams(
     getNoteTrigger: (Long) -> com.tk.quicksearch.search.data.preferences.ResultTrigger?,
     onUpdateExpandedSection: (ExpandedSection) -> Unit,
     expandedSection: ExpandedSection,
+    reminderActions: ReminderSectionActions = ReminderSectionActions(),
 ) = remember(
     state,
+    reminderActions,
     derivedState,
     expandedSection,
     onFileClick,
@@ -1102,6 +1130,33 @@ internal fun buildSectionParams(
             showWallpaperBackground = state.showWallpaperBackground,
         )
 
+    val remindersParams =
+        RemindersSectionParams(
+            pinnedReminderIds = state.pinnedReminders.map { it.reminderId }.toSet(),
+            onReminderClick = ReminderEditorRequests::openEdit,
+            onTogglePin = { reminder ->
+                if (state.pinnedReminders.any { it.reminderId == reminder.reminderId }) {
+                    reminderActions.onUnpin(reminder)
+                } else {
+                    reminderActions.onPin(reminder)
+                }
+            },
+            onMovePinned = reminderActions.onMovePinned,
+            onMarkDone = reminderActions.onMarkDone,
+            onDelete = reminderActions.onDelete,
+            showExpandControls = derivedState.isSearching,
+            onExpandClick = {
+                onUpdateExpandedSection(
+                    if (expandedSection == ExpandedSection.REMINDERS) {
+                        ExpandedSection.NONE
+                    } else {
+                        ExpandedSection.REMINDERS
+                    },
+                )
+            },
+            showWallpaperBackground = state.showWallpaperBackground,
+        )
+
     SectionParams(
         filesParams = filesParams,
         appShortcutsParams = appShortcutParams,
@@ -1110,6 +1165,7 @@ internal fun buildSectionParams(
         calendarParams = calendarParams,
         notesParams = notesParams,
         appsParams = appsParams,
+        remindersParams = remindersParams,
     )
 }
 
@@ -1122,4 +1178,5 @@ data class SectionParams(
     val calendarParams: CalendarSectionParams,
     val notesParams: NotesSectionParams,
     val appsParams: AppsSectionParams,
+    val remindersParams: RemindersSectionParams,
 )

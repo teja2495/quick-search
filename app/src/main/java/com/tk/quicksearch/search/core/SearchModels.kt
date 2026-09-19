@@ -11,6 +11,7 @@ import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.NoteInfo
+import com.tk.quicksearch.search.models.ReminderInfo
 import com.tk.quicksearch.search.models.SecondaryRankingSignal
 import com.tk.quicksearch.search.searchHistory.RecentSearchItem
 import com.tk.quicksearch.search.utils.RecentResultRankingUtils
@@ -105,6 +106,7 @@ enum class SearchSection {
         FILES,
         SETTINGS,
         CALENDAR,
+        REMINDERS,
         NOTES,
         APP_SETTINGS,
 }
@@ -420,6 +422,16 @@ sealed class CalendarSectionVisibility {
         ) : CalendarSectionVisibility()
 }
 
+sealed class RemindersSectionVisibility {
+        object Hidden : RemindersSectionVisibility()
+
+        object NoResults : RemindersSectionVisibility()
+
+        data class ShowingResults(
+                val hasPinned: Boolean = false,
+        ) : RemindersSectionVisibility()
+}
+
 sealed class NotesSectionVisibility {
         object Hidden : NotesSectionVisibility()
 
@@ -473,6 +485,7 @@ data class SearchUiState(
         val filesSectionState: FilesSectionVisibility = FilesSectionVisibility.Hidden,
         val settingsSectionState: SettingsSectionVisibility = SettingsSectionVisibility.Hidden,
         val calendarSectionState: CalendarSectionVisibility = CalendarSectionVisibility.Hidden,
+        val remindersSectionState: RemindersSectionVisibility = RemindersSectionVisibility.Hidden,
         val notesSectionState: NotesSectionVisibility = NotesSectionVisibility.Hidden,
         val searchEnginesState: SearchEnginesVisibility = SearchEnginesVisibility.Hidden,
         // App results
@@ -514,6 +527,9 @@ data class SearchUiState(
         val pinnedCalendarEvents: List<CalendarEventInfo> = emptyList(),
         val excludedCalendarEvents: List<CalendarEventInfo> = emptyList(),
         val todayCalendarEvents: List<CalendarEventInfo> = emptyList(),
+        // Reminder results
+        val reminderResults: List<ReminderInfo> = emptyList(),
+        val pinnedReminders: List<ReminderInfo> = emptyList(),
         // Notes results
         val noteResults: List<NoteInfo> = emptyList(),
         val pinnedNotes: List<NoteInfo> = emptyList(),
@@ -758,6 +774,8 @@ fun SearchUiState(
                 pinnedCalendarEvents = results.pinnedCalendarEvents,
                 excludedCalendarEvents = results.excludedCalendarEvents,
                 todayCalendarEvents = results.todayCalendarEvents,
+                reminderResults = results.reminderResults,
+                pinnedReminders = results.pinnedReminders,
                 noteResults = results.noteResults,
                 pinnedNotes = results.pinnedNotes,
                 screenState = results.screenState,
@@ -767,6 +785,7 @@ fun SearchUiState(
                 filesSectionState = results.filesSectionState,
                 settingsSectionState = results.settingsSectionState,
                 calendarSectionState = results.calendarSectionState,
+                remindersSectionState = results.remindersSectionState,
                 notesSectionState = results.notesSectionState,
                 searchEnginesState = results.searchEnginesState,
                 calculatorState = results.calculatorState,

@@ -202,6 +202,7 @@ class SecondarySearchOrchestratorTest {
                         SearchSection.FILES -> UnifiedSectionSearchResult.Files(results.fileResults)
                         SearchSection.SETTINGS -> UnifiedSectionSearchResult.Settings(results.settingResults)
                         SearchSection.CALENDAR -> UnifiedSectionSearchResult.Calendar(results.calendarEvents)
+                        SearchSection.REMINDERS -> UnifiedSectionSearchResult.Reminders(results.reminderResults)
                         SearchSection.NOTES -> UnifiedSectionSearchResult.Notes(results.noteResults)
                         SearchSection.APP_SETTINGS ->
                             UnifiedSectionSearchResult.AppSettings(results.appSettingResults)

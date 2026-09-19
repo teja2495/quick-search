@@ -27,7 +27,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Repeat
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.Search
@@ -54,7 +53,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -77,7 +75,6 @@ import com.tk.quicksearch.search.calendar.calendarRecurrenceLabel
 import com.tk.quicksearch.search.calendar.calendarRelativeDateLabel
 import com.tk.quicksearch.search.calendar.formatCalendarEventDate
 import com.tk.quicksearch.search.data.CalendarRepository
-import com.tk.quicksearch.search.data.CustomCalendarEventRepository
 import com.tk.quicksearch.search.data.preferences.CalendarPreferences
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.settings.AppShortcutsSettings.shortcutMatchPriority
@@ -117,7 +114,6 @@ private val CalendarSettingsBarCornerShape = RoundedCornerShape(28.dp)
 fun CalendarEventsSettingsSection(
     onEventClick: (CalendarEventInfo) -> Unit,
     searchQuery: String = "",
-    refreshSignal: Int = 0,
     modifier: Modifier = Modifier,
 ) {
     val locale = Locale.getDefault()
@@ -130,15 +126,12 @@ fun CalendarEventsSettingsSection(
     val lifecycleOwner = LocalLifecycleOwner.current
     val calendarRepository = remember(context) { CalendarRepository(context) }
     val calendarPreferences = remember(context) { CalendarPreferences(context) }
-    val customCalendarRepository = remember(context) { CustomCalendarEventRepository(context) }
     var hasPermission by remember { mutableStateOf(calendarRepository.hasPermission()) }
     var selectedEventGroupForSheet by remember { mutableStateOf<CalendarEventGroup?>(null) }
-    var editingCustomEvent by remember { mutableStateOf<CalendarEventInfo?>(null) }
     var showTodayEvents by remember { mutableStateOf(calendarPreferences.getShowTodayEvents()) }
     var includePastEvents by remember { mutableStateOf(calendarPreferences.getIncludePastEvents()) }
     var defaultCalendarPackage by remember { mutableStateOf(calendarPreferences.getDefaultCalendarPackage()) }
     var showDefaultCalendarDialog by remember { mutableStateOf(false) }
-    var localRefreshToken by remember { mutableIntStateOf(0) }
 
     val calendarApps by produceState(initialValue = emptyList(), context) {
         value = withContext(Dispatchers.IO) { discoverCalendarApps(context) }
@@ -159,17 +152,12 @@ fun CalendarEventsSettingsSection(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    val events by produceState(initialValue = emptyList(), hasPermission, refreshSignal, localRefreshToken) {
+    val events by produceState(initialValue = emptyList(), hasPermission) {
         value =
-            withContext(Dispatchers.IO) {
-                val deviceEvents =
-                    if (!hasPermission) {
-                        emptyList()
-                    } else {
-                        calendarRepository.getEventInstancesAroundNow(limit = 2000)
-                    }
-                val customEvents = customCalendarRepository.getAllCustomEvents()
-                deviceEvents + customEvents
+            if (!hasPermission) {
+                emptyList()
+            } else {
+                withContext(Dispatchers.IO) { calendarRepository.getEventInstancesAroundNow(limit = 2000) }
             }
     }
 
@@ -273,7 +261,7 @@ fun CalendarEventsSettingsSection(
         SettingsCard(
             modifier = Modifier.fillMaxWidth(),
         ) {
-            if (!hasPermission && events.none { it.eventId < 0 }) {
+            if (!hasPermission) {
                 Box(
                     modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
                     contentAlignment = Alignment.Center,
@@ -316,10 +304,7 @@ fun CalendarEventsSettingsSection(
                             recurrenceLabel = recurrenceLabel,
                             isPast = eventGroup.nearestInstance.endMillis < nowMillis,
                             onClick = {
-                                if (eventGroup.eventId < 0) {
-                                    // Custom event — open edit dialog
-                                    editingCustomEvent = eventGroup.nearestInstance
-                                } else if (eventGroup.isRecurring()) {
+                                if (eventGroup.isRecurring()) {
                                     selectedEventGroupForSheet = eventGroup
                                 } else {
                                     onEventClick(eventGroup.nearestInstance)
@@ -344,23 +329,6 @@ fun CalendarEventsSettingsSection(
             onInstanceClick = { instance ->
                 selectedEventGroupForSheet = null
                 onEventClick(instance)
-            },
-        )
-    }
-
-    editingCustomEvent?.let { event ->
-        CustomEventEditDialog(
-            event = event,
-            onDismiss = { editingCustomEvent = null },
-            onSave = { title, dateTimeMillis, allDay ->
-                editingCustomEvent = null
-                customCalendarRepository.updateCustomEvent(event.eventId, title, dateTimeMillis, allDay)
-                localRefreshToken++
-            },
-            onDelete = {
-                editingCustomEvent = null
-                customCalendarRepository.deleteCustomEvent(event.eventId)
-                localRefreshToken++
             },
         )
     }
@@ -500,6 +468,7 @@ fun CalendarEventsBottomBar(
     onClear: () -> Unit,
     onNewEvent: () -> Unit,
     modifier: Modifier = Modifier,
+    newItemLabelResId: Int = R.string.reminder_new_title,
 ) {
     val searchFocusRequester = remember { FocusRequester() }
     var isSearchExpanded by remember { mutableStateOf(false) }
@@ -538,7 +507,7 @@ fun CalendarEventsBottomBar(
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Add,
-                    contentDescription = stringResource(R.string.calendar_create_event_title),
+                    contentDescription = stringResource(newItemLabelResId),
                     modifier = Modifier.size(24.dp),
                 )
             }
@@ -561,7 +530,7 @@ fun CalendarEventsBottomBar(
                 shape = CalendarSettingsBarCornerShape,
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
-                text = { Text(text = stringResource(R.string.calendar_create_event_title)) },
+                text = { Text(text = stringResource(newItemLabelResId)) },
                 icon = {
                     Icon(
                         imageVector = Icons.Rounded.Add,
@@ -580,55 +549,7 @@ fun CalendarEventsBottomBar(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateCalendarEventDialog(
-    onDismiss: () -> Unit,
-    onConfirm: (title: String, dateTimeMillis: Long, allDay: Boolean) -> Unit,
-) {
-    CustomEventFormDialog(
-        initialTitle = "",
-        initialDateTimeMillis = null,
-        initialAllDay = true,
-        onDismiss = onDismiss,
-        onConfirm = onConfirm,
-        titleResId = R.string.calendar_create_event_title,
-        confirmResId = R.string.dialog_save,
-        extraActions = {},
-        noticeAboveNameResId = R.string.calendar_create_event_sync_notice,
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CustomEventEditDialog(
-    event: CalendarEventInfo,
-    onDismiss: () -> Unit,
-    onSave: (title: String, dateTimeMillis: Long, allDay: Boolean) -> Unit,
-    onDelete: () -> Unit,
-) {
-    CustomEventFormDialog(
-        initialTitle = event.title,
-        initialDateTimeMillis = event.startMillis,
-        initialAllDay = event.allDay,
-        onDismiss = onDismiss,
-        onConfirm = onSave,
-        titleResId = R.string.calendar_edit_event_title,
-        confirmResId = R.string.dialog_save,
-        extraActions = {
-            IconButton(onClick = onDelete) {
-                Icon(
-                    imageVector = Icons.Rounded.Delete,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error,
-                )
-            }
-        },
-        autoFocusTitle = false,
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun CustomEventFormDialog(
+internal fun CustomEventFormDialog(
     initialTitle: String,
     initialDateTimeMillis: Long?,
     initialAllDay: Boolean,
@@ -639,6 +560,7 @@ private fun CustomEventFormDialog(
     extraActions: @Composable () -> Unit,
     noticeAboveNameResId: Int? = null,
     autoFocusTitle: Boolean = true,
+    nameHintResId: Int = R.string.calendar_create_event_name_hint,
 ) {
     val context = LocalContext.current
     var eventTitle by remember { mutableStateOf(initialTitle) }
@@ -753,7 +675,7 @@ private fun CustomEventFormDialog(
                         OutlinedTextField(
                             value = eventTitle,
                             onValueChange = { eventTitle = it },
-                            label = { Text(stringResource(R.string.calendar_create_event_name_hint)) },
+                            label = { Text(stringResource(nameHintResId)) },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth().focusRequester(titleFocusRequester),
                         )

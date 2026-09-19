@@ -5,8 +5,10 @@ import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
 import com.tk.quicksearch.search.data.NotesRepository
+import com.tk.quicksearch.search.data.ReminderRepository
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.models.NoteInfo
+import com.tk.quicksearch.search.models.ReminderInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,6 +21,7 @@ class PinningHandler(
     private val contactRepository: ContactRepository,
     private val fileRepository: FileSearchRepository,
     private val notesRepository: NotesRepository,
+    private val reminderRepository: ReminderRepository,
     private val userPreferences: UserAppPreferences,
     private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit,
 ) {
@@ -49,12 +52,14 @@ class PinningHandler(
             val pinnedContacts = loadPinnedContacts(permissions.contacts)
             val pinnedFiles = loadPinnedFiles(permissions.files)
             val pinnedNotes = loadPinnedNotes()
+            val pinnedReminders = loadPinnedReminders()
 
             uiStateUpdater { state ->
                 state.copy(
                     pinnedContacts = pinnedContacts,
                     pinnedFiles = pinnedFiles,
                     pinnedNotes = pinnedNotes,
+                    pinnedReminders = pinnedReminders,
                 )
             }
             StartupTrace.mark("QS.Home.PinnedItemsAvailable")
@@ -181,6 +186,22 @@ class PinningHandler(
             .getAllNotes()
             .filter { pinnedIds.contains(it.noteId) }
             .sortedByPinnedOrder(userPreferences.getPinnedNoteOrder()) { it.noteId }
+    }
+
+    /** Refreshes pinned reminders, e.g. after a reminder is edited or marked done. */
+    fun refreshPinnedReminders() {
+        scope.launch(Dispatchers.IO) {
+            val pinnedReminders = loadPinnedReminders()
+            uiStateUpdater { state -> state.copy(pinnedReminders = pinnedReminders) }
+        }
+    }
+
+    private fun loadPinnedReminders(): List<ReminderInfo> {
+        val pinnedIds = userPreferences.getPinnedReminderIds()
+        if (pinnedIds.isEmpty()) return emptyList()
+        return reminderRepository
+            .getRemindersByIds(pinnedIds)
+            .sortedByPinnedOrder(userPreferences.getPinnedReminderOrder()) { it.reminderId }
     }
 
     private data class PermissionsState(

@@ -19,10 +19,10 @@ import com.tk.quicksearch.search.contacts.utils.MessagingHandler
 import com.tk.quicksearch.search.data.AppShortcutRepository.AppShortcutRepository
 import com.tk.quicksearch.search.data.AppsRepository
 import com.tk.quicksearch.search.data.CalendarRepository
-import com.tk.quicksearch.search.data.CustomCalendarEventRepository
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
 import com.tk.quicksearch.search.data.NotesRepository
+import com.tk.quicksearch.search.data.ReminderRepository
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsManagementHandler
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsRepository
@@ -55,7 +55,6 @@ internal class SearchHandlerContainer(
     private val contactRepository: ContactRepository,
     private val fileRepository: FileSearchRepository,
     private val calendarRepository: CalendarRepository,
-    private val customCalendarEventRepository: CustomCalendarEventRepository,
     private val notesRepository: NotesRepository,
     private val appShortcutRepository: AppShortcutRepository,
     private val settingsShortcutRepository: DeviceSettingsRepository,
@@ -113,6 +112,15 @@ internal class SearchHandlerContainer(
         )
     }
 
+    val reminderManager by lazy {
+        ReminderManagementHandler(
+            userPreferences,
+            scope,
+            refreshSecondarySearches,
+            updateUiState,
+        )
+    }
+
     val appShortcutManager by lazy {
         AppShortcutManagementHandler(
             userPreferences,
@@ -154,6 +162,7 @@ internal class SearchHandlerContainer(
             contactRepository = contactRepository,
             fileRepository = fileRepository,
             notesRepository = notesRepository,
+            reminderRepository = ReminderRepository(application),
             userPreferences = userPreferences,
             uiStateUpdater = updateUiState,
         )
@@ -268,7 +277,6 @@ internal class SearchHandlerContainer(
             context = appContext,
             contactRepository = contactRepository,
             calendarRepository = calendarRepository,
-            customCalendarEventRepository = customCalendarEventRepository,
             fileRepository = fileRepository,
             notesRepository = notesRepository,
             userPreferences = userPreferences,

@@ -49,6 +49,8 @@ fun SectionSettingsSection(
     notesSubtitle: String? = null,
     onNotesClick: (() -> Unit)? = null,
     onNotesClickNoRipple: Boolean = false,
+    remindersSubtitle: String? = null,
+    onRemindersClick: (() -> Unit)? = null,
     appSettingsSubtitle: String? = null,
     onAppSettingsClick: (() -> Unit)? = null,
     onAppSettingsClickNoRipple: Boolean = false,
@@ -76,6 +78,7 @@ fun SectionSettingsSection(
                 val isDeviceSettingsRow = section == SearchSection.SETTINGS
                 val isCalendarRow = section == SearchSection.CALENDAR
                 val isNotesRow = section == SearchSection.NOTES
+                val isRemindersRow = section == SearchSection.REMINDERS
                 val isAppSettingsRow = section == SearchSection.APP_SETTINGS
                 val showAliasForSection = section !in sectionsWithHiddenAlias
                 val aliasTargetId = SearchSectionUiMetadataRegistry.metadataFor(section).aliasTargetId
@@ -94,6 +97,7 @@ fun SectionSettingsSection(
                             isDeviceSettingsRow -> deviceSettingsSubtitle
                             isCalendarRow -> calendarSubtitle
                             isNotesRow -> notesSubtitle
+                            isRemindersRow -> remindersSubtitle
                             isAppSettingsRow -> appSettingsSubtitle
                             else -> null
                         },
@@ -108,6 +112,7 @@ fun SectionSettingsSection(
                             isDeviceSettingsRow -> onDeviceSettingsClick
                             isCalendarRow -> onCalendarClick
                             isNotesRow -> onNotesClick
+                            isRemindersRow -> onRemindersClick
                             isAppSettingsRow -> onAppSettingsClick
                             else -> null
                         },
@@ -120,6 +125,7 @@ fun SectionSettingsSection(
                             isDeviceSettingsRow -> onDeviceSettingsClickNoRipple
                             isCalendarRow -> onCalendarClickNoRipple
                             isNotesRow -> onNotesClickNoRipple
+                            isRemindersRow -> onRemindersClick != null
                             isAppSettingsRow -> onAppSettingsClickNoRipple
                             else -> false
                         },

@@ -22,6 +22,8 @@ import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.deviceSettings.SettingResultRow
 import com.tk.quicksearch.search.files.FileResultRow
 import com.tk.quicksearch.search.models.CalendarEventInfo
+import com.tk.quicksearch.search.models.ReminderInfo
+import com.tk.quicksearch.search.reminders.ReminderRow
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.NoteInfo
@@ -39,12 +41,14 @@ internal fun PinnedNonAppItemsSection(
     settings: List<DeviceSetting>,
     calendarEvents: List<CalendarEventInfo>,
     notes: List<NoteInfo>,
+    reminders: List<ReminderInfo> = emptyList(),
     contactsParams: ContactsSectionParams,
     filesParams: FilesSectionParams,
     appShortcutsParams: AppShortcutsSectionParams,
     settingsParams: SettingsSectionParams,
     calendarParams: CalendarSectionParams,
     notesParams: NotesSectionParams,
+    remindersParams: RemindersSectionParams? = null,
     showWallpaperBackground: Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -57,6 +61,7 @@ internal fun PinnedNonAppItemsSection(
             settings,
             calendarEvents,
             notes,
+            reminders,
         ) {
             orderedPinnedNonAppItems(
                 pinnedItemOrder = pinnedItemOrder,
@@ -66,6 +71,7 @@ internal fun PinnedNonAppItemsSection(
                 settings = settings,
                 calendarEvents = calendarEvents,
                 notes = notes,
+                reminders = reminders,
             )
         }
 
@@ -219,6 +225,21 @@ internal fun PinnedNonAppItemsSection(
                             showPinnedItemMenu = true,
                         )
                     }
+
+                    is PinnedNonAppItem.Reminder -> {
+                        val reminder = item.reminder
+                        ReminderRow(
+                            reminder = reminder,
+                            isPinned = remindersParams?.pinnedReminderIds?.contains(reminder.reminderId) ?: true,
+                            onClick = remindersParams?.onReminderClick ?: {},
+                            onTogglePin = remindersParams?.onTogglePin ?: {},
+                            onMovePinned = remindersParams?.onMovePinned ?: { _, _ -> },
+                            onMarkDone = remindersParams?.onMarkDone ?: {},
+                            onDelete = remindersParams?.onDelete ?: {},
+                            isPredicted = false,
+                            showPinnedItemMenu = true,
+                        )
+                    }
                 }
 
                 if (index < orderedItems.lastIndex) {
@@ -241,6 +262,7 @@ private sealed class PinnedNonAppItem(
     class Setting(val setting: DeviceSetting) : PinnedNonAppItem("setting:${setting.id}")
     class CalendarEvent(val event: CalendarEventInfo) : PinnedNonAppItem("calendar:${event.eventId}")
     class Note(val note: NoteInfo) : PinnedNonAppItem("note:${note.noteId}")
+    class Reminder(val reminder: ReminderInfo) : PinnedNonAppItem("reminder:${reminder.reminderId}")
 }
 
 private fun orderedPinnedNonAppItems(
@@ -251,6 +273,7 @@ private fun orderedPinnedNonAppItems(
     settings: List<DeviceSetting>,
     calendarEvents: List<CalendarEventInfo>,
     notes: List<NoteInfo>,
+    reminders: List<ReminderInfo>,
 ): List<PinnedNonAppItem> {
     val defaultItems =
         buildList {
@@ -260,6 +283,7 @@ private fun orderedPinnedNonAppItems(
             addAll(calendarEvents.map { PinnedNonAppItem.CalendarEvent(it) })
             addAll(settings.map { PinnedNonAppItem.Setting(it) })
             addAll(notes.map { PinnedNonAppItem.Note(it) })
+            addAll(reminders.map { PinnedNonAppItem.Reminder(it) })
         }
     if (defaultItems.isEmpty()) return emptyList()
 

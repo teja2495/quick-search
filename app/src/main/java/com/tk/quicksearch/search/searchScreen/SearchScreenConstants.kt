@@ -20,6 +20,7 @@ enum class ExpandedSection {
     SETTINGS,
     APP_SETTINGS,
     CALENDAR,
+    REMINDERS,
     NOTES,
 }
 
@@ -39,6 +40,7 @@ internal data class DerivedState(
     val hasPinnedSettings: Boolean,
     val hasPinnedCalendarEvents: Boolean,
     val hasPinnedNotes: Boolean,
+    val hasPinnedReminders: Boolean,
     val hasPinnedAppShortcuts: Boolean,
     val visibleRowCount: Int,
     val visibleAppLimit: Int,
@@ -57,6 +59,7 @@ internal data class DerivedState(
     val hasAppShortcutResults: Boolean,
     val hasCalendarResults: Boolean,
     val hasNoteResults: Boolean,
+    val hasReminderResults: Boolean,
     val pinnedContactIds: Set<Long>,
     val pinnedFileUris: Set<String>,
     val hasMultipleExpandableSections: Boolean,
@@ -67,6 +70,7 @@ internal data class DerivedState(
     val shouldShowSettings: Boolean,
     val shouldShowCalendar: Boolean,
     val shouldShowNotes: Boolean,
+    val shouldShowReminders: Boolean,
     val shouldShowAppShortcuts: Boolean,
 )
 
@@ -80,6 +84,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
     val hasPinnedCalendarEvents = state.pinnedCalendarEvents.isNotEmpty() && state.hasCalendarPermission
     val notesEnabled = FeatureFlags.isSearchSectionEnabled(SearchSection.NOTES)
     val hasPinnedNotes = notesEnabled && state.pinnedNotes.isNotEmpty()
+    val hasPinnedReminders = state.pinnedReminders.isNotEmpty()
     // Pinned shortcuts shown in the app grid do not also render as a pinned section.
     val hasPinnedAppShortcuts =
         state.pinnedAppShortcuts.isNotEmpty() && !state.pinnedAppShortcutsInAppGrid
@@ -137,6 +142,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
     val hasCalendarResults = state.calendarEvents.isNotEmpty() ||
         (!isSearching && state.todayCalendarEvents.isNotEmpty())
     val hasNoteResults = notesEnabled && state.noteResults.isNotEmpty()
+    val hasReminderResults = state.reminderResults.isNotEmpty()
     val pinnedContactIds =
         remember(state.pinnedContacts) { state.pinnedContacts.map { it.contactId }.toSet() }
     val pinnedFileUris =
@@ -153,6 +159,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
             hasFileResults,
             hasSettingResults || hasAppSettingResults,
             hasCalendarResults,
+            hasReminderResults,
             hasNoteResults,
             hasAppShortcutResults,
         )
@@ -226,6 +233,13 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
                 state.detectedAliasSearchSection == SearchSection.NOTES
         ) &&
             (hasNoteResults || hasPinnedNotes)
+    val shouldShowReminders =
+        (
+            !isSearching ||
+                SearchSection.REMINDERS !in state.disabledSections ||
+                state.detectedAliasSearchSection == SearchSection.REMINDERS
+        ) &&
+            (hasReminderResults || hasPinnedReminders)
 
     return DerivedState(
         isSearching = isSearching,
@@ -234,6 +248,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
         hasPinnedSettings = hasPinnedSettings,
         hasPinnedCalendarEvents = hasPinnedCalendarEvents,
         hasPinnedNotes = hasPinnedNotes,
+        hasPinnedReminders = hasPinnedReminders,
         hasPinnedAppShortcuts = hasPinnedAppShortcuts,
         visibleRowCount = visibleRowCount,
         visibleAppLimit = visibleAppLimit,
@@ -252,6 +267,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
         hasAppShortcutResults = hasAppShortcutResults,
         hasCalendarResults = hasCalendarResults,
         hasNoteResults = hasNoteResults,
+        hasReminderResults = hasReminderResults,
         pinnedContactIds = pinnedContactIds,
         pinnedFileUris = pinnedFileUris,
         hasMultipleExpandableSections = hasMultipleExpandableSections,
@@ -262,6 +278,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
         shouldShowSettings = shouldShowSettings,
         shouldShowCalendar = shouldShowCalendar,
         shouldShowNotes = shouldShowNotes,
+        shouldShowReminders = shouldShowReminders,
         shouldShowAppShortcuts = shouldShowAppShortcuts,
     )
 }

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.reminders.ReminderEditorRequests
 import androidx.compose.runtime.collectAsState
 import com.tk.quicksearch.search.notificationHistory.NotificationHistoryAccess
 import androidx.activity.compose.BackHandler
@@ -41,7 +42,6 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.CustomTool
-import com.tk.quicksearch.search.data.CustomCalendarEventRepository
 import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.data.UserAppPreferences
@@ -105,8 +105,7 @@ internal fun SettingsDetailLevel2Screen(
     var appShortcutsSearchQuery by remember { mutableStateOf("") }
     var appManagementSearchQuery by remember { mutableStateOf("") }
     var calendarEventsSearchQuery by remember { mutableStateOf("") }
-    var calendarEventsRefreshSignal by remember { mutableIntStateOf(0) }
-    var showCreateCalendarEventDialog by remember { mutableStateOf(false) }
+    var remindersSearchQuery by remember { mutableStateOf("") }
     var notesSearchQuery by remember { mutableStateOf("") }
     var notificationHistorySearchQuery by remember { mutableStateOf("") }
     var showNotificationHistoryAppFilter by remember { mutableStateOf(false) }
@@ -614,11 +613,24 @@ internal fun SettingsDetailLevel2Screen(
                         .fillMaxHeight()
                         .align(Alignment.CenterHorizontally),
                 )
+            } else if (detailType == SettingsDetailType.REMINDERS) {
+                RemindersSettingsSection(
+                    searchQuery = remindersSearchQuery,
+                    modifier =
+                        Modifier
+                            .settingsContentWidth()
+                            .fillMaxHeight()
+                            .align(androidx.compose.ui.Alignment.CenterHorizontally)
+                            .padding(
+                                start = DesignTokens.ContentHorizontalPadding,
+                                end = DesignTokens.ContentHorizontalPadding,
+                                bottom = 96.dp,
+                            ),
+                )
             } else if (detailType == SettingsDetailType.CALENDAR_EVENTS) {
                 CalendarEventsSettingsSection(
                     onEventClick = callbacks.onLaunchCalendarEvent,
                     searchQuery = calendarEventsSearchQuery,
-                    refreshSignal = calendarEventsRefreshSignal,
                     modifier =
                         Modifier
                             .settingsContentWidth()
@@ -996,15 +1008,23 @@ internal fun SettingsDetailLevel2Screen(
                 placeholder = stringResource(R.string.notification_history_search_hint),
                 modifier = Modifier.align(Alignment.BottomEnd),
             )
-        } else if (detailType == SettingsDetailType.CALENDAR_EVENTS) {
+        } else if (detailType == SettingsDetailType.REMINDERS) {
             CalendarEventsBottomBar(
-                query = calendarEventsSearchQuery,
-                onQueryChange = { calendarEventsSearchQuery = it },
-                onClear = { calendarEventsSearchQuery = "" },
-                onNewEvent = { showCreateCalendarEventDialog = true },
+                query = remindersSearchQuery,
+                onQueryChange = { remindersSearchQuery = it },
+                onClear = { remindersSearchQuery = "" },
+                onNewEvent = ReminderEditorRequests::openNew,
+                newItemLabelResId = R.string.reminder_new_title,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth(),
+            )
+        } else if (detailType == SettingsDetailType.CALENDAR_EVENTS) {
+            SettingsManagementSearchBar(
+                query = calendarEventsSearchQuery,
+                onQueryChange = { calendarEventsSearchQuery = it },
+                onClear = { calendarEventsSearchQuery = "" },
+                modifier = Modifier.align(Alignment.BottomEnd),
             )
         }
 
@@ -1052,20 +1072,6 @@ internal fun SettingsDetailLevel2Screen(
             )
         }
 
-        if (showCreateCalendarEventDialog && detailType == SettingsDetailType.CALENDAR_EVENTS) {
-            CreateCalendarEventDialog(
-                onDismiss = { showCreateCalendarEventDialog = false },
-                onConfirm = { title, dateTimeMillis, allDay ->
-                    coroutineScope.launch {
-                        withContext(Dispatchers.IO) {
-                            CustomCalendarEventRepository(context).createCustomEvent(title, dateTimeMillis, allDay)
-                        }
-                        calendarEventsRefreshSignal++
-                        showCreateCalendarEventDialog = false
-                    }
-                            },
-                    )
-        }
     }
     }
 }

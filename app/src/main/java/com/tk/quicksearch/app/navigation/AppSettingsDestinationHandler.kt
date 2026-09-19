@@ -7,6 +7,7 @@ import android.net.Uri
 import android.provider.Settings
 import android.widget.Toast
 import com.tk.quicksearch.R
+import com.tk.quicksearch.reminders.ReminderEditorRequests
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination
 import com.tk.quicksearch.settings.settingsDetailScreen.NotesNavigationMemory
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
@@ -25,7 +26,6 @@ internal data class AppSettingsDestinationHandlers(
     val onSetDefaultLauncher: () -> Unit = {},
     val onAddHomeScreenWidget: () -> Unit = {},
     val onAddQuickSettingsTile: () -> Unit = {},
-    val onCreateCalendarEvent: () -> Unit = {},
 )
 
 internal fun handleAppSettingsDestination(
@@ -53,7 +53,7 @@ internal fun handleAppSettingsDestination(
             handlers.onOpenSettingsDetail(SettingsDetailType.NOTE_EDITOR)
         }
         AppSettingsDestination.NOTES_LIST -> handlers.onOpenSettingsDetail(SettingsDetailType.NOTES)
-        AppSettingsDestination.CREATE_CALENDAR_EVENT -> handlers.onCreateCalendarEvent()
+        AppSettingsDestination.CREATE_REMINDER -> ReminderEditorRequests.openNew()
         else -> Unit
     }
 }

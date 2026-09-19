@@ -82,6 +82,7 @@ class SecondarySearchOrchestrator(
                 SearchSection.CONTACTS to SECONDARY_SEARCH_DEBOUNCE_MS,
                 SearchSection.FILES to SECONDARY_SEARCH_DEBOUNCE_MS,
                 SearchSection.CALENDAR to SECONDARY_SEARCH_DEBOUNCE_MS,
+                SearchSection.REMINDERS to NOTES_SEARCH_DEBOUNCE_MS,
                 SearchSection.NOTES to NOTES_SEARCH_DEBOUNCE_MS,
             )
     }
@@ -133,6 +134,7 @@ class SecondarySearchOrchestrator(
                     fileResults = emptyList(),
                     settingResults = emptyList(),
                     calendarEvents = emptyList(),
+                    reminderResults = emptyList(),
                     noteResults = emptyList(),
                     appSettingResults = emptyList(),
                     appShortcutResults = emptyList(),
@@ -354,6 +356,7 @@ class SecondarySearchOrchestrator(
                     fileResults = emptyList(),
                     settingResults = emptyList(),
                     calendarEvents = emptyList(),
+                    reminderResults = emptyList(),
                     noteResults = emptyList(),
                     appSettingResults = emptyList(),
                     appShortcutResults = emptyList(),
@@ -527,6 +530,7 @@ class SecondarySearchOrchestrator(
                             fileResults = emptyList(),
                             settingResults = emptyList(),
                             calendarEvents = emptyList(),
+                            reminderResults = emptyList(),
                             noteResults = emptyList(),
                             appSettingResults = emptyList(),
                             appShortcutResults = emptyList(),
@@ -661,6 +665,7 @@ class SecondarySearchOrchestrator(
 
             SearchSection.APPS,
             SearchSection.CALENDAR,
+            SearchSection.REMINDERS,
             SearchSection.NOTES,
             -> false
         }
@@ -673,6 +678,7 @@ class SecondarySearchOrchestrator(
             fileResults = fileResults.takeIf { SearchSection.FILES in pendingSections }.orEmpty(),
             settingResults = settingResults.takeIf { SearchSection.SETTINGS in pendingSections }.orEmpty(),
             calendarEvents = calendarEvents.takeIf { SearchSection.CALENDAR in pendingSections }.orEmpty(),
+            reminderResults = reminderResults.takeIf { SearchSection.REMINDERS in pendingSections }.orEmpty(),
             noteResults = noteResults.takeIf { SearchSection.NOTES in pendingSections }.orEmpty(),
             appSettingResults =
                 appSettingResults.takeIf { SearchSection.APP_SETTINGS in pendingSections }.orEmpty(),
@@ -692,6 +698,7 @@ class SecondarySearchOrchestrator(
                 is UnifiedSectionSearchResult.Files -> copy(fileResults = result.results)
                 is UnifiedSectionSearchResult.Settings -> copy(settingResults = result.results)
                 is UnifiedSectionSearchResult.Calendar -> copy(calendarEvents = result.results)
+                is UnifiedSectionSearchResult.Reminders -> copy(reminderResults = result.results)
                 is UnifiedSectionSearchResult.Notes -> copy(noteResults = result.results)
                 is UnifiedSectionSearchResult.AppSettings -> copy(appSettingResults = result.results)
                 is UnifiedSectionSearchResult.AppShortcuts -> copy(appShortcutResults = result.results)
@@ -701,6 +708,7 @@ class SecondarySearchOrchestrator(
                         SearchSection.FILES -> copy(fileResults = emptyList())
                         SearchSection.SETTINGS -> copy(settingResults = emptyList())
                         SearchSection.CALENDAR -> copy(calendarEvents = emptyList())
+                        SearchSection.REMINDERS -> copy(reminderResults = emptyList())
                         SearchSection.NOTES -> copy(noteResults = emptyList())
                         SearchSection.APP_SETTINGS -> copy(appSettingResults = emptyList())
                         SearchSection.APP_SHORTCUTS -> copy(appShortcutResults = emptyList())
@@ -722,6 +730,7 @@ class SecondarySearchOrchestrator(
             is UnifiedSectionSearchResult.Files -> results.isNotEmpty()
             is UnifiedSectionSearchResult.Settings -> results.isNotEmpty()
             is UnifiedSectionSearchResult.Calendar -> results.isNotEmpty()
+            is UnifiedSectionSearchResult.Reminders -> results.isNotEmpty()
             is UnifiedSectionSearchResult.Notes -> results.isNotEmpty()
             is UnifiedSectionSearchResult.AppSettings -> results.isNotEmpty()
             is UnifiedSectionSearchResult.AppShortcuts -> results.isNotEmpty()

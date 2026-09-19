@@ -230,7 +230,7 @@ class UiPreferences(
                         }
                         .orEmpty()
         val defaultOrder = UiPreferences.DEFAULT_TOP_MATCHES_SECTION_ORDER
-        return (savedOrder + defaultOrder)
+        return (withRemindersAfterCalendar(savedOrder) + defaultOrder)
                 .distinct()
                 .filter { section -> section in defaultOrder }
     }
@@ -257,9 +257,20 @@ class UiPreferences(
                             runCatching { SearchSection.valueOf(name) }.getOrNull()
                         }
                         .orEmpty()
-        return (savedOrder + defaultOrder)
+        return (withRemindersAfterCalendar(savedOrder) + defaultOrder)
                 .distinct()
                 .filter { section -> section in defaultOrder }
+    }
+
+    /**
+     * Orders saved before Reminders existed would otherwise get it appended at the end, so slot it
+     * right below Calendar Events.
+     */
+    private fun withRemindersAfterCalendar(savedOrder: List<SearchSection>): List<SearchSection> {
+        if (SearchSection.REMINDERS in savedOrder) return savedOrder
+        val calendarIndex = savedOrder.indexOf(SearchSection.CALENDAR)
+        if (calendarIndex == -1) return savedOrder
+        return savedOrder.toMutableList().apply { add(calendarIndex + 1, SearchSection.REMINDERS) }
     }
 
     fun isPinnedAppShortcutsInAppGridEnabled(): Boolean =

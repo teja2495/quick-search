@@ -212,6 +212,7 @@ class OverlayActivity : FragmentActivity() {
                 customAccentColorArgb = uiState.customAccentColorArgb,
                 deviceThemeEnabled = uiState.deviceThemeEnabled,
             ) {
+                com.tk.quicksearch.reminders.ReminderEditorHost()
                 Box(
                     modifier = Modifier.fillMaxSize().background(Color.Transparent),
                 ) {

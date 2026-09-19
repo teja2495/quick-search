@@ -51,6 +51,8 @@ fun PermissionsSettings(
                     callingDescription = stringResource(R.string.permissions_calling_desc),
                     notificationsTitle = stringResource(R.string.settings_notifications_permission_title),
                     notificationsDescription = stringResource(R.string.permissions_notifications_desc),
+                    exactAlarmsTitle = stringResource(R.string.permissions_exact_alarms_title),
+                    exactAlarmsDescription = stringResource(R.string.permissions_exact_alarms_desc),
                     notificationAccessTitle = stringResource(R.string.settings_shortcut_notification_listener),
                     notificationAccessDescription = stringResource(R.string.permissions_notification_access_desc),
                     accessibilityTitle = stringResource(R.string.permissions_accessibility_lock_screen_title),

@@ -6,6 +6,7 @@ import com.tk.quicksearch.search.data.CalendarRepository
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
 import com.tk.quicksearch.search.data.NotesRepository
+import com.tk.quicksearch.search.data.ReminderRepository
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsSearchHandler
 import com.tk.quicksearch.search.models.ContactInfo
@@ -28,6 +29,7 @@ internal class SearchHistoryDelegate(
     private val appSettingsSearchHandler: AppSettingsSearchHandler,
     private val calendarRepository: CalendarRepository,
     private val notesRepository: NotesRepository,
+    private val reminderRepository: ReminderRepository,
     private val featureStateProvider: () -> SearchFeatureState,
     private val currentQueryProvider: () -> String,
     private val updateResultsState: ((SearchResultsState) -> SearchResultsState) -> Unit,
@@ -156,6 +158,12 @@ internal class SearchHistoryDelegate(
                     calendarRepository.getUpcomingEventsSortedAscending(limit = MAX_RECENT_ITEMS)
                         .filterNot { excludedEventIds.contains(it.eventId) }
                 updateUiState { it.copy(calendarEvents = upcoming, aliasRecentItems = emptyList()) }
+                return@launch
+            }
+            if (section == SearchSection.REMINDERS) {
+                val upcoming =
+                    reminderRepository.getUpcomingReminders(limit = MAX_RECENT_ITEMS)
+                updateUiState { it.copy(reminderResults = upcoming, aliasRecentItems = emptyList()) }
                 return@launch
             }
 

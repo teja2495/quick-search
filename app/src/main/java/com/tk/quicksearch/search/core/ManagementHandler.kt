@@ -8,6 +8,7 @@ import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.models.ReminderInfo
 import kotlinx.coroutines.CoroutineScope
 
 /** Configuration for a management handler that defines how to handle different item types. */
@@ -696,3 +697,74 @@ class CalendarEventManagementConfig : ManagementHandlerConfig<CalendarEventInfo>
         preferences.clearAllExcludedCalendarEvents()
     }
 }
+
+/** Configuration for managing ReminderInfo items. Reminders can't be hidden or given nicknames. */
+class ReminderManagementConfig : ManagementHandlerConfig<ReminderInfo> {
+    override fun getItemId(item: ReminderInfo): String = item.reminderId.toString()
+
+    override fun updateUiForPin(
+        item: ReminderInfo,
+        state: SearchUiState,
+    ): SearchUiState =
+        if (state.pinnedReminders.any { it.reminderId == item.reminderId }) {
+            state
+        } else {
+            state.copy(pinnedReminders = state.pinnedReminders + item)
+        }
+
+    override fun updateUiForUnpin(
+        item: ReminderInfo,
+        state: SearchUiState,
+    ): SearchUiState =
+        state.copy(pinnedReminders = state.pinnedReminders.filterNot { it.reminderId == item.reminderId })
+
+    override fun pinItemInPreferences(
+        item: ReminderInfo,
+        preferences: UserAppPreferences,
+    ) {
+        preferences.pinReminder(item.reminderId)
+    }
+
+    override fun unpinItemInPreferences(
+        item: ReminderInfo,
+        preferences: UserAppPreferences,
+    ) {
+        preferences.unpinReminder(item.reminderId)
+    }
+
+    override fun excludeItemInPreferences(
+        item: ReminderInfo,
+        preferences: UserAppPreferences,
+    ) = Unit
+
+    override fun removeExcludedItemInPreferences(
+        item: ReminderInfo,
+        preferences: UserAppPreferences,
+    ) = Unit
+
+    override fun setItemNicknameInPreferences(
+        item: ReminderInfo,
+        nickname: String?,
+        preferences: UserAppPreferences,
+    ) = Unit
+
+    override fun getItemNicknameFromPreferences(
+        item: ReminderInfo,
+        preferences: UserAppPreferences,
+    ): String? = null
+
+    override fun clearAllExcludedItemsInPreferences(preferences: UserAppPreferences) = Unit
+}
+
+class ReminderManagementHandler(
+    userPreferences: UserAppPreferences,
+    scope: CoroutineScope,
+    onStateChanged: () -> Unit,
+    onUiStateUpdate: ((SearchUiState) -> SearchUiState) -> Unit,
+) : ManagementHandler<ReminderInfo> by GenericManagementHandler(
+    config = ReminderManagementConfig(),
+    userPreferences = userPreferences,
+    scope = scope,
+    onStateChanged = onStateChanged,
+    onUiStateUpdate = onUiStateUpdate,
+)

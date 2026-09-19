@@ -23,6 +23,7 @@ internal fun AppSettingsDestination.toSettingsDetailTypeOrNull(): SettingsDetail
         AppSettingsDestination.GEMINI_API -> SettingsDetailType.GEMINI_API_CONFIG
         AppSettingsDestination.API_KEY_SETUP -> SettingsDetailType.API_KEY_SETUP
         AppSettingsDestination.CALENDAR_EVENTS -> SettingsDetailType.CALENDAR_EVENTS
+        AppSettingsDestination.REMINDERS_LIST -> SettingsDetailType.REMINDERS
         AppSettingsDestination.NICKNAMES -> SettingsDetailType.NICKNAMES
         AppSettingsDestination.TRIGGERS -> SettingsDetailType.TRIGGERS
         AppSettingsDestination.GESTURES -> SettingsDetailType.GESTURES
@@ -44,7 +45,7 @@ internal fun AppSettingsDestination.toSettingsDetailTypeOrNull(): SettingsDetail
         AppSettingsDestination.ADD_QUICK_SETTINGS_TILE,
         AppSettingsDestination.CREATE_NOTE,
         AppSettingsDestination.NOTES_LIST,
-        AppSettingsDestination.CREATE_CALENDAR_EVENT -> null
+        AppSettingsDestination.CREATE_REMINDER -> null
         AppSettingsDestination.OPEN_EVENTS_IN -> null
         AppSettingsDestination.BACKUP_RESTORE -> null
     }

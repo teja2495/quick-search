@@ -42,10 +42,8 @@ import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
-import com.tk.quicksearch.search.data.CustomCalendarEventRepository
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.searchScreen.SearchRoute
-import com.tk.quicksearch.settings.settingsDetailScreen.CreateCalendarEventDialog
 import com.tk.quicksearch.settings.settingsDetailScreen.level
 import com.tk.quicksearch.settings.settingsDetailScreen.resolveBackDestination
 import com.tk.quicksearch.settings.navigation.SettingsDetailRoute
@@ -492,7 +490,6 @@ private fun NavigationContent(
     val context = LocalContext.current
     val activity = context as? Activity
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var showCreateCalendarEventDialog by remember { mutableStateOf(false) }
     var hasVisitedHomeInThisSession by rememberSaveable {
         mutableStateOf(destination == RootDestination.Search)
     }
@@ -641,9 +638,6 @@ private fun NavigationContent(
                                     onAddQuickSettingsTile = {
                                         com.tk.quicksearch.tile.requestAddQuickSearchTile(context)
                                     },
-                                    onCreateCalendarEvent = {
-                                        showCreateCalendarEventDialog = true
-                                    },
                                 ),
                         )
                     },
@@ -700,17 +694,6 @@ private fun NavigationContent(
         }
     }
 
-    if (showCreateCalendarEventDialog) {
-        val customCalendarEventRepository = remember(context) { CustomCalendarEventRepository(context) }
-        CreateCalendarEventDialog(
-            onDismiss = { showCreateCalendarEventDialog = false },
-            onConfirm = { title, dateTimeMillis, allDay ->
-                showCreateCalendarEventDialog = false
-                customCalendarEventRepository.createCustomEvent(title, dateTimeMillis, allDay)
-                viewModel.onQueryChange(uiState.query)
-            },
-        )
-    }
 }
 
 @Composable

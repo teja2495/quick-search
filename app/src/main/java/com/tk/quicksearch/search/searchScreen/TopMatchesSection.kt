@@ -58,6 +58,8 @@ import com.tk.quicksearch.search.deviceSettings.SettingResultRow
 import com.tk.quicksearch.search.files.FileResultRow
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.CalendarEventInfo
+import com.tk.quicksearch.search.models.ReminderInfo
+import com.tk.quicksearch.search.reminders.ReminderRow
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.NoteInfo
@@ -147,6 +149,14 @@ internal sealed interface TopMatchItem {
 
     data class Calendar(
         val event: CalendarEventInfo,
+        override val priority: Int,
+        override val sectionOrder: Int,
+        override val secondaryScore: Long,
+        override val index: Int,
+    ) : TopMatchItem
+
+    data class Reminder(
+        val reminder: ReminderInfo,
         override val priority: Int,
         override val sectionOrder: Int,
         override val secondaryScore: Long,
@@ -371,6 +381,18 @@ private fun buildTopMatches(
                     recencyScore = recencyIndex.calendarLastOpenedTimes[event.eventId] ?: 0L,
                     openCount = (recencyIndex.calendarOpenCounts[event.eventId] ?: 0).toLong(),
                 ),
+                index = index,
+            )
+        }
+    }
+    if (isTopMatchesSectionEnabled(SearchSection.REMINDERS)) {
+        context.remindersList.forEachIndexed { index, reminder ->
+            matches += TopMatchItem.Reminder(
+                reminder = reminder,
+                priority = priority(reminder.title),
+                sectionOrder = order(SearchSection.REMINDERS),
+                // No open history; `index` keeps the repository's soonest-first order.
+                secondaryScore = 0L,
                 index = index,
             )
         }
@@ -637,6 +659,8 @@ internal fun openTopMatch(
         }
         is TopMatchItem.Calendar ->
             params.calendarParams?.onEventClick?.invoke(item.event) ?: return null
+        is TopMatchItem.Reminder ->
+            params.remindersParams?.onReminderClick?.invoke(item.reminder) ?: return null
         is TopMatchItem.Note -> params.notesParams?.onNoteClick?.invoke(item.note) ?: return null
         is TopMatchItem.Other -> return true
     }
@@ -763,6 +787,18 @@ private fun TopMatchRow(
                 onNicknameClick = calendarParams.onNicknameClick,
                 isPredicted = isPredicted,
                 onArchive = calendarParams.onArchiveTodayEvent,
+            )
+        }
+
+        is TopMatchItem.Reminder -> params.remindersParams?.let { remindersParams ->
+            ReminderRow(
+                reminder = item.reminder,
+                isPinned = remindersParams.pinnedReminderIds.contains(item.reminder.reminderId),
+                onClick = remindersParams.onReminderClick,
+                onTogglePin = remindersParams.onTogglePin,
+                onMarkDone = remindersParams.onMarkDone,
+                onDelete = remindersParams.onDelete,
+                isPredicted = isPredicted,
             )
         }
 

@@ -9,7 +9,6 @@ import com.tk.quicksearch.search.apps.AppSearchPerformanceLogger
 import com.tk.quicksearch.search.contacts.ContactSearchPolicy
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.CalendarRepository
-import com.tk.quicksearch.search.data.CustomCalendarEventRepository
 import com.tk.quicksearch.search.data.preferences.CalendarPreferences
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
@@ -25,6 +24,8 @@ import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.NoteInfo
+import com.tk.quicksearch.search.models.ReminderInfo
+import com.tk.quicksearch.search.data.ReminderRepository
 import com.tk.quicksearch.search.utils.DefaultSearchMatcher
 import com.tk.quicksearch.search.utils.FileClassifier
 import com.tk.quicksearch.search.utils.FuzzyMatcher
@@ -47,6 +48,7 @@ data class UnifiedSearchResults(
         val settingResults: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting> =
                 emptyList(),
         val calendarEvents: List<CalendarEventInfo> = emptyList(),
+        val reminderResults: List<ReminderInfo> = emptyList(),
         val noteResults: List<NoteInfo> = emptyList(),
         val appSettingResults: List<AppSettingResult> = emptyList(),
         val appShortcutResults: List<StaticShortcut> = emptyList(),
@@ -82,6 +84,10 @@ sealed interface UnifiedSectionSearchResult {
                 override val section = SearchSection.CALENDAR
         }
 
+        data class Reminders(val results: List<ReminderInfo>) : UnifiedSectionSearchResult {
+                override val section = SearchSection.REMINDERS
+        }
+
         data class Notes(val results: List<NoteInfo>) : UnifiedSectionSearchResult {
                 override val section = SearchSection.NOTES
         }
@@ -99,7 +105,6 @@ class UnifiedSearchHandler(
         private val context: Context,
         private val contactRepository: ContactRepository,
         private val calendarRepository: CalendarRepository,
-        private val customCalendarEventRepository: CustomCalendarEventRepository,
         private val fileRepository: FileSearchRepository,
         private val notesRepository: NotesRepository,
         private val userPreferences: UserAppPreferences,
@@ -120,6 +125,7 @@ class UnifiedSearchHandler(
 
         private val isLowRamDevice by lazy { isLowRamDevice(context) }
         private val calendarPreferences by lazy { CalendarPreferences(context) }
+        private val reminderRepository by lazy { ReminderRepository(context) }
 
         override suspend fun performSearch(
                 query: String,
@@ -160,6 +166,9 @@ class UnifiedSearchHandler(
                         val notesConfig =
                                 sectionSearchConfig[SearchSection.NOTES]
                                         ?: UnifiedSectionSearchConfig()
+                        val remindersConfig =
+                                sectionSearchConfig[SearchSection.REMINDERS]
+                                        ?: UnifiedSectionSearchConfig()
                         val appShortcutsConfig =
                                 sectionSearchConfig[SearchSection.APP_SHORTCUTS]
                                         ?: UnifiedSectionSearchConfig()
@@ -170,6 +179,7 @@ class UnifiedSearchHandler(
                         val canSearchCalendar = calendarConfig.shouldSearch
                         val canSearchAppSettings = appSettingsConfig.shouldSearch
                         val canSearchNotes = notesConfig.shouldSearch
+                        val canSearchReminders = remindersConfig.shouldSearch
                         val canSearchAppShortcuts = appShortcutsConfig.shouldSearch
                         val enableFuzzyContactSearch = contactsConfig.enableFuzzyMatching
                         val enableFuzzyFileSearch = filesConfig.enableFuzzyMatching
@@ -267,6 +277,7 @@ class UnifiedSearchHandler(
                         var calendarMatches: List<CalendarEventInfo> = emptyList()
                         var appSettingsMatches: List<AppSettingResult> = emptyList()
                         var noteMatches: List<NoteInfo> = emptyList()
+                        var reminderMatches: List<ReminderInfo> = emptyList()
                         var appShortcutMatches: List<StaticShortcut> = emptyList()
 
                         coroutineScope {
@@ -428,7 +439,7 @@ class UnifiedSearchHandler(
                                                                 shouldSearch = canSearchCalendar,
                                                                 search = {
                                                                         SectionSearchResultPayload.Calendar(
-                                                                                (calendarRepository.searchFutureEventsByTitle(
+                                                                                calendarRepository.searchFutureEventsByTitle(
                                                                                         query =
                                                                                                 queryContext.normalizedQuery,
                                                                                         limit =
@@ -436,10 +447,7 @@ class UnifiedSearchHandler(
                                                                                                         4,
                                                                                         includePastEvents =
                                                                                                 calendarPreferences.getIncludePastEvents(),
-                                                                                ) + customCalendarEventRepository.searchCustomEvents(
-                                                                                        query = queryContext.normalizedQuery,
-                                                                                        includePastEvents = calendarPreferences.getIncludePastEvents(),
-                                                                                )).filterNot {
+                                                                                ).filterNot {
                                                                                         excludedCalendarEventIds.contains(
                                                                                                 it.eventId
                                                                                         )
@@ -503,6 +511,33 @@ class UnifiedSearchHandler(
                                                                         } else {
                                                                                 UnifiedSectionSearchResult.Skipped(
                                                                                         SearchSection.APP_SETTINGS
+                                                                                )
+                                                                        }
+                                                                },
+                                                        ),
+                                                SearchSection.REMINDERS to
+                                                        SectionSearchSpec(
+                                                                section = SearchSection.REMINDERS,
+                                                                shouldSearch = canSearchReminders,
+                                                                search = {
+                                                                        SectionSearchResultPayload.Reminders(
+                                                                                reminderRepository.searchReminders(
+                                                                                        query = trimmedQuery,
+                                                                                        includePastReminders =
+                                                                                                userPreferences.getIncludePastReminders(),
+                                                                                ),
+                                                                        )
+                                                                },
+                                                                applyResult = { payload ->
+                                                                        if (payload is SectionSearchResultPayload.Reminders) {
+                                                                                reminderMatches =
+                                                                                        payload.results
+                                                                                UnifiedSectionSearchResult.Reminders(
+                                                                                        reminderMatches
+                                                                                )
+                                                                        } else {
+                                                                                UnifiedSectionSearchResult.Skipped(
+                                                                                        SearchSection.REMINDERS
                                                                                 )
                                                                         }
                                                                 },
@@ -616,6 +651,7 @@ class UnifiedSearchHandler(
                                 fileResults = fileResults,
                                 settingResults = settingsMatches,
                                 calendarEvents = calendarMatches,
+                                reminderResults = reminderMatches,
                                 noteResults = noteMatches,
                                 appSettingResults = appSettingsMatches,
                                 appShortcutResults = appShortcutMatches,
@@ -639,6 +675,7 @@ class UnifiedSearchHandler(
                         is UnifiedSectionSearchResult.Files -> results.size
                         is UnifiedSectionSearchResult.Settings -> results.size
                         is UnifiedSectionSearchResult.Calendar -> results.size
+                        is UnifiedSectionSearchResult.Reminders -> results.size
                         is UnifiedSectionSearchResult.Notes -> results.size
                         is UnifiedSectionSearchResult.AppSettings -> results.size
                         is UnifiedSectionSearchResult.AppShortcuts -> results.size
@@ -665,6 +702,10 @@ class UnifiedSearchHandler(
 
                 data class AppSettings(
                         val results: List<AppSettingResult>,
+                ) : SectionSearchResultPayload
+
+                data class Reminders(
+                        val results: List<ReminderInfo>,
                 ) : SectionSearchResultPayload
 
                 data class Notes(
@@ -790,12 +831,7 @@ class UnifiedSearchHandler(
                         nicknameMatchingEventIds.filterNot { displayNameMatchedIds.contains(it) }
 
                 return if (nicknameOnlyIds.isNotEmpty()) {
-                        val ids = nicknameOnlyIds.toSet()
-                        val customEvents =
-                                ids
-                                        .filter { it < 0L }
-                                        .mapNotNull { customCalendarEventRepository.getCustomEventById(it) }
-                        calendarRepository.getEventsByIds(ids.filter { it > 0L }.toSet()) + customEvents
+                        calendarRepository.getEventsByIds(nicknameOnlyIds.filter { it > 0L }.toSet())
                 } else {
                         emptyList()
                 }

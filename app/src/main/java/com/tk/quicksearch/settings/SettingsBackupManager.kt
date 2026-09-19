@@ -2,10 +2,12 @@ package com.tk.quicksearch.settings.settingsScreen
 
 import android.content.Context
 import android.net.Uri
+import com.tk.quicksearch.reminders.ReminderScheduler
 import com.tk.quicksearch.search.data.preferences.BasePreferences
 import com.tk.quicksearch.search.data.preferences.CustomLlmProviderPreferences
 import com.tk.quicksearch.search.data.preferences.GeminiPreferences
 import com.tk.quicksearch.search.data.NotesRepository
+import com.tk.quicksearch.search.data.ReminderRepository
 import com.tk.quicksearch.search.data.notes.NotesRoomStore
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.models.NoteInfo
@@ -29,6 +31,7 @@ object SettingsBackupManager {
         SEARCH_ENGINES,
         API_KEYS,
         CALENDAR_EVENTS,
+        REMINDERS,
     }
 
     /** Export item names written by older app versions, mapped to their current item. */
@@ -42,6 +45,7 @@ object SettingsBackupManager {
                 ExportItem.SHORTCUTS,
                 ExportItem.NOTES,
                 ExportItem.SEARCH_ENGINES,
+                ExportItem.REMINDERS,
             ),
     ) {
         fun includes(item: ExportItem): Boolean = item in selectedItems
@@ -93,6 +97,8 @@ object SettingsBackupManager {
         setOf(
             BasePreferences.KEY_FIRST_LAUNCH,
             BasePreferences.KEY_INSTALL_TIME,
+            // Permission prompts are per device, so a restore should still ask on the first reminder.
+            BasePreferences.KEY_REMINDER_PERMISSIONS_REQUESTED,
             "excluded_contact_ids",
             "excluded_file_uris",
             "excluded_file_extensions",
@@ -176,6 +182,15 @@ object SettingsBackupManager {
             ?: throw IllegalArgumentException("Invalid backup file format")
         val selectedExportItems = parseSelectedExportItems(root)
 
+        val importsReminders = selectedExportItems == null || ExportItem.REMINDERS in selectedExportItems
+        // Alarms are keyed by reminder id, so cancel the current ones before the data is replaced.
+        if (importsReminders) {
+            ReminderRepository(context).getAllReminders().forEach { reminder ->
+                ReminderScheduler.cancel(context, reminder.reminderId)
+                ReminderScheduler.cancelNotification(context, reminder.reminderId)
+            }
+        }
+
         val importedNames = preferencesJson.keys().asSequence().toSet()
         val preferenceNames =
             if (selectedExportItems != null) {
@@ -253,6 +268,13 @@ object SettingsBackupManager {
                             .getString(BasePreferences.KEY_NOTES_DATA, null).orEmpty(),
                     )
             notesStore.replaceFromBackup(notes)
+        }
+
+        val importsCalendarEvents =
+            selectedExportItems == null || ExportItem.CALENDAR_EVENTS in selectedExportItems
+        // Older backups can hold calendar events created in Quick Search; rescheduling moves them into reminders.
+        if (importsReminders || importsCalendarEvents) {
+            ReminderScheduler.rescheduleAll(context)
         }
     }
 
@@ -350,6 +372,9 @@ object SettingsBackupManager {
         if (isCalendarEventsKey(prefName, key)) {
             return options.includes(ExportItem.CALENDAR_EVENTS)
         }
+        if (isRemindersKey(prefName, key)) {
+            return options.includes(ExportItem.REMINDERS)
+        }
         if (prefName == "app_shortcut_cache") {
             return options.includes(ExportItem.SHORTCUTS)
         }
@@ -383,6 +408,8 @@ object SettingsBackupManager {
             key == BasePreferences.KEY_PINNED_CALENDAR_EVENT_ORDER ||
             key == BasePreferences.KEY_PINNED_NOTE_IDS ||
             key == BasePreferences.KEY_PINNED_NOTE_ORDER ||
+            key == BasePreferences.KEY_PINNED_REMINDER_IDS ||
+            key == BasePreferences.KEY_PINNED_REMINDER_ORDER ||
             key == BasePreferences.KEY_PINNED_APP_SHORTCUTS ||
             key == BasePreferences.KEY_PINNED_APP_SHORTCUT_ORDER
     }
@@ -433,6 +460,15 @@ object SettingsBackupManager {
     ): Boolean {
         if (prefName != BasePreferences.PREFS_NAME) return false
         return key == BasePreferences.KEY_CUSTOM_CALENDAR_EVENTS_DATA
+    }
+
+    private fun isRemindersKey(
+        prefName: String,
+        key: String,
+    ): Boolean {
+        if (prefName != BasePreferences.PREFS_NAME) return false
+        return key == BasePreferences.KEY_REMINDERS_DATA ||
+            key == BasePreferences.KEY_REMINDER_ID_COUNTER
     }
 
     private fun serializePreferenceValue(value: Any?): JSONObject? =

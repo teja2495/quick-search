@@ -77,6 +77,7 @@ import com.tk.quicksearch.search.searchScreen.SettingsSectionParams
 import com.tk.quicksearch.search.searchScreen.AppsSectionParams
 import com.tk.quicksearch.search.searchScreen.CalendarSectionParams
 import com.tk.quicksearch.search.searchScreen.NotesSectionParams
+import com.tk.quicksearch.search.searchScreen.RemindersSectionParams
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.search.searchScreen.hasAnySearchResults
 import com.tk.quicksearch.search.searchScreen.appThemeResultCardColor
@@ -119,6 +120,7 @@ fun SearchContentArea(
     settingsParams: SettingsSectionParams,
     calendarParams: CalendarSectionParams,
     notesParams: NotesSectionParams,
+    remindersParams: RemindersSectionParams? = null,
     appsParams: AppsSectionParams,
     predictedTarget: PredictedSubmitTarget? = null,
     isPhysicalKeyboardConnected: Boolean,
@@ -190,6 +192,7 @@ fun SearchContentArea(
                 shouldShowFilesSection(renderingState, filesParams) ||
                 shouldShowSettingsSection(renderingState) ||
                 shouldShowCalendarSection(renderingState, calendarParams) ||
+                shouldShowRemindersSection(renderingState) ||
                 shouldShowNotesSection(renderingState)
     val alignResultsToBottom =
             useOneHandedMode &&
@@ -622,6 +625,7 @@ fun SearchContentArea(
                                 settingsParams = settingsParams,
                                 calendarParams = calendarParams,
                                 notesParams = notesParams,
+                                remindersParams = remindersParams,
                                 appsParams = appsParams,
                                 predictedTarget = predictedTarget,
                                 isPhysicalKeyboardConnected = isPhysicalKeyboardConnected,
@@ -770,6 +774,10 @@ fun SearchContentArea(
 
                             ExpandedSection.NOTES -> {
                                 notesParams.onExpandClick()
+                            }
+
+                            ExpandedSection.REMINDERS -> {
+                                remindersParams?.onExpandClick?.invoke()
                             }
 
                             else -> {}

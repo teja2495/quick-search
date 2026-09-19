@@ -34,6 +34,7 @@
     <string name="search_hint_weather">Enter a location or use your default</string>
     <string name="search_hint_files">Search Files…</string>
     <string name="search_hint_notes">Search Notes…</string>
+    <string name="search_hint_reminders">Search Reminders…</string>
     <string name="search_hint_settings">Search Device Settings…</string>
     <string name="search_hint_static">Search Anything</string>
     <string name="search_hint_world_clock">Enter any place to get their local time</string>
@@ -274,6 +275,8 @@
     <string name="search_section_device_settings_toggle_title">Device Settings Search</string>
     <string name="search_section_files_toggle_desc">Turn files search on or off</string>
     <string name="search_section_files_toggle_title">File Search</string>
+    <string name="search_section_reminders_toggle_desc">Turn reminders search on or off</string>
+    <string name="search_section_reminders_toggle_title">Reminders Search</string>
     <string name="search_section_notes_toggle_desc">Turn notes search on or off</string>
     <string name="search_section_notes_toggle_title">Notes Search</string>
     <string name="section_app_settings">App Settings</string>
@@ -1024,7 +1027,7 @@
     <string name="permissions_calendar_desc">Required to search your calendar events.</string>
     <string name="permissions_calling_desc">Required to call your contacts directly without opening the dialer.</string>
     <string name="settings_notifications_permission_title">Post Notifications</string>
-    <string name="permissions_notifications_desc">Required to pin search results to notification panel</string>
+    <string name="permissions_notifications_desc">Required for reminder notifications and to pin search results to notification panel</string>
     <string name="permissions_notification_access_desc">Required to enable notification dots and notification history features</string>
     <string name="permissions_accessibility_lock_screen_title">Accessibility</string>
     <string name="permissions_accessibility_lock_screen_desc">Allows the double-tap gesture to lock your device.</string>
@@ -1165,4 +1168,30 @@
     <string name="speed_bump_overlay_title">Take a deep breath</string>
     <string name="speed_bump_title">SpeedBump</string>
     <string name="home_upcoming_alarm">Upcoming Alarm</string>
+    <!-- Reminders -->
+    <string name="section_reminders">Reminders</string>
+    <string name="reminders_notification_channel_name">Reminders</string>
+    <string name="reminders_notification_channel_description">Notifications for reminders you create in Quick Search</string>
+    <string name="reminder_notification_action_done">Done</string>
+    <string name="reminder_notification_action_snooze">Snooze (30 min)</string>
+    <string name="reminder_new_title">New Reminder</string>
+    <string name="reminder_edit_title">Edit Reminder</string>
+    <string name="reminder_name_hint">Reminder</string>
+    <string name="reminder_delete">Delete reminder</string>
+    <string name="reminder_status_done">Done</string>
+    <string name="reminder_status_overdue">Overdue</string>
+    <string name="reminder_notification_due_at">Due at %1$s</string>
+    <string name="reminder_notification_due_on">Due on %1$s</string>
+    <string name="action_mark_as_done">Mark as Done</string>
+    <string name="action_expand_more_reminders">More Reminders</string>
+    <string name="reminders_empty">No reminders yet</string>
+    <string name="settings_reminders_view_all_desc">View all reminders</string>
+    <string name="reminders_permission_hint">Reminders need notification and alarm permissions to alert you on time. Tap to allow.</string>
+    <string name="reminders_home_card_dismiss">Remove from Home</string>
+    <string name="settings_include_past_reminders_title">Past reminders</string>
+    <string name="settings_include_past_reminders_desc">Show reminders from previous days in search results</string>
+    <string name="app_setting_create_reminder">Create Reminder</string>
+    <string name="app_setting_create_reminder_desc">Add a new reminder</string>
+    <string name="permissions_exact_alarms_title">Alarms &amp; reminders</string>
+    <string name="permissions_exact_alarms_desc">Required to deliver reminder notifications on time</string>
 </resources>

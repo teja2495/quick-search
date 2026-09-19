@@ -24,6 +24,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionCard
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionCardItem
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionState
+import com.tk.quicksearch.reminders.ReminderPermissions
 import com.tk.quicksearch.search.apps.notificationDots.NotificationDotsPermission
 import com.tk.quicksearch.search.data.AppsRepository
 import com.tk.quicksearch.search.data.CalendarRepository
@@ -45,6 +46,8 @@ data class PermissionCardTexts(
     val callingDescription: String,
     val notificationsTitle: String,
     val notificationsDescription: String,
+    val exactAlarmsTitle: String,
+    val exactAlarmsDescription: String,
     val notificationAccessTitle: String,
     val notificationAccessDescription: String,
     val accessibilityTitle: String,
@@ -115,6 +118,9 @@ fun PermissionsCardSection(
     }
     var notificationsPermissionState by remember {
         mutableStateOf(createInitialPermissionState(hasNotificationsPermission(context)))
+    }
+    var exactAlarmsPermissionState by remember {
+        mutableStateOf(createInitialPermissionState(ReminderPermissions.canScheduleExactAlarms(context)))
     }
     var notificationAccessPermissionState by remember {
         mutableStateOf(
@@ -301,6 +307,10 @@ fun PermissionsCardSection(
                             notificationsPermissionState.copy(isGranted = false)
                         }
 
+                    val canScheduleExactAlarms = ReminderPermissions.canScheduleExactAlarms(context)
+                    exactAlarmsPermissionState =
+                        updatePermissionState(canScheduleExactAlarms, canScheduleExactAlarms)
+
                     val hasNotificationAccess =
                         NotificationDotsPermission.hasNotificationListenerAccess(context)
                     notificationAccessPermissionState =
@@ -464,6 +474,22 @@ fun PermissionsCardSection(
                                 } else {
                                     notificationsPermissionState = PermissionState.granted()
                                 }
+                            }
+                        },
+                    ),
+                )
+            }
+            // "Alarms & reminders" only exists as a separate grant on Android 12+.
+            if (showNotificationsPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                add(
+                    PermissionCardItem(
+                        title = texts.exactAlarmsTitle,
+                        description = texts.exactAlarmsDescription,
+                        permissionState = exactAlarmsPermissionState,
+                        isMandatory = false,
+                        onToggleChange = { enabled ->
+                            if (enabled && !exactAlarmsPermissionState.isGranted) {
+                                ReminderPermissions.openExactAlarmSettings(context)
                             }
                         },
                     ),
