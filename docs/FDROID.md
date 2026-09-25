@@ -33,46 +33,14 @@ Keep the app listing text in this `fastlane` structure. Do not duplicate summary
 
 When releasing, update `versionCode` / `versionName` in `app/build.gradle.kts`, add `changelogs/<versionCode>.txt`, and tag the release commit. If you keep the current F-Droid-specific tagging scheme, use tags like `3.7-fdroid`.
 
-## Submit to F-Droid
+## F-Droid metadata
 
-1. **Compliance** — MIT license, public source, FOSS dependencies in the `fdroid` variant. See the [inclusion policy](https://f-droid.org/en/docs/Inclusion_Policy/).
-
-2. **Request for Packaging** — Open an issue: https://gitlab.com/fdroid/rfp/-/issues/new  
-   Include app id `com.tk.quicksearch`, source URL, license, and confirm you approve inclusion.
-
-3. **fdroiddata metadata** — Fork https://gitlab.com/fdroid/fdroiddata and add `metadata/com.tk.quicksearch.yml`. A starter file is in [docs/fdroiddata-example.yml](fdroiddata-example.yml). Keep that file focused on build/update metadata and anti-features; summary/description stay in `fastlane`. The important build block:
-
-   ```yaml
-   Builds:
-     - versionName: '3.6'
-       versionCode: 65
-       commit: <full-git-sha-for-that-release>
-       gradle:
-         - fdroid
-   ```
-
-4. **Anti-features** (expected) — declare `NonFreeNet` for the optional proprietary network services this app can use (AI providers and user-enabled web suggestions/search integrations). F-Droid maintainers may request additional labels for optional proprietary app/service integrations depending on their review.
-
-5. **Test** — Use [fdroidserver](https://f-droid.org/en/docs/Installing_the_Server_and_Repo_Tools) or fdroiddata CI: `fdroid lint com.tk.quicksearch`, `fdroid build com.tk.quicksearch`.
-
-6. **Merge request** — Submit to fdroiddata; after merge, the app is built on F-Droid’s infrastructure (typically 24–48 hours to appear). When opening the MR, switch to the App Inclusion template, follow its instructions, and check the required task boxes.
-
-## Checklist prep
-
-The current repo already covers most of the App Inclusion template:
-
-- `fastlane/metadata/android/en-US/` exists with summary, full description, screenshots, icon, and changelog text.
-- `docs/fdroiddata-example.yml` includes `AutoUpdateMode`, tag-based `UpdateCheckMode`, issue tracker, website, and author contact fields.
-- The existing tagged F-Droid release is `3.6-fdroid`.
-- Local release verification completed with `./gradlew assembleFdroidRelease` and `./gradlew assembleStandardRelease`.
-
-Manual items that still happen outside this repo:
-
-- Open the RFP issue and state that you are the upstream author and approve inclusion.
-- Reference the RFP issue (and any `fdroiddata` issue) in the merge request body.
-- Wait for `fdroid build` and the GitLab pipelines to pass on the `fdroiddata` merge request.
-
-For copy-paste issue and merge-request text, use [docs/FDROID_SUBMISSION_TEMPLATE.md](FDROID_SUBMISSION_TEMPLATE.md).
+Quick Search is already published on F-Droid. Its build metadata lives in fdroiddata at
+[`metadata/com.tk.quicksearch.yml`](https://gitlab.com/fdroid/fdroiddata/-/blob/master/metadata/com.tk.quicksearch.yml).
+It auto-updates from tags matching `^([0-9.]+)-fdroid$` and declares the `NonFreeNet` anti-feature
+for optional proprietary network services (AI providers, web suggestions/search integrations).
+Updates only need a new tag from this repo; don't edit the fdroiddata entry unless the build or
+anti-features change.
 
 ## Release checklist
 
@@ -81,7 +49,7 @@ For copy-paste issue and merge-request text, use [docs/FDROID_SUBMISSION_TEMPLAT
 - [ ] Tag the F-Droid release commit (current scheme: `<versionName>-fdroid`)
 - [ ] `./gradlew assembleFdroidRelease` succeeds
 - [ ] `./gradlew assembleStandardRelease` succeeds
-- [ ] Update fdroiddata `Builds` entry (or rely on auto-update after first inclusion)
+- [ ] Push the tag; F-Droid discovers and builds it asynchronously
 
 ## Reproducible builds
 

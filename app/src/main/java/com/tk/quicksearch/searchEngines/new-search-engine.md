@@ -1,108 +1,67 @@
-# Add a New Built-in Search Engine (AI Agent Guide)
+# Adding a Built-in Search Engine
 
-Use this checklist when adding a **new built-in** search engine under `searchEngines/`.
+For `SearchEngine` enum-backed engines. User-added custom engines are separate
+(`SearchEngineManager.kt`, `CustomSearchEngineUtils.kt`, `settings/searchEngineSettings/dialogs/`);
+don't mix the two.
 
-## Before you start
+Almost all engine behavior derives from `SearchEngineRegistry`. Prefer registry metadata over
+per-engine `if`/`when` branches elsewhere.
 
-Read `AGENTS.md` in the repo root for the full architecture playbook (state management, naming conventions, design system, high-risk files). The steps below assume you have read it.
+## Required
 
-## Scope
+1. **Enum:** add the constant to `enum class SearchEngine` in `search/core/SearchModels.kt`.
+2. **Registry:** add a `SearchEngineDefinition(...)` to `searchEngines/SearchEngineRegistry.kt`.
+   Its `init` checks fail at startup if an enum value has no entry or has two.
+   - `urlTemplate` must contain `%s` for the query.
+   - `defaultShortcutCode`: short, unique alias (e.g. `kgi`). It feeds the alias system
+     automatically.
+   - `contentDescriptionResId`: display name string.
+3. **Name string:** `search_engine_<name>` in `values/strings.xml` and all 16 localized
+   `values-*/strings.xml` files (brand names stay untranslated).
+4. **Icon**, pick one:
+   - Add a drawable in `res/drawable/` (lowercase snake_case, e.g. `kagi.xml`) and set
+     `drawableResId`.
+   - Or, for app-only engines, omit `drawableResId`, set `appPackages` and `installOnly = true`.
+     The installed app's icon is used.
 
-This guide is for adding a `SearchEngine` enum-backed engine (not user-created custom engines from settings).
+Existing users get the new engine automatically: `SearchEngineManager.mergeMissingEngines`
+appends missing engines before any browser targets.
 
-## Architecture Constraints
+## Optional registry fields
 
-- Keep search engine metadata centralized in `SearchEngineRegistry.kt`.
-- Do not add ad-hoc per-engine conditionals unless unavoidable.
-- Reuse existing flow through `SearchEngineManager`, `SearchEngineUtils`, and settings UI.
-- Keep changes minimal and localized; avoid unrelated refactors.
+| Field | Use when |
+|---|---|
+| `homeUrl` | Empty query should open a page other than the template with no query |
+| `appPackages` | Engine has an Android app. Add the package constant to `shared/util/PackageConstants.kt`. The app has `QUERY_ALL_PACKAGES`, so no manifest `<queries>` entry is needed. |
+| `installOnly` | Engine is only offered when its app is installed |
+| `defaultDisabledOnFirstRun` | Engine should start disabled for new users |
+| `defaultDisableIfAppMissing` | Engine should start disabled when its app isn't installed |
+| `iconColorPolicy` | Monochrome drawable needs `INVERT_ON_LIGHT` or `DARKEN_ON_LIGHT` |
+| `nativeLaunchMode` | Query should open inside the engine's app instead of a browser (see below) |
 
-## Required Changes
+## Native app launch (only if needed)
 
-1. Add enum value
-- File: `app/src/main/java/com/tk/quicksearch/search/core/SearchModels.kt`
-- Update `enum class SearchEngine` with the new engine constant.
+1. Add a value to `SearchEngineNativeLaunchMode` in `SearchEngineRegistry.kt` and set it on the
+   definition.
+2. In `search/core/intentHelpers/SearchEngineIntents.kt`, map the new mode to an `open<Engine>`
+   function and implement it. Follow `openMuse`/`openKagi`: launch the app for an empty query,
+   send the query via its intent, and fall back to `openWebUrl(buildSearchUrl(...))` when the app
+   is missing or the intent fails.
 
-2. Add registry definition
-- File: `app/src/main/java/com/tk/quicksearch/searchEngines/SearchEngineRegistry.kt`
-- Add a `SearchEngineDefinition(...)` entry with:
-  - `engine`
-  - `drawableResId`
-  - `contentDescriptionResId`
-  - `urlTemplate` (must contain `%s` for query insertion)
-  - `defaultShortcutCode`
-- Set optional fields only when needed:
-  - `homeUrl`
-  - `appPackages`
-  - `installOnly`
-  - `defaultDisabledOnFirstRun`
-  - `defaultDisableIfAppMissing`
-  - `iconColorPolicy`
-  - `nativeLaunchMode`
+Special URL handling (like Amazon's custom domain in `SearchEngineUtils.buildSearchUrl`) is a
+last resort. Dedicated settings UI goes in `settings/searchEngineSettings/`.
 
-Important:
-- `SearchEngineRegistry` has init checks for missing/duplicate mappings. Build will fail if enum and registry diverge.
+## Validate
 
-3. Add package constant (if app install detection or native launch is needed)
-- File: `app/src/main/java/com/tk/quicksearch/shared/util/PackageConstants.kt`
-- Add package name constant and reference it in `SearchEngineRegistry` `appPackages`.
+- `./gradlew :app:compileStandardDebugKotlin`
+- Ask the user to check on device: the engine appears in search engine settings; enable, disable,
+  and reorder persist; the alias works; query and empty-query launches open the right target;
+  compact and inline engine UIs render the icon in light and dark.
 
-4. Add icon resource
-- Add drawable in `app/src/main/res/drawable/`.
-- Use naming pattern consistent with existing search engines (lowercase snake_case).
+## Common mistakes
 
-5. Add user-facing string
-- File: `app/src/main/res/values/strings.xml`
-- Add `search_engine_<name>` (or project-consistent key) and wire it to `contentDescriptionResId`.
-
-## Optional Changes (Only If Needed)
-
-1. Native in-app launch behavior
-- Files:
-  - `app/src/main/java/com/tk/quicksearch/searchEngines/SearchEngineRegistry.kt`
-  - `app/src/main/java/com/tk/quicksearch/searchEngines/SearchEngineUtils.kt`
-  - `app/src/main/java/com/tk/quicksearch/searchEngines/SearchTargetUtils.kt`
-- Add `SearchEngineNativeLaunchMode` enum value and handling if the target supports native app launch.
-
-2. Special URL behavior
-- File: `app/src/main/java/com/tk/quicksearch/searchEngines/SearchEngineUtils.kt`
-- Avoid special-casing unless absolutely required (example: Amazon domain behavior already exists).
-
-3. Settings-specific controls
-- If engine needs dedicated settings UI, follow existing patterns in:
-  - `app/src/main/java/com/tk/quicksearch/settings/searchEngineSettings/`
-- Keep generic engines on existing reusable UI paths.
-
-## Validation Checklist (Minimum)
-
-1. Compile check
-- Run: `./gradlew :app:compileDebugKotlin`
-
-2. Functional checks
-- Engine appears in search engine settings list.
-- Enable/disable works and persists after app restart.
-- Reorder works and persists.
-- Search launches correct URL for:
-  - non-empty query
-  - empty query (home/base URL behavior)
-
-3. State and regression checks
-- No crashes from registry mapping checks.
-- Alias/default shortcut code works with existing alias flow.
-- Compact and inline search engine UIs still render correctly.
-
-## Common Pitfalls
-
-- Added enum value but forgot `SearchEngineRegistry` entry.
-- Added registry entry but missing drawable or string resource.
-- `urlTemplate` missing `%s`, causing invalid query substitution.
-- Overusing engine-specific conditionals instead of registry metadata.
-
-## Notes on Custom Engines
-
-Custom engines (user-added URL templates) are handled separately via:
-- `SearchEngineManager.kt`
-- `CustomSearchEngineUtils.kt`
-- settings dialogs under `settings/searchEngineSettings/dialogs/`
-
-Do not mix custom-engine logic into built-in engine onboarding unless explicitly required.
+- Enum added without a registry entry (crashes at startup), or a registry entry without its
+  string or drawable.
+- `urlTemplate` missing `%s`.
+- Duplicate `defaultShortcutCode`.
+- Name string added only to `values/strings.xml`.

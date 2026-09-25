@@ -1,67 +1,89 @@
-# Adding a New App Setting Result (AI Agent Guide)
+# Adding a Searchable App-Setting Row
 
-This guide is for AI coding agents working in this repository.
-Follow `AGENTS.md`: keep changes minimal, use existing architecture, and avoid unrelated refactors.
+App-setting rows are the Quick Search settings that appear as search results. Every new
+user-facing setting needs one. Paths are relative to `app/src/main/java/com/tk/quicksearch/`.
 
-## 1) Choose the setting type
+## Some rows are generated automatically
 
-1. Use `NAVIGATE` when the row should open a settings detail page or trigger an action (reload, feedback, etc.).
-2. Use `TOGGLE` when the row should change a boolean app behavior.
+- **Search section toggles** come from `SearchSectionRegistry` (`appSettingsToggleKey`) via
+  `addSearchSectionToggles()`. Adding the section there creates the row, and the toggle's
+  read/write routes through `setSectionEnabled`.
+- **Tool toggles** set `toggleKey` in `settings/ToolSettingsRegistry.kt`. You still need the
+  toggle wiring below.
 
-## 2) Add strings first
+For anything else, pick a type:
 
-1. Add title/description strings in `app/src/main/res/values/strings.xml`.
-2. Keep text concise and searchable.
-3. Add keyword synonyms only when they improve search intent matching.
+- `NAVIGATE`: opens a settings page or runs an action (reload, feedback, create note, …).
+- `TOGGLE`: flips a boolean.
 
-## 3) Define enum key (if needed)
+## 1) Strings
 
-1. For navigation: add a value to `AppSettingsDestination` in `AppSettingResult.kt` if no existing destination fits.
-2. For toggle: add a value to `AppSettingsToggleKey` in `AppSettingResult.kt` if no existing key fits.
+Title (and optional description) in `values/strings.xml` plus all 16 localized
+`values-*/strings.xml`. Reuse an existing string when the text matches exactly.
 
-## 4) Register the result in repository
+## 2) Enum key
 
-1. Add the row in `AppSettingsRepository.loadSettings()` using `addNavigation(...)` or `addToggle(...)`.
-2. Use a stable, unique `id` (do not rename existing ids unless migration is intended).
-3. Point `titleRes`/`descriptionRes` to new strings.
-4. Add `keywords` only when they improve discovery.
+In `search/appSettings/AppSettingResult.kt`, reuse or add:
 
-## 5) Wire navigation destinations (NAVIGATE only)
+- `AppSettingsDestination` for NAVIGATE
+- `AppSettingsToggleKey` for TOGGLE
 
-1. If destination opens a settings detail screen, map it in `app/navigation/AppSettingsDestinationMapper.kt` (`toSettingsDetailTypeOrNull`).
-2. If destination is an action (not a detail screen), handle it in `app/navigation/AppSettingsDestinationHandler.kt` (`handleAppSettingsDestination`).
-3. If a new settings detail type is needed, add it in `settings/settingsDetailScreen/` and wire navigation as done for existing types.
+`AppSettingResult` requires exactly one of `destination`/`toggleKey` matching the action, and
+throws otherwise.
 
-## 6) Wire toggle behavior and state (TOGGLE only)
+## 3) Register the row
 
-1. Update `settings/shared/SettingsCommands.kt`:
-   - `applySettingsCommand(...)` for write behavior.
-   - `SearchUiState.isAppSettingToggleEnabled(...)` for read/checked state.
-2. If behavior already has dedicated handling in `SearchRoute.kt` (for example permission-gated toggles), follow that pattern instead of bypassing it.
-3. Back the toggle with existing ViewModel + preference flow (ViewModel setter -> `UserAppPreferences` -> `SearchUiState`).
+In `AppSettingsRepository.loadSettings()`, call `addNavigation(...)` or `addToggle(...)`:
 
-## 7) Handle special UI behavior (only if required)
+- `id`: stable and unique. Never rename an existing one; it keys recent-tap ranking.
+- `titleRes`, optional `descriptionRes`.
+- `keywords`: synonyms users might type (e.g. "theme", "colour"). They're matched in search and
+  can appear as the row's dynamic description.
 
-1. Add row-specific UI logic in `AppSettingsResultsSection.kt` only when needed (example: slider/chips for special keys).
-2. Keep generic rows untouched when possible.
+## 4a) NAVIGATE wiring
 
-## 8) Keep visibility rules safe
+- **Opens a settings page:** map it in `app/navigation/AppSettingsDestinationMapper.kt`
+  (`toSettingsDetailTypeOrNull`). The `when` is exhaustive, so the compiler flags a missing case.
+  - A new page needs a value in `settings/navigation/SettingsDetailType.kt` and rendering in
+    `SettingsDetailScreen.kt` (or `SettingsDetailLevel2Screen.kt` for nested pages).
+- **Runs an action:** map it to `null` in the mapper, then handle it in
+  `app/navigation/AppSettingsDestinationHandler.kt`. That `when` ends in `else -> Unit`, so a
+  missing case fails silently. Actions that need route UI (a dialog, for example) are
+  intercepted in `SearchRouteSettingActions.kt` instead (see `OPEN_EVENTS_IN`).
 
-1. If the setting should be conditionally hidden, add that logic in `AppSettingsSearchHandler.getVisibleSettings()`.
-2. Avoid permission/business checks directly in composables when state can represent it.
+## 4b) TOGGLE wiring
 
-## 9) Validate
+Back it with the usual flow: preference → `UserAppPreferences` → ViewModel setter →
+`SearchUiState`. Then, in `settings/shared/SettingsCommands.kt`:
 
-- Build compiles.
-- New app setting appears in app settings search.
-- Search keywords find the new row.
-- Toggle stays persisted and restores after app restart (if toggle type).
-- Navigation/action opens the correct target (if navigate type).
-- Overlay mode and permission-off behavior still work if impacted.
+- Write: add the key to the `SettingsCommand.Toggle` branch of `applySettingsCommand`.
+- Read: add the key to `SearchUiState.isAppSettingToggleEnabled`.
 
-## Common pitfalls
+Both `when`s are exhaustive, so the compiler flags missing keys.
 
-- Added repository row but forgot destination/toggle enum.
-- Added destination enum but forgot mapper/handler wiring.
-- Added toggle enum but forgot `SettingsCommands.kt` read/write mapping.
-- Hardcoded text instead of `strings.xml`.
+If turning the toggle on needs a permission, confirmation, or side effect, intercept it in
+`search/searchScreen/searchScreen/SearchRouteSettingActions.kt` (see `OVERLAY_MODE`,
+`DIRECT_DIAL`, `NOTIFICATION_DOTS`) instead of doing it in the ViewModel setter.
+
+## 5) Optional
+
+- **Hide conditionally:** add the rule in `AppSettingsSearchHandler.getVisibleSettings()`. Don't
+  put this logic in composables.
+- **Custom row UI** (slider, chips, etc.): special-case the key in `AppSettingsResultsSection.kt`
+  only when a plain toggle or navigate row won't do.
+
+## Validate
+
+- `./gradlew :app:compileStandardDebugKotlin`
+- Ask the user to check on device:
+  - The row appears when searching its title and keywords.
+  - A toggle reflects its current state and persists across restart.
+  - A navigate row opens the right page or runs the action.
+  - Rows hidden by conditions disappear.
+
+## Common mistakes
+
+- Enum added but row not registered, or row registered without mapper/handler/`SettingsCommands`
+  wiring.
+- Action destination added to the handler but not mapped to `null` in the mapper.
+- Strings missing from the localized files.
