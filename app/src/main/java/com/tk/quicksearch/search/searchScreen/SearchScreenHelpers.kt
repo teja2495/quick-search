@@ -124,9 +124,9 @@ internal fun AppsSectionParams.firstSubmittableGridApp(): AppInfo? {
     if (isSearching) return apps.firstOrNull()
 
     return when (activeHomeSuggestionTab()) {
-        // New and updated apps are informational suggestions, not a keyboard submit target.
-        AppSuggestionTabType.NEW_UPDATED -> null
-        AppSuggestionTabType.PINNED -> pinnedApps.firstOrNull()
+        // New/updated apps are informational, and pinned apps are opened deliberately; neither is
+        // a keyboard submit target, so Done can't open them by accident.
+        AppSuggestionTabType.NEW_UPDATED, AppSuggestionTabType.PINNED -> null
         AppSuggestionTabType.RECENTS -> pinnedAndRecentApps.firstOrNull() ?: apps.firstOrNull()
         AppSuggestionTabType.MOST_USED ->
             mostUsedApps.firstOrNull() ?: pinnedAndRecentApps.firstOrNull() ?: apps.firstOrNull()
@@ -135,7 +135,10 @@ internal fun AppsSectionParams.firstSubmittableGridApp(): AppInfo? {
 }
 
 internal fun AppsSectionParams.isNonSubmittableSuggestionsTab(): Boolean =
-    !isSearching && activeHomeSuggestionTab() == AppSuggestionTabType.NEW_UPDATED
+    !isSearching &&
+        activeHomeSuggestionTab().let {
+            it == AppSuggestionTabType.NEW_UPDATED || it == AppSuggestionTabType.PINNED
+        }
 
 private fun AppsSectionParams.activeHomeSuggestionTab(): AppSuggestionTabType? {
     if (isSearching) return null
