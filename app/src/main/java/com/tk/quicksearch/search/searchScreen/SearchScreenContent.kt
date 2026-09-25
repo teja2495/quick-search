@@ -188,7 +188,6 @@ internal fun SearchScreenContent(
         canShowOpenKeyboardPill = true
     }
 
-    // Calculate enabled engines
     val enabledTargets: List<SearchTarget> =
             remember(state.searchTargetsOrder, state.disabledSearchTargetIds) {
                 state.searchTargetsOrder.filter { it.getId() !in state.disabledSearchTargetIds }
@@ -640,16 +639,13 @@ internal fun SearchScreenContent(
     ) {
     Column(modifier = contentModifier, verticalArrangement = Arrangement.Top) {
         if (showSearchField && !showBottomSearchBar) {
-            // Fixed search bar at the top
             searchFieldContent()
         }
 
-        // Add spacing between search bar and scrollable content when bottom aligned setting is off
         if (showSearchField && !showBottomSearchBar && !state.oneHandedMode) {
             Spacer(modifier = Modifier.padding(top = DesignTokens.SpacingXSmall))
         }
 
-        // Scrollable content between search bar and search engines
         SearchContentArea(
                 modifier =
                         run {
@@ -728,11 +724,7 @@ internal fun SearchScreenContent(
                 selectedTopMatchIndex = selectedTopMatchIndex,
         )
 
-        // Fixed search engines section at the bottom (above keyboard, not scrollable)
-        // Hide when files or contacts are expanded, when search engine section is disabled,
-        // or when a shortcut is detected
-        // Fixed search engines section at the bottom (above keyboard, not scrollable)
-        // Hide when files or contacts are expanded
+        // Pinned above the keyboard, outside the scrollable content.
         SearchScreenBottomChrome(
             state = state,
             expandedSection = expandedSection,

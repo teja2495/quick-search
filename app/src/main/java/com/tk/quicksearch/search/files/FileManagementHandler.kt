@@ -51,7 +51,6 @@ class FileManagementHandler(
         return updatedExtensions
     }
 
-    // Convenience methods that delegate to the interface
     fun pinFile(deviceFile: DeviceFile) = pinItem(deviceFile)
 
     fun unpinFile(deviceFile: DeviceFile) = unpinItem(deviceFile)

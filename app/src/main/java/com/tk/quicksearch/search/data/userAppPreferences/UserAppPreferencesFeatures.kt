@@ -142,7 +142,7 @@ open class UserAppPreferencesFeatures(context: Context) : UserAppPreferencesCore
     fun setAmazonDomain(domain: String?) = amazonPreferences.setAmazonDomain(domain)
 
     // ============================================================================
-    // Gemini API Preferences
+    // AI Provider Preferences
     // ============================================================================
 
     fun getAiSearchProviderId(): AiSearchLlmProviderId =
@@ -372,33 +372,6 @@ open class UserAppPreferencesFeatures(context: Context) : UserAppPreferencesCore
         payload: String?,
         enabled: Boolean,
     ) = customLlmProviderPreferences.setProviderAdvancedPayload(providerId, payload, enabled)
-
-    // Backward-compatible Gemini facade methods kept for existing call sites.
-    fun getGeminiApiKey(): String? = geminiPreferences.getGeminiApiKey()
-
-    fun setGeminiApiKey(key: String?) {
-        geminiPreferences.setGeminiApiKey(key)
-        refreshConfiguredAiProviderHint()
-    }
-
-
-    fun getPersonalContext(): String? = geminiPreferences.getPersonalContext()
-
-    fun setPersonalContext(context: String?) = geminiPreferences.setPersonalContext(context)
-
-    fun getGeminiModel(): String = geminiPreferences.getGeminiModel()
-
-    fun setGeminiModel(modelId: String?) = geminiPreferences.setGeminiModel(modelId)
-
-    fun isGeminiGroundingEnabled(): Boolean = geminiPreferences.isGeminiGroundingEnabled()
-
-    fun setGeminiGroundingEnabled(enabled: Boolean) =
-            geminiPreferences.setGeminiGroundingEnabled(enabled)
-
-    fun isGeminiThinkingEnabled(): Boolean = geminiPreferences.isThinkingEnabled()
-
-    fun setGeminiThinkingEnabled(enabled: Boolean) =
-            geminiPreferences.setThinkingEnabled(enabled)
 
     // ============================================================================
     // UI Preferences

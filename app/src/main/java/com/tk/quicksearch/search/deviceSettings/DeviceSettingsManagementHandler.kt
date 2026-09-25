@@ -22,7 +22,6 @@ class DeviceSettingsManagementHandler(
         onStateChanged,
         onUiStateUpdate,
     ) {
-    // Convenience methods that delegate to the interface
     fun pinSetting(setting: DeviceSetting) = pinItem(setting)
 
     fun unpinSetting(setting: DeviceSetting) = unpinItem(setting)

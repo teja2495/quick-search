@@ -32,7 +32,6 @@ object TelegramContactUtils {
         context: Context,
         phoneNumber: String,
     ): Long? {
-        // Check permission
         if (ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.READ_CONTACTS,
@@ -83,7 +82,6 @@ object TelegramContactUtils {
         context: Context,
         phoneNumber: String,
     ): Set<Long> {
-        // Check permission
         if (ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.READ_CONTACTS,
@@ -92,13 +90,11 @@ object TelegramContactUtils {
             return emptySet()
         }
 
-        // First, get the contact ID from the phone number
         val contactId = getContactIdByPhoneNumber(context, phoneNumber) ?: return emptySet()
 
         val dataIds = mutableSetOf<Long>()
         val contentResolver = context.contentResolver
 
-        // Query ContactsContract.Data for Telegram entries with this contact ID
         // Check all three Telegram MIME types: message, call, and video call
         val selection =
             "${ContactsContract.Data.CONTACT_ID} = ? AND (" +
@@ -147,13 +143,10 @@ object TelegramContactUtils {
         phoneNumber: String,
         telegramMethod: com.tk.quicksearch.search.models.ContactMethod,
     ): Boolean {
-        // If the method doesn't have a dataId, we can't match it
         val methodDataId = telegramMethod.dataId ?: return false
 
-        // Find all Telegram data IDs for this phone number
         val matchingDataIds = findTelegramDataIdsForPhoneNumber(context, phoneNumber)
 
-        // Check if the method's dataId is in the matching set
         return matchingDataIds.contains(methodDataId)
     }
 }

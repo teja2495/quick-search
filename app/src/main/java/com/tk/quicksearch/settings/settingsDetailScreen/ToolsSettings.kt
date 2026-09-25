@@ -38,7 +38,7 @@ fun ToolsSettingsSection(
         onToolToggle: (ToolSettingId, Boolean) -> Unit,
         onToolInfoClick: (ToolSettingId) -> Unit,
         onToolConfigureClick: (ToolSettingId) -> Unit = {},
-        onNavigateToGeminiApiSetup: () -> Unit = {},
+        onNavigateToLlmApiSetup: () -> Unit = {},
         showTaskerIntegration: Boolean = false,
         onNavigateToTaskerIntegration: () -> Unit = {},
         customTools: List<CustomTool> = emptyList(),
@@ -76,7 +76,7 @@ fun ToolsSettingsSection(
                                                         R.string.settings_tools_gemini_api_desc
                                                 ),
                                         iconResId = R.drawable.direct_search,
-                                        actionOnPress = onNavigateToGeminiApiSetup,
+                                        actionOnPress = onNavigateToLlmApiSetup,
                                 ),
                         contentPadding =
                                 PaddingValues(
@@ -112,12 +112,12 @@ fun ToolsSettingsSection(
                                                         aliasCode = "",
                                                 )
                                 val isAvailable =
-                                        !definition.requiresGeminiApiKey || hasApiKey
+                                        !definition.requiresLlmApiKey || hasApiKey
                                 val subtitleResId =
                                         if (isAvailable) {
                                             definition.defaultDescriptionResId
                                         } else {
-                                            definition.requiresGeminiDescriptionResId
+                                            definition.requiresLlmApiKeyDescriptionResId
                                                     ?: definition.defaultDescriptionResId
                                         }
 

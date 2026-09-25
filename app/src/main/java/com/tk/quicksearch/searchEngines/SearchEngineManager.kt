@@ -45,8 +45,8 @@ class SearchEngineManager(
     private var isInitialized = false
 
     private fun loadFromPreferences() {
-        val hasGemini = userPreferences.hasAnyLlmApiKey()
-        val availableEngines = getAvailableEngines(hasGemini)
+        val hasLlmApiKey = userPreferences.hasAnyLlmApiKey()
+        val availableEngines = getAvailableEngines(hasLlmApiKey)
         val availableBrowsers = loadInstalledBrowsers()
         customSearchEngines = userPreferences.getCustomSearchEngines()
         val savedOrder = userPreferences.getSearchEngineOrder()
@@ -56,7 +56,7 @@ class SearchEngineManager(
                 availableEngines = availableEngines,
                 availableBrowsers = availableBrowsers,
                 customEngines = customSearchEngines,
-                hasGemini = hasGemini,
+                hasLlmApiKey = hasLlmApiKey,
             )
         disabledSearchTargetIds =
             loadDisabledSearchTargetIds(
@@ -64,7 +64,7 @@ class SearchEngineManager(
                 availableEngines,
                 availableBrowsers,
                 customSearchEngines,
-                hasGemini,
+                hasLlmApiKey,
             )
         isSearchEngineCompactMode = userPreferences.isSearchEngineCompactMode()
         searchEngineCompactRowCount = userPreferences.getSearchEngineCompactRowCount()
@@ -284,10 +284,10 @@ class SearchEngineManager(
         }
     }
 
-    fun updateSearchTargetsForGemini(hasGemini: Boolean) {
-        val updatedOrder = applyAiSearchAvailability(searchTargetsOrder, hasGemini)
+    fun updateSearchTargetsForLlmAvailability(hasLlmApiKey: Boolean) {
+        val updatedOrder = applyAiSearchAvailability(searchTargetsOrder, hasLlmApiKey)
         searchTargetsOrder = updatedOrder
-        if (!hasGemini) {
+        if (!hasLlmApiKey) {
             disabledSearchTargetIds =
                 disabledSearchTargetIds
                     .filterNot { it == SearchEngine.DIRECT_SEARCH.name }
@@ -305,8 +305,8 @@ class SearchEngineManager(
 
     fun refreshBrowserTargets() {
         scope.launch(Dispatchers.IO) {
-            val hasGemini = userPreferences.hasAnyLlmApiKey()
-            val availableEngines = getAvailableEngines(hasGemini)
+            val hasLlmApiKey = userPreferences.hasAnyLlmApiKey()
+            val availableEngines = getAvailableEngines(hasLlmApiKey)
             val availableEngineNames = availableEngines.map { it.name }.toSet()
             val availableBrowsers = loadInstalledBrowsers()
             val existingBrowserIds =
@@ -321,7 +321,7 @@ class SearchEngineManager(
             val withAvailableEngines =
                 applyAiSearchAvailability(
                     mergeMissingEngines(orderWithoutUnavailableEngines, availableEngines),
-                    hasGemini,
+                    hasLlmApiKey,
                 )
             val updatedOrder = mergeBrowsers(withAvailableEngines, availableBrowsers)
             val browserIds =
@@ -355,11 +355,11 @@ class SearchEngineManager(
         }
     }
 
-    private fun getAvailableEngines(hasGemini: Boolean): List<SearchEngine> {
+    private fun getAvailableEngines(hasLlmApiKey: Boolean): List<SearchEngine> {
         val packageManager = context.packageManager
         return SearchEngine.values().filter { engine ->
             when (engine) {
-                SearchEngine.DIRECT_SEARCH -> hasGemini
+                SearchEngine.DIRECT_SEARCH -> hasLlmApiKey
                 else ->
                     if (engine.isInstallOnlyEngine()) {
                         engine
@@ -377,7 +377,7 @@ class SearchEngineManager(
         availableEngines: List<SearchEngine>,
         availableBrowsers: List<BrowserApp>,
         customEngines: List<CustomSearchEngine>,
-        hasGemini: Boolean,
+        hasLlmApiKey: Boolean,
     ): List<SearchTarget> {
         val browserMap = availableBrowsers.associateBy { it.packageName }
         val customMap = customEngines.associateBy { it.id }
@@ -401,7 +401,7 @@ class SearchEngineManager(
                     customMap = customMap,
                 )
             }
-        val aiAdjusted = applyAiSearchAvailability(savedTargets, hasGemini)
+        val aiAdjusted = applyAiSearchAvailability(savedTargets, hasLlmApiKey)
         val withNewEngines = mergeMissingEngines(aiAdjusted, availableEngines)
         val withCustomTargets = mergeMissingCustomTargets(withNewEngines, customEngines)
         val finalOrder = mergeBrowsers(withCustomTargets, availableBrowsers)
@@ -420,7 +420,7 @@ class SearchEngineManager(
         availableEngines: List<SearchEngine>,
         availableBrowsers: List<BrowserApp>,
         customEngines: List<CustomSearchEngine>,
-        hasGemini: Boolean,
+        hasLlmApiKey: Boolean,
     ): Set<String> {
         val hasPreference = userPreferences.hasDisabledSearchEnginesPreference()
         val disabledNames = userPreferences.getDisabledSearchEngines()
@@ -462,7 +462,7 @@ class SearchEngineManager(
                 }
 
             val filteredDefault =
-                if (hasGemini) {
+                if (hasLlmApiKey) {
                     defaultDisabled
                 } else {
                     defaultDisabled.filterNot { it == SearchEngine.DIRECT_SEARCH }.toSet()
@@ -718,7 +718,7 @@ class SearchEngineManager(
 
     private fun applyAiSearchAvailability(
         order: List<SearchTarget>,
-        hasGemini: Boolean,
+        hasLlmApiKey: Boolean,
     ): List<SearchTarget> {
         val hasAiSearch =
             order.any { it is SearchTarget.Engine && it.engine == SearchEngine.DIRECT_SEARCH }
@@ -727,8 +727,8 @@ class SearchEngineManager(
                 it is SearchTarget.Engine && it.engine == SearchEngine.DIRECT_SEARCH
             }
         return when {
-            hasGemini && hasAiSearch -> order
-            hasGemini -> listOf(SearchTarget.Engine(SearchEngine.DIRECT_SEARCH)) + withoutAiSearch
+            hasLlmApiKey && hasAiSearch -> order
+            hasLlmApiKey -> listOf(SearchTarget.Engine(SearchEngine.DIRECT_SEARCH)) + withoutAiSearch
             else -> withoutAiSearch
         }
     }

@@ -77,9 +77,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-
-// Touches this close to the widget being edited still count as touching it, so the resize pills
-// that straddle its border stay usable.
 private data class HomeEntryBounds(
     val top: Int,
     val height: Int,

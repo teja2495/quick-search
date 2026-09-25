@@ -53,8 +53,8 @@ class AiSearchHandler(
     private var selectedModelId: String = ""
     private var groundingEnabled: Boolean = GeminiModelCatalog.DEFAULT_GROUNDING_ENABLED
     private var thinkingEnabled: Boolean = false
-    private var availableGeminiModels: List<GeminiTextModel> = emptyList()
-    private var hasLoadedGeminiModelsFromApi: Boolean = false
+    private var availableModels: List<LlmTextModel> = emptyList()
+    private var hasLoadedModelsFromApi: Boolean = false
 
     @Volatile private var hasAnyLlmApiKey: Boolean = false
     @Volatile private var hasLoadedApiKeyCache: Boolean = false
@@ -71,8 +71,8 @@ class AiSearchHandler(
             selectedModelId = userPreferences.getLlmModel(activeProviderId)
             groundingEnabled = userPreferences.isLlmGroundingEnabled(activeProviderId)
             thinkingEnabled = userPreferences.isLlmThinkingEnabled(activeProviderId)
-            availableGeminiModels = emptyList()
-            hasLoadedGeminiModelsFromApi = false
+            availableModels = emptyList()
+            hasLoadedModelsFromApi = false
             hasAnyLlmApiKey = userPreferences.hasAnyLlmApiKey()
             hasLoadedApiKeyCache = true
             isInitialized = true
@@ -97,8 +97,8 @@ class AiSearchHandler(
         selectedModelId = userPreferences.getLlmModel(providerId)
         groundingEnabled = userPreferences.isLlmGroundingEnabled(providerId)
         thinkingEnabled = userPreferences.isLlmThinkingEnabled(providerId)
-        availableGeminiModels = emptyList()
-        hasLoadedGeminiModelsFromApi = false
+        availableModels = emptyList()
+        hasLoadedModelsFromApi = false
         clearAiSearchState()
     }
 
@@ -113,12 +113,12 @@ class AiSearchHandler(
         if (normalized == llmApiKey) return
 
         llmApiKey = normalized
-        hasLoadedGeminiModelsFromApi = false
+        hasLoadedModelsFromApi = false
         userPreferences.setLlmApiKey(activeProviderId, normalized)
 
         hasAnyLlmApiKey = userPreferences.hasAnyLlmApiKey()
         if (llmApiKey == null) {
-            availableGeminiModels = emptyList()
+            availableModels = emptyList()
             clearAiSearchState()
         }
     }
@@ -135,7 +135,7 @@ class AiSearchHandler(
             normalized != null && (providerId == activeProviderId || llmApiKey.isNullOrBlank()) -> {
                 setAiSearchProviderId(providerId)
                 llmApiKey = normalized
-                hasLoadedGeminiModelsFromApi = false
+                hasLoadedModelsFromApi = false
             }
             providerId == activeProviderId && normalized == null -> {
                 val nextProvider =
@@ -146,8 +146,8 @@ class AiSearchHandler(
                     setAiSearchProviderId(nextProvider)
                 } else {
                     llmApiKey = null
-                    availableGeminiModels = emptyList()
-                    hasLoadedGeminiModelsFromApi = false
+                    availableModels = emptyList()
+                    hasLoadedModelsFromApi = false
                     clearAiSearchState()
                 }
             }
@@ -167,7 +167,7 @@ class AiSearchHandler(
 
         selectedModelId = normalized
         userPreferences.setLlmModel(activeProviderId, normalized)
-        availableGeminiModels = ensureModelExists(availableGeminiModels)
+        availableModels = ensureModelExists(availableModels)
     }
 
     fun setSelectedModelId(
@@ -209,9 +209,6 @@ class AiSearchHandler(
         userPreferences.setLlmThinkingEnabled(activeProviderId, enabled)
     }
 
-    // Backward-compatible Gemini facade methods for existing call sites.
-    fun getGeminiApiKey(): String? = getLlmApiKey()
-
     /**
      * Returns the cached active-provider API key state without triggering [ensureInitialized].
      * Safe to call from the main thread. Treats an unknown cache as available so startup alias
@@ -231,15 +228,9 @@ class AiSearchHandler(
         return personalContext
     }
 
-    fun getGeminiModel(): String = getSelectedModelId()
-
-    fun isGeminiGroundingEnabled(): Boolean = isGroundingEnabled()
-
-    fun isGeminiThinkingEnabled(): Boolean = isThinkingEnabled()
-
-    fun getAvailableGeminiModels(): List<GeminiTextModel> {
+    fun getAvailableModels(): List<LlmTextModel> {
         ensureInitialized()
-        return availableGeminiModels
+        return availableModels
     }
 
     fun reloadFromPreferences() {
@@ -247,10 +238,6 @@ class AiSearchHandler(
         hasLoadedApiKeyCache = false
         ensureInitialized()
         clearAiSearchState()
-    }
-
-    fun setGeminiApiKey(apiKey: String?) {
-        setLlmApiKey(apiKey)
     }
 
     fun setPersonalContext(context: String?) {
@@ -265,24 +252,12 @@ class AiSearchHandler(
         )
     }
 
-    fun setGeminiModel(modelId: String?) {
-        setSelectedModelId(modelId)
-    }
-
-    fun setGeminiGroundingEnabled(enabled: Boolean) {
-        setGroundingEnabled(enabled)
-    }
-
-    fun setGeminiThinkingEnabled(enabled: Boolean) {
-        setThinkingEnabled(enabled)
-    }
-
-    suspend fun refreshAvailableGeminiModels(forceRefresh: Boolean = false): List<GeminiTextModel> {
+    suspend fun refreshAvailableModels(forceRefresh: Boolean = false): List<LlmTextModel> {
         ensureInitialized()
 
-        val apiKey = llmApiKey ?: return availableGeminiModels
-        if (!forceRefresh && hasLoadedGeminiModelsFromApi) {
-            return availableGeminiModels
+        val apiKey = llmApiKey ?: return availableModels
+        if (!forceRefresh && hasLoadedModelsFromApi) {
+            return availableModels
         }
 
         val result = activeProvider.fetchAvailableTextModels(apiKey, context)
@@ -291,16 +266,16 @@ class AiSearchHandler(
             val resolvedModelId = resolveModelSelection(selectedModelId, fetched)
             if (resolvedModelId != selectedModelId) setSelectedModelId(resolvedModelId)
         }
-        availableGeminiModels = ensureModelExists(fetched)
-        hasLoadedGeminiModelsFromApi = true
-        return availableGeminiModels
+        availableModels = ensureModelExists(fetched)
+        hasLoadedModelsFromApi = true
+        return availableModels
     }
 
     /** Reuses a catalog already fetched by settings instead of issuing a second network request. */
-    fun updateAvailableModels(models: List<GeminiTextModel>) {
+    fun updateAvailableModels(models: List<LlmTextModel>) {
         ensureInitialized()
-        availableGeminiModels = ensureModelExists(models)
-        hasLoadedGeminiModelsFromApi = true
+        availableModels = ensureModelExists(models)
+        hasLoadedModelsFromApi = true
     }
 
     fun requestAiSearch(query: String) {
@@ -377,7 +352,7 @@ class AiSearchHandler(
                     )
                 }
 
-                val selectedModel = availableGeminiModels.find { it.id == selectedModelId }
+                val selectedModel = availableModels.find { it.id == selectedModelId }
                 val webSearch =
                     prepareWebSearch(
                         userPreferences = userPreferences,
@@ -533,7 +508,7 @@ class AiSearchHandler(
                 }
 
                 val providerModels =
-                    if (providerId == activeProviderId) availableGeminiModels else provider.fallbackTextModels
+                    if (providerId == activeProviderId) availableModels else provider.fallbackTextModels
                 val useSystemInstruction =
                     providerModels.firstOrNull { it.id == modelId }?.supportsSystemInstructions
                         ?: !modelId.lowercase().startsWith("gemma-")
@@ -631,15 +606,15 @@ class AiSearchHandler(
         _aiSearchState.update { AiSearchState() }
     }
 
-    private fun ensureModelExists(models: List<GeminiTextModel>): List<GeminiTextModel> =
+    private fun ensureModelExists(models: List<LlmTextModel>): List<LlmTextModel> =
         models.distinctBy { it.id }
 
     /**
-     * When the catalog entry is missing (e.g. stale cache), match [AiSearchClient] Gemma
+     * When the catalog entry is missing (e.g. stale cache), match [GeminiClient] Gemma
      * heuristics so we do not send `systemInstruction` JSON for models that reject it.
      */
     private fun modelSupportsSystemInstructions(modelId: String): Boolean {
-        val model = availableGeminiModels.find { it.id == modelId }
+        val model = availableModels.find { it.id == modelId }
         return model?.supportsSystemInstructions ?: !modelId.lowercase().startsWith("gemma-")
     }
 }

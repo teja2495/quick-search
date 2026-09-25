@@ -43,9 +43,6 @@ import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.other.OtherSearchItemId
-// import com.tk.quicksearch.search.searchScreen.SearchEngineOnboardingOverlay
-
-// Import the extracted components
 import com.tk.quicksearch.search.searchScreen.searchRoute.SearchRoute
 import com.tk.quicksearch.search.searchScreen.searchRoute.SearchScreenStateManagement
 import com.tk.quicksearch.search.searchScreen.searchRoute.SearchScreenDialogLogic
@@ -138,9 +135,9 @@ fun SearchScreen(
     onAiSearchEmailClick: (String) -> Unit,
     onRecentQueryClick: (RecentSearchEntry.Query) -> Unit,
     onSetPersonalContext: (String?) -> Unit = {},
-    onSetGeminiModel: (String?) -> Unit = {},
-    onSetGeminiGroundingEnabled: (Boolean) -> Unit = {},
-    onRefreshAvailableGeminiModels: () -> Unit = {},
+    onSetActiveLlmModel: (String?) -> Unit = {},
+    onSetActiveLlmGroundingEnabled: (Boolean) -> Unit = {},
+    onRefreshAvailableLlmModels: () -> Unit = {},
     onWelcomeAnimationCompleted: (() -> Unit)? = null,
     onWallpaperLoaded: (() -> Unit)? = null,
     onWallpaperUnavailable: (() -> Unit)? = null,
@@ -323,9 +320,9 @@ fun SearchScreen(
         onSearchEngineLongPress = onSearchEngineLongPress,
         onAiSearchEmailClick = onAiSearchEmailClick,
         onSetPersonalContext = onSetPersonalContext,
-        onSetGeminiModel = onSetGeminiModel,
-        onSetGeminiGroundingEnabled = onSetGeminiGroundingEnabled,
-        onRefreshAvailableGeminiModels = onRefreshAvailableGeminiModels,
+        onSetActiveLlmModel = onSetActiveLlmModel,
+        onSetActiveLlmGroundingEnabled = onSetActiveLlmGroundingEnabled,
+        onRefreshAvailableLlmModels = onRefreshAvailableLlmModels,
         onOpenAppSettings = onOpenAppSettings,
         onOpenCalendarPermissionSettings = onOpenCalendarPermissionSettings,
         onOpenStorageAccessSettings = onOpenStorageAccessSettings,
@@ -702,13 +699,13 @@ fun SearchScreen(
         getLastShownPhoneNumber = getLastShownPhoneNumber,
         setLastShownPhoneNumber = setLastShownPhoneNumber,
         onSetPersonalContext = onSetPersonalContext,
-        onSetGeminiModel = onSetGeminiModel,
-        onSetGeminiGroundingEnabled = onSetGeminiGroundingEnabled,
-        onRefreshAvailableGeminiModels = onRefreshAvailableGeminiModels,
+        onSetActiveLlmModel = onSetActiveLlmModel,
+        onSetActiveLlmGroundingEnabled = onSetActiveLlmGroundingEnabled,
+        onRefreshAvailableLlmModels = onRefreshAvailableLlmModels,
         showPersonalContextDialog = stateResult.showPersonalContextDialog,
         setShowPersonalContextDialog = stateResult.setShowPersonalContextDialog,
-        showGeminiModelDialog = stateResult.showGeminiModelDialog,
-        setShowGeminiModelDialog = stateResult.setShowGeminiModelDialog,
+        showLlmModelDialog = stateResult.showLlmModelDialog,
+        setShowLlmModelDialog = stateResult.setShowLlmModelDialog,
         personalContextInput = stateResult.personalContextInput,
         setPersonalContextInput = stateResult.setPersonalContextInput,
         getPrimaryContactCardAction = getPrimaryContactCardAction,

@@ -92,8 +92,7 @@ fun WidgetMicIconSection(
                     fullText = limitationText,
                     linkText = linkText,
                     onClick = {
-                        // Open voice input settings (contains digital
-                        // assistant settings)
+                        // Voice input settings hold the digital assistant choice.
                         try {
                             val intent =
                                 Intent(
@@ -102,9 +101,6 @@ fun WidgetMicIconSection(
                                 )
                             context.startActivity(intent)
                         } catch (e: Exception) {
-                            // Fallback to general settings if voice
-                            // input settings not
-                            // available
                             try {
                                 val intent =
                                     Intent(
@@ -114,8 +110,6 @@ fun WidgetMicIconSection(
                                     )
                                 context.startActivity(intent)
                             } catch (e: Exception) {
-                                // Ignore if settings can't be
-                                // opened
                             }
                         }
                     },
@@ -143,10 +137,8 @@ private fun createClickableText(
         if (linkStartIndex >= 0) {
             val linkEndIndex = linkStartIndex + linkText.length
 
-            // Add text before the link
             append(fullText.substring(0, linkStartIndex))
 
-            // Add the clickable link
             pushLink(
                 LinkAnnotation.Clickable(
                     tag = "LINK",
@@ -169,10 +161,8 @@ private fun createClickableText(
             append(linkText)
             pop()
 
-            // Add text after the link
             append(fullText.substring(linkEndIndex))
         } else {
-            // Fallback: just add the whole text normally
             append(fullText)
         }
     }

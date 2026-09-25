@@ -19,7 +19,7 @@ import java.net.URL
  * Lightweight client for fetching direct answers from the Gemini API.
  * Uses the public Gemini endpoint so it can be proxied via Firebase AI Logic.
  */
-class AiSearchClient(
+class GeminiClient(
     private val apiKey: String,
     private val context: android.content.Context,
 ) {
@@ -46,10 +46,10 @@ class AiSearchClient(
         private val CHANNEL_THINKING_BLOCK =
             Regex("""<\|channel>thought[\s\S]*?<channel\|>""")
 
-        suspend fun fetchAvailableTextModels(apiKey: String, context: android.content.Context): Result<List<GeminiTextModel>> =
+        suspend fun fetchAvailableTextModels(apiKey: String, context: android.content.Context): Result<List<LlmTextModel>> =
             withContext(Dispatchers.IO) {
                 runCatching {
-                    val models = mutableListOf<GeminiTextModel>()
+                    val models = mutableListOf<LlmTextModel>()
                     var pageToken: String? = null
 
                     do {
@@ -97,7 +97,7 @@ class AiSearchClient(
                                     item.optString("displayName").takeIf { it.isNotBlank() } ?: modelId
                                 val isGemma = modelId.lowercase().startsWith("gemma-")
                                 models.add(
-                                    GeminiTextModel(
+                                    LlmTextModel(
                                         id = modelId,
                                         displayName = displayName,
                                         supportsSystemInstructions = !isGemma,

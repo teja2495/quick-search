@@ -193,7 +193,6 @@ fun SearchRoute(
     val reminderActions = undoActions.reminderActions
     val onDeleteNoteWithUndo = undoActions.onDeleteNoteWithUndo
 
-    // Set up toast callback for ViewModel
     val showToast: (Int) -> Unit = @Suppress("LocalContextGetResourceValueCall") { stringResId ->
         android.widget.Toast
             .makeText(
@@ -203,10 +202,7 @@ fun SearchRoute(
             ).show()
     }
 
-    // UI feedback is now handled by UiFeedbackService in the ViewModel
-
-    // Wrapper function that calls directly - performCall will handle permission check and fallback
-    // to dialer
+    // callContact handles the permission check and falls back to the dialer.
     val callContactWithPermission: (ContactInfo) -> Unit = { contact ->
         viewModel.callContact(contact)
     }
@@ -582,9 +578,9 @@ fun SearchRoute(
                 viewModel.openEmail(email)
             },
             onSetPersonalContext = viewModel::setPersonalContext,
-            onSetGeminiModel = viewModel::setGeminiModel,
-            onSetGeminiGroundingEnabled = viewModel::setGeminiGroundingEnabled,
-            onRefreshAvailableGeminiModels = viewModel::refreshAvailableGeminiModels,
+            onSetActiveLlmModel = viewModel::setActiveLlmModel,
+            onSetActiveLlmGroundingEnabled = viewModel::setActiveLlmGroundingEnabled,
+            onRefreshAvailableLlmModels = viewModel::refreshAvailableLlmModels,
             onOpenAppSettings = {
                 pendingPermissionSettingsType = R.string.settings_permissions_title
                 pendingPermissionSettingsAction = { viewModel.openAppSettings() }
@@ -600,17 +596,12 @@ fun SearchRoute(
                 pendingPermissionSettingsAction = { viewModel.openCalendarPermissionSettings() }
                 showPermissionSettingsDialog = true
             },
-            onAppNicknameClick = { app: com.tk.quicksearch.search.models.AppInfo ->
-                // This will be handled by the dialog state in SearchScreen
-            },
+            // Unused: SearchScreenStateManagement opens nickname dialogs from its own state.
+            onAppNicknameClick = { app: com.tk.quicksearch.search.models.AppInfo -> },
             onClearDetectedShortcut = viewModel::clearDetectedShortcut,
             onSectionSelected = viewModel::activateSearchSectionFilter,
-            onContactNicknameClick = { contact: com.tk.quicksearch.search.models.ContactInfo ->
-                // This will be handled by the dialog state in SearchScreen
-            },
-            onFileNicknameClick = { file: com.tk.quicksearch.search.models.DeviceFile ->
-                // This will be handled by the dialog state in SearchScreen
-            },
+            onContactNicknameClick = { contact: com.tk.quicksearch.search.models.ContactInfo -> },
+            onFileNicknameClick = { file: com.tk.quicksearch.search.models.DeviceFile -> },
             getAppNickname = getAppNickname,
             getContactNickname = getContactNickname,
             getFileNickname = getFileNickname,

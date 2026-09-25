@@ -38,7 +38,7 @@ import com.tk.quicksearch.settings.settingsDetailScreen.AdvancedPayloadSettingsS
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
-import com.tk.quicksearch.tools.aiSearch.GeminiTextModel
+import com.tk.quicksearch.tools.aiSearch.LlmTextModel
 import com.tk.quicksearch.tools.aiSearch.modelSupportsGrounding
 import com.tk.quicksearch.tools.aiSearch.providerSupportsNativeSearch
 import com.tk.quicksearch.tools.aiSearch.supportsThinkingControl
@@ -54,10 +54,10 @@ fun CustomToolEditorScreen(
     defaultModelId: String,
     defaultThinkingEnabled: Boolean,
     thinkingEnabledByProvider: Map<AiSearchLlmProviderId, Boolean>,
-    availableModels: List<GeminiTextModel>,
-    availableModelsByProvider: Map<AiSearchLlmProviderId, List<GeminiTextModel>>,
+    availableModels: List<LlmTextModel>,
+    availableModelsByProvider: Map<AiSearchLlmProviderId, List<LlmTextModel>>,
     configuredProviderIds: Set<AiSearchLlmProviderId>,
-    onRefreshAvailableGeminiModels: () -> Unit,
+    onRefreshAvailableLlmModels: () -> Unit,
     onProviderModelSelected: (AiSearchLlmProviderId, String) -> Unit,
     onSave: (name: String, prompt: String, location: String, providerId: AiSearchLlmProviderId, modelId: String, groundingEnabled: Boolean, aliasCode: String, thinkingEnabled: Boolean, advancedPayload: String?, advancedPayloadEnabled: Boolean, temperatureUnit: WeatherTemperatureUnit, windSpeedUnit: WeatherWindSpeedUnit) -> Unit,
     showNameInput: Boolean = true,
@@ -110,7 +110,7 @@ fun CustomToolEditorScreen(
     val focusRequester = remember { FocusRequester() }
     val scrollState = rememberScrollState()
 
-    LaunchedEffect(Unit) { onRefreshAvailableGeminiModels() }
+    LaunchedEffect(Unit) { onRefreshAvailableLlmModels() }
 
     LaunchedEffect(existingTool?.id, shouldAutoFocusTitle) {
         if (shouldAutoFocusTitle && nameInput.trim().isEmpty()) {

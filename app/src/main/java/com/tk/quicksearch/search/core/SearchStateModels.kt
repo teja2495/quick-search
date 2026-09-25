@@ -16,27 +16,14 @@ import com.tk.quicksearch.search.searchHistory.RecentSearchItem
 import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.tools.aiSearch.GeminiModelCatalog
-import com.tk.quicksearch.tools.aiSearch.GeminiTextModel
+import com.tk.quicksearch.tools.aiSearch.LlmTextModel
 import com.tk.quicksearch.tools.tasker.TaskerIntentTool
 
-// =============================================================================
-// The four focused sub-state data classes that replace the monolithic
-// SearchUiState for internal ViewModel state management.
-//
-// WHY FOUR SEPARATE FLOWS?
-//   Before: every keystroke → full SearchUiState.copy() → 70+ fields copied.
-//   After:  every keystroke → only SearchResultsState.copy() → ~30 fields.
-//   SearchPermissionState, SearchFeatureState, SearchUiConfigState are only
-//   copied when the user visits settings pages — not during typing.
-//
-// BACKWARD COMPATIBILITY:
-//   SearchViewModel.uiState remains a single StateFlow<SearchUiState>, assembled
-//   by combine()-ing these four flows. All consumer files are unchanged.
-// =============================================================================
+// SearchViewModel keeps its state in these four classes so each keystroke only copies
+// SearchResultsState. SearchViewModel.uiState combines them into a flat SearchUiState.
 
 // ---------------------------------------------------------------------------
-// 1. SearchResultsState — the HOT PATH. Updated on every keystroke.
-//    ~30 fields vs the original 70+.
+// 1. SearchResultsState: updated on every keystroke, so keep it small.
 // ---------------------------------------------------------------------------
 
 data class SearchResultsState(
@@ -177,18 +164,18 @@ data class SearchFeatureState(
         val disabledSections: Set<SearchSection> = emptySet(),
         // AI Search
         val hasApiKey: Boolean = false,
-        val geminiApiKeyLast4: String? = null,
+        val activeLlmApiKeyLast4: String? = null,
         val llmApiKeyLast4ByProvider: Map<AiSearchLlmProviderId, String> = emptyMap(),
         val customLlmBaseUrlByProvider: Map<AiSearchLlmProviderId, String> = emptyMap(),
         val customLlmAdvancedPayloadByProvider: Map<AiSearchLlmProviderId, Pair<Boolean, String>> = emptyMap(),
         val aiSearchLlmProviderId: AiSearchLlmProviderId = AiSearchLlmProviderId.GEMINI,
-        val isSavingGeminiApiKey: Boolean = false,
+        val isSavingLlmApiKey: Boolean = false,
         val personalContext: String = "",
-        val geminiModel: String = "",
-        val geminiGroundingEnabled: Boolean = GeminiModelCatalog.DEFAULT_GROUNDING_ENABLED,
-        val geminiThinkingEnabled: Boolean = false,
-        val availableGeminiModels: List<GeminiTextModel> = emptyList(),
-        val availableLlmModelsByProvider: Map<AiSearchLlmProviderId, List<GeminiTextModel>> = emptyMap(),
+        val activeLlmModel: String = "",
+        val activeLlmGroundingEnabled: Boolean = GeminiModelCatalog.DEFAULT_GROUNDING_ENABLED,
+        val activeLlmThinkingEnabled: Boolean = false,
+        val activeLlmAvailableModels: List<LlmTextModel> = emptyList(),
+        val availableLlmModelsByProvider: Map<AiSearchLlmProviderId, List<LlmTextModel>> = emptyMap(),
         // Web suggestions
         val webSuggestionsEnabled: Boolean = true,
         val webSuggestionsCount: Int = 3,

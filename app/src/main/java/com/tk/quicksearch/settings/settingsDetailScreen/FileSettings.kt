@@ -67,7 +67,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
 
-// Constants for consistent spacing
 private object FileTypesSpacing {
     val cardHorizontalPadding = DesignTokens.CardHorizontalPadding
     val cardVerticalPadding = DesignTokens.CardVerticalPadding
@@ -217,7 +216,6 @@ fun FileTypesSection(
     showTitle: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
-    // Section title
     if (showTitle) {
         Column(modifier = modifier) {
             Text(
@@ -246,7 +244,6 @@ fun FileTypesSection(
 
     Spacer(modifier = Modifier.height(12.dp))
 
-    // File display and type settings.
     SettingsCard(modifier = Modifier.fillMaxWidth()) {
         Column {
             SettingsToggleRow(
@@ -257,7 +254,6 @@ fun FileTypesSection(
                 isFirstItem = true,
             )
 
-            // Define the order: Documents, Pictures, Videos, Music, APKs, Other
             val orderedFileTypes =
                 listOf(
                     FileType.DOCUMENTS,
@@ -290,7 +286,6 @@ fun FileTypesSection(
                 isLastItem = excludedExtensions.isEmpty(),
             )
 
-            // Excluded extensions section
             if (excludedExtensions.isNotEmpty()) {
                 HorizontalDivider(color = AppColors.SettingsDivider)
 
@@ -301,7 +296,6 @@ fun FileTypesSection(
                         ),
                 )
 
-                // Excluded extensions header
                 Text(
                     text =
                         stringResource(
@@ -324,7 +318,6 @@ fun FileTypesSection(
                         ),
                 )
 
-                // Excluded extensions chips
                 Row(
                     modifier =
                         Modifier

@@ -23,7 +23,6 @@ class ContactManagementHandler(
         onStateChanged,
         onUiStateUpdate,
     ) {
-    // Convenience methods that delegate to the interface
     fun pinContact(contactInfo: ContactInfo) = pinItem(contactInfo)
 
     fun unpinContact(contactInfo: ContactInfo) = unpinItem(contactInfo)

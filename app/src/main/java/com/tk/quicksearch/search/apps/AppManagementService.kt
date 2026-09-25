@@ -55,7 +55,6 @@ class AppManagementService(
         }
     }
 
-    // Convenience methods that delegate to the interface
     fun pinApp(appInfo: AppInfo) = pinItem(appInfo)
 
     fun unpinApp(appInfo: AppInfo) = unpinItem(appInfo)

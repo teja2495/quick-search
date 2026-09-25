@@ -263,7 +263,7 @@ fun SettingsDetailRoute(
 
 
     val onBackAction: () -> Unit =
-            if (detailType.isLevel2()) {
+            if (detailType.isNestedDetail()) {
                 {
                     if (detailType == SettingsDetailType.NOTE_EDITOR && sourceDetailType == null) {
                         onNavigateToSearch()
@@ -368,12 +368,12 @@ fun SettingsDetailRoute(
                 state
             }
 
-    if (detailType.isLevel2()) {
+    if (detailType.isNestedDetail()) {
         val shouldShowAppShortcutsContent =
                 detailType != SettingsDetailType.APP_SHORTCUTS ||
                         hasLoadedAppShortcutSources
 
-        SettingsDetailLevel2Screen(
+        SettingsNestedDetailScreen(
                 modifier = modifier,
                 state = resolvedState,
                 callbacks = callbacks,

@@ -8,7 +8,7 @@ import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 
 /**
  * Card shell for informational tool results on the search surface: calculator, unit converter,
- * date/time calculator, and Gemini / direct-search answers. Uses the same visuals as
+ * date/time calculator, and AI search answers. Uses the same visuals as
  * [SearchResultCard]; prefer this name at call sites for those flows so they stay grouped and
  * easy to restyle independently later.
  */

@@ -26,7 +26,7 @@ import android.widget.Toast
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.settings.shared.SettingsCard
-import com.tk.quicksearch.tools.aiSearch.GeminiTextModel
+import com.tk.quicksearch.tools.aiSearch.LlmTextModel
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.settings.shared.ModelFeatureSettingsCard
 import com.tk.quicksearch.shared.ui.theme.AppColors
@@ -37,47 +37,47 @@ import org.json.JSONObject
 fun AiProviderSettingsSection(
         personalContext: String,
         aiSearchLlmProviderId: AiSearchLlmProviderId,
-        geminiModel: String,
-        geminiGroundingEnabled: Boolean,
-        geminiThinkingEnabled: Boolean,
-        availableGeminiModels: List<GeminiTextModel>,
-        availableLlmModelsByProvider: Map<AiSearchLlmProviderId, List<GeminiTextModel>>,
+        activeLlmModel: String,
+        activeLlmGroundingEnabled: Boolean,
+        activeLlmThinkingEnabled: Boolean,
+        activeLlmAvailableModels: List<LlmTextModel>,
+        availableLlmModelsByProvider: Map<AiSearchLlmProviderId, List<LlmTextModel>>,
         apiKeyLast4ByProvider: Map<AiSearchLlmProviderId, String>,
         customAdvancedPayloadByProvider: Map<AiSearchLlmProviderId, Pair<Boolean, String>>,
         onSetPersonalContext: (String?) -> Unit,
-        onSetGeminiModel: (String?) -> Unit,
+        onSetActiveLlmModel: (String?) -> Unit,
         onSetLlmModel: (AiSearchLlmProviderId, String?) -> Unit,
         onSetCustomAdvancedPayload: (AiSearchLlmProviderId, String?, Boolean) -> Unit,
-        onSetGeminiGroundingEnabled: (Boolean) -> Unit,
-        onSetGeminiThinkingEnabled: (Boolean) -> Unit,
-        onRefreshAvailableGeminiModels: () -> Unit,
+        onSetActiveLlmGroundingEnabled: (Boolean) -> Unit,
+        onSetActiveLlmThinkingEnabled: (Boolean) -> Unit,
+        onRefreshAvailableLlmModels: () -> Unit,
         onRequestScrollToBottom: (() -> Unit)? = null,
         showThinkingCheckbox: Boolean = true,
         modifier: Modifier = Modifier,
 ) {
         val context = LocalContext.current
         var personalContextInput by remember(personalContext) { mutableStateOf(personalContext) }
-        var selectedModelInput by remember(geminiModel) { mutableStateOf(geminiModel) }
+        var selectedModelInput by remember(activeLlmModel) { mutableStateOf(activeLlmModel) }
         var groundingEnabledInput by
-                remember(geminiGroundingEnabled) { mutableStateOf(geminiGroundingEnabled) }
+                remember(activeLlmGroundingEnabled) { mutableStateOf(activeLlmGroundingEnabled) }
         var thinkingEnabledInput by
-                remember(geminiThinkingEnabled) { mutableStateOf(geminiThinkingEnabled) }
+                remember(activeLlmThinkingEnabled) { mutableStateOf(activeLlmThinkingEnabled) }
 
-        LaunchedEffect(Unit) { onRefreshAvailableGeminiModels() }
+        LaunchedEffect(Unit) { onRefreshAvailableLlmModels() }
         LaunchedEffect(personalContextInput) { onRequestScrollToBottom?.invoke() }
 
         Column(
                 modifier = modifier,
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
         ) {
-                val selectedModel = availableGeminiModels.firstOrNull { it.id == selectedModelInput }
+                val selectedModel = activeLlmAvailableModels.firstOrNull { it.id == selectedModelInput }
                 val supportsInstructions = selectedModel?.supportsSystemInstructions == true
 
                 ModelFeatureSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
                         selectedModelId = selectedModelInput,
                         selectedProviderId = aiSearchLlmProviderId,
-                        availableModels = availableGeminiModels,
+                        availableModels = activeLlmAvailableModels,
                         availableModelsByProvider = availableLlmModelsByProvider,
                         configuredProviderIds = apiKeyLast4ByProvider.keys,
                         modelLabel =
@@ -90,7 +90,7 @@ fun AiProviderSettingsSection(
                         groundingEnabled = groundingEnabledInput,
                         onModelSelected = { modelId ->
                                 selectedModelInput = modelId
-                                onSetGeminiModel(modelId)
+                                onSetActiveLlmModel(modelId)
                         },
                         onProviderModelSelected = { providerId, modelId ->
                                 selectedModelInput = modelId
@@ -98,11 +98,11 @@ fun AiProviderSettingsSection(
                         },
                         onThinkingChange = { checked ->
                                 thinkingEnabledInput = checked
-                                onSetGeminiThinkingEnabled(checked)
+                                onSetActiveLlmThinkingEnabled(checked)
                         },
                         onGroundingChange = { checked ->
                                 groundingEnabledInput = checked
-                                onSetGeminiGroundingEnabled(checked)
+                                onSetActiveLlmGroundingEnabled(checked)
                         },
                         showThinkingCheckbox = showThinkingCheckbox,
                 )

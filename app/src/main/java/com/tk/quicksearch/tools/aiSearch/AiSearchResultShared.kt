@@ -105,7 +105,7 @@ private fun ColumnWithContent(
         }
 
         if (showAttribution) {
-            GeminiAttributionRow(
+            AiProviderAttributionRow(
                     modifier = Modifier.fillMaxWidth(),
                     usedModelId = usedModelId,
                     llmProviderId = llmProviderId,
@@ -195,7 +195,7 @@ private fun GemmaWordmark(
 
 /** Attribution row showing the branding for the provider that generated the answer. */
 @Composable
-internal fun GeminiAttributionRow(
+internal fun AiProviderAttributionRow(
         modifier: Modifier = Modifier,
         usedModelId: String? = null,
         llmProviderId: AiSearchLlmProviderId = AiSearchLlmProviderId.GEMINI,

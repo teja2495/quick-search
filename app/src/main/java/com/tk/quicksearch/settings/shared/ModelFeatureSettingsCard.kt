@@ -27,7 +27,7 @@ import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.tools.aiSearch.ModelPickerDialog
-import com.tk.quicksearch.tools.aiSearch.GeminiTextModel
+import com.tk.quicksearch.tools.aiSearch.LlmTextModel
 import com.tk.quicksearch.tools.aiSearch.isWebSearchAvailable
 import com.tk.quicksearch.tools.aiSearch.modelSupportsGrounding
 import kotlinx.coroutines.Dispatchers
@@ -64,8 +64,8 @@ fun rememberTavilyKeyState(): TavilyKeyState {
 fun ModelFeatureSettingsCard(
     selectedModelId: String,
     selectedProviderId: AiSearchLlmProviderId = AiSearchLlmProviderId.GEMINI,
-    availableModels: List<GeminiTextModel>,
-    availableModelsByProvider: Map<AiSearchLlmProviderId, List<GeminiTextModel>> =
+    availableModels: List<LlmTextModel>,
+    availableModelsByProvider: Map<AiSearchLlmProviderId, List<LlmTextModel>> =
         mapOf(selectedProviderId to availableModels),
     configuredProviderIds: Set<AiSearchLlmProviderId> = setOf(selectedProviderId),
     modelLabel: String,

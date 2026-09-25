@@ -88,11 +88,9 @@ class StartupPreferencesFacade(
     )
 
     /**
-     * Optimized: Loads all preferences needed during startup in a single batch operation. Uses
-     * SharedPreferences.getAll() to minimize disk I/O operations.
+     * Loads all startup preferences in one SharedPreferences.getAll() call to keep disk reads to one.
      */
     fun getStartupPreferences(): StartupPreferences {
-        // Batch read all preferences at once
         val prefs =
                 context.getSharedPreferences(
                         com.tk.quicksearch.search.data.preferences.BasePreferences.PREFS_NAME,

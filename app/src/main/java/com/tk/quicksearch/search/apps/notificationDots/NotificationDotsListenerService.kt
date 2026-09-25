@@ -10,7 +10,7 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import com.tk.quicksearch.search.notificationHistory.NotificationHistoryAccess
 import com.tk.quicksearch.search.notificationHistory.NotificationHistoryStore
-import com.tk.quicksearch.widgets.utils.refreshAllSearchWidgets
+import com.tk.quicksearch.widgets.utils.refreshAllWidgets
 import com.tk.quicksearch.widgets.utils.refreshMediaControlsWidgets
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -125,7 +125,7 @@ class NotificationDotsListenerService : NotificationListenerService() {
 
     private fun refreshWidgets() {
         widgetRefreshScope.launch {
-            refreshAllSearchWidgets(this@NotificationDotsListenerService)
+            refreshAllWidgets(this@NotificationDotsListenerService)
         }
     }
 }

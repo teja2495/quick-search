@@ -79,7 +79,6 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
 
-/** Constants for search engine section layout. */
 /** Corner radius shared by the inset strip and the bottom search bar it attaches to. */
 private val INSET_CORNER_RADIUS = 28.dp
 

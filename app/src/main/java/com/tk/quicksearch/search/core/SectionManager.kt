@@ -37,10 +37,6 @@ class SectionManager(
                     permissionManager.disableSection(section, disabledSections)
                 }
 
-            if (!enabled) {
-                // Note: Permission refresh logic would be handled by the caller
-            }
-
             onStateUpdate { state -> state.copy(disabledSections = disabledSections) }
         }
     }

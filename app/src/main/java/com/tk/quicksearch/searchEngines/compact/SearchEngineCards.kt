@@ -75,7 +75,6 @@ fun NoResultsSearchEngineCards(
             enabledEngines
         }
 
-    // Show customize card when there are any enabled engines
     val shouldShowCustomizeCard = showCustomizeCard && enabledEngines.isNotEmpty()
 
     Column(
@@ -175,7 +174,6 @@ fun SearchEngineCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
         ) {
-            // Search target icon
             SearchTargetIcon(
                 target = target,
                 iconSize = SearchTargetConstants.DEFAULT_ICON_SIZE,
@@ -187,7 +185,6 @@ fun SearchEngineCard(
             androidx.compose.foundation.layout
                 .Spacer(modifier = Modifier.size(SearchTargetConstants.ICON_TEXT_SPACING))
 
-            // Search engine name
             Text(
                 text = stringResource(actionLabelResId, targetName),
                 style = MaterialTheme.typography.bodyMedium,
@@ -314,7 +311,6 @@ private fun CustomizeSearchEnginesCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
         ) {
-            // Settings icon
             Icon(
                 imageVector = Icons.Rounded.Settings,
                 contentDescription = null,
@@ -325,7 +321,6 @@ private fun CustomizeSearchEnginesCard(
             androidx.compose.foundation.layout
                 .Spacer(modifier = Modifier.size(SearchTargetConstants.ICON_TEXT_SPACING))
 
-            // Customize text
             Text(
                 text = stringResource(R.string.customize_search_engines),
                 style = MaterialTheme.typography.bodyMedium,

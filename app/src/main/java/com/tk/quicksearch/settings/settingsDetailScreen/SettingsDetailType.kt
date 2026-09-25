@@ -2,9 +2,6 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 
 import com.tk.quicksearch.R
 
-/**
- * Enum to represent different types of settings detail screens.
- */
 enum class SettingsDetailType {
     SEARCH_ENGINES,
     EXCLUDED_ITEMS,
@@ -24,6 +21,7 @@ enum class SettingsDetailType {
     PERMISSIONS,
     TOOLS,
     AT_A_GLANCE,
+    // Configures the active AI provider. Kept as GEMINI_ because intents carry the name and MainActivity resolves it with valueOf.
     GEMINI_API_CONFIG,
     API_KEY_SETUP,
     FEATURES_LIST,
@@ -237,7 +235,8 @@ internal object SettingsDestinationRegistry {
 
     fun level(detailType: SettingsDetailType): Int = specFor(detailType).level
 
-    fun isLevel2OrDeeper(detailType: SettingsDetailType): Boolean = level(detailType) >= 2
+    /** Level 2+ pages render in [SettingsNestedDetailScreen] instead of [SettingsDetailScreen]. */
+    fun isNestedDetail(detailType: SettingsDetailType): Boolean = level(detailType) >= 2
 
     fun resolveBackDestination(
         detailType: SettingsDetailType,
@@ -265,8 +264,8 @@ internal object SettingsDestinationRegistry {
 
 internal fun SettingsDetailType.titleResId(): Int = SettingsDestinationRegistry.titleResId(this)
 
-internal fun SettingsDetailType.isLevel2(): Boolean =
-    SettingsDestinationRegistry.isLevel2OrDeeper(this)
+internal fun SettingsDetailType.isNestedDetail(): Boolean =
+    SettingsDestinationRegistry.isNestedDetail(this)
 
 internal fun SettingsDetailType.level(): Int = SettingsDestinationRegistry.level(this)
 

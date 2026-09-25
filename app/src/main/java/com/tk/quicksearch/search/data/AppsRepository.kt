@@ -300,13 +300,6 @@ class AppsRepository(
     }
 
     /**
-     * Extracts the most recently opened apps from a list, sorted by last used timestamp.
-     *
-     * @param apps List of apps to extract from
-     * @param limit Maximum number of apps to return
-     * @return List of apps sorted by last used time (descending)
-     */
-    /**
      * Returns all recently opened apps sorted by last used timestamp.
      */
     fun getRecentlyOpenedApps(apps: List<AppInfo>): List<AppInfo> {

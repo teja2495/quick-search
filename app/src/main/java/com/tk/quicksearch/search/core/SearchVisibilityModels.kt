@@ -17,10 +17,9 @@ import com.tk.quicksearch.search.searchHistory.RecentSearchItem
 import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.tools.aiSearch.GeminiModelCatalog
-import com.tk.quicksearch.tools.aiSearch.GeminiTextModel
+import com.tk.quicksearch.tools.aiSearch.LlmTextModel
 import com.tk.quicksearch.tools.tasker.TaskerIntentTool
 
-// IconPackInfo moved here to avoid circular imports
 sealed class ScreenVisibilityState {
         object Initializing : ScreenVisibilityState()
 
@@ -138,17 +137,8 @@ sealed class SearchEnginesVisibility {
         ) : SearchEnginesVisibility()
 }
 
-// ---------------------------------------------------------------------------
-// SearchUiState remains a flat data class for full backward compatibility.
-// All existing consumer files (35+) continue to compile with zero changes.
-//
-// Internally, SearchViewModel manages four focused MutableStateFlow sub-states
-// (SearchResultsState, SearchPermissionState, SearchFeatureState,
-// SearchUiConfigState) and combines them into this aggregate via combine().
-//
-// The per-keystroke hot path ONLY updates SearchResultsState (~30 fields)
-// instead of copying all 70+ fields here — dramatically reducing GC pressure.
-// ---------------------------------------------------------------------------
+// Flat view of the four sub-states in SearchStateModels.kt, built by SearchViewModel.uiState.
+// Prefer the per-sub-state updaters on hot paths; a whole-state update copies every field.
 
 data class SearchUiState(
         // Core state
@@ -332,20 +322,20 @@ data class SearchUiState(
         val disabledCustomToolIds: Set<String> = emptySet(),
         val taskerIntentTools: List<TaskerIntentTool> = emptyList(),
         val AiSearchState: AiSearchState = AiSearchState(),
-        // Gemini
+        // AI search
         val hasApiKey: Boolean = false,
-        val geminiApiKeyLast4: String? = null,
+        val activeLlmApiKeyLast4: String? = null,
         val llmApiKeyLast4ByProvider: Map<AiSearchLlmProviderId, String> = emptyMap(),
         val customLlmBaseUrlByProvider: Map<AiSearchLlmProviderId, String> = emptyMap(),
         val customLlmAdvancedPayloadByProvider: Map<AiSearchLlmProviderId, Pair<Boolean, String>> = emptyMap(),
         val aiSearchLlmProviderId: AiSearchLlmProviderId = AiSearchLlmProviderId.GEMINI,
-        val isSavingGeminiApiKey: Boolean = false,
+        val isSavingLlmApiKey: Boolean = false,
         val personalContext: String = "",
-        val geminiModel: String = "",
-        val geminiGroundingEnabled: Boolean = GeminiModelCatalog.DEFAULT_GROUNDING_ENABLED,
-        val geminiThinkingEnabled: Boolean = false,
-        val availableGeminiModels: List<GeminiTextModel> = emptyList(),
-        val availableLlmModelsByProvider: Map<AiSearchLlmProviderId, List<GeminiTextModel>> = emptyMap(),
+        val activeLlmModel: String = "",
+        val activeLlmGroundingEnabled: Boolean = GeminiModelCatalog.DEFAULT_GROUNDING_ENABLED,
+        val activeLlmThinkingEnabled: Boolean = false,
+        val activeLlmAvailableModels: List<LlmTextModel> = emptyList(),
+        val availableLlmModelsByProvider: Map<AiSearchLlmProviderId, List<LlmTextModel>> = emptyMap(),
         // Release notes dialog
         val showReleaseNotesDialog: Boolean = false,
         val releaseNotesVersionName: String? = null,
@@ -528,17 +518,17 @@ fun SearchUiState(
                 disabledAppShortcutIds = features.disabledAppShortcutIds,
                 disabledSections = features.disabledSections,
                 hasApiKey = features.hasApiKey,
-                geminiApiKeyLast4 = features.geminiApiKeyLast4,
+                activeLlmApiKeyLast4 = features.activeLlmApiKeyLast4,
                 llmApiKeyLast4ByProvider = features.llmApiKeyLast4ByProvider,
                 customLlmBaseUrlByProvider = features.customLlmBaseUrlByProvider,
                 customLlmAdvancedPayloadByProvider = features.customLlmAdvancedPayloadByProvider,
                 aiSearchLlmProviderId = features.aiSearchLlmProviderId,
-                isSavingGeminiApiKey = features.isSavingGeminiApiKey,
+                isSavingLlmApiKey = features.isSavingLlmApiKey,
                 personalContext = features.personalContext,
-                geminiModel = features.geminiModel,
-                geminiGroundingEnabled = features.geminiGroundingEnabled,
-                geminiThinkingEnabled = features.geminiThinkingEnabled,
-                availableGeminiModels = features.availableGeminiModels,
+                activeLlmModel = features.activeLlmModel,
+                activeLlmGroundingEnabled = features.activeLlmGroundingEnabled,
+                activeLlmThinkingEnabled = features.activeLlmThinkingEnabled,
+                activeLlmAvailableModels = features.activeLlmAvailableModels,
                 availableLlmModelsByProvider = features.availableLlmModelsByProvider,
                 webSuggestionsEnabled = features.webSuggestionsEnabled,
                 webSuggestionsCount = features.webSuggestionsCount,

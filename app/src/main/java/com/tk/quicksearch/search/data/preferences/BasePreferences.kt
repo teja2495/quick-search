@@ -388,9 +388,7 @@ abstract class BasePreferences(
                     System.currentTimeMillis() - currentInstallTime <
                     FRESH_INSTALL_THRESHOLD_MS
 
-            // If this looks like a fresh install, default to true even if legacy prefs
-            // say
-            // otherwise.
+            // A fresh install defaults to true even if legacy prefs say otherwise.
             val legacyValue = prefs.getBoolean(KEY_FIRST_LAUNCH, true)
             val initialValue = if (isFreshInstall) true else legacyValue
             setFirstLaunchFlag(initialValue)

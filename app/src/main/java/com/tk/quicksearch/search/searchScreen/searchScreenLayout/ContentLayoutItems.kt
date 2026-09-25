@@ -298,17 +298,8 @@ internal fun NonSectionLayoutItem(
                 }
             }
 
-            ItemPriorityConfig.ItemType.SEARCH_ENGINES_COMPACT -> {
-                // If we ever need to render compact engines in the list, do
-                // it here.
-                // Currently checking isSearchEngineCompactMode to HIDE
-                // inline ones.
-                // If compact engines are intended to be in the list, add
-                // logic here.
-                // For now, config doesn't use this in
-                // SEARCHING_STATE_LAYOUT, but
-                // we handle it for completeness.
-            }
+            // Compact engines render outside this list; no layout config places them here.
+            ItemPriorityConfig.ItemType.SEARCH_ENGINES_COMPACT -> Unit
 
             ItemPriorityConfig.ItemType.NO_RESULTS_MESSAGE -> {
                 if (!hideResults) {

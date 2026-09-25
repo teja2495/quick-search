@@ -29,7 +29,7 @@ class AliasHandler(
         val featureId: String,
         val toolType: SearchToolType? = null,
         val standaloneMode: StandaloneFeatureAliasMode? = null,
-        val requiresGeminiApiKey: Boolean = false,
+        val requiresLlmApiKey: Boolean = false,
     )
 
     enum class StandaloneFeatureAliasMode {
@@ -81,22 +81,22 @@ class AliasHandler(
                 FeatureAliasDefinition(
                     featureId = CURRENCY_CONVERTER_ALIAS_FEATURE_ID,
                     standaloneMode = StandaloneFeatureAliasMode.CURRENCY_CONVERTER,
-                    requiresGeminiApiKey = true,
+                    requiresLlmApiKey = true,
                 ),
                 FeatureAliasDefinition(
                     featureId = WORD_CLOCK_ALIAS_FEATURE_ID,
                     standaloneMode = StandaloneFeatureAliasMode.WORD_CLOCK,
-                    requiresGeminiApiKey = true,
+                    requiresLlmApiKey = true,
                 ),
                 FeatureAliasDefinition(
                     featureId = DICTIONARY_ALIAS_FEATURE_ID,
                     standaloneMode = StandaloneFeatureAliasMode.DICTIONARY,
-                    requiresGeminiApiKey = true,
+                    requiresLlmApiKey = true,
                 ),
                 FeatureAliasDefinition(
                     featureId = WEATHER_ALIAS_FEATURE_ID,
                     standaloneMode = StandaloneFeatureAliasMode.WEATHER,
-                    requiresGeminiApiKey = true,
+                    requiresLlmApiKey = true,
                 ),
             )
 

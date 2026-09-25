@@ -12,14 +12,14 @@ object GeminiAiSearchLlmProvider : AiSearchLlmProvider {
     override suspend fun fetchAvailableTextModels(
         apiKey: String,
         context: Context,
-    ): Result<List<LlmTextModel>> = AiSearchClient.fetchAvailableTextModels(apiKey, context)
+    ): Result<List<LlmTextModel>> = GeminiClient.fetchAvailableTextModels(apiKey, context)
 
     override suspend fun fetchAnswer(
         apiKey: String,
         context: Context,
         request: LlmRequest,
     ): Result<LlmResponse> {
-        val client = AiSearchClient(apiKey = apiKey, context = context)
+        val client = GeminiClient(apiKey = apiKey, context = context)
         return client.fetchAnswer(
             query = request.query,
             personalContext = request.personalContext,

@@ -67,7 +67,7 @@ private val ConfigureApiKeyCardVerticalPadding =
     DesignTokens.CardVerticalPadding + DesignTokens.SpacingSmall
 
 @Composable
-internal fun SettingsDetailLevel2Screen(
+internal fun SettingsNestedDetailScreen(
     modifier: Modifier = Modifier,
     state: SettingsScreenState,
     callbacks: SettingsScreenCallbacks,
@@ -85,7 +85,7 @@ internal fun SettingsDetailLevel2Screen(
     scrollState: androidx.compose.foundation.ScrollState =
         androidx.compose.foundation.rememberScrollState(),
 ) {
-    if (!detailType.isLevel2()) return
+    if (!detailType.isNestedDetail()) return
 
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -563,26 +563,26 @@ internal fun SettingsDetailLevel2Screen(
                                 AiProviderSettingsSection(
                                     personalContext = state.personalContext,
                                     aiSearchLlmProviderId = state.aiSearchLlmProviderId,
-                                    geminiModel = state.geminiModel,
-                                    geminiGroundingEnabled = state.geminiGroundingEnabled,
-                                    geminiThinkingEnabled = state.geminiThinkingEnabled,
-                                    availableGeminiModels = state.availableGeminiModels,
+                                    activeLlmModel = state.activeLlmModel,
+                                    activeLlmGroundingEnabled = state.activeLlmGroundingEnabled,
+                                    activeLlmThinkingEnabled = state.activeLlmThinkingEnabled,
+                                    activeLlmAvailableModels = state.activeLlmAvailableModels,
                                     availableLlmModelsByProvider = state.availableLlmModelsByProvider,
                                     apiKeyLast4ByProvider = state.llmApiKeyLast4ByProvider,
                                     customAdvancedPayloadByProvider =
                                         state.customLlmAdvancedPayloadByProvider,
                                     onSetPersonalContext = callbacks.onSetPersonalContext,
-                                    onSetGeminiModel = callbacks.onSetGeminiModel,
+                                    onSetActiveLlmModel = callbacks.onSetActiveLlmModel,
                                     onSetLlmModel = callbacks.onSetLlmModel,
                                     onSetCustomAdvancedPayload =
                                         callbacks.onSetCustomLlmAdvancedPayload,
-                                    onSetGeminiGroundingEnabled = callbacks.onSetGeminiGroundingEnabled,
-                                    onSetGeminiThinkingEnabled = callbacks.onSetGeminiThinkingEnabled,
-                                    onRefreshAvailableGeminiModels = callbacks.onRefreshAvailableGeminiModels,
+                                    onSetActiveLlmGroundingEnabled = callbacks.onSetActiveLlmGroundingEnabled,
+                                    onSetActiveLlmThinkingEnabled = callbacks.onSetActiveLlmThinkingEnabled,
+                                    onRefreshAvailableLlmModels = callbacks.onRefreshAvailableLlmModels,
                                     showThinkingCheckbox =
                                         supportsThinkingControl(
                                             state.aiSearchLlmProviderId,
-                                            state.geminiModel,
+                                            state.activeLlmModel,
                                         ),
                                     onRequestScrollToBottom = {
                                         coroutineScope.launch {
@@ -598,7 +598,7 @@ internal fun SettingsDetailLevel2Screen(
                             ApiKeySetupScreen(
                                 apiKeyLast4ByProvider = state.llmApiKeyLast4ByProvider,
                                 customProviderBaseUrlByProvider = state.customLlmBaseUrlByProvider,
-                                isSavingApiKey = state.isSavingGeminiApiKey,
+                                isSavingApiKey = state.isSavingLlmApiKey,
                                 onSetApiKey = callbacks.onSetLlmApiKey,
                                 onAddCustomProvider = callbacks.onAddCustomLlmProvider,
                                 modifier = Modifier.fillMaxWidth(),

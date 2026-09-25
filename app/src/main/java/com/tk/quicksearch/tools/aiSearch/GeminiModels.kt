@@ -1,8 +1,5 @@
 package com.tk.quicksearch.tools.aiSearch
 
-/** Backward-compatible alias while the UI/state still references Gemini naming. */
-typealias GeminiTextModel = LlmTextModel
-
 /** Shared Gemini model configuration defaults. */
 object GeminiModelCatalog {
         const val DEFAULT_MODEL_ID = "gemini-flash-latest"
@@ -12,17 +9,17 @@ object GeminiModelCatalog {
          * Fallback list used when the model catalog cannot be fetched from the API. This list is
          * text-focused and excludes image/audio-only variants.
          */
-        val FALLBACK_TEXT_MODELS: List<GeminiTextModel> =
+        val FALLBACK_TEXT_MODELS: List<LlmTextModel> =
                 listOf(
-                                GeminiTextModel(
+                                LlmTextModel(
                                         id = DEFAULT_MODEL_ID,
                                         displayName = "Gemini Flash Latest",
                                 ),
-                                GeminiTextModel(
+                                LlmTextModel(
                                         id = "gemini-flash-lite-latest",
                                         displayName = "Gemini Flash Lite Latest",
                                 ),
-                                GeminiTextModel(
+                                LlmTextModel(
                                         id = "gemini-pro-latest",
                                         displayName = "Gemini Pro Latest",
                                 ),

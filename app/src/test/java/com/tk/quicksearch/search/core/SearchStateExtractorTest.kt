@@ -70,7 +70,7 @@ class SearchStateExtractorTest {
                 shortcutCodes = mapOf("search" to "s"),
                 disabledSections = setOf(SearchSection.FILES),
                 personalContext = "Prefer concise answers",
-                geminiModel = "test-model",
+                activeLlmModel = "test-model",
                 webSuggestionsCount = 7,
                 weatherLocation = "New York",
                 recentQueriesDisplayCount = 8,

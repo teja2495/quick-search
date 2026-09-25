@@ -106,7 +106,7 @@ internal data class FormDateTimeSuggestion(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun CustomEventFormDialog(
+internal fun ReminderFormDialog(
     initialTitle: String,
     initialDateTimeMillis: Long?,
     initialAllDay: Boolean,
@@ -124,11 +124,10 @@ internal fun CustomEventFormDialog(
     titleMaxLines: Int = 1,
 ) {
     val context = LocalContext.current
-    var eventTitle by remember { mutableStateOf(initialTitle) }
+    var reminderTitle by remember { mutableStateOf(initialTitle) }
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
 
-    // Date picker state: pre-select the initial date if provided
     val initialUtcMillis = remember(initialDateTimeMillis) {
         initialDateTimeMillis?.let { localMidnightToUtcMidnight(it) }
             ?: System.currentTimeMillis()
@@ -136,7 +135,6 @@ internal fun CustomEventFormDialog(
     val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialUtcMillis)
     val selectedDateMillis = datePickerState.selectedDateMillis
 
-    // Track whether the user has added a time
     val initialHour = remember(initialDateTimeMillis, initialAllDay) {
         if (!initialAllDay && initialDateTimeMillis != null) {
             val cal = Calendar.getInstance().apply { timeInMillis = initialDateTimeMillis }
@@ -157,7 +155,7 @@ internal fun CustomEventFormDialog(
     // hasTime drives allDay: if user added a time, allDay = false
     var hasTime by remember { mutableStateOf(!initialAllDay) }
 
-    val canSave = eventTitle.isNotBlank() && selectedDateMillis != null
+    val canSave = reminderTitle.isNotBlank() && selectedDateMillis != null
 
     val titleFocusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -236,9 +234,9 @@ internal fun CustomEventFormDialog(
                             )
                         }
                         OutlinedTextField(
-                            value = eventTitle,
+                            value = reminderTitle,
                             onValueChange = { value ->
-                                eventTitle = value
+                                reminderTitle = value
                                 titleDateTimeSuggestion?.invoke(value)?.let { suggestion ->
                                     val dateTime = Instant.ofEpochMilli(suggestion.dateTimeMillis)
                                         .atZone(ZoneId.systemDefault())
@@ -261,7 +259,6 @@ internal fun CustomEventFormDialog(
                             modifier = Modifier.fillMaxWidth().focusRequester(titleFocusRequester),
                         )
 
-                        // Date button
                         OutlinedButton(
                             onClick = { showDatePicker = true },
                             modifier = Modifier.fillMaxWidth(),
@@ -283,7 +280,6 @@ internal fun CustomEventFormDialog(
                             )
                         }
 
-                        // Time row
                         if (hasTime) {
                             OutlinedButton(
                                 onClick = { showTimePicker = true },
@@ -343,7 +339,7 @@ internal fun CustomEventFormDialog(
                             } else {
                                 localDayMillis
                             }
-                            onConfirm(eventTitle.trim(), dateTimeMillis, !hasTime)
+                            onConfirm(reminderTitle.trim(), dateTimeMillis, !hasTime)
                         },
                         enabled = canSave,
                         colors = ButtonDefaults.buttonColors(

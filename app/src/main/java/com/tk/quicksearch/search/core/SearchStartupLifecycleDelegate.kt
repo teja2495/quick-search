@@ -478,7 +478,7 @@ internal class SearchStartupLifecycleDelegate(
             val customTools = normalizeCustomToolModels(userPreferences.getCustomTools())
             val hasApiKey = userPreferences.hasAnyLlmApiKey()
             val activeProviderId = aiSearchHandler.getAiSearchProviderId()
-            val availableAiModels = aiSearchHandler.getAvailableGeminiModels()
+            val availableAiModels = aiSearchHandler.getAvailableModels()
 
             updateFeatureState { state ->
                 state.copy(
@@ -507,17 +507,17 @@ internal class SearchStartupLifecycleDelegate(
                     disabledCustomToolIds = userPreferences.getDisabledCustomTools(),
                     taskerIntentTools = userPreferences.getTaskerIntentTools(),
                     hasApiKey = hasApiKey,
-                    geminiApiKeyLast4 = aiSearchHandler.getGeminiApiKey()?.takeLast(4),
+                    activeLlmApiKeyLast4 = aiSearchHandler.getLlmApiKey()?.takeLast(4),
                     llmApiKeyLast4ByProvider = userPreferences.getLlmApiKeyLast4ByProvider(),
                     customLlmBaseUrlByProvider = userPreferences.getCustomLlmBaseUrlByProvider(),
                     customLlmAdvancedPayloadByProvider =
                         userPreferences.getCustomLlmAdvancedPayloadByProvider(),
                     aiSearchLlmProviderId = activeProviderId,
                     personalContext = aiSearchHandler.getPersonalContext(),
-                    geminiModel = aiSearchHandler.getGeminiModel(),
-                    geminiGroundingEnabled = aiSearchHandler.isGeminiGroundingEnabled(),
-                    geminiThinkingEnabled = aiSearchHandler.isGeminiThinkingEnabled(),
-                    availableGeminiModels = availableAiModels,
+                    activeLlmModel = aiSearchHandler.getSelectedModelId(),
+                    activeLlmGroundingEnabled = aiSearchHandler.isGroundingEnabled(),
+                    activeLlmThinkingEnabled = aiSearchHandler.isThinkingEnabled(),
+                    activeLlmAvailableModels = availableAiModels,
                     availableLlmModelsByProvider = emptyMap(),
                 )
             }
@@ -593,14 +593,14 @@ internal class SearchStartupLifecycleDelegate(
                 state.copy(disabledAppShortcutIds = userPreferences.getDisabledAppShortcutIds())
             }
 
-            if (!aiSearchHandler.getGeminiApiKey().isNullOrBlank()) {
+            if (!aiSearchHandler.getLlmApiKey().isNullOrBlank()) {
                 launch(Dispatchers.IO) {
                     delay(DEFERRED_AI_SEARCH_MODELS_DELAY_MS)
                     while (isQueryActive()) delay(OPTIONAL_STARTUP_QUERY_RECHECK_MS)
-                    val models = aiSearchHandler.refreshAvailableGeminiModels()
+                    val models = aiSearchHandler.refreshAvailableModels()
                     updateFeatureState { state ->
                         state.copy(
-                            availableGeminiModels = models,
+                            activeLlmAvailableModels = models,
                             availableLlmModelsByProvider =
                                 state.availableLlmModelsByProvider +
                                     (aiSearchHandler.getAiSearchProviderId() to models),
@@ -617,20 +617,20 @@ internal class SearchStartupLifecycleDelegate(
                 }
                 val hasApiKey = userPreferences.refreshConfiguredAiProviderHint()
                 val activeProviderId = aiSearchHandler.getAiSearchProviderId()
-                val availableGeminiModels = aiSearchHandler.getAvailableGeminiModels()
+                val activeLlmAvailableModels = aiSearchHandler.getAvailableModels()
                 updateFeatureState { state ->
                     state.copy(
                         hasApiKey = hasApiKey,
-                        geminiApiKeyLast4 = aiSearchHandler.getGeminiApiKey()?.takeLast(4),
+                        activeLlmApiKeyLast4 = aiSearchHandler.getLlmApiKey()?.takeLast(4),
                         llmApiKeyLast4ByProvider = userPreferences.getLlmApiKeyLast4ByProvider(),
                         customLlmBaseUrlByProvider = userPreferences.getCustomLlmBaseUrlByProvider(),
                         customLlmAdvancedPayloadByProvider = userPreferences.getCustomLlmAdvancedPayloadByProvider(),
                         aiSearchLlmProviderId = activeProviderId,
                         personalContext = aiSearchHandler.getPersonalContext(),
-                        geminiModel = aiSearchHandler.getGeminiModel(),
-                        geminiGroundingEnabled = aiSearchHandler.isGeminiGroundingEnabled(),
-                        geminiThinkingEnabled = aiSearchHandler.isGeminiThinkingEnabled(),
-                        availableGeminiModels = availableGeminiModels,
+                        activeLlmModel = aiSearchHandler.getSelectedModelId(),
+                        activeLlmGroundingEnabled = aiSearchHandler.isGroundingEnabled(),
+                        activeLlmThinkingEnabled = aiSearchHandler.isThinkingEnabled(),
+                        activeLlmAvailableModels = activeLlmAvailableModels,
                         availableLlmModelsByProvider = emptyMap(),
                     )
                 }

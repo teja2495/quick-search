@@ -215,7 +215,6 @@ fun AppearanceSettingsSection(
         Spacer(modifier = Modifier.height(16.dp))
 
         if (hasEnabledSearchEngines) {
-            // Search Engine Style Card
             SearchEngineAppearanceCard(
                     isSearchEngineCompactMode = isSearchEngineCompactMode,
                     onToggleSearchEngineCompactMode = onToggleSearchEngineCompactMode,
@@ -226,7 +225,6 @@ fun AppearanceSettingsSection(
             Spacer(modifier = Modifier.height(16.dp))
         }
 
-        // One-Handed Mode and Search Bar Card
         SettingsCard(modifier = Modifier.fillMaxWidth()) {
             Column {
                 SettingsToggleRow(
@@ -272,7 +270,6 @@ fun AppearanceSettingsSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Pinned Items Card
         SettingsCard(modifier = Modifier.fillMaxWidth()) {
             Column {
                 SettingsToggleRow(
@@ -312,7 +309,6 @@ fun AppearanceSettingsSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // App Grid Columns, App Labels, and Icon Pack Card
         AppIconCard(
                 showAppLabels = showAppLabels,
                 onToggleAppLabels = onToggleAppLabels,
@@ -356,7 +352,6 @@ fun AppearanceSettingsSection(
         )
     }
 
-    // Icon Pack Picker Dialog
     if (showIconPackDialog) {
         IconPackPickerDialog(
                 availableIconPacks = availableIconPacks,

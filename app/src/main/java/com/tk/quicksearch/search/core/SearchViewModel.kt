@@ -146,19 +146,8 @@ class SearchViewModel(
         PermissionManager(contactRepository, calendarRepository, fileRepository, userPreferences)
     }
     private val searchOperations by lazy { SearchOperations(contactRepository) }
-    // =========================================================================
-    // Four focused sub-state flows (the core GC-pressure fix).
-    //
-    // WHY: The old single _uiState had 70+ fields. Every keystroke triggered
-    //   5+ full copies of that object → severe GC pressure on lower-end devices.
-    //   Now the per-keystroke hot path only copies SearchResultsState (~30 fields).
-    //   SearchPermissionState, SearchFeatureState, and SearchUiConfigState are
-    //   only copied when the user changes settings — not during typing.
-    //
-    // HOW the public API is preserved:
-    //   uiState: StateFlow<SearchUiState> is assembled via combine() below so
-    //   every consumer file continues to work with zero changes.
-    // =========================================================================
+    // UI state is split into four flows so typing only copies SearchResultsState. The other three
+    // change on settings or permission updates. [uiState] combines them for consumers.
     // Hot path — updated on every keystroke
     internal val _resultsState = MutableStateFlow(initialResultsState)
     val resultsState: StateFlow<SearchResultsState> = _resultsState.asStateFlow()
@@ -176,11 +165,7 @@ class SearchViewModel(
     // UI collects this to trigger auto-close when the setting is enabled.
     private val _externalNavigationEvent = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val externalNavigationEvent: SharedFlow<Unit> = _externalNavigationEvent.asSharedFlow()
-    /**
-     * Backward-compatible aggregate StateFlow. All existing consumer files (SearchRoute,
-     * SettingsRoute, etc.) continue to collect this unchanged. It is rebuilt via combine() whenever
-     * any sub-state changes.
-     */
+    /** Read-only aggregate of the four sub-state flows, rebuilt whenever any of them changes. */
     val uiState: StateFlow<SearchUiState> =
             combine(
                             _resultsState,
@@ -290,12 +275,11 @@ class SearchViewModel(
     }
     private fun updateUiState(updater: (SearchUiState) -> SearchUiState) {
         uiStateMutationLock.withLock {
-            // Snapshot current composite state
             val currentResults = _resultsState.value
             val currentPermissions = _permissionState.value
             val currentFeatures = _featureState.value
             val currentConfig = _configState.value
-            // Build a temporary flat state to pass to legacy updater
+            // Apply a whole-state updater, then split the result back into the four flows.
             val before =
                     SearchUiState(
                             results = currentResults,

@@ -12,13 +12,8 @@ import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.models.FileType
 
 internal class StartupConfigReader(private val context: Context) {
-    /**
-     * Loads all startup configuration in a single atomic operation for maximum performance. This
-     * consolidates critical preferences, cached apps data, and startup preferences into one batch
-     * read operation, minimizing disk I/O during app launch.
-     */
+    /** Reads critical prefs, cached apps and startup prefs in one pass to keep launch disk I/O low. */
     fun loadStartupConfig(): StartupPreferencesFacade.StartupConfig {
-        // Get user preferences in one batch read
         val prefs =
                 context.getSharedPreferences(
                         com.tk.quicksearch.search.data.preferences.BasePreferences.PREFS_NAME,

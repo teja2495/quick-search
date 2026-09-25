@@ -83,7 +83,7 @@ internal fun SettingsDetailLevel1Screen(
     scrollState: androidx.compose.foundation.ScrollState =
         androidx.compose.foundation.rememberScrollState(),
 ) {
-    if (detailType.isLevel2()) return
+    if (detailType.isNestedDetail()) return
 
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -213,17 +213,17 @@ internal fun SettingsDetailLevel1Screen(
                             isSearchEngineCompactMode = state.isSearchEngineCompactMode,
                             amazonDomain = state.amazonDomain,
                             onSetAmazonDomain = callbacks.onSetAmazonDomain,
-                            onSetGeminiApiKey = callbacks.onSetGeminiApiKey,
-                            geminiApiKeyLast4 = state.geminiApiKeyLast4,
-                            isSavingGeminiApiKey = state.isSavingGeminiApiKey,
+                            onSetLlmApiKeyForDetectedProvider = callbacks.onSetLlmApiKeyForDetectedProvider,
+                            activeLlmApiKeyLast4 = state.activeLlmApiKeyLast4,
+                            isSavingLlmApiKey = state.isSavingLlmApiKey,
                             personalContext = state.personalContext,
                             onSetPersonalContext = callbacks.onSetPersonalContext,
-                            geminiModel = state.geminiModel,
-                            geminiGroundingEnabled = state.geminiGroundingEnabled,
-                            availableGeminiModels = state.availableGeminiModels,
-                            onSetGeminiModel = callbacks.onSetGeminiModel,
-                            onSetGeminiGroundingEnabled = callbacks.onSetGeminiGroundingEnabled,
-                            onRefreshAvailableGeminiModels = callbacks.onRefreshAvailableGeminiModels,
+                            activeLlmModel = state.activeLlmModel,
+                            activeLlmGroundingEnabled = state.activeLlmGroundingEnabled,
+                            activeLlmAvailableModels = state.activeLlmAvailableModels,
+                            onSetActiveLlmModel = callbacks.onSetActiveLlmModel,
+                            onSetActiveLlmGroundingEnabled = callbacks.onSetActiveLlmGroundingEnabled,
+                            onRefreshAvailableLlmModels = callbacks.onRefreshAvailableLlmModels,
                             onOpenAiSearchConfigure = callbacks.onOpenAiSearchConfigure,
                             aiSearchAvailable = state.hasApiKey,
                             showTitle = false,

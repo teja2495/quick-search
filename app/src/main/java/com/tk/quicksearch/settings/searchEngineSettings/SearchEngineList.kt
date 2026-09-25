@@ -470,7 +470,6 @@ private fun SearchEngineRowContent(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
     ) {
-        // Drag handle - long press to drag
         if (showToggle && allowDrag && dragHandleModifier != null) {
             Icon(
                 imageVector = Icons.Rounded.DragHandle,
@@ -489,7 +488,6 @@ private fun SearchEngineRowContent(
             style = IconRenderStyle.ADVANCED,
         )
 
-        // Engine name and details
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.TextColumnSpacing),
@@ -529,7 +527,6 @@ private fun SearchEngineRowContent(
             }
         }
 
-        // Context menu for move actions
         if (onMoveToTop != null || onMoveToBottom != null) {
             Box {
                 DropdownMenu(
@@ -577,7 +574,6 @@ private fun SearchEngineRowContent(
             }
         }
 
-        // Toggle switch
         if (showToggle) {
             Switch(
                 checked = isEnabled,

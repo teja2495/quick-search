@@ -41,13 +41,10 @@ class SearchHistoryPreferences(
 
         val currentItems = getRecentItems().toMutableList()
 
-        // Remove if it already exists (we'll add it to the front)
         currentItems.removeAll { it.stableKey == entry.stableKey }
 
-        // Add to the front
         currentItems.add(0, entry)
 
-        // Keep only the last MAX_RECENT_QUERIES
         val limitedItems = currentItems.take(MAX_RECENT_QUERIES)
 
         val serialized = limitedItems.map { it.toJsonString() }

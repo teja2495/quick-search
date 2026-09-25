@@ -189,7 +189,6 @@ fun SettingsScreen(
     ) {
         SettingsHeader(onBack = callbacks.onBack)
 
-        // Scrollable Content
         Column(
             modifier =
                 Modifier
@@ -207,7 +206,6 @@ fun SettingsScreen(
                 )
             }
 
-            // Overlay Mode Card (top)
             val isOverlayModeBlockedByLauncher = context.isDefaultHomeApp()
             SettingsCard(
                 modifier =
@@ -272,7 +270,6 @@ fun SettingsScreen(
                 )
             }
 
-            // Search Results and Search Engines Card
             val navigationItems =
                 buildList {
                     add(
@@ -479,14 +476,12 @@ fun SettingsScreen(
                 }
             }
 
-            // More Options Section
             SettingsMoreOptions(
                 onOpenReleaseNotes = onOpenReleaseNotes,
                 onOpenFeaturesList = { onNavigateToDetail(SettingsDetailType.FEATURES_LIST) },
                 onOpenOssLicenses = { onNavigateToDetail(SettingsDetailType.OPEN_SOURCE_LICENSES) },
             )
 
-            // App Version
             SettingsVersionDisplay(
                 modifier = Modifier.padding(top = DesignTokens.Spacing40, bottom = 60.dp),
                 onFeatureFlagsChanged = onSettingsImported,

@@ -140,9 +140,9 @@ internal fun SearchScreenStateManagement(
     onSearchEngineLongPress: () -> Unit,
     onAiSearchEmailClick: (String) -> Unit,
     onSetPersonalContext: (String?) -> Unit,
-    onSetGeminiModel: (String?) -> Unit,
-    onSetGeminiGroundingEnabled: (Boolean) -> Unit,
-    onRefreshAvailableGeminiModels: () -> Unit,
+    onSetActiveLlmModel: (String?) -> Unit,
+    onSetActiveLlmGroundingEnabled: (Boolean) -> Unit,
+    onRefreshAvailableLlmModels: () -> Unit,
     onOpenAppSettings: () -> Unit,
     onOpenCalendarPermissionSettings: () -> Unit,
     onOpenStorageAccessSettings: () -> Unit,
@@ -289,7 +289,7 @@ internal fun SearchScreenStateManagement(
     var manuallySwitchedToNumberKeyboard by remember { mutableStateOf(false) }
 
     var showPersonalContextDialog by remember { mutableStateOf(false) }
-    var showGeminiModelDialog by remember { mutableStateOf(false) }
+    var showLlmModelDialog by remember { mutableStateOf(false) }
     var personalContextInput by remember {
         mutableStateOf(
             TextFieldValue(
@@ -609,7 +609,7 @@ internal fun SearchScreenStateManagement(
         contactActionPickerDialogState = contactActionPickerDialogState,
         manuallySwitchedToNumberKeyboard = manuallySwitchedToNumberKeyboard,
         showPersonalContextDialog = showPersonalContextDialog,
-        showGeminiModelDialog = showGeminiModelDialog,
+        showLlmModelDialog = showLlmModelDialog,
         personalContextInput = personalContextInput,
         openPersonalContextDialog = openPersonalContextDialog,
         imageBitmap = wallpaperState.imageBitmap,
@@ -625,7 +625,7 @@ internal fun SearchScreenStateManagement(
         setContactActionPickerDialogState = { contactActionPickerDialogState = it },
         setManuallySwitchedToNumberKeyboard = { manuallySwitchedToNumberKeyboard = it },
         setShowPersonalContextDialog = { showPersonalContextDialog = it },
-        setShowGeminiModelDialog = { showGeminiModelDialog = it },
+        setShowLlmModelDialog = { showLlmModelDialog = it },
         setPersonalContextInput = { personalContextInput = it },
     )
 }
@@ -646,7 +646,7 @@ internal data class SearchScreenStateResult(
     val contactActionPickerDialogState: ContactActionPickerDialogState?,
     val manuallySwitchedToNumberKeyboard: Boolean,
     val showPersonalContextDialog: Boolean,
-    val showGeminiModelDialog: Boolean,
+    val showLlmModelDialog: Boolean,
     val personalContextInput: TextFieldValue,
     val openPersonalContextDialog: () -> Unit,
     val imageBitmap: androidx.compose.ui.graphics.ImageBitmap?,
@@ -662,7 +662,7 @@ internal data class SearchScreenStateResult(
     val setContactActionPickerDialogState: (ContactActionPickerDialogState?) -> Unit,
     val setManuallySwitchedToNumberKeyboard: (Boolean) -> Unit,
     val setShowPersonalContextDialog: (Boolean) -> Unit,
-    val setShowGeminiModelDialog: (Boolean) -> Unit,
+    val setShowLlmModelDialog: (Boolean) -> Unit,
     val setPersonalContextInput: (TextFieldValue) -> Unit,
 )
 

@@ -25,7 +25,7 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
-import com.tk.quicksearch.tools.aiSearch.GeminiTextModel
+import com.tk.quicksearch.tools.aiSearch.LlmTextModel
 import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.searchEngines.isInAppBrowserPackage
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -50,17 +50,17 @@ fun SearchEngines(
     onToggleSearchEngineCompactMode: ((Boolean) -> Unit)? = null,
     amazonDomain: String? = null,
     onSetAmazonDomain: ((String?) -> Unit)? = null,
-    onSetGeminiApiKey: ((String?) -> Unit)? = null,
-    geminiApiKeyLast4: String? = null,
-    isSavingGeminiApiKey: Boolean = false,
+    onSetLlmApiKeyForDetectedProvider: ((String?) -> Unit)? = null,
+    activeLlmApiKeyLast4: String? = null,
+    isSavingLlmApiKey: Boolean = false,
     personalContext: String = "",
     onSetPersonalContext: ((String?) -> Unit)? = null,
-    geminiModel: String,
-    geminiGroundingEnabled: Boolean,
-    availableGeminiModels: List<GeminiTextModel>,
-    onSetGeminiModel: ((String?) -> Unit)? = null,
-    onSetGeminiGroundingEnabled: ((Boolean) -> Unit)? = null,
-    onRefreshAvailableGeminiModels: (() -> Unit)? = null,
+    activeLlmModel: String,
+    activeLlmGroundingEnabled: Boolean,
+    activeLlmAvailableModels: List<LlmTextModel>,
+    onSetActiveLlmModel: ((String?) -> Unit)? = null,
+    onSetActiveLlmGroundingEnabled: ((Boolean) -> Unit)? = null,
+    onRefreshAvailableLlmModels: (() -> Unit)? = null,
     onOpenAiSearchConfigure: (() -> Unit)? = null,
     isSearchEngineAliasSuffixEnabled: Boolean = true,
     onToggleSearchEngineAliasSuffixEnabled: ((Boolean) -> Unit)? = null,

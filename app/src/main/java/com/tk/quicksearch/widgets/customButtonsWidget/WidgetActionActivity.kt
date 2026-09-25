@@ -365,8 +365,6 @@ class WidgetActionActivity : FragmentActivity() {
             }
 
             is ContactMethod.ViewInContactsApp -> {
-                // This would open the contact in the contacts app, but since we're already showing the dialog,
-                // we don't need to do anything special here
                 finish()
             }
         }

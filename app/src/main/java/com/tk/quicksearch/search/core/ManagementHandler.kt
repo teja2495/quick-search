@@ -75,28 +75,21 @@ interface ManagementHandlerConfig<T> {
  * Common interface for management handlers that handle pinning, excluding, and naming operations.
  */
 interface ManagementHandler<T> {
-    /** Pin an item. */
     fun pinItem(item: T)
 
-    /** Unpin an item. */
     fun unpinItem(item: T)
 
-    /** Exclude an item from results. */
     fun excludeItem(item: T)
 
-    /** Remove an item from the excluded list. */
     fun removeExcludedItem(item: T)
 
-    /** Set a custom nickname for an item. */
     fun setItemNickname(
         item: T,
         nickname: String?,
     )
 
-    /** Get the custom nickname for an item. */
     fun getItemNickname(item: T): String?
 
-    /** Clear all excluded items. */
     fun clearAllExcludedItems()
 }
 
@@ -114,25 +107,20 @@ class GenericManagementHandler<T>(
         // Update UI immediately (optimistic)
         onUiStateUpdate { config.updateUiForPin(item, it) }
 
-        // Update preferences
         config.pinItemInPreferences(item, userPreferences)
         onStateChanged()
     }
 
     override fun unpinItem(item: T) {
-        // Update UI immediately
         onUiStateUpdate { config.updateUiForUnpin(item, it) }
 
-        // Update preferences
         config.unpinItemInPreferences(item, userPreferences)
         onStateChanged()
     }
 
     override fun excludeItem(item: T) {
-        // Update UI immediately
         onUiStateUpdate { config.updateUiForExclude(item, it) }
 
-        // Update preferences
         config.excludeItemInPreferences(item, userPreferences)
         onStateChanged()
     }
@@ -141,7 +129,6 @@ class GenericManagementHandler<T>(
         // Update UI immediately (optimistic)
         onUiStateUpdate { config.updateUiForRemoveExclusion(item, it) }
 
-        // Update preferences
         config.removeExcludedItemInPreferences(item, userPreferences)
         onStateChanged()
     }
@@ -166,7 +153,6 @@ class GenericManagementHandler<T>(
 // Configuration implementations for different item types
 // =============================================================================
 
-/** Configuration for managing AppInfo items. */
 class AppManagementConfig : ManagementHandlerConfig<AppInfo> {
     override fun getItemId(item: AppInfo): String = item.launchCountKey()
 
@@ -221,7 +207,6 @@ class AppManagementConfig : ManagementHandlerConfig<AppInfo> {
     }
 }
 
-/** Configuration for managing ContactInfo items. */
 class ContactManagementConfig : ManagementHandlerConfig<ContactInfo> {
     override fun getItemId(item: ContactInfo): String = item.contactId.toString()
 
@@ -319,7 +304,6 @@ class ContactManagementConfig : ManagementHandlerConfig<ContactInfo> {
     }
 }
 
-/** Configuration for managing DeviceSetting items. */
 class SettingsManagementConfig : ManagementHandlerConfig<DeviceSetting> {
     override fun getItemId(item: DeviceSetting): String = item.id
 
@@ -410,7 +394,6 @@ class SettingsManagementConfig : ManagementHandlerConfig<DeviceSetting> {
     }
 }
 
-/** Configuration for managing StaticShortcut items. */
 class AppShortcutManagementConfig : ManagementHandlerConfig<StaticShortcut> {
     override fun getItemId(item: StaticShortcut): String = shortcutKey(item)
 
@@ -509,7 +492,6 @@ class AppShortcutManagementConfig : ManagementHandlerConfig<StaticShortcut> {
     }
 }
 
-/** Configuration for managing DeviceFile items. */
 class FileManagementConfig : ManagementHandlerConfig<DeviceFile> {
     override fun getItemId(item: DeviceFile): String = item.uri.toString()
 
@@ -606,7 +588,6 @@ class FileManagementConfig : ManagementHandlerConfig<DeviceFile> {
     }
 }
 
-/** Configuration for managing CalendarEventInfo items. */
 class CalendarEventManagementConfig : ManagementHandlerConfig<CalendarEventInfo> {
     override fun getItemId(item: CalendarEventInfo): String = item.eventId.toString()
 

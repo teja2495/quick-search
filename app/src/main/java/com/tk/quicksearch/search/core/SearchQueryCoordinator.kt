@@ -281,7 +281,7 @@ internal class SearchQueryCoordinator(
             return
         }
 
-        if (definition.requiresGeminiApiKey && !handlers.aiSearchHandler.hasAnyLlmApiKeyCached()) {
+        if (definition.requiresLlmApiKey && !handlers.aiSearchHandler.hasAnyLlmApiKeyCached()) {
             clearDetectedAliasMode()
             return
         }

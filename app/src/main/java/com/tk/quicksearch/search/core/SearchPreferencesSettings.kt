@@ -11,7 +11,7 @@ import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.tools.aiSearch.AiSearchHandler
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderRegistry
-import com.tk.quicksearch.tools.aiSearch.GeminiTextModel
+import com.tk.quicksearch.tools.aiSearch.LlmTextModel
 import com.tk.quicksearch.tools.aiSearch.resolveModelSelection
 import com.tk.quicksearch.settings.settingsDetailScreen.AiBackedToolConfigId
 import com.tk.quicksearch.shared.util.isLowRamDevice
@@ -270,7 +270,7 @@ internal fun SearchPreferencesDelegate.setAmazonDomain(domain: String?) {
         updateFeatureState { state -> state.copy(amazonDomain = stateAccess.amazonDomain) }
     }
 
-internal fun SearchPreferencesDelegate.setGeminiApiKey(apiKey: String?) {
+internal fun SearchPreferencesDelegate.setLlmApiKeyForDetectedProvider(apiKey: String?) {
         val providerId =
             apiKey?.takeIf { it.isNotBlank() }?.let(AiSearchLlmProviderId::detectFromApiKey)
                 ?: aiSearchHandler.getAiSearchProviderId()
@@ -282,7 +282,7 @@ internal fun SearchPreferencesDelegate.setLlmApiKey(
         apiKey: String?,
     ) {
         scope.launch(Dispatchers.IO) {
-            updateFeatureState { it.copy(isSavingGeminiApiKey = true) }
+            updateFeatureState { it.copy(isSavingLlmApiKey = true) }
             try {
                 val hasKey = !apiKey.isNullOrBlank()
                 val isNewKey = hasKey && userPreferences.getLlmApiKey(providerId).isNullOrBlank()
@@ -290,7 +290,7 @@ internal fun SearchPreferencesDelegate.setLlmApiKey(
                 aiSearchHandler.setLlmApiKey(providerId, apiKey)
 
                 val hasAnyKey = userPreferences.hasAnyLlmApiKey()
-                searchEngineManager.updateSearchTargetsForGemini(hasAnyKey)
+                searchEngineManager.updateSearchTargetsForLlmAvailability(hasAnyKey)
 
                 val providerModels =
                     if (hasKey) {
@@ -311,9 +311,9 @@ internal fun SearchPreferencesDelegate.setLlmApiKey(
                 val availableModels =
                     if (hasKey && providerId == aiSearchHandler.getAiSearchProviderId()) {
                         aiSearchHandler.updateAvailableModels(providerModels)
-                        aiSearchHandler.getAvailableGeminiModels()
+                        aiSearchHandler.getAvailableModels()
                     } else {
-                        aiSearchHandler.getAvailableGeminiModels()
+                        aiSearchHandler.getAvailableModels()
                     }
 
                 updateFeatureState {
@@ -325,22 +325,22 @@ internal fun SearchPreferencesDelegate.setLlmApiKey(
                         }
                     it.copy(
                         hasApiKey = hasAnyKey,
-                        geminiApiKeyLast4 = aiSearchHandler.getLlmApiKey()?.trim()?.takeLast(4),
+                        activeLlmApiKeyLast4 = aiSearchHandler.getLlmApiKey()?.trim()?.takeLast(4),
                         llmApiKeyLast4ByProvider = userPreferences.getLlmApiKeyLast4ByProvider(),
                         customLlmBaseUrlByProvider = userPreferences.getCustomLlmBaseUrlByProvider(),
                         customLlmAdvancedPayloadByProvider = userPreferences.getCustomLlmAdvancedPayloadByProvider(),
                         aiSearchLlmProviderId = aiSearchHandler.getAiSearchProviderId(),
                         personalContext = aiSearchHandler.getPersonalContext(),
-                        geminiModel = aiSearchHandler.getGeminiModel(),
-                        geminiGroundingEnabled = aiSearchHandler.isGeminiGroundingEnabled(),
-                        geminiThinkingEnabled = aiSearchHandler.isGeminiThinkingEnabled(),
-                        availableGeminiModels = availableModels,
+                        activeLlmModel = aiSearchHandler.getSelectedModelId(),
+                        activeLlmGroundingEnabled = aiSearchHandler.isGroundingEnabled(),
+                        activeLlmThinkingEnabled = aiSearchHandler.isThinkingEnabled(),
+                        activeLlmAvailableModels = availableModels,
                         availableLlmModelsByProvider =
                             modelMap + (aiSearchHandler.getAiSearchProviderId() to availableModels),
                     )
                 }
             } finally {
-                updateFeatureState { it.copy(isSavingGeminiApiKey = false) }
+                updateFeatureState { it.copy(isSavingLlmApiKey = false) }
             }
         }
     }
@@ -350,7 +350,7 @@ internal fun SearchPreferencesDelegate.addCustomLlmProvider(
         apiKey: String,
     ) {
         scope.launch(Dispatchers.IO) {
-            updateFeatureState { it.copy(isSavingGeminiApiKey = true) }
+            updateFeatureState { it.copy(isSavingLlmApiKey = true) }
             try {
                 val provider = userPreferences.addCustomLlmProvider(baseUrl, apiKey) ?: return@launch
                 val providerId = AiSearchLlmProviderId.custom(provider.id)
@@ -367,27 +367,27 @@ internal fun SearchPreferencesDelegate.addCustomLlmProvider(
                 aiSearchHandler.setThinkingEnabled(false)
                 aiSearchHandler.updateAvailableModels(models)
                 val hasAnyKey = userPreferences.hasAnyLlmApiKey()
-                searchEngineManager.updateSearchTargetsForGemini(hasAnyKey)
+                searchEngineManager.updateSearchTargetsForLlmAvailability(hasAnyKey)
 
                 updateFeatureState {
                     it.copy(
                         hasApiKey = hasAnyKey,
-                        geminiApiKeyLast4 = aiSearchHandler.getLlmApiKey()?.trim()?.takeLast(4),
+                        activeLlmApiKeyLast4 = aiSearchHandler.getLlmApiKey()?.trim()?.takeLast(4),
                         llmApiKeyLast4ByProvider = userPreferences.getLlmApiKeyLast4ByProvider(),
                         customLlmBaseUrlByProvider = userPreferences.getCustomLlmBaseUrlByProvider(),
                         customLlmAdvancedPayloadByProvider = userPreferences.getCustomLlmAdvancedPayloadByProvider(),
                         aiSearchLlmProviderId = aiSearchHandler.getAiSearchProviderId(),
                         personalContext = aiSearchHandler.getPersonalContext(),
-                        geminiModel = aiSearchHandler.getGeminiModel(),
-                        geminiGroundingEnabled = aiSearchHandler.isGeminiGroundingEnabled(),
-                        geminiThinkingEnabled = aiSearchHandler.isGeminiThinkingEnabled(),
-                        availableGeminiModels = models,
+                        activeLlmModel = aiSearchHandler.getSelectedModelId(),
+                        activeLlmGroundingEnabled = aiSearchHandler.isGroundingEnabled(),
+                        activeLlmThinkingEnabled = aiSearchHandler.isThinkingEnabled(),
+                        activeLlmAvailableModels = models,
                         availableLlmModelsByProvider =
                             it.availableLlmModelsByProvider + (providerId to models),
                     )
                 }
             } finally {
-                updateFeatureState { it.copy(isSavingGeminiApiKey = false) }
+                updateFeatureState { it.copy(isSavingLlmApiKey = false) }
             }
         }
     }
@@ -399,13 +399,13 @@ internal fun SearchPreferencesDelegate.setPersonalContext(context: String?) {
         }
     }
 
-internal fun SearchPreferencesDelegate.setGeminiModel(modelId: String?) {
+internal fun SearchPreferencesDelegate.setActiveLlmModel(modelId: String?) {
         scope.launch(Dispatchers.IO) {
-            aiSearchHandler.setGeminiModel(modelId)
+            aiSearchHandler.setSelectedModelId(modelId)
             val normalized = modelId?.trim().takeUnless { it.isNullOrBlank() }
             updateFeatureState {
                 it.copy(
-                    geminiModel = normalized.orEmpty(),
+                    activeLlmModel = normalized.orEmpty(),
                 )
             }
         }

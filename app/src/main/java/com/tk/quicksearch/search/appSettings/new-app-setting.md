@@ -45,7 +45,7 @@ In `AppSettingsRepository.loadSettings()`, call `addNavigation(...)` or `addTogg
 - **Opens a settings page:** map it in `app/navigation/AppSettingsDestinationMapper.kt`
   (`toSettingsDetailTypeOrNull`). The `when` is exhaustive, so the compiler flags a missing case.
   - A new page needs a value in `settings/settingsDetailScreen/SettingsDetailType.kt` and rendering in
-    `SettingsDetailScreen.kt` (or `SettingsDetailLevel2Screen.kt` for nested pages).
+    `SettingsDetailScreen.kt` (or `SettingsNestedDetailScreen.kt` for nested pages).
 - **Runs an action:** map it to `null` in the mapper, then handle it in
   `app/navigation/AppSettingsDestinationHandler.kt`. That `when` ends in `else -> Unit`, so a
   missing case fails silently. Actions that need route UI (a dialog, for example) are

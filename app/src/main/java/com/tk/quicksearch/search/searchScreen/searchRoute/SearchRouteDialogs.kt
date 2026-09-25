@@ -85,9 +85,9 @@ internal fun SearchScreenDialogLogic(
     getLastShownPhoneNumber: (Long) -> String?,
     setLastShownPhoneNumber: (Long, String) -> Unit,
     onSetPersonalContext: (String?) -> Unit,
-    onSetGeminiModel: (String?) -> Unit,
-    onSetGeminiGroundingEnabled: (Boolean) -> Unit,
-    onRefreshAvailableGeminiModels: () -> Unit,
+    onSetActiveLlmModel: (String?) -> Unit,
+    onSetActiveLlmGroundingEnabled: (Boolean) -> Unit,
+    onRefreshAvailableLlmModels: () -> Unit,
     getPrimaryContactCardAction: (Long) -> ContactCardAction?,
     getSecondaryContactCardAction: (Long) -> ContactCardAction?,
     onSavePrimaryContactCardAction: (Long, ContactCardAction) -> Unit,
@@ -95,8 +95,8 @@ internal fun SearchScreenDialogLogic(
     onDismissContactActionPicker: () -> Unit,
     showPersonalContextDialog: Boolean,
     setShowPersonalContextDialog: (Boolean) -> Unit,
-    showGeminiModelDialog: Boolean,
-    setShowGeminiModelDialog: (Boolean) -> Unit,
+    showLlmModelDialog: Boolean,
+    setShowLlmModelDialog: (Boolean) -> Unit,
     personalContextInput: TextFieldValue,
     setPersonalContextInput: (TextFieldValue) -> Unit,
     shortcutToEdit: StaticShortcut?,
@@ -179,27 +179,27 @@ internal fun SearchScreenDialogLogic(
         )
     }
 
-    // Gemini model dialog
-    if (showGeminiModelDialog) {
-        val modelOptions = remember(state.availableGeminiModels) {
-            state.availableGeminiModels.distinctBy { it.id }
+    // Active AI provider model picker
+    if (showLlmModelDialog) {
+        val modelOptions = remember(state.activeLlmAvailableModels) {
+            state.activeLlmAvailableModels.distinctBy { it.id }
                 .sortedBy { it.displayName.lowercase() }
         }
         ModelPickerDialog(
-            selectedModelId = state.geminiModel,
+            selectedModelId = state.activeLlmModel,
             models = modelOptions,
-            groundingEnabled = state.geminiGroundingEnabled,
-            onGroundingChange = onSetGeminiGroundingEnabled,
+            groundingEnabled = state.activeLlmGroundingEnabled,
+            onGroundingChange = onSetActiveLlmGroundingEnabled,
             onModelSelected = { modelId ->
-                onSetGeminiModel(modelId)
+                onSetActiveLlmModel(modelId)
                 val newModel = modelOptions.firstOrNull { it.id == modelId }
-                if (newModel?.supportsGrounding == false && state.geminiGroundingEnabled) {
-                    onSetGeminiGroundingEnabled(false)
+                if (newModel?.supportsGrounding == false && state.activeLlmGroundingEnabled) {
+                    onSetActiveLlmGroundingEnabled(false)
                 }
             },
             onDismiss = {
-                setShowGeminiModelDialog(false)
-                onRefreshAvailableGeminiModels()
+                setShowLlmModelDialog(false)
+                onRefreshAvailableLlmModels()
             },
             showGroundingToggle =
                 state.aiSearchLlmProviderId != AiSearchLlmProviderId.OPENAI &&

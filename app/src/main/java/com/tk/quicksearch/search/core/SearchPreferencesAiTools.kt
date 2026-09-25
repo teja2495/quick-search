@@ -11,7 +11,7 @@ import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.tools.aiSearch.AiSearchHandler
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderRegistry
-import com.tk.quicksearch.tools.aiSearch.GeminiTextModel
+import com.tk.quicksearch.tools.aiSearch.LlmTextModel
 import com.tk.quicksearch.tools.aiSearch.resolveModelSelection
 import com.tk.quicksearch.settings.settingsDetailScreen.AiBackedToolConfigId
 import com.tk.quicksearch.shared.util.isLowRamDevice
@@ -28,16 +28,16 @@ internal fun SearchPreferencesDelegate.setLlmModel(
     ) {
         scope.launch(Dispatchers.IO) {
             aiSearchHandler.setSelectedModelId(providerId, modelId)
-            var models: List<GeminiTextModel> = emptyList()
+            var models: List<LlmTextModel> = emptyList()
             updateFeatureState {
                 models = it.availableLlmModelsByProvider[providerId].orEmpty()
                 it.copy(
                     aiSearchLlmProviderId = aiSearchHandler.getAiSearchProviderId(),
                     personalContext = aiSearchHandler.getPersonalContext(),
-                    geminiModel = aiSearchHandler.getGeminiModel(),
-                    geminiGroundingEnabled = aiSearchHandler.isGeminiGroundingEnabled(),
-                    geminiThinkingEnabled = aiSearchHandler.isGeminiThinkingEnabled(),
-                    availableGeminiModels = models,
+                    activeLlmModel = aiSearchHandler.getSelectedModelId(),
+                    activeLlmGroundingEnabled = aiSearchHandler.isGroundingEnabled(),
+                    activeLlmThinkingEnabled = aiSearchHandler.isThinkingEnabled(),
+                    activeLlmAvailableModels = models,
                     availableLlmModelsByProvider =
                         it.availableLlmModelsByProvider + (providerId to models),
                 )
@@ -137,23 +137,23 @@ internal fun SearchPreferencesDelegate.setAiBackedToolSettings(
         }
     }
 
-internal fun SearchPreferencesDelegate.setGeminiGroundingEnabled(enabled: Boolean) {
+internal fun SearchPreferencesDelegate.setActiveLlmGroundingEnabled(enabled: Boolean) {
         scope.launch(Dispatchers.IO) {
-            aiSearchHandler.setGeminiGroundingEnabled(enabled)
-            updateFeatureState { it.copy(geminiGroundingEnabled = enabled) }
+            aiSearchHandler.setGroundingEnabled(enabled)
+            updateFeatureState { it.copy(activeLlmGroundingEnabled = enabled) }
         }
     }
 
-internal fun SearchPreferencesDelegate.setGeminiThinkingEnabled(enabled: Boolean) {
+internal fun SearchPreferencesDelegate.setActiveLlmThinkingEnabled(enabled: Boolean) {
         scope.launch(Dispatchers.IO) {
-            aiSearchHandler.setGeminiThinkingEnabled(enabled)
+            aiSearchHandler.setThinkingEnabled(enabled)
             updateFeatureState {
-                it.copy(geminiThinkingEnabled = aiSearchHandler.isGeminiThinkingEnabled())
+                it.copy(activeLlmThinkingEnabled = aiSearchHandler.isThinkingEnabled())
             }
         }
     }
 
-internal fun SearchPreferencesDelegate.refreshAvailableGeminiModels() {
+internal fun SearchPreferencesDelegate.refreshAvailableLlmModels() {
         scope.launch(Dispatchers.IO) {
             val configuredProviderIds = userPreferences.getLlmApiKeyLast4ByProvider().keys
             val now = System.currentTimeMillis()
@@ -220,7 +220,7 @@ internal fun SearchPreferencesDelegate.refreshAvailableGeminiModels() {
                     }
                 }
             userPreferences.setCustomTools(refreshedCustomTools)
-            var activeModels: List<GeminiTextModel> = emptyList()
+            var activeModels: List<LlmTextModel> = emptyList()
             updateFeatureState {
                 // A failed fetch keeps the previously cached catalog instead of blanking it.
                 val configuredProviderModels =
@@ -231,9 +231,9 @@ internal fun SearchPreferencesDelegate.refreshAvailableGeminiModels() {
                     }
                 activeModels = configuredProviderModels[activeProviderId].orEmpty()
                 it.copy(
-                    geminiModel = aiSearchHandler.getGeminiModel(),
+                    activeLlmModel = aiSearchHandler.getSelectedModelId(),
                     customTools = refreshedCustomTools,
-                    availableGeminiModels = activeModels,
+                    activeLlmAvailableModels = activeModels,
                     availableLlmModelsByProvider = configuredProviderModels,
                 )
             }
@@ -260,7 +260,7 @@ internal suspend fun SearchPreferencesDelegate.showCustomProviderModelsError(err
 internal suspend fun SearchPreferencesDelegate.fetchAvailableModels(
         providerId: AiSearchLlmProviderId,
         apiKey: String,
-    ): Result<List<GeminiTextModel>> {
+    ): Result<List<LlmTextModel>> {
         val provider = AiSearchLlmProviderRegistry.get(providerId, applicationProvider())
         return provider
             .fetchAvailableTextModels(apiKey.trim(), applicationProvider())

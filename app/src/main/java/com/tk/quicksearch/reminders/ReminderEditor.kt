@@ -24,7 +24,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.ReminderRepository
 import com.tk.quicksearch.search.data.preferences.ReminderPreferences
 import com.tk.quicksearch.search.models.ReminderInfo
-import com.tk.quicksearch.settings.settingsDetailScreen.CustomEventFormDialog
+import com.tk.quicksearch.settings.settingsDetailScreen.ReminderFormDialog
 import com.tk.quicksearch.settings.settingsDetailScreen.FormDateTimeSuggestion
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import java.time.Instant
@@ -144,7 +144,7 @@ private fun ReminderFormDialog(
     val titleVisualTransformation = remember(accentColor) {
         ReminderNaturalLanguageVisualTransformation(accentColor)
     }
-    CustomEventFormDialog(
+    ReminderFormDialog(
         initialTitle = initialTitle,
         initialDateTimeMillis = initialDateTimeMillis,
         initialAllDay = initialAllDay,

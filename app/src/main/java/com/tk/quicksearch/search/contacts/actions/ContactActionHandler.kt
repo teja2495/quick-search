@@ -42,21 +42,17 @@ class ContactActionHandler(
         }
         if (trackHistory) trackRecentContactAction(contactInfo)
 
-        // Check if there's a preferred number stored
         val preferredNumber = userPreferences.getPreferredPhoneNumber(contactInfo.contactId)
         if (preferredNumber != null && contactInfo.phoneNumbers.contains(preferredNumber)) {
-            // Use preferred number directly
             performCalling(contactInfo, preferredNumber)
             return
         }
 
-        // If multiple numbers, show selection dialog
         if (contactInfo.phoneNumbers.size > 1) {
             uiStateUpdater { it.copy(phoneNumberSelection = PhoneNumberSelection(contactInfo, isCall = true)) }
             return
         }
 
-        // Single number, use it directly
         performCalling(contactInfo, contactInfo.phoneNumbers.first())
     }
 
@@ -67,21 +63,17 @@ class ContactActionHandler(
         }
         if (trackHistory) trackRecentContactAction(contactInfo)
 
-        // Check if there's a preferred number stored
         val preferredNumber = userPreferences.getPreferredPhoneNumber(contactInfo.contactId)
         if (preferredNumber != null && contactInfo.phoneNumbers.contains(preferredNumber)) {
-            // Use preferred number directly
             performMessaging(contactInfo, preferredNumber)
             return
         }
 
-        // If multiple numbers, show selection dialog
         if (contactInfo.phoneNumbers.size > 1) {
             uiStateUpdater { it.copy(phoneNumberSelection = PhoneNumberSelection(contactInfo, isCall = false)) }
             return
         }
 
-        // Single number, use it directly
         performMessaging(contactInfo, contactInfo.phoneNumbers.first())
     }
 
@@ -92,19 +84,16 @@ class ContactActionHandler(
         val selection = getCurrentState().phoneNumberSelection ?: return
         val contactInfo = selection.contactInfo
 
-        // Store preference if requested
         if (rememberChoice) {
             userPreferences.setPreferredPhoneNumber(contactInfo.contactId, phoneNumber)
         }
 
-        // Perform the action
         if (selection.isCall) {
             performCalling(contactInfo, phoneNumber)
         } else {
             performMessaging(contactInfo, phoneNumber)
         }
 
-        // Clear the selection dialog
         uiStateUpdater { it.copy(phoneNumberSelection = null) }
     }
 
@@ -190,11 +179,9 @@ class ContactActionHandler(
         }
 
         if (isGranted) {
-            // Handle direct call if present
             if (pendingNumber != null) {
                 performDirectCall(pendingNumber)
             }
-            // Handle third-party call if present
             if (pendingThirdPartyCall != null) {
                 executePendingThirdPartyCall(pendingThirdPartyCall)
             }
@@ -211,7 +198,6 @@ class ContactActionHandler(
     }
 
     private fun clearQueryIfEnabled() {
-        // Always clear query after contact action
         clearQuery()
     }
 

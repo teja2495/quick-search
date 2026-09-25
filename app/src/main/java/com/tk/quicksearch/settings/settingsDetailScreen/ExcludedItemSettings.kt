@@ -44,7 +44,6 @@ import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
-// Constants
 private val DEFAULT_ICON_SIZE = DesignTokens.IconSize
 private val ITEM_ROW_PADDING_HORIZONTAL = DesignTokens.CardHorizontalPadding
 private val ITEM_ROW_PADDING_VERTICAL = DesignTokens.CardVerticalPadding
@@ -99,7 +98,6 @@ fun ExcludedItemScreen(
     }
 
     Column {
-        // Header with title and description
         if (showTitle) {
             Text(
                 text = stringResource(R.string.settings_excluded_items_title),
@@ -127,7 +125,6 @@ fun ExcludedItemScreen(
 
         Spacer(modifier = Modifier.height(SECTION_SPACER_HEIGHT))
 
-        // Items card
         SettingsCard(
             modifier = Modifier.fillMaxWidth().padding(bottom = LIST_BOTTOM_PADDING),
         ) {
@@ -346,7 +343,6 @@ private fun AppIconPlaceholder(
             contentScale = ContentScale.Fit,
         )
     } else {
-        // Fallback placeholder if icon can't be loaded
         Icon(
             imageVector = Icons.Rounded.Apps,
             contentDescription = null,

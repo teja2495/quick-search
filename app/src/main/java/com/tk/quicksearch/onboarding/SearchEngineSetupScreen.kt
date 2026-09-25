@@ -134,9 +134,9 @@ fun SearchEngineSetupScreen(
                 },
                 showTitle = false, // We have our own title
                 showAddSearchEngineButton = false,
-                geminiModel = uiState.geminiModel,
-                geminiGroundingEnabled = uiState.geminiGroundingEnabled,
-                availableGeminiModels = uiState.availableGeminiModels,
+                activeLlmModel = uiState.activeLlmModel,
+                activeLlmGroundingEnabled = uiState.activeLlmGroundingEnabled,
+                activeLlmAvailableModels = uiState.activeLlmAvailableModels,
                 modifier = Modifier.fillMaxWidth(),
             )
 

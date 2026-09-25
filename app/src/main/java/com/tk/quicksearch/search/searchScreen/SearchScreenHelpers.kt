@@ -196,7 +196,6 @@ internal fun detectSuffixSearchTargetAlias(
     return match.queryWithoutAlias to match.target
 }
 
-/** Data class for Files section parameters */
 data class FilesSectionParams(
     val files: List<DeviceFile>,
     val hasPermission: Boolean,
@@ -231,7 +230,6 @@ data class FilesSectionParams(
     val predictedTarget: PredictedSubmitTarget? = null,
 )
 
-/** Data class for Settings section parameters */
 data class SettingsSectionParams(
     val settings: List<DeviceSetting>,
     val appSettings: List<AppSettingResult>,
@@ -264,7 +262,6 @@ data class SettingsSectionParams(
     val predictedTarget: PredictedSubmitTarget? = null,
 )
 
-/** Data class for App Shortcuts section parameters */
 data class AppShortcutsSectionParams(
     val shortcuts: List<StaticShortcut>,
     val isExpanded: Boolean,
@@ -292,7 +289,6 @@ data class AppShortcutsSectionParams(
     val predictedTarget: PredictedSubmitTarget? = null,
 )
 
-/** Data class for Contacts section parameters */
 data class ContactsSectionParams(
     val contacts: List<ContactInfo>,
     val hasPermission: Boolean,
@@ -339,7 +335,6 @@ data class ContactsSectionParams(
     val predictedTarget: PredictedSubmitTarget? = null,
 )
 
-/** Data class for Apps section parameters */
 data class AppsSectionParams(
     val apps: List<AppInfo>,
     val allApps: List<AppInfo>,
@@ -403,7 +398,6 @@ data class AppsSectionParams(
     val appFolderActions: com.tk.quicksearch.search.folders.AppGridFolderActions? = null,
 )
 
-/** Data class for Calendar section parameters */
 data class CalendarSectionParams(
     val events: List<CalendarEventInfo>,
     val hasPermission: Boolean,
@@ -436,7 +430,6 @@ data class CalendarSectionParams(
     val predictedTarget: PredictedSubmitTarget? = null,
 )
 
-/** Data class for Notes section parameters */
 data class NotesSectionParams(
     val pinnedNoteIds: Set<Long>,
     val onNoteClick: (NoteInfo) -> Unit,
@@ -461,7 +454,6 @@ data class ReminderSectionActions(
     val onDelete: (ReminderInfo) -> Unit = {},
 )
 
-/** Data class for Reminders section parameters */
 data class RemindersSectionParams(
     val pinnedReminderIds: Set<Long>,
     val onReminderClick: (ReminderInfo) -> Unit,

@@ -41,10 +41,8 @@ object PhoneNumberUtils {
         val digits1 = extractDigits(number1)
         val digits2 = extractDigits(number2)
 
-        // Exact match after extracting digits
         if (digits1 == digits2) return true
 
-        // Check if one has country code and the other doesn't
         val hasCountryCode1 = hasCountryCode(number1)
         val hasCountryCode2 = hasCountryCode(number2)
 
@@ -96,11 +94,9 @@ object PhoneNumberUtils {
         val trimmed = phoneNumber.trim()
         val hasPlus = trimmed.startsWith("+")
 
-        // Extract digits
         val digits = extractDigits(trimmed)
         if (digits.isEmpty() || digits.length < 7) return null
 
-        // Return with + prefix if original had it, otherwise return digits only
         return if (hasPlus) "+$digits" else digits
     }
 
@@ -182,7 +178,6 @@ object PhoneNumberUtils {
         val remainingDigits = digits.substring(countryCodeLength)
         var index = 0
 
-        // Group remaining digits in sets of 3-4
         while (index < remainingDigits.length) {
             val chunkSize = if (remainingDigits.length - index <= 4) 4 else 3
             if (index > 0) formatted.append(" ")

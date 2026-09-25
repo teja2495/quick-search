@@ -17,15 +17,7 @@ import com.tk.quicksearch.shared.util.PackageConstants.WHATSAPP_BUSINESS_PACKAGE
 import java.util.Collections
 import java.util.Locale
 
-/**
- * Repository for querying and managing contact data from the device's contacts provider.
- *
- * Responsibilities:
- * - Querying contacts by IDs or search query
- * - Aggregating multiple phone numbers per contact
- * - Fetching contact photos
- * - Managing contact permissions
- */
+/** Maps one ContactsContract Data row to a [ContactMethod], or null when the row is unsupported or fails to parse. */
     internal fun ContactRepository.parseContactMethod(
         mimeType: String,
         data1: String,

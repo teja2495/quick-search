@@ -134,9 +134,9 @@ internal fun ColumnScope.ToolsDetailContent(
                                 }
                             },
                             onToolToggle = { toolId, enabled ->
-                                val requiresGeminiApiKey =
-                                        ToolSettingsRegistry.definitionFor(toolId)?.requiresGeminiApiKey == true
-                                if (enabled && requiresGeminiApiKey && !state.hasApiKey) {
+                                val requiresLlmApiKey =
+                                        ToolSettingsRegistry.definitionFor(toolId)?.requiresLlmApiKey == true
+                                if (enabled && requiresLlmApiKey && !state.hasApiKey) {
                                     android.widget.Toast.makeText(
                                                     context,
                                                     context.getString(R.string.currency_converter_requires_gemini_key),
@@ -191,7 +191,7 @@ internal fun ColumnScope.ToolsDetailContent(
                                     else -> Unit
                                 }
                             },
-                            onNavigateToGeminiApiSetup = {
+                            onNavigateToLlmApiSetup = {
                                 onNavigateToDetail(
                                     if (state.hasApiKey) {
                                         SettingsDetailType.GEMINI_API_CONFIG
@@ -319,16 +319,16 @@ internal fun ColumnScope.CustomToolEditorDetailContent(
                         builtInToolConfig?.windSpeedUnit
                             ?: com.tk.quicksearch.search.data.preferences.WeatherWindSpeedUnit.KILOMETERS_PER_HOUR,
                     selectedProviderId = state.aiSearchLlmProviderId,
-                    defaultModelId = state.geminiModel,
-                    defaultThinkingEnabled = state.geminiThinkingEnabled,
+                    defaultModelId = state.activeLlmModel,
+                    defaultThinkingEnabled = state.activeLlmThinkingEnabled,
                     thinkingEnabledByProvider =
                         state.llmApiKeyLast4ByProvider.keys.associateWith(
                             aiToolPreferences::isLlmThinkingEnabled,
                         ),
-                    availableModels = state.availableGeminiModels,
+                    availableModels = state.activeLlmAvailableModels,
                     availableModelsByProvider = state.availableLlmModelsByProvider,
                     configuredProviderIds = state.llmApiKeyLast4ByProvider.keys,
-                    onRefreshAvailableGeminiModels = callbacks.onRefreshAvailableGeminiModels,
+                    onRefreshAvailableLlmModels = callbacks.onRefreshAvailableLlmModels,
                     onProviderModelSelected = { _, _ -> },
                     showNameInput = builtInToolConfig == null,
                     showPromptInput = builtInToolConfig == null || builtInToolConfig.toolId == AiBackedToolConfigId.WEATHER,

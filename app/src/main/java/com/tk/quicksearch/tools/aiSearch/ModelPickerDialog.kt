@@ -47,20 +47,20 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 
 data class LlmModelPickerOption(
     val providerId: AiSearchLlmProviderId,
-    val model: GeminiTextModel,
+    val model: LlmTextModel,
 )
 
 @Composable
 fun ModelPickerDialog(
     selectedModelId: String,
-    models: List<GeminiTextModel>,
+    models: List<LlmTextModel>,
     groundingEnabled: Boolean,
     onGroundingChange: (Boolean) -> Unit,
     onModelSelected: (String) -> Unit,
     onDismiss: () -> Unit,
     showGroundingToggle: Boolean = true,
     selectedProviderId: AiSearchLlmProviderId = AiSearchLlmProviderId.GEMINI,
-    modelsByProvider: Map<AiSearchLlmProviderId, List<GeminiTextModel>> =
+    modelsByProvider: Map<AiSearchLlmProviderId, List<LlmTextModel>> =
         mapOf(selectedProviderId to models),
     configuredProviderIds: Set<AiSearchLlmProviderId> = setOf(selectedProviderId),
     onProviderModelSelected: (AiSearchLlmProviderId, String) -> Unit = { _, modelId ->
@@ -351,7 +351,7 @@ private fun providerSearchName(providerId: AiSearchLlmProviderId): String =
         else -> "Custom"
     }
 
-private fun modelSearchText(model: GeminiTextModel): String =
+private fun modelSearchText(model: LlmTextModel): String =
     listOf(
         model.displayName,
         model.id,

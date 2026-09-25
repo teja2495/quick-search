@@ -65,7 +65,6 @@ fun SettingsNavigationRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         ) {
-            // Icon (either ImageVector or painter resource)
             when {
                 item.iconBitmap != null -> {
                     Image(
@@ -95,7 +94,6 @@ fun SettingsNavigationRow(
                 }
             }
 
-            // Title and description
             Column(
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
             ) {
@@ -120,7 +118,6 @@ fun SettingsNavigationRow(
             }
         }
 
-        // Action icon
         if (item.isEnabled) {
             Icon(
                 imageVector = item.actionIcon,

@@ -67,7 +67,7 @@ private fun showToast(
  * Redraws every placed search, custom-buttons and media controls widget instance, e.g. so a
  * Play/Pause button's icon reflects a playback-state change that just happened outside of this app.
  */
-suspend fun refreshAllSearchWidgets(context: Context) {
+suspend fun refreshAllWidgets(context: Context) {
     refreshWidgets(context, SearchWidgetReceiver::class.java, SearchWidget(WidgetVariant.STANDARD))
     refreshWidgets(context, CustomButtonsWidgetReceiver::class.java, SearchWidget(WidgetVariant.CUSTOM_BUTTONS_ONLY))
     refreshMediaControlsWidgets(context)

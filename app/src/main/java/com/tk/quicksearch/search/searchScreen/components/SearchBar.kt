@@ -375,8 +375,8 @@ internal fun PersistentSearchBar(
         onRestoreKeyboardHandled()
     }
 
-    // Animation state
-    // We use a linear progression 0 -> 1 to scan the gradient exactly once
+    // Welcome animation: the gradient scans across the border once, ending on its white tail,
+    // then the glow fades out while the resting border fades in.
     val animationProgress = remember { Animatable(0f) }
 
     val glowAlpha = remember { Animatable(0f) }
@@ -389,29 +389,18 @@ internal fun PersistentSearchBar(
 
     LaunchedEffect(showWelcomeAnimation, query.isEmpty()) {
         if (showWelcomeAnimation) {
-            // Setup Start State
             glowAlpha.snapTo(1f)
             borderAlpha.snapTo(0f)
             animationProgress.snapTo(0f)
 
-            // Phase 1: Animate the gradient flow (0 -> 1)
-            // This scans the colors and arrives at the end (White)
             animationProgress.animateTo(
                 targetValue = 1f,
                 animationSpec = tween(DesignTokens.AnimationDurationLong, easing = LinearEasing),
             )
 
-            // Phase 2: Arrived at White. Make it permanent.
-            // We DO NOT snap border to 1f. We rely on the White Brush from Phase 1 to
-            // hold the
-            // white state.
-            // This maintains the "Glow" look during the hold.
-
-            // Hold for a tiny beat (imperceptible, just ensures scan completion)
+            // The white end of the gradient holds the glow; the border is not snapped to opaque here.
             delay(DesignTokens.AnimationDurationMicro.toLong())
 
-            // Phase 3: Dissipate Heat / Cool Down
-            // Quicker fade out (500ms) to prevent lingering
             launch {
                 glowAlpha.animateTo(
                     targetValue = 0f,
@@ -425,7 +414,6 @@ internal fun PersistentSearchBar(
                 )
             }
 
-            // Wait for fade out to complete, then reset the animation flag
             delay(DesignTokens.AnimationDurationFast.toLong())
             onWelcomeAnimationCompleted?.invoke()
         } else if (query.isEmpty()) {
@@ -471,29 +459,9 @@ internal fun PersistentSearchBar(
                         val strokeWidth = DesignTokens.SearchFieldBorderWidth.toPx()
                         val cornerRadiusVal = cornerRadius.toPx()
 
-                        // Calculate gradient movement based on animation
-                        // progress
-                        // We want to SCAN the gradient from Start (Colors)
-                        // to End
-                        // (White)
-                        // At t=0, we want offset=0 (Start of colors aligned
-                        // with left
-                        // edge)
-                        // At t=1, we want to look at the End (White).
-                        // So we slide the brush to the LEFT (negative
-                        // offset) until the
-                        // end is visible.
-
                         val gradientWidth = size.width * DesignTokens.SearchFieldGradientWidthMultiplier
 
-                        // xOffset moves from 0 down to -3*width.
-                        // At -3*width, the brush starts 3 screens to the
-                        // left.
-                        // The visible part [0, width] is at offset +3*width
-                        // = [3*width,
-                        // 4*width] of the gradient.
-                        // This is the last 25% of the gradient, which is
-                        // White.
+                        // Slides the brush left so the border ends on the gradient's white tail.
                         val xOffset =
                             -(animationProgress.value * size.width * DesignTokens.SearchFieldGradientTravelMultiplier)
 
@@ -507,13 +475,9 @@ internal fun PersistentSearchBar(
                                             gradientWidth,
                                         0f,
                                     ),
-                                // Tilt slightly for more dynamic
-                                // look? No,
-                                // straight looks cleaner for border
                             )
 
-                        // 1. Draw "Outer Glow" (Simulated Blur)
-                        // We draw wider, lower alpha strokes behind
+                        // Wide, faint strokes behind the border fake a blurred glow.
                         drawRoundRect(
                             brush = brush,
                             cornerRadius =

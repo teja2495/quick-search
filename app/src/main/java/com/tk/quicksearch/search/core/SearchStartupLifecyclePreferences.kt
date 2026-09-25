@@ -44,12 +44,12 @@ internal fun SearchStartupLifecycleDelegate.onSettingsImported(
             aiSearchHandler.reloadFromPreferences()
             val webSuggestionsEnabled = webSuggestionHandler.reloadFromPreferences()
 
-            val geminiApiKey = aiSearchHandler.getGeminiApiKey()
+            val activeLlmApiKey = aiSearchHandler.getLlmApiKey()
             val personalContext = aiSearchHandler.getPersonalContext()
-            val geminiModel = aiSearchHandler.getGeminiModel()
-            val geminiGroundingEnabled = aiSearchHandler.isGeminiGroundingEnabled()
-            val geminiThinkingEnabled = aiSearchHandler.isGeminiThinkingEnabled()
-            val availableGeminiModels = aiSearchHandler.getAvailableGeminiModels()
+            val activeLlmModel = aiSearchHandler.getSelectedModelId()
+            val activeLlmGroundingEnabled = aiSearchHandler.isGroundingEnabled()
+            val activeLlmThinkingEnabled = aiSearchHandler.isThinkingEnabled()
+            val activeLlmAvailableModels = aiSearchHandler.getAvailableModels()
             val hasApiKey = userPreferences.hasAnyLlmApiKey()
             val customTools = normalizeCustomToolModels(userPreferences.getCustomTools())
 
@@ -81,16 +81,16 @@ internal fun SearchStartupLifecycleDelegate.onSettingsImported(
                         disabledCustomToolIds = userPreferences.getDisabledCustomTools(),
                         taskerIntentTools = userPreferences.getTaskerIntentTools(),
                         hasApiKey = hasApiKey,
-                        geminiApiKeyLast4 = geminiApiKey?.takeLast(4),
+                        activeLlmApiKeyLast4 = activeLlmApiKey?.takeLast(4),
                         llmApiKeyLast4ByProvider = userPreferences.getLlmApiKeyLast4ByProvider(),
                         customLlmBaseUrlByProvider = userPreferences.getCustomLlmBaseUrlByProvider(),
                         customLlmAdvancedPayloadByProvider = userPreferences.getCustomLlmAdvancedPayloadByProvider(),
                         aiSearchLlmProviderId = aiSearchHandler.getAiSearchProviderId(),
                         personalContext = personalContext,
-                        geminiModel = geminiModel,
-                        geminiGroundingEnabled = geminiGroundingEnabled,
-                        geminiThinkingEnabled = geminiThinkingEnabled,
-                        availableGeminiModels = availableGeminiModels,
+                        activeLlmModel = activeLlmModel,
+                        activeLlmGroundingEnabled = activeLlmGroundingEnabled,
+                        activeLlmThinkingEnabled = activeLlmThinkingEnabled,
+                        activeLlmAvailableModels = activeLlmAvailableModels,
                         availableLlmModelsByProvider = emptyMap(),
                     )
                 }
