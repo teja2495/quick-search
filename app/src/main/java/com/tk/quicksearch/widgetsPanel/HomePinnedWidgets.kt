@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgetsPanel
 
+import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
@@ -76,7 +77,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-private const val HOME_WIDGET_HOST_ID = 8291
 
 // Touches this close to the widget being edited still count as touching it, so the resize pills
 // that straddle its border stay usable.
@@ -182,7 +182,11 @@ internal object HomePinnedWidgetsStore {
             }
         val appContext = context.applicationContext
         persistScope.launch {
-            WidgetsPanelPreferences(appContext).setHomePlacements(placements)
+            val orphanedIds = WidgetsPanelPreferences(appContext).setHomePlacements(placements)
+            if (orphanedIds.isNotEmpty()) {
+                val host = AppWidgetHost(appContext, QUICK_SEARCH_WIDGET_HOST_ID)
+                orphanedIds.forEach { runCatching { host.deleteAppWidgetId(it) } }
+            }
         }
     }
 
@@ -306,7 +310,7 @@ internal fun rememberHomePinnedWidgets(enabled: Boolean): List<PanelWidgetInfo> 
 @Composable
 internal fun rememberHomeWidgetHost(): WidgetPanelHost {
     val appContext = LocalContext.current.applicationContext
-    val host = remember(appContext) { WidgetPanelHost(appContext, HOME_WIDGET_HOST_ID) }
+    val host = remember(appContext) { WidgetPanelHost(appContext, QUICK_SEARCH_WIDGET_HOST_ID) }
     DisposableEffect(host) {
         host.startListeningShared()
         onDispose { host.release() }

@@ -27,6 +27,7 @@ import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Swipe
+import androidx.compose.material.icons.rounded.Widgets
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalButton
@@ -104,6 +105,7 @@ import com.tk.quicksearch.tools.aiSearch.CalculatorResult
 import com.tk.quicksearch.tools.aiSearch.AiSearchResult
 import kotlin.math.min
 import com.tk.quicksearch.search.other.OtherSearchItemId
+import com.tk.quicksearch.widgetsPanel.HomeAddWidgetSheet
 
 private const val SEARCH_HISTORY_TAB_SWIPE_THRESHOLD_PX = 64f
 private const val OVERSCROLL_FOCUS_THRESHOLD_PX = 24f
@@ -309,6 +311,7 @@ fun SearchContentArea(
         state.recentItems.any { it is RecentSearchItem.Query } &&
             state.recentItems.any { it !is RecentSearchItem.Query }
     var showBackgroundMenu by remember { mutableStateOf(false) }
+    var showHomeWidgetPicker by rememberSaveable { mutableStateOf(false) }
     var backgroundMenuOffset by remember { mutableStateOf(Offset.Zero) }
     val density = LocalDensity.current
     val backgroundMenuDpOffset =
@@ -747,6 +750,25 @@ fun SearchContentArea(
                             },
                         )
                     }
+                    if (!isOverlayPresentation) {
+                        HorizontalDivider()
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.widgets_panel_title)) },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Rounded.Widgets,
+                                    contentDescription = null,
+                                )
+                            },
+                            onClick = {
+                                showBackgroundMenu = false
+                                showHomeWidgetPicker = true
+                            },
+                        )
+                    }
+                }
+                if (showHomeWidgetPicker) {
+                    HomeAddWidgetSheet(onDismiss = { showHomeWidgetPicker = false })
                 }
             }
 

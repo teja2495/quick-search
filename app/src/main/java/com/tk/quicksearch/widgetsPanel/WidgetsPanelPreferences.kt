@@ -151,6 +151,28 @@ class WidgetsPanelPreferences(
         return next
     }
 
+    /** Adds a widget straight to Home, without a place in the widgets panel. */
+    fun addHomeWidget(
+        appWidgetId: Int,
+        provider: ComponentName,
+        columnSpan: Int,
+        rowSpan: Int,
+    ): List<PanelWidgetInfo> {
+        val current = getWidgets()
+        val widget =
+            PanelWidgetInfo(
+                appWidgetId = appWidgetId,
+                providerPackage = provider.packageName,
+                providerClassName = provider.className,
+                columnSpan = columnSpan,
+                rowSpan = rowSpan,
+                isInPanel = false,
+            )
+        val next = current + widget.copy(home = defaultHomePlacement(widget, current))
+        setWidgets(next)
+        return next
+    }
+
     fun removeWidget(appWidgetId: Int): List<PanelWidgetInfo> {
         val next =
             getWidgets().mapNotNull { widget ->
@@ -166,9 +188,13 @@ class WidgetsPanelPreferences(
         return next
     }
 
-    /** Replaces the Home placements of the given widgets, leaving their panel placement alone. */
-    fun setHomePlacements(placements: Map<Int, HomeWidgetPlacement?>): List<PanelWidgetInfo> {
-        val next =
+    /**
+     * Replaces the Home placements of the given widgets, leaving their panel placement alone.
+     * Widgets left in neither Home nor the panel are dropped; returns their ids so the caller can
+     * release them.
+     */
+    fun setHomePlacements(placements: Map<Int, HomeWidgetPlacement?>): List<Int> {
+        val updated =
             getWidgets().map { widget ->
                 if (widget.appWidgetId in placements) {
                     widget.copy(home = placements[widget.appWidgetId])
@@ -176,8 +202,9 @@ class WidgetsPanelPreferences(
                     widget
                 }
             }
+        val (orphaned, next) = updated.partition { !it.isInPanel && it.home == null }
         setWidgets(next)
-        return next
+        return orphaned.map { it.appWidgetId }
     }
 
     private companion object {

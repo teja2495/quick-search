@@ -3,7 +3,6 @@ package com.tk.quicksearch.widgetsPanel
 import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
@@ -15,7 +14,6 @@ import android.view.WindowManager
 import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -115,7 +113,6 @@ import com.tk.quicksearch.shared.util.ImageAppearanceUtils
 import android.util.SizeF
 import kotlin.math.roundToInt
 
-private const val WIDGET_PANEL_HOST_ID = 8291
 private const val WIDGET_PANEL_SWIPE_THRESHOLD_PX = 140f
 internal val WidgetPanelGridRowHeight = 80.dp
 internal val WidgetPanelGridGap = 8.dp
@@ -140,11 +137,6 @@ internal val WidgetLayoutMotion =
         stiffness = Spring.StiffnessMediumLow,
     )
 
-private data class PendingWidgetRequest(
-    val appWidgetId: Int,
-    val provider: AppWidgetProviderInfo,
-)
-
 internal enum class ResizeEdge(
     val xSign: Int,
     val ySign: Int,
@@ -167,11 +159,10 @@ fun WidgetsPanelScreen(
     val activity = remember(context) { context.findActivity() }
     val appContext = context.applicationContext
     val packageManager = context.packageManager
-    val configuration = LocalConfiguration.current
     val density = LocalDensity.current
     val focusManager = LocalFocusManager.current
     val appWidgetManager = remember(appContext) { AppWidgetManager.getInstance(appContext) }
-    val appWidgetHost = remember(appContext) { WidgetPanelHost(appContext, WIDGET_PANEL_HOST_ID) }
+    val appWidgetHost = remember(appContext) { WidgetPanelHost(appContext, QUICK_SEARCH_WIDGET_HOST_ID) }
     val preferences = remember(appContext) { WidgetsPanelPreferences(appContext) }
     val notesPreferences = remember(appContext) { NotesPreferences(appContext) }
     val wallpaperState = SearchScreenWallpaperLogic(state = uiState)
@@ -195,7 +186,6 @@ fun WidgetsPanelScreen(
     var isQuickNoteFocused by remember { mutableStateOf(false) }
     var editingWidgetId by remember { mutableStateOf<Int?>(null) }
     var showPicker by rememberSaveable { mutableStateOf(false) }
-    var pendingRequest by remember { mutableStateOf<PendingWidgetRequest?>(null) }
     // An app-widget backup can restore Quick Search's layout metadata, but Android does not
     // restore the corresponding system-owned app-widget IDs. Keep those obsolete records from
     // reserving invisible cells ahead of widgets added on this device.
@@ -210,14 +200,6 @@ fun WidgetsPanelScreen(
     // being dragged near the top/bottom edge.
     var scrollViewportTopPx by remember { mutableFloatStateOf(0f) }
     var scrollViewportHeightPx by remember { mutableIntStateOf(0) }
-    val widgetOptionsFactory =
-        remember(configuration) {
-            WidgetOptionsFactory(
-                screenWidthDp = configuration.screenWidthDp,
-                density = context.resources.displayMetrics.density,
-                orientation = configuration.orientation,
-            )
-        }
 
     fun persistWidgets(next: List<PanelWidgetInfo>) {
         if (next == widgets) return
@@ -261,131 +243,24 @@ fun WidgetsPanelScreen(
         )
     }
 
-    fun finalizeAddWidget(request: PendingWidgetRequest) {
-        val provider = request.provider
-        val (columnSpan, rowSpan) = initialSpanFor(provider)
-        val options = widgetOptionsFactory.create(columnSpan, rowSpan)
-        appWidgetManager.updateAppWidgetOptions(request.appWidgetId, options)
-        widgets =
-            preferences.addWidget(
-                appWidgetId = request.appWidgetId,
-                provider = provider.provider,
-                columnSpan = columnSpan,
-                rowSpan = rowSpan,
-            )
-        HomePinnedWidgetsStore.publish(widgets)
-        editingWidgetId = null
-        showPicker = false
-        pendingRequest = null
-    }
-
-    val configureLauncher =
-        rememberLauncherForActivityResult(
-            ActivityResultContracts.StartActivityForResult(),
-        ) { result: ActivityResult ->
-            val request = pendingRequest ?: return@rememberLauncherForActivityResult
-            if (
-                result.resultCode == Activity.RESULT_OK ||
-                isWidgetConfigurationOptional(request.provider)
-            ) {
-                finalizeAddWidget(request)
-            } else {
-                appWidgetHost.deleteAppWidgetId(request.appWidgetId)
-                pendingRequest = null
-            }
-        }
-
-    fun launchConfigureIfNeeded(request: PendingWidgetRequest) {
-        val configure = request.provider.configure
-        if (configure == null) {
-            finalizeAddWidget(request)
-            return
-        }
-        val initialOptions =
-            widgetOptionsFactory.create(
-                initialSpanFor(request.provider).first,
-                initialSpanFor(request.provider).second,
-            )
-        val intent =
-            Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
-                .setComponent(configure)
-                .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, request.appWidgetId)
-                .putExtra(
-                    AppWidgetManager.EXTRA_APPWIDGET_OPTIONS,
-                    initialOptions,
+    val requestAddWidget =
+        rememberWidgetAddFlow(appWidgetHost) { appWidgetId, provider, columnSpan, rowSpan ->
+            widgets =
+                preferences.addWidget(
+                    appWidgetId = appWidgetId,
+                    provider = provider.provider,
+                    columnSpan = columnSpan,
+                    rowSpan = rowSpan,
                 )
-        pendingRequest = request
-        val launchFailed =
-            runCatching { configureLauncher.launch(intent) }
-                .exceptionOrNull()
-                ?.let { it is SecurityException || it is ActivityNotFoundException }
-                ?: false
-
-        if (launchFailed) {
-            // Some widgets expose configure components that are not exported to third-party launchers.
-            finalizeAddWidget(request)
-        }
-    }
-
-    val bindLauncher =
-        rememberLauncherForActivityResult(
-            ActivityResultContracts.StartActivityForResult(),
-        ) { result: ActivityResult ->
-            val request = pendingRequest ?: return@rememberLauncherForActivityResult
-            if (result.resultCode == Activity.RESULT_OK) {
-                launchConfigureIfNeeded(request)
-            } else {
-                appWidgetHost.deleteAppWidgetId(request.appWidgetId)
-                pendingRequest = null
-            }
+            HomePinnedWidgetsStore.publish(widgets)
+            editingWidgetId = null
+            showPicker = false
         }
 
     val configureExistingLauncher =
         rememberLauncherForActivityResult(
             ActivityResultContracts.StartActivityForResult(),
         ) { /* result intentionally ignored */ }
-
-    fun requestAddWidget(provider: AppWidgetProviderInfo) {
-        val appWidgetId = appWidgetHost.allocateAppWidgetId()
-        val request = PendingWidgetRequest(appWidgetId, provider)
-        val (columnSpan, rowSpan) = initialSpanFor(provider)
-        val widgetOptions = widgetOptionsFactory.create(columnSpan, rowSpan)
-        val canBind =
-            runCatching {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    appWidgetManager.bindAppWidgetIdIfAllowed(
-                        appWidgetId,
-                        provider.profile,
-                        provider.provider,
-                        widgetOptions,
-                    )
-                } else {
-                    @Suppress("DEPRECATION")
-                    appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, provider.provider)
-                }
-            }.getOrDefault(false)
-
-        if (canBind) {
-            launchConfigureIfNeeded(request)
-        } else {
-            pendingRequest = request
-            val intent =
-                Intent(AppWidgetManager.ACTION_APPWIDGET_BIND)
-                    .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                    .putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, provider.provider)
-                    .putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER_PROFILE, provider.profile)
-                    .putExtra(AppWidgetManager.EXTRA_APPWIDGET_OPTIONS, widgetOptions)
-            val launchFailed =
-                runCatching { bindLauncher.launch(intent) }
-                    .exceptionOrNull()
-                    ?.let { it is SecurityException || it is ActivityNotFoundException }
-                    ?: false
-            if (launchFailed) {
-                appWidgetHost.deleteAppWidgetId(appWidgetId)
-                pendingRequest = null
-            }
-        }
-    }
 
     DisposableEffect(appWidgetHost) {
         appWidgetHost.isScrollInProgressProvider = { panelScrollState.isScrollInProgress }
@@ -647,7 +522,7 @@ fun WidgetsPanelScreen(
                         isQuickNoteEnabled = true
                         showPicker = false
                     },
-                    onSelectWidget = ::requestAddWidget,
+                    onSelectWidget = requestAddWidget,
                 )
             }
         }
@@ -1589,7 +1464,7 @@ internal fun EdgeResizeHandle(
     }
 }
 
-private fun initialSpanFor(provider: AppWidgetProviderInfo): Pair<Int, Int> {
+internal fun initialSpanFor(provider: AppWidgetProviderInfo): Pair<Int, Int> {
     val targetW =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) provider.targetCellWidth else 0
     val targetH =
@@ -1603,7 +1478,7 @@ private fun initialSpanFor(provider: AppWidgetProviderInfo): Pair<Int, Int> {
     return columnSpan to rowSpan
 }
 
-private class WidgetOptionsFactory(
+internal class WidgetOptionsFactory(
     private val screenWidthDp: Int,
     private val density: Float,
     private val orientation: Int,
@@ -1710,7 +1585,7 @@ private fun Bundle.applySamsungHostCompatExtras(
     return this
 }
 
-private fun isWidgetConfigurationOptional(provider: AppWidgetProviderInfo): Boolean {
+internal fun isWidgetConfigurationOptional(provider: AppWidgetProviderInfo): Boolean {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return false
     return provider.widgetFeatures and
         AppWidgetProviderInfo.WIDGET_FEATURE_CONFIGURATION_OPTIONAL != 0
