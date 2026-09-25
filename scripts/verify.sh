@@ -2,7 +2,11 @@
 # One-shot verification for a finished change. Run from anywhere in the repo.
 #
 #   scripts/verify.sh               compile standard flavor, unit tests, checks, debug APK
-#   scripts/verify.sh --no-assemble same, but skip building the APK
+#   scripts/verify.sh --no-assemble same, but skip building the APK (and the device install)
+#   scripts/verify.sh --no-device   build the APK but don't install it on a connected device
+#
+# When one device is connected (or ANDROID_SERIAL picks one), the debug APK is installed and
+# launched there after a clean build. The install revokes the app's accessibility grant.
 #
 # Extra arguments after the flags are passed to Gradle (e.g. --offline).
 # Output is kept short: Gradle's full log goes to build/verify-gradle.log, and on failure only
@@ -13,10 +17,12 @@ cd "$(dirname "$0")/.."
 
 MAX_KOTLIN_LINES=800
 assemble=true
+device=true
 gradle_args=()
 for arg in "$@"; do
     case "$arg" in
         --no-assemble) assemble=false ;;
+        --no-device) device=false ;;
         *) gradle_args+=("$arg") ;;
     esac
 done
@@ -89,6 +95,25 @@ if ! ./gradlew -q --console=plain "${tasks[@]}" ${gradle_args[@]+"${gradle_args[
     failures+=("gradle")
 fi
 
+installed=false
+debug_package=com.tk.quicksearch.debug
+apk=app/build/outputs/apk/standard/debug/app-standard-debug.apk
+if $assemble && $device && ((${#failures[@]} == 0)) && command -v adb >/dev/null; then
+    connected=$(adb devices | awk 'NR > 1 && $2 == "device"' | wc -l | tr -d ' ')
+    if [[ -n "${ANDROID_SERIAL:-}" || "$connected" == 1 ]]; then
+        echo "==> Install and launch on device"
+        if adb install --user 0 -r "$apk" | cap 10 &&
+            adb shell am force-stop "$debug_package" &&
+            adb shell am start -W -n "$debug_package/com.tk.quicksearch.app.MainActivity" | cap 10; then
+            installed=true
+        else
+            failures+=("device install")
+        fi
+    elif ((connected > 1)); then
+        echo "==> Skipping device install: $connected devices connected, set ANDROID_SERIAL to pick one"
+    fi
+fi
+
 if ((${#failures[@]})); then
     echo
     echo "VERIFY FAILED: ${failures[*]}"
@@ -98,5 +123,11 @@ fi
 echo
 echo "VERIFY PASSED"
 if $assemble; then
-    echo "APK: app/build/outputs/apk/standard/debug/app-standard-debug.apk"
+    echo "APK: $apk"
+fi
+if $installed; then
+    echo "Installed and launched $debug_package on the device."
+    if ! adb shell settings get secure enabled_accessibility_services | grep -q "$debug_package"; then
+        echo "Accessibility service grant is off; re-enable it in Settings > Accessibility if needed."
+    fi
 fi

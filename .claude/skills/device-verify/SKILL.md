@@ -1,11 +1,11 @@
 ---
 name: device-verify
-description: Install the Quick Search debug build on the attached Android device and launch it. Use only when the user explicitly asks for on-device verification, installing, or testing on their phone.
+description: Check Quick Search behavior on the attached Android device beyond the install and launch that scripts/verify.sh already does. Use only when the user explicitly asks for on-device verification or testing on their phone.
 ---
 
 # On-device verification
 
-Only do this when the user asked for it in this conversation. Bug reports are often from other users' devices, so a local install is not the default.
+`scripts/verify.sh` already installs and launches the debug build when one device is connected, so a plain install needs no extra step. Use this skill when the user asks for more than that: checking behavior on the device, or installing without running the full verify. Bug reports are often from other users' devices, so a local run doesn't prove their bug is fixed.
 
 1. Build, install, restart and launch the debug app (`com.tk.quicksearch.debug`, "QS Debug"). It is separate from the user's installed app but holds their real test data.
 
