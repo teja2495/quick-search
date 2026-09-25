@@ -371,7 +371,7 @@ fun WidgetsPanelScreen(
                         .imePadding()
                         .padding(horizontal = DesignTokens.ContentHorizontalPadding)
                         .padding(bottom = DesignTokens.SpacingLarge),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
             ) {
 
                 WidgetsPanelHeader(

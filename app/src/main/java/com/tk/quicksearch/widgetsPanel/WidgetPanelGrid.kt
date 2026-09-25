@@ -48,6 +48,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Settings
@@ -126,14 +127,15 @@ internal fun WidgetsPanelHeader(
     onAddWidget: () -> Unit,
     onExitEditMode: () -> Unit,
 ) {
+    val mutedColor = homeTextColor().copy(alpha = 0.7f)
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = stringResource(R.string.widgets_panel_title),
-            style = MaterialTheme.typography.headlineSmall,
-            color = homeTextColor(),
+            style = MaterialTheme.typography.titleMedium,
+            color = mutedColor,
             modifier = Modifier.weight(1f),
         )
         if (inEditMode) {
@@ -141,14 +143,21 @@ internal fun WidgetsPanelHeader(
                 onClick = onExitEditMode,
                 colors = ButtonDefaults.textButtonColors(contentColor = homeTextColor()),
             ) {
-                Text(text = stringResource(R.string.dialog_done))
+                Text(
+                    text = stringResource(R.string.dialog_done),
+                    style = MaterialTheme.typography.labelLarge,
+                )
             }
         } else {
-            TextButton(
+            IconButton(
                 onClick = onAddWidget,
-                colors = ButtonDefaults.textButtonColors(contentColor = homeTextColor()),
+                colors = IconButtonDefaults.iconButtonColors(contentColor = mutedColor),
             ) {
-                Text(text = stringResource(R.string.common_action_add))
+                Icon(
+                    imageVector = Icons.Rounded.Add,
+                    contentDescription = stringResource(R.string.common_action_add),
+                    modifier = Modifier.size(22.dp),
+                )
             }
         }
     }
