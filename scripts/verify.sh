@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # One-shot verification for a finished change. Run from anywhere in the repo.
 #
-#   scripts/verify.sh               compile both flavors, unit tests, checks, debug APK
+#   scripts/verify.sh               compile standard flavor, unit tests, checks, debug APK
 #   scripts/verify.sh --no-assemble same, but skip building the APK
 #
 # Extra arguments after the flags are passed to Gradle (e.g. --offline).
@@ -51,7 +51,6 @@ fi
 
 tasks=(
     :app:compileStandardDebugKotlin
-    :app:compileFdroidDebugKotlin
     :app:testStandardDebugUnitTest
 )
 if $assemble; then

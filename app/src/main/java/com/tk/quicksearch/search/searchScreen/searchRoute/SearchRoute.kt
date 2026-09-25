@@ -553,6 +553,7 @@ fun SearchRoute(
                 if (target is SearchTarget.Engine && target.engine == SearchEngine.DIRECT_SEARCH) {
                     when {
                         uiState.currencyConverterEnabled &&
+                                uiState.calculatorState.result == null &&
                                 CurrencyConversionIntentParser.parseConfirmed(trimmedQuery) != null ->
                             viewModel.executeCurrencyConversion()
                         uiState.worldClockEnabled &&

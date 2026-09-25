@@ -132,81 +132,80 @@ sealed class RecentSearchEntry {
         fun fromRaw(raw: String): RecentSearchEntry? {
             val trimmed = raw.trim()
             if (trimmed.isBlank()) return null
-            val parsed =
-                runCatching {
-                    val json = JSONObject(trimmed)
-                    when (json.optString(FIELD_TYPE)) {
-                        TYPE_QUERY -> {
-                            json
-                                .optString(FIELD_QUERY)
-                                .takeIf { it.isNotBlank() }
-                                ?.let { query ->
-                                    Query(
-                                        query = query,
-                                        aiAnswer =
-                                            json.optString(FIELD_AI_ANSWER).takeIf { it.isNotBlank() },
-                                        aiUsedModelId =
-                                            json
-                                                .optString(FIELD_AI_USED_MODEL_ID)
-                                                .takeIf { it.isNotBlank() },
-                                        aiLlmProviderId =
-                                            json
-                                                .optString(FIELD_AI_LLM_PROVIDER_ID)
-                                                .takeIf { it.isNotBlank() }
-                                                ?.let(AiSearchLlmProviderId::fromStorageValue),
-                                    )
-                                }
-                        }
-
-                        TYPE_CONTACT -> {
-                            json
-                                .optLong(FIELD_CONTACT_ID, -1L)
-                                .takeIf { it >= 0L }
-                                ?.let { Contact(it) }
-                        }
-
-                        TYPE_FILE -> {
-                            json
-                                .optString(FIELD_FILE_URI)
-                                .takeIf { it.isNotBlank() }
-                                ?.let { File(it) }
-                        }
-
-                        TYPE_SETTING -> {
-                            json
-                                .optString(FIELD_SETTING_ID)
-                                .takeIf { it.isNotBlank() }
-                                ?.let { Setting(it) }
-                        }
-
-                        TYPE_APP_SHORTCUT -> {
-                            json
-                                .optString(FIELD_SHORTCUT_KEY)
-                                .takeIf { it.isNotBlank() }
-                                ?.let { AppShortcut(it) }
-                        }
-
-                        TYPE_APP_SETTING -> {
-                            json
-                                .optString(FIELD_SETTING_ID)
-                                .takeIf { it.isNotBlank() }
-                                ?.let { AppSetting(it) }
-                        }
-
-                        TYPE_NOTE -> {
-                            json
-                                .optLong(FIELD_NOTE_ID, -1L)
-                                .takeIf { it > 0L }
-                                ?.let { Note(it) }
-                        }
-
-                        else -> {
-                            null
-                        }
+            // Entries saved before the JSON format are plain query strings.
+            val json = runCatching { JSONObject(trimmed) }.getOrNull() ?: return Query(trimmed)
+            // Valid JSON with a missing or invalid field is dropped rather than shown as a query.
+            return runCatching {
+                when (json.optString(FIELD_TYPE)) {
+                    TYPE_QUERY -> {
+                        json
+                            .optString(FIELD_QUERY)
+                            .takeIf { it.isNotBlank() }
+                            ?.let { query ->
+                                Query(
+                                    query = query,
+                                    aiAnswer =
+                                        json.optString(FIELD_AI_ANSWER).takeIf { it.isNotBlank() },
+                                    aiUsedModelId =
+                                        json
+                                            .optString(FIELD_AI_USED_MODEL_ID)
+                                            .takeIf { it.isNotBlank() },
+                                    aiLlmProviderId =
+                                        json
+                                            .optString(FIELD_AI_LLM_PROVIDER_ID)
+                                            .takeIf { it.isNotBlank() }
+                                            ?.let(AiSearchLlmProviderId::fromStorageValue),
+                                )
+                            }
                     }
-                }.getOrNull()
 
-            return parsed ?: Query(trimmed)
+                    TYPE_CONTACT -> {
+                        json
+                            .optLong(FIELD_CONTACT_ID, -1L)
+                            .takeIf { it >= 0L }
+                            ?.let { Contact(it) }
+                    }
+
+                    TYPE_FILE -> {
+                        json
+                            .optString(FIELD_FILE_URI)
+                            .takeIf { it.isNotBlank() }
+                            ?.let { File(it) }
+                    }
+
+                    TYPE_SETTING -> {
+                        json
+                            .optString(FIELD_SETTING_ID)
+                            .takeIf { it.isNotBlank() }
+                            ?.let { Setting(it) }
+                    }
+
+                    TYPE_APP_SHORTCUT -> {
+                        json
+                            .optString(FIELD_SHORTCUT_KEY)
+                            .takeIf { it.isNotBlank() }
+                            ?.let { AppShortcut(it) }
+                    }
+
+                    TYPE_APP_SETTING -> {
+                        json
+                            .optString(FIELD_SETTING_ID)
+                            .takeIf { it.isNotBlank() }
+                            ?.let { AppSetting(it) }
+                    }
+
+                    TYPE_NOTE -> {
+                        json
+                            .optLong(FIELD_NOTE_ID, -1L)
+                            .takeIf { it > 0L }
+                            ?.let { Note(it) }
+                    }
+
+                    else -> {
+                        null
+                    }
+                }
+            }.getOrNull()
         }
     }
 }

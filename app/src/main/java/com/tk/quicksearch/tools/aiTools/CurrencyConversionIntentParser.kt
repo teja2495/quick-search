@@ -1,9 +1,11 @@
 package com.tk.quicksearch.tools.aiTools
 
+import java.util.Currency
+
 /**
  * Detects and parses currency conversion queries.
  *
- * Supported formats (amount can be integer or decimal with . or ,):
+ * Supported formats (amount can be integer or decimal with . or , and may use thousands separators):
  *   10 inr to usd
  *   10 indian rupees to dollars
  *   ₹10 to $
@@ -147,6 +149,12 @@ object CurrencyConversionIntentParser {
         add("ETH", "ethereum")
     }
 
+    /** ISO 4217 codes plus the non-ISO codes above (e.g. BTC), so arbitrary words aren't treated as codes. */
+    private val KNOWN_CODES: Set<String> by lazy {
+        Currency.getAvailableCurrencies().mapTo(HashSet()) { it.currencyCode } +
+            SYMBOL_TO_CODE.values + NAME_TO_CODE.values
+    }
+
     // Per-symbol regexes pre-compiled once at startup, longest-first for greedy matching.
     // Each entry: (symbol, symBeforeAmountRegex, amountBeforeSymRegex)
     private val SYMBOL_REGEXES: List<Triple<String, Regex, Regex>> =
@@ -156,8 +164,8 @@ object CurrencyConversionIntentParser {
                 val e = Regex.escape(sym)
                 Triple(
                     sym,
-                    Regex("""^$e\s*(\d+(?:[.,]\d+)?)$"""),
-                    Regex("""^(\d+(?:[.,]\d+)?)\s*$e$"""),
+                    Regex("""^$e\s*(\d+(?:[.,]\d+)*)$"""),
+                    Regex("""^(\d+(?:[.,]\d+)*)\s*$e$"""),
                 )
             }
 
@@ -204,7 +212,7 @@ object CurrencyConversionIntentParser {
         val toCode = resolveCurrency(afterSep) ?: return null
 
         if (fromCode == toCode) return null
-        val amountNormalized = amount.replace(",", ".")
+        val amountNormalized = normalizeAmount(amount) ?: return null
         if (amountNormalized.toDoubleOrNull() == null) return null
 
         return ConfirmedCurrencyQuery(
@@ -215,7 +223,36 @@ object CurrencyConversionIntentParser {
         )
     }
 
-    private val AMOUNT_THEN_NAME_RE = Regex("""^(\d+(?:[.,]\d+)?)\s+(.+)$""")
+    private val AMOUNT_THEN_NAME_RE = Regex("""^(\d+(?:[.,]\d+)*)\s+(.+)$""")
+
+    /**
+     * Converts an amount like "1,000", "1,234.5", "1.234,5" or "10,5" to a plain decimal string.
+     * With both separators, the last one is the decimal point. A lone comma followed by exactly
+     * three digits is a thousands separator; any other lone separator is the decimal point.
+     * Returns null when digit grouping is malformed (e.g. "1,00,0").
+     */
+    private fun normalizeAmount(raw: String): String? {
+        val lastSepIndex = raw.indexOfLast { it == '.' || it == ',' }
+        if (lastSepIndex < 0) return raw
+        val separators = raw.filter { it == '.' || it == ',' }
+        val lastSep = raw[lastSepIndex]
+        val digitsAfterLastSep = raw.length - lastSepIndex - 1
+        val decimalSep: Char? =
+            when {
+                separators.toSet().size == 2 -> lastSep
+                separators.length > 1 -> null
+                lastSep == ',' && digitsAfterLastSep == 3 -> null
+                else -> lastSep
+            }
+        val integerPart = if (decimalSep != null) raw.substring(0, lastSepIndex) else raw
+        if (decimalSep != null && decimalSep in integerPart) return null
+        val groups = integerPart.split('.', ',')
+        if (groups.size > 1 && (groups.first().length > 3 || groups.drop(1).any { it.length != 3 })) {
+            return null
+        }
+        val integerDigits = groups.joinToString("")
+        return if (decimalSep != null) "$integerDigits.${raw.substring(lastSepIndex + 1)}" else integerDigits
+    }
 
     /**
      * Extracts (amount, currencyString) from strings like:
@@ -242,9 +279,9 @@ object CurrencyConversionIntentParser {
         SYMBOL_TO_CODE[trimmed]?.let { return it }
         // Name match (case-insensitive)
         NAME_TO_CODE[trimmed.lowercase()]?.let { return it }
-        // 3-letter code assumed valid as-is
-        if (trimmed.length == 3 && trimmed.all { it.isLetter() }) return trimmed.uppercase()
-        return null
+        // 3-letter code, accepted only if it is a real currency code
+        val code = trimmed.uppercase()
+        return code.takeIf { it.length == 3 && it in KNOWN_CODES }
     }
 }
 

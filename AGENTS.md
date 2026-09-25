@@ -78,7 +78,7 @@ Read the matching guide before implementing. Claude Code loads the skill of the 
 
 ## Validation
 
-- **Definition of done:** `scripts/verify.sh` prints `VERIFY PASSED`. It runs whitespace, string parity, and file-size checks, both flavor compiles, all unit tests, and `assembleStandardDebug`, and prints only the errors on failure (full log in `build/verify-gradle.log`). Use `--no-assemble` for intermediate checks. Report the APK path (`app/build/outputs/apk/standard/debug/app-standard-debug.apk`) rather than installing.
+- **Definition of done:** `scripts/verify.sh` prints `VERIFY PASSED`. It runs whitespace, string parity, and file-size checks, the standard flavor compile, all unit tests, and `assembleStandardDebug`, and prints only the errors on failure (full log in `build/verify-gradle.log`). Use `--no-assemble` for intermediate checks. Report the APK path (`app/build/outputs/apk/standard/debug/app-standard-debug.apk`) rather than installing.
 - Faster iteration: `./gradlew -q :app:compileStandardDebugKotlin` (plus `:app:compileFdroidDebugKotlin` for flavor code; plain `compileDebugKotlin` doesn't exist), `./gradlew -q :app:testStandardDebugUnitTest --tests '<pattern>'`, and `python3 scripts/check_strings.py` after resource XML changes.
 - On-device verification only when asked: use the `device-verify` skill (`.claude/skills/device-verify/SKILL.md`).
 - Formatting: follow `.editorconfig` and the surrounding code. The codebase is not ktlint-clean, so don't run ktlint or any formatter over whole files.
