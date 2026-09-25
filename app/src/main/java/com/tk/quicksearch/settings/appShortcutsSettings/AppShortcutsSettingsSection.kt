@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.AppShortcutsSettings
+package com.tk.quicksearch.settings.appShortcutsSettings
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -53,13 +53,13 @@ import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.searchEngines.getDisplayNameResId
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.SearchTargetShortcutMode
-import com.tk.quicksearch.search.data.AppShortcutRepository.areAllAppShortcutsDisabled
-import com.tk.quicksearch.search.data.AppShortcutRepository.isShortcutDisabled
-import com.tk.quicksearch.search.data.AppShortcutRepository.isUserCreatedShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
-import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
+import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.SearchTargetShortcutMode
+import com.tk.quicksearch.search.data.appShortcutRepository.areAllAppShortcutsDisabled
+import com.tk.quicksearch.search.data.appShortcutRepository.isShortcutDisabled
+import com.tk.quicksearch.search.data.appShortcutRepository.isUserCreatedShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.shortcutDisplayName
+import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
 import com.tk.quicksearch.searchEngines.getDisplayName
 import com.tk.quicksearch.searchEngines.isSearchTargetShortcutPackageName
 import com.tk.quicksearch.shared.ui.theme.AppColors

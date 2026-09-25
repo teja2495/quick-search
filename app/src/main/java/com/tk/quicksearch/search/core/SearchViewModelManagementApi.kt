@@ -1,9 +1,9 @@
 package com.tk.quicksearch.search.core
 
 import android.content.Intent
-import com.tk.quicksearch.search.data.AppShortcutRepository.SearchTargetShortcutMode
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
+import com.tk.quicksearch.search.data.appShortcutRepository.SearchTargetShortcutMode
+import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
 import com.tk.quicksearch.search.data.preferences.ResultTrigger
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting

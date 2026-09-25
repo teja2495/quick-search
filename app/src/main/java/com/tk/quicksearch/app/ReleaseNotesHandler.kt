@@ -5,7 +5,7 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import com.tk.quicksearch.search.core.SearchUiState
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.shared.permissions.shouldShowAccessibilityDisclosure
 
 class ReleaseNotesHandler(

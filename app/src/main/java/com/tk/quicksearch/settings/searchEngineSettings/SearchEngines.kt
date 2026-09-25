@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.searchEnginesScreen
+package com.tk.quicksearch.settings.searchEngineSettings
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row

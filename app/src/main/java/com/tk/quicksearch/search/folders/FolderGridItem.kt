@@ -59,7 +59,7 @@ import com.tk.quicksearch.search.apps.TopResultIndicatorTopPadding
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.apps.rememberPinnedGridDragModifier
 import com.tk.quicksearch.search.core.AppIconShape
-import com.tk.quicksearch.search.data.AppShortcutRepository.rememberShortcutIcon
+import com.tk.quicksearch.search.data.appShortcutRepository.rememberShortcutIcon
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.shared.ui.components.ItemMenuLongPressDropdown
 import com.tk.quicksearch.shared.ui.components.ItemMenuLongPressOption

@@ -23,9 +23,8 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.graphics.drawable.toBitmap
-import com.tk.quicksearch.search.common.UserHandleUtils
-import com.tk.quicksearch.search.data.UserAppPreferences
-import com.tk.quicksearch.search.managers.IconPackManager
+import com.tk.quicksearch.search.utils.UserHandleUtils
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll

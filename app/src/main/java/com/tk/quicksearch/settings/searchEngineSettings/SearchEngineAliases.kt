@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.searchEnginesScreen
+package com.tk.quicksearch.settings.searchEngineSettings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -18,13 +18,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
+import com.tk.quicksearch.settings.searchEngineSettings.dialogs.AliasInfoType
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.settings.shared.AliasPill
-import com.tk.quicksearch.settings.searchEnginesScreen.AddEditAliasDialog
+import com.tk.quicksearch.settings.searchEngineSettings.dialogs.AddEditAliasDialog
 
 enum class AliasDisplayType {
     SEARCH_TYPE,

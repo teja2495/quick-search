@@ -1,9 +1,9 @@
 package com.tk.quicksearch.search.core
 
 import android.content.Context
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.launchStaticShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
+import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.launchStaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.CalendarEventInfo
@@ -81,7 +81,7 @@ internal interface SearchViewModelNavigationApi {
 class SearchViewModelNavigationApiDelegate internal constructor(
     private val applicationProvider: () -> android.app.Application,
     private val navigationHandler: () -> com.tk.quicksearch.app.navigation.NavigationHandler,
-    private val userPreferences: com.tk.quicksearch.search.data.UserAppPreferences,
+    private val userPreferences: com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences,
     private val resultsStateProvider: () -> SearchResultsState,
     private val currentQueryProvider: () -> String,
     private val onQueryChange: (String) -> Unit,

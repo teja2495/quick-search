@@ -1,7 +1,7 @@
 package com.tk.quicksearch.search.appSettings
 
 import com.tk.quicksearch.search.core.SearchSection
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination.EXCLUDED_ITEMS
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination.NICKNAMES
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination.TRIGGERS

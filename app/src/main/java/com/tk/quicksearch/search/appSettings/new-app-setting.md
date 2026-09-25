@@ -8,7 +8,7 @@ user-facing setting needs one. Paths are relative to `app/src/main/java/com/tk/q
 - **Search section toggles** come from `SearchSectionRegistry` (`appSettingsToggleKey`) via
   `addSearchSectionToggles()`. Adding the section there creates the row, and the toggle's
   read/write routes through `setSectionEnabled`.
-- **Tool toggles** set `toggleKey` in `settings/ToolSettingsRegistry.kt`. You still need the
+- **Tool toggles** set `toggleKey` in `settings/settingsDetailScreen/ToolSettingsRegistry.kt`. You still need the
   toggle wiring below.
 
 For anything else, pick a type:
@@ -44,7 +44,7 @@ In `AppSettingsRepository.loadSettings()`, call `addNavigation(...)` or `addTogg
 
 - **Opens a settings page:** map it in `app/navigation/AppSettingsDestinationMapper.kt`
   (`toSettingsDetailTypeOrNull`). The `when` is exhaustive, so the compiler flags a missing case.
-  - A new page needs a value in `settings/navigation/SettingsDetailType.kt` and rendering in
+  - A new page needs a value in `settings/settingsDetailScreen/SettingsDetailType.kt` and rendering in
     `SettingsDetailScreen.kt` (or `SettingsDetailLevel2Screen.kt` for nested pages).
 - **Runs an action:** map it to `null` in the mapper, then handle it in
   `app/navigation/AppSettingsDestinationHandler.kt`. That `when` ends in `else -> Unit`, so a
@@ -62,7 +62,7 @@ Back it with the usual flow: preference → `UserAppPreferences` → ViewModel s
 Both `when`s are exhaustive, so the compiler flags missing keys.
 
 If turning the toggle on needs a permission, confirmation, or side effect, intercept it in
-`search/searchScreen/searchScreen/SearchRouteSettingActions.kt` (see `OVERLAY_MODE`,
+`search/searchScreen/searchRoute/SearchRouteSettingActions.kt` (see `OVERLAY_MODE`,
 `DIRECT_DIAL`, `NOTIFICATION_DOTS`) instead of doing it in the ViewModel setter.
 
 ## 5) Optional

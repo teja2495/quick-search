@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.AppShortcutsSettings
+package com.tk.quicksearch.settings.appShortcutsSettings
 
 import android.content.Intent
 import android.content.pm.PackageInfo
@@ -8,9 +8,9 @@ import android.os.Build
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.models.AppInfo
-import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
+import com.tk.quicksearch.search.data.appShortcutRepository.shortcutDisplayName
 import java.util.Locale
 
 data class AppShortcutSource(

@@ -1,7 +1,7 @@
 package com.tk.quicksearch.search.core
 
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.preferences.DEFAULT_WEB_SUGGESTIONS_ENABLED
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.appSettings.AppSettingResult

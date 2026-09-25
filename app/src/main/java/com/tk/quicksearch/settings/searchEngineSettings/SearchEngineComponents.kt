@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.searchEnginesScreen
+package com.tk.quicksearch.settings.searchEngineSettings
 
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable

@@ -1,7 +1,7 @@
 package com.tk.quicksearch.tools.aiSearch
 
 import android.content.Context
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 
 data class CustomLlmProviderConfig(
     val id: String,

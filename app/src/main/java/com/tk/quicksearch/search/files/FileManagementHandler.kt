@@ -5,7 +5,7 @@ import com.tk.quicksearch.search.core.FileManagementConfig
 import com.tk.quicksearch.search.core.GenericManagementHandler
 import com.tk.quicksearch.search.core.ManagementHandler
 import com.tk.quicksearch.search.core.SearchUiState
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.utils.FileUtils
 import kotlinx.coroutines.CoroutineScope

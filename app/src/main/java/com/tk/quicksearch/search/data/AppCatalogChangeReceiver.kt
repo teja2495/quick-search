@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Process
-import com.tk.quicksearch.search.common.UserHandleUtils
+import com.tk.quicksearch.search.utils.UserHandleUtils
 
 /**
  * Invalidates the persisted app catalog when the app process is not running.

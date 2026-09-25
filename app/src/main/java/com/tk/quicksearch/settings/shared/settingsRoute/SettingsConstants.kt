@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.shared
+package com.tk.quicksearch.settings.shared.settingsRoute
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

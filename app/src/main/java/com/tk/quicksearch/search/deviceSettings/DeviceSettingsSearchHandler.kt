@@ -2,7 +2,7 @@ package com.tk.quicksearch.search.deviceSettings
 
 import android.content.Context
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 import com.tk.quicksearch.search.utils.CachedSearchMatcher

@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.searchEnginesScreen
+package com.tk.quicksearch.settings.searchEngineSettings
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -52,6 +52,9 @@ import com.tk.quicksearch.searchEngines.getDisplayName
 import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.searchEngines.shared.IconRenderStyle
 import com.tk.quicksearch.searchEngines.shared.SearchTargetIcon
+import com.tk.quicksearch.settings.searchEngineSettings.dialogs.AddSearchEngineCard
+import com.tk.quicksearch.settings.searchEngineSettings.dialogs.EditAmazonDomainDialog
+import com.tk.quicksearch.settings.searchEngineSettings.dialogs.EditCustomSearchEngineDialog
 import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens

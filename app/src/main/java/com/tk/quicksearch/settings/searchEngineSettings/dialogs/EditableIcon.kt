@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.searchEnginesScreen
+package com.tk.quicksearch.settings.searchEngineSettings.dialogs
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

@@ -37,10 +37,10 @@ import com.tk.quicksearch.search.appShortcuts.AppShortcutResultMenu
 import com.tk.quicksearch.search.folders.AppFolderMember
 import com.tk.quicksearch.search.folders.FolderPreviewIcon
 import com.tk.quicksearch.search.core.AppIconShape
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.rememberShortcutIcon
-import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
-import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
+import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.rememberShortcutIcon
+import com.tk.quicksearch.search.data.appShortcutRepository.shortcutDisplayName
+import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.data.preferences.ResultTrigger
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.shared.ui.theme.DesignTokens

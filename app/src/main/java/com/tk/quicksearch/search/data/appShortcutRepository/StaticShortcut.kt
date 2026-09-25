@@ -1,4 +1,4 @@
-package com.tk.quicksearch.search.data.AppShortcutRepository
+package com.tk.quicksearch.search.data.appShortcutRepository
 
 import android.content.ComponentName
 import android.content.Intent

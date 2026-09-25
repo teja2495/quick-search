@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.shared
+package com.tk.quicksearch.settings.shared.settingsRoute
 
 import android.content.Context
 import android.content.Intent
@@ -13,12 +13,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.shared.permissions.PermissionHelper
-import com.tk.quicksearch.settings.AppShortcutsSettings.AppActivityPickerDialog
-import com.tk.quicksearch.settings.AppShortcutsSettings.AppActivitySource
-import com.tk.quicksearch.settings.AppShortcutsSettings.AppShortcutSource
-import com.tk.quicksearch.settings.AppShortcutsSettings.AppShortcutSourcePickerDialog
-import com.tk.quicksearch.settings.AppShortcutsSettings.isAppActivitySource
-import com.tk.quicksearch.settings.AppShortcutsSettings.queryAppActivitiesForPackage
+import com.tk.quicksearch.settings.appShortcutsSettings.AppActivityPickerDialog
+import com.tk.quicksearch.settings.appShortcutsSettings.AppActivitySource
+import com.tk.quicksearch.settings.appShortcutsSettings.AppShortcutSource
+import com.tk.quicksearch.settings.appShortcutsSettings.AppShortcutSourcePickerDialog
+import com.tk.quicksearch.settings.appShortcutsSettings.isAppActivitySource
+import com.tk.quicksearch.settings.appShortcutsSettings.queryAppActivitiesForPackage
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

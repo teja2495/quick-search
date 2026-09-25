@@ -103,7 +103,7 @@ import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.data.preferences.NotesPreferences
-import com.tk.quicksearch.search.searchScreen.SearchScreenWallpaperLogic
+import com.tk.quicksearch.search.searchScreen.searchRoute.SearchScreenWallpaperLogic
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.LocalHomeTextColorOverride

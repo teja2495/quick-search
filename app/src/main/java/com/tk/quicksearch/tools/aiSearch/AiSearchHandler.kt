@@ -4,7 +4,7 @@ import android.content.Context
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AiSearchState
 import com.tk.quicksearch.search.core.AiSearchStatus
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job

@@ -7,7 +7,7 @@ import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
-import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
+import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.shared.util.getAppGridColumns
 

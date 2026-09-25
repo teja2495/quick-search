@@ -26,7 +26,7 @@ HSPLcom/tk/quicksearch/search/core/SearchViewModel;->initializeServices()V
 HSPLcom/tk/quicksearch/search/core/SearchViewModel;->setupAiSearchStateListener()V
 
 Lcom/tk/quicksearch/search/core/SearchViewModelInitialStateFactory;
-HSPLcom/tk/quicksearch/search/core/SearchViewModelInitialStateFactory;->create(Landroid/content/Context;Lcom/tk/quicksearch/search/data/UserAppPreferences;Lcom/tk/quicksearch/search/startup/StartupSurfaceStore;Ljava/lang/String;)Lcom/tk/quicksearch/search/core/SearchViewModelInitialState;
+HSPLcom/tk/quicksearch/search/core/SearchViewModelInitialStateFactory;->create(Landroid/content/Context;Lcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;Lcom/tk/quicksearch/search/startup/StartupSurfaceStore;Ljava/lang/String;)Lcom/tk/quicksearch/search/core/SearchViewModelInitialState;
 Lcom/tk/quicksearch/search/core/SearchViewModelInitialState;
 
 Lcom/tk/quicksearch/search/core/SearchStartupCoordinator;
@@ -39,7 +39,7 @@ HSPLcom/tk/quicksearch/search/core/SearchStartupLifecycleDelegate;->refreshPermi
 HSPLcom/tk/quicksearch/search/core/SearchStartupLifecycleDelegate;->initializeWithCacheMinimal(Ljava/util/List;Z)V
 HSPLcom/tk/quicksearch/search/core/SearchStartupLifecycleDelegate;->loadCacheAndMinimalPrefs(Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 HSPLcom/tk/quicksearch/search/core/SearchStartupLifecycleDelegate;->loadRemainingStartupPreferences(Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-HSPLcom/tk/quicksearch/search/core/SearchStartupLifecycleDelegate;->applyStartupPreferences(Lcom/tk/quicksearch/search/data/StartupPreferencesFacade$StartupPreferences;)V
+HSPLcom/tk/quicksearch/search/core/SearchStartupLifecycleDelegate;->applyStartupPreferences(Lcom/tk/quicksearch/search/data/userAppPreferences/StartupPreferencesFacade$StartupPreferences;)V
 HSPLcom/tk/quicksearch/search/core/SearchStartupLifecycleDelegate;->launchDeferredInitialization()V
 
 Lcom/tk/quicksearch/search/core/SearchDerivedStateDelegate;
@@ -51,8 +51,8 @@ HSPLcom/tk/quicksearch/search/core/SearchDerivedStateDelegate;->saveStartupSurfa
 
 Lcom/tk/quicksearch/search/core/SearchPreferenceCache;
 Lcom/tk/quicksearch/search/core/SearchPreferenceCache$Companion;
-HSPLcom/tk/quicksearch/search/core/SearchPreferenceCache$Companion;->from(Lcom/tk/quicksearch/search/data/StartupPreferencesFacade$StartupConfig;Z)Lcom/tk/quicksearch/search/core/SearchPreferenceCache;
-HSPLcom/tk/quicksearch/search/core/SearchPreferenceCache$Companion;->from(Lcom/tk/quicksearch/search/data/StartupPreferencesFacade$StartupPreferences;Z)Lcom/tk/quicksearch/search/core/SearchPreferenceCache;
+HSPLcom/tk/quicksearch/search/core/SearchPreferenceCache$Companion;->from(Lcom/tk/quicksearch/search/data/userAppPreferences/StartupPreferencesFacade$StartupConfig;Z)Lcom/tk/quicksearch/search/core/SearchPreferenceCache;
+HSPLcom/tk/quicksearch/search/core/SearchPreferenceCache$Companion;->from(Lcom/tk/quicksearch/search/data/userAppPreferences/StartupPreferencesFacade$StartupPreferences;Z)Lcom/tk/quicksearch/search/core/SearchPreferenceCache;
 
 Lcom/tk/quicksearch/search/startup/StartupSurfaceStore;
 HSPLcom/tk/quicksearch/search/startup/StartupSurfaceStore;-><init>(Landroid/content/Context;)V
@@ -61,22 +61,22 @@ HSPLcom/tk/quicksearch/search/startup/StartupSurfaceStore;->saveSnapshot(Lcom/tk
 Lcom/tk/quicksearch/search/startup/StartupSurfaceSnapshot;
 
 # Startup preference facade and hot preference reads
-Lcom/tk/quicksearch/search/data/UserAppPreferences;
-HSPLcom/tk/quicksearch/search/data/UserAppPreferences;-><init>(Landroid/content/Context;)V
-HSPLcom/tk/quicksearch/search/data/UserAppPreferences;->getStartupPreferences()Lcom/tk/quicksearch/search/data/StartupPreferencesFacade$StartupPreferences;
-HSPLcom/tk/quicksearch/search/data/UserAppPreferences;->loadStartupConfig()Lcom/tk/quicksearch/search/data/StartupPreferencesFacade$StartupConfig;
-HSPLcom/tk/quicksearch/search/data/UserAppPreferences;->isFirstLaunch()Z
-HSPLcom/tk/quicksearch/search/data/UserAppPreferences;->getPinnedPackages()Ljava/util/Set;
-HSPLcom/tk/quicksearch/search/data/UserAppPreferences;->getSuggestionHiddenPackages()Ljava/util/Set;
-HSPLcom/tk/quicksearch/search/data/UserAppPreferences;->shouldShowUsagePermissionBanner()Z
-HSPLcom/tk/quicksearch/search/data/UserAppPreferences;->isOverlayModeEnabled()Z
-HSPLcom/tk/quicksearch/search/data/UserAppPreferences;->getBackgroundSource()Lcom/tk/quicksearch/search/core/BackgroundSource;
-HSPLcom/tk/quicksearch/search/data/UserAppPreferences;->getCustomImageUri()Ljava/lang/String;
+Lcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;
+HSPLcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;-><init>(Landroid/content/Context;)V
+HSPLcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;->getStartupPreferences()Lcom/tk/quicksearch/search/data/userAppPreferences/StartupPreferencesFacade$StartupPreferences;
+HSPLcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;->loadStartupConfig()Lcom/tk/quicksearch/search/data/userAppPreferences/StartupPreferencesFacade$StartupConfig;
+HSPLcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;->isFirstLaunch()Z
+HSPLcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;->getPinnedPackages()Ljava/util/Set;
+HSPLcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;->getSuggestionHiddenPackages()Ljava/util/Set;
+HSPLcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;->shouldShowUsagePermissionBanner()Z
+HSPLcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;->isOverlayModeEnabled()Z
+HSPLcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;->getBackgroundSource()Lcom/tk/quicksearch/search/core/BackgroundSource;
+HSPLcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;->getCustomImageUri()Ljava/lang/String;
 
-Lcom/tk/quicksearch/search/data/StartupPreferencesFacade;
-HSPLcom/tk/quicksearch/search/data/StartupPreferencesFacade;-><init>(Lcom/tk/quicksearch/search/data/UserAppPreferences;Landroid/content/Context;)V
-HSPLcom/tk/quicksearch/search/data/StartupPreferencesFacade;->getStartupPreferences()Lcom/tk/quicksearch/search/data/StartupPreferencesFacade$StartupPreferences;
-HSPLcom/tk/quicksearch/search/data/StartupPreferencesFacade;->loadStartupConfig()Lcom/tk/quicksearch/search/data/StartupPreferencesFacade$StartupConfig;
+Lcom/tk/quicksearch/search/data/userAppPreferences/StartupPreferencesFacade;
+HSPLcom/tk/quicksearch/search/data/userAppPreferences/StartupPreferencesFacade;-><init>(Lcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;Landroid/content/Context;)V
+HSPLcom/tk/quicksearch/search/data/userAppPreferences/StartupPreferencesFacade;->getStartupPreferences()Lcom/tk/quicksearch/search/data/userAppPreferences/StartupPreferencesFacade$StartupPreferences;
+HSPLcom/tk/quicksearch/search/data/userAppPreferences/StartupPreferencesFacade;->loadStartupConfig()Lcom/tk/quicksearch/search/data/userAppPreferences/StartupPreferencesFacade$StartupConfig;
 
 # Repository and search pipeline classes touched at startup
 Lcom/tk/quicksearch/search/data/AppsRepository;
@@ -92,8 +92,8 @@ Lcom/tk/quicksearch/search/data/FileSearchRepository;
 HSPLcom/tk/quicksearch/search/data/FileSearchRepository;-><init>(Landroid/content/Context;)V
 HSPLcom/tk/quicksearch/search/data/FileSearchRepository;->hasPermission()Z
 
-Lcom/tk/quicksearch/search/data/AppShortcutRepository/AppShortcutRepository;
-HSPLcom/tk/quicksearch/search/data/AppShortcutRepository/AppShortcutRepository;-><init>(Landroid/content/Context;)V
+Lcom/tk/quicksearch/search/data/appShortcutRepository/AppShortcutRepository;
+HSPLcom/tk/quicksearch/search/data/appShortcutRepository/AppShortcutRepository;-><init>(Landroid/content/Context;)V
 
 Lcom/tk/quicksearch/search/deviceSettings/DeviceSettingsRepository;
 HSPLcom/tk/quicksearch/search/deviceSettings/DeviceSettingsRepository;-><init>(Landroid/content/Context;)V
@@ -121,7 +121,7 @@ Lcom/tk/quicksearch/search/contacts/actions/ContactActionHandler;
 Lcom/tk/quicksearch/tools/aiSearch/AiSearchHandler;
 Lcom/tk/quicksearch/search/apps/AppSearchManager;
 Lcom/tk/quicksearch/search/apps/AppManagementService;
-Lcom/tk/quicksearch/search/contacts/utils/ContactManagementHandler;
+Lcom/tk/quicksearch/search/contacts/ContactManagementHandler;
 Lcom/tk/quicksearch/search/files/FileManagementHandler;
 Lcom/tk/quicksearch/search/deviceSettings/DeviceSettingsManagementHandler;
 Lcom/tk/quicksearch/tools/calculator/CalculatorHandler;

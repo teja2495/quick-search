@@ -2,7 +2,7 @@ package com.tk.quicksearch.tools.aiTools
 
 import android.content.Context
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderRegistry
 import com.tk.quicksearch.tools.aiSearch.LlmRequest
 import com.tk.quicksearch.tools.aiSearch.LlmResponseText

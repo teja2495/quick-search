@@ -5,7 +5,7 @@ import android.os.SystemClock
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.AppCatalogChange
 import com.tk.quicksearch.search.data.AppsRepository
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.data.applyCatalogRemoval
 import com.tk.quicksearch.search.fuzzy.FuzzySearchConfig
 import com.tk.quicksearch.search.models.AppInfo

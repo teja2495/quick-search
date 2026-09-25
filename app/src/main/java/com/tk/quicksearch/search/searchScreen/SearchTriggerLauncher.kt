@@ -49,10 +49,10 @@ internal fun openMatchingSearchTrigger(
             }
 
         (state.allAppShortcuts + renderingState.appShortcutResults)
-            .distinctBy { com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey(it) }
+            .distinctBy { com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey(it) }
             .firstOrNull { shortcut ->
                 appShortcutsParams.getShortcutTrigger(
-                    com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey(shortcut),
+                    com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey(shortcut),
                 )?.let { trigger ->
                     matchesTrigger(query, trigger.word, trigger.triggerAfterSpace)
                 } == true

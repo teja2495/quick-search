@@ -1,4 +1,4 @@
-package com.tk.quicksearch.widgets.WidgetConfigScreen.components
+package com.tk.quicksearch.widgets.widgetConfigScreen.components
 
 import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.Canvas

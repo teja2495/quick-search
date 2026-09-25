@@ -2,7 +2,7 @@ package com.tk.quicksearch.search.apps.notificationDots
 
 import android.app.Notification
 import android.service.notification.StatusBarNotification
-import com.tk.quicksearch.search.common.UserHandleUtils
+import com.tk.quicksearch.search.utils.UserHandleUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

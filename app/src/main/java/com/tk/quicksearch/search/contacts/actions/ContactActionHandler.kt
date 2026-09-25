@@ -13,7 +13,7 @@ import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.PendingThirdPartyCall
 import com.tk.quicksearch.search.core.PhoneNumberSelection
 import com.tk.quicksearch.search.core.SearchUiState
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry

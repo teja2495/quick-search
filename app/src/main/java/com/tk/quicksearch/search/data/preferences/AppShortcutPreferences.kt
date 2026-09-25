@@ -1,7 +1,7 @@
 package com.tk.quicksearch.search.data.preferences
 
 import android.content.Context
-import com.tk.quicksearch.search.data.AppShortcutRepository.allAppShortcutsKey
+import com.tk.quicksearch.search.data.appShortcutRepository.allAppShortcutsKey
 import com.tk.quicksearch.search.data.assets.ManagedAssetStore
 
 /**

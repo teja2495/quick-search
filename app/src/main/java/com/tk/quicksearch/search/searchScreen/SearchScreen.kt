@@ -38,21 +38,17 @@ import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.appSettings.AppSettingResult
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.other.OtherSearchItemId
 // import com.tk.quicksearch.search.searchScreen.SearchEngineOnboardingOverlay
-import com.tk.quicksearch.search.searchScreen.SearchScreenBackground
-import com.tk.quicksearch.search.searchScreen.SearchScreenContent
-import com.tk.quicksearch.search.searchScreen.SectionParams
-import com.tk.quicksearch.search.searchScreen.DerivedState
 
 // Import the extracted components
-import com.tk.quicksearch.search.searchScreen.SearchRoute
-import com.tk.quicksearch.search.searchScreen.SearchScreenStateManagement
-import com.tk.quicksearch.search.searchScreen.SearchScreenDialogLogic
+import com.tk.quicksearch.search.searchScreen.searchRoute.SearchRoute
+import com.tk.quicksearch.search.searchScreen.searchRoute.SearchScreenStateManagement
+import com.tk.quicksearch.search.searchScreen.searchRoute.SearchScreenDialogLogic
 import com.tk.quicksearch.shared.ui.theme.ThemeModeFallbackBackgroundAlpha
 import com.tk.quicksearch.shared.util.ImageAppearanceUtils
 

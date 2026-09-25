@@ -1,4 +1,4 @@
-package com.tk.quicksearch.search.data.AppShortcutRepository
+package com.tk.quicksearch.search.data.appShortcutRepository
 
 import android.content.ComponentName
 import android.content.Context
@@ -17,11 +17,6 @@ import android.util.Base64
 import android.util.TypedValue
 import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.data.AppShortcutRepository.HARDCODED_SHORTCUT_KEYS
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.isUserCreatedShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
-import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
 import com.tk.quicksearch.searchEngines.SearchTargetQueryShortcutActivity
 import com.tk.quicksearch.tools.tasker.TaskerIntegration
 import org.json.JSONArray

@@ -1,4 +1,4 @@
-package com.tk.quicksearch.widgets.WidgetConfigScreen.components
+package com.tk.quicksearch.widgets.widgetConfigScreen.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

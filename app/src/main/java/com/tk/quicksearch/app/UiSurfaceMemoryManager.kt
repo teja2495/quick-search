@@ -1,9 +1,9 @@
 package com.tk.quicksearch.app
 
 import com.tk.quicksearch.search.apps.clearAppIconMemoryCache
-import com.tk.quicksearch.search.data.AppShortcutRepository.clearShortcutIconMemoryCache
+import com.tk.quicksearch.search.data.appShortcutRepository.clearShortcutIconMemoryCache
 import com.tk.quicksearch.search.files.clearFileThumbnailMemoryCache
-import com.tk.quicksearch.search.managers.IconPackManager
+import com.tk.quicksearch.search.apps.IconPackManager
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import java.util.concurrent.atomic.AtomicInteger
 

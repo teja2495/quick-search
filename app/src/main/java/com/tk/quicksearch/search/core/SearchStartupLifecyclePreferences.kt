@@ -1,12 +1,12 @@
 package com.tk.quicksearch.search.core
 
 import com.tk.quicksearch.search.apps.notificationDots.NotificationDotsPermission
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.isUserCreatedShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
+import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.isUserCreatedShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.data.AppsRepository
-import com.tk.quicksearch.search.data.StartupPreferencesFacade
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.StartupPreferencesFacade
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.apps.AppSearchPerformanceLogger

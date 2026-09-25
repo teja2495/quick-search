@@ -1,9 +1,9 @@
 package com.tk.quicksearch.search.core
 
 import android.content.Intent
-import com.tk.quicksearch.search.data.AppShortcutRepository.SearchTargetShortcutMode
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
+import com.tk.quicksearch.search.data.appShortcutRepository.SearchTargetShortcutMode
+import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
 import com.tk.quicksearch.search.data.preferences.ResultTrigger
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
@@ -21,13 +21,13 @@ import kotlinx.coroutines.launch
 
 class SearchViewModelManagementApiDelegate internal constructor(
     private val scope: CoroutineScope,
-    private val userPreferences: com.tk.quicksearch.search.data.UserAppPreferences,
+    private val userPreferences: com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences,
     private val resultsStateProvider: () -> SearchResultsState,
     private val permissionStateProvider: () -> SearchPermissionState,
     private val historyDelegate: SearchHistoryDelegate,
     private val staticDataDelegate: SearchStaticDataDelegate,
     private val appManager: () -> com.tk.quicksearch.search.apps.AppManagementService,
-    private val contactManager: () -> com.tk.quicksearch.search.contacts.utils.ContactManagementHandler,
+    private val contactManager: () -> com.tk.quicksearch.search.contacts.ContactManagementHandler,
     private val fileManager: () -> com.tk.quicksearch.search.files.FileManagementHandler,
     private val settingsManager: () -> com.tk.quicksearch.search.deviceSettings.DeviceSettingsManagementHandler,
     private val calendarManager: () -> com.tk.quicksearch.search.calendar.CalendarManagementHandler,

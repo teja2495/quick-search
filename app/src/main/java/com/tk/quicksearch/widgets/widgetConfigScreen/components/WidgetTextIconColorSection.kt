@@ -1,4 +1,4 @@
-package com.tk.quicksearch.widgets.WidgetConfigScreen.components
+package com.tk.quicksearch.widgets.widgetConfigScreen.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -7,7 +7,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
-import com.tk.quicksearch.widgets.WidgetConfigScreen.components.TextIconColorChoiceSegmentedButtonRow
 import com.tk.quicksearch.widgets.utils.TextIconColorOverride
 import com.tk.quicksearch.widgets.utils.WidgetConfigConstants
 import com.tk.quicksearch.widgets.utils.WidgetPreferences

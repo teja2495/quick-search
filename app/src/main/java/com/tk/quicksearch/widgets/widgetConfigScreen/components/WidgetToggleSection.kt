@@ -1,4 +1,4 @@
-package com.tk.quicksearch.widgets.WidgetConfigScreen.components
+package com.tk.quicksearch.widgets.widgetConfigScreen.components
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement

@@ -53,13 +53,12 @@ import androidx.glance.unit.ColorProvider
 import com.tk.quicksearch.R
 import com.tk.quicksearch.app.MainActivity
 import com.tk.quicksearch.media.MediaCommand
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomButtonsWidgetMediaAction
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
 import com.tk.quicksearch.widgets.customButtonsWidget.WidgetActionActivity
 import com.tk.quicksearch.widgets.customButtonsWidget.playPauseIconRes
 import com.tk.quicksearch.widgets.customButtonsWidget.rememberWidgetButtonIcon
-import com.tk.quicksearch.widgets.searchWidget.MicAction
 import com.tk.quicksearch.widgets.utils.BorderColorOption
 import com.tk.quicksearch.widgets.utils.TextIconColorOverride
 import com.tk.quicksearch.widgets.utils.WidgetPreferences

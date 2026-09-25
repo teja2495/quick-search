@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.shared
+package com.tk.quicksearch.settings.shared.settingsRoute
 
 import android.Manifest
 import android.content.Context

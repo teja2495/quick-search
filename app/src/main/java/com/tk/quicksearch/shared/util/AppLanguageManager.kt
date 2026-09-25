@@ -75,7 +75,7 @@ object AppLanguageManager {
         val normalizedTag = normalizeLanguageTag(languageTag)
         BootstrapPreferences.setAppLanguageTag(context, normalizedTag)
         // Keep the legacy value for one release so downgrade and v1 backup behavior is stable.
-        com.tk.quicksearch.search.data.UserAppPreferences(context).setAppLanguageTag(normalizedTag)
+        com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences(context).setAppLanguageTag(normalizedTag)
         AppCompatDelegate.setApplicationLocales(normalizedTag.toLocaleListCompat())
         context.findActivity()?.recreate()
     }

@@ -4,9 +4,9 @@ import com.tk.quicksearch.search.core.SearchFeatureState
 import com.tk.quicksearch.search.core.SearchResultsState
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.StartupPhase
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.isShortcutDisabled
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.isShortcutDisabled
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.models.AppInfo
 import java.util.UUID
 import kotlinx.coroutines.CoroutineScope

@@ -3,7 +3,7 @@ package com.tk.quicksearch.search.core
 import android.content.Context
 import android.content.Intent
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.searchEngines.AliasHandler
 import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
 import com.tk.quicksearch.searchEngines.AliasValidator.hasTriggerAliasConflict

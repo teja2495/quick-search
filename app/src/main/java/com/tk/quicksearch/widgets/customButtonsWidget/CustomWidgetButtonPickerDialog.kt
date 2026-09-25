@@ -84,9 +84,9 @@ import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.loadAppIconBase64
-import com.tk.quicksearch.search.data.AppShortcutRepository.rememberShortcutIcon
+import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.loadAppIconBase64
+import com.tk.quicksearch.search.data.appShortcutRepository.rememberShortcutIcon
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
@@ -102,7 +102,7 @@ import com.tk.quicksearch.searchEngines.loadCustomIconAsBase64
 import com.tk.quicksearch.widgets.utils.WidgetPreferences
 import com.tk.quicksearch.widgets.utils.WidgetConfigConstants
 import com.tk.quicksearch.widgets.utils.WidgetButtonSlotConfig
-import com.tk.quicksearch.widgets.WidgetConfigScreen.components.WidgetColorPickerDialog
+import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetColorPickerDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

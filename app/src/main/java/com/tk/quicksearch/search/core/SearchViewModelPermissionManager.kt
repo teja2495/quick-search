@@ -3,7 +3,7 @@ package com.tk.quicksearch.search.core
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.CalendarRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 
 class PermissionManager(
     private val contactRepository: ContactRepository,

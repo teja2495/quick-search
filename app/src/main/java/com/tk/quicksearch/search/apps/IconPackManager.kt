@@ -1,4 +1,4 @@
-package com.tk.quicksearch.search.managers
+package com.tk.quicksearch.search.apps
 
 import android.content.Context
 import android.content.Intent
@@ -19,7 +19,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.search.core.IconPackInfo
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import org.xmlpull.v1.XmlPullParser
 import java.io.InputStream
 import java.util.Locale

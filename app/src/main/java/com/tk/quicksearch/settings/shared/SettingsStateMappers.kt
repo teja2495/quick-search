@@ -2,6 +2,7 @@ package com.tk.quicksearch.settings.shared
 
 import com.tk.quicksearch.search.core.CustomTool
 import com.tk.quicksearch.search.core.SearchUiState
+import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenState
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 
 internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState {
@@ -134,7 +135,7 @@ private data class SearchResultsMapperState(
     val excludedContacts: List<com.tk.quicksearch.search.models.ContactInfo>,
     val excludedFiles: List<com.tk.quicksearch.search.models.DeviceFile>,
     val excludedSettings: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting>,
-    val excludedAppShortcuts: List<com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut>,
+    val excludedAppShortcuts: List<com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut>,
     val disabledSections: Set<com.tk.quicksearch.search.core.SearchSection>,
     val appSuggestionsEnabled: Boolean,
     val enabledAppSuggestionTabs: Set<com.tk.quicksearch.search.core.AppSuggestionTabType>,
@@ -358,7 +359,7 @@ private fun SearchUiState.toToolsSettingsState() =
     )
 
 private data class AppShortcutsMapperState(
-    val allAppShortcuts: List<com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut>,
+    val allAppShortcuts: List<com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut>,
     val allDeviceSettings: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting>,
     val allApps: List<com.tk.quicksearch.search.models.AppInfo>,
     val disabledAppShortcutIds: Set<String>,

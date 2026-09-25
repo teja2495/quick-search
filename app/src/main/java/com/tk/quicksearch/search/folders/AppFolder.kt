@@ -1,8 +1,8 @@
 package com.tk.quicksearch.search.folders
 
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.isShortcutDisabled
-import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
+import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.isShortcutDisabled
+import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.models.AppInfo
 
 private const val APP_MEMBER_PREFIX = "APP:"

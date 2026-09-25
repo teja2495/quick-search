@@ -1,4 +1,4 @@
-package com.tk.quicksearch.search.data
+package com.tk.quicksearch.search.data.userAppPreferences
 
 import android.content.Context
 import com.tk.quicksearch.search.core.CallingApp

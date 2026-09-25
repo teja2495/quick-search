@@ -2,7 +2,7 @@ package com.tk.quicksearch.tools.colorVisualizer
 
 import com.tk.quicksearch.search.core.CalculatorState
 import com.tk.quicksearch.search.core.SearchToolType
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 
 class ColorVisualizerHandler(
     private val userPreferences: UserAppPreferences,

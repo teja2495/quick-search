@@ -2,7 +2,7 @@ package com.tk.quicksearch.search.core
 
 import android.content.Context
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.tools.aiTools.ConfirmedDictionaryQuery
 import com.tk.quicksearch.tools.aiTools.CurrencyConversionIntentParser
 import com.tk.quicksearch.tools.aiTools.CurrencyConverterHandler

@@ -86,10 +86,10 @@ internal interface SearchViewModelSearchEngineApi {
 
 class SearchViewModelSearchEngineApiDelegate internal constructor(
     private val scope: CoroutineScope,
-    private val userPreferences: com.tk.quicksearch.search.data.UserAppPreferences,
+    private val userPreferences: com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences,
     private val aliasHandler: () -> com.tk.quicksearch.searchEngines.AliasHandler,
     private val sectionManager: () -> SectionManager,
-    private val messagingHandler: () -> com.tk.quicksearch.search.contacts.utils.MessagingHandler,
+    private val messagingHandler: () -> com.tk.quicksearch.search.contacts.MessagingHandler,
     private val searchEngineManager: () -> com.tk.quicksearch.searchEngines.SearchEngineManager,
     private val aiSearchHandler: () -> com.tk.quicksearch.tools.aiSearch.AiSearchHandler,
     private val releaseNotesHandler: () -> com.tk.quicksearch.app.ReleaseNotesHandler,

@@ -6,7 +6,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.LauncherApps
 import android.content.pm.PackageManager
 import android.os.Build
-import com.tk.quicksearch.search.common.UserHandleUtils
+import com.tk.quicksearch.search.utils.UserHandleUtils
 import com.tk.quicksearch.search.models.AppInfo
 
 internal data class AppCatalogChange(

@@ -24,7 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.contacts.components.ContactAvatar
-import com.tk.quicksearch.search.data.AppShortcutRepository.rememberShortcutIcon
+import com.tk.quicksearch.search.data.appShortcutRepository.rememberShortcutIcon
 import java.util.Locale
 
 @Composable

@@ -29,7 +29,7 @@ Repository playbook for coding agents. When prose and code disagree, trust the c
 - Orchestrator: `search/core/SearchViewModel.kt`. Add logic to its focused delegates/API files, not the main class.
 - Query flow: `search/core/SearchQueryCoordinator.kt`, `UnifiedSearchHandler.kt`, `searchEngines/SecondarySearchOrchestrator.kt`.
 - `search/core/SearchSectionRegistry.kt` is the single table for section order, aliases, settings toggles, permissions, and minimum query lengths.
-- Ranking/matching: `search/common/`, `search/fuzzy/`, `search/utils/`. Preserve query-version checks, debounce, and stale-result suppression.
+- Ranking/matching: `search/utils/` (matchers, normalizers, ranking), `search/fuzzy/`. Preserve query-version checks, debounce, and stale-result suppression.
 
 ### Data and preferences
 
@@ -41,8 +41,8 @@ Repository playbook for coding agents. When prose and code disagree, trust the c
 
 ### UI
 
-- Search route: `search/searchScreen/searchScreen/SearchRoute.kt`. Composition: `search/searchScreen/SearchScreen.kt`, `SearchScreenContent.kt`, `SectionRenderingComposables.kt`, `searchScreenLayout/` (includes Home sections and At a Glance).
-- Settings: `settings/shared/`, `settings/navigation/`, plus feature-specific settings packages.
+- Search route: `search/searchScreen/searchRoute/SearchRoute.kt`. Composition: `search/searchScreen/SearchScreen.kt`, `SearchScreenContent.kt`, `SectionRenderingComposables.kt`, `searchScreenLayout/` (includes Home sections and At a Glance).
+- Settings: `settings/settingsScreen/` (main screen, backup/export), `settings/settingsDetailScreen/` (detail pages, `SettingsDetailType`, routing), `settings/shared/`, plus feature-specific settings packages.
 - Reuse `shared/ui/components/`, `shared/ui/theme/DesignTokens.kt`, `shared/ui/theme/AppColors.kt`. Read `DESIGN_SYSTEM.md` (repo root) before adding UI or tokens; update it when you add or rename tokens, theme modes, or shared components. For shared paths, account for wallpaper, custom background, one-handed/bottom search bar, tablet, and overlay modes.
 - Other feature packages: `widgetsPanel/` (Home widget grid), `widgets/` (app widgets), `reminders/`, `media/`, `edgeGesture/`, `floatingButton/`, `pinnedNotifications/`, `tile/`, `onboarding/`.
 
@@ -66,7 +66,7 @@ Read the matching guide before implementing:
 | Built-in search engine | `searchEngines/new-search-engine.md` |
 | Searchable app-setting row (every new user-facing setting) | `search/appSettings/new-app-setting.md` |
 
-A new section typically touches the model/repository or handler, `SearchUiState`, `SearchSectionRegistry`, orchestration, rendering/order, permission degradation, preferences, and the searchable app-setting entry. A new tool lives in its own `tools/<name>/` package, following `calculator/` and `unitConverter/`. It also touches `search/core/SearchHandlerContainer.kt`, `search/core/SearchToolCoordinator.kt`, `settings/ToolSettingsRegistry.kt`, and `searchEngines/AliasHandler.kt`.
+A new section typically touches the model/repository or handler, `SearchUiState`, `SearchSectionRegistry`, orchestration, rendering/order, permission degradation, preferences, and the searchable app-setting entry. A new tool lives in its own `tools/<name>/` package, following `calculator/` and `unitConverter/`. It also touches `search/core/SearchHandlerContainer.kt`, `search/core/SearchToolCoordinator.kt`, `settings/settingsDetailScreen/ToolSettingsRegistry.kt`, and `searchEngines/AliasHandler.kt`.
 
 ## Guardrails
 

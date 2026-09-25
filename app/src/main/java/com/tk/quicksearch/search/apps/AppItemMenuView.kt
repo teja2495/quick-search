@@ -63,12 +63,12 @@ import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.LocalItemCustomizationRemover
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination
 import com.tk.quicksearch.search.appSettings.LocalOpenAppSettingDestination
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.AppsRepository
 import com.tk.quicksearch.search.data.TodayAppUsage
-import com.tk.quicksearch.search.data.UserAppPreferences
-import com.tk.quicksearch.search.data.AppShortcutRepository.rememberShortcutIcon
-import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
+import com.tk.quicksearch.search.data.appShortcutRepository.rememberShortcutIcon
+import com.tk.quicksearch.search.data.appShortcutRepository.shortcutDisplayName
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.pinnedNotifications.PinnedNotifications
 import com.tk.quicksearch.search.apps.speedBump.SpeedBump

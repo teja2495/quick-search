@@ -1,8 +1,5 @@
 package com.tk.quicksearch.search.apps
 
-import com.tk.quicksearch.search.managers.IconPackDrawableInfo
-import com.tk.quicksearch.search.managers.filterIconPackDrawables
-import com.tk.quicksearch.search.managers.mergeIconPackDrawables
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

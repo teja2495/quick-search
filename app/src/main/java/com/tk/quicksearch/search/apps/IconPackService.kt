@@ -1,11 +1,9 @@
 package com.tk.quicksearch.search.apps
 
 import android.app.Application
-import com.tk.quicksearch.search.apps.prefetchAppIcons
 import com.tk.quicksearch.search.core.IconPackInfo
 import com.tk.quicksearch.search.core.SearchUiState
-import com.tk.quicksearch.search.data.UserAppPreferences
-import com.tk.quicksearch.search.managers.IconPackManager
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

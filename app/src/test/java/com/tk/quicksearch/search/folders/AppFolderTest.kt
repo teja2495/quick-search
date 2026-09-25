@@ -1,6 +1,6 @@
 package com.tk.quicksearch.search.folders
 
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.models.AppInfo
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull

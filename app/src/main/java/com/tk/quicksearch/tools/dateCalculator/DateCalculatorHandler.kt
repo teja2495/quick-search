@@ -2,7 +2,7 @@ package com.tk.quicksearch.tools.dateCalculator
 
 import com.tk.quicksearch.search.core.CalculatorState
 import com.tk.quicksearch.search.core.SearchToolType
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import java.time.LocalDate
 import java.time.ZoneId
 

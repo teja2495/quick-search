@@ -1,7 +1,7 @@
 package com.tk.quicksearch.search.core
 
 import com.tk.quicksearch.search.data.AppsRepository
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.models.AppInfo
 import java.util.Calendar
 import java.util.Locale

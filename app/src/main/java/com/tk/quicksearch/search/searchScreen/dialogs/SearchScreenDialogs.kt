@@ -44,7 +44,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.app.PastReleaseNotes
 import com.tk.quicksearch.app.ReleaseNotesRepository
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.CalendarEventInfo

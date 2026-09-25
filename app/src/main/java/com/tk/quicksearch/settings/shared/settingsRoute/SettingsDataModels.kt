@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.shared
+package com.tk.quicksearch.settings.shared.settingsRoute
 
 import com.tk.quicksearch.search.core.CustomTool
 import com.tk.quicksearch.search.core.SearchTarget
@@ -11,8 +11,8 @@ import com.tk.quicksearch.search.core.CallingApp
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.SearchSection
-import com.tk.quicksearch.search.data.AppShortcutRepository.SearchTargetShortcutMode
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.SearchTargetShortcutMode
+import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
@@ -21,8 +21,9 @@ import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.models.SecondaryRankingSignal
 import com.tk.quicksearch.search.core.IconPackInfo
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
-import com.tk.quicksearch.settings.AppShortcutsSettings.AppShortcutSource
+import com.tk.quicksearch.settings.appShortcutsSettings.AppShortcutSource
 import com.tk.quicksearch.settings.settingsDetailScreen.AiBackedToolConfigId
+import com.tk.quicksearch.settings.shared.SettingsCommand
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.tools.aiSearch.GeminiTextModel
 import com.tk.quicksearch.tools.tasker.TaskerIntentTool

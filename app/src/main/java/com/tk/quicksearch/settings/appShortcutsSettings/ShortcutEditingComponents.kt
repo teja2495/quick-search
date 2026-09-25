@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.AppShortcutsSettings
+package com.tk.quicksearch.settings.appShortcutsSettings
 
 import android.graphics.BitmapFactory
 import android.util.Base64
@@ -66,15 +66,14 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.core.SearchTarget
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.rememberShortcutIcon
-import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
-import com.tk.quicksearch.search.data.AppShortcutRepository.SearchTargetShortcutMode
+import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.rememberShortcutIcon
+import com.tk.quicksearch.search.data.appShortcutRepository.shortcutDisplayName
+import com.tk.quicksearch.search.data.appShortcutRepository.SearchTargetShortcutMode
 import com.tk.quicksearch.searchEngines.SearchTargetQueryShortcutActivity
 import com.tk.quicksearch.searchEngines.loadCustomIconAsBase64
 import com.tk.quicksearch.searchEngines.shared.IconRenderStyle
 import com.tk.quicksearch.searchEngines.shared.SearchTargetIcon
-import com.tk.quicksearch.settings.AppShortcutsSettings.AppShortcutSource
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
 import com.tk.quicksearch.shared.util.withoutWhitespaces

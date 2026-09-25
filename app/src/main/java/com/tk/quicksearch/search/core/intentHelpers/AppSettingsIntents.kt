@@ -1,4 +1,4 @@
-package com.tk.quicksearch.search.core
+package com.tk.quicksearch.search.core.intentHelpers
 
 import android.app.Application
 import android.content.Intent

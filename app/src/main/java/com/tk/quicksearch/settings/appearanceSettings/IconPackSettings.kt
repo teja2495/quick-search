@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.AppearanceSettings
+package com.tk.quicksearch.settings.appearanceSettings
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable

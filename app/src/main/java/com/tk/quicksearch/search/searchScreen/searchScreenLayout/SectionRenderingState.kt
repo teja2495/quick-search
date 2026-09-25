@@ -1,7 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
 import com.tk.quicksearch.search.core.SearchSection
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.appSettings.AppSettingResult
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.CalendarEventInfo

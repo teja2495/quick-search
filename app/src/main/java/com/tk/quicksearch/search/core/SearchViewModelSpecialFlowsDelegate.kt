@@ -8,7 +8,7 @@ import kotlinx.coroutines.launch
 
 internal class SearchViewModelSpecialFlowsDelegate(
     private val scope: CoroutineScope,
-    private val userPreferences: com.tk.quicksearch.search.data.UserAppPreferences,
+    private val userPreferences: com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences,
     private val aiSearchStateFlow: Flow<AiSearchState>,
     private val clearAiSearchState: () -> Unit,
     private val cancelInactiveTools: (SearchViewModel.ActiveInformationCard) -> Unit,

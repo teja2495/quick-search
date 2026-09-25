@@ -9,11 +9,11 @@ import androidx.fragment.app.FragmentActivity
 import com.tk.quicksearch.app.MainActivity
 import com.tk.quicksearch.search.apps.appLock.AppLockGate
 import com.tk.quicksearch.search.apps.appLock.SearchTargetAppLock
-import com.tk.quicksearch.search.core.IntentHelpers
+import com.tk.quicksearch.search.core.intentHelpers.IntentHelpers
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.isLikelyWebUrl
-import com.tk.quicksearch.search.data.AppShortcutRepository.SearchTargetShortcutMode
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.appShortcutRepository.SearchTargetShortcutMode
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.overlay.OverlayModeController
 import com.tk.quicksearch.shared.util.AppLanguageManager

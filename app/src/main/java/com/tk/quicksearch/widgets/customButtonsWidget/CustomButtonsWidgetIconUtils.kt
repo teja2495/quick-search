@@ -23,12 +23,12 @@ import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.R
 import com.tk.quicksearch.media.MediaCommand
 import com.tk.quicksearch.search.contacts.contactInitials
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.loadShortcutIconAndroidBitmap
+import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.loadShortcutIconAndroidBitmap
 import com.tk.quicksearch.search.data.MediaPlaybackRepository
-import com.tk.quicksearch.search.data.UserAppPreferences
-import com.tk.quicksearch.search.managers.IconPackManager
-import com.tk.quicksearch.search.common.UserHandleUtils
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
+import com.tk.quicksearch.search.apps.IconPackManager
+import com.tk.quicksearch.search.utils.UserHandleUtils
 import com.tk.quicksearch.shared.ui.theme.AppColors
 
 data class WidgetButtonIcon(

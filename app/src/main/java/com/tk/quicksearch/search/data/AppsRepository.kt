@@ -23,7 +23,7 @@ import android.os.SystemClock
 import android.os.UserHandle
 import android.os.UserManager
 import androidx.core.content.ContextCompat
-import com.tk.quicksearch.search.common.UserHandleUtils
+import com.tk.quicksearch.search.utils.UserHandleUtils
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.apps.AppSearchPerformanceLogger
 import com.tk.quicksearch.search.utils.PermissionUtils

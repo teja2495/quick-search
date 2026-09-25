@@ -30,10 +30,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.core.*
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.searchEngines.*
 import com.tk.quicksearch.settings.settingsDetailScreen.PriorityReorderDialog
-import com.tk.quicksearch.settings.settingsDetailScreen.withHiddenPinnedSectionsRestored
+import com.tk.quicksearch.settings.appearanceSettings.withHiddenPinnedSectionsRestored
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.homeTextColor

@@ -9,7 +9,7 @@ import androidx.lifecycle.LifecycleCoroutineScope
 import com.tk.quicksearch.app.UpdateHelper
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.SearchViewModel
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.data.preferences.BootstrapPreferences
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.MemoryDiagnostics

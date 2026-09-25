@@ -1,10 +1,10 @@
 package com.tk.quicksearch.search.appShortcuts
 
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.allAppShortcutsKey
-import com.tk.quicksearch.search.data.AppShortcutRepository.areAllAppShortcutsDisabled
-import com.tk.quicksearch.search.data.AppShortcutRepository.isShortcutDisabled
-import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
+import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.allAppShortcutsKey
+import com.tk.quicksearch.search.data.appShortcutRepository.areAllAppShortcutsDisabled
+import com.tk.quicksearch.search.data.appShortcutRepository.isShortcutDisabled
+import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test

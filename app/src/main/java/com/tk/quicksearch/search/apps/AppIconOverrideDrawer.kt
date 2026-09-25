@@ -43,12 +43,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.core.IntentHelpers
+import com.tk.quicksearch.search.core.intentHelpers.IntentHelpers
 import com.tk.quicksearch.search.core.SearchEngine
-import com.tk.quicksearch.search.data.UserAppPreferences
-import com.tk.quicksearch.search.managers.IconPackDrawableInfo
-import com.tk.quicksearch.search.managers.IconPackManager
-import com.tk.quicksearch.search.managers.filterIconPackDrawables
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.shared.ui.components.AppBottomPopup
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.AppColors

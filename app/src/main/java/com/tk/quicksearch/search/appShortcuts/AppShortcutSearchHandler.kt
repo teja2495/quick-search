@@ -1,13 +1,13 @@
 package com.tk.quicksearch.search.appShortcuts
 
-import com.tk.quicksearch.search.data.AppShortcutRepository.AppShortcutRepository
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.isShortcutDisabled
-import com.tk.quicksearch.search.data.UserAppPreferences
-import com.tk.quicksearch.search.data.AppShortcutRepository.isUserCreatedShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.removeSystemShortcutsForPackage
-import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
-import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
+import com.tk.quicksearch.search.data.appShortcutRepository.AppShortcutRepository
+import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.isShortcutDisabled
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
+import com.tk.quicksearch.search.data.appShortcutRepository.isUserCreatedShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.removeSystemShortcutsForPackage
+import com.tk.quicksearch.search.data.appShortcutRepository.shortcutDisplayName
+import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 import com.tk.quicksearch.search.utils.CachedSearchMatcher
 import com.tk.quicksearch.search.utils.SearchQueryContext

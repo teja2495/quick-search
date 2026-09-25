@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.shared
+package com.tk.quicksearch.settings.shared.settingsRoute
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,9 +14,10 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchSectionUiMetadataRegistry
 import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
-import com.tk.quicksearch.settings.searchEnginesScreen.AliasDisplayType
-import com.tk.quicksearch.settings.searchEnginesScreen.AliasCodeDisplay
+import com.tk.quicksearch.settings.searchEngineSettings.AliasDisplayType
+import com.tk.quicksearch.settings.searchEngineSettings.AliasCodeDisplay
 import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.settings.shared.SettingsNavigationToggleRow
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 

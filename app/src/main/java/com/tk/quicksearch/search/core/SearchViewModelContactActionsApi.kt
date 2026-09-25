@@ -77,7 +77,7 @@ internal interface SearchViewModelContactActionsApi {
 }
 
 class SearchViewModelContactActionsApiDelegate internal constructor(
-    private val userPreferences: com.tk.quicksearch.search.data.UserAppPreferences,
+    private val userPreferences: com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences,
     private val resultsStateProvider: () -> SearchResultsState,
     private val contactActionsDelegate: SearchContactActionsDelegate,
     private val contactActionHandler: () -> com.tk.quicksearch.search.contacts.actions.ContactActionHandler,

@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.AppearanceSettings
+package com.tk.quicksearch.settings.appearanceSettings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.BorderStroke

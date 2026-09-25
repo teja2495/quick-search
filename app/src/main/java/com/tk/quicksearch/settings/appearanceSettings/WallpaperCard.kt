@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.AppearanceSettings
+package com.tk.quicksearch.settings.appearanceSettings
 
 import android.graphics.PixelFormat
 import android.graphics.PorterDuff
@@ -86,7 +86,7 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.hapticToggle
-import com.tk.quicksearch.widgets.WidgetConfigScreen.components.WidgetColorPickerDialog
+import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetColorPickerDialog
 import kotlin.math.roundToInt
 
 @Composable

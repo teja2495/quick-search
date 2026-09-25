@@ -1,4 +1,4 @@
-package com.tk.quicksearch.search.data.AppShortcutRepository
+package com.tk.quicksearch.search.data.appShortcutRepository
 
 import android.content.Context
 import android.content.Intent
@@ -9,8 +9,6 @@ import android.os.Bundle
 import android.util.Base64
 import android.util.TypedValue
 import androidx.core.graphics.drawable.toBitmap
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.isValidShortcutId
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.Locale

@@ -1,4 +1,4 @@
-package com.tk.quicksearch.search.data.AppShortcutRepository
+package com.tk.quicksearch.search.data.appShortcutRepository
 
 import android.content.Context
 import android.content.Intent
@@ -6,20 +6,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.searchEngines.SearchTargetQueryShortcutActivity
-import com.tk.quicksearch.search.data.AppShortcutRepository.AppShortcutCache
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.createSearchTargetShortcutIntent
-import com.tk.quicksearch.search.data.AppShortcutRepository.isUserCreatedShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.loadHardcodedShortcuts
-import com.tk.quicksearch.search.data.AppShortcutRepository.resolveSearchTargetIconBase64
-import com.tk.quicksearch.search.data.AppShortcutRepository.resolveSearchTargetShortcutPackageName
-import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
-import com.tk.quicksearch.search.data.AppShortcutRepository.filterShortcuts
-import com.tk.quicksearch.search.data.AppShortcutRepository.loadShortcutsFromSystem
-import com.tk.quicksearch.search.data.AppShortcutRepository.loadShortcutsViaLauncherApps
-import com.tk.quicksearch.search.data.AppShortcutRepository.mergeAndSortShortcuts
-import com.tk.quicksearch.search.data.AppShortcutRepository.parseCustomShortcutFromPickerResult
-import com.tk.quicksearch.search.data.AppShortcutRepository.removeSystemShortcutsForPackage
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

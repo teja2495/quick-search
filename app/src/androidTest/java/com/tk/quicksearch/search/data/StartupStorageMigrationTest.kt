@@ -10,6 +10,7 @@ import com.tk.quicksearch.search.data.notes.NotesRoomStore
 import com.tk.quicksearch.search.data.preferences.BasePreferences
 import com.tk.quicksearch.search.data.preferences.BootstrapPreferences
 import com.tk.quicksearch.search.data.preferences.TriggerPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.startup.StartupSurfaceStore
 import org.json.JSONObject

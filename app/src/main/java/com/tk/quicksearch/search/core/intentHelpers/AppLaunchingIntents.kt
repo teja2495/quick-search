@@ -1,4 +1,4 @@
-package com.tk.quicksearch.search.core
+package com.tk.quicksearch.search.core.intentHelpers
 
 import android.content.ComponentName
 import android.content.Context
@@ -7,7 +7,7 @@ import android.content.pm.LauncherApps
 import android.os.UserManager
 import android.util.Log
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.common.UserHandleUtils
+import com.tk.quicksearch.search.utils.UserHandleUtils
 import com.tk.quicksearch.search.models.AppInfo
 
 /** App launching related intents. */

@@ -1,7 +1,7 @@
 package com.tk.quicksearch.search.files
 
 import com.tk.quicksearch.search.data.FileSearchRepository
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.utils.SearchQueryContext

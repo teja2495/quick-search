@@ -1,8 +1,8 @@
 package com.tk.quicksearch.search.data
 
 import android.content.Intent
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
-import com.tk.quicksearch.search.data.AppShortcutRepository.removeSystemShortcutsForPackage
+import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.removeSystemShortcutsForPackage
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

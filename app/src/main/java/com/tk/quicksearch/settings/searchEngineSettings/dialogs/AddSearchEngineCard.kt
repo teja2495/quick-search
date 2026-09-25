@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.searchEnginesScreen
+package com.tk.quicksearch.settings.searchEngineSettings.dialogs
 
 import android.graphics.BitmapFactory
 import android.util.Base64

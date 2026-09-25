@@ -1,6 +1,6 @@
 package com.tk.quicksearch.search.core
 
-import com.tk.quicksearch.search.data.StartupPreferencesFacade
+import com.tk.quicksearch.search.data.userAppPreferences.StartupPreferencesFacade
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.FileType

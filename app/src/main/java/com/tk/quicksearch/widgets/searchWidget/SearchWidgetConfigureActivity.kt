@@ -35,7 +35,7 @@ import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.shared.util.AppLanguageManager
-import com.tk.quicksearch.widgets.WidgetConfigScreen.WidgetConfigScreen
+import com.tk.quicksearch.widgets.widgetConfigScreen.WidgetConfigScreen
 import com.tk.quicksearch.widgets.mediaControlsWidget.rememberMediaControlsAccess
 import com.tk.quicksearch.widgets.utils.WidgetPreferences
 import com.tk.quicksearch.widgets.utils.WidgetTheme

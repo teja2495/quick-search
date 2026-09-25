@@ -1,4 +1,4 @@
-package com.tk.quicksearch.search.data.AppShortcutRepository
+package com.tk.quicksearch.search.data.appShortcutRepository
 
 import android.content.Context
 import android.content.Intent
@@ -7,7 +7,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.UserManager
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.searchEngines.SearchTargetQueryShortcutActivity
 import com.tk.quicksearch.tools.tasker.TaskerIntegration
 

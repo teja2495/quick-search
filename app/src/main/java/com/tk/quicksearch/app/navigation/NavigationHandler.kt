@@ -8,12 +8,12 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.appLock.AppLockGate
 import com.tk.quicksearch.search.apps.appLock.SearchTargetAppLock
 import com.tk.quicksearch.search.contacts.utils.ContactIntentHelpers
-import com.tk.quicksearch.search.core.IntentHelpers
+import com.tk.quicksearch.search.core.intentHelpers.IntentHelpers
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.isLikelyWebUrl
 import com.tk.quicksearch.search.core.normalizeToBrowsableUrl
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsSearchHandler
 import com.tk.quicksearch.search.models.AppInfo

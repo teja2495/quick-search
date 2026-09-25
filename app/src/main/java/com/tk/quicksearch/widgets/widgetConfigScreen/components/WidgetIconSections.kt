@@ -1,4 +1,4 @@
-package com.tk.quicksearch.widgets.WidgetConfigScreen.components
+package com.tk.quicksearch.widgets.widgetConfigScreen.components
 
 import android.content.Intent
 import android.widget.Toast
@@ -19,8 +19,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.widgets.WidgetConfigScreen.components.MicActionChoiceSegmentedButtonRow
-import com.tk.quicksearch.widgets.WidgetConfigScreen.components.SearchIconChoiceSegmentedButtonRow
 import com.tk.quicksearch.widgets.searchWidget.MicAction
 import com.tk.quicksearch.widgets.utils.SearchIconDisplay
 import com.tk.quicksearch.widgets.utils.WidgetConfigConstants

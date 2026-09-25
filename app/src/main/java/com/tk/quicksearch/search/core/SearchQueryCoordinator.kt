@@ -18,7 +18,7 @@ internal class SearchQueryCoordinator(
     private val workerDispatcher: CoroutineDispatcher,
     private val handlers: SearchHandlerContainer,
     private val toolCoordinator: SearchToolCoordinator,
-    private val userPreferences: com.tk.quicksearch.search.data.UserAppPreferences,
+    private val userPreferences: com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences,
     private val appSearchDebounceMs: Long,
     private val aliasStateProvider: () -> SearchQueryAliasState,
     private val updateAliasState: (SearchQueryAliasState) -> Unit,

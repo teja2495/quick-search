@@ -1,4 +1,4 @@
-package com.tk.quicksearch.widgets.WidgetConfigScreen
+package com.tk.quicksearch.widgets.widgetConfigScreen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,17 +39,17 @@ import com.tk.quicksearch.widgets.utils.WidgetPreferences
 import com.tk.quicksearch.widgets.utils.WidgetPreviewCard
 import com.tk.quicksearch.widgets.utils.enforceVariantConstraints
 import com.tk.quicksearch.widgets.utils.WidgetVariant
-import com.tk.quicksearch.widgets.WidgetConfigScreen.components.MediaControlsTextColorSection
-import com.tk.quicksearch.widgets.WidgetConfigScreen.components.MediaControlsThemeSection
-import com.tk.quicksearch.widgets.WidgetConfigScreen.components.WidgetLoadingState
-import com.tk.quicksearch.widgets.WidgetConfigScreen.components.WidgetMicIconSection
-import com.tk.quicksearch.widgets.WidgetConfigScreen.components.WidgetInternalPaddingSection
-import com.tk.quicksearch.widgets.WidgetConfigScreen.components.WidgetIconSizeSection
-import com.tk.quicksearch.widgets.WidgetConfigScreen.components.WidgetSearchIconSection
-import com.tk.quicksearch.widgets.WidgetConfigScreen.components.WidgetSlidersSection
-import com.tk.quicksearch.widgets.WidgetConfigScreen.components.WidgetTextIconColorSection
-import com.tk.quicksearch.widgets.WidgetConfigScreen.components.WidgetThemeSection
-import com.tk.quicksearch.widgets.WidgetConfigScreen.components.WidgetToggleSection
+import com.tk.quicksearch.widgets.widgetConfigScreen.components.MediaControlsTextColorSection
+import com.tk.quicksearch.widgets.widgetConfigScreen.components.MediaControlsThemeSection
+import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetLoadingState
+import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetMicIconSection
+import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetInternalPaddingSection
+import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetIconSizeSection
+import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetSearchIconSection
+import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetSlidersSection
+import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetTextIconColorSection
+import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetThemeSection
+import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetToggleSection
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

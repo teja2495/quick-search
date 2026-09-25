@@ -23,7 +23,7 @@ internal class SearchDerivedStateDelegate(
     private val appContext: Context,
     private val applicationProvider: () -> Application,
     private val startupSurfaceStore: StartupSurfaceStore,
-    private val userPreferences: com.tk.quicksearch.search.data.UserAppPreferences,
+    private val userPreferences: com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences,
     private val handlersProvider: () -> SearchHandlerContainer,
     private val appSuggestionSelector: AppSuggestionSelector,
     private val instantStartupSurfaceEnabled: Boolean,

@@ -2,7 +2,7 @@ package com.tk.quicksearch.tools.unitConverter
 
 import com.tk.quicksearch.search.core.CalculatorState
 import com.tk.quicksearch.search.core.SearchToolType
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 
 class UnitConverterHandler(
     private val userPreferences: UserAppPreferences,

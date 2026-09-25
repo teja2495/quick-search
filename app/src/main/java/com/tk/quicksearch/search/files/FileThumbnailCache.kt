@@ -58,7 +58,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppTheme
-import com.tk.quicksearch.search.core.FileIntents
+import com.tk.quicksearch.search.core.intentHelpers.FileIntents
 import com.tk.quicksearch.search.core.LocalItemCustomizationRemover
 import com.tk.quicksearch.search.contacts.components.ContactUiConstants
 import com.tk.quicksearch.search.models.DeviceFile

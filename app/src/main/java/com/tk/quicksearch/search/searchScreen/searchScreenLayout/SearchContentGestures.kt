@@ -101,7 +101,7 @@ import com.tk.quicksearch.searchEngines.compact.NoResultsSearchEngineCards
 import com.tk.quicksearch.search.webSuggestions.WebSuggestionsSection
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.tools.aiSearch.CalculatorResult
+import com.tk.quicksearch.tools.calculator.CalculatorResult
 import com.tk.quicksearch.tools.aiSearch.AiSearchResult
 import kotlin.math.min
 import com.tk.quicksearch.search.other.OtherSearchItemId

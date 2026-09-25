@@ -28,7 +28,7 @@ class StartupHomeSurfaceSnapshotTest {
     @Test
     fun bounded_removesShortcutIconPayloads() {
         val shortcut =
-            com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut(
+            com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut(
                 packageName = "example.package",
                 appLabel = "Example",
                 id = "shortcut",

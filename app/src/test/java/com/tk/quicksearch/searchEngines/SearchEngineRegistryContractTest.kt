@@ -2,7 +2,7 @@ package com.tk.quicksearch.searchEngines
 
 import android.content.Intent
 import com.tk.quicksearch.search.core.SearchEngine
-import com.tk.quicksearch.search.core.SearchEngineIntents
+import com.tk.quicksearch.search.core.intentHelpers.SearchEngineIntents
 import com.tk.quicksearch.shared.util.PackageConstants
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

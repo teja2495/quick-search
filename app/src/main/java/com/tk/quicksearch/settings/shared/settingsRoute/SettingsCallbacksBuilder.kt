@@ -1,12 +1,13 @@
-package com.tk.quicksearch.settings.shared
+package com.tk.quicksearch.settings.shared.settingsRoute
 
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchViewModel
-import com.tk.quicksearch.search.data.AppShortcutRepository.SearchTargetShortcutMode
+import com.tk.quicksearch.search.data.appShortcutRepository.SearchTargetShortcutMode
 import com.tk.quicksearch.searchEngines.AliasHandler
 import com.tk.quicksearch.settings.settingsDetailScreen.AiBackedToolConfigId
-import com.tk.quicksearch.settings.AppShortcutsSettings.AppShortcutSource
+import com.tk.quicksearch.settings.appShortcutsSettings.AppShortcutSource
+import com.tk.quicksearch.settings.shared.applySettingsCommand
 
 internal data class SettingsRouteHandlers(
     val onBack: () -> Unit,

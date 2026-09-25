@@ -36,7 +36,7 @@ import androidx.compose.ui.zIndex
 import com.tk.quicksearch.search.apps.notificationDots.hasNotificationDot
 import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.app.startup.StartupTrace
-import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.searchScreen.components.rememberPredictedSubmitIndicatorAlpha

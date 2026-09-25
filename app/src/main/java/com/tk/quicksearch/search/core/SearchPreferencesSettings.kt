@@ -4,7 +4,7 @@ import android.widget.Toast
 import com.tk.quicksearch.R
 import com.tk.quicksearch.overlay.OverlayModeController
 import com.tk.quicksearch.search.apps.IconPackService
-import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.models.FileType
