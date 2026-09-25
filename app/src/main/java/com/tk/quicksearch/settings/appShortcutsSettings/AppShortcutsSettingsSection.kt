@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -41,8 +42,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -52,6 +55,8 @@ import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.searchEngines.getDisplayNameResId
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.SearchTargetShortcutMode
+import com.tk.quicksearch.search.data.AppShortcutRepository.areAllAppShortcutsDisabled
+import com.tk.quicksearch.search.data.AppShortcutRepository.isShortcutDisabled
 import com.tk.quicksearch.search.data.AppShortcutRepository.isUserCreatedShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
@@ -60,17 +65,21 @@ import com.tk.quicksearch.searchEngines.isSearchTargetShortcutPackageName
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
 
 @Composable
 fun AppShortcutsSettingsSection(
     shortcuts: List<StaticShortcut>,
+    isLoading: Boolean = false,
     disabledShortcutIds: Set<String>,
     iconPackPackage: String?,
     searchQuery: String = "",
     collapseAllTrigger: Int = 0,
     onShortcutEnabledChange: (StaticShortcut, Boolean) -> Unit,
+    onAllAppShortcutsEnabledChange: (String, Boolean) -> Unit,
     onShortcutNameClick: (StaticShortcut) -> Unit,
     shortcutSources: List<AppShortcutSource>,
     onAddShortcutFromSource: (AppShortcutSource) -> Unit,
@@ -143,37 +152,16 @@ val context = LocalContext.current
                 .map { it.app.packageName }
                 .toSet()
         }
-    val allPackageNames =
-        remember(displayShortcuts, filteredShortcutSources, searchTargetShortcutSources) {
-            (
-                displayShortcuts.map { it.packageName } +
-                    filteredShortcutSources.map { it.packageName } +
-                    searchTargetShortcutSources.map { it.packageName }
-            ).toSet()
-        }
-    val appLabelCache = remember { mutableStateMapOf<String, String>() }
-    LaunchedEffect(allPackageNames, locale) {
-        val unresolvedPackages = allPackageNames.filter { it !in appLabelCache }
-        if (unresolvedPackages.isEmpty()) return@LaunchedEffect
-
-        val resolvedLabels =
-            withContext(Dispatchers.Default) {
-                unresolvedPackages.associateWith { packageName ->
-                    resolveAppLabel(context, packageName, locale)
-                }
-            }
-        appLabelCache.putAll(resolvedLabels)
-    }
+    // Resolved inline with the groups so labels never arrive in a second pass and re-sort the list.
+    val appLabelCache = remember(locale) { ConcurrentHashMap<String, String>() }
     val allShortcutGroups by
-        produceState(
-            initialValue = emptyList<AppShortcutGroup>(),
+        produceState<List<AppShortcutGroup>?>(
+            initialValue = null,
             displayShortcuts,
             filteredShortcutSources,
             searchTargetShortcutSources,
             locale,
-            appLabelCache.toMap(),
         ) {
-            val labelCacheSnapshot = appLabelCache.toMap()
             value =
                 withContext(Dispatchers.Default) {
                     val shortcutsByPackage = displayShortcuts.groupBy { it.packageName }
@@ -196,7 +184,9 @@ val context = LocalContext.current
                                     appSources.firstOrNull()?.appLabel?.takeIf { it.isNotBlank() }
                                         ?: appShortcuts.firstOrNull()?.appLabel?.takeIf { it.isNotBlank() }
                                         ?: appSearchTargetSources.firstOrNull()?.label?.takeIf { it.isNotBlank() }
-                                        ?: labelCacheSnapshot[packageName]
+                                        ?: appLabelCache.getOrPut(packageName) {
+                                            resolveAppLabel(context, packageName, locale)
+                                        }
                                         ?: fallbackAppLabel(packageName, locale)
                                 AppShortcutGroup(
                                     packageName = packageName,
@@ -216,12 +206,13 @@ val context = LocalContext.current
                 }
         }
     val shortcutGroups by
-        produceState(
-            initialValue = emptyList<AppShortcutGroup>(),
+        produceState<List<AppShortcutGroup>?>(
+            initialValue = null,
             allShortcutGroups,
             normalizedSearchQuery,
             locale,
         ) {
+            val allShortcutGroups = allShortcutGroups ?: return@produceState
             value =
                 withContext(Dispatchers.Default) {
                     if (normalizedSearchQuery.isBlank()) {
@@ -250,6 +241,7 @@ val context = LocalContext.current
     val shortcutListState = rememberLazyListState()
     val visibleShortcutGroups =
         remember(shortcutGroups, selectedFilterOption, normalizedSearchQuery) {
+            val shortcutGroups = shortcutGroups.orEmpty()
             if (normalizedSearchQuery.isNotBlank()) {
                 shortcutGroups
             } else {
@@ -299,6 +291,11 @@ val context = LocalContext.current
     }
     LaunchedEffect(searchQuery) {
         shortcutListState.scrollToItem(index = 0)
+    }
+
+    if (isLoading || shortcutGroups == null) {
+        AppShortcutsLoadingIndicator(modifier = modifier)
+        return
     }
 
     if (visibleShortcutGroups.isEmpty()) {
@@ -367,22 +364,24 @@ val context = LocalContext.current
     ) {
             if (normalizedSearchQuery.isBlank()) {
                 item {
-                    val shortcutCount = shortcuts.size.toString()
+                    val enabledShortcutCount =
+                        shortcuts.count { !isShortcutDisabled(it, disabledShortcutIds) }
+                    // Unformatted templates, so each count is bolded at its own placeholder even
+                    // when a translation reorders them.
                     val descriptionText =
-                        stringResource(R.string.settings_app_shortcuts_description_with_count, shortcutCount)
+                        if (enabledShortcutCount == shortcuts.size) {
+                            boldFormatArgs(
+                                template = stringResource(R.string.settings_app_shortcuts_description_with_count),
+                                args = listOf(shortcuts.size.toString()),
+                            )
+                        } else {
+                            boldFormatArgs(
+                                template = stringResource(R.string.settings_app_shortcuts_description_with_enabled_count),
+                                args = listOf(shortcuts.size.toString(), enabledShortcutCount.toString()),
+                            )
+                        }
                     Text(
-                        text =
-                            buildAnnotatedString {
-                                append(descriptionText)
-                                val countStart = descriptionText.indexOf(shortcutCount)
-                                if (countStart >= 0) {
-                                    addStyle(
-                                        style = SpanStyle(fontWeight = FontWeight.Bold),
-                                        start = countStart,
-                                        end = countStart + shortcutCount.length,
-                                    )
-                                }
-                            },
+                        text = descriptionText,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = DesignTokens.SpacingXSmall),
@@ -465,6 +464,9 @@ val context = LocalContext.current
 
             items(items = visibleShortcutGroups, key = { it.packageName }) { group ->
                 val isExpanded = expandedCards[group.packageName] == true
+                val allShortcutsDisabled =
+                    group.shortcuts.isNotEmpty() &&
+                        areAllAppShortcutsDisabled(group.packageName, disabledShortcutIds)
 
                 LaunchedEffect(focusPackageName, group.packageName) {
                     if (focusPackageName == group.packageName) {
@@ -491,6 +493,7 @@ val context = LocalContext.current
                             expandedCards[group.packageName] = !isExpanded
                         },
                         iconPackPackage = iconPackPackage,
+                        allShortcutsDisabled = allShortcutsDisabled,
                     )
 
                     AnimatedVisibility(
@@ -505,12 +508,19 @@ val context = LocalContext.current
                                 if (hasRenderedSection) {
                                     HorizontalDivider(color = AppColors.SettingsDivider)
                                 }
+                                DisableAllAppShortcutsRow(
+                                    checked = allShortcutsDisabled,
+                                    onCheckedChange = { disableAll ->
+                                        onAllAppShortcutsEnabledChange(group.packageName, !disableAll)
+                                    },
+                                )
+                                HorizontalDivider(color = AppColors.SettingsDivider)
                                 appShortcuts.forEachIndexed { index, shortcut ->
-                                    val shortcutId = shortcutKey(shortcut)
                                     val isCustomShortcut = isUserCreatedShortcut(shortcut)
                                     ShortcutToggleRow(
                                         shortcut = shortcut,
-                                        checked = !disabledShortcutIds.contains(shortcutId),
+                                        checked = !isShortcutDisabled(shortcut, disabledShortcutIds),
+                                        toggleEnabled = !allShortcutsDisabled,
                                         showToggle = true,
                                         onCheckedChange = { enabled ->
                                             onShortcutEnabledChange(shortcut, enabled)
@@ -609,3 +619,45 @@ val context = LocalContext.current
             }
         }
 }
+
+/** Shown only if loading takes long enough to notice, so fast loads don't flash the message. */
+@Composable
+private fun AppShortcutsLoadingIndicator(modifier: Modifier) {
+    var showIndicator by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        delay(LOADING_INDICATOR_DELAY_MS)
+        showIndicator = true
+    }
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (showIndicator) {
+            Text(
+                text = stringResource(R.string.settings_app_shortcuts_loading),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+private const val LOADING_INDICATOR_DELAY_MS = 250L
+
+private val FORMAT_ARG_REGEX = Regex("%(\\d+)\\\$s")
+
+/** Fills `%N$s` placeholders in [template] with [args], bolding each inserted value. */
+private fun boldFormatArgs(
+    template: String,
+    args: List<String>,
+): AnnotatedString =
+    buildAnnotatedString {
+        var cursor = 0
+        FORMAT_ARG_REGEX.findAll(template).forEach { match ->
+            append(template.substring(cursor, match.range.first))
+            val arg = args.getOrNull(match.groupValues[1].toInt() - 1) ?: match.value
+            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(arg) }
+            cursor = match.range.last + 1
+        }
+        append(template.substring(cursor))
+    }

@@ -412,9 +412,15 @@
     <string name="settings_app_shortcuts_delete_success">Snelkoppeling verwijderd.</string>
     <string name="settings_app_shortcuts_description_with_count">Tik op een app om de bijbehorende snelkoppelingen te bekijken. Schakel snelkoppelingen in, uit of voeg aangepaste snelkoppelingen toe.
 
-Beschikbare snelkoppelingen: %1$s</string>
+%1$s snelkoppelingen</string>
+    <string name="settings_app_shortcuts_description_with_enabled_count">Tik op een app om de bijbehorende snelkoppelingen te bekijken. Schakel snelkoppelingen in, uit of voeg aangepaste snelkoppelingen toe.
+
+%1$s snelkoppelingen · %2$s ingeschakeld</string>
     <string name="settings_app_shortcuts_edit_dialog_title">Snelkoppeling bewerken</string>
     <string name="settings_app_shortcuts_empty">Geen app-snelkoppelingen gevonden.</string>
+    <string name="settings_app_shortcuts_loading">Snelkoppelingen laden…</string>
+    <string name="settings_app_shortcuts_disable_all">Alle snelkoppelingen uitschakelen</string>
+    <string name="settings_app_shortcuts_card_all_disabled">Alle snelkoppelingen uitgeschakeld</string>
     <string name="settings_app_shortcuts_expand_all">Alles uitvouwen</string>
     <string name="settings_app_shortcuts_filter_all_apps">Alle apps</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">Apps met snelkoppelingen</string>

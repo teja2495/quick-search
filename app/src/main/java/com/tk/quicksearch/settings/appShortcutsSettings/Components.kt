@@ -27,6 +27,7 @@ import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Public
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -740,6 +741,7 @@ fun AppShortcutCardHeader(
     isExpanded: Boolean,
     onToggleExpanded: () -> Unit,
     iconPackPackage: String?,
+    allShortcutsDisabled: Boolean = false,
 ) {
     val iconResult = rememberAppIcon(packageName = packageName, iconPackPackage = iconPackPackage)
 
@@ -791,11 +793,15 @@ fun AppShortcutCardHeader(
             )
             Text(
                 text =
-                    pluralStringResource(
-                        R.plurals.settings_app_shortcuts_card_count,
-                        shortcutCount,
-                        shortcutCount,
-                    ),
+                    if (allShortcutsDisabled) {
+                        stringResource(R.string.settings_app_shortcuts_card_all_disabled)
+                    } else {
+                        pluralStringResource(
+                            R.plurals.settings_app_shortcuts_card_count,
+                            shortcutCount,
+                            shortcutCount,
+                        )
+                    },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -817,6 +823,7 @@ fun ShortcutToggleRow(
     showToggle: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     onShortcutNameClick: () -> Unit,
+    toggleEnabled: Boolean = true,
     onEditClick: (() -> Unit)?,
     iconPackPackage: String?,
 ) {
@@ -897,8 +904,46 @@ fun ShortcutToggleRow(
                     hapticToggle(view)()
                     onCheckedChange(it)
                 },
+                enabled = toggleEnabled,
                 modifier = Modifier.scale(0.85f),
             )
         }
+    }
+}
+
+/** App-wide checkbox that also covers shortcuts the app adds later. */
+@Composable
+fun DisableAllAppShortcutsRow(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    val view = LocalView.current
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable {
+                    hapticToggle(view)()
+                    onCheckedChange(!checked)
+                }.padding(
+                    horizontal = DesignTokens.CardHorizontalPadding,
+                    vertical = DesignTokens.CardVerticalPadding,
+                ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
+    ) {
+        Text(
+            text = stringResource(R.string.settings_app_shortcuts_disable_all),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f),
+        )
+        Checkbox(
+            checked = checked,
+            onCheckedChange = {
+                hapticToggle(view)()
+                onCheckedChange(it)
+            },
+        )
     }
 }

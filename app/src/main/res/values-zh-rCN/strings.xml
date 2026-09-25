@@ -393,9 +393,13 @@
     <string name="settings_app_shortcuts_deep_link_label">URL 或 Intent</string>
     <string name="settings_app_shortcuts_delete_action">删除快捷方式</string>
     <string name="settings_app_shortcuts_delete_success">快捷方式已删除。</string>
-    <string name="settings_app_shortcuts_description_with_count">点击任意应用以查看其快捷方式。支持启用、停用或添加自定义快捷方式。\n\n可用快捷方式：%1$s</string>
+    <string name="settings_app_shortcuts_description_with_count">点击任意应用以查看其快捷方式。支持启用、停用或添加自定义快捷方式。\n\n%1$s 个快捷方式</string>
+    <string name="settings_app_shortcuts_description_with_enabled_count">点击任意应用以查看其快捷方式。支持启用、停用或添加自定义快捷方式。\n\n%1$s 个快捷方式 · %2$s 个已启用</string>
     <string name="settings_app_shortcuts_edit_dialog_title">编辑快捷方式</string>
     <string name="settings_app_shortcuts_empty">未找到应用快捷方式。</string>
+    <string name="settings_app_shortcuts_loading">正在加载快捷方式…</string>
+    <string name="settings_app_shortcuts_disable_all">停用所有快捷方式</string>
+    <string name="settings_app_shortcuts_card_all_disabled">所有快捷方式已停用</string>
     <string name="settings_app_shortcuts_expand_all">全部展开</string>
     <string name="settings_app_shortcuts_filter_all_apps">所有应用</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">包含快捷方式的应用</string>

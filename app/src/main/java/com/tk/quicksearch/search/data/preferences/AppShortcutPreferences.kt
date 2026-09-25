@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.data.preferences
 
 import android.content.Context
+import com.tk.quicksearch.search.data.AppShortcutRepository.allAppShortcutsKey
 import com.tk.quicksearch.search.data.assets.ManagedAssetStore
 
 /**
@@ -79,6 +80,22 @@ class AppShortcutPreferences(
                 disabledIds.removeAll(ids.toSet())
             } else {
                 disabledIds.addAll(ids)
+            }
+        }
+
+    /**
+     * Toggles only the app-wide marker. Individual choices are never touched, so enabling brings
+     * back each shortcut's previous state.
+     */
+    fun setAllAppShortcutsEnabled(
+        packageName: String,
+        enabled: Boolean,
+    ): Set<String> =
+        updateStringSet(BasePreferences.KEY_DISABLED_APP_SHORTCUTS) { disabledIds ->
+            if (enabled) {
+                disabledIds.remove(allAppShortcutsKey(packageName))
+            } else {
+                disabledIds.add(allAppShortcutsKey(packageName))
             }
         }
 

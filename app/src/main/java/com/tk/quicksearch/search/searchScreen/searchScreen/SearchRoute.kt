@@ -55,7 +55,6 @@ import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
-import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
 import com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction
@@ -349,15 +348,10 @@ fun SearchRoute(
     }
 
     val onDisableAllAppShortcutsForApp: (com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut) -> Unit = @Suppress("LocalContextGetResourceValueCall") { shortcut ->
-        // Only shortcuts this action disables are re-enabled on undo.
-        val newlyDisabledIds =
-            uiState.allAppShortcuts
-                .filter { it.packageName == shortcut.packageName }
-                .map { shortcutKey(it) }
-                .filterNot { it in uiState.disabledAppShortcutIds }
-        viewModel.setAppShortcutsEnabled(newlyDisabledIds, false)
+        // Disables the app's future shortcuts too. Undo restores each shortcut's previous state.
+        viewModel.setAllAppShortcutsEnabled(shortcut.packageName, false)
         showAppShortcutDisabledSnackbar {
-            viewModel.setAppShortcutsEnabled(newlyDisabledIds, true)
+            viewModel.setAllAppShortcutsEnabled(shortcut.packageName, true)
         }
     }
 

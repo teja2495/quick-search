@@ -88,6 +88,7 @@ internal fun SettingsDetailLevel2Screen(
     hasUsagePermission: Boolean,
     appShortcutFocusShortcut: StaticShortcut? = null,
     appShortcutFocusPackageName: String? = null,
+    isAppShortcutsLoading: Boolean = false,
     appShortcutSources: List<AppShortcutSource> = emptyList(),
     searchTargets: List<SearchTarget> = emptyList(),
     onAppShortcutFocusHandled: () -> Unit = {},
@@ -301,11 +302,13 @@ internal fun SettingsDetailLevel2Screen(
             } else if (detailType == SettingsDetailType.APP_SHORTCUTS) {
                 AppShortcutsSettingsSection(
                     shortcuts = state.allAppShortcuts,
+                    isLoading = isAppShortcutsLoading,
                     disabledShortcutIds = state.disabledAppShortcutIds,
                     iconPackPackage = state.selectedIconPackPackage,
                     searchQuery = appShortcutsSearchQuery,
                     collapseAllTrigger = appShortcutsCollapseAllTrigger,
                     onShortcutEnabledChange = callbacks.onToggleAppShortcutEnabled,
+                    onAllAppShortcutsEnabledChange = callbacks.onToggleAllAppShortcutsEnabled,
                     onShortcutNameClick = { shortcut ->
                         AppLockGate.runAfterUnlock(context, shortcut.packageName, shortcut.appLabel) {
                             callbacks.onLaunchAppShortcut(shortcut)
@@ -990,7 +993,7 @@ internal fun SettingsDetailLevel2Screen(
                         .fillMaxWidth(),
             )
         } else if (
-            detailType == SettingsDetailType.APP_SHORTCUTS ||
+            (detailType == SettingsDetailType.APP_SHORTCUTS && !isAppShortcutsLoading) ||
                 detailType == SettingsDetailType.APP_MANAGEMENT
         ) {
             val query =

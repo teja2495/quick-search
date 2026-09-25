@@ -401,9 +401,15 @@
     <string name="settings_app_shortcuts_delete_success">ショートカットを削除しました。</string>
     <string name="settings_app_shortcuts_description_with_count">アプリをタップしてショートカットを表示します。カスタムショートカットの有効化、無効化、追加が可能です。
 
-利用可能なショートカット: %1$s</string>
+%1$s 件のショートカット</string>
+    <string name="settings_app_shortcuts_description_with_enabled_count">アプリをタップしてショートカットを表示します。カスタムショートカットの有効化、無効化、追加が可能です。
+
+%1$s 件のショートカット · %2$s 件が有効</string>
     <string name="settings_app_shortcuts_edit_dialog_title">ショートカットを編集</string>
     <string name="settings_app_shortcuts_empty">アプリのショートカットが見つかりません。</string>
+    <string name="settings_app_shortcuts_loading">ショートカットを読み込み中…</string>
+    <string name="settings_app_shortcuts_disable_all">すべてのショートカットを無効にする</string>
+    <string name="settings_app_shortcuts_card_all_disabled">すべてのショートカットが無効</string>
     <string name="settings_app_shortcuts_expand_all">すべて展開</string>
     <string name="settings_app_shortcuts_filter_all_apps">すべてのアプリ</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">ショートカット付きアプリ</string>

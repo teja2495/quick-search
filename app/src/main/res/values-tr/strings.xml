@@ -393,9 +393,13 @@
 <string name="settings_app_shortcuts_deep_link_label">URL veya Intent</string>
 <string name="settings_app_shortcuts_delete_action">Kısayolu sil</string>
 <string name="settings_app_shortcuts_delete_success">Kısayol silindi.</string>
-<string name="settings_app_shortcuts_description_with_count">Kısayollarını görmek için herhangi bir uygulamaya dokun. Özel kısayolları etkinleştir, devre dışı bırak veya ekle.\n\nMevcut Kısayollar: %1$s</string>
+<string name="settings_app_shortcuts_description_with_count">Kısayollarını görmek için herhangi bir uygulamaya dokun. Özel kısayolları etkinleştir, devre dışı bırak veya ekle.\n\n%1$s kısayol</string>
+<string name="settings_app_shortcuts_description_with_enabled_count">Kısayollarını görmek için herhangi bir uygulamaya dokun. Özel kısayolları etkinleştir, devre dışı bırak veya ekle.\n\n%1$s kısayol · %2$s etkin</string>
 <string name="settings_app_shortcuts_edit_dialog_title">Kısayolu düzenle</string>
 <string name="settings_app_shortcuts_empty">Uygulama kısayolu bulunamadı.</string>
+<string name="settings_app_shortcuts_loading">Kısayollar yükleniyor…</string>
+<string name="settings_app_shortcuts_disable_all">Tüm kısayolları devre dışı bırak</string>
+<string name="settings_app_shortcuts_card_all_disabled">Tüm kısayollar devre dışı</string>
 <string name="settings_app_shortcuts_expand_all">Tümünü genişlet</string>
 <string name="settings_app_shortcuts_filter_all_apps">Tüm uygulamalar</string>
 <string name="settings_app_shortcuts_filter_apps_with_shortcuts">Kısayolu olan uygulamalar</string>

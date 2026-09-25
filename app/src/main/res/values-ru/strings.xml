@@ -396,9 +396,13 @@
 <string name="settings_app_shortcuts_deep_link_label">URL или интент</string>
 <string name="settings_app_shortcuts_delete_action">Удалить ярлык</string>
 <string name="settings_app_shortcuts_delete_success">Ярлык удален.</string>
-<string name="settings_app_shortcuts_description_with_count">Нажмите на любое приложение, чтобы просмотреть его ярлыки. Включайте, отключайте или создавайте свои ярлыки.\n\nДоступно ярлыков: %1$s</string>
+<string name="settings_app_shortcuts_description_with_count">Нажмите на любое приложение, чтобы просмотреть его ярлыки. Включайте, отключайте или создавайте свои ярлыки.\n\n%1$s ярлыков</string>
+<string name="settings_app_shortcuts_description_with_enabled_count">Нажмите на любое приложение, чтобы просмотреть его ярлыки. Включайте, отключайте или создавайте свои ярлыки.\n\n%1$s ярлыков · %2$s включено</string>
 <string name="settings_app_shortcuts_edit_dialog_title">Редактировать ярлык</string>
 <string name="settings_app_shortcuts_empty">Ярлыки приложений не найдены.</string>
+<string name="settings_app_shortcuts_loading">Загрузка ярлыков…</string>
+<string name="settings_app_shortcuts_disable_all">Отключить все ярлыки</string>
+<string name="settings_app_shortcuts_card_all_disabled">Все ярлыки отключены</string>
 <string name="settings_app_shortcuts_expand_all">Развернуть все</string>
 <string name="settings_app_shortcuts_filter_all_apps">Все приложения</string>
 <string name="settings_app_shortcuts_filter_apps_with_shortcuts">Приложения с ярлыками</string>

@@ -160,6 +160,7 @@ internal fun buildSettingsScreenCallbacks(
         onRefreshAvailableGeminiModels = viewModel::refreshAvailableGeminiModels,
         onOpenAiSearchConfigure = handlers.onOpenAiSearchConfigure,
         onToggleAppShortcutEnabled = viewModel::setAppShortcutEnabled,
+        onToggleAllAppShortcutsEnabled = viewModel::setAllAppShortcutsEnabled,
         onLaunchAppShortcut = viewModel::launchAppShortcut,
         onOpenAddAppShortcutDialog = handlers.onOpenAddAppShortcutDialog,
         onAddAppShortcutFromSource = handlers.onAddAppShortcutFromSource,

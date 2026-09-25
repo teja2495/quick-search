@@ -2,6 +2,7 @@ package com.tk.quicksearch.search.appShortcuts
 
 import com.tk.quicksearch.search.data.AppShortcutRepository.AppShortcutRepository
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.AppShortcutRepository.isShortcutDisabled
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.data.AppShortcutRepository.isUserCreatedShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.removeSystemShortcutsForPackage
@@ -75,7 +76,7 @@ class AppShortcutSearchHandler(
         val disabledIds = userPreferences.getDisabledAppShortcutIds()
         val raw =
             availableShortcuts
-                .filter { keys.contains(shortcutKey(it)) && shortcutKey(it) !in disabledIds }
+                .filter { keys.contains(shortcutKey(it)) && !isShortcutDisabled(it, disabledIds) }
                 .associateBy { shortcutKey(it) }
         return mergeIconOverridesByKey(raw)
     }
@@ -96,7 +97,7 @@ class AppShortcutSearchHandler(
                 .filter {
                     pinnedIds.contains(shortcutKey(it)) &&
                         !excludedIds.contains(shortcutKey(it)) &&
-                        !disabledIds.contains(shortcutKey(it))
+                        !isShortcutDisabled(it, disabledIds)
                 }.sortedByPinnedOrder(
                     order = userPreferences.getPinnedAppShortcutOrder(),
                     fallbackSelector = { shortcutDisplayName(it).lowercase(Locale.getDefault()) },
@@ -127,7 +128,7 @@ class AppShortcutSearchHandler(
                 .filter {
                     pinnedIds.contains(shortcutKey(it)) &&
                         !excludedIds.contains(shortcutKey(it)) &&
-                        !disabledIds.contains(shortcutKey(it))
+                        !isShortcutDisabled(it, disabledIds)
                 }.sortedByPinnedOrder(
                     order = userPreferences.getPinnedAppShortcutOrder(),
                     fallbackSelector = { shortcutDisplayName(it).lowercase(Locale.getDefault()) },

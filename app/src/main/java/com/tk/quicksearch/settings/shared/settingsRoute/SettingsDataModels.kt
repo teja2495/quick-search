@@ -391,6 +391,7 @@ data class SettingsScreenCallbacks(
     val onRefreshAvailableGeminiModels: () -> Unit,
     val onOpenAiSearchConfigure: () -> Unit,
     val onToggleAppShortcutEnabled: (StaticShortcut, Boolean) -> Unit,
+    val onToggleAllAppShortcutsEnabled: (String, Boolean) -> Unit,
     val onLaunchAppShortcut: (StaticShortcut) -> Unit,
     val onOpenAddAppShortcutDialog: () -> Unit,
     val onAddAppShortcutFromSource: (AppShortcutSource) -> Unit,

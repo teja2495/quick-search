@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.folders
 
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.AppShortcutRepository.isShortcutDisabled
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.models.AppInfo
 
@@ -106,7 +107,7 @@ fun resolveAppFolders(
     val appsByKey = apps.associateBy { appFolderMemberKey(it) }
     val shortcutsByKey =
         shortcuts
-            .filterNot { disabledShortcutIds.contains(shortcutKey(it)) }
+            .filterNot { isShortcutDisabled(it, disabledShortcutIds) }
             .associateBy { appFolderMemberKey(it) }
     return folders.mapNotNull { folder ->
         val members =

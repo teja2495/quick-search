@@ -403,9 +403,15 @@
     <string name="settings_app_shortcuts_delete_success">Usunięto skrót.</string>
     <string name="settings_app_shortcuts_description_with_count">Dotknij dowolnej aplikacji, aby wyświetlić jej skróty. Włączaj, wyłączaj lub dodawaj własne skróty.
 
-Dostępne skróty: %1$s</string>
+%1$s skrótów</string>
+    <string name="settings_app_shortcuts_description_with_enabled_count">Dotknij dowolnej aplikacji, aby wyświetlić jej skróty. Włączaj, wyłączaj lub dodawaj własne skróty.
+
+%1$s skrótów · %2$s włączonych</string>
     <string name="settings_app_shortcuts_edit_dialog_title">Edytuj skrót</string>
     <string name="settings_app_shortcuts_empty">Nie znaleziono skrótów aplikacji.</string>
+    <string name="settings_app_shortcuts_loading">Wczytywanie skrótów…</string>
+    <string name="settings_app_shortcuts_disable_all">Wyłącz wszystkie skróty</string>
+    <string name="settings_app_shortcuts_card_all_disabled">Wszystkie skróty wyłączone</string>
     <string name="settings_app_shortcuts_expand_all">Rozwiń wszystko</string>
     <string name="settings_app_shortcuts_filter_all_apps">Wszystkie aplikacje</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">Aplikacje ze skrótami</string>

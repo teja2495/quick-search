@@ -5,6 +5,7 @@ import com.tk.quicksearch.search.core.SearchResultsState
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.StartupPhase
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.AppShortcutRepository.isShortcutDisabled
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.models.AppInfo
 import java.util.UUID
@@ -187,7 +188,9 @@ class FolderManager(
                     val shortcutKeys =
                         availability.shortcuts.mapTo(HashSet()) { appFolderMemberKey(it) }
                     val disabledShortcutKeys =
-                        availability.disabledShortcutIds.mapTo(HashSet(), ::shortcutMemberKey)
+                        availability.shortcuts
+                            .filter { isShortcutDisabled(it, availability.disabledShortcutIds) }
+                            .mapTo(HashSet()) { appFolderMemberKey(it) }
                     withContext(Dispatchers.Main.immediate) {
                         pruneUnavailableMembers(appKeys, shortcutKeys, disabledShortcutKeys)
                     }

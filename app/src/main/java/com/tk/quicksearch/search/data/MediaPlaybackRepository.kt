@@ -42,10 +42,21 @@ class MediaPlaybackRepository(private val context: Context) {
             }
         }
 
-    /** The most recently active session that is playing, paused, or buffering, if any. */
+    /**
+     * The session for the At a Glance card: one that is playing or buffering first, so a paused
+     * session (which the card hides) does not mask one playing behind it; otherwise the
+     * system-priority paused one.
+     */
     fun activeController(): MediaController? {
         if (!isEnabled() || !hasAccess()) return null
-        return currentController()
+        return activeSessions().firstOrNull { controller ->
+            when (runCatching { controller.playbackState }.getOrNull()?.state) {
+                PlaybackState.STATE_PLAYING,
+                PlaybackState.STATE_BUFFERING,
+                -> true
+                else -> false
+            }
+        } ?: currentController()
     }
 
     /**

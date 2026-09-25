@@ -104,6 +104,7 @@ import com.tk.quicksearch.app.startup.StartupTrace
 import com.tk.quicksearch.search.core.AppSuggestionTabType
 import com.tk.quicksearch.search.core.StartupPhase
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.AppShortcutRepository.isShortcutDisabled
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.models.AppInfo
@@ -672,7 +673,7 @@ fun AppGridView(
                 appShortcuts
                         .asSequence()
                         .filterNot { shortcut ->
-                            disabledShortcutIds.contains(shortcutKey(shortcut))
+                            isShortcutDisabled(shortcut, disabledShortcutIds)
                         }
                         .groupBy { it.packageName }
             }

@@ -213,8 +213,21 @@ fun SettingsDetailRoute(
                     },
             )
 
+    // Wait for the fresh system scan before showing the list so it doesn't render cached
+    // shortcuts first and then reshuffle when the refresh lands.
+    var hasRefreshedAppShortcuts by remember { mutableStateOf(false) }
+    LaunchedEffect(detailType) {
+        if (detailType == SettingsDetailType.APP_SHORTCUTS) {
+            viewModel.refreshAppShortcutsAndAwait()
+            hasRefreshedAppShortcuts = true
+        } else {
+            hasRefreshedAppShortcuts = false
+        }
+    }
+
     LaunchedEffect(
             detailType,
+            hasRefreshedAppShortcuts,
             state.allApps,
             state.allAppShortcuts,
             context.packageName,
@@ -224,6 +237,7 @@ fun SettingsDetailRoute(
             hasLoadedAppShortcutSources = false
             return@LaunchedEffect
         }
+        if (!hasRefreshedAppShortcuts) return@LaunchedEffect
 
         val appShortcutSources =
                 withContext(Dispatchers.Default) {
@@ -242,11 +256,6 @@ fun SettingsDetailRoute(
         hasLoadedAppShortcutSources = true
     }
 
-    LaunchedEffect(detailType) {
-        if (detailType == SettingsDetailType.APP_SHORTCUTS) {
-            viewModel.refreshAppShortcutsCacheFirst()
-        }
-    }
 
     val onBackAction: () -> Unit =
             if (detailType.isLevel2()) {
@@ -367,6 +376,7 @@ fun SettingsDetailRoute(
                 hasUsagePermission = uiState.hasUsagePermission,
                 appShortcutFocusShortcut = appShortcutFocusShortcut,
                 appShortcutFocusPackageName = appShortcutFocusPackageName,
+                isAppShortcutsLoading = !shouldShowAppShortcutsContent,
                 appShortcutSources =
                         if (shouldShowAppShortcutsContent) {
                             filteredAppShortcutSources

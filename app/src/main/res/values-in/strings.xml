@@ -399,9 +399,13 @@
     <string name="settings_app_shortcuts_deep_link_label">URL atau Intent</string>
     <string name="settings_app_shortcuts_delete_action">Hapus pintasan</string>
     <string name="settings_app_shortcuts_delete_success">Pintasan berhasil dihapus.</string>
-    <string name="settings_app_shortcuts_description_with_count">Ketuk aplikasi apa saja untuk melihat pintasannya. Aktifkan, nonaktifkan, atau tambahkan pintasan kustom.\n\nPintasan yang Tersedia: %1$s</string>
+    <string name="settings_app_shortcuts_description_with_count">Ketuk aplikasi apa saja untuk melihat pintasannya. Aktifkan, nonaktifkan, atau tambahkan pintasan kustom.\n\n%1$s pintasan</string>
+    <string name="settings_app_shortcuts_description_with_enabled_count">Ketuk aplikasi apa saja untuk melihat pintasannya. Aktifkan, nonaktifkan, atau tambahkan pintasan kustom.\n\n%1$s pintasan · %2$s aktif</string>
     <string name="settings_app_shortcuts_edit_dialog_title">Edit Pintasan</string>
     <string name="settings_app_shortcuts_empty">Pintasan aplikasi tidak ditemukan.</string>
+    <string name="settings_app_shortcuts_loading">Memuat pintasan…</string>
+    <string name="settings_app_shortcuts_disable_all">Nonaktifkan semua pintasan</string>
+    <string name="settings_app_shortcuts_card_all_disabled">Semua pintasan dinonaktifkan</string>
     <string name="settings_app_shortcuts_expand_all">Perluas semua</string>
     <string name="settings_app_shortcuts_filter_all_apps">Semua Aplikasi</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">Aplikasi dengan Pintasan</string>

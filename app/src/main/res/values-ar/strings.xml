@@ -395,9 +395,13 @@
     <string name="settings_app_shortcuts_deep_link_label">رابط URL أو Intent</string>
     <string name="settings_app_shortcuts_delete_action">حذف الاختصار</string>
     <string name="settings_app_shortcuts_delete_success">تم حذف الاختصار.</string>
-    <string name="settings_app_shortcuts_description_with_count">اضغط على أي تطبيق لعرض اختصاراته وتفعيلها أو تعطيلها، أو إضافة اختصارات مخصصة.\n\nالاختصارات المتاحة: %1$s</string>
+    <string name="settings_app_shortcuts_description_with_count">اضغط على أي تطبيق لعرض اختصاراته وتفعيلها أو تعطيلها، أو إضافة اختصارات مخصصة.\n\n%1$s اختصار</string>
+    <string name="settings_app_shortcuts_description_with_enabled_count">اضغط على أي تطبيق لعرض اختصاراته وتفعيلها أو تعطيلها، أو إضافة اختصارات مخصصة.\n\n%1$s اختصار · %2$s مفعّل</string>
     <string name="settings_app_shortcuts_edit_dialog_title">تعديل الاختصار</string>
     <string name="settings_app_shortcuts_empty">لم يتم العثور على اختصارات للتطبيقات.</string>
+    <string name="settings_app_shortcuts_loading">جارٍ تحميل الاختصارات…</string>
+    <string name="settings_app_shortcuts_disable_all">تعطيل كل الاختصارات</string>
+    <string name="settings_app_shortcuts_card_all_disabled">كل الاختصارات معطّلة</string>
     <string name="settings_app_shortcuts_expand_all">توسيع الكل</string>
     <string name="settings_app_shortcuts_filter_all_apps">جميع التطبيقات</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">التطبيقات ذات الاختصارات</string>

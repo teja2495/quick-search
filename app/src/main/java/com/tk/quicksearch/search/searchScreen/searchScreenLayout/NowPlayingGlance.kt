@@ -121,6 +121,15 @@ private object NowPlayingDismissal {
 }
 
 /**
+ * The card only shows while media plays, except after the user pauses it from the card itself:
+ * then it stays (paused) so they can resume from it, until that session plays again from anywhere.
+ */
+private object NowPlayingPausedFromCard {
+    var sessionToken by mutableStateOf<Any?>(null)
+    var sawPausedState by mutableStateOf(false)
+}
+
+/**
  * Tracks the system's active media session while [enabled], refreshing whenever the set of
  * sessions changes and mirroring the selected session's playback state and metadata live (rather
  * than polling, since play/pause must flip instantly).
@@ -135,6 +144,7 @@ internal fun rememberNowPlayingGlance(enabled: Boolean): NowPlayingGlance? {
     var metadata by remember { mutableStateOf<MediaMetadata?>(null) }
     var playbackState by remember { mutableStateOf<PlaybackState?>(null) }
     val dismissal = NowPlayingDismissal
+    val pausedFromCard = NowPlayingPausedFromCard
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -195,6 +205,8 @@ internal fun rememberNowPlayingGlance(enabled: Boolean): NowPlayingGlance? {
         activeMetadata.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART)
             ?: activeMetadata.getBitmap(MediaMetadata.METADATA_KEY_ART)
     val isPlaying = playbackState?.state == PlaybackState.STATE_PLAYING
+    val isActivelyPlaying = isPlaying || playbackState?.state == PlaybackState.STATE_BUFFERING
+    val isPausedFromCard = pausedFromCard.sessionToken == activeController.sessionToken
     val isSeekMode = MediaSeek.isSeekMode(activeMetadata, playbackState)
     val dismissedForCurrentSession = dismissal.sessionToken == activeController.sessionToken
     val shouldRemainDismissed =
@@ -220,6 +232,19 @@ internal fun rememberNowPlayingGlance(enabled: Boolean): NowPlayingGlance? {
         }
     }
 
+    androidx.compose.runtime.LaunchedEffect(pausedFromCard.sessionToken, activeController.sessionToken, isPlaying) {
+        // Pausing from the card sets the token while the state still reads playing, so only a
+        // resume seen after the pause landed (or a switch to another session) clears it.
+        when {
+            pausedFromCard.sessionToken == null -> Unit
+            !isPausedFromCard || (isPlaying && pausedFromCard.sawPausedState) -> {
+                pausedFromCard.sessionToken = null
+                pausedFromCard.sawPausedState = false
+            }
+            !isPlaying -> pausedFromCard.sawPausedState = true
+        }
+    }
+
     val appSeekActions = MediaAppSeek.find(playbackState)
     val appSeekIconSizePx = with(LocalDensity.current) { NowPlayingControlIconSize.roundToPx() }.coerceAtLeast(1)
     val packageName = activeController.packageName
@@ -235,6 +260,7 @@ internal fun rememberNowPlayingGlance(enabled: Boolean): NowPlayingGlance? {
         }
 
     if (shouldRemainDismissed) return null
+    if (!isActivelyPlaying && !isPausedFromCard) return null
 
     return NowPlayingGlance(
         title = title,
@@ -244,7 +270,13 @@ internal fun rememberNowPlayingGlance(enabled: Boolean): NowPlayingGlance? {
         isSeekMode = isSeekMode,
         playPause = {
             runCatching {
-                if (isPlaying) activeController.transportControls.pause() else activeController.transportControls.play()
+                if (isPlaying) {
+                    pausedFromCard.sessionToken = activeController.sessionToken
+                    pausedFromCard.sawPausedState = false
+                    activeController.transportControls.pause()
+                } else {
+                    activeController.transportControls.play()
+                }
             }
         },
         previous = { runCatching { activeController.transportControls.skipToPrevious() } },

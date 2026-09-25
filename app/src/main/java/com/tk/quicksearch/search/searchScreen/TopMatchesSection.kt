@@ -51,6 +51,7 @@ import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SectionRenderContext
 import com.tk.quicksearch.search.core.SectionRenderParams
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.AppShortcutRepository.isShortcutDisabled
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
@@ -892,7 +893,7 @@ private fun TopMatchAppRow(
         remember(params.appShortcuts, params.disabledAppShortcutIds, app.packageName) {
             params.appShortcuts.filter { shortcut ->
                 shortcut.packageName == app.packageName &&
-                    !params.disabledAppShortcutIds.contains(shortcutKey(shortcut))
+                    !isShortcutDisabled(shortcut, params.disabledAppShortcutIds)
             }
         }
     val iconResult =

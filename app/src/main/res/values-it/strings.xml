@@ -393,9 +393,13 @@
     <string name="settings_app_shortcuts_deep_link_label">URL o Intent</string>
     <string name="settings_app_shortcuts_delete_action">Elimina scorciatoia</string>
     <string name="settings_app_shortcuts_delete_success">Scorciatoia eliminata.</string>
-    <string name="settings_app_shortcuts_description_with_count">Tocca qualsiasi app per visualizzarne le scorciatoie. Attiva, disattiva o aggiungi scorciatoie personalizzate.\n\nScorciatoie disponibili: %1$s</string>
+    <string name="settings_app_shortcuts_description_with_count">Tocca qualsiasi app per visualizzarne le scorciatoie. Attiva, disattiva o aggiungi scorciatoie personalizzate.\n\n%1$s scorciatoie</string>
+    <string name="settings_app_shortcuts_description_with_enabled_count">Tocca qualsiasi app per visualizzarne le scorciatoie. Attiva, disattiva o aggiungi scorciatoie personalizzate.\n\n%1$s scorciatoie · %2$s attive</string>
     <string name="settings_app_shortcuts_edit_dialog_title">Modifica scorciatoia</string>
     <string name="settings_app_shortcuts_empty">Nessuna scorciatoia trovata.</string>
+    <string name="settings_app_shortcuts_loading">Caricamento scorciatoie…</string>
+    <string name="settings_app_shortcuts_disable_all">Disattiva tutte le scorciatoie</string>
+    <string name="settings_app_shortcuts_card_all_disabled">Tutte le scorciatoie disattivate</string>
     <string name="settings_app_shortcuts_expand_all">Espandi tutto</string>
     <string name="settings_app_shortcuts_filter_all_apps">Tutte le app</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">App con scorciatoie</string>

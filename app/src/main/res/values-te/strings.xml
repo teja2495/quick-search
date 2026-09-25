@@ -394,9 +394,13 @@
     <string name="settings_app_shortcuts_deep_link_label">URL లేదా ఇంటెంట్</string>
     <string name="settings_app_shortcuts_delete_action">షార్ట్‌కట్‌ని తొలగించు</string>
     <string name="settings_app_shortcuts_delete_success">షార్ట్‌కట్ తొలగించబడింది.</string>
-    <string name="settings_app_shortcuts_description_with_count">షార్ట్‌కట్‌లను చూడటానికి ఏదైనా యాప్‌పై నొక్కండి. కస్టమ్ షార్ట్‌కట్‌లను ప్రారంభించండి, నిలిపివేయండి లేదా జోడించండి.\n\nఅందుబాటులో ఉన్న షార్ట్‌కట్‌లు: %1$s</string>
+    <string name="settings_app_shortcuts_description_with_count">షార్ట్‌కట్‌లను చూడటానికి ఏదైనా యాప్‌పై నొక్కండి. కస్టమ్ షార్ట్‌కట్‌లను ప్రారంభించండి, నిలిపివేయండి లేదా జోడించండి.\n\n%1$s షార్ట్‌కట్‌లు</string>
+    <string name="settings_app_shortcuts_description_with_enabled_count">షార్ట్‌కట్‌లను చూడటానికి ఏదైనా యాప్‌పై నొక్కండి. కస్టమ్ షార్ట్‌కట్‌లను ప్రారంభించండి, నిలిపివేయండి లేదా జోడించండి.\n\n%1$s షార్ట్‌కట్‌లు · %2$s ప్రారంభించబడ్డాయి</string>
     <string name="settings_app_shortcuts_edit_dialog_title">షార్ట్‌కట్‌ని సవరించండి</string>
     <string name="settings_app_shortcuts_empty">యాప్ షార్ట్‌కట్‌లు ఏవీ కనుగొనబడలేదు.</string>
+    <string name="settings_app_shortcuts_loading">షార్ట్‌కట్‌లు లోడ్ అవుతున్నాయి…</string>
+    <string name="settings_app_shortcuts_disable_all">అన్ని షార్ట్‌కట్‌లను నిలిపివేయండి</string>
+    <string name="settings_app_shortcuts_card_all_disabled">అన్ని షార్ట్‌కట్‌లు నిలిపివేయబడ్డాయి</string>
     <string name="settings_app_shortcuts_expand_all">అన్నింటినీ విస్తరించు</string>
     <string name="settings_app_shortcuts_filter_all_apps">అన్ని యాప్‌లు</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">షార్ట్‌కట్‌లు ఉన్న యాప్‌లు</string>

@@ -26,7 +26,7 @@ internal interface SearchViewModelManagementApi {
 
     fun clearRecentItems() = managementApiDelegate.clearRecentItems()
 
-    fun refreshAppShortcutsCacheFirst() = managementApiDelegate.refreshAppShortcutsCacheFirst()
+    suspend fun refreshAppShortcutsAndAwait() = managementApiDelegate.refreshAppShortcutsAndAwait()
 
     fun refreshUsageAccess() = managementApiDelegate.refreshUsageAccess()
 
@@ -262,6 +262,9 @@ internal interface SearchViewModelManagementApi {
     fun setAppShortcutsEnabled(shortcutIds: Collection<String>, enabled: Boolean) =
         managementApiDelegate.setAppShortcutsEnabled(shortcutIds, enabled)
 
+    fun setAllAppShortcutsEnabled(packageName: String, enabled: Boolean) =
+        managementApiDelegate.setAllAppShortcutsEnabled(packageName, enabled)
+
     fun setAppShortcutIconOverride(shortcut: StaticShortcut, iconBase64: String?) =
         managementApiDelegate.setAppShortcutIconOverride(shortcut, iconBase64)
 
@@ -407,8 +410,8 @@ class SearchViewModelManagementApiDelegate internal constructor(
         historyDelegate.clearRecentItems(lockedAliasSearchSectionProvider())
     }
 
-    fun refreshAppShortcutsCacheFirst() {
-        staticDataDelegate.refreshAppShortcutsCacheFirst()
+    suspend fun refreshAppShortcutsAndAwait() {
+        staticDataDelegate.refreshAppShortcutsAndAwait()
     }
 
     fun refreshUsageAccess() {
@@ -847,6 +850,10 @@ class SearchViewModelManagementApiDelegate internal constructor(
 
     fun setAppShortcutsEnabled(shortcutIds: Collection<String>, enabled: Boolean) {
         staticDataDelegate.setAppShortcutsEnabled(shortcutIds, enabled)
+    }
+
+    fun setAllAppShortcutsEnabled(packageName: String, enabled: Boolean) {
+        staticDataDelegate.setAllAppShortcutsEnabled(packageName, enabled)
     }
 
     fun setAppShortcutIconOverride(shortcut: StaticShortcut, iconBase64: String?) {
