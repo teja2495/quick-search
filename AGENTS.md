@@ -49,7 +49,7 @@ Repository playbook for coding agents. When prose and code disagree, trust the c
 ### Strings
 
 - All user-facing text goes in resources. Reuse an existing string when the content matches exactly; don't add duplicates.
-- When adding or changing copy, update `values/strings.xml` and all 16 localized `values-*/strings.xml` files unless the user narrows scope. `StringResourceParityTest` (and `scripts/check_strings.py`) fail on missing or stale keys and mismatched format arguments.
+- When adding or changing copy, update `values/strings.xml` and all 16 localized `values-*/strings.xml` files unless the user narrows scope. `StringResourceParityTest` (and `scripts/check_strings.py`) fail on missing or stale keys and mismatched format arguments. Use the `localize-strings` skill (`.claude/skills/localize-strings/SKILL.md`) and `scripts/add_strings.py` to write all locales at once.
 
 ### Startup and caches
 
@@ -65,6 +65,7 @@ Read the matching guide before implementing. Claude Code loads the skill of the 
 - Searchable app-setting row (every new user-facing setting): `search/appSettings/new-app-setting.md`
 - New search tool (`tools/<name>/`): `.claude/skills/new-search-tool/SKILL.md`
 - New search result section: `.claude/skills/new-search-section/SKILL.md`
+- Adding or changing user-facing strings: `.claude/skills/localize-strings/SKILL.md`
 
 ## Guardrails
 
