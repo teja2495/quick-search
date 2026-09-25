@@ -122,6 +122,10 @@
     <string name="settings_gesture_close_keyboard_notifications">Tastatur schließen / Benachrichtigungen öffnen</string>
     <string name="settings_gesture_close_keyboard">Tastatur schließen</string>
     <string name="settings_gesture_notification_panel">Benachrichtigungsleiste</string>
+    <string name="settings_gesture_lock_screen">Bildschirm sperren</string>
+    <string name="settings_gesture_lock_screen_requires_accessibility">Erfordert Bedienungshilfen-Berechtigung</string>
+    <string name="accessibility_lock_screen_service_label">Quick Search</string>
+    <string name="accessibility_lock_screen_service_description">Ermöglicht Quick Search, den Bildschirm mit der Doppeltipp-Geste auf dem Startbildschirm zu sperren und sich in jeder App per Wischen vom Rand oder über eine schwebende Schaltfläche zu öffnen. Bildschirminhalte werden nicht gelesen.</string>
     <string name="accessibility_permission_disclaimer_title">Hinweis zur Berechtigung für Bedienungshilfen</string>
     <string name="accessibility_lock_screen_disclosure_message">Quick Search verwendet die Bedienungshilfe, um:\n\n• die Doppeltipp-Geste zum Sperren des Bildschirms zu aktivieren.\n• Quick Search mit Wischgesten vom Bildschirmrand zu öffnen.\n• Quick Search über die schwebende Schaltfläche zu öffnen.\n\nEs liest, erfasst, speichert oder teilt weder deine Bildschirminhalte noch andere persönliche Daten.</string>
     <string name="settings_gesture_none">Keine</string>

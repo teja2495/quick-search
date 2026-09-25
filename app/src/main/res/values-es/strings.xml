@@ -122,6 +122,10 @@
     <string name="settings_gesture_close_keyboard_notifications">Cerrar teclado / Abrir notificaciones</string>
     <string name="settings_gesture_close_keyboard">Cerrar teclado</string>
     <string name="settings_gesture_notification_panel">Panel de notificaciones</string>
+    <string name="settings_gesture_lock_screen">Bloquear pantalla</string>
+    <string name="settings_gesture_lock_screen_requires_accessibility">Requiere permiso de accesibilidad</string>
+    <string name="accessibility_lock_screen_service_label">Quick Search</string>
+    <string name="accessibility_lock_screen_service_description">Permite que Quick Search bloquee la pantalla con el gesto de doble toque en la pantalla de inicio y se abra deslizando desde el borde o con un botón flotante en cualquier app. No lee el contenido de la pantalla.</string>
     <string name="accessibility_permission_disclaimer_title">Aviso sobre el permiso de accesibilidad</string>
     <string name="accessibility_lock_screen_disclosure_message">Quick Search usa Accesibilidad para:\n\n• Activar el gesto de doble toque para bloquear la pantalla.\n• Abrir Quick Search mediante gestos de deslizamiento desde el borde.\n• Abrir Quick Search mediante el botón flotante.\n\nNo lee, recopila, almacena ni comparte el contenido de tu pantalla ni otros datos personales.</string>
     <string name="settings_gesture_none">Ninguno</string>

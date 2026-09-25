@@ -122,6 +122,10 @@
     <string name="settings_gesture_close_keyboard_notifications">కీబోర్డ్ మూసివేయి / నోటిఫికేషన్‌లను తెరవండి</string>
     <string name="settings_gesture_close_keyboard">కీబోర్డ్ మూసివేయి</string>
     <string name="settings_gesture_notification_panel">నోటిఫికేషన్ ప్యానెల్</string>
+    <string name="settings_gesture_lock_screen">స్క్రీన్ లాక్ చేయండి</string>
+    <string name="settings_gesture_lock_screen_requires_accessibility">యాక్సెసిబిలిటీ అనుమతి అవసరం</string>
+    <string name="accessibility_lock_screen_service_label">Quick Search</string>
+    <string name="accessibility_lock_screen_service_description">హోమ్ స్క్రీన్‌పై డబుల్-ట్యాప్ సంజ్ఞతో స్క్రీన్‌ను లాక్ చేయడానికి మరియు ఏ యాప్‌లోనైనా అంచు నుండి స్వైప్ లేదా ఫ్లోటింగ్ బటన్‌తో తెరవడానికి Quick Searchను అనుమతిస్తుంది. ఇది స్క్రీన్ కంటెంట్‌ను చదవదు.</string>
 <string name="accessibility_permission_disclaimer_title">యాక్సెసిబిలిటీ అనుమతి నిరాకరణ</string>
     <string name="accessibility_lock_screen_disclosure_message">Quick Search యాక్సెసిబిలిటీని వీటి కోసం ఉపయోగిస్తుంది:\n\n• స్క్రీన్‌ను లాక్ చేయడానికి డబుల్-ట్యాప్ సంజ్ఞను ప్రారంభించడానికి.\n• ఎడ్జ్ స్వైప్ సంజ్ఞలతో Quick Searchని తెరవడానికి.\n• ఫ్లోటింగ్ బటన్‌తో Quick Searchని తెరవడానికి.\n\nఇది మీ స్క్రీన్ కంటెంట్‌ను లేదా ఇతర వ్యక్తిగత డేటాను చదవదు, సేకరించదు, నిల్వ చేయదు లేదా పంచుకోదు.</string>
     <string name="settings_gesture_none">ఏదీ లేదు</string>

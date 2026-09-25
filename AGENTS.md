@@ -6,7 +6,7 @@ Repository playbook for coding agents. When prose and code disagree, trust the c
 
 - Keep changes narrow; preserve unrelated work in the tree. Don't mix feature work with speculative refactors or cleanup.
 - Don't `git add`, commit, tag, push, or publish without explicit permission.
-- Don't install on or drive the attached device unless asked. Bug reports are often from other users' devices, and installing resets the user's accessibility grant (see Validation).
+- Don't install on or drive the attached device unless asked. Bug reports are often from other users' devices, and installing resets the user's accessibility grant.
 - Don't run instrumented/Compose UI tests unless asked; the user does manual UI testing.
 - A successful build proves only that it builds. Don't claim a visual state, gesture, keyboard interaction, provider response, or intermittent issue is fixed without reproducing it.
 - In app action menus, never leave placeholder gaps between options; reflow so any gap is only at the end of the last row.
@@ -49,7 +49,7 @@ Repository playbook for coding agents. When prose and code disagree, trust the c
 ### Strings
 
 - All user-facing text goes in resources. Reuse an existing string when the content matches exactly; don't add duplicates.
-- When adding or changing copy, update `values/strings.xml` and all 16 localized `values-*/strings.xml` files unless the user narrows scope.
+- When adding or changing copy, update `values/strings.xml` and all 16 localized `values-*/strings.xml` files unless the user narrows scope. `StringResourceParityTest` (and `scripts/check_strings.py`) fail on missing or stale keys and mismatched format arguments.
 
 ### Startup and caches
 
@@ -59,14 +59,12 @@ Repository playbook for coding agents. When prose and code disagree, trust the c
 
 ## Feature guides
 
-Read the matching guide before implementing:
+Read the matching guide before implementing. Claude Code loads the skill of the same name from `.claude/skills/` automatically; other agents should open the file.
 
-| Change | Guide |
-|---|---|
-| Built-in search engine | `searchEngines/new-search-engine.md` |
-| Searchable app-setting row (every new user-facing setting) | `search/appSettings/new-app-setting.md` |
-
-A new section typically touches the model/repository or handler, `SearchUiState`, `SearchSectionRegistry`, orchestration, rendering/order, permission degradation, preferences, and the searchable app-setting entry. A new tool lives in its own `tools/<name>/` package, following `calculator/` and `unitConverter/`. It also touches `search/core/SearchHandlerContainer.kt`, `search/core/SearchToolCoordinator.kt`, `settings/settingsDetailScreen/ToolSettingsRegistry.kt`, and `searchEngines/AliasHandler.kt`.
+- Built-in search engine: `searchEngines/new-search-engine.md`
+- Searchable app-setting row (every new user-facing setting): `search/appSettings/new-app-setting.md`
+- New search tool (`tools/<name>/`): `.claude/skills/new-search-tool/SKILL.md`
+- New search result section: `.claude/skills/new-search-section/SKILL.md`
 
 ## Guardrails
 
@@ -76,25 +74,17 @@ A new section typically touches the model/repository or handler, `SearchUiState`
 - Provider and network work stays off the main thread. Local-first; no analytics or tracking.
 - On permission denial, hide or degrade only the affected feature; never crash or block unrelated search.
 - Check both flavor source sets when changing review/update behavior, typography, or distribution defaults.
-- If a touched Kotlin file is already very large, put new cohesive logic in a focused file or delegate.
+- Kotlin files stay at or under 800 lines (`scripts/verify.sh` enforces it). If a change would push a file past that, move cohesive logic into a focused file or delegate first.
 
 ## Validation
 
-- Compile check: `./gradlew :app:compileStandardDebugKotlin` (add `:app:compileFdroidDebugKotlin` when flavor code changes). Plain `compileDebugKotlin` doesn't exist because of flavors. Confirm `BUILD SUCCESSFUL`; don't just grep for `e:` lines, which hides task-not-found failures.
-- Run focused unit tests (`app/src/test/`) for changed pure logic, e.g. `./gradlew :app:testStandardDebugUnitTest --tests '<pattern>'`.
-- After resource XML changes, check every affected `values*/strings.xml` and run `git diff --check`.
-- Finish a coding task with `./gradlew assembleStandardDebug`; the APK is at `app/build/outputs/apk/standard/debug/app-standard-debug.apk`. Report its path rather than installing.
-- Only when the user asks for on-device verification:
-
-```bash
-./gradlew assembleStandardDebug && adb install --user 0 -r app/build/outputs/apk/standard/debug/app-standard-debug.apk && adb shell am force-stop com.tk.quicksearch.debug && adb shell am start -W -n com.tk.quicksearch.debug/com.tk.quicksearch.app.MainActivity
-```
-
-  Both `adb install` and `am force-stop` revoke the app's accessibility service grant (edge gesture, lock action). Check with `adb shell settings get secure enabled_accessibility_services`. If it's gone, ask the user to re-enable it; don't write that setting over adb.
+- **Definition of done:** `scripts/verify.sh` prints `VERIFY PASSED`. It runs whitespace, string parity, and file-size checks, both flavor compiles, all unit tests, and `assembleStandardDebug`, and prints only the errors on failure (full log in `build/verify-gradle.log`). Use `--no-assemble` for intermediate checks. Report the APK path (`app/build/outputs/apk/standard/debug/app-standard-debug.apk`) rather than installing.
+- Faster iteration: `./gradlew -q :app:compileStandardDebugKotlin` (plus `:app:compileFdroidDebugKotlin` for flavor code; plain `compileDebugKotlin` doesn't exist), `./gradlew -q :app:testStandardDebugUnitTest --tests '<pattern>'`, and `python3 scripts/check_strings.py` after resource XML changes.
+- On-device verification only when asked: use the `device-verify` skill (`.claude/skills/device-verify/SKILL.md`).
+- Formatting: follow `.editorconfig` and the surrounding code. The codebase is not ktlint-clean, so don't run ktlint or any formatter over whole files.
 - Gradle cache permission/lock failures: set `GRADLE_USER_HOME=$PWD/.gradle-codex`. Kotlin daemon marker failures: add `-Pkotlin.compiler.execution.strategy=in-process`.
 
 ## Release
 
-- For F-Droid work, read `docs/FDROID.md` and use the `fdroid-release` skill (`.claude/skills/fdroid-release/`).
-- User-facing release notes: `app/src/main/assets/RELEASE_NOTES.md`; feature list: `app/src/main/assets/FEATURES.md`. Version is in `app/build.gradle.kts`.
+- Release notes: `app/src/main/assets/RELEASE_NOTES.md`; feature list: `FEATURES.md` beside it; version in `app/build.gradle.kts`. F-Droid releases: use the `fdroid-release` skill (`.claude/skills/fdroid-release/`).
 - Version tags are immutable. Before any authorized publish, align version name/code, release notes, artifact, and tag, then verify the remote result.

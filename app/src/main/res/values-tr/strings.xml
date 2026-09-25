@@ -121,6 +121,10 @@
 <string name="settings_gesture_close_keyboard_notifications">Klavyeyi Kapat / Bildirimleri Aç</string>
 <string name="settings_gesture_close_keyboard">Klavyeyi Kapat</string>
 <string name="settings_gesture_notification_panel">Bildirim Paneli</string>
+<string name="settings_gesture_lock_screen">Ekranı Kilitle</string>
+<string name="settings_gesture_lock_screen_requires_accessibility">Erişilebilirlik İzni Gerekir</string>
+<string name="accessibility_lock_screen_service_label">Quick Search</string>
+<string name="accessibility_lock_screen_service_description">Quick Search\'ün ana ekrandaki çift dokunma hareketiyle ekranı kilitlemesine ve herhangi bir uygulamada kenardan kaydırma veya kayan bir düğmeyle açılmasına izin verir. Ekran içeriğini okumaz.</string>
 <string name="accessibility_permission_disclaimer_title">Erişilebilirlik İzni Bildirimi</string>
 <string name="accessibility_lock_screen_disclosure_message">Quick Search Erişilebilirlik’i şunlar için kullanır:\n\n• Ekranı kilitlemek için çift dokunma hareketini etkinleştirmek.\n• Kenardan kaydırma hareketleriyle Quick Search’ü açmak.\n• Kayan düğmeyle Quick Search’ü açmak.\n\nEkran içeriğinizi veya diğer kişisel verilerinizi okumaz, toplamaz, saklamaz ya da paylaşmaz.</string>
 <string name="settings_gesture_none">Hiçbiri</string>

@@ -122,6 +122,10 @@
     <string name="settings_gesture_close_keyboard_notifications">Κλείσιμο πληκτρολογίου / Άνοιγμα ειδοποιήσεων</string>
     <string name="settings_gesture_close_keyboard">Κλείσιμο πληκτρολογίου</string>
     <string name="settings_gesture_notification_panel">Πίνακας ειδοποιήσεων</string>
+    <string name="settings_gesture_lock_screen">Κλείδωμα οθόνης</string>
+    <string name="settings_gesture_lock_screen_requires_accessibility">Απαιτείται άδεια προσβασιμότητας</string>
+    <string name="accessibility_lock_screen_service_label">Quick Search</string>
+    <string name="accessibility_lock_screen_service_description">Επιτρέπει στο Quick Search να κλειδώνει την οθόνη με τη χειρονομία διπλού πατήματος στην αρχική οθόνη και να ανοίγει με σάρωση από την άκρη ή με ένα αιωρούμενο κουμπί σε οποιαδήποτε εφαρμογή. Δεν διαβάζει το περιεχόμενο της οθόνης.</string>
 <string name="accessibility_permission_disclaimer_title">Αποποίηση ευθύνης άδειας προσβασιμότητας</string>
     <string name="accessibility_lock_screen_disclosure_message">Το Quick Search χρησιμοποιεί την Προσβασιμότητα για να:\n\n• ενεργοποιεί τη χειρονομία διπλού πατήματος για κλείδωμα οθόνης.\n• ανοίγει το Quick Search με χειρονομίες σάρωσης από την άκρη.\n• ανοίγει το Quick Search με το αιωρούμενο κουμπί.\n\nΔεν διαβάζει, συλλέγει, αποθηκεύει ή κοινοποιεί το περιεχόμενο της οθόνης σας ή άλλα προσωπικά δεδομένα.</string>
     <string name="settings_gesture_none">Κανένα</string>
