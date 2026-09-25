@@ -93,8 +93,8 @@ private const val FILE_ICON_SIZE = 24
 private const val CUSTOM_FILE_ICON_SIZE = 20
 private const val THUMBNAIL_SIZE_DP = 60
 private const val THUMBNAIL_LOAD_SIZE_PX = 160
-private const val THUMBNAIL_CACHE_MAX_SIZE = 60
-private const val THUMBNAIL_FAILURE_RETRY_DELAY_MS = 30_000L
+internal const val THUMBNAIL_CACHE_MAX_SIZE = 60
+internal const val THUMBNAIL_FAILURE_RETRY_DELAY_MS = 30_000L
 private const val THUMBNAIL_FADE_IN_DURATION_MS = 100
 private const val EXPAND_BUTTON_TOP_PADDING = 2
 private const val EXPAND_BUTTON_HORIZONTAL_PADDING = 12
@@ -110,130 +110,6 @@ private data class CustomFileIconSpec(
         val drawableRes: Int,
         val aspectRatio: Float,
 )
-
-private object FileThumbnailCache {
-    private const val MAX_CACHE_SIZE_BYTES = 6 * 1024 * 1024
-    private const val BYTES_PER_PIXEL = 4L
-    private val loadScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val cache =
-            object : LinkedHashMap<String, ImageBitmap>(THUMBNAIL_CACHE_MAX_SIZE, 0.75f, true) {
-                private var sizeBytes = 0L
-
-                override fun put(key: String, value: ImageBitmap): ImageBitmap? {
-                    val previous = super.put(key, value)
-                    sizeBytes += value.byteCount() - (previous?.byteCount() ?: 0L)
-                    trimToSize()
-                    return previous
-                }
-
-                override fun remove(key: String): ImageBitmap? =
-                    super.remove(key)?.also { sizeBytes -= it.byteCount() }
-
-                override fun clear() {
-                    super.clear()
-                    sizeBytes = 0L
-                }
-
-                override fun removeEldestEntry(
-                        eldest: MutableMap.MutableEntry<String, ImageBitmap>
-                ) = false
-
-                private fun trimToSize() {
-                    val iterator = entries.iterator()
-                    while (
-                        iterator.hasNext() &&
-                            (size > THUMBNAIL_CACHE_MAX_SIZE || sizeBytes > MAX_CACHE_SIZE_BYTES)
-                    ) {
-                        val entry = iterator.next()
-                        sizeBytes -= entry.value.byteCount()
-                        iterator.remove()
-                    }
-                }
-
-                private fun ImageBitmap.byteCount(): Long =
-                    width.toLong() * height.toLong() * BYTES_PER_PIXEL
-            }
-    private val inFlightLoads = mutableMapOf<String, Deferred<ImageBitmap?>>()
-    private val failureTimestamps = mutableMapOf<String, Long>()
-
-    @Synchronized fun get(uri: String): ImageBitmap? = cache[uri]
-
-    @Synchronized
-    fun put(uri: String, bitmap: ImageBitmap) {
-        cache[uri] = bitmap
-        failureTimestamps.remove(uri)
-    }
-
-    @Synchronized
-    fun clear() {
-        cache.clear()
-        failureTimestamps.clear()
-    }
-
-    suspend fun getOrLoad(uri: String, loader: suspend () -> ImageBitmap?): ImageBitmap? {
-        get(uri)?.let {
-            return it
-        }
-
-        val deferred =
-                synchronized(this) {
-                    cache[uri]?.let {
-                        return it
-                    }
-
-                    inFlightLoads[uri]?.let {
-                        return@synchronized it
-                    }
-
-                    val now = SystemClock.elapsedRealtime()
-                    val lastFailure = failureTimestamps[uri]
-                    if (lastFailure != null && now - lastFailure < THUMBNAIL_FAILURE_RETRY_DELAY_MS
-                    ) {
-                        return@synchronized null
-                    }
-
-                    loadScope
-                            .async(start = CoroutineStart.LAZY) {
-                                var loadedBitmap: ImageBitmap? = null
-                                try {
-                                    loadedBitmap = loader()
-                                } catch (_: Exception) {
-                                    loadedBitmap = null
-                                } finally {
-                                    synchronized(this@FileThumbnailCache) {
-                                        inFlightLoads.remove(uri)
-                                        if (loadedBitmap != null) {
-                                            cache[uri] = loadedBitmap!!
-                                            failureTimestamps.remove(uri)
-                                        } else {
-                                            failureTimestamps[uri] = SystemClock.elapsedRealtime()
-                                        }
-                                    }
-                                }
-                                loadedBitmap
-                            }
-                            .also { inFlightLoads[uri] = it }
-                }
-                        ?: return null
-
-        if (!deferred.isActive && !deferred.isCompleted) deferred.start()
-        return try {
-            deferred.await()
-        } catch (cancellation: CancellationException) {
-            throw cancellation
-        } catch (_: Exception) {
-            null
-        }
-    }
-}
-
-fun clearFileThumbnailMemoryCache() {
-    FileThumbnailCache.clear()
-}
-
-// ============================================================================
-// Public API
-// ============================================================================
 
 @Composable
 fun FileResultsSection(

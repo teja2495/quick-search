@@ -27,13 +27,13 @@ import java.util.Locale
  * - Managing contact permissions
  */
 class ContactRepository(
-    private val context: Context,
+    internal val context: Context,
 ) {
-    private val contentResolver = context.contentResolver
-    private val otherLabel = context.getString(R.string.contact_method_fallback_label)
+    internal val contentResolver = context.contentResolver
+    internal val otherLabel = context.getString(R.string.contact_method_fallback_label)
 
     // Cache GoogleMeet availability to avoid repeated PackageManager queries
-    private val isGoogleMeetInstalled: Boolean by lazy {
+    internal val isGoogleMeetInstalled: Boolean by lazy {
         try {
             context.packageManager.getPackageInfo("com.google.android.apps.tachyon", 0)
             true
@@ -43,21 +43,21 @@ class ContactRepository(
     }
 
     // Contact method display labels
-    private val callLabel = context.getString(R.string.contact_method_call_label)
-    private val messageLabel = context.getString(R.string.contact_method_message_label)
-    private val emailLabel = context.getString(R.string.contact_method_email_label)
-    private val whatsAppVoiceCallLabel = context.getString(R.string.contact_method_whatsapp_voice_call_label)
-    private val whatsAppMessageLabel = context.getString(R.string.contact_method_whatsapp_message_label)
-    private val whatsAppVideoCallLabel = context.getString(R.string.contact_method_whatsapp_video_call_label)
-    private val telegramMessageLabel = context.getString(R.string.contact_method_telegram_message_label)
-    private val telegramVoiceCallLabel = context.getString(R.string.contact_method_telegram_voice_call_label)
-    private val telegramVideoCallLabel = context.getString(R.string.contact_method_telegram_video_call_label)
-    private val signalMessageLabel = context.getString(R.string.contact_method_signal_message_label)
-    private val signalVoiceCallLabel = context.getString(R.string.contact_method_signal_voice_call_label)
-    private val signalVideoCallLabel = context.getString(R.string.contact_method_signal_video_call_label)
-    private val packageNameByMimeCache = Collections.synchronizedMap(mutableMapOf<String, String?>())
-    private val customAppLabelCache = Collections.synchronizedMap(mutableMapOf<String, String>())
-    private val discoveredMollyPackageName: String? by lazy {
+    internal val callLabel = context.getString(R.string.contact_method_call_label)
+    internal val messageLabel = context.getString(R.string.contact_method_message_label)
+    internal val emailLabel = context.getString(R.string.contact_method_email_label)
+    internal val whatsAppVoiceCallLabel = context.getString(R.string.contact_method_whatsapp_voice_call_label)
+    internal val whatsAppMessageLabel = context.getString(R.string.contact_method_whatsapp_message_label)
+    internal val whatsAppVideoCallLabel = context.getString(R.string.contact_method_whatsapp_video_call_label)
+    internal val telegramMessageLabel = context.getString(R.string.contact_method_telegram_message_label)
+    internal val telegramVoiceCallLabel = context.getString(R.string.contact_method_telegram_voice_call_label)
+    internal val telegramVideoCallLabel = context.getString(R.string.contact_method_telegram_video_call_label)
+    internal val signalMessageLabel = context.getString(R.string.contact_method_signal_message_label)
+    internal val signalVoiceCallLabel = context.getString(R.string.contact_method_signal_voice_call_label)
+    internal val signalVideoCallLabel = context.getString(R.string.contact_method_signal_video_call_label)
+    internal val packageNameByMimeCache = Collections.synchronizedMap(mutableMapOf<String, String?>())
+    internal val customAppLabelCache = Collections.synchronizedMap(mutableMapOf<String, String>())
+    internal val discoveredMollyPackageName: String? by lazy {
         runCatching {
             context.packageManager
                 .getInstalledApplications(0)
@@ -66,7 +66,7 @@ class ContactRepository(
                 }?.packageName
         }.getOrNull()
     }
-    private val isSignalPackageBrandedAsMolly: Boolean by lazy {
+    internal val isSignalPackageBrandedAsMolly: Boolean by lazy {
         runCatching {
             val appInfo = context.packageManager.getApplicationInfo(SIGNAL_PACKAGE, 0)
             val label = context.packageManager.getApplicationLabel(appInfo)?.toString().orEmpty()
@@ -119,23 +119,23 @@ class ContactRepository(
         // Sort by display name; TIMES_CONTACTED was removed in Android 11+ OEM builds and causes SQLiteException
         private const val SORT_ORDER = "${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY} ASC"
 
-        private const val TAG = "ContactRepository"
+        internal const val TAG = "ContactRepository"
         private const val SQL_EMPTY = "''"
         private const val SQL_SPACE = "' '"
 
         // MIME type prefixes
-        private const val VND_MIME_PREFIX = "vnd.android.cursor.item/vnd."
-        private const val SIGNAL_PACKAGE = "org.thoughtcrime.securesms"
-        private val PACKAGE_NAME_PATTERN = Regex("[a-zA-Z][a-zA-Z0-9_]*(?:\\.[a-zA-Z0-9_]+){1,}")
-        private val MOLLY_PACKAGE_CANDIDATES =
+        internal const val VND_MIME_PREFIX = "vnd.android.cursor.item/vnd."
+        internal const val SIGNAL_PACKAGE = "org.thoughtcrime.securesms"
+        internal val PACKAGE_NAME_PATTERN = Regex("[a-zA-Z][a-zA-Z0-9_]*(?:\\.[a-zA-Z0-9_]+){1,}")
+        internal val MOLLY_PACKAGE_CANDIDATES =
             listOf(
                 "im.molly.app",
                 "im.molly.im",
             )
 
         // Package name extraction constants
-        private const val PACKAGE_SEPARATOR = "."
-        private const val PACKAGE_PARTS_MIN_COUNT = 2
+        internal const val PACKAGE_SEPARATOR = "."
+        internal const val PACKAGE_PARTS_MIN_COUNT = 2
         private const val MAX_HYDRATED_CONTACT_CACHE_SIZE = 600
         private val WHITESPACE_REGEX = "\\s+".toRegex()
     }
@@ -586,360 +586,6 @@ class ContactRepository(
                 )
         }
     }
-
-    private fun parseContactMethod(
-        mimeType: String,
-        data1: String,
-        data2: String?,
-        data3: String?,
-        data4: String?,
-        data5: String?,
-        resPackage: String?,
-        dataId: Long,
-        isPrimary: Boolean,
-    ): ContactMethod? =
-        try {
-            when (mimeType) {
-                ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE -> {
-                    ContactMethod.Phone(callLabel, data1, dataId, isPrimary)
-                }
-
-                ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE -> {
-                    ContactMethod.Email(emailLabel, data1, dataId, isPrimary)
-                }
-
-                ContactMethodMimeTypes.WHATSAPP_VOICE_CALL -> {
-                    ContactMethod.WhatsAppCall(whatsAppVoiceCallLabel, data1, dataId, isPrimary)
-                }
-
-                ContactMethodMimeTypes.WHATSAPP_MESSAGE -> {
-                    ContactMethod.WhatsAppMessage(whatsAppMessageLabel, data1, dataId, isPrimary)
-                }
-
-                ContactMethodMimeTypes.WHATSAPP_VIDEO_CALL -> {
-                    ContactMethod.WhatsAppVideoCall(whatsAppVideoCallLabel, data1, dataId, isPrimary)
-                }
-
-                ContactMethodMimeTypes.WHATSAPP_BUSINESS_VOICE_CALL,
-                ContactMethodMimeTypes.WHATSAPP_BUSINESS_MESSAGE,
-                ContactMethodMimeTypes.WHATSAPP_BUSINESS_VIDEO_CALL,
-                -> {
-                    parseWhatsAppBusinessMethod(
-                        mimeType = mimeType,
-                        data = data1,
-                        dataId = dataId,
-                        isPrimary = isPrimary,
-                    )
-                }
-
-                ContactMethodMimeTypes.TELEGRAM_MESSAGE -> {
-                    ContactMethod.TelegramMessage(telegramMessageLabel, data1, dataId, isPrimary)
-                }
-
-                ContactMethodMimeTypes.TELEGRAM_CALL -> {
-                    ContactMethod.TelegramCall(telegramVoiceCallLabel, data1, dataId, isPrimary)
-                }
-
-                ContactMethodMimeTypes.TELEGRAM_VIDEO_CALL -> {
-                    ContactMethod.TelegramVideoCall(telegramVideoCallLabel, data1, dataId, isPrimary)
-                }
-
-                ContactMethodMimeTypes.SIGNAL_MESSAGE -> {
-                    val packageName =
-                        resolveSignalLikePackage(
-                            mimeType = mimeType,
-                            data3 = data3,
-                            data4 = data4,
-                            data5 = data5,
-                            resPackage = resPackage,
-                            includeMimeTypeHints = false,
-                        )
-                    if (packageName == null || (packageName == SIGNAL_PACKAGE && !isSignalPackageBrandedAsMolly)) {
-                        ContactMethod.SignalMessage(signalMessageLabel, data1, dataId, isPrimary)
-                    } else {
-                        parseCustomAppMethod(
-                            mimeType = mimeType,
-                            data = data1,
-                            dataId = dataId,
-                            isPrimary = isPrimary,
-                            packageNameOverride = packageName,
-                            displayLabelOverride = data3,
-                        )
-                    }
-                }
-
-                ContactMethodMimeTypes.SIGNAL_CALL -> {
-                    val packageName =
-                        resolveSignalLikePackage(
-                            mimeType = mimeType,
-                            data3 = data3,
-                            data4 = data4,
-                            data5 = data5,
-                            resPackage = resPackage,
-                            includeMimeTypeHints = false,
-                        )
-                    if (packageName == null || (packageName == SIGNAL_PACKAGE && !isSignalPackageBrandedAsMolly)) {
-                        ContactMethod.SignalCall(signalVoiceCallLabel, data1, dataId, isPrimary)
-                    } else {
-                        parseCustomAppMethod(
-                            mimeType = mimeType,
-                            data = data1,
-                            dataId = dataId,
-                            isPrimary = isPrimary,
-                            packageNameOverride = packageName,
-                            displayLabelOverride = data3,
-                        )
-                    }
-                }
-
-                ContactMethodMimeTypes.SIGNAL_VIDEO_CALL -> {
-                    val packageName =
-                        resolveSignalLikePackage(
-                            mimeType = mimeType,
-                            data3 = data3,
-                            data4 = data4,
-                            data5 = data5,
-                            resPackage = resPackage,
-                            includeMimeTypeHints = false,
-                        )
-                    if (packageName == null || (packageName == SIGNAL_PACKAGE && !isSignalPackageBrandedAsMolly)) {
-                        ContactMethod.SignalVideoCall(signalVideoCallLabel, data1, dataId, isPrimary)
-                    } else {
-                        parseCustomAppMethod(
-                            mimeType = mimeType,
-                            data = data1,
-                            dataId = dataId,
-                            isPrimary = isPrimary,
-                            packageNameOverride = packageName,
-                            displayLabelOverride = data3,
-                        )
-                    }
-                }
-
-                else -> {
-                    if (mimeType.startsWith("vnd.android.cursor.item/vnd.org.thoughtcrime.securesms")) {
-                        val packageName =
-                            resolveSignalLikePackage(
-                                mimeType = mimeType,
-                                data3 = data3,
-                                data4 = data4,
-                                data5 = data5,
-                                resPackage = resPackage,
-                            )
-
-                        if (packageName != null && (packageName != SIGNAL_PACKAGE || isSignalPackageBrandedAsMolly)) {
-                            parseCustomAppMethod(
-                                mimeType = mimeType,
-                                data = data1,
-                                dataId = dataId,
-                                isPrimary = isPrimary,
-                                packageNameOverride = packageName,
-                                displayLabelOverride = data3,
-                            )
-                        } else {
-                            when {
-                                mimeType.contains("video", ignoreCase = true) ->
-                                    ContactMethod.SignalVideoCall(signalVideoCallLabel, data1, dataId, isPrimary)
-                                mimeType.contains("call", ignoreCase = true) ->
-                                    ContactMethod.SignalCall(signalVoiceCallLabel, data1, dataId, isPrimary)
-                                else ->
-                                    ContactMethod.SignalMessage(signalMessageLabel, data1, dataId, isPrimary)
-                            }
-                        }
-                    } else if (mimeType.startsWith(VND_MIME_PREFIX)) {
-                        parseCustomAppMethod(
-                            mimeType = mimeType,
-                            data = data1,
-                            dataId = dataId,
-                            isPrimary = isPrimary,
-                            displayLabelOverride = data3,
-                        )
-                    } else {
-                        null
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error parsing contact method: $mimeType", e)
-            null
-        }
-
-    /**
-     * Attempts to extract package name from custom MIME type.
-     * Format: vnd.android.cursor.item/vnd.com.package.name.xxx
-     */
-    private fun extractPackageFromMimeType(mimeType: String): String? {
-        if (!mimeType.startsWith(VND_MIME_PREFIX)) return null
-
-        val cached = packageNameByMimeCache[mimeType]
-        if (cached != null || packageNameByMimeCache.containsKey(mimeType)) {
-            return cached
-        }
-
-        val resolved =
-            run {
-                val rest = mimeType.substring(VND_MIME_PREFIX.length)
-                val parts = rest.split(PACKAGE_SEPARATOR)
-                if (parts.size < PACKAGE_PARTS_MIN_COUNT) {
-                    return@run null
-                }
-
-                // Prefer the longest prefix that maps to an installed package.
-                for (partCount in parts.size - 1 downTo PACKAGE_PARTS_MIN_COUNT) {
-                    val candidate = parts.take(partCount).joinToString(PACKAGE_SEPARATOR)
-                    if (isPackageInstalled(candidate)) {
-                        return@run candidate
-                    }
-                }
-
-                // Fallback to first two segments when installation cannot be resolved.
-                parts.take(PACKAGE_PARTS_MIN_COUNT).joinToString(PACKAGE_SEPARATOR)
-            }
-
-        packageNameByMimeCache[mimeType] = resolved
-        return resolved
-    }
-
-    private fun resolveCustomAppDisplayLabel(packageName: String?): String {
-        if (packageName.isNullOrBlank()) return otherLabel
-
-        val cached = customAppLabelCache[packageName]
-        if (cached != null) return cached
-
-        val resolved =
-            runCatching {
-                val appInfo = context.packageManager.getApplicationInfo(packageName, 0)
-                context.packageManager.getApplicationLabel(appInfo)?.toString()?.takeIf { it.isNotBlank() }
-            }.getOrNull() ?: packageName
-
-        customAppLabelCache[packageName] = resolved
-        return resolved
-    }
-
-    private fun parseCustomAppMethod(
-        mimeType: String,
-        data: String,
-        dataId: Long,
-        isPrimary: Boolean,
-        packageNameOverride: String? = null,
-        displayLabelOverride: String? = null,
-    ): ContactMethod.CustomApp {
-        val packageName = packageNameOverride ?: extractPackageFromMimeType(mimeType)
-        val displayLabel =
-            displayLabelOverride?.takeIf { it.isNotBlank() } ?: resolveCustomAppDisplayLabel(packageName)
-        return ContactMethod.CustomApp(
-            displayLabel = displayLabel,
-            data = data,
-            mimeType = mimeType,
-            packageName = packageName,
-            dataId = dataId,
-            isPrimary = isPrimary,
-        )
-    }
-
-    private fun parseWhatsAppBusinessMethod(
-        mimeType: String,
-        data: String,
-        dataId: Long,
-        isPrimary: Boolean,
-    ): ContactMethod.CustomApp {
-        val actionLabel =
-            when (mimeType) {
-                ContactMethodMimeTypes.WHATSAPP_BUSINESS_VOICE_CALL ->
-                    context.getString(R.string.contacts_action_button_voice_call)
-                ContactMethodMimeTypes.WHATSAPP_BUSINESS_VIDEO_CALL ->
-                    context.getString(R.string.contacts_action_button_video_call)
-                else -> context.getString(R.string.contacts_action_button_chat)
-            }
-        return ContactMethod.CustomApp(
-            displayLabel = "${resolveCustomAppDisplayLabel(WHATSAPP_BUSINESS_PACKAGE)} $actionLabel",
-            data = data,
-            mimeType = mimeType,
-            packageName = WHATSAPP_BUSINESS_PACKAGE,
-            dataId = dataId,
-            isPrimary = isPrimary,
-        )
-    }
-
-    private fun resolveSignalLikePackage(
-        mimeType: String,
-        data3: String?,
-        data4: String?,
-        data5: String?,
-        resPackage: String?,
-        includeMimeTypeHints: Boolean = true,
-    ): String? {
-        val fromResPackage = resPackage?.takeIf { it.isNotBlank() }
-        if (fromResPackage != null) return fromResPackage
-
-        val fields =
-            if (includeMimeTypeHints) {
-                listOf(data5, data4, data3, mimeType)
-            } else {
-                listOf(data5, data4, data3)
-            }
-        val packageCandidates =
-            fields
-                .flatMap { field -> extractPackageCandidatesFromField(field) }
-                .map { candidate -> normalizeSignalLikePackageCandidate(candidate) }
-                .filterNotNull()
-                .distinct()
-
-        val installedCandidate = packageCandidates.firstOrNull(::isPackageInstalled)
-        if (installedCandidate != null) return installedCandidate
-        if (packageCandidates.isNotEmpty()) return packageCandidates.first()
-
-        val hasMollyHint = fields.any { it?.contains("molly", ignoreCase = true) == true }
-        if (hasMollyHint) {
-            return resolveInstalledMollyPackageName() ?: MOLLY_PACKAGE_CANDIDATES.first()
-        }
-
-        // Some Molly contact methods reuse Signal MIME types without explicit package metadata.
-        // If Signal is unavailable but Molly is installed, classify it as Molly custom app.
-        if (!isPackageInstalled(SIGNAL_PACKAGE)) {
-            resolveInstalledMollyPackageName()?.let { return it }
-        }
-
-        // Some Molly builds reuse the Signal package name but expose Molly branding.
-        if (isSignalPackageBrandedAsMolly) {
-            return SIGNAL_PACKAGE
-        }
-
-        return null
-    }
-
-    private fun normalizeSignalLikePackageCandidate(candidate: String): String? {
-        val normalized = candidate.trim()
-        if (normalized.isBlank()) return null
-
-        if (MOLLY_PACKAGE_CANDIDATES.any { normalized.contains(it) }) {
-            return MOLLY_PACKAGE_CANDIDATES.first { normalized.contains(it) }
-        }
-        if (normalized.contains(SIGNAL_PACKAGE)) {
-            return SIGNAL_PACKAGE
-        }
-
-        // Ignore MIME namespace-like tokens (for example "vnd.android.cursor.item").
-        if (normalized.startsWith("vnd.")) {
-            return null
-        }
-
-        return normalized
-    }
-
-    private fun resolveInstalledMollyPackageName(): String? =
-        MOLLY_PACKAGE_CANDIDATES.firstOrNull(::isPackageInstalled) ?: discoveredMollyPackageName
-
-    private fun extractPackageCandidatesFromField(field: String?): List<String> {
-        if (field.isNullOrBlank()) return emptyList()
-        return PACKAGE_NAME_PATTERN.findAll(field).map { it.value }.toList()
-    }
-
-    private fun isPackageInstalled(packageName: String): Boolean =
-        runCatching {
-            context.packageManager.getPackageInfo(packageName, 0)
-            true
-        }.getOrDefault(false)
 
     private fun buildInClause(
         columnName: String,

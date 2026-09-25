@@ -1,28 +1,9 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ExpandLess
-import androidx.compose.material.icons.rounded.ExpandMore
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -32,9 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -45,31 +24,14 @@ import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.search.searchHistory.RecentSearchItem
 import com.tk.quicksearch.search.searchHistory.SearchHistoryTab
-import com.tk.quicksearch.search.searchHistory.SearchHistorySection
 import com.tk.quicksearch.searchEngines.*
-import com.tk.quicksearch.searchEngines.compact.NoResultsSearchEngineCards
-import com.tk.quicksearch.search.webSuggestions.WebSuggestionsSection
-import com.tk.quicksearch.settings.settingsDetailScreen.PriorityReorderDialog
-import com.tk.quicksearch.settings.settingsDetailScreen.withHiddenPinnedSectionsRestored
-import com.tk.quicksearch.shared.featureFlags.FeatureFlags
-import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.theme.homeTextColor
-import com.tk.quicksearch.tools.aiSearch.CurrencyConverterResult
-import com.tk.quicksearch.tools.aiSearch.ColorVisualizerResult
-import com.tk.quicksearch.tools.aiSearch.CalculatorResult
-import com.tk.quicksearch.tools.aiSearch.DictionaryResult
-import com.tk.quicksearch.tools.aiSearch.AiSearchResult
-import com.tk.quicksearch.tools.aiSearch.WorldClockResult
-import com.tk.quicksearch.tools.aiSearch.WeatherResult
 import com.tk.quicksearch.search.searchScreen.ExpandedSection
-import com.tk.quicksearch.search.searchScreen.InfoBanner
 import com.tk.quicksearch.search.searchScreen.hasAnySearchResults
 import com.tk.quicksearch.search.searchScreen.renderSection
 import com.tk.quicksearch.search.searchScreen.rememberSettledRegularSearchRenderingState
 import com.tk.quicksearch.search.searchScreen.rememberSettledTopMatches
 import com.tk.quicksearch.search.searchScreen.rememberTopMatches
 import com.tk.quicksearch.search.searchScreen.shouldDeferTopMatchesForLocalSearch
-import com.tk.quicksearch.search.searchScreen.TopMatchesSection
 import com.tk.quicksearch.search.searchScreen.ContactsSectionParams
 import com.tk.quicksearch.search.searchScreen.FilesSectionParams
 import com.tk.quicksearch.search.searchScreen.AppShortcutsSectionParams
@@ -81,12 +43,9 @@ import com.tk.quicksearch.search.searchScreen.RemindersSectionParams
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.search.searchScreen.PinnedNonAppItemsSection
 import com.tk.quicksearch.search.searchScreen.components.SectionPermissionResultCard
-import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
 import com.tk.quicksearch.search.other.OtherSearchItemId
 import com.tk.quicksearch.search.other.OtherSearchItemRegistry
-import com.tk.quicksearch.search.other.OtherSearchResults
 import com.tk.quicksearch.R
-import com.tk.quicksearch.app.startup.StartupTrace
 import com.tk.quicksearch.widgetsPanel.HomeWidgetStack
 import com.tk.quicksearch.widgetsPanel.rememberHomePinnedWidgets
 import com.tk.quicksearch.widgetsPanel.rememberHomeWidgetHost
@@ -431,25 +390,7 @@ fun ContentLayout(
             renderingState = regularRenderingState,
             sectionContext = sectionContextForRecentHistoryExpansion,
         )
-    val regularSectionParams =
-        if (showTopMatches) {
-            sectionParams.copy(
-                contactsParams = sectionParams.contactsParams.copy(predictedTarget = null),
-                filesParams = sectionParams.filesParams.copy(predictedTarget = null),
-                appShortcutsParams = sectionParams.appShortcutsParams?.copy(predictedTarget = null),
-                settingsParams = sectionParams.settingsParams?.copy(predictedTarget = null),
-                calendarParams = sectionParams.calendarParams?.copy(predictedTarget = null),
-                notesParams = sectionParams.notesParams?.copy(predictedTarget = null),
-                remindersParams = sectionParams.remindersParams,
-                appsParams =
-                    sectionParams.appsParams?.copy(
-                        predictedTarget = null,
-                        suppressTopResultIndicator = true,
-                    ),
-            )
-        } else {
-            sectionParams
-        }
+    val regularSectionParams = regularSectionParams(sectionParams, showTopMatches)
 
     fun shouldRenderSection(section: SearchSection): Boolean {
         return if (isSectionAliasMode) {
@@ -532,302 +473,75 @@ fun ContentLayout(
     var showPinnedSectionOrderDialog by rememberSaveable { mutableStateOf(false) }
 
     @Composable
-    fun renderHomePinnedSection(
-        section: SearchSection,
-        content: @Composable () -> Unit,
-    ) {
-        if (!showSectionedPinnedHeaders || !section.supportsPinnedHomeCollapse()) {
-            content()
-            return
-        }
-
-        var isExpanded by rememberSaveable(section.name) {
-            mutableStateOf(userPreferences.isHomePinnedSectionExpanded(section))
-        }
-        val interactionSource = remember { MutableInteractionSource() }
-        val metadata = SearchSectionUiMetadataRegistry.metadataFor(section)
-        val sectionIcon = metadata.settingsIcon
-        val headerGestures =
-            Modifier.combinedClickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = {
-                    val newExpanded = !isExpanded
-                    isExpanded = newExpanded
-                    userPreferences.setHomePinnedSectionExpanded(section, newExpanded)
-                },
-                onLongClick = { showPinnedSectionOrderDialog = true },
-            )
-        val headerContent: @Composable (Modifier) -> Unit = { modifier ->
-            Row(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = DesignTokens.SpacingLarge,
-                        vertical = DesignTokens.SpacingXXSmall,
-                    ),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    if (!isExpanded) {
-                        Icon(
-                            imageVector = sectionIcon,
-                            contentDescription = null,
-                            tint = homeTextColor(),
-                            modifier = Modifier.size(DesignTokens.IconSizeSmall),
-                        )
-                    }
-                    Text(
-                        text = stringResource(metadata.sectionLabelRes),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = homeTextColor(),
-                    )
-                }
-                Icon(
-                    imageVector = if (isExpanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
-                    contentDescription = stringResource(
-                        if (isExpanded) R.string.desc_collapse else R.string.desc_expand,
-                    ),
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(DesignTokens.IconSizeSmall),
-                )
-            }
-        }
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall),
-        ) {
-            if (isExpanded) {
-                headerContent(headerGestures)
-            } else {
-                SearchResultCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 60.dp),
-                    showWallpaperBackground = effectiveShowWallpaperBackground,
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 60.dp)
-                            .then(headerGestures),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        headerContent(
-                            Modifier.padding(horizontal = DesignTokens.SpacingLarge),
-                        )
-                    }
-                }
-            }
-            AnimatedVisibility(
-                visible = isExpanded,
-                enter = expandVertically(),
-                exit = shrinkVertically(),
-            ) {
-                content()
-            }
-        }
-    }
-
-    if (showPinnedSectionOrderDialog) {
-        val pinnedSectionOrderItems =
-            state.homePinnedSectionOrder.filter { section ->
-                FeatureFlags.isSearchSectionEnabled(section) &&
-                    !(state.pinnedAppShortcutsInAppGrid && section == SearchSection.APP_SHORTCUTS)
-            }
-        PriorityReorderDialog(
-            items = pinnedSectionOrderItems,
-            onItemsChange = { order ->
-                onHomePinnedSectionOrderChange(
-                    withHiddenPinnedSectionsRestored(order, state.homePinnedSectionOrder),
-                )
-            },
-            onDismiss = { showPinnedSectionOrderDialog = false },
-            titleRes = R.string.settings_pinned_sections_order_title,
-            infoRes = R.string.settings_pinned_sections_order_dialog_info,
+    fun renderHomePinnedSection(section: SearchSection, content: @Composable () -> Unit) {
+        HomePinnedSection(
+            section = section,
+            showSectionedPinnedHeaders = showSectionedPinnedHeaders,
+            userPreferences = userPreferences,
+            effectiveShowWallpaperBackground = effectiveShowWallpaperBackground,
+            onShowOrderDialog = { showPinnedSectionOrderDialog = true },
+            content = content,
         )
     }
-
-    fun homePinnedSectionHasItems(
-        section: SearchSection,
-        sectionContext: SectionRenderContext,
-    ): Boolean =
-        when (section) {
-            SearchSection.APP_SHORTCUTS ->
-                sectionContext.shouldRenderAppShortcuts && sectionContext.appShortcutsList.isNotEmpty()
-            SearchSection.CONTACTS ->
-                sectionContext.shouldRenderContacts && sectionContext.contactsList.isNotEmpty()
-            SearchSection.FILES ->
-                sectionContext.shouldRenderFiles && sectionContext.filesList.isNotEmpty()
-            SearchSection.SETTINGS ->
-                sectionContext.shouldRenderSettings &&
-                    !sectionContext.isAppSettingsExpanded &&
-                    sectionContext.settingsList.isNotEmpty()
-            SearchSection.CALENDAR ->
-                (sectionContext.shouldRenderCalendar && sectionContext.calendarEventsList.isNotEmpty()) ||
-                    (sectionContext.isHomeScreenCalendarMode &&
-                        sectionContext.todayCalendarEventsList.isNotEmpty())
-            SearchSection.REMINDERS ->
-                sectionContext.shouldRenderReminders && sectionContext.remindersList.isNotEmpty()
-            SearchSection.NOTES ->
-                sectionContext.shouldRenderNotes && sectionContext.notesList.isNotEmpty()
-            SearchSection.APPS, SearchSection.APP_SETTINGS -> true
-        }
+    HomePinnedSectionOrderDialog(
+        showPinnedSectionOrderDialog = showPinnedSectionOrderDialog,
+        state = state,
+        onHomePinnedSectionOrderChange = onHomePinnedSectionOrderChange,
+        onDismiss = { showPinnedSectionOrderDialog = false },
+    )
 
     @Composable
     fun renderSearchHistoryBlock() {
-        if (isHomeCalendarExpanded) return
-        LaunchedEffect(Unit) { StartupTrace.mark("QS.Home.SearchHistoryRendered") }
-        HomeLoadingAnimatedContent(
-            animationKey = "home-search-history",
-            enabled = !hasQuery,
-            appearedKeys = appearedHomeContentKeys,
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-            ) {
-                if (
-                    shouldShowSearchHistoryTitle(hasAtAGlanceSection)
-                ) {
-                    Text(
-                        text = stringResource(R.string.recent_queries_toggle_title),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = homeTextColor(),
-                        modifier = Modifier.padding(horizontal = DesignTokens.SpacingLarge),
-                    )
-                }
-                SearchHistorySection(
-                    items = state.recentItems,
-                    callingApp =
-                        effectiveContactsParams.callingApp
-                            ?: CallingApp.CALL,
-                    messagingApp =
-                        effectiveContactsParams.messagingApp
-                            ?: MessagingApp
-                                .MESSAGES,
-                    onRecentQueryClick =
-                    onRecentQueryClick,
-                    onContactClick =
-                        effectiveContactsParams
-                            .onContactClick,
-                    onShowContactMethods =
-                        effectiveContactsParams
-                            .onShowContactMethods,
-                    onCallContact =
-                        effectiveContactsParams
-                            .onCallContact,
-                    onSmsContact =
-                        effectiveContactsParams.onSmsContact,
-                    onContactMethodClick =
-                        effectiveContactsParams
-                            .onContactMethodClick,
-                    getPrimaryContactCardAction =
-                        effectiveContactsParams
-                            .getPrimaryContactCardAction,
-                    getSecondaryContactCardAction =
-                        effectiveContactsParams
-                            .getSecondaryContactCardAction,
-                    onPrimaryActionLongPress =
-                        effectiveContactsParams
-                            .onPrimaryActionLongPress,
-                    onSecondaryActionLongPress =
-                        effectiveContactsParams
-                            .onSecondaryActionLongPress,
-                    onCustomAction =
-                        effectiveContactsParams
-                            .onCustomAction,
-                    onFileClick =
-                        effectiveFilesParams.onFileClick,
-                    onSettingClick =
-                        effectiveSettingsParams
-                            .onSettingClick,
-                    onAppShortcutClick =
-                        effectiveAppShortcutsParams
-                            .onShortcutClick,
-                    onNoteClick = notesParams.onNoteClick,
-                    onDeleteRecentItem =
-                    onDeleteRecentItem,
-                    onClearRecentItems = onClearRecentItems,
-                    isExpanded = searchHistoryExpanded,
-                    collapsedItemCount = state.recentQueriesDisplayCount,
-                    reverseCollapsedItems = state.oneHandedMode,
-                    onExpandedChange = onSearchHistoryExpandedChange,
-                    collapseRequestKey = searchHistoryCollapseRequestKey,
-                    expandedCardMaxHeight = expandedCardMaxHeight,
-                    showWallpaperBackground =
-                        effectiveShowWallpaperBackground,
-                    isOverlayPresentation = isOverlayPresentation,
-                    showInlineCollapseButton = false,
-                    selectedTab = searchHistorySelectedTab,
-                    onSelectedTabChange = onSearchHistorySelectedTabChange,
-                    modifier = Modifier.fillMaxWidth(),
-                    )
-                if (showPinnedNonAppItems && !pinnedNonAppItemsRendered) {
-                    UnifiedPinnedItemsBlock(
-                        userPreferences = userPreferences,
-                        showWallpaperBackground = effectiveShowWallpaperBackground,
-                    ) {
-                        PinnedNonAppItemsSection(
-                            pinnedItemOrder = state.pinnedNonAppItemOrder,
-                            contacts = renderingState.pinnedContacts,
-                            files = renderingState.pinnedFiles,
-                            appShortcuts = renderingState.pinnedAppShortcuts,
-                            settings = renderingState.pinnedSettings,
-                            calendarEvents = pinnedCalendarEventsForPinnedBlock,
-                            notes = renderingState.pinnedNotes,
-                            reminders = renderingState.pinnedReminders,
-                            contactsParams = effectiveContactsParams,
-                            filesParams = effectiveFilesParams,
-                            appShortcutsParams = effectiveAppShortcutsParams,
-                            settingsParams = effectiveSettingsParams,
-                            calendarParams = effectiveCalendarParams,
-                            notesParams = effectiveNotesParams,
-                            remindersParams = effectiveRemindersParams,
-                            showWallpaperBackground = effectiveShowWallpaperBackground,
-                            modifier = Modifier.fillMaxWidth(),
-                            )
-                    }
-                    pinnedNonAppItemsRendered = true
-                }
-            }
-        }
+        HomeSearchHistoryBlock(
+            state = state,
+            renderingState = renderingState,
+            isHomeCalendarExpanded = isHomeCalendarExpanded,
+            hasQuery = hasQuery,
+            appearedHomeContentKeys = appearedHomeContentKeys,
+            hasAtAGlanceSection = hasAtAGlanceSection,
+            effectiveContactsParams = effectiveContactsParams,
+            effectiveFilesParams = effectiveFilesParams,
+            effectiveSettingsParams = effectiveSettingsParams,
+            effectiveAppShortcutsParams = effectiveAppShortcutsParams,
+            effectiveCalendarParams = effectiveCalendarParams,
+            effectiveNotesParams = effectiveNotesParams,
+            effectiveRemindersParams = effectiveRemindersParams,
+            notesParams = notesParams,
+            onRecentQueryClick = onRecentQueryClick,
+            onDeleteRecentItem = onDeleteRecentItem,
+            onClearRecentItems = onClearRecentItems,
+            searchHistoryExpanded = searchHistoryExpanded,
+            onSearchHistoryExpandedChange = onSearchHistoryExpandedChange,
+            searchHistoryCollapseRequestKey = searchHistoryCollapseRequestKey,
+            expandedCardMaxHeight = expandedCardMaxHeight,
+            effectiveShowWallpaperBackground = effectiveShowWallpaperBackground,
+            isOverlayPresentation = isOverlayPresentation,
+            searchHistorySelectedTab = searchHistorySelectedTab,
+            onSearchHistorySelectedTabChange = onSearchHistorySelectedTabChange,
+            showPinnedNonAppItems = showPinnedNonAppItems,
+            pinnedNonAppItemsRendered = pinnedNonAppItemsRendered,
+            onPinnedNonAppItemsRendered = { pinnedNonAppItemsRendered = true },
+            userPreferences = userPreferences,
+            pinnedCalendarEventsForPinnedBlock = pinnedCalendarEventsForPinnedBlock,
+        )
     }
 
     @Composable
     fun renderTopMatches() {
-        if (!showTopMatchesSection) return
-        TopMatchesSection(
-            matches = displayedTopMatches,
-            params = sectionParams,
-            showWallpaperBackground = effectiveShowWallpaperBackground,
-            showTopResultIndicator =
-                state.topResultIndicatorEnabled || isPhysicalKeyboardConnected,
-            showHeader = !state.oneHandedMode || !isLocalSearchRefreshing,
-            selectedMatchIndex = selectedTopMatchIndex,
-            reverseOrder = isReversed,
-            screenTimeState = state.screenTimeState,
-            pinnedNonAppItemOrder = state.pinnedNonAppItemOrder,
-            iconPackPackage = state.selectedIconPackPackage,
+        ContentLayoutTopMatches(
+            showTopMatchesSection = showTopMatchesSection,
+            displayedTopMatches = displayedTopMatches,
+            sectionParams = sectionParams,
+            effectiveShowWallpaperBackground = effectiveShowWallpaperBackground,
+            state = state,
+            isPhysicalKeyboardConnected = isPhysicalKeyboardConnected,
+            isLocalSearchRefreshing = isLocalSearchRefreshing,
+            selectedTopMatchIndex = selectedTopMatchIndex,
+            isReversed = isReversed,
             onToggleOtherSearchItemPin = onToggleOtherSearchItemPin,
-            modifier = Modifier.fillMaxWidth(),
+            showTopMatches = showTopMatches,
+            hasMoreResults = hasMoreResults,
         )
-        if (showTopMatches && hasMoreResults && !isReversed) {
-            Text(
-                text = stringResource(R.string.more_results_title),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier =
-                    Modifier.padding(
-                        horizontal = DesignTokens.SpacingLarge,
-                        vertical = DesignTokens.SpacingXSmall,
-                    ),
-            )
-        }
     }
 
     @Composable
@@ -977,265 +691,53 @@ fun ContentLayout(
 
         if (hideOtherContent) return
 
-        when (itemType) {
-            ItemPriorityConfig.ItemType.UPCOMING_ALARM -> {
-                if (
-                    !hasQuery &&
-                    !isHomeCalendarExpanded &&
-                    !hidePinnedAndAppsWhenSearchHistoryExpanded &&
-                    hasAtAGlanceSection &&
-                    !atAGlanceRendered
-                ) {
-                    // Search history sits between the apps and At a Glance, so it renders on the
-                    // far side of At a Glance from the apps grid in either layout direction.
-                    if (isReversed && shouldDeferSearchHistoryUntilAtAGlance && !deferredSearchHistoryRendered) {
-                        renderSearchHistoryBlock()
-                        deferredSearchHistoryRendered = true
-                    }
-                    // Media gets its own card on the search-bar side of the other At a Glance
-                    // rows, and carries the section title whenever it comes first.
-                    val showGlanceTitle = !hideHomeSectionTitleRows
-                    val mediaCardFirst = nowPlaying != null && !isReversed
-                    if (mediaCardFirst && nowPlaying != null) {
-                        if (showGlanceTitle) AtAGlanceTitle()
-                        NowPlayingCard(
-                            glance = nowPlaying,
-                            showWallpaperBackground = effectiveShowWallpaperBackground,
-                        )
-                    }
-                    if (hasStandaloneTodayCalendarSection && regularSectionParams.calendarParams != null) {
-                        HomeLoadingAnimatedContent(
-                            animationKey = "home-today-calendar",
-                            enabled = true,
-                            appearedKeys = appearedHomeContentKeys,
-                        ) {
-                            renderSection(
-                                section = SearchSection.CALENDAR,
-                                params = regularSectionParams,
-                                sectionContext = sectionContextForRecentHistoryExpansion.copy(
-                                    shouldRenderCalendar = false,
-                                    calendarEventsList = emptyList(),
-                                    atAGlanceContent = atAGlanceContent,
-                                    atAGlanceContentFirst = !isReversed,
-                                    hideHomeSectionTitleRows = !showGlanceTitle || mediaCardFirst,
-                                ),
-                            )
-                        }
-                    } else {
-                        AtAGlanceCard(
-                            items = atAGlanceItems,
-                            showWallpaperBackground = effectiveShowWallpaperBackground,
-                            showTitle = showGlanceTitle && !mediaCardFirst,
-                        )
-                    }
-                    if (nowPlaying != null && isReversed) {
-                        val hasOtherGlanceCard = hasStandaloneTodayCalendarSection || atAGlanceItems.isNotEmpty()
-                        if (showGlanceTitle && !hasOtherGlanceCard) AtAGlanceTitle()
-                        NowPlayingCard(
-                            glance = nowPlaying,
-                            showWallpaperBackground = effectiveShowWallpaperBackground,
-                        )
-                    }
-                    atAGlanceRendered = true
-                    if (!isReversed && shouldDeferSearchHistoryUntilAtAGlance && !deferredSearchHistoryRendered) {
-                        renderSearchHistoryBlock()
-                        deferredSearchHistoryRendered = true
-                    }
-                }
-            }
-
-            ItemPriorityConfig.ItemType.ERROR_BANNER -> {
-                if (state.screenState is ScreenVisibilityState.Error) {
-                    InfoBanner(
-                        message =
-                            (
-                                state.screenState as
-                                        ScreenVisibilityState.Error
-                            ).message,
-                    )
-                }
-            }
-
-            ItemPriorityConfig.ItemType.CALCULATOR_RESULT -> {
-                if (showCalculator) {
-                    if (state.calculatorState.toolType == com.tk.quicksearch.search.core.SearchToolType.COLOR_VISUALIZER) {
-                        ColorVisualizerResult(
-                            calculatorState = state.calculatorState,
-                            showWallpaperBackground = effectiveShowWallpaperBackground,
-                        )
-                    } else {
-                        CalculatorResult(
-                            calculatorState = state.calculatorState,
-                            showWallpaperBackground =
-                                effectiveShowWallpaperBackground,
-                        )
-                    }
-                }
-            }
-
-            ItemPriorityConfig.ItemType.CURRENCY_CONVERTER_RESULT -> {
-                if (showCurrencyConverter) {
-                    CurrencyConverterResult(
-                            currencyConverterState = state.currencyConverterState,
-                            showWallpaperBackground = effectiveShowWallpaperBackground,
-                    )
-                }
-            }
-
-            ItemPriorityConfig.ItemType.WORD_CLOCK_RESULT -> {
-                if (showWorldClock) {
-                    WorldClockResult(
-                            worldClockState = state.worldClockState,
-                            llmProviderId = state.worldClockState.llmProviderId
-                                    ?: state.aiSearchLlmProviderId,
-                            showWallpaperBackground = effectiveShowWallpaperBackground,
-                            onGeminiModelInfoClick = onGeminiModelInfoClick,
-                    )
-                }
-            }
-
-            ItemPriorityConfig.ItemType.DICTIONARY_RESULT -> {
-                if (showDictionary) {
-                    DictionaryResult(
-                            dictionaryState = state.dictionaryState,
-                            llmProviderId = state.dictionaryState.llmProviderId
-                                    ?: state.aiSearchLlmProviderId,
-                            showWallpaperBackground = effectiveShowWallpaperBackground,
-                            onGeminiModelInfoClick = onGeminiModelInfoClick,
-                    )
-                }
-            }
-
-            ItemPriorityConfig.ItemType.WEATHER_RESULT -> {
-                if (showWeather) {
-                    WeatherResult(
-                        weatherState = state.weatherState,
-                        llmProviderId = state.weatherState.llmProviderId
-                            ?: state.aiSearchLlmProviderId,
-                        showWallpaperBackground = effectiveShowWallpaperBackground,
-                        onGeminiModelInfoClick = onGeminiModelInfoClick,
-                    )
-                }
-            }
-
-            ItemPriorityConfig.ItemType.OTHER_RESULTS -> {
-                if (!hasQuery || !state.topMatchesEnabled) {
-                    OtherSearchResults(
-                        query = state.query,
-                        pinnedItemOrder = state.pinnedNonAppItemOrder,
-                        state = state.screenTimeState,
-                        showWallpaperBackground = effectiveShowWallpaperBackground,
-                        iconPackPackage = state.selectedIconPackPackage,
-                        onTogglePin = onToggleOtherSearchItemPin,
-                    )
-                }
-            }
-
-            ItemPriorityConfig.ItemType.AI_SEARCH_RESULT -> {
-                if (showAiSearch && aiSearchState != null) {
-                    AiSearchResult(
-                        aiSearchState = aiSearchState,
-                        aiSearchLlmProviderId = state.aiSearchLlmProviderId,
-                        showWallpaperBackground = effectiveShowWallpaperBackground,
-                        onGeminiModelInfoClick = onGeminiModelInfoClick,
-                        onOpenAiSearchConfigure = onOpenAiSearchConfigure,
-                        onPhoneNumberClick = onPhoneNumberClick,
-                        onEmailClick = onEmailClick,
-                    )
-                }
-            }
-
-            // --- Suggestions & Engines ---
-            ItemPriorityConfig.ItemType.WEB_SUGGESTIONS -> {
-                val allowWebSuggestions =
-                    !hideResults || state.detectedShortcutTarget != null
-                val isVisible = allowWebSuggestions && hasQuery && showWebSuggestions
-
-                if (isVisible) {
-                    WebSuggestionsSection(
-                        suggestions = state.webSuggestions,
-                        onSuggestionClick = onWebSuggestionClick,
-                        showWallpaperBackground = effectiveShowWallpaperBackground,
-                        reverseOrder = isReversed,
-                        isShortcutDetected = state.detectedShortcutTarget != null,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-            }
-
-            ItemPriorityConfig.ItemType.RECENT_QUERIES -> {
-                val isVisible = !hideResults && showRecentItems
-                if (isVisible) {
-                    if (deferredSearchHistoryRendered) {
-                        return
-                    }
-                    if (shouldDeferSearchHistoryUntilAtAGlance && !atAGlanceRendered) {
-                        return
-                    }
-                    renderSearchHistoryBlock()
-                    deferredSearchHistoryRendered = true
-                }
-            }
-
-            ItemPriorityConfig.ItemType.SEARCH_ENGINES_INLINE -> {
-                // Inline search engines.
-                // Condition: Not compact mode.
-                val showInlineSearchEngines =
-                    !hideResults &&
-                        hasQuery &&
-                        (isUrlQuery || queryLength > 1) &&
-                        (!state.isSearchEngineCompactMode || isUrlQuery)
-
-                if (showInlineSearchEngines) {
-                    NoResultsSearchEngineCards(
-                        query = state.query,
-                        enabledEngines = inlineTargets,
-                        onSearchEngineClick = onSearchTargetClick,
-                        onCustomizeClick =
-                        onCustomizeSearchEnginesClick,
-                        onSearchEngineLongPress =
-                        onSearchEngineLongPress,
-                        showCustomizeCard = false,
-                        isReversed = isReversed,
-                        showWallpaperBackground =
-                            effectiveShowWallpaperBackground,
-                        predictedTarget = predictedTarget,
-                        appIconShape = state.appIconShape,
-                        iconPackPackage = state.selectedIconPackPackage,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-            }
-
-            ItemPriorityConfig.ItemType.SEARCH_ENGINES_COMPACT -> {
-                // If we ever need to render compact engines in the list, do
-                // it here.
-                // Currently checking isSearchEngineCompactMode to HIDE
-                // inline ones.
-                // If compact engines are intended to be in the list, add
-                // logic here.
-                // For now, config doesn't use this in
-                // SEARCHING_STATE_LAYOUT, but
-                // we handle it for completeness.
-            }
-
-            ItemPriorityConfig.ItemType.NO_RESULTS_MESSAGE -> {
-                if (!hideResults) {
-                    NoResultsMessage(state)
-                }
-            }
-
-            ItemPriorityConfig.ItemType.APPS_SECTION,
-            ItemPriorityConfig.ItemType.APP_SHORTCUTS_SECTION,
-            ItemPriorityConfig.ItemType.FILES_SECTION,
-            ItemPriorityConfig.ItemType.CONTACTS_SECTION,
-            ItemPriorityConfig.ItemType.SETTINGS_SECTION,
-            ItemPriorityConfig.ItemType.CALENDAR_SECTION,
-            ItemPriorityConfig.ItemType.REMINDERS_SECTION,
-            ItemPriorityConfig.ItemType.NOTES_SECTION,
-            ItemPriorityConfig.ItemType.APP_SETTINGS_SECTION,
-            -> Unit
-        }
+        NonSectionLayoutItem(
+            itemType = itemType,
+            state = state,
+            hasQuery = hasQuery,
+            isHomeCalendarExpanded = isHomeCalendarExpanded,
+            hidePinnedAndAppsWhenSearchHistoryExpanded = hidePinnedAndAppsWhenSearchHistoryExpanded,
+            hasAtAGlanceSection = hasAtAGlanceSection,
+            atAGlanceRendered = atAGlanceRendered,
+            onAtAGlanceRendered = { atAGlanceRendered = true },
+            isReversed = isReversed,
+            shouldDeferSearchHistoryUntilAtAGlance = shouldDeferSearchHistoryUntilAtAGlance,
+            deferredSearchHistoryRendered = deferredSearchHistoryRendered,
+            onDeferredSearchHistoryRendered = { deferredSearchHistoryRendered = true },
+            renderSearchHistoryBlock = { renderSearchHistoryBlock() },
+            hideHomeSectionTitleRows = hideHomeSectionTitleRows,
+            nowPlaying = nowPlaying,
+            effectiveShowWallpaperBackground = effectiveShowWallpaperBackground,
+            hasStandaloneTodayCalendarSection = hasStandaloneTodayCalendarSection,
+            regularSectionParams = regularSectionParams,
+            appearedHomeContentKeys = appearedHomeContentKeys,
+            sectionContextForRecentHistoryExpansion = sectionContextForRecentHistoryExpansion,
+            atAGlanceContent = atAGlanceContent,
+            atAGlanceItems = atAGlanceItems,
+            showCalculator = showCalculator,
+            showCurrencyConverter = showCurrencyConverter,
+            showWorldClock = showWorldClock,
+            showDictionary = showDictionary,
+            showWeather = showWeather,
+            onGeminiModelInfoClick = onGeminiModelInfoClick,
+            onToggleOtherSearchItemPin = onToggleOtherSearchItemPin,
+            showAiSearch = showAiSearch,
+            aiSearchState = aiSearchState,
+            onOpenAiSearchConfigure = onOpenAiSearchConfigure,
+            onPhoneNumberClick = onPhoneNumberClick,
+            onEmailClick = onEmailClick,
+            hideResults = hideResults,
+            showWebSuggestions = showWebSuggestions,
+            onWebSuggestionClick = onWebSuggestionClick,
+            showRecentItems = showRecentItems,
+            isUrlQuery = isUrlQuery,
+            queryLength = queryLength,
+            inlineTargets = inlineTargets,
+            onSearchTargetClick = onSearchTargetClick,
+            onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
+            onSearchEngineLongPress = onSearchEngineLongPress,
+            predictedTarget = predictedTarget,
+        )
     }
 
     @Composable
@@ -1293,253 +795,4 @@ fun ContentLayout(
             renderTopMatches()
         }
     }
-}
-
-/**
- * Fades home sections in when their asynchronously loaded data first arrives. The section is laid
- * out at its final height from the first frame, so neighbouring sections never slide as late
- * content appears; only its opacity animates.
- */
-@Composable
-private fun HomeLoadingAnimatedContent(
-    animationKey: String,
-    enabled: Boolean,
-    appearedKeys: MutableSet<String>,
-    content: @Composable () -> Unit,
-) {
-    if (!enabled) {
-        content()
-        return
-    }
-
-    val shouldAnimate = remember(animationKey) { appearedKeys.add(animationKey) }
-    if (!shouldAnimate) {
-        content()
-        return
-    }
-
-    var visible by remember(animationKey) { mutableStateOf(false) }
-    LaunchedEffect(animationKey) {
-        visible = true
-    }
-    val contentAlpha by animateFloatAsState(
-        targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(durationMillis = HomeSectionFadeDurationMillis),
-        label = "homeSectionFade",
-    )
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .graphicsLayer { alpha = contentAlpha },
-        verticalArrangement = Arrangement.spacedBy(HomeSectionContentSpacing),
-    ) {
-        content()
-    }
-}
-
-private const val HomeSectionFadeDurationMillis = 180
-private val HomeSectionContentSpacing = 14.dp
-
-private fun hasMoreResults(
-    renderingState: SectionRenderingState,
-    sectionContext: SectionRenderContext,
-): Boolean =
-    (sectionContext.shouldRenderApps && renderingState.displayApps.isNotEmpty()) ||
-        (sectionContext.shouldRenderAppShortcuts && sectionContext.appShortcutsList.isNotEmpty()) ||
-        (sectionContext.shouldRenderContacts && sectionContext.contactsList.isNotEmpty()) ||
-        (sectionContext.shouldRenderFiles && sectionContext.filesList.isNotEmpty()) ||
-        (sectionContext.shouldRenderSettings && sectionContext.settingsList.isNotEmpty()) ||
-        (sectionContext.shouldRenderAppSettings && sectionContext.appSettingsList.isNotEmpty()) ||
-        (sectionContext.shouldRenderCalendar && sectionContext.calendarEventsList.isNotEmpty()) ||
-        (sectionContext.shouldRenderNotes && sectionContext.notesList.isNotEmpty()) ||
-        (sectionContext.shouldRenderReminders && sectionContext.remindersList.isNotEmpty())
-
-private fun SearchSection.supportsPinnedHomeCollapse(): Boolean =
-    when (this) {
-        SearchSection.APPS, SearchSection.APP_SETTINGS -> false
-        SearchSection.APP_SHORTCUTS,
-        SearchSection.CONTACTS,
-        SearchSection.FILES,
-        SearchSection.SETTINGS,
-        SearchSection.CALENDAR,
-        SearchSection.REMINDERS,
-        SearchSection.NOTES,
-        -> true
-    }
-
-@Composable
-private fun UnifiedPinnedItemsBlock(
-    userPreferences: UserAppPreferences,
-    showWallpaperBackground: Boolean,
-    content: @Composable () -> Unit,
-) {
-    var isExpanded by rememberSaveable {
-        mutableStateOf(userPreferences.isUnifiedPinnedItemsExpanded())
-    }
-    val interactionSource = remember { MutableInteractionSource() }
-    val toggleExpanded = {
-        val newExpanded = !isExpanded
-        isExpanded = newExpanded
-        userPreferences.setUnifiedPinnedItemsExpanded(newExpanded)
-    }
-
-    val headerContent: @Composable (Modifier) -> Unit = { modifier ->
-        Row(
-            modifier = modifier
-                .fillMaxWidth()
-                .clickable(
-                    interactionSource = interactionSource,
-                    indication = null,
-                    onClick = toggleExpanded,
-                )
-                .padding(
-                    horizontal = DesignTokens.SpacingLarge,
-                    vertical = DesignTokens.SpacingXXSmall,
-                ),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = stringResource(R.string.app_suggestions_tab_pinned),
-                style = MaterialTheme.typography.titleSmall,
-                color = homeTextColor(),
-            )
-            Icon(
-                imageVector = if (isExpanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
-                contentDescription = stringResource(
-                    if (isExpanded) R.string.desc_collapse else R.string.desc_expand,
-                ),
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(DesignTokens.IconSizeSmall),
-            )
-        }
-    }
-
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall),
-    ) {
-        if (isExpanded) {
-            headerContent(Modifier)
-        } else {
-            SearchResultCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 60.dp),
-                showWallpaperBackground = showWallpaperBackground,
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 60.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    headerContent(
-                        Modifier.padding(horizontal = DesignTokens.SpacingLarge),
-                    )
-                }
-            }
-        }
-
-        AnimatedVisibility(
-            visible = isExpanded,
-            enter = expandVertically(),
-            exit = shrinkVertically(),
-        ) {
-            content()
-        }
-    }
-}
-
-private val ALIAS_RECENT_ELIGIBLE_SECTIONS =
-    setOf(
-        SearchSection.APP_SHORTCUTS,
-        SearchSection.FILES,
-        SearchSection.CONTACTS,
-        SearchSection.SETTINGS,
-        SearchSection.APP_SETTINGS,
-        SearchSection.NOTES,
-    )
-
-private fun ItemPriorityConfig.ItemType.toSearchSectionOrNull(): SearchSection? =
-    SearchSectionRegistry.sectionForItemType(this)
-
-private fun sectionAliasPermissionMessageRes(
-    state: SearchUiState,
-    section: SearchSection,
-    isSectionAliasMode: Boolean,
-): Int? {
-    if (!isSectionAliasMode) return null
-    return when (section) {
-        SearchSection.CONTACTS ->
-            if (state.contactsSectionState is ContactsSectionVisibility.NoPermission) {
-                R.string.contacts_section_permission_subtitle
-            } else {
-                null
-            }
-        SearchSection.FILES ->
-            if (state.filesSectionState is FilesSectionVisibility.NoPermission) {
-                R.string.files_section_permission_subtitle
-            } else {
-                null
-            }
-        SearchSection.CALENDAR ->
-            if (state.calendarSectionState is CalendarSectionVisibility.NoPermission) {
-                R.string.calendar_section_permission_subtitle
-            } else {
-                null
-            }
-        else -> null
-    }
-}
-
-@Composable
-private fun AliasRecentItemsSection(
-    items: List<com.tk.quicksearch.search.searchHistory.RecentSearchItem>,
-    contactsParams: ContactsSectionParams,
-    filesParams: FilesSectionParams,
-    settingsParams: SettingsSectionParams,
-    appShortcutsParams: AppShortcutsSectionParams,
-    notesParams: NotesSectionParams,
-    remindersParams: RemindersSectionParams? = null,
-    onRecentQueryClick: (RecentSearchEntry.Query) -> Unit,
-    onDeleteRecentItem: (RecentSearchEntry) -> Unit,
-    expandedCardMaxHeight: Dp,
-    showWallpaperBackground: Boolean,
-    isOverlayPresentation: Boolean,
-) {
-    SearchHistorySection(
-        items = items,
-        callingApp = contactsParams.callingApp ?: CallingApp.CALL,
-        messagingApp = contactsParams.messagingApp ?: MessagingApp.MESSAGES,
-        onRecentQueryClick = onRecentQueryClick,
-        onContactClick = contactsParams.onContactClick,
-        onShowContactMethods = contactsParams.onShowContactMethods,
-        onCallContact = contactsParams.onCallContact,
-        onSmsContact = contactsParams.onSmsContact,
-        onContactMethodClick = contactsParams.onContactMethodClick,
-        getPrimaryContactCardAction = contactsParams.getPrimaryContactCardAction,
-        getSecondaryContactCardAction = contactsParams.getSecondaryContactCardAction,
-        onPrimaryActionLongPress = contactsParams.onPrimaryActionLongPress,
-        onSecondaryActionLongPress = contactsParams.onSecondaryActionLongPress,
-        onCustomAction = contactsParams.onCustomAction,
-        onFileClick = filesParams.onFileClick,
-        onSettingClick = settingsParams.onSettingClick,
-        onAppShortcutClick = appShortcutsParams.onShortcutClick,
-        onNoteClick = notesParams.onNoteClick,
-        onAppSettingClick = settingsParams.onAppSettingClick,
-        onAppSettingToggle = settingsParams.onAppSettingToggle,
-        isAppSettingToggleChecked = settingsParams.isAppSettingToggleChecked,
-        appSettingPhoneAppGridColumns = settingsParams.appSettingPhoneAppGridColumns,
-        onAppSettingPhoneAppGridColumnsChange = settingsParams.onAppSettingPhoneAppGridColumnsChange,
-        appSettingAppResultRowCount = settingsParams.appSettingAppResultRowCount,
-        onAppSettingAppResultRowCountChange = settingsParams.onAppSettingAppResultRowCountChange,
-        onDeleteRecentItem = onDeleteRecentItem,
-        showInlineCollapseButton = false,
-        expandedCardMaxHeight = expandedCardMaxHeight,
-        showWallpaperBackground = showWallpaperBackground,
-        isOverlayPresentation = isOverlayPresentation,
-        alwaysExpanded = true,
-        modifier = Modifier.fillMaxWidth(),
-    )
 }

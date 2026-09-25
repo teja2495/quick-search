@@ -139,7 +139,7 @@ object InsetSearchBarGeometry {
     val BarCornerRadius = DesignTokens.Spacing28
 }
 
-private object SearchEngineSectionConstants {
+internal object SearchEngineSectionConstants {
     val ICON_SIZE = SearchTargetConstants.DEFAULT_ICON_SIZE
     val SPACING = 20.dp
     val ROW_SPACING = 10.dp
@@ -183,7 +183,7 @@ private object SearchEngineSectionConstants {
 }
 
 /** Draws the inset container wider and behind the search bar without changing sibling placement. */
-private fun Modifier.attachToBottomSearchBar(
+internal fun Modifier.attachToBottomSearchBar(
     overlap: Dp,
     horizontalExtension: Dp,
 ): Modifier =
@@ -536,115 +536,6 @@ private fun CompactToolActionContent(
     }
 }
 
-@Composable
-internal fun AiFollowUpInputSection(
-    value: String,
-    onValueChange: (String) -> Unit,
-    onSend: () -> Unit,
-    showWallpaperBackground: Boolean,
-    modifier: Modifier = Modifier,
-    useInsetContainer: Boolean = false,
-    insetOverlap: Dp = SearchEngineSectionConstants.INSET_CONTAINER_OVERLAP,
-    insetFullBleedFraction: Float = 0f,
-) {
-    val focusRequester = remember { FocusRequester() }
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val submit = {
-        if (value.isNotBlank()) {
-            onSend()
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-        keyboardController?.show()
-    }
-
-    val dividerColor =
-        if (showWallpaperBackground) {
-            AppColors.WallpaperDivider
-        } else {
-            AppColors.Accent.copy(alpha = 0.22f)
-        }
-    Surface(
-        modifier =
-            modifier.then(
-                if (useInsetContainer) {
-                    Modifier.attachToBottomSearchBar(
-                        overlap = insetOverlap,
-                        horizontalExtension =
-                            InsetSearchBarGeometry.containerHorizontalExtension(
-                                insetFullBleedFraction,
-                            ),
-                    )
-                } else {
-                    Modifier.extendToScreenEdges()
-                },
-            ),
-        color =
-            if (useInsetContainer) {
-                AppColors.getSearchBarBackground(showWallpaperBackground)
-            } else {
-                AppColors.getSearchEngineSectionBackground(showWallpaperBackground)
-            },
-        shape =
-            if (useInsetContainer) {
-                SearchEngineSectionConstants.insetContainerShape(insetFullBleedFraction)
-            } else {
-                RectangleShape
-            },
-    ) {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        bottom =
-                            if (useInsetContainer) insetOverlap else 0.dp,
-                    ),
-        ) {
-            if (!useInsetContainer) {
-                HorizontalDivider(
-                    color = dividerColor,
-                    thickness = SearchEngineSectionConstants.COMPACT_TOP_DIVIDER_THICKNESS,
-                )
-            }
-            OutlinedTextField(
-                value = value,
-                onValueChange = onValueChange,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            horizontal = SearchEngineSectionConstants.HORIZONTAL_PADDING,
-                            vertical = SearchEngineSectionConstants.VERTICAL_PADDING,
-                        )
-                        .focusRequester(focusRequester),
-                placeholder = { Text(stringResource(R.string.direct_search_follow_up_hint)) },
-                trailingIcon = {
-                    IconButton(
-                        onClick = submit,
-                        enabled = value.isNotBlank(),
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.Send,
-                            contentDescription = stringResource(R.string.dialog_send),
-                        )
-                    }
-                },
-                singleLine = true,
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(
-                    SearchEngineSectionConstants.TOOL_BUTTON_CORNER_RADIUS,
-                ),
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Transparent),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                keyboardActions = KeyboardActions(onSend = { submit() }),
-            )
-        }
-    }
-}
-
-/** Overlay expand/collapse chevron shown when overlay controls are enabled. */
 @Composable
 private fun OverlayExpandChevron(
     onOverlayExpandClick: (() -> Unit)?,

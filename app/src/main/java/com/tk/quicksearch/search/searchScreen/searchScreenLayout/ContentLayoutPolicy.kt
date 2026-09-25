@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import com.tk.quicksearch.search.core.SectionRenderParams
+
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.ItemPriorityConfig
 import com.tk.quicksearch.search.core.SearchSectionRegistry
@@ -44,3 +46,26 @@ internal fun shouldSkipRegularCalendarSectionForStandaloneTodayEvents(
     section == SearchSection.CALENDAR &&
         todayCalendarEventsCount > 0 &&
         pinnedCalendarEventsCount == 0
+
+internal fun regularSectionParams(
+    sectionParams: SectionRenderParams,
+    showTopMatches: Boolean,
+): SectionRenderParams =
+        if (showTopMatches) {
+            sectionParams.copy(
+                contactsParams = sectionParams.contactsParams.copy(predictedTarget = null),
+                filesParams = sectionParams.filesParams.copy(predictedTarget = null),
+                appShortcutsParams = sectionParams.appShortcutsParams?.copy(predictedTarget = null),
+                settingsParams = sectionParams.settingsParams?.copy(predictedTarget = null),
+                calendarParams = sectionParams.calendarParams?.copy(predictedTarget = null),
+                notesParams = sectionParams.notesParams?.copy(predictedTarget = null),
+                remindersParams = sectionParams.remindersParams,
+                appsParams =
+                    sectionParams.appsParams?.copy(
+                        predictedTarget = null,
+                        suppressTopResultIndicator = true,
+                    ),
+            )
+        } else {
+            sectionParams
+        }

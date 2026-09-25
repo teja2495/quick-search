@@ -1,23 +1,15 @@
 package com.tk.quicksearch.search.searchScreen
 
-import com.tk.quicksearch.search.data.ReminderRepository
-import com.tk.quicksearch.search.searchScreen.ReminderSectionActions
 import android.Manifest
 import android.app.Activity
-import android.app.KeyguardManager
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.speech.RecognizerIntent
 import android.widget.Toast
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.biometric.BiometricManager
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import com.tk.quicksearch.shared.ui.components.LocalPopupOverlayContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,21 +17,18 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -50,12 +39,10 @@ import com.tk.quicksearch.search.core.AccentColorMode
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.ItemCustomizationRemover
 import com.tk.quicksearch.search.core.LocalItemCustomizationRemover
-import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
-import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
 import com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction
 import com.tk.quicksearch.search.appSettings.AppSettingResult
@@ -63,66 +50,28 @@ import com.tk.quicksearch.search.appSettings.AppSettingResultAction
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination
 import com.tk.quicksearch.search.appSettings.LocalOpenAppSettingDestination
 import com.tk.quicksearch.search.appSettings.LocalOnSettingsImported
-import com.tk.quicksearch.search.appSettings.AppSettingsToggleKey
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
-import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
-import com.tk.quicksearch.search.models.NoteInfo
-import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
-import com.tk.quicksearch.search.utils.FileUtils
 import com.tk.quicksearch.tools.aiTools.CurrencyConversionIntentParser
 import com.tk.quicksearch.tools.aiTools.WorldClockIntentParser
 import com.tk.quicksearch.tools.aiTools.DictionaryIntentParser
 import com.tk.quicksearch.tools.aiTools.WeatherIntentParser
-import com.tk.quicksearch.overlay.OverlayModeController
-import com.tk.quicksearch.search.apps.notificationDots.rememberNotificationDotsCheckedChange
-import com.tk.quicksearch.search.apps.appLock.AppLockGate
 import com.tk.quicksearch.search.apps.appLock.LocalAppLockAuthenticator
 import com.tk.quicksearch.search.apps.appLock.LocalAppLockCredentialAuthenticator
 import com.tk.quicksearch.search.apps.speedBump.SpeedBump
 import com.tk.quicksearch.search.apps.swipeGestures.AppSwipeGestures
-import com.tk.quicksearch.search.apps.speedBump.SpeedBumpOverlay
-import com.tk.quicksearch.shared.permissions.PermissionSettingsDialog
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.util.cachedDefaultHomeAppStatus
 import com.tk.quicksearch.shared.util.isDefaultHomeApp
-import com.tk.quicksearch.settings.shared.SettingsCommand
-import com.tk.quicksearch.settings.shared.applySettingsCommand
 import com.tk.quicksearch.settings.shared.isAppSettingToggleEnabled
 import com.tk.quicksearch.settings.settingsDetailScreen.NotesNavigationMemory
 import com.tk.quicksearch.search.data.preferences.CalendarPreferences
-import com.tk.quicksearch.settings.settingsDetailScreen.DefaultCalendarDialog
-import com.tk.quicksearch.settings.settingsDetailScreen.SecondaryRankingDialog
-import com.tk.quicksearch.settings.AppearanceSettings.IconPackPickerDialog
 import com.tk.quicksearch.search.searchScreen.SearchScreen as SearchScreenComposable
-import com.tk.quicksearch.search.searchScreen.HomeHorizontalSwipe
 import com.tk.quicksearch.search.searchScreen.LocalHomeHorizontalSwipeHandler
 import com.tk.quicksearch.search.searchScreen.ExcludeUndoSnackbarHost
-import com.tk.quicksearch.search.searchScreen.UndoSnackbarVisuals
-import androidx.compose.material.icons.rounded.Block
 import kotlinx.coroutines.launch
-
-private const val SWIPE_NAVIGATION_THRESHOLD_PX = 140f
-private const val RATE_QUICK_SEARCH_SETTING_ID = "app_settings_rate_quick_search"
-
-private fun launchSystemWallpaperPicker(context: Context) {
-    val intent = Intent(Intent.ACTION_SET_WALLPAPER)
-    try {
-        context.startActivity(intent)
-    } catch (_: ActivityNotFoundException) {
-        Toast.makeText(
-            context,
-            context.getString(
-                R.string.common_error_unable_to_open,
-                context.getString(R.string.action_change_wallpaper),
-            ),
-            Toast.LENGTH_SHORT,
-        ).show()
-    }
-}
 
 @Composable
 fun SearchRoute(
@@ -230,172 +179,19 @@ fun SearchRoute(
     val getAllAliasWordsById: () -> Map<String, String> =
         remember(nicknameUpdateVersion) { { viewModel.getAllAliasWordsById() } }
 
-    val snackbarHostState = remember { SnackbarHostState() }
-    val effectiveSnackbarHostState = overlaySnackbarHostState ?: snackbarHostState
-    val snackbarScope = rememberCoroutineScope()
-    // Mirrors the undo snackbar inside popups so it isn't hidden behind them.
-    val popupUndoSnackbar: @Composable BoxScope.() -> Unit =
-        remember(effectiveSnackbarHostState) {
-            {
-                ExcludeUndoSnackbarHost(
-                    hostState = effectiveSnackbarHostState,
-                    modifier =
-                        Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(
-                                start = DesignTokens.SpacingLarge,
-                                end = DesignTokens.SpacingLarge,
-                                bottom = DesignTokens.SpacingHuge,
-                            ),
-                )
-            }
-        }
-    val undoLabel = stringResource(R.string.action_undo)
-
-    // A new undo snackbar replaces the visible one right away instead of queueing behind it.
-    val undoSnackbarJob = remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
-
-    val showUndoSnackbarVisuals: (UndoSnackbarVisuals, () -> Unit) -> Unit = { visuals, onUndo ->
-        undoSnackbarJob.value?.cancel()
-        undoSnackbarJob.value =
-            snackbarScope.launch {
-                val result = effectiveSnackbarHostState.showSnackbar(visuals)
-                if (result == androidx.compose.material3.SnackbarResult.ActionPerformed) {
-                    onUndo()
-                }
-            }
-    }
-
-    val showUndoSnackbar: (String, () -> Unit) -> Unit = { message, onUndo ->
-        showUndoSnackbarVisuals(UndoSnackbarVisuals(message = message, actionLabel = undoLabel), onUndo)
-    }
-
-    val showAppShortcutDisabledSnackbar: (() -> Unit) -> Unit = @Suppress("LocalContextGetResourceValueCall") { onUndo ->
-        showUndoSnackbarVisuals(
-            UndoSnackbarVisuals(
-                message = context.getString(R.string.snackbar_app_shortcut_disabled_title),
-                supportingText = context.getString(R.string.snackbar_app_shortcut_disabled_supporting),
-                icon = null,
-                actionLabel = undoLabel,
-            ),
-            onUndo,
-        )
-    }
-
-    val onHideAppWithUndo: (AppInfo) -> Unit = @Suppress("LocalContextGetResourceValueCall") { app ->
-        val isSearching = uiState.query.isNotBlank()
-        viewModel.hideApp(app)
-        val messageRes =
-            if (isSearching) {
-                R.string.toast_excluded_from_results
-            } else {
-                R.string.toast_excluded_from_suggestions
-            }
-        showUndoSnackbar(context.getString(messageRes, app.appName)) {
-            if (isSearching) {
-                viewModel.unhideAppFromResults(app)
-            } else {
-                viewModel.unhideAppFromSuggestions(app)
-            }
-        }
-    }
-
-    val onExcludeContactWithUndo: (ContactInfo) -> Unit = @Suppress("LocalContextGetResourceValueCall") { contact ->
-        viewModel.excludeContact(contact)
-        showUndoSnackbar(
-            context.getString(R.string.toast_excluded_from_results, contact.displayName),
-        ) {
-            viewModel.removeExcludedContact(contact)
-        }
-    }
-
-    val onExcludeFileWithUndo: (DeviceFile) -> Unit = @Suppress("LocalContextGetResourceValueCall") { file ->
-        viewModel.excludeFile(file)
-        showUndoSnackbar(
-            context.getString(R.string.toast_excluded_from_results, file.displayName),
-        ) {
-            viewModel.removeExcludedFile(file)
-        }
-    }
-
-    val onExcludeFileExtensionWithUndo: (DeviceFile) -> Unit = @Suppress("LocalContextGetResourceValueCall") { file ->
-        val extension = FileUtils.getFileExtension(file.displayName)
-        if (extension != null) {
-            viewModel.excludeFileExtension(file)
-            val extensionLabel = context.getString(R.string.file_extension_label, extension)
-            showUndoSnackbar(
-                context.getString(R.string.toast_excluded_from_results, extensionLabel),
-            ) {
-                viewModel.removeExcludedFileExtension(extension)
-            }
-        }
-    }
-
-    val onExcludeSettingWithUndo: (DeviceSetting) -> Unit = @Suppress("LocalContextGetResourceValueCall") { setting ->
-        viewModel.excludeSetting(setting)
-        showUndoSnackbar(
-            context.getString(R.string.toast_excluded_from_results, setting.title),
-        ) {
-            viewModel.removeExcludedSetting(setting)
-        }
-    }
-
-    val onDisableAppShortcut: (com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut) -> Unit = @Suppress("LocalContextGetResourceValueCall") { shortcut ->
-        viewModel.setAppShortcutEnabled(shortcut, false)
-        showAppShortcutDisabledSnackbar {
-            viewModel.setAppShortcutEnabled(shortcut, true)
-        }
-    }
-
-    val onDisableAllAppShortcutsForApp: (com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut) -> Unit = @Suppress("LocalContextGetResourceValueCall") { shortcut ->
-        // Disables the app's future shortcuts too. Undo restores each shortcut's previous state.
-        viewModel.setAllAppShortcutsEnabled(shortcut.packageName, false)
-        showAppShortcutDisabledSnackbar {
-            viewModel.setAllAppShortcutsEnabled(shortcut.packageName, true)
-        }
-    }
-
-    val onExcludeCalendarEventWithUndo: (CalendarEventInfo) -> Unit = @Suppress("LocalContextGetResourceValueCall") { event ->
-        viewModel.excludeCalendarEvent(event)
-        val label = event.title.ifBlank { context.getString(R.string.section_calendar) }
-        showUndoSnackbar(
-            context.getString(R.string.toast_excluded_from_results, label),
-        ) {
-            viewModel.removeExcludedCalendarEvent(event)
-        }
-    }
-
-    val reminderActions =
-        remember(viewModel, context) {
-            val reminderRepository = ReminderRepository(context)
-            ReminderSectionActions(
-                onPin = viewModel::pinReminder,
-                onUnpin = viewModel::unpinReminder,
-                onMovePinned = viewModel::movePinnedReminder,
-                onMarkDone = { reminder -> reminderRepository.setDone(reminder.reminderId, true) },
-                onDelete = { reminder ->
-                    viewModel.unpinReminder(reminder)
-                    reminderRepository.deleteReminder(reminder.reminderId)
-                },
-            )
-        }
-    val onDeleteNoteWithUndo: (NoteInfo) -> Unit = noteDelete@{ note ->
-        val staged = viewModel.stageDeleteNote(note) ?: return@noteDelete
-        val label = staged.title.ifBlank { context.getString(R.string.notes_untitled) }
-        var wasUndone = false
-        showUndoSnackbar(
-            context.getString(R.string.toast_excluded_from_results, label),
-        ) {
-            wasUndone = true
-            viewModel.undoDeleteNote(staged.noteId)
-        }
-        snackbarScope.launch {
-            kotlinx.coroutines.delay(2_500L)
-            if (!wasUndone) {
-                viewModel.finalizeDeleteNote(staged.noteId)
-            }
-        }
-    }
+    val undoActions = rememberRouteUndoActions(viewModel, uiState, overlaySnackbarHostState)
+    val snackbarHostState = undoActions.snackbarHostState
+    val popupUndoSnackbar = undoActions.popupUndoSnackbar
+    val onHideAppWithUndo = undoActions.onHideAppWithUndo
+    val onExcludeContactWithUndo = undoActions.onExcludeContactWithUndo
+    val onExcludeFileWithUndo = undoActions.onExcludeFileWithUndo
+    val onExcludeFileExtensionWithUndo = undoActions.onExcludeFileExtensionWithUndo
+    val onExcludeSettingWithUndo = undoActions.onExcludeSettingWithUndo
+    val onDisableAppShortcut = undoActions.onDisableAppShortcut
+    val onDisableAllAppShortcutsForApp = undoActions.onDisableAllAppShortcutsForApp
+    val onExcludeCalendarEventWithUndo = undoActions.onExcludeCalendarEventWithUndo
+    val reminderActions = undoActions.reminderActions
+    val onDeleteNoteWithUndo = undoActions.onDeleteNoteWithUndo
 
     // Set up toast callback for ViewModel
     val showToast: (Int) -> Unit = @Suppress("LocalContextGetResourceValueCall") { stringResId ->
@@ -494,91 +290,22 @@ fun SearchRoute(
         setting.toggleKey?.let { toggleKey -> uiState.isAppSettingToggleEnabled(toggleKey) } ?: false
     }
 
-    val rateQuickSearchSetting =
-        remember {
-            AppSettingResult(
-                id = RATE_QUICK_SEARCH_SETTING_ID,
-                title = "",
-                action = AppSettingResultAction.NAVIGATE,
-                destination = AppSettingsDestination.RATE_QUICK_SEARCH,
-            )
-        }
+    val rateQuickSearchSetting = rememberRateQuickSearchSetting()
 
-    val onNotificationDotsCheckedChange =
-        rememberNotificationDotsCheckedChange { enabled ->
-            viewModel.applySettingsCommand(
-                SettingsCommand.Toggle(
-                    key = AppSettingsToggleKey.NOTIFICATION_DOTS,
-                    enabled = enabled,
-                ),
-            )
-        }
-
-    val onAppSettingToggle: (AppSettingResult, Boolean) -> Unit = { setting, enabled ->
-        viewModel.trackRecentAppSettingTap(setting.id)
-        when (val toggleKey = setting.toggleKey) {
-            AppSettingsToggleKey.NOTIFICATION_DOTS -> onNotificationDotsCheckedChange(enabled)
-            AppSettingsToggleKey.OVERLAY_MODE -> {
-                val isDefaultHomeApp = context.isDefaultHomeApp()
-                val shouldEnableOverlay = enabled && !isDefaultHomeApp
-                viewModel.setOverlayModeEnabled(shouldEnableOverlay)
-                if (shouldEnableOverlay) {
-                    OverlayModeController.startOverlay(
-                        context = context,
-                        initialQuery = uiState.query.takeIf { it.isNotBlank() },
-                    )
-                    (context as? android.app.Activity)?.finish()
-                } else if (isOverlayPresentation) {
-                    OverlayModeController.openMainActivity(
-                        context = context,
-                        initialQuery = uiState.query.takeIf { it.isNotBlank() },
-                    )
-                    (context as? android.app.Activity)?.finish()
-                }
-            }
-            AppSettingsToggleKey.DIRECT_DIAL -> {
-                if (enabled) {
-                    if (uiState.hasCallPermission) {
-                        viewModel.setDirectDialEnabled(true)
-                    } else if (context is android.app.Activity) {
-                        pendingDirectDialToggleFromAppSetting = true
-                        callPermissionLauncher?.launch(Manifest.permission.CALL_PHONE)
-                    } else {
-                        onShowToast(R.string.error_call_permission_required)
-                    }
-                } else {
-                    pendingDirectDialToggleFromAppSetting = false
-                    viewModel.setDirectDialEnabled(false)
-                }
-            }
-            null -> Unit
-            else -> viewModel.applySettingsCommand(SettingsCommand.Toggle(toggleKey, enabled))
-        }
-    }
-
-    val onAppSettingClick: (AppSettingResult) -> Unit = appSettingClick@{ setting ->
-        viewModel.trackRecentAppSettingTap(setting.id)
-        if (setting.action != AppSettingResultAction.NAVIGATE) return@appSettingClick
-        setting.destination?.let { destination ->
-            if (destination == AppSettingsDestination.SEARCH_RESULT_RANKING) {
-                showSecondaryRankingDialog = true
-                return@appSettingClick
-            }
-            if (destination == AppSettingsDestination.ICON_PACKS) {
-                viewModel.refreshIconPacks()
-                showIconPackDialog = true
-                return@appSettingClick
-            }
-            if (destination == AppSettingsDestination.OPEN_EVENTS_IN) {
-                showDefaultCalendarDialog = true
-                return@appSettingClick
-            }
-            if (destination == AppSettingsDestination.RATE_QUICK_SEARCH) {
-                viewModel.markRateQuickSearchCompleted()
-            }
-            onOpenAppSettingDestination(destination)
-        }
-    }
+    val settingActions = rememberRouteSettingActions(
+        viewModel = viewModel,
+        uiState = uiState,
+        isOverlayPresentation = isOverlayPresentation,
+        onShowToast = onShowToast,
+        onPendingDirectDialToggleChange = { pendingDirectDialToggleFromAppSetting = it },
+        onCallPermissionRequest = { callPermissionLauncher?.launch(Manifest.permission.CALL_PHONE) },
+        onShowSecondaryRankingDialog = { showSecondaryRankingDialog = true },
+        onShowIconPackDialog = { showIconPackDialog = true },
+        onShowDefaultCalendarDialog = { showDefaultCalendarDialog = true },
+        onOpenAppSettingDestination = onOpenAppSettingDestination,
+    )
+    val onAppSettingToggle = settingActions.onAppSettingToggle
+    val onAppSettingClick = settingActions.onAppSettingClick
 
     DisposableEffect(lifecycleOwner) {
         val observer =
@@ -618,228 +345,29 @@ fun SearchRoute(
         } else {
             modifier.fillMaxSize()
         }
-    val gesturePreferences = remember(context.applicationContext) {
-        UserAppPreferences(context.applicationContext)
-    }
-    var isDefaultLauncher by remember { mutableStateOf(context.cachedDefaultHomeAppStatus()) }
-    var pendingDeviceCredentialAction by remember { mutableStateOf<(() -> Unit)?>(null) }
-    val deviceCredentialLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            val action = pendingDeviceCredentialAction
-            pendingDeviceCredentialAction = null
-            if (result.resultCode == Activity.RESULT_OK) action?.invoke()
-        }
-    val requestBiometricAuthentication = remember(context) {
-        { promptTitle: String, onAuthenticated: () -> Unit ->
-            AppLockGate.authenticate(
-                context,
-                promptTitle,
-                BiometricManager.Authenticators.BIOMETRIC_WEAK,
-                onAuthenticated = onAuthenticated,
-            )
-        }
-    }
-    val requestDeviceCredentialAuthentication =
-        remember(context, deviceCredentialLauncher) {
-            { promptTitle: String, onAuthenticated: () -> Unit ->
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    AppLockGate.authenticate(
-                        context,
-                        promptTitle,
-                        BiometricManager.Authenticators.DEVICE_CREDENTIAL,
-                        onAuthenticated = onAuthenticated,
-                    )
-                } else {
-                    val keyguardManager = context.getSystemService(KeyguardManager::class.java)
-                    @Suppress("DEPRECATION")
-                    val credentialIntent =
-                        keyguardManager?.createConfirmDeviceCredentialIntent(promptTitle, null)
-                    if (credentialIntent != null) {
-                        pendingDeviceCredentialAction = onAuthenticated
-                        deviceCredentialLauncher.launch(credentialIntent)
-                    }
-                }
-                Unit
-            }
-        }
-    fun runAfterAppUnlock(
-        packageName: String,
-        appName: String,
-        action: () -> Unit,
-    ) = AppLockGate.runAfterUnlock(context, packageName, appName, action = action)
-    var swipeActions by remember {
-        mutableStateOf(
-            listOf(
-                gesturePreferences.getSwipeRightAction(),
-                gesturePreferences.getSwipeLeftAction(),
-                gesturePreferences.getSwipeUpAction(),
-                gesturePreferences.getSwipeDownAction(),
-            ),
-        )
-    }
-    var customSwipeActions by remember {
-        mutableStateOf(
-            listOf(
-                gesturePreferences.getSwipeRightCustomAction(),
-                gesturePreferences.getSwipeLeftCustomAction(),
-                gesturePreferences.getSwipeUpCustomAction(),
-                gesturePreferences.getSwipeDownCustomAction(),
-            ),
-        )
-    }
-    var swipeAliasTargets by remember { mutableStateOf(listOf(gesturePreferences.getSwipeRightAliasTarget(), gesturePreferences.getSwipeLeftAliasTarget(), gesturePreferences.getSwipeUpAliasTarget(), gesturePreferences.getSwipeDownAliasTarget())) }
-    var homeSwipeUpAction by remember {
-        mutableStateOf(gesturePreferences.getHomeSwipeUpAction())
-    }
-    var homeSwipeDownAction by remember {
-        mutableStateOf(gesturePreferences.getHomeSwipeDownAction(isDefaultLauncher))
-    }
-    var homeDoubleTapAction by remember {
-        mutableStateOf(gesturePreferences.getHomeDoubleTapAction())
-    }
-    var homeCustomSwipeActions by remember {
-        mutableStateOf(
-            listOf(
-                gesturePreferences.getHomeSwipeUpCustomAction(),
-                gesturePreferences.getHomeSwipeDownCustomAction(),
-                gesturePreferences.getHomeDoubleTapCustomAction(),
-            ),
-        )
-    }
-    var homeAliasTargets by remember { mutableStateOf(listOf(gesturePreferences.getHomeSwipeUpAliasTarget(), gesturePreferences.getHomeSwipeDownAliasTarget(), gesturePreferences.getHomeDoubleTapAliasTarget())) }
-    var isLauncherSwipeRightEnabled by remember { mutableStateOf(gesturePreferences.isLauncherSwipeRightEnabled()) }
-    DisposableEffect(gesturePreferences) {
-        val preferences =
-            context.applicationContext.getSharedPreferences(
-                com.tk.quicksearch.search.data.preferences.BasePreferences.PREFS_NAME,
-                Context.MODE_PRIVATE,
-            )
-        val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
-            swipeActions =
-                listOf(
-                    gesturePreferences.getSwipeRightAction(),
-                    gesturePreferences.getSwipeLeftAction(),
-                    gesturePreferences.getSwipeUpAction(),
-                    gesturePreferences.getSwipeDownAction(),
-                )
-            customSwipeActions =
-                listOf(
-                    gesturePreferences.getSwipeRightCustomAction(),
-                    gesturePreferences.getSwipeLeftCustomAction(),
-                    gesturePreferences.getSwipeUpCustomAction(),
-                    gesturePreferences.getSwipeDownCustomAction(),
-                )
-            swipeAliasTargets = listOf(gesturePreferences.getSwipeRightAliasTarget(), gesturePreferences.getSwipeLeftAliasTarget(), gesturePreferences.getSwipeUpAliasTarget(), gesturePreferences.getSwipeDownAliasTarget())
-            homeSwipeUpAction = gesturePreferences.getHomeSwipeUpAction()
-            homeSwipeDownAction = gesturePreferences.getHomeSwipeDownAction(isDefaultLauncher)
-            homeDoubleTapAction = gesturePreferences.getHomeDoubleTapAction()
-            homeCustomSwipeActions =
-                listOf(
-                    gesturePreferences.getHomeSwipeUpCustomAction(),
-                    gesturePreferences.getHomeSwipeDownCustomAction(),
-                    gesturePreferences.getHomeDoubleTapCustomAction(),
-                )
-            homeAliasTargets = listOf(gesturePreferences.getHomeSwipeUpAliasTarget(), gesturePreferences.getHomeSwipeDownAliasTarget(), gesturePreferences.getHomeDoubleTapAliasTarget())
-            isLauncherSwipeRightEnabled = gesturePreferences.isLauncherSwipeRightEnabled()
-        }
-        preferences.registerOnSharedPreferenceChangeListener(listener)
-        onDispose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
-    }
-    DisposableEffect(lifecycleOwner, context) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                isDefaultLauncher = context.isDefaultHomeApp()
-                homeSwipeDownAction = gesturePreferences.getHomeSwipeDownAction(isDefaultLauncher)
-                val isLockScreenAvailable = LockScreenAccessibilityService.isEnabled(context)
-                if (
-                    !isLockScreenAvailable &&
-                    gesturePreferences.getHomeDoubleTapAction() == HomeSwipeGestureAction.LOCK_SCREEN
-                ) {
-                    gesturePreferences.setHomeDoubleTapAction(HomeSwipeGestureAction.NONE)
-                }
-                homeDoubleTapAction = gesturePreferences.getHomeDoubleTapAction()
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
-    val closeQuickSearch: () -> Unit = {
-        if (!isDefaultLauncher) {
-            if (isOverlayPresentation) onOverlayDismissRequest?.invoke() else onCloseAppRequest?.invoke()
-        }
-    }
-    val handleHomeHorizontalSwipe: (HomeHorizontalSwipe) -> Unit = { swipe ->
-        when (swipe) {
-            HomeHorizontalSwipe.RIGHT -> {
-                if (isDefaultLauncher) {
-                    if (isLauncherSwipeRightEnabled) onOpenWidgetsPanelFromSwipe?.invoke()
-                } else {
-                    when (swipeActions[0]) {
-                        SwipeGestureAction.CLOSE_QUICK_SEARCH -> closeQuickSearch()
-                        SwipeGestureAction.WIDGETS_PANEL -> onOpenWidgetsPanelFromSwipe?.invoke()
-                        SwipeGestureAction.CUSTOM -> {
-                            com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
-                                .fromJson(customSwipeActions[0])
-                                ?.let { action -> com.tk.quicksearch.widgets.customButtonsWidget.WidgetActionActivity.launch(context, action) }
-                        }
-                        SwipeGestureAction.SEARCH_ENGINE -> swipeAliasTargets[0]?.let(viewModel::activateGestureSearchTarget)
-                        SwipeGestureAction.TOOL -> swipeAliasTargets[0]?.let(viewModel::activateGestureTool)
-                        else -> Unit
-                    }
-                }
-            }
-            HomeHorizontalSwipe.LEFT -> {
-                when (swipeActions[1]) {
-                    SwipeGestureAction.CLOSE_QUICK_SEARCH -> closeQuickSearch()
-                    SwipeGestureAction.SETTINGS -> onSettingsClick()
-                    SwipeGestureAction.CUSTOM -> {
-                        com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
-                            .fromJson(customSwipeActions[1])
-                            ?.let { action -> com.tk.quicksearch.widgets.customButtonsWidget.WidgetActionActivity.launch(context, action) }
-                    }
-                    SwipeGestureAction.SEARCH_ENGINE -> swipeAliasTargets[1]?.let(viewModel::activateGestureSearchTarget)
-                    SwipeGestureAction.TOOL -> swipeAliasTargets[1]?.let(viewModel::activateGestureTool)
-                    else -> Unit
-                }
-            }
-        }
-    }
-    val swipeNavigationModifier =
-        Modifier.pointerInput(isDefaultLauncher, isLauncherSwipeRightEnabled, swipeActions, customSwipeActions, uiState.query) {
-            var totalHorizontalDrag = 0f
-            detectHorizontalDragGestures(
-                onDragStart = { totalHorizontalDrag = 0f },
-                onHorizontalDrag = { _, dragAmount ->
-                    totalHorizontalDrag += dragAmount
-                },
-                onDragEnd = {
-                    if (totalHorizontalDrag >= SWIPE_NAVIGATION_THRESHOLD_PX) {
-                        handleHomeHorizontalSwipe(HomeHorizontalSwipe.RIGHT)
-                    } else if (totalHorizontalDrag <= -SWIPE_NAVIGATION_THRESHOLD_PX) {
-                        handleHomeHorizontalSwipe(HomeHorizontalSwipe.LEFT)
-                    }
-                    totalHorizontalDrag = 0f
-                },
-                onDragCancel = { totalHorizontalDrag = 0f },
-            )
-        }
-    val shouldAutoCloseSearchSurface =
-        shouldCloseSearchSurfaceAfterExternalNavigation(
-            autoCloseEnabled = uiState.autoCloseOverlay,
-            isOverlayPresentation = isOverlayPresentation,
-            isDefaultLauncher = isDefaultLauncher,
-        )
-    LaunchedEffect(shouldAutoCloseSearchSurface, isOverlayPresentation) {
-        viewModel.externalNavigationEvent.collect {
-            if (!shouldAutoCloseSearchSurface) return@collect
-            if (isOverlayPresentation) {
-                onOverlayDismissRequest?.invoke()
-            } else {
-                onCloseAppRequest?.invoke()
-            }
-        }
-    }
-
+    val gestures = rememberRouteGestures(
+        viewModel = viewModel,
+        uiState = uiState,
+        isOverlayPresentation = isOverlayPresentation,
+        onSettingsClick = onSettingsClick,
+        onOpenWidgetsPanelFromSwipe = onOpenWidgetsPanelFromSwipe,
+        onOverlayDismissRequest = onOverlayDismissRequest,
+        onCloseAppRequest = onCloseAppRequest,
+    )
+    val requestBiometricAuthentication = gestures.requestBiometricAuthentication
+    val requestDeviceCredentialAuthentication = gestures.requestDeviceCredentialAuthentication
+    val runAfterAppUnlock = gestures.runAfterAppUnlock
+    val swipeActions = gestures.swipeActions
+    val customSwipeActions = gestures.customSwipeActions
+    val swipeAliasTargets = gestures.swipeAliasTargets
+    val homeSwipeUpAction = gestures.homeSwipeUpAction
+    val homeSwipeDownAction = gestures.homeSwipeDownAction
+    val homeDoubleTapAction = gestures.homeDoubleTapAction
+    val homeCustomSwipeActions = gestures.homeCustomSwipeActions
+    val homeAliasTargets = gestures.homeAliasTargets
+    val closeQuickSearch = gestures.closeQuickSearch
+    val handleHomeHorizontalSwipe = gestures.handleHomeHorizontalSwipe
+    val swipeNavigationModifier = gestures.swipeNavigationModifier
     val itemCustomizationRemover = remember(viewModel) {
         ItemCustomizationRemover(
             removeAppNickname = { viewModel.setAppNickname(it, null) },
@@ -1220,95 +748,52 @@ fun SearchRoute(
             )
         }
 
-        if (showPermissionSettingsDialog) {
-            PermissionSettingsDialog(
-                permissionType = stringResource(pendingPermissionSettingsType ?: R.string.settings_permissions_title),
-                onConfirm = {
-                    showPermissionSettingsDialog = false
-                    pendingPermissionSettingsAction?.invoke()
-                    pendingPermissionSettingsAction = null
-                    pendingPermissionSettingsType = null
-                },
-                onDismiss = {
-                    showPermissionSettingsDialog = false
-                    pendingPermissionSettingsAction = null
-                    pendingPermissionSettingsType = null
-                },
-            )
-        }
-
-        if (showSecondaryRankingDialog) {
-            SecondaryRankingDialog(
-                selectedSignal = uiState.secondaryRankingSignal,
-                onSignalSelected = { signal ->
-                    viewModel.setSecondaryRankingSignal(signal)
-                    viewModel.onQueryChange(uiState.query)
-                },
-                onDismiss = { showSecondaryRankingDialog = false },
-            )
-        }
-
-        if (showIconPackDialog) {
-            IconPackPickerDialog(
-                availableIconPacks = uiState.availableIconPacks,
-                selectedPackage = uiState.selectedIconPackPackage,
-                maskUnsupportedIcons = uiState.maskUnsupportedIconPackIcons,
-                onSelect = { packageName ->
-                    viewModel.setIconPackPackage(packageName)
-                    showIconPackDialog = false
-                },
-                onMaskUnsupportedIconsChange = viewModel::setIconPackUnsupportedIconMaskEnabled,
-                onDownloadIconPacks = viewModel::searchIconPacks,
-                onResetAllIcons = viewModel::resetAllAppIconsToDefault,
-                onDismiss = { showIconPackDialog = false },
-            )
-        }
-
-        if (showDefaultCalendarDialog) {
-            DefaultCalendarDialog(
-                selectedPackageName = defaultCalendarPackage,
-                onCalendarSelected = { packageName ->
-                    defaultCalendarPackage = packageName
-                    calendarPreferences.setDefaultCalendarPackage(packageName)
-                    showDefaultCalendarDialog = false
-                },
-                onDismiss = { showDefaultCalendarDialog = false },
-            )
-        }
-
-        speedBumpApp?.let { app ->
-            SpeedBumpOverlay(
-                appInfo = app,
-                iconPackPackage = uiState.selectedIconPackPackage,
-                appIconShape = uiState.appIconShape,
-                onOpen = {
-                    speedBumpApp = null
-                    runAfterAppUnlock(app.packageName, app.appName) {
-                        viewModel.launchApp(app, context)
-                    }
-                },
-                onCancel = { speedBumpApp = null },
-            )
-        }
-
-        com.tk.quicksearch.search.apps.swipeGestures.AppSwipeGesturePickerHost(
-            searchState = uiState,
-            onQueryChange = viewModel::onQueryChange,
+        SearchRouteOverlays(
+            viewModel = viewModel,
+            uiState = uiState,
+            showPermissionSettingsDialog = showPermissionSettingsDialog,
+            pendingPermissionSettingsType = pendingPermissionSettingsType,
+            onPermissionConfirm = {
+                showPermissionSettingsDialog = false
+                pendingPermissionSettingsAction?.invoke()
+                pendingPermissionSettingsAction = null
+                pendingPermissionSettingsType = null
+            },
+            onPermissionDismiss = {
+                showPermissionSettingsDialog = false
+                pendingPermissionSettingsAction = null
+                pendingPermissionSettingsType = null
+            },
+            showSecondaryRankingDialog = showSecondaryRankingDialog,
+            onSecondaryRankingDismiss = { showSecondaryRankingDialog = false },
+            showIconPackDialog = showIconPackDialog,
+            onIconPackDismiss = { showIconPackDialog = false },
+            showDefaultCalendarDialog = showDefaultCalendarDialog,
+            defaultCalendarPackage = defaultCalendarPackage,
+            onCalendarSelected = { packageName ->
+                defaultCalendarPackage = packageName
+                calendarPreferences.setDefaultCalendarPackage(packageName)
+                showDefaultCalendarDialog = false
+            },
+            onDefaultCalendarDismiss = { showDefaultCalendarDialog = false },
+            speedBumpApp = speedBumpApp,
+            onSpeedBumpOpen = { app ->
+                speedBumpApp = null
+                runAfterAppUnlock(app.packageName, app.appName) {
+                    viewModel.launchApp(app, context)
+                }
+            },
+            onSpeedBumpCancel = { speedBumpApp = null },
+            previewFile = previewFile,
+            onPreviewDismiss = { previewFile = null },
+            onPreviewOpen = { file ->
+                previewFile = null
+                viewModel.openFile(file)
+            },
+            onPreviewShare = { file ->
+                previewFile = null
+                com.tk.quicksearch.search.core.FileIntents.shareFile(context, file)
+            },
         )
-
-        previewFile?.let { file ->
-            com.tk.quicksearch.search.files.FilePreviewBottomSheet(
-                deviceFile = file,
-                onDismiss = { previewFile = null },
-                onOpen = {
-                    previewFile = null
-                    viewModel.openFile(file)
-                },
-                onShare = {
-                    previewFile = null
-                    com.tk.quicksearch.search.core.FileIntents.shareFile(context, file)
-                },
-            )
-        }
     }
 }

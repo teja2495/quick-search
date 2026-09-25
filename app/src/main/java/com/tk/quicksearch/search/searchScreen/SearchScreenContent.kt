@@ -1,46 +1,17 @@
 package com.tk.quicksearch.search.searchScreen
 
-import android.content.Intent
-import android.net.Uri
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.imeAnimationTarget
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AccessTime
-import androidx.compose.material.icons.rounded.Construction
-import androidx.compose.material.icons.rounded.CurrencyExchange
-import androidx.compose.material.icons.rounded.Cloud
-import androidx.compose.material.icons.rounded.QuestionAnswer
 import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -52,64 +23,33 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.core.CurrencyConverterStatus
-import com.tk.quicksearch.search.core.DictionaryStatus
-import com.tk.quicksearch.search.core.WeatherStatus
 import com.tk.quicksearch.search.core.AiSearchStatus
 import com.tk.quicksearch.search.core.SearchSection
-import com.tk.quicksearch.search.core.SearchSectionUiMetadataRegistry
-import com.tk.quicksearch.search.core.SearchEnginesVisibility
 import com.tk.quicksearch.search.core.SearchTarget
-import com.tk.quicksearch.search.core.ScreenTimeState
-import com.tk.quicksearch.search.core.SectionRenderParams
-import com.tk.quicksearch.search.core.WorldClockStatus
 import com.tk.quicksearch.search.core.SearchUiState
-import com.tk.quicksearch.search.core.isLikelyWebUrl
-import com.tk.quicksearch.search.core.rememberSectionRenderContext
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
-import com.tk.quicksearch.searchEngines.defaultBrowserTarget
-import com.tk.quicksearch.searchEngines.extendToScreenEdges
 import com.tk.quicksearch.searchEngines.inline.InsetSearchBarGeometry
 import com.tk.quicksearch.searchEngines.getId
-import com.tk.quicksearch.searchEngines.resolveDefaultBrowserPackage
-import com.tk.quicksearch.searchEngines.inline.SearchEngineIconsSection
-import com.tk.quicksearch.searchEngines.inline.AiFollowUpInputSection
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SearchContentArea
 import com.tk.quicksearch.search.searchScreen.components.LocalSearchResultQuery
-import com.tk.quicksearch.search.searchScreen.appThemeActionColor
-import com.tk.quicksearch.search.searchScreen.appThemeDividerColor
-import com.tk.quicksearch.search.searchScreen.appThemeResultCardColor
-import com.tk.quicksearch.search.searchScreen.isAmoledSurfaceTheme
-import com.tk.quicksearch.search.searchScreen.resolveSearchColorTheme
 import com.tk.quicksearch.shared.ui.theme.LocalAmoledThemeActive
 import com.tk.quicksearch.shared.ui.theme.LocalSearchColorTheme
-import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.util.rememberPhysicalKeyboardConnected
-import com.tk.quicksearch.tools.aiTools.CurrencyConversionIntentParser
 import com.tk.quicksearch.tools.setAlarm.SetAlarmHandler
 import com.tk.quicksearch.tools.setAlarm.StartTimerHandler
-import com.tk.quicksearch.reminders.ReminderEditorRequests
 import com.tk.quicksearch.reminders.ReminderNaturalLanguageParser
-import com.tk.quicksearch.tools.aiTools.DictionaryIntentParser
-import com.tk.quicksearch.tools.aiTools.ConfirmedWeatherQuery
-import com.tk.quicksearch.tools.aiTools.WeatherIntentParser
 import com.tk.quicksearch.shared.util.cachedDefaultHomeAppStatus
 import com.tk.quicksearch.shared.util.openNotificationShade
 import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
@@ -119,8 +59,6 @@ import com.tk.quicksearch.search.other.OtherSearchItemId
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
 import com.tk.quicksearch.widgets.customButtonsWidget.WidgetActionActivity
 import com.tk.quicksearch.app.startup.StartupTrace
-import com.tk.quicksearch.tools.aiTools.WorldClockIntentParser
-import java.util.Locale
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -128,36 +66,8 @@ import kotlinx.coroutines.withContext
 
 private const val OPEN_KEYBOARD_ACTION_APPEAR_DELAY_MS = 200L
 private const val OPEN_KEYBOARD_COLD_START_SUPPRESS_MS = 1000L
-private const val SEARCH_HINT_ROTATION_INTERVAL_MS = 5000L
-private const val ONE_HANDED_COMPACT_ENGINES_REFLOW_DURATION_MS = 280
-private const val ONE_HANDED_COMPACT_ENGINES_FADE_IN_DURATION_MS = 180
-private const val ONE_HANDED_COMPACT_ENGINES_FADE_IN_DELAY_MS = 40
-private const val ONE_HANDED_COMPACT_ENGINES_FADE_OUT_DURATION_MS = 130
-private const val BOTTOM_BAR_SWIPE_THRESHOLD_PX = 24f
 
-private fun HomeSwipeGestureAction.performHomeGesture(
-    actionJson: String?,
-    aliasTarget: String?,
-    context: android.content.Context,
-    onAliasTarget: (HomeSwipeGestureAction, String) -> Unit,
-    onCloseQuickSearch: () -> Unit,
-) {
-    when (this) {
-        HomeSwipeGestureAction.CLOSE_QUICK_SEARCH -> onCloseQuickSearch()
-        HomeSwipeGestureAction.LOCK_SCREEN -> LockScreenAccessibilityService.lockScreen()
-        HomeSwipeGestureAction.NOTIFICATION_PANEL -> context.openNotificationShade()
-        HomeSwipeGestureAction.CUSTOM -> {
-            CustomWidgetButtonAction.fromJson(actionJson)?.let { action ->
-                WidgetActionActivity.launch(context, action)
-            }
-        }
-        HomeSwipeGestureAction.SEARCH_ENGINE,
-        HomeSwipeGestureAction.TOOL -> aliasTarget?.let { onAliasTarget(this, it) }
-        HomeSwipeGestureAction.NONE -> Unit
-    }
-}
-
-private data class ToolCardConfig(
+internal data class ToolCardConfig(
         val label: String,
         val icon: ImageVector? = null,
         val appIconPackage: String? = null,
@@ -335,190 +245,19 @@ internal fun SearchScreenContent(
                 value = withContext(Dispatchers.IO) { getAllTriggerWordsById().values.toList() }
             }
 
-    val hintSearchAnything = stringResource(R.string.search_hint)
-    val staticSearchHint =
-        stringResource(
-            if (isDefaultLauncher) {
-                R.string.common_search
-            } else {
-                R.string.search_hint_static
-            },
-        )
-    val cycleHints = stringArrayResource(R.array.search_hints_cycle)
-    // Indices must stay in sync with R.array.search_hints_cycle order in strings.xml
-    val defaultHints = remember(
-        hintSearchAnything,
-        cycleHints,
-        state.disabledSections,
-        state.hasContactPermission,
-        state.hasCalendarPermission,
-        state.hasFilePermission,
-        state.hasApiKey,
-        state.calculatorEnabled,
-        state.unitConverterEnabled,
-        state.dateCalculatorEnabled,
-        state.currencyConverterEnabled,
-        state.worldClockEnabled,
-        state.dictionaryEnabled,
-        state.weatherEnabled,
-        state.weatherLocationConfigured,
-    ) {
-        val gated = listOf(
-            cycleHints[0] to (SearchSection.CONTACTS !in state.disabledSections && state.hasContactPermission),
-            cycleHints[1] to (SearchSection.FILES !in state.disabledSections && state.hasFilePermission),
-            cycleHints[2] to (SearchSection.CALENDAR !in state.disabledSections && state.hasCalendarPermission),
-            cycleHints[3] to (SearchSection.APPS !in state.disabledSections),
-            cycleHints[4] to (SearchSection.APP_SHORTCUTS !in state.disabledSections),
-            cycleHints[5] to (SearchSection.SETTINGS !in state.disabledSections),
-            cycleHints[6] to state.currencyConverterEnabled,
-            cycleHints[7] to state.unitConverterEnabled,
-            cycleHints[8] to state.dateCalculatorEnabled,
-            cycleHints[9] to state.calculatorEnabled,
-            cycleHints[10] to (state.worldClockEnabled && state.hasApiKey),
-            cycleHints[11] to (state.dictionaryEnabled && state.hasApiKey),
-            cycleHints[12] to (state.weatherEnabled && state.hasApiKey),
-        )
-        listOf(hintSearchAnything) + gated.filter { it.second }.map { it.first }.shuffled()
-    }
-
-    val isDefaultHintMode =
-            !isCalculatorMode &&
-                    !isUnitConverterMode &&
-                    !isCurrencyConverterAliasMode &&
-                    !isWorldClockAliasMode &&
-                    !isDictionaryAliasMode &&
-                    !isWeatherAliasMode &&
-                    activeCustomTool == null &&
-                    state.detectedAliasSearchSection == null
-
-    var hintIndex by remember { mutableStateOf(0) }
-
-    LaunchedEffect(isDefaultHintMode, state.searchHintsEnabled) {
-        if (!isDefaultHintMode || !state.searchHintsEnabled) {
-            hintIndex = 0
-            return@LaunchedEffect
-        }
-        while (true) {
-            delay(SEARCH_HINT_ROTATION_INTERVAL_MS)
-            hintIndex = (hintIndex + 1) % defaultHints.size
-        }
-    }
-
-    val searchHintText =
-            when {
-                isCalculatorMode -> stringResource(R.string.calculator_enter_math_expression_hint)
-                isUnitConverterMode -> stringResource(R.string.unit_converter_enter_conversion_hint)
-                isCurrencyConverterAliasMode ->
-                        stringResource(R.string.search_hint_currency_converter)
-                isWorldClockAliasMode -> stringResource(R.string.search_hint_world_clock)
-                isDictionaryAliasMode -> stringResource(R.string.search_hint_dictionary)
-                isWeatherAliasMode -> stringResource(R.string.search_hint_weather)
-                activeCustomTool != null -> activeCustomTool.name
-                state.detectedAliasSearchSection != null ->
-                    stringResource(
-                        SearchSectionUiMetadataRegistry
-                            .metadataFor(state.detectedAliasSearchSection)
-                            .searchHintRes,
-                    )
-                !state.searchHintsEnabled -> staticSearchHint
-                else -> defaultHints[hintIndex % defaultHints.size]
-            }
-    val showCurrencyConverter =
-            (state.currencyConverterEnabled || isCurrencyConverterAliasMode) &&
-                    state.currencyConverterState.status != CurrencyConverterStatus.Idle
-    val showWorldClock =
-            (state.worldClockEnabled || isWorldClockAliasMode) &&
-                    state.worldClockState.status != WorldClockStatus.Idle
-    val showDictionary =
-            (state.dictionaryEnabled || isDictionaryAliasMode) &&
-                    state.dictionaryState.status != DictionaryStatus.Idle
-    val showWeather =
-            (state.weatherEnabled || isWeatherAliasMode) &&
-                    state.weatherState.status != WeatherStatus.Idle
-    val showCalculatorResult =
-            state.calculatorState.isToolMode ||
-                    state.calculatorState.result != null ||
-                    state.calculatorState.parsedDateMillis != null ||
-                    state.calculatorState.dateDiffLabel != null ||
-                    state.calculatorState.timeResultLabel != null
+    val searchHintText = rememberSearchHint(state, isDefaultLauncher)
     val trimmedQuery = state.query.trim()
-    val showCurrencyConverterSearchCard =
-            (state.currencyConverterEnabled || isCurrencyConverterAliasMode) &&
-                    !showCalculatorResult &&
-                    !showCurrencyConverter &&
-                    !showWorldClock &&
-                    !showDictionary &&
-                    !showWeather &&
-                    if (isCurrencyConverterAliasMode) {
-                        true // always show when alias mode is active
-                    } else {
-                        trimmedQuery.isNotBlank() &&
-                                CurrencyConversionIntentParser.parseConfirmed(trimmedQuery) != null
-                    }
-    val showDictionarySearchCard =
-            (state.dictionaryEnabled || isDictionaryAliasMode) &&
-                    state.hasApiKey &&
-                    !showCalculatorResult &&
-                    !showCurrencyConverter &&
-                    !showWorldClock &&
-                    !showDictionary &&
-                    !showWeather &&
-                    if (isDictionaryAliasMode) {
-                        true
-                    } else {
-                        trimmedQuery.isNotBlank() &&
-                                DictionaryIntentParser.parseConfirmed(trimmedQuery) != null
-                    }
-    val showWorldClockSearchCard =
-            (state.worldClockEnabled || isWorldClockAliasMode) &&
-                    state.hasApiKey &&
-                    !showCalculatorResult &&
-                    !showCurrencyConverter &&
-                    !showWorldClock &&
-                    !showDictionary &&
-                    !showWeather &&
-                    if (isWorldClockAliasMode) {
-                        true
-                    } else {
-                        trimmedQuery.isNotBlank() &&
-                                WorldClockIntentParser.parseConfirmed(trimmedQuery) != null
-                    }
-    val confirmedWeatherQuery =
-            if (isWeatherAliasMode) {
-                ConfirmedWeatherQuery(
-                    requestedLocation = trimmedQuery.takeIf { it.isNotBlank() },
-                    originalQuery = trimmedQuery,
-                )
-            } else {
-                WeatherIntentParser.parseConfirmed(trimmedQuery)
-            }
-    val weatherLocationAvailable =
-            state.weatherLocationConfigured ||
-                    confirmedWeatherQuery?.requestedLocation?.isNotBlank() == true
-    val showWeatherSearchCard =
-            (state.weatherEnabled || isWeatherAliasMode) &&
-                    state.hasApiKey &&
-                    weatherLocationAvailable &&
-                    !showCalculatorResult &&
-                    !showCurrencyConverter &&
-                    !showWorldClock &&
-                    !showDictionary &&
-                    !showWeather &&
-                    if (isWeatherAliasMode) {
-                        true
-                    } else {
-                        confirmedWeatherQuery != null
-                    }
-    val showCustomToolSearchCard =
-            activeCustomTool != null &&
-                    state.hasApiKey &&
-                    !showCalculatorResult &&
-                    state.AiSearchState.status == AiSearchStatus.Idle
-    val showAiFollowUpAction =
-            state.AiSearchState.status == AiSearchStatus.Success &&
-                    !state.AiSearchState.answer.isNullOrBlank() &&
-                    state.detectedCustomToolId == null
-
+    val cardVisibility = searchCardVisibility(state, activeCustomTool != null)
+    val showCurrencyConverter = cardVisibility.showCurrencyConverter
+    val showWorldClock = cardVisibility.showWorldClock
+    val showDictionary = cardVisibility.showDictionary
+    val showWeather = cardVisibility.showWeather
+    val showCurrencyConverterSearchCard = cardVisibility.showCurrencyConverterSearchCard
+    val showDictionarySearchCard = cardVisibility.showDictionarySearchCard
+    val showWorldClockSearchCard = cardVisibility.showWorldClockSearchCard
+    val showWeatherSearchCard = cardVisibility.showWeatherSearchCard
+    val showCustomToolSearchCard = cardVisibility.showCustomToolSearchCard
+    val showAiFollowUpAction = cardVisibility.showAiFollowUpAction
     LaunchedEffect(showAiFollowUpAction) {
         if (!showAiFollowUpAction) {
             isAiFollowUpInputVisible = false
@@ -536,59 +275,12 @@ internal fun SearchScreenContent(
     val shouldShowNumberKeyboardOperators =
             isImeVisible && (manuallySwitchedToNumberKeyboard || isCalculatorMode)
     val showBottomSearchBar = showSearchField && state.bottomSearchBarEnabled
-    val useOverlayThemeTints = !state.deviceThemeEnabled && state.backgroundSource == com.tk.quicksearch.search.core.BackgroundSource.THEME
-    val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
-    val amoledSurfacesActive =
-            isAmoledSurfaceTheme(
-                    amoledThemeEnabled = state.amoledThemeEnabled,
-                    theme = state.appTheme,
-                    isDarkMode = isDarkMode,
-                    deviceThemeEnabled = state.deviceThemeEnabled,
-                    backgroundSource = state.backgroundSource,
-            )
-    val searchColorTheme =
-            if (state.deviceThemeEnabled) {
-                null
-            } else {
-                resolveSearchColorTheme(
-                        theme = state.appTheme,
-                        backgroundSource = state.backgroundSource,
-                        isDarkMode = isDarkMode,
-                        intensity = state.overlayThemeIntensity,
-                        amoledThemeEnabled = state.amoledThemeEnabled,
-                )
-            }
-    val overlayCardColor =
-            if (useOverlayThemeTints) {
-                appThemeResultCardColor(
-                        theme = state.appTheme,
-                        isDarkMode = isDarkMode,
-                        intensity = state.overlayThemeIntensity,
-                        amoledThemeEnabled = state.amoledThemeEnabled,
-                )
-            } else {
-                null
-            }
-    val overlayDividerTint =
-            if (useOverlayThemeTints) {
-                appThemeDividerColor(
-                        theme = state.appTheme,
-                        isDarkMode = isDarkMode,
-                        intensity = state.overlayThemeIntensity,
-                )
-            } else {
-                null
-            }
-    val overlayActionTint =
-            if (useOverlayThemeTints) {
-                appThemeActionColor(
-                        theme = state.appTheme,
-                        isDarkMode = isDarkMode,
-                        intensity = state.overlayThemeIntensity,
-                )
-            } else {
-                null
-            }
+    val surfaceColors = rememberSearchSurfaceColors(state)
+    val amoledSurfacesActive = surfaceColors.amoledSurfacesActive
+    val searchColorTheme = surfaceColors.searchColorTheme
+    val overlayCardColor = surfaceColors.overlayCardColor
+    val overlayDividerTint = surfaceColors.overlayDividerTint
+    val overlayActionTint = surfaceColors.overlayActionTint
     val shouldRenderInlineNumberKeyboardOperators =
             shouldShowNumberKeyboardOperators && !isOverlayPresentation
     val openKeyboardText = stringResource(R.string.action_open_keyboard)
@@ -657,287 +349,70 @@ internal fun SearchScreenContent(
                         ?.takeIf { it.title.isNotBlank() }
                 }
             }
-    val shouldShowPredictedHighlight = isImeVisible
-    val isNonSubmittableSuggestionsTab = appsParams.isNonSubmittableSuggestionsTab()
-    val firstSubmittableGridApp =
-            remember(
-                    appsParams.isSearching,
-                    appsParams.selectedSuggestionTab,
-                    appsParams.apps,
-                    appsParams.pinnedApps,
-                    appsParams.pinnedAndRecentApps,
-                    appsParams.mostUsedApps,
-            ) {
-                appsParams.firstSubmittableGridApp()
-            }
-    val predictedTarget =
-            remember(
-                    shouldShowPredictedHighlight,
-                    state.query,
-                    firstSubmittableGridApp,
-                    renderingState.appShortcutResults,
-                    renderingState.contactResults,
-                    renderingState.fileResults,
-                    renderingState.settingResults,
-                    renderingState.calendarEvents,
-                    renderingState.appSettingResults,
-                    state.detectedShortcutTarget,
-                    state.searchTargetsOrder,
-                    enabledTargets,
-            ) {
-                if (!shouldShowPredictedHighlight) {
-                    null
-                } else {
-                    val defaultBrowserPackage =
-                            if (isLikelyWebUrl(state.query.trim())) {
-                                resolveDefaultBrowserPackage(context)
-                            } else {
-                                null
-                            }
-                    resolvePredictedSubmitTarget(
-                            query = state.query,
-                            firstApp = firstSubmittableGridApp,
-                            renderingState = renderingState,
-                            enabledTargets = enabledTargets,
-                            detectedShortcutTarget = state.detectedShortcutTarget,
-                            searchTargetsOrder = state.searchTargetsOrder,
-                            defaultBrowserPackage = defaultBrowserPackage,
-                    )
-                }
-            }
-    val suffixAliasMatchIgnoringTrailingSpace =
-            remember(
-                    state.query,
-                    state.isSearchEngineAliasSuffixEnabled,
-                    enabledTargets,
-                    state.shortcutCodes,
-                    state.shortcutEnabled,
-            ) {
-                if (!state.isSearchEngineAliasSuffixEnabled) {
-                    null
-                } else {
-                    detectSuffixSearchTargetAlias(
-                            query = state.query,
-                            enabledTargets = enabledTargets,
-                            shortcutCodes = state.shortcutCodes,
-                            shortcutEnabled = state.shortcutEnabled,
-                            requireTrailingSpace = false,
-                    )
-                }
-            }
-    val hasSuffixAliasKeywordAtQueryEnd = suffixAliasMatchIgnoringTrailingSpace != null
-    val isOtherSearchResultVisible =
-        OtherSearchItemRegistry.hasVisibleResult(
-            query = state.query,
-            pinnedItemOrder = state.pinnedNonAppItemOrder,
-            screenTimeState = state.screenTimeState,
-        )
-    val shouldShowTopResultIndicator =
-            state.openTopResultUsingKeyboardEnabled &&
-                (state.topResultIndicatorEnabled || isPhysicalKeyboardConnected)
-    val predictedTargetForIndicator =
-            if (shouldShowTopResultIndicator &&
-                    !isNonSubmittableSuggestionsTab &&
-                    !isOtherSearchResultVisible &&
-                    !showCurrencyConverterSearchCard &&
-                    !showDictionarySearchCard &&
-                    !showWeatherSearchCard &&
-                    !showWorldClockSearchCard &&
-                    !hasSuffixAliasKeywordAtQueryEnd) {
-                predictedTarget
-            } else null
-    val hideResultsForTopMatchSubmit =
-            state.AiSearchState.status != AiSearchStatus.Idle ||
-                    state.calculatorState.isToolMode ||
-                    state.calculatorState.result != null ||
-                    state.calculatorState.parsedDateMillis != null ||
-                    state.calculatorState.dateDiffLabel != null ||
-                    state.calculatorState.timeResultLabel != null ||
-                    showCurrencyConverter ||
-                    showWorldClock ||
-                    showDictionary ||
-                    showWeather ||
-                    state.detectedShortcutTarget != null ||
-                    state.detectedAliasSearchSection != null ||
-                    state.isCurrencyConverterAliasMode ||
-                    state.isWorldClockAliasMode ||
-                    state.isDictionaryAliasMode ||
-                    state.isWeatherAliasMode ||
-                    state.detectedCustomToolId != null
-                    || state.detectedTaskerIntentId != null
-    val isLocalSearchRefreshing =
-            shouldDeferTopMatchesForLocalSearch(
-                    query = state.query,
-                    isAppSearchInProgress = state.isAppSearchInProgress,
-                    isSecondarySearchInProgress = state.isSecondarySearchInProgress,
-            )
-    val topMatchSubmitContext =
-            rememberSectionRenderContext(
-                    state = state,
-                    renderingState = renderingState,
-                    filesParams = filesParams,
-                    contactsParams = contactsParams,
-                    settingsParams = settingsParams,
-                    calendarParams = calendarParams,
-                    notesParams = notesParams,
-                    remindersParams = remindersParams,
-                    appShortcutsParams = appShortcutsParams,
-                    appsParams = appsParams,
-                    isSearching = state.query.isNotBlank(),
-                    oneHandedMode = state.oneHandedMode,
-            )
-    val topMatchSubmitParams =
-            SectionRenderParams(
-                    renderingState = renderingState,
-                    contactsParams = contactsParams,
-                    filesParams = filesParams,
-                    appShortcutsParams = appShortcutsParams,
-                    settingsParams = settingsParams,
-                    calendarParams = calendarParams,
-                    notesParams = notesParams,
-                    remindersParams = remindersParams,
-                    appsParams = appsParams,
-                    isReversed = state.oneHandedMode,
-            )
-    val currentTopMatchesForSubmit =
-            rememberTopMatches(
-                    query = state.query,
-                    renderingState = renderingState,
-                    context = topMatchSubmitContext,
-                    params = topMatchSubmitParams,
-                    limit = state.topMatchesLimit,
-                    topMatchesSectionOrder = state.topMatchesSectionOrder,
-                    disabledTopMatchesSections = state.disabledTopMatchesSections,
-                    secondaryRankingSignal = state.secondaryRankingSignal,
-                    filterStaleCandidates = isLocalSearchRefreshing,
-                    otherSearchItemIds =
-                        OtherSearchItemRegistry.visibleSearchItemIds(
-                            query = state.query,
-                            pinnedItemOrder = state.pinnedNonAppItemOrder,
-                            screenTimeState = state.screenTimeState,
-                        ),
-                )
-    val settledTopMatchesForSubmit =
-            rememberSettledTopMatches(
-                    query = state.query,
-                    currentMatches = currentTopMatchesForSubmit,
-                    isSearchRefreshing = isLocalSearchRefreshing,
-                    limit = state.topMatchesLimit,
-            )
-    val topMatchesForSubmit = settledTopMatchesForSubmit.matches
-    val shouldSubmitTopMatch =
-            state.topMatchesEnabled &&
-                    state.query.isNotBlank() &&
-                    !hideResultsForTopMatchSubmit &&
-                    expandedSection == ExpandedSection.NONE &&
-                    !isSearchHistoryExpanded &&
-                    settledTopMatchesForSubmit.isReady &&
-                    topMatchesForSubmit.isNotEmpty()
-    val keyboardNavigableTopMatches =
-            if (state.oneHandedMode) {
-                topMatchesForSubmit.asReversed()
-            } else {
-                topMatchesForSubmit
-            }
-    var selectedTopMatchIndex by remember { mutableStateOf<Int?>(null) }
-    var previousTopMatchQuery by remember { mutableStateOf(state.query) }
-
-    LaunchedEffect(state.query, shouldSubmitTopMatch, topMatchesForSubmit) {
-        if (!shouldSubmitTopMatch) {
-            selectedTopMatchIndex = null
-            previousTopMatchQuery = state.query
-            return@LaunchedEffect
-        }
-
-        val queryChanged = state.query != previousTopMatchQuery
-        selectedTopMatchIndex =
-                when {
-                    queryChanged -> 0
-                    selectedTopMatchIndex in topMatchesForSubmit.indices -> selectedTopMatchIndex
-                    else -> 0
-                }
-        previousTopMatchQuery = state.query
-    }
-
-    fun moveSelectedTopMatch(delta: Int): Boolean {
-        if (!shouldSubmitTopMatch || keyboardNavigableTopMatches.isEmpty()) return false
-        val displayedIndexByActualIndex =
-                keyboardNavigableTopMatches
-                        .mapIndexed { displayedIndex, item ->
-                            topMatchesForSubmit.indexOf(item) to displayedIndex
-                        }
-                        .toMap()
-        val currentDisplayedIndex =
-                selectedTopMatchIndex
-                        ?.let(displayedIndexByActualIndex::get)
-                        ?: 0
-        val nextDisplayedIndex =
-                (currentDisplayedIndex + delta).coerceIn(0, keyboardNavigableTopMatches.lastIndex)
-        val selectedItem = keyboardNavigableTopMatches[nextDisplayedIndex]
-        selectedTopMatchIndex = topMatchesForSubmit.indexOf(selectedItem).takeIf { it >= 0 }
-        return true
-    }
-    val activeToolCardConfig =
-            if (isSearchHistoryExpanded) {
-                null
-            } else {
-                when {
-                    showAiFollowUpAction ->
-                            ToolCardConfig(
-                                    label = stringResource(R.string.direct_search_ask_follow_up),
-                                    icon = Icons.Rounded.QuestionAnswer,
-                                    onClick = { isAiFollowUpInputVisible = true },
-                            )
-                    showCurrencyConverterSearchCard ->
-                            ToolCardConfig(
-                                    label = stringResource(R.string.get_currency_value),
-                                    icon = Icons.Rounded.CurrencyExchange,
-                                    onClick = onCurrencyConversionClick,
-                            )
-                    showDictionarySearchCard ->
-                            ToolCardConfig(
-                                    label = stringResource(R.string.search_in_dictionary),
-                                    icon = Icons.Rounded.Search,
-                                    onClick = onDictionarySearchClick,
-                            )
-                    showWeatherSearchCard ->
-                            ToolCardConfig(
-                                    label =
-                                        if (isWeatherAliasMode && trimmedQuery.isBlank()) {
-                                            stringResource(
-                                                R.string.weather_in_location,
-                                                state.weatherLocation,
-                                            )
-                                        } else {
-                                            stringResource(R.string.get_weather)
-                                        },
-                                    icon = Icons.Rounded.Cloud,
-                                    onClick = onWeatherSearchClick,
-                            )
-                    showCustomToolSearchCard ->
-                            ToolCardConfig(
-                                    label = activeCustomTool?.name.orEmpty(),
-                                    icon = Icons.Rounded.Construction,
-                                    onClick = onCustomToolSearchClick,
-                            )
-                    showTaskerIntentCard ->
-                            ToolCardConfig(
-                                    label = stringResource(
-                                            R.string.tasker_intent_action,
-                                            activeTaskerIntent?.name.orEmpty(),
-                                    ),
-                                    appIconPackage = com.tk.quicksearch.tools.tasker.TaskerIntegration.PACKAGE_NAME,
-                                    onClick = onTaskerIntentClick,
-                            )
-                    showWorldClockSearchCard ->
-                            ToolCardConfig(
-                                    label = stringResource(R.string.get_time),
-                                    icon = Icons.Rounded.AccessTime,
-                                    onClick = onWorldClockSearchClick,
-                            )
-                    else -> null
-                }
-            }
+    val predictedState = rememberPredictedSearchTargetState(
+        state = state,
+        renderingState = renderingState,
+        appsParams = appsParams,
+        enabledTargets = enabledTargets,
+        isImeVisible = isImeVisible,
+        isPhysicalKeyboardConnected = isPhysicalKeyboardConnected,
+        showCurrencyConverterSearchCard = showCurrencyConverterSearchCard,
+        showDictionarySearchCard = showDictionarySearchCard,
+        showWeatherSearchCard = showWeatherSearchCard,
+        showWorldClockSearchCard = showWorldClockSearchCard,
+        showCurrencyConverter = showCurrencyConverter,
+        showWorldClock = showWorldClock,
+        showDictionary = showDictionary,
+        showWeather = showWeather,
+    )
+    val isNonSubmittableSuggestionsTab = predictedState.isNonSubmittableSuggestionsTab
+    val firstSubmittableGridApp = predictedState.firstSubmittableGridApp
+    val suffixAliasMatchIgnoringTrailingSpace = predictedState.suffixAliasMatchIgnoringTrailingSpace
+    val isOtherSearchResultVisible = predictedState.isOtherSearchResultVisible
+    val predictedTargetForIndicator = predictedState.predictedTargetForIndicator
+    val hideResultsForTopMatchSubmit = predictedState.hideResultsForTopMatchSubmit
+    val topMatchSubmission = rememberTopMatchSubmission(
+        state = state,
+        renderingState = renderingState,
+        filesParams = filesParams,
+        contactsParams = contactsParams,
+        settingsParams = settingsParams,
+        calendarParams = calendarParams,
+        notesParams = notesParams,
+        remindersParams = remindersParams,
+        appShortcutsParams = appShortcutsParams,
+        appsParams = appsParams,
+        hideResultsForTopMatchSubmit = hideResultsForTopMatchSubmit,
+        expandedSection = expandedSection,
+        isSearchHistoryExpanded = isSearchHistoryExpanded,
+    )
+    val topMatchSubmitParams = topMatchSubmission.params
+    val topMatchesForSubmit = topMatchSubmission.matches
+    val shouldSubmitTopMatch = topMatchSubmission.shouldSubmit
+    val selectedTopMatchIndex = topMatchSubmission.selectedIndex
+    val moveSelectedTopMatch = topMatchSubmission.moveSelection
+    val activeToolCardConfig = toolCardConfig(
+        isSearchHistoryExpanded = isSearchHistoryExpanded,
+        showAiFollowUpAction = showAiFollowUpAction,
+        onShowAiFollowUpInput = { isAiFollowUpInputVisible = true },
+        showCurrencyConverterSearchCard = showCurrencyConverterSearchCard,
+        onCurrencyConversionClick = onCurrencyConversionClick,
+        showDictionarySearchCard = showDictionarySearchCard,
+        onDictionarySearchClick = onDictionarySearchClick,
+        showWeatherSearchCard = showWeatherSearchCard,
+        isWeatherAliasMode = isWeatherAliasMode,
+        trimmedQuery = trimmedQuery,
+        weatherLocation = state.weatherLocation,
+        onWeatherSearchClick = onWeatherSearchClick,
+        showCustomToolSearchCard = showCustomToolSearchCard,
+        customToolName = activeCustomTool?.name,
+        onCustomToolSearchClick = onCustomToolSearchClick,
+        showTaskerIntentCard = showTaskerIntentCard,
+        taskerIntentName = activeTaskerIntent?.name,
+        onTaskerIntentClick = onTaskerIntentClick,
+        showWorldClockSearchCard = showWorldClockSearchCard,
+        onWorldClockSearchClick = onWorldClockSearchClick,
+    )
     val showOnlyToolActionInCompactSection =
             activeToolCardConfig != null &&
                     (isToolAliasMode || !state.isSearchEngineCompactMode || enabledTargets.isEmpty())
@@ -983,111 +458,21 @@ internal fun SearchScreenContent(
         }
     }
 
-    fun matchesTrigger(
-        query: String,
-        word: String,
-        triggerAfterSpace: Boolean,
-    ): Boolean {
-        val normalizedWord = word.trim().lowercase()
-        if (normalizedWord.isBlank()) return false
-        val normalizedQuery = query.lowercase()
-        return if (triggerAfterSpace) {
-            normalizedQuery == "$normalizedWord "
-        } else {
-            normalizedQuery == normalizedWord
-        }
-    }
-
-    fun openMatchingTrigger(query: String): Boolean {
-        // App catalogs also load asynchronously. Search results can be ready first, so use both
-        // sources and retry when either one changes.
-        (state.allApps + renderingState.displayApps)
-            .distinctBy { it.launchCountKey() }
-            .firstOrNull { app ->
-                appsParams.getAppTrigger(app.packageName)?.let { trigger ->
-                    matchesTrigger(query, trigger.word, trigger.triggerAfterSpace)
-                } == true
-            }?.let { app ->
-                onAppClick(app)
-                return true
-            }
-
-        (state.allAppShortcuts + renderingState.appShortcutResults)
-            .distinctBy { com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey(it) }
-            .firstOrNull { shortcut ->
-                appShortcutsParams.getShortcutTrigger(
-                    com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey(shortcut),
-                )?.let { trigger ->
-                    matchesTrigger(query, trigger.word, trigger.triggerAfterSpace)
-                } == true
-            }?.let { shortcut ->
-                appShortcutsParams.onShortcutClick(shortcut)
-                return true
-            }
-
-        (renderingState.contactResults + state.pinnedContacts)
-            .distinctBy { it.contactId }
-            .firstOrNull { contact ->
-                contactsParams.getContactTrigger(contact.contactId)?.let { trigger ->
-                    matchesTrigger(query, trigger.word, trigger.triggerAfterSpace)
-                } == true
-            }?.let { contact ->
-                if (contact.hasContactMethods) {
-                    contactsParams.onShowContactMethods(contact)
-                } else {
-                    contactsParams.onContactClick(contact)
-                }
-                return true
-            }
-
-        getAllContactActionTriggers().firstNotNullOfOrNull { (key, trigger) ->
-            if (matchesTrigger(query, trigger.word, trigger.triggerAfterSpace)) {
-                key
-            } else {
-                null
-            }
-        }?.let { key ->
-            onContactActionTrigger(key.contactId, key.action)
-            return true
-        }
-
-        (renderingState.fileResults + state.pinnedFiles)
-            .distinctBy { it.uri }
-            .firstOrNull { file ->
-                filesParams.getFileTrigger(file.uri.toString())?.let { trigger ->
-                    matchesTrigger(query, trigger.word, trigger.triggerAfterSpace)
-                } == true
-            }?.let { file ->
-                filesParams.onFileClick(file)
-                return true
-            }
-
-        // Settings shortcuts load asynchronously. A trigger can already have surfaced its
-        // matching result before the full catalog reaches allDeviceSettings, so include that
-        // rendered result as a launch candidate as well.
-        (state.allDeviceSettings + renderingState.settingResults)
-            .distinctBy { it.id }
-            .firstOrNull { setting ->
-                settingsParams.getSettingTrigger(setting.id)?.let { trigger ->
-                    matchesTrigger(query, trigger.word, trigger.triggerAfterSpace)
-                } == true
-            }?.let { setting ->
-                settingsParams.onSettingClick(setting)
-                return true
-            }
-
-        (renderingState.noteResults + state.pinnedNotes)
-            .distinctBy { it.noteId }
-            .firstOrNull { note ->
-                notesParams.getNoteTrigger(note.noteId)?.let { trigger ->
-                    matchesTrigger(query, trigger.word, trigger.triggerAfterSpace)
-                } == true
-            }?.let { note ->
-                notesParams.onNoteClick(note)
-                return true
-            }
-
-        return false
+    val openMatchingTrigger: (String) -> Boolean = { query ->
+        openMatchingSearchTrigger(
+            query = query,
+            state = state,
+            renderingState = renderingState,
+            appsParams = appsParams,
+            appShortcutsParams = appShortcutsParams,
+            contactsParams = contactsParams,
+            filesParams = filesParams,
+            settingsParams = settingsParams,
+            notesParams = notesParams,
+            getAllContactActionTriggers = getAllContactActionTriggers,
+            onContactActionTrigger = onContactActionTrigger,
+            onAppClick = onAppClick,
+        )
     }
 
     var lastTriggeredQuery by remember { mutableStateOf<String?>(null) }
@@ -1116,82 +501,17 @@ internal fun SearchScreenContent(
         }
     }
 
-    // With the bottom search bar, the compact engine strip becomes a rounded container attached to
-    // the top of the search bar instead of a full-bleed band behind it. It tucks behind the bar so
-    // the two read as one shape.
-    val useInsetEngineStrip =
-            showBottomSearchBar &&
-                    state.isSearchEngineCompactMode &&
-                    expandedSection == ExpandedSection.NONE &&
-                    !isSearchHistoryExpanded &&
-                    state.detectedShortcutTarget == null &&
-                    state.detectedAliasSearchSection == null
-
-    // The strip paints the card behind a transparent bar, so it has to reach past the bar's bottom
-    // edge; falling short would draw its own outline inside the bar. The derived overlap assumes a
-    // default-height field, so track the measured height and keep whichever is taller.
-    var measuredSearchBarHeight by remember { mutableStateOf(0.dp) }
-    val insetEngineStripOverlap = InsetSearchBarGeometry.overlapFor(measuredSearchBarHeight)
-
-    // With the keyboard closed the card floats above the gesture handle, which the system keeps
-    // clear anyway. With the keyboard open nothing reserves that space, so the card spreads to the
-    // screen edges and down onto the keyboard. Keyed on the IME animation target so the card starts
-    // moving together with the keyboard in both directions instead of after it settles.
-    @OptIn(ExperimentalLayoutApi::class)
-    val isImeOpeningOrOpen = WindowInsets.imeAnimationTarget.getBottom(density) > 0
-    val insetEngineStripFullBleedFraction by
-            animateFloatAsState(
-                    targetValue =
-                            if (useInsetEngineStrip && !isOverlayPresentation && isImeOpeningOrOpen) {
-                                1f
-                            } else {
-                                0f
-                            },
-                    animationSpec = tween(durationMillis = 220, easing = FastOutSlowInEasing),
-                    label = "insetEngineStripFullBleed",
-            )
-
-    val searchFieldModifier =
-            if (useInsetEngineStrip) {
-                // Inset on every side by the same amount so the bar sits centred inside the card
-                // the strip paints; the strip reaches down by exactly these spacings plus the bar.
-                Modifier.padding(
-                        start =
-                                InsetSearchBarGeometry.barHorizontalInset(
-                                        insetEngineStripFullBleedFraction,
-                                ),
-                        end =
-                                InsetSearchBarGeometry.barHorizontalInset(
-                                        insetEngineStripFullBleedFraction,
-                                ),
-                        top = InsetSearchBarGeometry.BarTopSpacing,
-                        bottom = InsetSearchBarGeometry.BarBottomSpacing,
-                ).onSizeChanged { size ->
-                    val measured = with(density) { size.height.toDp() }
-                    if (measured > 0.dp && measured != measuredSearchBarHeight) {
-                        measuredSearchBarHeight = measured
-                    }
-                }
-            } else if (showBottomSearchBar) {
-                Modifier.padding(
-                        top =
-                                if (state.oneHandedMode) {
-                                    DesignTokens.SpacingXSmall
-                                } else {
-                                    0.dp
-                                },
-                        bottom = DesignTokens.SpacingMedium,
-                )
-            } else {
-                Modifier.padding(
-                        bottom =
-                                (if (state.oneHandedMode) {
-                                    DesignTokens.SpacingMedium
-                                } else {
-                                    DesignTokens.SpacingXSmall
-                                }) + DesignTokens.SpacingXXSmall,
-                )
-            }
+    val searchBarGeometry = rememberSearchBarGeometry(
+        state = state,
+        showBottomSearchBar = showBottomSearchBar,
+        expandedSection = expandedSection,
+        isSearchHistoryExpanded = isSearchHistoryExpanded,
+        isOverlayPresentation = isOverlayPresentation,
+    )
+    val useInsetEngineStrip = searchBarGeometry.useInsetEngineStrip
+    val insetEngineStripOverlap = searchBarGeometry.insetEngineStripOverlap
+    val insetEngineStripFullBleedFraction = searchBarGeometry.insetEngineStripFullBleedFraction
+    val searchFieldModifier = searchBarGeometry.searchFieldModifier
 
     val searchFieldContent: @Composable () -> Unit = {
         PersistentSearchBar(
@@ -1249,252 +569,69 @@ internal fun SearchScreenContent(
                 onMoveTopResultSelectionUp = { moveSelectedTopMatch(-1) },
                 onMoveTopResultSelectionDown = { moveSelectedTopMatch(1) },
                 onSearchAction = {
-                    if (isNonSubmittableSuggestionsTab) {
-                        return@PersistentSearchBar true
-                    }
-                    if (isOtherSearchResultVisible && !state.topMatchesEnabled) {
-                        return@PersistentSearchBar true
-                    }
-
-                    if (!state.openTopResultUsingKeyboardEnabled) {
-                        val query = state.query.trim()
-                        enabledTargets.firstOrNull()?.let { target ->
-                            if (query.isNotBlank()) onSearchTargetClick(query, target)
-                        }
-                        return@PersistentSearchBar false
-                    }
-
-                    // Tool prompt cards take priority: Done triggers the card action.
-                    // When no card is visible, fall through to the search engine.
-                    if (showCurrencyConverterSearchCard) {
-                        onCurrencyConversionClick()
-                        return@PersistentSearchBar true // keep keyboard open
-                    }
-                    if (showDictionarySearchCard) {
-                        onDictionarySearchClick()
-                        return@PersistentSearchBar true // keep keyboard open
-                    }
-                    if (showWeatherSearchCard) {
-                        onWeatherSearchClick()
-                        return@PersistentSearchBar true
-                    }
-                    if (showCustomToolSearchCard) {
-                        onCustomToolSearchClick()
-                        return@PersistentSearchBar true // keep keyboard open
-                    }
-                    if (showTaskerIntentCard) {
-                        onTaskerIntentClick()
-                        return@PersistentSearchBar true
-                    }
-                    if (showWorldClockSearchCard) {
-                        onWorldClockSearchClick()
-                        return@PersistentSearchBar true // keep keyboard open
-                    }
-
-                    // The app grid is the primary result surface. Done follows its visible
-                    // ordering before considering the cross-section Top Matches fallback.
-                    val firstApp = firstSubmittableGridApp
-                    if (firstApp != null) {
-                        onAppClick(firstApp)
-                        return@PersistentSearchBar false
-                    }
-
-                    if (shouldSubmitTopMatch) {
-                        openTopMatch(
-                                item = topMatchesForSubmit.getOrNull(selectedTopMatchIndex ?: 0) ?: topMatchesForSubmit.first(),
-                                params = topMatchSubmitParams,
-                        )?.let { keepKeyboardOpen ->
-                            return@PersistentSearchBar keepKeyboardOpen
-                        }
-                    }
-
-                    val trimmedQuery = state.query.trim()
-                    if (openMatchingTrigger(state.query)) {
-                        return@PersistentSearchBar false
-                    }
-
-                    val isUrlQuery = isLikelyWebUrl(trimmedQuery)
-
-                    // If query has trailing/leading spaces, trim it first
-                    if (state.query != trimmedQuery) {
-                        onQueryChanged(trimmedQuery)
-                    }
-
-                    if (isUrlQuery && trimmedQuery.isNotBlank()) {
-                        val defaultBrowserPackage = resolveDefaultBrowserPackage(context)
-                        val browserTarget =
-                                defaultBrowserTarget(state.searchTargetsOrder, defaultBrowserPackage)
-                        if (browserTarget != null) {
-                            onSearchTargetClick(trimmedQuery, browserTarget)
-                            return@PersistentSearchBar false
-                        }
-                    }
-
-                    val firstAppShortcut = renderingState.appShortcutResults.firstOrNull()
-                    if (firstAppShortcut != null) {
-                        appShortcutsParams.onShortcutClick(firstAppShortcut)
-                        return@PersistentSearchBar false
-                    }
-
-                    val firstContact = renderingState.contactResults.firstOrNull()
-                    if (firstContact != null) {
-                        if (firstContact.hasContactMethods) {
-                            contactsParams.onShowContactMethods(firstContact)
-                        } else {
-                            contactsParams.onContactClick(firstContact)
-                        }
-                        return@PersistentSearchBar false
-                    }
-
-                    val firstFile = renderingState.fileResults.firstOrNull()
-                    if (firstFile != null) {
-                        filesParams.onFileClick(firstFile)
-                        return@PersistentSearchBar false
-                    }
-
-                    val firstSetting = renderingState.settingResults.firstOrNull()
-                    if (firstSetting != null) {
-                        settingsParams.onSettingClick(firstSetting)
-                        return@PersistentSearchBar false
-                    }
-
-                    val firstCalendarEvent = renderingState.calendarEvents.firstOrNull()
-                    if (firstCalendarEvent != null) {
-                        calendarParams.onEventClick(firstCalendarEvent)
-                        return@PersistentSearchBar false
-                    }
-
-                    val firstNote =
-                        if (FeatureFlags.isSearchSectionEnabled(SearchSection.NOTES)) {
-                            renderingState.noteResults.firstOrNull()
-                        } else {
-                            null
-                        }
-                    if (firstNote != null) {
-                        notesParams.onNoteClick(firstNote)
-                        return@PersistentSearchBar false
-                    }
-
-                    val firstAppSetting = renderingState.appSettingResults.firstOrNull()
-                    if (firstAppSetting != null) {
-                        if (firstAppSetting.isToggleAction) {
-                            val currentValue = settingsParams.isAppSettingToggleChecked(firstAppSetting)
-                            settingsParams.onAppSettingToggle(firstAppSetting, !currentValue)
-                            return@PersistentSearchBar true // keep keyboard open for toggles
-                        } else {
-                            settingsParams.onAppSettingClick(firstAppSetting)
-                            return@PersistentSearchBar false
-                        }
-                    }
-
-                    // Check if a shortcut is detected
-                    if (isCalculatorMode) {
-                        return@PersistentSearchBar false
-                    } else if (state.detectedShortcutTarget != null) {
-                        // Query already has shortcut stripped by ViewModel when
-                        // shortcut-at-start is detected
-                        onSearchTargetClick(trimmedQuery, state.detectedShortcutTarget)
-                    } else {
-                        val shouldResolveSuffixAliasOnDone =
-                                state.isSearchEngineAliasSuffixEnabled &&
-                                        state.isAliasTriggerAfterSpaceEnabled &&
-                                        state.query.lastOrNull()?.isWhitespace() == false
-                        if (shouldResolveSuffixAliasOnDone) {
-                            val suffixAliasMatch = suffixAliasMatchIgnoringTrailingSpace
-                            if (suffixAliasMatch != null) {
-                                val aliasQuery = suffixAliasMatch.first.trim()
-                                if (aliasQuery.isNotBlank()) {
-                                    onQueryChanged(aliasQuery)
-                                    onSearchTargetClick(aliasQuery, suffixAliasMatch.second)
-                                    return@PersistentSearchBar false
-                                }
-                            }
-                        }
-                        val primaryTarget = enabledTargets.firstOrNull()
-                        if (primaryTarget != null && trimmedQuery.isNotBlank()) {
-                            onSearchTargetClick(trimmedQuery, primaryTarget)
-                        }
-                    }
-                    false
+                    submitSearchBarAction(
+                        state = state,
+                        renderingState = renderingState,
+                        isNonSubmittableSuggestionsTab = isNonSubmittableSuggestionsTab,
+                        isOtherSearchResultVisible = isOtherSearchResultVisible,
+                        enabledTargets = enabledTargets,
+                        onSearchTargetClick = onSearchTargetClick,
+                        showCurrencyConverterSearchCard = showCurrencyConverterSearchCard,
+                        onCurrencyConversionClick = onCurrencyConversionClick,
+                        showDictionarySearchCard = showDictionarySearchCard,
+                        onDictionarySearchClick = onDictionarySearchClick,
+                        showWeatherSearchCard = showWeatherSearchCard,
+                        onWeatherSearchClick = onWeatherSearchClick,
+                        showCustomToolSearchCard = showCustomToolSearchCard,
+                        onCustomToolSearchClick = onCustomToolSearchClick,
+                        showTaskerIntentCard = showTaskerIntentCard,
+                        onTaskerIntentClick = onTaskerIntentClick,
+                        showWorldClockSearchCard = showWorldClockSearchCard,
+                        onWorldClockSearchClick = onWorldClockSearchClick,
+                        firstSubmittableGridApp = firstSubmittableGridApp,
+                        onAppClick = onAppClick,
+                        shouldSubmitTopMatch = shouldSubmitTopMatch,
+                        topMatchesForSubmit = topMatchesForSubmit,
+                        selectedTopMatchIndex = selectedTopMatchIndex,
+                        topMatchSubmitParams = topMatchSubmitParams,
+                        openMatchingTrigger = openMatchingTrigger,
+                        onQueryChanged = onQueryChanged,
+                        appShortcutsParams = appShortcutsParams,
+                        contactsParams = contactsParams,
+                        filesParams = filesParams,
+                        settingsParams = settingsParams,
+                        calendarParams = calendarParams,
+                        notesParams = notesParams,
+                        isCalculatorMode = isCalculatorMode,
+                        suffixAliasMatchIgnoringTrailingSpace = suffixAliasMatchIgnoringTrailingSpace,
+                        context = context,
+                    )
                 },
         )
     }
 
-    val onLauncherSwipeUp: () -> Unit = {
-        when {
-            swipeUpAction == SwipeGestureAction.OPEN_KEYBOARD && !isImeVisible -> {
-                searchFocusRequester.requestFocus()
-                keyboardController?.show()
-            }
-            swipeUpAction == SwipeGestureAction.CLOSE_KEYBOARD_OR_NOTIFICATIONS && isImeVisible -> {
-                keyboardController?.hide()
-            }
-            swipeUpAction == SwipeGestureAction.SEARCH_ENGINE || swipeUpAction == SwipeGestureAction.TOOL ->
-                swipeUpAliasTarget?.let { onGestureAliasTarget(swipeUpAction, it) }
-            else ->
-                homeSwipeUpAction.performHomeGesture(
-                    homeSwipeUpCustomActionJson,
-                    homeSwipeUpAliasTarget,
-                    context,
-                    { action, target -> onGestureAliasTarget(action, target) },
-                    onCloseQuickSearch,
-                )
-        }
-    }
-    val onLauncherSwipeDown: () -> Unit = {
-        when {
-            swipeDownAction == SwipeGestureAction.OPEN_KEYBOARD && !isImeVisible -> {
-                searchFocusRequester.requestFocus()
-                keyboardController?.show()
-            }
-            swipeDownAction == SwipeGestureAction.CLOSE_KEYBOARD_OR_NOTIFICATIONS && isImeVisible -> {
-                keyboardController?.hide()
-            }
-            swipeDownAction == SwipeGestureAction.SEARCH_ENGINE || swipeDownAction == SwipeGestureAction.TOOL ->
-                swipeDownAliasTarget?.let { onGestureAliasTarget(swipeDownAction, it) }
-            else ->
-                homeSwipeDownAction.performHomeGesture(
-                    homeSwipeDownCustomActionJson,
-                    homeSwipeDownAliasTarget,
-                    context,
-                    { action, target -> onGestureAliasTarget(action, target) },
-                    onCloseQuickSearch,
-                )
-        }
-    }
-    // The engine strip and bottom search bar sit outside the results area, so they need
-    // their own vertical drag detector to forward the same swipe gestures. Their inner
-    // scrollers are horizontal only, so vertical drags reach this detector unconsumed.
-    // Swipe up mirrors the results area: it only fires on an empty query.
-    val currentOnLauncherSwipeUp by rememberUpdatedState(onLauncherSwipeUp)
-    val currentOnLauncherSwipeDown by rememberUpdatedState(onLauncherSwipeDown)
-    val bottomBarSwipeUpEnabled = state.query.isBlank() && expandedSection == ExpandedSection.NONE
-    val bottomBarSwipeModifier =
-        Modifier.pointerInput(bottomBarSwipeUpEnabled) {
-            var accumulatedDragY = 0f
-            var gestureHandled = false
-            detectVerticalDragGestures(
-                onDragStart = {
-                    accumulatedDragY = 0f
-                    gestureHandled = false
-                },
-                onVerticalDrag = { change, dragAmount ->
-                    change.consume()
-                    if (gestureHandled) return@detectVerticalDragGestures
-                    accumulatedDragY += dragAmount
-                    when {
-                        accumulatedDragY < -BOTTOM_BAR_SWIPE_THRESHOLD_PX -> {
-                            if (bottomBarSwipeUpEnabled) currentOnLauncherSwipeUp()
-                            gestureHandled = true
-                        }
-                        accumulatedDragY > BOTTOM_BAR_SWIPE_THRESHOLD_PX -> {
-                            currentOnLauncherSwipeDown()
-                            gestureHandled = true
-                        }
-                    }
-                },
-            )
-        }
+    val swipeActions = rememberSearchScreenSwipeActions(
+        state = state,
+        expandedSection = expandedSection,
+        swipeUpAction = swipeUpAction,
+        swipeDownAction = swipeDownAction,
+        swipeUpAliasTarget = swipeUpAliasTarget,
+        swipeDownAliasTarget = swipeDownAliasTarget,
+        homeSwipeUpAction = homeSwipeUpAction,
+        homeSwipeDownAction = homeSwipeDownAction,
+        homeSwipeUpCustomActionJson = homeSwipeUpCustomActionJson,
+        homeSwipeDownCustomActionJson = homeSwipeDownCustomActionJson,
+        homeSwipeUpAliasTarget = homeSwipeUpAliasTarget,
+        homeSwipeDownAliasTarget = homeSwipeDownAliasTarget,
+        onGestureAliasTarget = onGestureAliasTarget,
+        onCloseQuickSearch = onCloseQuickSearch,
+        isImeVisible = isImeVisible,
+        searchFocusRequester = searchFocusRequester,
+        keyboardController = keyboardController,
+    )
+    val onLauncherSwipeUp = swipeActions.onLauncherSwipeUp
+    val onLauncherSwipeDown = swipeActions.onLauncherSwipeDown
+    val bottomBarSwipeModifier = swipeActions.bottomBarSwipeModifier
 
     CompositionLocalProvider(
         LocalSearchColorTheme provides searchColorTheme,
@@ -1596,484 +733,58 @@ internal fun SearchScreenContent(
         // or when a shortcut is detected
         // Fixed search engines section at the bottom (above keyboard, not scrollable)
         // Hide when files or contacts are expanded
-        if (expandedSection == ExpandedSection.NONE) {
-            AnimatedVisibility(
-                    visible =
-                            keyboardSwitchText != null ||
-                                    shouldShowPhoneCallAction ||
-                                    detectedAlarmTime != null ||
-                                    detectedTimerSeconds != null ||
-                                    detectedReminderSchedule != null,
-                    enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
-                    exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top),
-            ) {
-                Row(
-                        modifier =
-                                Modifier.fillMaxWidth()
-                                        .padding(
-                                                top = DesignTokens.SpacingSmall,
-                                                bottom = DesignTokens.SpacingSmall,
-                                        ),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    if (keyboardSwitchText != null) {
-                        KeyboardSwitchPill(
-                                text = keyboardSwitchText,
-                                onClick = onKeyboardSwitchToggle,
-                        )
-                    }
-                    if (shouldShowPhoneCallAction) {
-                        Spacer(modifier = Modifier.size(DesignTokens.SpacingSmall))
-                        PhoneCallPill(
-                                onClick = {
-                                    context.startActivity(
-                                            Intent(Intent.ACTION_DIAL).apply {
-                                                data = Uri.parse("tel:${Uri.encode(state.query)}")
-                                            },
-                                    )
-                                },
-                        )
-                    }
-                    if (detectedAlarmTime != null) {
-                        if (keyboardSwitchText != null || shouldShowPhoneCallAction) {
-                            Spacer(modifier = Modifier.size(DesignTokens.SpacingSmall))
-                        }
-                        SetAlarmPill(
-                                onClick = {
-                                    if (!SetAlarmHandler.launchSetAlarm(context, detectedAlarmTime)) {
-                                        android.widget.Toast.makeText(
-                                                        context,
-                                                        context.getString(R.string.set_alarm_no_clock_app),
-                                                        android.widget.Toast.LENGTH_SHORT,
-                                                )
-                                                .show()
-                                    }
-                                },
-                        )
-                    }
-                    if (detectedTimerSeconds != null) {
-                        if (keyboardSwitchText != null ||
-                                        shouldShowPhoneCallAction ||
-                                        detectedAlarmTime != null
-                        ) {
-                            Spacer(modifier = Modifier.size(DesignTokens.SpacingSmall))
-                        }
-                        StartTimerPill(
-                                onClick = {
-                                    val started =
-                                            StartTimerHandler.launchStartTimer(
-                                                    context,
-                                                    detectedTimerSeconds,
-                                            )
-                                    android.widget.Toast.makeText(
-                                                    context,
-                                                    context.getString(
-                                                            if (started) {
-                                                                R.string.start_timer_started
-                                                            } else {
-                                                                R.string.set_alarm_no_clock_app
-                                                            }
-                                                    ),
-                                                    android.widget.Toast.LENGTH_SHORT,
-                                            )
-                                            .show()
-                                },
-                        )
-                        Spacer(modifier = Modifier.size(DesignTokens.SpacingSmall))
-                        SetAlarmPill(
-                                onClick = {
-                                    val alarmTime =
-                                            StartTimerHandler.alarmTimeFor(detectedTimerSeconds)
-                                    if (!SetAlarmHandler.launchSetAlarm(context, alarmTime)) {
-                                        android.widget.Toast.makeText(
-                                                        context,
-                                                        context.getString(R.string.set_alarm_no_clock_app),
-                                                        android.widget.Toast.LENGTH_SHORT,
-                                                )
-                                                .show()
-                                    }
-                                },
-                        )
-                        Spacer(modifier = Modifier.size(DesignTokens.SpacingSmall))
-                        CreateReminderPill(
-                                useShortLabel = true,
-                                onClick = {
-                                    ReminderEditorRequests.openNew(
-                                            initialDateTimeMillis =
-                                                    System.currentTimeMillis() +
-                                                            detectedTimerSeconds * 1000L,
-                                            initialAllDay = false,
-                                            // Duration-only queries have no reminder title, so open directly
-                                            // into the title field for immediate typing.
-                                            autoFocusTitle = true,
-                                    )
-                                },
-                        )
-                    }
-                    if (detectedReminderSchedule != null) {
-                        if (keyboardSwitchText != null ||
-                                        shouldShowPhoneCallAction ||
-                                        detectedAlarmTime != null ||
-                                        detectedTimerSeconds != null
-                        ) {
-                            Spacer(modifier = Modifier.size(DesignTokens.SpacingSmall))
-                        }
-                        CreateReminderPill(
-                                onClick = {
-                                    val schedule = detectedReminderSchedule
-                                    val dateTime = schedule.date.atTime(
-                                            schedule.time ?: java.time.LocalTime.MIDNIGHT,
-                                    )
-                                    ReminderEditorRequests.openNew(
-                                            initialTitle = schedule.title.replaceFirstChar { first ->
-                                                if (first.isLowerCase()) {
-                                                    first.titlecase(Locale.getDefault())
-                                                } else {
-                                                    first.toString()
-                                                }
-                                            },
-                                            initialDateTimeMillis = dateTime
-                                                    .atZone(java.time.ZoneId.systemDefault())
-                                                    .toInstant()
-                                                    .toEpochMilli(),
-                                            initialAllDay = schedule.time == null,
-                                            autoFocusTitle = false,
-                                    )
-                                },
-                        )
-                    }
+        SearchScreenBottomChrome(
+            state = state,
+            expandedSection = expandedSection,
+            keyboardSwitchText = keyboardSwitchText,
+            shouldShowPhoneCallAction = shouldShowPhoneCallAction,
+            detectedAlarmTime = detectedAlarmTime,
+            detectedTimerSeconds = detectedTimerSeconds,
+            detectedReminderSchedule = detectedReminderSchedule,
+            onKeyboardSwitchToggle = onKeyboardSwitchToggle,
+            isSearchHistoryExpanded = isSearchHistoryExpanded,
+            overlayCardColor = overlayCardColor,
+            overlayDividerTint = overlayDividerTint,
+            overlayActionTint = overlayActionTint,
+            isAiFollowUpInputVisible = isAiFollowUpInputVisible,
+            aiFollowUpText = aiFollowUpText,
+            onAiFollowUpTextChange = { aiFollowUpText = it },
+            onAiFollowUpInputVisibilityChange = { isAiFollowUpInputVisible = it },
+            onAiFollowUpSubmit = onAiFollowUpSubmit,
+            useInsetEngineStrip = useInsetEngineStrip,
+            insetEngineStripOverlap = insetEngineStripOverlap,
+            insetEngineStripFullBleedFraction = insetEngineStripFullBleedFraction,
+            searchEnginesModifier = searchEnginesModifier,
+            bottomBarSwipeModifier = bottomBarSwipeModifier,
+            enabledTargets = enabledTargets,
+            onSearchTargetClick = onSearchTargetClick,
+            onSearchEngineLongPress = onSearchEngineLongPress,
+            searchEngineScrollState = searchEngineScrollState,
+            onClearDetectedShortcut = onClearDetectedShortcut,
+            predictedTargetForIndicator = predictedTargetForIndicator,
+            activeToolCardConfig = activeToolCardConfig,
+            showOnlyToolActionInCompactSection = showOnlyToolActionInCompactSection,
+            shouldRenderInlineNumberKeyboardOperators = shouldRenderInlineNumberKeyboardOperators,
+            showBottomSearchBar = showBottomSearchBar,
+            isOverlayPresentation = isOverlayPresentation,
+            onQueryChanged = onQueryChanged,
+            showSearchField = showSearchField,
+            searchFieldContent = searchFieldContent,
+            shouldShowOpenKeyboardAction = shouldShowOpenKeyboardAction,
+            delayedOpenKeyboardActionVisible = delayedOpenKeyboardActionVisible,
+            hideOpenKeyboardActionInstantly = hideOpenKeyboardActionInstantly,
+            openKeyboardText = openKeyboardText,
+            onVoiceClick = onVoiceClick,
+            onOpenKeyboardActionClicked = {
+                hideOpenKeyboardActionInstantly = true
+                delayedOpenKeyboardActionVisible = false
+                searchFocusRequester.requestFocus()
+                openKeyboardActionScope.launch {
+                    withFrameNanos { }
+                    keyboardController?.show()
                 }
-            }
-
-            if (!isSearchHistoryExpanded) {
-                CompositionLocalProvider(
-                        LocalOverlayResultCardColor provides overlayCardColor,
-                        LocalOverlayDividerColor provides overlayDividerTint,
-                        LocalOverlayActionColor provides overlayActionTint,
-                ) {
-                    if (isAiFollowUpInputVisible) {
-                        AiFollowUpInputSection(
-                                value = aiFollowUpText,
-                                onValueChange = { aiFollowUpText = it },
-                                onSend = {
-                                    val followUp = aiFollowUpText.trim()
-                                    if (followUp.isNotEmpty()) {
-                                        isAiFollowUpInputVisible = false
-                                        aiFollowUpText = ""
-                                        onAiFollowUpSubmit(followUp)
-                                    }
-                                },
-                                showWallpaperBackground = state.showWallpaperBackground,
-                                useInsetContainer = useInsetEngineStrip,
-                                insetOverlap = insetEngineStripOverlap,
-                                insetFullBleedFraction = insetEngineStripFullBleedFraction,
-                                modifier = searchEnginesModifier,
-                        )
-                    } else {
-                        AnimatedContent(
-                            targetState = state.searchEnginesState,
-                            modifier = Modifier.fillMaxWidth().then(bottomBarSwipeModifier),
-                            contentKey = { it::class },
-                            transitionSpec = {
-                                if (
-                                    state.oneHandedMode &&
-                                        (initialState is SearchEnginesVisibility.Compact ||
-                                            targetState is SearchEnginesVisibility.Compact)
-                                ) {
-                                    val enterTransition =
-                                        if (targetState is SearchEnginesVisibility.Compact) {
-                                            fadeIn(
-                                                animationSpec =
-                                                    tween(
-                                                        durationMillis =
-                                                            ONE_HANDED_COMPACT_ENGINES_FADE_IN_DURATION_MS,
-                                                        delayMillis =
-                                                            ONE_HANDED_COMPACT_ENGINES_FADE_IN_DELAY_MS,
-                                                    ),
-                                            ) +
-                                                expandVertically(
-                                                    expandFrom = Alignment.Bottom,
-                                                    animationSpec =
-                                                        tween(
-                                                            durationMillis =
-                                                                ONE_HANDED_COMPACT_ENGINES_REFLOW_DURATION_MS,
-                                                            easing = FastOutSlowInEasing,
-                                                        ),
-                                                )
-                                        } else {
-                                            EnterTransition.None
-                                        }
-                                    val exitTransition =
-                                        if (initialState is SearchEnginesVisibility.Compact) {
-                                            fadeOut(
-                                                animationSpec =
-                                                    tween(
-                                                        durationMillis =
-                                                            ONE_HANDED_COMPACT_ENGINES_FADE_OUT_DURATION_MS,
-                                                    ),
-                                            ) +
-                                                shrinkVertically(
-                                                    shrinkTowards = Alignment.Bottom,
-                                                    animationSpec =
-                                                        tween(
-                                                            durationMillis =
-                                                                ONE_HANDED_COMPACT_ENGINES_REFLOW_DURATION_MS,
-                                                            easing = FastOutSlowInEasing,
-                                                        ),
-                                                )
-                                        } else {
-                                            ExitTransition.None
-                                        }
-                                    enterTransition
-                                        .togetherWith(exitTransition)
-                                        .using(
-                                            SizeTransform(clip = false) { _, _ ->
-                                                tween(
-                                                    durationMillis =
-                                                        ONE_HANDED_COMPACT_ENGINES_REFLOW_DURATION_MS,
-                                                    easing = FastOutSlowInEasing,
-                                                )
-                                            },
-                                        )
-                                } else {
-                                    (EnterTransition.None togetherWith ExitTransition.None)
-                                        .using(null)
-                                }
-                            },
-                            label = "oneHandedCompactSearchEnginesReflow",
-                        ) { animatedEnginesState ->
-                            SearchEnginesVisibility(
-                                enginesState = animatedEnginesState,
-                            compactContent = {
-                                SearchEngineIconsSection(
-                                        query = state.query,
-                                        enabledEngines = enabledTargets,
-                                        onSearchEngineClick = onSearchTargetClick,
-                                        onSearchEngineLongPress = onSearchEngineLongPress,
-                                        externalScrollState = searchEngineScrollState,
-                                        detectedShortcutTarget = state.detectedShortcutTarget,
-                                        onClearDetectedShortcut = onClearDetectedShortcut,
-                                        showWallpaperBackground = state.showWallpaperBackground,
-                                        compactRowCount = state.searchEngineCompactRowCount,
-                                        predictedTarget = predictedTargetForIndicator,
-                                        appIconShape = state.appIconShape,
-                                        iconPackPackage = state.selectedIconPackPackage,
-                                        toolActionLabel = activeToolCardConfig?.label,
-                                        toolActionIcon = activeToolCardConfig?.icon,
-                                        toolActionAppIconPackage = activeToolCardConfig?.appIconPackage,
-                                        onToolActionClick = activeToolCardConfig?.onClick,
-                                        showOnlyToolAction = showOnlyToolActionInCompactSection,
-                                        useInsetContainer = useInsetEngineStrip,
-                                        insetOverlap = insetEngineStripOverlap,
-                                        insetFullBleedFraction = insetEngineStripFullBleedFraction,
-                                )
-                            },
-                            fullContent = {
-                                SearchEngineIconsSection(
-                                        query = state.query,
-                                        enabledEngines = enabledTargets,
-                                        onSearchEngineClick = onSearchTargetClick,
-                                        onSearchEngineLongPress = onSearchEngineLongPress,
-                                        externalScrollState = searchEngineScrollState,
-                                        detectedShortcutTarget = state.detectedShortcutTarget,
-                                        onClearDetectedShortcut = onClearDetectedShortcut,
-                                        showWallpaperBackground = state.showWallpaperBackground,
-                                        compactRowCount = 1,
-                                        predictedTarget = predictedTargetForIndicator,
-                                        appIconShape = state.appIconShape,
-                                        iconPackPackage = state.selectedIconPackPackage,
-                                )
-                            },
-                            shortcutContent = { target ->
-                                SearchEngineIconsSection(
-                                        query = state.query,
-                                        enabledEngines = enabledTargets,
-                                        onSearchEngineClick = onSearchTargetClick,
-                                        onSearchEngineLongPress = onSearchEngineLongPress,
-                                        externalScrollState = searchEngineScrollState,
-                                        detectedShortcutTarget = target,
-                                        onClearDetectedShortcut = onClearDetectedShortcut,
-                                        showWallpaperBackground = state.showWallpaperBackground,
-                                        compactRowCount = 1,
-                                        predictedTarget = predictedTargetForIndicator,
-                                        appIconShape = state.appIconShape,
-                                        iconPackPackage = state.selectedIconPackPackage,
-                                )
-                            },
-                            hiddenContent = {
-                                if (activeToolCardConfig != null) {
-                                    SearchEngineIconsSection(
-                                            modifier = searchEnginesModifier,
-                                            query = state.query,
-                                            enabledEngines = enabledTargets,
-                                            onSearchEngineClick = onSearchTargetClick,
-                                            onSearchEngineLongPress = onSearchEngineLongPress,
-                                            externalScrollState = searchEngineScrollState,
-                                            detectedShortcutTarget = state.detectedShortcutTarget,
-                                            onClearDetectedShortcut = onClearDetectedShortcut,
-                                            showWallpaperBackground = state.showWallpaperBackground,
-                                            compactRowCount = state.searchEngineCompactRowCount,
-                                            predictedTarget = predictedTargetForIndicator,
-                                            appIconShape = state.appIconShape,
-                                            iconPackPackage = state.selectedIconPackPackage,
-                                            toolActionLabel = activeToolCardConfig.label,
-                                            toolActionIcon = activeToolCardConfig.icon,
-                                            toolActionAppIconPackage = activeToolCardConfig.appIconPackage,
-                                            onToolActionClick = activeToolCardConfig.onClick,
-                                            showOnlyToolAction = true,
-                                            useInsetContainer = useInsetEngineStrip,
-                                            insetOverlap = insetEngineStripOverlap,
-                                            insetFullBleedFraction = insetEngineStripFullBleedFraction,
-                                    )
-                                } else {
-                                    // Add padding when search engines are hidden to prevent keyboard from
-                                    // covering content
-                                    Spacer(modifier = searchEnginesModifier)
-                                }
-                            },
-                            )
-                        }
-                    }
-                }
-            }
-
-            Box(modifier = Modifier.fillMaxWidth().extendToScreenEdges()) {
-                androidx.compose.animation.AnimatedVisibility(
-                        visible = shouldRenderInlineNumberKeyboardOperators && !showBottomSearchBar,
-                        modifier = Modifier.fillMaxWidth(),
-                        enter =
-                                fadeIn(animationSpec = tween(durationMillis = 180)) +
-                                        expandVertically(
-                                                expandFrom = Alignment.Bottom,
-                                                animationSpec = tween(durationMillis = 220),
-                                        ),
-                        exit =
-                                fadeOut(animationSpec = tween(durationMillis = 130)) +
-                                        shrinkVertically(
-                                                shrinkTowards = Alignment.Bottom,
-                                                animationSpec = tween(durationMillis = 180),
-                                        ),
-                ) {
-                    NumberKeyboardOperatorPills(
-                            modifier = Modifier.imePadding(),
-                            isOverlayPresentation = isOverlayPresentation,
-                            extendToScreenEdges = false,
-                            showWallpaperBackground = state.showWallpaperBackground,
-                            onOperatorClick = { operator ->
-                                onQueryChanged(state.query + operator)
-                            },
-                    )
-                }
-            }
-        }
-
-        if (showSearchField && showBottomSearchBar) {
-            // The compact engine strip carries its own rounded background, so the search bar
-            // stays transparent over the wallpaper instead of sitting on a full-bleed band.
-            Box(modifier = Modifier.fillMaxWidth().then(bottomBarSwipeModifier)) {
-                searchFieldContent()
-            }
-            if (useInsetEngineStrip) {
-                // Keeps the pills below from sitting flush against the card's bottom edge. Without
-                // the pills it collapses as the card goes full bleed so the card meets the keyboard.
-                val showsNumberKeyboardPills =
-                        expandedSection == ExpandedSection.NONE &&
-                                shouldRenderInlineNumberKeyboardOperators
-                val gapFraction =
-                        if (showsNumberKeyboardPills) 0f else insetEngineStripFullBleedFraction
-                Spacer(modifier = Modifier.height(DesignTokens.SpacingSmall * (1f - gapFraction)))
-            }
-
-            Box(modifier = Modifier.fillMaxWidth().extendToScreenEdges()) {
-                androidx.compose.animation.AnimatedVisibility(
-                        visible =
-                                expandedSection == ExpandedSection.NONE &&
-                                        shouldRenderInlineNumberKeyboardOperators,
-                        modifier = Modifier.fillMaxWidth(),
-                        enter =
-                                fadeIn(animationSpec = tween(durationMillis = 180)) +
-                                        expandVertically(
-                                                expandFrom = Alignment.Bottom,
-                                                animationSpec = tween(durationMillis = 220),
-                                        ),
-                        exit =
-                                fadeOut(animationSpec = tween(durationMillis = 130)) +
-                                        shrinkVertically(
-                                                shrinkTowards = Alignment.Bottom,
-                                                animationSpec = tween(durationMillis = 180),
-                                        ),
-                ) {
-                    NumberKeyboardOperatorPills(
-                            modifier = Modifier.imePadding(),
-                            isOverlayPresentation = isOverlayPresentation,
-                            extendToScreenEdges = false,
-                            showWallpaperBackground = state.showWallpaperBackground,
-                            onOperatorClick = { operator ->
-                                onQueryChanged(state.query + operator)
-                            },
-                    )
-                }
-            }
-        }
-
-        Box(modifier = Modifier.fillMaxWidth().extendToScreenEdges()) {
-            androidx.compose.animation.AnimatedVisibility(
-                    visible = shouldShowOpenKeyboardAction && delayedOpenKeyboardActionVisible,
-                    modifier = Modifier.fillMaxWidth(),
-                    enter =
-                            fadeIn(animationSpec = tween(durationMillis = 180)) +
-                                    expandVertically(
-                                            expandFrom = Alignment.Bottom,
-                                            animationSpec = tween(durationMillis = 220),
-                                    ),
-                    exit =
-                            if (hideOpenKeyboardActionInstantly) {
-                                ExitTransition.None
-                            } else {
-                                fadeOut(animationSpec = tween(durationMillis = 130)) +
-                                        shrinkVertically(
-                                                shrinkTowards = Alignment.Bottom,
-                                                animationSpec = tween(durationMillis = 180),
-                                        )
-                            },
-            ) {
-                OpenKeyboardAction(
-                        text = openKeyboardText,
-                        onVoiceClick = onVoiceClick,
-                        showWallpaperBackground = state.showWallpaperBackground,
-                        // Keep the Open Keyboard surface in the same vertical-swipe path as
-                        // the fixed search field and engine strip. This routes configured
-                        // keyboard gestures first, then the regular Home swipe actions.
-                        modifier = Modifier.fillMaxWidth().then(bottomBarSwipeModifier),
-                        onClick = {
-                            hideOpenKeyboardActionInstantly = true
-                            delayedOpenKeyboardActionVisible = false
-                            searchFocusRequester.requestFocus()
-                            openKeyboardActionScope.launch {
-                                withFrameNanos { }
-                                keyboardController?.show()
-                            }
-                        },
-                )
-            }
-        }
+            },
+        )
     }
     } 
-}
-
-/**
- * True when every character could belong to a calculator expression: digits, whitespace, or one of
- * the operators the number keyboard offers. Deliberately stricter than "contains no letters" so
- * punctuation that only shows up in non-arithmetic queries (a time's colon, a URL's slash-slash)
- * does not offer the number keyboard.
- */
-private fun String.isCalculatorStyleQuery(): Boolean =
-        isNotEmpty() && all { it.isDigit() || it.isWhitespace() || it in CALCULATOR_QUERY_CHARS }
-
-private const val CALCULATOR_QUERY_CHARS = "+-*/×÷()[].,%^"
-
-private fun String.isPhoneNumberQuery(): Boolean {
-    val digits = if (startsWith('+')) drop(1) else this
-    return digits.length >= 3 && digits.all(Char::isDigit)
 }
