@@ -1,6 +1,6 @@
 - New At a Glance section on Home shows useful information when it matters. Currently supports today’s calendar events, upcoming reminders and timers, media controls, and low battery warnings.
 - Create reminders directly from search. Example: Laundry in 2 hrs
-- Pin widgets to Home by long-pressing them in the Widgets panel.
+- Add widgets to Home by long-pressing in home empty area.
 - Create app folders in Pinned Apps by dragging one app onto another.
 - New optional ways to launch Quick Search: a system-wide edge swipe gesture and a floating button.
 - New Media Controls Widget and custom widget buttons for media controls.
