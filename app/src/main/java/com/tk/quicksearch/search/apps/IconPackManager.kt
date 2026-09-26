@@ -539,14 +539,16 @@ object IconPackManager {
 
         val iconLayer = Bitmap.createBitmap(targetSize, targetSize, Bitmap.Config.ARGB_8888)
         val iconCanvas = Canvas(iconLayer)
-        val iconSize = (targetSize * renderData.scaleFactor).toInt().coerceIn(1, targetSize)
+        // Factors above 1 enlarge the icon past the canvas; the canvas clips it, matching KISS/Kvaesitso.
+        val iconSize = (targetSize * renderData.scaleFactor).toInt().coerceAtLeast(1)
         val iconOffset = (targetSize - iconSize) / 2
 
         appDrawable.setBounds(iconOffset, iconOffset, iconOffset + iconSize, iconOffset + iconSize)
         appDrawable.draw(iconCanvas)
 
         if (maskDrawable != null) {
-            val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_IN) }
+            // ADW/Nova convention: opaque mask pixels are cut out of the icon.
+            val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_OUT) }
             // Render mask into an owned bitmap buffer so recycling cannot affect shared resource bitmaps.
             val maskBitmap = Bitmap.createBitmap(targetSize, targetSize, Bitmap.Config.ARGB_8888)
             val maskCanvas = Canvas(maskBitmap)
