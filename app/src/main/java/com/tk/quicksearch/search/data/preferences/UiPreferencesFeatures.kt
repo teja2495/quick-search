@@ -348,6 +348,13 @@ open class UiPreferencesFeatures(context: Context) : UiPreferencesCore(context) 
         setBooleanPref(UiPreferences.KEY_INCLUDE_NON_LAUNCHABLE_APPS_IN_SEARCH, enabled)
     }
 
+    fun shouldIncludeArchivedAppsInSearch(): Boolean =
+            getBooleanPref(UiPreferences.KEY_INCLUDE_ARCHIVED_APPS_IN_SEARCH, true)
+
+    fun setIncludeArchivedAppsInSearch(enabled: Boolean) {
+        setBooleanPref(UiPreferences.KEY_INCLUDE_ARCHIVED_APPS_IN_SEARCH, enabled)
+    }
+
     fun shouldShowInRecents(): Boolean =
             getBooleanPref(UiPreferences.KEY_SHOW_IN_RECENTS, false)
 

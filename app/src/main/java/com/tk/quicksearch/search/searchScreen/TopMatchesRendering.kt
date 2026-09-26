@@ -491,7 +491,7 @@ private fun TopMatchAppRow(
                                 params.onAppClick(app)
                             }
                         },
-                        onLongClick = { showOptions = true },
+                        onLongClick = if (app.isArchived) null else ({ showOptions = true }),
                     )
                     .topPredictedRowContentPadding()
                     .padding(vertical = 12.dp),

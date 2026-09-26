@@ -276,6 +276,7 @@ data class SearchUiConfigState(
         val appSuggestionsEnabled: Boolean = true,
         val showAllAppsButton: Boolean = false,
         val includeNonLaunchableAppsInSearch: Boolean = false,
+        val includeArchivedAppsInSearch: Boolean = true,
         val showInRecents: Boolean = false,
         val notificationDotsEnabled: Boolean = false,
         val selectedAppSuggestionTab: AppSuggestionTabType = AppSuggestionTabType.RECENTS,

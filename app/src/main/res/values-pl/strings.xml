@@ -309,6 +309,8 @@
     <string name="open_top_result_using_keyboard_toggle_desc">Klawisz Enter/Gotowe na klawiaturze otworzy najlepszy wynik</string>
     <string name="include_non_launchable_apps_toggle_title">Aplikacje bez widoku uruchamiania</string>
     <string name="include_non_launchable_apps_toggle_desc">Uwzględniaj w wynikach wyszukiwania aplikacje, które nie mają aktywności uruchamiania.</string>
+    <string name="include_archived_apps_toggle_title">Zarchiwizowane aplikacje</string>
+    <string name="include_archived_apps_toggle_desc">Uwzględniaj zarchiwizowane aplikacje w wynikach wyszukiwania</string>
     <string name="notification_dots_toggle_title">Kropki powiadomień</string>
     <string name="notification_dots_toggle_desc">Pokazuj kropki powiadomień na aplikacjach, które mają powiadomienia</string>
     <string name="desc_notification_dot">Ma powiadomienia</string>

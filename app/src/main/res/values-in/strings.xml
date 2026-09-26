@@ -309,6 +309,8 @@
     <string name="open_top_result_using_keyboard_toggle_desc">Tombol Enter/Selesai pada keyboard akan membuka hasil teratas</string>
     <string name="include_non_launchable_apps_toggle_title">Aplikasi Tanpa Peluncur</string>
     <string name="include_non_launchable_apps_toggle_desc">Sertakan aplikasi yang tidak memiliki aktivitas peluncuran dalam hasil pencarian.</string>
+    <string name="include_archived_apps_toggle_title">Aplikasi yang Diarsipkan</string>
+    <string name="include_archived_apps_toggle_desc">Sertakan aplikasi yang diarsipkan dalam hasil pencarian</string>
     <string name="notification_dots_toggle_title">Titik Notifikasi</string>
     <string name="notification_dots_toggle_desc">Tampilkan titik notifikasi pada aplikasi yang memiliki notifikasi</string>
     <string name="desc_notification_dot">Ada notifikasi</string>

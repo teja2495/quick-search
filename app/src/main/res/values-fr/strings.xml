@@ -308,6 +308,8 @@
     <string name="open_top_result_using_keyboard_toggle_desc">La touche Entrée/Terminé ouvrira le premier résultat</string>
 <string name="include_non_launchable_apps_toggle_title">Applications non lançables</string>
 <string name="include_non_launchable_apps_toggle_desc">Inclure les applications sans activité de lancement dans les résultats de recherche.</string>
+<string name="include_archived_apps_toggle_title">Applications archivées</string>
+<string name="include_archived_apps_toggle_desc">Inclure les applications archivées dans les résultats de recherche</string>
     <string name="notification_dots_toggle_title">Points de notification</string>
     <string name="notification_dots_toggle_desc">Afficher des points de notification sur les applications qui ont des notifications</string>
     <string name="desc_notification_dot">A des notifications</string>

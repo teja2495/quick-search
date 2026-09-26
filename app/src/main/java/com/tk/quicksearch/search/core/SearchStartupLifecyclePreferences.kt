@@ -176,6 +176,7 @@ internal fun SearchStartupLifecycleDelegate.initializeWithCacheMinimal(
                 showAllAppsButton = userPreferences.shouldShowAllAppsButton(),
                 includeNonLaunchableAppsInSearch =
                     userPreferences.shouldIncludeNonLaunchableAppsInSearch(),
+                includeArchivedAppsInSearch = userPreferences.shouldIncludeArchivedAppsInSearch(),
                 selectedAppSuggestionTab = userPreferences.getSelectedAppSuggestionTab(),
                 enabledAppSuggestionTabs = userPreferences.getEnabledAppSuggestionTabs(),
                 showAppLabels = labelsEnabled,

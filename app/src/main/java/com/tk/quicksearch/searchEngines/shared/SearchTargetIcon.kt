@@ -71,6 +71,8 @@ fun SearchTargetIcon(
                             packageName = packageName,
                             iconPackPackage = iconPackPackage,
                             forceCircularMask = appIconShape == AppIconShape.CIRCLE,
+                            // An archived engine app can't handle searches, so show the engine icon.
+                            includeArchived = false,
                         )
                 }
             val appIconBitmap = iconCandidates.firstOrNull { it.second.bitmap != null }?.second?.bitmap

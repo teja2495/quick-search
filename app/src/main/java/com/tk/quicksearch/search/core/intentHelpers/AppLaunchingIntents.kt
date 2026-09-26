@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.LauncherApps
 import android.os.UserManager
+import android.provider.Settings
 import android.util.Log
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.utils.UserHandleUtils
@@ -26,6 +27,7 @@ internal object AppLaunchingIntents {
                 return
             }
 
+            if (appInfo.isArchived && tryOpenAppInfo(context, appInfo)) return
             onShowToast?.invoke(R.string.common_error_unable_to_open, appInfo.appName)
             return
         }
@@ -52,9 +54,27 @@ internal object AppLaunchingIntents {
         runCatching { context.startActivity(launchIntent) }
             .onFailure { throwable ->
                 Log.w(TAG, "Failed to launch ${appInfo.packageName}", throwable)
+                // Launching an archived app asks the system to restore it, which some builds only
+                // allow for certain launchers. App info still offers the system's restore action.
+                if (appInfo.isArchived && tryOpenAppInfo(context, appInfo)) return@onFailure
                 onShowToast?.invoke(R.string.common_error_unable_to_open, appInfo.appName)
             }
     }
+
+    private fun tryOpenAppInfo(
+        context: Context,
+        appInfo: AppInfo,
+    ): Boolean =
+        runCatching {
+            context.startActivity(
+                IntentUtils.createPackageIntent(
+                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    appInfo.packageName,
+                ),
+            )
+        }.onFailure { throwable ->
+            Log.w(TAG, "Failed to open app info for ${appInfo.packageName}", throwable)
+        }.isSuccess
 
     private fun tryLaunchWithLauncherApps(
         context: Context,

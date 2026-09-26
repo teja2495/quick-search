@@ -1,11 +1,13 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import android.os.Build
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Apps
+import androidx.compose.material.icons.rounded.Archive
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Keyboard
@@ -45,7 +47,7 @@ fun MoreOptionsSettings(
             )
         }
     val appToggleItems =
-        listOf(
+        listOfNotNull(
             ToggleItem(
                 key = AppSettingsToggleKey.NOTIFICATION_DOTS,
                 titleRes = R.string.notification_dots_toggle_title,
@@ -64,6 +66,13 @@ fun MoreOptionsSettings(
                 subtitleRes = R.string.include_non_launchable_apps_toggle_desc,
                 leadingIcon = Icons.Rounded.Apps,
             ),
+            // Android archives apps starting with Android 15.
+            ToggleItem(
+                key = AppSettingsToggleKey.INCLUDE_ARCHIVED_APPS_IN_SEARCH,
+                titleRes = R.string.include_archived_apps_toggle_title,
+                subtitleRes = R.string.include_archived_apps_toggle_desc,
+                leadingIcon = Icons.Rounded.Archive,
+            ).takeIf { Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM },
         )
     val otherToggleItems =
         listOf(

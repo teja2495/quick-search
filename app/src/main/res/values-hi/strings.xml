@@ -308,6 +308,8 @@
     <string name="open_top_result_using_keyboard_toggle_desc">कीबोर्ड की Enter/Done कुंजी शीर्ष परिणाम खोलेगी</string>
     <string name="include_non_launchable_apps_toggle_title">लॉन्च न होने वाले ऐप्स</string>
     <string name="include_non_launchable_apps_toggle_desc">खोज परिणामों में उन ऐप्स को शामिल करें जिनमें कोई लॉन्च गतिविधि नहीं है।</string>
+    <string name="include_archived_apps_toggle_title">संग्रहीत ऐप्स</string>
+    <string name="include_archived_apps_toggle_desc">खोज परिणामों में संग्रहीत ऐप्स शामिल करें</string>
     <string name="notification_dots_toggle_title">नोटिफ़िकेशन डॉट्स</string>
     <string name="notification_dots_toggle_desc">जिन ऐप्स पर नोटिफ़िकेशन हैं उन पर नोटिफ़िकेशन डॉट्स दिखाएँ</string>
     <string name="desc_notification_dot">नोटिफ़िकेशन हैं</string>

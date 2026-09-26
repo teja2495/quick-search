@@ -307,6 +307,8 @@
     <string name="open_top_result_using_keyboard_toggle_desc">Il tasto Invio/Fine della tastiera aprirà il miglior risultato</string>
     <string name="include_non_launchable_apps_toggle_title">App non avviabili</string>
     <string name="include_non_launchable_apps_toggle_desc">Includi le app che non hanno un\'attività di avvio nei risultati di ricerca.</string>
+    <string name="include_archived_apps_toggle_title">App archiviate</string>
+    <string name="include_archived_apps_toggle_desc">Includi le app archiviate nei risultati di ricerca</string>
     <string name="notification_dots_toggle_title">Pallini di notifica</string>
     <string name="notification_dots_toggle_desc">Mostra i pallini di notifica sulle app che hanno notifiche</string>
     <string name="desc_notification_dot">Ha notifiche</string>

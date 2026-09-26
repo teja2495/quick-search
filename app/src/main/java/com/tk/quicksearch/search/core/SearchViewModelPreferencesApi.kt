@@ -68,6 +68,9 @@ internal interface SearchViewModelPreferencesApi {
     fun setIncludeNonLaunchableAppsInSearch(enabled: Boolean) =
         preferencesApiDelegate.setIncludeNonLaunchableAppsInSearch(enabled)
 
+    fun setIncludeArchivedAppsInSearch(enabled: Boolean) =
+        preferencesApiDelegate.setIncludeArchivedAppsInSearch(enabled)
+
     fun setShowInRecents(enabled: Boolean) = preferencesApiDelegate.setShowInRecents(enabled)
 
     fun setNotificationDotsEnabled(enabled: Boolean) =
@@ -370,6 +373,9 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
 
     fun setIncludeNonLaunchableAppsInSearch(enabled: Boolean) =
         preferencesDelegate.setIncludeNonLaunchableAppsInSearch(enabled)
+
+    fun setIncludeArchivedAppsInSearch(enabled: Boolean) =
+        preferencesDelegate.setIncludeArchivedAppsInSearch(enabled)
 
     fun setShowInRecents(enabled: Boolean) = preferencesDelegate.setShowInRecents(enabled)
 

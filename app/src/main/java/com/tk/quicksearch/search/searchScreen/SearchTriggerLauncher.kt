@@ -40,7 +40,8 @@ internal fun openMatchingSearchTrigger(
         (state.allApps + renderingState.displayApps)
             .distinctBy { it.launchCountKey() }
             .firstOrNull { app ->
-                appsParams.getAppTrigger(app.packageName)?.let { trigger ->
+                // Archived apps keep their trigger, but it only works again once they're restored.
+                !app.isArchived && appsParams.getAppTrigger(app.packageName)?.let { trigger ->
                     matchesTrigger(query, trigger.word, trigger.triggerAfterSpace)
                 } == true
             }?.let { app ->

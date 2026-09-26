@@ -249,7 +249,7 @@ internal fun AllAppsDialogGridItem(
                                             hapticConfirm(view)()
                                             onClick()
                                         },
-                                        onLongClick = { showOptions = true },
+                                        onLongClick = if (app.isArchived) null else ({ showOptions = true }),
                                 )
                                 .padding(
                                         horizontal = DesignTokens.SpacingXSmall,

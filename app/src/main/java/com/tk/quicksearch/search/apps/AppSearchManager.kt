@@ -105,6 +105,7 @@ class AppSearchManager(
         runCatching {
             repository.loadLaunchableApps(
                 includeNonLaunchableApps = userPreferences.shouldIncludeNonLaunchableAppsInSearch(),
+                includeArchivedApps = userPreferences.shouldIncludeArchivedAppsInSearch(),
                 launchCounts = launchCounts,
             )
         }
@@ -271,6 +272,7 @@ class AppSearchManager(
             hidden.contains(app.launchCountKey()) ||
                 hidden.contains(app.packageName) ||
                 !app.hasLaunchIntent ||
+                app.isArchived ||
                 app.packageName == currentPackageName ||
                 app.packageName == defaultLauncherPackageName
         }

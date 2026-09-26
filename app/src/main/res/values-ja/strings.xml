@@ -309,6 +309,8 @@
     <string name="open_top_result_using_keyboard_toggle_desc">キーボードのEnter/完了キーで最上位の結果を開きます</string>
     <string name="include_non_launchable_apps_toggle_title">起動アクティビティのないアプリ</string>
     <string name="include_non_launchable_apps_toggle_desc">起動アクティビティを持たないアプリを検索結果に含めます。</string>
+    <string name="include_archived_apps_toggle_title">アーカイブ済みのアプリ</string>
+    <string name="include_archived_apps_toggle_desc">アーカイブ済みのアプリを検索結果に含めます</string>
     <string name="notification_dots_toggle_title">通知ドット</string>
     <string name="notification_dots_toggle_desc">通知のあるアプリに通知ドットを表示</string>
     <string name="desc_notification_dot">通知あり</string>

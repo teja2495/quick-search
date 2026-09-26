@@ -91,6 +91,7 @@ internal suspend fun SearchStartupLifecycleDelegate.loadCacheAndMinimalPrefs() {
             runCatching {
                 repository.loadCachedApps(
                     includeNonLaunchableApps = userPreferences.shouldIncludeNonLaunchableAppsInSearch(),
+                    includeArchivedApps = userPreferences.shouldIncludeArchivedAppsInSearch(),
                 )
             }.getOrNull()
         val hasUsagePermission = repository.hasUsageAccess()

@@ -116,6 +116,8 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
                 AppSettingsToggleKey.SHOW_ALL_APPS_BUTTON -> setShowAllAppsButton(command.enabled)
                 AppSettingsToggleKey.INCLUDE_NON_LAUNCHABLE_APPS_IN_SEARCH ->
                     setIncludeNonLaunchableAppsInSearch(command.enabled)
+                AppSettingsToggleKey.INCLUDE_ARCHIVED_APPS_IN_SEARCH ->
+                    setIncludeArchivedAppsInSearch(command.enabled)
                 AppSettingsToggleKey.SHOW_IN_RECENTS -> setShowInRecents(command.enabled)
                 AppSettingsToggleKey.NOTIFICATION_DOTS -> setNotificationDotsEnabled(command.enabled)
                 AppSettingsToggleKey.WEB_SUGGESTIONS -> setWebSuggestionsEnabled(command.enabled)
@@ -225,6 +227,7 @@ internal fun SearchUiState.isAppSettingToggleEnabled(toggleKey: AppSettingsToggl
         AppSettingsToggleKey.SHOW_ALL_APPS_BUTTON -> showAllAppsButton
         AppSettingsToggleKey.INCLUDE_NON_LAUNCHABLE_APPS_IN_SEARCH ->
             includeNonLaunchableAppsInSearch
+        AppSettingsToggleKey.INCLUDE_ARCHIVED_APPS_IN_SEARCH -> includeArchivedAppsInSearch
         AppSettingsToggleKey.SHOW_IN_RECENTS -> showInRecents
         AppSettingsToggleKey.NOTIFICATION_DOTS -> notificationDotsEnabled
         AppSettingsToggleKey.WEB_SUGGESTIONS -> webSuggestionsEnabled

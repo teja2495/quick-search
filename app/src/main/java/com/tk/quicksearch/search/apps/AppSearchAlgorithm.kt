@@ -130,7 +130,8 @@ object AppSearchAlgorithm {
         preparedAppData: PreparedAppSearchData,
         canScoreFuzzyCandidate: () -> Boolean,
     ): AppMatch? {
-        val nickname = appNicknames[app.packageName]
+        // Archived apps keep their nickname, but it only matches again once they're restored.
+        val nickname = if (app.isArchived) null else appNicknames[app.packageName]
         val initials = preparedAppData.initials
         val priority =
             AppSearchPolicy.matchPriority(
@@ -177,7 +178,7 @@ object AppSearchAlgorithm {
                 preparedQuery = preparedFuzzyQuery,
                 app = app,
                 searchAliases = app.searchAliases,
-                nickname = appNicknames[app.packageName],
+                nickname = nickname,
                 initials = initials,
             )
 

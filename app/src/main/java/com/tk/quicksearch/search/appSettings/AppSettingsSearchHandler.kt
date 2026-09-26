@@ -102,6 +102,10 @@ class AppSettingsSearchHandler(
             val shouldHideAppResultRows =
                 setting.toggleKey == AppSettingsToggleKey.APP_RESULT_ROWS &&
                     SearchSection.APPS.name in userPreferences.getDisabledSections()
+            // Android archives apps starting with Android 15.
+            val shouldHideArchivedApps =
+                setting.toggleKey == AppSettingsToggleKey.INCLUDE_ARCHIVED_APPS_IN_SEARCH &&
+                    android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM
             val shouldHideAmoledTheme =
                 setting.toggleKey == AppSettingsToggleKey.AMOLED_THEME &&
                     (
@@ -119,6 +123,7 @@ class AppSettingsSearchHandler(
                 !shouldHidePinnedSectionsOrder &&
                 !shouldHideFuzzySearch &&
                 !shouldHideAppResultRows &&
+                !shouldHideArchivedApps &&
                 !shouldHideAmoledTheme
         }
     }

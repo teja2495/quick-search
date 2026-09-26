@@ -308,6 +308,8 @@
     <string name="open_top_result_using_keyboard_toggle_desc">కీబోర్డ్ Enter/Done కీ అగ్ర ఫలితాన్ని తెరుస్తుంది</string>
     <string name="include_non_launchable_apps_toggle_title">ప్రారంభించలేని యాప్‌లు</string>
     <string name="include_non_launchable_apps_toggle_desc">సెర్చ్ ఫలితాలలో లాంచ్ యాక్టివిటీ లేని యాప్‌లను చేర్చండి.</string>
+    <string name="include_archived_apps_toggle_title">ఆర్కైవ్ చేసిన యాప్‌లు</string>
+    <string name="include_archived_apps_toggle_desc">ఆర్కైవ్ చేసిన యాప్‌లను సెర్చ్ ఫలితాలలో చేర్చండి</string>
     <string name="notification_dots_toggle_title">నోటిఫికేషన్ డాట్‌లు</string>
     <string name="notification_dots_toggle_desc">నోటిఫికేషన్‌లు ఉన్న యాప్‌లపై నోటిఫికేషన్ డాట్‌లను చూపించు</string>
     <string name="desc_notification_dot">నోటిఫికేషన్‌లు ఉన్నాయి</string>

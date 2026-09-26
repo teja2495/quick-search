@@ -299,6 +299,8 @@ internal object SearchViewModelInitialStateFactory {
                 showAllAppsButton = startupPreferencesReader.shouldShowAllAppsButton(),
                 includeNonLaunchableAppsInSearch =
                     startupPreferencesReader.shouldIncludeNonLaunchableAppsInSearch(),
+                includeArchivedAppsInSearch =
+                    startupPreferencesReader.shouldIncludeArchivedAppsInSearch(),
                 showInRecents = startupPreferencesReader.shouldShowInRecents(),
                 notificationDotsEnabled =
                     startupPreferencesReader.areNotificationDotsEnabled() &&

@@ -209,7 +209,8 @@ internal fun AppGridItem(
                     monochromeData = iconResult.monochromeData,
                     appName = appInfo.appName,
                     onClick = { if (!showOptions) appActions.onClick() },
-                    onLongClick = if (isDraggable) null else ({ showOptions = true }),
+                    // Archived apps have no app to act on until they are restored.
+                    onLongClick = if (isDraggable || appInfo.isArchived) null else ({ showOptions = true }),
                     gestureModifier =
                             Modifier.appSwipeGestures(appInfo)
                                     .then(dragModifier),

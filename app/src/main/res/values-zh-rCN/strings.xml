@@ -308,6 +308,8 @@
     <string name="open_top_result_using_keyboard_toggle_desc">键盘回车/完成键将打开最佳结果</string>
     <string name="include_non_launchable_apps_toggle_title">不可启动的应用</string>
     <string name="include_non_launchable_apps_toggle_desc">在搜索结果中包含没有启动 Activity 的应用。</string>
+    <string name="include_archived_apps_toggle_title">已归档的应用</string>
+    <string name="include_archived_apps_toggle_desc">在搜索结果中包含已归档的应用</string>
     <string name="notification_dots_toggle_title">通知圆点</string>
     <string name="notification_dots_toggle_desc">在有通知的应用上显示通知圆点</string>
     <string name="desc_notification_dot">有通知</string>

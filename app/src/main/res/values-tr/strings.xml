@@ -307,6 +307,8 @@
 <string name="open_top_result_using_keyboard_toggle_desc">Klavyedeki Enter/Bitti tuşu en iyi sonucu açar</string>
 <string name="include_non_launchable_apps_toggle_title">Başlatılamayan Uygulamalar</string>
 <string name="include_non_launchable_apps_toggle_desc">Arama sonuçlarında başlatma etkinliği olmayan uygulamaları da göster.</string>
+<string name="include_archived_apps_toggle_title">Arşivlenmiş Uygulamalar</string>
+<string name="include_archived_apps_toggle_desc">Arşivlenmiş uygulamaları arama sonuçlarında göster</string>
     <string name="notification_dots_toggle_title">Bildirim noktaları</string>
     <string name="notification_dots_toggle_desc">Bildirimi olan uygulamalarda bildirim noktalarını göster</string>
     <string name="desc_notification_dot">Bildirimleri var</string>

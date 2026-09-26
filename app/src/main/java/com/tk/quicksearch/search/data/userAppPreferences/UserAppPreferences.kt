@@ -40,6 +40,12 @@ class UserAppPreferences(context: Context) : UserAppPreferencesFeatures(context)
     fun setIncludeNonLaunchableAppsInSearch(enabled: Boolean) =
             uiPreferences.setIncludeNonLaunchableAppsInSearch(enabled)
 
+    fun shouldIncludeArchivedAppsInSearch(): Boolean =
+            uiPreferences.shouldIncludeArchivedAppsInSearch()
+
+    fun setIncludeArchivedAppsInSearch(enabled: Boolean) =
+            uiPreferences.setIncludeArchivedAppsInSearch(enabled)
+
     fun shouldShowInRecents(): Boolean = uiPreferences.shouldShowInRecents()
 
     fun setShowInRecents(enabled: Boolean) = uiPreferences.setShowInRecents(enabled)

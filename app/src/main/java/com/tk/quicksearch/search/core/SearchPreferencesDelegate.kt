@@ -193,6 +193,17 @@ internal class SearchPreferencesDelegate(
         )
     }
 
+    fun setIncludeArchivedAppsInSearch(enabled: Boolean) {
+        updateBooleanPreference(
+            value = enabled,
+            preferenceSetter = userPreferences::setIncludeArchivedAppsInSearch,
+            stateUpdater = {
+                updateConfigState { state -> state.copy(includeArchivedAppsInSearch = it) }
+                refreshApps()
+            },
+        )
+    }
+
     fun setShowInRecents(enabled: Boolean) {
         updateBooleanPreference(
             value = enabled,

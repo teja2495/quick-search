@@ -108,8 +108,13 @@ class AppsRepository(
      *
      * @return Cached list of apps, or null if no cache exists
      */
-    fun loadCachedApps(includeNonLaunchableApps: Boolean = false): List<AppInfo>? =
-        appCache.loadCachedApps()?.filter { includeNonLaunchableApps || it.hasLaunchIntent }
+    fun loadCachedApps(
+        includeNonLaunchableApps: Boolean = false,
+        includeArchivedApps: Boolean = true,
+    ): List<AppInfo>? =
+        appCache.loadCachedApps()?.filter {
+            (includeNonLaunchableApps || it.hasLaunchIntent) && (includeArchivedApps || !it.isArchived)
+        }
 
     fun cacheLastUpdatedMillis(): Long = appCache.getLastUpdateTime()
 
@@ -235,11 +240,13 @@ class AppsRepository(
      * Also saves the result to cache for instant loading next time.
      *
      * @param includeNonLaunchableApps Whether to include packages without a launch activity
+     * @param includeArchivedApps Whether to include apps archived by the system (Android 15+)
      * @param launchCounts Map of package name to local launch count
      * @return Apps sorted by usage and name
      */
     suspend fun loadLaunchableApps(
         includeNonLaunchableApps: Boolean = false,
+        includeArchivedApps: Boolean = true,
         launchCounts: Map<String, Int> = emptyMap(),
     ): List<AppInfo> {
         val startedAtElapsedMs = SystemClock.elapsedRealtime()
@@ -250,6 +257,7 @@ class AppsRepository(
         val launchableApps =
             if (profileApps.isNotEmpty()) {
                 profileApps
+                    .filter { includeArchivedApps || !isArchived(it.applicationInfo) }
                     .distinctBy { "${it.applicationInfo.packageName}_${UserHandleUtils.getIdentifier(it.user)}" }
                     .map { createAppInfo(it, usageMap, launchCounts) }
             } else {
@@ -366,6 +374,9 @@ class AppsRepository(
         }
     }
 
+    private fun isArchived(applicationInfo: ApplicationInfo): Boolean =
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM && applicationInfo.isArchived
+
     private fun queryLaunchableAppsLegacy(): List<ResolveInfo> {
         val launcherIntent =
             Intent(Intent.ACTION_MAIN, null).apply {
@@ -479,6 +490,7 @@ class AppsRepository(
             userHandleId = userHandleId,
             componentName = info.componentName.flattenToString(),
             lastUpdateTime = lastUpdateTime,
+            isArchived = isArchived(appInfo),
         )
     }
 

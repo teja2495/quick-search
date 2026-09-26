@@ -553,6 +553,7 @@ internal class SearchStartupLifecycleDelegate(
                 iconPackPackage = userPreferences.getSelectedIconPackPackage(),
                 maxCount = MAX_STARTUP_SEARCH_TARGET_ICON_PACKAGES,
                 forceCircularMask = configStateProvider().appIconShape == AppIconShape.CIRCLE,
+                includeArchived = false,
             )
             updateConfigState { state ->
                 state.copy(

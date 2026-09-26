@@ -303,6 +303,8 @@
     <string name="open_top_result_using_keyboard_toggle_desc">Keyboard enter/done key will open top result</string>
     <string name="include_non_launchable_apps_toggle_title">Non-Launchable Apps</string>
     <string name="include_non_launchable_apps_toggle_desc">Include apps that don’t have a launch activity in search results.</string>
+    <string name="include_archived_apps_toggle_title">Archived Apps</string>
+    <string name="include_archived_apps_toggle_desc">Include archived apps in search results</string>
     <string name="notification_dots_toggle_title">Notification Dots</string>
     <string name="notification_dots_toggle_desc">Show notification dots on apps that have notifications</string>
     <string name="desc_notification_dot">Has notifications</string>

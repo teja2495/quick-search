@@ -103,6 +103,7 @@ internal object StartupHomeSurfaceSnapshotJson {
                 put("lastUpdateTime", app.lastUpdateTime)
                 put("isSystemApp", app.isSystemApp)
                 put("hasLaunchIntent", app.hasLaunchIntent)
+                put("isArchived", app.isArchived)
                 app.userHandleId?.let { put("userHandleId", it) }
                 app.componentName?.let { put("componentName", it) }
             }
@@ -121,6 +122,7 @@ internal object StartupHomeSurfaceSnapshotJson {
                 lastUpdateTime = app.optLong("lastUpdateTime", app.optLong("firstInstallTime")),
                 isSystemApp = app.optBoolean("isSystemApp"),
                 hasLaunchIntent = app.optBoolean("hasLaunchIntent", true),
+                isArchived = app.optBoolean("isArchived", false),
                 userHandleId = app.optInt("userHandleId", -1).takeIf { it >= 0 },
                 componentName = app.stringOrNull("componentName"),
             )

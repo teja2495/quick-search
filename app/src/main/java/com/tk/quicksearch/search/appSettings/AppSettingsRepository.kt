@@ -507,6 +507,13 @@ class AppSettingsRepository(
                 keywords = listOf("app info", "launch activity", "hidden apps"),
             )
             addToggle(
+                id = "app_toggle_include_archived_apps",
+                titleRes = R.string.include_archived_apps_toggle_title,
+                descriptionRes = R.string.include_archived_apps_toggle_desc,
+                toggleKey = AppSettingsToggleKey.INCLUDE_ARCHIVED_APPS_IN_SEARCH,
+                keywords = listOf("archive", "archived", "offload", "restore"),
+            )
+            addToggle(
                 id = "app_toggle_show_in_recents",
                 titleRes = R.string.show_in_recents_toggle_title,
                 descriptionRes = R.string.show_in_recents_toggle_desc,

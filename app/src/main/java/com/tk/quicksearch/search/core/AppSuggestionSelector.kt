@@ -15,6 +15,8 @@ internal class AppSuggestionSelector(
         limit: Int,
         hasUsagePermission: Boolean,
     ): List<AppInfo> {
+        // Archived apps need a restore before they can open, so they aren't useful suggestions.
+        val apps = apps.filterNot { it.isArchived }
         if (apps.isEmpty() || limit <= 0) return emptyList()
 
         val (recentInstallStart, recentInstallEnd) = getRecentInstallWindow()
