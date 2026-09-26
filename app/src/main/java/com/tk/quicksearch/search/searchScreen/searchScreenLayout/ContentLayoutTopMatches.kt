@@ -11,7 +11,7 @@ import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.searchEngines.*
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.search.searchScreen.TopMatchesSection
-import com.tk.quicksearch.search.other.OtherSearchItemId
+import com.tk.quicksearch.search.other.OtherSearchItemActionHandler
 import com.tk.quicksearch.R
 
 @Composable
@@ -25,7 +25,7 @@ internal fun ContentLayoutTopMatches(
     isLocalSearchRefreshing: Boolean,
     selectedTopMatchIndex: Int?,
     isReversed: Boolean,
-    onToggleOtherSearchItemPin: (OtherSearchItemId) -> Unit,
+    onOtherSearchItemAction: OtherSearchItemActionHandler,
     showTopMatches: Boolean,
     hasMoreResults: Boolean,
 ) {
@@ -42,7 +42,7 @@ internal fun ContentLayoutTopMatches(
             screenTimeState = state.screenTimeState,
             pinnedNonAppItemOrder = state.pinnedNonAppItemOrder,
             iconPackPackage = state.selectedIconPackPackage,
-            onToggleOtherSearchItemPin = onToggleOtherSearchItemPin,
+            onOtherSearchItemAction = onOtherSearchItemAction,
             modifier = Modifier.fillMaxWidth(),
         )
         if (showTopMatches && hasMoreResults && !isReversed) {

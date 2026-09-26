@@ -56,6 +56,7 @@ import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
 import com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction
 import com.tk.quicksearch.search.other.OtherSearchItemRegistry
 import com.tk.quicksearch.search.other.OtherSearchItemId
+import com.tk.quicksearch.search.other.OtherSearchItemActionHandler
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
 import com.tk.quicksearch.widgets.customButtonsWidget.WidgetActionActivity
 import com.tk.quicksearch.app.startup.StartupTrace
@@ -95,7 +96,7 @@ internal fun SearchScreenContent(
         onSettingsClick: () -> Unit,
         onAppClick: (com.tk.quicksearch.search.models.AppInfo) -> Unit,
         onRequestUsagePermission: () -> Unit,
-        onToggleOtherSearchItemPin: (OtherSearchItemId) -> Unit,
+        onOtherSearchItemAction: OtherSearchItemActionHandler,
         onSearchTargetClick: (String, SearchTarget) -> Unit,
         onSearchEngineLongPress: () -> Unit,
         onAiSearchEmailClick: (String) -> Unit,
@@ -674,7 +675,7 @@ internal fun SearchScreenContent(
                 predictedTarget = predictedTargetForIndicator,
                 isPhysicalKeyboardConnected = isPhysicalKeyboardConnected,
                 onRequestUsagePermission = onRequestUsagePermission,
-                onToggleOtherSearchItemPin = onToggleOtherSearchItemPin,
+                onOtherSearchItemAction = onOtherSearchItemAction,
                 scrollState = scrollState,
                 onPhoneNumberClick = onPhoneNumberClick,
                 onEmailClick = onAiSearchEmailClick,

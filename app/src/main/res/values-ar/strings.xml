@@ -1158,6 +1158,7 @@
     <string name="excluded_item_type_app_shortcut">اختصارات التطبيقات</string>
     <string name="excluded_item_type_app_suggestions">التطبيقات (الاقتراحات)</string>
     <string name="excluded_item_type_setting">الإعدادات</string>
+    <string name="excluded_item_type_search_result">نتيجة بحث</string>
     <string name="permission_required_title">مطلوب إذن</string>
     <string name="settings_action_clear_all">مسح الكل</string>
     <string name="settings_action_move_down">نقل إلى الأسفل</string>

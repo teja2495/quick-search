@@ -1147,6 +1147,7 @@
     <string name="excluded_item_type_app_shortcut">应用快捷方式</string>
     <string name="excluded_item_type_app_suggestions">应用 (桌面建议)</string>
     <string name="excluded_item_type_setting">设置项</string>
+    <string name="excluded_item_type_search_result">搜索结果</string>
     <string name="permission_required_title">需要相关权限</string>
     <string name="settings_action_clear_all">清除全部</string>
     <string name="settings_action_move_down">移至底部</string>

@@ -611,7 +611,8 @@ fun SearchResultsSettingsSection(
             state.excludedFiles.isNotEmpty() ||
             state.excludedSettings.isNotEmpty() ||
             state.excludedAppShortcuts.isNotEmpty() ||
-            state.excludedFileExtensions.isNotEmpty()
+            state.excludedFileExtensions.isNotEmpty() ||
+            state.excludedOtherItems.isNotEmpty()
 
     val sectionOrder =
         ItemPriorityConfig

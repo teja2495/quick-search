@@ -82,7 +82,7 @@ import com.tk.quicksearch.search.searchHistory.SearchHistoryTab
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlin.math.min
-import com.tk.quicksearch.search.other.OtherSearchItemId
+import com.tk.quicksearch.search.other.OtherSearchItemActionHandler
 import com.tk.quicksearch.widgetsPanel.HomeAddWidgetSheet
 
 /** Renders the scrollable content area with sections based on layout mode. */
@@ -102,7 +102,7 @@ fun SearchContentArea(
     predictedTarget: PredictedSubmitTarget? = null,
     isPhysicalKeyboardConnected: Boolean,
     onRequestUsagePermission: () -> Unit,
-    onToggleOtherSearchItemPin: (OtherSearchItemId) -> Unit,
+    onOtherSearchItemAction: OtherSearchItemActionHandler,
     scrollState: androidx.compose.foundation.ScrollState,
     onPhoneNumberClick: (String) -> Unit = {},
     onEmailClick: (String) -> Unit = {},
@@ -580,7 +580,7 @@ fun SearchContentArea(
                                 predictedTarget = predictedTarget,
                                 isPhysicalKeyboardConnected = isPhysicalKeyboardConnected,
                                 onRequestUsagePermission = onRequestUsagePermission,
-                                onToggleOtherSearchItemPin = onToggleOtherSearchItemPin,
+                                onOtherSearchItemAction = onOtherSearchItemAction,
                                 minContentHeight =
                                     if (isOverlayPresentation) {
                                         0.dp

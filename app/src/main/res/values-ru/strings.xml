@@ -1177,6 +1177,7 @@
 <string name="excluded_item_type_app_shortcut">Ярлык приложения</string>
 <string name="excluded_item_type_app_suggestions">Приложение (в подсказках)</string>
 <string name="excluded_item_type_setting">Настройка</string>
+<string name="excluded_item_type_search_result">Результат поиска</string>
 <string name="permission_required_title">Требуется разрешение</string>
 <string name="settings_action_clear_all">Очистить всё</string>
 <string name="settings_action_move_down">Переместить в самый низ</string>

@@ -1167,6 +1167,7 @@
     <string name="excluded_item_type_app_shortcut">Pintasan Aplikasi</string>
     <string name="excluded_item_type_app_suggestions">Aplikasi (Saran)</string>
     <string name="excluded_item_type_setting">Pengaturan</string>
+    <string name="excluded_item_type_search_result">Hasil Penelusuran</string>
     <string name="permission_required_title">Izin diperlukan</string>
     <string name="settings_action_clear_all">Hapus Semua</string>
     <string name="settings_action_move_down">Pindahkan ke bawah</string>

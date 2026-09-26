@@ -43,7 +43,7 @@ import com.tk.quicksearch.search.searchScreen.RemindersSectionParams
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.search.searchScreen.PinnedNonAppItemsSection
 import com.tk.quicksearch.search.searchScreen.components.SectionPermissionResultCard
-import com.tk.quicksearch.search.other.OtherSearchItemId
+import com.tk.quicksearch.search.other.OtherSearchItemActionHandler
 import com.tk.quicksearch.search.other.OtherSearchItemRegistry
 import com.tk.quicksearch.R
 import com.tk.quicksearch.widgetsPanel.HomeWidgetStack
@@ -67,7 +67,7 @@ fun ContentLayout(
     predictedTarget: PredictedSubmitTarget? = null,
     isPhysicalKeyboardConnected: Boolean,
     onRequestUsagePermission: () -> Unit,
-    onToggleOtherSearchItemPin: (OtherSearchItemId) -> Unit,
+    onOtherSearchItemAction: OtherSearchItemActionHandler,
     minContentHeight: Dp,
     expandedCardMaxHeight: Dp,
     isReversed: Boolean,
@@ -538,7 +538,7 @@ fun ContentLayout(
             isLocalSearchRefreshing = isLocalSearchRefreshing,
             selectedTopMatchIndex = selectedTopMatchIndex,
             isReversed = isReversed,
-            onToggleOtherSearchItemPin = onToggleOtherSearchItemPin,
+            onOtherSearchItemAction = onOtherSearchItemAction,
             showTopMatches = showTopMatches,
             hasMoreResults = hasMoreResults,
         )
@@ -720,7 +720,7 @@ fun ContentLayout(
             showDictionary = showDictionary,
             showWeather = showWeather,
             onGeminiModelInfoClick = onGeminiModelInfoClick,
-            onToggleOtherSearchItemPin = onToggleOtherSearchItemPin,
+            onOtherSearchItemAction = onOtherSearchItemAction,
             showAiSearch = showAiSearch,
             aiSearchState = aiSearchState,
             onOpenAiSearchConfigure = onOpenAiSearchConfigure,

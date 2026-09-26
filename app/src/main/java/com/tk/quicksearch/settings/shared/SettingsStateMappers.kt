@@ -2,6 +2,7 @@ package com.tk.quicksearch.settings.shared
 
 import com.tk.quicksearch.search.core.CustomTool
 import com.tk.quicksearch.search.core.SearchUiState
+import com.tk.quicksearch.search.other.OtherSearchItemRegistry
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenState
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 
@@ -20,6 +21,7 @@ internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState {
         excludedFiles = searchResults.excludedFiles,
         excludedSettings = searchResults.excludedSettings,
         excludedAppShortcuts = searchResults.excludedAppShortcuts,
+        excludedOtherItems = OtherSearchItemRegistry.excludedItems(excludedOtherItemIds),
         disabledSections = searchResults.disabledSections,
         appSuggestionsEnabled = searchResults.appSuggestionsEnabled,
         enabledAppSuggestionTabs = searchResults.enabledAppSuggestionTabs,

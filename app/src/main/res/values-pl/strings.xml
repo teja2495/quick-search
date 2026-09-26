@@ -1194,6 +1194,7 @@ www.google.com/search?q={{query}}</string>
     <string name="excluded_item_type_app_shortcut">Skrót aplikacji</string>
     <string name="excluded_item_type_app_suggestions">Aplikacja (Sugestie)</string>
     <string name="excluded_item_type_setting">Ustawienie</string>
+    <string name="excluded_item_type_search_result">Wynik wyszukiwania</string>
     <string name="permission_required_title">Wymagane uprawnienie</string>
     <string name="settings_action_clear_all">Wyczyść wszystko</string>
     <string name="settings_action_move_down">Przenieś na dół</string>

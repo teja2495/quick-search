@@ -1174,6 +1174,7 @@ www.google.com/search?q={{query}}</string>
     <string name="excluded_item_type_app_shortcut">アプリのショートカット</string>
     <string name="excluded_item_type_app_suggestions">アプリ（候補）</string>
     <string name="excluded_item_type_setting">設定</string>
+    <string name="excluded_item_type_search_result">検索結果</string>
     <string name="permission_required_title">権限が必要です</string>
     <string name="settings_action_clear_all">すべて消去</string>
     <string name="settings_action_move_down">一番下に移動</string>

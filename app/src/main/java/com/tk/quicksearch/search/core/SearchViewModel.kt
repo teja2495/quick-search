@@ -135,7 +135,7 @@ class SearchViewModel(
     private val appSettingsRepository by lazy {
         AppSettingsRepository(appContext)
     }
-    private val userPreferences by lazy { UserAppPreferences(appContext) }
+    internal val userPreferences by lazy { UserAppPreferences(appContext) }
     internal val launcherIconManager by lazy { LauncherIconManager(appContext) }
     private val contactPreferences by lazy {
         com.tk.quicksearch.search.data.preferences.ContactPreferences(
@@ -603,17 +603,15 @@ class SearchViewModel(
         refreshScreenTimeResult(newQuery)
     }
 
-    fun toggleOtherSearchItemPin(itemId: OtherSearchItemId) {
-        updateResultsState { state ->
-            val updatedOrder =
-                OtherSearchItemRegistry.togglePin(
-                    itemId = itemId,
-                    pinnedItemOrder = state.pinnedNonAppItemOrder,
-                )
-            userPreferences.setPinnedNonAppItemOrder(updatedOrder)
-            state.copy(pinnedNonAppItemOrder = updatedOrder)
-        }
-        refreshScreenTimeResult(_resultsState.value.query)
+    fun toggleOtherSearchItemPin(itemId: OtherSearchItemId) = toggleOtherItemPin(itemId)
+
+    fun excludeOtherSearchItem(itemId: OtherSearchItemId) = excludeOtherItem(itemId)
+
+    fun removeExcludedOtherSearchItem(itemId: OtherSearchItemId) = removeExcludedOtherItem(itemId)
+
+    override fun clearAllExclusions() {
+        managementApiDelegate.clearAllExclusions()
+        clearAllExcludedOtherItems()
     }
     fun submitAiFollowUp(followUpQuestion: String) {
         val trimmedQuestion = followUpQuestion.trim()

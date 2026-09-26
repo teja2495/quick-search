@@ -402,7 +402,7 @@ fun SearchRoute(
             onClearQuery = viewModel::clearQuery,
             onVoiceClick = startVoiceInput,
             onRequestUsagePermission = { viewModel.openUsageAccessSettings() },
-            onToggleOtherSearchItemPin = viewModel::toggleOtherSearchItemPin,
+            onOtherSearchItemAction = undoActions.onOtherSearchItemAction,
             onSettingsClick = onSettingsClick,
             onAppClick = { app: com.tk.quicksearch.search.models.AppInfo ->
                 if (SpeedBump.isEnabled(context, app.packageName)) {

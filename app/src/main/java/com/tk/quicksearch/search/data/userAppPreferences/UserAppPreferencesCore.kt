@@ -105,6 +105,18 @@ open class UserAppPreferencesCore(protected val context: Context) {
                 )
             }
 
+    fun getExcludedOtherItemIds(): Set<String> =
+            PreferenceUtils.getExcludedStringItems(sharedPrefs, BasePreferences.KEY_EXCLUDED_OTHER_ITEMS)
+
+    fun excludeOtherItem(id: String): Set<String> =
+            PreferenceUtils.excludeStringItem(sharedPrefs, BasePreferences.KEY_EXCLUDED_OTHER_ITEMS, id)
+
+    fun removeExcludedOtherItem(id: String): Set<String> =
+            PreferenceUtils.removeExcludedStringItem(sharedPrefs, BasePreferences.KEY_EXCLUDED_OTHER_ITEMS, id)
+
+    fun clearAllExcludedOtherItems(): Set<String> =
+            PreferenceUtils.clearAllExcludedStringItems(sharedPrefs, BasePreferences.KEY_EXCLUDED_OTHER_ITEMS)
+
     fun getSuggestionHiddenPackages(): Set<String> = appPreferences.getSuggestionHiddenPackages()
 
     fun getResultHiddenPackages(): Set<String> = appPreferences.getResultHiddenPackages()

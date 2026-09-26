@@ -138,7 +138,8 @@ internal fun SettingsDetailLevel1Screen(
             state.excludedFiles.isNotEmpty() ||
             state.excludedFileExtensions.isNotEmpty() ||
             state.excludedSettings.isNotEmpty() ||
-            state.excludedAppShortcuts.isNotEmpty()
+            state.excludedAppShortcuts.isNotEmpty() ||
+            state.excludedOtherItems.isNotEmpty()
     val shouldForceMonochromeTheme = detailType == SettingsDetailType.FEATURES_LIST
     val effectiveAppTheme = if (shouldForceMonochromeTheme) AppTheme.MONOCHROME else state.appTheme
     val effectiveDeviceThemeEnabled = if (shouldForceMonochromeTheme) false else state.deviceThemeEnabled

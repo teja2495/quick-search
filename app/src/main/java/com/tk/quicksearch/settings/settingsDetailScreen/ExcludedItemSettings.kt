@@ -16,6 +16,7 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,6 +42,7 @@ import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.other.OtherSearchItemId
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
@@ -68,10 +70,13 @@ fun ExcludedItemScreen(
     onRemoveExcludedSetting: (DeviceSetting) -> Unit,
     excludedAppShortcuts: List<StaticShortcut>,
     onRemoveExcludedAppShortcut: (StaticShortcut) -> Unit,
+    excludedOtherItems: List<OtherSearchItemId> = emptyList(),
+    onRemoveExcludedOtherItem: (OtherSearchItemId) -> Unit = {},
     showTitle: Boolean = true,
     modifier: Modifier = Modifier,
     iconPackPackage: String? = null,
 ) {
+    val otherItemTitles = excludedOtherItems.map { stringResource(it.titleRes) }
     val allItems =
         remember(
             suggestionExcludedApps,
@@ -81,6 +86,8 @@ fun ExcludedItemScreen(
             excludedFileExtensions,
             excludedSettings,
             excludedAppShortcuts,
+            excludedOtherItems,
+            otherItemTitles,
         ) {
             (
                 suggestionExcludedApps.map { ExcludedItem.SuggestionApp(it) } +
@@ -89,7 +96,8 @@ fun ExcludedItemScreen(
                     excludedFiles.map { ExcludedItem.File(it) } +
                     excludedFileExtensions.map { ExcludedItem.FileExtension(it) } +
                     excludedSettings.map { ExcludedItem.Setting(it) } +
-                    excludedAppShortcuts.map { ExcludedItem.AppShortcut(it) }
+                    excludedAppShortcuts.map { ExcludedItem.AppShortcut(it) } +
+                    excludedOtherItems.zip(otherItemTitles) { item, title -> ExcludedItem.Other(item, title) }
             ).sortedBy { it.displayName.lowercase() }
         }
 
@@ -159,6 +167,10 @@ fun ExcludedItemScreen(
 
                         is ExcludedItem.AppShortcut -> {
                             onRemoveExcludedAppShortcut(item.shortcut)
+                        }
+
+                        is ExcludedItem.Other -> {
+                            onRemoveExcludedOtherItem(item.itemId)
                         }
                     }
                 },
@@ -278,6 +290,15 @@ private fun ExcludedItemIcon(
         is ExcludedItem.Setting -> {
             Icon(
                 imageVector = Icons.Rounded.Settings,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(DEFAULT_ICON_SIZE),
+            )
+        }
+
+        is ExcludedItem.Other -> {
+            Icon(
+                imageVector = Icons.Rounded.Timer,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(DEFAULT_ICON_SIZE),
@@ -438,5 +459,12 @@ private sealed class ExcludedItem {
     ) : ExcludedItem() {
         override val displayName: String = shortcutDisplayName(shortcut)
         override val typeLabelRes: Int = R.string.excluded_item_type_app_shortcut
+    }
+
+    data class Other(
+        val itemId: OtherSearchItemId,
+        override val displayName: String,
+    ) : ExcludedItem() {
+        override val typeLabelRes: Int = R.string.excluded_item_type_search_result
     }
 }

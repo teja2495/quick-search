@@ -39,6 +39,7 @@ data class SearchResultsState(
         val pendingSearchResults: List<AppInfo>? = null,
         val pinnedApps: List<AppInfo> = emptyList(),
         val pinnedNonAppItemOrder: List<String> = emptyList(),
+        val excludedOtherItemIds: Set<String> = emptySet(),
         val allApps: List<AppInfo> = emptyList(),
         val suggestionExcludedApps: List<AppInfo> = emptyList(),
         val resultExcludedApps: List<AppInfo> = emptyList(),

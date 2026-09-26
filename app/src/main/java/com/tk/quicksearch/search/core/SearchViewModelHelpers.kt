@@ -91,6 +91,49 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
+internal fun SearchViewModel.toggleOtherItemPin(itemId: OtherSearchItemId) {
+        updateResultsState { state ->
+            val updatedOrder =
+                OtherSearchItemRegistry.togglePin(
+                    itemId = itemId,
+                    pinnedItemOrder = state.pinnedNonAppItemOrder,
+                )
+            userPreferences.setPinnedNonAppItemOrder(updatedOrder)
+            state.copy(pinnedNonAppItemOrder = updatedOrder)
+        }
+        refreshScreenTimeResult(_resultsState.value.query)
+    }
+
+internal fun SearchViewModel.excludeOtherItem(itemId: OtherSearchItemId) {
+        val excludedIds = userPreferences.excludeOtherItem(itemId.persistedId)
+        updateResultsState { state ->
+            val updatedOrder = state.pinnedNonAppItemOrder.filterNot { it == itemId.pinnedItemKey }
+            if (updatedOrder != state.pinnedNonAppItemOrder) {
+                userPreferences.setPinnedNonAppItemOrder(updatedOrder)
+            }
+            state.copy(pinnedNonAppItemOrder = updatedOrder, excludedOtherItemIds = excludedIds)
+        }
+        refreshScreenTimeResult(_resultsState.value.query)
+    }
+
+internal fun SearchViewModel.removeExcludedOtherItem(itemId: OtherSearchItemId) {
+        val excludedIds = userPreferences.removeExcludedOtherItem(itemId.persistedId)
+        updateResultsState { it.copy(excludedOtherItemIds = excludedIds) }
+        refreshScreenTimeResult(_resultsState.value.query)
+    }
+
+internal fun SearchViewModel.clearAllExcludedOtherItems() {
+        val excludedIds = userPreferences.clearAllExcludedOtherItems()
+        updateResultsState { it.copy(excludedOtherItemIds = excludedIds) }
+        refreshScreenTimeResult(_resultsState.value.query)
+    }
+
+private fun SearchViewModel.isScreenTimeExcluded(): Boolean =
+        OtherSearchItemRegistry.isExcluded(
+            OtherSearchItemId.SCREEN_TIME,
+            _resultsState.value.excludedOtherItemIds,
+        )
+
 internal fun SearchViewModel.refreshScreenTimeResult(query: String) {
         val pinnedItemOrder = _resultsState.value.pinnedNonAppItemOrder
         val matchesQuery = OtherSearchItemRegistry.matchesScreenTime(query)
@@ -98,6 +141,7 @@ internal fun SearchViewModel.refreshScreenTimeResult(query: String) {
             hasScreenTimeResultForCurrentSearch = false
         }
         if (
+            isScreenTimeExcluded() ||
             !OtherSearchItemRegistry.shouldLoad(
                 itemId = OtherSearchItemId.SCREEN_TIME,
                 query = query,
@@ -129,6 +173,7 @@ internal fun SearchViewModel.refreshScreenTimeResult(query: String) {
                 val screenTime = screenTimeRepository.getTodayScreenTime()
                 if (
                     com.tk.quicksearch.search.utils.PermissionUtils.hasUsageStatsPermission(appContext) &&
+                        !isScreenTimeExcluded() &&
                         OtherSearchItemRegistry.shouldLoad(
                             itemId = OtherSearchItemId.SCREEN_TIME,
                             query = _resultsState.value.query,

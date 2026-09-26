@@ -1156,6 +1156,7 @@
 <string name="excluded_item_type_app_shortcut">Uygulama kısayolu</string>
 <string name="excluded_item_type_app_suggestions">Uygulama (Öneriler)</string>
 <string name="excluded_item_type_setting">Ayar</string>
+<string name="excluded_item_type_search_result">Arama Sonucu</string>
 <string name="permission_required_title">İzin gerekli</string>
 <string name="settings_action_clear_all">Tümünü temizle</string>
 <string name="settings_action_move_down">En alta taşı</string>

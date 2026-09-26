@@ -135,5 +135,6 @@ class AppSettingsSearchHandler(
             userPreferences.getExcludedFileUris().isNotEmpty() ||
             userPreferences.getExcludedFileExtensions().isNotEmpty() ||
             userPreferences.getExcludedSettingIds().isNotEmpty() ||
-            userPreferences.getExcludedAppShortcutIds().isNotEmpty()
+            userPreferences.getExcludedAppShortcutIds().isNotEmpty() ||
+            userPreferences.getExcludedOtherItemIds().isNotEmpty()
 }

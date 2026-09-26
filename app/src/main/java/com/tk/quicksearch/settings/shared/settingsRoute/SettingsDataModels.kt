@@ -21,6 +21,7 @@ import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.models.SecondaryRankingSignal
 import com.tk.quicksearch.search.core.IconPackInfo
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
+import com.tk.quicksearch.search.other.OtherSearchItemId
 import com.tk.quicksearch.settings.appShortcutsSettings.AppShortcutSource
 import com.tk.quicksearch.settings.settingsDetailScreen.AiBackedToolConfigId
 import com.tk.quicksearch.settings.shared.SettingsCommand
@@ -39,6 +40,7 @@ data class SettingsScreenState(
     val excludedFiles: List<DeviceFile>,
     val excludedSettings: List<DeviceSetting>,
     val excludedAppShortcuts: List<StaticShortcut>,
+    val excludedOtherItems: List<OtherSearchItemId> = emptyList(),
     val searchEngineOrder: List<SearchTarget>,
     val disabledSearchEngines: Set<String>,
     val enabledFileTypes: Set<FileType>,
@@ -297,6 +299,7 @@ data class SettingsScreenCallbacks(
     val onRemoveExcludedFile: (DeviceFile) -> Unit,
     val onRemoveExcludedSetting: (DeviceSetting) -> Unit,
     val onRemoveExcludedAppShortcut: (StaticShortcut) -> Unit,
+    val onRemoveExcludedOtherItem: (OtherSearchItemId) -> Unit,
     val onClearAllExclusions: () -> Unit,
     val onToggleSearchEngine: (SearchTarget, Boolean) -> Unit,
     val onReorderSearchEngines: (List<SearchTarget>) -> Unit,

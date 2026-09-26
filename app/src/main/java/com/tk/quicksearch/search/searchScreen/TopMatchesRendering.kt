@@ -67,6 +67,8 @@ import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.models.SecondaryRankingSignal
 import com.tk.quicksearch.search.notes.NoteRow
 import com.tk.quicksearch.search.other.OtherSearchItemId
+import com.tk.quicksearch.search.other.OtherSearchItemAction
+import com.tk.quicksearch.search.other.OtherSearchItemActionHandler
 import com.tk.quicksearch.search.other.OtherSearchItemRegistry
 import com.tk.quicksearch.search.other.ScreenTimeResultCard
 import com.tk.quicksearch.search.core.ScreenTimeState
@@ -95,7 +97,7 @@ internal fun TopMatchesSection(
     screenTimeState: ScreenTimeState,
     pinnedNonAppItemOrder: List<String>,
     iconPackPackage: String?,
-    onToggleOtherSearchItemPin: (OtherSearchItemId) -> Unit,
+    onOtherSearchItemAction: OtherSearchItemActionHandler,
     modifier: Modifier = Modifier,
 ) {
     val highlightedMatch = selectedMatchIndex?.let(matches::getOrNull) ?: matches.firstOrNull()
@@ -130,7 +132,8 @@ internal fun TopMatchesSection(
                                     ),
                                 showWallpaperBackground = showWallpaperBackground,
                                 iconPackPackage = iconPackPackage,
-                                onTogglePin = { onToggleOtherSearchItemPin(item.itemId) },
+                                onTogglePin = { onOtherSearchItemAction(item.itemId, OtherSearchItemAction.TOGGLE_PIN) },
+                                onHide = { onOtherSearchItemAction(item.itemId, OtherSearchItemAction.HIDE) },
                                 modifier =
                                     Modifier
                                         .fillMaxWidth()

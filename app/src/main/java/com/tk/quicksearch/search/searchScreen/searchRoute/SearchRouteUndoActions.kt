@@ -23,6 +23,9 @@ import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.NoteInfo
+import com.tk.quicksearch.search.other.OtherSearchItemAction
+import com.tk.quicksearch.search.other.OtherSearchItemId
+import com.tk.quicksearch.search.other.OtherSearchItemRegistry
 import com.tk.quicksearch.search.utils.FileUtils
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.launch
@@ -40,6 +43,7 @@ internal data class RouteUndoActions(
     val onExcludeCalendarEventWithUndo: (CalendarEventInfo) -> Unit,
     val reminderActions: ReminderSectionActions,
     val onDeleteNoteWithUndo: (NoteInfo) -> Unit,
+    val onOtherSearchItemAction: (OtherSearchItemId, OtherSearchItemAction) -> Unit,
 )
 
 @Composable
@@ -216,6 +220,22 @@ internal fun rememberRouteUndoActions(
         }
     }
 
+    val onOtherSearchItemAction: (OtherSearchItemId, OtherSearchItemAction) -> Unit = @Suppress("LocalContextGetResourceValueCall") { itemId, action ->
+        when (action) {
+            OtherSearchItemAction.TOGGLE_PIN -> viewModel.toggleOtherSearchItemPin(itemId)
+            OtherSearchItemAction.HIDE -> {
+                val wasPinned = OtherSearchItemRegistry.isPinned(itemId, uiState.pinnedNonAppItemOrder)
+                viewModel.excludeOtherSearchItem(itemId)
+                showUndoSnackbar(
+                    context.getString(R.string.toast_excluded_from_results, context.getString(itemId.titleRes)),
+                ) {
+                    viewModel.removeExcludedOtherSearchItem(itemId)
+                    if (wasPinned) viewModel.toggleOtherSearchItemPin(itemId)
+                }
+            }
+        }
+    }
+
     return RouteUndoActions(
         snackbarHostState = snackbarHostState,
         popupUndoSnackbar = popupUndoSnackbar,
@@ -229,5 +249,6 @@ internal fun rememberRouteUndoActions(
         onExcludeCalendarEventWithUndo = onExcludeCalendarEventWithUndo,
         reminderActions = reminderActions,
         onDeleteNoteWithUndo = onDeleteNoteWithUndo,
+        onOtherSearchItemAction = onOtherSearchItemAction,
     )
 }

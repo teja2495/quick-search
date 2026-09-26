@@ -48,6 +48,7 @@ internal fun buildSettingsScreenCallbacks(
         onRemoveExcludedFile = viewModel::removeExcludedFile,
         onRemoveExcludedSetting = viewModel::removeExcludedSetting,
         onRemoveExcludedAppShortcut = viewModel::removeExcludedAppShortcut,
+        onRemoveExcludedOtherItem = viewModel::removeExcludedOtherSearchItem,
         onClearAllExclusions = viewModel::clearAllExclusions,
         onToggleSearchEngine = viewModel::setSearchTargetEnabled,
         onReorderSearchEngines = viewModel::reorderSearchTargets,

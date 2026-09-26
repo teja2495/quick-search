@@ -149,6 +149,7 @@ internal object SearchViewModelInitialStateFactory {
                         it.launchCountKey() in pinnedAppKeys
                     },
                 pinnedNonAppItemOrder = startupPreferencesReader.getPinnedNonAppItemOrder(),
+                excludedOtherItemIds = startupPreferencesReader.getExcludedOtherItemIds(),
                 pinnedContacts =
                     if (hasContactPermission) {
                         cachedHome?.pinnedContacts.orEmpty().filter { it.contactId in pinnedContactIds }

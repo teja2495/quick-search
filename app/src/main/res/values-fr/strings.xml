@@ -1157,6 +1157,7 @@
 <string name="excluded_item_type_app_shortcut">Raccourci d\'app</string>
 <string name="excluded_item_type_app_suggestions">Application (Suggestions)</string>
 <string name="excluded_item_type_setting">Paramètre</string>
+<string name="excluded_item_type_search_result">Résultat de recherche</string>
 <string name="permission_required_title">Autorisation requise</string>
 <string name="settings_action_clear_all">Tout effacer</string>
 <string name="settings_action_move_down">Déplacer tout en bas</string>

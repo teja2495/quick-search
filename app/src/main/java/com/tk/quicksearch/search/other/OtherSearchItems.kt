@@ -1,11 +1,14 @@
 package com.tk.quicksearch.search.other
 
+import androidx.annotation.StringRes
+import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.ScreenTimeState
 
 enum class OtherSearchItemId(
     val persistedId: String,
+    @StringRes val titleRes: Int,
 ) {
-    SCREEN_TIME("screen_time"),
+    SCREEN_TIME("screen_time", R.string.other_screen_time_today_title),
     ;
 
     val pinnedItemKey: String
@@ -15,6 +18,13 @@ enum class OtherSearchItemId(
         const val PINNED_ITEM_PREFIX = "other:"
     }
 }
+
+enum class OtherSearchItemAction {
+    TOGGLE_PIN,
+    HIDE,
+}
+
+typealias OtherSearchItemActionHandler = (OtherSearchItemId, OtherSearchItemAction) -> Unit
 
 data class OtherSearchItemDefinition(
     val id: OtherSearchItemId,
@@ -99,6 +109,14 @@ object OtherSearchItemRegistry {
 
     fun searchTerms(itemId: OtherSearchItemId): Set<String> =
         definitions.first { it.id == itemId }.searchTerms
+
+    fun isExcluded(
+        itemId: OtherSearchItemId,
+        excludedItemIds: Set<String>,
+    ): Boolean = itemId.persistedId in excludedItemIds
+
+    fun excludedItems(excludedItemIds: Set<String>): List<OtherSearchItemId> =
+        OtherSearchItemId.entries.filter { isExcluded(it, excludedItemIds) }
 
     fun isOtherPinnedItemKey(key: String): Boolean =
         OtherSearchItemId.entries.any { it.pinnedItemKey == key }

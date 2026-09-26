@@ -1157,6 +1157,7 @@
     <string name="excluded_item_type_app_shortcut">యాప్ షార్ట్‌కట్</string>
     <string name="excluded_item_type_app_suggestions">యాప్ (సూచనలు)</string>
     <string name="excluded_item_type_setting">సెట్టింగ్</string>
+    <string name="excluded_item_type_search_result">శోధన ఫలితం</string>
     <string name="permission_required_title">అనుమతి అవసరం</string>
     <string name="settings_action_clear_all">అన్నింటినీ క్లియర్ చేయి</string>
     <string name="settings_action_move_down">చివరికి జరుపు</string>

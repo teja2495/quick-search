@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Apps
+import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -49,7 +51,7 @@ fun OtherSearchResults(
     state: ScreenTimeState,
     showWallpaperBackground: Boolean,
     iconPackPackage: String?,
-    onTogglePin: (OtherSearchItemId) -> Unit,
+    onAction: OtherSearchItemActionHandler,
 ) {
     OtherSearchItemRegistry.definitions.forEach { definition ->
         when (definition.id) {
@@ -66,7 +68,8 @@ fun OtherSearchResults(
                         isPinned = OtherSearchItemRegistry.isPinned(definition.id, pinnedItemOrder),
                         showWallpaperBackground = showWallpaperBackground,
                         iconPackPackage = iconPackPackage,
-                        onTogglePin = { onTogglePin(definition.id) },
+                        onTogglePin = { onAction(definition.id, OtherSearchItemAction.TOGGLE_PIN) },
+                        onHide = { onAction(definition.id, OtherSearchItemAction.HIDE) },
                     )
                 }
         }
@@ -80,6 +83,7 @@ internal fun ScreenTimeResultCard(
     showWallpaperBackground: Boolean,
     iconPackPackage: String?,
     onTogglePin: () -> Unit,
+    onHide: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var showPinMenu by remember { mutableStateOf(false) }
@@ -184,6 +188,20 @@ internal fun ScreenTimeResultCard(
                 onClick = {
                     showPinMenu = false
                     onTogglePin()
+                },
+            )
+            HorizontalDivider()
+            DropdownMenuItem(
+                text = { Text(text = stringResource(R.string.action_exclude_generic)) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Rounded.VisibilityOff,
+                        contentDescription = null,
+                    )
+                },
+                onClick = {
+                    showPinMenu = false
+                    onHide()
                 },
             )
         }

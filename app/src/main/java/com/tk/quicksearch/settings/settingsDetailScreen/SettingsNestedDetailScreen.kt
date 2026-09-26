@@ -143,7 +143,8 @@ internal fun SettingsNestedDetailScreen(
             state.excludedFiles.isNotEmpty() ||
             state.excludedFileExtensions.isNotEmpty() ||
             state.excludedSettings.isNotEmpty() ||
-            state.excludedAppShortcuts.isNotEmpty()
+            state.excludedAppShortcuts.isNotEmpty() ||
+            state.excludedOtherItems.isNotEmpty()
 
     LaunchedEffect(detailType, hasExcludedItems) {
         if (detailType == SettingsDetailType.EXCLUDED_ITEMS && !hasExcludedItems) {
@@ -458,6 +459,8 @@ internal fun SettingsNestedDetailScreen(
                                 onRemoveExcludedFileExtension = callbacks.onRemoveExcludedFileExtension,
                                 onRemoveExcludedSetting = callbacks.onRemoveExcludedSetting,
                                 onRemoveExcludedAppShortcut = callbacks.onRemoveExcludedAppShortcut,
+                                excludedOtherItems = state.excludedOtherItems,
+                                onRemoveExcludedOtherItem = callbacks.onRemoveExcludedOtherItem,
                                 showTitle = false,
                                 iconPackPackage = state.selectedIconPackPackage,
                             )

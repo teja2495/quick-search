@@ -1156,6 +1156,7 @@
     <string name="excluded_item_type_app_shortcut">Scorciatoia app</string>
     <string name="excluded_item_type_app_suggestions">App (Suggerimenti)</string>
     <string name="excluded_item_type_setting">Impostazione</string>
+    <string name="excluded_item_type_search_result">Risultato di ricerca</string>
     <string name="permission_required_title">Autorizzazione richiesta</string>
     <string name="settings_action_clear_all">Cancella tutto</string>
     <string name="settings_action_move_down">Sposta in fondo</string>

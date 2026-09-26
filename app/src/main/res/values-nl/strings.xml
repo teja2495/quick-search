@@ -1213,6 +1213,7 @@ www.google.com/search?q={{query}}</string>
     <string name="excluded_item_type_app_shortcut">App-snelkoppeling</string>
     <string name="excluded_item_type_app_suggestions">App (Suggesties)</string>
     <string name="excluded_item_type_setting">Instelling</string>
+    <string name="excluded_item_type_search_result">Zoekresultaat</string>
     <string name="permission_required_title">Machtiging vereist</string>
     <string name="settings_action_clear_all">Alles wissen</string>
     <string name="settings_action_move_down">Naar beneden verplaatsen</string>

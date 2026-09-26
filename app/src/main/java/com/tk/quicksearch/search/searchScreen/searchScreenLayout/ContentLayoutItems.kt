@@ -17,7 +17,7 @@ import com.tk.quicksearch.tools.aiTools.WeatherResult
 import com.tk.quicksearch.search.searchScreen.InfoBanner
 import com.tk.quicksearch.search.searchScreen.renderSection
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
-import com.tk.quicksearch.search.other.OtherSearchItemId
+import com.tk.quicksearch.search.other.OtherSearchItemActionHandler
 import com.tk.quicksearch.search.other.OtherSearchResults
 
 @Composable
@@ -50,7 +50,7 @@ internal fun NonSectionLayoutItem(
     showDictionary: Boolean,
     showWeather: Boolean,
     onGeminiModelInfoClick: () -> Unit,
-    onToggleOtherSearchItemPin: (OtherSearchItemId) -> Unit,
+    onOtherSearchItemAction: OtherSearchItemActionHandler,
     showAiSearch: Boolean,
     aiSearchState: AiSearchState?,
     onOpenAiSearchConfigure: () -> Unit,
@@ -217,7 +217,7 @@ internal fun NonSectionLayoutItem(
                         state = state.screenTimeState,
                         showWallpaperBackground = effectiveShowWallpaperBackground,
                         iconPackPackage = state.selectedIconPackPackage,
-                        onTogglePin = onToggleOtherSearchItemPin,
+                        onAction = onOtherSearchItemAction,
                     )
                 }
             }

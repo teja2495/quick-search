@@ -1157,6 +1157,7 @@
     <string name="excluded_item_type_app_shortcut">Acceso directo de app</string>
     <string name="excluded_item_type_app_suggestions">App (Sugerencias)</string>
     <string name="excluded_item_type_setting">Ajuste</string>
+    <string name="excluded_item_type_search_result">Resultado de búsqueda</string>
     <string name="permission_required_title">Permiso requerido</string>
     <string name="settings_action_clear_all">Borrar todo</string>
     <string name="settings_action_move_down">Mover al final</string>

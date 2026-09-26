@@ -42,7 +42,7 @@ import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.BackgroundSource
-import com.tk.quicksearch.search.other.OtherSearchItemId
+import com.tk.quicksearch.search.other.OtherSearchItemActionHandler
 import com.tk.quicksearch.search.searchScreen.searchRoute.SearchRoute
 import com.tk.quicksearch.search.searchScreen.searchRoute.SearchScreenStateManagement
 import com.tk.quicksearch.search.searchScreen.searchRoute.SearchScreenDialogLogic
@@ -63,7 +63,7 @@ fun SearchScreen(
     onVoiceClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onRequestUsagePermission: () -> Unit,
-    onToggleOtherSearchItemPin: (OtherSearchItemId) -> Unit,
+    onOtherSearchItemAction: OtherSearchItemActionHandler,
     onAppClick: (AppInfo) -> Unit,
     onOpenInSplitScreen: (AppInfo) -> Unit,
     onAppInfoClick: (AppInfo) -> Unit,
@@ -528,7 +528,7 @@ fun SearchScreen(
             onSettingsClick = onSettingsClick,
             onAppClick = onAppClick,
             onRequestUsagePermission = onRequestUsagePermission,
-            onToggleOtherSearchItemPin = onToggleOtherSearchItemPin,
+            onOtherSearchItemAction = onOtherSearchItemAction,
             onSearchTargetClick = onSearchTargetClick,
             onSearchEngineLongPress = onSearchEngineLongPress,
             onAiSearchEmailClick = onAiSearchEmailClick,
