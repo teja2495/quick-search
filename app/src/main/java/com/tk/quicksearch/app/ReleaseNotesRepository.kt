@@ -1,5 +1,6 @@
 package com.tk.quicksearch.app
 
+import com.tk.quicksearch.BuildConfig
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Call
 import okhttp3.Callback
@@ -28,6 +29,8 @@ class ReleaseNotesRepository {
                 if (release.optBoolean("draft") || release.optBoolean("prerelease")) continue
 
                 val versionName = release.getString("tag_name").normalizeVersionName()
+                // Temporarily hide the skipped Play release; its changes are included in 4.7.
+                if (BuildConfig.FLAVOR == "standard" && versionName == "4.6") continue
                 if (normalizedCurrentVersion == null || !isVersionBefore(versionName, normalizedCurrentVersion)) continue
 
                 add(

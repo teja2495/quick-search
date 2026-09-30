@@ -105,6 +105,14 @@ internal fun ReleaseNotesDrawer(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            // TODO: Remove the one-time v4.7 subtext and its string resource for future releases.
+            if (versionName?.removePrefix("v") == "4.7") {
+                Text(
+                    text = stringResource(R.string.release_notes_v47_subtext),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
             ReleaseNotesBulletList(bulletPoints = bulletPoints)
 
             HorizontalDivider(

@@ -1,5 +1,8 @@
-- New in At a Glance: contact birthdays, charging status, timers and stopwatch, ongoing notifications, app notifications, low storage warnings, Do Not Disturb status, missed calls, ongoing call, airplane mode, hotspot, OTPs, Wi-Fi sign-in, weather, flashlight, and custom items powered by your AI provider API key.
+- New At a Glance section on Home shows useful information at relevant times: calendar events, reminders, media controls, birthdays, OTPs, timers & stopwatch, ongoing notifications, app notifications, low battery & storage warnings, calls, custom items powered by your AI provider API key and more.
+- Create reminders directly from search. Example: Laundry in 2 hrs
+- Add widgets to Home by long-pressing in home empty area.
+- Create app folders in Pinned Apps by dragging one app onto another.
+- New optional ways to launch Quick Search: a system-wide edge swipe gesture and a floating button.
+- New Widgets: Notes, Media Controls & Countdown
 - Ask Quick Search for help with the any questions related to the app by typing @help in search bar (requires an AI provider API key).
-- New Launcher Widgets: Notes widget & Countdown widget
-- Choose any default contact action for the primary and secondary buttons on contact cards.
 - UI enhancements & bug fixes

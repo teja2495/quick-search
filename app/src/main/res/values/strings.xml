@@ -1009,6 +1009,8 @@
     <string name="action_restart">Restart</string>
     <string name="release_notes_title">Quick Search v%1$s Release Notes</string>
     <string name="release_notes_title_no_version">Quick Search Release Notes</string>
+    <!-- TODO: Remove this one-time notice after the v4.7 release. -->
+    <string name="release_notes_v47_subtext" translatable="false">We skipped v4.6 as a separate release. All its changes are included in v4.7.</string>
     <string name="settings_backup_export_api_key_warning_message">Proceed at your own risk. Exported API keys are not encrypted and can be accessed by anyone who has access to your backup file.</string>
     <string name="settings_backup_export_button">Export</string>
     <string name="settings_backup_export_title">Export Settings</string>
