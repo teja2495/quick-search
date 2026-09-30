@@ -221,6 +221,7 @@ internal fun SearchStartupLifecycleDelegate.applyStartupPreferences(prefs: Start
                 bottomSearchBarEnabled = snapshot.bottomSearchBarEnabled,
                 unifiedPinnedItemsEnabled = snapshot.unifiedPinnedItemsEnabled,
                 searchHintsEnabled = snapshot.searchHintsEnabled,
+                cardLayoutEnabled = snapshot.cardLayoutEnabled,
                 settingsIconEnabled = snapshot.settingsIconEnabled,
                 topResultIndicatorEnabled = snapshot.topResultIndicatorEnabled,
                 openTopResultUsingKeyboardEnabled = snapshot.openTopResultUsingKeyboardEnabled,

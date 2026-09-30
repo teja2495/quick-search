@@ -71,6 +71,7 @@ import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContainer
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentPadding
+import com.tk.quicksearch.search.searchScreen.components.resultRowVerticalPadding
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
 import com.tk.quicksearch.search.utils.FileUtils
 import com.tk.quicksearch.shared.ui.theme.AppColors
@@ -638,7 +639,7 @@ internal fun FileResultRow(
                                                         },
                                 )
                                 .topPredictedRowContentPadding()
-                                .padding(vertical = DesignTokens.SpacingLarge),
+                                .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingLarge)),
         ) {
             Row(
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),

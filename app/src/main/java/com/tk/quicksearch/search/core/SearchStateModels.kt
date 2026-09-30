@@ -253,6 +253,7 @@ data class SearchUiConfigState(
         val bottomSearchBarEnabled: Boolean = false,
         val unifiedPinnedItemsEnabled: Boolean = false,
         val searchHintsEnabled: Boolean = true,
+        val cardLayoutEnabled: Boolean = true,
         val settingsIconEnabled: Boolean = true,
         val topResultIndicatorEnabled: Boolean = false,
         val openTopResultUsingKeyboardEnabled: Boolean = true,

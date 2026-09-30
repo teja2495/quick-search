@@ -69,6 +69,7 @@ internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState {
         excludedFileExtensions = fileSearch.excludedFileExtensions,
         oneHandedMode = appearance.oneHandedMode,
         bottomSearchBarEnabled = appearance.bottomSearchBarEnabled,
+        cardLayoutEnabled = appearance.cardLayoutEnabled,
         unifiedPinnedItemsEnabled = appearance.unifiedPinnedItemsEnabled,
         homePinnedSectionOrder = homePinnedSectionOrder,
         pinnedAppShortcutsInAppGrid = pinnedAppShortcutsInAppGrid,
@@ -257,6 +258,7 @@ private fun SearchUiState.toFileSearchSettingsState() =
 private data class AppearanceMapperState(
     val oneHandedMode: Boolean,
     val bottomSearchBarEnabled: Boolean,
+    val cardLayoutEnabled: Boolean,
     val unifiedPinnedItemsEnabled: Boolean,
     val searchHintsEnabled: Boolean,
     val settingsIconEnabled: Boolean,
@@ -296,6 +298,7 @@ private fun SearchUiState.toAppearanceSettingsState() =
     AppearanceMapperState(
         oneHandedMode = oneHandedMode,
         bottomSearchBarEnabled = bottomSearchBarEnabled,
+        cardLayoutEnabled = cardLayoutEnabled,
         unifiedPinnedItemsEnabled = unifiedPinnedItemsEnabled,
         searchHintsEnabled = searchHintsEnabled,
         settingsIconEnabled = settingsIconEnabled,

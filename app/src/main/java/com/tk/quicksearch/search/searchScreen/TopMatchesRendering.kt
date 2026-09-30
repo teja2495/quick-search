@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -74,8 +75,11 @@ import com.tk.quicksearch.search.core.ScreenTimeState
 import com.tk.quicksearch.search.searchScreen.components.predictedSubmitHighlight
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContainer
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentPadding
+import com.tk.quicksearch.search.searchScreen.components.resultRowVerticalPadding
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
+import com.tk.quicksearch.search.searchScreen.shared.LocalCardlessStackSpacing
+import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.search.utils.SearchRankingUtils
@@ -99,6 +103,7 @@ internal fun TopMatchesSection(
     onOtherSearchItemAction: OtherSearchItemActionHandler,
     modifier: Modifier = Modifier,
 ) {
+    val cardLayoutEnabled = LocalSearchCardLayoutEnabled.current
     val highlightedMatch = selectedMatchIndex?.let(matches::getOrNull) ?: matches.firstOrNull()
     val displayedMatches = if (reverseOrder) matches.asReversed() else matches
 
@@ -110,63 +115,74 @@ internal fun TopMatchesSection(
             TopMatchesHeader()
         }
 
-        displayedMatches.forEach { item ->
-            key(item.stableKey()) {
-                val isTopPredicted = showTopResultIndicator && item == highlightedMatch
-                if (item is TopMatchItem.AppGrid) {
-                    TopMatchAppGrid(
-                        apps = item.apps,
-                        params = params.appsParams,
-                        isPredicted = isTopPredicted,
-                    )
-                } else if (item is TopMatchItem.Other) {
-                    when (item.itemId) {
-                        OtherSearchItemId.SCREEN_TIME ->
-                            ScreenTimeResultCard(
-                                state = screenTimeState,
-                                isPinned =
-                                    OtherSearchItemRegistry.isPinned(
-                                        item.itemId,
-                                        pinnedNonAppItemOrder,
-                                    ),
-                                showWallpaperBackground = showWallpaperBackground,
-                                iconPackPackage = iconPackPackage,
-                                onTogglePin = { onOtherSearchItemAction(item.itemId, OtherSearchItemAction.TOGGLE_PIN) },
-                                onHide = { onOtherSearchItemAction(item.itemId, OtherSearchItemAction.HIDE) },
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .predictedSubmitHighlight(
-                                            isPredicted = isTopPredicted,
-                                            shape = SearchResultCardDefaults.shape,
-                                            opaqueCardTopResultBorder = true,
+        CompositionLocalProvider(LocalCardlessStackSpacing provides DesignTokens.SpacingXSmall) {
+            displayedMatches.forEach { item ->
+                key(item.stableKey()) {
+                    val isTopPredicted = showTopResultIndicator && item == highlightedMatch
+                    if (item is TopMatchItem.AppGrid) {
+                        // Flat rows end in a divider; keep the icons off it.
+                        val gridTopPadding =
+                            if (!cardLayoutEnabled && item != displayedMatches.first()) {
+                                DesignTokens.SpacingSmall
+                            } else {
+                                0.dp
+                            }
+                        Box(modifier = Modifier.fillMaxWidth().padding(top = gridTopPadding)) {
+                            TopMatchAppGrid(
+                                apps = item.apps,
+                                params = params.appsParams,
+                                isPredicted = isTopPredicted,
+                            )
+                        }
+                    } else if (item is TopMatchItem.Other) {
+                        when (item.itemId) {
+                            OtherSearchItemId.SCREEN_TIME ->
+                                ScreenTimeResultCard(
+                                    state = screenTimeState,
+                                    isPinned =
+                                        OtherSearchItemRegistry.isPinned(
+                                            item.itemId,
+                                            pinnedNonAppItemOrder,
                                         ),
-                            )
-                    }
-                } else {
-                    SearchResultCard(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .predictedSubmitHighlight(
-                                    isPredicted = isTopPredicted,
-                                    shape = SearchResultCardDefaults.shape,
-                                    opaqueCardTopResultBorder = true,
-                                ),
-                        showWallpaperBackground = showWallpaperBackground,
-                    ) {
-                        Column(
+                                    showWallpaperBackground = showWallpaperBackground,
+                                    iconPackPackage = iconPackPackage,
+                                    onTogglePin = { onOtherSearchItemAction(item.itemId, OtherSearchItemAction.TOGGLE_PIN) },
+                                    onHide = { onOtherSearchItemAction(item.itemId, OtherSearchItemAction.HIDE) },
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .predictedSubmitHighlight(
+                                                isPredicted = isTopPredicted,
+                                                shape = SearchResultCardDefaults.shape,
+                                                opaqueCardTopResultBorder = true,
+                                            ),
+                                )
+                        }
+                    } else {
+                        SearchResultCard(
                             modifier =
-                                Modifier.padding(
-                                    horizontal = DesignTokens.SpacingLarge,
-                                    vertical = 4.dp,
-                                ),
+                                Modifier
+                                    .fillMaxWidth()
+                                    .predictedSubmitHighlight(
+                                        isPredicted = isTopPredicted,
+                                        shape = SearchResultCardDefaults.shape,
+                                        opaqueCardTopResultBorder = true,
+                                    ),
+                            showWallpaperBackground = showWallpaperBackground,
                         ) {
-                            TopMatchRow(
-                                item = item,
-                                params = params,
-                                isPredicted = false,
-                            )
+                            Column(
+                                modifier =
+                                    Modifier.padding(
+                                        horizontal = DesignTokens.SpacingLarge,
+                                        vertical = 4.dp,
+                                    ),
+                            ) {
+                                TopMatchRow(
+                                    item = item,
+                                    params = params,
+                                    isPredicted = false,
+                                )
+                            }
                         }
                     }
                 }
@@ -496,7 +512,7 @@ private fun TopMatchAppRow(
                         onLongClick = if (app.isArchived) null else ({ showOptions = true }),
                     )
                     .topPredictedRowContentPadding()
-                    .padding(vertical = 12.dp),
+                    .padding(vertical = resultRowVerticalPadding(12.dp)),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {

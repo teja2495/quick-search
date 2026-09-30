@@ -96,6 +96,7 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
                 AppSettingsToggleKey.OVERLAY_MODE -> setOverlayModeEnabled(command.enabled)
                 AppSettingsToggleKey.ONE_HANDED_MODE -> setOneHandedMode(command.enabled)
                 AppSettingsToggleKey.BOTTOM_SEARCHBAR -> setBottomSearchBarEnabled(command.enabled)
+                AppSettingsToggleKey.COMPACT_LAYOUT -> setCardLayoutEnabled(!command.enabled)
                 AppSettingsToggleKey.UNIFIED_PINNED_ITEMS ->
                     setUnifiedPinnedItemsEnabled(command.enabled)
                 AppSettingsToggleKey.PINNED_APP_SHORTCUTS_IN_APP_GRID ->
@@ -217,6 +218,7 @@ internal fun SearchUiState.isAppSettingToggleEnabled(toggleKey: AppSettingsToggl
         AppSettingsToggleKey.OVERLAY_MODE -> overlayModeEnabled
         AppSettingsToggleKey.ONE_HANDED_MODE -> oneHandedMode
         AppSettingsToggleKey.BOTTOM_SEARCHBAR -> bottomSearchBarEnabled
+        AppSettingsToggleKey.COMPACT_LAYOUT -> !cardLayoutEnabled
         AppSettingsToggleKey.UNIFIED_PINNED_ITEMS -> unifiedPinnedItemsEnabled
         AppSettingsToggleKey.PINNED_APP_SHORTCUTS_IN_APP_GRID -> pinnedAppShortcutsInAppGrid
         AppSettingsToggleKey.SEARCH_HINTS -> searchHintsEnabled
