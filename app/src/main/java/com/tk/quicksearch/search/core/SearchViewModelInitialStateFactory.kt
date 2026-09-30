@@ -293,6 +293,7 @@ internal object SearchViewModelInitialStateFactory {
                 bottomSearchBarEnabled = startupPreferencesReader.isBottomSearchBarEnabled(),
                 unifiedPinnedItemsEnabled = startupPreferencesReader.isUnifiedPinnedItemsEnabled(),
                 searchHintsEnabled = startupPreferencesReader.isSearchHintsEnabled(),
+                cardLayoutEnabled = startupPreferencesReader.isCardLayoutEnabled(),
                 settingsIconEnabled = startupPreferencesReader.isSettingsIconEnabled(),
                 topResultIndicatorEnabled =
                     startupSnapshot?.topResultIndicatorEnabled

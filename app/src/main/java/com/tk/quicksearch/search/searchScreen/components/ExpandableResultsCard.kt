@@ -13,6 +13,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
+import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -85,6 +86,7 @@ internal fun ExpandableResultsCard(
     }
 }
 
+@Composable
 internal fun topResultIndicator(isTopPredicted: Boolean): Shape =
     if (isTopPredicted) {
         DesignTokens.ShapeLarge
@@ -92,6 +94,7 @@ internal fun topResultIndicator(isTopPredicted: Boolean): Shape =
         SearchResultCardDefaults.shape
     }
 
+@Composable
 internal fun Modifier.topPredictedRowContainer(
     isTopPredicted: Boolean,
     shape: Shape = topResultIndicator(isTopPredicted),
@@ -109,6 +112,11 @@ internal fun Modifier.topPredictedRowContainer(
             shape = shape,
         )
         .clip(shape)
+
+/** Vertical padding for a result row; halved when the card layout is off so flat rows sit closer. */
+@Composable
+internal fun resultRowVerticalPadding(base: Dp): Dp =
+    if (LocalSearchCardLayoutEnabled.current) base else base / 2
 
 internal fun Modifier.topPredictedRowContentPadding(
 ): Modifier =

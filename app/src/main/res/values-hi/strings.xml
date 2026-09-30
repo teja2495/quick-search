@@ -722,6 +722,8 @@
     <string name="settings_beta_tag">Beta</string>
     <string name="settings_bottom_searchbar_desc">सर्च बार को स्क्रीन के नीचे रखें</string>
     <string name="settings_bottom_searchbar_title">नीचे सर्च बार</string>
+    <string name="settings_compact_layout_title">कॉम्पैक्ट लेआउट</string>
+    <string name="settings_compact_layout_desc">होम और खोज परिणामों से कार्ड बैकग्राउंड हटाएँ ताकि सामग्री पूरी चौड़ाई इस्तेमाल करे</string>
     <string name="settings_cache_cleared_toast">कैश साफ हो गया। ऐप इंडेक्स फिर से बनाया जा रहा है\u2026</string>
     <string name="settings_circular_app_icons_desc">ऐप आइकनों को जबरन गोल बनाएं</string>
     <string name="settings_circular_app_icons_title">गोल ऐप आइकन</string>

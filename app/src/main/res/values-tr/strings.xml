@@ -721,6 +721,8 @@
 <string name="settings_beta_tag">Beta</string>
 <string name="settings_bottom_searchbar_desc">Arama çubuğunu ekranın altına yerleştir</string>
 <string name="settings_bottom_searchbar_title">Alt arama çubuğu</string>
+<string name="settings_compact_layout_title">Kompakt düzen</string>
+<string name="settings_compact_layout_desc">İçeriğin tam genişliği kullanması için ana ekran ve sonuçlardaki kart arka planlarını kaldır</string>
 <string name="settings_cache_cleared_toast">Önbellek temizlendi. Uygulama dizini yeniden oluşturuluyor\u2026</string>
 <string name="settings_circular_app_icons_desc">Uygulama simgelerini yuvarlak olmaya zorla</string>
 <string name="settings_circular_app_icons_title">Yuvarlak uygulama simgeleri</string>

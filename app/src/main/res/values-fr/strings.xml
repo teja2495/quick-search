@@ -722,6 +722,8 @@
 <string name="settings_beta_tag">Bêta</string>
 <string name="settings_bottom_searchbar_desc">Placer la barre de recherche en bas de l\'écran</string>
 <string name="settings_bottom_searchbar_title">Barre de recherche en bas</string>
+<string name="settings_compact_layout_title">Disposition compacte</string>
+<string name="settings_compact_layout_desc">Retirer les fonds de carte de l\'accueil et des résultats pour que le contenu utilise toute la largeur</string>
 <string name="settings_cache_cleared_toast">Cache effacé. Reconstitution de l\'index de l\'application\u2026</string>
 <string name="settings_circular_app_icons_desc">Forcer les icônes d\'applications circulaires</string>
 <string name="settings_circular_app_icons_title">Icônes d\'applications circulaires</string>

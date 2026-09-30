@@ -712,6 +712,8 @@
     <string name="settings_beta_tag">测试版</string>
     <string name="settings_bottom_searchbar_desc">将搜索栏放置在屏幕底部</string>
     <string name="settings_bottom_searchbar_title">底部搜索栏</string>
+    <string name="settings_compact_layout_title">紧凑布局</string>
+    <string name="settings_compact_layout_desc">移除主屏幕和搜索结果的卡片背景，让内容使用全部宽度</string>
     <string name="settings_cache_cleared_toast">缓存已清除。正在重新构建应用索引\u2026</string>
     <string name="settings_circular_app_icons_desc">强制将应用图标转换为圆形</string>
     <string name="settings_circular_app_icons_title">圆形应用图标</string>

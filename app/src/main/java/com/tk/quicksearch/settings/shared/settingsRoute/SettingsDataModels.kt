@@ -51,6 +51,7 @@ data class SettingsScreenState(
     val excludedFileExtensions: Set<String>,
     val oneHandedMode: Boolean,
     val bottomSearchBarEnabled: Boolean = false,
+    val cardLayoutEnabled: Boolean = true,
     val unifiedPinnedItemsEnabled: Boolean = false,
     val homePinnedSectionOrder: List<SearchSection> =
         com.tk.quicksearch.search.data.preferences.UiPreferences.DEFAULT_HOME_PINNED_SECTION_ORDER,

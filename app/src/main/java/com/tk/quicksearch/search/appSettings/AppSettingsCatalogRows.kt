@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.appSettings
 import android.content.Context
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.search.core.SearchSectionRegistry
 import com.tk.quicksearch.tools.tasker.TaskerIntegration
 
 internal const val AI_MODEL_SETTING_ID = "app_settings_ai_model"
@@ -62,4 +63,16 @@ internal fun searchSectionToggleDescriptionRes(section: SearchSection): Int =
         SearchSection.REMINDERS -> R.string.search_section_reminders_toggle_desc
         SearchSection.NOTES -> R.string.search_section_notes_toggle_desc
         SearchSection.APP_SETTINGS -> R.string.search_section_app_settings_toggle_desc
+    }
+
+/** One toggle row per search section, in registry order. */
+internal fun Context.searchSectionToggleRows(): List<AppSettingResult> =
+    SearchSectionRegistry.orderedDefinitions.map { definition ->
+        AppSettingResult(
+            id = searchSectionToggleId(definition.section),
+            title = getString(searchSectionToggleTitleRes(definition.section)),
+            description = getString(searchSectionToggleDescriptionRes(definition.section)),
+            action = AppSettingResultAction.TOGGLE,
+            toggleKey = definition.appSettingsToggleKey,
+        )
     }

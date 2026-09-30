@@ -47,6 +47,13 @@ open class UiPreferencesCore(context: Context) : BasePreferences(context) {
         setBooleanPref(UiPreferences.KEY_SEARCH_HINTS_ENABLED, enabled)
     }
 
+    fun isCardLayoutEnabled(): Boolean =
+            getBooleanPref(UiPreferences.KEY_CARD_LAYOUT_ENABLED, true)
+
+    fun setCardLayoutEnabled(enabled: Boolean) {
+        setBooleanPref(UiPreferences.KEY_CARD_LAYOUT_ENABLED, enabled)
+    }
+
     fun isSettingsIconEnabled(): Boolean =
             getBooleanPref(UiPreferences.KEY_SETTINGS_ICON_ENABLED, true)
 

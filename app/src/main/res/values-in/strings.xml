@@ -726,6 +726,8 @@
     <string name="settings_beta_tag">Beta</string>
     <string name="settings_bottom_searchbar_desc">Tempatkan bilah pencarian di bagian bawah layar</string>
     <string name="settings_bottom_searchbar_title">Bilah Pencarian Bawah</string>
+    <string name="settings_compact_layout_title">Tata letak ringkas</string>
+    <string name="settings_compact_layout_desc">Hapus latar kartu dari beranda dan hasil pencarian agar konten memakai lebar penuh</string>
     <string name="settings_cache_cleared_toast">Cache dihapus. Membuat ulang indeks aplikasi…</string>
     <string name="settings_circular_app_icons_desc">Terapkan bentuk bulat pada ikon aplikasi</string>
     <string name="settings_circular_app_icons_title">Ikon Aplikasi Bulat</string>
