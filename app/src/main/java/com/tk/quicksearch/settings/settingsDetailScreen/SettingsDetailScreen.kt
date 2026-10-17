@@ -334,6 +334,15 @@ internal fun SettingsDetailLevel1Screen(
                                     ),
                                 )
                             },
+                            compactLayoutEnabled = !state.cardLayoutEnabled,
+                            onToggleCompactLayout = { enabled ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.Toggle(
+                                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.COMPACT_LAYOUT,
+                                        enabled = enabled,
+                                    ),
+                                )
+                            },
                             unifiedPinnedItemsEnabled = state.unifiedPinnedItemsEnabled,
                             onToggleUnifiedPinnedItems = { enabled ->
                                 callbacks.onApplySettingsCommand(

@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.searchScreen.LocalOverlayActionColor
@@ -145,10 +146,14 @@ internal fun CollapseButton(
 
 @Composable
 private fun resultCardContainerColor(showWallpaperBackground: Boolean): Color =
-    AppColors.getSearchResultCardContainerColor(
-        showWallpaperBackground,
-        LocalOverlayResultCardColor.current,
-    )
+    if (LocalSearchCardLayoutEnabled.current) {
+        AppColors.getSearchResultCardContainerColor(
+            showWallpaperBackground,
+            LocalOverlayResultCardColor.current,
+        )
+    } else {
+        Color.Transparent
+    }
 
 @Composable
 private fun expandCollapseActionContentColor(overlayActionColor: Color?): Color =

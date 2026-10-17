@@ -348,6 +348,7 @@ class UiPreferences(context: Context) : UiPreferencesFeatures(context) {
         const val KEY_BOTTOM_SEARCH_BAR_ENABLED = "bottom_search_bar_enabled"
         const val KEY_UNIFIED_PINNED_ITEMS_ENABLED = "unified_pinned_items_enabled"
         const val KEY_SEARCH_HINTS_ENABLED = "search_hints_enabled"
+        const val KEY_CARD_LAYOUT_ENABLED = "card_layout_enabled"
         const val KEY_SETTINGS_ICON_ENABLED = "settings_icon_enabled"
         const val KEY_OPEN_KEYBOARD_ON_LAUNCH = "open_keyboard_on_launch"
         const val KEY_RESERVED_KEYBOARD_HEIGHT_PORTRAIT = "reserved_keyboard_height_portrait"

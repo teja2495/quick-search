@@ -128,6 +128,16 @@ internal fun SearchPreferencesDelegate.setUnifiedPinnedItemsEnabled(enabled: Boo
         )
     }
 
+internal fun SearchPreferencesDelegate.setCardLayoutEnabled(enabled: Boolean) {
+        updateBooleanPreference(
+            value = enabled,
+            preferenceSetter = userPreferences::setCardLayoutEnabled,
+            stateUpdater = {
+                updateUiState { state -> state.copy(cardLayoutEnabled = it) }
+            },
+        )
+    }
+
 internal fun SearchPreferencesDelegate.setSearchHintsEnabled(enabled: Boolean) {
         updateBooleanPreference(
             value = enabled,

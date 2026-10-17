@@ -192,7 +192,7 @@ internal fun UnifiedPinnedItemsBlock(
                     contentAlignment = Alignment.Center,
                 ) {
                     headerContent(
-                        Modifier.padding(horizontal = DesignTokens.SpacingLarge),
+                        Modifier.padding(horizontal = collapsedPinnedHeaderInset()),
                     )
                 }
             }
