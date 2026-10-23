@@ -67,6 +67,7 @@ internal fun searchSectionToggleDescriptionRes(section: SearchSection): Int =
         SearchSection.APP_SETTINGS -> R.string.search_section_app_settings_toggle_desc
     }
 
+/** One toggle row per search section, in registry order. */
 internal fun Context.searchSectionToggleRows(): List<AppSettingResult> =
     SearchSectionRegistry.orderedDefinitions.map { definition ->
         AppSettingResult(

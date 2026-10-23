@@ -185,6 +185,7 @@ internal object SearchStateExtractor {
             bottomSearchBarEnabled = s.bottomSearchBarEnabled,
             unifiedPinnedItemsEnabled = s.unifiedPinnedItemsEnabled,
             searchHintsEnabled = s.searchHintsEnabled,
+            cardLayoutEnabled = s.cardLayoutEnabled,
             settingsIconEnabled = s.settingsIconEnabled,
             topResultIndicatorEnabled = s.topResultIndicatorEnabled,
             openTopResultUsingKeyboardEnabled = s.openTopResultUsingKeyboardEnabled,

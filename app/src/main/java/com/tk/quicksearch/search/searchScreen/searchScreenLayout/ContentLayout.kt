@@ -28,6 +28,7 @@ import com.tk.quicksearch.searchEngines.*
 import com.tk.quicksearch.search.searchScreen.ExpandedSection
 import com.tk.quicksearch.search.searchScreen.hasAnySearchResults
 import com.tk.quicksearch.search.searchScreen.renderSection
+import com.tk.quicksearch.search.searchScreen.shared.reportCardlessTrailingEdge
 import com.tk.quicksearch.search.searchScreen.rememberSettledRegularSearchRenderingState
 import com.tk.quicksearch.search.searchScreen.rememberSettledTopMatches
 import com.tk.quicksearch.search.searchScreen.rememberTopMatches
@@ -264,7 +265,6 @@ fun ContentLayout(
                 suggestionsNotEmpty &&
                 suggestionsEnabled &&
                 !suggestionWasSelected
-
     val showRecentItems = shouldShowHomeSearchHistory(state)
 
     // Hoisted to the screen so the screen-level layout (bottom alignment, one-handed mode) flips
@@ -748,7 +748,7 @@ fun ContentLayout(
                 shouldRenderSection(SearchSection.APPS) && !isUrlQuery && !holdRegularSectionsForTopMatches &&
                     sectionContext.shouldRenderApps && regularAppsParams.hasAppResults,
         )
-    val contentModifier = modifier.padding(bottom = bottomGap)
+    val contentModifier = modifier.padding(bottom = bottomGap).reportCardlessTrailingEdge()
 
     val homeWidgets = rememberHomePinnedWidgets(enabled = !isOverlayPresentation)
     // The container only depends on whether any widget is pinned, so typing a query keeps the same

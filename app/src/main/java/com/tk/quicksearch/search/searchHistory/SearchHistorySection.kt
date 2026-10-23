@@ -77,6 +77,7 @@ import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.search.searchScreen.components.CollapseButton
 import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
 import com.tk.quicksearch.search.searchScreen.components.ExpandButton
+import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.searchEngines.SearchTargetQueryShortcutActivity
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.theme.AppColors
@@ -317,6 +318,7 @@ fun SearchHistorySection(
                         },
                         modifier = Modifier.align(Alignment.CenterHorizontally),
                         textResId = R.string.action_more_search_history,
+                        compact = !LocalSearchCardLayoutEnabled.current,
                     )
                 }
             }

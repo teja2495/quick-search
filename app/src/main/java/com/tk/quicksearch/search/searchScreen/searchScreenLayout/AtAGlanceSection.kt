@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import com.tk.quicksearch.search.searchScreen.shared.homeSectionTitleStyle
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.expandVertically
@@ -317,7 +318,7 @@ internal fun AtAGlanceTitle() {
     val openAppSettingDestination = LocalOpenAppSettingDestination.current
     Text(
         text = stringResource(R.string.settings_at_a_glance_title),
-        style = MaterialTheme.typography.titleSmall,
+        style = homeSectionTitleStyle(),
         color = homeTextColor(),
         modifier =
             Modifier

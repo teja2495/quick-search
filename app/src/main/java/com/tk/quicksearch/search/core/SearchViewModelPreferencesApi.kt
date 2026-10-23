@@ -221,6 +221,9 @@ internal interface SearchViewModelPreferencesApi {
     fun setSearchHintsEnabled(enabled: Boolean) =
         preferencesApiDelegate.setSearchHintsEnabled(enabled)
 
+    fun setCardLayoutEnabled(enabled: Boolean) =
+        preferencesApiDelegate.setCardLayoutEnabled(enabled)
+
     fun setSettingsIconEnabled(enabled: Boolean) =
         preferencesApiDelegate.setSettingsIconEnabled(enabled)
 
@@ -509,6 +512,9 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
 
     fun setSearchHintsEnabled(enabled: Boolean) =
         preferencesDelegate.setSearchHintsEnabled(enabled)
+
+    fun setCardLayoutEnabled(enabled: Boolean) =
+        preferencesDelegate.setCardLayoutEnabled(enabled)
 
     fun setSettingsIconEnabled(enabled: Boolean) =
         preferencesDelegate.setSettingsIconEnabled(enabled)

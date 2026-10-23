@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import com.tk.quicksearch.search.searchScreen.shared.homeSectionTitleStyle
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -80,7 +81,7 @@ internal fun HomeSearchHistoryBlock(
                 ) {
                     Text(
                         text = stringResource(R.string.recent_queries_toggle_title),
-                        style = MaterialTheme.typography.titleSmall,
+                        style = homeSectionTitleStyle(),
                         color = homeTextColor(),
                         modifier = Modifier.padding(horizontal = DesignTokens.SpacingLarge),
                     )

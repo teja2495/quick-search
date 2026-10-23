@@ -56,6 +56,7 @@ import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContainer
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentPadding
+import com.tk.quicksearch.search.searchScreen.components.resultRowVerticalPadding
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
 import com.tk.quicksearch.shared.ui.components.AppVoiceCallIcon
 import com.tk.quicksearch.shared.ui.theme.AppColors
@@ -144,7 +145,7 @@ internal fun ContactResultRow(
                                                                         },
                                                 )
                                                 .topPredictedRowContentPadding()
-                                                .padding(vertical = DesignTokens.SpacingSmall),
+                                                .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingSmall)),
                                 horizontalArrangement =
                                         Arrangement.spacedBy(DesignTokens.SpacingMedium),
                                 verticalAlignment = Alignment.CenterVertically,

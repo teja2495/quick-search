@@ -451,6 +451,13 @@ class AppSettingsRepository(
                 toggleKey = AppSettingsToggleKey.BOTTOM_SEARCHBAR,
             )
             addToggle(
+                id = "app_toggle_compact_layout",
+                titleRes = R.string.settings_compact_layout_title,
+                descriptionRes = R.string.settings_compact_layout_desc,
+                toggleKey = AppSettingsToggleKey.COMPACT_LAYOUT,
+                keywords = listOf("cards", "card layout", "background", "full width", "dense", "flat"),
+            )
+            addToggle(
                 id = "app_toggle_unified_pinned_items",
                 titleRes = R.string.settings_unified_pinned_items_title,
                 descriptionRes = R.string.settings_unified_pinned_items_desc,

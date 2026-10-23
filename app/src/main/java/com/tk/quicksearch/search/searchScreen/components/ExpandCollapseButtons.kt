@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.searchScreen.LocalOverlayActionColor
@@ -33,6 +34,8 @@ import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.ui.theme.LocalAppTheme
 
 private const val EXPAND_ICON_SIZE = 18
+private const val COMPACT_EXPAND_ICON_SIZE = 14
+private const val COMPACT_EXPAND_BUTTON_MIN_HEIGHT = 24
 
 @Composable
 internal fun ExpandButton(
@@ -42,16 +45,19 @@ internal fun ExpandButton(
     usePillBackground: Boolean = false,
     showWallpaperBackground: Boolean = false,
     icon: ImageVector = Icons.Rounded.ExpandMore,
+    compact: Boolean = false,
 ) {
     val overlayActionColor = LocalOverlayActionColor.current
     val moreActionColor = expandCollapseActionContentColor(overlayActionColor)
     val cardContainerColor = resultCardContainerColor(showWallpaperBackground)
+    val baseTextStyle = if (compact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.bodySmall
     val moreTextStyle =
         if (LocalAppTheme.current == AppTheme.MONOCHROME) {
-            MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold)
+            baseTextStyle.copy(fontWeight = FontWeight.SemiBold)
         } else {
-            MaterialTheme.typography.bodySmall
+            baseTextStyle
         }
+    val iconSize = if (compact) COMPACT_EXPAND_ICON_SIZE else EXPAND_ICON_SIZE
 
     if (usePillBackground) {
         OutlinedButton(
@@ -76,13 +82,14 @@ internal fun ExpandButton(
                 imageVector = icon,
                 contentDescription = stringResource(R.string.desc_expand),
                 tint = moreActionColor,
-                modifier = Modifier.size(EXPAND_ICON_SIZE.dp),
+                modifier = Modifier.size(iconSize.dp),
             )
         }
     } else {
         TextButton(
             onClick = onClick,
-            modifier = modifier,
+            // Compact drops the 40dp default min height so the button hugs the rows above it.
+            modifier = if (compact) modifier.heightIn(min = COMPACT_EXPAND_BUTTON_MIN_HEIGHT.dp) else modifier,
             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
         ) {
             Text(
@@ -94,7 +101,7 @@ internal fun ExpandButton(
                 imageVector = icon,
                 contentDescription = stringResource(R.string.desc_expand),
                 tint = moreActionColor,
-                modifier = Modifier.size(EXPAND_ICON_SIZE.dp),
+                modifier = Modifier.size(iconSize.dp),
             )
         }
     }
@@ -145,10 +152,14 @@ internal fun CollapseButton(
 
 @Composable
 private fun resultCardContainerColor(showWallpaperBackground: Boolean): Color =
-    AppColors.getSearchResultCardContainerColor(
-        showWallpaperBackground,
-        LocalOverlayResultCardColor.current,
-    )
+    if (LocalSearchCardLayoutEnabled.current) {
+        AppColors.getSearchResultCardContainerColor(
+            showWallpaperBackground,
+            LocalOverlayResultCardColor.current,
+        )
+    } else {
+        Color.Transparent
+    }
 
 @Composable
 private fun expandCollapseActionContentColor(overlayActionColor: Color?): Color =

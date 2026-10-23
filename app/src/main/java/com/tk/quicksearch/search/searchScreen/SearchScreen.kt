@@ -15,6 +15,10 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import com.tk.quicksearch.search.searchScreen.shared.CardlessTrailingEdge
+import com.tk.quicksearch.search.searchScreen.shared.LocalCardlessSectionDividers
+import com.tk.quicksearch.search.searchScreen.shared.LocalCardlessTrailingEdge
+import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.widgetsPanel.HomeWidgetEditGuard
 import com.tk.quicksearch.widgetsPanel.LocalHomeWidgetEditGuard
 import com.tk.quicksearch.widgetsPanel.homeWidgetEditTapGuard
@@ -458,6 +462,9 @@ fun SearchScreen(
         LocalImageBackgroundIsDark provides imageBackgroundIsDark,
         LocalHomeTextColorOverride provides state.homeTextColorOverride,
         LocalHomeWidgetEditGuard provides homeWidgetEditGuard,
+        LocalSearchCardLayoutEnabled provides state.cardLayoutEnabled,
+        LocalCardlessSectionDividers provides state.query.isNotBlank(),
+        LocalCardlessTrailingEdge provides remember { CardlessTrailingEdge() },
     ) {
     Box(modifier = screenModifier.homeWidgetEditTapGuard(homeWidgetEditGuard)) {
         if (!isOverlayPresentation) {

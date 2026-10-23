@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import com.tk.quicksearch.search.searchScreen.shared.homeSectionTitleStyle
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.expandVertically
@@ -187,7 +188,7 @@ internal fun UnifiedPinnedItemsBlock(
         ) {
             Text(
                 text = stringResource(R.string.app_suggestions_tab_pinned),
-                style = MaterialTheme.typography.titleSmall,
+                style = homeSectionTitleStyle(),
                 color = homeTextColor(),
             )
             Icon(
@@ -221,7 +222,7 @@ internal fun UnifiedPinnedItemsBlock(
                     contentAlignment = Alignment.Center,
                 ) {
                     headerContent(
-                        Modifier.padding(horizontal = DesignTokens.SpacingLarge),
+                        Modifier.padding(horizontal = collapsedPinnedHeaderInset()),
                     )
                 }
             }
