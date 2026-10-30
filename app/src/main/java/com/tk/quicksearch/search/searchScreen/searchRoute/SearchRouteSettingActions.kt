@@ -110,6 +110,7 @@ internal fun rememberRouteSettingActions(
                     OverlayModeController.openMainActivity(
                         context = context,
                         initialQuery = uiState.query.takeIf { it.isNotBlank() },
+                        returnToOverlay = false,
                     )
                     (context as? android.app.Activity)?.finish()
                 }

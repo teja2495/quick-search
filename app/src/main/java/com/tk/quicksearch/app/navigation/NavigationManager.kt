@@ -122,6 +122,7 @@ fun MainContent(
     onSearchBackPressed: () -> Unit = {},
     navigationRequest: NavigationRequest? = null,
     onNavigationRequestHandled: () -> Unit = {},
+    returnToOverlay: Boolean = false,
     onFinishActivity: () -> Unit = {},
 ) {
     var currentScreen by remember {
@@ -439,6 +440,7 @@ fun MainContent(
                     onPendingSettingsImportUriConsumed = { pendingSettingsImportUri = null },
                     viewModel = searchViewModel,
                     onSearchBackPressed = onSearchBackPressed,
+                    returnToOverlay = returnToOverlay,
                     onFinishActivity = onFinishActivity,
                 )
             }
@@ -459,6 +461,7 @@ private fun NavigationContent(
     onPendingSettingsImportUriConsumed: () -> Unit,
     viewModel: SearchViewModel,
     onSearchBackPressed: () -> Unit,
+    returnToOverlay: Boolean,
     onFinishActivity: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -513,7 +516,7 @@ private fun NavigationContent(
             RootDestination.WidgetsPanel -> {
                 val navigateToSearch: () -> Unit = {
                     rootAnimationDirectionOverride = SwipeAnimationDirection.LEFT
-                    if (uiState.overlayModeEnabled) {
+                    if (returnToOverlay) {
                         onFinishActivity()
                     } else {
                         onDestinationChange(RootDestination.Search)
@@ -540,6 +543,7 @@ private fun NavigationContent(
                     pendingSettingsImportUri = pendingSettingsImportUri,
                     onPendingSettingsImportUriConsumed = onPendingSettingsImportUriConsumed,
                     viewModel = viewModel,
+                    returnToOverlay = returnToOverlay,
                     onFinishActivity = onFinishActivity,
                 )
             }
@@ -678,10 +682,10 @@ private fun SettingsNavigationContent(
     pendingSettingsImportUri: String?,
     onPendingSettingsImportUriConsumed: () -> Unit,
     viewModel: SearchViewModel,
+    returnToOverlay: Boolean,
     onFinishActivity: () -> Unit,
 ) {
     val context = LocalContext.current
-    val configState by viewModel.configState.collectAsStateWithLifecycle()
     val settingsScrollState = rememberScrollState()
     val detailScrollStates = remember { mutableStateMapOf<SettingsDetailType, androidx.compose.foundation.ScrollState>() }
 
@@ -746,7 +750,7 @@ private fun SettingsNavigationContent(
                 onNavigateToSearch = {
                     onRootAnimationDirectionChange(SwipeAnimationDirection.LEFT)
                     onSettingsDetailTypeChange(null)
-                    if (configState.overlayModeEnabled) {
+                    if (returnToOverlay) {
                         onFinishActivity()
                     } else {
                         onDestinationChange(RootDestination.Search)
@@ -763,7 +767,7 @@ private fun SettingsNavigationContent(
         } else {
             SettingsRoute(
                 onBack = {
-                    if (configState.overlayModeEnabled) {
+                    if (returnToOverlay) {
                         onFinishActivity()
                     } else {
                         onDestinationChange(RootDestination.Search)

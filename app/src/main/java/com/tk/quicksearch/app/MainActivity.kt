@@ -119,6 +119,8 @@ open class MainActivity : FragmentActivity() {
             voiceSearchHandler.processVoiceInputResult(result, searchViewModel::onQueryChange)
         }
     private val navigationRequest = mutableStateOf<NavigationRequest?>(null)
+    // True when the overlay handed off to this activity, so leaving goes back to the overlay.
+    private val returnToOverlay = mutableStateOf(false)
     private var pendingSearchTargetShortcut: Pair<String, SearchTarget>? = null
     private var pendingContactActionPickerRequest: PendingContactActionPickerRequest? = null
     private var hasMainUiActivated = false
@@ -187,6 +189,7 @@ open class MainActivity : FragmentActivity() {
             startupCoordinator.scheduleAfterFirstDraw(window)
 
             initializeVoiceSearchHandler()
+            updateReturnToOverlay(intent)
             handleIntent(intent)
         } finally {
             Trace.endSection()
@@ -199,6 +202,7 @@ open class MainActivity : FragmentActivity() {
         if (launchOverlayIfNeeded(intent)) {
             return
         }
+        updateReturnToOverlay(intent)
         handleIntent(intent)
         if (hasMainUiActivated) {
             maybeExecutePendingSearchTargetShortcut()
@@ -265,6 +269,11 @@ open class MainActivity : FragmentActivity() {
 
     private fun initializePreferences() {
         userPreferences = UserAppPreferences(this)
+    }
+
+    private fun updateReturnToOverlay(intent: Intent?) {
+        returnToOverlay.value =
+            intent?.getBooleanExtra(OverlayModeController.EXTRA_RETURN_TO_OVERLAY, false) ?: false
     }
 
     private fun launchOverlayIfNeeded(intent: Intent?): Boolean {
@@ -435,8 +444,9 @@ open class MainActivity : FragmentActivity() {
                         onSearchBackPressed = ::handleSearchBackPressed,
                         navigationRequest = navigationRequest.value,
                         onNavigationRequestHandled = { navigationRequest.value = null },
+                        returnToOverlay = returnToOverlay.value,
                         onFinishActivity = {
-                            if (userPreferences.isOverlayModeEnabled()) {
+                            if (returnToOverlay.value) {
                                 OverlayModeController.startOverlay(this@MainActivity)
                             }
                             finish()

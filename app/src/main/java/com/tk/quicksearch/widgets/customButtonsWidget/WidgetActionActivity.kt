@@ -414,6 +414,7 @@ class WidgetActionActivity : FragmentActivity() {
                     openSettings = true,
                     settingsDetailType = SettingsDetailType.NOTE_EDITOR,
                     noteId = action.noteId,
+                    returnToOverlay = false,
                 )
             }
 

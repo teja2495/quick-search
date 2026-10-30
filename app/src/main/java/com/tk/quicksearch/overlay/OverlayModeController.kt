@@ -17,6 +17,7 @@ object OverlayModeController {
     const val EXTRA_MIC_ACTION = "overlay_mic_action"
     const val EXTRA_ANIMATION_TOKEN = "overlay_animation_token"
     const val EXTRA_INITIAL_QUERY = "overlay_initial_query"
+    const val EXTRA_RETURN_TO_OVERLAY = "overlay_return_to_overlay"
 
     fun startOverlay(
         context: Context,
@@ -55,6 +56,8 @@ object OverlayModeController {
         noteId: Long? = null,
         initialQuery: String? = null,
         openWidgetsPanel: Boolean = false,
+        // Leaving Settings or the Widgets panel goes back to the overlay the user came from.
+        returnToOverlay: Boolean = true,
     ) {
         val intent =
             Intent(context, MainActivity::class.java).apply {
@@ -62,6 +65,7 @@ object OverlayModeController {
                 putExtra(EXTRA_FORCE_NORMAL_LAUNCH, true)
                 putExtra(EXTRA_OPEN_SETTINGS, openSettings)
                 putExtra(EXTRA_OPEN_WIDGETS_PANEL, openWidgetsPanel)
+                putExtra(EXTRA_RETURN_TO_OVERLAY, returnToOverlay)
                 settingsDetailType?.let { putExtra(EXTRA_OPEN_SETTINGS_DETAIL, it.name) }
                 noteId?.let { putExtra(EXTRA_OPEN_NOTE_ID, it) }
                 initialQuery?.takeIf { it.isNotBlank() }?.let { putExtra("query", it) }
