@@ -1355,6 +1355,7 @@
     <string name="icon_picker_no_icon_packs">యాప్ ఐకాన్‌ను మార్చడానికి ఐకాన్ ప్యాక్‌లు ఏవీ ఇన్‌స్టాల్ చేయబడలేదు.</string>
     <string name="icon_picker_download_icon_packs">డౌన్‌లోడ్ చేయండి</string>
     <string name="app_menu_usage_today">ఈరోజు %1$s ఉపయోగించారు · %2$s సార్లు తెరిచారు</string>
+    <string name="app_menu_version">v%1$s</string>
     <plurals name="app_menu_opened_count"><item quantity="one">%d సారి</item><item quantity="other">%d సార్లు</item></plurals>
     <plurals name="app_menu_usage_hours"><item quantity="one">%d గం.</item><item quantity="other">%d గం.</item></plurals>
     <plurals name="app_menu_usage_minutes"><item quantity="one">%d ని.</item><item quantity="other">%d ని.</item></plurals>

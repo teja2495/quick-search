@@ -1355,6 +1355,7 @@
     <string name="icon_picker_no_icon_packs">Não há pacotes de ícones instalados para alterar o ícone do app.</string>
     <string name="icon_picker_download_icon_packs">Baixar</string>
     <string name="app_menu_usage_today">%1$s hoje · Aberto %2$s</string>
+    <string name="app_menu_version">v%1$s</string>
     <plurals name="app_menu_opened_count"><item quantity="one">%d vez</item><item quantity="other">%d vezes</item></plurals>
     <plurals name="app_menu_usage_hours"><item quantity="one">%d h</item><item quantity="other">%d h</item></plurals>
     <plurals name="app_menu_usage_minutes"><item quantity="one">%d min</item><item quantity="other">%d min</item></plurals>

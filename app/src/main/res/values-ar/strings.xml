@@ -1357,6 +1357,7 @@
     <string name="icon_picker_no_icon_packs">لا توجد حزم أيقونات مثبتة لتغيير أيقونة التطبيق.</string>
     <string name="icon_picker_download_icon_packs">تنزيل</string>
     <string name="app_menu_usage_today">%1$s اليوم · فُتح %2$s</string>
+    <string name="app_menu_version">v%1$s</string>
     <plurals name="app_menu_opened_count"><item quantity="one">مرة واحدة</item><item quantity="other">%d مرات</item></plurals>
     <plurals name="app_menu_usage_hours"><item quantity="one">ساعة واحدة</item><item quantity="other">%d س</item></plurals>
     <plurals name="app_menu_usage_minutes"><item quantity="one">دقيقة واحدة</item><item quantity="other">%d د</item></plurals>

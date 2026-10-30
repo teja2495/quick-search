@@ -1386,6 +1386,7 @@ www.google.com/search?q={{query}}</string>
     <string name="tasker_not_installed">Tasker nie jest zainstalowany</string>
     <string name="tasker_broadcast_failed">Nie udało się wysłać komunikatu rozgłoszeniowego Taskera</string>
     <string name="app_menu_usage_today">Czas użycia dzisiaj: %1$s · %2$s</string>
+    <string name="app_menu_version">v%1$s</string>
     <plurals name="app_menu_opened_count"><item quantity="one">%d otwarcie</item><item quantity="few">%d otwarcia</item><item quantity="many">%d otwarć</item><item quantity="other">%d otwarcia</item></plurals>
     <plurals name="app_menu_usage_hours"><item quantity="one">%d godz.</item><item quantity="few">%d godz.</item><item quantity="many">%d godz.</item><item quantity="other">%d godz.</item></plurals>
     <plurals name="app_menu_usage_minutes"><item quantity="one">%d min</item><item quantity="few">%d min</item><item quantity="many">%d min</item><item quantity="other">%d min</item></plurals>

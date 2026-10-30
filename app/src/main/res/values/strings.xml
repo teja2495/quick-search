@@ -1357,6 +1357,7 @@
     <string name="tasker_not_installed">Tasker is not installed</string>
     <string name="tasker_broadcast_failed">Could not send the Tasker broadcast</string>
     <string name="app_menu_usage_today">Used for %1$s today · %2$s</string>
+    <string name="app_menu_version">v%1$s</string>
     <plurals name="app_menu_opened_count"><item quantity="one">%d open</item><item quantity="other">%d opens</item></plurals>
     <plurals name="app_menu_usage_hours"><item quantity="one">%d hr</item><item quantity="other">%d hr</item></plurals>
     <plurals name="app_menu_usage_minutes"><item quantity="one">%d min</item><item quantity="other">%d min</item></plurals>

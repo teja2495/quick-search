@@ -1355,6 +1355,7 @@
     <string name="icon_picker_no_icon_packs">ऐप आइकन बदलने के लिए कोई आइकन पैक इंस्टॉल नहीं है।</string>
     <string name="icon_picker_download_icon_packs">डाउनलोड करें</string>
     <string name="app_menu_usage_today">आज %1$s इस्तेमाल किया · %2$s बार खोला</string>
+    <string name="app_menu_version">v%1$s</string>
     <plurals name="app_menu_opened_count"><item quantity="one">%d बार</item><item quantity="other">%d बार</item></plurals>
     <plurals name="app_menu_usage_hours"><item quantity="one">%d घंटा</item><item quantity="other">%d घंटे</item></plurals>
     <plurals name="app_menu_usage_minutes"><item quantity="one">%d मिनट</item><item quantity="other">%d मिनट</item></plurals>

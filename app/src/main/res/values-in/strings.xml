@@ -1351,6 +1351,7 @@
     <string name="tasker_not_installed">Tasker tidak terpasang</string>
     <string name="tasker_broadcast_failed">Tidak dapat mengirim broadcast Tasker</string>
     <string name="app_menu_usage_today">Digunakan selama %1$s hari ini · %2$s</string>
+    <string name="app_menu_version">v%1$s</string>
     <plurals name="app_menu_opened_count"><item quantity="one">%d kali dibuka</item><item quantity="other">%d kali dibuka</item></plurals>
     <plurals name="app_menu_usage_hours"><item quantity="one">%d jam</item><item quantity="other">%d jam</item></plurals>
     <plurals name="app_menu_usage_minutes"><item quantity="one">%d mnt</item><item quantity="other">%d mnt</item></plurals>

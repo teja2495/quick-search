@@ -1355,6 +1355,7 @@
     <string name="icon_picker_no_icon_packs">Es sind keine Icon-Packs installiert, um das App-Symbol zu ändern.</string>
     <string name="icon_picker_download_icon_packs">Herunterladen</string>
     <string name="app_menu_usage_today">Heute %1$s genutzt · %2$s geöffnet</string>
+    <string name="app_menu_version">v%1$s</string>
     <plurals name="app_menu_opened_count"><item quantity="one">%d Mal</item><item quantity="other">%d Mal</item></plurals>
     <plurals name="app_menu_usage_hours"><item quantity="one">%d Std.</item><item quantity="other">%d Std.</item></plurals>
     <plurals name="app_menu_usage_minutes"><item quantity="one">%d Min.</item><item quantity="other">%d Min.</item></plurals>

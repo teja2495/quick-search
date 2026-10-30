@@ -1401,6 +1401,7 @@ Gebruik {time} om de huidige datum en tijd in de prompt op te nemen.</string>
     <string name="tasker_not_installed">Tasker is niet geïnstalleerd</string>
     <string name="tasker_broadcast_failed">Kan de Tasker-broadcast niet verzenden</string>
     <string name="app_menu_usage_today">Vandaag %1$s gebruikt · %2$s</string>
+    <string name="app_menu_version">v%1$s</string>
     <plurals name="app_menu_opened_count">
         <item quantity="one">%d keer geopend</item>
         <item quantity="other">%d keer geopend</item>

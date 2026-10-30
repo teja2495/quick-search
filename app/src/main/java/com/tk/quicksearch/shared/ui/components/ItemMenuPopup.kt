@@ -123,7 +123,7 @@ private const val ItemMenuGridColumns = 4
  *
  * Layout, top to bottom: an optional Shortcuts grid, an Actions grid of quick one-tap actions,
  * then [buttonRows] of side-by-side buttons (e.g. Swipe up and Swipe down), a list of settings-like [rows],
- * and finally [footer] buttons sharing one row (e.g. App info and Uninstall). Empty groups are skipped, and grid titles are only shown when both grids are
+ * then [footer] buttons sharing one row (e.g. App info and Uninstall), and finally a small centered [caption]. Empty groups are skipped, and grid titles are only shown when both grids are
  * present. A grid that fits in one row spreads its tiles across the full width, and labels that don't fit scroll as a marquee.
  */
 @Composable
@@ -138,6 +138,7 @@ fun ItemMenuPopup(
     shortcuts: List<ItemMenuTile> = emptyList(),
     buttonRows: List<List<ItemMenuRow>> = emptyList(),
     footer: List<ItemMenuRow> = emptyList(),
+    caption: (@Composable () -> Unit)? = null,
 ) {
     val dialogBackground = AppColors.DialogBackground
     AppBottomPopup(
@@ -146,8 +147,8 @@ fun ItemMenuPopup(
         leadingContent = leadingContent,
         containerColor = dialogBackground,
         contentCardColor = dialogBackground,
-        // Keep scrolled menu items visually clear of the fixed title area.
-        contentSpacing = DesignTokens.SpacingSmall,
+        // Matches the popup's 24dp top padding so the header sits evenly between the edge and the menu.
+        contentSpacing = DesignTokens.SpacingXXLarge,
         headerSpacing = DesignTokens.SpacingMedium,
         contentTopPadding = 0.dp,
         // The popup's own bottom padding already separates the last item from the edge.
@@ -185,6 +186,17 @@ fun ItemMenuPopup(
             if (footer.isNotEmpty()) {
                 Spacer(Modifier.height(DesignTokens.SpacingMedium))
                 ItemMenuButtonRow(footer)
+            }
+            if (caption != null) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        // Matches the popup's own 24dp bottom padding so the caption sits evenly between the footer and the edge.
+                        .padding(top = DesignTokens.SpacingXXLarge),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    caption()
+                }
             }
         }
     }

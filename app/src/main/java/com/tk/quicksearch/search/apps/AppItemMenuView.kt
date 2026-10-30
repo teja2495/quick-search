@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -39,7 +41,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.text.font.FontFamily
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -118,6 +123,20 @@ fun AppItemDropdownMenu(
         if (expanded) {
             value = withContext(Dispatchers.IO) {
                 AppsRepository(context.applicationContext).getTodayAppUsage(appInfo.packageName)
+            }
+        }
+    }
+    val versionName by produceState<String?>(
+        initialValue = null,
+        key1 = expanded,
+        key2 = appInfo.packageName,
+    ) {
+        if (expanded) {
+            value = withContext(Dispatchers.IO) {
+                runCatching {
+                    @Suppress("DEPRECATION")
+                    context.packageManager.getPackageInfo(appInfo.packageName, 0).versionName
+                }.getOrNull()?.takeIf { it.isNotBlank() }
             }
         }
     }
@@ -443,14 +462,21 @@ fun AppItemDropdownMenu(
             },
             title = {
                 Column {
-                    Text(
-                        text = appInfo.appName,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+                    ) {
+                        Text(
+                            text = appInfo.appName,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false),
+                        )
+                        versionName?.let { AppVersionPill(it) }
+                    }
                     todayUsage
                         ?.takeIf { it.openedCount > 0 }
                         ?.let { usage ->
@@ -477,6 +503,7 @@ fun AppItemDropdownMenu(
             buttonRows = listOf(speedBumpAndLockButtons, splitAndIconButtons, swipeButtons),
             rows = appearanceRows + launchRows,
             footer = footerButtons,
+            caption = { AppPackageCaption(packageName = appInfo.packageName) },
         )
     }
 
@@ -494,6 +521,36 @@ fun AppItemDropdownMenu(
             onDismiss = { showIconPicker.value = false },
         )
     }
+}
+
+/** The app's version in a small pill, shown beside the app name in the menu header. */
+@Composable
+private fun AppVersionPill(versionName: String) {
+    Text(
+        text = stringResource(R.string.app_menu_version, versionName),
+        style = MaterialTheme.typography.labelSmall,
+        fontWeight = FontWeight.Medium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        maxLines = 1,
+        modifier = Modifier
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f))
+            .padding(horizontal = DesignTokens.SpacingSmall, vertical = 2.dp),
+    )
+}
+
+/** The package name in small monospace, shown centered at the bottom of the menu. */
+@Composable
+private fun AppPackageCaption(packageName: String) {
+    Text(
+        text = packageName,
+        style = MaterialTheme.typography.labelSmall,
+        fontFamily = FontFamily.Monospace,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        textAlign = TextAlign.Center,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+    )
 }
 
 /** Small popup shown on long press of an assigned Swipe up / Swipe down button. */

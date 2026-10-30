@@ -1360,6 +1360,7 @@ www.google.com/search?q={{query}}</string>
     <string name="tasker_not_installed">Tasker がインストールされていません</string>
     <string name="tasker_broadcast_failed">Tasker ブロードキャストを送信できませんでした</string>
     <string name="app_menu_usage_today">本日 %1$s使用 · %2$s</string>
+    <string name="app_menu_version">v%1$s</string>
     <plurals name="app_menu_opened_count"><item quantity="one">%d回起動</item><item quantity="other">%d回起動</item></plurals>
     <plurals name="app_menu_usage_hours"><item quantity="one">%d時間</item><item quantity="other">%d時間</item></plurals>
     <plurals name="app_menu_usage_minutes"><item quantity="one">%d分</item><item quantity="other">%d分</item></plurals>

@@ -1343,6 +1343,7 @@
     <string name="icon_picker_no_icon_packs">未安装可用于更改应用图标的图标包。</string>
     <string name="icon_picker_download_icon_packs">下载</string>
     <string name="app_menu_usage_today">今天已使用 %1$s · 已打开 %2$s</string>
+    <string name="app_menu_version">v%1$s</string>
     <plurals name="app_menu_opened_count"><item quantity="one">%d 次</item><item quantity="other">%d 次</item></plurals>
     <plurals name="app_menu_usage_hours"><item quantity="one">%d 小时</item><item quantity="other">%d 小时</item></plurals>
     <plurals name="app_menu_usage_minutes"><item quantity="one">%d 分钟</item><item quantity="other">%d 分钟</item></plurals>
