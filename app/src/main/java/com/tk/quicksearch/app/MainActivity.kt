@@ -84,6 +84,10 @@ open class MainActivity : FragmentActivity() {
             "com.tk.quicksearch.action.OPEN_NOTIFICATION_HISTORY"
         /** Public intent action that opens the Manage Apps screen. */
         const val ACTION_OPEN_MANAGE_APPS = "com.tk.quicksearch.action.OPEN_MANAGE_APPS"
+        /** Public intent action that opens the overlay, even when Overlay Mode is off. */
+        const val ACTION_OPEN_OVERLAY = "com.tk.quicksearch.action.OPEN_OVERLAY"
+        /** Public intent action that opens full-screen search, even when Overlay Mode is on. */
+        const val ACTION_OPEN_FULL_SCREEN = "com.tk.quicksearch.action.OPEN_FULL_SCREEN"
         const val ACTION_SEARCH_TARGET_SHORTCUT = "com.tk.quicksearch.action.SEARCH_TARGET_SHORTCUT"
         const val EXTRA_SHORTCUT_QUERY = "com.tk.quicksearch.extra.SHORTCUT_QUERY"
         const val EXTRA_SHORTCUT_TARGET_ENGINE = "com.tk.quicksearch.extra.SHORTCUT_TARGET_ENGINE"
@@ -265,9 +269,11 @@ open class MainActivity : FragmentActivity() {
 
     private fun launchOverlayIfNeeded(intent: Intent?): Boolean {
         val forceNormalLaunch =
-            intent?.getBooleanExtra(OverlayModeController.EXTRA_FORCE_NORMAL_LAUNCH, false)
-                ?: false
-        if (!forceNormalLaunch && userPreferences.isOverlayModeEnabled()) {
+            intent?.action == ACTION_OPEN_FULL_SCREEN ||
+                intent?.getBooleanExtra(OverlayModeController.EXTRA_FORCE_NORMAL_LAUNCH, false)
+                    ?: false
+        val forceOverlayLaunch = intent?.action == ACTION_OPEN_OVERLAY
+        if (!forceNormalLaunch && (forceOverlayLaunch || userPreferences.isOverlayModeEnabled())) {
             val isVoiceShortcutLaunch = intent?.action == ACTION_VOICE_SEARCH_SHORTCUT
             val isWidgetsPanelLaunch = intent?.action == ACTION_OPEN_WIDGETS_PANEL
             if (isWidgetsPanelLaunch) return false
