@@ -36,22 +36,35 @@ internal object AppLaunchingIntents {
         // reserves LauncherApps.startMainActivity for other profiles. Keeping the primary launch
         // tied to the HOME activity's launch token is important for OEM split-select
         // controllers, which can lose their pending second-app state for a LauncherApps binder call.
-        val launchIntent =
+        val componentIntent =
             appInfo.componentName
                 ?.let(ComponentName::unflattenFromString)
                 ?.let(Intent::makeMainActivity)
-                ?: context.packageManager.getLaunchIntentForPackage(appInfo.packageName)
+        val packageLaunchIntent by lazy {
+            context.packageManager.getLaunchIntentForPackage(appInfo.packageName)
+        }
+        val launchIntent = componentIntent ?: packageLaunchIntent
         if (launchIntent == null) {
             onShowToast?.invoke(R.string.common_error_unable_to_open, appInfo.appName)
             return
         }
-        launchIntent.addFlags(
-            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED,
-        )
-        if (launchAdjacent) {
-            launchIntent.addFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT)
-        }
-        runCatching { context.startActivity(launchIntent) }
+        fun Intent.applyLaunchFlags(): Intent =
+            apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+                if (launchAdjacent) addFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT)
+            }
+        runCatching { context.startActivity(launchIntent.applyLaunchFlags()) }
+            .recoverCatching { throwable ->
+                // Apps with switchable launcher icons (e.g. Duolingo) enable and disable
+                // activity-aliases, so a cached component can disappear before the catalog
+                // refreshes. Fall back to the package's current launcher activity.
+                val fallbackIntent =
+                    packageLaunchIntent?.takeIf {
+                        componentIntent != null && it.component != componentIntent.component
+                    } ?: throw throwable
+                Log.w(TAG, "Cached component for ${appInfo.packageName} failed; using launch intent", throwable)
+                context.startActivity(fallbackIntent.applyLaunchFlags())
+            }
             .onFailure { throwable ->
                 Log.w(TAG, "Failed to launch ${appInfo.packageName}", throwable)
                 // Launching an archived app asks the system to restore it, which some builds only
@@ -105,6 +118,7 @@ internal object AppLaunchingIntents {
                 when {
                     requestedComponent != null -> {
                         activityList.firstOrNull { it.componentName == requestedComponent }?.componentName
+                            ?: activityList.firstOrNull()?.componentName
                     }
                     else -> {
                         activityList.firstOrNull()?.componentName
