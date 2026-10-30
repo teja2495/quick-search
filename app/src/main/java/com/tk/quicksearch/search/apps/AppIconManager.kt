@@ -33,6 +33,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 
@@ -47,6 +49,10 @@ private data class AppIconEntry(
 // recomposing. Keep it outside Compose's snapshot system so its first access cannot leak state
 // created in one snapshot into another composition.
 private val appIconCacheEpoch = MutableStateFlow(0L)
+
+// Per-package epochs so a single app changing its icon (e.g. switching launcher activity-aliases)
+// refreshes only that app's icons instead of every icon on screen.
+private val packageIconEpochs = MutableStateFlow<Map<String, Long>>(emptyMap())
 
 /**
  * Zoom factor when rasterizing adaptive icons for a circular mask. Keep this slightly above 1.0
@@ -131,6 +137,11 @@ fun invalidateAppIconCache() {
     appIconCacheEpoch.update { it + 1 }
 }
 
+/** Refreshes [packageName]'s icons after the app changes its components, such as its launcher icon. */
+fun invalidateAppIcon(packageName: String) {
+    packageIconEpochs.update { epochs -> epochs + (packageName to (epochs[packageName] ?: 0L) + 1) }
+}
+
 /**
  * Evicts cached icon entries without replacing bitmaps already displayed by Compose.
  *
@@ -176,6 +187,11 @@ fun rememberAppIcon(
     val bitmapSize = appIconBitmapSize(context, userPreferences)
     val includeMonochrome = userPreferences.isThemedIconsEnabled()
     val cacheEpoch by appIconCacheEpoch.collectAsState()
+    val packageEpochFlow =
+        remember(packageName) {
+            packageIconEpochs.map { it[packageName] ?: 0L }.distinctUntilChanged()
+        }
+    val packageEpoch by packageEpochFlow.collectAsState(initial = packageIconEpochs.value[packageName] ?: 0L)
     fun cacheKeyFor(monochrome: Boolean) =
         buildCacheKey(
             packageName = packageName,
@@ -185,6 +201,7 @@ fun rememberAppIcon(
             userHandleId = userHandleId,
             bitmapSize = bitmapSize,
             cacheEpoch = cacheEpoch,
+            packageEpoch = packageEpoch,
             forceCircularMask = forceCircularMask,
             includeArchived = includeArchived,
             includeMonochrome = monochrome,
@@ -394,14 +411,13 @@ private fun loadSystemAppIcon(
     includeMonochrome: Boolean,
 ): AppIconEntry? =
     runCatching {
+        // Prefer the launcher activity's icon: apps with switchable icons (Telegram, Reddit,
+        // Discord) enable an activity-alias whose icon differs from the application icon.
+        // Archived apps (Android 15+) are invisible to getApplicationIcon, but their launcher
+        // activity still loads the icon the system kept at archive time.
         val drawable =
-            runCatching { context.packageManager.getApplicationIcon(packageName) }
-                .getOrElse { error ->
-                    // Archived apps (Android 15+) are invisible to getApplicationIcon, but their
-                    // launcher activity still loads the icon the system kept at archive time.
-                    if (!includeArchived) throw error
-                    loadLauncherActivityIcon(context, packageName, densityDpi) ?: throw error
-                }
+            loadLauncherActivityIcon(context, packageName, densityDpi, includeArchived)
+                ?: context.packageManager.getApplicationIcon(packageName)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && drawable is AdaptiveIconDrawable) {
             val bitmap =
                 adaptiveToBitmap(
@@ -424,15 +440,20 @@ private fun loadLauncherActivityIcon(
     context: Context,
     packageName: String,
     densityDpi: Int,
+    includeArchived: Boolean,
 ): android.graphics.drawable.Drawable? {
     val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as? LauncherApps ?: return null
     return runCatching {
         launcherApps
             .getActivityList(packageName, android.os.Process.myUserHandle())
             .firstOrNull()
+            ?.takeIf { includeArchived || !it.applicationInfo.isArchivedApp() }
             ?.getIcon(densityDpi)
     }.getOrNull()
 }
+
+private fun android.content.pm.ApplicationInfo.isArchivedApp(): Boolean =
+    Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM && isArchived
 
 private fun loadWorkProfileBadgedIcon(
     context: Context,
@@ -666,6 +687,7 @@ private fun buildCacheKey(
     userHandleId: Int? = null,
     bitmapSize: Int,
     cacheEpoch: Long = appIconCacheEpoch.value,
+    packageEpoch: Long = packageIconEpochs.value[packageName] ?: 0L,
     forceCircularMask: Boolean = false,
     includeArchived: Boolean = true,
     includeMonochrome: Boolean = false,
@@ -677,5 +699,5 @@ private fun buildCacheKey(
     val overrideSuffix = iconOverride?.let { ":override:${it.iconPackPackage}:${it.drawableName}" }.orEmpty()
     val archivedSuffix = if (includeArchived) "" else ":installedOnly"
     val monochromeSuffix = if (includeMonochrome) ":mono" else ""
-    return "$cacheEpoch:$bitmapSize:$prefix$maskSuffix:$packageName$suffix$shapeSuffix$overrideSuffix$archivedSuffix$monochromeSuffix"
+    return "$cacheEpoch:$packageEpoch:$bitmapSize:$prefix$maskSuffix:$packageName$suffix$shapeSuffix$overrideSuffix$archivedSuffix$monochromeSuffix"
 }

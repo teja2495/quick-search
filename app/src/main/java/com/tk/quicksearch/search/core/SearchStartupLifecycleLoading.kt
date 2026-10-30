@@ -28,6 +28,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.tk.quicksearch.app.PinnedShortcutRequests
 import com.tk.quicksearch.app.startup.StartupTrace
+import com.tk.quicksearch.search.apps.invalidateAppIcon
 import android.os.SystemClock
 
 internal fun SearchStartupLifecycleDelegate.startPackageChangeMonitoring() {
@@ -39,6 +40,7 @@ internal fun SearchStartupLifecycleDelegate.startPackageChangeMonitoring() {
                     }
                 } else {
                     appShortcutSearchHandler.markPackageAvailable(packageName)
+                    invalidateAppIcon(packageName)
                 }
             }
 
