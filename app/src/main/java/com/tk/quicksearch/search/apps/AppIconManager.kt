@@ -176,6 +176,11 @@ fun rememberAppIcon(
     forceCircularMask: Boolean = false,
     includeArchived: Boolean = true,
 ): AppIconResult {
+    // Key remembers and the producer below on this local, never on the parameters directly. For a
+    // parameter key the Compose compiler skips the changed() slot read when the caller's flags say
+    // "same", so a scope restart and a parent recomposition could read different slot layouts and
+    // hand produceState the remembered lambda (ClassCastException in minified builds).
+    val request = AppIconKeyParams(packageName, iconPackPackage, userHandleId, forceCircularMask, includeArchived)
     val context = LocalContext.current
     val densityDpi = context.resources.displayMetrics.densityDpi
     // One instance per icon; building UserAppPreferences on every recomposition showed up in typing profiles.
@@ -188,8 +193,8 @@ fun rememberAppIcon(
     val includeMonochrome = userPreferences.isThemedIconsEnabled()
     val cacheEpoch by appIconCacheEpoch.collectAsState()
     val packageEpochFlow =
-        remember(packageName) {
-            packageIconEpochs.map { it[packageName] ?: 0L }.distinctUntilChanged()
+        remember(request.packageName) {
+            packageIconEpochs.map { it[request.packageName] ?: 0L }.distinctUntilChanged()
         }
     val packageEpoch by packageEpochFlow.collectAsState(initial = packageIconEpochs.value[packageName] ?: 0L)
     fun cacheKeyFor(monochrome: Boolean) =
@@ -249,14 +254,14 @@ fun rememberAppIcon(
                 withContext(Dispatchers.IO) {
                     loadAppIconEntry(
                         context = context,
-                        packageName = packageName,
-                        iconPackPackage = iconPackPackage,
+                        packageName = request.packageName,
+                        iconPackPackage = request.iconPackPackage,
                         iconOverride = iconOverride,
-                        userHandleId = userHandleId,
+                        userHandleId = request.userHandleId,
                         densityDpi = densityDpi,
                         targetSize = bitmapSize,
-                        forceCircularMask = forceCircularMask,
-                        includeArchived = includeArchived,
+                        forceCircularMask = request.forceCircularMask,
+                        includeArchived = request.includeArchived,
                         includeMonochrome = includeMonochrome,
                     )
                 }
@@ -269,6 +274,14 @@ fun rememberAppIcon(
 
     return iconState.value
 }
+
+private data class AppIconKeyParams(
+    val packageName: String,
+    val iconPackPackage: String?,
+    val userHandleId: Int?,
+    val forceCircularMask: Boolean,
+    val includeArchived: Boolean,
+)
 
 private fun AppIconEntry.toResult(): AppIconResult = AppIconResult(bitmap, isLegacy, monochromeData, hasProfileBadge)
 
