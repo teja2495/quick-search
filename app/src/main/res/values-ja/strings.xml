@@ -828,6 +828,8 @@
     <string name="settings_overlay_source_custom_save_failed">その画像を使用できません。</string>
     <string name="settings_overlay_source_edit_custom">カスタム画像を編集</string>
     <string name="settings_overlay_source_needs_permission">権限が必要です</string>
+    <string name="settings_overlay_source_remove_custom">カスタム画像を削除</string>
+    <string name="settings_overlay_source_live_wallpaper_unsupported">ライブ壁紙には対応していません</string>
     <string name="settings_overlay_source_wallpaper">壁紙</string>
     <string name="settings_overlay_theme_tone_darker">暗め</string>
     <string name="settings_overlay_theme_tone_lighter">明るめ</string>

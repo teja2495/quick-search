@@ -291,6 +291,7 @@ fun SettingsRoute(
                     onBack = onBack,
                     onToggleOverlayMode = onToggleOverlayMode,
                     onPickCustomImage = {},
+                    onRemoveCustomImage = {},
                     onToggleDirectDial = onToggleDirectDial,
                     onToggleSection = onToggleSection,
                     onOpenAiSearchConfigure = {

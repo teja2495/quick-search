@@ -292,6 +292,12 @@ fun SettingsDetailRoute(
                                             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                                         )
                                     },
+                                    onRemoveCustomImage = {
+                                        viewModel.applySettingsCommand(SettingsCommand.CustomImageUriSetting(null))
+                                        scope.launch(Dispatchers.IO) {
+                                            WallpaperUtils.deleteCustomImages(context)
+                                        }
+                                    },
                                     onToggleDirectDial = viewModel::setDirectDialEnabled,
                                     onToggleSection = onToggleSection,
                                     onOpenAiSearchConfigure = {

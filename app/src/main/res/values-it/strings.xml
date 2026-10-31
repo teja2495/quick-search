@@ -819,6 +819,8 @@
     <string name="settings_overlay_source_custom_save_failed">Impossibile utilizzare questa immagine.</string>
     <string name="settings_overlay_source_edit_custom">Modifica immagine personalizzata</string>
     <string name="settings_overlay_source_needs_permission">Richiede autorizzazione</string>
+    <string name="settings_overlay_source_remove_custom">Rimuovi immagine personalizzata</string>
+    <string name="settings_overlay_source_live_wallpaper_unsupported">Sfondo animato non supportato</string>
     <string name="settings_overlay_source_wallpaper">Sfondo</string>
     <string name="settings_overlay_theme_tone_darker">Più scuro</string>
     <string name="settings_overlay_theme_tone_lighter">Più chiaro</string>

@@ -824,6 +824,8 @@
     <string name="settings_overlay_source_custom_save_failed">Tidak dapat menggunakan gambar tersebut.</string>
     <string name="settings_overlay_source_edit_custom">Edit gambar kustom</string>
     <string name="settings_overlay_source_needs_permission">Memerlukan izin</string>
+    <string name="settings_overlay_source_remove_custom">Hapus gambar kustom</string>
+    <string name="settings_overlay_source_live_wallpaper_unsupported">Wallpaper live tidak didukung</string>
     <string name="settings_overlay_source_wallpaper">Wallpaper</string>
     <string name="settings_overlay_theme_tone_darker">Lebih Gelap</string>
     <string name="settings_overlay_theme_tone_lighter">Lebih Terang</string>

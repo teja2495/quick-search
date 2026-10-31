@@ -820,6 +820,8 @@
     <string name="settings_overlay_source_custom_save_failed">ఆ చిత్రాన్ని ఉపయోగించడం సాధ్యపడలేదు.</string>
     <string name="settings_overlay_source_edit_custom">కస్టమ్ చిత్రాన్ని సవరించండి</string>
     <string name="settings_overlay_source_needs_permission">అనుమతి అవసరం</string>
+    <string name="settings_overlay_source_remove_custom">కస్టమ్ చిత్రాన్ని తీసివేయండి</string>
+    <string name="settings_overlay_source_live_wallpaper_unsupported">లైవ్ వాల్‌పేపర్‌కు మద్దతు లేదు</string>
     <string name="settings_overlay_source_wallpaper">వాల్‌పేపర్</string>
     <string name="settings_overlay_theme_tone_darker">మరింత డార్క్</string>
     <string name="settings_overlay_theme_tone_lighter">మరింత లైట్</string>

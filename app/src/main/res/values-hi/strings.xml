@@ -820,6 +820,8 @@
     <string name="settings_overlay_source_custom_save_failed">उस छवि का उपयोग नहीं हो सका।</string>
     <string name="settings_overlay_source_edit_custom">कस्टम छवि संपादित करें</string>
     <string name="settings_overlay_source_needs_permission">अनुमति चाहिए</string>
+    <string name="settings_overlay_source_remove_custom">कस्टम इमेज हटाएं</string>
+    <string name="settings_overlay_source_live_wallpaper_unsupported">लाइव वॉलपेपर समर्थित नहीं है</string>
     <string name="settings_overlay_source_wallpaper">वॉलपेपर</string>
     <string name="settings_overlay_theme_tone_darker">गहरा</string>
     <string name="settings_overlay_theme_tone_lighter">हल्का</string>

@@ -840,6 +840,8 @@
 <string name="settings_overlay_source_custom_save_failed">Не удалось использовать это изображение.</string>
 <string name="settings_overlay_source_edit_custom">Изменить свое изображение</string>
 <string name="settings_overlay_source_needs_permission">Требуется разрешение</string>
+<string name="settings_overlay_source_remove_custom">Удалить своё изображение</string>
+<string name="settings_overlay_source_live_wallpaper_unsupported">Живые обои не поддерживаются</string>
 <string name="settings_overlay_source_wallpaper">Обои</string>
 <string name="settings_overlay_theme_tone_darker">Темнее</string>
 <string name="settings_overlay_theme_tone_lighter">Светлее</string>

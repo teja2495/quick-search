@@ -820,6 +820,8 @@
     <string name="settings_overlay_source_custom_save_failed">Dieses Bild konnte nicht verwendet werden.</string>
     <string name="settings_overlay_source_edit_custom">Benutzerdefiniertes Bild bearbeiten</string>
     <string name="settings_overlay_source_needs_permission">Berechtigung erforderlich</string>
+    <string name="settings_overlay_source_remove_custom">Eigenes Bild entfernen</string>
+    <string name="settings_overlay_source_live_wallpaper_unsupported">Live-Hintergrund wird nicht unterstützt</string>
     <string name="settings_overlay_source_wallpaper">Hintergrundbild</string>
     <string name="settings_overlay_theme_tone_darker">Dunkler</string>
     <string name="settings_overlay_theme_tone_lighter">Heller</string>

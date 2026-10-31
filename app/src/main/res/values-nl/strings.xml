@@ -853,6 +853,8 @@
     <string name="settings_overlay_source_custom_save_failed">Kan die afbeelding niet gebruiken.</string>
     <string name="settings_overlay_source_edit_custom">Aangepaste afbeelding bewerken</string>
     <string name="settings_overlay_source_needs_permission">Machtiging vereist</string>
+    <string name="settings_overlay_source_remove_custom">Aangepaste afbeelding verwijderen</string>
+    <string name="settings_overlay_source_live_wallpaper_unsupported">Live achtergrond wordt niet ondersteund</string>
     <string name="settings_overlay_source_wallpaper">Achtergrond</string>
     <string name="settings_overlay_theme_tone_darker">Donkerder</string>
     <string name="settings_overlay_theme_tone_lighter">Lichter</string>

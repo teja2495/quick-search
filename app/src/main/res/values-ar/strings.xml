@@ -821,6 +821,8 @@
     <string name="settings_overlay_source_custom_save_failed">تعذر استخدام هذه الصورة.</string>
     <string name="settings_overlay_source_edit_custom">تعديل الصورة المخصصة</string>
     <string name="settings_overlay_source_needs_permission">يتطلب إذناً</string>
+    <string name="settings_overlay_source_remove_custom">إزالة الصورة المخصصة</string>
+    <string name="settings_overlay_source_live_wallpaper_unsupported">الخلفية الحية غير مدعومة</string>
     <string name="settings_overlay_source_wallpaper">خلفية الشاشة</string>
     <string name="settings_overlay_theme_tone_darker">أغمق</string>
     <string name="settings_overlay_theme_tone_lighter">أفتح</string>

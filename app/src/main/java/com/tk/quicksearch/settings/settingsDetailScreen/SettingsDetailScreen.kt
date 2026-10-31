@@ -438,6 +438,7 @@ internal fun SettingsDetailLevel1Screen(
                                 )
                             },
                             onPickCustomImage = callbacks.onPickCustomImage,
+                            onRemoveCustomImage = callbacks.onRemoveCustomImage,
                             onRequestWallpaperPermission = callbacks.onRequestWallpaperPermission,
                             isSearchEngineCompactMode = state.isSearchEngineCompactMode,
                             searchEngineCompactRowCount = state.searchEngineCompactRowCount,

@@ -28,6 +28,8 @@ private const val MAX_BACKGROUND_BITMAP_DIMENSION = 2400
 private const val MAX_BACKGROUND_BITMAP_PIXELS = 4_000_000
 private const val STARTUP_PREVIEW_MAX_DIMENSION = 720
 private const val STARTUP_PREVIEW_QUALITY = 82
+// TODO: mock for previewing the live wallpaper label; remove before release.
+private const val MOCK_LIVE_WALLPAPER = true
 
 /**
  * Utility functions for working with wallpapers.
@@ -186,6 +188,34 @@ object WallpaperUtils {
         }
             .onFailure { Log.w("WallpaperUtils", "Failed to save custom background image", it) }
             .getOrNull()
+
+    /** Deletes the saved custom background and forgets its cached bitmap. */
+    fun deleteCustomImages(context: Context) {
+        cachedOverlayCustomUri = null
+        cachedOverlayCustomBitmap = null
+        cachedOverlayCustomDivisor = 1
+        cachedOverlayCustomAppearance = null
+        File(context.filesDir, "backgrounds")
+            .listFiles { f -> f.name.startsWith("custom_background_") }
+            ?.forEach { it.delete() }
+    }
+
+    /**
+     * True when the home screen runs a live wallpaper and the system keeps no image of it. Android
+     * then hands apps its built-in default image instead. Some OEMs keep an image alongside a live
+     * wallpaper, and that one still reads fine.
+     */
+    fun isLiveWallpaperActive(context: Context): Boolean {
+        if (MOCK_LIVE_WALLPAPER) return true
+        return runCatching {
+            val wallpaperManager = WallpaperManager.getInstance(context)
+            if (wallpaperManager.wallpaperInfo == null) return@runCatching false
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return@runCatching true
+            val imageFile = wallpaperManager.getWallpaperFile(WallpaperManager.FLAG_SYSTEM)
+            imageFile?.close()
+            imageFile == null
+        }.getOrDefault(false)
+    }
 
     fun invalidateWallpaperCache() {
         cachedBitmap = null

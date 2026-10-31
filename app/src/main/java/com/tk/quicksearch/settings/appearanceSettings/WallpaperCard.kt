@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
@@ -78,6 +79,8 @@ import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.hapticToggle
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetColorPickerDialog
 import kotlin.math.roundToInt
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun WallpaperCard(
@@ -89,6 +92,7 @@ fun WallpaperCard(
         customImageUri: String?,
         onSetBackgroundSource: (BackgroundSource) -> Unit,
         onPickCustomImage: () -> Unit,
+        onRemoveCustomImage: () -> Unit,
         hasWallpaperPermission: Boolean,
         wallpaperAvailable: Boolean,
         onRequestWallpaperPermission: () -> Unit,
@@ -129,9 +133,18 @@ fun WallpaperCard(
                                 ?: WallpaperUtils.getOverlayCustomImageBitmap(context, customImageUri)
             }
 
+    val isLiveWallpaperActive by
+            produceState(initialValue = false) {
+                value = withContext(Dispatchers.IO) { WallpaperUtils.isLiveWallpaperActive(context) }
+            }
+    // Android composites a live wallpaper behind Home, but never hands its pixels to apps.
+    val isLiveWallpaperUnsupported =
+            isLiveWallpaperActive && hasWallpaperPermission && !canShowSystemWallpaperBackdrop
     val canDisplaySystemWallpaper = hasWallpaperPermission || canShowSystemWallpaperBackdrop
     val isWallpaperSourceSelected =
-            backgroundSource == BackgroundSource.SYSTEM_WALLPAPER && canDisplaySystemWallpaper
+            backgroundSource == BackgroundSource.SYSTEM_WALLPAPER &&
+                    canDisplaySystemWallpaper &&
+                    !isLiveWallpaperUnsupported
     val isCustomSourceSelected = backgroundSource == BackgroundSource.CUSTOM_IMAGE
     val wallpaperPixelEffectsAvailable =
             isCustomSourceSelected ||
@@ -215,6 +228,15 @@ fun WallpaperCard(
                                 hapticToggle(view)()
                                 if (isWallpaperSourceSelected) {
                                     onSetBackgroundSource(BackgroundSource.THEME)
+                                } else if (isLiveWallpaperUnsupported) {
+                                    Toast.makeText(
+                                                    context,
+                                                    context.getString(
+                                                            R.string.settings_overlay_source_live_wallpaper_unsupported,
+                                                    ),
+                                                    Toast.LENGTH_SHORT,
+                                            )
+                                            .show()
                                 } else if (canShowSystemWallpaperBackdrop) {
                                     onSetBackgroundSource(BackgroundSource.SYSTEM_WALLPAPER)
                                 } else {
@@ -244,6 +266,36 @@ fun WallpaperCard(
                                                 ),
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        } else if (isLiveWallpaperUnsupported) {
+                            Row(
+                                    modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement =
+                                            Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+                            ) {
+                                Icon(
+                                        imageVector = MaterialSymbols.Info,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(14.dp),
+                                )
+                                Text(
+                                        text =
+                                                stringResource(
+                                                        R.string.settings_overlay_source_live_wallpaper_unsupported,
+                                                ),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        textAlign = TextAlign.Center,
+                                        maxLines = 2,
+                                        autoSize =
+                                                TextAutoSize.StepBased(
+                                                        minFontSize = 8.sp,
+                                                        maxFontSize =
+                                                                MaterialTheme.typography.labelSmall.fontSize,
+                                                ),
                                 )
                             }
                         } else if (wallpaperPreviewBitmap != null) {
@@ -336,6 +388,42 @@ fun WallpaperCard(
                                                         ),
                                 )
                             }
+                        }
+                        Box(
+                                modifier =
+                                        Modifier.align(Alignment.TopEnd)
+                                                .padding(6.dp)
+                                                .size(20.dp)
+                                                .clip(CircleShape)
+                                                .background(AppColors.CustomImageEditButtonBackground)
+                                                .clickable {
+                                                    hapticToggle(view)()
+                                                    if (isCustomSourceSelected) {
+                                                        onSetBackgroundSource(
+                                                                if (
+                                                                        canDisplaySystemWallpaper &&
+                                                                                !isLiveWallpaperUnsupported &&
+                                                                                !shouldHideSystemWallpaperSource
+                                                                ) {
+                                                                    BackgroundSource.SYSTEM_WALLPAPER
+                                                                } else {
+                                                                    BackgroundSource.THEME
+                                                                },
+                                                        )
+                                                    }
+                                                    onRemoveCustomImage()
+                                                },
+                                contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                    imageVector = MaterialSymbols.Close,
+                                    contentDescription =
+                                            stringResource(
+                                                    R.string.settings_overlay_source_remove_custom
+                                            ),
+                                    tint = AppColors.CustomImageEditButtonIcon,
+                                    modifier = Modifier.size(12.dp),
+                            )
                         }
                         Box(
                                 modifier =

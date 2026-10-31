@@ -848,6 +848,8 @@
     <string name="settings_overlay_source_custom_save_failed">Nie udało się użyć tego obrazu.</string>
     <string name="settings_overlay_source_edit_custom">Edytuj własny obraz</string>
     <string name="settings_overlay_source_needs_permission">Wymaga uprawnienia</string>
+    <string name="settings_overlay_source_remove_custom">Usuń własny obraz</string>
+    <string name="settings_overlay_source_live_wallpaper_unsupported">Animowana tapeta nie jest obsługiwana</string>
     <string name="settings_overlay_source_wallpaper">Tapeta</string>
     <string name="settings_overlay_theme_tone_darker">Ciemniejszy</string>
     <string name="settings_overlay_theme_tone_lighter">Jaśniejszy</string>

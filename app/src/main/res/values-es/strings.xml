@@ -820,6 +820,8 @@
     <string name="settings_overlay_source_custom_save_failed">No se pudo utilizar esa imagen.</string>
     <string name="settings_overlay_source_edit_custom">Editar imagen personalizada</string>
     <string name="settings_overlay_source_needs_permission">Requiere permiso</string>
+    <string name="settings_overlay_source_remove_custom">Quitar imagen personalizada</string>
+    <string name="settings_overlay_source_live_wallpaper_unsupported">El fondo animado no es compatible</string>
     <string name="settings_overlay_source_wallpaper">Fondo de pantalla</string>
     <string name="settings_overlay_theme_tone_darker">Más oscuro</string>
     <string name="settings_overlay_theme_tone_lighter">Más claro</string>

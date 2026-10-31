@@ -810,6 +810,8 @@
     <string name="settings_overlay_source_custom_save_failed">无法使用该图片。</string>
     <string name="settings_overlay_source_edit_custom">编辑自定义图片</string>
     <string name="settings_overlay_source_needs_permission">需要获取权限</string>
+    <string name="settings_overlay_source_remove_custom">移除自定义图片</string>
+    <string name="settings_overlay_source_live_wallpaper_unsupported">不支持动态壁纸</string>
     <string name="settings_overlay_source_wallpaper">使用桌面壁纸</string>
     <string name="settings_overlay_theme_tone_darker">更深</string>
     <string name="settings_overlay_theme_tone_lighter">更浅</string>

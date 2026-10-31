@@ -819,6 +819,8 @@
 <string name="settings_overlay_source_custom_save_failed">Bu görsel kullanılamadı.</string>
 <string name="settings_overlay_source_edit_custom">Özel görseli düzenle</string>
 <string name="settings_overlay_source_needs_permission">İzin gerekli</string>
+<string name="settings_overlay_source_remove_custom">Özel resmi kaldır</string>
+<string name="settings_overlay_source_live_wallpaper_unsupported">Canlı duvar kağıdı desteklenmiyor</string>
 <string name="settings_overlay_source_wallpaper">Duvar kağıdı</string>
 <string name="settings_overlay_theme_tone_darker">Daha koyu</string>
 <string name="settings_overlay_theme_tone_lighter">Daha açık</string>
