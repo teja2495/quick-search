@@ -31,6 +31,8 @@ class FuzzyAppSearchStrategy(
     private val isFuzzySearchEnabled: () -> Boolean = { true },
     private val textCache: SearchTextCache = SearchTextCache(),
 ) : BaseFuzzySearchStrategy<AppInfo>() {
+    private val subsequenceCache = AppNameSubsequence.Cache()
+
     /**
      * Finds fuzzy matches for apps based on the query.
      * Searches both app names and nicknames.
@@ -86,10 +88,11 @@ class FuzzyAppSearchStrategy(
     ): FuzzySearchStrategy.Match<AppInfo>? {
         if (!preparedQuery.policy.enabled) return null
         val alternateNames = buildAlternateNames(app.searchAliases, nickname, initials)
-        if (!isWithinTypoTolerance(preparedQuery, app.appName, alternateNames)) {
+        val subsequenceScore = computeSubsequenceScore(preparedQuery, app.appName, app.searchAliases, nickname)
+        if (subsequenceScore == 0 && !isWithinTypoTolerance(preparedQuery, app.appName, alternateNames)) {
             return null
         }
-        return scoreEligibleCandidate(preparedQuery, app, alternateNames)
+        return scoreEligibleCandidate(preparedQuery, app, alternateNames, subsequenceScore)
     }
 
     internal fun prepareQuery(query: String): PreparedAppFuzzyQuery =
@@ -126,7 +129,7 @@ class FuzzyAppSearchStrategy(
             preparedQuery,
             appName,
             alternateNames,
-        )
+        ) || computeSubsequenceScore(preparedQuery, appName, searchAliases, nickname) > 0
     }
 
     internal fun scoreEligibleCandidate(
@@ -140,16 +143,18 @@ class FuzzyAppSearchStrategy(
             preparedQuery = preparedQuery,
             app = app,
             alternateNames = buildAlternateNames(searchAliases, nickname, initials),
+            subsequenceScore = computeSubsequenceScore(preparedQuery, app.appName, searchAliases, nickname),
         )
 
     private fun scoreEligibleCandidate(
         preparedQuery: PreparedAppFuzzyQuery,
         app: AppInfo,
         alternateNames: String?,
+        subsequenceScore: Int,
     ): FuzzySearchStrategy.Match<AppInfo>? {
         val policy = preparedQuery.policy
         if (!policy.enabled) return null
-        val score = computeScore(preparedQuery, app.appName, alternateNames)
+        val score = maxOf(computeScore(preparedQuery, app.appName, alternateNames), subsequenceScore)
         return if (score >= policy.minimumScore) {
             FuzzySearchStrategy.Match(
                 item = app,
@@ -208,6 +213,21 @@ class FuzzyAppSearchStrategy(
             .filter { it.isNotBlank() }
             .joinToString(separator = " ")
             .ifBlank { null }
+
+    private fun computeSubsequenceScore(
+        preparedQuery: PreparedAppFuzzyQuery,
+        appName: String,
+        searchAliases: List<String>,
+        nickname: String?,
+    ): Int {
+        val query = preparedQuery.normalizedQuery
+        if (query.fuzzyTokens.size != 1) return 0
+        var bestScore = AppNameSubsequence.score(query.compact, subsequenceCache.prepare(appName))
+        for (name in searchAliases.asSequence().plus(NicknameUtils.split(nickname).asSequence())) {
+            bestScore = maxOf(bestScore, AppNameSubsequence.score(query.compact, subsequenceCache.prepare(name)))
+        }
+        return bestScore
+    }
 
     private fun isWithinTypoTolerance(
         preparedQuery: PreparedAppFuzzyQuery,

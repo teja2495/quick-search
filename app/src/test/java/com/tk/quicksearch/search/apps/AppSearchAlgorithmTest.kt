@@ -348,6 +348,49 @@ class AppSearchAlgorithmTest {
         assertEquals(listOf(clone), matches("business"))
     }
 
+    @Test
+    fun subsequenceQueriesFindAppsWhenFuzzySearchIsOn() {
+        val firefox = app("Firefox", "firefox")
+        val keepass = app("KeePassDX", "keepassdx")
+        val source = listOf(firefox, keepass, app("Gmail", "gmail"))
+
+        fun matches(
+            query: String,
+            fuzzyEnabled: Boolean = true,
+        ) = AppSearchAlgorithm.findMatches(
+            query = query,
+            source = source,
+            limit = 10,
+            fuzzySearchStrategy =
+                FuzzyAppSearchStrategy(FuzzySearchConfig.DEFAULT_APP_CONFIG, isFuzzySearchEnabled = { fuzzyEnabled }),
+            appNicknames = emptyMap(),
+            secondaryRankingSignal = SecondaryRankingSignal.NONE,
+        )
+
+        assertEquals(listOf(firefox), matches("ffx"))
+        assertEquals(listOf(keepass), matches("kdx"))
+        assertEquals(listOf(keepass), matches("kpdx"))
+        assertEquals(emptyList<AppInfo>(), matches("ffx", fuzzyEnabled = false))
+    }
+
+    @Test
+    fun subsequenceMatchesRankAfterDirectMatches() {
+        val firefox = app("Firefox", "firefox", launchCount = 100)
+        val direct = app("FFX Tools", "ffxtools")
+
+        val matches =
+            AppSearchAlgorithm.findMatches(
+                query = "ffx",
+                source = listOf(firefox, direct),
+                limit = 10,
+                fuzzySearchStrategy = FuzzyAppSearchStrategy(FuzzySearchConfig.DEFAULT_APP_CONFIG),
+                appNicknames = emptyMap(),
+                secondaryRankingSignal = SecondaryRankingSignal.MOST_OPENED,
+            )
+
+        assertEquals(listOf(direct, firefox), matches)
+    }
+
     private fun app(
         appName: String,
         packageSuffix: String,
