@@ -1,6 +1,6 @@
 # Quick Search – Privacy Policy
 
-Last updated: 2026-10-28
+Last updated: 2026-11-02
 
 Quick Search is an Android app and optional home screen launcher that lets you search apps, contacts, calendar events, device files, notes, settings, notifications, and the web from a single screen, and to see an optional At a Glance summary, reminders, and widgets on your Home screen. This policy explains what data the app accesses, how it is used, and your choices.
 
@@ -8,8 +8,9 @@ Quick Search is an Android app and optional home screen launcher that lets you s
 
 ## Data the app accesses
 - Search input: Text you type is processed on-device to show local results. It is not stored after the session, except as described under Web suggestions, AI features, and external searches below.
+- Voice typing (optional): When you tap the mic button, speech recognition is handled by your device's speech recognition service (such as Google), under that service's privacy policy. Quick Search only receives the recognized text and does not access your microphone or record audio itself.
 - Web suggestions (optional): When web suggestions are enabled, the text you type is sent to Google's search suggestion service (suggestqueries.google.com) to show suggested searches. This is on by default in the Google Play version and off by default in the F-Droid version, and can be turned off in settings.
-- Apps: App names, package IDs, launch counts, and last-used timestamps (requires Usage Access) to rank and show recently used apps.
+- Apps: App names, package IDs, launch counts, and last-used timestamps (requires Usage Access) to rank and show recently used apps. If you use Android Private Space, Quick Search lists the apps in it so you can find and open them; this information stays on your device.
 - Contacts (optional): Contact names, phone numbers, birthdays (for At a Glance birthday reminders), and your chosen “preferred number” when you enable contact search.
 - Calendar (optional): Event titles, start and end times, all-day status, and recurrence rules from your device calendars, to search and show upcoming events. Quick Search only reads calendar data; it does not create, change, or delete events.
 - Files (optional): File names, types, URIs, and basic metadata to show matching files; no file contents are read.
@@ -19,6 +20,7 @@ Quick Search is an Android app and optional home screen launcher that lets you s
   - Keep a searchable notification history. The title and text of recent notifications (up to the latest 500) are stored in a local database on your device. You can hide apps from history or clear it at any time in settings, and it is excluded from device backups.
   - Show At a Glance items drawn from notifications, such as app notifications you choose, one-time passcodes (OTPs), missed and ongoing calls, timers and stopwatches, progress updates, weather, and workouts. OTP codes are only kept in memory while shown.
   - Show and control currently playing media (title, artist, artwork, and playback state) in At a Glance and the Media Controls widget.
+  If you add the At a Glance widget, these items can also appear in that widget on your Home screen, in whatever launcher you use.
   Notification data stays on your device and is never sent to the developer or to AI providers.
 - Accessibility service (optional): When you enable the Lock Screen gesture, Quick Search uses Android's AccessibilityService API only to perform the system Lock Screen action after you double-tap the Home screen. Through this service, Quick Search does not read, collect, store, or share screen content or other personal data.
 - App lock (optional): If you lock apps, Quick Search uses Android's system biometric or screen-lock prompt to confirm it is you. The prompt is handled by Android; Quick Search only receives whether authentication succeeded and never accesses your fingerprint, face, or PIN data.
@@ -58,8 +60,10 @@ Quick Search is an Android app and optional home screen launcher that lets you s
 ## Permissions
 - Usage Access (required): Needed to list and rank recently used apps.
 - QUERY_ALL_PACKAGES: Declared to show installed apps in search results and the launcher grid.
+- Access hidden profiles: Used to show apps in Android Private Space, when you use it.
 - Contacts (optional): Needed to search and act on your contacts.
 - Phone calls (optional): Lets Quick Search place a call directly when you tap call on a contact. Without it, calls open in your dialer instead.
+- Answer phone calls (optional): Used only to end an ongoing call when you tap hang up in At a Glance. Without it, the call screen opens instead.
 - Calendar (optional): Needed to search and show your calendar events. Read-only.
 - Storage/Media and All files access (optional): Needed to search file names across your device storage. File contents are not read. On older Android versions, storage write access is used only to save exported backups and the feature list to your Downloads folder.
 - Notification access (optional): Used for notification dots, notification history, At a Glance, and media controls, as described above. You grant it in Android settings and can revoke it at any time.

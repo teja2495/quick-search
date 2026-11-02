@@ -48,16 +48,16 @@ A fast, private Android search app and launcher. Search **apps, app shortcuts, c
 - **More**: World clock, weather, dictionary, hex/RGB color visualizer, and Tasker integration.
 
 ### 🏠 Launcher & Home
-- **Set as Launcher**: Use Quick Search as your home screen, with app lock, more system app shortcuts, and customizable swipe and double-tap gestures.
-- **At a Glance**: Today's events, upcoming reminders and timers, media controls, and low battery warnings.
+- **Set as Launcher**: Use Quick Search as your home screen, with app lock, Android Private Space support, more system app shortcuts, and customizable swipe and double-tap gestures.
+- **At a Glance**: Today's events, reminders, alarms and timers, media controls, missed and ongoing calls, OTP codes, weather, battery and device status, app notifications, and AI-powered Custom Info. Also available as a widget for any launcher.
 - **Widgets Panel**: Swipe right to open a side panel for any Android widget, and pin widgets to Home. Works with or without Quick Search as your launcher.
-- **Home Screen Widgets**: Search, custom buttons, and media controls widgets with extensive customization.
+- **Home Screen Widgets**: Search, custom buttons, media controls, note, countdown, and At a Glance widgets with extensive customization.
 - **More Ways to Launch**: Default assistant, Quick Settings tile, overlay mode over other apps, system-wide edge swipe, and a floating button.
 
 ### 🎨 Customization
 - **Themes**: Mono, Forest, Aurora, and Sunset themes; Material You; custom accent colors; AMOLED black.
 - **Backgrounds**: Use your wallpaper or any image, with transparency and blur controls.
-- **Layout**: Bottom search bar, font size, system font, and themed icons.
+- **Layout**: Compact card-less layout, bottom search bar, mic button for voice typing, font size, system font, and themed icons.
 - **Backup & Restore**: Import/export settings, plus automatic Android backup.
 
 [View all features](app/src/main/assets/FEATURES.md)
@@ -103,25 +103,29 @@ All permissions are optional and only unlock the features that need them. Search
 - **Persistence**: Modular SharedPreferences (encrypted for API keys) and Room for notes and notification history
 - **Widgets**: Jetpack Glance
 - **Build**: Gradle Kotlin DSL with version catalogs; `standard` and `fdroid` flavors; `:benchmark` module for baseline profiles
-- **Min SDK**: 24 (Android 7.0) | **Target SDK**: 36 (Android 16)
+- **Min SDK**: 24 (Android 7.0) | **Target SDK**: 37
 
 ### Project Structure
 ```
 app/src/main/java/com/tk/quicksearch/
-├── app/             # Activities (search, launcher), startup, app-level handlers
-├── search/          # Search core, data/preferences, result types, search screen UI
-├── searchEngines/   # Web search engines, aliases, secondary search
-├── tools/           # Calculator, unit/date tools, alarms, AI Search, Tasker
-├── settings/        # Settings screens and navigation
-├── widgetsPanel/    # Widgets Panel and Home widgets
-├── widgets/         # Glance home-screen widgets
-├── reminders/       # Reminder parsing and scheduling
-├── overlay/         # Draw-over-other-apps mode
-├── edgeGesture/     # System-wide edge swipe launcher
-├── floatingButton/  # Floating launch button
-├── tile/            # Quick Settings tile
-├── onboarding/      # First-launch setup
-└── shared/          # Shared UI components, theme, and utilities
+├── app/                  # Activities (search, launcher), startup, app-level handlers
+├── search/               # Search core, data/preferences, result types, search screen UI
+├── searchEngines/        # Web search engines, aliases, secondary search
+├── tools/                # Calculator, unit/date tools, alarms, AI Search, Tasker
+├── settings/             # Settings screens and navigation
+├── widgetsPanel/         # Widgets Panel and Home widgets
+├── widgets/              # Glance home-screen widgets
+├── reminders/            # Reminder parsing and scheduling
+├── customInfo/           # Scheduled AI Custom Info for At a Glance
+├── appNotifications/     # App notification sources for At a Glance
+├── media/                # Media session controls
+├── pinnedNotifications/  # Shortcuts and notes pinned to the notification shade
+├── overlay/              # Draw-over-other-apps mode
+├── edgeGesture/          # System-wide edge swipe launcher
+├── floatingButton/       # Floating launch button
+├── tile/                 # Quick Settings tile
+├── onboarding/           # First-launch setup
+└── shared/               # Shared UI components, theme, and utilities
 ```
 
 Contributors and coding agents: see [AGENTS.md](AGENTS.md) for the architecture map and conventions.

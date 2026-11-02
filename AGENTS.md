@@ -44,7 +44,7 @@ Repository playbook for coding agents. When prose and code disagree, trust the c
 - Search route: `search/searchScreen/searchRoute/SearchRoute.kt`. Composition: `search/searchScreen/SearchScreen.kt`, `SearchScreenContent.kt`, `SectionRenderingComposables.kt`, `searchScreenLayout/` (includes Home sections and At a Glance).
 - Settings: `settings/settingsScreen/` (main screen, backup/export), `settings/settingsDetailScreen/` (detail pages, `SettingsDetailType`, routing), `settings/shared/`, plus feature-specific settings packages.
 - Reuse `shared/ui/components/`, `shared/ui/theme/DesignTokens.kt`, `shared/ui/theme/AppColors.kt`. Read `DESIGN_SYSTEM.md` (repo root) before adding UI or tokens; update it when you add or rename tokens, theme modes, or shared components. For shared paths, account for wallpaper, custom background, one-handed/bottom search bar, tablet, and overlay modes.
-- Other feature packages: `widgetsPanel/` (Home widget grid), `widgets/` (app widgets), `reminders/`, `media/`, `edgeGesture/`, `floatingButton/`, `pinnedNotifications/`, `tile/`, `onboarding/`.
+- Other feature packages: `widgetsPanel/` (Home widget grid), `widgets/` (app widgets), `reminders/`, `customInfo/` (At a Glance Custom Info), `appNotifications/` (At a Glance app notifications), `media/`, `edgeGesture/`, `floatingButton/`, `pinnedNotifications/`, `tile/`, `onboarding/`.
 
 ### Strings
 
