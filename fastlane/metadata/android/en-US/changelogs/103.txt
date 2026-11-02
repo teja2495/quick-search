@@ -1,0 +1,6 @@
+- Official support for Android 17
+- Compact layout: a card-less design that fits more content on screen (enable in Appearance settings)
+- At a Glance widget for any launcher, works just like At a Glance on the Home screen
+- Mic button in the search bar for voice typing (enable in Appearance settings)
+- Support for Android Private Space
+- Bug fixes and performance improvements
