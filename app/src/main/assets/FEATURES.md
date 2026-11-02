@@ -2,7 +2,7 @@
 
 This document highlights all the available features. It also includes details about hidden or non-obvious features that you might miss. Sections from **Overlay Mode** onward follow the order of the Settings screen (Tools settings are covered in the **Tools** section above).
 
-**Version**: 4.8 (Updated October 23, 2026)
+**Version**: 4.9 (Updated November 2, 2026)
 
 ### Search
 
@@ -124,6 +124,7 @@ Available when Quick Search is set as your launcher.
 - **Swipe Up for Keyboard** - Swipe up on Home to bring up the keyboard, ready to type.
 - **Home Long-Press Menu** - Long-press an empty area on Home to change your wallpaper, open Gesture settings or Settings, or add a widget to Home.
 - **More App Shortcuts** - More app shortcuts are available from the system.
+- **Private Space** - Supports Android Private Space.
 - **App Lock** - Lock apps with biometrics from their long-press menu. If biometrics fail, long-press the unlock button for 4 seconds for other options, such as PIN.
 
 ---
@@ -136,6 +137,7 @@ Available when Quick Search is set as your launcher.
 - **Custom Buttons Widget** - A row of buttons for apps, app shortcuts, contacts, files, device settings, and notes, with customizable layouts and actions.
 - **Media Controls Widget** - Shows the current track and album art, with play/pause, previous/next, and rewind/forward controls. Requires notification access.
 - **Note Widget** - Show any note on your home screen. 
+- **At a Glance Widget** - Works on any launcher, just like At a Glance on the Home screen.
 - **Countdown Widget** - Count down to (or up from) any date, with an optional title. Show the time in days, weeks, months, years, a detailed format (e.g. `6 months 5 days`), or as a progress bar. Adjust text size, colors, and transparency. Tap the widget to change its settings.
 
 ---
@@ -194,6 +196,7 @@ Available when Quick Search is set as your launcher.
 ### Appearance Settings
 
 - **System Font** - Use your device's system font throughout the app.
+- **Compact Layout** - A card-less design that fits more content on screen.
 - **Font Size** - Choose small, medium, or big text.
 - **Theme** - Choose Light, Dark, or System, then pick a theme (Mono, Forest, Aurora, Sunset) and adjust its intensity. Themes adapt to light and dark mode.
 - **AMOLED / True Black** - With Dark Mono selected, use a true-black background instead of dark gray.
@@ -205,6 +208,7 @@ Available when Quick Search is set as your launcher.
 - **Bottom Searchbar** - Move the search bar to the bottom of the screen.
 - **Search Bar Style** - Customize the Home search bar's border width and color, background color and transparency, and corner radius.
 - **Show Status Bar** - Show or hide the Android status bar at the top of the screen.
+- **Mic Button** - Show a mic button in the search bar for voice typing.
 - **Search Hints** - Show or hide the rotating hints in the search bar.
 - **Settings Icon** - Show or hide the settings icon in the search bar.
 - **Pinned Sections Order** - Reorder pinned sections on Home.
