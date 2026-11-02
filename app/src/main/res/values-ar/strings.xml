@@ -1238,6 +1238,7 @@
     <string name="permissions_screen_optional_emphasis">اختيارية</string>
     <string name="permissions_usage_desc">مطلوب لعرض تطبيقاتك المستخدمة مؤخراً في قسم الاقتراحات.</string>
     <string name="setup_action_next">التالي</string>
+    <string name="setup_action_skip_permissions">المتابعة بدون أذونات</string>
     <string name="setup_action_start">ابدأ البحث الآن!</string>
     <string name="setup_final_title">على وشك الانتهاء!</string>
     <string name="setup_import_backup_found_subtitle">هل ترغب في استعادة إعداداتك من هذا الملف؟</string>

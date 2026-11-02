@@ -1236,6 +1236,7 @@
 <string name="permissions_screen_optional_emphasis">isteğe bağlıdır</string>
 <string name="permissions_usage_desc">Son kullandığın uygulamaları önerilerde göstermek için gereklidir.</string>
 <string name="setup_action_next">Sonraki</string>
+<string name="setup_action_skip_permissions">İzin vermeden devam et</string>
 <string name="setup_action_start">Aramaya başla!</string>
 <string name="setup_final_title">Neredeyse bitti!</string>
 <string name="setup_import_backup_found_subtitle">Ayarlarını bu dosyadan geri yüklemek istiyor musun?</string>

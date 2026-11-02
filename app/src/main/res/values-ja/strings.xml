@@ -1248,6 +1248,7 @@ www.google.com/search?q={{query}}</string>
     <string name="permissions_screen_optional_emphasis">任意</string>
     <string name="permissions_usage_desc">候補に最近使用したアプリを表示するために必要です。</string>
     <string name="setup_action_next">次へ</string>
+    <string name="setup_action_skip_permissions">権限なしで続行</string>
     <string name="setup_action_start">検索を開始！</string>
     <string name="setup_final_title">もうすぐ完了です！</string>
     <string name="setup_import_backup_found_subtitle">このファイルから設定を復元しますか？</string>

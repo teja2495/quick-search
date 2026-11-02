@@ -64,6 +64,12 @@ fun PermissionsScreen(
 
     var showPermissionReminderDialog by remember { mutableStateOf(false) }
 
+    val hasAnyGrantedPermission =
+        with(permissionStates) {
+            listOf(usage, contacts, files, calendar, calling, notifications, notificationAccess, accessibility)
+                .any { it.isGranted }
+        }
+
     val totalSteps = if (!permissionStates.contacts.isGranted && !permissionStates.files.isGranted) 3 else 4
 
     SettingsScreenBackground(
@@ -176,7 +182,10 @@ fun PermissionsScreen(
                 ),
         ) {
             Text(
-                text = stringResource(R.string.setup_action_next),
+                text =
+                    stringResource(
+                        if (hasAnyGrantedPermission) R.string.setup_action_next else R.string.setup_action_skip_permissions,
+                    ),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium,
             )

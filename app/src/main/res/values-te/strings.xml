@@ -1237,6 +1237,7 @@
     <string name="permissions_screen_optional_emphasis">ఐచ్ఛికం</string>
     <string name="permissions_usage_desc">మీరు ఇటీవల ఉపయోగించిన యాప్‌లను సూచనలలో చూపించడానికి అవసరం.</string>
     <string name="setup_action_next">తదుపరి</string>
+    <string name="setup_action_skip_permissions">అనుమతులు లేకుండా కొనసాగించు</string>
     <string name="setup_action_start">శోధించడం ప్రారంభించండి!</string>
     <string name="setup_final_title">దాదాపు పూర్తయింది!</string>
     <string name="setup_import_backup_found_subtitle">మీరు ఈ ఫైల్ నుండి మీ సెట్టింగ్‌లను పునరుద్ధరించాలనుకుంటున్నారా?</string>

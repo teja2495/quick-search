@@ -1261,6 +1261,7 @@
 <string name="permissions_screen_optional_emphasis">необязательны</string>
 <string name="permissions_usage_desc">Требуется для отображения недавно использованных приложений в подсказках.</string>
 <string name="setup_action_next">Далее</string>
+<string name="setup_action_skip_permissions">Продолжить без разрешений</string>
 <string name="setup_action_start">Начать поиск!</string>
 <string name="setup_final_title">Почти готово!</string>
 <string name="setup_import_backup_found_subtitle">Хотите восстановить настройки из этого файла?</string>

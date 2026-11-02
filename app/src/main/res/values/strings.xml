@@ -1247,6 +1247,7 @@
     <string name="permissions_screen_optional_emphasis">optional</string>
     <string name="permissions_usage_desc">Needed to show your recently used apps in suggestions.</string>
     <string name="setup_action_next">Next</string>
+    <string name="setup_action_skip_permissions">Continue without permissions</string>
     <string name="setup_action_start">Start Searching!</string>
     <string name="setup_final_title">Almost Done!</string>
     <string name="setup_import_backup_found_subtitle">Do you want to restore your settings from this file?</string>

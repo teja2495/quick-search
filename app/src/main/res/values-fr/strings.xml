@@ -1237,6 +1237,7 @@
 <string name="permissions_screen_optional_emphasis">facultatives</string>
 <string name="permissions_usage_desc">Requis pour afficher vos applications récemment utilisées dans les suggestions.</string>
 <string name="setup_action_next">Suivant</string>
+<string name="setup_action_skip_permissions">Continuer sans autorisations</string>
 <string name="setup_action_start">Lancer la recherche !</string>
 <string name="setup_final_title">Presque terminé !</string>
 <string name="setup_import_backup_found_subtitle">Voulez-vous restaurer vos paramètres à partir de ce fichier ?</string>

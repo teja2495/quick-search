@@ -1285,6 +1285,7 @@ www.google.com/search?q={{query}}</string>
     <string name="permissions_screen_optional_emphasis">optioneel</string>
     <string name="permissions_usage_desc">Vereist om je recent gebruikte apps in suggesties te tonen.</string>
     <string name="setup_action_next">Volgende</string>
+    <string name="setup_action_skip_permissions">Doorgaan zonder machtigingen</string>
     <string name="setup_action_start">Begin met zoeken!</string>
     <string name="setup_final_title">Bijna klaar!</string>
     <string name="setup_import_backup_found_subtitle">Wil je je instellingen herstellen vanuit dit bestand?</string>

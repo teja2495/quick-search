@@ -1237,6 +1237,7 @@
     <string name="permissions_screen_optional_emphasis">opcionais</string>
     <string name="permissions_usage_desc">Necessário para mostrar seus aplicativos usados recentemente nas sugestões.</string>
     <string name="setup_action_next">Avançar</string>
+    <string name="setup_action_skip_permissions">Continuar sem permissões</string>
     <string name="setup_action_start">Começar a pesquisar!</string>
     <string name="setup_final_title">Quase pronto!</string>
     <string name="setup_import_backup_found_subtitle">Deseja restaurar suas configurações a partir deste arquivo?</string>

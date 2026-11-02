@@ -602,7 +602,7 @@ internal fun RecentQueryRow(
             )
         } else {
             Icon(
-                imageVector = MaterialSymbols.Search,
+                imageVector = MaterialSymbols.History,
                 contentDescription = stringResource(R.string.common_search),
                 tint = iconColor,
                 modifier =

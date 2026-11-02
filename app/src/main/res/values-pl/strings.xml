@@ -1274,6 +1274,7 @@ www.google.com/search?q={{query}}</string>
     <string name="permissions_screen_optional_emphasis">opcjonalne</string>
     <string name="permissions_usage_desc">Wymagane do pokazywania ostatnio używanych aplikacji w sugestiach.</string>
     <string name="setup_action_next">Dalej</string>
+    <string name="setup_action_skip_permissions">Kontynuuj bez uprawnień</string>
     <string name="setup_action_start">Rozpocznij wyszukiwanie!</string>
     <string name="setup_final_title">Prawie gotowe!</string>
     <string name="setup_import_backup_found_subtitle">Czy chcesz przywrócić ustawienia z tego pliku?</string>

@@ -1237,6 +1237,7 @@
     <string name="permissions_screen_optional_emphasis">वैकल्पिक</string>
     <string name="permissions_usage_desc">सुझावों में हाल ही में उपयोग किए गए ऐप्स दिखाने के लिए आवश्यक।</string>
     <string name="setup_action_next">आगे</string>
+    <string name="setup_action_skip_permissions">अनुमतियों के बिना जारी रखें</string>
     <string name="setup_action_start">खोज शुरू करें!</string>
     <string name="setup_final_title">लगभग हो गया!</string>
     <string name="setup_import_backup_found_subtitle">क्या आप इस फाइल से अपनी सेटिंग्स रिस्टोर करना चाहते हैं?</string>

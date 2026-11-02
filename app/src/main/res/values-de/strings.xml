@@ -1237,6 +1237,7 @@
     <string name="permissions_screen_optional_emphasis">optional</string>
     <string name="permissions_usage_desc">Erforderlich, um zuletzt verwendete Apps in Vorschlägen anzuzeigen.</string>
     <string name="setup_action_next">Weiter</string>
+    <string name="setup_action_skip_permissions">Ohne Berechtigungen fortfahren</string>
     <string name="setup_action_start">Suche starten!</string>
     <string name="setup_final_title">Fast fertig!</string>
     <string name="setup_import_backup_found_subtitle">Möchtest du deine Einstellungen aus dieser Datei wiederherstellen?</string>

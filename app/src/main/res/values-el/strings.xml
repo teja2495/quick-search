@@ -1237,6 +1237,7 @@
     <string name="permissions_screen_optional_emphasis">προαιρετικές</string>
     <string name="permissions_usage_desc">Απαραίτητο για την εμφάνιση των πρόσφατα χρησιμοποιημένων εφαρμογών σας στις προτάσεις.</string>
     <string name="setup_action_next">Επόμενο</string>
+    <string name="setup_action_skip_permissions">Συνέχεια χωρίς άδειες</string>
     <string name="setup_action_start">Έναρξη αναζήτησης!</string>
     <string name="setup_final_title">Σχεδόν έτοιμο!</string>
     <string name="setup_import_backup_found_subtitle">Θέλετε να επαναφέρετε τις ρυθμίσεις σας από αυτό το αρχείο;</string>

@@ -1225,6 +1225,7 @@
     <string name="permissions_screen_optional_emphasis">可选</string>
     <string name="permissions_usage_desc">用于在智能建议面板中优先展示您近期最常使用或新运行的应用。</string>
     <string name="setup_action_next">下一步</string>
+    <string name="setup_action_skip_permissions">不授予权限，继续</string>
     <string name="setup_action_start">开始搜索！</string>
     <string name="setup_final_title">大功告成！</string>
     <string name="setup_import_backup_found_subtitle">检测到备份，是否要从该备份文件中还原所有设置？</string>

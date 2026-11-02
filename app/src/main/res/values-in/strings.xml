@@ -1241,6 +1241,7 @@
     <string name="permissions_screen_optional_emphasis">opsional</string>
     <string name="permissions_usage_desc">Diperlukan untuk menampilkan aplikasi yang baru saja digunakan dalam saran.</string>
     <string name="setup_action_next">Berikutnya</string>
+    <string name="setup_action_skip_permissions">Lanjutkan tanpa izin</string>
     <string name="setup_action_start">Mulai Mencari!</string>
     <string name="setup_final_title">Hampir Selesai!</string>
     <string name="setup_import_backup_found_subtitle">Apakah Anda ingin memulihkan pengaturan dari file ini?</string>
