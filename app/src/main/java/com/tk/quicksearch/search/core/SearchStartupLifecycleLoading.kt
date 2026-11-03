@@ -31,6 +31,8 @@ import com.tk.quicksearch.app.startup.StartupTrace
 import com.tk.quicksearch.search.apps.invalidateAppIcon
 import android.os.SystemClock
 
+private const val PACKAGE_REFRESH_DEBOUNCE_MS = 400L
+
 internal fun SearchStartupLifecycleDelegate.startPackageChangeMonitoring() {
         repository.startPackageChangeMonitoring { change ->
             change.packageName?.let { packageName ->
@@ -51,7 +53,10 @@ internal fun SearchStartupLifecycleDelegate.startPackageChangeMonitoring() {
             packageRefreshJob?.cancel()
             packageRefreshJob =
                 scope.launch(startupDispatcher) {
-                    loadApps()
+                    // Bulk changes (e.g. a mode suspending many apps) arrive as a burst of callbacks.
+                    // Debounce so only the final refresh reads the settled package state.
+                    delay(PACKAGE_REFRESH_DEBOUNCE_MS)
+                    appSearchManager.refreshAppsNow()
                     loadAppShortcuts()
                 }
         }

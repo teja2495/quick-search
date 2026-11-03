@@ -209,6 +209,7 @@ internal fun AppGridItem(
                     iconHasProfileBadge = iconResult.hasProfileBadge,
                     monochromeData = iconResult.monochromeData,
                     appName = appInfo.appName,
+                    isSuspended = appInfo.isSuspended,
                     onClick = { if (!showOptions) appActions.onClick() },
                     // Archived apps have no app to act on until they are restored.
                     onLongClick = if (isDraggable || appInfo.isArchived) null else ({ showOptions = true }),

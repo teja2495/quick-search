@@ -6,6 +6,7 @@ package com.tk.quicksearch.search.models
  * [userHandleId] is set for work profile apps so they can be launched in the correct profile.
  * [componentName] is used with LauncherApps to launch work profile apps.
  * [isArchived] marks apps archived by the system (Android 15+); launching one requests a restore.
+ * [isSuspended] marks apps suspended by Digital Wellbeing or a device admin; shown in greyscale.
  */
 data class AppInfo(
     val appName: String,
@@ -25,6 +26,7 @@ data class AppInfo(
      */
     val searchAliases: List<String> = emptyList(),
     val isArchived: Boolean = false,
+    val isSuspended: Boolean = false,
 ) {
     fun launchCountKey(): String =
         if (userHandleId == null) packageName else "$packageName:$userHandleId"

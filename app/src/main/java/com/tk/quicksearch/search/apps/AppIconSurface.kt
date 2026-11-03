@@ -7,6 +7,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.toRect
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -56,6 +61,7 @@ internal fun AppIconSurface(
         iconHasProfileBadge: Boolean = false,
         monochromeData: androidx.compose.ui.graphics.ImageBitmap? = null,
         appName: String,
+        isSuspended: Boolean = false,
         onClick: () -> Unit,
         onLongClick: (() -> Unit)?,
         gestureModifier: Modifier = Modifier,
@@ -146,7 +152,10 @@ internal fun AppIconSurface(
                     }
                 }
         Box(
-                modifier = Modifier.fillMaxSize().then(clickModifier),
+                modifier =
+                        Modifier.fillMaxSize()
+                                .then(if (isSuspended) Modifier.greyscale() else Modifier)
+                                .then(clickModifier),
                 contentAlignment = Alignment.Center,
         ) {
             if (folderPreviewMember != null) {
@@ -348,3 +357,18 @@ internal fun AppLabelText(
             modifier = Modifier.fillMaxWidth(),
     )
 }
+
+/** Draws the content with all colour saturation removed. */
+private fun Modifier.greyscale(): Modifier =
+        drawWithContent {
+            val paint =
+                    Paint().apply {
+                        colorFilter =
+                                ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
+                    }
+            drawIntoCanvas { canvas ->
+                canvas.saveLayer(size.toRect(), paint)
+                drawContent()
+                canvas.restore()
+            }
+        }

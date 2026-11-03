@@ -183,7 +183,7 @@ class AppCache(
         private const val KEY_CATALOG_INVALIDATED = "catalog_invalidated"
         private const val KEY_REMOVED_APP_KEYS = "removed_app_keys"
         private const val CACHE_FILE_NAME = "app_cache_v1.bin"
-        private const val CACHE_FILE_VERSION = 6
+        private const val CACHE_FILE_VERSION = 7
 
         // JSON field names
         private const val FIELD_APP_NAME = "appName"
@@ -245,6 +245,7 @@ class AppCache(
             val lastUpdateTime = if (version >= 2) readLong() else firstInstallTime
             val searchAliases = if (version >= 4) readStringList() else emptyList()
             val isArchived = if (version >= 6) readBoolean() else false
+            val isSuspended = if (version >= 7) readBoolean() else false
             return AppInfo(
                 appName = appName,
                 searchAliases = searchAliases,
@@ -259,6 +260,7 @@ class AppCache(
                 componentName = componentName,
                 lastUpdateTime = lastUpdateTime,
                 isArchived = isArchived,
+                isSuspended = isSuspended,
             )
         }
 
@@ -276,6 +278,7 @@ class AppCache(
             writeLong(app.lastUpdateTime)
             writeStringList(app.searchAliases)
             writeBoolean(app.isArchived)
+            writeBoolean(app.isSuspended)
         }
 
         private fun DataInputStream.readNullableInt(): Int? =

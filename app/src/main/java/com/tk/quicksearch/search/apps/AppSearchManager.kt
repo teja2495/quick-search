@@ -126,6 +126,9 @@ class AppSearchManager(
                         app.launchCountKey() to AppSearchLabels(app.appName, app.searchAliases)
                     }
                 val searchLabelsChanged = currentSearchLabels != newSearchLabels
+                val suspendedChanged =
+                    cachedApps.filter { it.isSuspended }.map { it.launchCountKey() }.toSet() !=
+                        apps.filter { it.isSuspended }.map { it.launchCountKey() }.toSet()
 
                 val shouldPublish =
                     showToast ||
@@ -133,6 +136,7 @@ class AppSearchManager(
                         appSetChanged ||
                         usageStatsChanged ||
                         searchLabelsChanged ||
+                        suspendedChanged ||
                         forceUiUpdate
                 if (shouldPublish) {
                     cachedApps = apps

@@ -182,6 +182,32 @@ class AppsRepository(
                     }
                 }
 
+                override fun onPackagesSuspended(
+                    packageNames: Array<out String>,
+                    user: UserHandle,
+                ) = invalidateAvailability(packageNames, user)
+
+                override fun onPackagesUnsuspended(
+                    packageNames: Array<out String>,
+                    user: UserHandle,
+                ) = invalidateAvailability(packageNames, user)
+
+                private fun invalidateAvailability(
+                    packageNames: Array<out String>,
+                    user: UserHandle,
+                ) {
+                    packageNames.forEach { packageName ->
+                        invalidate(
+                            AppCatalogChange.forPackage(
+                                packageName,
+                                user,
+                                isRemoval = false,
+                                isAvailabilityChange = true,
+                            ),
+                        )
+                    }
+                }
+
                 override fun onPackagesUnavailable(
                     packageNames: Array<out String>,
                     user: UserHandle,
@@ -484,6 +510,7 @@ class AppsRepository(
             componentName = info.componentName.flattenToString(),
             lastUpdateTime = lastUpdateTime,
             isArchived = isArchived(appInfo),
+            isSuspended = appInfo.flags and ApplicationInfo.FLAG_SUSPENDED != 0,
         )
     }
 

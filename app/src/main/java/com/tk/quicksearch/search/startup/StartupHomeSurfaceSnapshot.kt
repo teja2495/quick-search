@@ -104,6 +104,7 @@ internal object StartupHomeSurfaceSnapshotJson {
                 put("isSystemApp", app.isSystemApp)
                 put("hasLaunchIntent", app.hasLaunchIntent)
                 put("isArchived", app.isArchived)
+                put("isSuspended", app.isSuspended)
                 app.userHandleId?.let { put("userHandleId", it) }
                 app.componentName?.let { put("componentName", it) }
             }
@@ -123,6 +124,7 @@ internal object StartupHomeSurfaceSnapshotJson {
                 isSystemApp = app.optBoolean("isSystemApp"),
                 hasLaunchIntent = app.optBoolean("hasLaunchIntent", true),
                 isArchived = app.optBoolean("isArchived", false),
+                isSuspended = app.optBoolean("isSuspended", false),
                 userHandleId = app.optInt("userHandleId", -1).takeIf { it >= 0 },
                 componentName = app.stringOrNull("componentName"),
             )
