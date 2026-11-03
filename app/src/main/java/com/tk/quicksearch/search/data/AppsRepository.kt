@@ -570,7 +570,7 @@ class AppsRepository(
     ): AppInfo {
         val packageName = applicationInfo.packageName
         val label =
-            runCatching { packageManager.getApplicationLabel(applicationInfo)?.toString() }
+            runCatching { packageManager.getApplicationLabel(applicationInfo).toString() }
                 .getOrNull()
                 ?.takeIf { it.isNotBlank() }
                 ?: applicationInfo.nonLocalizedLabel
@@ -623,7 +623,7 @@ class AppsRepository(
         resolveInfo: ResolveInfo,
         packageName: String,
     ): String =
-        runCatching { resolveInfo.loadLabel(packageManager)?.toString() }
+        runCatching { resolveInfo.loadLabel(packageManager).toString() }
             .getOrNull()
             ?.takeIf { it.isNotBlank() }
             ?: resolveInfo.activityInfo.nonLocalizedLabel

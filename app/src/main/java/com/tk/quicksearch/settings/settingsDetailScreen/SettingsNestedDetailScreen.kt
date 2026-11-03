@@ -676,7 +676,6 @@ internal fun SettingsNestedDetailScreen(
                 when (detailType) {
                     SettingsDetailType.APP_SHORTCUTS -> appShortcutsSearchQuery
                     SettingsDetailType.APP_MANAGEMENT -> appManagementSearchQuery
-                    else -> ""
                 }
             SettingsManagementSearchBar(
                 query = query,
@@ -684,7 +683,6 @@ internal fun SettingsNestedDetailScreen(
                     when (detailType) {
                         SettingsDetailType.APP_SHORTCUTS -> appShortcutsSearchQuery = updatedQuery
                         SettingsDetailType.APP_MANAGEMENT -> appManagementSearchQuery = updatedQuery
-                        else -> Unit
                     }
                 },
                 onClear = {
@@ -694,7 +692,6 @@ internal fun SettingsNestedDetailScreen(
                             appShortcutsSearchQuery = ""
                         }
                         SettingsDetailType.APP_MANAGEMENT -> appManagementSearchQuery = ""
-                        else -> Unit
                     }
                 },
                 modifier = Modifier.align(Alignment.BottomEnd),

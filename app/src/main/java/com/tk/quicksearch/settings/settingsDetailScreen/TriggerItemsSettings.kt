@@ -245,7 +245,7 @@ private fun TriggerItemIcon(item: TriggerItem) {
             val iconResult = rememberAppIcon(packageName = item.packageName)
             if (iconResult.bitmap != null) {
                 Image(
-                    bitmap = iconResult.bitmap!!,
+                    bitmap = iconResult.bitmap,
                     contentDescription = null,
                     modifier = Modifier.size(DesignTokens.IconSize),
                     contentScale = ContentScale.Fit,
@@ -280,7 +280,7 @@ private fun TriggerItemIcon(item: TriggerItem) {
                 val iconResult = rememberAppIcon(packageName = packageName)
                 if (iconResult.bitmap != null) {
                     Image(
-                        bitmap = iconResult.bitmap!!,
+                        bitmap = iconResult.bitmap,
                         contentDescription = null,
                         modifier = Modifier.size(DesignTokens.IconSize),
                         contentScale = ContentScale.Fit,

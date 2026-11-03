@@ -322,7 +322,7 @@ private fun AppShortcutIconPlaceholder(
 
     if (iconResult.bitmap != null) {
         Image(
-            bitmap = iconResult.bitmap!!,
+            bitmap = iconResult.bitmap,
             contentDescription = null,
             modifier = Modifier.size(DEFAULT_ICON_SIZE),
             contentScale = ContentScale.Fit,
@@ -351,7 +351,7 @@ private fun AppIconPlaceholder(
 
     if (iconResult.bitmap != null) {
         Image(
-            bitmap = iconResult.bitmap!!,
+            bitmap = iconResult.bitmap,
             contentDescription = null,
             modifier = Modifier.size(DEFAULT_ICON_SIZE),
             contentScale = ContentScale.Fit,
