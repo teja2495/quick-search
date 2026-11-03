@@ -134,7 +134,7 @@ fun queryAppActivitiesForPackage(
                 activityInfo
                     .loadLabel(packageManager)
                     .toString()
-                    ?.takeIf { it.isNotBlank() }
+                    .takeIf { it.isNotBlank() }
                     ?: resolvedClassName.substringAfterLast(".")
             AppActivitySource(
                 packageName = packageName,
@@ -262,7 +262,7 @@ private fun ResolveInfo.resolveLabel(packageManager: PackageManager): String {
     return (
         loadLabel(packageManager)
             .toString()
-            ?.takeIf { it.isNotBlank() }
+            .takeIf { it.isNotBlank() }
             ?: formatPackageNameAsLabel(packageName)
     )
 }
