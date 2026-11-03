@@ -578,7 +578,6 @@ private fun TopMatchAppRow(
             isPinned = params.pinnedPackageNames.contains(app.launchCountKey()),
             showUninstall =
                 !app.isSystemApp &&
-                    app.userHandleId == null &&
                     app.packageName != context.packageName,
             hasNickname = !params.getAppNickname(app.launchCountKey()).isNullOrBlank(),
             hasTrigger = params.getAppTrigger(app.launchCountKey())?.word?.isNotBlank() == true,

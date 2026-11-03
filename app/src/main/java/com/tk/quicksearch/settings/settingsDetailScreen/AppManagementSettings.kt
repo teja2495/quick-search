@@ -372,7 +372,7 @@ fun AppManagementSettingsSection(
                             key = { _, app -> app.launchCountKey() },
                         ) { index, app ->
                             val appKey = app.launchCountKey()
-                            val canUninstall = !app.isSystemApp && app.userHandleId == null
+                            val canUninstall = !app.isSystemApp
 
                             AppManagementRow(
                                 app = app,

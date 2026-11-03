@@ -181,7 +181,6 @@ internal fun AllAppsDialog(
                                                             ),
                                                     showUninstall =
                                                             !app.isSystemApp &&
-                                                                    app.userHandleId == null &&
                                                                     app.packageName != context.packageName,
                                                     showAppLabel = true,
                                                     isOverlayPresentation = false,

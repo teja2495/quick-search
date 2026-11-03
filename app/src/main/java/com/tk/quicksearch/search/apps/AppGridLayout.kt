@@ -365,7 +365,6 @@ internal fun AppGrid(
                                 isPinned = pinnedPackageNames.contains(app.launchCountKey()),
                                 showUninstall =
                                         !app.isSystemApp &&
-                                                app.userHandleId == null &&
                                                 app.packageName != context.packageName,
                                 showAppLabel = showAppLabels,
                                 isOverlayPresentation = isOverlayPresentation,
