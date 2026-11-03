@@ -172,7 +172,7 @@ internal fun AllAppsDialog(
                                                             !getAppNickname(app.launchCountKey())
                                                                     .isNullOrBlank(),
                                                     hasTrigger =
-                                                            getAppTrigger(app.packageName)
+                                                            getAppTrigger(app.launchCountKey())
                                                                     ?.word
                                                                     ?.isNotBlank() == true,
                                                     isPinned =

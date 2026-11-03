@@ -152,7 +152,7 @@ class SearchViewModelManagementApiDelegate internal constructor(
     fun getAppNickname(appKey: String): String? = appManager().getAppNickname(appKey)
 
     fun setAppTrigger(appInfo: AppInfo, trigger: ResultTrigger?) {
-        userPreferences.setAppTrigger(appInfo.packageName, trigger)
+        userPreferences.setAppTrigger(appInfo.launchCountKey(), trigger)
         updateUiState { it.copy(nicknameUpdateVersion = it.nicknameUpdateVersion + 1) }
     }
 

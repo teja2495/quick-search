@@ -526,7 +526,7 @@ internal fun buildSectionParams(
                     onUpdateTriggerDialogState(
                         TriggerDialogState.App(
                             app = app,
-                            currentTrigger = getAppTrigger(app.packageName),
+                            currentTrigger = getAppTrigger(app.launchCountKey()),
                             itemName = app.appName,
                         ),
                     )

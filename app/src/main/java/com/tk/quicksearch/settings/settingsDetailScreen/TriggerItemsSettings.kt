@@ -76,13 +76,14 @@ fun TriggerItemsScreen(
             }
 
             buildList {
-                prefs.getAllAppTriggers().forEach { (packageName, trigger) ->
+                prefs.getAllAppTriggers().forEach { (triggerKey, trigger) ->
+                    val packageName = triggerKey.substringBefore(':')
                     val appName = try {
                         pm.getApplicationInfo(packageName, 0).loadLabel(pm).toString()
                     } catch (e: Exception) {
                         packageName
                     }
-                    add(TriggerItem.App(packageName = packageName, word = trigger.word, triggerAfterSpace = trigger.triggerAfterSpace, itemName = appName))
+                    add(TriggerItem.App(triggerKey = triggerKey, packageName = packageName, word = trigger.word, triggerAfterSpace = trigger.triggerAfterSpace, itemName = appName))
                 }
                 prefs.getAllAppShortcutTriggers().forEach { (shortcutId, trigger) ->
                     val shortcut = shortcutsById[shortcutId]
@@ -166,7 +167,7 @@ fun TriggerItemsScreen(
                         onRemove = {
                             val prefs = TriggerPreferences(context)
                             when (item) {
-                                is TriggerItem.App -> prefs.setAppTrigger(item.packageName, null)
+                                is TriggerItem.App -> prefs.setAppTrigger(item.triggerKey, null)
                                 is TriggerItem.AppShortcut -> prefs.setAppShortcutTrigger(item.shortcutId, null)
                                 is TriggerItem.Contact -> prefs.setContactTrigger(item.contactId, null)
                                 is TriggerItem.ContactAction -> prefs.setContactActionTrigger(item.contactId, item.action, null)
@@ -333,6 +334,7 @@ private sealed class TriggerItem {
     abstract val itemName: String
 
     data class App(
+        val triggerKey: String,
         val packageName: String,
         override val word: String,
         override val triggerAfterSpace: Boolean,
