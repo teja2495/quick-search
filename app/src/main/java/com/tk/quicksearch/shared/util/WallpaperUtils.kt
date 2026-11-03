@@ -281,26 +281,11 @@ object WallpaperUtils {
                     else -> currentWallpaperId == cachedWallpaperId
                 }
             if (shouldReuseCached) {
-                val cachedDivisor = cachedBitmapDivisor
-                if (cachedDivisor == divisor) return WallpaperLoadResult.Success(cached)
-                // A finer bitmap only needs scaling down; a coarser one is reloaded below.
-                if (cachedDivisor < divisor) {
-                    val scale = cachedDivisor.toFloat() / divisor
-                    val scaled =
-                        runCatching {
-                            Bitmap.createScaledBitmap(
-                                cached,
-                                (cached.width * scale).toInt().coerceAtLeast(1),
-                                (cached.height * scale).toInt().coerceAtLeast(1),
-                                true,
-                            )
-                        }.getOrNull()
-                    if (scaled != null) {
-                        cachedBitmap = scaled
-                        cachedBitmapDivisor = divisor
-                        return WallpaperLoadResult.Success(scaled)
-                    }
-                }
+                // A finer bitmap is kept as is rather than scaled down: Home and the widgets panel
+                // ask for different sizes, and shrinking the cache for one made the other miss it
+                // and flash the theme background while the full size decoded again. A coarser one
+                // is reloaded below.
+                if (cachedBitmapDivisor <= divisor) return WallpaperLoadResult.Success(cached)
             } else {
                 invalidateWallpaperCache()
             }
