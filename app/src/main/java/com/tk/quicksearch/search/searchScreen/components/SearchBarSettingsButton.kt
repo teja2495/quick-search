@@ -1,8 +1,12 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import android.content.Context
+import android.content.Intent
+import android.provider.Settings
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
@@ -30,10 +35,18 @@ import com.tk.quicksearch.shared.util.hapticStrong
 /** Matches the single-line search field's resting height so the button lines up with the bar. */
 internal val SearchBarSettingsButtonSize = 56.dp
 
+/** Opens the system Settings app; used by long-press on the search bar's settings icons. */
+internal fun openDeviceSettings(context: Context) {
+    runCatching {
+        context.startActivity(Intent(Settings.ACTION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+    }
+}
+
 /**
  * Settings button shown beside the search bar when the mic takes the bar's trailing slot. It
  * reuses the bar's fill, outline, corner radius and light-theme shadow so the two read as a pair.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun SearchBarSettingsButton(
     searchBarStyle: SearchBarStyle,
@@ -46,6 +59,7 @@ internal fun SearchBarSettingsButton(
     modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
+    val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val density = LocalDensity.current
     val isDarkTheme = LocalAppIsDarkTheme.current
@@ -87,7 +101,13 @@ internal fun SearchBarSettingsButton(
                     },
                 ).clip(shape)
                 .background(background)
-                .clickable {
+                .combinedClickable(
+                    hapticFeedbackEnabled = false,
+                    onLongClick = {
+                        hapticStrong(view)()
+                        openDeviceSettings(context)
+                    },
+                ) {
                     hapticStrong(view)()
                     if (dismissKeyboardBeforeClick) {
                         view.clearFocus()

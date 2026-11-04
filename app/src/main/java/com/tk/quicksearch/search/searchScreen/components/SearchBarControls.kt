@@ -15,7 +15,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
@@ -66,6 +69,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
@@ -295,6 +299,7 @@ internal fun isSearchBarAliasActive(
         detectedCustomToolId != null ||
         detectedTaskerIntentId != null
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun SearchBarTrailingIcon(
     showClear: Boolean,
@@ -328,7 +333,23 @@ internal fun SearchBarTrailingIcon(
                 )
             }
         } else if (showSettings) {
-            IconButton(onClick = onSettings) {
+            val context = LocalContext.current
+            val view = LocalView.current
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier =
+                    Modifier
+                        .size(DesignTokens.Spacing48)
+                        .clip(CircleShape)
+                        .combinedClickable(
+                            hapticFeedbackEnabled = false,
+                            onLongClick = {
+                                hapticStrong(view)()
+                                openDeviceSettings(context)
+                            },
+                            onClick = onSettings,
+                        ),
+            ) {
                 Icon(
                     imageVector = MaterialSymbols.Settings,
                     contentDescription = stringResource(R.string.desc_open_settings),
