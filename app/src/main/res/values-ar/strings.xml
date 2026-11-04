@@ -146,9 +146,9 @@
     <string name="settings_gesture_lock_screen">قفل الشاشة</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">يتطلب إذن تسهيل الاستخدام</string>
     <string name="accessibility_lock_screen_service_label">Quick Search</string>
-    <string name="accessibility_lock_screen_service_description">يتيح لتطبيق Quick Search قفل الشاشة بإيماءة النقر المزدوج على الشاشة الرئيسية، والاستجابة للنقر على النتوء، وفتحه بالسحب من الحافة أو بزر عائم في أي تطبيق. لا يقرأ محتوى الشاشة.</string>
+    <string name="accessibility_lock_screen_service_description">يتيح لتطبيق Quick Search قفل الشاشة بإيماءة النقر المزدوج على الشاشة الرئيسية، والاستجابة للنقر على النتوء، وفتحه بالسحب من الحافة أو بزر عائم في أي تطبيق، وعرض SpeedBump للتطبيقات التي تُفتح خارج Quick Search. يتحقق فقط من التطبيق المفتوح ولا يقرأ محتوى الشاشة.</string>
     <string name="accessibility_permission_disclaimer_title">إخلاء مسؤولية إذن إمكانية الوصول</string>
-    <string name="accessibility_lock_screen_disclosure_message">يستخدم Quick Search ميزة إمكانية الوصول من أجل:\n\n• تفعيل إيماءة النقر المزدوج لقفل الشاشة.\n• فتح Quick Search باستخدام إيماءات السحب من الحافة.\n• فتح Quick Search باستخدام الزر العائم.\n• تنفيذ إجراءات عند النقر على النتوء.\n\nلا يقرأ محتوى شاشتك أو بياناتك الشخصية الأخرى ولا يجمعها أو يخزنها أو يشاركها.</string>
+    <string name="accessibility_lock_screen_disclosure_message">يستخدم Quick Search ميزة إمكانية الوصول من أجل:\n\n• تفعيل إيماءة النقر المزدوج لقفل الشاشة.\n• فتح Quick Search باستخدام إيماءات السحب من الحافة.\n• فتح Quick Search باستخدام الزر العائم.\n• تنفيذ إجراءات عند النقر على النتوء.\n• عرض SpeedBump عند فتح تطبيق مفعّل له SpeedBump خارج Quick Search. ولهذا يتحقق فقط من التطبيق المفتوح.\n\nلا يقرأ محتوى شاشتك أو بياناتك الشخصية الأخرى ولا يجمعها أو يخزنها أو يشاركها.</string>
     <string name="settings_gesture_none">بلا</string>
     <string name="settings_gesture_custom">مخصص (التطبيقات، الملفات، إلخ.)</string>
     <string name="settings_keyboard_gestures_title">إيماءات لوحة المفاتيح</string>
@@ -1235,7 +1235,7 @@
     <string name="permissions_notifications_desc">مطلوب لإشعارات التذكيرات ولتثبيت نتائج البحث في لوحة الإشعارات</string>
     <string name="permissions_notification_access_desc">مطلوب لتفعيل نقاط الإشعارات وميزة سجل الإشعارات</string>
     <string name="permissions_accessibility_lock_screen_title">إمكانية الوصول</string>
-    <string name="permissions_accessibility_lock_screen_desc">مطلوب لتمكين إيماءة النقر المزدوج لقفل الشاشة وإيماءات النتوء، أو تشغيل Quick Search بإيماءة السحب من الحافة أو الزر العائم.</string>
+    <string name="permissions_accessibility_lock_screen_desc">مطلوب لتمكين إيماءة النقر المزدوج لقفل الشاشة وإيماءات النتوء، أو تشغيل Quick Search بإيماءة السحب من الحافة أو الزر العائم، وSpeedBump خارج Quick Search.</string>
     <string name="permissions_contacts_desc">مطلوب للبحث في جهات الاتصال الخاصة بك.</string>
     <string name="permissions_files_desc">مطلوب للبحث في ملفاتك ومستنداتك المختلفة.</string>
     <string name="permissions_files_title">إذن الوصول إلى الملفات</string>
@@ -1388,6 +1388,8 @@
     <string name="speed_bump_overlay_prompt">سيُفتح %1$s قريبًا…</string>
     <string name="speed_bump_overlay_title">خذ نفسًا عميقًا</string>
     <string name="speed_bump_title">SpeedBump</string>
+    <string name="speed_bump_outside_quick_search_title">SpeedBump خارج Quick Search</string>
+    <string name="speed_bump_outside_quick_search_desc">إيقاف التطبيقات التي فعّلت لها SpeedBump مؤقتًا أيضًا عند فتحها من مشغّلات أخرى أو من التطبيقات الأخيرة أو من الإشعارات</string>
     <string name="home_upcoming_alarm">المنبه القادم</string>
     <string name="home_upcoming_alarm_hide_app">إخفاء المنبهات من %1$s</string>
     <string name="home_low_battery_saver_off">انقر لتفعيل موفّر البطارية</string>

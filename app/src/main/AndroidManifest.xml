@@ -450,6 +450,16 @@
             android:noHistory="true"
             android:theme="@style/Theme.QuickSearch" />
 
+        <!-- SpeedBump pause for apps opened outside Quick Search; started by the accessibility
+             service in its own task above the app. -->
+        <activity
+            android:name=".search.apps.speedBump.SpeedBumpActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:taskAffinity="${applicationId}.speedbump"
+            android:theme="@style/Theme.QuickSearch" />
+
         <activity
             android:name=".pinnedNotifications.PinnedNotificationChoiceActivity"
             android:exported="false"

@@ -608,6 +608,13 @@ class AppSettingsRepository(
                 keywords = listOf("badge", "notification", "dot", "unread"),
             )
             addToggle(
+                id = "app_toggle_speed_bump_outside_quick_search",
+                titleRes = R.string.speed_bump_outside_quick_search_title,
+                descriptionRes = R.string.speed_bump_outside_quick_search_desc,
+                toggleKey = AppSettingsToggleKey.SPEED_BUMP_OUTSIDE_QUICK_SEARCH,
+                keywords = listOf("speedbump", "speed bump", "pause", "delay", "launcher", "mindful", "addiction"),
+            )
+            addToggle(
                 id = "app_toggle_show_all_apps_button",
                 titleRes = R.string.settings_app_shortcuts_filter_all_apps,
                 descriptionRes = R.string.show_all_apps_button_toggle_desc,

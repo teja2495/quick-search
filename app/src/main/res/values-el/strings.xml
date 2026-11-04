@@ -145,9 +145,9 @@
     <string name="settings_gesture_lock_screen">Κλείδωμα οθόνης</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">Απαιτείται άδεια προσβασιμότητας</string>
     <string name="accessibility_lock_screen_service_label">Quick Search</string>
-    <string name="accessibility_lock_screen_service_description">Επιτρέπει στο Quick Search να κλειδώνει την οθόνη με τη χειρονομία διπλού πατήματος στην αρχική οθόνη, να ανταποκρίνεται σε πατήματα στην εγκοπή και να ανοίγει με σάρωση από την άκρη ή με ένα αιωρούμενο κουμπί σε οποιαδήποτε εφαρμογή. Δεν διαβάζει το περιεχόμενο της οθόνης.</string>
+    <string name="accessibility_lock_screen_service_description">Επιτρέπει στο Quick Search να κλειδώνει την οθόνη με τη χειρονομία διπλού πατήματος στην αρχική οθόνη, να ανταποκρίνεται σε πατήματα στην εγκοπή, να ανοίγει με σάρωση από την άκρη ή με ένα αιωρούμενο κουμπί σε οποιαδήποτε εφαρμογή και να εμφανίζει το SpeedBump για εφαρμογές που ανοίγουν εκτός Quick Search. Ελέγχει μόνο ποια εφαρμογή είναι ανοιχτή και δεν διαβάζει το περιεχόμενο της οθόνης.</string>
 <string name="accessibility_permission_disclaimer_title">Αποποίηση ευθύνης άδειας προσβασιμότητας</string>
-    <string name="accessibility_lock_screen_disclosure_message">Το Quick Search χρησιμοποιεί την Προσβασιμότητα για να:\n\n• ενεργοποιεί τη χειρονομία διπλού πατήματος για κλείδωμα οθόνης.\n• ανοίγει το Quick Search με χειρονομίες σάρωσης από την άκρη.\n• ανοίγει το Quick Search με το αιωρούμενο κουμπί.\n• εκτελεί ενέργειες όταν πατάτε την εγκοπή.\n\nΔεν διαβάζει, συλλέγει, αποθηκεύει ή κοινοποιεί το περιεχόμενο της οθόνης σας ή άλλα προσωπικά δεδομένα.</string>
+    <string name="accessibility_lock_screen_disclosure_message">Το Quick Search χρησιμοποιεί την Προσβασιμότητα για να:\n\n• ενεργοποιεί τη χειρονομία διπλού πατήματος για κλείδωμα οθόνης.\n• ανοίγει το Quick Search με χειρονομίες σάρωσης από την άκρη.\n• ανοίγει το Quick Search με το αιωρούμενο κουμπί.\n• εκτελεί ενέργειες όταν πατάτε την εγκοπή.\n• εμφανίζει το SpeedBump όταν μια εφαρμογή με SpeedBump ανοίγει εκτός Quick Search. Για αυτό ελέγχει μόνο ποια εφαρμογή είναι ανοιχτή.\n\nΔεν διαβάζει, συλλέγει, αποθηκεύει ή κοινοποιεί το περιεχόμενο της οθόνης σας ή άλλα προσωπικά δεδομένα.</string>
     <string name="settings_gesture_none">Κανένα</string>
     <string name="settings_gesture_custom">Προσαρμοσμένο (Εφαρμογές, Αρχεία κ.λπ.)</string>
     <string name="settings_keyboard_gestures_title">Χειρονομίες πληκτρολογίου</string>
@@ -1234,7 +1234,7 @@
     <string name="permissions_notifications_desc">Απαιτείται για ειδοποιήσεις υπενθυμίσεων και για καρφίτσωμα αποτελεσμάτων αναζήτησης στον πίνακα ειδοποιήσεων</string>
     <string name="permissions_notification_access_desc">Απαιτείται για την ενεργοποίηση των κουκκίδων ειδοποιήσεων και του ιστορικού ειδοποιήσεων</string>
     <string name="permissions_accessibility_lock_screen_title">Προσβασιμότητα</string>
-    <string name="permissions_accessibility_lock_screen_desc">Απαραίτητο για τη χειρονομία διπλού πατήματος για κλείδωμα οθόνης, τις χειρονομίες εγκοπής ή για την εκκίνηση του Quick Search με χειρονομία σάρωσης από την άκρη ή αιωρούμενο κουμπί.</string>
+    <string name="permissions_accessibility_lock_screen_desc">Απαραίτητο για τη χειρονομία διπλού πατήματος για κλείδωμα οθόνης, τις χειρονομίες εγκοπής, την εκκίνηση του Quick Search με χειρονομία σάρωσης από την άκρη ή αιωρούμενο κουμπί και το SpeedBump εκτός Quick Search.</string>
     <string name="permissions_contacts_desc">Απαραίτητο για την αναζήτηση των επαφών σας.</string>
     <string name="permissions_files_desc">Απαραίτητο για την αναζήτηση στα έγγραφα και τα υπόλοιπα αρχεία σας.</string>
     <string name="permissions_files_title">Πρόσβαση σε αρχεία</string>
@@ -1386,6 +1386,8 @@
     <string name="speed_bump_overlay_prompt">Το %1$s θα ανοίξει σύντομα…</string>
     <string name="speed_bump_overlay_title">Πάρε μια βαθιά ανάσα</string>
     <string name="speed_bump_title">SpeedBump</string>
+    <string name="speed_bump_outside_quick_search_title">SpeedBump εκτός Quick Search</string>
+    <string name="speed_bump_outside_quick_search_desc">Παύση των εφαρμογών με SpeedBump και όταν ανοίγουν από άλλους εκκινητές, τις πρόσφατες ή τις ειδοποιήσεις</string>
     <string name="home_upcoming_alarm">Επερχόμενο ξυπνητήρι</string>
     <string name="home_upcoming_alarm_hide_app">Απόκρυψη ξυπνητηριών από %1$s</string>
     <string name="home_low_battery_saver_off">Πατήστε για ενεργοποίηση της Εξοικονόμησης μπαταρίας</string>

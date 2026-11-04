@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.apps.speedBump
 
 import android.content.Context
+import android.content.SharedPreferences
 
 /**
  * Per-app "SpeedBump" state.
@@ -19,6 +20,7 @@ object SpeedBump {
     private const val PreferencesName = "speed_bump_state"
     private const val BumpedPackagesKey = "bumped_packages"
     private const val ExplainerSeenKey = "explainer_seen"
+    private const val OutsideQuickSearchKey = "outside_quick_search_enabled"
 
     fun isEnabled(context: Context, packageName: String): Boolean =
         bumpedPackages(context).contains(packageName)
@@ -48,6 +50,29 @@ object SpeedBump {
     fun markExplainerSeen(context: Context) {
         prefs(context).edit().putBoolean(ExplainerSeenKey, true).apply()
     }
+
+    /**
+     * Whether bumped apps also get the pause when opened outside Quick Search (other launchers,
+     * recents, notifications). Detection runs in the accessibility service, so it only takes
+     * effect while that service is on.
+     */
+    fun isOutsideQuickSearchEnabled(context: Context): Boolean =
+        prefs(context).getBoolean(OutsideQuickSearchKey, false)
+
+    fun setOutsideQuickSearchEnabled(context: Context, enabled: Boolean) {
+        prefs(context).edit().putBoolean(OutsideQuickSearchKey, enabled).apply()
+    }
+
+    /** Notifies [listener] whenever the bumped apps or the outside-Quick-Search switch change. */
+    fun registerChangeListener(
+        context: Context,
+        listener: SharedPreferences.OnSharedPreferenceChangeListener,
+    ) = prefs(context).registerOnSharedPreferenceChangeListener(listener)
+
+    fun unregisterChangeListener(
+        context: Context,
+        listener: SharedPreferences.OnSharedPreferenceChangeListener,
+    ) = prefs(context).unregisterOnSharedPreferenceChangeListener(listener)
 
     private fun prefs(context: Context) =
         context.applicationContext.getSharedPreferences(PreferencesName, Context.MODE_PRIVATE)

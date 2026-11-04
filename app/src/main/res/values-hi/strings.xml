@@ -145,9 +145,9 @@
     <string name="settings_gesture_lock_screen">स्क्रीन लॉक करें</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">सुलभता अनुमति आवश्यक है</string>
     <string name="accessibility_lock_screen_service_label">Quick Search</string>
-    <string name="accessibility_lock_screen_service_description">Quick Search को होम स्क्रीन पर डबल-टैप जेस्चर से स्क्रीन लॉक करने, नॉच पर टैप का जवाब देने और किसी भी ऐप में किनारे से स्वाइप या फ़्लोटिंग बटन से खुलने की अनुमति देता है। यह स्क्रीन की सामग्री नहीं पढ़ता।</string>
+    <string name="accessibility_lock_screen_service_description">Quick Search को होम स्क्रीन पर डबल-टैप जेस्चर से स्क्रीन लॉक करने, नॉच पर टैप का जवाब देने, किसी भी ऐप में किनारे से स्वाइप या फ़्लोटिंग बटन से खुलने और Quick Search के बाहर खोले गए ऐप्स के लिए SpeedBump दिखाने की अनुमति देता है। यह केवल देखता है कि कौन-सा ऐप खुला है और स्क्रीन की सामग्री नहीं पढ़ता।</string>
 <string name="accessibility_permission_disclaimer_title">सुलभता अनुमति अस्वीकरण</string>
-    <string name="accessibility_lock_screen_disclosure_message">Quick Search Accessibility का उपयोग इन कामों के लिए करता है:\n\n• स्क्रीन लॉक करने के लिए डबल-टैप जेस्चर सक्षम करने के लिए।\n• किनारे से स्वाइप जेस्चर से Quick Search खोलने के लिए।\n• फ़्लोटिंग बटन से Quick Search खोलने के लिए।\n• नॉच पर टैप करने पर कार्रवाइयाँ चलाने के लिए।\n\nयह आपकी स्क्रीन सामग्री या अन्य निजी डेटा को पढ़ता, एकत्र करता, संग्रहीत या साझा नहीं करता है।</string>
+    <string name="accessibility_lock_screen_disclosure_message">Quick Search Accessibility का उपयोग इन कामों के लिए करता है:\n\n• स्क्रीन लॉक करने के लिए डबल-टैप जेस्चर सक्षम करने के लिए।\n• किनारे से स्वाइप जेस्चर से Quick Search खोलने के लिए।\n• फ़्लोटिंग बटन से Quick Search खोलने के लिए।\n• नॉच पर टैप करने पर कार्रवाइयाँ चलाने के लिए।\n• SpeedBump वाला ऐप Quick Search के बाहर खोले जाने पर SpeedBump दिखाने के लिए। इसके लिए यह केवल देखता है कि कौन-सा ऐप खुला है।\n\nयह आपकी स्क्रीन सामग्री या अन्य निजी डेटा को पढ़ता, एकत्र करता, संग्रहीत या साझा नहीं करता है।</string>
     <string name="settings_gesture_none">कोई नहीं</string>
     <string name="settings_gesture_custom">कस्टम (ऐप्स, फ़ाइलें आदि)</string>
     <string name="settings_keyboard_gestures_title">कीबोर्ड जेस्चर</string>
@@ -1234,7 +1234,7 @@
     <string name="permissions_notifications_desc">रिमाइंडर सूचनाओं और खोज परिणामों को सूचना पैनल में पिन करने के लिए आवश्यक</string>
     <string name="permissions_notification_access_desc">सूचना बिंदु और सूचना इतिहास सुविधाएं चालू करने के लिए आवश्यक</string>
     <string name="permissions_accessibility_lock_screen_title">सुलभता</string>
-    <string name="permissions_accessibility_lock_screen_desc">स्क्रीन लॉक करने के लिए डबल-टैप जेस्चर, नॉच जेस्चर, या एज स्वाइप जेस्चर अथवा फ़्लोटिंग बटन से Quick Search लॉन्च करने के लिए आवश्यक।</string>
+    <string name="permissions_accessibility_lock_screen_desc">स्क्रीन लॉक करने के लिए डबल-टैप जेस्चर, नॉच जेस्चर, एज स्वाइप जेस्चर या फ़्लोटिंग बटन से Quick Search लॉन्च करने और Quick Search के बाहर SpeedBump के लिए आवश्यक।</string>
     <string name="permissions_contacts_desc">आपके कॉन्टैक्ट्स खोजने के लिए आवश्यक।</string>
     <string name="permissions_files_desc">आपके दस्तावेज़ों और अन्य फाइलों में खोजने के लिए आवश्यक।</string>
     <string name="permissions_files_title">फाइल पहुंच</string>
@@ -1386,6 +1386,8 @@
     <string name="speed_bump_overlay_prompt">%1$s जल्द ही खुलेगा…</string>
     <string name="speed_bump_overlay_title">एक गहरी सांस लें</string>
     <string name="speed_bump_title">SpeedBump</string>
+    <string name="speed_bump_outside_quick_search_title">Quick Search के बाहर SpeedBump</string>
+    <string name="speed_bump_outside_quick_search_desc">SpeedBump वाले ऐप्स को दूसरे लॉन्चर, हाल के ऐप्स या सूचनाओं से खोले जाने पर भी रोकें</string>
     <string name="home_upcoming_alarm">आगामी अलार्म</string>
     <string name="home_upcoming_alarm_hide_app">%1$s के अलार्म छिपाएं</string>
     <string name="home_low_battery_saver_off">बैटरी सेवर चालू करने के लिए टैप करें</string>

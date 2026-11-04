@@ -145,9 +145,9 @@
 <string name="settings_gesture_lock_screen">Verrouiller l\'écran</string>
 <string name="settings_gesture_lock_screen_requires_accessibility">Nécessite l\'autorisation d\'accessibilité</string>
 <string name="accessibility_lock_screen_service_label">Quick Search</string>
-<string name="accessibility_lock_screen_service_description">Permet à Quick Search de verrouiller l\'écran avec le geste de double appui sur l\'écran d\'accueil, de réagir aux appuis sur l’encoche et de s\'ouvrir d\'un balayage depuis le bord ou via un bouton flottant dans n\'importe quelle application. Il ne lit pas le contenu de l\'écran.</string>
+<string name="accessibility_lock_screen_service_description">Permet à Quick Search de verrouiller l’écran avec le geste de double appui sur l’écran d’accueil, de réagir aux appuis sur l’encoche, de s’ouvrir d’un balayage depuis le bord ou via un bouton flottant dans n’importe quelle application, et d’afficher SpeedBump pour les applications ouvertes en dehors de Quick Search. Il vérifie seulement quelle application est ouverte et ne lit pas le contenu de l’écran.</string>
 <string name="accessibility_permission_disclaimer_title">Avis relatif à l’autorisation d’accessibilité</string>
-<string name="accessibility_lock_screen_disclosure_message">Quick Search utilise l’accessibilité pour :\n\n• Activer le geste de double appui pour verrouiller l’écran.\n• Ouvrir Quick Search avec des gestes de balayage depuis le bord.\n• Ouvrir Quick Search avec le bouton flottant.\n• Exécuter des actions lorsque vous appuyez sur l’encoche.\n\nIl ne lit, ne collecte, ne stocke et ne partage ni le contenu de votre écran ni aucune autre donnée personnelle.</string>
+<string name="accessibility_lock_screen_disclosure_message">Quick Search utilise l’accessibilité pour :\n\n• Activer le geste de double appui pour verrouiller l’écran.\n• Ouvrir Quick Search avec des gestes de balayage depuis le bord.\n• Ouvrir Quick Search avec le bouton flottant.\n• Exécuter des actions lorsque vous appuyez sur l’encoche.\n• Afficher SpeedBump lorsqu’une application avec SpeedBump est ouverte en dehors de Quick Search. Pour cela, il vérifie seulement quelle application est ouverte.\n\nIl ne lit, ne collecte, ne stocke et ne partage ni le contenu de votre écran ni aucune autre donnée personnelle.</string>
 <string name="settings_gesture_none">Aucun</string>
 <string name="settings_gesture_custom">Personnalisé (Applications, fichiers, etc.)</string>
 <string name="settings_keyboard_gestures_title">Gestes du clavier</string>
@@ -1234,7 +1234,7 @@
     <string name="permissions_notifications_desc">Requis pour les notifications de rappels et pour épingler des résultats de recherche dans le volet des notifications</string>
     <string name="permissions_notification_access_desc">Requis pour activer les pastilles de notification et l\'historique des notifications</string>
 <string name="permissions_accessibility_lock_screen_title">Accessibilité</string>
-<string name="permissions_accessibility_lock_screen_desc">Nécessaire pour le geste de double appui afin de verrouiller l’écran, les gestes de l’encoche, ou pour lancer Quick Search avec le geste de balayage depuis le bord ou le bouton flottant.</string>
+<string name="permissions_accessibility_lock_screen_desc">Nécessaire pour le geste de double appui afin de verrouiller l’écran, les gestes de l’encoche, le lancement de Quick Search avec le geste de balayage depuis le bord ou le bouton flottant, et SpeedBump en dehors de Quick Search.</string>
 <string name="permissions_contacts_desc">Requis pour rechercher vos contacts.</string>
 <string name="permissions_files_desc">Requis pour rechercher parmi vos documents et autres fichiers.</string>
 <string name="permissions_files_title">Accès aux fichiers</string>
@@ -1386,6 +1386,8 @@
     <string name="speed_bump_overlay_prompt">%1$s va bientôt s\u2019ouvrir…</string>
     <string name="speed_bump_overlay_title">Respirez profondément</string>
     <string name="speed_bump_title">SpeedBump</string>
+    <string name="speed_bump_outside_quick_search_title">SpeedBump en dehors de Quick Search</string>
+    <string name="speed_bump_outside_quick_search_desc">Mettre aussi en pause les applications avec SpeedBump lorsqu’elles sont ouvertes depuis d’autres lanceurs, les applications récentes ou les notifications</string>
     <string name="home_upcoming_alarm">Alarme à venir</string>
     <string name="home_upcoming_alarm_hide_app">Masquer les alarmes de %1$s</string>
     <string name="home_low_battery_saver_off">Appuyez pour activer l\'économiseur de batterie</string>

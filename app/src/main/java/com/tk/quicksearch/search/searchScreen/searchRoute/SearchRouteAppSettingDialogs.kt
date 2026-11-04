@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.searchRoute
 
+import com.tk.quicksearch.search.apps.speedBump.SpeedBumpAccessibilityDisclosureHost
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -47,6 +48,7 @@ internal fun AppSettingRouteDialogs(
 ) {
     val activeDialog = settingActions.activeDialog
     val onDismiss = { activeDialog.value = null }
+    SpeedBumpAccessibilityDisclosureHost(settingActions.speedBumpToggle)
     when (activeDialog.value) {
         AppSettingRouteDialog.TOP_MATCHES_PRIORITY -> {
             val priorityItems =

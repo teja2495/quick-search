@@ -145,9 +145,9 @@
 <string name="settings_gesture_lock_screen">Заблокировать экран</string>
 <string name="settings_gesture_lock_screen_requires_accessibility">Требуется разрешение специальных возможностей</string>
 <string name="accessibility_lock_screen_service_label">Quick Search</string>
-<string name="accessibility_lock_screen_service_description">Позволяет Quick Search блокировать экран двойным касанием на главном экране, реагировать на нажатия на вырез и открываться смахиванием от края или с помощью плавающей кнопки в любом приложении. Не считывает содержимое экрана.</string>
+<string name="accessibility_lock_screen_service_description">Позволяет Quick Search блокировать экран двойным касанием на главном экране, реагировать на нажатия на вырез, открываться смахиванием от края или с помощью плавающей кнопки в любом приложении и показывать SpeedBump для приложений, открытых вне Quick Search. Проверяет только, какое приложение открыто, и не считывает содержимое экрана.</string>
 <string name="accessibility_permission_disclaimer_title">Уведомление о разрешении специальных возможностей</string>
-<string name="accessibility_lock_screen_disclosure_message">Quick Search использует специальные возможности, чтобы:\n\n• Включать жест двойного нажатия для блокировки экрана.\n• Открывать Quick Search жестами смахивания от края.\n• Открывать Quick Search с помощью плавающей кнопки.\n• Выполнять действия при нажатии на вырез экрана.\n\nОн не читает, не собирает, не хранит и не передает содержимое экрана или другие персональные данные.</string>
+<string name="accessibility_lock_screen_disclosure_message">Quick Search использует специальные возможности, чтобы:\n\n• Включать жест двойного нажатия для блокировки экрана.\n• Открывать Quick Search жестами смахивания от края.\n• Открывать Quick Search с помощью плавающей кнопки.\n• Выполнять действия при нажатии на вырез экрана.\n• Показывать SpeedBump, когда приложение со SpeedBump открывается вне Quick Search. Для этого проверяется только, какое приложение открыто.\n\nОн не читает, не собирает, не хранит и не передает содержимое экрана или другие персональные данные.</string>
 <string name="settings_gesture_none">Нет</string>
 <string name="settings_gesture_custom">Вручную (приложения, файлы и др.)</string>
 <string name="settings_keyboard_gestures_title">Жесты клавиатуры</string>
@@ -1258,7 +1258,7 @@
     <string name="permissions_notifications_desc">Требуется для уведомлений о напоминаниях и закрепления результатов поиска на панели уведомлений</string>
     <string name="permissions_notification_access_desc">Требуется для значков уведомлений и истории уведомлений</string>
 <string name="permissions_accessibility_lock_screen_title">Специальные возможности</string>
-<string name="permissions_accessibility_lock_screen_desc">Требуется для жеста двойного нажатия, чтобы заблокировать экран, жестов выреза или для запуска Quick Search жестом смахивания от края либо плавающей кнопкой.</string>
+<string name="permissions_accessibility_lock_screen_desc">Требуется для жеста двойного нажатия, чтобы заблокировать экран, жестов выреза, запуска Quick Search жестом смахивания от края либо плавающей кнопкой и SpeedBump вне Quick Search.</string>
 <string name="permissions_contacts_desc">Требуется для поиска по вашим контактам.</string>
 <string name="permissions_files_desc">Требуется для поиска по вашим документам и другим файлам.</string>
 <string name="permissions_files_title">Доступ к файлам</string>
@@ -1410,6 +1410,8 @@
     <string name="speed_bump_overlay_prompt">%1$s скоро откроется…</string>
     <string name="speed_bump_overlay_title">Сделайте глубокий вдох</string>
     <string name="speed_bump_title">SpeedBump</string>
+    <string name="speed_bump_outside_quick_search_title">SpeedBump вне Quick Search</string>
+    <string name="speed_bump_outside_quick_search_desc">Приостанавливать приложения со SpeedBump и при открытии из других лаунчеров, недавних приложений или уведомлений</string>
     <string name="home_upcoming_alarm">Ближайший будильник</string>
     <string name="home_upcoming_alarm_hide_app">Скрыть будильники из %1$s</string>
     <string name="home_low_battery_saver_off">Нажмите, чтобы включить режим энергосбережения</string>

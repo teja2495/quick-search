@@ -146,9 +146,9 @@
     <string name="settings_gesture_lock_screen">Kunci Layar</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">Memerlukan Izin Aksesibilitas</string>
     <string name="accessibility_lock_screen_service_label">Quick Search</string>
-    <string name="accessibility_lock_screen_service_description">Mengizinkan Quick Search mengunci layar dari gestur ketuk dua kali di Layar Utama, merespons ketukan pada notch, dan terbuka dengan geser dari tepi atau tombol mengambang di aplikasi apa pun. Fitur ini tidak membaca konten layar.</string>
+    <string name="accessibility_lock_screen_service_description">Mengizinkan Quick Search mengunci layar dari gestur ketuk dua kali di Layar Utama, merespons ketukan pada notch, terbuka dengan geser dari tepi atau tombol mengambang di aplikasi apa pun, dan menampilkan SpeedBump untuk aplikasi yang dibuka di luar Quick Search. Fitur ini hanya memeriksa aplikasi mana yang terbuka dan tidak membaca konten layar.</string>
     <string name="accessibility_permission_disclaimer_title">Pernyataan Izin Aksesibilitas</string>
-    <string name="accessibility_lock_screen_disclosure_message">Quick Search menggunakan Aksesibilitas untuk:\n\n• Mengaktifkan gestur ketuk dua kali untuk mengunci layar.\n• Membuka Quick Search dengan gestur geser dari tepi.\n• Membuka Quick Search dengan tombol mengambang.\n• Menjalankan tindakan saat Anda mengetuk notch.\n\nQuick Search tidak membaca, mengumpulkan, menyimpan, atau membagikan konten layar atau data pribadi lainnya.</string>
+    <string name="accessibility_lock_screen_disclosure_message">Quick Search menggunakan Aksesibilitas untuk:\n\n• Mengaktifkan gestur ketuk dua kali untuk mengunci layar.\n• Membuka Quick Search dengan gestur geser dari tepi.\n• Membuka Quick Search dengan tombol mengambang.\n• Menjalankan tindakan saat Anda mengetuk notch.\n• Menampilkan SpeedBump saat aplikasi dengan SpeedBump dibuka di luar Quick Search. Untuk ini, Quick Search hanya memeriksa aplikasi mana yang terbuka.\n\nQuick Search tidak membaca, mengumpulkan, menyimpan, atau membagikan konten layar atau data pribadi lainnya.</string>
     <string name="settings_gesture_none">Tidak ada</string>
     <string name="settings_gesture_custom">Kustom (Aplikasi, File, dll.)</string>
     <string name="settings_keyboard_gestures_title">Gestur Keyboard</string>
@@ -1238,7 +1238,7 @@
     <string name="permissions_notifications_desc">Diperlukan untuk notifikasi pengingat dan untuk menyematkan hasil pencarian di panel notifikasi</string>
     <string name="permissions_notification_access_desc">Diperlukan untuk mengaktifkan titik notifikasi dan fitur riwayat notifikasi</string>
     <string name="permissions_accessibility_lock_screen_title">Aksesibilitas</string>
-    <string name="permissions_accessibility_lock_screen_desc">Diperlukan untuk gestur ketuk dua kali guna mengunci layar, gestur notch, atau meluncurkan Quick Search dengan gestur geser tepi atau tombol mengambang.</string>
+    <string name="permissions_accessibility_lock_screen_desc">Diperlukan untuk gestur ketuk dua kali guna mengunci layar, gestur notch, meluncurkan Quick Search dengan gestur geser tepi atau tombol mengambang, dan SpeedBump di luar Quick Search.</string>
     <string name="permissions_contacts_desc">Diperlukan untuk mencari kontak Anda.</string>
     <string name="permissions_files_desc">Diperlukan untuk mencari dokumen dan file lainnya.</string>
     <string name="permissions_files_title">Akses File</string>
@@ -1382,6 +1382,8 @@
     <string name="speed_bump_overlay_prompt">Membuka %1$s sebentar lagi…</string>
     <string name="speed_bump_overlay_title">Tarik napas dalam-dalam</string>
     <string name="speed_bump_title">SpeedBump</string>
+    <string name="speed_bump_outside_quick_search_title">SpeedBump di Luar Quick Search</string>
+    <string name="speed_bump_outside_quick_search_desc">Jeda juga aplikasi dengan SpeedBump saat dibuka dari peluncur lain, aplikasi terbaru, atau notifikasi</string>
     <string name="home_upcoming_alarm">Alarm mendatang</string>
     <string name="home_upcoming_alarm_hide_app">Sembunyikan alarm dari %1$s</string>
     <string name="home_low_battery_saver_off">Ketuk untuk mengaktifkan Penghemat Baterai</string>

@@ -12,6 +12,9 @@ import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.appSettings.AppSettingsToggleKey
 import com.tk.quicksearch.search.apps.notificationDots.rememberNotificationDotsCheckedChange
+import com.tk.quicksearch.search.apps.speedBump.SpeedBumpAccessibilityDisclosureHost
+import com.tk.quicksearch.search.apps.speedBump.SpeedBumpOutsideQuickSearchToggleState
+import com.tk.quicksearch.search.apps.speedBump.rememberSpeedBumpOutsideQuickSearchToggleState
 import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.settings.shared.SettingsCommand
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
@@ -39,6 +42,15 @@ fun MoreOptionsSettings(
                 ),
             )
         }
+    val speedBumpToggle = rememberSpeedBumpOutsideQuickSearchToggleState()
+    SpeedBumpAccessibilityDisclosureHost(speedBumpToggle)
+    val isMoreOptionEnabled: (AppSettingsToggleKey) -> Boolean = { key ->
+        if (key == AppSettingsToggleKey.SPEED_BUMP_OUTSIDE_QUICK_SEARCH) {
+            speedBumpToggle.isOn
+        } else {
+            isToggleEnabled(key)
+        }
+    }
     val appToggleItems =
         listOfNotNull(
             ToggleItem(
@@ -46,6 +58,12 @@ fun MoreOptionsSettings(
                 titleRes = R.string.notification_dots_toggle_title,
                 subtitleRes = R.string.notification_dots_toggle_desc,
                 leadingIcon = MaterialSymbols.Notifications,
+            ),
+            ToggleItem(
+                key = AppSettingsToggleKey.SPEED_BUMP_OUTSIDE_QUICK_SEARCH,
+                titleRes = R.string.speed_bump_outside_quick_search_title,
+                subtitleRes = R.string.speed_bump_outside_quick_search_desc,
+                leadingIcon = MaterialSymbols.Spa,
             ),
             ToggleItem(
                 key = AppSettingsToggleKey.SHOW_ALL_APPS_BUTTON,
@@ -125,17 +143,19 @@ fun MoreOptionsSettings(
         MoreOptionsToggleCard(
             items = appToggleItems,
             isDefaultLauncher = isDefaultLauncher,
-            isToggleEnabled = isToggleEnabled,
+            isToggleEnabled = isMoreOptionEnabled,
             onApplySettingsCommand = onApplySettingsCommand,
             onNotificationDotsCheckedChange = onNotificationDotsCheckedChange,
+            speedBumpToggle = speedBumpToggle,
         )
         Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
         MoreOptionsToggleCard(
             items = otherToggleItems,
             isDefaultLauncher = isDefaultLauncher,
-            isToggleEnabled = isToggleEnabled,
+            isToggleEnabled = isMoreOptionEnabled,
             onApplySettingsCommand = onApplySettingsCommand,
             onNotificationDotsCheckedChange = onNotificationDotsCheckedChange,
+            speedBumpToggle = speedBumpToggle,
         )
     }
 }
@@ -147,6 +167,7 @@ private fun MoreOptionsToggleCard(
     isToggleEnabled: (AppSettingsToggleKey) -> Boolean,
     onApplySettingsCommand: (SettingsCommand) -> Unit,
     onNotificationDotsCheckedChange: (Boolean) -> Unit,
+    speedBumpToggle: SpeedBumpOutsideQuickSearchToggleState,
 ) {
     SettingsCard(
         modifier = Modifier.fillMaxWidth(),
@@ -154,10 +175,13 @@ private fun MoreOptionsToggleCard(
         Column {
             items.forEachIndexed { index, item ->
                 val isItemEnabled = if (item.key == AppSettingsToggleKey.AUTO_CLOSE_OVERLAY) !isDefaultLauncher else true
-                val itemSubtitle = if (item.key == AppSettingsToggleKey.AUTO_CLOSE_OVERLAY && isDefaultLauncher) {
-                    stringResource(R.string.settings_overlay_mode_desc_launcher_blocked)
-                } else {
-                    stringResource(item.subtitleRes)
+                val itemSubtitle = when {
+                    item.key == AppSettingsToggleKey.AUTO_CLOSE_OVERLAY && isDefaultLauncher ->
+                        stringResource(R.string.settings_overlay_mode_desc_launcher_blocked)
+                    item.key == AppSettingsToggleKey.SPEED_BUMP_OUTSIDE_QUICK_SEARCH &&
+                        !speedBumpToggle.hasAccessibility ->
+                        stringResource(R.string.settings_notch_accessibility_needed)
+                    else -> stringResource(item.subtitleRes)
                 }
                 SettingsToggleRow(
                     title = stringResource(item.titleRes),
@@ -167,6 +191,8 @@ private fun MoreOptionsToggleCard(
                     onCheckedChange = { enabled ->
                         if (item.key == AppSettingsToggleKey.NOTIFICATION_DOTS) {
                             onNotificationDotsCheckedChange(enabled)
+                        } else if (item.key == AppSettingsToggleKey.SPEED_BUMP_OUTSIDE_QUICK_SEARCH) {
+                            speedBumpToggle.setEnabled(enabled)
                         } else {
                             onApplySettingsCommand(
                                 SettingsCommand.Toggle(

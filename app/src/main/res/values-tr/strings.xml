@@ -144,9 +144,9 @@
 <string name="settings_gesture_lock_screen">Ekranı Kilitle</string>
 <string name="settings_gesture_lock_screen_requires_accessibility">Erişilebilirlik İzni Gerekir</string>
 <string name="accessibility_lock_screen_service_label">Quick Search</string>
-<string name="accessibility_lock_screen_service_description">Quick Search\'ün ana ekrandaki çift dokunma hareketiyle ekranı kilitlemesine, çentiğe dokunmalara yanıt vermesine ve herhangi bir uygulamada kenardan kaydırma veya kayan bir düğmeyle açılmasına izin verir. Ekran içeriğini okumaz.</string>
+<string name="accessibility_lock_screen_service_description">Quick Search\'ün ana ekrandaki çift dokunma hareketiyle ekranı kilitlemesine, çentiğe dokunmalara yanıt vermesine, herhangi bir uygulamada kenardan kaydırma veya kayan bir düğmeyle açılmasına ve Quick Search dışında açılan uygulamalar için SpeedBump göstermesine izin verir. Yalnızca hangi uygulamanın açık olduğunu kontrol eder, ekran içeriğini okumaz.</string>
 <string name="accessibility_permission_disclaimer_title">Erişilebilirlik İzni Bildirimi</string>
-<string name="accessibility_lock_screen_disclosure_message">Quick Search Erişilebilirlik’i şunlar için kullanır:\n\n• Ekranı kilitlemek için çift dokunma hareketini etkinleştirmek.\n• Kenardan kaydırma hareketleriyle Quick Search’ü açmak.\n• Kayan düğmeyle Quick Search’ü açmak.\n• Çentiğe dokunduğunuzda işlemleri çalıştırmak.\n\nEkran içeriğinizi veya diğer kişisel verilerinizi okumaz, toplamaz, saklamaz ya da paylaşmaz.</string>
+<string name="accessibility_lock_screen_disclosure_message">Quick Search Erişilebilirlik’i şunlar için kullanır:\n\n• Ekranı kilitlemek için çift dokunma hareketini etkinleştirmek.\n• Kenardan kaydırma hareketleriyle Quick Search’ü açmak.\n• Kayan düğmeyle Quick Search’ü açmak.\n• Çentiğe dokunduğunuzda işlemleri çalıştırmak.\n• SpeedBump uygulanan bir uygulama Quick Search dışında açıldığında SpeedBump göstermek. Bunun için yalnızca hangi uygulamanın açık olduğunu kontrol eder.\n\nEkran içeriğinizi veya diğer kişisel verilerinizi okumaz, toplamaz, saklamaz ya da paylaşmaz.</string>
 <string name="settings_gesture_none">Hiçbiri</string>
 <string name="settings_gesture_custom">Özel (Uygulamalar, Dosyalar vb.)</string>
 <string name="settings_keyboard_gestures_title">Klavye Hareketleri</string>
@@ -1233,7 +1233,7 @@
     <string name="permissions_notifications_desc">Hatırlatıcı bildirimleri ve arama sonuçlarını bildirim paneline sabitlemek için gereklidir</string>
     <string name="permissions_notification_access_desc">Bildirim noktaları ve bildirim geçmişi özelliklerini etkinleştirmek için gereklidir</string>
 <string name="permissions_accessibility_lock_screen_title">Erişilebilirlik</string>
-<string name="permissions_accessibility_lock_screen_desc">Ekranı kilitlemek için çift dokunma hareketi, çentik hareketleri veya Quick Search’ü kenardan kaydırma hareketi ya da kayan düğmeyle başlatmak için gereklidir.</string>
+<string name="permissions_accessibility_lock_screen_desc">Ekranı kilitlemek için çift dokunma hareketi, çentik hareketleri, Quick Search’ü kenardan kaydırma hareketi ya da kayan düğmeyle başlatmak ve Quick Search dışında SpeedBump için gereklidir.</string>
 <string name="permissions_contacts_desc">Kişilerinde arama yapmak için gereklidir.</string>
 <string name="permissions_files_desc">Belgelerin ve diğer dosyaların arasında arama yapmak için gereklidir.</string>
 <string name="permissions_files_title">Dosya erişimi</string>
@@ -1385,6 +1385,8 @@
     <string name="speed_bump_overlay_prompt">%1$s birazdan açılacak…</string>
     <string name="speed_bump_overlay_title">Derin bir nefes al</string>
     <string name="speed_bump_title">SpeedBump</string>
+    <string name="speed_bump_outside_quick_search_title">Quick Search Dışında SpeedBump</string>
+    <string name="speed_bump_outside_quick_search_desc">SpeedBump uygulamalarını diğer başlatıcılardan, son uygulamalardan veya bildirimlerden açıldığında da duraklat</string>
     <string name="home_upcoming_alarm">Yaklaşan alarm</string>
     <string name="home_upcoming_alarm_hide_app">%1$s alarmlarını gizle</string>
     <string name="home_low_battery_saver_off">Pil Tasarrufu\'nu açmak için dokunun</string>

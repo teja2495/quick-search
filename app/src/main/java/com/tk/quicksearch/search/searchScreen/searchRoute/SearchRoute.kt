@@ -65,6 +65,7 @@ import com.tk.quicksearch.search.apps.LocalAllAppsDrawerController
 import com.tk.quicksearch.search.apps.appLock.LocalAppLockAuthenticator
 import com.tk.quicksearch.search.apps.appLock.LocalAppLockCredentialAuthenticator
 import com.tk.quicksearch.search.apps.speedBump.SpeedBump
+import com.tk.quicksearch.search.apps.speedBump.SpeedBumpLaunchWatcher
 import com.tk.quicksearch.search.apps.swipeGestures.AppSwipeGestures
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -777,6 +778,7 @@ fun SearchRoute(
             speedBumpApp = speedBumpApp,
             onSpeedBumpOpen = { app ->
                 speedBumpApp = null
+                SpeedBumpLaunchWatcher.allow(app.packageName)
                 runAfterAppUnlock(app.packageName, app.appName) {
                     viewModel.launchApp(app, context)
                 }

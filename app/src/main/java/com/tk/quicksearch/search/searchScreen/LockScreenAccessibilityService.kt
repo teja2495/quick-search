@@ -11,10 +11,11 @@ import android.view.accessibility.AccessibilityEvent
 import com.tk.quicksearch.edgeGesture.EdgeGestureOverlay
 import com.tk.quicksearch.floatingButton.FloatingButtonOverlay
 import com.tk.quicksearch.notchGesture.NotchGestureOverlay
+import com.tk.quicksearch.search.apps.speedBump.SpeedBumpLaunchWatcher
 
 /**
  * Hosts the Home double-tap lock action, the system-wide edge swipe handle, the floating button and
- * the notch tap target.
+ * the notch tap target, and spots bumped apps opened outside Quick Search for SpeedBump.
  */
 class LockScreenAccessibilityService : AccessibilityService() {
     private var edgeGestureOverlay: EdgeGestureOverlay? = null
@@ -23,8 +24,10 @@ class LockScreenAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         instance = this
-        // Nothing reads window events; the XML's subscription only woke the app on every screen change.
-        runCatching { serviceInfo = serviceInfo?.apply { eventTypes = 0 } }
+        // Window events are only read by SpeedBump outside Quick Search, so subscribe only while it
+        // has work; otherwise the XML's subscription would wake the app on every screen change.
+        SpeedBumpLaunchWatcher.attach(this, ::updateWindowEventSubscription)
+        updateWindowEventSubscription(SpeedBumpLaunchWatcher.isActive)
         edgeGestureOverlay =
             EdgeGestureOverlay(this).also { overlay ->
                 overlay.setPreviewVisible(edgeGesturePreviewVisible)
@@ -48,11 +51,21 @@ class LockScreenAccessibilityService : AccessibilityService() {
         notchGestureOverlay?.refresh()
     }
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) = Unit
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            SpeedBumpLaunchWatcher.onWindowStateChanged(event)
+        }
+    }
+
+    private fun updateWindowEventSubscription(active: Boolean) {
+        val eventTypes = if (active) AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED else 0
+        runCatching { serviceInfo = serviceInfo?.apply { this.eventTypes = eventTypes } }
+    }
 
     override fun onInterrupt() = Unit
 
     override fun onDestroy() {
+        SpeedBumpLaunchWatcher.detach()
         edgeGestureOverlay?.detach()
         edgeGestureOverlay = null
         floatingButtonOverlay?.detach()

@@ -145,9 +145,9 @@
     <string name="settings_gesture_lock_screen">Bildschirm sperren</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">Erfordert Bedienungshilfen-Berechtigung</string>
     <string name="accessibility_lock_screen_service_label">Quick Search</string>
-    <string name="accessibility_lock_screen_service_description">Ermöglicht Quick Search, den Bildschirm mit der Doppeltipp-Geste auf dem Startbildschirm zu sperren, auf Tippen auf die Notch zu reagieren und sich in jeder App per Wischen vom Rand oder über eine schwebende Schaltfläche zu öffnen. Bildschirminhalte werden nicht gelesen.</string>
+    <string name="accessibility_lock_screen_service_description">Ermöglicht Quick Search, den Bildschirm mit der Doppeltipp-Geste auf dem Startbildschirm zu sperren, auf Tippen auf die Notch zu reagieren, sich in jeder App per Wischen vom Rand oder über eine schwebende Schaltfläche zu öffnen und SpeedBump für Apps anzuzeigen, die außerhalb von Quick Search geöffnet werden. Es prüft nur, welche App geöffnet ist, und liest keine Bildschirminhalte.</string>
     <string name="accessibility_permission_disclaimer_title">Hinweis zur Berechtigung für Bedienungshilfen</string>
-    <string name="accessibility_lock_screen_disclosure_message">Quick Search verwendet die Bedienungshilfe, um:\n\n• die Doppeltipp-Geste zum Sperren des Bildschirms zu aktivieren.\n• Quick Search mit Wischgesten vom Bildschirmrand zu öffnen.\n• Quick Search über die schwebende Schaltfläche zu öffnen.\n• Aktionen beim Tippen auf die Notch auszuführen.\n\nEs liest, erfasst, speichert oder teilt weder deine Bildschirminhalte noch andere persönliche Daten.</string>
+    <string name="accessibility_lock_screen_disclosure_message">Quick Search verwendet die Bedienungshilfe, um:\n\n• die Doppeltipp-Geste zum Sperren des Bildschirms zu aktivieren.\n• Quick Search mit Wischgesten vom Bildschirmrand zu öffnen.\n• Quick Search über die schwebende Schaltfläche zu öffnen.\n• Aktionen beim Tippen auf die Notch auszuführen.\n• SpeedBump anzuzeigen, wenn eine App mit SpeedBump außerhalb von Quick Search geöffnet wird. Dafür wird nur geprüft, welche App geöffnet ist.\n\nEs liest, erfasst, speichert oder teilt weder deine Bildschirminhalte noch andere persönliche Daten.</string>
     <string name="settings_gesture_none">Keine</string>
     <string name="settings_gesture_custom">Benutzerdefiniert (Apps, Dateien usw.)</string>
     <string name="settings_keyboard_gestures_title">Tastaturgesten</string>
@@ -1234,7 +1234,7 @@
     <string name="permissions_notifications_desc">Erforderlich für Erinnerungsbenachrichtigungen und um Suchergebnisse im Benachrichtigungsfeld anzuheften</string>
     <string name="permissions_notification_access_desc">Erforderlich für Benachrichtigungspunkte und den Benachrichtigungsverlauf</string>
     <string name="permissions_accessibility_lock_screen_title">Bedienungshilfen</string>
-    <string name="permissions_accessibility_lock_screen_desc">Erforderlich für die Doppeltipp-Geste zum Sperren des Bildschirms, Notch-Gesten sowie zum Starten von Quick Search per Wischgeste vom Rand oder schwebender Schaltfläche.</string>
+    <string name="permissions_accessibility_lock_screen_desc">Erforderlich für die Doppeltipp-Geste zum Sperren des Bildschirms, Notch-Gesten, zum Starten von Quick Search per Wischgeste vom Rand oder schwebender Schaltfläche sowie für SpeedBump außerhalb von Quick Search.</string>
     <string name="permissions_contacts_desc">Erforderlich, um Kontakte zu durchsuchen.</string>
     <string name="permissions_files_desc">Erforderlich, um Dokumente und andere Dateien zu durchsuchen.</string>
     <string name="permissions_files_title">Dateizugriff</string>
@@ -1386,6 +1386,8 @@
     <string name="speed_bump_overlay_prompt">%1$s wird gleich geöffnet…</string>
     <string name="speed_bump_overlay_title">Atme tief durch</string>
     <string name="speed_bump_title">SpeedBump</string>
+    <string name="speed_bump_outside_quick_search_title">SpeedBump außerhalb von Quick Search</string>
+    <string name="speed_bump_outside_quick_search_desc">Apps mit SpeedBump auch anhalten, wenn sie über andere Launcher, die zuletzt verwendeten Apps oder Benachrichtigungen geöffnet werden</string>
     <string name="home_upcoming_alarm">Anstehender Wecker</string>
     <string name="home_upcoming_alarm_hide_app">Wecker von %1$s ausblenden</string>
     <string name="home_low_battery_saver_off">Tippen, um den Energiesparmodus einzuschalten</string>
