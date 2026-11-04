@@ -50,6 +50,8 @@ class OverlayActivity : FragmentActivity() {
     private lateinit var startupCoordinator: StartupCoordinator
     private lateinit var voiceSearchHandler: VoiceSearchHandler
     private var animationToken: Long = 0L
+    private var pinnedGlanceOnly = false
+    private var pinnedGlanceAnchorX: Int? = null
     private var isActivityInstanceTracked = false
     private val voiceInputLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -96,6 +98,7 @@ class OverlayActivity : FragmentActivity() {
             return
         }
         animationToken = intent?.getLongExtra(OverlayModeController.EXTRA_ANIMATION_TOKEN, 0L) ?: 0L
+        applyPinnedGlanceMode(intent)
         initializeVoiceSearchHandler()
         handleVoiceIntentIfNeeded(intent)
         handleInitialQueryIfNeeded(intent)
@@ -114,6 +117,7 @@ class OverlayActivity : FragmentActivity() {
             return
         }
         animationToken = intent.getLongExtra(OverlayModeController.EXTRA_ANIMATION_TOKEN, animationToken)
+        applyPinnedGlanceMode(intent)
         renderOverlayContent()
         handleVoiceIntentIfNeeded(intent)
         handleInitialQueryIfNeeded(intent)
@@ -222,6 +226,8 @@ class OverlayActivity : FragmentActivity() {
                     OverlayRoot(
                         viewModel = searchViewModel,
                         animationToken = animationToken,
+                        pinnedGlanceOnly = pinnedGlanceOnly,
+                        pinnedGlanceAnchorX = pinnedGlanceAnchorX,
                         onCloseRequested = { finish() },
                         reservedKeyboardHeightProvider = { landscape ->
                             userPreferences.getReservedKeyboardHeightDp(landscape).dp
@@ -233,6 +239,15 @@ class OverlayActivity : FragmentActivity() {
                 }
             }
         }
+    }
+
+    private fun applyPinnedGlanceMode(intent: android.content.Intent?) {
+        pinnedGlanceOnly =
+            intent?.getBooleanExtra(OverlayModeController.EXTRA_PINNED_GLANCE_ONLY, false) ?: false
+        pinnedGlanceAnchorX =
+            intent?.getIntExtra(OverlayModeController.EXTRA_ANCHOR_X, -1)?.takeIf { it >= 0 }
+        // With no search bar a leftover query could never be cleared, so start from Home content.
+        if (pinnedGlanceOnly) searchViewModel.clearQuery()
     }
 
     private fun handleInitialQueryIfNeeded(intent: android.content.Intent?) {

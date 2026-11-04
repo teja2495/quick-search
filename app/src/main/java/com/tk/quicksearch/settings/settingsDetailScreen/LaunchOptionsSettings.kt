@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.notchGesture.NotchGestureSupport
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -160,6 +161,12 @@ fun LaunchOptionsSettings(
                         ),
                     contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
                 )
+
+                if (NotchGestureSupport.isSupported) {
+                    HorizontalDivider(color = AppColors.SettingsDivider)
+
+                    NotchLaunchOptionRow()
+                }
             }
         }
     }

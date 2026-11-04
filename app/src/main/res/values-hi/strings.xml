@@ -114,7 +114,7 @@
     <string name="action_open_folder">फोल्डर खोलें</string>
     <string name="action_open_keyboard">कीबोर्ड खोलें</string>
     <string name="action_open_settings">सेटिंग्स खोलें</string>
-    <string name="settings_gestures_title">होम जेस्चर</string>
+    <string name="settings_gestures_title">जेस्चर</string>
     <string name="settings_gestures_desc">स्वाइप क्रियाओं को कस्टमाइज़ करें</string>
     <string name="settings_gesture_swipe_right">दाएँ स्वाइप करें</string>
     <string name="settings_gesture_widget_panel">विजेट पैनल</string>
@@ -124,6 +124,15 @@
     <string name="settings_gesture_swipe_down">नीचे स्वाइप करें</string>
 <string name="settings_gesture_close_quick_search">Quick Search बंद करें</string>
 <string name="settings_gesture_double_tap_home">डबल टैप</string>
+<string name="settings_gesture_single_tap">सिंगल टैप</string>
+<string name="settings_gesture_open_quick_search">Quick Search खोलें</string>
+<string name="settings_gesture_pinned_glance">पिन किए गए आइटम और एक नज़र में</string>
+<string name="settings_gesture_play_pause_media">मीडिया पॉज़/प्ले</string>
+<string name="settings_notch_gestures_title">नॉच जेस्चर</string>
+<string name="settings_notch_gestures_desc">किसी भी ऐप में नॉच या कैमरा कटआउट पर टैप करें</string>
+<string name="settings_notch_accessibility_needed">Accessibility अनुमति आवश्यक है</string>
+<string name="settings_notch_single_tap_search_title">नॉच सिंगल टैप</string>
+<string name="settings_notch_double_tap_search_title">नॉच डबल टैप</string>
 <string name="settings_gesture_two_finger_swipe_up_home">दो उंगलियों से ऊपर स्वाइप करें</string>
 <string name="settings_gesture_two_finger_swipe_down_home">दो उंगलियों से नीचे स्वाइप करें</string>
     <string name="settings_gesture_settings">सेटिंग्स</string>
@@ -135,9 +144,9 @@
     <string name="settings_gesture_lock_screen">स्क्रीन लॉक करें</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">सुलभता अनुमति आवश्यक है</string>
     <string name="accessibility_lock_screen_service_label">Quick Search</string>
-    <string name="accessibility_lock_screen_service_description">Quick Search को होम स्क्रीन पर डबल-टैप जेस्चर से स्क्रीन लॉक करने और किसी भी ऐप में किनारे से स्वाइप या फ़्लोटिंग बटन से खुलने की अनुमति देता है। यह स्क्रीन की सामग्री नहीं पढ़ता।</string>
+    <string name="accessibility_lock_screen_service_description">Quick Search को होम स्क्रीन पर डबल-टैप जेस्चर से स्क्रीन लॉक करने, नॉच पर टैप का जवाब देने और किसी भी ऐप में किनारे से स्वाइप या फ़्लोटिंग बटन से खुलने की अनुमति देता है। यह स्क्रीन की सामग्री नहीं पढ़ता।</string>
 <string name="accessibility_permission_disclaimer_title">सुलभता अनुमति अस्वीकरण</string>
-    <string name="accessibility_lock_screen_disclosure_message">Quick Search Accessibility का उपयोग इन कामों के लिए करता है:\n\n• स्क्रीन लॉक करने के लिए डबल-टैप जेस्चर सक्षम करने के लिए।\n• किनारे से स्वाइप जेस्चर से Quick Search खोलने के लिए।\n• फ़्लोटिंग बटन से Quick Search खोलने के लिए।\n\nयह आपकी स्क्रीन सामग्री या अन्य निजी डेटा को पढ़ता, एकत्र करता, संग्रहीत या साझा नहीं करता है।</string>
+    <string name="accessibility_lock_screen_disclosure_message">Quick Search Accessibility का उपयोग इन कामों के लिए करता है:\n\n• स्क्रीन लॉक करने के लिए डबल-टैप जेस्चर सक्षम करने के लिए।\n• किनारे से स्वाइप जेस्चर से Quick Search खोलने के लिए।\n• फ़्लोटिंग बटन से Quick Search खोलने के लिए।\n• नॉच पर टैप करने पर कार्रवाइयाँ चलाने के लिए।\n\nयह आपकी स्क्रीन सामग्री या अन्य निजी डेटा को पढ़ता, एकत्र करता, संग्रहीत या साझा नहीं करता है।</string>
     <string name="settings_gesture_none">कोई नहीं</string>
     <string name="settings_gesture_custom">कस्टम (ऐप्स, फ़ाइलें आदि)</string>
     <string name="settings_keyboard_gestures_title">कीबोर्ड जेस्चर</string>
@@ -787,6 +796,8 @@
     <string name="settings_edge_gesture_visibility">दृश्यता</string>
     <string name="settings_floating_button_title">फ़्लोटिंग बटन</string>
     <string name="settings_floating_button_desc">किसी भी ऐप से Quick Search खोलने के लिए फ़्लोटिंग सर्च बटन पर टैप करें</string>
+    <string name="settings_notch_title">नॉच</string>
+    <string name="settings_notch_launch_desc">Quick Search खोलने के लिए नॉच पर टैप करें</string>
     <string name="settings_floating_button_move_hint">बटन को स्क्रीन पर कहीं भी ले जाने के लिए उसे देर तक दबाएं और खींचें।</string>
     <string name="settings_floating_button_opacity">अपारदर्शिता</string>
     <string name="settings_app_language_title">ऐप की भाषा</string>
@@ -1222,7 +1233,7 @@
     <string name="permissions_notifications_desc">रिमाइंडर सूचनाओं और खोज परिणामों को सूचना पैनल में पिन करने के लिए आवश्यक</string>
     <string name="permissions_notification_access_desc">सूचना बिंदु और सूचना इतिहास सुविधाएं चालू करने के लिए आवश्यक</string>
     <string name="permissions_accessibility_lock_screen_title">सुलभता</string>
-    <string name="permissions_accessibility_lock_screen_desc">स्क्रीन लॉक करने के लिए डबल-टैप जेस्चर या एज स्वाइप जेस्चर अथवा फ़्लोटिंग बटन से Quick Search लॉन्च करने के लिए आवश्यक।</string>
+    <string name="permissions_accessibility_lock_screen_desc">स्क्रीन लॉक करने के लिए डबल-टैप जेस्चर, नॉच जेस्चर, या एज स्वाइप जेस्चर अथवा फ़्लोटिंग बटन से Quick Search लॉन्च करने के लिए आवश्यक।</string>
     <string name="permissions_contacts_desc">आपके कॉन्टैक्ट्स खोजने के लिए आवश्यक।</string>
     <string name="permissions_files_desc">आपके दस्तावेज़ों और अन्य फाइलों में खोजने के लिए आवश्यक।</string>
     <string name="permissions_files_title">फाइल पहुंच</string>

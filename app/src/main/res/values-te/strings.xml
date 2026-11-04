@@ -114,7 +114,7 @@
     <string name="action_open_folder">ఫోల్డర్ తెరువు</string>
     <string name="action_open_keyboard">కీబోర్డ్ తెరువు</string>
     <string name="action_open_settings">సెట్టింగ్‌లను తెరువు</string>
-    <string name="settings_gestures_title">హోమ్ హావభావాలు</string>
+    <string name="settings_gestures_title">హావభావాలు</string>
     <string name="settings_gestures_desc">స్వైప్ చర్యలను అనుకూలీకరించండి</string>
     <string name="settings_gesture_swipe_right">కుడికి స్వైప్ చేయండి</string>
     <string name="settings_gesture_widget_panel">విడ్జెట్ ప్యానెల్</string>
@@ -124,6 +124,15 @@
     <string name="settings_gesture_swipe_down">క్రిందికి స్వైప్ చేయండి</string>
     <string name="settings_gesture_close_quick_search">Quick Searchని మూసివేయండి</string>
     <string name="settings_gesture_double_tap_home">రెండుసార్లు నొక్కండి</string>
+    <string name="settings_gesture_single_tap">ఒకసారి నొక్కండి</string>
+    <string name="settings_gesture_open_quick_search">Quick Searchని తెరవండి</string>
+    <string name="settings_gesture_pinned_glance">పిన్ చేసిన అంశాలు &amp; ఒక్క చూపులో</string>
+    <string name="settings_gesture_play_pause_media">మీడియా పాజ్/ప్లే</string>
+    <string name="settings_notch_gestures_title">నాచ్ హావభావాలు</string>
+    <string name="settings_notch_gestures_desc">ఏ యాప్‌లోనైనా నాచ్ లేదా కెమెరా కటౌట్‌ను నొక్కండి</string>
+    <string name="settings_notch_accessibility_needed">యాక్సెసిబిలిటీ అనుమతి అవసరం</string>
+    <string name="settings_notch_single_tap_search_title">నాచ్ ఒకసారి నొక్కడం</string>
+    <string name="settings_notch_double_tap_search_title">నాచ్ రెండుసార్లు నొక్కడం</string>
     <string name="settings_gesture_two_finger_swipe_up_home">రెండు వేళ్లతో పైకి స్వైప్ చేయండి</string>
     <string name="settings_gesture_two_finger_swipe_down_home">రెండు వేళ్లతో క్రిందికి స్వైప్ చేయండి</string>
     <string name="settings_gesture_settings">సెట్టింగులు</string>
@@ -135,9 +144,9 @@
     <string name="settings_gesture_lock_screen">స్క్రీన్ లాక్ చేయండి</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">యాక్సెసిబిలిటీ అనుమతి అవసరం</string>
     <string name="accessibility_lock_screen_service_label">Quick Search</string>
-    <string name="accessibility_lock_screen_service_description">హోమ్ స్క్రీన్‌పై డబుల్-ట్యాప్ సంజ్ఞతో స్క్రీన్‌ను లాక్ చేయడానికి మరియు ఏ యాప్‌లోనైనా అంచు నుండి స్వైప్ లేదా ఫ్లోటింగ్ బటన్‌తో తెరవడానికి Quick Searchను అనుమతిస్తుంది. ఇది స్క్రీన్ కంటెంట్‌ను చదవదు.</string>
+    <string name="accessibility_lock_screen_service_description">హోమ్ స్క్రీన్‌పై డబుల్-ట్యాప్ సంజ్ఞతో స్క్రీన్‌ను లాక్ చేయడానికి, నాచ్ నొక్కడాలకు స్పందించడానికి మరియు ఏ యాప్‌లోనైనా అంచు నుండి స్వైప్ లేదా ఫ్లోటింగ్ బటన్‌తో తెరవడానికి Quick Searchను అనుమతిస్తుంది. ఇది స్క్రీన్ కంటెంట్‌ను చదవదు.</string>
 <string name="accessibility_permission_disclaimer_title">యాక్సెసిబిలిటీ అనుమతి నిరాకరణ</string>
-    <string name="accessibility_lock_screen_disclosure_message">Quick Search యాక్సెసిబిలిటీని వీటి కోసం ఉపయోగిస్తుంది:\n\n• స్క్రీన్‌ను లాక్ చేయడానికి డబుల్-ట్యాప్ సంజ్ఞను ప్రారంభించడానికి.\n• ఎడ్జ్ స్వైప్ సంజ్ఞలతో Quick Searchని తెరవడానికి.\n• ఫ్లోటింగ్ బటన్‌తో Quick Searchని తెరవడానికి.\n\nఇది మీ స్క్రీన్ కంటెంట్‌ను లేదా ఇతర వ్యక్తిగత డేటాను చదవదు, సేకరించదు, నిల్వ చేయదు లేదా పంచుకోదు.</string>
+    <string name="accessibility_lock_screen_disclosure_message">Quick Search యాక్సెసిబిలిటీని వీటి కోసం ఉపయోగిస్తుంది:\n\n• స్క్రీన్‌ను లాక్ చేయడానికి డబుల్-ట్యాప్ సంజ్ఞను ప్రారంభించడానికి.\n• ఎడ్జ్ స్వైప్ సంజ్ఞలతో Quick Searchని తెరవడానికి.\n• ఫ్లోటింగ్ బటన్‌తో Quick Searchని తెరవడానికి.\n• నాచ్‌ను నొక్కినప్పుడు చర్యలను అమలు చేయడానికి.\n\nఇది మీ స్క్రీన్ కంటెంట్‌ను లేదా ఇతర వ్యక్తిగత డేటాను చదవదు, సేకరించదు, నిల్వ చేయదు లేదా పంచుకోదు.</string>
     <string name="settings_gesture_none">ఏదీ లేదు</string>
     <string name="settings_gesture_custom">అనుకూలమైనవి (యాప్‌లు, ఫైల్‌లు మొదలైనవి)</string>
     <string name="settings_keyboard_gestures_title">కీబోర్డ్ హావభావాలు</string>
@@ -787,6 +796,8 @@
     <string name="settings_edge_gesture_visibility">కనిపించే స్థాయి</string>
     <string name="settings_floating_button_title">ఫ్లోటింగ్ బటన్</string>
     <string name="settings_floating_button_desc">ఏ యాప్ నుండైనా Quick Searchని తెరవడానికి ఫ్లోటింగ్ సెర్చ్ బటన్‌ను ట్యాప్ చేయండి</string>
+    <string name="settings_notch_title">నాచ్</string>
+    <string name="settings_notch_launch_desc">Quick Searchని తెరవడానికి నాచ్‌ను నొక్కండి</string>
     <string name="settings_floating_button_move_hint">బటన్‌ను స్క్రీన్‌పై ఎక్కడికైనా తరలించడానికి దాన్ని ఎక్కువసేపు నొక్కి లాగండి.</string>
     <string name="settings_floating_button_opacity">అపారదర్శకత</string>
     <string name="settings_app_language_title">యాప్ భాష</string>
@@ -1222,7 +1233,7 @@
     <string name="permissions_notifications_desc">రిమైండర్ నోటిఫికేషన్‌ల కోసం మరియు శోధన ఫలితాలను నోటిఫికేషన్ ప్యానెల్‌లో పిన్ చేయడానికి అవసరం</string>
     <string name="permissions_notification_access_desc">నోటిఫికేషన్ డాట్‌లు మరియు నోటిఫికేషన్ చరిత్ర ఫీచర్‌లను ప్రారంభించడానికి అవసరం</string>
     <string name="permissions_accessibility_lock_screen_title">యాక్సెసిబిలిటీ</string>
-    <string name="permissions_accessibility_lock_screen_desc">స్క్రీన్‌ను లాక్ చేయడానికి రెండుసార్లు ట్యాప్ చేసే సంజ్ఞకు లేదా అంచు స్వైప్ సంజ్ఞ లేదా ఫ్లోటింగ్ బటన్‌తో Quick Searchని ప్రారంభించడానికి అవసరం.</string>
+    <string name="permissions_accessibility_lock_screen_desc">స్క్రీన్‌ను లాక్ చేయడానికి రెండుసార్లు ట్యాప్ చేసే సంజ్ఞకు, నాచ్ హావభావాలకు లేదా అంచు స్వైప్ సంజ్ఞ లేదా ఫ్లోటింగ్ బటన్‌తో Quick Searchని ప్రారంభించడానికి అవసరం.</string>
     <string name="permissions_contacts_desc">మీ పరిచయాలను శోధించడానికి అవసరం.</string>
     <string name="permissions_files_desc">మీ పత్రాలు మరియు ఇతర ఫైళ్లను శోధించడానికి అవసరం.</string>
     <string name="permissions_files_title">ఫైళ్ల యాక్సెస్</string>

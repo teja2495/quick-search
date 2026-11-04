@@ -113,7 +113,7 @@
 <string name="action_open_folder">Klasörü aç</string>
 <string name="action_open_keyboard">Klavyeyi aç</string>
 <string name="action_open_settings">Ayarları aç</string>
-<string name="settings_gestures_title">Ana Ekran Hareketleri</string>
+<string name="settings_gestures_title">Hareketler</string>
 <string name="settings_gestures_desc">Kaydırma işlemlerini özelleştir</string>
 <string name="settings_gesture_swipe_right">Sağa Kaydır</string>
 <string name="settings_gesture_widget_panel">Widget Paneli</string>
@@ -123,6 +123,15 @@
 <string name="settings_gesture_swipe_down">Aşağı Kaydır</string>
 <string name="settings_gesture_close_quick_search">Quick Search\'i kapat</string>
 <string name="settings_gesture_double_tap_home">Çift Dokunma</string>
+<string name="settings_gesture_single_tap">Tek Dokunma</string>
+<string name="settings_gesture_open_quick_search">Quick Search’ü aç</string>
+<string name="settings_gesture_pinned_glance">Sabitlenen Öğeler ve Bir Bakışta</string>
+<string name="settings_gesture_play_pause_media">Medyayı duraklat/oynat</string>
+<string name="settings_notch_gestures_title">Çentik Hareketleri</string>
+<string name="settings_notch_gestures_desc">Herhangi bir uygulamada çentiğe veya kamera deliğine dokunun</string>
+<string name="settings_notch_accessibility_needed">Erişilebilirlik izni gerekiyor</string>
+<string name="settings_notch_single_tap_search_title">Çentiğe Tek Dokunma</string>
+<string name="settings_notch_double_tap_search_title">Çentiğe Çift Dokunma</string>
 <string name="settings_gesture_two_finger_swipe_up_home">İki Parmakla Yukarı Kaydır</string>
 <string name="settings_gesture_two_finger_swipe_down_home">İki Parmakla Aşağı Kaydır</string>
 <string name="settings_gesture_settings">Ayarlar</string>
@@ -134,9 +143,9 @@
 <string name="settings_gesture_lock_screen">Ekranı Kilitle</string>
 <string name="settings_gesture_lock_screen_requires_accessibility">Erişilebilirlik İzni Gerekir</string>
 <string name="accessibility_lock_screen_service_label">Quick Search</string>
-<string name="accessibility_lock_screen_service_description">Quick Search\'ün ana ekrandaki çift dokunma hareketiyle ekranı kilitlemesine ve herhangi bir uygulamada kenardan kaydırma veya kayan bir düğmeyle açılmasına izin verir. Ekran içeriğini okumaz.</string>
+<string name="accessibility_lock_screen_service_description">Quick Search\'ün ana ekrandaki çift dokunma hareketiyle ekranı kilitlemesine, çentiğe dokunmalara yanıt vermesine ve herhangi bir uygulamada kenardan kaydırma veya kayan bir düğmeyle açılmasına izin verir. Ekran içeriğini okumaz.</string>
 <string name="accessibility_permission_disclaimer_title">Erişilebilirlik İzni Bildirimi</string>
-<string name="accessibility_lock_screen_disclosure_message">Quick Search Erişilebilirlik’i şunlar için kullanır:\n\n• Ekranı kilitlemek için çift dokunma hareketini etkinleştirmek.\n• Kenardan kaydırma hareketleriyle Quick Search’ü açmak.\n• Kayan düğmeyle Quick Search’ü açmak.\n\nEkran içeriğinizi veya diğer kişisel verilerinizi okumaz, toplamaz, saklamaz ya da paylaşmaz.</string>
+<string name="accessibility_lock_screen_disclosure_message">Quick Search Erişilebilirlik’i şunlar için kullanır:\n\n• Ekranı kilitlemek için çift dokunma hareketini etkinleştirmek.\n• Kenardan kaydırma hareketleriyle Quick Search’ü açmak.\n• Kayan düğmeyle Quick Search’ü açmak.\n• Çentiğe dokunduğunuzda işlemleri çalıştırmak.\n\nEkran içeriğinizi veya diğer kişisel verilerinizi okumaz, toplamaz, saklamaz ya da paylaşmaz.</string>
 <string name="settings_gesture_none">Hiçbiri</string>
 <string name="settings_gesture_custom">Özel (Uygulamalar, Dosyalar vb.)</string>
 <string name="settings_keyboard_gestures_title">Klavye Hareketleri</string>
@@ -786,6 +795,8 @@
 <string name="settings_edge_gesture_visibility">Görünürlük</string>
 <string name="settings_floating_button_title">Kayan Düğme</string>
 <string name="settings_floating_button_desc">Quick Search’ü herhangi bir uygulamadan açmak için kayan arama düğmesine dokunun</string>
+<string name="settings_notch_title">Çentik</string>
+<string name="settings_notch_launch_desc">Quick Search’ü açmak için çentiğe dokunun</string>
 <string name="settings_floating_button_move_hint">Düğmeyi ekranda istediğiniz yere taşımak için uzun basıp sürükleyin.</string>
 <string name="settings_floating_button_opacity">Opaklık</string>
 <string name="settings_app_language_title">Uygulama dili</string>
@@ -1221,7 +1232,7 @@
     <string name="permissions_notifications_desc">Hatırlatıcı bildirimleri ve arama sonuçlarını bildirim paneline sabitlemek için gereklidir</string>
     <string name="permissions_notification_access_desc">Bildirim noktaları ve bildirim geçmişi özelliklerini etkinleştirmek için gereklidir</string>
 <string name="permissions_accessibility_lock_screen_title">Erişilebilirlik</string>
-<string name="permissions_accessibility_lock_screen_desc">Ekranı kilitlemek için çift dokunma hareketi veya Quick Search’ü kenardan kaydırma hareketi ya da kayan düğmeyle başlatmak için gereklidir.</string>
+<string name="permissions_accessibility_lock_screen_desc">Ekranı kilitlemek için çift dokunma hareketi, çentik hareketleri veya Quick Search’ü kenardan kaydırma hareketi ya da kayan düğmeyle başlatmak için gereklidir.</string>
 <string name="permissions_contacts_desc">Kişilerinde arama yapmak için gereklidir.</string>
 <string name="permissions_files_desc">Belgelerin ve diğer dosyaların arasında arama yapmak için gereklidir.</string>
 <string name="permissions_files_title">Dosya erişimi</string>

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen
 
+import com.tk.quicksearch.notchGesture.NotchGestureSupport
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Context
@@ -9,11 +10,16 @@ import android.view.accessibility.AccessibilityManager
 import android.view.accessibility.AccessibilityEvent
 import com.tk.quicksearch.edgeGesture.EdgeGestureOverlay
 import com.tk.quicksearch.floatingButton.FloatingButtonOverlay
+import com.tk.quicksearch.notchGesture.NotchGestureOverlay
 
-/** Hosts the Home double-tap lock action, the system-wide edge swipe handle and the floating button. */
+/**
+ * Hosts the Home double-tap lock action, the system-wide edge swipe handle, the floating button and
+ * the notch tap target.
+ */
 class LockScreenAccessibilityService : AccessibilityService() {
     private var edgeGestureOverlay: EdgeGestureOverlay? = null
     private var floatingButtonOverlay: FloatingButtonOverlay? = null
+    private var notchGestureOverlay: NotchGestureOverlay? = null
 
     override fun onServiceConnected() {
         instance = this
@@ -30,12 +36,16 @@ class LockScreenAccessibilityService : AccessibilityService() {
                 overlay.setAppVisible(resumedAppSurfaceCount > 0)
                 overlay.attach()
             }
+        if (NotchGestureSupport.isSupported) {
+            notchGestureOverlay = NotchGestureOverlay(this).also { overlay -> overlay.attach() }
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         edgeGestureOverlay?.refresh()
         floatingButtonOverlay?.refresh()
+        notchGestureOverlay?.refresh()
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) = Unit
@@ -47,6 +57,8 @@ class LockScreenAccessibilityService : AccessibilityService() {
         edgeGestureOverlay = null
         floatingButtonOverlay?.detach()
         floatingButtonOverlay = null
+        notchGestureOverlay?.detach()
+        notchGestureOverlay = null
         if (instance === this) instance = null
         super.onDestroy()
     }

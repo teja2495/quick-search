@@ -18,15 +18,23 @@ object OverlayModeController {
     const val EXTRA_ANIMATION_TOKEN = "overlay_animation_token"
     const val EXTRA_INITIAL_QUERY = "overlay_initial_query"
     const val EXTRA_RETURN_TO_OVERLAY = "overlay_return_to_overlay"
+    const val EXTRA_PINNED_GLANCE_ONLY = "overlay_pinned_glance_only"
+    const val EXTRA_ANCHOR_X = "overlay_anchor_x"
 
     fun startOverlay(
         context: Context,
         startVoiceSearch: Boolean = false,
         micAction: MicAction = MicAction.DEFAULT_VOICE_SEARCH,
         initialQuery: String? = null,
+        // Shows only pinned and At a Glance items: no search bar, engines or search history.
+        pinnedGlanceOnly: Boolean = false,
+        // Screen x in px the pinned glance popup's arrow points at (the tapped notch).
+        anchorX: Int? = null,
     ) {
         val intent =
             Intent(context, OverlayActivity::class.java).apply {
+                putExtra(EXTRA_PINNED_GLANCE_ONLY, pinnedGlanceOnly)
+                anchorX?.let { putExtra(EXTRA_ANCHOR_X, it) }
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 putExtra(EXTRA_START_VOICE_SEARCH, startVoiceSearch)
                 putExtra(EXTRA_MIC_ACTION, micAction.value)

@@ -115,7 +115,7 @@
     <string name="action_open_folder">Buka Folder</string>
     <string name="action_open_keyboard">Buka Keyboard</string>
     <string name="action_open_settings">Buka pengaturan</string>
-    <string name="settings_gestures_title">Gestur Layar Utama</string>
+    <string name="settings_gestures_title">Gestur</string>
     <string name="settings_gestures_desc">Sesuaikan tindakan geser</string>
     <string name="settings_gesture_swipe_right">Geser ke Kanan</string>
     <string name="settings_gesture_widget_panel">Panel Widget</string>
@@ -125,6 +125,15 @@
     <string name="settings_gesture_swipe_down">Geser ke Bawah</string>
     <string name="settings_gesture_close_quick_search">Tutup Quick Search</string>
     <string name="settings_gesture_double_tap_home">Ketuk Dua Kali</string>
+    <string name="settings_gesture_single_tap">Ketuk Sekali</string>
+    <string name="settings_gesture_open_quick_search">Buka Quick Search</string>
+    <string name="settings_gesture_pinned_glance">Item Disematkan &amp; Sekilas</string>
+    <string name="settings_gesture_play_pause_media">Jeda/Putar Media</string>
+    <string name="settings_notch_gestures_title">Gestur Notch</string>
+    <string name="settings_notch_gestures_desc">Ketuk notch atau lubang kamera dari aplikasi apa pun</string>
+    <string name="settings_notch_accessibility_needed">Izin Aksesibilitas diperlukan</string>
+    <string name="settings_notch_single_tap_search_title">Ketuk Sekali Notch</string>
+    <string name="settings_notch_double_tap_search_title">Ketuk Dua Kali Notch</string>
     <string name="settings_gesture_two_finger_swipe_up_home">Geser Dua Jari ke Atas</string>
     <string name="settings_gesture_two_finger_swipe_down_home">Geser Dua Jari ke Bawah</string>
     <string name="settings_gesture_settings">Pengaturan</string>
@@ -136,9 +145,9 @@
     <string name="settings_gesture_lock_screen">Kunci Layar</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">Memerlukan Izin Aksesibilitas</string>
     <string name="accessibility_lock_screen_service_label">Quick Search</string>
-    <string name="accessibility_lock_screen_service_description">Mengizinkan Quick Search mengunci layar dari gestur ketuk dua kali di Layar Utama dan terbuka dengan geser dari tepi atau tombol mengambang di aplikasi apa pun. Fitur ini tidak membaca konten layar.</string>
+    <string name="accessibility_lock_screen_service_description">Mengizinkan Quick Search mengunci layar dari gestur ketuk dua kali di Layar Utama, merespons ketukan pada notch, dan terbuka dengan geser dari tepi atau tombol mengambang di aplikasi apa pun. Fitur ini tidak membaca konten layar.</string>
     <string name="accessibility_permission_disclaimer_title">Pernyataan Izin Aksesibilitas</string>
-    <string name="accessibility_lock_screen_disclosure_message">Quick Search menggunakan Aksesibilitas untuk:\n\n• Mengaktifkan gestur ketuk dua kali untuk mengunci layar.\n• Membuka Quick Search dengan gestur geser dari tepi.\n• Membuka Quick Search dengan tombol mengambang.\n\nQuick Search tidak membaca, mengumpulkan, menyimpan, atau membagikan konten layar atau data pribadi lainnya.</string>
+    <string name="accessibility_lock_screen_disclosure_message">Quick Search menggunakan Aksesibilitas untuk:\n\n• Mengaktifkan gestur ketuk dua kali untuk mengunci layar.\n• Membuka Quick Search dengan gestur geser dari tepi.\n• Membuka Quick Search dengan tombol mengambang.\n• Menjalankan tindakan saat Anda mengetuk notch.\n\nQuick Search tidak membaca, mengumpulkan, menyimpan, atau membagikan konten layar atau data pribadi lainnya.</string>
     <string name="settings_gesture_none">Tidak ada</string>
     <string name="settings_gesture_custom">Kustom (Aplikasi, File, dll.)</string>
     <string name="settings_keyboard_gestures_title">Gestur Keyboard</string>
@@ -791,6 +800,8 @@
     <string name="settings_edge_gesture_visibility">Visibilitas</string>
     <string name="settings_floating_button_title">Tombol Mengambang</string>
     <string name="settings_floating_button_desc">Ketuk tombol pencarian mengambang untuk membuka Quick Search dari aplikasi apa pun</string>
+    <string name="settings_notch_title">Notch</string>
+    <string name="settings_notch_launch_desc">Ketuk notch untuk membuka Quick Search</string>
     <string name="settings_floating_button_move_hint">Tekan lama tombol lalu seret untuk memindahkannya ke mana saja di layar.</string>
     <string name="settings_floating_button_opacity">Opasitas</string>
     <string name="settings_app_language_title">Bahasa Aplikasi</string>
@@ -1226,7 +1237,7 @@
     <string name="permissions_notifications_desc">Diperlukan untuk notifikasi pengingat dan untuk menyematkan hasil pencarian di panel notifikasi</string>
     <string name="permissions_notification_access_desc">Diperlukan untuk mengaktifkan titik notifikasi dan fitur riwayat notifikasi</string>
     <string name="permissions_accessibility_lock_screen_title">Aksesibilitas</string>
-    <string name="permissions_accessibility_lock_screen_desc">Diperlukan untuk gestur ketuk dua kali guna mengunci layar, atau meluncurkan Quick Search dengan gestur geser tepi atau tombol mengambang.</string>
+    <string name="permissions_accessibility_lock_screen_desc">Diperlukan untuk gestur ketuk dua kali guna mengunci layar, gestur notch, atau meluncurkan Quick Search dengan gestur geser tepi atau tombol mengambang.</string>
     <string name="permissions_contacts_desc">Diperlukan untuk mencari kontak Anda.</string>
     <string name="permissions_files_desc">Diperlukan untuk mencari dokumen dan file lainnya.</string>
     <string name="permissions_files_title">Akses File</string>

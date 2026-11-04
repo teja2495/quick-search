@@ -114,7 +114,7 @@
 <string name="action_open_folder">Ouvrir le dossier</string>
 <string name="action_open_keyboard">Ouvrir le clavier</string>
 <string name="action_open_settings">Ouvrir les paramètres</string>
-<string name="settings_gestures_title">Gestes de l\'accueil</string>
+<string name="settings_gestures_title">Gestes</string>
 <string name="settings_gestures_desc">Personnaliser les actions de balayage</string>
 <string name="settings_gesture_swipe_right">Balayer vers la droite</string>
 <string name="settings_gesture_widget_panel">Panneau de widgets</string>
@@ -124,6 +124,15 @@
 <string name="settings_gesture_swipe_down">Balayer vers le bas</string>
 <string name="settings_gesture_close_quick_search">Fermer Quick Search</string>
 <string name="settings_gesture_double_tap_home">Appui double</string>
+<string name="settings_gesture_single_tap">Appui simple</string>
+<string name="settings_gesture_open_quick_search">Ouvrir Quick Search</string>
+<string name="settings_gesture_pinned_glance">Éléments épinglés et En un coup d’œil</string>
+<string name="settings_gesture_play_pause_media">Pause/lecture du média</string>
+<string name="settings_notch_gestures_title">Gestes de l’encoche</string>
+<string name="settings_notch_gestures_desc">Appuyez sur l’encoche ou la découpe de la caméra depuis n’importe quelle application</string>
+<string name="settings_notch_accessibility_needed">L’autorisation d’accessibilité est requise</string>
+<string name="settings_notch_single_tap_search_title">Appui simple sur l’encoche</string>
+<string name="settings_notch_double_tap_search_title">Double appui sur l’encoche</string>
 <string name="settings_gesture_two_finger_swipe_up_home">Balayer à deux doigts vers le haut</string>
 <string name="settings_gesture_two_finger_swipe_down_home">Balayer à deux doigts vers le bas</string>
 <string name="settings_gesture_settings">Paramètres</string>
@@ -135,9 +144,9 @@
 <string name="settings_gesture_lock_screen">Verrouiller l\'écran</string>
 <string name="settings_gesture_lock_screen_requires_accessibility">Nécessite l\'autorisation d\'accessibilité</string>
 <string name="accessibility_lock_screen_service_label">Quick Search</string>
-<string name="accessibility_lock_screen_service_description">Permet à Quick Search de verrouiller l\'écran avec le geste de double appui sur l\'écran d\'accueil et de s\'ouvrir d\'un balayage depuis le bord ou via un bouton flottant dans n\'importe quelle application. Il ne lit pas le contenu de l\'écran.</string>
+<string name="accessibility_lock_screen_service_description">Permet à Quick Search de verrouiller l\'écran avec le geste de double appui sur l\'écran d\'accueil, de réagir aux appuis sur l’encoche et de s\'ouvrir d\'un balayage depuis le bord ou via un bouton flottant dans n\'importe quelle application. Il ne lit pas le contenu de l\'écran.</string>
 <string name="accessibility_permission_disclaimer_title">Avis relatif à l’autorisation d’accessibilité</string>
-<string name="accessibility_lock_screen_disclosure_message">Quick Search utilise l’accessibilité pour :\n\n• Activer le geste de double appui pour verrouiller l’écran.\n• Ouvrir Quick Search avec des gestes de balayage depuis le bord.\n• Ouvrir Quick Search avec le bouton flottant.\n\nIl ne lit, ne collecte, ne stocke et ne partage ni le contenu de votre écran ni aucune autre donnée personnelle.</string>
+<string name="accessibility_lock_screen_disclosure_message">Quick Search utilise l’accessibilité pour :\n\n• Activer le geste de double appui pour verrouiller l’écran.\n• Ouvrir Quick Search avec des gestes de balayage depuis le bord.\n• Ouvrir Quick Search avec le bouton flottant.\n• Exécuter des actions lorsque vous appuyez sur l’encoche.\n\nIl ne lit, ne collecte, ne stocke et ne partage ni le contenu de votre écran ni aucune autre donnée personnelle.</string>
 <string name="settings_gesture_none">Aucun</string>
 <string name="settings_gesture_custom">Personnalisé (Applications, fichiers, etc.)</string>
 <string name="settings_keyboard_gestures_title">Gestes du clavier</string>
@@ -787,6 +796,8 @@
 <string name="settings_edge_gesture_visibility">Visibilité</string>
 <string name="settings_floating_button_title">Bouton flottant</string>
 <string name="settings_floating_button_desc">Appuyez sur un bouton de recherche flottant pour ouvrir Quick Search depuis n’importe quelle application</string>
+<string name="settings_notch_title">Encoche</string>
+<string name="settings_notch_launch_desc">Appuyez sur l’encoche pour ouvrir Quick Search</string>
 <string name="settings_floating_button_move_hint">Appuyez de manière prolongée sur le bouton et faites-le glisser pour le déplacer n’importe où sur l’écran.</string>
 <string name="settings_floating_button_opacity">Opacité</string>
 <string name="settings_app_language_title">Langue de l\'application</string>
@@ -1222,7 +1233,7 @@
     <string name="permissions_notifications_desc">Requis pour les notifications de rappels et pour épingler des résultats de recherche dans le volet des notifications</string>
     <string name="permissions_notification_access_desc">Requis pour activer les pastilles de notification et l\'historique des notifications</string>
 <string name="permissions_accessibility_lock_screen_title">Accessibilité</string>
-<string name="permissions_accessibility_lock_screen_desc">Nécessaire pour le geste de double appui afin de verrouiller l’écran, ou pour lancer Quick Search avec le geste de balayage depuis le bord ou le bouton flottant.</string>
+<string name="permissions_accessibility_lock_screen_desc">Nécessaire pour le geste de double appui afin de verrouiller l’écran, les gestes de l’encoche, ou pour lancer Quick Search avec le geste de balayage depuis le bord ou le bouton flottant.</string>
 <string name="permissions_contacts_desc">Requis pour rechercher vos contacts.</string>
 <string name="permissions_files_desc">Requis pour rechercher parmi vos documents et autres fichiers.</string>
 <string name="permissions_files_title">Accès aux fichiers</string>

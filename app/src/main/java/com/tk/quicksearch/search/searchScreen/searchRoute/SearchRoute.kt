@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.searchRoute
 
+import com.tk.quicksearch.search.searchScreen.LocalPinnedGlanceOnly
+import com.tk.quicksearch.search.searchScreen.forPinnedGlanceOnly
 import android.Manifest
 import android.app.Activity
 import android.content.ActivityNotFoundException
@@ -115,7 +117,8 @@ fun SearchRoute(
     if (appSwipePickerRequest == null && snapshot != null && uiState.query == snapshot.query) {
         searchScreenSnapshot = null
     }
-    val searchScreenState = searchScreenSnapshot ?: uiState
+    val pinnedGlanceOnly = LocalPinnedGlanceOnly.current
+    val searchScreenState = (searchScreenSnapshot ?: uiState).let { if (pinnedGlanceOnly) it.forPinnedGlanceOnly() else it }
     val context = LocalContext.current
     val voiceInputLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->

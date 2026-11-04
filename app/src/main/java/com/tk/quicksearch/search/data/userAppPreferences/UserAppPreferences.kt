@@ -344,4 +344,31 @@ class UserAppPreferences(context: Context) : UserAppPreferencesFeatures(context)
     fun shouldShowUpdateCard(): Boolean = uiPreferences.shouldShowUpdateCard()
 
     fun recordUpdateCardDismissed() = uiPreferences.recordUpdateCardDismissed()
+
+    // Notch gestures (run system-wide by the accessibility service)
+    // ============================================================================
+
+    fun getNotchSingleTapAction(): HomeSwipeGestureAction = gesturesPreferences.getNotchSingleTapAction()
+
+    fun setNotchSingleTapAction(action: HomeSwipeGestureAction) = gesturesPreferences.setNotchSingleTapAction(action)
+
+    fun getNotchSingleTapCustomAction(): String? = gesturesPreferences.getNotchSingleTapCustomAction()
+
+    fun setNotchSingleTapCustomAction(actionJson: String?) = gesturesPreferences.setNotchSingleTapCustomAction(actionJson)
+
+    fun getNotchSingleTapAliasTarget(): String? = gesturesPreferences.getNotchSingleTapAliasTarget()
+
+    fun setNotchSingleTapAliasTarget(targetId: String?) = gesturesPreferences.setNotchSingleTapAliasTarget(targetId)
+
+    fun getNotchDoubleTapAction(): HomeSwipeGestureAction = gesturesPreferences.getNotchDoubleTapAction()
+
+    fun setNotchDoubleTapAction(action: HomeSwipeGestureAction) = gesturesPreferences.setNotchDoubleTapAction(action)
+
+    fun getNotchDoubleTapCustomAction(): String? = gesturesPreferences.getNotchDoubleTapCustomAction()
+
+    fun setNotchDoubleTapCustomAction(actionJson: String?) = gesturesPreferences.setNotchDoubleTapCustomAction(actionJson)
+
+    fun getNotchDoubleTapAliasTarget(): String? = gesturesPreferences.getNotchDoubleTapAliasTarget()
+
+    fun setNotchDoubleTapAliasTarget(targetId: String?) = gesturesPreferences.setNotchDoubleTapAliasTarget(targetId)
 }

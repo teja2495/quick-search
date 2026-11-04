@@ -114,7 +114,7 @@
 <string name="action_open_folder">Открыть папку</string>
 <string name="action_open_keyboard">Открыть клавиатуру</string>
 <string name="action_open_settings">Открыть настройки</string>
-<string name="settings_gestures_title">Жесты главного экрана</string>
+<string name="settings_gestures_title">Жесты</string>
 <string name="settings_gestures_desc">Настройка жестов смахивания</string>
 <string name="settings_gesture_swipe_right">Смахивание вправо</string>
 <string name="settings_gesture_widget_panel">Панель виджетов</string>
@@ -124,6 +124,15 @@
 <string name="settings_gesture_swipe_down">Смахивание вниз</string>
 <string name="settings_gesture_close_quick_search">Закрыть Quick Search</string>
 <string name="settings_gesture_double_tap_home">Двойное нажатие</string>
+<string name="settings_gesture_single_tap">Одиночное нажатие</string>
+<string name="settings_gesture_open_quick_search">Открыть Quick Search</string>
+<string name="settings_gesture_pinned_glance">Закрепленные элементы и Кратко</string>
+<string name="settings_gesture_play_pause_media">Пауза/воспроизведение медиа</string>
+<string name="settings_notch_gestures_title">Жесты выреза</string>
+<string name="settings_notch_gestures_desc">Нажмите на вырез или отверстие камеры в любом приложении</string>
+<string name="settings_notch_accessibility_needed">Требуется разрешение специальных возможностей</string>
+<string name="settings_notch_single_tap_search_title">Одиночное нажатие на вырез</string>
+<string name="settings_notch_double_tap_search_title">Двойное нажатие на вырез</string>
 <string name="settings_gesture_two_finger_swipe_up_home">Смахивание двумя пальцами вверх</string>
 <string name="settings_gesture_two_finger_swipe_down_home">Смахивание двумя пальцами вниз</string>
 <string name="settings_gesture_settings">Настройки</string>
@@ -135,9 +144,9 @@
 <string name="settings_gesture_lock_screen">Заблокировать экран</string>
 <string name="settings_gesture_lock_screen_requires_accessibility">Требуется разрешение специальных возможностей</string>
 <string name="accessibility_lock_screen_service_label">Quick Search</string>
-<string name="accessibility_lock_screen_service_description">Позволяет Quick Search блокировать экран двойным касанием на главном экране и открываться смахиванием от края или с помощью плавающей кнопки в любом приложении. Не считывает содержимое экрана.</string>
+<string name="accessibility_lock_screen_service_description">Позволяет Quick Search блокировать экран двойным касанием на главном экране, реагировать на нажатия на вырез и открываться смахиванием от края или с помощью плавающей кнопки в любом приложении. Не считывает содержимое экрана.</string>
 <string name="accessibility_permission_disclaimer_title">Уведомление о разрешении специальных возможностей</string>
-<string name="accessibility_lock_screen_disclosure_message">Quick Search использует специальные возможности, чтобы:\n\n• Включать жест двойного нажатия для блокировки экрана.\n• Открывать Quick Search жестами смахивания от края.\n• Открывать Quick Search с помощью плавающей кнопки.\n\nОн не читает, не собирает, не хранит и не передает содержимое экрана или другие персональные данные.</string>
+<string name="accessibility_lock_screen_disclosure_message">Quick Search использует специальные возможности, чтобы:\n\n• Включать жест двойного нажатия для блокировки экрана.\n• Открывать Quick Search жестами смахивания от края.\n• Открывать Quick Search с помощью плавающей кнопки.\n• Выполнять действия при нажатии на вырез экрана.\n\nОн не читает, не собирает, не хранит и не передает содержимое экрана или другие персональные данные.</string>
 <string name="settings_gesture_none">Нет</string>
 <string name="settings_gesture_custom">Вручную (приложения, файлы и др.)</string>
 <string name="settings_keyboard_gestures_title">Жесты клавиатуры</string>
@@ -807,6 +816,8 @@
 <string name="settings_edge_gesture_visibility">Видимость</string>
 <string name="settings_floating_button_title">Плавающая кнопка</string>
 <string name="settings_floating_button_desc">Нажмите плавающую кнопку поиска, чтобы открыть Quick Search из любого приложения</string>
+<string name="settings_notch_title">Вырез</string>
+<string name="settings_notch_launch_desc">Нажмите на вырез, чтобы открыть Quick Search</string>
 <string name="settings_floating_button_move_hint">Нажмите и удерживайте кнопку, затем перетащите её в любое место экрана.</string>
 <string name="settings_floating_button_opacity">Непрозрачность</string>
 <string name="settings_app_language_title">Язык приложения</string>
@@ -1246,7 +1257,7 @@
     <string name="permissions_notifications_desc">Требуется для уведомлений о напоминаниях и закрепления результатов поиска на панели уведомлений</string>
     <string name="permissions_notification_access_desc">Требуется для значков уведомлений и истории уведомлений</string>
 <string name="permissions_accessibility_lock_screen_title">Специальные возможности</string>
-<string name="permissions_accessibility_lock_screen_desc">Требуется для жеста двойного нажатия, чтобы заблокировать экран, или для запуска Quick Search жестом смахивания от края либо плавающей кнопкой.</string>
+<string name="permissions_accessibility_lock_screen_desc">Требуется для жеста двойного нажатия, чтобы заблокировать экран, жестов выреза или для запуска Quick Search жестом смахивания от края либо плавающей кнопкой.</string>
 <string name="permissions_contacts_desc">Требуется для поиска по вашим контактам.</string>
 <string name="permissions_files_desc">Требуется для поиска по вашим документам и другим файлам.</string>
 <string name="permissions_files_title">Доступ к файлам</string>

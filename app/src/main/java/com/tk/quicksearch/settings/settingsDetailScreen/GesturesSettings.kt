@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.notchGesture.NotchGestureSupport
 import android.content.Intent
 import android.provider.Settings
 import androidx.compose.foundation.clickable
@@ -76,10 +77,16 @@ internal enum class HomeGesture(val titleResId: Int, val defaultAction: HomeSwip
     DOUBLE_TAP(R.string.settings_gesture_double_tap_home, HomeSwipeGestureAction.NONE),
     TWO_FINGER_SWIPE_UP(R.string.settings_gesture_two_finger_swipe_up_home, HomeSwipeGestureAction.NONE),
     TWO_FINGER_SWIPE_DOWN(R.string.settings_gesture_two_finger_swipe_down_home, HomeSwipeGestureAction.NONE),
+    NOTCH_SINGLE_TAP(R.string.settings_gesture_single_tap, HomeSwipeGestureAction.NONE),
+    NOTCH_DOUBLE_TAP(R.string.settings_gesture_double_tap_home, HomeSwipeGestureAction.NONE),
 }
 
 internal val HomeGesture.isTwoFinger: Boolean
     get() = this == HomeGesture.TWO_FINGER_SWIPE_UP || this == HomeGesture.TWO_FINGER_SWIPE_DOWN
+
+/** Notch taps run system-wide from the accessibility service rather than on the Home screen. */
+internal val HomeGesture.isNotch: Boolean
+    get() = this == HomeGesture.NOTCH_SINGLE_TAP || this == HomeGesture.NOTCH_DOUBLE_TAP
 
 internal enum class AliasPickerKind { SEARCH_ENGINE, TOOL }
 
@@ -150,6 +157,14 @@ fun GesturesSettingsSection(
                     )
                 }
             }
+        }
+
+        if (NotchGestureSupport.isSupported) {
+            NotchGesturesCard(
+                state = state,
+                searchState = searchState,
+                modifier = Modifier.fillMaxWidth().padding(bottom = DesignTokens.SectionTopPadding),
+            )
         }
 
         SettingsCard(modifier = Modifier.fillMaxWidth()) {

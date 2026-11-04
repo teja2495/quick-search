@@ -35,6 +35,8 @@ enum class GestureSettingTarget {
     DOUBLE_TAP,
     TWO_FINGER_SWIPE_UP,
     TWO_FINGER_SWIPE_DOWN,
+    NOTCH_SINGLE_TAP,
+    NOTCH_DOUBLE_TAP,
     OPEN_KEYBOARD,
     CLOSE_KEYBOARD,
 }
@@ -81,7 +83,7 @@ internal class GestureSettingsState(
                 showLockScreenAccessibilityDisclosure ||
                 pendingLockScreenGesture != null
 
-    fun open(target: GestureSettingTarget) {
+    fun open(target: GestureSettingTarget, context: Context) {
         when (target) {
             GestureSettingTarget.SWIPE_LEFT -> selectedDirection = SwipeDirection.LEFT
             GestureSettingTarget.SWIPE_RIGHT -> selectedDirection = SwipeDirection.RIGHT
@@ -90,9 +92,28 @@ internal class GestureSettingsState(
             GestureSettingTarget.DOUBLE_TAP -> selectedHomeGesture = HomeGesture.DOUBLE_TAP
             GestureSettingTarget.TWO_FINGER_SWIPE_UP -> selectedHomeGesture = HomeGesture.TWO_FINGER_SWIPE_UP
             GestureSettingTarget.TWO_FINGER_SWIPE_DOWN -> selectedHomeGesture = HomeGesture.TWO_FINGER_SWIPE_DOWN
+            GestureSettingTarget.NOTCH_SINGLE_TAP -> openNotchGesture(HomeGesture.NOTCH_SINGLE_TAP, context)
+            GestureSettingTarget.NOTCH_DOUBLE_TAP -> openNotchGesture(HomeGesture.NOTCH_DOUBLE_TAP, context)
             GestureSettingTarget.OPEN_KEYBOARD -> selectedKeyboardAction = SwipeGestureAction.OPEN_KEYBOARD
             GestureSettingTarget.CLOSE_KEYBOARD ->
                 selectedKeyboardAction = SwipeGestureAction.CLOSE_KEYBOARD_OR_NOTIFICATIONS
+        }
+    }
+
+    /** Notch taps only work through the accessibility service, so ask for it before editing them. */
+    fun openNotchGesture(gesture: HomeGesture, context: Context) {
+        if (isLockScreenAccessibilityEnabled) {
+            selectedHomeGesture = gesture
+        } else {
+            requestAccessibility(context)
+        }
+    }
+
+    fun requestAccessibility(context: Context) {
+        if (shouldShowAccessibilityDisclosure) {
+            showLockScreenAccessibilityDisclosure = true
+        } else {
+            context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
         }
     }
 
@@ -232,7 +253,7 @@ internal fun rememberGestureSettingsState(
                 isDefaultLauncher = isDefaultLauncher,
                 isLockScreenAccessibilityEnabled = LockScreenAccessibilityService.isEnabled(context),
                 onSwipeLeftMovedOffSettings = { searchViewModel.setSettingsIconEnabled(true) },
-            ).also { state -> initialTarget?.let(state::open) }
+            ).also { state -> initialTarget?.let { target -> state.open(target, context) } }
         }
     DisposableEffect(lifecycleOwner, context) {
         val observer =
@@ -402,13 +423,15 @@ internal fun GestureSettingsDialogs(
                     gesture == HomeGesture.DOUBLE_TAP ||
                     gesture == HomeGesture.TWO_FINGER_SWIPE_DOWN,
             allowsQuickSettings = gesture == HomeGesture.SWIPE_DOWN || gesture == HomeGesture.TWO_FINGER_SWIPE_DOWN,
-            allowsCloseQuickSearch = !state.isDefaultLauncher && !gesture.isTwoFinger,
-            allowsLockScreen = gesture == HomeGesture.DOUBLE_TAP,
+            allowsCloseQuickSearch = !state.isDefaultLauncher && !gesture.isTwoFinger && !gesture.isNotch,
+            allowsLockScreen = gesture == HomeGesture.DOUBLE_TAP || gesture.isNotch,
             allowsAllApps =
                 gesture == HomeGesture.SWIPE_UP ||
                     gesture == HomeGesture.SWIPE_DOWN ||
-                    gesture == HomeGesture.TWO_FINGER_SWIPE_UP,
+                    gesture == HomeGesture.TWO_FINGER_SWIPE_UP ||
+                    gesture.isNotch,
             hasLockScreenAccessibilityPermission = state.isLockScreenAccessibilityEnabled,
+            allowsAppSurfaces = gesture.isNotch,
             selectedAction = state.homeActions.getValue(gesture),
             selectedCustomActionJson = state.homeCustomActions[gesture],
             selectedAliasTarget = state.homeAliasTargets[gesture],

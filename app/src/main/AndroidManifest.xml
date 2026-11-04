@@ -367,11 +367,15 @@
         </activity-alias>
 
         <!-- Search Activities -->
+        <!-- The overlay gets its own task so launching it from another app
+             (notch tap, edge gesture) doesn't bring the main app task forward
+             behind the transparent popup. -->
         <activity
             android:name=".overlay.OverlayActivity"
             android:exported="${profileCaptureExported}"
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
+            android:taskAffinity="${applicationId}.overlay"
             android:theme="@style/Theme.QuickSearch"
             android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
 

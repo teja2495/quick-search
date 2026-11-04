@@ -1,5 +1,6 @@
 package com.tk.quicksearch.overlay
 
+import com.tk.quicksearch.search.searchScreen.LocalPinnedGlanceOnly
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -45,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
@@ -87,6 +89,7 @@ private const val OVERLAY_ENTER_START_SCALE = 0.9f
 private val OVERLAY_BORDER_WIDTH = 1.25.dp
 private val OVERLAY_OPERATOR_ROW_ESTIMATED_HEIGHT = 48.dp
 private val OVERLAY_TOP_OFFSET = 16.dp
+private val OVERLAY_BUBBLE_TOP_GAP = 2.dp
 private val OVERLAY_ENTER_START_OFFSET = 56.dp
 // Keyboard space reservation: the overlay defers showing the keyboard (to avoid typing
 // jank), which means the live IME inset is 0 on the first frame and the surface would
@@ -102,6 +105,8 @@ private const val KEYBOARD_MEASURE_SETTLE_MS = 250L
 fun OverlayRoot(
         viewModel: SearchViewModel,
         animationToken: Long = 0L,
+        pinnedGlanceOnly: Boolean = false,
+        pinnedGlanceAnchorX: Int? = null,
         onCloseRequested: () -> Unit,
         modifier: Modifier = Modifier,
         reservedKeyboardHeightProvider: (Boolean) -> Dp = { 0.dp },
@@ -225,6 +230,7 @@ fun OverlayRoot(
                         }
                         val shouldReserveKeyboardSpace =
                                 uiState.openKeyboardOnLaunch &&
+                                        !pinnedGlanceOnly &&
                                         !keyboardReservationFinished &&
                                         reservedKeyboardHeight > 0.dp
                         val effectiveImeBottom =
@@ -381,13 +387,32 @@ fun OverlayRoot(
                                 label = "overlayEntryProgress",
                         )
 
+                        // Pinned & At a Glance mode wraps its content and hangs just below the status
+                        // bar as a bubble pointing at the notch the user tapped.
+                        val cardLeft = leftSafePadding + (availableWidth - overlayWidth) / 2
+                        val bubbleArrowCenterX =
+                                pinnedGlanceAnchorX?.let { anchor ->
+                                        anchor - with(density) { cardLeft.toPx() }
+                                }
+                        val cardShape =
+                                if (pinnedGlanceOnly) {
+                                        remember(bubbleArrowCenterX) { OverlayBubbleShape(bubbleArrowCenterX) }
+                                } else {
+                                        DesignTokens.ExtraLargeCardShape
+                                }
                         Box(
                                 modifier =
                                         Modifier.align(Alignment.TopCenter)
                                                 .padding(
                                                         start = leftSafePadding,
                                                         end = rightSafePadding,
-                                                        top = overlayTopPadding,
+                                                        top =
+                                                                if (pinnedGlanceOnly) {
+                                                                        topSafePadding + OVERLAY_BUBBLE_TOP_GAP
+                                                                } else {
+                                                                        overlayTopPadding
+                                                                },
+                                                        bottom = if (pinnedGlanceOnly) bottomSafePadding else 0.dp,
                                                 )
                                                 .fillMaxSize(),
                                 contentAlignment = Alignment.TopCenter,
@@ -414,16 +439,28 @@ fun OverlayRoot(
                                                                                         overlayEntryProgress)
                                                                 scaleX = scale
                                                                 scaleY = scale
-                                                                translationY =
-                                                                        slideOffsetPx *
-                                                                                (1f -
-                                                                                        overlayEntryProgress)
+                                                                if (pinnedGlanceOnly) {
+                                                                        // Grow out of the arrow tip instead of sliding up.
+                                                                        transformOrigin =
+                                                                                TransformOrigin(
+                                                                                        bubbleArrowCenterX
+                                                                                                ?.let { it / size.width }
+                                                                                                ?.coerceIn(0f, 1f)
+                                                                                                ?: 0.5f,
+                                                                                        0f,
+                                                                                )
+                                                                } else {
+                                                                        translationY =
+                                                                                slideOffsetPx *
+                                                                                        (1f -
+                                                                                                overlayEntryProgress)
+                                                                }
                                                         }
-                                                        .clip(DesignTokens.ExtraLargeCardShape)
+                                                        .clip(cardShape)
                                                         .border(
                                                                 width = OVERLAY_BORDER_WIDTH,
                                                                 color = overlayBorderColor,
-                                                                shape = DesignTokens.ExtraLargeCardShape,
+                                                                shape = cardShape,
                                                         )
                                                         .clickable(
                                                                 interactionSource =
@@ -458,16 +495,24 @@ fun OverlayRoot(
                                                 overlayThemeIntensity =
                                                         uiState.overlayThemeIntensity,
                                                 amoledThemeEnabled = uiState.amoledThemeEnabled,
-                                                modifier = Modifier.fillMaxSize(),
+                                                // matchParentSize lets the card take its size from the content.
+                                                modifier =
+                                                        if (pinnedGlanceOnly) Modifier.matchParentSize() else Modifier.fillMaxSize(),
                                         )
 
                                         // The overlay's content padding is wider than the search screen's, so the
                                         // full-bleed engine card has to reach further to meet the overlay's edges.
                                         CompositionLocalProvider(
                                                 LocalInsetFullBleedHorizontalExtension provides DesignTokens.SpacingXLarge,
+                                                LocalPinnedGlanceOnly provides pinnedGlanceOnly,
                                         ) {
                                             SearchRoute(
-                                                    modifier = Modifier.fillMaxSize(),
+                                                    modifier =
+                                                            if (pinnedGlanceOnly) {
+                                                                    Modifier.fillMaxWidth().padding(top = OverlayBubbleArrowHeight)
+                                                            } else {
+                                                                    Modifier.fillMaxSize()
+                                                            },
                                                     viewModel = viewModel,
                                                     isOverlayPresentation = true,
                                                     overlaySnackbarHostState = overlaySnackbarHostState,

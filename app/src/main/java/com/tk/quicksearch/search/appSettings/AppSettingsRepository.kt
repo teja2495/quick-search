@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.appSettings
 
+import com.tk.quicksearch.notchGesture.NotchGestureSupport
 import android.content.Context
 import android.os.Build
 import com.tk.quicksearch.R
@@ -171,6 +172,7 @@ class AppSettingsRepository(
                 titleRes = R.string.settings_launch_options_title,
                 descriptionRes = R.string.settings_launch_options_desc,
                 destination = AppSettingsDestination.LAUNCH_OPTIONS,
+                keywords = if (NotchGestureSupport.isSupported) listOf("notch") else emptyList(),
             )
             addNavigation(
                 id = "app_settings_edge_gesture",
@@ -334,9 +336,11 @@ class AppSettingsRepository(
                 titleRes = R.string.settings_gestures_title,
                 descriptionRes = R.string.settings_gestures_desc,
                 destination = AppSettingsDestination.GESTURES,
-                keywords = listOf("swipe", "quick note", "keyboard", "notifications"),
+                keywords = listOf("swipe", "quick note", "keyboard", "notifications") +
+                    if (NotchGestureSupport.isSupported) listOf("notch") else emptyList(),
             )
             GESTURE_APP_SETTINGS.forEach { (id, titleRes, destination) ->
+                if (destination.isNotchGestureDestination && !NotchGestureSupport.isSupported) return@forEach
                 addNavigation(
                     id = id,
                     titleRes = titleRes,

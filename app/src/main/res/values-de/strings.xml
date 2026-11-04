@@ -114,7 +114,7 @@
     <string name="action_open_folder">Ordner öffnen</string>
     <string name="action_open_keyboard">Tastatur öffnen</string>
     <string name="action_open_settings">Einstellungen öffnen</string>
-    <string name="settings_gestures_title">Startseiten-Gesten</string>
+    <string name="settings_gestures_title">Gesten</string>
     <string name="settings_gestures_desc">Wischgesten anpassen</string>
     <string name="settings_gesture_swipe_right">Nach rechts wischen</string>
     <string name="settings_gesture_widget_panel">Widget-Panel</string>
@@ -124,6 +124,15 @@
     <string name="settings_gesture_swipe_down">Nach unten wischen</string>
 <string name="settings_gesture_close_quick_search">Quick Search schließen</string>
 <string name="settings_gesture_double_tap_home">Doppeltippen</string>
+<string name="settings_gesture_single_tap">Einmal tippen</string>
+<string name="settings_gesture_open_quick_search">Quick Search öffnen</string>
+<string name="settings_gesture_pinned_glance">Angeheftete Elemente &amp; Auf einen Blick</string>
+<string name="settings_gesture_play_pause_media">Medien pausieren/abspielen</string>
+<string name="settings_notch_gestures_title">Notch-Gesten</string>
+<string name="settings_notch_gestures_desc">Tippe in jeder App auf die Notch oder Kameraaussparung</string>
+<string name="settings_notch_accessibility_needed">Berechtigung für Bedienungshilfen erforderlich</string>
+<string name="settings_notch_single_tap_search_title">Notch einmal tippen</string>
+<string name="settings_notch_double_tap_search_title">Notch doppeltippen</string>
 <string name="settings_gesture_two_finger_swipe_up_home">Mit zwei Fingern nach oben wischen</string>
 <string name="settings_gesture_two_finger_swipe_down_home">Mit zwei Fingern nach unten wischen</string>
     <string name="settings_gesture_settings">Einstellungen</string>
@@ -135,9 +144,9 @@
     <string name="settings_gesture_lock_screen">Bildschirm sperren</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">Erfordert Bedienungshilfen-Berechtigung</string>
     <string name="accessibility_lock_screen_service_label">Quick Search</string>
-    <string name="accessibility_lock_screen_service_description">Ermöglicht Quick Search, den Bildschirm mit der Doppeltipp-Geste auf dem Startbildschirm zu sperren und sich in jeder App per Wischen vom Rand oder über eine schwebende Schaltfläche zu öffnen. Bildschirminhalte werden nicht gelesen.</string>
+    <string name="accessibility_lock_screen_service_description">Ermöglicht Quick Search, den Bildschirm mit der Doppeltipp-Geste auf dem Startbildschirm zu sperren, auf Tippen auf die Notch zu reagieren und sich in jeder App per Wischen vom Rand oder über eine schwebende Schaltfläche zu öffnen. Bildschirminhalte werden nicht gelesen.</string>
     <string name="accessibility_permission_disclaimer_title">Hinweis zur Berechtigung für Bedienungshilfen</string>
-    <string name="accessibility_lock_screen_disclosure_message">Quick Search verwendet die Bedienungshilfe, um:\n\n• die Doppeltipp-Geste zum Sperren des Bildschirms zu aktivieren.\n• Quick Search mit Wischgesten vom Bildschirmrand zu öffnen.\n• Quick Search über die schwebende Schaltfläche zu öffnen.\n\nEs liest, erfasst, speichert oder teilt weder deine Bildschirminhalte noch andere persönliche Daten.</string>
+    <string name="accessibility_lock_screen_disclosure_message">Quick Search verwendet die Bedienungshilfe, um:\n\n• die Doppeltipp-Geste zum Sperren des Bildschirms zu aktivieren.\n• Quick Search mit Wischgesten vom Bildschirmrand zu öffnen.\n• Quick Search über die schwebende Schaltfläche zu öffnen.\n• Aktionen beim Tippen auf die Notch auszuführen.\n\nEs liest, erfasst, speichert oder teilt weder deine Bildschirminhalte noch andere persönliche Daten.</string>
     <string name="settings_gesture_none">Keine</string>
     <string name="settings_gesture_custom">Benutzerdefiniert (Apps, Dateien usw.)</string>
     <string name="settings_keyboard_gestures_title">Tastaturgesten</string>
@@ -787,6 +796,8 @@
     <string name="settings_edge_gesture_visibility">Sichtbarkeit</string>
     <string name="settings_floating_button_title">Schwebende Schaltfläche</string>
     <string name="settings_floating_button_desc">Tippe auf eine schwebende Suchschaltfläche, um Quick Search aus jeder App zu öffnen</string>
+    <string name="settings_notch_title">Notch</string>
+    <string name="settings_notch_launch_desc">Tippe auf die Notch, um Quick Search zu öffnen</string>
     <string name="settings_floating_button_move_hint">Halte die Schaltfläche gedrückt und ziehe sie, um sie an eine beliebige Stelle auf dem Bildschirm zu verschieben.</string>
     <string name="settings_floating_button_opacity">Deckkraft</string>
     <string name="settings_app_language_title">App-Sprache</string>
@@ -1222,7 +1233,7 @@
     <string name="permissions_notifications_desc">Erforderlich für Erinnerungsbenachrichtigungen und um Suchergebnisse im Benachrichtigungsfeld anzuheften</string>
     <string name="permissions_notification_access_desc">Erforderlich für Benachrichtigungspunkte und den Benachrichtigungsverlauf</string>
     <string name="permissions_accessibility_lock_screen_title">Bedienungshilfen</string>
-    <string name="permissions_accessibility_lock_screen_desc">Erforderlich für die Doppeltipp-Geste zum Sperren des Bildschirms sowie zum Starten von Quick Search per Wischgeste vom Rand oder schwebender Schaltfläche.</string>
+    <string name="permissions_accessibility_lock_screen_desc">Erforderlich für die Doppeltipp-Geste zum Sperren des Bildschirms, Notch-Gesten sowie zum Starten von Quick Search per Wischgeste vom Rand oder schwebender Schaltfläche.</string>
     <string name="permissions_contacts_desc">Erforderlich, um Kontakte zu durchsuchen.</string>
     <string name="permissions_files_desc">Erforderlich, um Dokumente und andere Dateien zu durchsuchen.</string>
     <string name="permissions_files_title">Dateizugriff</string>

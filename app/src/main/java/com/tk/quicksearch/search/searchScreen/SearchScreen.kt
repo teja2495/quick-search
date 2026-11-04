@@ -513,7 +513,7 @@ fun SearchScreen(
             onClearDetectedShortcut = onClearDetectedShortcut,
             onSectionSelected = onSectionSelected,
             isOverlayPresentation = isOverlayPresentation,
-            showSearchField = true,
+            showSearchField = !LocalPinnedGlanceOnly.current,
             onOpenPermissionsSettings = onOpenPermissionsSettings,
             onHomePinnedSectionOrderChange = onHomePinnedSectionOrderChange,
             onChangeWallpaperClick = onChangeWallpaperClick,

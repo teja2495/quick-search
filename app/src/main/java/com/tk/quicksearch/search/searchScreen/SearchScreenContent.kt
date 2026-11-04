@@ -654,9 +654,8 @@ internal fun SearchScreenContent(
         com.tk.quicksearch.tools.calculator.LocalCalculatorResultQueryHandler provides onQueryChanged,
     ) {
     Column(modifier = contentModifier, verticalArrangement = Arrangement.Top) {
-        if (showSearchField && !showBottomSearchBar) {
-            searchFieldContent()
-        }
+        if (showSearchField && !showBottomSearchBar) searchFieldContent()
+        if (!showSearchField) PinnedGlanceFocusTarget(searchFocusRequester)
 
         if (showSearchField && !showBottomSearchBar && !state.oneHandedMode) {
             Spacer(modifier = Modifier.padding(top = DesignTokens.SpacingXSmall))
@@ -668,7 +667,7 @@ internal fun SearchScreenContent(
                         run {
                             val base =
                                     if (isOverlayPresentation) {
-                                        Modifier.fillMaxWidth().weight(1f)
+                                        Modifier.fillMaxWidth().let { if (showSearchField) it.weight(1f) else it }
                                     } else {
                                         Modifier.weight(1f)
                                     }
@@ -742,8 +741,8 @@ internal fun SearchScreenContent(
         )
         }
 
-        // Pinned above the keyboard, outside the scrollable content.
-        SearchScreenBottomChrome(
+        // Pinned above the keyboard, outside the scrollable content. Pinned glance mode has none.
+        if (showSearchField) SearchScreenBottomChrome(
             state = state,
             expandedSection = expandedSection,
             keyboardSwitchText = keyboardSwitchText,

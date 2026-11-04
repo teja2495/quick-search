@@ -21,8 +21,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tk.quicksearch.R
+import com.tk.quicksearch.notchGesture.NotchGestureRequest
+import com.tk.quicksearch.notchGesture.NotchGestureRequests
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
@@ -322,6 +325,21 @@ internal fun rememberRouteGestures(
                 onOverlayDismissRequest?.invoke()
             } else {
                 onCloseAppRequest?.invoke()
+            }
+        }
+    }
+
+    // A notch tap that needs this screen (All Apps, a search engine or tool) waits here until resumed.
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            NotchGestureRequests.pending.collect { pending ->
+                if (pending == null) return@collect
+                when (val request = NotchGestureRequests.consume()) {
+                    NotchGestureRequest.AllApps -> allAppsDrawer.open()
+                    is NotchGestureRequest.SearchEngine -> viewModel.activateGestureSearchTarget(request.targetId)
+                    is NotchGestureRequest.Tool -> viewModel.activateGestureTool(request.featureId)
+                    null -> Unit
+                }
             }
         }
     }

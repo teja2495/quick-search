@@ -20,10 +20,17 @@ internal val GESTURE_APP_SETTINGS: List<Triple<String, Int, AppSettingsDestinati
         Triple("app_settings_gesture_two_finger_swipe_down", R.string.settings_gesture_two_finger_swipe_down_home, AppSettingsDestination.GESTURE_TWO_FINGER_SWIPE_DOWN),
         Triple("app_settings_gesture_open_keyboard", R.string.action_open_keyboard, AppSettingsDestination.GESTURE_OPEN_KEYBOARD),
         Triple("app_settings_gesture_close_keyboard", R.string.settings_gesture_close_keyboard, AppSettingsDestination.GESTURE_CLOSE_KEYBOARD),
+        Triple("app_settings_gesture_notch_single_tap", R.string.settings_notch_single_tap_search_title, AppSettingsDestination.GESTURE_NOTCH_SINGLE_TAP),
+        Triple("app_settings_gesture_notch_double_tap", R.string.settings_notch_double_tap_search_title, AppSettingsDestination.GESTURE_NOTCH_DOUBLE_TAP),
     )
 
 internal fun Context.isTaskerInstalled(): Boolean =
     runCatching { packageManager.getPackageInfo(TaskerIntegration.PACKAGE_NAME, 0) }.isSuccess
+
+internal val AppSettingsDestination.isNotchGestureDestination: Boolean
+    get() =
+        this == AppSettingsDestination.GESTURE_NOTCH_SINGLE_TAP ||
+            this == AppSettingsDestination.GESTURE_NOTCH_DOUBLE_TAP
 
 internal val AppSettingsDestination.isGestureDestination: Boolean
     get() = GESTURE_APP_SETTINGS.any { it.third == this }

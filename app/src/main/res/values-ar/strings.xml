@@ -115,7 +115,7 @@
     <string name="action_open_folder">فتح المجلد</string>
     <string name="action_open_keyboard">فتح لوحة المفاتيح</string>
     <string name="action_open_settings">فتح الإعدادات</string>
-    <string name="settings_gestures_title">إيماءات الشاشة الرئيسية</string>
+    <string name="settings_gestures_title">الإيماءات</string>
     <string name="settings_gestures_desc">تخصيص إجراءات السحب</string>
     <string name="settings_gesture_swipe_right">السحب لليمين</string>
     <string name="settings_gesture_widget_panel">لوحة عناصر واجهة المستخدم</string>
@@ -125,6 +125,15 @@
     <string name="settings_gesture_swipe_down">السحب للأسفل</string>
 <string name="settings_gesture_close_quick_search">إغلاق البحث السريع</string>
 <string name="settings_gesture_double_tap_home">النقر المزدوج</string>
+<string name="settings_gesture_single_tap">نقرة واحدة</string>
+<string name="settings_gesture_open_quick_search">فتح Quick Search</string>
+<string name="settings_gesture_pinned_glance">العناصر المثبتة ونظرة سريعة</string>
+<string name="settings_gesture_play_pause_media">إيقاف/تشغيل الوسائط</string>
+<string name="settings_notch_gestures_title">إيماءات النتوء</string>
+<string name="settings_notch_gestures_desc">انقر على النتوء أو فتحة الكاميرا من أي تطبيق</string>
+<string name="settings_notch_accessibility_needed">يلزم إذن إمكانية الوصول</string>
+<string name="settings_notch_single_tap_search_title">نقرة واحدة على النتوء</string>
+<string name="settings_notch_double_tap_search_title">نقر مزدوج على النتوء</string>
 <string name="settings_gesture_two_finger_swipe_up_home">السحب بإصبعين للأعلى</string>
 <string name="settings_gesture_two_finger_swipe_down_home">السحب بإصبعين للأسفل</string>
     <string name="settings_gesture_settings">الإعدادات</string>
@@ -136,9 +145,9 @@
     <string name="settings_gesture_lock_screen">قفل الشاشة</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">يتطلب إذن تسهيل الاستخدام</string>
     <string name="accessibility_lock_screen_service_label">Quick Search</string>
-    <string name="accessibility_lock_screen_service_description">يتيح لتطبيق Quick Search قفل الشاشة بإيماءة النقر المزدوج على الشاشة الرئيسية وفتحه بالسحب من الحافة أو بزر عائم في أي تطبيق. لا يقرأ محتوى الشاشة.</string>
+    <string name="accessibility_lock_screen_service_description">يتيح لتطبيق Quick Search قفل الشاشة بإيماءة النقر المزدوج على الشاشة الرئيسية، والاستجابة للنقر على النتوء، وفتحه بالسحب من الحافة أو بزر عائم في أي تطبيق. لا يقرأ محتوى الشاشة.</string>
     <string name="accessibility_permission_disclaimer_title">إخلاء مسؤولية إذن إمكانية الوصول</string>
-    <string name="accessibility_lock_screen_disclosure_message">يستخدم Quick Search ميزة إمكانية الوصول من أجل:\n\n• تفعيل إيماءة النقر المزدوج لقفل الشاشة.\n• فتح Quick Search باستخدام إيماءات السحب من الحافة.\n• فتح Quick Search باستخدام الزر العائم.\n\nلا يقرأ محتوى شاشتك أو بياناتك الشخصية الأخرى ولا يجمعها أو يخزنها أو يشاركها.</string>
+    <string name="accessibility_lock_screen_disclosure_message">يستخدم Quick Search ميزة إمكانية الوصول من أجل:\n\n• تفعيل إيماءة النقر المزدوج لقفل الشاشة.\n• فتح Quick Search باستخدام إيماءات السحب من الحافة.\n• فتح Quick Search باستخدام الزر العائم.\n• تنفيذ إجراءات عند النقر على النتوء.\n\nلا يقرأ محتوى شاشتك أو بياناتك الشخصية الأخرى ولا يجمعها أو يخزنها أو يشاركها.</string>
     <string name="settings_gesture_none">بلا</string>
     <string name="settings_gesture_custom">مخصص (التطبيقات، الملفات، إلخ.)</string>
     <string name="settings_keyboard_gestures_title">إيماءات لوحة المفاتيح</string>
@@ -788,6 +797,8 @@
     <string name="settings_edge_gesture_visibility">الظهور</string>
     <string name="settings_floating_button_title">الزر العائم</string>
     <string name="settings_floating_button_desc">انقر على زر بحث عائم لفتح Quick Search من أي تطبيق</string>
+    <string name="settings_notch_title">النتوء</string>
+    <string name="settings_notch_launch_desc">انقر على النتوء لفتح Quick Search</string>
     <string name="settings_floating_button_move_hint">اضغط مطولاً على الزر واسحبه لنقله إلى أي مكان على الشاشة.</string>
     <string name="settings_floating_button_opacity">العتامة</string>
     <string name="settings_app_language_title">لغة التطبيق</string>
@@ -1223,7 +1234,7 @@
     <string name="permissions_notifications_desc">مطلوب لإشعارات التذكيرات ولتثبيت نتائج البحث في لوحة الإشعارات</string>
     <string name="permissions_notification_access_desc">مطلوب لتفعيل نقاط الإشعارات وميزة سجل الإشعارات</string>
     <string name="permissions_accessibility_lock_screen_title">إمكانية الوصول</string>
-    <string name="permissions_accessibility_lock_screen_desc">مطلوب لتمكين إيماءة النقر المزدوج لقفل الشاشة، أو تشغيل Quick Search بإيماءة السحب من الحافة أو الزر العائم.</string>
+    <string name="permissions_accessibility_lock_screen_desc">مطلوب لتمكين إيماءة النقر المزدوج لقفل الشاشة وإيماءات النتوء، أو تشغيل Quick Search بإيماءة السحب من الحافة أو الزر العائم.</string>
     <string name="permissions_contacts_desc">مطلوب للبحث في جهات الاتصال الخاصة بك.</string>
     <string name="permissions_files_desc">مطلوب للبحث في ملفاتك ومستنداتك المختلفة.</string>
     <string name="permissions_files_title">إذن الوصول إلى الملفات</string>

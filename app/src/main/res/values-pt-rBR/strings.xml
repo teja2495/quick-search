@@ -114,7 +114,7 @@
     <string name="action_open_folder">Abrir pasta</string>
     <string name="action_open_keyboard">Abrir teclado</string>
     <string name="action_open_settings">Abrir configurações</string>
-    <string name="settings_gestures_title">Gestos da tela inicial</string>
+    <string name="settings_gestures_title">Gestos</string>
     <string name="settings_gestures_desc">Personalizar ações de deslizar</string>
     <string name="settings_gesture_swipe_right">Deslizar para a direita</string>
     <string name="settings_gesture_widget_panel">Painel de widgets</string>
@@ -124,6 +124,15 @@
     <string name="settings_gesture_swipe_down">Deslizar para baixo</string>
     <string name="settings_gesture_close_quick_search">Fechar o Quick Search</string>
     <string name="settings_gesture_double_tap_home">Toque duplo</string>
+    <string name="settings_gesture_single_tap">Toque único</string>
+    <string name="settings_gesture_open_quick_search">Abrir o Quick Search</string>
+    <string name="settings_gesture_pinned_glance">Itens fixados e Visão rápida</string>
+    <string name="settings_gesture_play_pause_media">Pausar/reproduzir mídia</string>
+    <string name="settings_notch_gestures_title">Gestos do notch</string>
+    <string name="settings_notch_gestures_desc">Toque no notch ou no recorte da câmera em qualquer app</string>
+    <string name="settings_notch_accessibility_needed">É necessária a permissão de Acessibilidade</string>
+    <string name="settings_notch_single_tap_search_title">Toque único no notch</string>
+    <string name="settings_notch_double_tap_search_title">Toque duplo no notch</string>
     <string name="settings_gesture_two_finger_swipe_up_home">Deslizar com dois dedos para cima</string>
     <string name="settings_gesture_two_finger_swipe_down_home">Deslizar com dois dedos para baixo</string>
     <string name="settings_gesture_settings">Configurações</string>
@@ -135,9 +144,9 @@
     <string name="settings_gesture_lock_screen">Bloquear tela</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">Requer permissão de acessibilidade</string>
     <string name="accessibility_lock_screen_service_label">Quick Search</string>
-    <string name="accessibility_lock_screen_service_description">Permite que o Quick Search bloqueie a tela com o gesto de toque duplo na tela inicial e seja aberto deslizando a partir da borda ou por um botão flutuante em qualquer app. Ele não lê o conteúdo da tela.</string>
+    <string name="accessibility_lock_screen_service_description">Permite que o Quick Search bloqueie a tela com o gesto de toque duplo na tela inicial, responda a toques no notch e seja aberto deslizando a partir da borda ou por um botão flutuante em qualquer app. Ele não lê o conteúdo da tela.</string>
     <string name="accessibility_permission_disclaimer_title">Aviso sobre a permissão de acessibilidade</string>
-    <string name="accessibility_lock_screen_disclosure_message">O Quick Search usa a Acessibilidade para:\n\n• Ativar o gesto de toque duplo para bloquear a tela.\n• Abrir o Quick Search com gestos de deslizar pela borda.\n• Abrir o Quick Search com o botão flutuante.\n\nEle não lê, coleta, armazena nem compartilha o conteúdo da tela ou outros dados pessoais.</string>
+    <string name="accessibility_lock_screen_disclosure_message">O Quick Search usa a Acessibilidade para:\n\n• Ativar o gesto de toque duplo para bloquear a tela.\n• Abrir o Quick Search com gestos de deslizar pela borda.\n• Abrir o Quick Search com o botão flutuante.\n• Executar ações ao tocar no notch.\n\nEle não lê, coleta, armazena nem compartilha o conteúdo da tela ou outros dados pessoais.</string>
     <string name="settings_gesture_none">Nenhum</string>
     <string name="settings_gesture_custom">Personalizado (Apps, arquivos etc.)</string>
     <string name="settings_keyboard_gestures_title">Gestos do teclado</string>
@@ -787,6 +796,8 @@
     <string name="settings_edge_gesture_visibility">Visibilidade</string>
     <string name="settings_floating_button_title">Botão flutuante</string>
     <string name="settings_floating_button_desc">Toque em um botão de pesquisa flutuante para abrir o Quick Search em qualquer app</string>
+    <string name="settings_notch_title">Notch</string>
+    <string name="settings_notch_launch_desc">Toque no notch para abrir o Quick Search</string>
     <string name="settings_floating_button_move_hint">Toque e mantenha pressionado o botão e arraste-o para movê-lo para qualquer lugar da tela.</string>
     <string name="settings_floating_button_opacity">Opacidade</string>
     <string name="settings_app_language_title">Idioma do app</string>
@@ -1222,7 +1233,7 @@
     <string name="permissions_notifications_desc">Necessário para notificações de lembretes e para fixar resultados de pesquisa no painel de notificações</string>
     <string name="permissions_notification_access_desc">Necessário para ativar os pontos de notificação e o histórico de notificações</string>
     <string name="permissions_accessibility_lock_screen_title">Acessibilidade</string>
-    <string name="permissions_accessibility_lock_screen_desc">Necessário para o gesto de toque duplo bloquear a tela ou para iniciar o Quick Search com o gesto de deslizar da borda ou o botão flutuante.</string>
+    <string name="permissions_accessibility_lock_screen_desc">Necessário para o gesto de toque duplo bloquear a tela, os gestos do notch ou para iniciar o Quick Search com o gesto de deslizar da borda ou o botão flutuante.</string>
     <string name="permissions_contacts_desc">Necessário para pesquisar seus contatos.</string>
     <string name="permissions_files_desc">Necessário para pesquisar em seus documentos e outros arquivos.</string>
     <string name="permissions_files_title">Acesso aos arquivos</string>

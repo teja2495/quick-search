@@ -114,7 +114,7 @@
     <string name="action_open_folder">打开文件夹</string>
     <string name="action_open_keyboard">打开键盘</string>
     <string name="action_open_settings">打开设置</string>
-    <string name="settings_gestures_title">主屏幕手势</string>
+    <string name="settings_gestures_title">手势</string>
     <string name="settings_gestures_desc">自定义滑动手势</string>
     <string name="settings_gesture_swipe_right">向右滑动</string>
     <string name="settings_gesture_widget_panel">小部件面板</string>
@@ -124,6 +124,15 @@
     <string name="settings_gesture_swipe_down">向下滑动</string>
     <string name="settings_gesture_close_quick_search">关闭 Quick Search</string>
     <string name="settings_gesture_double_tap_home">双击</string>
+    <string name="settings_gesture_single_tap">单击</string>
+    <string name="settings_gesture_open_quick_search">打开 Quick Search</string>
+    <string name="settings_gesture_pinned_glance">已固定项目和一览</string>
+    <string name="settings_gesture_play_pause_media">暂停/播放媒体</string>
+    <string name="settings_notch_gestures_title">刘海手势</string>
+    <string name="settings_notch_gestures_desc">在任何应用中点按刘海或摄像头开孔</string>
+    <string name="settings_notch_accessibility_needed">需要无障碍权限</string>
+    <string name="settings_notch_single_tap_search_title">单击刘海</string>
+    <string name="settings_notch_double_tap_search_title">双击刘海</string>
     <string name="settings_gesture_two_finger_swipe_up_home">双指向上滑动</string>
     <string name="settings_gesture_two_finger_swipe_down_home">双指向下滑动</string>
     <string name="settings_gesture_settings">设置</string>
@@ -135,9 +144,9 @@
     <string name="settings_gesture_lock_screen">锁定屏幕</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">需要无障碍权限</string>
     <string name="accessibility_lock_screen_service_label">Quick Search</string>
-    <string name="accessibility_lock_screen_service_description">允许 Quick Search 通过主屏幕上的双击手势锁定屏幕，并在任何应用中通过边缘滑动或悬浮按钮打开。它不会读取屏幕内容。</string>
+    <string name="accessibility_lock_screen_service_description">允许 Quick Search 通过主屏幕上的双击手势锁定屏幕、响应刘海点按，并在任何应用中通过边缘滑动或悬浮按钮打开。它不会读取屏幕内容。</string>
 <string name="accessibility_permission_disclaimer_title">无障碍权限免责声明</string>
-    <string name="accessibility_lock_screen_disclosure_message">Quick Search 使用无障碍功能来：\n\n• 启用双击锁屏手势。\n• 使用边缘滑动手势打开 Quick Search。\n• 使用悬浮按钮打开 Quick Search。\n\n它不会读取、收集、存储或分享您的屏幕内容或其他个人数据。</string>
+    <string name="accessibility_lock_screen_disclosure_message">Quick Search 使用无障碍功能来：\n\n• 启用双击锁屏手势。\n• 使用边缘滑动手势打开 Quick Search。\n• 使用悬浮按钮打开 Quick Search。\n• 点按刘海时执行操作。\n\n它不会读取、收集、存储或分享您的屏幕内容或其他个人数据。</string>
     <string name="settings_gesture_none">无</string>
     <string name="settings_gesture_custom">自定义 (应用、文件等)</string>
     <string name="settings_keyboard_gestures_title">键盘手势</string>
@@ -777,6 +786,8 @@
     <string name="settings_edge_gesture_visibility">可见度</string>
     <string name="settings_floating_button_title">悬浮按钮</string>
     <string name="settings_floating_button_desc">点按悬浮搜索按钮，即可从任意应用打开 Quick Search</string>
+    <string name="settings_notch_title">刘海</string>
+    <string name="settings_notch_launch_desc">点按刘海打开 Quick Search</string>
     <string name="settings_floating_button_move_hint">长按按钮并拖动，即可将其移动到屏幕上的任意位置。</string>
     <string name="settings_floating_button_opacity">不透明度</string>
     <string name="settings_app_language_title">应用语言</string>
@@ -1210,7 +1221,7 @@
     <string name="permissions_notifications_desc">用于提醒通知以及将搜索结果固定到通知面板</string>
     <string name="permissions_notification_access_desc">启用通知圆点和通知历史记录功能所需</string>
     <string name="permissions_accessibility_lock_screen_title">无障碍</string>
-    <string name="permissions_accessibility_lock_screen_desc">用于通过双击手势锁定屏幕，或通过边缘滑动手势或悬浮按钮启动 Quick Search。</string>
+    <string name="permissions_accessibility_lock_screen_desc">用于通过双击手势锁定屏幕、使用刘海手势，或通过边缘滑动手势或悬浮按钮启动 Quick Search。</string>
     <string name="permissions_contacts_desc">允许检索、匹配并展示您设备通讯录中的联系人信息。</string>
     <string name="permissions_files_desc">用于在您的个人文档、下载内容和其他本地文件中开展精确检索。</string>
     <string name="permissions_files_title">文件读写权限</string>

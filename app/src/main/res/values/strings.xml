@@ -107,7 +107,7 @@
     <string name="action_open_folder">Open Folder</string>
     <string name="action_open_keyboard">Open Keyboard</string>
     <string name="action_open_settings">Open settings</string>
-    <string name="settings_gestures_title">Home Gestures</string>
+    <string name="settings_gestures_title">Gestures</string>
     <string name="settings_gestures_desc">Customize swipe actions</string>
     <string name="settings_gesture_swipe_right">Swipe Right</string>
     <string name="settings_gesture_widget_panel">Widget Panel</string>
@@ -117,6 +117,15 @@
     <string name="settings_gesture_swipe_down">Swipe Down</string>
     <string name="settings_gesture_close_quick_search">Close Quick Search</string>
     <string name="settings_gesture_double_tap_home">Double Tap</string>
+    <string name="settings_gesture_single_tap">Single Tap</string>
+    <string name="settings_gesture_open_quick_search">Open Quick Search</string>
+    <string name="settings_gesture_pinned_glance">Pinned &amp; At a Glance Items</string>
+    <string name="settings_gesture_play_pause_media">Pause/Play Media</string>
+    <string name="settings_notch_gestures_title">Notch Gestures</string>
+    <string name="settings_notch_gestures_desc">Tap the notch or camera cutout from any app</string>
+    <string name="settings_notch_accessibility_needed">Accessibility permission is needed</string>
+    <string name="settings_notch_single_tap_search_title">Notch Single Tap</string>
+    <string name="settings_notch_double_tap_search_title">Notch Double Tap</string>
     <string name="settings_gesture_two_finger_swipe_up_home">Two-Finger Swipe Up</string>
     <string name="settings_gesture_two_finger_swipe_down_home">Two-Finger Swipe Down</string>
     <string name="settings_gesture_settings">Settings</string>
@@ -128,9 +137,9 @@
     <string name="settings_gesture_lock_screen">Lock Screen</string>
     <string name="settings_gesture_lock_screen_requires_accessibility">Requires Accessibility Permission</string>
     <string name="accessibility_lock_screen_service_label">Quick Search</string>
-    <string name="accessibility_lock_screen_service_description">Allows Quick Search to lock the screen from the Home double-tap gesture and to open from an edge swipe or a floating button in any app. It does not read screen content.</string>
+    <string name="accessibility_lock_screen_service_description">Allows Quick Search to lock the screen from the Home double-tap gesture, respond to notch taps, and open from an edge swipe or a floating button in any app. It does not read screen content.</string>
     <string name="accessibility_permission_disclaimer_title">Accessibility Permission Disclaimer</string>
-    <string name="accessibility_lock_screen_disclosure_message">Quick Search uses Accessibility to:\n\n• Enable double-tap to lock screen gesture.\n• Open Quick Search using edge swipe gestures.\n• Open Quick Search using floating button.\n\nIt does not read, collect, store, or share your screen content or other personal data.</string>
+    <string name="accessibility_lock_screen_disclosure_message">Quick Search uses Accessibility to:\n\n• Enable double-tap to lock screen gesture.\n• Open Quick Search using edge swipe gestures.\n• Open Quick Search using floating button.\n• Run actions when you tap the notch.\n\nIt does not read, collect, store, or share your screen content or other personal data.</string>
     <string name="settings_gesture_none">None</string>
     <string name="settings_gesture_custom">Custom (Apps, Files etc.)</string>
     <string name="settings_keyboard_gestures_title">Keyboard Gestures</string>
@@ -787,6 +796,8 @@
     <string name="settings_edge_gesture_visibility">Visibility</string>
     <string name="settings_floating_button_title">Floating Button</string>
     <string name="settings_floating_button_desc">Tap a floating search button to open Quick Search from any app</string>
+    <string name="settings_notch_title">Notch</string>
+    <string name="settings_notch_launch_desc">Tap the notch to open Quick Search</string>
     <string name="settings_floating_button_move_hint">Long press the button and drag it to move it anywhere on the screen.</string>
     <string name="settings_floating_button_opacity">Opacity</string>
     <string name="settings_app_language_title">App Language</string>
@@ -1232,7 +1243,7 @@
     <string name="permissions_notifications_desc">Needed for reminder notifications and to pin search results to notification panel</string>
     <string name="permissions_notification_access_desc">Needed to enable notification dots and notification history features</string>
     <string name="permissions_accessibility_lock_screen_title">Accessibility</string>
-    <string name="permissions_accessibility_lock_screen_desc">Needed for double-tap to lock screen gesture, launch Quick Search with edge swipe gesture or floating button</string>
+    <string name="permissions_accessibility_lock_screen_desc">Needed for double-tap to lock screen gesture, notch gestures, launch Quick Search with edge swipe gesture or floating button</string>
     <string name="permissions_contacts_desc">Needed to search your contacts.</string>
     <string name="permissions_files_desc">Needed to search through your documents and other files.</string>
     <string name="permissions_files_title">Files Access</string>

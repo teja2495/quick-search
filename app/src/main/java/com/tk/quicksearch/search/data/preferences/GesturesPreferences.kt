@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.data.preferences
 
 import android.content.Context
+import android.content.SharedPreferences
 
 enum class SwipeGestureAction {
     CLOSE_QUICK_SEARCH,
@@ -24,6 +25,10 @@ enum class HomeSwipeGestureAction {
     CUSTOM,
     SEARCH_ENGINE,
     TOOL,
+    OPEN_QUICK_SEARCH,
+    PINNED_GLANCE,
+    WIDGETS_PANEL,
+    PLAY_PAUSE_MEDIA,
     NONE,
 }
 
@@ -160,6 +165,36 @@ class GesturesPreferences(
     fun getHomeTwoFingerSwipeDownAliasTarget(): String? = prefs.getString(KEY_HOME_TWO_FINGER_SWIPE_DOWN_ALIAS_TARGET, null)
     fun setHomeTwoFingerSwipeDownAliasTarget(targetId: String?) = setCustomAction(KEY_HOME_TWO_FINGER_SWIPE_DOWN_ALIAS_TARGET, targetId)
 
+    fun getNotchSingleTapAction(): HomeSwipeGestureAction =
+        getHomeGestureAction(KEY_NOTCH_SINGLE_TAP_ACTION, HomeSwipeGestureAction.NONE)
+
+    fun setNotchSingleTapAction(action: HomeSwipeGestureAction) =
+        setHomeGestureAction(KEY_NOTCH_SINGLE_TAP_ACTION, action)
+
+    fun getNotchSingleTapCustomAction(): String? = prefs.getString(KEY_NOTCH_SINGLE_TAP_CUSTOM_ACTION, null)
+
+    fun setNotchSingleTapCustomAction(actionJson: String?) = setCustomAction(KEY_NOTCH_SINGLE_TAP_CUSTOM_ACTION, actionJson)
+    fun getNotchSingleTapAliasTarget(): String? = prefs.getString(KEY_NOTCH_SINGLE_TAP_ALIAS_TARGET, null)
+    fun setNotchSingleTapAliasTarget(targetId: String?) = setCustomAction(KEY_NOTCH_SINGLE_TAP_ALIAS_TARGET, targetId)
+
+    fun getNotchDoubleTapAction(): HomeSwipeGestureAction =
+        getHomeGestureAction(KEY_NOTCH_DOUBLE_TAP_ACTION, HomeSwipeGestureAction.NONE)
+
+    fun setNotchDoubleTapAction(action: HomeSwipeGestureAction) =
+        setHomeGestureAction(KEY_NOTCH_DOUBLE_TAP_ACTION, action)
+
+    fun getNotchDoubleTapCustomAction(): String? = prefs.getString(KEY_NOTCH_DOUBLE_TAP_CUSTOM_ACTION, null)
+
+    fun setNotchDoubleTapCustomAction(actionJson: String?) = setCustomAction(KEY_NOTCH_DOUBLE_TAP_CUSTOM_ACTION, actionJson)
+    fun getNotchDoubleTapAliasTarget(): String? = prefs.getString(KEY_NOTCH_DOUBLE_TAP_ALIAS_TARGET, null)
+    fun setNotchDoubleTapAliasTarget(targetId: String?) = setCustomAction(KEY_NOTCH_DOUBLE_TAP_ALIAS_TARGET, targetId)
+
+    fun registerListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) =
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+
+    fun unregisterListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) =
+        prefs.unregisterOnSharedPreferenceChangeListener(listener)
+
     private fun getGestureAction(key: String, default: SwipeGestureAction): SwipeGestureAction {
         val stored = prefs.getString(key, default.name) ?: return default
         if (stored == LEGACY_QUICK_NOTE_ACTION) return SwipeGestureAction.WIDGETS_PANEL
@@ -201,7 +236,16 @@ class GesturesPreferences(
         }
     }
 
-    private companion object {
-        const val LEGACY_QUICK_NOTE_ACTION = "QUICK_NOTE"
+    companion object {
+        private const val LEGACY_QUICK_NOTE_ACTION = "QUICK_NOTE"
+        private const val NOTCH_KEY_PREFIX = "notch_gesture_"
+        private const val KEY_NOTCH_SINGLE_TAP_ACTION = "${NOTCH_KEY_PREFIX}single_tap_action"
+        private const val KEY_NOTCH_SINGLE_TAP_CUSTOM_ACTION = "${NOTCH_KEY_PREFIX}single_tap_custom_action"
+        private const val KEY_NOTCH_SINGLE_TAP_ALIAS_TARGET = "${NOTCH_KEY_PREFIX}single_tap_alias_target"
+        private const val KEY_NOTCH_DOUBLE_TAP_ACTION = "${NOTCH_KEY_PREFIX}double_tap_action"
+        private const val KEY_NOTCH_DOUBLE_TAP_CUSTOM_ACTION = "${NOTCH_KEY_PREFIX}double_tap_custom_action"
+        private const val KEY_NOTCH_DOUBLE_TAP_ALIAS_TARGET = "${NOTCH_KEY_PREFIX}double_tap_alias_target"
+
+        fun isNotchGestureKey(key: String?): Boolean = key?.startsWith(NOTCH_KEY_PREFIX) == true
     }
 }

@@ -197,6 +197,12 @@ internal fun HomeSwipeGestureAction.performHomeGesture(
         }
         HomeSwipeGestureAction.SEARCH_ENGINE,
         HomeSwipeGestureAction.TOOL -> aliasTarget?.let { onAliasTarget(this, it) }
-        HomeSwipeGestureAction.NONE -> Unit
+        // Notch-only actions; the notch overlay runs these itself.
+        HomeSwipeGestureAction.OPEN_QUICK_SEARCH,
+        HomeSwipeGestureAction.PINNED_GLANCE,
+        HomeSwipeGestureAction.WIDGETS_PANEL,
+        HomeSwipeGestureAction.PLAY_PAUSE_MEDIA,
+        HomeSwipeGestureAction.NONE,
+        -> Unit
     }
 }

@@ -39,7 +39,9 @@ internal fun AppSettingsDestination.toSettingsDetailTypeOrNull(): SettingsDetail
         AppSettingsDestination.GESTURE_TWO_FINGER_SWIPE_UP,
         AppSettingsDestination.GESTURE_TWO_FINGER_SWIPE_DOWN,
         AppSettingsDestination.GESTURE_OPEN_KEYBOARD,
-        AppSettingsDestination.GESTURE_CLOSE_KEYBOARD -> SettingsDetailType.GESTURES
+        AppSettingsDestination.GESTURE_CLOSE_KEYBOARD,
+        AppSettingsDestination.GESTURE_NOTCH_SINGLE_TAP,
+        AppSettingsDestination.GESTURE_NOTCH_DOUBLE_TAP -> SettingsDetailType.GESTURES
         AppSettingsDestination.FEATURES_LIST -> SettingsDetailType.FEATURES_LIST
         AppSettingsDestination.OPEN_SOURCE_LICENSES -> SettingsDetailType.OPEN_SOURCE_LICENSES
         AppSettingsDestination.UNIT_CONVERTER_INFO -> SettingsDetailType.UNIT_CONVERTER_INFO
