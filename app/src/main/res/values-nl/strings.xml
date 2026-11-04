@@ -1441,8 +1441,8 @@ Gebruik {time} om de huidige datum en tijd in de prompt op te nemen.</string>
     <string name="speed_bump_overlay_prompt">%1$s wordt zo geopend…</string>
     <string name="speed_bump_overlay_title">Haal even adem</string>
     <string name="speed_bump_title">SpeedBump</string>
-    <string name="speed_bump_outside_quick_search_title">SpeedBump buiten Quick Search</string>
-    <string name="speed_bump_outside_quick_search_desc">Apps met SpeedBump ook pauzeren wanneer ze worden geopend vanuit andere launchers, recente apps of meldingen</string>
+    <string name="speed_bump_outside_quick_search_title">SpeedBump uitbreiden</string>
+    <string name="speed_bump_outside_quick_search_desc">SpeedBump toepassen wanneer apps buiten Quick Search worden geopend</string>
     <string name="home_upcoming_alarm">Aankomende wekker</string>
     <string name="home_upcoming_alarm_hide_app">Wekkers van %1$s verbergen</string>
     <string name="home_low_battery_saver_off">Tik om Batterijbesparing aan te zetten</string>

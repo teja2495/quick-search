@@ -1385,8 +1385,8 @@
     <string name="speed_bump_overlay_prompt">%1$s si aprirà a breve…</string>
     <string name="speed_bump_overlay_title">Fai un respiro profondo</string>
     <string name="speed_bump_title">SpeedBump</string>
-    <string name="speed_bump_outside_quick_search_title">SpeedBump fuori da Quick Search</string>
-    <string name="speed_bump_outside_quick_search_desc">Metti in pausa le app con SpeedBump anche quando vengono aperte da altri launcher, dalle app recenti o dalle notifiche</string>
+    <string name="speed_bump_outside_quick_search_title">Estendi SpeedBump</string>
+    <string name="speed_bump_outside_quick_search_desc">Applica SpeedBump quando le app vengono aperte fuori da Quick Search</string>
     <string name="home_upcoming_alarm">Prossima sveglia</string>
     <string name="home_upcoming_alarm_hide_app">Nascondi sveglie di %1$s</string>
     <string name="home_low_battery_saver_off">Tocca per attivare il Risparmio energetico</string>

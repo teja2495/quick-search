@@ -1386,8 +1386,8 @@
     <string name="speed_bump_overlay_prompt">%1$s త్వరలో తెరుచుకుంటుంది…</string>
     <string name="speed_bump_overlay_title">ఒక దీర్ఘ శ్వాస తీసుకోండి</string>
     <string name="speed_bump_title">SpeedBump</string>
-    <string name="speed_bump_outside_quick_search_title">Quick Search బయట SpeedBump</string>
-    <string name="speed_bump_outside_quick_search_desc">SpeedBump ఉన్న యాప్‌లను ఇతర లాంచర్‌లు, ఇటీవలి యాప్‌లు లేదా నోటిఫికేషన్‌ల నుండి తెరిచినప్పుడు కూడా ఆపండి</string>
+    <string name="speed_bump_outside_quick_search_title">SpeedBumpను విస్తరించండి</string>
+    <string name="speed_bump_outside_quick_search_desc">Quick Search బయట యాప్‌లను తెరిచినప్పుడు SpeedBumpను వర్తింపజేయండి</string>
     <string name="home_upcoming_alarm">రాబోయే అలారం</string>
     <string name="home_upcoming_alarm_hide_app">%1$s నుండి అలారాలను దాచు</string>
     <string name="home_low_battery_saver_off">బ్యాటరీ సేవర్ ఆన్ చేయడానికి నొక్కండి</string>

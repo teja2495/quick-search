@@ -1388,8 +1388,8 @@
     <string name="speed_bump_overlay_prompt">سيُفتح %1$s قريبًا…</string>
     <string name="speed_bump_overlay_title">خذ نفسًا عميقًا</string>
     <string name="speed_bump_title">SpeedBump</string>
-    <string name="speed_bump_outside_quick_search_title">SpeedBump خارج Quick Search</string>
-    <string name="speed_bump_outside_quick_search_desc">إيقاف التطبيقات التي فعّلت لها SpeedBump مؤقتًا أيضًا عند فتحها من مشغّلات أخرى أو من التطبيقات الأخيرة أو من الإشعارات</string>
+    <string name="speed_bump_outside_quick_search_title">توسيع SpeedBump</string>
+    <string name="speed_bump_outside_quick_search_desc">تطبيق SpeedBump عند فتح التطبيقات خارج Quick Search</string>
     <string name="home_upcoming_alarm">المنبه القادم</string>
     <string name="home_upcoming_alarm_hide_app">إخفاء المنبهات من %1$s</string>
     <string name="home_low_battery_saver_off">انقر لتفعيل موفّر البطارية</string>

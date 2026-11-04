@@ -1386,8 +1386,8 @@
     <string name="speed_bump_overlay_prompt">%1$s जल्द ही खुलेगा…</string>
     <string name="speed_bump_overlay_title">एक गहरी सांस लें</string>
     <string name="speed_bump_title">SpeedBump</string>
-    <string name="speed_bump_outside_quick_search_title">Quick Search के बाहर SpeedBump</string>
-    <string name="speed_bump_outside_quick_search_desc">SpeedBump वाले ऐप्स को दूसरे लॉन्चर, हाल के ऐप्स या सूचनाओं से खोले जाने पर भी रोकें</string>
+    <string name="speed_bump_outside_quick_search_title">SpeedBump का विस्तार करें</string>
+    <string name="speed_bump_outside_quick_search_desc">Quick Search के बाहर ऐप्स खोले जाने पर SpeedBump लागू करें</string>
     <string name="home_upcoming_alarm">आगामी अलार्म</string>
     <string name="home_upcoming_alarm_hide_app">%1$s के अलार्म छिपाएं</string>
     <string name="home_low_battery_saver_off">बैटरी सेवर चालू करने के लिए टैप करें</string>

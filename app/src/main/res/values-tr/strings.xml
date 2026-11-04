@@ -1385,8 +1385,8 @@
     <string name="speed_bump_overlay_prompt">%1$s birazdan açılacak…</string>
     <string name="speed_bump_overlay_title">Derin bir nefes al</string>
     <string name="speed_bump_title">SpeedBump</string>
-    <string name="speed_bump_outside_quick_search_title">Quick Search Dışında SpeedBump</string>
-    <string name="speed_bump_outside_quick_search_desc">SpeedBump uygulamalarını diğer başlatıcılardan, son uygulamalardan veya bildirimlerden açıldığında da duraklat</string>
+    <string name="speed_bump_outside_quick_search_title">SpeedBump\'ı Genişlet</string>
+    <string name="speed_bump_outside_quick_search_desc">Uygulamalar Quick Search dışında açıldığında SpeedBump\'ı uygula</string>
     <string name="home_upcoming_alarm">Yaklaşan alarm</string>
     <string name="home_upcoming_alarm_hide_app">%1$s alarmlarını gizle</string>
     <string name="home_low_battery_saver_off">Pil Tasarrufu\'nu açmak için dokunun</string>

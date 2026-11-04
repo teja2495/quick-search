@@ -1382,8 +1382,8 @@
     <string name="speed_bump_overlay_prompt">Membuka %1$s sebentar lagi…</string>
     <string name="speed_bump_overlay_title">Tarik napas dalam-dalam</string>
     <string name="speed_bump_title">SpeedBump</string>
-    <string name="speed_bump_outside_quick_search_title">SpeedBump di Luar Quick Search</string>
-    <string name="speed_bump_outside_quick_search_desc">Jeda juga aplikasi dengan SpeedBump saat dibuka dari peluncur lain, aplikasi terbaru, atau notifikasi</string>
+    <string name="speed_bump_outside_quick_search_title">Perluas SpeedBump</string>
+    <string name="speed_bump_outside_quick_search_desc">Terapkan SpeedBump saat aplikasi dibuka di luar Quick Search</string>
     <string name="home_upcoming_alarm">Alarm mendatang</string>
     <string name="home_upcoming_alarm_hide_app">Sembunyikan alarm dari %1$s</string>
     <string name="home_low_battery_saver_off">Ketuk untuk mengaktifkan Penghemat Baterai</string>
