@@ -1399,6 +1399,9 @@
     <string name="home_otp_from">来自%1$s</string>
     <string name="home_copied">已复制</string>
     <string name="home_reminder_marked_done">提醒已标记为完成</string>
+    <string name="home_reminder_set">提醒已设为%1$s</string>
+    <string name="home_reminder_set_today">今天</string>
+    <string name="home_reminder_set_tomorrow">明天</string>
     <string name="home_reminder_snoozed">提醒已推迟 30 分钟</string>
     <string name="home_reminder_deleted">提醒已删除</string>
     <string name="home_missed_calls_count">未接来电（%1$s）</string>

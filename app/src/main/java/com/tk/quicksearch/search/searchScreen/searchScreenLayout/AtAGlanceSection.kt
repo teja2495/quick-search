@@ -141,8 +141,10 @@ internal fun rememberAtAGlanceItems(
                     UpcomingReminderRow(
                         reminder = reminder,
                         nowMillis = reminders.nowMillis,
+                        isPendingDone = reminder.reminderId in reminders.pendingDoneIds,
                         onClick = { ReminderEditorRequests.openEdit(reminder) },
                         onDone = { reminders.markDone(reminder) },
+                        onUndoDone = { reminders.undoDone(reminder) },
                         onSnooze = { reminders.snooze(reminder) },
                         onDismiss = { reminders.dismiss(reminder) },
                         onDelete = { reminders.delete(reminder) },

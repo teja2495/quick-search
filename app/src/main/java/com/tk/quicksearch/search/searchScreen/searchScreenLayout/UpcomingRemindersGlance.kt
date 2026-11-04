@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -17,8 +19,12 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -37,8 +43,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathMeasure
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.Lifecycle
@@ -58,6 +78,7 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import java.util.Date
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -65,17 +86,22 @@ import kotlinx.coroutines.withContext
 private val UpcomingReminderDismissSize = 28.dp
 private const val DAY_MILLIS = 24L * 60L * 60L * 1000L
 private const val REMINDER_NOW_WINDOW_MILLIS = 60L * 1000L
+private const val DONE_UNDO_WINDOW_MILLIS = 4_000L
 
 /**
  * Reminders due within 30 minutes or already overdue, shown in the home At a Glance card. A
  * reminder that isn't due yet can be dismissed until its due time. Once due, it stays until it is
  * marked done, snoozed (hidden here and from notifications for 30 minutes, due time unchanged) or
- * deleted; those actions offer Undo, which restores the reminder as it was.
+ * deleted; those actions offer Undo, which restores the reminder as it was. Marking done keeps the
+ * row in place for a few seconds with its own Undo button; snooze and delete use the snackbar.
  */
 internal class UpcomingRemindersGlance(
     val reminders: List<ReminderInfo>,
+    /** Reminders in [reminders] just marked done, still shown so their row can offer Undo. */
+    val pendingDoneIds: Set<Long>,
     val nowMillis: Long,
     val markDone: (ReminderInfo) -> Unit,
+    val undoDone: (ReminderInfo) -> Unit,
     val snooze: (ReminderInfo) -> Unit,
     val dismiss: (ReminderInfo) -> Unit,
     val delete: (ReminderInfo) -> Unit,
@@ -115,8 +141,21 @@ internal fun rememberUpcomingRemindersGlance(enabled: Boolean): UpcomingReminder
         }
     }
 
+    // Reminders just marked done, with the index they had, so their row stays put while it offers Undo.
+    var pendingDone by remember { mutableStateOf(emptyMap<Long, Pair<Int, ReminderInfo>>()) }
+    val pendingDoneJobs = remember { mutableMapOf<Long, Job>() }
+    val displayedReminders =
+        if (pendingDone.isEmpty()) {
+            reminders
+        } else {
+            val live = reminders.filterNot { it.reminderId in pendingDone }.toMutableList()
+            pendingDone.values.sortedBy { it.first }.forEach { (index, reminder) ->
+                live.add(index.coerceIn(0, live.size), reminder)
+            }
+            live
+        }
+
     val showUndoSnackbar = LocalShowUndoSnackbar.current
-    val doneMessage = stringResource(R.string.home_reminder_marked_done)
     val snoozedMessage = stringResource(R.string.home_reminder_snoozed)
     val deletedMessage = stringResource(R.string.home_reminder_deleted)
 
@@ -141,13 +180,28 @@ internal fun rememberUpcomingRemindersGlance(enabled: Boolean): UpcomingReminder
         }
     }
     return UpcomingRemindersGlance(
-        reminders = reminders,
+        reminders = displayedReminders,
+        pendingDoneIds = pendingDone.keys,
         nowMillis = nowMillis,
         markDone = { reminder ->
-            act(
-                reminder, doneMessage, MaterialSymbols.Check,
-                readBefore = {}, action = { setDone(reminder.reminderId, true) }, undo = { restore(reminder) },
-            )
+            val index = displayedReminders.indexOfFirst { it.reminderId == reminder.reminderId }.coerceAtLeast(0)
+            pendingDone = pendingDone + (reminder.reminderId to (index to reminder))
+            pendingDoneJobs.remove(reminder.reminderId)?.cancel()
+            pendingDoneJobs[reminder.reminderId] =
+                scope.launch {
+                    withContext(Dispatchers.IO) { repository.setDone(reminder.reminderId, true) }
+                    delay(DONE_UNDO_WINDOW_MILLIS)
+                    pendingDone = pendingDone - reminder.reminderId
+                    pendingDoneJobs.remove(reminder.reminderId)
+                }
+        },
+        undoDone = { reminder ->
+            pendingDoneJobs.remove(reminder.reminderId)?.cancel()
+            scope.launch {
+                withContext(Dispatchers.IO) { repository.restore(reminder) }
+                // Drop the placeholder only after the restore, so the row doesn't flicker out and back.
+                pendingDone = pendingDone - reminder.reminderId
+            }
         },
         snooze = { reminder ->
             act(
@@ -179,8 +233,10 @@ internal fun rememberUpcomingRemindersGlance(enabled: Boolean): UpcomingReminder
 internal fun UpcomingReminderRow(
     reminder: ReminderInfo,
     nowMillis: Long,
+    isPendingDone: Boolean,
     onClick: () -> Unit,
     onDone: () -> Unit,
+    onUndoDone: () -> Unit,
     onSnooze: () -> Unit,
     onDismiss: () -> Unit,
     onDelete: () -> Unit,
@@ -232,6 +288,7 @@ internal fun UpcomingReminderRow(
     ) {
         Row(
             modifier = Modifier.weight(1f).combinedClickable(
+                enabled = !isPendingDone,
                 onClick = onClick,
                 onLongClick = { showMenu = true },
             ),
@@ -248,12 +305,19 @@ internal fun UpcomingReminderRow(
                 Text(
                     text = reminder.title,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color =
+                        if (isPendingDone) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+                    textDecoration = if (isPendingDone) TextDecoration.LineThrough else null,
                     maxLines = GlanceTextMaxLines,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    text = scheduleLabel,
+                    text =
+                        if (isPendingDone) {
+                            buildAnnotatedString { append(stringResource(R.string.home_reminder_marked_done)) }
+                        } else {
+                            scheduleLabel
+                        },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = GlanceTextMaxLines,
@@ -307,16 +371,74 @@ internal fun UpcomingReminderRow(
                 )
             }
         }
-        IconButton(
-            onClick = onDone,
-            modifier = Modifier.size(UpcomingReminderDismissSize),
-        ) {
-            Icon(
-                imageVector = MaterialSymbols.Check,
-                contentDescription = stringResource(R.string.action_mark_as_done),
-                tint = AppColors.Accent,
-                modifier = Modifier.size(20.dp),
-            )
+        if (isPendingDone) {
+            // Counts down the undo window; the row is removed when the ring runs out.
+            val remaining = remember { Animatable(1f) }
+            LaunchedEffect(Unit) {
+                remaining.animateTo(
+                    targetValue = 0f,
+                    animationSpec = tween(DONE_UNDO_WINDOW_MILLIS.toInt(), easing = LinearEasing),
+                )
+            }
+            val trackColor = MaterialTheme.colorScheme.outlineVariant
+            val progressColor = AppColors.Accent
+            // Drop the 48dp touch-target padding so the ring hugs the compact pill.
+            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+                TextButton(
+                    onClick = onUndoDone,
+                    contentPadding = PaddingValues(horizontal = DesignTokens.SpacingMedium),
+                    modifier =
+                        Modifier
+                            // Overrides TextButton's 40dp default minimum height so the pill stays compact.
+                            .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+                            .height(UndoPillHeight)
+                            .drawWithContent {
+                                drawContent()
+                                drawUndoCountdownRing(remaining.value, trackColor, progressColor)
+                            },
+                ) {
+                    Text(
+                        text = stringResource(R.string.action_undo),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = AppColors.Accent,
+                    )
+                }
+            }
+        } else {
+            IconButton(
+                onClick = onDone,
+                modifier = Modifier.size(UpcomingReminderDismissSize),
+            ) {
+                Icon(
+                    imageVector = MaterialSymbols.Check,
+                    contentDescription = stringResource(R.string.action_mark_as_done),
+                    tint = AppColors.Accent,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
         }
     }
+}
+
+private val UndoCountdownStroke = 2.dp
+private val UndoPillHeight = 24.dp
+
+/** A pill outline around the Undo button: a faint track, and an accent arc for the [remaining] fraction. */
+private fun DrawScope.drawUndoCountdownRing(remaining: Float, trackColor: Color, progressColor: Color) {
+    val strokePx = UndoCountdownStroke.toPx()
+    val inset = strokePx / 2f
+    val width = size.width - strokePx
+    val height = size.height - strokePx
+    val radius = height / 2f
+    val outline =
+        Path().apply {
+            addRoundRect(RoundRect(inset, inset, inset + width, inset + height, CornerRadius(radius, radius)))
+        }
+    val stroke = Stroke(width = strokePx, cap = StrokeCap.Round)
+    drawPath(outline, color = trackColor, style = stroke)
+    if (remaining <= 0f) return
+    val measure = PathMeasure().apply { setPath(outline, forceClosed = true) }
+    val arc = Path()
+    measure.getSegment(0f, measure.length * remaining, arc, startWithMoveTo = true)
+    drawPath(arc, color = progressColor, style = stroke)
 }

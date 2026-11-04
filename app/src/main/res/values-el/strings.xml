@@ -1411,6 +1411,9 @@
     <string name="home_otp_from">Από %1$s</string>
     <string name="home_copied">Αντιγράφηκε</string>
     <string name="home_reminder_marked_done">Η υπενθύμιση σημειώθηκε ως ολοκληρωμένη</string>
+    <string name="home_reminder_set">Η υπενθύμιση ορίστηκε για %1$s</string>
+    <string name="home_reminder_set_today">σήμερα</string>
+    <string name="home_reminder_set_tomorrow">αύριο</string>
     <string name="home_reminder_snoozed">Η υπενθύμιση αναβλήθηκε για 30 λεπτά</string>
     <string name="home_reminder_deleted">Η υπενθύμιση διαγράφηκε</string>
     <string name="home_missed_calls_count">Αναπάντητες κλήσεις (%1$s)</string>

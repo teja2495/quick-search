@@ -1411,6 +1411,9 @@
     <string name="home_otp_from">De %1$s</string>
     <string name="home_copied">Copiado</string>
     <string name="home_reminder_marked_done">Lembrete marcado como concluído</string>
+    <string name="home_reminder_set">Lembrete definido para %1$s</string>
+    <string name="home_reminder_set_today">hoje</string>
+    <string name="home_reminder_set_tomorrow">amanhã</string>
     <string name="home_reminder_snoozed">Lembrete adiado por 30 minutos</string>
     <string name="home_reminder_deleted">Lembrete excluído</string>
     <string name="home_missed_calls_count">Chamadas perdidas (%1$s)</string>

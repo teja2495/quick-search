@@ -1435,6 +1435,9 @@
     <string name="home_otp_from">От %1$s</string>
     <string name="home_copied">Скопировано</string>
     <string name="home_reminder_marked_done">Напоминание отмечено как выполненное</string>
+    <string name="home_reminder_set">Напоминание установлено на %1$s</string>
+    <string name="home_reminder_set_today">сегодня</string>
+    <string name="home_reminder_set_tomorrow">завтра</string>
     <string name="home_reminder_snoozed">Напоминание отложено на 30 минут</string>
     <string name="home_reminder_deleted">Напоминание удалено</string>
     <string name="home_missed_calls_count">Пропущенные вызовы (%1$s)</string>

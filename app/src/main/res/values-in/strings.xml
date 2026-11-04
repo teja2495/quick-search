@@ -1407,6 +1407,9 @@
     <string name="home_otp_from">Dari %1$s</string>
     <string name="home_copied">Disalin</string>
     <string name="home_reminder_marked_done">Pengingat ditandai selesai</string>
+    <string name="home_reminder_set">Pengingat disetel untuk %1$s</string>
+    <string name="home_reminder_set_today">hari ini</string>
+    <string name="home_reminder_set_tomorrow">besok</string>
     <string name="home_reminder_snoozed">Pengingat ditunda 30 menit</string>
     <string name="home_reminder_deleted">Pengingat dihapus</string>
     <string name="home_missed_calls_count">Panggilan tak terjawab (%1$s)</string>

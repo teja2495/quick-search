@@ -28,8 +28,6 @@ private const val MAX_BACKGROUND_BITMAP_DIMENSION = 2400
 private const val MAX_BACKGROUND_BITMAP_PIXELS = 4_000_000
 private const val STARTUP_PREVIEW_MAX_DIMENSION = 720
 private const val STARTUP_PREVIEW_QUALITY = 82
-// TODO: mock for previewing the live wallpaper label; remove before release.
-private const val MOCK_LIVE_WALLPAPER = true
 
 /**
  * Utility functions for working with wallpapers.
@@ -206,7 +204,6 @@ object WallpaperUtils {
      * wallpaper, and that one still reads fine.
      */
     fun isLiveWallpaperActive(context: Context): Boolean {
-        if (MOCK_LIVE_WALLPAPER) return true
         return runCatching {
             val wallpaperManager = WallpaperManager.getInstance(context)
             if (wallpaperManager.wallpaperInfo == null) return@runCatching false

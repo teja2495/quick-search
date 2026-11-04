@@ -1411,6 +1411,9 @@
     <string name="home_otp_from">%1$s से</string>
     <string name="home_copied">कॉपी किया गया</string>
     <string name="home_reminder_marked_done">रिमाइंडर पूरा हुआ के रूप में चिह्नित</string>
+    <string name="home_reminder_set">रिमाइंडर %1$s के लिए सेट किया गया</string>
+    <string name="home_reminder_set_today">आज</string>
+    <string name="home_reminder_set_tomorrow">कल</string>
     <string name="home_reminder_snoozed">रिमाइंडर 30 मिनट के लिए स्नूज़ किया गया</string>
     <string name="home_reminder_deleted">रिमाइंडर हटाया गया</string>
     <string name="home_missed_calls_count">मिस्ड कॉल (%1$s)</string>

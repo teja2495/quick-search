@@ -1410,6 +1410,9 @@
     <string name="home_otp_from">Gönderen: %1$s</string>
     <string name="home_copied">Kopyalandı</string>
     <string name="home_reminder_marked_done">Anımsatıcı tamamlandı olarak işaretlendi</string>
+    <string name="home_reminder_set">Anımsatıcı ayarlandı: %1$s</string>
+    <string name="home_reminder_set_today">bugün</string>
+    <string name="home_reminder_set_tomorrow">yarın</string>
     <string name="home_reminder_snoozed">Anımsatıcı 30 dakika ertelendi</string>
     <string name="home_reminder_deleted">Anımsatıcı silindi</string>
     <string name="home_missed_calls_count">Cevapsız aramalar (%1$s)</string>

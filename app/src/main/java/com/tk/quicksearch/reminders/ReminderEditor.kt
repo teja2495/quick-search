@@ -1,7 +1,10 @@
 package com.tk.quicksearch.reminders
 
 import android.Manifest
+import android.content.Context
 import android.os.Build
+import android.text.format.DateFormat
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.Icon
@@ -27,6 +30,8 @@ import com.tk.quicksearch.settings.settingsDetailScreen.FormDateTimeSuggestion
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import java.time.Instant
+import java.time.LocalDate
+import java.util.Date
 import java.time.ZoneId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -97,7 +102,8 @@ fun ReminderEditorHost() {
                 onSave = { title, dateTimeMillis, allDay ->
                     ReminderEditorRequests.close()
                     val (date, timeMinutes) = toReminderSchedule(dateTimeMillis, allDay)
-                    repository.createReminder(title, date, timeMinutes)
+                    val created = repository.createReminder(title, date, timeMinutes)
+                    Toast.makeText(context, reminderSetMessage(context, created), Toast.LENGTH_SHORT).show()
                     requestPermissionsIfFirst()
                 },
                 onDelete = null,
@@ -253,4 +259,18 @@ fun rememberMissingReminderPermissionRequester(onResult: () -> Unit = {}): () ->
             ReminderPermissions.openExactAlarmSettings(context)
         }
     }
+}
+
+/** "Reminder set for today, 5:30 PM", so the user can check the date and time that was understood. */
+private fun reminderSetMessage(context: Context, reminder: ReminderInfo): String {
+    val today = LocalDate.now()
+    val day =
+        when (reminder.date) {
+            today -> context.getString(R.string.home_reminder_set_today)
+            today.plusDays(1) -> context.getString(R.string.home_reminder_set_tomorrow)
+            else -> DateFormat.format(DateFormat.getBestDateTimePattern(java.util.Locale.getDefault(), "EEEMMMd"), Date(reminder.dayStartMillis)).toString()
+        }
+    val whenText =
+        if (reminder.hasTime) "$day, ${DateFormat.getTimeFormat(context).format(Date(reminder.dueMillis))}" else day
+    return context.getString(R.string.home_reminder_set, whenText)
 }

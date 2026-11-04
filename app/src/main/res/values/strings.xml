@@ -1413,6 +1413,9 @@
     <string name="home_otp_from">From %1$s</string>
     <string name="home_copied">Copied</string>
     <string name="home_reminder_marked_done">Reminder marked as done</string>
+    <string name="home_reminder_set">Reminder set for %1$s</string>
+    <string name="home_reminder_set_today">today</string>
+    <string name="home_reminder_set_tomorrow">tomorrow</string>
     <string name="home_reminder_snoozed">Reminder snoozed for 30 minutes</string>
     <string name="home_reminder_deleted">Reminder deleted</string>
     <string name="home_missed_calls_count">Missed Calls (%1$s)</string>

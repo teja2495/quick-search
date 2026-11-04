@@ -1411,6 +1411,9 @@
     <string name="home_otp_from">De %1$s</string>
     <string name="home_copied">Copiado</string>
     <string name="home_reminder_marked_done">Recordatorio marcado como hecho</string>
+    <string name="home_reminder_set">Recordatorio programado para %1$s</string>
+    <string name="home_reminder_set_today">hoy</string>
+    <string name="home_reminder_set_tomorrow">mañana</string>
     <string name="home_reminder_snoozed">Recordatorio pospuesto 30 minutos</string>
     <string name="home_reminder_deleted">Recordatorio eliminado</string>
     <string name="home_missed_calls_count">Llamadas perdidas (%1$s)</string>

@@ -1411,6 +1411,9 @@
     <string name="home_otp_from">Von %1$s</string>
     <string name="home_copied">Kopiert</string>
     <string name="home_reminder_marked_done">Erinnerung als erledigt markiert</string>
+    <string name="home_reminder_set">Erinnerung für %1$s gestellt</string>
+    <string name="home_reminder_set_today">heute</string>
+    <string name="home_reminder_set_tomorrow">morgen</string>
     <string name="home_reminder_snoozed">Erinnerung um 30 Minuten verschoben</string>
     <string name="home_reminder_deleted">Erinnerung gelöscht</string>
     <string name="home_missed_calls_count">Verpasste Anrufe (%1$s)</string>

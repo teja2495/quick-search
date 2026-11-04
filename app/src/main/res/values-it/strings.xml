@@ -1410,6 +1410,9 @@
     <string name="home_otp_from">Da %1$s</string>
     <string name="home_copied">Copiato</string>
     <string name="home_reminder_marked_done">Promemoria segnato come fatto</string>
+    <string name="home_reminder_set">Promemoria impostato per %1$s</string>
+    <string name="home_reminder_set_today">oggi</string>
+    <string name="home_reminder_set_tomorrow">domani</string>
     <string name="home_reminder_snoozed">Promemoria posticipato di 30 minuti</string>
     <string name="home_reminder_deleted">Promemoria eliminato</string>
     <string name="home_missed_calls_count">Chiamate perse (%1$s)</string>

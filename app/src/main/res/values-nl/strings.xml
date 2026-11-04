@@ -1466,6 +1466,9 @@ Gebruik {time} om de huidige datum en tijd in de prompt op te nemen.</string>
     <string name="home_otp_from">Van %1$s</string>
     <string name="home_copied">Gekopieerd</string>
     <string name="home_reminder_marked_done">Herinnering gemarkeerd als klaar</string>
+    <string name="home_reminder_set">Herinnering ingesteld voor %1$s</string>
+    <string name="home_reminder_set_today">vandaag</string>
+    <string name="home_reminder_set_tomorrow">morgen</string>
     <string name="home_reminder_snoozed">Herinnering 30 minuten gesnoozed</string>
     <string name="home_reminder_deleted">Herinnering verwijderd</string>
     <string name="home_missed_calls_count">Gemiste oproepen (%1$s)</string>

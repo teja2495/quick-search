@@ -1413,6 +1413,9 @@
     <string name="home_otp_from">من %1$s</string>
     <string name="home_copied">تم النسخ</string>
     <string name="home_reminder_marked_done">تم وضع علامة منجز على التذكير</string>
+    <string name="home_reminder_set">تم ضبط التذكير لـ %1$s</string>
+    <string name="home_reminder_set_today">اليوم</string>
+    <string name="home_reminder_set_tomorrow">غدًا</string>
     <string name="home_reminder_snoozed">تم تأجيل التذكير 30 دقيقة</string>
     <string name="home_reminder_deleted">تم حذف التذكير</string>
     <string name="home_missed_calls_count">مكالمات فائتة (%1$s)</string>
