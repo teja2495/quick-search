@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
+import java.lang.ref.WeakReference
 import kotlin.math.roundToInt
 
 data class ImageAppearance(
@@ -16,10 +17,31 @@ object ImageAppearanceUtils {
     private const val ANALYSIS_HUE_BUCKETS = 36
     private const val DEFAULT_ACCENT_COLOR_ARGB = -10011996 // #6750A4
 
-    fun fromImageBitmap(bitmap: ImageBitmap): ImageAppearance? =
-        runCatching {
-            analyze(bitmap.asAndroidBitmap())
-        }.getOrNull()
+    private class CachedAppearance(
+        val bitmap: WeakReference<Bitmap>,
+        val generationId: Int,
+        val appearance: ImageAppearance?,
+    )
+
+    @Volatile private var lastAppearance: CachedAppearance? = null
+
+    /**
+     * Called from composition when Home or the widgets panel enters. Each entry wraps the same
+     * cached wallpaper in a new [ImageBitmap], so the result is memoized by the underlying bitmap;
+     * otherwise every page switch rescales the full wallpaper on the main thread mid-transition.
+     */
+    fun fromImageBitmap(bitmap: ImageBitmap): ImageAppearance? {
+        val androidBitmap = runCatching { bitmap.asAndroidBitmap() }.getOrNull() ?: return null
+        val generationId = androidBitmap.generationId
+        lastAppearance?.let { cached ->
+            if (cached.bitmap.get() === androidBitmap && cached.generationId == generationId) {
+                return cached.appearance
+            }
+        }
+        val appearance = runCatching { analyze(androidBitmap) }.getOrNull()
+        lastAppearance = CachedAppearance(WeakReference(androidBitmap), generationId, appearance)
+        return appearance
+    }
 
     fun analyze(bitmap: Bitmap): ImageAppearance {
         val sampled = sampleForAnalysis(bitmap)

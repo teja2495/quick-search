@@ -100,6 +100,7 @@ import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.data.preferences.NotesPreferences
+import com.tk.quicksearch.search.searchScreen.LocalPageBackdropDrawnByHost
 import com.tk.quicksearch.search.searchScreen.searchRoute.SearchScreenWallpaperLogic
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -169,8 +170,14 @@ fun WidgetsPanelScreen(
     val appWidgetHost = remember(appContext) { WidgetPanelHost(appContext, QUICK_SEARCH_WIDGET_HOST_ID) }
     val preferences = remember(appContext) { WidgetsPanelPreferences(appContext) }
     val notesPreferences = remember(appContext) { NotesPreferences(appContext) }
-    // The panel's opaque background covers Home, so it draws the wallpaper image itself.
-    val wallpaperState = SearchScreenWallpaperLogic(state = uiState, allowUnblurredSystemBackdrop = false)
+    // When the navigation host draws the shared backdrop, the panel is transparent like Home and
+    // reads the same wallpaper state. Otherwise its opaque background draws the image itself.
+    val backdropDrawnByHost = LocalPageBackdropDrawnByHost.current
+    val wallpaperState =
+        SearchScreenWallpaperLogic(
+            state = uiState,
+            allowUnblurredSystemBackdrop = backdropDrawnByHost,
+        )
     val imageBackgroundIsDark =
         remember(wallpaperState.imageBitmap, wallpaperState.usesWallpaperBackground) {
             if (wallpaperState.usesWallpaperBackground && wallpaperState.imageBitmap != null) {
@@ -360,6 +367,7 @@ fun WidgetsPanelScreen(
             wallpaperBackgroundAlpha = uiState.wallpaperBackgroundAlpha,
             wallpaperBlurRadius = uiState.wallpaperBlurRadius,
             useSystemWallpaperBackdrop = wallpaperState.usesSystemWallpaperBackdrop,
+            drawBackground = !backdropDrawnByHost,
             modifier = modifier.fillMaxSize(),
         ) {
         Box(

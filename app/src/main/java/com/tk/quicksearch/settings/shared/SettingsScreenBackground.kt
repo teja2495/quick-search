@@ -30,6 +30,8 @@ fun SettingsScreenBackground(
     wallpaperBackgroundAlpha: Float = 0f,
     wallpaperBlurRadius: Float = 0f,
     useSystemWallpaperBackdrop: Boolean = false,
+    /** False when a backdrop behind this screen already draws the background. */
+    drawBackground: Boolean = true,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
@@ -41,34 +43,36 @@ fun SettingsScreenBackground(
         backgroundSource = backgroundSource,
     ) {
         Box(modifier = modifier.fillMaxSize()) {
-            SearchScreenBackground(
-                showWallpaperBackground = !useSystemWallpaperBackdrop,
-                wallpaperBitmap = wallpaperBitmap,
-                wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
-                wallpaperBlurRadius = wallpaperBlurRadius,
-                fallbackBackgroundAlpha =
-                    if (deviceThemeEnabled || backgroundSource != BackgroundSource.THEME) {
-                        1f
-                    } else {
-                        ThemeModeFallbackBackgroundAlpha
-                    },
-                useGradientFallback = !deviceThemeEnabled && backgroundSource == BackgroundSource.THEME,
-                appTheme = appTheme,
-                overlayThemeIntensity = overlayThemeIntensity,
-                amoledThemeEnabled = amoledThemeEnabled,
-                modifier = Modifier.fillMaxSize(),
-            )
-            if (useSystemWallpaperBackdrop) {
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .background(
-                                com.tk.quicksearch.shared.ui.theme.AppColors.WallpaperOverlayTint.copy(
-                                    alpha = wallpaperBackgroundAlpha.coerceIn(0f, 1f),
-                                ),
-                            ),
+            if (drawBackground) {
+                SearchScreenBackground(
+                    showWallpaperBackground = !useSystemWallpaperBackdrop,
+                    wallpaperBitmap = wallpaperBitmap,
+                    wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
+                    wallpaperBlurRadius = wallpaperBlurRadius,
+                    fallbackBackgroundAlpha =
+                        if (deviceThemeEnabled || backgroundSource != BackgroundSource.THEME) {
+                            1f
+                        } else {
+                            ThemeModeFallbackBackgroundAlpha
+                        },
+                    useGradientFallback = !deviceThemeEnabled && backgroundSource == BackgroundSource.THEME,
+                    appTheme = appTheme,
+                    overlayThemeIntensity = overlayThemeIntensity,
+                    amoledThemeEnabled = amoledThemeEnabled,
+                    modifier = Modifier.fillMaxSize(),
                 )
+                if (useSystemWallpaperBackdrop) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .background(
+                                    com.tk.quicksearch.shared.ui.theme.AppColors.WallpaperOverlayTint.copy(
+                                        alpha = wallpaperBackgroundAlpha.coerceIn(0f, 1f),
+                                    ),
+                                ),
+                    )
+                }
             }
             content()
         }
