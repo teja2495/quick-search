@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import com.tk.quicksearch.widgets.utils.refreshAtAGlanceWidgets
@@ -71,7 +72,10 @@ class AtAGlanceWidgetReceiver : GlanceAppWidgetReceiver() {
         /** Catches changes nothing reports, such as a contact's birthday being edited. */
         private const val MAX_REFRESH_INTERVAL_MILLIS = 30L * 60L * 1000L
 
-        /** An inexact alarm at [nextChangeMillis], or in half an hour if sooner; replaces any earlier one. */
+        /**
+         * An alarm at [nextChangeMillis], or in half an hour if sooner; replaces any earlier one. It's
+         * exact when allowed, so a call's or timer's minutes don't lag, and never wakes the device.
+         */
         fun scheduleRefresh(
             context: Context,
             nextChangeMillis: Long?,
@@ -79,7 +83,14 @@ class AtAGlanceWidgetReceiver : GlanceAppWidgetReceiver() {
             val alarmManager = context.getSystemService(AlarmManager::class.java) ?: return
             val latest = System.currentTimeMillis() + MAX_REFRESH_INTERVAL_MILLIS
             val triggerAt = nextChangeMillis?.coerceAtMost(latest) ?: latest
-            runCatching { alarmManager.set(AlarmManager.RTC, triggerAt, refreshIntent(context)) }
+            val canBeExact = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()
+            runCatching {
+                if (canBeExact) {
+                    alarmManager.setExact(AlarmManager.RTC, triggerAt, refreshIntent(context))
+                } else {
+                    alarmManager.set(AlarmManager.RTC, triggerAt, refreshIntent(context))
+                }
+            }
         }
 
         private fun refreshIntent(context: Context): PendingIntent =

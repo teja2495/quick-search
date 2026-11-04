@@ -63,6 +63,8 @@ private const val MINUTE_MILLIS = 60L * 1000L
 private const val HOUR_MILLIS = 60L * MINUTE_MILLIS
 private const val DAY_MILLIS = 24L * HOUR_MILLIS
 
+private fun ceilMinutes(millis: Long): Long = (millis + MINUTE_MILLIS - 1L) / MINUTE_MILLIS
+
 /** A notification reads "Now" for this long after it is posted, as on home. */
 private const val JUST_NOW_MILLIS = 60L * 1000L
 
@@ -149,6 +151,34 @@ internal class AtAGlanceWidgetRowLoader(
         return calendarRelativeTimeLabel(context.resources, targetMillis, nowMillis)
     }
 
+    /**
+     * A call's or stopwatch's running time as "2 min", "2 hr" or "2 hr 3 min", refreshed when its
+     * minute count changes. Seconds would need a widget redraw every second, so they're left out.
+     */
+    fun elapsedDuration(sinceMillis: Long): String {
+        val elapsed = (nowMillis - sinceMillis).coerceAtLeast(0L)
+        changesAt(nowMillis + MINUTE_MILLIS - elapsed % MINUTE_MILLIS)
+        return durationLabel(elapsed / MINUTE_MILLIS)
+    }
+
+    /** A countdown's time left as [elapsedDuration] does, rounded up so "1 min" stays until it ends. */
+    fun remainingDuration(untilMillis: Long): String {
+        val remaining = (untilMillis - nowMillis).coerceAtLeast(0L)
+        if (remaining > 0L) changesAt(nowMillis + (remaining - 1L) % MINUTE_MILLIS + 1L)
+        return durationLabel(ceilMinutes(remaining))
+    }
+
+    fun durationLabel(totalMinutes: Long): String {
+        val hours = (totalMinutes / 60L).toInt()
+        val minutes = (totalMinutes % 60L).toInt()
+        val resources = context.resources
+        return when {
+            hours > 0 && minutes > 0 -> string(R.string.other_screen_time_hours_minutes, hours, minutes)
+            hours > 0 -> resources.getQuantityString(R.plurals.app_menu_usage_hours, hours, hours)
+            else -> resources.getQuantityString(R.plurals.app_menu_usage_minutes, minutes, minutes)
+        }
+    }
+
     fun appLabel(packageName: String): String =
         appLabels.getOrPut(packageName) {
             val packageManager = context.packageManager
@@ -219,6 +249,7 @@ internal class AtAGlanceWidgetRowLoader(
                         title = string(R.string.home_ongoing_call),
                         subtitle = call.caller ?: appLabel(call.packageName),
                         tap = AtAGlanceWidgetTap(AtAGlanceWidgetTapType.NOTIFICATION, key = call.key, packageName = call.packageName),
+                        pill = call.startTime?.let { AtAGlanceWidgetPill(elapsedDuration(it)) },
                         trailing =
                             listOfNotNull(
                                 AtAGlanceWidgetButton(
@@ -264,19 +295,19 @@ internal class AtAGlanceWidgetRowLoader(
                 GlanceNotificationsStore.timers.value.map { timer ->
                     val kind = string(if (timer.isCountDown) R.string.home_timer else R.string.home_stopwatch)
                     val paused = timer.pausedMillis
-                    // A ticking clock can't be kept current in a widget, so only a paused timer shows its
-                    // time as on home; a running one says when it ends.
+                    // Home's time without seconds, so the widget only redraws once a minute.
                     val title =
-                        if (paused != null) {
-                            DateUtils.formatElapsedTime(if (timer.isCountDown) (paused + 999L) / 1_000L else paused / 1_000L)
-                        } else {
-                            kind
+                        when {
+                            paused != null ->
+                                durationLabel(if (timer.isCountDown) ceilMinutes(paused) else paused / MINUTE_MILLIS)
+                            timer.isCountDown -> remainingDuration(timer.chronometerBase)
+                            else -> elapsedDuration(timer.chronometerBase)
                         }
                     val detail =
                         when {
                             paused != null -> "$kind • ${string(R.string.home_timer_paused)}"
-                            timer.isCountDown && timer.chronometerBase > nowMillis -> formatTime(timer.chronometerBase)
-                            else -> appLabel(timer.packageName)
+                            timer.isCountDown && timer.chronometerBase > nowMillis -> "$kind • ${formatTime(timer.chronometerBase)}"
+                            else -> "$kind • ${appLabel(timer.packageName)}"
                         }
                     notificationRow(
                         prefix = "timer",
@@ -285,7 +316,7 @@ internal class AtAGlanceWidgetRowLoader(
                         title = title,
                         subtitle = detail,
                         icon = AtAGlanceWidgetIcon.Vector(if (timer.isCountDown) MaterialSymbols.Timer else MaterialSymbols.AvTimer),
-                        titleStyle = if (paused != null) AtAGlanceWidgetTitleStyle.LARGE else AtAGlanceWidgetTitleStyle.BODY,
+                        titleStyle = AtAGlanceWidgetTitleStyle.LARGE,
                         titleMaxLines = 1,
                         trailing =
                             timer.actions.mapIndexed { index, action ->
