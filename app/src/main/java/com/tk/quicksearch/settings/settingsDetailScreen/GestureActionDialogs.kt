@@ -1,44 +1,9 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
-import android.content.Intent
-import android.provider.Settings
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.lazy.itemsIndexed
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerLeadingSize
@@ -46,28 +11,15 @@ import com.tk.quicksearch.shared.ui.components.AppPickerDrawerIconBadge
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRowSpacing
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRow
-import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.searchEngines.getDisplayName
-import com.tk.quicksearch.searchEngines.AliasHandler
 import com.tk.quicksearch.searchEngines.shared.SearchTargetIcon
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
 import com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction
-import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
-import com.tk.quicksearch.shared.permissions.LockScreenAccessibilityDisclosureDialog
-import com.tk.quicksearch.shared.permissions.shouldShowAccessibilityDisclosure
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.util.isDefaultHomeApp
-import com.tk.quicksearch.settings.shared.SettingsCard
-import com.tk.quicksearch.settings.shared.SettingsCardItem
-import com.tk.quicksearch.settings.shared.SettingsNavigationRow
-import com.tk.quicksearch.shared.ui.components.AppAlertDialog
-import com.tk.quicksearch.shared.ui.theme.AppColors
-import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
-import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonPickerDialog
 
 @Composable
 internal fun LauncherSwipeRightActionDialog(
@@ -75,26 +27,19 @@ internal fun LauncherSwipeRightActionDialog(
     onSelect: (SwipeGestureAction) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    AppAlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.settings_gesture_swipe_right)) },
-        text = {
-            Column {
-                listOf(
-                    SwipeGestureAction.NONE,
-                    SwipeGestureAction.WIDGETS_PANEL,
-                    SwipeGestureAction.ALL_APPS,
-                ).forEachIndexed { index, action ->
-                    if (index > 0) HorizontalDivider(color = AppColors.SettingsDivider)
-                    GestureActionRow(
-                        label = stringResource(action.labelResId()),
-                        selected = selectedAction == action,
-                        onClick = { onSelect(action) },
-                    )
-                }
-            }
-        },
-        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.dialog_cancel)) } },
+    GestureActionDrawer(
+        title = stringResource(R.string.settings_gesture_swipe_right),
+        sections =
+            listOf(
+                GestureOptionSection(
+                    listOf(
+                        SwipeGestureAction.NONE,
+                        SwipeGestureAction.WIDGETS_PANEL,
+                        SwipeGestureAction.ALL_APPS,
+                    ).map { action -> swipeOption(action, selectedAction, onSelect) },
+                ),
+            ),
+        onDismiss = onDismiss,
     )
 }
 
@@ -145,118 +90,61 @@ internal fun HomeVerticalGestureDialog(
     onDeleteAlias: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    AppAlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(titleResId)) },
-        text = {
-            Column {
-                GestureActionRow(
-                    label = stringResource(R.string.settings_gesture_none),
-                    selected = selectedAction == HomeSwipeGestureAction.NONE,
-                    onClick = { onSelectDefault(HomeSwipeGestureAction.NONE) },
-                )
-                if (allowsAppSurfaces) {
-                    HorizontalDivider(color = AppColors.SettingsDivider)
-                    GestureActionRow(
-                        label = stringResource(R.string.settings_gesture_open_quick_search),
-                        selected = selectedAction == HomeSwipeGestureAction.OPEN_QUICK_SEARCH,
-                        onClick = { onSelectDefault(HomeSwipeGestureAction.OPEN_QUICK_SEARCH) },
-                    )
-                    HorizontalDivider(color = AppColors.SettingsDivider)
-                    GestureActionRow(
-                        label = stringResource(R.string.settings_gesture_pinned_glance),
-                        selected = selectedAction == HomeSwipeGestureAction.PINNED_GLANCE,
-                        onClick = { onSelectDefault(HomeSwipeGestureAction.PINNED_GLANCE) },
-                    )
-                }
-                if (allowsNotificationPanel) {
-                    HorizontalDivider(color = AppColors.SettingsDivider)
-                    GestureActionRow(
-                        label = stringResource(R.string.settings_gesture_notification_panel),
-                        selected = selectedAction == HomeSwipeGestureAction.NOTIFICATION_PANEL,
-                        onClick = { onSelectDefault(HomeSwipeGestureAction.NOTIFICATION_PANEL) },
-                    )
-                }
-                if (allowsQuickSettings) {
-                    HorizontalDivider(color = AppColors.SettingsDivider)
-                    GestureActionRow(
-                        label = stringResource(R.string.settings_gesture_quick_settings),
-                        selected = selectedAction == HomeSwipeGestureAction.QUICK_SETTINGS,
-                        onClick = { onSelectDefault(HomeSwipeGestureAction.QUICK_SETTINGS) },
-                    )
-                }
-                if (allowsAllApps) {
-                    HorizontalDivider(color = AppColors.SettingsDivider)
-                    GestureActionRow(
-                        label = stringResource(R.string.settings_gesture_view_all_apps),
-                        selected = selectedAction == HomeSwipeGestureAction.ALL_APPS,
-                        onClick = { onSelectDefault(HomeSwipeGestureAction.ALL_APPS) },
-                    )
-                }
-                if (allowsAppSurfaces) {
-                    HorizontalDivider(color = AppColors.SettingsDivider)
-                    GestureActionRow(
-                        label = stringResource(R.string.settings_gesture_widget_panel),
-                        selected = selectedAction == HomeSwipeGestureAction.WIDGETS_PANEL,
-                        onClick = { onSelectDefault(HomeSwipeGestureAction.WIDGETS_PANEL) },
-                    )
-                }
-                if (allowsCloseQuickSearch) {
-                    HorizontalDivider(color = AppColors.SettingsDivider)
-                    GestureActionRow(
-                        label = stringResource(R.string.settings_gesture_close_quick_search),
-                        selected = selectedAction == HomeSwipeGestureAction.CLOSE_QUICK_SEARCH,
-                        onClick = { onSelectDefault(HomeSwipeGestureAction.CLOSE_QUICK_SEARCH) },
-                    )
-                }
-                if (allowsLockScreen) {
-                    HorizontalDivider(color = AppColors.SettingsDivider)
-                    GestureActionRow(
+    @Composable
+    fun option(action: HomeSwipeGestureAction) = homeOption(action, selectedAction, onSelectDefault)
+
+    val actionOptions =
+        buildList {
+            add(option(HomeSwipeGestureAction.NONE))
+            if (allowsAppSurfaces) {
+                add(option(HomeSwipeGestureAction.OPEN_QUICK_SEARCH))
+                add(option(HomeSwipeGestureAction.PINNED_GLANCE))
+            }
+            if (allowsAllApps) add(option(HomeSwipeGestureAction.ALL_APPS))
+            if (allowsAppSurfaces) add(option(HomeSwipeGestureAction.WIDGETS_PANEL))
+            if (allowsCloseQuickSearch) add(option(HomeSwipeGestureAction.CLOSE_QUICK_SEARCH))
+            if (allowsNotificationPanel) add(option(HomeSwipeGestureAction.NOTIFICATION_PANEL))
+            if (allowsQuickSettings) add(option(HomeSwipeGestureAction.QUICK_SETTINGS))
+            if (allowsLockScreen) {
+                add(
+                    GestureOption(
+                        key = HomeSwipeGestureAction.LOCK_SCREEN.name,
                         label = stringResource(R.string.settings_gesture_lock_screen),
-                        supportingText = if (hasLockScreenAccessibilityPermission) {
-                            null
-                        } else {
-                            stringResource(R.string.settings_gesture_lock_screen_requires_accessibility)
-                        },
+                        subtitle =
+                            if (hasLockScreenAccessibilityPermission) {
+                                null
+                            } else {
+                                stringResource(R.string.settings_gesture_lock_screen_requires_accessibility)
+                            },
                         selected = selectedAction == HomeSwipeGestureAction.LOCK_SCREEN,
                         onClick = onSelectLockScreen,
-                    )
-                }
-                if (allowsAppSurfaces) {
-                    HorizontalDivider(color = AppColors.SettingsDivider)
-                    GestureActionRow(
-                        label = stringResource(R.string.settings_gesture_play_pause_media),
-                        selected = selectedAction == HomeSwipeGestureAction.PLAY_PAUSE_MEDIA,
-                        onClick = { onSelectDefault(HomeSwipeGestureAction.PLAY_PAUSE_MEDIA) },
-                    )
-                }
-                customActions.forEach { action ->
-                    HorizontalDivider(color = AppColors.SettingsDivider)
-                    val json = action.toJson()
-                    GestureActionRow(
-                        label = action.displayLabel(),
-                        selected = selectedAction == HomeSwipeGestureAction.CUSTOM && selectedCustomActionJson == json,
-                        onClick = { onSelectCustom(action) },
-                        onDelete = { onDeleteCustom(json) },
-                    )
-                }
-                aliasItems.forEach { item ->
-                    HorizontalDivider(color = AppColors.SettingsDivider)
-                    GestureActionRow(
-                        label = item.label,
-                        selected = selectedAction == item.homeAction && selectedAliasTarget == item.id,
-                        onClick = { onSelectAlias(item.homeAction, item.id) },
-                        onDelete = { onDeleteAlias(item.id) },
-                    )
-                }
-                GesturePickerActions(
+                    ),
+                )
+            }
+            if (allowsAppSurfaces) add(option(HomeSwipeGestureAction.PLAY_PAUSE_MEDIA))
+        }
+    GestureActionDrawer(
+        title = stringResource(titleResId),
+        sections =
+            listOf(
+                GestureOptionSection(actionOptions),
+                shortcutsSection(
+                    customActions = customActions,
+                    aliasItems = aliasItems,
+                    isCustomSelected = { json ->
+                        selectedAction == HomeSwipeGestureAction.CUSTOM && selectedCustomActionJson == json
+                    },
+                    isAliasSelected = { item -> selectedAction == item.homeAction && selectedAliasTarget == item.id },
+                    onSelectCustom = onSelectCustom,
+                    onSelectAlias = { item -> onSelectAlias(item.homeAction, item.id) },
+                    onDeleteCustom = onDeleteCustom,
+                    onDeleteAlias = onDeleteAlias,
                     onPickCustom = onPickCustom,
                     onPickSearchEngine = onPickSearchEngine,
                     onPickTool = onPickTool,
-                )
-            }
-        },
-        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.dialog_cancel)) } },
+                ),
+            ),
+        onDismiss = onDismiss,
     )
 }
 
@@ -267,31 +155,28 @@ internal fun KeyboardGestureDialog(
     onSelect: (SwipeDirection?) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    AppAlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(action.labelResId())) },
-        text = {
-            Column {
-                GestureActionRow(
-                    label = stringResource(R.string.settings_gesture_swipe_up),
-                    selected = selectedDirection == SwipeDirection.UP,
-                    onClick = { onSelect(SwipeDirection.UP) },
-                )
-                HorizontalDivider(color = AppColors.SettingsDivider)
-                GestureActionRow(
-                    label = stringResource(R.string.settings_gesture_swipe_down),
-                    selected = selectedDirection == SwipeDirection.DOWN,
-                    onClick = { onSelect(SwipeDirection.DOWN) },
-                )
-                HorizontalDivider(color = AppColors.SettingsDivider)
-                GestureActionRow(
-                    label = stringResource(R.string.settings_gesture_none),
-                    selected = selectedDirection == null,
-                    onClick = { onSelect(null) },
-                )
-            }
-        },
-        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.dialog_cancel)) } },
+    @Composable
+    fun option(direction: SwipeDirection?, labelResId: Int) =
+        GestureOption(
+            key = direction?.name ?: "none",
+            label = stringResource(labelResId),
+            selected = selectedDirection == direction,
+            onClick = { onSelect(direction) },
+        )
+
+    GestureActionDrawer(
+        title = stringResource(action.labelResId()),
+        sections =
+            listOf(
+                GestureOptionSection(
+                    listOf(
+                        option(null, R.string.settings_gesture_none),
+                        option(SwipeDirection.UP, R.string.settings_gesture_swipe_up),
+                        option(SwipeDirection.DOWN, R.string.settings_gesture_swipe_down),
+                    ),
+                ),
+            ),
+        onDismiss = onDismiss,
     )
 }
 
@@ -314,143 +199,121 @@ internal fun GestureActionDialog(
     onDeleteAlias: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    AppAlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(direction.titleResId)) },
-        text = {
-            Column {
-                GestureActionRow(
-                    label = stringResource(R.string.settings_gesture_none),
-                    selected = selectedAction == SwipeGestureAction.NONE,
-                    onClick = { onSelectDefault(SwipeGestureAction.NONE) },
-                )
-                HorizontalDivider(color = AppColors.SettingsDivider)
-                GestureActionRow(
-                    label = stringResource(direction.defaultAction.labelResId()),
-                    selected = selectedAction == direction.defaultAction,
-                    onClick = { onSelectDefault(direction.defaultAction) },
-                )
-                HorizontalDivider(color = AppColors.SettingsDivider)
-                GestureActionRow(
-                    label = stringResource(R.string.settings_gesture_view_all_apps),
-                    selected = selectedAction == SwipeGestureAction.ALL_APPS,
-                    onClick = { onSelectDefault(SwipeGestureAction.ALL_APPS) },
-                )
-                if (allowsCloseQuickSearch) {
-                    HorizontalDivider(color = AppColors.SettingsDivider)
-                    GestureActionRow(
-                        label = stringResource(R.string.settings_gesture_close_quick_search),
-                        selected = selectedAction == SwipeGestureAction.CLOSE_QUICK_SEARCH,
-                        onClick = { onSelectDefault(SwipeGestureAction.CLOSE_QUICK_SEARCH) },
-                    )
-                }
-                customActions.forEach { action ->
-                    HorizontalDivider(color = AppColors.SettingsDivider)
-                    val json = action.toJson()
-                    GestureActionRow(
-                        label = action.displayLabel(),
-                        selected = selectedAction == SwipeGestureAction.CUSTOM && selectedCustomActionJson == json,
-                        onClick = { onSelectCustom(action) },
-                        onDelete = { onDeleteCustom(json) },
-                    )
-                }
-                aliasItems.forEach { item ->
-                    HorizontalDivider(color = AppColors.SettingsDivider)
-                    GestureActionRow(
-                        label = item.label,
-                        selected = selectedAction == item.swipeAction && selectedAliasTarget == item.id,
-                        onClick = { onSelectAlias(item.swipeAction, item.id) },
-                        onDelete = { onDeleteAlias(item.id) },
-                    )
-                }
-                GesturePickerActions(
+    val actionOptions =
+        buildList {
+            add(swipeOption(SwipeGestureAction.NONE, selectedAction, onSelectDefault))
+            add(swipeOption(direction.defaultAction, selectedAction, onSelectDefault))
+            add(swipeOption(SwipeGestureAction.ALL_APPS, selectedAction, onSelectDefault))
+            if (allowsCloseQuickSearch) {
+                add(swipeOption(SwipeGestureAction.CLOSE_QUICK_SEARCH, selectedAction, onSelectDefault))
+            }
+        }.distinctBy { it.key }
+    GestureActionDrawer(
+        title = stringResource(direction.titleResId),
+        sections =
+            listOf(
+                GestureOptionSection(actionOptions),
+                shortcutsSection(
+                    customActions = customActions,
+                    aliasItems = aliasItems,
+                    isCustomSelected = { json ->
+                        selectedAction == SwipeGestureAction.CUSTOM && selectedCustomActionJson == json
+                    },
+                    isAliasSelected = { item -> selectedAction == item.swipeAction && selectedAliasTarget == item.id },
+                    onSelectCustom = onSelectCustom,
+                    onSelectAlias = { item -> onSelectAlias(item.swipeAction, item.id) },
+                    onDeleteCustom = onDeleteCustom,
+                    onDeleteAlias = onDeleteAlias,
                     onPickCustom = onPickCustom,
                     onPickSearchEngine = onPickSearchEngine,
                     onPickTool = onPickTool,
-                )
-            }
-        },
-        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.dialog_cancel)) } },
+                ),
+            ),
+        onDismiss = onDismiss,
     )
 }
 
 @Composable
-internal fun GestureActionRow(
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-    onDelete: (() -> Unit)? = null,
-    supportingText: String? = null,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth().height(56.dp).clickable(onClick = onClick),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        RadioButton(selected = selected, onClick = null)
-        Column(modifier = Modifier.weight(1f).padding(start = DesignTokens.SpacingMedium)) {
-            Text(text = label, style = MaterialTheme.typography.bodyLarge)
-            supportingText?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
-        onDelete?.let {
-            IconButton(onClick = it) {
-                Icon(MaterialSymbols.Delete, contentDescription = stringResource(R.string.action_remove))
-            }
-        }
-    }
-}
+private fun swipeOption(
+    action: SwipeGestureAction,
+    selectedAction: SwipeGestureAction,
+    onSelect: (SwipeGestureAction) -> Unit,
+) = GestureOption(
+    key = action.name,
+    label = stringResource(action.labelResId()),
+    selected = selectedAction == action,
+    onClick = { onSelect(action) },
+)
 
 @Composable
-internal fun GesturePickerActions(
+private fun homeOption(
+    action: HomeSwipeGestureAction,
+    selectedAction: HomeSwipeGestureAction,
+    onSelect: (HomeSwipeGestureAction) -> Unit,
+) = GestureOption(
+    key = action.name,
+    label = stringResource(action.labelResId()),
+    selected = selectedAction == action,
+    onClick = { onSelect(action) },
+)
+
+/** Saved custom and alias shortcuts, then the pickers that add new ones. */
+@Composable
+private fun shortcutsSection(
+    customActions: List<CustomWidgetButtonAction>,
+    aliasItems: List<GestureAliasItem>,
+    isCustomSelected: (String) -> Boolean,
+    isAliasSelected: (GestureAliasItem) -> Boolean,
+    onSelectCustom: (CustomWidgetButtonAction) -> Unit,
+    onSelectAlias: (GestureAliasItem) -> Unit,
+    onDeleteCustom: (String) -> Unit,
+    onDeleteAlias: (String) -> Unit,
     onPickCustom: () -> Unit,
     onPickSearchEngine: () -> Unit,
     onPickTool: () -> Unit,
-) {
-    Surface(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(top = DesignTokens.SpacingMedium)
-                .border(
-                    width = DesignTokens.BorderWidth,
-                    color = AppColors.OnboardingBubbleBorder.copy(alpha = 0.18f),
-                    shape = RoundedCornerShape(16.dp),
-                ),
-        shape = RoundedCornerShape(16.dp),
-        color = Color.Transparent,
-    ) {
-        Column {
-            GesturePickerRow(stringResource(R.string.settings_gesture_custom), MaterialSymbols.Add, onPickCustom)
-            HorizontalDivider(color = AppColors.SettingsDivider)
-            GesturePickerRow(stringResource(R.string.settings_app_shortcuts_filter_search_engines), MaterialSymbols.Search, onPickSearchEngine)
-            HorizontalDivider(color = AppColors.SettingsDivider)
-            GesturePickerRow(stringResource(R.string.settings_tools_title), MaterialSymbols.Build, onPickTool)
-        }
-    }
-}
-
-@Composable
-internal fun GesturePickerRow(label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth().height(56.dp).clickable(onClick = onClick),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.size(24.dp).padding(start = DesignTokens.SpacingMedium),
+): GestureOptionSection {
+    val saved =
+        customActions.map { action ->
+            val json = action.toJson()
+            GestureOption(
+                key = "custom_$json",
+                label = action.displayLabel(),
+                selected = isCustomSelected(json),
+                onDelete = { onDeleteCustom(json) },
+                onClick = { onSelectCustom(action) },
+            )
+        } +
+            aliasItems.map { item ->
+                GestureOption(
+                    key = "alias_${item.id}",
+                    label = item.label,
+                    selected = isAliasSelected(item),
+                    onDelete = { onDeleteAlias(item.id) },
+                    onClick = { onSelectAlias(item) },
+                )
+            }
+    val pickers =
+        listOf(
+            GestureOption(
+                key = "picker_custom",
+                label = stringResource(R.string.settings_gesture_custom),
+                opensPicker = true,
+                onClick = onPickCustom,
+            ),
+            GestureOption(
+                key = "picker_search_engine",
+                label = stringResource(R.string.settings_app_shortcuts_filter_search_engines),
+                opensPicker = true,
+                onClick = onPickSearchEngine,
+            ),
+            GestureOption(
+                key = "picker_tool",
+                label = stringResource(R.string.settings_tools_title),
+                opensPicker = true,
+                onClick = onPickTool,
+            ),
         )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(start = DesignTokens.SpacingMedium),
-        )
-    }
+    return GestureOptionSection(saved + pickers)
 }
 
 @Composable
