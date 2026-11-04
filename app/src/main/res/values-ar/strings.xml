@@ -128,6 +128,7 @@
 <string name="settings_gesture_single_tap">نقرة واحدة</string>
 <string name="settings_gesture_open_quick_search">فتح Quick Search</string>
 <string name="settings_gesture_pinned_glance">العناصر المثبتة ونظرة سريعة</string>
+<string name="overlay_pinned_glance_empty">لا يوجد شيء لعرضه</string>
 <string name="settings_gesture_play_pause_media">إيقاف/تشغيل الوسائط</string>
 <string name="settings_notch_gestures_title">إيماءات النتوء</string>
 <string name="settings_notch_gestures_desc">انقر على النتوء أو فتحة الكاميرا من أي تطبيق</string>

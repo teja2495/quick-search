@@ -127,6 +127,7 @@
     <string name="settings_gesture_single_tap">ఒకసారి నొక్కండి</string>
     <string name="settings_gesture_open_quick_search">Quick Searchని తెరవండి</string>
     <string name="settings_gesture_pinned_glance">పిన్ చేసిన అంశాలు &amp; ఒక్క చూపులో</string>
+    <string name="overlay_pinned_glance_empty">చూపించడానికి ఏమీ లేదు</string>
     <string name="settings_gesture_play_pause_media">మీడియా పాజ్/ప్లే</string>
     <string name="settings_notch_gestures_title">నాచ్ హావభావాలు</string>
     <string name="settings_notch_gestures_desc">ఏ యాప్‌లోనైనా నాచ్ లేదా కెమెరా కటౌట్‌ను నొక్కండి</string>

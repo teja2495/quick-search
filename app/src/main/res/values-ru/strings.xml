@@ -127,6 +127,7 @@
 <string name="settings_gesture_single_tap">Одиночное нажатие</string>
 <string name="settings_gesture_open_quick_search">Открыть Quick Search</string>
 <string name="settings_gesture_pinned_glance">Закрепленные элементы и Кратко</string>
+<string name="overlay_pinned_glance_empty">Нечего показать</string>
 <string name="settings_gesture_play_pause_media">Пауза/воспроизведение медиа</string>
 <string name="settings_notch_gestures_title">Жесты выреза</string>
 <string name="settings_notch_gestures_desc">Нажмите на вырез или отверстие камеры в любом приложении</string>

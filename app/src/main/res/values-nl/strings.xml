@@ -131,6 +131,7 @@
     <string name="settings_gesture_single_tap">Enkel tikken</string>
     <string name="settings_gesture_open_quick_search">Quick Search openen</string>
     <string name="settings_gesture_pinned_glance">Vastgemaakte items &amp; In één oogopslag</string>
+    <string name="overlay_pinned_glance_empty">Niets om te tonen</string>
     <string name="settings_gesture_play_pause_media">Media pauzeren/afspelen</string>
     <string name="settings_notch_gestures_title">Notch-gebaren</string>
     <string name="settings_notch_gestures_desc">Tik in elke app op de notch of camera-uitsparing</string>

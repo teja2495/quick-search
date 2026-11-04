@@ -127,6 +127,7 @@
 <string name="settings_gesture_single_tap">Einmal tippen</string>
 <string name="settings_gesture_open_quick_search">Quick Search öffnen</string>
 <string name="settings_gesture_pinned_glance">Angeheftete Elemente &amp; Auf einen Blick</string>
+<string name="overlay_pinned_glance_empty">Nichts anzuzeigen</string>
 <string name="settings_gesture_play_pause_media">Medien pausieren/abspielen</string>
 <string name="settings_notch_gestures_title">Notch-Gesten</string>
 <string name="settings_notch_gestures_desc">Tippe in jeder App auf die Notch oder Kameraaussparung</string>

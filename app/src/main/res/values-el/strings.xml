@@ -127,6 +127,7 @@
 <string name="settings_gesture_single_tap">Μονό πάτημα</string>
 <string name="settings_gesture_open_quick_search">Άνοιγμα Quick Search</string>
 <string name="settings_gesture_pinned_glance">Καρφιτσωμένα στοιχεία &amp; Με μια ματιά</string>
+<string name="overlay_pinned_glance_empty">Τίποτα για εμφάνιση</string>
 <string name="settings_gesture_play_pause_media">Παύση/Αναπαραγωγή πολυμέσων</string>
 <string name="settings_notch_gestures_title">Χειρονομίες εγκοπής</string>
 <string name="settings_notch_gestures_desc">Πατήστε την εγκοπή ή την οπή της κάμερας από οποιαδήποτε εφαρμογή</string>

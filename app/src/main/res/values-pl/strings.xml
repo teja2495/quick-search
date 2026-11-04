@@ -128,6 +128,7 @@
     <string name="settings_gesture_single_tap">Pojedyncze dotknięcie</string>
     <string name="settings_gesture_open_quick_search">Otwórz Quick Search</string>
     <string name="settings_gesture_pinned_glance">Przypięte elementy i W skrócie</string>
+    <string name="overlay_pinned_glance_empty">Nic do wyświetlenia</string>
     <string name="settings_gesture_play_pause_media">Wstrzymaj/odtwórz multimedia</string>
     <string name="settings_notch_gestures_title">Gesty wcięcia</string>
     <string name="settings_notch_gestures_desc">Dotknij wcięcia lub otworu aparatu w dowolnej aplikacji</string>

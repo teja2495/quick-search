@@ -389,6 +389,7 @@ fun OverlayRoot(
 
                         // Pinned & At a Glance mode wraps its content and hangs just below the status
                         // bar as a bubble pointing at the notch the user tapped.
+                        var glanceContentHeightPx by remember { mutableIntStateOf(-1) }
                         val cardLeft = leftSafePadding + (availableWidth - overlayWidth) / 2
                         val bubbleArrowCenterX =
                                 pinnedGlanceAnchorX?.let { anchor ->
@@ -421,7 +422,15 @@ fun OverlayRoot(
                                 Box(
                                         modifier =
                                                 Modifier.width(overlayWidth)
-                                                        .heightIn(max = maxOverlayHeight)
+                                                        .heightIn(
+                                                                min =
+                                                                        if (pinnedGlanceOnly) {
+                                                                                PinnedGlanceMinHeight.coerceAtMost(maxOverlayHeight)
+                                                                        } else {
+                                                                                0.dp
+                                                                        },
+                                                                max = maxOverlayHeight,
+                                                        )
                                                         .animateContentSize(
                                                                 animationSpec =
                                                                         tween(
@@ -499,6 +508,7 @@ fun OverlayRoot(
                                                 modifier =
                                                         if (pinnedGlanceOnly) Modifier.matchParentSize() else Modifier.fillMaxSize(),
                                         )
+                                        if (pinnedGlanceOnly) PinnedGlanceEmptyMessage(glanceContentHeightPx)
 
                                         // The overlay's content padding is wider than the search screen's, so the
                                         // full-bleed engine card has to reach further to meet the overlay's edges.
@@ -509,7 +519,9 @@ fun OverlayRoot(
                                             SearchRoute(
                                                     modifier =
                                                             if (pinnedGlanceOnly) {
-                                                                    Modifier.fillMaxWidth().padding(top = OverlayBubbleArrowHeight)
+                                                                    Modifier.fillMaxWidth()
+                                                                            .padding(top = OverlayBubbleArrowHeight)
+                                                                            .onSizeChanged { glanceContentHeightPx = it.height }
                                                             } else {
                                                                     Modifier.fillMaxSize()
                                                             },

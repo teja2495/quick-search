@@ -128,6 +128,7 @@
     <string name="settings_gesture_single_tap">シングルタップ</string>
     <string name="settings_gesture_open_quick_search">Quick Search を開く</string>
     <string name="settings_gesture_pinned_glance">固定アイテムとひと目で確認</string>
+    <string name="overlay_pinned_glance_empty">表示する項目はありません</string>
     <string name="settings_gesture_play_pause_media">メディアの一時停止/再生</string>
     <string name="settings_notch_gestures_title">ノッチジェスチャー</string>
     <string name="settings_notch_gestures_desc">どのアプリからでもノッチやカメラの切り欠きをタップ</string>

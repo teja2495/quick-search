@@ -127,6 +127,7 @@
 <string name="settings_gesture_single_tap">Appui simple</string>
 <string name="settings_gesture_open_quick_search">Ouvrir Quick Search</string>
 <string name="settings_gesture_pinned_glance">Éléments épinglés et En un coup d’œil</string>
+<string name="overlay_pinned_glance_empty">Rien à afficher</string>
 <string name="settings_gesture_play_pause_media">Pause/lecture du média</string>
 <string name="settings_notch_gestures_title">Gestes de l’encoche</string>
 <string name="settings_notch_gestures_desc">Appuyez sur l’encoche ou la découpe de la caméra depuis n’importe quelle application</string>

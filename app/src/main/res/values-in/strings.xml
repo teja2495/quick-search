@@ -128,6 +128,7 @@
     <string name="settings_gesture_single_tap">Ketuk Sekali</string>
     <string name="settings_gesture_open_quick_search">Buka Quick Search</string>
     <string name="settings_gesture_pinned_glance">Item Disematkan &amp; Sekilas</string>
+    <string name="overlay_pinned_glance_empty">Tidak ada yang ditampilkan</string>
     <string name="settings_gesture_play_pause_media">Jeda/Putar Media</string>
     <string name="settings_notch_gestures_title">Gestur Notch</string>
     <string name="settings_notch_gestures_desc">Ketuk notch atau lubang kamera dari aplikasi apa pun</string>

@@ -126,6 +126,7 @@
 <string name="settings_gesture_single_tap">Tek Dokunma</string>
 <string name="settings_gesture_open_quick_search">Quick Search’ü aç</string>
 <string name="settings_gesture_pinned_glance">Sabitlenen Öğeler ve Bir Bakışta</string>
+<string name="overlay_pinned_glance_empty">Gösterilecek bir şey yok</string>
 <string name="settings_gesture_play_pause_media">Medyayı duraklat/oynat</string>
 <string name="settings_notch_gestures_title">Çentik Hareketleri</string>
 <string name="settings_notch_gestures_desc">Herhangi bir uygulamada çentiğe veya kamera deliğine dokunun</string>

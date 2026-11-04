@@ -127,6 +127,7 @@
     <string name="settings_gesture_single_tap">单击</string>
     <string name="settings_gesture_open_quick_search">打开 Quick Search</string>
     <string name="settings_gesture_pinned_glance">已固定项目和一览</string>
+    <string name="overlay_pinned_glance_empty">没有可显示的内容</string>
     <string name="settings_gesture_play_pause_media">暂停/播放媒体</string>
     <string name="settings_notch_gestures_title">刘海手势</string>
     <string name="settings_notch_gestures_desc">在任何应用中点按刘海或摄像头开孔</string>

@@ -126,6 +126,7 @@
 <string name="settings_gesture_single_tap">Tocco singolo</string>
 <string name="settings_gesture_open_quick_search">Apri Quick Search</string>
 <string name="settings_gesture_pinned_glance">Elementi fissati e In breve</string>
+<string name="overlay_pinned_glance_empty">Niente da mostrare</string>
 <string name="settings_gesture_play_pause_media">Pausa/riproduci contenuti multimediali</string>
 <string name="settings_notch_gestures_title">Gesti del notch</string>
 <string name="settings_notch_gestures_desc">Tocca il notch o il foro della fotocamera da qualsiasi app</string>

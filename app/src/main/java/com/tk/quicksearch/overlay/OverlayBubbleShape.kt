@@ -14,12 +14,12 @@ import androidx.compose.ui.unit.dp
 
 /** Height of the bubble's arrow; content below it has to be padded by this much. */
 internal val OverlayBubbleArrowHeight = 12.dp
-private val OverlayBubbleArrowWidth = 30.dp
+private val OverlayBubbleArrowWidth = 24.dp
 
 /**
  * A rounded card with a pointed arrow on its top edge, like a chat bubble, aimed at
- * [arrowCenterX] (in px from the shape's left edge). The arrow flares smoothly into the card
- * edge and ends in a sharp tip. Used by the notch's Pinned & At a Glance popup to point at the
+ * [arrowCenterX] (in px from the shape's left edge). The arrow is a plain straight-edged
+ * triangle. Used by the notch's Pinned & At a Glance popup to point at the
  * notch the user tapped.
  */
 internal class OverlayBubbleShape(
@@ -60,16 +60,8 @@ internal class OverlayBubbleShape(
         val arrow =
             Path().apply {
                 moveTo(center - halfArrowWidth, baseY)
-                cubicTo(
-                    center - halfArrowWidth * 0.45f, baseY,
-                    center - halfArrowWidth * 0.12f, arrowHeight * 0.2f,
-                    center, 0f,
-                )
-                cubicTo(
-                    center + halfArrowWidth * 0.12f, arrowHeight * 0.2f,
-                    center + halfArrowWidth * 0.45f, baseY,
-                    center + halfArrowWidth, baseY,
-                )
+                lineTo(center, 0f)
+                lineTo(center + halfArrowWidth, baseY)
                 close()
             }
         return Outline.Generic(Path.combine(PathOperation.Union, body, arrow))

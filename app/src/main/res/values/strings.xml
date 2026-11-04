@@ -120,6 +120,7 @@
     <string name="settings_gesture_single_tap">Single Tap</string>
     <string name="settings_gesture_open_quick_search">Open Quick Search</string>
     <string name="settings_gesture_pinned_glance">Pinned &amp; At a Glance Items</string>
+    <string name="overlay_pinned_glance_empty">Nothing to show</string>
     <string name="settings_gesture_play_pause_media">Pause/Play Media</string>
     <string name="settings_notch_gestures_title">Notch Gestures</string>
     <string name="settings_notch_gestures_desc">Tap the notch or camera cutout from any app</string>
