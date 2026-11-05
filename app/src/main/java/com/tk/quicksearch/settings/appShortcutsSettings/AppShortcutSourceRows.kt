@@ -90,13 +90,17 @@ fun ShortcutSourceRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
     ) {
-        if (source.icon != null) {
+        val icon = rememberShortcutSourceIcon(source)
+        val iconBitmap = icon?.bitmap
+        if (iconBitmap != null) {
             Image(
-                bitmap = source.icon,
+                bitmap = iconBitmap,
                 contentDescription = source.label,
                 modifier = Modifier.size(DesignTokens.IconSize),
                 contentScale = ContentScale.Fit,
             )
+        } else if (icon == null) {
+            Box(modifier = Modifier.size(DesignTokens.IconSize))
         } else {
             Box(
                 modifier = Modifier.size(DesignTokens.IconSize),
@@ -189,13 +193,17 @@ fun AppDeepLinkSourceRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
     ) {
-        if (source.icon != null) {
+        val icon = rememberShortcutSourceIcon(source)
+        val iconBitmap = icon?.bitmap
+        if (iconBitmap != null) {
             Image(
-                bitmap = source.icon,
+                bitmap = iconBitmap,
                 contentDescription = source.appLabel,
                 modifier = Modifier.size(DesignTokens.IconSize),
                 contentScale = ContentScale.Fit,
             )
+        } else if (icon == null) {
+            Box(modifier = Modifier.size(DesignTokens.IconSize))
         } else {
             Icon(
                 imageVector = MaterialSymbols.Public,

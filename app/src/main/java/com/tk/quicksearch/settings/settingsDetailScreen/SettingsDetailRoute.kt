@@ -230,31 +230,41 @@ fun SettingsDetailRoute(
         }
     }
 
+    // The package scan runs alongside the shortcut refresh and is redone only when installed apps
+    // change; shortcut edits just re-filter the scanned sources.
+    var appShortcutSources by remember { mutableStateOf<List<AppShortcutSource>?>(null) }
+    LaunchedEffect(detailType, state.allApps) {
+        if (detailType != SettingsDetailType.APP_SHORTCUTS) {
+            appShortcutSources = null
+            return@LaunchedEffect
+        }
+        appShortcutSources =
+                withContext(Dispatchers.IO) {
+                    queryAppShortcutSources(
+                            packageManager = context.packageManager,
+                            repositoryApps = state.allApps,
+                    )
+                }
+    }
+
     LaunchedEffect(
             detailType,
             hasRefreshedAppShortcuts,
-            state.allApps,
+            appShortcutSources,
             state.allAppShortcuts,
-            context.packageName,
     ) {
         if (detailType != SettingsDetailType.APP_SHORTCUTS) {
             filteredAppShortcutSources = emptyList()
             hasLoadedAppShortcutSources = false
             return@LaunchedEffect
         }
-        if (!hasRefreshedAppShortcuts) return@LaunchedEffect
+        val sources = appShortcutSources
+        if (!hasRefreshedAppShortcuts || sources == null) return@LaunchedEffect
 
-        val appShortcutSources =
-                withContext(Dispatchers.Default) {
-                    queryAppShortcutSources(
-                            packageManager = context.packageManager,
-                            repositoryApps = state.allApps,
-                    )
-                }
         filteredAppShortcutSources =
                 withContext(Dispatchers.Default) {
                     filterAppShortcutSources(
-                            sources = appShortcutSources,
+                            sources = sources,
                             existingShortcuts = state.allAppShortcuts,
                     )
                 }

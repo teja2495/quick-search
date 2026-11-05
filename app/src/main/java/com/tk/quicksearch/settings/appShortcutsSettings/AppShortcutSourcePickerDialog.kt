@@ -102,13 +102,17 @@ private fun ShortcutSourceGridItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
     ) {
-        if (source.icon != null) {
+        val icon = rememberShortcutSourceIcon(source)
+        val iconBitmap = icon?.bitmap
+        if (iconBitmap != null) {
             Image(
-                bitmap = source.icon,
+                bitmap = iconBitmap,
                 contentDescription = source.label,
                 modifier = Modifier.size(ShortcutSourceIconSize),
                 contentScale = ContentScale.Fit,
             )
+        } else if (icon == null) {
+            Box(modifier = Modifier.size(ShortcutSourceIconSize))
         } else {
             Box(
                 modifier = Modifier.size(ShortcutSourceIconSize),
