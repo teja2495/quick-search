@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.apps.speedBump
 import android.content.ComponentName
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.SystemClock
 import android.view.accessibility.AccessibilityEvent
 import android.view.inputmethod.InputMethodManager
 import com.tk.quicksearch.app.HomeActivity
@@ -36,6 +37,13 @@ object SpeedBumpLaunchWatcher {
     /** The app the user may stay in without another pause, until they leave it. */
     private var allowedPackage: String? = null
 
+    /**
+     * Until when Quick Search's own Home screen events are ignored after it let [allowedPackage]
+     * through. Closing Quick Search's pause dialog refocuses Home just before the app comes
+     * forward, which would otherwise read as leaving the app and show the pause a second time.
+     */
+    private var launchGraceUntil = 0L
+
     /** The app whose pause is on screen, so its own repeated window events don't re-trigger it. */
     private var pendingPackage: String? = null
 
@@ -60,12 +68,22 @@ object SpeedBumpLaunchWatcher {
         onActiveChanged = null
         allowedPackage = null
         pendingPackage = null
+        launchGraceUntil = 0L
     }
 
     /** Lets [packageName] open without a pause until the user leaves it. */
     fun allow(packageName: String) {
         allowedPackage = packageName
         if (pendingPackage == packageName) pendingPackage = null
+    }
+
+    /**
+     * Quick Search is about to launch [packageName] after its own pause. Like [allow], but also
+     * ignores Quick Search's Home screen briefly while the pause closes and the app starts.
+     */
+    fun allowLaunchFromQuickSearch(packageName: String) {
+        allow(packageName)
+        launchGraceUntil = SystemClock.elapsedRealtime() + LaunchGraceMillis
     }
 
     /**
@@ -88,12 +106,16 @@ object SpeedBumpLaunchWatcher {
         if (packageName == context.packageName) {
             // Quick Search's own pause and overlay sit on top of the app; only its Home screen
             // means the user left.
-            if (event.className?.toString() == HomeActivity::class.java.name) {
+            if (event.className?.toString() == HomeActivity::class.java.name &&
+                SystemClock.elapsedRealtime() >= launchGraceUntil
+            ) {
                 allowedPackage = null
                 pendingPackage = null
             }
             return
         }
+        // Another app came forward, so Quick Search's launch has landed (or was replaced).
+        launchGraceUntil = 0L
         if (packageName == allowedPackage || packageName == pendingPackage) return
         allowedPackage = null
         pendingPackage = null
@@ -101,6 +123,8 @@ object SpeedBumpLaunchWatcher {
         pendingPackage = packageName
         SpeedBumpActivity.start(context, packageName)
     }
+
+    private const val LaunchGraceMillis = 5_000L
 
     private val activityClassCache = HashMap<String, Boolean>()
 

@@ -778,8 +778,8 @@ fun SearchRoute(
             speedBumpApp = speedBumpApp,
             onSpeedBumpOpen = { app ->
                 speedBumpApp = null
-                SpeedBumpLaunchWatcher.allow(app.packageName)
                 runAfterAppUnlock(app.packageName, app.appName) {
+                    SpeedBumpLaunchWatcher.allowLaunchFromQuickSearch(app.packageName)
                     viewModel.launchApp(app, context)
                 }
             },
