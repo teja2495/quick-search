@@ -47,6 +47,35 @@ class ReminderNaturalLanguageParserTest {
     }
 
     @Test
+    fun parsesTrailingBareDurationAsRelativeTime() {
+        listOf("test 1 min", "test 1min", "Test 1 minute").forEach { query ->
+            val result = ReminderNaturalLanguageParser.parse(query, now, zoneId)
+
+            assertEquals(query, "test", result?.title?.lowercase())
+            assertEquals(query, LocalDate.of(2026, 6, 4), result?.date)
+            assertEquals(query, LocalTime.of(9, 31), result?.time)
+        }
+    }
+
+    @Test
+    fun parsesLeadingAndCompoundBareDuration() {
+        val result = ReminderNaturalLanguageParser.parse("1h30min check oven", now, zoneId)
+
+        assertEquals("check oven", result?.title)
+        assertEquals(LocalTime.of(11, 0), result?.time)
+    }
+
+    @Test
+    fun bareDurationAloneHasBlankTitle() {
+        assertEquals("", ReminderNaturalLanguageParser.parse("10 min", now, zoneId)?.title)
+    }
+
+    @Test
+    fun ignoresBareDurationInsideTitle() {
+        assertNull(ReminderNaturalLanguageParser.parse("Run 5 min intervals", now, zoneId))
+    }
+
+    @Test
     fun parsesDateWithoutAddingATime() {
         val result = ReminderNaturalLanguageParser.parse("Pay rent September 10", now, zoneId)
 

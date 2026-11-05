@@ -21,12 +21,19 @@ internal object ReminderNaturalLanguageParser {
     private val monthPattern = Regex("""\b(?:(?:on|by|due)\s+)?(january|february|march|april|may|june|july|august|september|october|november|december|jan\.?|feb\.?|mar\.?|apr\.?|jun\.?|jul\.?|aug\.?|sep\.?|sept\.?|oct\.?|nov\.?|dec\.?)\s+([0-3]?\d)(?:st|nd|rd|th)?(?:\s*,?\s*(\d{4}))?\b""", RegexOption.IGNORE_CASE)
     private val numericDatePattern = Regex("""\b(?:(?:on|by|due)\s+)?(0?[1-9]|1[0-2])[/-]([0-3]?\d)(?:[/-](\d{2}|\d{4}))?\b""", RegexOption.IGNORE_CASE)
     private val relativeDurationPattern = Regex("""\b(?:in\s*(?:(?:\d+)\s*(?:years?|months?|weeks?|days?|hours?|hrs?|hr|minutes?|mins?|min)\s*)+|(?:(?:\d+)\s*(?:years?|months?|weeks?|days?|hours?|hrs?|hr|minutes?|mins?|min)\s*)+ago)\b""", RegexOption.IGNORE_CASE)
-    private val relativeDurationComponentPattern = Regex("""(\d+)\s*(years?|months?|weeks?|days?|hours?|hrs?|hr|minutes?|mins?|min)(?=\s|$|ago\b)""", RegexOption.IGNORE_CASE)
+    private val relativeDurationComponentPattern = Regex("""(\d+)\s*(years?|months?|weeks?|days?|hours?|hrs?|hr|h|minutes?|mins?|min)(?=\s|$|\d|ago\b)""", RegexOption.IGNORE_CASE)
+    // A bare hour/minute duration ("Stretch 10 min", "1h30min tea") reads as "in <duration>", but
+    // only at the very start or end of the text so counts inside a title stay part of the title.
+    private val bareDurationUnits = """(?:hours?|hrs?|hr|h|minutes?|mins?|min)"""
+    private val bareTrailingDurationPattern = Regex("""\b(?:\d+\s*$bareDurationUnits\s*)*\d+\s*$bareDurationUnits(?=\s*$)""", RegexOption.IGNORE_CASE)
+    private val bareLeadingDurationPattern = Regex("""^\s*(?:\d+\s*$bareDurationUnits\s*)*\d+\s*$bareDurationUnits\b""", RegexOption.IGNORE_CASE)
     private val relativeDatePattern = Regex("""\b(?:(?:on|by|due)\s+)?(today|tomorrow|yesterday)\b""", RegexOption.IGNORE_CASE)
     private val weekdayDatePattern = Regex("""\b(?:(?:on|by|due)\s+)?(monday|tuesday|wednesday|thursday|friday|saturday|sunday|mon\.?|tues\.?|tue\.?|wed\.?|weds\.?|thu\.?|thur\.?|thurs\.?|fri\.?|sat\.?|sun\.?)\b""", RegexOption.IGNORE_CASE)
     private val twelveHourTimePattern = Regex("""\b(?:at\s+)?(1[0-2]|0?[1-9])(?::([0-5]\d))?\s*(am|pm)\b""", RegexOption.IGNORE_CASE)
     private val twentyFourHourTimePattern = Regex("""\b(?:at\s+)?([01]?\d|2[0-3]):([0-5]\d)\b""", RegexOption.IGNORE_CASE)
     private val namedTimePattern = Regex("""\b(?:at\s+)?(noon|midnight)\b""", RegexOption.IGNORE_CASE)
+
+    private val durationPatterns = setOf(relativeDurationPattern, bareTrailingDurationPattern, bareLeadingDurationPattern)
 
     private val months = mapOf(
         "january" to 1, "jan" to 1, "february" to 2, "feb" to 2, "march" to 3, "mar" to 3,
@@ -41,7 +48,7 @@ internal object ReminderNaturalLanguageParser {
     )
 
     fun parse(text: String, now: Instant = Instant.now(), zoneId: ZoneId = ZoneId.systemDefault()): Schedule? {
-        val dateMatch = listOf(monthPattern, numericDatePattern, relativeDurationPattern, relativeDatePattern, weekdayDatePattern)
+        val dateMatch = listOf(monthPattern, numericDatePattern, relativeDurationPattern, relativeDatePattern, weekdayDatePattern, bareTrailingDurationPattern, bareLeadingDurationPattern)
             .firstNotNullOfOrNull { regex -> regex.find(text)?.let { regex to it } }
         val timeMatch = listOf(twelveHourTimePattern, twentyFourHourTimePattern, namedTimePattern)
             .firstNotNullOfOrNull { regex -> regex.find(text)?.let { regex to it } }
@@ -51,7 +58,7 @@ internal object ReminderNaturalLanguageParser {
         if (dateTime == null && time == null) return null
         val date = (dateTime ?: now).atZone(zoneId).toLocalDate()
         val relativeTime = dateMatch
-            ?.takeIf { (regex, match) -> regex == relativeDurationPattern && relativeDurationHasTimeComponent(match.value) }
+            ?.takeIf { (regex, match) -> regex in durationPatterns && relativeDurationHasTimeComponent(match.value) }
             ?.second
             ?.let { dateTime?.atZone(zoneId)?.toLocalTime() }
         val ranges = buildList {
@@ -69,7 +76,8 @@ internal object ReminderNaturalLanguageParser {
     private fun parsedDate(regex: Regex, match: MatchResult, now: Instant, zoneId: ZoneId): Instant? {
         val today = now.atZone(zoneId).toLocalDate()
         return when (regex) {
-            relativeDurationPattern -> parsedRelativeDuration(match.value, now, zoneId)
+            relativeDurationPattern, bareTrailingDurationPattern, bareLeadingDurationPattern ->
+                parsedRelativeDuration(match.value, now, zoneId)
             relativeDatePattern -> today.plusDays(when (token(match.groupValues[1])) {
                 "tomorrow" -> 1
                 "yesterday" -> -1
@@ -111,7 +119,7 @@ internal object ReminderNaturalLanguageParser {
                 "month", "months" -> months += value
                 "week", "weeks" -> days += value * 7
                 "day", "days" -> days += value
-                "hour", "hours", "hr", "hrs" -> duration = duration.plusHours(value)
+                "hour", "hours", "hr", "hrs", "h" -> duration = duration.plusHours(value)
                 "minute", "minutes", "min", "mins" -> duration = duration.plusMinutes(value)
             }
         }
@@ -122,7 +130,7 @@ internal object ReminderNaturalLanguageParser {
     }
 
     private fun relativeDurationHasTimeComponent(phrase: String) = relativeDurationComponentPattern.findAll(phrase).any {
-        token(it.groupValues[2]) in setOf("hour", "hours", "hr", "hrs", "minute", "minutes", "min", "mins")
+        token(it.groupValues[2]) in setOf("hour", "hours", "hr", "hrs", "h", "minute", "minutes", "min", "mins")
     }
 
     private fun cleanedTitle(text: String, ranges: List<TextRange>): String {
