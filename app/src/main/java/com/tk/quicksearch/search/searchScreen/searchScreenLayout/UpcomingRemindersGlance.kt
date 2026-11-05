@@ -69,7 +69,7 @@ import com.tk.quicksearch.search.data.ReminderRepository
 import com.tk.quicksearch.search.models.ReminderInfo
 import com.tk.quicksearch.search.reminders.reminderOverdueColor
 import com.tk.quicksearch.search.reminders.reminderScheduleLabel
-import com.tk.quicksearch.search.searchScreen.searchRoute.LocalShowUndoSnackbar
+import com.tk.quicksearch.shared.ui.components.LocalShowUndoSnackbar
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors

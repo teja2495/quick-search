@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
@@ -14,7 +13,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchUiState
@@ -29,6 +27,9 @@ import com.tk.quicksearch.search.other.OtherSearchItemAction
 import com.tk.quicksearch.search.other.OtherSearchItemId
 import com.tk.quicksearch.search.other.OtherSearchItemRegistry
 import com.tk.quicksearch.search.utils.FileUtils
+import com.tk.quicksearch.shared.ui.components.AppUndoSnackbarHost
+import com.tk.quicksearch.shared.ui.components.UndoSnackbarVisuals
+import com.tk.quicksearch.shared.ui.components.rememberUndoSnackbarController
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.launch
 
@@ -65,7 +66,7 @@ internal fun rememberRouteUndoActions(
     val popupUndoSnackbar: @Composable BoxScope.() -> Unit =
         remember(effectiveSnackbarHostState) {
             {
-                ExcludeUndoSnackbarHost(
+                AppUndoSnackbarHost(
                     hostState = effectiveSnackbarHostState,
                     modifier =
                         Modifier
@@ -78,49 +79,20 @@ internal fun rememberRouteUndoActions(
                 )
             }
         }
-    val undoLabel = stringResource(R.string.action_undo)
-
-    // A new undo snackbar replaces the visible one right away instead of queueing behind it.
-    val undoSnackbarJob = remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
-
-    val showUndoSnackbarVisuals: (UndoSnackbarVisuals, () -> Unit) -> Unit = { visuals, onUndo ->
-        undoSnackbarJob.value?.cancel()
-        undoSnackbarJob.value =
-            snackbarScope.launch {
-                val result = effectiveSnackbarHostState.showSnackbar(visuals)
-                if (result == androidx.compose.material3.SnackbarResult.ActionPerformed) {
-                    onUndo()
-                }
-            }
-    }
-
-    val showUndoSnackbar: (String, () -> Unit) -> Unit = { message, onUndo ->
-        showUndoSnackbarVisuals(UndoSnackbarVisuals(message = message, actionLabel = undoLabel), onUndo)
-    }
+    val undoSnackbar = rememberUndoSnackbarController(effectiveSnackbarHostState)
+    val showUndoSnackbarVisuals: (UndoSnackbarVisuals, () -> Unit) -> Unit = undoSnackbar::show
+    val showUndoSnackbar: (String, () -> Unit) -> Unit = { message, onUndo -> undoSnackbar.show(message, onUndo = onUndo) }
 
     // Remembered so providing it through LocalShowUndoSnackbar doesn't invalidate readers every recomposition.
     val showUndoSnackbarWithIcon: (String, androidx.compose.ui.graphics.vector.ImageVector?, () -> Unit) -> Unit =
-        remember(effectiveSnackbarHostState, undoLabel) {
-            { message, icon, onUndo ->
-                undoSnackbarJob.value?.cancel()
-                undoSnackbarJob.value =
-                    snackbarScope.launch {
-                        val visuals = UndoSnackbarVisuals(message = message, actionLabel = undoLabel, icon = icon)
-                        val result = effectiveSnackbarHostState.showSnackbar(visuals)
-                        if (result == androidx.compose.material3.SnackbarResult.ActionPerformed) {
-                            onUndo()
-                        }
-                    }
-            }
-        }
+        remember(undoSnackbar) { { message, icon, onUndo -> undoSnackbar.show(message, icon, onUndo) } }
 
     val showAppShortcutDisabledSnackbar: (() -> Unit) -> Unit = @Suppress("LocalContextGetResourceValueCall") { onUndo ->
         showUndoSnackbarVisuals(
-            UndoSnackbarVisuals(
+            undoSnackbar.visuals(
                 message = context.getString(R.string.snackbar_app_shortcut_disabled_title),
                 supportingText = context.getString(R.string.snackbar_app_shortcut_disabled_supporting),
                 icon = null,
-                actionLabel = undoLabel,
             ),
             onUndo,
         )

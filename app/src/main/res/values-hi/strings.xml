@@ -1471,6 +1471,11 @@
     <string name="bookmarks_menu_delete_all">सभी हटाएं</string>
     <string name="bookmarks_delete_all_title">सभी बुकमार्क हटाएं?</string>
     <string name="bookmarks_delete_all_message">सभी सहेजे गए बुकमार्क हटा दिए जाएंगे। यह क्रिया वापस नहीं ली जा सकती।</string>
+    <string name="bookmarks_deleted">बुकमार्क हटाया गया</string>
+    <string name="bookmarks_menu_export_html">HTML के रूप में एक्सपोर्ट करें</string>
+    <string name="bookmarks_export_result">एक्सपोर्ट किए गए बुकमार्क: %1$d</string>
+    <string name="bookmarks_export_failed">फ़ाइल सेव नहीं हो सकी</string>
+    <string name="bookmarks_default_browser_desc">नए और इंपोर्ट किए गए बुकमार्क इस ब्राउज़र में खुलते हैं। आप हर बुकमार्क के लिए इसे अब भी बदल सकते हैं।</string>
     <string name="bookmarks_add_title">बुकमार्क जोड़ें</string>
     <string name="bookmarks_edit_title">बुकमार्क संपादित करें</string>
     <string name="bookmarks_link_label">लिंक</string>

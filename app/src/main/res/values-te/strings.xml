@@ -1471,6 +1471,11 @@
     <string name="bookmarks_menu_delete_all">అన్నీ తొలగించండి</string>
     <string name="bookmarks_delete_all_title">అన్ని బుక్‌మార్క్‌లను తొలగించాలా?</string>
     <string name="bookmarks_delete_all_message">సేవ్ చేసిన అన్ని బుక్‌మార్క్‌లు తీసివేయబడతాయి. ఈ చర్యను మళ్లీ వెనక్కి తీసుకోలేరు.</string>
+    <string name="bookmarks_deleted">బుక్‌మార్క్ తొలగించబడింది</string>
+    <string name="bookmarks_menu_export_html">HTMLగా ఎగుమతి చేయండి</string>
+    <string name="bookmarks_export_result">ఎగుమతి చేసిన బుక్‌మార్క్‌లు: %1$d</string>
+    <string name="bookmarks_export_failed">ఫైల్‌ను సేవ్ చేయలేకపోయాము</string>
+    <string name="bookmarks_default_browser_desc">కొత్త మరియు దిగుమతి చేసిన బుక్‌మార్క్‌లు ఈ బ్రౌజర్‌లో తెరుచుకుంటాయి. ప్రతి బుక్‌మార్క్‌కు మీరు దీన్ని ఇంకా మార్చవచ్చు.</string>
     <string name="bookmarks_add_title">బుక్‌మార్క్ జోడించండి</string>
     <string name="bookmarks_edit_title">బుక్‌మార్క్‌ను సవరించండి</string>
     <string name="bookmarks_link_label">లింక్</string>

@@ -1467,6 +1467,11 @@
     <string name="bookmarks_menu_delete_all">Hapus semua</string>
     <string name="bookmarks_delete_all_title">Hapus semua bookmark?</string>
     <string name="bookmarks_delete_all_message">Semua bookmark yang disimpan akan dihapus. Tindakan ini tidak dapat diurungkan.</string>
+    <string name="bookmarks_deleted">Bookmark dihapus</string>
+    <string name="bookmarks_menu_export_html">Ekspor sebagai HTML</string>
+    <string name="bookmarks_export_result">Bookmark diekspor: %1$d</string>
+    <string name="bookmarks_export_failed">Tidak dapat menyimpan file</string>
+    <string name="bookmarks_default_browser_desc">Bookmark baru dan yang diimpor terbuka di browser ini. Anda tetap dapat mengubahnya untuk setiap bookmark.</string>
     <string name="bookmarks_add_title">Tambah bookmark</string>
     <string name="bookmarks_edit_title">Edit bookmark</string>
     <string name="bookmarks_link_label">Tautan</string>

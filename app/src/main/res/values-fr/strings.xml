@@ -1471,6 +1471,11 @@
     <string name="bookmarks_menu_delete_all">Tout supprimer</string>
     <string name="bookmarks_delete_all_title">Supprimer tous les favoris ?</string>
     <string name="bookmarks_delete_all_message">Tous les favoris enregistrés seront supprimés. Cette action est irréversible.</string>
+    <string name="bookmarks_deleted">Favori supprimé</string>
+    <string name="bookmarks_menu_export_html">Exporter en HTML</string>
+    <string name="bookmarks_export_result">Favoris exportés : %1$d</string>
+    <string name="bookmarks_export_failed">Impossible d’enregistrer le fichier</string>
+    <string name="bookmarks_default_browser_desc">Les nouveaux favoris et ceux importés s’ouvrent dans ce navigateur. Vous pouvez toujours le modifier pour chaque favori.</string>
     <string name="bookmarks_add_title">Ajouter un favori</string>
     <string name="bookmarks_edit_title">Modifier le favori</string>
     <string name="bookmarks_link_label">Lien</string>

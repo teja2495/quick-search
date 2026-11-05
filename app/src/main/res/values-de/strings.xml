@@ -1471,6 +1471,11 @@
     <string name="bookmarks_menu_delete_all">Alle löschen</string>
     <string name="bookmarks_delete_all_title">Alle Lesezeichen löschen?</string>
     <string name="bookmarks_delete_all_message">Alle gespeicherten Lesezeichen werden entfernt. Diese Aktion kann nicht rückgängig gemacht werden.</string>
+    <string name="bookmarks_deleted">Lesezeichen gelöscht</string>
+    <string name="bookmarks_menu_export_html">Als HTML exportieren</string>
+    <string name="bookmarks_export_result">Exportierte Lesezeichen: %1$d</string>
+    <string name="bookmarks_export_failed">Datei konnte nicht gespeichert werden</string>
+    <string name="bookmarks_default_browser_desc">Neue und importierte Lesezeichen werden in diesem Browser geöffnet. Du kannst ihn für jedes Lesezeichen weiterhin ändern.</string>
     <string name="bookmarks_add_title">Lesezeichen hinzufügen</string>
     <string name="bookmarks_edit_title">Lesezeichen bearbeiten</string>
     <string name="bookmarks_link_label">Link</string>

@@ -1471,6 +1471,11 @@
     <string name="bookmarks_menu_delete_all">Διαγραφή όλων</string>
     <string name="bookmarks_delete_all_title">Διαγραφή όλων των σελιδοδεικτών;</string>
     <string name="bookmarks_delete_all_message">Θα αφαιρεθούν όλοι οι αποθηκευμένοι σελιδοδείκτες. Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.</string>
+    <string name="bookmarks_deleted">Ο σελιδοδείκτης διαγράφηκε</string>
+    <string name="bookmarks_menu_export_html">Εξαγωγή ως HTML</string>
+    <string name="bookmarks_export_result">Σελιδοδείκτες που εξήχθησαν: %1$d</string>
+    <string name="bookmarks_export_failed">Δεν ήταν δυνατή η αποθήκευση του αρχείου</string>
+    <string name="bookmarks_default_browser_desc">Οι νέοι και οι εισαγόμενοι σελιδοδείκτες ανοίγουν σε αυτό το πρόγραμμα περιήγησης. Μπορείτε ακόμα να το αλλάξετε για κάθε σελιδοδείκτη.</string>
     <string name="bookmarks_add_title">Προσθήκη σελιδοδείκτη</string>
     <string name="bookmarks_edit_title">Επεξεργασία σελιδοδείκτη</string>
     <string name="bookmarks_link_label">Σύνδεσμος</string>

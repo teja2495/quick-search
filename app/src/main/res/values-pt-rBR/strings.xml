@@ -1471,6 +1471,11 @@
     <string name="bookmarks_menu_delete_all">Excluir tudo</string>
     <string name="bookmarks_delete_all_title">Excluir todos os favoritos?</string>
     <string name="bookmarks_delete_all_message">Todos os favoritos salvos serão removidos. Esta ação não pode ser desfeita.</string>
+    <string name="bookmarks_deleted">Favorito excluído</string>
+    <string name="bookmarks_menu_export_html">Exportar como HTML</string>
+    <string name="bookmarks_export_result">Favoritos exportados: %1$d</string>
+    <string name="bookmarks_export_failed">Não foi possível salvar o arquivo</string>
+    <string name="bookmarks_default_browser_desc">Favoritos novos e importados abrem neste navegador. Você ainda pode alterar isso em cada favorito.</string>
     <string name="bookmarks_add_title">Adicionar favorito</string>
     <string name="bookmarks_edit_title">Editar favorito</string>
     <string name="bookmarks_link_label">Link</string>

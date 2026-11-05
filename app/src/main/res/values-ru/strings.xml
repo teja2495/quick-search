@@ -1495,6 +1495,11 @@
     <string name="bookmarks_menu_delete_all">Удалить все</string>
     <string name="bookmarks_delete_all_title">Удалить все закладки?</string>
     <string name="bookmarks_delete_all_message">Все сохранённые закладки будут удалены. Это действие нельзя отменить.</string>
+    <string name="bookmarks_deleted">Закладка удалена</string>
+    <string name="bookmarks_menu_export_html">Экспорт в HTML</string>
+    <string name="bookmarks_export_result">Экспортировано закладок: %1$d</string>
+    <string name="bookmarks_export_failed">Не удалось сохранить файл</string>
+    <string name="bookmarks_default_browser_desc">Новые и импортированные закладки открываются в этом браузере. Его можно изменить для каждой закладки.</string>
     <string name="bookmarks_add_title">Добавить закладку</string>
     <string name="bookmarks_edit_title">Изменить закладку</string>
     <string name="bookmarks_link_label">Ссылка</string>

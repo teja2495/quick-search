@@ -1,6 +1,9 @@
 package com.tk.quicksearch.shared.ui.components
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -62,13 +65,17 @@ fun AppDropdownMenuDivider() {
     HorizontalDivider()
 }
 
-/** Text-and-icon row for [AppDropdownMenu]; [destructive] tints it with the error color. */
+/**
+ * Text-and-icon row for [AppDropdownMenu], with an optional smaller [supportingText] line (such as
+ * the current value); [destructive] tints it with the error color.
+ */
 @Composable
 fun AppDropdownMenuItem(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
+    supportingText: String? = null,
     destructive: Boolean = false,
     enabled: Boolean = true,
 ) {
@@ -82,7 +89,24 @@ fun AppDropdownMenuItem(
             MenuDefaults.itemColors()
         }
     DropdownMenuItem(
-        text = { Text(text = text) },
+        text = {
+            if (supportingText == null) {
+                Text(text = text)
+            } else {
+                // Extra vertical room so the two lines don't crowd the 48dp minimum row height.
+                Column(
+                    modifier = Modifier.padding(vertical = 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                ) {
+                    Text(text = text)
+                    Text(
+                        text = supportingText,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        },
         onClick = onClick,
         modifier = modifier,
         leadingIcon = icon?.let { { Icon(imageVector = it, contentDescription = null) } },

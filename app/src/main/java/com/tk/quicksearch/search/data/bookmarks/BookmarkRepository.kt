@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.data.bookmarks
 
 import android.content.Context
+import com.tk.quicksearch.search.data.preferences.BookmarkPreferences
 import com.tk.quicksearch.search.models.BookmarkInfo
 import com.tk.quicksearch.search.utils.SearchRankingUtils
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
@@ -19,6 +20,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 
+/** A deleted bookmark with its icon, kept so the deletion can be undone. */
+data class DeletedBookmark(
+    val bookmark: BookmarkInfo,
+    val iconBase64: String?,
+)
+
 data class BookmarkImportResult(
     val added: Int,
     val skippedDuplicates: Int,
@@ -33,6 +40,7 @@ class BookmarkRepository(context: Context) {
     private val appContext = context.applicationContext
     private val dao by lazy { BookmarksDatabase.get(appContext).bookmarksDao() }
     private val faviconStore = BookmarkFaviconStore(appContext)
+    private val preferences by lazy { BookmarkPreferences(appContext) }
 
     /** All bookmarks, sorted by name. Empty until something first reads them. */
     val bookmarks: StateFlow<List<BookmarkInfo>> = bookmarksState.asStateFlow()
@@ -41,6 +49,24 @@ class BookmarkRepository(context: Context) {
     val faviconFetchesInProgress: StateFlow<Set<Long>> = faviconFetchesState.asStateFlow()
 
     fun getAll(): List<BookmarkInfo> = ensureLoaded()
+
+    /** Browser that new and imported bookmarks open in; null until [loadDefaultBrowserPackage] runs. */
+    val defaultBrowserPackage: StateFlow<String?> = defaultBrowserState.asStateFlow()
+
+    /** Reads the default browser into [defaultBrowserPackage]. Call off the main thread. */
+    fun loadDefaultBrowserPackage(): String =
+        preferences.getDefaultBrowserPackage().also { defaultBrowserState.value = it }
+
+    fun setDefaultBrowserPackage(packageName: String) {
+        defaultBrowserState.value = packageName
+        preferences.setDefaultBrowserPackage(packageName)
+    }
+
+    /** Every bookmark in the standard bookmarks HTML format, icons included. Call off the main thread. */
+    fun exportHtml(): String =
+        BookmarkHtmlWriter.write(ensureLoaded()) { bookmark ->
+            if (bookmark.hasFavicon) faviconStore.readBase64(bookmark.bookmarkId) else null
+        }
 
     fun getById(bookmarkId: Long): BookmarkInfo? = ensureLoaded().firstOrNull { it.bookmarkId == bookmarkId }
 
@@ -145,6 +171,27 @@ class BookmarkRepository(context: Context) {
         onDatabaseThread { dao.delete(bookmarkId) }
         faviconStore.delete(bookmarkId)
         mutate { list -> list.filterNot { it.bookmarkId == bookmarkId } }
+    }
+
+    /** Deletes a bookmark and returns what [restore] needs to bring it back, icon included. */
+    fun deleteForUndo(bookmarkId: Long): DeletedBookmark? {
+        val bookmark = getById(bookmarkId) ?: return null
+        val icon = if (bookmark.hasFavicon) faviconStore.readBase64(bookmarkId) else null
+        delete(bookmarkId)
+        return DeletedBookmark(bookmark, icon)
+    }
+
+    /** Puts back a bookmark removed by [deleteForUndo], under its old ID. */
+    fun restore(deleted: DeletedBookmark) {
+        val original = deleted.bookmark
+        if (getById(original.bookmarkId) != null) return
+        val restored =
+            onDatabaseThread {
+                dao.insert(original.copy(faviconVersion = 0L).toEntity())
+                original.copy(faviconVersion = saveCustomIcon(original.bookmarkId, deleted.iconBase64) ?: 0L)
+            }
+        mutate { it + restored }
+        if (!restored.hasFavicon) fetchFaviconsInBackground(listOf(restored))
     }
 
     /** Removes every bookmark and its saved icon. */
@@ -290,6 +337,7 @@ class BookmarkRepository(context: Context) {
 
         val stateLock = Any()
         val bookmarksState = MutableStateFlow<List<BookmarkInfo>>(emptyList())
+        val defaultBrowserState = MutableStateFlow<String?>(null)
 
         @Volatile var isLoaded = false
 

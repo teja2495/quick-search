@@ -60,7 +60,6 @@ import com.tk.quicksearch.search.bookmarks.BookmarkFavicon
 import com.tk.quicksearch.search.core.BrowserApp
 import com.tk.quicksearch.search.data.bookmarks.BookmarkUrls
 import com.tk.quicksearch.search.models.BookmarkInfo
-import com.tk.quicksearch.searchEngines.IN_APP_BROWSER_PACKAGE
 import com.tk.quicksearch.searchEngines.loadCustomIconAsBase64
 import com.tk.quicksearch.shared.ui.components.AppBottomSheet
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
@@ -90,15 +89,22 @@ internal fun BookmarkEditorSheet(
     bookmark: BookmarkInfo?,
     isIconLoading: Boolean,
     availableBrowsers: List<BrowserApp>,
+    defaultBrowserPackage: String,
     onDismiss: () -> Unit,
-    onSave: (name: String, url: String, browserPackageName: String?, customIconBase64: String?) -> Unit,
+    onSave: (name: String, url: String, browserPackageName: String, customIconBase64: String?) -> Unit,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var name by rememberSaveable { mutableStateOf(bookmark?.name.orEmpty()) }
     var url by rememberSaveable { mutableStateOf(bookmark?.url.orEmpty()) }
     var browserPackageName by rememberSaveable {
-        mutableStateOf(if (bookmark == null) IN_APP_BROWSER_PACKAGE else bookmark.browserPackageName)
+        mutableStateOf(
+            if (bookmark == null) {
+                defaultBrowserPackage
+            } else {
+                resolveBookmarkBrowser(bookmark.browserPackageName, availableBrowsers)
+            },
+        )
     }
     var customIconBase64 by rememberSaveable { mutableStateOf<String?>(null) }
     var page by rememberSaveable { mutableStateOf(BookmarkEditorPage.Form) }
@@ -210,7 +216,7 @@ private fun BookmarkEditorForm(
     isIconLoading: Boolean,
     onPickIcon: () -> Unit,
     availableBrowsers: List<BrowserApp>,
-    browserPackageName: String?,
+    browserPackageName: String,
     onOpenBrowsers: () -> Unit,
     onClose: () -> Unit,
     onSave: () -> Unit,

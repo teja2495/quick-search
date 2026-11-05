@@ -1526,6 +1526,11 @@ Gebruik {time} om de huidige datum en tijd in de prompt op te nemen.</string>
     <string name="bookmarks_menu_delete_all">Alles verwijderen</string>
     <string name="bookmarks_delete_all_title">Alle bladwijzers verwijderen?</string>
     <string name="bookmarks_delete_all_message">Alle opgeslagen bladwijzers worden verwijderd. Deze actie kan niet ongedaan worden gemaakt.</string>
+    <string name="bookmarks_deleted">Bladwijzer verwijderd</string>
+    <string name="bookmarks_menu_export_html">Exporteren als HTML</string>
+    <string name="bookmarks_export_result">Geëxporteerde bladwijzers: %1$d</string>
+    <string name="bookmarks_export_failed">Kan het bestand niet opslaan</string>
+    <string name="bookmarks_default_browser_desc">Nieuwe en geïmporteerde bladwijzers worden in deze browser geopend. Je kunt dit per bladwijzer nog wijzigen.</string>
     <string name="bookmarks_add_title">Bladwijzer toevoegen</string>
     <string name="bookmarks_edit_title">Bladwijzer bewerken</string>
     <string name="bookmarks_link_label">Link</string>

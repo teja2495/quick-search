@@ -29,7 +29,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.core.BrowserApp
 import com.tk.quicksearch.searchEngines.IN_APP_BROWSER_PACKAGE
-import com.tk.quicksearch.shared.ui.components.AppPickerDrawerIconBadge
+import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerLeadingSize
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRow
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRowSpacing
@@ -86,14 +86,14 @@ internal fun BookmarkSheetHeader(
 @Composable
 internal fun BookmarkBrowserField(
     availableBrowsers: List<BrowserApp>,
-    selectedPackage: String?,
+    selectedPackage: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val browsers = bookmarkBrowserOptions(availableBrowsers)
     val selectedLabel =
         browsers.firstOrNull { it.packageName == selectedPackage }?.label
-            ?: stringResource(R.string.settings_search_engine_browser_default)
+            ?: stringResource(R.string.browser_in_app_name)
 
     Row(
         modifier =
@@ -128,15 +128,14 @@ internal fun BookmarkBrowserField(
     }
 }
 
-/** Browser list page shown in place of the form. [selectedPackage] == null means the default browser. */
+/** Browser list page shown in place of the form. */
 @Composable
 internal fun BookmarkBrowserList(
     availableBrowsers: List<BrowserApp>,
-    selectedPackage: String?,
-    onSelect: (String?) -> Unit,
+    selectedPackage: String,
+    onSelect: (String) -> Unit,
     onBack: () -> Unit,
 ) {
-    val browsers = bookmarkBrowserOptions(availableBrowsers)
     Column(
         modifier = Modifier.fillMaxWidth().padding(bottom = DesignTokens.SpacingLarge),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
@@ -146,40 +145,86 @@ internal fun BookmarkBrowserList(
             navigationIcon = onBack,
             onClose = null,
         )
-        LazyColumn(
+        BookmarkBrowserRows(
+            availableBrowsers = availableBrowsers,
+            selectedPackage = selectedPackage,
+            onSelect = onSelect,
             modifier = Modifier.weight(1f, fill = false).padding(horizontal = DesignTokens.ContentHorizontalPadding),
-            verticalArrangement = Arrangement.spacedBy(AppPickerDrawerRowSpacing),
-        ) {
-            item(key = "default") {
-                AppPickerDrawerRow(
-                    title = stringResource(R.string.settings_search_engine_browser_default),
-                    selected = selectedPackage == null,
-                    leading = { AppPickerDrawerIconBadge(icon = MaterialSymbols.Language) },
-                    onClick = { onSelect(null) },
-                )
-            }
-            items(browsers, key = BrowserApp::packageName) { browser ->
-                AppPickerDrawerRow(
-                    title = browser.label,
-                    selected = browser.packageName == selectedPackage,
-                    leading = { BrowserIcon(packageName = browser.packageName, size = AppPickerDrawerLeadingSize) },
-                    onClick = { onSelect(browser.packageName) },
-                )
-            }
+        )
+    }
+}
+
+/** Drawer from the page's menu for the browser that new and imported bookmarks open in. */
+@Composable
+internal fun BookmarkDefaultBrowserDrawer(
+    availableBrowsers: List<BrowserApp>,
+    selectedPackage: String,
+    onSelect: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AppPickerDrawer(
+        title = stringResource(R.string.settings_search_engine_browser_default),
+        onDismiss = onDismiss,
+        header = {
+            Text(
+                text = stringResource(R.string.bookmarks_default_browser_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+    ) { dismiss ->
+        BookmarkBrowserRows(
+            availableBrowsers = availableBrowsers,
+            selectedPackage = selectedPackage,
+            onSelect = { packageName ->
+                onSelect(packageName)
+                dismiss()
+            },
+        )
+    }
+}
+
+@Composable
+private fun BookmarkBrowserRows(
+    availableBrowsers: List<BrowserApp>,
+    selectedPackage: String,
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val browsers = bookmarkBrowserOptions(availableBrowsers)
+    LazyColumn(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(AppPickerDrawerRowSpacing),
+    ) {
+        items(browsers, key = BrowserApp::packageName) { browser ->
+            AppPickerDrawerRow(
+                title = browser.label,
+                selected = browser.packageName == selectedPackage,
+                leading = { BrowserIcon(packageName = browser.packageName, size = AppPickerDrawerLeadingSize) },
+                onClick = { onSelect(browser.packageName) },
+            )
         }
     }
 }
 
-/** Installed browsers plus the in-app browser, which is always offered. */
+/** Installed browsers with the in-app browser first, which is always offered. */
 @Composable
 private fun bookmarkBrowserOptions(availableBrowsers: List<BrowserApp>): List<BrowserApp> {
     val inAppLabel = stringResource(R.string.browser_in_app_name)
-    return if (availableBrowsers.any { it.packageName == IN_APP_BROWSER_PACKAGE }) {
-        availableBrowsers
-    } else {
-        availableBrowsers + BrowserApp(packageName = IN_APP_BROWSER_PACKAGE, label = inAppLabel)
-    }
+    return listOf(BrowserApp(packageName = IN_APP_BROWSER_PACKAGE, label = inAppLabel)) +
+        availableBrowsers.filterNot { it.packageName == IN_APP_BROWSER_PACKAGE }
 }
+
+/**
+ * [packageName] when it is still offered (the in-app browser or an installed browser), else the
+ * in-app browser, so a bookmark or default pointing at an uninstalled browser still has a choice.
+ */
+internal fun resolveBookmarkBrowser(
+    packageName: String?,
+    availableBrowsers: List<BrowserApp>,
+): String =
+    packageName?.takeIf { it == IN_APP_BROWSER_PACKAGE || availableBrowsers.any { b -> b.packageName == it } }
+        ?: IN_APP_BROWSER_PACKAGE
 
 /** The browser's launcher icon; the in-app browser uses Quick Search's own icon, default a globe. */
 @Composable

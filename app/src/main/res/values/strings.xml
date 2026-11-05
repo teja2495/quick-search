@@ -1463,6 +1463,11 @@
     <string name="bookmarks_menu_delete_all">Delete All</string>
     <string name="bookmarks_delete_all_title">Delete all bookmarks?</string>
     <string name="bookmarks_delete_all_message">Every saved bookmark will be removed. This action cannot be undone.</string>
+    <string name="bookmarks_deleted">Bookmark deleted</string>
+    <string name="bookmarks_menu_export_html">Export as HTML</string>
+    <string name="bookmarks_export_result">Bookmarks exported: %1$d</string>
+    <string name="bookmarks_export_failed">Couldn’t save the file</string>
+    <string name="bookmarks_default_browser_desc">New and imported bookmarks open in this browser. You can still change it for each bookmark.</string>
     <string name="bookmarks_add_title">Add Bookmark</string>
     <string name="bookmarks_edit_title">Edit Bookmark</string>
     <string name="bookmarks_link_label">Link</string>

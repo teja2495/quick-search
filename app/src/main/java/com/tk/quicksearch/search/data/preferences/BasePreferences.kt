@@ -479,6 +479,9 @@ abstract class BasePreferences(
         const val KEY_QUICK_NOTE_ID = "quick_note_id"
         const val KEY_QUICK_NOTE_ENABLED = "quick_note_enabled"
 
+        // Bookmarks preferences keys
+        const val KEY_BOOKMARK_DEFAULT_BROWSER = "bookmark_default_browser"
+
         // Reminders preferences keys
         const val KEY_REMINDERS_DATA = "reminders_data"
         const val KEY_HOME_SHOW_UPCOMING_REMINDERS = "home_show_upcoming_reminders"

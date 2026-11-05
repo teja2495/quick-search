@@ -1470,6 +1470,11 @@
     <string name="bookmarks_menu_delete_all">Tümünü sil</string>
     <string name="bookmarks_delete_all_title">Tüm yer işaretleri silinsin mi?</string>
     <string name="bookmarks_delete_all_message">Kayıtlı tüm yer işaretleri kaldırılacak. Bu işlem geri alınamaz.</string>
+    <string name="bookmarks_deleted">Yer imi silindi</string>
+    <string name="bookmarks_menu_export_html">HTML olarak dışa aktar</string>
+    <string name="bookmarks_export_result">Dışa aktarılan yer imleri: %1$d</string>
+    <string name="bookmarks_export_failed">Dosya kaydedilemedi</string>
+    <string name="bookmarks_default_browser_desc">Yeni ve içe aktarılan yer imleri bu tarayıcıda açılır. Her yer imi için yine de değiştirebilirsiniz.</string>
     <string name="bookmarks_add_title">Yer işareti ekle</string>
     <string name="bookmarks_edit_title">Yer işaretini düzenle</string>
     <string name="bookmarks_link_label">Bağlantı</string>

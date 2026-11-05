@@ -45,6 +45,12 @@ class BookmarkFaviconStore(context: Context) {
         return save(bookmarkId, bytes)
     }
 
+    /** The stored favicon as base64 PNG data, or null when there is none. Call off the main thread. */
+    fun readBase64(bookmarkId: Long): String? =
+        runCatching { fileFor(bookmarkId).takeIf { it.isFile }?.readBytes() }
+            .getOrNull()
+            ?.let { Base64.encodeToString(it, Base64.NO_WRAP) }
+
     fun delete(bookmarkId: Long) {
         fileFor(bookmarkId).delete()
         memoryCache.evictBookmark(bookmarkId)

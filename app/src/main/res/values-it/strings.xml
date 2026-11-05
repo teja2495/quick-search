@@ -1470,6 +1470,11 @@
     <string name="bookmarks_menu_delete_all">Elimina tutto</string>
     <string name="bookmarks_delete_all_title">Eliminare tutti i segnalibri?</string>
     <string name="bookmarks_delete_all_message">Tutti i segnalibri salvati verranno rimossi. Questa azione non può essere annullata.</string>
+    <string name="bookmarks_deleted">Segnalibro eliminato</string>
+    <string name="bookmarks_menu_export_html">Esporta come HTML</string>
+    <string name="bookmarks_export_result">Segnalibri esportati: %1$d</string>
+    <string name="bookmarks_export_failed">Impossibile salvare il file</string>
+    <string name="bookmarks_default_browser_desc">I segnalibri nuovi e importati si aprono in questo browser. Puoi comunque cambiarlo per ogni segnalibro.</string>
     <string name="bookmarks_add_title">Aggiungi segnalibro</string>
     <string name="bookmarks_edit_title">Modifica segnalibro</string>
     <string name="bookmarks_link_label">Link</string>

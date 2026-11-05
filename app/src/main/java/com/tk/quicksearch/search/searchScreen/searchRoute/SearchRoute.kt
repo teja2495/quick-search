@@ -12,7 +12,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import com.tk.quicksearch.search.core.intentHelpers.FileIntents
+import com.tk.quicksearch.shared.ui.components.AppUndoSnackbarHost
 import com.tk.quicksearch.shared.ui.components.LocalPopupOverlayContent
+import com.tk.quicksearch.shared.ui.components.LocalShowUndoSnackbar
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -732,17 +734,14 @@ fun SearchRoute(
         }
 
         if (overlaySnackbarHostState == null) {
-            ExcludeUndoSnackbarHost(
+            AppUndoSnackbarHost(
                 hostState = snackbarHostState,
                 modifier =
-                    Modifier
-                        .align(Alignment.BottomCenter)
-                        .imePadding()
-                        .padding(
-                            start = DesignTokens.SpacingLarge,
-                            end = DesignTokens.SpacingLarge,
-                            bottom = DesignTokens.SpacingHuge,
-                        ),
+                    Modifier.align(Alignment.BottomCenter).imePadding().padding(
+                        start = DesignTokens.SpacingLarge,
+                        end = DesignTokens.SpacingLarge,
+                        bottom = DesignTokens.SpacingHuge,
+                    ),
             )
         }
 

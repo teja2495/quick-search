@@ -30,7 +30,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.io.File
@@ -66,7 +66,7 @@ enum class RootDestination {
     Settings,
 }
 
-private const val NAVIGATION_ANIMATION_DURATION_MS = 180
+internal const val NAVIGATION_ANIMATION_DURATION_MS = 180
 
 private enum class SwipeAnimationDirection {
     LEFT,
@@ -174,17 +174,11 @@ fun MainContent(
             Modifier
                 .fillMaxSize()
                 .background(
-                    if (
-                        allowSystemWallpaperBackdrop &&
-                        currentScreen == AppScreen.Main &&
-                        destination == RootDestination.Search
-                    ) {
-                        Color.Transparent
-                    } else if (allowSystemWallpaperBackdrop) {
-                        MaterialTheme.colorScheme.background
-                    } else {
-                        Color.Transparent
-                    },
+                    animatedRootBackgroundColor(
+                        allowSystemWallpaperBackdrop = allowSystemWallpaperBackdrop,
+                        showsSystemWallpaper =
+                            currentScreen == AppScreen.Main && destination == RootDestination.Search,
+                    ),
                 ),
     ) {
     AnimatedContent(
@@ -501,7 +495,13 @@ private fun NavigationContent(
         rootTransition.currentState != RootDestination.Settings ||
             rootTransition.targetState != RootDestination.Settings
     Box(modifier = Modifier.fillMaxSize()) {
-        if (showsSharedBackdrop) SharedPageBackdrop(state = uiState)
+        val sharedBackdropAlpha by rootTransition.sharedBackdropAlpha()
+        if (showsSharedBackdrop) {
+            SharedPageBackdrop(
+                state = uiState,
+                modifier = Modifier.graphicsLayer { alpha = sharedBackdropAlpha },
+            )
+        }
         CompositionLocalProvider(LocalPageBackdropDrawnByHost provides showsSharedBackdrop) {
             rootTransition.AnimatedContent(
                 transitionSpec = {

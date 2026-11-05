@@ -49,6 +49,8 @@ import com.tk.quicksearch.search.models.BookmarkInfo
 import com.tk.quicksearch.settings.appShortcutsSettings.shortcutMatchPriority
 import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
+import com.tk.quicksearch.shared.ui.components.AppUndoSnackbarPopup
+import com.tk.quicksearch.shared.ui.components.rememberUndoSnackbarController
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -56,6 +58,8 @@ import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+private const val EXPORT_FILE_NAME = "bookmarks.html"
 
 /** Largest bookmarks file read into memory; browser exports with thousands of links stay well under it. */
 private const val MAX_IMPORT_FILE_BYTES = 16L * 1024 * 1024
@@ -79,8 +83,19 @@ fun BookmarksSettingsSection(
     var editorTarget by remember { mutableStateOf<BookmarkEditorTarget?>(null) }
     var isImporting by remember { mutableStateOf(false) }
     var showDeleteAllConfirm by remember { mutableStateOf(false) }
+    var showDefaultBrowserPicker by remember { mutableStateOf(false) }
+    val storedDefaultBrowser by repository.defaultBrowserPackage.collectAsState()
+    val undoSnackbar = rememberUndoSnackbarController()
+    val deletedMessage = stringResource(R.string.bookmarks_deleted)
+    // An uninstalled default falls back to the in-app browser.
+    val defaultBrowser = resolveBookmarkBrowser(storedDefaultBrowser, availableBrowsers)
 
-    LaunchedEffect(repository) { withContext(Dispatchers.IO) { repository.getAll() } }
+    LaunchedEffect(repository) {
+        withContext(Dispatchers.IO) {
+            repository.getAll()
+            repository.loadDefaultBrowserPackage()
+        }
+    }
     LaunchedEffect(addRequest) { if (addRequest > 0) editorTarget = BookmarkEditorTarget.New }
 
     val importLauncher =
@@ -88,8 +103,18 @@ fun BookmarksSettingsSection(
             if (uri == null) return@rememberLauncherForActivityResult
             isImporting = true
             scope.launch {
-                val message = withContext(Dispatchers.IO) { importBookmarksFile(context, repository, uri) }
+                val message =
+                    withContext(Dispatchers.IO) { importBookmarksFile(context, repository, uri, defaultBrowser) }
                 isImporting = false
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            }
+        }
+
+    val exportLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/html")) { uri ->
+            if (uri == null) return@rememberLauncherForActivityResult
+            scope.launch {
+                val message = withContext(Dispatchers.IO) { exportBookmarksFile(context, repository, uri) }
                 Toast.makeText(context, message, Toast.LENGTH_LONG).show()
             }
         }
@@ -99,6 +124,8 @@ fun BookmarksSettingsSection(
         BookmarksPageActions.actions.collect { action ->
             when (action) {
                 BookmarksPageAction.ImportHtml -> launchImport()
+                BookmarksPageAction.ExportHtml -> exportLauncher.launch(EXPORT_FILE_NAME)
+                BookmarksPageAction.DefaultBrowser -> showDefaultBrowserPicker = true
                 BookmarksPageAction.DeleteAll -> showDeleteAllConfirm = true
             }
         }
@@ -146,7 +173,16 @@ fun BookmarksSettingsSection(
                         BookmarkManagementRow(
                             bookmark = bookmark,
                             onClick = { editorTarget = BookmarkEditorTarget.Existing(bookmark) },
-                            onDelete = { scope.launch(Dispatchers.IO) { repository.delete(bookmark.bookmarkId) } },
+                            onDelete = {
+                                scope.launch {
+                                    val deleted =
+                                        withContext(Dispatchers.IO) { repository.deleteForUndo(bookmark.bookmarkId) }
+                                            ?: return@launch
+                                    undoSnackbar.show(deletedMessage, MaterialSymbols.Delete) {
+                                        scope.launch(Dispatchers.IO) { repository.restore(deleted) }
+                                    }
+                                }
+                            },
                         )
                         if (index < displayed.lastIndex) HorizontalDivider(color = AppColors.SettingsDivider)
                     }
@@ -154,6 +190,8 @@ fun BookmarksSettingsSection(
             }
         }
     }
+
+    AppUndoSnackbarPopup(hostState = undoSnackbar.hostState)
 
     if (showDeleteAllConfirm) {
         AppAlertDialog(
@@ -178,6 +216,17 @@ fun BookmarksSettingsSection(
         )
     }
 
+    if (showDefaultBrowserPicker) {
+        BookmarkDefaultBrowserDrawer(
+            availableBrowsers = availableBrowsers,
+            selectedPackage = defaultBrowser,
+            onSelect = { packageName ->
+                scope.launch(Dispatchers.IO) { repository.setDefaultBrowserPackage(packageName) }
+            },
+            onDismiss = { showDefaultBrowserPicker = false },
+        )
+    }
+
     editorTarget?.let { target ->
         val editedId = (target as? BookmarkEditorTarget.Existing)?.bookmark?.bookmarkId
         BookmarkEditorSheet(
@@ -188,6 +237,7 @@ fun BookmarksSettingsSection(
                 },
             isIconLoading = editedId != null && editedId in faviconFetchesInProgress,
             availableBrowsers = availableBrowsers,
+            defaultBrowserPackage = defaultBrowser,
             onDismiss = { editorTarget = null },
             onSave = { name, url, browser, customIconBase64 ->
                 val existing = (target as? BookmarkEditorTarget.Existing)?.bookmark
@@ -228,7 +278,7 @@ private fun BookmarkImportRow(
                 CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
             } else {
                 Icon(
-                    imageVector = MaterialSymbols.Upload,
+                    imageVector = MaterialSymbols.Download,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(DesignTokens.IconSize),
@@ -297,6 +347,7 @@ private fun importBookmarksFile(
     context: Context,
     repository: BookmarkRepository,
     uri: Uri,
+    browserPackageName: String,
 ): String {
     val html =
         runCatching {
@@ -308,11 +359,30 @@ private fun importBookmarksFile(
 
     val items = BookmarkHtmlParser.parse(html)
     if (items.isEmpty()) return context.getString(R.string.bookmarks_import_none_found)
-    val result = repository.import(items)
+    val result = repository.import(items, browserPackageName)
     return if (result.skippedDuplicates > 0) {
         context.getString(R.string.bookmarks_import_result_with_skipped, result.added, result.skippedDuplicates)
     } else {
         context.getString(R.string.bookmarks_import_result, result.added)
+    }
+}
+
+/** Writes every bookmark to [uri] as a bookmarks HTML file, returning the message to show. Runs off the main thread. */
+private fun exportBookmarksFile(
+    context: Context,
+    repository: BookmarkRepository,
+    uri: Uri,
+): String {
+    val bookmarks = repository.getAll()
+    val written =
+        runCatching {
+            val html = repository.exportHtml()
+            context.contentResolver.openOutputStream(uri, "wt")?.use { it.write(html.toByteArray(Charsets.UTF_8)) }
+        }.getOrNull() != null
+    return if (written) {
+        context.getString(R.string.bookmarks_export_result, bookmarks.size)
+    } else {
+        context.getString(R.string.bookmarks_export_failed)
     }
 }
 

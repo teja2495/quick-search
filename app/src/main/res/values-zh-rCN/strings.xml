@@ -1459,6 +1459,11 @@
     <string name="bookmarks_menu_delete_all">全部删除</string>
     <string name="bookmarks_delete_all_title">删除所有书签吗？</string>
     <string name="bookmarks_delete_all_message">所有已保存的书签都将被删除。此操作无法撤销。</string>
+    <string name="bookmarks_deleted">已删除书签</string>
+    <string name="bookmarks_menu_export_html">导出为 HTML</string>
+    <string name="bookmarks_export_result">已导出书签：%1$d</string>
+    <string name="bookmarks_export_failed">无法保存文件</string>
+    <string name="bookmarks_default_browser_desc">新建和导入的书签会在此浏览器中打开。你仍可为每个书签单独更改。</string>
     <string name="bookmarks_add_title">添加书签</string>
     <string name="bookmarks_edit_title">编辑书签</string>
     <string name="bookmarks_link_label">链接</string>

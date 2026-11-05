@@ -1473,6 +1473,11 @@
     <string name="bookmarks_menu_delete_all">حذف الكل</string>
     <string name="bookmarks_delete_all_title">هل تريد حذف كل الإشارات المرجعية؟</string>
     <string name="bookmarks_delete_all_message">ستتم إزالة كل الإشارات المرجعية المحفوظة. لا يمكن التراجع عن هذا الإجراء.</string>
+    <string name="bookmarks_deleted">تم حذف الإشارة المرجعية</string>
+    <string name="bookmarks_menu_export_html">تصدير بتنسيق HTML</string>
+    <string name="bookmarks_export_result">الإشارات المرجعية المُصدَّرة: %1$d</string>
+    <string name="bookmarks_export_failed">تعذّر حفظ الملف</string>
+    <string name="bookmarks_default_browser_desc">تُفتح الإشارات المرجعية الجديدة والمستوردة في هذا المتصفح. لا يزال بإمكانك تغييره لكل إشارة مرجعية.</string>
     <string name="bookmarks_add_title">إضافة إشارة مرجعية</string>
     <string name="bookmarks_edit_title">تعديل الإشارة المرجعية</string>
     <string name="bookmarks_link_label">الرابط</string>

@@ -62,7 +62,7 @@ import com.tk.quicksearch.app.navigation.SettingsNavigationMemory
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.SearchViewModel
-import com.tk.quicksearch.search.searchScreen.searchRoute.ExcludeUndoSnackbarHost
+import com.tk.quicksearch.shared.ui.components.AppUndoSnackbarHost
 import com.tk.quicksearch.search.searchScreen.searchRoute.SearchRoute
 import com.tk.quicksearch.search.searchScreen.SearchScreenBackground
 import com.tk.quicksearch.search.searchScreen.components.NumberKeyboardOperatorPills
@@ -670,7 +670,7 @@ fun OverlayRoot(
                                 )
                         }
 
-                        ExcludeUndoSnackbarHost(
+                        AppUndoSnackbarHost(
                                 hostState = overlaySnackbarHostState,
                                 modifier =
                                         Modifier.align(Alignment.BottomCenter)

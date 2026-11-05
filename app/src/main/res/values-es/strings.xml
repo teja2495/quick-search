@@ -1471,6 +1471,11 @@
     <string name="bookmarks_menu_delete_all">Eliminar todo</string>
     <string name="bookmarks_delete_all_title">¿Eliminar todos los marcadores?</string>
     <string name="bookmarks_delete_all_message">Se eliminarán todos los marcadores guardados. Esta acción no se puede deshacer.</string>
+    <string name="bookmarks_deleted">Marcador eliminado</string>
+    <string name="bookmarks_menu_export_html">Exportar como HTML</string>
+    <string name="bookmarks_export_result">Marcadores exportados: %1$d</string>
+    <string name="bookmarks_export_failed">No se pudo guardar el archivo</string>
+    <string name="bookmarks_default_browser_desc">Los marcadores nuevos e importados se abren en este navegador. Puedes cambiarlo en cada marcador.</string>
     <string name="bookmarks_add_title">Añadir marcador</string>
     <string name="bookmarks_edit_title">Editar marcador</string>
     <string name="bookmarks_link_label">Enlace</string>

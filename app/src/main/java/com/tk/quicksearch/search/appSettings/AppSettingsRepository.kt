@@ -442,7 +442,7 @@ class AppSettingsRepository(
                 titleRes = R.string.section_bookmarks,
                 descriptionRes = R.string.settings_bookmarks_view_all_desc,
                 destination = AppSettingsDestination.BOOKMARKS_LIST,
-                keywords = listOf("bookmark", "website", "websites", "link", "links", "url", "favorites", "import bookmarks"),
+                keywords = listOf("bookmark", "website", "websites", "link", "links", "url", "favorites", "import bookmarks", "export bookmarks", "bookmark browser"),
             )
             addToggle(
                 id = "app_toggle_overlay_mode",
