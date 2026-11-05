@@ -131,6 +131,8 @@
 <string name="settings_gesture_play_pause_media">Pausar/reproducir multimedia</string>
 <string name="settings_notch_gestures_title">Gestos del notch</string>
 <string name="settings_notch_gestures_desc">Toca el notch o el orificio de la cámara desde cualquier app</string>
+<string name="settings_home_gestures_title">Gestos de inicio</string>
+<string name="settings_home_gestures_desc">Desliza o toca en cualquier parte de la pantalla de inicio</string>
 <string name="settings_notch_accessibility_needed">Se necesita el permiso de accesibilidad</string>
 <string name="settings_notch_single_tap_search_title">Tocar una vez el notch</string>
 <string name="settings_notch_double_tap_search_title">Tocar dos veces el notch</string>

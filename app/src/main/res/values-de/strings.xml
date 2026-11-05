@@ -131,6 +131,8 @@
 <string name="settings_gesture_play_pause_media">Medien pausieren/abspielen</string>
 <string name="settings_notch_gestures_title">Notch-Gesten</string>
 <string name="settings_notch_gestures_desc">Tippe in jeder App auf die Notch oder Kameraaussparung</string>
+<string name="settings_home_gestures_title">Startbildschirm-Gesten</string>
+<string name="settings_home_gestures_desc">Wische oder tippe irgendwo auf den Startbildschirm</string>
 <string name="settings_notch_accessibility_needed">Berechtigung für Bedienungshilfen erforderlich</string>
 <string name="settings_notch_single_tap_search_title">Notch einmal tippen</string>
 <string name="settings_notch_double_tap_search_title">Notch doppeltippen</string>

@@ -17,10 +17,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -100,7 +98,11 @@ fun GesturesSettingsSection(
     GestureSettingsDialogs(state, searchViewModel)
 
     Column(modifier = modifier) {
-        SettingsCard(modifier = Modifier.fillMaxWidth().padding(bottom = DesignTokens.SectionTopPadding)) {
+        SettingsCard(
+            modifier = Modifier.fillMaxWidth().padding(bottom = DesignTokens.SectionTopPadding),
+            title = stringResource(R.string.settings_home_gestures_title),
+            description = stringResource(R.string.settings_home_gestures_desc),
+        ) {
             Column {
                 val gestureDirections = SwipeDirection.entries
                 gestureDirections.forEachIndexed { index, direction ->
@@ -167,27 +169,12 @@ fun GesturesSettingsSection(
             )
         }
 
-        SettingsCard(modifier = Modifier.fillMaxWidth()) {
+        SettingsCard(
+            modifier = Modifier.fillMaxWidth(),
+            title = stringResource(R.string.settings_keyboard_gestures_title),
+            description = stringResource(R.string.settings_keyboard_gestures_desc),
+        ) {
             Column {
-                Column(
-                    modifier = Modifier.padding(
-                        horizontal = DesignTokens.CardHorizontalPadding,
-                        vertical = DesignTokens.CardVerticalPadding,
-                    ),
-                ) {
-                    Text(
-                        text = stringResource(R.string.settings_keyboard_gestures_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Text(
-                        text = stringResource(R.string.settings_keyboard_gestures_desc),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = DesignTokens.SpacingXSmall),
-                    )
-                }
-                HorizontalDivider(color = AppColors.SettingsDivider)
                 SettingsNavigationRow(
                     item = SettingsCardItem(
                         title = stringResource(R.string.action_open_keyboard),

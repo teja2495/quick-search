@@ -131,6 +131,8 @@
     <string name="settings_gesture_play_pause_media">暂停/播放媒体</string>
     <string name="settings_notch_gestures_title">刘海手势</string>
     <string name="settings_notch_gestures_desc">在任何应用中点按刘海或摄像头开孔</string>
+    <string name="settings_home_gestures_title">主屏幕手势</string>
+    <string name="settings_home_gestures_desc">在主屏幕任意位置滑动或点按</string>
     <string name="settings_notch_accessibility_needed">需要无障碍权限</string>
     <string name="settings_notch_single_tap_search_title">单击刘海</string>
     <string name="settings_notch_double_tap_search_title">双击刘海</string>

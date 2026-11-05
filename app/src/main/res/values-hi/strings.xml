@@ -131,6 +131,8 @@
 <string name="settings_gesture_play_pause_media">मीडिया पॉज़/प्ले</string>
 <string name="settings_notch_gestures_title">नॉच जेस्चर</string>
 <string name="settings_notch_gestures_desc">किसी भी ऐप में नॉच या कैमरा कटआउट पर टैप करें</string>
+<string name="settings_home_gestures_title">होम जेस्चर</string>
+<string name="settings_home_gestures_desc">होम स्क्रीन पर कहीं भी स्वाइप या टैप करें</string>
 <string name="settings_notch_accessibility_needed">Accessibility अनुमति आवश्यक है</string>
 <string name="settings_notch_single_tap_search_title">नॉच सिंगल टैप</string>
 <string name="settings_notch_double_tap_search_title">नॉच डबल टैप</string>

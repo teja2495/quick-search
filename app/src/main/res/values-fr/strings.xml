@@ -131,6 +131,8 @@
 <string name="settings_gesture_play_pause_media">Pause/lecture du média</string>
 <string name="settings_notch_gestures_title">Gestes de l’encoche</string>
 <string name="settings_notch_gestures_desc">Appuyez sur l’encoche ou la découpe de la caméra depuis n’importe quelle application</string>
+<string name="settings_home_gestures_title">Gestes de l’écran d’accueil</string>
+<string name="settings_home_gestures_desc">Balayez ou appuyez n’importe où sur l’écran d’accueil</string>
 <string name="settings_notch_accessibility_needed">L’autorisation d’accessibilité est requise</string>
 <string name="settings_notch_single_tap_search_title">Appui simple sur l’encoche</string>
 <string name="settings_notch_double_tap_search_title">Double appui sur l’encoche</string>

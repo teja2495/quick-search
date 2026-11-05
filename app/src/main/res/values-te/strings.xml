@@ -131,6 +131,8 @@
     <string name="settings_gesture_play_pause_media">మీడియా పాజ్/ప్లే</string>
     <string name="settings_notch_gestures_title">నాచ్ హావభావాలు</string>
     <string name="settings_notch_gestures_desc">ఏ యాప్‌లోనైనా నాచ్ లేదా కెమెరా కటౌట్‌ను నొక్కండి</string>
+    <string name="settings_home_gestures_title">హోమ్ హావభావాలు</string>
+    <string name="settings_home_gestures_desc">హోమ్ స్క్రీన్‌లో ఎక్కడైనా స్వైప్ చేయండి లేదా ట్యాప్ చేయండి</string>
     <string name="settings_notch_accessibility_needed">యాక్సెసిబిలిటీ అనుమతి అవసరం</string>
     <string name="settings_notch_single_tap_search_title">నాచ్ ఒకసారి నొక్కడం</string>
     <string name="settings_notch_double_tap_search_title">నాచ్ రెండుసార్లు నొక్కడం</string>

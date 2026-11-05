@@ -124,6 +124,8 @@
     <string name="settings_gesture_play_pause_media">Pause/Play Media</string>
     <string name="settings_notch_gestures_title">Notch Gestures</string>
     <string name="settings_notch_gestures_desc">Tap the notch or camera cutout from any app</string>
+    <string name="settings_home_gestures_title">Home Gestures</string>
+    <string name="settings_home_gestures_desc">Swipe or tap anywhere on the home screen</string>
     <string name="settings_notch_accessibility_needed">Accessibility permission is needed</string>
     <string name="settings_notch_single_tap_search_title">Notch Single Tap</string>
     <string name="settings_notch_double_tap_search_title">Notch Double Tap</string>

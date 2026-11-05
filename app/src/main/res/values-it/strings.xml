@@ -130,6 +130,8 @@
 <string name="settings_gesture_play_pause_media">Pausa/riproduci contenuti multimediali</string>
 <string name="settings_notch_gestures_title">Gesti del notch</string>
 <string name="settings_notch_gestures_desc">Tocca il notch o il foro della fotocamera da qualsiasi app</string>
+<string name="settings_home_gestures_title">Gesti della schermata Home</string>
+<string name="settings_home_gestures_desc">Scorri o tocca in qualsiasi punto della schermata Home</string>
 <string name="settings_notch_accessibility_needed">È necessaria l’autorizzazione di accessibilità</string>
 <string name="settings_notch_single_tap_search_title">Tocco singolo sul notch</string>
 <string name="settings_notch_double_tap_search_title">Doppio tocco sul notch</string>

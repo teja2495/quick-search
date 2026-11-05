@@ -132,6 +132,8 @@
 <string name="settings_gesture_play_pause_media">إيقاف/تشغيل الوسائط</string>
 <string name="settings_notch_gestures_title">إيماءات النتوء</string>
 <string name="settings_notch_gestures_desc">انقر على النتوء أو فتحة الكاميرا من أي تطبيق</string>
+<string name="settings_home_gestures_title">إيماءات الشاشة الرئيسية</string>
+<string name="settings_home_gestures_desc">اسحب أو انقر في أي مكان على الشاشة الرئيسية</string>
 <string name="settings_notch_accessibility_needed">يلزم إذن إمكانية الوصول</string>
 <string name="settings_notch_single_tap_search_title">نقرة واحدة على النتوء</string>
 <string name="settings_notch_double_tap_search_title">نقر مزدوج على النتوء</string>

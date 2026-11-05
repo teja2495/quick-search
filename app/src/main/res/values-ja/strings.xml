@@ -132,6 +132,8 @@
     <string name="settings_gesture_play_pause_media">メディアの一時停止/再生</string>
     <string name="settings_notch_gestures_title">ノッチジェスチャー</string>
     <string name="settings_notch_gestures_desc">どのアプリからでもノッチやカメラの切り欠きをタップ</string>
+    <string name="settings_home_gestures_title">ホームジェスチャー</string>
+    <string name="settings_home_gestures_desc">ホーム画面のどこでもスワイプまたはタップ</string>
     <string name="settings_notch_accessibility_needed">ユーザー補助の権限が必要です</string>
     <string name="settings_notch_single_tap_search_title">ノッチのシングルタップ</string>
     <string name="settings_notch_double_tap_search_title">ノッチのダブルタップ</string>

@@ -132,6 +132,8 @@
     <string name="settings_gesture_play_pause_media">Wstrzymaj/odtwórz multimedia</string>
     <string name="settings_notch_gestures_title">Gesty wcięcia</string>
     <string name="settings_notch_gestures_desc">Dotknij wcięcia lub otworu aparatu w dowolnej aplikacji</string>
+    <string name="settings_home_gestures_title">Gesty ekranu głównego</string>
+    <string name="settings_home_gestures_desc">Przesuń lub dotknij w dowolnym miejscu ekranu głównego</string>
     <string name="settings_notch_accessibility_needed">Wymagane uprawnienie ułatwień dostępu</string>
     <string name="settings_notch_single_tap_search_title">Pojedyncze dotknięcie wcięcia</string>
     <string name="settings_notch_double_tap_search_title">Dwukrotne dotknięcie wcięcia</string>

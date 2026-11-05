@@ -131,6 +131,8 @@
 <string name="settings_gesture_play_pause_media">Пауза/воспроизведение медиа</string>
 <string name="settings_notch_gestures_title">Жесты выреза</string>
 <string name="settings_notch_gestures_desc">Нажмите на вырез или отверстие камеры в любом приложении</string>
+<string name="settings_home_gestures_title">Жесты главного экрана</string>
+<string name="settings_home_gestures_desc">Проведите или коснитесь в любом месте главного экрана</string>
 <string name="settings_notch_accessibility_needed">Требуется разрешение специальных возможностей</string>
 <string name="settings_notch_single_tap_search_title">Одиночное нажатие на вырез</string>
 <string name="settings_notch_double_tap_search_title">Двойное нажатие на вырез</string>

@@ -4,10 +4,7 @@ import android.content.Intent
 import android.provider.Settings
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -42,28 +39,14 @@ internal fun NotchGesturesCard(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    SettingsCard(modifier = modifier) {
+    SettingsCard(
+        modifier = modifier,
+        title = stringResource(R.string.settings_notch_gestures_title),
+        description = stringResource(R.string.settings_notch_gestures_desc),
+    ) {
         Column {
-            Column(
-                modifier = Modifier.padding(
-                    horizontal = DesignTokens.CardHorizontalPadding,
-                    vertical = DesignTokens.CardVerticalPadding,
-                ),
-            ) {
-                Text(
-                    text = stringResource(R.string.settings_notch_gestures_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Text(
-                    text = stringResource(R.string.settings_notch_gestures_desc),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = DesignTokens.SpacingXSmall),
-                )
-            }
-            listOf(HomeGesture.NOTCH_SINGLE_TAP, HomeGesture.NOTCH_DOUBLE_TAP).forEach { gesture ->
-                HorizontalDivider(color = AppColors.SettingsDivider)
+            listOf(HomeGesture.NOTCH_SINGLE_TAP, HomeGesture.NOTCH_DOUBLE_TAP).forEachIndexed { index, gesture ->
+                if (index > 0) HorizontalDivider(color = AppColors.SettingsDivider)
                 SettingsNavigationRow(
                     item =
                         SettingsCardItem(

@@ -132,6 +132,8 @@
     <string name="settings_gesture_play_pause_media">Jeda/Putar Media</string>
     <string name="settings_notch_gestures_title">Gestur Notch</string>
     <string name="settings_notch_gestures_desc">Ketuk notch atau lubang kamera dari aplikasi apa pun</string>
+    <string name="settings_home_gestures_title">Gestur Beranda</string>
+    <string name="settings_home_gestures_desc">Geser atau ketuk di mana saja di layar beranda</string>
     <string name="settings_notch_accessibility_needed">Izin Aksesibilitas diperlukan</string>
     <string name="settings_notch_single_tap_search_title">Ketuk Sekali Notch</string>
     <string name="settings_notch_double_tap_search_title">Ketuk Dua Kali Notch</string>

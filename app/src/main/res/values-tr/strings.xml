@@ -130,6 +130,8 @@
 <string name="settings_gesture_play_pause_media">Medyayı duraklat/oynat</string>
 <string name="settings_notch_gestures_title">Çentik Hareketleri</string>
 <string name="settings_notch_gestures_desc">Herhangi bir uygulamada çentiğe veya kamera deliğine dokunun</string>
+<string name="settings_home_gestures_title">Ana Ekran Hareketleri</string>
+<string name="settings_home_gestures_desc">Ana ekranda herhangi bir yere kaydırın veya dokunun</string>
 <string name="settings_notch_accessibility_needed">Erişilebilirlik izni gerekiyor</string>
 <string name="settings_notch_single_tap_search_title">Çentiğe Tek Dokunma</string>
 <string name="settings_notch_double_tap_search_title">Çentiğe Çift Dokunma</string>
