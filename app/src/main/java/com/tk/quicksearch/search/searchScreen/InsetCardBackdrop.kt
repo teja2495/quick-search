@@ -13,8 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.BlurEffect
@@ -97,14 +96,21 @@ internal class InsetCardBackdrop {
     }
 
     internal val blurSupported: Boolean
-        get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        get() = BackdropBlurSupported
 }
+
+/**
+ * Blur needs RenderEffect (Android 12). Older devices skip the whole backdrop: nothing registers,
+ * the results keep their original bounds, and no extra layer or clip runs, so they cost the same
+ * as before the effect existed.
+ */
+private val BackdropBlurSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
 internal val LocalInsetCardBackdrop = staticCompositionLocalOf<InsetCardBackdrop?> { null }
 
 /**
- * Only surfaces in the bottom chrome register as backdrop targets. Engine rows and bars rendered
- * elsewhere (inline in results, top search bar) stay untouched.
+ * Only surfaces in the bottom chrome register as backdrop targets, so engine rows rendered inline in
+ * the results stay untouched. The main search bar opts in wherever it sits.
  */
 internal val LocalInsetCardBackdropTargetsEnabled = staticCompositionLocalOf { false }
 
@@ -143,7 +149,23 @@ private data class TopBarMatchingShape(
     val barShape: Shape,
     val resultsTop: Float,
 ) : Shape {
+    // The results resize every frame while the keyboard animates; reuse the outline per size.
+    private var cachedSize: androidx.compose.ui.geometry.Size? = null
+    private var cachedOutline: Outline? = null
+
     override fun createOutline(
+        size: androidx.compose.ui.geometry.Size,
+        layoutDirection: androidx.compose.ui.unit.LayoutDirection,
+        density: androidx.compose.ui.unit.Density,
+    ): Outline {
+        cachedOutline?.let { if (cachedSize == size) return it }
+        return buildOutline(size, layoutDirection, density).also {
+            cachedSize = size
+            cachedOutline = it
+        }
+    }
+
+    private fun buildOutline(
         size: androidx.compose.ui.geometry.Size,
         layoutDirection: androidx.compose.ui.unit.LayoutDirection,
         density: androidx.compose.ui.unit.Density,
@@ -164,6 +186,7 @@ private data class TopBarMatchingShape(
  */
 @Composable
 internal fun Modifier.insetCardBackdropSource(backdrop: InsetCardBackdrop): Modifier {
+    if (!backdrop.blurSupported) return this
     val layer = rememberGraphicsLayer()
     DisposableEffect(backdrop, layer) {
         backdrop.contentLayer = layer
@@ -188,20 +211,24 @@ internal fun Modifier.insetCardBackdropSource(backdrop: InsetCardBackdrop): Modi
                 placeable.place(0, -top)
             }
         }
-        .drawWithContent {
+        .drawWithCache {
+            // Rebuilt only when a surface moves or changes shape, not on every frame.
             val cutout = Path()
             backdrop.targets.forEach { target ->
                 val bounds = target.boundsInRoot ?: return@forEach
                 val shape = target.shape ?: return@forEach
-                val outline = Path().apply { addOutline(shape.createOutline(bounds.size, layoutDirection, this@drawWithContent)) }
+                val outline = Path().apply { addOutline(shape.createOutline(bounds.size, layoutDirection, this@drawWithCache)) }
                 cutout.addPath(outline, bounds.topLeft - backdrop.contentOriginInRoot)
             }
-            if (cutout.isEmpty) {
-                drawContent()
-                return@drawWithContent
+            val hasCutout = !cutout.isEmpty
+            onDrawWithContent {
+                if (!hasCutout) {
+                    drawContent()
+                    return@onDrawWithContent
+                }
+                layer.record { this@onDrawWithContent.drawContent() }
+                clipPath(cutout, clipOp = ClipOp.Difference) { drawLayer(layer) }
             }
-            layer.record { this@drawWithContent.drawContent() }
-            clipPath(cutout, clipOp = ClipOp.Difference) { drawLayer(layer) }
         }
 }
 
@@ -212,7 +239,9 @@ internal fun Modifier.insetCardBackdropSource(backdrop: InsetCardBackdrop): Modi
 @Composable
 internal fun Modifier.insetCardBackdrop(enabled: Boolean, shape: Shape, anywhere: Boolean = false): Modifier {
     val backdrop = LocalInsetCardBackdrop.current
-    val active = enabled && backdrop != null && (anywhere || LocalInsetCardBackdropTargetsEnabled.current)
+    val active =
+        enabled && backdrop != null && backdrop.blurSupported &&
+            (anywhere || LocalInsetCardBackdropTargetsEnabled.current)
     return if (active) insetCardBackdropTarget(backdrop!!, shape) else this
 }
 
@@ -253,20 +282,24 @@ private fun Modifier.insetCardBackdropTarget(
                     ),
                 )
         }
-        .drawBehind {
-            if (!backdrop.blurSupported) return@drawBehind
-            val contentLayer = backdrop.contentLayer ?: return@drawBehind
-            val bounds = target.boundsInRoot ?: return@drawBehind
-            val contentSize = contentLayer.size
-            if (contentSize == IntSize.Zero) return@drawBehind
+        .drawWithCache {
+            // Blur only this surface's own area (plus the blur radius so its edges sample real
+            // pixels), not the whole results layer: blur cost scales with the blurred area.
             val radius = InsetCardBackdropBlurRadius.toPx()
+            val margin = kotlin.math.ceil(radius).toInt()
             blurLayer.renderEffect = BlurEffect(radius, radius, TileMode.Clamp)
-            blurLayer.record(size = contentSize) { drawLayer(contentLayer) }
-            val outline = Path().apply { addOutline(shape.createOutline(size, layoutDirection, this@drawBehind)) }
-            clipPath(outline) {
-                val offset = backdrop.contentOriginInRoot - bounds.topLeft
-                translate(left = offset.x, top = offset.y) {
-                    drawLayer(blurLayer)
+            val outline = Path().apply { addOutline(shape.createOutline(size, layoutDirection, this@drawWithCache)) }
+            val regionSize = IntSize(size.width.toInt() + margin * 2, size.height.toInt() + margin * 2)
+            val bounds = target.boundsInRoot
+            val offset = bounds?.let { backdrop.contentOriginInRoot - it.topLeft }
+            onDrawBehind {
+                val contentLayer = backdrop.contentLayer ?: return@onDrawBehind
+                if (offset == null || contentLayer.size == IntSize.Zero) return@onDrawBehind
+                blurLayer.record(size = regionSize) {
+                    translate(left = offset.x + margin, top = offset.y + margin) { drawLayer(contentLayer) }
+                }
+                clipPath(outline) {
+                    translate(left = -margin.toFloat(), top = -margin.toFloat()) { drawLayer(blurLayer) }
                 }
             }
         }

@@ -180,9 +180,6 @@ fun SearchContentArea(
                     && !showWeather
     val expandedSectionBottomInset = 80.dp
     val aliasExpandedSectionBottomInset = 12.dp
-    val bottomOverlayInset = LocalInsetCardBackdrop.current?.contentBottomInset() ?: 0.dp
-    val topOverlayInset = LocalInsetCardBackdrop.current?.contentTopInset() ?: 0.dp
-    val footerBottomPadding = 28.dp + bottomOverlayInset
     // Result cards need breathing room so they do not touch the bar/engine strip.
     val resultCardBottomGap =
         if (alignResultsToBottom && hasQuery) DesignTokens.SpacingMedium - DesignTokens.SpacingXXSmall else 0.dp
@@ -338,6 +335,9 @@ fun SearchContentArea(
                         onTabSelected = { searchHistorySelectedTab = it },
                     ),
         ) {
+            val bottomOverlayInset = LocalInsetCardBackdrop.current?.contentBottomInset() ?: 0.dp
+            val topOverlayInset = LocalInsetCardBackdrop.current?.contentTopInset() ?: 0.dp
+            val footerBottomPadding = 28.dp + bottomOverlayInset
             // Expanding or collapsing a section or search history rebuilds the whole layout in
             // one frame (other sections drop out, bottom alignment and scroll direction flip), so
             // no per-card size animation can bridge it. Fade and lift the new layout in instead.
