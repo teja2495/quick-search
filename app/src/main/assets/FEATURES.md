@@ -2,7 +2,7 @@
 
 This document highlights all the available features. It also includes details about hidden or non-obvious features that you might miss. Sections from **Overlay Mode** onward follow the order of the Settings screen (Tools settings are covered in the **Tools** section above).
 
-**Version**: 4.9 (Updated November 2, 2026)
+**Version**: 5.0 (Updated November 5, 2026)
 
 ### Search
 
@@ -14,6 +14,7 @@ This document highlights all the available features. It also includes details ab
 - **Reminders Search** - Create and search reminders directly from the search bar. For example, search `Laundry in 2 hrs`.
 - **Notes Search** - Write notes and search them from the search bar. Quick Note is also available in the Widgets Panel. Search `Create Notification Note` to write a note that stays in your notification panel.
 - **Notification History** - Search notifications you've received, or open the full Notification History screen, where you can filter by app, hide an app's notifications, or clear them all. Requires notification access; only notifications received after access is granted are saved.
+- **Bookmarks Search** - Save any website or link as a bookmark and find it from search. You can also import your Chrome desktop bookmarks from an exported HTML file.
 - **Device Settings Search** - Jump straight to specific device settings.
 - **App Settings Search** - Find any Quick Search setting by searching for it.
 - **App Suggestions** - When the search bar is empty, suggested apps appear. Swipe the row to switch between **New & Updated**, **Pinned**, and **Most Used**. Drag one pinned app onto another to create a folder. Works best with usage access; without it, suggestions are based on apps you opened from Quick Search.
@@ -37,28 +38,28 @@ This document highlights all the available features. It also includes details ab
 
 - **Calculator** - Type a math expression to see the result instantly. Switch to the number keyboard to get calculator buttons.
 - **Unit Converter** - Convert units directly from the search bar, e.g. `5 lbs in kgs`. Supported conversions:
-  - Length: m, km, cm, mm, µm (um), nm, mi, yd, ft, in, nmi
-  - Mass: kg, g, mg, µg (ug), lb, oz, st, tonne (metric ton), US ton (short ton)
-  - Temperature: °C, °F, K
-  - Area: m², km², cm², mm², ft², in², yd², mi², acre, ha
-  - Volume: L, mL, m³, cm³ (cc), mm³, ft³, in³, gal, qt, pt, cup, fl oz, tbsp, tsp
-  - Time: s, ms, µs (us), ns, min, h, day, week, month, year
-  - Speed: m/s, km/h, mph, kt, ft/s, in/s
-  - Data: byte (B), bit, KB/MB/GB/TB, KiB/MiB/GiB/TiB
-  - Energy: J, kJ, cal, kcal, Wh, kWh, eV, BTU
-  - Power: W, kW, mW, hp
-  - Pressure: Pa, kPa, MPa, bar, mbar, psi, atm, torr, mmHg
-  - Angle: rad, deg, grad, rev
-  - Frequency: Hz, kHz, MHz, GHz, rpm
+    - Length: m, km, cm, mm, µm (um), nm, mi, yd, ft, in, nmi
+    - Mass: kg, g, mg, µg (ug), lb, oz, st, tonne (metric ton), US ton (short ton)
+    - Temperature: °C, °F, K
+    - Area: m², km², cm², mm², ft², in², yd², mi², acre, ha
+    - Volume: L, mL, m³, cm³ (cc), mm³, ft³, in³, gal, qt, pt, cup, fl oz, tbsp, tsp
+    - Time: s, ms, µs (us), ns, min, h, day, week, month, year
+    - Speed: m/s, km/h, mph, kt, ft/s, in/s
+    - Data: byte (B), bit, KB/MB/GB/TB, KiB/MiB/GiB/TiB
+    - Energy: J, kJ, cal, kcal, Wh, kWh, eV, BTU
+    - Power: W, kW, mW, hp
+    - Pressure: Pa, kPa, MPa, bar, mbar, psi, atm, torr, mmHg
+    - Angle: rad, deg, grad, rev
+    - Frequency: Hz, kHz, MHz, GHz, rpm
 - **Date & Time Calculator** - Calculate dates and times using natural language. Turn it on or off in Tools settings, where you can also tap the row for examples. Supported inputs:
-  - **Named dates** — e.g. March 12 2025, July 4, Dec 25 2026
-  - **Relative dates** — e.g. in 3 months, 2 weeks ago, in 1 year 6 months, 10 days ago
-  - **Date differences** — e.g. March 5 to March 20, Jan 1 to Dec 31 2025
-  - **Offset from a date** — e.g. 5 days from March 12, 3 months before June 1, 2 weeks after July 4
-  - **Time arithmetic** — e.g. 6 hours from now, 45 minutes ago, 2 hours 30 minutes later
-  - **Time ranges** — e.g. 9am to 5pm, 14:00 to 17:30, 8:30am to 12:00pm
-  - **Absolute time** — e.g. 5pm, 14:30, 9am
-  - **Time offset from a time** — e.g. 3 hours after 5pm, 30 minutes before 9am, 1 hour after 14:00
+    - **Named dates** — e.g. March 12 2025, July 4, Dec 25 2026
+    - **Relative dates** — e.g. in 3 months, 2 weeks ago, in 1 year 6 months, 10 days ago
+    - **Date differences** — e.g. March 5 to March 20, Jan 1 to Dec 31 2025
+    - **Offset from a date** — e.g. 5 days from March 12, 3 months before June 1, 2 weeks after July 4
+    - **Time arithmetic** — e.g. 6 hours from now, 45 minutes ago, 2 hours 30 minutes later
+    - **Time ranges** — e.g. 9am to 5pm, 14:00 to 17:30, 8:30am to 12:00pm
+    - **Absolute time** — e.g. 5pm, 14:30, 9am
+    - **Time offset from a time** — e.g. 3 hours after 5pm, 30 minutes before 9am, 1 hour after 14:00
 - **Alarms & Timers** - Set alarms and start timers directly from search. For example, search `2:45pm` to set an alarm or `15 min` to start a timer.
 - **Dictionary** - Search `define serendipity` or `serendipity meaning` to see a dictionary card; tap it to view the definition.
 - **World Clock** - Search a city name to see its current time. Requires an AI provider API key.
@@ -84,10 +85,10 @@ Type an alias before your query to tell Quick Search what you want to do.
 ### Search Algorithm
 
 - **Smart Ranking System** - Results are ranked by relevance with multiple priority levels:
-  - Exact matches (highest priority)
-  - Names starting with query
-  - Second word matches
-  - Names containing query anywhere
+    - Exact matches (highest priority)
+    - Names starting with query
+    - Second word matches
+    - Names containing query anywhere
 - **Recently Opened Results** - Items you opened recently rank higher. You can switch this to most opened in Search Results settings.
 - **Apps** - Also match with typos (fuzzy search), initials (e.g. `yt` for YouTube), and nicknames you add.
 - **Device and app settings** - Small spelling mistakes still find the right setting.
@@ -110,7 +111,7 @@ Long-press on most results to open a context menu with quick actions.
 - **Open in Google Play** - Open an app's Google Play page.
 - **Lock / Unlock App** - Lock an app with biometrics (available when Quick Search is your launcher).
 - **Open in Split Screen** - Open an app in split screen.
-- **SpeedBump** - Add a short delay before an app opens, to help break habitual app opening.
+- **SpeedBump** - Add a short delay before an app opens, to help break habitual app opening. It also works when you open apps from other launchers; turn it on in More Options.
 - **Copy Content** - Copy a note's text to the clipboard.
 - **File Options** - Share a file, open its folder, exclude all files with the same extension, or view file details (type, size, path, last modified).
 
@@ -136,7 +137,7 @@ Available when Quick Search is set as your launcher.
 - **Search Widget** - Tap to open Quick Search. Supports a mic button and up to 2 custom buttons.
 - **Custom Buttons Widget** - A row of buttons for apps, app shortcuts, contacts, files, device settings, and notes, with customizable layouts and actions.
 - **Media Controls Widget** - Shows the current track and album art, with play/pause, previous/next, and rewind/forward controls. Requires notification access.
-- **Note Widget** - Show any note on your home screen. 
+- **Note Widget** - Show any note on your home screen.
 - **At a Glance Widget** - Works on any launcher, just like At a Glance on the Home screen.
 - **Countdown Widget** - Count down to (or up from) any date, with an optional title. Show the time in days, weeks, months, years, a detailed format (e.g. `6 months 5 days`), or as a progress bar. Adjust text size, colors, and transparency. Tap the widget to change its settings.
 
@@ -167,18 +168,19 @@ Available when Quick Search is set as your launcher.
 
 - **Reorder Quick Note** - Hold and drag the Quick Note header to reorder it in the Widgets Panel.
 - **Search Icon** - Tap the search icon in the search bar to limit your search to one type of result.
+- **Settings Icon** - Long-press the settings icon in the search bar to open your device settings.
 - **Open URLs** - Paste or type a URL in the search bar to open it in the browser of your choice.
 - **AI Search**
-  - Tap emails, phone numbers, or links in an answer to email, call, or open them.
-  - Tap the "Powered by" text in a result to quickly switch models.
+    - Tap emails, phone numbers, or links in an answer to email, call, or open them.
+    - Tap the "Powered by" text in a result to quickly switch models.
 - **Physical Keyboard Shortcuts** - Navigate results, open items, and perform actions with a physical keyboard.
 - **Keyboard Buttons** - When the keyboard is closed, tap the small **Open Keyboard** button to reopen it. When you type numbers, a **Switch to number** button appears, handy for the calculator.
 - **Remove History Items** - Long-press any search history item to remove it.
 - **Search Engine Long-Press** - Long-press any search engine icon or card (inline or compact) to jump to Search Engines settings, where you can manage engines, order, and aliases.
 - **Contacts**
-  - **Customize Actions** - Long-press the call or message button on a contact card to replace it with any action.
-  - **Action Shortcuts & Triggers** - Open a contact and long-press any action (e.g. WhatsApp call) to add it to your home screen or give it a trigger.
-  - **Edit Contact** - Tap the contact photo to edit the contact in your contacts app.
+    - **Customize Actions** - Long-press the call or message button on a contact card to replace it with any action.
+    - **Action Shortcuts & Triggers** - Open a contact and long-press any action (e.g. WhatsApp call) to add it to your home screen or give it a trigger.
+    - **Edit Contact** - Tap the contact photo to edit the contact in your contacts app.
 - **Beta Features** - Tap the version number 5 times to unlock beta features. They aren't fully tested, so expect bugs. Tap it 5 times again to turn them off.
 - **Send Crash Log** - Long-press the version number to send feedback with the crash log attached.
 - **Copy Results** - Long-press an AI Search, calculator, or other tool result to copy it.
@@ -285,14 +287,15 @@ The following pages open from Search Results settings.
 - **Aliases** - Set or edit each engine's alias.
 - **Alias after Query** - Turn off aliases at the end of a query, or choose whether a space is needed to trigger them.
 - **Search Engine Style** - Choose between:
-  - **Inline**: Search engines scroll with the results.
-  - **Compact**: Search engines stay in one or two rows above the keyboard.
+    - **Inline**: Search engines scroll with the results.
+    - **Compact**: Search engines stay in one or two rows above the keyboard.
 - **Amazon Domain** - Choose your Amazon region. Once set, Amazon searches open in the Amazon app instead of the website.
 - **Custom Search Engines** - Add any site using a URL with a `{{query}}` placeholder (tap the hint to insert it). The name and icon are filled in automatically (you can edit them), and you can choose which browser opens it.
 
 ---
 
 ### At a Glance
+
 An optional Home section that shows useful information when it matters.
 
 - **Today's Calendar Events** - See your events for today.
@@ -333,6 +336,7 @@ An optional Home section that shows useful information when it matters.
 - **Home Swipe Up/Down** - Assign an action, search engine, or tool, or turn the gesture off. Swipe down can also open the notification panel.
 - **Two-Finger Swipe Up/Down** - Swipe up or down with two fingers on Home to run an action, search engine, or tool.
 - **Double Tap** - Double-tap an empty area on Home to run an action, search engine, or tool, or to lock your screen.
+- **Notch Gestures** - Tap your device's notch or camera cutout to open anything you choose.
 - **View All Apps** - Assign **View All Apps** to any gesture to open the All Apps drawer.
 - **App Icon Swipes** - Swipe up or down on an app icon to open any item you choose.
 - **Keyboard Gestures** - Choose which swipes open and close the keyboard. They work on Home only when there's nothing to scroll.
