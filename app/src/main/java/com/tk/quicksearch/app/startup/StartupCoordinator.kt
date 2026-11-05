@@ -12,11 +12,13 @@ import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.data.preferences.BootstrapPreferences
+import com.tk.quicksearch.searchEngines.AmazonRegionDetector
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.MemoryDiagnostics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicBoolean
 
 enum class StartupMode {
@@ -85,6 +87,7 @@ class StartupCoordinator(
     }
 
     private fun scheduleMainPostFrameWork() {
+        scheduleAmazonRegionDetection()
         if (isFirstLaunch) return
 
         lifecycleScope.launch(Dispatchers.IO) {
@@ -116,6 +119,26 @@ class StartupCoordinator(
                 userPreferences.incrementAppOpenCount()
             } finally {
                 Trace.endSection()
+            }
+        }
+    }
+
+    /**
+     * Once per install (new and existing users), default the Amazon engine to the user's regional
+     * storefront if they are still on the untouched amazon.com default.
+     */
+    private fun scheduleAmazonRegionDetection() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            if (userPreferences.hasDetectedAmazonRegion()) return@launch
+            val detectedDomain =
+                if (userPreferences.getAmazonDomain() == null) {
+                    AmazonRegionDetector.detectDomain(context)
+                } else {
+                    null
+                }
+            userPreferences.markAmazonRegionDetected()
+            if (detectedDomain != null) {
+                withContext(Dispatchers.Main) { viewModel.setAmazonDomain(detectedDomain) }
             }
         }
     }

@@ -15,6 +15,14 @@ class AmazonPreferences(
 
     fun getAmazonDomain(): String? = prefs.getString(BasePreferences.KEY_AMAZON_DOMAIN, null)
 
+    /** True once first-launch region detection has run, so it never overrides a later choice. */
+    fun hasDetectedAmazonRegion(): Boolean =
+        prefs.getBoolean(BasePreferences.KEY_AMAZON_DOMAIN_REGION_DETECTED, false)
+
+    fun markAmazonRegionDetected() {
+        prefs.edit().putBoolean(BasePreferences.KEY_AMAZON_DOMAIN_REGION_DETECTED, true).apply()
+    }
+
     fun setAmazonDomain(domain: String?) {
         if (domain.isNullOrBlank()) {
             prefs.edit().remove(BasePreferences.KEY_AMAZON_DOMAIN).apply()

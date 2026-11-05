@@ -140,6 +140,10 @@ open class UserAppPreferencesFeatures(context: Context) : UserAppPreferencesCore
 
     fun setAmazonDomain(domain: String?) = amazonPreferences.setAmazonDomain(domain)
 
+    fun hasDetectedAmazonRegion(): Boolean = amazonPreferences.hasDetectedAmazonRegion()
+
+    fun markAmazonRegionDetected() = amazonPreferences.markAmazonRegionDetected()
+
     // ============================================================================
     // AI Provider Preferences
     // ============================================================================

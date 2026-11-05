@@ -322,6 +322,8 @@ internal fun SearchPreferencesDelegate.setOverlayModeEnabled(enabled: Boolean) {
 internal fun SearchPreferencesDelegate.setAmazonDomain(domain: String?) {
         stateAccess.amazonDomain = domain
         userPreferences.setAmazonDomain(domain)
+        // Any explicit choice (including saving amazon.com) stops region auto-detection.
+        userPreferences.markAmazonRegionDetected()
         updateFeatureState { state -> state.copy(amazonDomain = stateAccess.amazonDomain) }
     }
 
