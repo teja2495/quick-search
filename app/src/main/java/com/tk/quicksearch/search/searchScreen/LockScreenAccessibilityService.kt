@@ -39,7 +39,7 @@ class LockScreenAccessibilityService : AccessibilityService() {
                 overlay.setAppVisible(resumedAppSurfaceCount > 0)
                 overlay.attach()
             }
-        if (NotchGestureSupport.isSupported) {
+        if (NotchGestureSupport.isSupported(this)) {
             notchGestureOverlay = NotchGestureOverlay(this).also { overlay -> overlay.attach() }
         }
     }

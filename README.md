@@ -1,6 +1,6 @@
 # Quick Search
 
-A fast, private Android search app and launcher. Search **apps, app shortcuts, contacts, files, calendar events, notes, reminders, notification history, device settings, and the web**, and use built-in tools like a **calculator, unit and currency converters, alarms and timers, and AI Search**, all from a single search bar. Built with Kotlin and Jetpack Compose using Material 3 design.
+A fast, private Android search app and launcher. Search **apps, app shortcuts, contacts, files, calendar events, notes, bookmarks, reminders, notification history, device settings, and the web**, and use built-in tools like a **calculator, unit and currency converters, alarms and timers, and AI Search**, all from a single search bar. Built with Kotlin and Jetpack Compose using Material 3 design.
 
 <a href="https://play.google.com/store/apps/details?id=com.tk.quicksearch"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="80"></a>
 <a href="https://f-droid.org/en/packages/com.tk.quicksearch/"><img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80"></a>
@@ -24,6 +24,7 @@ A fast, private Android search app and launcher. Search **apps, app shortcuts, c
 - **Files**: Search device files and folders.
 - **Calendar Events**: Search your calendar events.
 - **Notes**: Write and search notes, plus a Quick Note in the Widgets Panel.
+- **Bookmarks**: Save any website or link and find it from search. Import Chrome desktop bookmarks from an exported HTML file.
 - **Reminders**: Create reminders in plain language, e.g. `Laundry in 2 hrs`, and search them later.
 - **Notification History**: Search notifications received after access is granted.
 - **Device & App Settings**: Jump straight to Android settings or Quick Search settings.
@@ -52,7 +53,8 @@ A fast, private Android search app and launcher. Search **apps, app shortcuts, c
 - **At a Glance**: Today's events, reminders, alarms and timers, media controls, missed and ongoing calls, OTP codes, weather, battery and device status, app notifications, and AI-powered Custom Info. Also available as a widget for any launcher.
 - **Widgets Panel**: Swipe right to open a side panel for any Android widget, and pin widgets to Home. Works with or without Quick Search as your launcher.
 - **Home Screen Widgets**: Search, custom buttons, media controls, note, countdown, and At a Glance widgets with extensive customization.
-- **More Ways to Launch**: Default assistant, Quick Settings tile, overlay mode over other apps, system-wide edge swipe, and a floating button.
+- **More Ways to Launch**: Default assistant, Quick Settings tile, overlay mode over other apps, system-wide edge swipe, notch gestures (tap the camera cutout), and a floating button.
+- **SpeedBump**: Add a short delay before chosen apps open to break habitual opening, even when launched from other launchers.
 
 ### 🎨 Customization
 - **Themes**: Mono, Forest, Aurora, and Sunset themes; Material You; custom accent colors; AMOLED black.
@@ -100,7 +102,7 @@ All permissions are optional and only unlock the features that need them. Search
 - **Language**: Kotlin
 - **UI**: Jetpack Compose with Material 3
 - **Architecture**: MVVM with `StateFlow` and unidirectional data flow
-- **Persistence**: Modular SharedPreferences (encrypted for API keys) and Room for notes and notification history
+- **Persistence**: Modular SharedPreferences (encrypted for API keys) and Room for notes, bookmarks, and notification history
 - **Widgets**: Jetpack Glance
 - **Build**: Gradle Kotlin DSL with version catalogs; `standard` and `fdroid` flavors; `:benchmark` module for baseline profiles
 - **Min SDK**: 24 (Android 7.0) | **Target SDK**: 37
@@ -122,6 +124,7 @@ app/src/main/java/com/tk/quicksearch/
 ├── pinnedNotifications/  # Shortcuts and notes pinned to the notification shade
 ├── overlay/              # Draw-over-other-apps mode
 ├── edgeGesture/          # System-wide edge swipe launcher
+├── notchGesture/         # Notch / camera cutout tap gestures
 ├── floatingButton/       # Floating launch button
 ├── tile/                 # Quick Settings tile
 ├── onboarding/           # First-launch setup

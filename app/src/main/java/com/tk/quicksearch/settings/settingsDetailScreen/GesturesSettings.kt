@@ -96,6 +96,8 @@ fun GesturesSettingsSection(
     val searchState by searchViewModel.uiState.collectAsStateWithLifecycle()
     val state = rememberGestureSettingsState(searchViewModel)
     GestureSettingsDialogs(state, searchViewModel)
+    val context = LocalContext.current
+    val notchGesturesSupported = remember(context) { NotchGestureSupport.isSupported(context) }
 
     Column(modifier = modifier) {
         SettingsCard(
@@ -161,7 +163,7 @@ fun GesturesSettingsSection(
             }
         }
 
-        if (NotchGestureSupport.isSupported) {
+        if (notchGesturesSupported) {
             NotchGesturesCard(
                 state = state,
                 searchState = searchState,

@@ -172,7 +172,7 @@ class AppSettingsRepository(
                 titleRes = R.string.settings_launch_options_title,
                 descriptionRes = R.string.settings_launch_options_desc,
                 destination = AppSettingsDestination.LAUNCH_OPTIONS,
-                keywords = if (NotchGestureSupport.isSupported) listOf("notch") else emptyList(),
+                keywords = if (NotchGestureSupport.isSupported(context)) listOf("notch") else emptyList(),
             )
             addNavigation(
                 id = "app_settings_edge_gesture",
@@ -337,10 +337,10 @@ class AppSettingsRepository(
                 descriptionRes = R.string.settings_gestures_desc,
                 destination = AppSettingsDestination.GESTURES,
                 keywords = listOf("swipe", "quick note", "keyboard", "notifications") +
-                    if (NotchGestureSupport.isSupported) listOf("notch") else emptyList(),
+                    if (NotchGestureSupport.isSupported(context)) listOf("notch") else emptyList(),
             )
             GESTURE_APP_SETTINGS.forEach { (id, titleRes, destination) ->
-                if (destination.isNotchGestureDestination && !NotchGestureSupport.isSupported) return@forEach
+                if (destination.isNotchGestureDestination && !NotchGestureSupport.isSupported(context)) return@forEach
                 addNavigation(
                     id = id,
                     titleRes = titleRes,

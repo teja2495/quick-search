@@ -19,7 +19,7 @@ Repository playbook for coding agents. When prose and code disagree, trust the c
 - App ID `com.tk.quicksearch`; debug builds use `com.tk.quicksearch.debug` ("QS Debug"), which is separate from the user's installed app but holds their real test data.
 - Source paths below are relative to `app/src/main/java/com/tk/quicksearch/`.
 - Entry points: `app/MainActivity.kt` (regular launch, assistant/search/share/process-text/import), `app/HomeActivity.kt` (HOME role), `overlay/OverlayActivity.kt` (draw-over-apps mode).
-- Persistence: modular `SharedPreferences` (secrets via the existing encrypted path). Room for notes (`search/data/notes/`) and notification history (`search/notificationHistory/`). Startup app catalog: `search/data/AppCache.kt`.
+- Persistence: modular `SharedPreferences` (secrets via the existing encrypted path). Room for notes (`search/data/notes/`), bookmarks (`search/data/bookmarks/`), and notification history (`search/notificationHistory/`). Startup app catalog: `search/data/AppCache.kt`.
 
 ## Architecture map
 
@@ -44,7 +44,7 @@ Repository playbook for coding agents. When prose and code disagree, trust the c
 - Search route: `search/searchScreen/searchRoute/SearchRoute.kt`. Composition: `search/searchScreen/SearchScreen.kt`, `SearchScreenContent.kt`, `SectionRenderingComposables.kt`, `searchScreenLayout/` (includes Home sections and At a Glance).
 - Settings: `settings/settingsScreen/` (main screen, backup/export), `settings/settingsDetailScreen/` (detail pages, `SettingsDetailType`, routing), `settings/shared/`, plus feature-specific settings packages.
 - Reuse `shared/ui/components/`, `shared/ui/theme/DesignTokens.kt`, `shared/ui/theme/AppColors.kt`. Read `DESIGN_SYSTEM.md` (repo root) before adding UI or tokens; update it when you add or rename tokens, theme modes, or shared components. For shared paths, account for wallpaper, custom background, one-handed/bottom search bar, tablet, and overlay modes.
-- Other feature packages: `widgetsPanel/` (Home widget grid), `widgets/` (app widgets), `reminders/`, `customInfo/` (At a Glance Custom Info), `appNotifications/` (At a Glance app notifications), `media/`, `edgeGesture/`, `floatingButton/`, `pinnedNotifications/`, `tile/`, `onboarding/`.
+- Other feature packages: `widgetsPanel/` (Home widget grid), `widgets/` (app widgets), `reminders/`, `customInfo/` (At a Glance Custom Info), `appNotifications/` (At a Glance app notifications), `media/`, `edgeGesture/`, `notchGesture/`, `floatingButton/`, `pinnedNotifications/`, `tile/`, `onboarding/`.
 
 ### Strings
 
