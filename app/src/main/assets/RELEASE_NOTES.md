@@ -1,5 +1,9 @@
+- Official support for Android 17
 - Notch Gestures: Tap your device’s notch or camera cutout to open anything you choose. Set it up in Gesture settings.
+- Compact layout: a card-less design that fits more content on screen (enable in Appearance settings)
+- At a Glance widget for any launcher, works just like At a Glance on the Home screen
 - New Search Category: Bookmarks - Save any website or link as a bookmark and find it from search. You can also import your Chrome desktop bookmarks from an exported HTML file.
-- SpeedBump now works even when you open apps from other launchers (enable in more options)
+- SpeedBump now works when you open apps from other launchers too (enable in more options)
+- Mic button in the search bar for voice typing (enable in Appearance settings)
 - Long press settings icon in searchbar to open your device settings
-- Bug fixes and design enhancements
+- Support for Android Private Space
