@@ -26,7 +26,12 @@ class AppShortcutRepository(
         }
         return withContext(Dispatchers.IO) {
             val cached = shortcutCache.loadCachedShortcuts().orEmpty()
-            val custom = shortcutCache.loadCustomShortcuts().orEmpty()
+            val custom =
+                UrlShortcutBookmarkMigration.migrate(
+                    context,
+                    shortcutCache,
+                    shortcutCache.loadCustomShortcuts().orEmpty(),
+                )
             val merged =
                 mergeAndSortShortcuts(
                     staticShortcuts = filterUnavailablePackages(cached),
@@ -83,7 +88,12 @@ class AppShortcutRepository(
                 }
             val availableSystemShortcuts = filterUnavailablePackages(systemShortcuts)
             shortcutCache.saveShortcuts(availableSystemShortcuts)
-            val customShortcuts = shortcutCache.loadCustomShortcuts().orEmpty()
+            val customShortcuts =
+                UrlShortcutBookmarkMigration.migrate(
+                    context,
+                    shortcutCache,
+                    shortcutCache.loadCustomShortcuts().orEmpty(),
+                )
             val merged =
                 mergeAndSortShortcuts(
                     staticShortcuts = availableSystemShortcuts,

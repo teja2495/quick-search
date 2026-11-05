@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -50,6 +49,7 @@ import com.tk.quicksearch.settings.searchEngineSettings.dialogs.AddSearchEngineC
 import com.tk.quicksearch.settings.searchEngineSettings.dialogs.EditAmazonDomainDialog
 import com.tk.quicksearch.settings.searchEngineSettings.dialogs.EditCustomSearchEngineDialog
 import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -526,11 +526,10 @@ private fun SearchEngineRowContent(
 
         if (onMoveToTop != null || onMoveToBottom != null) {
             Box {
-                DropdownMenu(
+                AppDropdownMenu(
                     expanded = showMenu,
                     onDismissRequest = { showMenu = false },
-                    shape = MaterialTheme.shapes.large,
-                    containerColor = AppColors.DialogBackground,
+                    focusable = true,
                 ) {
                     if (onMoveToTop != null) {
                         DropdownMenuItem(

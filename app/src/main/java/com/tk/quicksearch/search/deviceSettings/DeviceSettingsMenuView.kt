@@ -1,7 +1,5 @@
 package com.tk.quicksearch.search.deviceSettings
 
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -11,11 +9,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.pinnedNotifications.PinnedNotifications
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.util.cachedDefaultHomeAppStatus
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
 import com.tk.quicksearch.widgets.customButtonsWidget.SettingExtra
@@ -67,12 +64,9 @@ fun DeviceSettingsDropdownMenu(
             minSdk = setting.minSdk, maxSdk = setting.maxSdk,
     )
     val isPinnedToNotifications = PinnedNotifications.isPinned(context, notificationAction)
-    DropdownMenu(
+    AppDropdownMenu(
             expanded = expanded,
             onDismissRequest = onDismissRequest,
-            shape = RoundedCornerShape(24.dp),
-            properties = PopupProperties(focusable = false),
-            containerColor = AppColors.DialogBackground,
     ) {
         val menuItems = buildList {
             if (showPinnedItemMenu && isPinned) {

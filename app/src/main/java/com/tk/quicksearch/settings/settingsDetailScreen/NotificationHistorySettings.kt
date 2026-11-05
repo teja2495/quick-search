@@ -4,7 +4,6 @@ import com.tk.quicksearch.search.apps.appLock.AppLockGate
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.SwipeToDismissBox
@@ -18,6 +17,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import kotlin.math.abs
 import androidx.compose.foundation.clickable
@@ -380,11 +380,10 @@ private fun NotificationHistoryRow(
             }
         }
 
-        DropdownMenu(
+        AppDropdownMenu(
             expanded = showMenu,
             onDismissRequest = { showMenu = false },
-            shape = RoundedCornerShape(24.dp),
-            containerColor = AppColors.DialogBackground,
+            focusable = true,
         ) {
             DropdownMenuItem(
                 text = { Text(text = stringResource(R.string.notification_history_hide_app, appLabel)) },

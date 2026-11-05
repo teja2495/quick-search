@@ -24,7 +24,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import com.tk.quicksearch.settings.shared.SettingsCard
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -49,7 +48,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -57,6 +55,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.settings.appShortcutsSettings.shortcutMatchPriority
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -64,7 +63,6 @@ import java.io.File
 import java.text.DateFormat
 import java.util.Date
 import java.util.Locale
-import androidx.compose.foundation.shape.RoundedCornerShape
 
 private enum class AppSortOption(
     @StringRes val labelResId: Int,
@@ -301,12 +299,9 @@ fun AppManagementSettingsSection(
                         tint = AppColors.LinkColor,
                     )
                 }
-                DropdownMenu(
+                AppDropdownMenu(
                     expanded = isSortMenuExpanded,
                     onDismissRequest = { isSortMenuExpanded = false },
-                    shape = RoundedCornerShape(24.dp),
-                    properties = PopupProperties(focusable = false),
-                    containerColor = AppColors.DialogBackground,
                 ) {
                     availableSortOptions.forEachIndexed { index, option ->
                         if (index > 0) {

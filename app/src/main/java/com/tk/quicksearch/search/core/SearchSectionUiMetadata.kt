@@ -82,6 +82,14 @@ object SearchSectionUiMetadataRegistry {
                 aliasTargetId = SearchSectionRegistry.SEARCH_SECTION_NOTES_ALIAS_ID,
             ),
             SearchSectionUiMetadata(
+                section = SearchSection.BOOKMARKS,
+                sectionLabelRes = R.string.section_bookmarks,
+                searchHintRes = R.string.search_hint_bookmarks,
+                searchBarIcon = MaterialSymbols.Bookmark,
+                settingsIcon = MaterialSymbols.Bookmark,
+                aliasTargetId = SearchSectionRegistry.SEARCH_SECTION_BOOKMARKS_ALIAS_ID,
+            ),
+            SearchSectionUiMetadata(
                 section = SearchSection.APP_SETTINGS,
                 sectionLabelRes = R.string.section_app_settings,
                 searchHintRes = R.string.search_hint_app_settings,

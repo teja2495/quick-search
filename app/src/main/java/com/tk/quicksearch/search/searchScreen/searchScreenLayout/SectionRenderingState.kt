@@ -4,6 +4,7 @@ import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.appSettings.AppSettingResult
 import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.search.models.BookmarkInfo
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
@@ -59,4 +60,7 @@ data class SectionRenderingState(
     val shouldShowReminders: Boolean = false,
     val reminderResults: List<ReminderInfo> = emptyList(),
     val pinnedReminders: List<ReminderInfo> = emptyList(),
+    val hasBookmarkResults: Boolean = false,
+    val shouldShowBookmarks: Boolean = false,
+    val bookmarkResults: List<BookmarkInfo> = emptyList(),
 )

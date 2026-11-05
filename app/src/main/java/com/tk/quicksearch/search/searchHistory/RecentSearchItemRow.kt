@@ -17,10 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -50,7 +48,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.appSettings.AppSettingResult
 import com.tk.quicksearch.search.appSettings.AppSettingResultRow
@@ -77,6 +74,7 @@ import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
 import com.tk.quicksearch.search.searchScreen.components.ExpandButton
 import com.tk.quicksearch.searchEngines.SearchTargetQueryShortcutActivity
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -247,12 +245,9 @@ internal fun RecentSearchItemRow(
             }
         }
 
-        DropdownMenu(
+        AppDropdownMenu(
             expanded = showRemoveMenu && canRemoveFromHistory,
             onDismissRequest = { showRemoveMenu = false },
-            shape = RoundedCornerShape(24.dp),
-            properties = PopupProperties(focusable = false),
-            containerColor = AppColors.DialogBackground,
         ) {
             DropdownMenuItem(
                 text = { Text(text = stringResource(R.string.action_remove_from_history)) },

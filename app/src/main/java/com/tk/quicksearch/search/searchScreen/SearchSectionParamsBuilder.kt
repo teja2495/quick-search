@@ -16,6 +16,7 @@ import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.models.ReminderInfo
+import com.tk.quicksearch.search.bookmarks.BookmarksSectionParams
 import com.tk.quicksearch.reminders.ReminderEditorRequests
 import com.tk.quicksearch.searchEngines.AliasParser
 import com.tk.quicksearch.searchEngines.defaultBrowserTarget
@@ -124,6 +125,7 @@ internal fun buildSectionParams(
     onUpdateExpandedSection: (ExpandedSection) -> Unit,
     expandedSection: ExpandedSection,
     reminderActions: ReminderSectionActions = ReminderSectionActions(),
+    onBookmarkClick: (com.tk.quicksearch.search.models.BookmarkInfo) -> Unit = {},
 ): SectionParams {
     val filesParams =
         remember(
@@ -711,7 +713,21 @@ internal fun buildSectionParams(
             )
         }
 
+    val bookmarksParams =
+        remember(state.showWallpaperBackground, onBookmarkClick, onUpdateExpandedSection, expandedSection) {
+            BookmarksSectionParams(
+                onBookmarkClick = onBookmarkClick,
+                onExpandClick = {
+                    onUpdateExpandedSection(
+                        if (expandedSection == ExpandedSection.BOOKMARKS) ExpandedSection.NONE else ExpandedSection.BOOKMARKS,
+                    )
+                },
+                showWallpaperBackground = state.showWallpaperBackground,
+            )
+        }
+
     return SectionParams(
+        bookmarksParams = bookmarksParams,
         filesParams = filesParams,
         appShortcutsParams = appShortcutParams,
         settingsParams = settingsParams,
@@ -733,4 +749,5 @@ data class SectionParams(
     val notesParams: NotesSectionParams,
     val appsParams: AppsSectionParams,
     val remindersParams: RemindersSectionParams,
+    val bookmarksParams: BookmarksSectionParams? = null,
 )

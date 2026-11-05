@@ -414,8 +414,6 @@
     <string name="settings_app_shortcuts_add_query_shortcut">自定义搜索查询</string>
     <string name="settings_app_shortcuts_add_success">快捷方式已添加。</string>
     <string name="settings_app_shortcuts_add_success_with_app_name">新快捷方式已添加到 %1$s</string>
-    <string name="settings_app_shortcuts_add_url_dialog_title">添加 URL 快捷方式到 %1$s</string>
-    <string name="settings_app_shortcuts_add_url_shortcut">自定义 URL</string>
     <plurals name="settings_app_shortcuts_card_count">
         <item quantity="other">%d 个快捷方式</item>
     </plurals>
@@ -435,7 +433,6 @@
     <string name="settings_app_shortcuts_filter_all_apps">所有应用</string>
     <string name="all_apps_private_space">私密空间</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">包含快捷方式的应用</string>
-    <string name="settings_app_shortcuts_filter_browsers">浏览器</string>
     <string name="settings_app_shortcuts_filter_search_engines">搜索引擎</string>
     <string name="settings_app_shortcuts_query_label">查询内容</string>
     <string name="settings_app_shortcuts_shortcut_name_label">快捷方式名称</string>
@@ -1425,9 +1422,13 @@
     <string name="settings_weather_no_web_search_warning">天气需要网页结果。请选择支持网页搜索的模型，或在“API 密钥设置”中添加 Tavily API 密钥。</string>
     <string name="tavily_search_failed_toast">Tavily 网页搜索失败，将在没有网页结果的情况下回答。</string>
     <string name="search_hint_reminders">搜索提醒…</string>
+    <string name="search_hint_bookmarks">搜索书签…</string>
     <string name="search_section_reminders_toggle_desc">开启或关闭提醒搜索</string>
     <string name="search_section_reminders_toggle_title">提醒搜索</string>
+    <string name="search_section_bookmarks_toggle_desc">开启或关闭书签搜索</string>
+    <string name="search_section_bookmarks_toggle_title">书签搜索</string>
     <string name="section_reminders">提醒</string>
+    <string name="section_bookmarks">书签</string>
     <string name="reminders_notification_channel_name">提醒</string>
     <string name="reminders_notification_channel_description">你在 Quick Search 中创建的提醒的通知</string>
     <string name="reminder_notification_action_done">完成</string>
@@ -1444,6 +1445,24 @@
     <string name="action_expand_more_reminders">更多提醒</string>
     <string name="reminders_empty">暂无提醒</string>
     <string name="settings_reminders_view_all_desc">查看所有提醒</string>
+    <string name="action_expand_more_bookmarks">更多书签</string>
+    <string name="settings_bookmarks_view_all_desc">管理你的网站书签</string>
+    <string name="bookmarks_empty">还没有书签</string>
+    <string name="bookmarks_no_matches">没有匹配的书签</string>
+    <string name="bookmarks_import_title">导入书签</string>
+    <string name="bookmarks_import_desc">从浏览器导出的 HTML 文件导入</string>
+    <string name="bookmarks_import_failed">无法读取该文件</string>
+    <string name="bookmarks_import_none_found">该文件中未找到书签</string>
+    <string name="bookmarks_import_result">已导入书签：%1$d</string>
+    <string name="bookmarks_import_result_with_skipped">已导入书签：%1$d。已存在：%2$d</string>
+    <string name="bookmarks_menu_import_html">从 HTML 导入</string>
+    <string name="bookmarks_menu_delete_all">全部删除</string>
+    <string name="bookmarks_delete_all_title">删除所有书签吗？</string>
+    <string name="bookmarks_delete_all_message">所有已保存的书签都将被删除。此操作无法撤销。</string>
+    <string name="bookmarks_add_title">添加书签</string>
+    <string name="bookmarks_edit_title">编辑书签</string>
+    <string name="bookmarks_link_label">链接</string>
+    <string name="bookmarks_invalid_link">请输入有效的网址</string>
     <string name="reminders_permission_hint">需要权限才能显示提醒通知。点按以允许。</string>
     <string name="reminders_home_card_dismiss">从主屏幕移除</string>
     <string name="settings_include_past_reminders_title">过去的提醒</string>

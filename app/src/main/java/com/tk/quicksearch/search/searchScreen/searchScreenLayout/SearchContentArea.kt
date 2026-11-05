@@ -14,9 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -49,11 +47,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.searchEngines.*
 import com.tk.quicksearch.search.core.isLikelyWebUrl
+import com.tk.quicksearch.search.bookmarks.LocalBookmarksSectionParams
 import com.tk.quicksearch.search.searchScreen.ExpandedSection
 import com.tk.quicksearch.search.searchScreen.ContactsSectionParams
 import com.tk.quicksearch.search.searchScreen.FilesSectionParams
@@ -74,8 +72,8 @@ import com.tk.quicksearch.search.searchScreen.components.CollapseButton
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.search.searchHistory.RecentSearchItem
 import com.tk.quicksearch.search.searchHistory.SearchHistoryTab
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlin.math.min
 import com.tk.quicksearch.search.other.OtherSearchItemActionHandler
@@ -167,7 +165,7 @@ fun SearchContentArea(
                 shouldShowSettingsSection(renderingState) ||
                 shouldShowCalendarSection(renderingState, calendarParams) ||
                 shouldShowRemindersSection(renderingState) ||
-                shouldShowNotesSection(renderingState)
+                shouldShowNotesSection(renderingState) || shouldShowBookmarksSection(renderingState)
     val alignResultsToBottom =
             useOneHandedMode &&
                     !showAiSearch &&
@@ -636,13 +634,10 @@ fun SearchContentArea(
                         }
                     }
                 }
-                DropdownMenu(
+                AppDropdownMenu(
                     expanded = showBackgroundMenu,
                     onDismissRequest = { showBackgroundMenu = false },
                     offset = backgroundMenuDpOffset,
-                    shape = RoundedCornerShape(24.dp),
-                    containerColor = AppColors.DialogBackground,
-                    properties = PopupProperties(focusable = false),
                 ) {
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.action_change_wallpaper)) },
@@ -710,6 +705,7 @@ fun SearchContentArea(
             }
 
             if (renderingState.expandedSection != ExpandedSection.NONE && !isSectionAliasMode) {
+                val bookmarksParams = LocalBookmarksSectionParams.current
                 CollapseButton(
                     showWallpaperBackground = state.showWallpaperBackground,
                     onClick = {
@@ -745,6 +741,8 @@ fun SearchContentArea(
                             ExpandedSection.REMINDERS -> {
                                 remindersParams?.onExpandClick?.invoke()
                             }
+
+                            ExpandedSection.BOOKMARKS -> bookmarksParams?.onExpandClick?.invoke()
 
                             else -> {}
                         }

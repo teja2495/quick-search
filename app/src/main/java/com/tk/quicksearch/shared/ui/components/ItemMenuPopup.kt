@@ -22,8 +22,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -54,12 +52,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.util.hapticConfirm
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -233,13 +229,11 @@ fun ItemMenuLongPressDropdown(
     expanded: Boolean,
     onDismiss: () -> Unit,
 ) {
-    DropdownMenu(
+    AppDropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismiss,
         offset = DpOffset(x = 0.dp, y = 8.dp),
-        shape = RoundedCornerShape(24.dp),
-        properties = PopupProperties(focusable = false),
-        containerColor = if (LocalAppIsDarkTheme.current) Color.Black else Color.White,
+        containerColor = AppDropdownMenuDefaults.itemMenuContainerColor,
     ) {
         DropdownMenuItem(
             text = { Text(text = option.label) },

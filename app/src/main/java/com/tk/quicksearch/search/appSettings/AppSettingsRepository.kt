@@ -437,7 +437,13 @@ class AppSettingsRepository(
                 destination = AppSettingsDestination.REMINDERS_LIST,
                 keywords = listOf("reminder", "todo"),
             )
-
+            addNavigation(
+                id = "app_settings_bookmarks_list",
+                titleRes = R.string.section_bookmarks,
+                descriptionRes = R.string.settings_bookmarks_view_all_desc,
+                destination = AppSettingsDestination.BOOKMARKS_LIST,
+                keywords = listOf("bookmark", "website", "websites", "link", "links", "url", "favorites", "import bookmarks"),
+            )
             addToggle(
                 id = "app_toggle_overlay_mode",
                 titleRes = R.string.settings_overlay_mode_title,

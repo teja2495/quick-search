@@ -101,6 +101,7 @@ fun SearchScreen(
     onMovePinnedNote: (NoteInfo, Boolean) -> Unit = { _, _ -> },
     onDeleteNote: (NoteInfo) -> Unit,
     reminderActions: ReminderSectionActions = ReminderSectionActions(),
+    onBookmarkClick: (com.tk.quicksearch.search.models.BookmarkInfo) -> Unit = {},
     onPinFile: (DeviceFile) -> Unit,
     onUnpinFile: (DeviceFile) -> Unit,
     onMovePinnedFile: (DeviceFile, Boolean) -> Unit = { _, _ -> },
@@ -287,6 +288,7 @@ fun SearchScreen(
         onMovePinnedNote = onMovePinnedNote,
         onDeleteNote = onDeleteNote,
         reminderActions = reminderActions,
+        onBookmarkClick = onBookmarkClick,
         onPinFile = onPinFile,
         onUnpinFile = onUnpinFile,
         onMovePinnedFile = onMovePinnedFile,
@@ -418,6 +420,7 @@ fun SearchScreen(
         LocalHomeWidgetEditGuard provides homeWidgetEditGuard,
         LocalSearchCardLayoutEnabled provides state.cardLayoutEnabled,
         LocalCardlessTrailingEdge provides remember { CardlessTrailingEdge() },
+        com.tk.quicksearch.search.bookmarks.LocalBookmarksSectionParams provides stateResult.sectionParams.bookmarksParams,
     ) {
     Box(modifier = screenModifier.homeWidgetEditTapGuard(homeWidgetEditGuard)) {
         if (!isOverlayPresentation && !LocalPageBackdropDrawnByHost.current) {

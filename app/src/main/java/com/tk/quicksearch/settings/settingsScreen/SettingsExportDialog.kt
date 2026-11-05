@@ -73,6 +73,8 @@ fun SettingsExportDialog(
                         isLastItem =
                             !selectionState.showNotesOption &&
                                 !selectionState.showCalendarEventsOption &&
+                                !selectionState.showRemindersOption &&
+                                !selectionState.showBookmarksOption &&
                                 !selectionState.showApiKeysOption,
                     )
                 }
@@ -85,7 +87,9 @@ fun SettingsExportDialog(
                             onSelectionStateChange(selectionState.copy(includeNotes = it))
                         },
                         icon = MaterialSymbols.Description,
-                        isLastItem = !selectionState.showCalendarEventsOption && !selectionState.showRemindersOption && !selectionState.showApiKeysOption,
+                        isLastItem =
+                            !selectionState.showCalendarEventsOption && !selectionState.showRemindersOption &&
+                                !selectionState.showBookmarksOption && !selectionState.showApiKeysOption,
                     )
                 }
                 if (selectionState.showCalendarEventsOption) {
@@ -97,7 +101,9 @@ fun SettingsExportDialog(
                             onSelectionStateChange(selectionState.copy(includeCalendarEvents = it))
                         },
                         icon = MaterialSymbols.CalendarMonth,
-                        isLastItem = !selectionState.showRemindersOption && !selectionState.showApiKeysOption,
+                        isLastItem =
+                            !selectionState.showRemindersOption && !selectionState.showBookmarksOption &&
+                                !selectionState.showApiKeysOption,
                     )
                 }
                 if (selectionState.showRemindersOption) {
@@ -109,6 +115,18 @@ fun SettingsExportDialog(
                             onSelectionStateChange(selectionState.copy(includeReminders = it))
                         },
                         icon = MaterialSymbols.NotificationsActive,
+                        isLastItem = !selectionState.showBookmarksOption && !selectionState.showApiKeysOption,
+                    )
+                }
+                if (selectionState.showBookmarksOption) {
+                    SettingsCheckboxRow(
+                        title = stringResource(R.string.section_bookmarks),
+                        description = "",
+                        checked = selectionState.includeBookmarks,
+                        onCheckedChange = {
+                            onSelectionStateChange(selectionState.copy(includeBookmarks = it))
+                        },
+                        icon = MaterialSymbols.Bookmark,
                         isLastItem = !selectionState.showApiKeysOption,
                     )
                 }
@@ -152,11 +170,13 @@ data class ExportSelectionState(
     val includeNotes: Boolean = true,
     val includeCalendarEvents: Boolean = true,
     val includeReminders: Boolean = true,
+    val includeBookmarks: Boolean = true,
     val includeApiKeys: Boolean = false,
     val showPinnedItemsOption: Boolean = true,
     val showNotesOption: Boolean = true,
     val showCalendarEventsOption: Boolean = false,
     val showRemindersOption: Boolean = false,
+    val showBookmarksOption: Boolean = false,
     val showApiKeysOption: Boolean = false,
 ) {
     fun toExportOptions(): SettingsBackupManager.ExportOptions {
@@ -169,6 +189,7 @@ data class ExportSelectionState(
             if (includeNotes) add(SettingsBackupManager.ExportItem.NOTES)
             if (includeCalendarEvents) add(SettingsBackupManager.ExportItem.CALENDAR_EVENTS)
             if (includeReminders) add(SettingsBackupManager.ExportItem.REMINDERS)
+            if (includeBookmarks) add(SettingsBackupManager.ExportItem.BOOKMARKS)
             if (includeApiKeys && showApiKeysOption) add(SettingsBackupManager.ExportItem.API_KEYS)
         }
         return SettingsBackupManager.ExportOptions(selectedItems = items)

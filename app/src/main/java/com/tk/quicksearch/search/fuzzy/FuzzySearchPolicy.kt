@@ -78,6 +78,7 @@ object FuzzySearchPolicyResolver {
             SearchSection.APP_SHORTCUTS -> APP_SHORTCUT_POLICY
             SearchSection.NOTES,
             SearchSection.REMINDERS,
+            SearchSection.BOOKMARKS,
             -> NOTES_POLICY
         }
 

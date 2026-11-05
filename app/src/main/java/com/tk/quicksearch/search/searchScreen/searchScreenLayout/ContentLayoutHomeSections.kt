@@ -325,5 +325,7 @@ internal fun homePinnedSectionHasItems(
                 sectionContext.shouldRenderReminders && sectionContext.remindersList.isNotEmpty()
             SearchSection.NOTES ->
                 sectionContext.shouldRenderNotes && sectionContext.notesList.isNotEmpty()
+            SearchSection.BOOKMARKS ->
+                sectionContext.shouldRenderBookmarks && sectionContext.bookmarksList.isNotEmpty()
             SearchSection.APPS, SearchSection.APP_SETTINGS -> true
         }

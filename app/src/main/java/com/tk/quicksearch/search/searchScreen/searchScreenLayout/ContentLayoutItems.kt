@@ -324,6 +324,7 @@ internal fun NonSectionLayoutItem(
             ItemPriorityConfig.ItemType.CALENDAR_SECTION,
             ItemPriorityConfig.ItemType.REMINDERS_SECTION,
             ItemPriorityConfig.ItemType.NOTES_SECTION,
+            ItemPriorityConfig.ItemType.BOOKMARKS_SECTION,
             ItemPriorityConfig.ItemType.APP_SETTINGS_SECTION,
             -> Unit
         }

@@ -19,7 +19,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -45,7 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.components.ItemMenuLongPressOption
 import com.tk.quicksearch.shared.ui.components.ItemMenuPopup
 import com.tk.quicksearch.shared.ui.components.ItemMenuRow
@@ -672,12 +671,9 @@ private fun AppShortcutDropdownMenu(
         }
 
         if (showPinnedItemMenu && isPinned) {
-                DropdownMenu(
+                AppDropdownMenu(
                         expanded = expanded,
                         onDismissRequest = onDismissRequest,
-                        shape = RoundedCornerShape(24.dp),
-                        properties = PopupProperties(focusable = false),
-                        containerColor = AppColors.DialogBackground,
                 ) {
                         menuItems.forEachIndexed { index, item ->
                                 if (index > 0) {

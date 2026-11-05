@@ -13,6 +13,8 @@ import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.data.ReminderRepository
 import com.tk.quicksearch.search.data.notes.NotesRoomStore
+import com.tk.quicksearch.search.data.bookmarks.BookmarkBackupCodec
+import com.tk.quicksearch.search.data.bookmarks.BookmarkRepository
 import com.tk.quicksearch.widgets.utils.requestNoteWidgetsRefresh
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.models.NoteInfo
@@ -37,6 +39,7 @@ object SettingsBackupManager {
         API_KEYS,
         CALENDAR_EVENTS,
         REMINDERS,
+        BOOKMARKS,
     }
 
     /** Export item names written by older app versions, mapped to their current item. */
@@ -51,6 +54,7 @@ object SettingsBackupManager {
                 ExportItem.NOTES,
                 ExportItem.SEARCH_ENGINES,
                 ExportItem.REMINDERS,
+                ExportItem.BOOKMARKS,
             ),
     ) {
         fun includes(item: ExportItem): Boolean = item in selectedItems
@@ -70,6 +74,7 @@ object SettingsBackupManager {
     private const val FIELD_CUSTOM_LLM_PROVIDERS = "customLlmProviders"
     private const val FIELD_SELECTED_EXPORT_ITEMS = "selectedExportItems"
     private const val FIELD_NOTES = "notes"
+    private const val FIELD_BOOKMARKS = "bookmarks"
     // The icon pack lives in session prefs, which aren't exported, so it travels as its own field.
     private const val FIELD_SELECTED_ICON_PACK = "selectedIconPack"
     private const val FIELD_TYPE = "type"
@@ -163,6 +168,9 @@ object SettingsBackupManager {
                     }
                     if (options.includes(ExportItem.NOTES)) {
                         put(FIELD_NOTES, serializeNotes(NotesRepository(context).getAllNotes()))
+                    }
+                    if (options.includes(ExportItem.BOOKMARKS)) {
+                        put(FIELD_BOOKMARKS, BookmarkBackupCodec.serialize(BookmarkRepository(context).getAll()))
                     }
                     if (options.includes(ExportItem.SETTINGS)) {
                         userPreferences.getSelectedIconPackPackage()?.let { put(FIELD_SELECTED_ICON_PACK, it) }
@@ -291,6 +299,14 @@ object SettingsBackupManager {
                     )
             notesStore.replaceFromBackup(notes)
             requestNoteWidgetsRefresh(context)
+        }
+
+        // Only backups that carry bookmarks replace them; older backups leave the current ones alone.
+        val backedUpBookmarks = root.optJSONArray(FIELD_BOOKMARKS)
+        if (backedUpBookmarks != null &&
+            (selectedExportItems == null || ExportItem.BOOKMARKS in selectedExportItems)
+        ) {
+            BookmarkRepository(context).replaceFromBackup(BookmarkBackupCodec.parse(backedUpBookmarks))
         }
 
         val importsCalendarEvents =

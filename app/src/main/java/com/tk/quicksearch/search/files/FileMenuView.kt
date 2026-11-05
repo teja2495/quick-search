@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -34,13 +32,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.pinnedNotifications.PinnedNotifications
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination
 import com.tk.quicksearch.search.appSettings.LocalOpenAppSettingDestination
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.utils.FileUtils
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.components.ItemMenuLongPressOption
 import com.tk.quicksearch.shared.ui.components.ItemMenuPopup
 import com.tk.quicksearch.shared.ui.components.ItemMenuRow
@@ -393,12 +391,9 @@ fun FileDropdownMenu(
     }
 
     if (showPinnedItemMenu && isPinned) {
-        DropdownMenu(
+        AppDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = onDismissRequest,
-                shape = RoundedCornerShape(24.dp),
-                properties = PopupProperties(focusable = false),
-                containerColor = AppColors.DialogBackground,
         ) {
             menuItems.forEachIndexed { index, item ->
                 if (index > 0) {

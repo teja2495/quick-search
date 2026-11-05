@@ -28,6 +28,7 @@ object SearchSectionRegistry {
     const val SEARCH_SECTION_CALENDAR_ALIAS_ID = "search_section_calendar"
     const val SEARCH_SECTION_REMINDERS_ALIAS_ID = "search_section_reminders"
     const val SEARCH_SECTION_NOTES_ALIAS_ID = "search_section_notes"
+    const val SEARCH_SECTION_BOOKMARKS_ALIAS_ID = "search_section_bookmarks"
     const val SEARCH_SECTION_APP_SETTINGS_ALIAS_ID = "search_section_app_settings"
 
     private val allDefinitions: List<SearchSectionDefinition> =
@@ -88,6 +89,14 @@ object SearchSectionRegistry {
                 itemType = ItemPriorityConfig.ItemType.NOTES_SECTION,
                 aliasTargetId = SEARCH_SECTION_NOTES_ALIAS_ID,
                 appSettingsToggleKey = AppSettingsToggleKey.SEARCH_NOTES,
+                participatesInSecondarySearch = true,
+                minimumQueryLength = 1,
+            ),
+            SearchSectionDefinition(
+                section = SearchSection.BOOKMARKS,
+                itemType = ItemPriorityConfig.ItemType.BOOKMARKS_SECTION,
+                aliasTargetId = SEARCH_SECTION_BOOKMARKS_ALIAS_ID,
+                appSettingsToggleKey = AppSettingsToggleKey.SEARCH_BOOKMARKS,
                 participatesInSecondarySearch = true,
                 minimumQueryLength = 1,
             ),

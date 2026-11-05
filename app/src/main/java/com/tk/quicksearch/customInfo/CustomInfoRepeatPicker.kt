@@ -7,10 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -31,10 +29,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 private const val MAX_REPEAT_INTERVAL = 999
@@ -95,11 +93,10 @@ internal fun CustomInfoRepeatRow(
             horizontalPadding = DesignTokens.CardHorizontalPadding,
             trailingAction = { CustomInfoRowChevron() },
         )
-        DropdownMenu(
+        AppDropdownMenu(
             expanded = menuExpanded,
             onDismissRequest = { menuExpanded = false },
-            shape = RoundedCornerShape(24.dp),
-            containerColor = AppColors.DialogBackground,
+            focusable = true,
         ) {
             presets.forEachIndexed { index, preset ->
                 if (index > 0) HorizontalDivider()

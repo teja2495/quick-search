@@ -5,7 +5,9 @@ import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.appShortcutRepository.launchStaticShortcut
 import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
+import com.tk.quicksearch.search.bookmarks.BookmarkLauncher
 import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.search.models.BookmarkInfo
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
@@ -73,6 +75,8 @@ internal interface SearchViewModelNavigationApi {
     fun openCalendarEvent(event: CalendarEventInfo) = navigationApiDelegate.openCalendarEvent(event)
 
     fun launchAppShortcut(shortcut: StaticShortcut) = navigationApiDelegate.launchAppShortcut(shortcut)
+
+    fun openBookmark(bookmark: BookmarkInfo) = navigationApiDelegate.openBookmark(bookmark)
 
     fun onWebSuggestionTap(suggestion: String) = navigationApiDelegate.onWebSuggestionTap(suggestion)
 
@@ -169,6 +173,20 @@ class SearchViewModelNavigationApiDelegate internal constructor(
             userPreferences.addRecentItem(RecentSearchEntry.AppShortcut(shortcutKey(shortcut)))
             onNavigationTriggered()
         }
+    }
+
+    fun openBookmark(bookmark: BookmarkInfo) {
+        val app = applicationProvider()
+        val opened =
+            BookmarkLauncher.open(app, bookmark) { messageRes, arg ->
+                showToastText(app.getString(messageRes, arg.orEmpty()))
+            }
+        if (!opened) return
+        val query = currentQueryProvider().trim()
+        if (query.isNotEmpty()) {
+            userPreferences.addRecentItem(RecentSearchEntry.Query(query))
+        }
+        onNavigationTriggered()
     }
 
     fun onWebSuggestionTap(suggestion: String) {

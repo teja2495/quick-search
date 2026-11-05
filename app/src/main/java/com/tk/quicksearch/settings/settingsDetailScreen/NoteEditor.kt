@@ -30,7 +30,6 @@ import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -74,6 +73,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.pinnedNotifications.PinnedNotifications
 import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.notes.NotesTextUtils
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.Dispatchers
@@ -185,10 +185,11 @@ private fun LinkStyledNoteTextField(
         )
 
         linkMenu?.let { (url, offset) ->
-            DropdownMenu(
+            AppDropdownMenu(
                 expanded = true,
                 onDismissRequest = { linkMenu = null },
                 offset = offset,
+                focusable = true,
             ) {
                 val labelRes =
                     when {

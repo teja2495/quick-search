@@ -11,6 +11,7 @@ enum class SettingsDetailType {
     DEVICE_SETTINGS,
     CALENDAR_EVENTS,
     REMINDERS,
+    BOOKMARKS,
     NOTES,
     NOTE_EDITOR,
     APPEARANCE,
@@ -91,6 +92,12 @@ internal object SettingsDestinationRegistry {
             SettingsDetailType.REMINDERS to
                 SettingsDestinationSpec(
                     titleResId = R.string.section_reminders,
+                    level = 2,
+                    fallbackBackDestination = SettingsDetailType.SEARCH_RESULTS,
+                ),
+            SettingsDetailType.BOOKMARKS to
+                SettingsDestinationSpec(
+                    titleResId = R.string.section_bookmarks,
                     level = 2,
                     fallbackBackDestination = SettingsDetailType.SEARCH_RESULTS,
                 ),

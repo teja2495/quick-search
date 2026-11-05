@@ -52,6 +52,8 @@ fun SectionSettingsSection(
     onNotesClickNoRipple: Boolean = false,
     remindersSubtitle: String? = null,
     onRemindersClick: (() -> Unit)? = null,
+    bookmarksSubtitle: String? = null,
+    onBookmarksClick: (() -> Unit)? = null,
     appSettingsSubtitle: String? = null,
     onAppSettingsClick: (() -> Unit)? = null,
     onAppSettingsClickNoRipple: Boolean = false,
@@ -80,6 +82,7 @@ fun SectionSettingsSection(
                 val isCalendarRow = section == SearchSection.CALENDAR
                 val isNotesRow = section == SearchSection.NOTES
                 val isRemindersRow = section == SearchSection.REMINDERS
+                val isBookmarksRow = section == SearchSection.BOOKMARKS
                 val isAppSettingsRow = section == SearchSection.APP_SETTINGS
                 val showAliasForSection = section !in sectionsWithHiddenAlias
                 val aliasTargetId = SearchSectionUiMetadataRegistry.metadataFor(section).aliasTargetId
@@ -99,6 +102,7 @@ fun SectionSettingsSection(
                             isCalendarRow -> calendarSubtitle
                             isNotesRow -> notesSubtitle
                             isRemindersRow -> remindersSubtitle
+                            isBookmarksRow -> bookmarksSubtitle
                             isAppSettingsRow -> appSettingsSubtitle
                             else -> null
                         },
@@ -114,6 +118,7 @@ fun SectionSettingsSection(
                             isCalendarRow -> onCalendarClick
                             isNotesRow -> onNotesClick
                             isRemindersRow -> onRemindersClick
+                            isBookmarksRow -> onBookmarksClick
                             isAppSettingsRow -> onAppSettingsClick
                             else -> null
                         },
@@ -127,6 +132,7 @@ fun SectionSettingsSection(
                             isCalendarRow -> onCalendarClickNoRipple
                             isNotesRow -> onNotesClickNoRipple
                             isRemindersRow -> onRemindersClick != null
+                            isBookmarksRow -> onBookmarksClick != null
                             isAppSettingsRow -> onAppSettingsClickNoRipple
                             else -> false
                         },

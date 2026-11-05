@@ -42,13 +42,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.text.font.FontFamily
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDefaults
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.LocalItemCustomizationRemover
@@ -77,7 +78,6 @@ import com.tk.quicksearch.shared.ui.components.ItemMenuTile
 import com.tk.quicksearch.shared.ui.components.itemMenuRemoveOption
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
-import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.util.cachedDefaultHomeAppStatus
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonIcon
@@ -564,16 +564,14 @@ private fun AppSwipeActionDropdown(
 ) {
     // Fills the anchoring button so the popup can match its width.
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        DropdownMenu(
+        AppDropdownMenu(
             expanded = expanded && action != null,
             onDismissRequest = onDismiss,
             modifier = Modifier.width(maxWidth),
             offset = DpOffset(x = 0.dp, y = 8.dp),
-            shape = RoundedCornerShape(24.dp),
-            properties = PopupProperties(focusable = false),
-            containerColor = if (LocalAppIsDarkTheme.current) Color.Black else Color.White,
+            containerColor = AppDropdownMenuDefaults.itemMenuContainerColor,
         ) {
-            if (action == null) return@DropdownMenu
+            if (action == null) return@AppDropdownMenu
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

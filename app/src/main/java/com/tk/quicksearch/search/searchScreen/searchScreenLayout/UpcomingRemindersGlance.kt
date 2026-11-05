@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -60,7 +58,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -73,6 +70,7 @@ import com.tk.quicksearch.search.models.ReminderInfo
 import com.tk.quicksearch.search.reminders.reminderOverdueColor
 import com.tk.quicksearch.search.reminders.reminderScheduleLabel
 import com.tk.quicksearch.search.searchScreen.searchRoute.LocalShowUndoSnackbar
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -324,12 +322,9 @@ internal fun UpcomingReminderRow(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            DropdownMenu(
+            AppDropdownMenu(
                 expanded = showMenu,
                 onDismissRequest = { showMenu = false },
-                shape = RoundedCornerShape(24.dp),
-                properties = PopupProperties(focusable = false),
-                containerColor = AppColors.DialogBackground,
             ) {
                 DropdownMenuItem(
                     text = { Text(text = stringResource(R.string.action_mark_as_done)) },

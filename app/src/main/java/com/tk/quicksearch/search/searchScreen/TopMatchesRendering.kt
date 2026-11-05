@@ -62,6 +62,8 @@ import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ReminderInfo
 import com.tk.quicksearch.search.reminders.ReminderRow
+import com.tk.quicksearch.search.bookmarks.BookmarkRow
+import com.tk.quicksearch.search.bookmarks.LocalBookmarksSectionParams
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.NoteInfo
@@ -282,6 +284,8 @@ internal fun openTopMatch(
         is TopMatchItem.Reminder ->
             params.remindersParams?.onReminderClick?.invoke(item.reminder) ?: return null
         is TopMatchItem.Note -> params.notesParams?.onNoteClick?.invoke(item.note) ?: return null
+        is TopMatchItem.Bookmark ->
+            params.bookmarksParams?.onBookmarkClick?.invoke(item.bookmark) ?: return null
         is TopMatchItem.Other -> return true
     }
     return false
@@ -418,6 +422,14 @@ private fun TopMatchRow(
                 onTogglePin = remindersParams.onTogglePin,
                 onMarkDone = remindersParams.onMarkDone,
                 onDelete = remindersParams.onDelete,
+                isPredicted = isPredicted,
+            )
+        }
+
+        is TopMatchItem.Bookmark -> LocalBookmarksSectionParams.current?.let { bookmarksParams ->
+            BookmarkRow(
+                bookmark = item.bookmark,
+                onClick = bookmarksParams.onBookmarkClick,
                 isPredicted = isPredicted,
             )
         }

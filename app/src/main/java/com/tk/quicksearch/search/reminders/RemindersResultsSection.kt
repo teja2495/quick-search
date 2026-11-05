@@ -12,9 +12,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -36,7 +34,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.calendar.calendarRelativeDateLabel
 import com.tk.quicksearch.search.models.ReminderInfo
@@ -50,6 +47,7 @@ import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlighte
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContainer
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentPadding
 import com.tk.quicksearch.search.searchScreen.components.resultRowVerticalPadding
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -223,12 +221,9 @@ internal fun ReminderRow(
             ReminderRelativeDateText(reminder)
         }
 
-        DropdownMenu(
+        AppDropdownMenu(
             expanded = showMenu,
             onDismissRequest = { showMenu = false },
-            shape = RoundedCornerShape(24.dp),
-            properties = PopupProperties(focusable = false),
-            containerColor = AppColors.DialogBackground,
         ) {
             val menuItems =
                 buildList {

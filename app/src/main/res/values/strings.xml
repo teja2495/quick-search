@@ -39,6 +39,7 @@
     <string name="search_hint_files">Search Files…</string>
     <string name="search_hint_notes">Search Notes…</string>
     <string name="search_hint_reminders">Search Reminders…</string>
+    <string name="search_hint_bookmarks">Search Bookmarks…</string>
     <string name="search_hint_settings">Search Device Settings…</string>
     <string name="search_hint_static">Search Anything</string>
     <string name="search_hint_world_clock">Enter any place to get their local time</string>
@@ -304,6 +305,8 @@
     <string name="search_section_files_toggle_title">File Search</string>
     <string name="search_section_reminders_toggle_desc">Turn reminders search on or off</string>
     <string name="search_section_reminders_toggle_title">Reminders Search</string>
+    <string name="search_section_bookmarks_toggle_desc">Turn bookmarks search on or off</string>
+    <string name="search_section_bookmarks_toggle_title">Bookmarks Search</string>
     <string name="search_section_notes_toggle_desc">Turn notes search on or off</string>
     <string name="search_section_notes_toggle_title">Notes Search</string>
     <string name="section_app_settings">App Settings</string>
@@ -409,8 +412,6 @@
     <string name="settings_app_shortcuts_add_query_shortcut">Custom Search Query</string>
     <string name="settings_app_shortcuts_add_success">Shortcut added.</string>
     <string name="settings_app_shortcuts_add_success_with_app_name">New shortcut is added to %1$s</string>
-    <string name="settings_app_shortcuts_add_url_dialog_title">Add URL Shortcut to %1$s</string>
-    <string name="settings_app_shortcuts_add_url_shortcut">Custom URL</string>
     <plurals name="settings_app_shortcuts_card_count">
         <item quantity="one">%d shortcut</item>
         <item quantity="other">%d shortcuts</item>
@@ -431,7 +432,6 @@
     <string name="settings_app_shortcuts_filter_all_apps">All Apps</string>
     <string name="all_apps_private_space">Private space</string>
     <string name="settings_app_shortcuts_filter_apps_with_shortcuts">Apps with Shortcuts</string>
-    <string name="settings_app_shortcuts_filter_browsers">Browsers</string>
     <string name="settings_app_shortcuts_filter_search_engines">Search Engines</string>
     <string name="settings_app_shortcuts_query_label">Query</string>
     <string name="settings_app_shortcuts_shortcut_name_label">Shortcut Name</string>
@@ -1432,6 +1432,7 @@
     <string name="home_turn_off">Turn off</string>
     <!-- Reminders -->
     <string name="section_reminders">Reminders</string>
+    <string name="section_bookmarks">Bookmarks</string>
     <string name="reminders_notification_channel_name">Reminders</string>
     <string name="reminders_notification_channel_description">Notifications for reminders you create in Quick Search</string>
     <string name="reminder_notification_action_done">Done</string>
@@ -1448,6 +1449,24 @@
     <string name="action_expand_more_reminders">More Reminders</string>
     <string name="reminders_empty">No reminders yet</string>
     <string name="settings_reminders_view_all_desc">View all reminders</string>
+    <string name="action_expand_more_bookmarks">More Bookmarks</string>
+    <string name="settings_bookmarks_view_all_desc">Manage your website bookmarks</string>
+    <string name="bookmarks_empty">No bookmarks yet</string>
+    <string name="bookmarks_no_matches">No matching bookmarks</string>
+    <string name="bookmarks_import_title">Import bookmarks</string>
+    <string name="bookmarks_import_desc">From an HTML file exported by your browser</string>
+    <string name="bookmarks_import_failed">Couldn’t read that file</string>
+    <string name="bookmarks_import_none_found">No bookmarks found in that file</string>
+    <string name="bookmarks_import_result">Bookmarks imported: %1$d</string>
+    <string name="bookmarks_import_result_with_skipped">Bookmarks imported: %1$d. Already saved: %2$d</string>
+    <string name="bookmarks_menu_import_html">Import from HTML</string>
+    <string name="bookmarks_menu_delete_all">Delete All</string>
+    <string name="bookmarks_delete_all_title">Delete all bookmarks?</string>
+    <string name="bookmarks_delete_all_message">Every saved bookmark will be removed. This action cannot be undone.</string>
+    <string name="bookmarks_add_title">Add Bookmark</string>
+    <string name="bookmarks_edit_title">Edit Bookmark</string>
+    <string name="bookmarks_link_label">Link</string>
+    <string name="bookmarks_invalid_link">Enter a valid web address</string>
     <string name="reminders_permission_hint">Need permission to show reminder notifications. Tap to allow.</string>
     <string name="reminders_home_card_dismiss">Remove from Home</string>
     <string name="settings_include_past_reminders_title">Past reminders</string>

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -36,7 +35,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -52,6 +50,7 @@ import com.tk.quicksearch.search.reminders.reminderScheduleLabel
 import com.tk.quicksearch.settings.appShortcutsSettings.shortcutMatchPriority
 import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -226,12 +225,9 @@ fun RemindersSettingsSection(
                         tint = AppColors.Accent,
                     )
                 }
-                DropdownMenu(
+                AppDropdownMenu(
                     expanded = isFilterMenuExpanded,
                     onDismissRequest = { isFilterMenuExpanded = false },
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
-                    properties = PopupProperties(focusable = false),
-                    containerColor = AppColors.DialogBackground,
                 ) {
                     ReminderFilterOption.entries.forEachIndexed { index, option ->
                         if (index > 0) HorizontalDivider()

@@ -5,7 +5,6 @@ import com.tk.quicksearch.search.searchScreen.forPinnedGlanceOnly
 import android.Manifest
 import android.app.Activity
 import android.content.ActivityNotFoundException
-import android.content.Context
 import android.content.Intent
 import android.speech.RecognizerIntent
 import android.widget.Toast
@@ -48,7 +47,6 @@ import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
 import com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction
-import com.tk.quicksearch.search.appSettings.AppSettingResultAction
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination
 import com.tk.quicksearch.search.appSettings.LocalOpenAppSettingDestination
 import com.tk.quicksearch.search.appSettings.LocalAppSettingInlineControls
@@ -505,6 +503,7 @@ fun SearchRoute(
             onMovePinnedNote = viewModel::movePinnedNote,
             onDeleteNote = onDeleteNoteWithUndo,
             reminderActions = reminderActions,
+            onBookmarkClick = viewModel::openBookmark,
             onPinFile = viewModel::pinFile,
             onUnpinFile = viewModel::unpinFile,
             onMovePinnedFile = viewModel::movePinnedFile,

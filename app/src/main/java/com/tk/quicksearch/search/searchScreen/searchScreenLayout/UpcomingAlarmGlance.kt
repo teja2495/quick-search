@@ -14,8 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -44,8 +41,8 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.calendar.calendarRelativeTimeLabel
 import com.tk.quicksearch.search.data.UpcomingAlarmRepository
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import java.util.Date
 import kotlinx.coroutines.delay
@@ -179,12 +176,9 @@ internal fun UpcomingAlarmRow(glance: UpcomingAlarmGlance) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            DropdownMenu(
+            AppDropdownMenu(
                 expanded = showMenu,
                 onDismissRequest = { showMenu = false },
-                shape = RoundedCornerShape(24.dp),
-                properties = PopupProperties(focusable = false),
-                containerColor = AppColors.DialogBackground,
             ) {
                 DropdownMenuItem(
                     text = {

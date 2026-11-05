@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -42,7 +40,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.common.AddToHomeHandler
 import com.tk.quicksearch.search.contacts.components.ContactActionButton
@@ -54,19 +51,19 @@ import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.ContactMethodMimeTypes
 import com.tk.quicksearch.search.utils.PhoneNumberUtils
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDefaults
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.util.PackageConstants.WHATSAPP_BUSINESS_PACKAGE
 import com.tk.quicksearch.shared.util.PackageConstants.WHATSAPP_PACKAGE
 import com.tk.quicksearch.shared.ui.components.AppBottomPopup
 import com.tk.quicksearch.shared.util.hapticConfirm
 import com.tk.quicksearch.shared.util.cachedDefaultHomeAppStatus
-import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.basicMarquee
@@ -292,13 +289,11 @@ private fun ContactActionLongPressMenu(
 ) {
     val context = LocalContext.current
     val isDefaultLauncher = context.cachedDefaultHomeAppStatus()
-    DropdownMenu(
+    AppDropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismissRequest,
         offset = DpOffset(x = 0.dp, y = 8.dp),
-        shape = RoundedCornerShape(24.dp),
-        properties = PopupProperties(focusable = false),
-        containerColor = if (LocalAppIsDarkTheme.current) Color.Black else Color.White,
+        containerColor = AppDropdownMenuDefaults.itemMenuContainerColor,
     ) {
         if (!isDefaultLauncher) {
             DropdownMenuItem(

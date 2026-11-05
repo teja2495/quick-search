@@ -45,6 +45,7 @@ internal fun searchSectionToggleId(section: SearchSection): String =
         SearchSection.CALENDAR -> "app_toggle_search_calendar"
         SearchSection.REMINDERS -> "app_toggle_search_reminders"
         SearchSection.NOTES -> "app_toggle_search_notes"
+        SearchSection.BOOKMARKS -> "app_toggle_search_bookmarks"
         SearchSection.APP_SETTINGS -> "app_toggle_search_app_settings"
     }
 
@@ -58,6 +59,7 @@ internal fun searchSectionToggleTitleRes(section: SearchSection): Int =
         SearchSection.CALENDAR -> R.string.search_section_calendar_toggle_title
         SearchSection.REMINDERS -> R.string.search_section_reminders_toggle_title
         SearchSection.NOTES -> R.string.search_section_notes_toggle_title
+        SearchSection.BOOKMARKS -> R.string.search_section_bookmarks_toggle_title
         SearchSection.APP_SETTINGS -> R.string.search_section_app_settings_toggle_title
     }
 
@@ -71,6 +73,7 @@ internal fun searchSectionToggleDescriptionRes(section: SearchSection): Int =
         SearchSection.CALENDAR -> R.string.search_section_calendar_toggle_desc
         SearchSection.REMINDERS -> R.string.search_section_reminders_toggle_desc
         SearchSection.NOTES -> R.string.search_section_notes_toggle_desc
+        SearchSection.BOOKMARKS -> R.string.search_section_bookmarks_toggle_desc
         SearchSection.APP_SETTINGS -> R.string.search_section_app_settings_toggle_desc
     }
 

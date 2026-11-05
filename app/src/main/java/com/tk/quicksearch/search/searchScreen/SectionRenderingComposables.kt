@@ -27,6 +27,8 @@ import com.tk.quicksearch.search.deviceSettings.DeviceSettingsResultsSection
 import com.tk.quicksearch.search.files.FileResultsSection
 import com.tk.quicksearch.search.notes.NotesResultsSection
 import com.tk.quicksearch.search.reminders.RemindersResultsSection
+import com.tk.quicksearch.search.bookmarks.BookmarksResultsSection
+import com.tk.quicksearch.search.bookmarks.LocalBookmarksSectionParams
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.homeTextColor
@@ -54,6 +56,7 @@ fun renderSection(
         SearchSection.SETTINGS -> renderSettingsSection(params, sectionContext)
         SearchSection.CALENDAR -> renderCalendarSection(params, sectionContext)
         SearchSection.REMINDERS -> renderRemindersSection(params, sectionContext)
+        SearchSection.BOOKMARKS -> renderBookmarksSection(sectionContext)
         SearchSection.NOTES -> renderNotesSection(params, sectionContext)
         SearchSection.APP_SETTINGS -> renderAppSettingsSection(params, sectionContext)
     }
@@ -479,6 +482,19 @@ private fun renderRemindersSection(
             showWallpaperBackground = remindersParams.showWallpaperBackground,
             expandedCardMaxHeight = remindersParams.expandedCardMaxHeight,
             showPinnedItemMenu = context.showAllRemindersResults,
+        )
+    }
+}
+
+@Composable
+private fun renderBookmarksSection(context: SectionRenderContext) {
+    val bookmarksParams = LocalBookmarksSectionParams.current ?: return
+    if (context.shouldRenderBookmarks) {
+        BookmarksResultsSection(
+            bookmarks = context.bookmarksList,
+            isExpanded = context.isBookmarksExpanded,
+            showExpandControls = context.showBookmarksExpandControls,
+            params = bookmarksParams,
         )
     }
 }

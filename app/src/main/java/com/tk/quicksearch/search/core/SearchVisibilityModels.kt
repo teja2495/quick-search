@@ -13,6 +13,7 @@ import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.models.ReminderInfo
+import com.tk.quicksearch.search.models.BookmarkInfo
 import com.tk.quicksearch.search.models.SecondaryRankingSignal
 import com.tk.quicksearch.search.searchHistory.RecentSearchItem
 import com.tk.quicksearch.search.utils.RecentResultRankingUtils
@@ -116,6 +117,14 @@ sealed class RemindersSectionVisibility {
         ) : RemindersSectionVisibility()
 }
 
+sealed class BookmarksSectionVisibility {
+        object Hidden : BookmarksSectionVisibility()
+
+        object NoResults : BookmarksSectionVisibility()
+
+        object ShowingResults : BookmarksSectionVisibility()
+}
+
 sealed class NotesSectionVisibility {
         object Hidden : NotesSectionVisibility()
 
@@ -162,6 +171,7 @@ data class SearchUiState(
         val calendarSectionState: CalendarSectionVisibility = CalendarSectionVisibility.Hidden,
         val remindersSectionState: RemindersSectionVisibility = RemindersSectionVisibility.Hidden,
         val notesSectionState: NotesSectionVisibility = NotesSectionVisibility.Hidden,
+        val bookmarksSectionState: BookmarksSectionVisibility = BookmarksSectionVisibility.Hidden,
         val searchEnginesState: SearchEnginesVisibility = SearchEnginesVisibility.Hidden,
         // App results
         val recentApps: List<AppInfo> = emptyList(),
@@ -209,6 +219,8 @@ data class SearchUiState(
         // Notes results
         val noteResults: List<NoteInfo> = emptyList(),
         val pinnedNotes: List<NoteInfo> = emptyList(),
+        // Bookmark results
+        val bookmarkResults: List<BookmarkInfo> = emptyList(),
         // Lifecycle / loading
         val startupPhase: StartupPhase = StartupPhase.PHASE_1_CACHE_PREFS,
         val isInitializing: Boolean = true,
@@ -462,6 +474,7 @@ fun SearchUiState(
                 pinnedReminders = results.pinnedReminders,
                 noteResults = results.noteResults,
                 pinnedNotes = results.pinnedNotes,
+                bookmarkResults = results.bookmarkResults,
                 screenState = results.screenState,
                 appsSectionState = results.appsSectionState,
                 appShortcutsSectionState = results.appShortcutsSectionState,
@@ -471,6 +484,7 @@ fun SearchUiState(
                 calendarSectionState = results.calendarSectionState,
                 remindersSectionState = results.remindersSectionState,
                 notesSectionState = results.notesSectionState,
+                bookmarksSectionState = results.bookmarksSectionState,
                 searchEnginesState = results.searchEnginesState,
                 calculatorState = results.calculatorState,
                 currencyConverterState = results.currencyConverterState,

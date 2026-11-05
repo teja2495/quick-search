@@ -303,6 +303,9 @@ internal fun SettingsDetailLevel1Screen(
                             onNavigateToReminders = {
                                 onNavigateToDetail(SettingsDetailType.REMINDERS)
                             },
+                            onNavigateToBookmarks = {
+                                onNavigateToDetail(SettingsDetailType.BOOKMARKS)
+                            },
                         )
                     }
 
@@ -624,6 +627,7 @@ internal fun SettingsDetailLevel1Screen(
                     SettingsDetailType.DEVICE_SETTINGS,
                     SettingsDetailType.CALENDAR_EVENTS,
                     SettingsDetailType.REMINDERS,
+                    SettingsDetailType.BOOKMARKS,
                     SettingsDetailType.NOTES,
                     SettingsDetailType.NOTE_EDITOR,
                     SettingsDetailType.CALLS_TEXTS,

@@ -140,7 +140,7 @@ fun fetchFaviconAsBase64(normalizedTemplate: String): String? {
     return null
 }
 
-private fun downloadImageBytes(url: String): ByteArray? {
+internal fun downloadImageBytes(url: String): ByteArray? {
     val connection = (URL(url).openConnection() as? HttpURLConnection) ?: return null
     connection.connectTimeout = 5000
     connection.readTimeout = 5000
@@ -177,7 +177,7 @@ private fun downloadImageBytes(url: String): ByteArray? {
     }
 }
 
-private fun normalizeImage(input: ByteArray, maxSizePx: Int? = null): ByteArray? {
+internal fun normalizeImage(input: ByteArray, maxSizePx: Int? = null): ByteArray? {
     val bitmap =
         if (maxSizePx != null) {
             // Decode bounds first to compute an efficient inSampleSize.
@@ -239,7 +239,7 @@ fun loadCustomIconAsBase64(
     return Base64.encodeToString(normalizedBytes, Base64.NO_WRAP)
 }
 
-private fun InputStream.readBytesUpTo(maxBytes: Int): ByteArray {
+internal fun InputStream.readBytesUpTo(maxBytes: Int): ByteArray {
     val buffer = ByteArrayOutputStream()
     val chunk = ByteArray(DEFAULT_BUFFER_SIZE)
     var total = 0

@@ -33,6 +33,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.tk.quicksearch.search.data.bookmarks.BookmarkRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -69,17 +70,20 @@ internal fun loadExportSelectionState(context: Context): ExportSelectionState {
             val remindersJson = userPrefs.getString(BasePreferences.KEY_REMINDERS_DATA, null).orEmpty()
             remindersJson.isNotBlank() && remindersJson != "[]"
         }
+    val hasBookmarks = BookmarkRepository(context).hasBookmarks()
     val hasApiKeys = UserAppPreferences(context).hasAnyLlmApiKey()
     return ExportSelectionState(
         includePinnedItems = hasPinnedItems,
         includeNotes = hasNotes,
         includeCalendarEvents = hasCustomCalendarEvents,
         includeReminders = hasReminders,
+        includeBookmarks = hasBookmarks,
         includeApiKeys = false,
         showPinnedItemsOption = hasPinnedItems,
         showNotesOption = hasNotes,
         showCalendarEventsOption = hasCustomCalendarEvents,
         showRemindersOption = hasReminders,
+        showBookmarksOption = hasBookmarks,
         showApiKeysOption = hasApiKeys,
     )
 }

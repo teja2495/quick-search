@@ -133,11 +133,12 @@ internal fun hasMoreResults(
         (sectionContext.shouldRenderAppSettings && sectionContext.appSettingsList.isNotEmpty()) ||
         (sectionContext.shouldRenderCalendar && sectionContext.calendarEventsList.isNotEmpty()) ||
         (sectionContext.shouldRenderNotes && sectionContext.notesList.isNotEmpty()) ||
-        (sectionContext.shouldRenderReminders && sectionContext.remindersList.isNotEmpty())
+        (sectionContext.shouldRenderReminders && sectionContext.remindersList.isNotEmpty()) ||
+        (sectionContext.shouldRenderBookmarks && sectionContext.bookmarksList.isNotEmpty())
 
 internal fun SearchSection.supportsPinnedHomeCollapse(): Boolean =
     when (this) {
-        SearchSection.APPS, SearchSection.APP_SETTINGS -> false
+        SearchSection.APPS, SearchSection.APP_SETTINGS, SearchSection.BOOKMARKS -> false
         SearchSection.APP_SHORTCUTS,
         SearchSection.CONTACTS,
         SearchSection.FILES,
