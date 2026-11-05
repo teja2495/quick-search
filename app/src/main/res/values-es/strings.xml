@@ -884,7 +884,8 @@
     <string name="settings_hidden_alarm_apps_title">Apps de alarmas ocultas</string>
     <string name="settings_at_a_glance_events_desc">Eventos del calendario de hoy</string>
     <string name="settings_at_a_glance_tomorrow_events">Mostrar los eventos de mañana la noche anterior</string>
-    <string name="settings_upcoming_reminders_desc">Recordatorios que vencen en 30 minutos o están atrasados</string>
+    <string name="settings_upcoming_reminders_desc">Recordatorios que vencen en 1,5 horas o están atrasados</string>
+    <string name="settings_at_a_glance_tomorrow_reminders">Mostrar los recordatorios de todo el día y de la mañana de mañana la noche anterior</string>
     <string name="settings_at_a_glance_low_battery_title">Batería baja</string>
     <string name="settings_low_battery_desc">Tu batería cuando está al %1$d%% o menos</string>
     <string name="settings_at_a_glance_timers_title">Temporizadores y cronómetro</string>

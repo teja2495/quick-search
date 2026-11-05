@@ -15,11 +15,12 @@ import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.intentHelpers.IntentHelpers
 import com.tk.quicksearch.search.data.CalendarRepository
+import com.tk.quicksearch.search.data.dismissTomorrowGlanceEvent
+import com.tk.quicksearch.search.data.loadTomorrowGlanceEvents
 import com.tk.quicksearch.search.data.preferences.CalendarPreferences
 import com.tk.quicksearch.search.data.preferences.GlancePreferences
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
@@ -30,9 +31,6 @@ import kotlinx.coroutines.withContext
 
 /** Tomorrow's events appear from this hour of the evening until midnight. */
 private const val TOMORROW_EVENTS_START_HOUR = 21
-
-/** Tomorrow's first timed event shows only when it starts before this hour. */
-private const val TOMORROW_MORNING_END_HOUR = 12
 
 /**
  * Tomorrow's all-day calendar events, then its first timed event when that starts in the morning,
@@ -64,7 +62,6 @@ internal fun rememberTomorrowEventsGlance(enabled: Boolean): TomorrowEventsGlanc
     LaunchedEffect(enabled, refreshKey) {
         while (true) {
             val now = LocalDateTime.now()
-            val tomorrow = now.toLocalDate().plusDays(1)
             events =
                 if (
                     enabled &&
@@ -73,21 +70,7 @@ internal fun rememberTomorrowEventsGlance(enabled: Boolean): TomorrowEventsGlanc
                     glancePreferences.isShowTomorrowEventsEnabled() &&
                     repository.hasPermission()
                 ) {
-                    withContext(Dispatchers.IO) {
-                        val excluded = calendarPreferences.getExcludedEventIds()
-                        val dismissed = glancePreferences.getDismissedTomorrowEvents(tomorrow.toString())
-                        val zoneId = ZoneId.systemDefault()
-                        val startOfTomorrow = tomorrow.atStartOfDay(zoneId).toInstant().toEpochMilli()
-                        val tomorrowNoon =
-                            tomorrow.atTime(TOMORROW_MORNING_END_HOUR, 0).atZone(zoneId).toInstant().toEpochMilli()
-                        val tomorrowEvents = repository.getEventsOn(tomorrow).filterNot { it.eventId in excluded }
-                        val morningEvent =
-                            tomorrowEvents.firstOrNull { !it.allDay && it.startMillis >= startOfTomorrow }
-                                ?.takeIf { it.startMillis < tomorrowNoon }
-                        (tomorrowEvents.filter { it.allDay } + listOfNotNull(morningEvent))
-                            .filterNot { it.eventId in dismissed }
-                            .distinctBy { it.eventId }
-                    }
+                    withContext(Dispatchers.IO) { loadTomorrowGlanceEvents(repository, calendarPreferences) }
                 } else {
                     emptyList()
                 }
@@ -105,7 +88,7 @@ internal fun rememberTomorrowEventsGlance(enabled: Boolean): TomorrowEventsGlanc
             )
         },
         dismiss = { event ->
-            glancePreferences.dismissTomorrowEvent(LocalDate.now().plusDays(1).toString(), event.eventId)
+            dismissTomorrowGlanceEvent(calendarPreferences, event)
             events = events.filterNot { it.eventId == event.eventId }
         },
     )

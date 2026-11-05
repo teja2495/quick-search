@@ -44,6 +44,8 @@ sealed interface ReminderEditorRequest {
         val initialDateTimeMillis: Long? = null,
         val initialAllDay: Boolean = true,
         val autoFocusTitle: Boolean = true,
+        /** Runs after the reminder is saved (not on dismiss), e.g. to clear the search query. */
+        val onCreated: (() -> Unit)? = null,
     ) : ReminderEditorRequest
 
     data class Edit(val reminder: ReminderInfo) : ReminderEditorRequest
@@ -58,12 +60,14 @@ object ReminderEditorRequests {
         initialDateTimeMillis: Long? = null,
         initialAllDay: Boolean = true,
         autoFocusTitle: Boolean = true,
+        onCreated: (() -> Unit)? = null,
     ) {
         _request.value = ReminderEditorRequest.New(
             initialTitle,
             initialDateTimeMillis,
             initialAllDay,
             autoFocusTitle,
+            onCreated,
         )
     }
 
@@ -104,6 +108,7 @@ fun ReminderEditorHost() {
                     val (date, timeMinutes) = toReminderSchedule(dateTimeMillis, allDay)
                     val created = repository.createReminder(title, date, timeMinutes)
                     Toast.makeText(context, reminderSetMessage(context, created), Toast.LENGTH_SHORT).show()
+                    current.onCreated?.invoke()
                     requestPermissionsIfFirst()
                 },
                 onDelete = null,

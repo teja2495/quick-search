@@ -34,6 +34,8 @@ internal fun SearchQuickActionPills(
     detectedTimerSeconds: Int?,
     detectedReminderSchedule: ReminderNaturalLanguageParser.Schedule?,
     onKeyboardSwitchToggle: () -> Unit,
+    /** Clears the query once an alarm, timer, or reminder has actually been set. */
+    onQuickActionCompleted: () -> Unit,
 ) {
     val context = LocalContext.current
             AnimatedVisibility(
@@ -80,7 +82,9 @@ internal fun SearchQuickActionPills(
                         }
                         SetAlarmPill(
                                 onClick = {
-                                    if (!SetAlarmHandler.launchSetAlarm(context, detectedAlarmTime)) {
+                                    if (SetAlarmHandler.launchSetAlarm(context, detectedAlarmTime)) {
+                                        onQuickActionCompleted()
+                                    } else {
                                         android.widget.Toast.makeText(
                                                         context,
                                                         context.getString(R.string.set_alarm_no_clock_app),
@@ -117,6 +121,7 @@ internal fun SearchQuickActionPills(
                                                     android.widget.Toast.LENGTH_SHORT,
                                             )
                                             .show()
+                                    if (started) onQuickActionCompleted()
                                 },
                         )
                         Spacer(modifier = Modifier.size(DesignTokens.SpacingSmall))
@@ -124,7 +129,9 @@ internal fun SearchQuickActionPills(
                                 onClick = {
                                     val alarmTime =
                                             StartTimerHandler.alarmTimeFor(detectedTimerSeconds)
-                                    if (!SetAlarmHandler.launchSetAlarm(context, alarmTime)) {
+                                    if (SetAlarmHandler.launchSetAlarm(context, alarmTime)) {
+                                        onQuickActionCompleted()
+                                    } else {
                                         android.widget.Toast.makeText(
                                                         context,
                                                         context.getString(R.string.set_alarm_no_clock_app),
@@ -146,6 +153,7 @@ internal fun SearchQuickActionPills(
                                             // Duration-only queries have no reminder title, so open directly
                                             // into the title field for immediate typing.
                                             autoFocusTitle = true,
+                                            onCreated = onQuickActionCompleted,
                                     )
                                 },
                         )
@@ -178,6 +186,7 @@ internal fun SearchQuickActionPills(
                                                     .toEpochMilli(),
                                             initialAllDay = schedule.time == null,
                                             autoFocusTitle = false,
+                                            onCreated = onQuickActionCompleted,
                                     )
                                 },
                         )

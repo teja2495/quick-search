@@ -33,6 +33,7 @@ internal fun SearchScreenBottomChrome(
     detectedTimerSeconds: Int?,
     detectedReminderSchedule: ReminderNaturalLanguageParser.Schedule?,
     onKeyboardSwitchToggle: () -> Unit,
+    onQuickActionCompleted: () -> Unit,
     isSearchHistoryExpanded: Boolean,
     overlayCardColor: androidx.compose.ui.graphics.Color?,
     overlayDividerTint: androidx.compose.ui.graphics.Color?,
@@ -79,6 +80,7 @@ internal fun SearchScreenBottomChrome(
                 detectedTimerSeconds = detectedTimerSeconds,
                 detectedReminderSchedule = detectedReminderSchedule,
                 onKeyboardSwitchToggle = onKeyboardSwitchToggle,
+                onQuickActionCompleted = onQuickActionCompleted,
             )
             if (!isSearchHistoryExpanded) {
                 CompositionLocalProvider(

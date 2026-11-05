@@ -884,7 +884,8 @@
     <string name="settings_hidden_alarm_apps_title">छिपे हुए अलार्म ऐप्स</string>
     <string name="settings_at_a_glance_events_desc">आज के कैलेंडर इवेंट्स</string>
     <string name="settings_at_a_glance_tomorrow_events">कल के इवेंट एक रात पहले दिखाएं</string>
-    <string name="settings_upcoming_reminders_desc">30 मिनट के भीतर देय या बकाया रिमाइंडर</string>
+    <string name="settings_upcoming_reminders_desc">1.5 घंटे के भीतर देय या बकाया रिमाइंडर</string>
+    <string name="settings_at_a_glance_tomorrow_reminders">कल के पूरे दिन और सुबह के रिमाइंडर एक रात पहले दिखाएं</string>
     <string name="settings_at_a_glance_low_battery_title">कम बैटरी</string>
     <string name="settings_low_battery_desc">जब आपकी बैटरी %1$d%% या उससे कम हो</string>
     <string name="settings_at_a_glance_timers_title">टाइमर और स्टॉपवॉच</string>

@@ -102,20 +102,28 @@ class ReminderRepository(context: Context) {
             .toList()
     }
 
-    /** Reminders to surface on Home: due within 30 minutes or overdue, and not done, dismissed or snoozed there. */
+    /**
+     * Reminders to surface on Home: undated ones from the morning, timed ones from 1.5 hours before
+     * they're due, overdue ones, and in the evening tomorrow's undated and morning ones; not done,
+     * dismissed or snoozed there.
+     */
     fun getHomeCardReminders(
         nowMillis: Long = System.currentTimeMillis(),
         isShown: Boolean = preferences.isShowUpcomingRemindersEnabled(),
+        isTomorrowShown: Boolean = preferences.isShowTomorrowRemindersEnabled(),
     ): List<ReminderInfo> {
         if (!isShown) return emptyList()
         val snoozedUntil = preferences.getHomeSnoozedUntil()
+        val hiddenUntil = preferences.getHomeHiddenUntil()
+        val showTomorrow = isTomorrowShown && GlanceTiming.isEvening(nowMillis)
         return readReminders()
             .filter { reminder ->
                 !reminder.isDone &&
                     !reminder.isDismissedFromHome &&
                     !reminder.isDismissedFromHomeToday(nowMillis) &&
                     (snoozedUntil[reminder.reminderId] ?: 0L) <= nowMillis &&
-                    reminder.dueMillis - HOME_CARD_LEAD_MILLIS <= nowMillis
+                    (hiddenUntil[reminder.reminderId] ?: 0L) <= nowMillis &&
+                    (glanceVisibleFromMillis(reminder) <= nowMillis || showTomorrow && isTomorrowEveningItem(reminder, nowMillis))
             }
             .sortedBy { it.dueMillis }
     }
@@ -165,7 +173,10 @@ class ReminderRepository(context: Context) {
                 )
             } ?: return null
         // A title-only edit keeps the snooze; a new time replaces it.
-        if (before?.date != date || before.timeMinutes != timeMinutes) clearSnooze(reminderId)
+        if (before?.date != date || before.timeMinutes != timeMinutes) {
+            clearSnooze(reminderId)
+            preferences.setHomeHiddenUntil(reminderId, null)
+        }
         ReminderScheduler.cancelNotification(appContext, reminderId)
         ReminderScheduler.schedule(appContext, updated, snoozedUntilMillis = getSnoozedUntil()[reminderId])
         return updated
@@ -221,15 +232,20 @@ class ReminderRepository(context: Context) {
     }
 
     /**
-     * The widget's close button: a reminder that isn't due yet comes back at its due time, as with
-     * [hideFromHomeUntilDue]; dismissing it once due keeps it off the Home card.
+     * Dismisses a reminder from At a Glance. Tomorrow's reminder dismissed the evening before comes
+     * back the next morning (or when due, if earlier); one dismissed more than 30 minutes before it's
+     * due comes back when due, as with [hideFromHomeUntilDue]; dismissing it later marks it done.
      */
     fun dismissFromHome(reminderId: Long, nowMillis: Long = System.currentTimeMillis()) {
         val reminder = getReminderById(reminderId) ?: return
-        if (nowMillis < reminder.dueMillis) {
-            hideFromHomeUntilDue(reminderId, nowMillis)
-        } else {
-            updateOne(reminderId) { it.copy(isDismissedFromHome = true) }
+        when {
+            isTomorrowEveningItem(reminder, nowMillis) && GlanceTiming.isEvening(nowMillis) -> {
+                val morning = GlanceTiming.morningStartMillis(reminder.date)
+                preferences.setHomeHiddenUntil(reminderId, minOf(morning, reminder.dueMillis), nowMillis)
+                notifyChanged()
+            }
+            canDismissUntilDue(reminder, nowMillis) -> hideFromHomeUntilDue(reminderId, nowMillis)
+            else -> setDone(reminderId, true)
         }
     }
 
@@ -305,7 +321,25 @@ class ReminderRepository(context: Context) {
 
     companion object {
         const val SNOOZE_MILLIS = 30L * 60L * 1000L
-        const val HOME_CARD_LEAD_MILLIS = 30L * 60L * 1000L
+
+        /** When [reminder] joins At a Glance: from the morning for an undated one, else ahead of its time. */
+        fun glanceVisibleFromMillis(reminder: ReminderInfo): Long =
+            if (reminder.hasTime) {
+                reminder.dueMillis - GlanceTiming.LEAD_MILLIS
+            } else {
+                GlanceTiming.morningStartMillis(reminder.date)
+            }
+
+        /** More than 30 minutes before it's due, dismissing hides it until then; later it marks it done. */
+        fun canDismissUntilDue(reminder: ReminderInfo, nowMillis: Long): Boolean =
+            nowMillis < reminder.dueMillis - GlanceTiming.DISMISS_DONE_WINDOW_MILLIS
+
+        /** Tomorrow's undated or morning reminder, shown the evening before. */
+        fun isTomorrowEveningItem(reminder: ReminderInfo, nowMillis: Long): Boolean {
+            val tomorrow = GlanceTiming.localDate(nowMillis).plusDays(1)
+            return reminder.date == tomorrow &&
+                (!reminder.hasTime || GlanceTiming.isTomorrowMorning(reminder.dueMillis, tomorrow))
+        }
 
         private const val FIELD_ID = "id"
         private const val FIELD_TITLE = "title"

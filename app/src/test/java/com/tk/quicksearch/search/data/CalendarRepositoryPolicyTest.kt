@@ -63,14 +63,41 @@ class CalendarRepositoryPolicyTest {
         )
     }
 
+    @Test
+    fun multiDayEventStillRunningTodayIsShown() {
+        val event = event(startMillis = startOfDay - DAY, allDay = true, endMillis = startOfTomorrow + DAY)
+
+        assertTrue(shouldShowTodayEvent(event, startOfDay, startOfTomorrow))
+    }
+
+    @Test
+    fun eventRunningPastMidnightIsShownTheNextDay() {
+        val event = event(startMillis = startOfDay - HOUR, allDay = false, endMillis = startOfDay + HOUR)
+
+        assertTrue(shouldShowTodayEvent(event, startOfDay, startOfTomorrow))
+    }
+
+    @Test
+    fun eventThatEndedAtMidnightIsNotShown() {
+        val event = event(startMillis = startOfDay - DAY, allDay = true, endMillis = startOfDay)
+
+        assertFalse(shouldShowTodayEvent(event, startOfDay, startOfTomorrow))
+    }
+
     private fun event(
         startMillis: Long,
         allDay: Boolean,
+        endMillis: Long = startMillis + 1L,
     ) = CalendarEventInfo(
         eventId = 1L,
         title = "Test",
         startMillis = startMillis,
-        endMillis = startMillis + 1L,
+        endMillis = endMillis,
         allDay = allDay,
     )
+
+    private companion object {
+        const val HOUR = 60L * 60L * 1000L
+        const val DAY = 24L * HOUR
+    }
 }

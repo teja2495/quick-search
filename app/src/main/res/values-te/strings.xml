@@ -884,7 +884,8 @@
     <string name="settings_hidden_alarm_apps_title">దాచిన అలారం యాప్‌లు</string>
     <string name="settings_at_a_glance_events_desc">ఈరోజు క్యాలెండర్ ఈవెంట్‌లు</string>
     <string name="settings_at_a_glance_tomorrow_events">రేపటి ఈవెంట్‌లను ముందు రాత్రి చూపించండి</string>
-    <string name="settings_upcoming_reminders_desc">30 నిమిషాల్లోపు గడువు ఉన్న లేదా గడువు దాటిన రిమైండర్‌లు</string>
+    <string name="settings_upcoming_reminders_desc">1.5 గంటల్లోపు గడువు ఉన్న లేదా గడువు దాటిన రిమైండర్‌లు</string>
+    <string name="settings_at_a_glance_tomorrow_reminders">రేపటి రోజంతా మరియు ఉదయం రిమైండర్‌లను ముందు రాత్రి చూపించండి</string>
     <string name="settings_at_a_glance_low_battery_title">తక్కువ బ్యాటరీ</string>
     <string name="settings_low_battery_desc">మీ బ్యాటరీ %1$d%% లేదా అంతకంటే తక్కువ ఉన్నప్పుడు</string>
     <string name="settings_at_a_glance_timers_title">టైమర్‌లు &amp; స్టాప్‌వాచ్</string>

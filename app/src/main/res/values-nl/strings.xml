@@ -917,7 +917,8 @@
     <string name="settings_hidden_alarm_apps_title">Verborgen wekker-apps</string>
     <string name="settings_at_a_glance_events_desc">Agenda-items van vandaag</string>
     <string name="settings_at_a_glance_tomorrow_events">Toon de afspraken van morgen de avond ervoor</string>
-    <string name="settings_upcoming_reminders_desc">Herinneringen die binnen 30 minuten verlopen of achterstallig zijn</string>
+    <string name="settings_upcoming_reminders_desc">Herinneringen die binnen 1,5 uur verlopen of achterstallig zijn</string>
+    <string name="settings_at_a_glance_tomorrow_reminders">Toon de hele-dag- en ochtendherinneringen van morgen de avond ervoor</string>
     <string name="settings_at_a_glance_low_battery_title">Batterij bijna leeg</string>
     <string name="settings_low_battery_desc">Je batterij wanneer deze op %1$d%% of lager staat</string>
     <string name="settings_at_a_glance_timers_title">Timers &amp; stopwatch</string>

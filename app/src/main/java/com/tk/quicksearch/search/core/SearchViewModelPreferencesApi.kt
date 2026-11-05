@@ -315,7 +315,8 @@ internal interface SearchViewModelPreferencesApi {
 
     fun refreshAvailableLlmModels() = preferencesApiDelegate.refreshAvailableLlmModels()
 
-    fun archiveTodayCalendarEvent(eventId: Long) = preferencesApiDelegate.archiveTodayCalendarEvent(eventId)
+    fun markTodayCalendarEventDone(event: com.tk.quicksearch.search.models.CalendarEventInfo) =
+        preferencesApiDelegate.markTodayCalendarEventDone(event)
 }
 
 class SearchViewModelPreferencesApiDelegate internal constructor(
@@ -424,7 +425,8 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
 
     fun setShowTodayEvents(enabled: Boolean) = preferencesDelegate.setShowTodayEvents(enabled)
 
-    fun archiveTodayCalendarEvent(eventId: Long) = preferencesDelegate.archiveTodayCalendarEvent(eventId)
+    fun markTodayCalendarEventDone(event: com.tk.quicksearch.search.models.CalendarEventInfo) =
+        preferencesDelegate.markTodayCalendarEventDone(event)
 
 
     fun setWallpaperBackgroundAlpha(alpha: Float) =

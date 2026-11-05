@@ -888,7 +888,8 @@
     <string name="settings_hidden_alarm_apps_title">Aplikasi Alarm Tersembunyi</string>
     <string name="settings_at_a_glance_events_desc">Acara kalender hari ini</string>
     <string name="settings_at_a_glance_tomorrow_events">Tampilkan acara besok pada malam sebelumnya</string>
-    <string name="settings_upcoming_reminders_desc">Pengingat yang jatuh tempo dalam 30 menit atau terlambat</string>
+    <string name="settings_upcoming_reminders_desc">Pengingat yang jatuh tempo dalam 1,5 jam atau terlambat</string>
+    <string name="settings_at_a_glance_tomorrow_reminders">Tampilkan pengingat sepanjang hari dan pagi untuk besok pada malam sebelumnya</string>
     <string name="settings_at_a_glance_low_battery_title">Baterai lemah</string>
     <string name="settings_low_battery_desc">Baterai Anda saat berada di %1$d%% atau lebih rendah</string>
     <string name="settings_at_a_glance_timers_title">Timer &amp; stopwatch</string>

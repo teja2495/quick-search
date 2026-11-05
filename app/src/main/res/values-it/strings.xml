@@ -883,7 +883,8 @@
     <string name="settings_hidden_alarm_apps_title">App sveglie nascoste</string>
     <string name="settings_at_a_glance_events_desc">Eventi del calendario di oggi</string>
     <string name="settings_at_a_glance_tomorrow_events">Mostra gli eventi di domani la sera prima</string>
-    <string name="settings_upcoming_reminders_desc">Promemoria in scadenza entro 30 minuti o scaduti</string>
+    <string name="settings_upcoming_reminders_desc">Promemoria in scadenza entro 1,5 ore o scaduti</string>
+    <string name="settings_at_a_glance_tomorrow_reminders">Mostra i promemoria di tutto il giorno e del mattino di domani la sera prima</string>
     <string name="settings_at_a_glance_low_battery_title">Batteria scarica</string>
     <string name="settings_low_battery_desc">La batteria quando è al %1$d%% o meno</string>
     <string name="settings_at_a_glance_timers_title">Timer e cronometro</string>

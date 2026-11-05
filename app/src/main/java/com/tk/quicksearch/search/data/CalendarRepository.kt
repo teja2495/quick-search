@@ -417,11 +417,15 @@ class CalendarRepository(
     ): Long = if (startMillis >= now) startMillis else Long.MAX_VALUE - startMillis
 }
 
+/**
+ * Whether [event] belongs to the day from [startOfDay] to [startOfTomorrow]: it starts that day, or
+ * it started earlier and is still running then, like a multi-day trip or an event past midnight.
+ */
 internal fun shouldShowTodayEvent(
     event: CalendarEventInfo,
     startOfDay: Long,
     startOfTomorrow: Long,
 ): Boolean {
-    if (event.startMillis !in startOfDay until startOfTomorrow) return false
-    return true
+    if (event.startMillis >= startOfTomorrow) return false
+    return event.startMillis >= startOfDay || event.endMillis > startOfDay
 }

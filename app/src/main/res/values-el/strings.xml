@@ -884,7 +884,8 @@
     <string name="settings_hidden_alarm_apps_title">Κρυφές εφαρμογές ξυπνητηριών</string>
     <string name="settings_at_a_glance_events_desc">Τα σημερινά συμβάντα ημερολογίου</string>
     <string name="settings_at_a_glance_tomorrow_events">Εμφάνιση των εκδηλώσεων της αυριανής ημέρας το προηγούμενο βράδυ</string>
-    <string name="settings_upcoming_reminders_desc">Υπενθυμίσεις που λήγουν εντός 30 λεπτών ή έχουν καθυστερήσει</string>
+    <string name="settings_upcoming_reminders_desc">Υπενθυμίσεις που λήγουν εντός 1,5 ώρας ή έχουν καθυστερήσει</string>
+    <string name="settings_at_a_glance_tomorrow_reminders">Εμφάνιση των ολοήμερων και πρωινών υπενθυμίσεων της αυριανής ημέρας το προηγούμενο βράδυ</string>
     <string name="settings_at_a_glance_low_battery_title">Χαμηλή μπαταρία</string>
     <string name="settings_low_battery_desc">Η μπαταρία σας όταν είναι στο %1$d%% ή χαμηλότερα</string>
     <string name="settings_at_a_glance_timers_title">Χρονοδιακόπτες &amp; χρονόμετρο</string>

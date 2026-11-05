@@ -65,6 +65,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.tk.quicksearch.R
 import com.tk.quicksearch.reminders.ReminderEditorRequests
 import com.tk.quicksearch.search.calendar.calendarRelativeTimeLabel
+import com.tk.quicksearch.search.data.GlanceTiming
 import com.tk.quicksearch.search.data.ReminderRepository
 import com.tk.quicksearch.search.models.ReminderInfo
 import com.tk.quicksearch.search.reminders.reminderOverdueColor
@@ -87,11 +88,12 @@ private const val REMINDER_NOW_WINDOW_MILLIS = 60L * 1000L
 private const val DONE_UNDO_WINDOW_MILLIS = 4_000L
 
 /**
- * Reminders due within 30 minutes or already overdue, shown in the home At a Glance card. A
- * reminder that isn't due yet can be dismissed until its due time. Once due, it stays until it is
- * marked done, snoozed (hidden here and from notifications for 30 minutes, due time unchanged) or
- * deleted; those actions offer Undo, which restores the reminder as it was. Marking done keeps the
- * row in place for a few seconds with its own Undo button; snooze and delete use the snackbar.
+ * Reminders for the home At a Glance card, as [ReminderRepository.getHomeCardReminders] picks them.
+ * More than 30 minutes before it's due (or the evening before, for tomorrow's), a reminder can be
+ * dismissed until then. After that it stays until it is marked done, snoozed (hidden here and from
+ * notifications for 30 minutes, due time unchanged) or deleted; those actions offer Undo, which
+ * restores the reminder as it was. Marking done keeps the row in place for a few seconds with its
+ * own Undo button; snooze and delete use the snackbar.
  */
 internal class UpcomingRemindersGlance(
     val reminders: List<ReminderInfo>,
@@ -209,11 +211,11 @@ internal fun rememberUpcomingRemindersGlance(enabled: Boolean): UpcomingReminder
                 undo = { notificationWasShowing -> unsnooze(reminder.reminderId, notificationWasShowing) },
             )
         },
-        // Only a reminder that isn't due yet can be dismissed; it comes back at its due time, with its
-        // notification, so there is nothing to undo.
+        // Only offered while it hides the reminder for a while (see [UpcomingReminderRow]); it comes
+        // back by itself, with its notification, so there is nothing to undo.
         dismiss = { reminder ->
             reminders = reminders.filterNot { it.reminderId == reminder.reminderId }
-            scope.launch(Dispatchers.IO) { repository.hideFromHomeUntilDue(reminder.reminderId) }
+            scope.launch(Dispatchers.IO) { repository.dismissFromHome(reminder.reminderId) }
         },
         delete = { reminder ->
             act(
@@ -254,8 +256,18 @@ internal fun UpcomingReminderRow(
     val time = remember(reminder.dueMillis, context) {
         DateFormat.getTimeFormat(context).format(Date(reminder.dueMillis))
     }
+    val dayLabel =
+        when (reminder.date) {
+            GlanceTiming.localDate(nowMillis) -> stringResource(R.string.calendar_relative_today)
+            GlanceTiming.localDate(nowMillis).plusDays(1) -> stringResource(R.string.calendar_relative_tomorrow)
+            else -> null
+        }
     val scheduleText =
         when {
+            // Undated reminders read as "Today" or "Tomorrow" rather than their 9:00 AM notification time.
+            !isOverdue && !reminder.hasTime && dayLabel != null -> dayLabel
+            !isOverdue && !isNow && reminder.date != GlanceTiming.localDate(nowMillis) && dayLabel != null ->
+                "$time • $dayLabel"
             !isOverdue && !isNow -> "$time • ${calendarRelativeTimeLabel(reminder.dueMillis, nowMillis)}"
             nowMillis - reminder.dueMillis < DAY_MILLIS -> time
             else -> reminderScheduleLabel(reminder)
@@ -334,9 +346,13 @@ internal fun UpcomingReminderRow(
                         onDone()
                     },
                 )
-                // A due reminder can be snoozed but not dismissed; before then, Dismiss hides it until it's due.
+                // Dismiss hides a reminder until it's due (or tomorrow's until the morning). Within 30 minutes
+                // of its time that would be Done, so Snooze takes its place.
                 HorizontalDivider()
-                if (nowMillis >= reminder.dueMillis) {
+                val canDismiss =
+                    ReminderRepository.canDismissUntilDue(reminder, nowMillis) ||
+                        (GlanceTiming.isEvening(nowMillis) && ReminderRepository.isTomorrowEveningItem(reminder, nowMillis))
+                if (!canDismiss) {
                     DropdownMenuItem(
                         text = { Text(text = stringResource(R.string.reminder_notification_action_snooze)) },
                         leadingIcon = { Icon(imageVector = MaterialSymbols.Snooze, contentDescription = null) },

@@ -106,13 +106,6 @@ class GlancePreferences(context: Context) : BasePreferences(context) {
     fun dismissBirthday(day: String, contactId: Long) =
         addDayScopedId(KEY_DISMISSED_BIRTHDAYS_DAY, KEY_DISMISSED_BIRTHDAYS, day, contactId)
 
-    /** Event ids of [day]'s (an ISO date) events dismissed from the evening before. */
-    fun getDismissedTomorrowEvents(day: String): Set<Long> =
-        getDayScopedIds(KEY_DISMISSED_TOMORROW_EVENTS_DAY, KEY_DISMISSED_TOMORROW_EVENTS, day)
-
-    fun dismissTomorrowEvent(day: String, eventId: Long) =
-        addDayScopedId(KEY_DISMISSED_TOMORROW_EVENTS_DAY, KEY_DISMISSED_TOMORROW_EVENTS, day, eventId)
-
     private fun getDayScopedIds(dayKey: String, idsKey: String, day: String): Set<Long> =
         if (prefs.getString(dayKey, null) == day) {
             getStringSet(idsKey).mapNotNull { it.toLongOrNull() }.toSet()
@@ -173,8 +166,6 @@ class GlancePreferences(context: Context) : BasePreferences(context) {
         private const val KEY_SHOW_APP_NOTIFICATIONS = "home_show_app_notifications"
         private const val KEY_APP_NOTIFICATION_FILTERS = "home_app_notification_filters"
         private const val KEY_SHOW_TOMORROW_EVENTS = "home_show_tomorrow_events"
-        private const val KEY_DISMISSED_TOMORROW_EVENTS_DAY = "home_dismissed_tomorrow_events_day"
-        private const val KEY_DISMISSED_TOMORROW_EVENTS = "home_dismissed_tomorrow_events"
         private const val KEY_LOW_STORAGE_DISMISSED_FREE_PERCENT = "home_low_storage_dismissed_free_percent"
     }
 }

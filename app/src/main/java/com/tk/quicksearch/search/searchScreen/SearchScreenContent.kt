@@ -331,31 +331,16 @@ internal fun SearchScreenContent(
             }
     val shouldShowPhoneCallAction =
             keyboardSwitchText != null && state.query.isPhoneNumberQuery()
-    val detectedAlarmTime =
-            remember(state.query, isToolAliasMode) {
-                if (isToolAliasMode) {
-                    null
-                } else {
-                    SetAlarmHandler.detectAlarmTime(state.query)
-                }
-            }
-    val detectedTimerSeconds =
-            remember(state.query, isToolAliasMode) {
-                if (isToolAliasMode) {
-                    null
-                } else {
-                    StartTimerHandler.detectTimerSeconds(state.query)
-                }
-            }
-    val detectedReminderSchedule =
-            remember(state.query, isToolAliasMode) {
-                if (isToolAliasMode) {
-                    null
-                } else {
-                    ReminderNaturalLanguageParser.parse(state.query)
-                        ?.takeIf { it.title.isNotBlank() }
-                }
-            }
+    val detectedAlarmTime = remember(state.query, isToolAliasMode) {
+        if (isToolAliasMode) null else SetAlarmHandler.detectAlarmTime(state.query)
+    }
+    val detectedTimerSeconds = remember(state.query, isToolAliasMode) {
+        if (isToolAliasMode) null else StartTimerHandler.detectTimerSeconds(state.query)
+    }
+    val detectedReminderSchedule = remember(state.query, isToolAliasMode) {
+        if (isToolAliasMode) null
+        else ReminderNaturalLanguageParser.parse(state.query)?.takeIf { it.title.isNotBlank() }
+    }
     val predictedState = rememberPredictedSearchTargetState(
         state = state,
         renderingState = renderingState,
@@ -752,6 +737,7 @@ internal fun SearchScreenContent(
             detectedTimerSeconds = detectedTimerSeconds,
             detectedReminderSchedule = detectedReminderSchedule,
             onKeyboardSwitchToggle = onKeyboardSwitchToggle,
+            onQuickActionCompleted = onClearQuery,
             isSearchHistoryExpanded = isSearchHistoryExpanded,
             overlayCardColor = overlayCardColor,
             overlayDividerTint = overlayDividerTint,

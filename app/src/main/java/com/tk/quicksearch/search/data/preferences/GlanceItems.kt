@@ -28,6 +28,7 @@ enum class GlanceItem(
     WORKOUTS("workouts"),
     TIMERS("timers"),
     REMINDERS("reminders"),
+    TOMORROW_REMINDERS("tomorrow_reminders"),
     BIRTHDAYS("birthdays"),
     PROGRESS("progress"),
     LOW_BATTERY("low_battery"),
@@ -84,6 +85,7 @@ class AppGlanceItemSettings(
             GlanceItem.WORKOUTS -> glance.isShowWorkoutsEnabled()
             GlanceItem.TIMERS -> glance.isShowTimersEnabled()
             GlanceItem.REMINDERS -> reminders.isShowUpcomingRemindersEnabled()
+            GlanceItem.TOMORROW_REMINDERS -> reminders.isShowTomorrowRemindersEnabled()
             GlanceItem.BIRTHDAYS -> glance.isShowBirthdaysEnabled()
             GlanceItem.PROGRESS -> glance.isShowProgressNotificationsEnabled()
             GlanceItem.LOW_BATTERY -> battery.isShowLowBatteryEnabled()
@@ -114,6 +116,7 @@ class AppGlanceItemSettings(
             GlanceItem.WORKOUTS -> glance.setShowWorkoutsEnabled(shown)
             GlanceItem.TIMERS -> glance.setShowTimersEnabled(shown)
             GlanceItem.REMINDERS -> reminders.setShowUpcomingRemindersEnabled(shown)
+            GlanceItem.TOMORROW_REMINDERS -> reminders.setShowTomorrowRemindersEnabled(shown)
             GlanceItem.BIRTHDAYS -> glance.setShowBirthdaysEnabled(shown)
             GlanceItem.PROGRESS -> glance.setShowProgressNotificationsEnabled(shown)
             GlanceItem.LOW_BATTERY -> battery.setShowLowBatteryEnabled(shown)

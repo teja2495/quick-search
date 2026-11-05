@@ -275,10 +275,12 @@ fun AtAGlanceSettingsSection(
         item: GlanceItem,
         title: String,
         description: String,
+        subtitleContent: (@Composable () -> Unit)? = null,
     ) = GlanceToggle("$title $description") { isFirst, isLast ->
         SettingsToggleRow(
             title = title,
             subtitle = description,
+            subtitleContent = subtitleContent?.takeIf { isShown(item) },
             checked = isShown(item),
             onCheckedChange = { setShown(item, it) },
             isFirstItem = isFirst,
@@ -458,6 +460,9 @@ fun AtAGlanceSettingsSection(
                 item = GlanceItem.REMINDERS,
                 title = stringResource(R.string.section_reminders),
                 description = stringResource(R.string.settings_upcoming_reminders_desc),
+                subtitleContent = {
+                    nestedCheckbox(GlanceItem.TOMORROW_REMINDERS, stringResource(R.string.settings_at_a_glance_tomorrow_reminders))
+                },
             ),
             permissionToggle(
                 item = GlanceItem.BIRTHDAYS,

@@ -467,9 +467,7 @@ abstract class BasePreferences(
         const val KEY_DEFAULT_CALENDAR_PACKAGE = "default_calendar_package"
         const val KEY_CUSTOM_CALENDAR_EVENTS_DATA = "custom_calendar_events_data"
         const val KEY_CUSTOM_CALENDAR_EVENT_ID_COUNTER = "custom_calendar_event_id_counter"
-        const val KEY_ARCHIVED_TODAY_CALENDAR_EVENT_IDS = "archived_today_calendar_event_ids"
-        const val KEY_ARCHIVED_TODAY_CALENDAR_EVENT_DATE = "archived_today_calendar_event_date"
-        const val KEY_SNOOZED_TODAY_CALENDAR_EVENTS = "snoozed_today_calendar_events"
+        const val KEY_GLANCE_HIDDEN_CALENDAR_EVENTS = "glance_hidden_calendar_events"
 
         // Notes preferences keys
         const val KEY_PINNED_NOTE_IDS = "pinned_note_ids"

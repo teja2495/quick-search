@@ -884,7 +884,8 @@
     <string name="settings_hidden_alarm_apps_title">Ausgeblendete Wecker-Apps</string>
     <string name="settings_at_a_glance_events_desc">Heutige Kalenderereignisse</string>
     <string name="settings_at_a_glance_tomorrow_events">Termine von morgen am Vorabend anzeigen</string>
-    <string name="settings_upcoming_reminders_desc">Erinnerungen, die innerhalb von 30 Minuten fällig oder überfällig sind</string>
+    <string name="settings_upcoming_reminders_desc">Erinnerungen, die innerhalb von 1,5 Stunden fällig oder überfällig sind</string>
+    <string name="settings_at_a_glance_tomorrow_reminders">Ganztägige und morgendliche Erinnerungen von morgen am Vorabend anzeigen</string>
     <string name="settings_at_a_glance_low_battery_title">Akku schwach</string>
     <string name="settings_low_battery_desc">Dein Akku, wenn er bei %1$d%% oder darunter ist</string>
     <string name="settings_at_a_glance_timers_title">Timer &amp; Stoppuhr</string>

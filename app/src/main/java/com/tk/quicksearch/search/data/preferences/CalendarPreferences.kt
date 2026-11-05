@@ -1,8 +1,9 @@
 package com.tk.quicksearch.search.data.preferences
 
 import android.content.Context
-import java.time.LocalDate
-import java.time.ZoneId
+
+/** Identifies one occurrence of a calendar event, so a repeating event's other days are separate. */
+internal fun glanceOccurrenceKey(eventId: Long, startMillis: Long): String = "$eventId:$startMillis"
 
 /** Preferences for calendar event pin/exclude management. */
 class CalendarPreferences(
@@ -54,33 +55,27 @@ class CalendarPreferences(
         prefs.edit().putString(BasePreferences.KEY_DEFAULT_CALENDAR_PACKAGE, packageName).apply()
     }
 
-    fun getArchivedTodayEventIds(): Set<Long> {
-        clearArchivedTodayEventsIfStale()
-        return getPinnedLongItems(BasePreferences.KEY_ARCHIVED_TODAY_CALENDAR_EVENT_IDS)
-    }
-
-    fun archiveTodayEvent(eventId: Long): Set<Long> {
-        clearArchivedTodayEventsIfStale()
-        prefs.edit().putString(BasePreferences.KEY_ARCHIVED_TODAY_CALENDAR_EVENT_DATE, todayDateKey()).apply()
-        return pinLongItem(BasePreferences.KEY_ARCHIVED_TODAY_CALENDAR_EVENT_IDS, eventId)
-    }
-
-    /** Today's events dismissed early, mapped to when they show on home again; cleared with the archive each day. */
-    fun getSnoozedTodayEvents(): Map<Long, Long> {
-        clearArchivedTodayEventsIfStale()
-        return getStringSet(BasePreferences.KEY_SNOOZED_TODAY_CALENDAR_EVENTS).mapNotNull { entry ->
-            val id = entry.substringBefore(':').toLongOrNull() ?: return@mapNotNull null
-            val until = entry.substringAfter(':').toLongOrNull() ?: return@mapNotNull null
-            id to until
+    /**
+     * At a Glance hides, keyed by [glanceOccurrenceKey] and mapped to when each shows again. Keyed per
+     * occurrence, so hiding today's instance of a repeating event leaves its other days alone. Hides
+     * that have ended are dropped on the next write.
+     */
+    fun getGlanceHiddenEvents(): Map<String, Long> =
+        getStringSet(BasePreferences.KEY_GLANCE_HIDDEN_CALENDAR_EVENTS).mapNotNull { entry ->
+            val key = entry.substringBeforeLast('=')
+            val until = entry.substringAfterLast('=').toLongOrNull() ?: return@mapNotNull null
+            key to until
         }.toMap()
-    }
 
-    fun snoozeTodayEvent(eventId: Long, untilMillis: Long) {
-        clearArchivedTodayEventsIfStale()
-        val entries = getSnoozedTodayEvents() + (eventId to untilMillis)
+    fun hideGlanceEvent(
+        occurrenceKey: String,
+        untilMillis: Long,
+        nowMillis: Long = System.currentTimeMillis(),
+    ) {
+        val entries = getGlanceHiddenEvents().filter { (key, until) -> key != occurrenceKey && until > nowMillis } +
+            (occurrenceKey to untilMillis)
         prefs.edit()
-            .putString(BasePreferences.KEY_ARCHIVED_TODAY_CALENDAR_EVENT_DATE, todayDateKey())
-            .putStringSet(BasePreferences.KEY_SNOOZED_TODAY_CALENDAR_EVENTS, entries.map { (id, until) -> "$id:$until" }.toSet())
+            .putStringSet(BasePreferences.KEY_GLANCE_HIDDEN_CALENDAR_EVENTS, entries.map { (key, until) -> "$key=$until" }.toSet())
             .apply()
     }
 
@@ -90,18 +85,4 @@ class CalendarPreferences(
     fun setCustomEventsJson(json: String) {
         prefs.edit().putString(BasePreferences.KEY_CUSTOM_CALENDAR_EVENTS_DATA, json).apply()
     }
-
-    private fun clearArchivedTodayEventsIfStale() {
-        val today = todayDateKey()
-        val storedDate = prefs.getString(BasePreferences.KEY_ARCHIVED_TODAY_CALENDAR_EVENT_DATE, null)
-        if (storedDate == today) return
-
-        prefs.edit()
-            .remove(BasePreferences.KEY_ARCHIVED_TODAY_CALENDAR_EVENT_DATE)
-            .putStringSet(BasePreferences.KEY_ARCHIVED_TODAY_CALENDAR_EVENT_IDS, emptySet())
-            .putStringSet(BasePreferences.KEY_SNOOZED_TODAY_CALENDAR_EVENTS, emptySet())
-            .apply()
-    }
-
-    private fun todayDateKey(): String = LocalDate.now(ZoneId.systemDefault()).toString()
 }

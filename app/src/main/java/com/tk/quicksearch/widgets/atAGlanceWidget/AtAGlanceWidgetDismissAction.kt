@@ -12,6 +12,7 @@ import com.tk.quicksearch.search.data.GlanceNotificationsStore
 import com.tk.quicksearch.search.data.ReminderRepository
 import com.tk.quicksearch.search.data.UpcomingAlarmRepository
 import com.tk.quicksearch.search.data.dismissTodayGlanceEvent
+import com.tk.quicksearch.search.data.dismissTomorrowGlanceEvent
 import com.tk.quicksearch.search.data.preferences.BatteryPreferences
 import com.tk.quicksearch.search.data.preferences.CalendarPreferences
 import com.tk.quicksearch.search.data.preferences.GlancePreferences
@@ -70,7 +71,7 @@ class AtAGlanceWidgetDismissAction : ActionCallback {
             AtAGlanceWidgetDismissType.FINISHED_PROGRESS -> key?.let(GlanceNotificationsStore::dismissFinishedProgress)
             AtAGlanceWidgetDismissType.BIRTHDAY -> glancePreferences.dismissBirthday(LocalDate.now().toString(), id)
             AtAGlanceWidgetDismissType.TOMORROW_EVENT ->
-                glancePreferences.dismissTomorrowEvent(LocalDate.now().plusDays(1).toString(), id)
+                dismissTomorrowGlanceEvent(CalendarRepository(context), CalendarPreferences(context), id)
             AtAGlanceWidgetDismissType.TODAY_EVENT -> dismissTodayGlanceEvent(CalendarRepository(context), CalendarPreferences(context), id)
             AtAGlanceWidgetDismissType.CUSTOM_INFO -> {
                 CustomInfoScheduler.cancelNotification(context.applicationContext, id.toInt())

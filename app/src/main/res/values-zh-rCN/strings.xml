@@ -874,7 +874,8 @@
     <string name="settings_hidden_alarm_apps_title">已隐藏闹钟的应用</string>
     <string name="settings_at_a_glance_events_desc">今天的日历活动</string>
     <string name="settings_at_a_glance_tomorrow_events">在前一晚显示明天的日程</string>
-    <string name="settings_upcoming_reminders_desc">30 分钟内到期或已逾期的提醒</string>
+    <string name="settings_upcoming_reminders_desc">1.5 小时内到期或已逾期的提醒</string>
+    <string name="settings_at_a_glance_tomorrow_reminders">在前一晚显示明天的全天和上午提醒</string>
     <string name="settings_at_a_glance_low_battery_title">电量低</string>
     <string name="settings_low_battery_desc">电池电量不高于 %1$d%% 时</string>
     <string name="settings_at_a_glance_timers_title">计时器和秒表</string>

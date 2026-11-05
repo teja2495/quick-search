@@ -446,11 +446,11 @@ internal class SearchPreferencesDelegate(
         }
     }
 
-    fun archiveTodayCalendarEvent(eventId: Long) {
+    fun markTodayCalendarEventDone(event: com.tk.quicksearch.search.models.CalendarEventInfo) {
         scope.launch(Dispatchers.IO) {
-            userPreferences.archiveTodayCalendarEvent(eventId)
+            userPreferences.markTodayCalendarEventDone(event)
             updateResultsState { state ->
-                state.copy(todayCalendarEvents = state.todayCalendarEvents.filterNot { it.eventId == eventId })
+                state.copy(todayCalendarEvents = state.todayCalendarEvents.filterNot { it.eventId == event.eventId })
             }
         }
     }

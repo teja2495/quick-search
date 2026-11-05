@@ -883,7 +883,8 @@
 <string name="settings_hidden_alarm_apps_title">Gizli Alarm Uygulamaları</string>
 <string name="settings_at_a_glance_events_desc">Bugünün takvim etkinlikleri</string>
 <string name="settings_at_a_glance_tomorrow_events">Yarının etkinliklerini bir önceki gece göster</string>
-<string name="settings_upcoming_reminders_desc">30 dakika içinde zamanı gelen veya gecikmiş hatırlatıcılar</string>
+<string name="settings_upcoming_reminders_desc">1,5 saat içinde zamanı gelen veya gecikmiş hatırlatıcılar</string>
+<string name="settings_at_a_glance_tomorrow_reminders">Yarının tüm gün ve sabah hatırlatıcılarını bir önceki gece göster</string>
     <string name="settings_at_a_glance_low_battery_title">Düşük pil</string>
     <string name="settings_low_battery_desc">Piliniz %%%1$d veya altına düştüğünde</string>
     <string name="settings_at_a_glance_timers_title">Zamanlayıcılar ve kronometre</string>

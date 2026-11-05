@@ -887,7 +887,8 @@
     <string name="settings_hidden_alarm_apps_title">Hidden Alarm Apps</string>
     <string name="settings_at_a_glance_events_desc">Today\'s calendar events</string>
     <string name="settings_at_a_glance_tomorrow_events">Show tomorrow\'s events the night before</string>
-    <string name="settings_upcoming_reminders_desc">Reminders due within 30 minutes or overdue</string>
+    <string name="settings_upcoming_reminders_desc">Reminders due within 1.5 hours or overdue</string>
+    <string name="settings_at_a_glance_tomorrow_reminders">Show tomorrow\'s all-day and morning reminders the night before</string>
     <string name="settings_at_a_glance_low_battery_title">Low Battery</string>
     <string name="settings_low_battery_desc">Your battery when it\'s at %1$d%% or lower</string>
     <string name="settings_at_a_glance_timers_title">Timers &amp; Stopwatch</string>
