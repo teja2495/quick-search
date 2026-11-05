@@ -69,6 +69,8 @@ import com.tk.quicksearch.searchEngines.compact.SearchEngineCard
 import com.tk.quicksearch.searchEngines.extendToScreenEdges
 import com.tk.quicksearch.searchEngines.shared.SearchTargetConstants
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
+import com.tk.quicksearch.search.searchScreen.insetCardBackdrop
+import com.tk.quicksearch.search.searchScreen.insetCardBackground
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.util.isLandscape
@@ -273,9 +275,9 @@ fun SearchEngineIconsSection(
     // Match compact section background with the persistent search bar for visual consistency.
     val backgroundColor =
         if (useInsetContainer) {
-            AppColors.getSearchBarBackground(showWallpaperBackground)
+            insetCardBackground(true, AppColors.getSearchBarBackground(showWallpaperBackground))
         } else {
-            AppColors.getSearchEngineSectionBackground(showWallpaperBackground)
+            insetCardBackground(true, AppColors.getSearchEngineSectionBackground(showWallpaperBackground))
         }
     if (detectedShortcutTarget != null) {
         // Check if query starts with the shortcut and remove it
@@ -310,6 +312,12 @@ fun SearchEngineIconsSection(
             } else {
                 AppColors.Accent.copy(alpha = 0.22f)
             }
+        val containerShape =
+            if (useInsetContainer) {
+                SearchEngineSectionConstants.insetContainerShape(insetFullBleedFraction)
+            } else {
+                RectangleShape
+            }
         Surface(
             modifier =
                 modifier
@@ -326,16 +334,12 @@ fun SearchEngineIconsSection(
                             Modifier.extendToScreenEdges()
                         },
                     )
+                    .insetCardBackdrop(true, containerShape)
                     .graphicsLayer {
                         shadowElevation = 0f
                     },
             color = backgroundColor,
-            shape =
-                if (useInsetContainer) {
-                    SearchEngineSectionConstants.insetContainerShape(insetFullBleedFraction)
-                } else {
-                    RectangleShape
-                },
+            shape = containerShape,
         ) {
             Column(
                 modifier =

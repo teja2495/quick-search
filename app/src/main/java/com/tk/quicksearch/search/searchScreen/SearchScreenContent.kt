@@ -651,6 +651,7 @@ internal fun SearchScreenContent(
         LocalSearchColorTheme provides searchColorTheme,
         LocalAmoledThemeActive provides amoledSurfacesActive,
         LocalSearchResultQuery provides state.query.trim(),
+        LocalInsetCardBackdrop provides searchBarGeometry.insetCardBackdrop,
         com.tk.quicksearch.tools.calculator.LocalCalculatorResultQueryHandler provides onQueryChanged,
     ) {
     Column(modifier = contentModifier, verticalArrangement = Arrangement.Top) {
@@ -676,7 +677,7 @@ internal fun SearchScreenContent(
                             } else {
                                 base
                             }
-                        },
+                        }.insetCardBackdropSource(searchBarGeometry.insetCardBackdrop),
                 state = state,
                 renderingState = renderingState,
                 contactsParams = contactsParams,

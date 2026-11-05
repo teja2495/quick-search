@@ -1,5 +1,8 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import androidx.compose.ui.graphics.RectangleShape
+import com.tk.quicksearch.search.searchScreen.insetCardBackdrop
+import com.tk.quicksearch.search.searchScreen.insetCardBackground
 import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.BorderStroke
@@ -267,7 +270,8 @@ internal fun OpenKeyboardAction(
     showMic: Boolean = true,
 ) {
     val isDarkTheme = LocalAppIsDarkTheme.current
-    val backgroundColor = AppColors.getSearchEngineSectionBackground(showWallpaperBackground)
+    val backgroundColor =
+        insetCardBackground(true, AppColors.getSearchEngineSectionBackground(showWallpaperBackground))
     val labelColor =
         if (showWallpaperBackground && LocalDeviceDynamicColorsActive.current) {
             MaterialTheme.colorScheme.onSurface
@@ -277,7 +281,7 @@ internal fun OpenKeyboardAction(
             Color.Black
         }
     Surface(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().insetCardBackdrop(true, RectangleShape),
         color = backgroundColor,
         tonalElevation = DesignTokens.ElevationLevel0,
     ) {

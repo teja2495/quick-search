@@ -1,5 +1,7 @@
 package com.tk.quicksearch.searchEngines.inline
 
+import com.tk.quicksearch.search.searchScreen.insetCardBackdrop
+import com.tk.quicksearch.search.searchScreen.insetCardBackground
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.MutableTransitionState
@@ -106,6 +108,12 @@ internal fun AiFollowUpInputSection(
         } else {
             AppColors.Accent.copy(alpha = 0.22f)
         }
+    val containerShape =
+        if (useInsetContainer) {
+            SearchEngineSectionConstants.insetContainerShape(insetFullBleedFraction)
+        } else {
+            RectangleShape
+        }
     Surface(
         modifier =
             modifier.then(
@@ -120,19 +128,14 @@ internal fun AiFollowUpInputSection(
                 } else {
                     Modifier.extendToScreenEdges()
                 },
-            ),
+            ).insetCardBackdrop(true, containerShape),
         color =
             if (useInsetContainer) {
-                AppColors.getSearchBarBackground(showWallpaperBackground)
+                insetCardBackground(true, AppColors.getSearchBarBackground(showWallpaperBackground))
             } else {
-                AppColors.getSearchEngineSectionBackground(showWallpaperBackground)
+                insetCardBackground(true, AppColors.getSearchEngineSectionBackground(showWallpaperBackground))
             },
-        shape =
-            if (useInsetContainer) {
-                SearchEngineSectionConstants.insetContainerShape(insetFullBleedFraction)
-            } else {
-                RectangleShape
-            },
+        shape = containerShape,
     ) {
         Column(
             modifier =

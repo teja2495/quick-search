@@ -68,6 +68,8 @@ internal fun SearchScreenBottomChrome(
     onVoiceClick: () -> Unit,
     onOpenKeyboardActionClicked: () -> Unit,
 ) {
+    // Surfaces pinned here float over the results, which scroll beneath them and show through blurred.
+    CompositionLocalProvider(LocalInsetCardBackdropTargetsEnabled provides true) {
         if (expandedSection == ExpandedSection.NONE) {
             SearchQuickActionPills(
                 query = state.query,
@@ -239,4 +241,5 @@ internal fun SearchScreenBottomChrome(
                 )
             }
         }
+    }
 }

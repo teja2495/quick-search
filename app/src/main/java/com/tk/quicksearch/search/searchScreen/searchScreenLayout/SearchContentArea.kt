@@ -1,5 +1,9 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import com.tk.quicksearch.search.searchScreen.LocalInsetCardBackdrop
+import com.tk.quicksearch.search.searchScreen.contentBottomInset
+import com.tk.quicksearch.search.searchScreen.contentTopInset
+import com.tk.quicksearch.search.searchScreen.resultsClipShape
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
@@ -176,7 +180,9 @@ fun SearchContentArea(
                     && !showWeather
     val expandedSectionBottomInset = 80.dp
     val aliasExpandedSectionBottomInset = 12.dp
-    val footerBottomPadding = 28.dp
+    val bottomOverlayInset = LocalInsetCardBackdrop.current?.contentBottomInset() ?: 0.dp
+    val topOverlayInset = LocalInsetCardBackdrop.current?.contentTopInset() ?: 0.dp
+    val footerBottomPadding = 28.dp + bottomOverlayInset
     // Result cards need breathing room so they do not touch the bar/engine strip.
     val resultCardBottomGap =
         if (alignResultsToBottom && hasQuery) DesignTokens.SpacingMedium - DesignTokens.SpacingXXSmall else 0.dp
@@ -498,7 +504,7 @@ fun SearchContentArea(
                         Modifier
                             .edgeBleed(edgeBleed).fillMaxWidth()
                             .then(expansionTransitionModifier).then(heightModifier)
-                            .clip(TopRoundedShape)
+                            .clip(LocalInsetCardBackdrop.current.resultsClipShape(TopRoundedShape, edgeBleed))
                             .then(edgeFadeModifier)
                             .then(
                                 if (!hasQuery) {
@@ -520,7 +526,7 @@ fun SearchContentArea(
                             .then(
                                 if (shouldHideScrollView) {
                                     Modifier.padding(
-                                        bottom = DesignTokens.SpacingMedium,
+                                        top = topOverlayInset, bottom = DesignTokens.SpacingMedium + bottomOverlayInset,
                                     )
                                 } else {
                                     Modifier
@@ -528,7 +534,7 @@ fun SearchContentArea(
                                             scrollState,
                                             reverseScrolling =
                                             alignResultsToBottom,
-                                        ).padding(
+                                        ).padding(top = topOverlayInset, bottom = bottomOverlayInset).padding(
                                             bottom =
                                                 if (
                                                     renderingState.expandedSection != ExpandedSection.NONE ||
@@ -578,11 +584,11 @@ fun SearchContentArea(
                                     if (isOverlayPresentation) {
                                         0.dp
                                     } else {
-                                        this@BoxWithConstraints.maxHeight
+                                        this@BoxWithConstraints.maxHeight - bottomOverlayInset - topOverlayInset
                                     },
                                 expandedCardMaxHeight =
                                     (
-                                        this@BoxWithConstraints.maxHeight -
+                                        this@BoxWithConstraints.maxHeight - topOverlayInset - bottomOverlayInset -
                                             if (isSectionAliasMode) {
                                                 aliasExpandedSectionBottomInset
                                             } else {

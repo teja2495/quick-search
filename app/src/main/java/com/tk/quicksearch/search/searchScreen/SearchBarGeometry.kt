@@ -15,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -27,6 +28,7 @@ internal data class SearchBarGeometry(
     val insetEngineStripOverlap: androidx.compose.ui.unit.Dp,
     val insetEngineStripFullBleedFraction: Float,
     val searchFieldModifier: Modifier,
+    val insetCardBackdrop: InsetCardBackdrop,
 )
 
 @Composable
@@ -106,7 +108,8 @@ internal fun rememberSearchBarGeometry(
                         bottom = DesignTokens.SpacingMedium,
                 )
             } else {
-                Modifier.padding(
+                // The results extend up beneath the top bar; keep the bar above them for touches.
+                Modifier.zIndex(1f).padding(
                         bottom =
                                 (if (state.oneHandedMode) {
                                     DesignTokens.SpacingMedium
@@ -121,5 +124,6 @@ internal fun rememberSearchBarGeometry(
         insetEngineStripOverlap,
         insetEngineStripFullBleedFraction,
         searchFieldModifier,
+        rememberInsetCardBackdrop(),
     )
 }

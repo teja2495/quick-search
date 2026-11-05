@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import com.tk.quicksearch.search.searchScreen.insetCardBackdrop
+import com.tk.quicksearch.search.searchScreen.insetCardBackground
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
@@ -562,7 +564,8 @@ internal fun PersistentSearchBar(
                         )
                     },
                 ).clip(barShape)
-                .background(searchBarBackground),
+                .insetCardBackdrop(!transparentBackground && !opaqueBackground, barShape, anywhere = true)
+                .background(insetCardBackground(!opaqueBackground, searchBarBackground, anywhere = true)),
     ) {
         TextField(
             value = textFieldValue,
