@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.OpenableColumns
 import android.os.Bundle
+import android.view.WindowManager
 import android.os.Trace
 import android.view.KeyEvent
 import androidx.fragment.app.FragmentActivity
@@ -109,6 +110,13 @@ open class MainActivity : FragmentActivity() {
         private const val QUICK_SEARCH_BACKUP_EXTENSION = ".quicksearch"
 
     }
+
+    /**
+     * True when Android can draw the system wallpaper behind this window, so the System wallpaper
+     * background shows without the wallpaper permission.
+     */
+    open val canShowSystemWallpaperBackdrop: Boolean
+        get() = true
 
     private val searchViewModel: SearchViewModel by viewModels()
     private lateinit var userPreferences: UserAppPreferences
@@ -344,6 +352,11 @@ open class MainActivity : FragmentActivity() {
                     AppThemeMode.SYSTEM -> isSystemDarkTheme
                 }
             SideEffect { setSystemBarsDark(useDarkSystemBars) }
+            val showsSystemWallpaperBackdrop =
+                canShowSystemWallpaperBackdrop &&
+                    uiState.backgroundSource ==
+                    com.tk.quicksearch.search.core.BackgroundSource.SYSTEM_WALLPAPER
+            SideEffect { updateSystemWallpaperWindowFlag(showsSystemWallpaperBackdrop) }
             QuickSearchTheme(
                 fontScaleMultiplier = uiState.fontScaleMultiplier,
                 useSystemFont = uiState.useSystemFont,
@@ -361,12 +374,7 @@ open class MainActivity : FragmentActivity() {
                         Modifier
                             .fillMaxSize()
                             .background(
-                                if (
-                                    this@MainActivity is HomeActivity &&
-                                    this@MainActivity.canShowSystemWallpaperBackdrop &&
-                                    uiState.backgroundSource ==
-                                        com.tk.quicksearch.search.core.BackgroundSource.SYSTEM_WALLPAPER
-                                ) {
+                                if (showsSystemWallpaperBackdrop) {
                                     Color.Transparent
                                 } else {
                                     MaterialTheme.colorScheme.background
@@ -436,11 +444,7 @@ open class MainActivity : FragmentActivity() {
                         userPreferences = userPreferences,
                         searchViewModel = searchViewModel,
                         isFirstLaunch = isFirstLaunchAtActivityStart,
-                        allowSystemWallpaperBackdrop =
-                            this@MainActivity is HomeActivity &&
-                                this@MainActivity.canShowSystemWallpaperBackdrop &&
-                                uiState.backgroundSource ==
-                                    com.tk.quicksearch.search.core.BackgroundSource.SYSTEM_WALLPAPER,
+                        allowSystemWallpaperBackdrop = showsSystemWallpaperBackdrop,
                         onSearchBackPressed = ::handleSearchBackPressed,
                         navigationRequest = navigationRequest.value,
                         onNavigationRequestHandled = { navigationRequest.value = null },
@@ -467,6 +471,19 @@ open class MainActivity : FragmentActivity() {
                 WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             controller.hide(WindowInsetsCompat.Type.statusBars())
         }
+    }
+
+    /**
+     * Lets Android draw the system wallpaper behind this translucent window while it is the
+     * background, so the widgets panel and search show it however they were opened, without the
+     * wallpaper permission. [HomeActivity] sets up its own window once in onCreate.
+     */
+    private fun updateSystemWallpaperWindowFlag(showWallpaper: Boolean) {
+        if (this is HomeActivity) return
+        val flag = WindowManager.LayoutParams.FLAG_SHOW_WALLPAPER
+        val isShowingWallpaper = window.attributes.flags and flag != 0
+        if (showWallpaper == isShowingWallpaper) return
+        if (showWallpaper) window.addFlags(flag) else window.clearFlags(flag)
     }
 
     private fun updateRecentsVisibility(showInRecents: Boolean) {

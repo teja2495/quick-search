@@ -18,7 +18,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.core.content.ContextCompat
-import com.tk.quicksearch.app.HomeActivity
+import com.tk.quicksearch.app.MainActivity
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.shared.util.WallpaperUtils
@@ -54,7 +54,7 @@ internal fun SearchScreenWallpaperLogic(
     val lifecycleOwner = LocalLifecycleOwner.current
     val canShowSystemWallpaperBackdrop =
         !isOverlayPresentation &&
-            (context as? HomeActivity)?.canShowSystemWallpaperBackdrop == true
+            (context as? MainActivity)?.canShowSystemWallpaperBackdrop == true
     // Without blur Android composites the same wallpaper behind the window, so the bitmap is only
     // read for its colors and a thumbnail is enough. Blurred wallpapers are drawn from a bitmap
     // scaled to what the blur leaves visible.

@@ -7,7 +7,7 @@ import android.view.Window
 import android.view.ViewTreeObserver
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.tk.quicksearch.app.UpdateHelper
-import com.tk.quicksearch.app.HomeActivity
+import com.tk.quicksearch.app.MainActivity
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
@@ -173,7 +173,7 @@ class StartupCoordinator(
     private fun preloadWallpaperDivisor(): Int {
         val lightBlur = userPreferences.getWallpaperBlurRadius(isDarkMode = false)
         val darkBlur = userPreferences.getWallpaperBlurRadius(isDarkMode = true)
-        val showsSystemBackdrop = (activity as? HomeActivity)?.canShowSystemWallpaperBackdrop == true
+        val showsSystemBackdrop = (activity as? MainActivity)?.canShowSystemWallpaperBackdrop == true
         if (showsSystemBackdrop && lightBlur <= 0f && darkBlur <= 0f) {
             return WallpaperUtils.WALLPAPER_THUMBNAIL_DIVISOR
         }

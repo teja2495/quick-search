@@ -28,7 +28,7 @@ import com.tk.quicksearch.shared.util.isDefaultHomeApp
  * active default Home app and System wallpaper is the selected source.
  */
 class HomeActivity : MainActivity() {
-    var canShowSystemWallpaperBackdrop: Boolean = false
+    final override var canShowSystemWallpaperBackdrop: Boolean = false
         private set
 
     private var suppressNextResumeAutoFocus = false
