@@ -1,5 +1,8 @@
 package com.tk.quicksearch.search.apps
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -25,12 +28,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -38,11 +43,15 @@ import kotlin.math.roundToInt
 
 internal val LazyGridScrollbarTouchWidth = DesignTokens.SpacingLarge
 private val ThumbWidth = DesignTokens.SpacingXSmall
+private val DraggedThumbWidth = 6.dp
+private const val ThumbHideDelayMillis = 1200L
 private val ThumbEndInset = 2.dp
 private val MinThumbHeight = DesignTokens.Spacing48
 
 /**
- * Vertical scrollbar for a [LazyVerticalGrid] with a draggable thumb.
+ * Vertical scrollbar for a [LazyVerticalGrid] with a draggable thumb. There is no track; the
+ * thumb fades in while the grid scrolls or the thumb is dragged and fades out shortly after.
+ * While dragged it widens and takes the accent color.
  *
  * While dragging, the thumb follows the finger directly and the grid is scrolled to the matching
  * pixel position. [onDragFractionChange] reports the thumb's scroll fraction during a drag and
@@ -65,8 +74,31 @@ internal fun LazyGridVerticalScrollbar(
     val coroutineScope = rememberCoroutineScope()
     val density = LocalDensity.current
     val minThumbPx = with(density) { MinThumbHeight.toPx() }
-    val thumbColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-    val trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+    val isDragging = dragFraction != null
+    val isActive = isDragging || state.isScrollInProgress
+    var thumbVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(isActive) {
+        if (isActive) {
+            thumbVisible = true
+        } else {
+            delay(ThumbHideDelayMillis)
+            thumbVisible = false
+        }
+    }
+    val thumbAlpha by animateFloatAsState(targetValue = if (thumbVisible) 1f else 0f, label = "thumbAlpha")
+    val thumbWidth by animateDpAsState(
+            targetValue = if (isDragging) DraggedThumbWidth else ThumbWidth,
+            label = "thumbWidth",
+    )
+    val thumbColor by animateColorAsState(
+            targetValue =
+                    if (isDragging) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f)
+                    },
+            label = "thumbColor",
+    )
 
     // Scroll requests are conflated so a fast drag only ever applies the latest thumb position.
     LaunchedEffect(state) {
@@ -155,19 +187,12 @@ internal fun LazyGridVerticalScrollbar(
         Box(
                 modifier =
                         Modifier
-                                .fillMaxHeight()
-                                .width(ThumbWidth)
-                                .clip(RoundedCornerShape(percent = 50))
-                                .background(trackColor),
-        )
-        Box(
-                modifier =
-                        Modifier
                                 .offset {
                                     val fraction = dragFraction ?: resolved.scrollFraction
                                     IntOffset(0, (maxOffsetPx * fraction).roundToInt())
                                 }
-                                .width(ThumbWidth)
+                                .alpha(thumbAlpha)
+                                .width(thumbWidth)
                                 .height(with(density) { thumbHeightPx.toDp() })
                                 .clip(RoundedCornerShape(percent = 50))
                                 .background(thumbColor),

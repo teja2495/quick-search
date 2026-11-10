@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,7 +25,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
@@ -40,12 +38,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.DialogProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.notificationDots.AppNotificationDot
 import com.tk.quicksearch.search.apps.notificationDots.hasNotificationDot
@@ -56,7 +52,7 @@ import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.models.AppInfo
-import com.tk.quicksearch.shared.ui.components.AppAlertDialog
+import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.homeTextColor
@@ -64,7 +60,7 @@ import com.tk.quicksearch.shared.util.getAppGridColumns
 import com.tk.quicksearch.shared.util.hapticConfirm
 
 @Composable
-internal fun AllAppsDialog(
+internal fun AllAppsDrawer(
         title: String,
         apps: List<AppInfo>,
         onDismiss: () -> Unit,
@@ -104,129 +100,109 @@ internal fun AllAppsDialog(
                 parallelism = AllAppsDialogIconPrefetchParallelism,
         )
     }
-    AppAlertDialog(
-            modifier = Modifier.fillMaxWidth(0.94f),
-            properties = DialogProperties(usePlatformDefaultWidth = false),
-            onDismissRequest = onDismiss,
-            title = {
-                Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                )
-            },
-            text = {
-                val gridState = rememberLazyGridState()
-                var scrollbarDragFraction by remember { mutableStateOf<Float?>(null) }
-                Box(
-                        modifier =
-                                Modifier
-                                        .fillMaxWidth()
-                                        .heightIn(max = 520.dp),
-                ) {
-                    LazyVerticalGrid(
-                            state = gridState,
-                            columns = GridCells.Fixed(dialogColumns),
-                            modifier =
-                                    Modifier
-                                            .fillMaxWidth()
-                                            .heightIn(max = 520.dp)
-                                            .padding(
-                                                    end =
-                                                            (LazyGridScrollbarTouchWidth - AllAppsDialogSeekEdgeNudge)
-                                                                    .coerceAtLeast(DesignTokens.SpacingSmall),
-                                            ),
-                            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-                            verticalArrangement = Arrangement.spacedBy(AllAppsDialogRowSpacing),
-                    ) {
-                        items(
-                                items = apps,
-                                key = { app -> app.launchCountKey() },
-                        ) { app ->
-                            AllAppsDialogGridItem(
-                                    app = app,
-                                    appIconSizeStep = appIconSizeStep,
-                                    iconPackPackage = iconPackPackage,
-                                    appIconShape = appIconShape,
-                                    notificationDotKeys = notificationDotKeys,
-                                    onClick = { onAppClick(app) },
-                                    shortcuts = shortcutsByPackage[app.packageName].orEmpty(),
-                                    appActions =
-                                            AppActions(
-                                                    onClick = { onAppClick(app) },
-                                                    onShortcutClick = onAppShortcutClick,
-                                                    onAppInfoClick = { onAppInfoClick(app) },
-                                                    onUninstallClick = { onUninstallClick(app) },
-                                                    onHideApp = { onHideApp(app) },
-                                                    onDisableAppShortcut = onDisableAppShortcut,
-                                                    onPinApp = { onPinApp(app) },
-                                                    onUnpinApp = { onUnpinApp(app) },
-                                                    onNicknameClick = { onNicknameClick(app) },
-                                                    onTriggerClick = { onTriggerClick(app) },
-                                                    onAddToHome = { addToHomeHandler.addAppToHome(app) },
-                                                    onOpenInSplitScreen = { onOpenInSplitScreen(app) },
-                                            ),
-                                    appState =
-                                            AppState(
-                                                    hasNickname =
-                                                            !getAppNickname(app.launchCountKey())
-                                                                    .isNullOrBlank(),
-                                                    hasTrigger =
-                                                            getAppTrigger(app.launchCountKey())
-                                                                    ?.word
-                                                                    ?.isNotBlank() == true,
-                                                    isPinned =
-                                                            pinnedPackageNames.contains(
-                                                                    app.launchCountKey(),
-                                                            ),
-                                                    showUninstall =
-                                                            !app.isSystemApp &&
-                                                                    app.packageName != context.packageName,
-                                                    showAppLabel = true,
-                                                    isOverlayPresentation = false,
-                                            ),
-                            )
-                        }
-                        // Private Space apps get no options menu: pinning, nicknames, and the
-                        // like would persist them outside the locked profile.
-                        privateSpaceItems(
-                                state = privateSpaceState,
-                                onLockedChange = privateSpace::setLocked,
-                        ) { app ->
-                            AllAppsDialogGridItem(
-                                    app = app,
-                                    appIconSizeStep = appIconSizeStep,
-                                    iconPackPackage = iconPackPackage,
-                                    appIconShape = appIconShape,
-                                    notificationDotKeys = emptySet(),
-                                    onClick = {
-                                        onDismiss()
-                                        privateSpace.launch(context, app)
-                                    },
-                            )
-                        }
-                    }
-                    AllAppsScrollLetterPopup(
-                            apps = apps,
-                            gridState = gridState,
-                            scrollbarDragFraction = scrollbarDragFraction,
-                    )
-                    LazyGridVerticalScrollbar(
-                            state = gridState,
-                            modifier =
-                                    Modifier
-                                            .align(Alignment.CenterEnd)
-                                            .offset(x = AllAppsDialogSeekEdgeNudge),
-                            onDragFractionChange = { scrollbarDragFraction = it },
+    AppPickerDrawer(
+            title = title,
+            onDismiss = onDismiss,
+    ) {
+        val gridState = rememberLazyGridState()
+        var scrollbarDragFraction by remember { mutableStateOf<Float?>(null) }
+        Box(modifier = Modifier.fillMaxWidth()) {
+            LazyVerticalGrid(
+                    state = gridState,
+                    columns = GridCells.Fixed(dialogColumns),
+                    modifier =
+                            Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                            end =
+                                                    (LazyGridScrollbarTouchWidth - AllAppsDialogSeekEdgeNudge)
+                                                            .coerceAtLeast(DesignTokens.SpacingSmall),
+                                    ),
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
+                    verticalArrangement = Arrangement.spacedBy(AllAppsDialogRowSpacing),
+            ) {
+                items(
+                        items = apps,
+                        key = { app -> app.launchCountKey() },
+                ) { app ->
+                    AllAppsDialogGridItem(
+                            app = app,
+                            appIconSizeStep = appIconSizeStep,
+                            iconPackPackage = iconPackPackage,
+                            appIconShape = appIconShape,
+                            notificationDotKeys = notificationDotKeys,
+                            onClick = { onAppClick(app) },
+                            shortcuts = shortcutsByPackage[app.packageName].orEmpty(),
+                            appActions =
+                                    AppActions(
+                                            onClick = { onAppClick(app) },
+                                            onShortcutClick = onAppShortcutClick,
+                                            onAppInfoClick = { onAppInfoClick(app) },
+                                            onUninstallClick = { onUninstallClick(app) },
+                                            onHideApp = { onHideApp(app) },
+                                            onDisableAppShortcut = onDisableAppShortcut,
+                                            onPinApp = { onPinApp(app) },
+                                            onUnpinApp = { onUnpinApp(app) },
+                                            onNicknameClick = { onNicknameClick(app) },
+                                            onTriggerClick = { onTriggerClick(app) },
+                                            onAddToHome = { addToHomeHandler.addAppToHome(app) },
+                                            onOpenInSplitScreen = { onOpenInSplitScreen(app) },
+                                    ),
+                            appState =
+                                    AppState(
+                                            hasNickname =
+                                                    !getAppNickname(app.launchCountKey())
+                                                            .isNullOrBlank(),
+                                            hasTrigger =
+                                                    getAppTrigger(app.launchCountKey())
+                                                            ?.word
+                                                            ?.isNotBlank() == true,
+                                            isPinned =
+                                                    pinnedPackageNames.contains(
+                                                            app.launchCountKey(),
+                                                    ),
+                                            showUninstall =
+                                                    !app.isSystemApp &&
+                                                            app.packageName != context.packageName,
+                                            showAppLabel = true,
+                                            isOverlayPresentation = false,
+                                    ),
                     )
                 }
-            },
-            confirmButton = {
-                TextButton(onClick = onDismiss) {
-                    Text(text = stringResource(R.string.common_close))
+                // Private Space apps get no options menu: pinning, nicknames, and the
+                // like would persist them outside the locked profile.
+                privateSpaceItems(
+                        state = privateSpaceState,
+                        onLockedChange = privateSpace::setLocked,
+                ) { app ->
+                    AllAppsDialogGridItem(
+                            app = app,
+                            appIconSizeStep = appIconSizeStep,
+                            iconPackPackage = iconPackPackage,
+                            appIconShape = appIconShape,
+                            notificationDotKeys = emptySet(),
+                            onClick = {
+                                onDismiss()
+                                privateSpace.launch(context, app)
+                            },
+                    )
                 }
-            },
-        )
+            }
+            AllAppsScrollLetterPopup(
+                    apps = apps,
+                    gridState = gridState,
+                    scrollbarDragFraction = scrollbarDragFraction,
+            )
+            LazyGridVerticalScrollbar(
+                    state = gridState,
+                    modifier =
+                            Modifier
+                                    .align(Alignment.CenterEnd)
+                                    .offset(x = AllAppsDialogSeekEdgeNudge),
+                    onDragFractionChange = { scrollbarDragFraction = it },
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
