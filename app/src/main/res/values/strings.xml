@@ -119,6 +119,7 @@
     <string name="settings_gesture_close_quick_search">Close Quick Search</string>
     <string name="settings_gesture_double_tap_home">Double Tap</string>
     <string name="settings_gesture_single_tap">Single Tap</string>
+    <string name="settings_gesture_long_press">Long Press</string>
     <string name="settings_gesture_open_quick_search">Open Quick Search</string>
     <string name="settings_gesture_pinned_glance">Pinned &amp; At a Glance Items</string>
     <string name="overlay_pinned_glance_empty">Nothing to show</string>
@@ -130,6 +131,7 @@
     <string name="settings_notch_accessibility_needed">Accessibility permission is needed</string>
     <string name="settings_notch_single_tap_search_title">Notch Single Tap</string>
     <string name="settings_notch_double_tap_search_title">Notch Double Tap</string>
+    <string name="settings_notch_long_press_search_title">Notch Long Press</string>
     <string name="settings_gesture_two_finger_swipe_up_home">Two-Finger Swipe Up</string>
     <string name="settings_gesture_two_finger_swipe_down_home">Two-Finger Swipe Down</string>
     <string name="settings_gesture_settings">Settings</string>

@@ -126,6 +126,7 @@
     <string name="settings_gesture_close_quick_search">Tutup Quick Search</string>
     <string name="settings_gesture_double_tap_home">Ketuk Dua Kali</string>
     <string name="settings_gesture_single_tap">Ketuk Sekali</string>
+    <string name="settings_gesture_long_press">Tekan Lama</string>
     <string name="settings_gesture_open_quick_search">Buka Quick Search</string>
     <string name="settings_gesture_pinned_glance">Item Disematkan &amp; Sekilas</string>
     <string name="overlay_pinned_glance_empty">Tidak ada yang ditampilkan</string>
@@ -137,6 +138,7 @@
     <string name="settings_notch_accessibility_needed">Izin Aksesibilitas diperlukan</string>
     <string name="settings_notch_single_tap_search_title">Ketuk Sekali Notch</string>
     <string name="settings_notch_double_tap_search_title">Ketuk Dua Kali Notch</string>
+    <string name="settings_notch_long_press_search_title">Tekan Lama Notch</string>
     <string name="settings_gesture_two_finger_swipe_up_home">Geser Dua Jari ke Atas</string>
     <string name="settings_gesture_two_finger_swipe_down_home">Geser Dua Jari ke Bawah</string>
     <string name="settings_gesture_settings">Pengaturan</string>

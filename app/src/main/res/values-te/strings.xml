@@ -125,6 +125,7 @@
     <string name="settings_gesture_close_quick_search">Quick Searchని మూసివేయండి</string>
     <string name="settings_gesture_double_tap_home">రెండుసార్లు నొక్కండి</string>
     <string name="settings_gesture_single_tap">ఒకసారి నొక్కండి</string>
+    <string name="settings_gesture_long_press">ఎక్కువసేపు నొక్కడం</string>
     <string name="settings_gesture_open_quick_search">Quick Searchని తెరవండి</string>
     <string name="settings_gesture_pinned_glance">పిన్ చేసిన అంశాలు &amp; ఒక్క చూపులో</string>
     <string name="overlay_pinned_glance_empty">చూపించడానికి ఏమీ లేదు</string>
@@ -136,6 +137,7 @@
     <string name="settings_notch_accessibility_needed">యాక్సెసిబిలిటీ అనుమతి అవసరం</string>
     <string name="settings_notch_single_tap_search_title">నాచ్ ఒకసారి నొక్కడం</string>
     <string name="settings_notch_double_tap_search_title">నాచ్ రెండుసార్లు నొక్కడం</string>
+    <string name="settings_notch_long_press_search_title">నాచ్ ఎక్కువసేపు నొక్కడం</string>
     <string name="settings_gesture_two_finger_swipe_up_home">రెండు వేళ్లతో పైకి స్వైప్ చేయండి</string>
     <string name="settings_gesture_two_finger_swipe_down_home">రెండు వేళ్లతో క్రిందికి స్వైప్ చేయండి</string>
     <string name="settings_gesture_settings">సెట్టింగులు</string>

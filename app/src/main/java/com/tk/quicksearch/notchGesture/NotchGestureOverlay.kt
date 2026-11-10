@@ -32,7 +32,7 @@ import kotlin.math.roundToInt
 
 /**
  * Invisible touch target laid over the top display cutout (the notch or camera hole) as an
- * accessibility overlay. Single and double taps run the user's notch gesture actions from any app.
+ * accessibility overlay. Single taps, double taps, and long presses run the user's notch gesture actions from any app.
  * It never reads screen content.
  */
 class NotchGestureOverlay(
@@ -43,6 +43,7 @@ class NotchGestureOverlay(
     private var touchView: NotchTouchView? = null
     private var singleTap = NotchTapAction()
     private var doubleTap = NotchTapAction()
+    private var longPress = NotchTapAction()
     private var notchCenterX: Int? = null
 
     // Held as a field: SharedPreferences keeps listeners only weakly.
@@ -75,7 +76,13 @@ class NotchGestureOverlay(
                 preferences.getNotchDoubleTapCustomAction(),
                 preferences.getNotchDoubleTapAliasTarget(),
             )
-        if (singleTap.action == HomeSwipeGestureAction.NONE && doubleTap.action == HomeSwipeGestureAction.NONE) {
+        longPress =
+            NotchTapAction(
+                preferences.getNotchLongPressAction(),
+                preferences.getNotchLongPressCustomAction(),
+                preferences.getNotchLongPressAliasTarget(),
+            )
+        if (listOf(singleTap, doubleTap, longPress).all { it.action == HomeSwipeGestureAction.NONE }) {
             removeView()
             return
         }
@@ -235,10 +242,34 @@ class NotchGestureOverlay(
         private var downY = 0f
         private var downTime = 0L
         private var pendingSingleTap: Runnable? = null
+        private var pendingLongPress: Runnable? = null
+        private var longPressFired = false
 
         fun cancelPendingTap() {
             pendingSingleTap?.let(::removeCallbacks)
             pendingSingleTap = null
+            cancelPendingLongPress()
+        }
+
+        private fun cancelPendingLongPress() {
+            pendingLongPress?.let(::removeCallbacks)
+            pendingLongPress = null
+        }
+
+        private fun scheduleLongPress() {
+            cancelPendingLongPress()
+            if (longPress.action == HomeSwipeGestureAction.NONE) return
+            val runnable =
+                Runnable {
+                    pendingLongPress = null
+                    longPressFired = true
+                    // A long press ends any half-finished double tap.
+                    pendingSingleTap?.let(::removeCallbacks)
+                    pendingSingleTap = null
+                    perform(this, longPress)
+                }
+            pendingLongPress = runnable
+            postDelayed(runnable, longPressTimeoutMs)
         }
 
         private fun onTap() {
@@ -268,15 +299,27 @@ class NotchGestureOverlay(
                     downX = event.rawX
                     downY = event.rawY
                     downTime = event.eventTime
+                    longPressFired = false
+                    scheduleLongPress()
                 }
 
-                MotionEvent.ACTION_UP ->
-                    if (abs(event.rawX - downX) <= tapSlopPx &&
+                MotionEvent.ACTION_MOVE ->
+                    if (abs(event.rawX - downX) > tapSlopPx || abs(event.rawY - downY) > tapSlopPx) {
+                        cancelPendingLongPress()
+                    }
+
+                MotionEvent.ACTION_CANCEL -> cancelPendingLongPress()
+
+                MotionEvent.ACTION_UP -> {
+                    cancelPendingLongPress()
+                    if (!longPressFired &&
+                        abs(event.rawX - downX) <= tapSlopPx &&
                         abs(event.rawY - downY) <= tapSlopPx &&
                         event.eventTime - downTime <= longPressTimeoutMs
                     ) {
                         onTap()
                     }
+                }
             }
             return true
         }

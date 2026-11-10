@@ -125,6 +125,7 @@
 <string name="settings_gesture_close_quick_search">Κλείσιμο του Quick Search</string>
 <string name="settings_gesture_double_tap_home">Διπλό πάτημα</string>
 <string name="settings_gesture_single_tap">Μονό πάτημα</string>
+<string name="settings_gesture_long_press">Παρατεταμένο πάτημα</string>
 <string name="settings_gesture_open_quick_search">Άνοιγμα Quick Search</string>
 <string name="settings_gesture_pinned_glance">Καρφιτσωμένα στοιχεία &amp; Με μια ματιά</string>
 <string name="overlay_pinned_glance_empty">Τίποτα για εμφάνιση</string>
@@ -136,6 +137,7 @@
 <string name="settings_notch_accessibility_needed">Απαιτείται άδεια Προσβασιμότητας</string>
 <string name="settings_notch_single_tap_search_title">Μονό πάτημα εγκοπής</string>
 <string name="settings_notch_double_tap_search_title">Διπλό πάτημα εγκοπής</string>
+<string name="settings_notch_long_press_search_title">Παρατεταμένο πάτημα εγκοπής</string>
 <string name="settings_gesture_two_finger_swipe_up_home">Σάρωση με δύο δάχτυλα προς τα πάνω</string>
 <string name="settings_gesture_two_finger_swipe_down_home">Σάρωση με δύο δάχτυλα προς τα κάτω</string>
     <string name="settings_gesture_settings">Ρυθμίσεις</string>

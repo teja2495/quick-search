@@ -226,5 +226,6 @@ private fun AppSettingsDestination.toGestureSettingTargetOrNull(): GestureSettin
         AppSettingsDestination.GESTURE_CLOSE_KEYBOARD -> GestureSettingTarget.CLOSE_KEYBOARD
         AppSettingsDestination.GESTURE_NOTCH_SINGLE_TAP -> GestureSettingTarget.NOTCH_SINGLE_TAP
         AppSettingsDestination.GESTURE_NOTCH_DOUBLE_TAP -> GestureSettingTarget.NOTCH_DOUBLE_TAP
+        AppSettingsDestination.GESTURE_NOTCH_LONG_PRESS -> GestureSettingTarget.NOTCH_LONG_PRESS
         else -> null
     }

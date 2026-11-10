@@ -37,6 +37,7 @@ enum class GestureSettingTarget {
     TWO_FINGER_SWIPE_DOWN,
     NOTCH_SINGLE_TAP,
     NOTCH_DOUBLE_TAP,
+    NOTCH_LONG_PRESS,
     OPEN_KEYBOARD,
     CLOSE_KEYBOARD,
 }
@@ -94,6 +95,7 @@ internal class GestureSettingsState(
             GestureSettingTarget.TWO_FINGER_SWIPE_DOWN -> selectedHomeGesture = HomeGesture.TWO_FINGER_SWIPE_DOWN
             GestureSettingTarget.NOTCH_SINGLE_TAP -> openNotchGesture(HomeGesture.NOTCH_SINGLE_TAP, context)
             GestureSettingTarget.NOTCH_DOUBLE_TAP -> openNotchGesture(HomeGesture.NOTCH_DOUBLE_TAP, context)
+            GestureSettingTarget.NOTCH_LONG_PRESS -> openNotchGesture(HomeGesture.NOTCH_LONG_PRESS, context)
             GestureSettingTarget.OPEN_KEYBOARD -> selectedKeyboardAction = SwipeGestureAction.OPEN_KEYBOARD
             GestureSettingTarget.CLOSE_KEYBOARD ->
                 selectedKeyboardAction = SwipeGestureAction.CLOSE_KEYBOARD_OR_NOTIFICATIONS

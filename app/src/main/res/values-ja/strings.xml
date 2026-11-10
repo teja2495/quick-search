@@ -126,6 +126,7 @@
     <string name="settings_gesture_close_quick_search">Quick Searchを閉じる</string>
     <string name="settings_gesture_double_tap_home">ダブルタップ</string>
     <string name="settings_gesture_single_tap">シングルタップ</string>
+    <string name="settings_gesture_long_press">長押し</string>
     <string name="settings_gesture_open_quick_search">Quick Search を開く</string>
     <string name="settings_gesture_pinned_glance">固定アイテムとひと目で確認</string>
     <string name="overlay_pinned_glance_empty">表示する項目はありません</string>
@@ -137,6 +138,7 @@
     <string name="settings_notch_accessibility_needed">ユーザー補助の権限が必要です</string>
     <string name="settings_notch_single_tap_search_title">ノッチのシングルタップ</string>
     <string name="settings_notch_double_tap_search_title">ノッチのダブルタップ</string>
+    <string name="settings_notch_long_press_search_title">ノッチの長押し</string>
     <string name="settings_gesture_two_finger_swipe_up_home">2本指で上にスワイプ</string>
     <string name="settings_gesture_two_finger_swipe_down_home">2本指で下にスワイプ</string>
     <string name="settings_gesture_settings">設定</string>

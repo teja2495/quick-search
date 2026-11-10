@@ -61,6 +61,7 @@ internal fun HomeGesture.icon() =
         HomeGesture.TWO_FINGER_SWIPE_DOWN -> MaterialSymbols.SwipeDown
         HomeGesture.NOTCH_SINGLE_TAP,
         HomeGesture.NOTCH_DOUBLE_TAP,
+        HomeGesture.NOTCH_LONG_PRESS,
         -> MaterialSymbols.Swipe
     }
 
@@ -410,6 +411,7 @@ internal fun UserAppPreferences.homeActionFor(
         HomeGesture.TWO_FINGER_SWIPE_DOWN -> getHomeTwoFingerSwipeDownAction()
         HomeGesture.NOTCH_SINGLE_TAP -> getNotchSingleTapAction()
         HomeGesture.NOTCH_DOUBLE_TAP -> getNotchDoubleTapAction()
+        HomeGesture.NOTCH_LONG_PRESS -> getNotchLongPressAction()
     }
 
 internal fun UserAppPreferences.setHomeActionFor(gesture: HomeGesture, action: HomeSwipeGestureAction) {
@@ -421,6 +423,7 @@ internal fun UserAppPreferences.setHomeActionFor(gesture: HomeGesture, action: H
         HomeGesture.TWO_FINGER_SWIPE_DOWN -> setHomeTwoFingerSwipeDownAction(action)
         HomeGesture.NOTCH_SINGLE_TAP -> setNotchSingleTapAction(action)
         HomeGesture.NOTCH_DOUBLE_TAP -> setNotchDoubleTapAction(action)
+        HomeGesture.NOTCH_LONG_PRESS -> setNotchLongPressAction(action)
     }
 }
 
@@ -433,6 +436,7 @@ internal fun UserAppPreferences.homeCustomActionFor(gesture: HomeGesture): Strin
         HomeGesture.TWO_FINGER_SWIPE_DOWN -> getHomeTwoFingerSwipeDownCustomAction()
         HomeGesture.NOTCH_SINGLE_TAP -> getNotchSingleTapCustomAction()
         HomeGesture.NOTCH_DOUBLE_TAP -> getNotchDoubleTapCustomAction()
+        HomeGesture.NOTCH_LONG_PRESS -> getNotchLongPressCustomAction()
     }
 
 internal fun UserAppPreferences.setHomeCustomActionFor(gesture: HomeGesture, actionJson: String?) {
@@ -444,6 +448,7 @@ internal fun UserAppPreferences.setHomeCustomActionFor(gesture: HomeGesture, act
         HomeGesture.TWO_FINGER_SWIPE_DOWN -> setHomeTwoFingerSwipeDownCustomAction(actionJson)
         HomeGesture.NOTCH_SINGLE_TAP -> setNotchSingleTapCustomAction(actionJson)
         HomeGesture.NOTCH_DOUBLE_TAP -> setNotchDoubleTapCustomAction(actionJson)
+        HomeGesture.NOTCH_LONG_PRESS -> setNotchLongPressCustomAction(actionJson)
     }
 }
 
@@ -456,6 +461,7 @@ internal fun UserAppPreferences.homeAliasTargetFor(gesture: HomeGesture): String
         HomeGesture.TWO_FINGER_SWIPE_DOWN -> getHomeTwoFingerSwipeDownAliasTarget()
         HomeGesture.NOTCH_SINGLE_TAP -> getNotchSingleTapAliasTarget()
         HomeGesture.NOTCH_DOUBLE_TAP -> getNotchDoubleTapAliasTarget()
+        HomeGesture.NOTCH_LONG_PRESS -> getNotchLongPressAliasTarget()
     }
 
 internal fun UserAppPreferences.setHomeAliasTargetFor(gesture: HomeGesture, targetId: String?) {
@@ -467,6 +473,7 @@ internal fun UserAppPreferences.setHomeAliasTargetFor(gesture: HomeGesture, targ
         HomeGesture.TWO_FINGER_SWIPE_DOWN -> setHomeTwoFingerSwipeDownAliasTarget(targetId)
         HomeGesture.NOTCH_SINGLE_TAP -> setNotchSingleTapAliasTarget(targetId)
         HomeGesture.NOTCH_DOUBLE_TAP -> setNotchDoubleTapAliasTarget(targetId)
+        HomeGesture.NOTCH_LONG_PRESS -> setNotchLongPressAliasTarget(targetId)
     }
 }
 
