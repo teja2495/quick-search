@@ -40,6 +40,7 @@ object SettingsBackupManager {
         CALENDAR_EVENTS,
         REMINDERS,
         BOOKMARKS,
+        SEARCH_HISTORY,
     }
 
     /** Export item names written by older app versions, mapped to their current item. */
@@ -55,6 +56,7 @@ object SettingsBackupManager {
                 ExportItem.SEARCH_ENGINES,
                 ExportItem.REMINDERS,
                 ExportItem.BOOKMARKS,
+                ExportItem.SEARCH_HISTORY,
             ),
     ) {
         fun includes(item: ExportItem): Boolean = item in selectedItems
@@ -243,6 +245,8 @@ object SettingsBackupManager {
             if (prefEntries != null) {
                 prefEntries.keys().forEach { key ->
                     if (shouldExcludeKey(prefName, key)) return@forEach
+                    // Backups from before the history option never carry history; don't restore it from them.
+                    if (selectedExportItems == null && isSearchHistoryKey(prefName, key)) return@forEach
                     if (
                         importOptions != null &&
                             !shouldIncludeKeyForExport(prefName, key, importOptions)
@@ -400,8 +404,6 @@ object SettingsBackupManager {
         prefName: String,
         key: String,
     ): Boolean {
-        // Search history is never backed up or restored, including from older backup files.
-        if (isSearchHistoryKey(prefName, key)) return true
         if (prefName != BasePreferences.PREFS_NAME) return false
         return key in excludedUserPreferenceKeys ||
             key.startsWith(FeatureFlags.PREFERENCE_KEY_PREFIX) ||
@@ -413,6 +415,9 @@ object SettingsBackupManager {
         key: String,
         options: ExportOptions,
     ): Boolean {
+        if (isSearchHistoryKey(prefName, key)) {
+            return options.includes(ExportItem.SEARCH_HISTORY)
+        }
         if (isPinnedItemKey(prefName, key)) {
             return options.includes(ExportItem.PINNED_ITEMS)
         }
