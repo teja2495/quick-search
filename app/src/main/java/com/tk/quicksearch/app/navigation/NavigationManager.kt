@@ -7,7 +7,6 @@ import android.os.Environment
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -26,10 +25,12 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -67,34 +68,6 @@ enum class RootDestination {
 }
 
 internal const val NAVIGATION_ANIMATION_DURATION_MS = 180
-
-private enum class SwipeAnimationDirection {
-    LEFT,
-    RIGHT,
-}
-
-private fun directionalNavigationTransition(
-    direction: SwipeAnimationDirection,
-) = when (direction) {
-    SwipeAnimationDirection.LEFT ->
-        slideInHorizontally(
-            animationSpec = androidx.compose.animation.core.tween(NAVIGATION_ANIMATION_DURATION_MS),
-            initialOffsetX = { it },
-        ) togetherWith
-            slideOutHorizontally(
-                animationSpec = androidx.compose.animation.core.tween(NAVIGATION_ANIMATION_DURATION_MS),
-                targetOffsetX = { -it },
-            )
-    SwipeAnimationDirection.RIGHT ->
-        slideInHorizontally(
-            animationSpec = androidx.compose.animation.core.tween(NAVIGATION_ANIMATION_DURATION_MS),
-            initialOffsetX = { -it },
-        ) togetherWith
-            slideOutHorizontally(
-                animationSpec = androidx.compose.animation.core.tween(NAVIGATION_ANIMATION_DURATION_MS),
-                targetOffsetX = { it },
-            )
-}
 
 data class NavigationRequest(
     val destination: RootDestination,
@@ -176,8 +149,8 @@ fun MainContent(
                 .background(
                     animatedRootBackgroundColor(
                         allowSystemWallpaperBackdrop = allowSystemWallpaperBackdrop,
-                        showsSystemWallpaper =
-                            currentScreen == AppScreen.Main && destination == RootDestination.Search,
+                        // NavigationContent covers Settings itself, in step with the page slide.
+                        showsSystemWallpaper = currentScreen == AppScreen.Main,
                     ),
                 ),
     ) {
@@ -469,10 +442,6 @@ private fun NavigationContent(
     var settingsDetailAnimationDirectionOverride by
         remember { mutableStateOf<SwipeAnimationDirection?>(null) }
 
-    LaunchedEffect(destination) {
-        rootAnimationDirectionOverride = null
-    }
-
     InAppReviewOnReturnEffect(
         destination = destination,
         activity = activity,
@@ -489,40 +458,47 @@ private fun NavigationContent(
     }
 
     // Home and the widgets panel share one wallpaper drawn behind the page switch, so only their
-    // content slides. Settings keeps its own opaque background and covers it.
-    val rootTransition = updateTransition(destination, label = "NavigationTransition")
-    val showsSharedBackdrop =
-        rootTransition.currentState != RootDestination.Settings ||
-            rootTransition.targetState != RootDestination.Settings
-    Box(modifier = Modifier.fillMaxSize()) {
-        val sharedBackdropAlpha by rootTransition.sharedBackdropAlpha()
-        if (showsSharedBackdrop) {
-            SharedPageBackdrop(
-                state = uiState,
-                modifier = Modifier.graphicsLayer { alpha = sharedBackdropAlpha },
-            )
-        }
-        CompositionLocalProvider(LocalPageBackdropDrawnByHost provides showsSharedBackdrop) {
-            rootTransition.AnimatedContent(
-                transitionSpec = {
-                    val isForward =
-                        when {
-                            initialState == RootDestination.WidgetsPanel &&
-                                targetState == RootDestination.Search -> true
-                            initialState == RootDestination.Search &&
-                                targetState == RootDestination.Settings -> true
-                            else -> false
-                        }
-                    val animationDirection =
-                        rootAnimationDirectionOverride
-                            ?: if (isForward) {
-                                SwipeAnimationDirection.LEFT
-                            } else {
-                                SwipeAnimationDirection.RIGHT
-                            }
-                    directionalNavigationTransition(animationDirection)
+    // content slides. Settings covers it with an opaque background. Everything is driven by the
+    // page controller's progress in the draw phase, so the backdrop and pages never drift apart.
+    val pageSwipeController =
+        rememberPageSwipeController(destination, settingsDetailType, onSettingsDetailTypeChange, viewModel)
+    LaunchedEffect(destination) {
+        pageSwipeController.navigateTo(
+            destination,
+            directionOverride =
+                when (rootAnimationDirectionOverride) {
+                    SwipeAnimationDirection.LEFT -> 1
+                    SwipeAnimationDirection.RIGHT -> -1
+                    null -> null
                 },
-            ) { targetDestination ->
+        )
+        rootAnimationDirectionOverride = null
+    }
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Opaque cover under Settings; a transparent (system wallpaper) window would smear trails.
+        val backgroundColor = MaterialTheme.colorScheme.background
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .drawBehind {
+                        val alpha = pageSwipeController.visibilityOf(RootDestination.Settings)
+                        if (alpha > 0f) drawRect(backgroundColor, alpha = alpha)
+                    },
+        )
+        // Kept composed across Settings so returning never rebuilds (and re-fades) the wallpaper.
+        SharedPageBackdrop(
+            state = uiState,
+            modifier =
+                Modifier.graphicsLayer {
+                    alpha = 1f - pageSwipeController.visibilityOf(RootDestination.Settings)
+                },
+        )
+        CompositionLocalProvider(
+            LocalPageBackdropDrawnByHost provides true,
+            LocalPageSwipeController provides if (returnToOverlay) null else pageSwipeController,
+        ) {
+            PageSwipeHost(controller = pageSwipeController) { targetDestination ->
                 when (targetDestination) {
                     RootDestination.WidgetsPanel -> {
                         val navigateToSearch: () -> Unit = {

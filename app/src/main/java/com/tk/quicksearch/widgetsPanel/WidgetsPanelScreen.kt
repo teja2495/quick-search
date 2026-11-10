@@ -24,7 +24,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.scrollBy
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import com.tk.quicksearch.app.navigation.LocalPageSwipeController
+import com.tk.quicksearch.app.navigation.RootDestination
+import com.tk.quicksearch.app.navigation.detectPageSwipe
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -327,19 +329,15 @@ fun WidgetsPanelScreen(
         }
     }
 
+    val pageSwipeController = LocalPageSwipeController.current
+    val latestOnNavigateToSearch by rememberUpdatedState(onNavigateToSearch)
     val swipeBackModifier =
-        Modifier.pointerInput(onNavigateToSearch) {
-            var totalHorizontalDrag = 0f
-            detectHorizontalDragGestures(
-                onDragStart = { totalHorizontalDrag = 0f },
-                onHorizontalDrag = { _, dragAmount -> totalHorizontalDrag += dragAmount },
-                onDragEnd = {
-                    if (totalHorizontalDrag <= -WIDGET_PANEL_SWIPE_THRESHOLD_PX) {
-                        onNavigateToSearch()
-                    }
-                    totalHorizontalDrag = 0f
-                },
-                onDragCancel = { totalHorizontalDrag = 0f },
+        Modifier.pointerInput(pageSwipeController) {
+            detectPageSwipe(
+                controller = pageSwipeController,
+                thresholdPx = WIDGET_PANEL_SWIPE_THRESHOLD_PX,
+                targetFor = { direction -> RootDestination.Search.takeIf { direction < 0 } },
+                onSwipe = { direction -> if (direction < 0) latestOnNavigateToSearch() },
             )
         }
 
