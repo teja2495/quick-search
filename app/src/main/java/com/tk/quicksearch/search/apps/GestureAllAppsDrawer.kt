@@ -84,7 +84,7 @@ internal fun GestureAllAppsDrawer(params: AppsSectionParams?) {
             false
         }
     }
-    AllAppsDialog(
+    AllAppsDrawer(
         title = stringResource(R.string.settings_app_shortcuts_filter_all_apps),
         apps = apps,
         onDismiss = controller::dismiss,

@@ -737,7 +737,7 @@ fun AppGridView(
     }
 
     if (showAllAppsDialog) {
-        AllAppsDialog(
+        AllAppsDrawer(
                 title = allAppsTitle,
                 apps = alphabeticalApps,
                 onDismiss = { showAllAppsDialog = false },
