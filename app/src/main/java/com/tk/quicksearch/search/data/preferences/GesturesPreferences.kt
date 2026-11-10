@@ -189,6 +189,18 @@ class GesturesPreferences(
     fun getNotchDoubleTapAliasTarget(): String? = prefs.getString(KEY_NOTCH_DOUBLE_TAP_ALIAS_TARGET, null)
     fun setNotchDoubleTapAliasTarget(targetId: String?) = setCustomAction(KEY_NOTCH_DOUBLE_TAP_ALIAS_TARGET, targetId)
 
+    fun getNotchLongPressAction(): HomeSwipeGestureAction =
+        getHomeGestureAction(KEY_NOTCH_LONG_PRESS_ACTION, HomeSwipeGestureAction.NONE)
+
+    fun setNotchLongPressAction(action: HomeSwipeGestureAction) =
+        setHomeGestureAction(KEY_NOTCH_LONG_PRESS_ACTION, action)
+
+    fun getNotchLongPressCustomAction(): String? = prefs.getString(KEY_NOTCH_LONG_PRESS_CUSTOM_ACTION, null)
+
+    fun setNotchLongPressCustomAction(actionJson: String?) = setCustomAction(KEY_NOTCH_LONG_PRESS_CUSTOM_ACTION, actionJson)
+    fun getNotchLongPressAliasTarget(): String? = prefs.getString(KEY_NOTCH_LONG_PRESS_ALIAS_TARGET, null)
+    fun setNotchLongPressAliasTarget(targetId: String?) = setCustomAction(KEY_NOTCH_LONG_PRESS_ALIAS_TARGET, targetId)
+
     fun registerListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) =
         prefs.registerOnSharedPreferenceChangeListener(listener)
 
@@ -245,6 +257,9 @@ class GesturesPreferences(
         private const val KEY_NOTCH_DOUBLE_TAP_ACTION = "${NOTCH_KEY_PREFIX}double_tap_action"
         private const val KEY_NOTCH_DOUBLE_TAP_CUSTOM_ACTION = "${NOTCH_KEY_PREFIX}double_tap_custom_action"
         private const val KEY_NOTCH_DOUBLE_TAP_ALIAS_TARGET = "${NOTCH_KEY_PREFIX}double_tap_alias_target"
+        private const val KEY_NOTCH_LONG_PRESS_ACTION = "${NOTCH_KEY_PREFIX}long_press_action"
+        private const val KEY_NOTCH_LONG_PRESS_CUSTOM_ACTION = "${NOTCH_KEY_PREFIX}long_press_custom_action"
+        private const val KEY_NOTCH_LONG_PRESS_ALIAS_TARGET = "${NOTCH_KEY_PREFIX}long_press_alias_target"
 
         fun isNotchGestureKey(key: String?): Boolean = key?.startsWith(NOTCH_KEY_PREFIX) == true
     }

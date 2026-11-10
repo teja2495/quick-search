@@ -126,6 +126,7 @@
 <string name="settings_gesture_close_quick_search">إغلاق البحث السريع</string>
 <string name="settings_gesture_double_tap_home">النقر المزدوج</string>
 <string name="settings_gesture_single_tap">نقرة واحدة</string>
+<string name="settings_gesture_long_press">ضغطة مطولة</string>
 <string name="settings_gesture_open_quick_search">فتح Quick Search</string>
 <string name="settings_gesture_pinned_glance">العناصر المثبتة ونظرة سريعة</string>
 <string name="overlay_pinned_glance_empty">لا يوجد شيء لعرضه</string>
@@ -137,6 +138,7 @@
 <string name="settings_notch_accessibility_needed">يلزم إذن إمكانية الوصول</string>
 <string name="settings_notch_single_tap_search_title">نقرة واحدة على النتوء</string>
 <string name="settings_notch_double_tap_search_title">نقر مزدوج على النتوء</string>
+<string name="settings_notch_long_press_search_title">ضغطة مطولة على النتوء</string>
 <string name="settings_gesture_two_finger_swipe_up_home">السحب بإصبعين للأعلى</string>
 <string name="settings_gesture_two_finger_swipe_down_home">السحب بإصبعين للأسفل</string>
     <string name="settings_gesture_settings">الإعدادات</string>

@@ -22,6 +22,7 @@ internal val GESTURE_APP_SETTINGS: List<Triple<String, Int, AppSettingsDestinati
         Triple("app_settings_gesture_close_keyboard", R.string.settings_gesture_close_keyboard, AppSettingsDestination.GESTURE_CLOSE_KEYBOARD),
         Triple("app_settings_gesture_notch_single_tap", R.string.settings_notch_single_tap_search_title, AppSettingsDestination.GESTURE_NOTCH_SINGLE_TAP),
         Triple("app_settings_gesture_notch_double_tap", R.string.settings_notch_double_tap_search_title, AppSettingsDestination.GESTURE_NOTCH_DOUBLE_TAP),
+        Triple("app_settings_gesture_notch_long_press", R.string.settings_notch_long_press_search_title, AppSettingsDestination.GESTURE_NOTCH_LONG_PRESS),
     )
 
 internal fun Context.isTaskerInstalled(): Boolean =
@@ -30,7 +31,8 @@ internal fun Context.isTaskerInstalled(): Boolean =
 internal val AppSettingsDestination.isNotchGestureDestination: Boolean
     get() =
         this == AppSettingsDestination.GESTURE_NOTCH_SINGLE_TAP ||
-            this == AppSettingsDestination.GESTURE_NOTCH_DOUBLE_TAP
+            this == AppSettingsDestination.GESTURE_NOTCH_DOUBLE_TAP ||
+            this == AppSettingsDestination.GESTURE_NOTCH_LONG_PRESS
 
 internal val AppSettingsDestination.isGestureDestination: Boolean
     get() = GESTURE_APP_SETTINGS.any { it.third == this }

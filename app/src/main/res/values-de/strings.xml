@@ -125,6 +125,7 @@
 <string name="settings_gesture_close_quick_search">Quick Search schließen</string>
 <string name="settings_gesture_double_tap_home">Doppeltippen</string>
 <string name="settings_gesture_single_tap">Einmal tippen</string>
+<string name="settings_gesture_long_press">Lange drücken</string>
 <string name="settings_gesture_open_quick_search">Quick Search öffnen</string>
 <string name="settings_gesture_pinned_glance">Angeheftete Elemente &amp; Auf einen Blick</string>
 <string name="overlay_pinned_glance_empty">Nichts anzuzeigen</string>
@@ -136,6 +137,7 @@
 <string name="settings_notch_accessibility_needed">Berechtigung für Bedienungshilfen erforderlich</string>
 <string name="settings_notch_single_tap_search_title">Notch einmal tippen</string>
 <string name="settings_notch_double_tap_search_title">Notch doppeltippen</string>
+<string name="settings_notch_long_press_search_title">Notch lange drücken</string>
 <string name="settings_gesture_two_finger_swipe_up_home">Mit zwei Fingern nach oben wischen</string>
 <string name="settings_gesture_two_finger_swipe_down_home">Mit zwei Fingern nach unten wischen</string>
     <string name="settings_gesture_settings">Einstellungen</string>

@@ -124,6 +124,7 @@
 <string name="settings_gesture_close_quick_search">Chiudi Quick Search</string>
 <string name="settings_gesture_double_tap_home">Doppio tocco</string>
 <string name="settings_gesture_single_tap">Tocco singolo</string>
+<string name="settings_gesture_long_press">Pressione prolungata</string>
 <string name="settings_gesture_open_quick_search">Apri Quick Search</string>
 <string name="settings_gesture_pinned_glance">Elementi fissati e In breve</string>
 <string name="overlay_pinned_glance_empty">Niente da mostrare</string>
@@ -135,6 +136,7 @@
 <string name="settings_notch_accessibility_needed">È necessaria l’autorizzazione di accessibilità</string>
 <string name="settings_notch_single_tap_search_title">Tocco singolo sul notch</string>
 <string name="settings_notch_double_tap_search_title">Doppio tocco sul notch</string>
+<string name="settings_notch_long_press_search_title">Pressione prolungata sul notch</string>
 <string name="settings_gesture_two_finger_swipe_up_home">Scorri con due dita verso l\'alto</string>
 <string name="settings_gesture_two_finger_swipe_down_home">Scorri con due dita verso il basso</string>
     <string name="settings_gesture_settings">Impostazioni</string>

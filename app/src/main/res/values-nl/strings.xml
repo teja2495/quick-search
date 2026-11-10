@@ -129,6 +129,7 @@
     <string name="settings_gesture_close_quick_search">Quick Search sluiten</string>
     <string name="settings_gesture_double_tap_home">Dubbeltikken</string>
     <string name="settings_gesture_single_tap">Enkel tikken</string>
+    <string name="settings_gesture_long_press">Lang indrukken</string>
     <string name="settings_gesture_open_quick_search">Quick Search openen</string>
     <string name="settings_gesture_pinned_glance">Vastgemaakte items &amp; In één oogopslag</string>
     <string name="overlay_pinned_glance_empty">Niets om te tonen</string>
@@ -140,6 +141,7 @@
     <string name="settings_notch_accessibility_needed">Toestemming voor Toegankelijkheid is nodig</string>
     <string name="settings_notch_single_tap_search_title">Enkel tikken op notch</string>
     <string name="settings_notch_double_tap_search_title">Dubbeltikken op notch</string>
+    <string name="settings_notch_long_press_search_title">Lang indrukken op notch</string>
     <string name="settings_gesture_two_finger_swipe_up_home">Met twee vingers omhoog vegen</string>
     <string name="settings_gesture_two_finger_swipe_down_home">Met twee vingers omlaag vegen</string>
     <string name="settings_gesture_settings">Instellingen</string>

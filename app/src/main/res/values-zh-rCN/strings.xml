@@ -125,6 +125,7 @@
     <string name="settings_gesture_close_quick_search">关闭 Quick Search</string>
     <string name="settings_gesture_double_tap_home">双击</string>
     <string name="settings_gesture_single_tap">单击</string>
+    <string name="settings_gesture_long_press">长按</string>
     <string name="settings_gesture_open_quick_search">打开 Quick Search</string>
     <string name="settings_gesture_pinned_glance">已固定项目和一览</string>
     <string name="overlay_pinned_glance_empty">没有可显示的内容</string>
@@ -136,6 +137,7 @@
     <string name="settings_notch_accessibility_needed">需要无障碍权限</string>
     <string name="settings_notch_single_tap_search_title">单击刘海</string>
     <string name="settings_notch_double_tap_search_title">双击刘海</string>
+    <string name="settings_notch_long_press_search_title">长按刘海</string>
     <string name="settings_gesture_two_finger_swipe_up_home">双指向上滑动</string>
     <string name="settings_gesture_two_finger_swipe_down_home">双指向下滑动</string>
     <string name="settings_gesture_settings">设置</string>

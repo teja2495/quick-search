@@ -125,6 +125,7 @@
 <string name="settings_gesture_close_quick_search">Закрыть Quick Search</string>
 <string name="settings_gesture_double_tap_home">Двойное нажатие</string>
 <string name="settings_gesture_single_tap">Одиночное нажатие</string>
+<string name="settings_gesture_long_press">Долгое нажатие</string>
 <string name="settings_gesture_open_quick_search">Открыть Quick Search</string>
 <string name="settings_gesture_pinned_glance">Закрепленные элементы и Кратко</string>
 <string name="overlay_pinned_glance_empty">Нечего показать</string>
@@ -136,6 +137,7 @@
 <string name="settings_notch_accessibility_needed">Требуется разрешение специальных возможностей</string>
 <string name="settings_notch_single_tap_search_title">Одиночное нажатие на вырез</string>
 <string name="settings_notch_double_tap_search_title">Двойное нажатие на вырез</string>
+<string name="settings_notch_long_press_search_title">Долгое нажатие на вырез</string>
 <string name="settings_gesture_two_finger_swipe_up_home">Смахивание двумя пальцами вверх</string>
 <string name="settings_gesture_two_finger_swipe_down_home">Смахивание двумя пальцами вниз</string>
 <string name="settings_gesture_settings">Настройки</string>

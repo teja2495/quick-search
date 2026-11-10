@@ -77,6 +77,7 @@ internal enum class HomeGesture(val titleResId: Int, val defaultAction: HomeSwip
     TWO_FINGER_SWIPE_DOWN(R.string.settings_gesture_two_finger_swipe_down_home, HomeSwipeGestureAction.NONE),
     NOTCH_SINGLE_TAP(R.string.settings_gesture_single_tap, HomeSwipeGestureAction.NONE),
     NOTCH_DOUBLE_TAP(R.string.settings_gesture_double_tap_home, HomeSwipeGestureAction.NONE),
+    NOTCH_LONG_PRESS(R.string.settings_gesture_long_press, HomeSwipeGestureAction.NONE),
 }
 
 internal val HomeGesture.isTwoFinger: Boolean
@@ -84,7 +85,10 @@ internal val HomeGesture.isTwoFinger: Boolean
 
 /** Notch taps run system-wide from the accessibility service rather than on the Home screen. */
 internal val HomeGesture.isNotch: Boolean
-    get() = this == HomeGesture.NOTCH_SINGLE_TAP || this == HomeGesture.NOTCH_DOUBLE_TAP
+    get() =
+        this == HomeGesture.NOTCH_SINGLE_TAP ||
+            this == HomeGesture.NOTCH_DOUBLE_TAP ||
+            this == HomeGesture.NOTCH_LONG_PRESS
 
 internal enum class AliasPickerKind { SEARCH_ENGINE, TOOL }
 

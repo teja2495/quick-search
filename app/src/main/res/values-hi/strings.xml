@@ -125,6 +125,7 @@
 <string name="settings_gesture_close_quick_search">Quick Search बंद करें</string>
 <string name="settings_gesture_double_tap_home">डबल टैप</string>
 <string name="settings_gesture_single_tap">सिंगल टैप</string>
+<string name="settings_gesture_long_press">लॉन्ग प्रेस</string>
 <string name="settings_gesture_open_quick_search">Quick Search खोलें</string>
 <string name="settings_gesture_pinned_glance">पिन किए गए आइटम और एक नज़र में</string>
 <string name="overlay_pinned_glance_empty">दिखाने के लिए कुछ नहीं</string>
@@ -136,6 +137,7 @@
 <string name="settings_notch_accessibility_needed">Accessibility अनुमति आवश्यक है</string>
 <string name="settings_notch_single_tap_search_title">नॉच सिंगल टैप</string>
 <string name="settings_notch_double_tap_search_title">नॉच डबल टैप</string>
+<string name="settings_notch_long_press_search_title">नॉच लॉन्ग प्रेस</string>
 <string name="settings_gesture_two_finger_swipe_up_home">दो उंगलियों से ऊपर स्वाइप करें</string>
 <string name="settings_gesture_two_finger_swipe_down_home">दो उंगलियों से नीचे स्वाइप करें</string>
     <string name="settings_gesture_settings">सेटिंग्स</string>

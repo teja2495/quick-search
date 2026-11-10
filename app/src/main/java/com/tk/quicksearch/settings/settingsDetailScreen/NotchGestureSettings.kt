@@ -45,7 +45,11 @@ internal fun NotchGesturesCard(
         description = stringResource(R.string.settings_notch_gestures_desc),
     ) {
         Column {
-            listOf(HomeGesture.NOTCH_SINGLE_TAP, HomeGesture.NOTCH_DOUBLE_TAP).forEachIndexed { index, gesture ->
+            listOf(
+                HomeGesture.NOTCH_SINGLE_TAP,
+                HomeGesture.NOTCH_DOUBLE_TAP,
+                HomeGesture.NOTCH_LONG_PRESS,
+            ).forEachIndexed { index, gesture ->
                 if (index > 0) HorizontalDivider(color = AppColors.SettingsDivider)
                 SettingsNavigationRow(
                     item =
