@@ -28,9 +28,12 @@ android {
         create("standard") {
             dimension = "distribution"
             isDefault = true
+            // The author's own Noted app (search/noted/); its manifest entries are in src/standard.
+            buildConfigField("boolean", "NOTED_INTEGRATION", "true")
         }
         create("fdroid") {
             dimension = "distribution"
+            buildConfigField("boolean", "NOTED_INTEGRATION", "false")
         }
     }
 

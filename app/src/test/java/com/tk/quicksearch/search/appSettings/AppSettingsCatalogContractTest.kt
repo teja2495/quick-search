@@ -30,12 +30,13 @@ class AppSettingsCatalogContractTest {
     }
 
     private fun validCatalog(): List<AppSettingResult> =
-        SearchSectionRegistry.orderedDefinitions.map { definition ->
+        SearchSectionRegistry.orderedDefinitions.mapNotNull { definition ->
+            val toggleKey = definition.appSettingsToggleKey ?: return@mapNotNull null
             AppSettingResult(
                 id = "toggle_${definition.section.name.lowercase()}",
                 title = definition.section.name,
                 action = AppSettingResultAction.TOGGLE,
-                toggleKey = definition.appSettingsToggleKey,
+                toggleKey = toggleKey,
             )
         }
 

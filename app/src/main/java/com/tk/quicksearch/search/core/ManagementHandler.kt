@@ -704,6 +704,7 @@ class ReminderManagementConfig : ManagementHandlerConfig<ReminderInfo> {
         preferences: UserAppPreferences,
     ) {
         preferences.pinReminder(item.reminderId)
+        item.notedItem?.let { preferences.setNotedItemPinned(it.key, pinned = true) }
     }
 
     override fun unpinItemInPreferences(
@@ -711,6 +712,7 @@ class ReminderManagementConfig : ManagementHandlerConfig<ReminderInfo> {
         preferences: UserAppPreferences,
     ) {
         preferences.unpinReminder(item.reminderId)
+        item.notedItem?.let { preferences.setNotedItemPinned(it.key, pinned = false) }
     }
 
     override fun excludeItemInPreferences(

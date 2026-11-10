@@ -471,6 +471,8 @@ open class UserAppPreferencesCore(protected val context: Context) {
 
     fun unpinReminder(reminderId: Long): Set<Long> = reminderPreferences.unpinReminder(reminderId)
 
+    fun setNotedItemPinned(key: String, pinned: Boolean) = reminderPreferences.setNotedItemPinned(key, pinned)
+
 
     fun getIncludePastReminders(): Boolean = reminderPreferences.getIncludePastReminders()
 

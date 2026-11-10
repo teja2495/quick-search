@@ -105,6 +105,7 @@ internal fun validateAppSettingsCatalog(settings: List<AppSettingResult>) {
     }
 
     SearchSectionRegistry.orderedDefinitions.forEach { definition ->
+        if (definition.appSettingsToggleKey == null) return@forEach
         val registrationCount =
             settings.count { setting -> setting.toggleKey == definition.appSettingsToggleKey }
         check(registrationCount == 1) {

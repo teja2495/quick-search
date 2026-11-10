@@ -145,7 +145,9 @@ class SearchViewModel(
         )
     }
     private val permissionManager by lazy {
-        PermissionManager(contactRepository, calendarRepository, fileRepository, userPreferences)
+        PermissionManager(contactRepository, calendarRepository, fileRepository, userPreferences) {
+            com.tk.quicksearch.search.noted.NotedIntegration.ensureChecked(appContext)
+        }
     }
     private val searchOperations by lazy { SearchOperations(contactRepository) }
     // UI state is split into four flows so typing only copies SearchResultsState. The other three
@@ -522,6 +524,10 @@ class SearchViewModel(
             ReminderRepository.changes.drop(1).collect {
                 handlers.pinningHandler.refreshPinnedReminders()
                 refreshSecondarySearches()
+                // The reminders shortcut's list with no query reloads on its own path.
+                if (_resultsState.value.query.isBlank() && lockedAliasSearchSection == SearchSection.REMINDERS) {
+                    refreshAliasRecentItems(SearchSection.REMINDERS)
+                }
             }
         }
     }

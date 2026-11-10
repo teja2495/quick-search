@@ -506,6 +506,7 @@ fun SearchRoute(
             onDeleteNote = onDeleteNoteWithUndo,
             reminderActions = reminderActions,
             onBookmarkClick = viewModel::openBookmark,
+            onNotedItemClick = viewModel::openNotedItem,
             onPinFile = viewModel::pinFile,
             onUnpinFile = viewModel::unpinFile,
             onMovePinnedFile = viewModel::movePinnedFile,

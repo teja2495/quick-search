@@ -25,6 +25,7 @@ import com.tk.quicksearch.search.data.ContactBirthday
 import com.tk.quicksearch.search.data.ContactBirthdaysRepository
 import com.tk.quicksearch.search.data.GlanceNotificationsStore
 import com.tk.quicksearch.search.data.ReminderRepository
+import com.tk.quicksearch.search.noted.NotedGlanceTasks
 import com.tk.quicksearch.search.data.UpcomingAlarmRepository
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.copySensitiveText
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.endCallThroughTelecom
@@ -115,6 +116,8 @@ class AtAGlanceWidgetActionActivity : FragmentActivity() {
             AtAGlanceWidgetTapType.FLASHLIGHT -> turnOffFlashlight()
             AtAGlanceWidgetTapType.HANG_UP_CALL -> if (!hangUp(key)) return
             AtAGlanceWidgetTapType.REMINDER_DONE -> ReminderRepository(this).setDone(id, isDone = true)
+            AtAGlanceWidgetTapType.NOTED_TASK -> key?.let { openNotedTask(this, it) }
+            AtAGlanceWidgetTapType.NOTED_TASK_DONE -> key?.let { NotedGlanceTasks.completeInBackground(this, it) }
             AtAGlanceWidgetTapType.CUSTOM_INFO_RETRY -> CustomInfoScheduler.retry(applicationContext, id.toInt())
             AtAGlanceWidgetTapType.MISSED_CALL_BACK ->
                 GlanceNotificationsStore.missedCalls.value.firstOrNull { it.key == key }?.callBackIntent?.sendFromUserTap()

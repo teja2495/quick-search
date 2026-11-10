@@ -4,12 +4,14 @@ import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.CalendarRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
+import com.tk.quicksearch.search.noted.NotedIntegration
 
 class PermissionManager(
     private val contactRepository: ContactRepository,
     private val calendarRepository: CalendarRepository,
     private val fileRepository: FileSearchRepository,
     private val userPreferences: UserAppPreferences,
+    private val isNotedAvailable: () -> Boolean,
 ) {
     fun hasContactPermission(): Boolean = contactRepository.hasPermission()
 
@@ -67,11 +69,13 @@ class PermissionManager(
         return computeDisabledSections()
     }
 
-    private fun hasPermissionForSection(section: SearchSection): Boolean =
-        when (SearchSectionPermissionRequirements.requirementFor(section)) {
+    private fun hasPermissionForSection(section: SearchSection): Boolean {
+        if (section == SearchSection.NOTED) return isNotedAvailable()
+        return when (SearchSectionPermissionRequirements.requirementFor(section)) {
             SearchSectionPermissionRequirement.CONTACTS -> hasContactPermission()
             SearchSectionPermissionRequirement.FILES -> hasFilePermission()
             SearchSectionPermissionRequirement.CALENDAR -> hasCalendarPermission()
             null -> true
         }
+    }
 }

@@ -26,6 +26,7 @@ internal fun UnifiedSectionSearchResult.resultCount(): Int =
                 is UnifiedSectionSearchResult.Reminders -> results.size
                 is UnifiedSectionSearchResult.Bookmarks -> results.size
                 is UnifiedSectionSearchResult.Notes -> results.size
+                is UnifiedSectionSearchResult.Noted -> results.size
                 is UnifiedSectionSearchResult.AppSettings -> results.size
                 is UnifiedSectionSearchResult.AppShortcuts -> results.size
         }
@@ -67,5 +68,9 @@ internal sealed interface SectionSearchResultPayload {
 
         data class AppShortcuts(
                 val results: List<StaticShortcut>,
+        ) : SectionSearchResultPayload
+
+        data class Noted(
+                val results: List<com.tk.quicksearch.search.models.NotedItem>,
         ) : SectionSearchResultPayload
 }

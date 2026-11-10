@@ -125,6 +125,14 @@ sealed class BookmarksSectionVisibility {
         object ShowingResults : BookmarksSectionVisibility()
 }
 
+sealed class NotedSectionVisibility {
+        object Hidden : NotedSectionVisibility()
+
+        object NoResults : NotedSectionVisibility()
+
+        object ShowingResults : NotedSectionVisibility()
+}
+
 sealed class NotesSectionVisibility {
         object Hidden : NotesSectionVisibility()
 
@@ -172,6 +180,7 @@ data class SearchUiState(
         val remindersSectionState: RemindersSectionVisibility = RemindersSectionVisibility.Hidden,
         val notesSectionState: NotesSectionVisibility = NotesSectionVisibility.Hidden,
         val bookmarksSectionState: BookmarksSectionVisibility = BookmarksSectionVisibility.Hidden,
+        val notedSectionState: NotedSectionVisibility = NotedSectionVisibility.Hidden,
         val searchEnginesState: SearchEnginesVisibility = SearchEnginesVisibility.Hidden,
         // App results
         val recentApps: List<AppInfo> = emptyList(),
@@ -221,6 +230,7 @@ data class SearchUiState(
         val pinnedNotes: List<NoteInfo> = emptyList(),
         // Bookmark results
         val bookmarkResults: List<BookmarkInfo> = emptyList(),
+        val notedResults: List<com.tk.quicksearch.search.models.NotedItem> = emptyList(),
         // Lifecycle / loading
         val startupPhase: StartupPhase = StartupPhase.PHASE_1_CACHE_PREFS,
         val isInitializing: Boolean = true,
@@ -475,6 +485,7 @@ fun SearchUiState(
                 noteResults = results.noteResults,
                 pinnedNotes = results.pinnedNotes,
                 bookmarkResults = results.bookmarkResults,
+                notedResults = results.notedResults,
                 screenState = results.screenState,
                 appsSectionState = results.appsSectionState,
                 appShortcutsSectionState = results.appShortcutsSectionState,
@@ -485,6 +496,7 @@ fun SearchUiState(
                 remindersSectionState = results.remindersSectionState,
                 notesSectionState = results.notesSectionState,
                 bookmarksSectionState = results.bookmarksSectionState,
+                notedSectionState = results.notedSectionState,
                 searchEnginesState = results.searchEnginesState,
                 calculatorState = results.calculatorState,
                 currencyConverterState = results.currencyConverterState,

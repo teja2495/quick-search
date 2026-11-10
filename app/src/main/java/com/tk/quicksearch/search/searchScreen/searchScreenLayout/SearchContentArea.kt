@@ -162,14 +162,7 @@ fun SearchContentArea(
     val hasQuery = state.query.isNotBlank()
     val isUrlQuery = remember(state.query) { isLikelyWebUrl(state.query) }
     val hasAnySearchContent =
-        shouldShowAppsSection(renderingState) ||
-                shouldShowAppShortcutsSection(renderingState) ||
-                shouldShowContactsSection(renderingState, contactsParams) ||
-                shouldShowFilesSection(renderingState, filesParams) ||
-                shouldShowSettingsSection(renderingState) ||
-                shouldShowCalendarSection(renderingState, calendarParams) ||
-                shouldShowRemindersSection(renderingState) ||
-                shouldShowNotesSection(renderingState) || shouldShowBookmarksSection(renderingState)
+        shouldShowAnySection(renderingState, contactsParams, filesParams, calendarParams)
     val alignResultsToBottom =
             useOneHandedMode &&
                     !showAiSearch &&

@@ -138,7 +138,7 @@ internal fun hasMoreResults(
 
 internal fun SearchSection.supportsPinnedHomeCollapse(): Boolean =
     when (this) {
-        SearchSection.APPS, SearchSection.APP_SETTINGS, SearchSection.BOOKMARKS -> false
+        SearchSection.APPS, SearchSection.APP_SETTINGS, SearchSection.BOOKMARKS, SearchSection.NOTED -> false
         SearchSection.APP_SHORTCUTS,
         SearchSection.CONTACTS,
         SearchSection.FILES,

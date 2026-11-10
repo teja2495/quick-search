@@ -205,6 +205,7 @@ class SecondarySearchOrchestratorTest {
                         SearchSection.REMINDERS -> UnifiedSectionSearchResult.Reminders(results.reminderResults)
                         SearchSection.NOTES -> UnifiedSectionSearchResult.Notes(results.noteResults)
                         SearchSection.BOOKMARKS -> UnifiedSectionSearchResult.Bookmarks(results.bookmarkResults)
+                        SearchSection.NOTED -> UnifiedSectionSearchResult.Noted(results.notedResults)
                         SearchSection.APP_SETTINGS ->
                             UnifiedSectionSearchResult.AppSettings(results.appSettingResults)
                         SearchSection.APP_SHORTCUTS ->

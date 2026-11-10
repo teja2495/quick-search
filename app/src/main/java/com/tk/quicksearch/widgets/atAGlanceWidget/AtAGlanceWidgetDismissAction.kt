@@ -10,6 +10,7 @@ import com.tk.quicksearch.customInfo.CustomInfoScheduler
 import com.tk.quicksearch.search.data.CalendarRepository
 import com.tk.quicksearch.search.data.GlanceNotificationsStore
 import com.tk.quicksearch.search.data.ReminderRepository
+import com.tk.quicksearch.search.noted.NotedGlanceTasks
 import com.tk.quicksearch.search.data.UpcomingAlarmRepository
 import com.tk.quicksearch.search.data.dismissTodayGlanceEvent
 import com.tk.quicksearch.search.data.dismissTomorrowGlanceEvent
@@ -57,6 +58,8 @@ class AtAGlanceWidgetDismissAction : ActionCallback {
                     ?: repository.tomorrowsFirstAlarm(now)?.let(repository::dismissTomorrow)
             }
             AtAGlanceWidgetDismissType.REMINDER -> ReminderRepository(context).dismissFromHome(id)
+            AtAGlanceWidgetDismissType.NOTED_TASK ->
+                key?.let { NotedGlanceTasks.find(context, it) }?.let { NotedGlanceTasks.dismiss(context, it) }
             AtAGlanceWidgetDismissType.MISSED_CALLS -> {
                 val dismissedAt = glancePreferences.getMissedCallsDismissedAt()
                 val calls = GlanceNotificationsStore.missedCalls.value.filter { it.callTime > dismissedAt }

@@ -19,6 +19,8 @@ data class ReminderInfo(
     val isDismissedFromHome: Boolean = false,
     /** The local day on which this reminder was dismissed from the Home card. */
     val dismissedFromHomeDate: LocalDate? = null,
+    /** Set when this stands in for a Noted task in a reminders list; never saved. */
+    val notedItem: NotedItem? = null,
 ) {
     val hasTime: Boolean get() = timeMinutes != null
 

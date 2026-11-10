@@ -192,7 +192,7 @@ internal class SearchHistoryDelegate(
             }
             if (section == SearchSection.REMINDERS) {
                 val upcoming =
-                    reminderRepository.getUpcomingReminders(limit = MAX_ALIAS_ITEMS)
+                    reminderRepository.getUpcomingRemindersAndNotedTasks(limit = MAX_ALIAS_ITEMS)
                 updateUiState { it.copy(reminderResults = upcoming, aliasRecentItems = emptyList()) }
                 return@launch
             }

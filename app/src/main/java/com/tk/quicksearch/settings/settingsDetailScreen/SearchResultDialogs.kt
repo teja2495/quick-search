@@ -214,7 +214,10 @@ private fun TopMatchesCard(
     var showPriorityDialog by rememberSaveable { mutableStateOf(false) }
     val priorityItems =
         remember(topMatchesSectionOrder) {
-            topMatchesSectionOrder.filter { section -> FeatureFlags.isSearchSectionEnabled(section) }
+            topMatchesSectionOrder.filter { section ->
+                FeatureFlags.isSearchSectionEnabled(section) &&
+                    section in com.tk.quicksearch.search.core.SearchSectionRegistry.settingsSections
+            }
         }
 
     SettingsCard(modifier = modifier.fillMaxWidth()) {
@@ -606,7 +609,10 @@ fun SearchResultsSettingsSection(
     val sectionOrder =
         ItemPriorityConfig
             .getSearchResultsPriority()
-            .filter { section -> FeatureFlags.isSearchSectionEnabled(section) }
+            .filter { section ->
+                FeatureFlags.isSearchSectionEnabled(section) &&
+                    section in com.tk.quicksearch.search.core.SearchSectionRegistry.settingsSections
+            }
     val allSectionsDisabled = sectionOrder.isNotEmpty() && sectionOrder.all { it in state.disabledSections }
 
     Column(modifier = modifier) {

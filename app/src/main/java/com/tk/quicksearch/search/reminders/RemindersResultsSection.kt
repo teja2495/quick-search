@@ -37,6 +37,9 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.calendar.calendarRelativeDateLabel
 import com.tk.quicksearch.search.models.ReminderInfo
+import com.tk.quicksearch.search.noted.NotedAppIcon
+import com.tk.quicksearch.search.noted.NotedLauncher
+import com.tk.quicksearch.search.noted.NotedGlanceTasks
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
@@ -175,8 +178,11 @@ internal fun ReminderRow(
     isPredicted: Boolean,
     showPinnedItemMenu: Boolean = false,
 ) {
+    val notedItem = reminder.notedItem
+    val context = LocalContext.current
     var showMenu by remember { mutableStateOf(false) }
     val rowView = LocalView.current
+    // A Noted task opens and completes in Noted; pinning and deleting are for Quick Search reminders.
     Row(
         modifier =
             Modifier.fillMaxWidth()
@@ -185,7 +191,7 @@ internal fun ReminderRow(
                 .combinedClickable(
                     onClick = {
                         hapticConfirm(rowView)()
-                        onClick(reminder)
+                        if (notedItem != null) NotedLauncher.open(context, notedItem) else onClick(reminder)
                     },
                     onLongClick = { showMenu = true },
                 )
@@ -194,12 +200,16 @@ internal fun ReminderRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(
-            painter = painterResource(R.drawable.ic_reminder),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(start = 7.dp).size(24.dp),
-        )
+        if (notedItem != null) {
+            NotedAppIcon(iconPackPackage = null, modifier = Modifier.padding(start = 7.dp).size(24.dp))
+        } else {
+            Icon(
+                painter = painterResource(R.drawable.ic_reminder),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 7.dp).size(24.dp),
+            )
+        }
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -241,6 +251,7 @@ internal fun ReminderRow(
                             contentDescription = null,
                         )
                     }
+                    // Noted tasks pin from search results; here they only offer Unpin once pinned.
                     if (showPinnedItemMenu && isPinned) {
                         addItem(R.string.action_unpin_app, pinIcon) { onTogglePin(reminder) }
                         addItem(
@@ -251,11 +262,18 @@ internal fun ReminderRow(
                             R.string.action_move_down,
                             { Icon(imageVector = MaterialSymbols.ArrowDownward, contentDescription = null) },
                         ) { onMovePinned(reminder, false) }
-                    } else {
+                    } else if (notedItem == null) {
                         addItem(
                             if (isPinned) R.string.action_unpin_app else R.string.action_pin_app,
                             pinIcon,
                         ) { onTogglePin(reminder) }
+                    }
+                    if (notedItem != null) {
+                        addItem(
+                            R.string.action_mark_as_done,
+                            { Icon(imageVector = MaterialSymbols.Check, contentDescription = null) },
+                        ) { NotedGlanceTasks.completeInBackground(context, notedItem.id) }
+                        return@buildList
                     }
                     if (!reminder.isDone) {
                         addItem(

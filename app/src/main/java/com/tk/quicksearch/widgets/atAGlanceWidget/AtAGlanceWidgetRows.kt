@@ -392,8 +392,8 @@ internal class AtAGlanceWidgetRowLoader(
             changesAt(ReminderRepository.glanceVisibleFromMillis(reminder))
             changesAt(reminder.dueMillis)
         }
-        return reminders.map { reminder ->
-            AtAGlanceWidgetRow(
+        val reminderRows = reminders.map { reminder ->
+            reminder.dueMillis to AtAGlanceWidgetRow(
                 key = "reminder-${reminder.reminderId}",
                 icon = AtAGlanceWidgetIcon.Drawable(R.drawable.ic_reminder),
                 title = reminder.title,
@@ -412,13 +412,14 @@ internal class AtAGlanceWidgetRowLoader(
                     ),
             )
         }
+        return (reminderRows + notedTaskRows()).sortedBy { it.first }.map { it.second }
     }
 
     /**
      * An upcoming reminder's time (home also says how soon it is due), then "Now" for a minute, then
      * "Overdue" with its time, or its date once a day late.
      */
-    private fun reminderSubtitle(reminder: ReminderInfo): String {
+    internal fun reminderSubtitle(reminder: ReminderInfo): String {
         val sinceDue = nowMillis - reminder.dueMillis
         val isNow = reminder.hasTime && sinceDue in 0 until REMINDER_NOW_WINDOW_MILLIS
         val isOverdue = reminder.isOverdue(nowMillis) && !isNow
@@ -440,7 +441,7 @@ internal class AtAGlanceWidgetRowLoader(
         }
     }
 
-    private fun reminderSchedule(reminder: ReminderInfo): String {
+    internal fun reminderSchedule(reminder: ReminderInfo): String {
         val isToday = reminder.date == LocalDate.now()
         val time = if (reminder.hasTime) formatTime(reminder.dueMillis) else null
         return when {

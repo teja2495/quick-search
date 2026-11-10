@@ -57,6 +57,8 @@ fun renderSection(
         SearchSection.CALENDAR -> renderCalendarSection(params, sectionContext)
         SearchSection.REMINDERS -> renderRemindersSection(params, sectionContext)
         SearchSection.BOOKMARKS -> renderBookmarksSection(sectionContext)
+        // Noted items appear only in Top matches.
+        SearchSection.NOTED -> Unit
         SearchSection.NOTES -> renderNotesSection(params, sectionContext)
         SearchSection.APP_SETTINGS -> renderAppSettingsSection(params, sectionContext)
     }

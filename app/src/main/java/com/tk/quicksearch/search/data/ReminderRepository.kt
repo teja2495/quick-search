@@ -6,6 +6,7 @@ import com.tk.quicksearch.search.data.preferences.CalendarPreferences
 import com.tk.quicksearch.search.data.preferences.NicknamePreferences
 import com.tk.quicksearch.search.data.preferences.ReminderPreferences
 import com.tk.quicksearch.search.models.ReminderInfo
+import com.tk.quicksearch.search.noted.NotedGlanceTasks
 import com.tk.quicksearch.search.utils.SearchRankingUtils
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import java.time.Instant
@@ -80,7 +81,7 @@ class ReminderRepository(context: Context) {
     fun getRemindersByIds(reminderIds: Collection<Long>): List<ReminderInfo> {
         if (reminderIds.isEmpty()) return emptyList()
         val ids = reminderIds.toSet()
-        return readReminders().filter { it.reminderId in ids }
+        return readReminders().filter { it.reminderId in ids } + NotedGlanceTasks.byReminderIds(appContext, ids)
     }
 
     fun searchReminders(
@@ -136,6 +137,12 @@ class ReminderRepository(context: Context) {
             .sortedBy { it.dueMillis }
             .take(limit)
     }
+
+    /** [getUpcomingReminders] with Noted's upcoming tasks mixed in while "Use Noted" is on. */
+    fun getUpcomingRemindersAndNotedTasks(limit: Int): List<ReminderInfo> =
+        (getUpcomingReminders(limit) + NotedGlanceTasks.upcomingAsReminders(appContext, limit))
+            .sortedBy { it.dueMillis }
+            .take(limit)
 
     fun createReminder(title: String, date: LocalDate, timeMinutes: Int?): ReminderInfo {
         lateinit var reminder: ReminderInfo
@@ -234,7 +241,8 @@ class ReminderRepository(context: Context) {
     /**
      * Dismisses a reminder from At a Glance. Tomorrow's reminder dismissed the evening before comes
      * back the next morning (or when due, if earlier); one dismissed more than 30 minutes before it's
-     * due comes back when due, as with [hideFromHomeUntilDue]; dismissing it later marks it done.
+     * due comes back when due, as with [hideFromHomeUntilDue]; an overdue one is hidden for the rest
+     * of the day, and one due within 30 minutes is marked done.
      */
     fun dismissFromHome(reminderId: Long, nowMillis: Long = System.currentTimeMillis()) {
         val reminder = getReminderById(reminderId) ?: return
@@ -245,6 +253,10 @@ class ReminderRepository(context: Context) {
                 notifyChanged()
             }
             canDismissUntilDue(reminder, nowMillis) -> hideFromHomeUntilDue(reminderId, nowMillis)
+            reminder.isOverdue(nowMillis) -> {
+                preferences.setHomeHiddenUntil(reminderId, GlanceTiming.startOfDayMillis(GlanceTiming.localDate(nowMillis).plusDays(1)), nowMillis)
+                notifyChanged()
+            }
             else -> setDone(reminderId, true)
         }
     }

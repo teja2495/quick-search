@@ -17,6 +17,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchSectionPermissionRequirement
 import com.tk.quicksearch.search.core.SearchSectionPermissionRequirements
+import com.tk.quicksearch.search.core.SearchSectionRegistry
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.shared.permissions.PermissionSettingsDialog
 import com.tk.quicksearch.shared.permissions.PermissionHelper
@@ -202,7 +203,7 @@ fun rememberSectionToggleHandler(
                     }
                 }
             } else {
-                val enabledSectionsCount = SearchSection.values().count { it !in disabledSections }
+                val enabledSectionsCount = SearchSectionRegistry.settingsSections.count { it !in disabledSections }
                 val isLastEnabledSection = enabledSectionsCount <= 1 && section !in disabledSections
                 viewModel.setSectionEnabled(section, false)
                 if (isLastEnabledSection) {

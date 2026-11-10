@@ -170,6 +170,14 @@ internal sealed interface TopMatchItem {
         override val index: Int,
     ) : TopMatchItem
 
+    data class Noted(
+        val item: com.tk.quicksearch.search.models.NotedItem,
+        override val priority: Int,
+        override val sectionOrder: Int,
+        override val secondaryScore: Long,
+        override val index: Int,
+    ) : TopMatchItem
+
     data class Note(
         val note: NoteInfo,
         override val priority: Int,
@@ -411,6 +419,18 @@ private fun buildTopMatches(
                 // The site's domain counts like a nickname, one step below a name match.
                 priority = priority(bookmark.name, BookmarkUrls.displayHost(bookmark.url)),
                 sectionOrder = order(SearchSection.BOOKMARKS),
+                secondaryScore = 0L,
+                index = index,
+            )
+        }
+    }
+    if (isTopMatchesSectionEnabled(SearchSection.NOTED)) {
+        context.notedList.forEachIndexed { index, item ->
+            matches += TopMatchItem.Noted(
+                item = item,
+                priority = priority(item.title),
+                sectionOrder = order(SearchSection.NOTED),
+                // No open history; `index` keeps Noted's most-recently-updated-first order.
                 secondaryScore = 0L,
                 index = index,
             )

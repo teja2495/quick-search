@@ -63,4 +63,6 @@ data class SectionRenderingState(
     val hasBookmarkResults: Boolean = false,
     val shouldShowBookmarks: Boolean = false,
     val bookmarkResults: List<BookmarkInfo> = emptyList(),
+    val hasNotedResults: Boolean = false,
+    val notedResults: List<com.tk.quicksearch.search.models.NotedItem> = emptyList(),
 )

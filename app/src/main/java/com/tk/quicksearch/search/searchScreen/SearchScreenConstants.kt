@@ -62,6 +62,7 @@ internal data class DerivedState(
     val hasNoteResults: Boolean,
     val hasReminderResults: Boolean,
     val hasBookmarkResults: Boolean,
+    val hasNotedResults: Boolean,
     val pinnedContactIds: Set<Long>,
     val pinnedFileUris: Set<String>,
     val hasMultipleExpandableSections: Boolean,
@@ -147,6 +148,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
     val hasNoteResults = notesEnabled && state.noteResults.isNotEmpty()
     val hasReminderResults = state.reminderResults.isNotEmpty()
     val hasBookmarkResults = state.bookmarkResults.isNotEmpty()
+    val hasNotedResults = state.notedResults.isNotEmpty()
     val pinnedContactIds =
         remember(state.pinnedContacts) { state.pinnedContacts.map { it.contactId }.toSet() }
     val pinnedFileUris =
@@ -165,6 +167,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
             hasCalendarResults,
             hasReminderResults,
             hasBookmarkResults,
+            hasNotedResults,
             hasNoteResults,
             hasAppShortcutResults,
         )
@@ -281,6 +284,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
         hasNoteResults = hasNoteResults,
         hasReminderResults = hasReminderResults,
         hasBookmarkResults = hasBookmarkResults,
+        hasNotedResults = hasNotedResults,
         pinnedContactIds = pinnedContactIds,
         pinnedFileUris = pinnedFileUris,
         hasMultipleExpandableSections = hasMultipleExpandableSections,

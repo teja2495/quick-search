@@ -60,7 +60,7 @@ private fun SearchSection.toExpandedSectionOrNone(): ExpandedSection =
         SearchSection.CALENDAR -> ExpandedSection.CALENDAR
         SearchSection.REMINDERS -> ExpandedSection.REMINDERS
         SearchSection.BOOKMARKS -> ExpandedSection.BOOKMARKS
-        SearchSection.APPS -> ExpandedSection.NONE
+        SearchSection.NOTED, SearchSection.APPS -> ExpandedSection.NONE
     }
 
 @Composable
@@ -109,6 +109,7 @@ internal fun SearchScreenStateManagement(
     onDeleteNote: (NoteInfo) -> Unit,
     reminderActions: com.tk.quicksearch.search.searchScreen.ReminderSectionActions = com.tk.quicksearch.search.searchScreen.ReminderSectionActions(),
     onBookmarkClick: (com.tk.quicksearch.search.models.BookmarkInfo) -> Unit = {},
+    onNotedItemClick: (com.tk.quicksearch.search.models.NotedItem) -> Unit = {},
     onPinFile: (DeviceFile) -> Unit,
     onUnpinFile: (DeviceFile) -> Unit,
     onMovePinnedFile: (DeviceFile, Boolean) -> Unit,
@@ -454,6 +455,7 @@ internal fun SearchScreenStateManagement(
             onDeleteNote = onDeleteNote,
             reminderActions = reminderActions,
             onBookmarkClick = onBookmarkClick,
+            onNotedItemClick = onNotedItemClick,
             onOpenAppSettings = onOpenAppSettings,
             onOpenCalendarPermissionSettings = onOpenCalendarPermissionSettings,
             onAppClick = onAppClick,
@@ -579,6 +581,8 @@ internal fun SearchScreenStateManagement(
             hasBookmarkResults = derivedState.hasBookmarkResults,
             shouldShowBookmarks = derivedState.shouldShowBookmarks,
             bookmarkResults = state.bookmarkResults,
+            hasNotedResults = derivedState.hasNotedResults,
+            notedResults = state.notedResults,
         )
 
     return SearchScreenStateResult(
