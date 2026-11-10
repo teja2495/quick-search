@@ -19,7 +19,7 @@ enum class AppSwipeDirection(val keySuffix: String) {
 }
 
 /**
- * Per-app swipe up / swipe down gestures on app icons.
+ * Per-app and per-folder swipe up / swipe down gestures on app and folder icons.
  *
  * Each assignment is a [CustomWidgetButtonAction] chosen with the same picker used by custom
  * widget buttons and custom gestures. Kept as a lightweight façade over its own
@@ -32,7 +32,9 @@ object AppSwipeGestures {
 
     /** Pending request to open the action picker; rendered by [AppSwipeGesturePickerHost]. */
     data class PickerRequest(
-        val app: AppInfo,
+        /** [targetKey] of the app or folder being assigned. */
+        val targetKey: String,
+        val targetName: String,
         val direction: AppSwipeDirection,
     )
 
@@ -56,10 +58,6 @@ object AppSwipeGestures {
         return assignmentsState.asStateFlow()
     }
 
-    /** Synchronous lookup for user-initiated paths (the menu and picker), loading if needed. */
-    fun actionFor(context: Context, app: AppInfo, direction: AppSwipeDirection): CustomWidgetButtonAction? =
-        ensureLoaded(context)[key(app, direction)]?.let(CustomWidgetButtonAction::fromJson)
-
     private fun ensureLoaded(context: Context): Map<String, String> {
         assignmentsState.value?.let { return it }
         assignmentsState.compareAndSet(null, loadAll(context))
@@ -71,8 +69,15 @@ object AppSwipeGestures {
         app: AppInfo,
         direction: AppSwipeDirection,
         action: CustomWidgetButtonAction?,
+    ) = setAction(context, targetKey(app), direction, action)
+
+    fun setAction(
+        context: Context,
+        targetKey: String,
+        direction: AppSwipeDirection,
+        action: CustomWidgetButtonAction?,
     ) {
-        val key = key(app, direction)
+        val key = key(targetKey, direction)
         val json = action?.toJson()
         prefs(context).edit().apply {
             if (json == null) remove(key) else putString(key, json)
@@ -85,16 +90,21 @@ object AppSwipeGestures {
         }
     }
 
-    fun requestPicker(app: AppInfo, direction: AppSwipeDirection) {
-        pickerRequestState.value = PickerRequest(app, direction)
+    fun requestPicker(app: AppInfo, direction: AppSwipeDirection) =
+        requestPicker(targetKey(app), app.appName, direction)
+
+    fun requestPicker(targetKey: String, targetName: String, direction: AppSwipeDirection) {
+        pickerRequestState.value = PickerRequest(targetKey, targetName, direction)
     }
 
     fun clearPickerRequest() {
         pickerRequestState.value = null
     }
 
-    fun key(app: AppInfo, direction: AppSwipeDirection): String =
-        "${app.launchCountKey()}#${direction.keySuffix}"
+    /** Apps are keyed by their launch count key; folders by their pinned grid key (`folder:<id>`). */
+    fun targetKey(app: AppInfo): String = app.launchCountKey()
+
+    fun key(targetKey: String, direction: AppSwipeDirection): String = "$targetKey#${direction.keySuffix}"
 
     private fun loadAll(context: Context): Map<String, String> =
         prefs(context).all.mapNotNull { (key, value) -> (value as? String)?.let { key to it } }.toMap()

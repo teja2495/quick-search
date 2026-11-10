@@ -101,6 +101,9 @@ fun CustomWidgetButtonPickerDialog(
     tipText: String? = null,
     // When set, shown inside the search field in place of the hint text below it.
     searchPlaceholder: String? = null,
+    // When set and an action is assigned, the tip is replaced by the current action and a Reset button.
+    // Reset leaves the picker open; pass the updated (null) [currentAction] to bring the tip back.
+    onReset: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
     var query by remember { mutableStateOf(TextFieldValue("")) }
@@ -173,7 +176,13 @@ fun CustomWidgetButtonPickerDialog(
                             modifier = Modifier.fillMaxWidth(0.75f),
                         )
                     }
-                    tipText?.let {
+                    if (currentAction != null && onReset != null) {
+                        CustomWidgetCurrentActionCard(
+                            action = currentAction,
+                            iconPackPackage = iconPackPackage,
+                            onReset = onReset,
+                        )
+                    } else tipText?.let {
                         TipBanner(
                             text = it,
                             icon = MaterialSymbols.Info,
