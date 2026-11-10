@@ -10,7 +10,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import com.tk.quicksearch.app.navigation.LocalPageSwipeController
+import com.tk.quicksearch.app.navigation.RootDestination
+import com.tk.quicksearch.app.navigation.detectPageSwipe
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,6 +37,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -407,21 +410,15 @@ fun SettingsRoute(
     }
 
     val resolvedState = state.copy(hasWallpaperPermission = wallpaperPermissionController.hasWallpaperPermission)
+    val pageSwipeController = LocalPageSwipeController.current
+    val latestOnBack by rememberUpdatedState(onBack)
     val swipeNavigationModifier =
-        Modifier.pointerInput(onBack) {
-            var totalHorizontalDrag = 0f
-            detectHorizontalDragGestures(
-                onDragStart = { totalHorizontalDrag = 0f },
-                onHorizontalDrag = { _, dragAmount ->
-                    totalHorizontalDrag += dragAmount
-                },
-                onDragEnd = {
-                    if (totalHorizontalDrag >= SETTINGS_BACK_SWIPE_THRESHOLD_PX) {
-                        onBack()
-                    }
-                    totalHorizontalDrag = 0f
-                },
-                onDragCancel = { totalHorizontalDrag = 0f },
+        Modifier.pointerInput(pageSwipeController) {
+            detectPageSwipe(
+                controller = pageSwipeController,
+                thresholdPx = SETTINGS_BACK_SWIPE_THRESHOLD_PX,
+                targetFor = { direction -> RootDestination.Search.takeIf { direction > 0 } },
+                onSwipe = { direction -> if (direction > 0) latestOnBack() },
             )
         }
 

@@ -7,7 +7,6 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.biometric.BiometricManager
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -15,6 +14,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -24,6 +24,9 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tk.quicksearch.R
+import com.tk.quicksearch.app.navigation.LocalPageSwipeController
+import com.tk.quicksearch.app.navigation.RootDestination
+import com.tk.quicksearch.app.navigation.detectPageSwipe
 import com.tk.quicksearch.notchGesture.NotchGestureRequest
 import com.tk.quicksearch.notchGesture.NotchGestureRequests
 import com.tk.quicksearch.search.core.SearchUiState
@@ -293,23 +296,29 @@ internal fun rememberRouteGestures(
             onSwipeUp = { performTwoFingerSwipe(twoFingerSwipeUp) },
             onSwipeDown = { performTwoFingerSwipe(twoFingerSwipeDown) },
         )
+    val pageSwipeController = LocalPageSwipeController.current
+    val latestHomeSwipe by rememberUpdatedState(handleHomeHorizontalSwipe)
     val swipeNavigationModifier =
-        twoFingerSwipeModifier.pointerInput(isDefaultLauncher, isLauncherSwipeRightEnabled, swipeActions, customSwipeActions, uiState.query) {
-            var totalHorizontalDrag = 0f
-            detectHorizontalDragGestures(
-                onDragStart = { totalHorizontalDrag = 0f },
-                onHorizontalDrag = { _, dragAmount ->
-                    totalHorizontalDrag += dragAmount
-                },
-                onDragEnd = {
-                    if (totalHorizontalDrag >= SWIPE_NAVIGATION_THRESHOLD_PX) {
-                        handleHomeHorizontalSwipe(HomeHorizontalSwipe.RIGHT)
-                    } else if (totalHorizontalDrag <= -SWIPE_NAVIGATION_THRESHOLD_PX) {
-                        handleHomeHorizontalSwipe(HomeHorizontalSwipe.LEFT)
+        twoFingerSwipeModifier.pointerInput(isDefaultLauncher, isLauncherSwipeRightEnabled, swipeActions, customSwipeActions, uiState.query, pageSwipeController) {
+            detectPageSwipe(
+                controller = pageSwipeController,
+                thresholdPx = SWIPE_NAVIGATION_THRESHOLD_PX,
+                targetFor = { direction ->
+                    when {
+                        direction > 0 && isDefaultLauncher ->
+                            RootDestination.WidgetsPanel.takeIf {
+                                isLauncherSwipeRightEnabled && swipeActions[0] != SwipeGestureAction.ALL_APPS
+                            }
+                        direction > 0 ->
+                            RootDestination.WidgetsPanel.takeIf { swipeActions[0] == SwipeGestureAction.WIDGETS_PANEL }
+                        else -> RootDestination.Settings.takeIf { swipeActions[1] == SwipeGestureAction.SETTINGS }
                     }
-                    totalHorizontalDrag = 0f
                 },
-                onDragCancel = { totalHorizontalDrag = 0f },
+                onSwipe = { direction ->
+                    latestHomeSwipe(
+                        if (direction > 0) HomeHorizontalSwipe.RIGHT else HomeHorizontalSwipe.LEFT,
+                    )
+                },
             )
         }
     val shouldAutoCloseSearchSurface =
