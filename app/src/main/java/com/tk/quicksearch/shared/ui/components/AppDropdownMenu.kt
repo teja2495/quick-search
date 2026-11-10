@@ -78,6 +78,8 @@ fun AppDropdownMenuItem(
     supportingText: String? = null,
     destructive: Boolean = false,
     enabled: Boolean = true,
+    /** Overrides the leading icon's color, such as an accent for an active option. */
+    iconTint: Color? = null,
 ) {
     val colors =
         if (destructive) {
@@ -109,7 +111,16 @@ fun AppDropdownMenuItem(
         },
         onClick = onClick,
         modifier = modifier,
-        leadingIcon = icon?.let { { Icon(imageVector = it, contentDescription = null) } },
+        leadingIcon =
+            icon?.let {
+                {
+                    if (iconTint != null) {
+                        Icon(imageVector = it, contentDescription = null, tint = iconTint)
+                    } else {
+                        Icon(imageVector = it, contentDescription = null)
+                    }
+                }
+            },
         enabled = enabled,
         colors = colors,
     )

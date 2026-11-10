@@ -29,11 +29,16 @@ private val AppSwipeTriggerDistance = 24.dp
 
 /** Returns the up and down actions assigned to [app], recomposing when they change. */
 @Composable
-fun rememberAppSwipeActions(app: AppInfo): Pair<CustomWidgetButtonAction?, CustomWidgetButtonAction?> {
+fun rememberAppSwipeActions(app: AppInfo): Pair<CustomWidgetButtonAction?, CustomWidgetButtonAction?> =
+    rememberSwipeActions(AppSwipeGestures.targetKey(app))
+
+/** Returns the up and down actions assigned to [targetKey], recomposing when they change. */
+@Composable
+fun rememberSwipeActions(targetKey: String): Pair<CustomWidgetButtonAction?, CustomWidgetButtonAction?> {
     val context = LocalContext.current
     val assignments by AppSwipeGestures.assignments(context).collectAsState()
-    val upJson = assignments?.get(AppSwipeGestures.key(app, AppSwipeDirection.UP))
-    val downJson = assignments?.get(AppSwipeGestures.key(app, AppSwipeDirection.DOWN))
+    val upJson = assignments?.get(AppSwipeGestures.key(targetKey, AppSwipeDirection.UP))
+    val downJson = assignments?.get(AppSwipeGestures.key(targetKey, AppSwipeDirection.DOWN))
     return remember(upJson, downJson) {
         CustomWidgetButtonAction.fromJson(upJson) to CustomWidgetButtonAction.fromJson(downJson)
     }
@@ -44,14 +49,18 @@ fun rememberAppSwipeActions(app: AppInfo): Pair<CustomWidgetButtonAction?, Custo
  * Adds no gesture handling for apps without an assignment, so scrolling is unaffected there.
  */
 @Composable
-fun Modifier.appSwipeGestures(app: AppInfo): Modifier {
-    val (upAction, downAction) = rememberAppSwipeActions(app)
+fun Modifier.appSwipeGestures(app: AppInfo): Modifier = swipeGestures(AppSwipeGestures.targetKey(app))
+
+/** Runs the swipe up / swipe down action assigned to [targetKey] (an app or a folder). */
+@Composable
+fun Modifier.swipeGestures(targetKey: String): Modifier {
+    val (upAction, downAction) = rememberSwipeActions(targetKey)
     if (upAction == null && downAction == null) return this
     val context = LocalContext.current
     val view = LocalView.current
     val currentUp by rememberUpdatedState(upAction)
     val currentDown by rememberUpdatedState(downAction)
-    return this.pointerInput(app.launchCountKey()) {
+    return this.pointerInput(targetKey) {
         val triggerDistancePx = AppSwipeTriggerDistance.toPx()
         awaitEachGesture {
             val down = awaitFirstDown(requireUnconsumed = false)
@@ -105,7 +114,9 @@ fun AppSwipeGesturePickerHost(
             onQueryChange(queryBeforePicker)
         }
         val isUp = pending.direction == AppSwipeDirection.UP
-        val appName = pending.app.appName
+        // Observed so the picker updates in place when Reset clears the assignment.
+        val (assignedUp, assignedDown) = rememberSwipeActions(pending.targetKey)
+        val appName = pending.targetName
         val title =
             stringResource(
                 if (isUp) R.string.app_swipe_up_picker_title else R.string.app_swipe_down_picker_title,
@@ -120,13 +131,15 @@ fun AppSwipeGesturePickerHost(
             title = title,
             tipText = stringResource(R.string.app_swipe_picker_tip),
             searchPlaceholder = stringResource(R.string.app_swipe_picker_search_hint),
-            currentAction = AppSwipeGestures.actionFor(context, pending.app, pending.direction),
+            currentAction = if (isUp) assignedUp else assignedDown,
             searchState = searchState,
             iconPackPackage = searchState.selectedIconPackPackage,
             onQueryChange = onQueryChange,
             onDismiss = close,
+            // Keeps the picker open; the card gives way to the tip once the assignment clears.
+            onReset = { AppSwipeGestures.setAction(context, pending.targetKey, pending.direction, null) },
             onSelect = { action ->
-                AppSwipeGestures.setAction(context, pending.app, pending.direction, action)
+                AppSwipeGestures.setAction(context, pending.targetKey, pending.direction, action)
                 close()
                 Toast.makeText(context, setMessage, Toast.LENGTH_SHORT).show()
             },

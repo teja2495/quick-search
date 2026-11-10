@@ -42,6 +42,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -59,9 +60,15 @@ import com.tk.quicksearch.search.apps.rememberPinnedGridDragModifier
 import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.data.appShortcutRepository.rememberShortcutIcon
 import com.tk.quicksearch.search.data.preferences.UiPreferences
-import com.tk.quicksearch.shared.ui.components.ItemMenuLongPressDropdown
-import com.tk.quicksearch.shared.ui.components.ItemMenuLongPressOption
+import com.tk.quicksearch.search.apps.swipeGestures.AppSwipeDirection
+import com.tk.quicksearch.search.apps.swipeGestures.AppSwipeGestures
+import com.tk.quicksearch.search.apps.swipeGestures.rememberSwipeActions
+import com.tk.quicksearch.search.apps.swipeGestures.swipeGestures
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDefaults
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.util.hapticConfirm
@@ -211,6 +218,7 @@ internal fun FolderGridItem(
                                         scaleY = tileScale
                                     }
                                     .clip(DesignTokens.ShapeLarge)
+                                    .swipeGestures(folder.folder.gridKey)
                                     .then(dragModifier)
                                     .then(clickModifier)
                                     .semantics { contentDescription = folderLabel },
@@ -246,15 +254,53 @@ internal fun FolderGridItem(
             }
         }
 
-        ItemMenuLongPressDropdown(
-                option =
-                        ItemMenuLongPressOption(
-                                label = stringResource(R.string.dialog_delete),
-                                icon = MaterialSymbols.Delete,
-                                onClick = onDelete,
-                        ),
+        FolderOptionsDropdown(
+                folderKey = folder.folder.gridKey,
+                folderLabel = folderLabel,
                 expanded = showOptions,
                 onDismiss = { showOptions = false },
+                onDelete = onDelete,
+        )
+    }
+}
+
+/** Long-press options for a folder tile: its Swipe Up / Swipe Down actions, and Delete. */
+@Composable
+private fun FolderOptionsDropdown(
+        folderKey: String,
+        folderLabel: String,
+        expanded: Boolean,
+        onDismiss: () -> Unit,
+        onDelete: () -> Unit,
+) {
+    val (swipeUpAction, swipeDownAction) = rememberSwipeActions(folderKey)
+    AppDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = onDismiss,
+            offset = DpOffset(x = 0.dp, y = 8.dp),
+            containerColor = AppDropdownMenuDefaults.itemMenuContainerColor,
+    ) {
+        listOf(
+                Triple(AppSwipeDirection.UP, R.string.settings_gesture_swipe_up, swipeUpAction),
+                Triple(AppSwipeDirection.DOWN, R.string.settings_gesture_swipe_down, swipeDownAction),
+        ).forEach { (direction, labelRes, assignedAction) ->
+            AppDropdownMenuItem(
+                    text = stringResource(labelRes),
+                    icon = if (direction == AppSwipeDirection.UP) MaterialSymbols.SwipeUp else MaterialSymbols.SwipeDown,
+                    iconTint = if (assignedAction != null) AppColors.ItemMenuActiveIconTint else null,
+                    onClick = {
+                        onDismiss()
+                        AppSwipeGestures.requestPicker(folderKey, folderLabel, direction)
+                    },
+            )
+        }
+        AppDropdownMenuItem(
+                text = stringResource(R.string.dialog_delete),
+                icon = MaterialSymbols.Delete,
+                onClick = {
+                    onDismiss()
+                    onDelete()
+                },
         )
     }
 }
