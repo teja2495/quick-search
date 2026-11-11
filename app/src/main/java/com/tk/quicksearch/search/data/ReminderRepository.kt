@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.data
 
 import android.content.Context
+import com.tk.quicksearch.reminders.ReminderRepeat
 import com.tk.quicksearch.reminders.ReminderScheduler
 import com.tk.quicksearch.search.data.preferences.CalendarPreferences
 import com.tk.quicksearch.search.data.preferences.NicknamePreferences
@@ -9,6 +10,7 @@ import com.tk.quicksearch.search.models.ReminderInfo
 import com.tk.quicksearch.search.noted.NotedGlanceTasks
 import com.tk.quicksearch.search.utils.SearchRankingUtils
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
+import com.tk.quicksearch.shared.time.ScheduleRepeat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -144,7 +146,12 @@ class ReminderRepository(context: Context) {
             .sortedBy { it.dueMillis }
             .take(limit)
 
-    fun createReminder(title: String, date: LocalDate, timeMinutes: Int?): ReminderInfo {
+    fun createReminder(
+        title: String,
+        date: LocalDate,
+        timeMinutes: Int?,
+        repeat: ScheduleRepeat? = null,
+    ): ReminderInfo {
         lateinit var reminder: ReminderInfo
         mutate { reminders ->
             reminder =
@@ -153,6 +160,7 @@ class ReminderRepository(context: Context) {
                     title = title.trim(),
                     date = date,
                     timeMinutes = timeMinutes,
+                    repeat = repeat,
                 )
             reminders + reminder
         }
@@ -165,6 +173,7 @@ class ReminderRepository(context: Context) {
         title: String,
         date: LocalDate,
         timeMinutes: Int?,
+        repeat: ScheduleRepeat? = getReminderById(reminderId)?.repeat,
     ): ReminderInfo? {
         val before = getReminderById(reminderId)
         val updated =
@@ -174,6 +183,7 @@ class ReminderRepository(context: Context) {
                     title = title.trim(),
                     date = date,
                     timeMinutes = timeMinutes,
+                    repeat = repeat,
                     // A new time is a new occurrence, so it may surface on Home again.
                     isDismissedFromHome = reminder.isDismissedFromHome && !scheduleChanged,
                     dismissedFromHomeDate = reminder.dismissedFromHomeDate.takeUnless { scheduleChanged },
@@ -197,7 +207,13 @@ class ReminderRepository(context: Context) {
         preferences.unpinReminder(reminderId)
     }
 
-    fun setDone(reminderId: Long, isDone: Boolean): ReminderInfo? {
+    /**
+     * Marks the reminder done or not. A repeating reminder isn't finished by Done: it moves to its
+     * next date and stays open.
+     */
+    fun setDone(reminderId: Long, isDone: Boolean, nowMillis: Long = System.currentTimeMillis()): ReminderInfo? {
+        val repeat = getReminderById(reminderId)?.repeat
+        if (isDone && repeat != null) return moveToNextOccurrence(reminderId, repeat, nowMillis)
         val updated = updateOne(reminderId) { it.copy(isDone = isDone) } ?: return null
         if (isDone) {
             clearSnooze(reminderId)
@@ -206,6 +222,23 @@ class ReminderRepository(context: Context) {
         } else {
             ReminderScheduler.schedule(appContext, updated)
         }
+        return updated
+    }
+
+    private fun moveToNextOccurrence(reminderId: Long, repeat: ScheduleRepeat, nowMillis: Long): ReminderInfo? {
+        val updated =
+            updateOne(reminderId) { reminder ->
+                reminder.copy(
+                    date = ReminderRepeat.nextDate(reminder, repeat, nowMillis),
+                    isDone = false,
+                    isDismissedFromHome = false,
+                    dismissedFromHomeDate = null,
+                )
+            } ?: return null
+        clearSnooze(reminderId)
+        preferences.setHomeHiddenUntil(reminderId, null)
+        ReminderScheduler.cancelNotification(appContext, reminderId)
+        ReminderScheduler.schedule(appContext, updated, nowMillis)
         return updated
     }
 
@@ -360,6 +393,8 @@ class ReminderRepository(context: Context) {
         private const val FIELD_DONE = "done"
         private const val FIELD_DISMISSED_FROM_HOME = "dismissedFromHome"
         private const val FIELD_DISMISSED_FROM_HOME_DATE = "dismissedFromHomeDate"
+        private const val FIELD_REPEAT_INTERVAL = "repeatInterval"
+        private const val FIELD_REPEAT_UNIT = "repeatUnit"
 
         private const val LEGACY_FIELD_EVENT_ID = "eventId"
         private const val LEGACY_FIELD_TITLE = "title"
@@ -401,6 +436,7 @@ class ReminderRepository(context: Context) {
                         obj.optString(FIELD_DISMISSED_FROM_HOME_DATE)
                             .takeIf { it.isNotBlank() }
                             ?.let { value -> runCatching { LocalDate.parse(value) }.getOrNull() },
+                    repeat = ReminderRepeat.repeat(obj.optInt(FIELD_REPEAT_INTERVAL, 1), obj.optString(FIELD_REPEAT_UNIT)),
                 )
             }
         }
@@ -419,6 +455,10 @@ class ReminderRepository(context: Context) {
                         .apply {
                             reminder.dismissedFromHomeDate?.let {
                                 put(FIELD_DISMISSED_FROM_HOME_DATE, it.toString())
+                            }
+                            reminder.repeat?.let {
+                                put(FIELD_REPEAT_INTERVAL, it.interval)
+                                put(FIELD_REPEAT_UNIT, ReminderRepeat.unitName(it.unit))
                             }
                         },
                 )

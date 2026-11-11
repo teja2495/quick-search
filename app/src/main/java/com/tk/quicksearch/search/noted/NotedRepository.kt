@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.noted
 
+import com.tk.quicksearch.reminders.ReminderRepeat
+import com.tk.quicksearch.shared.time.ScheduleRepeat
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
@@ -71,13 +73,22 @@ class NotedRepository(
      * Adds a task to Noted's To Do list. A date-only task passes local midnight of its day.
      * Returns false when Noted is unavailable or refused it, so the caller can save it elsewhere.
      */
-    suspend fun createTask(title: String, dueAtMillis: Long, isDueTimeSet: Boolean): Boolean {
+    suspend fun createTask(
+        title: String,
+        dueAtMillis: Long,
+        isDueTimeSet: Boolean,
+        repeat: ScheduleRepeat? = null,
+    ): Boolean {
         if (!NotedIntegration.ensureChecked(appContext)) return false
         val values =
             ContentValues().apply {
                 put(NotedIntegration.COLUMN_TITLE, title)
                 put(NotedIntegration.COLUMN_DUE_AT, dueAtMillis)
                 put(NotedIntegration.COLUMN_DUE_TIME_SET, if (isDueTimeSet) 1 else 0)
+                if (repeat != null) {
+                    put(NotedIntegration.COLUMN_REPEAT_INTERVAL, repeat.interval)
+                    put(NotedIntegration.COLUMN_REPEAT_UNIT, ReminderRepeat.unitName(repeat.unit))
+                }
             }
         return withContext(Dispatchers.IO) {
             guarded("task insert", false) {
@@ -94,10 +105,11 @@ class NotedRepository(
         title: String,
         dueAtMillis: Long,
         isDueTimeSet: Boolean,
+        repeat: ScheduleRepeat? = null,
         onResult: (added: Boolean) -> Unit,
     ) {
         backgroundScope.launch {
-            val added = createTask(title, dueAtMillis, isDueTimeSet)
+            val added = createTask(title, dueAtMillis, isDueTimeSet, repeat)
             onResult(added)
         }
     }

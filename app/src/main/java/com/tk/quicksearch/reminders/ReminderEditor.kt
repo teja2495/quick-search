@@ -30,6 +30,7 @@ import com.tk.quicksearch.search.noted.NotedRepository
 import com.tk.quicksearch.settings.settingsDetailScreen.ReminderFormDialog
 import com.tk.quicksearch.settings.settingsDetailScreen.FormDateTimeSuggestion
 import com.tk.quicksearch.shared.permissions.PermissionHelper
+import com.tk.quicksearch.shared.time.ScheduleRepeat
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import java.time.Instant
 import java.time.LocalDate
@@ -46,6 +47,8 @@ sealed interface ReminderEditorRequest {
         val initialDateTimeMillis: Long? = null,
         val initialAllDay: Boolean = true,
         val autoFocusTitle: Boolean = true,
+        /** A repeat rule already read out of the text that became [initialTitle]. */
+        val initialRepeat: ScheduleRepeat? = null,
         /** Runs after the reminder is saved (not on dismiss), e.g. to clear the search query. */
         val onCreated: (() -> Unit)? = null,
     ) : ReminderEditorRequest
@@ -62,6 +65,7 @@ object ReminderEditorRequests {
         initialDateTimeMillis: Long? = null,
         initialAllDay: Boolean = true,
         autoFocusTitle: Boolean = true,
+        initialRepeat: ScheduleRepeat? = null,
         onCreated: (() -> Unit)? = null,
     ) {
         _request.value = ReminderEditorRequest.New(
@@ -69,6 +73,7 @@ object ReminderEditorRequests {
             initialDateTimeMillis,
             initialAllDay,
             autoFocusTitle,
+            initialRepeat,
             onCreated,
         )
     }
@@ -107,7 +112,8 @@ fun ReminderEditorHost() {
                 initialAllDay = current.initialAllDay,
                 autoFocusTitle = current.autoFocusTitle,
                 onDismiss = ReminderEditorRequests::close,
-                onSave = { title, dateTimeMillis, allDay ->
+                initialRepeat = current.initialRepeat,
+                onSave = { title, dateTimeMillis, allDay, repeat ->
                     ReminderEditorRequests.close()
                     val (date, timeMinutes) = toReminderSchedule(dateTimeMillis, allDay)
                     if (reminderPreferences.isUseNotedEnabled() && NotedIntegration.ensureChecked(context)) {
@@ -115,22 +121,22 @@ fun ReminderEditorHost() {
                         // may close the overlay), so it uses the application context throughout; if
                         // Noted refuses the task, it is kept here instead.
                         val appContext = context.applicationContext
-                        notedRepository.createTaskInBackground(title, dateTimeMillis, isDueTimeSet = !allDay) { added ->
+                        notedRepository.createTaskInBackground(title, dateTimeMillis, isDueTimeSet = !allDay, repeat = repeat) { added ->
                             val message =
                                 if (added) {
                                     ReminderRepository.notifyChanged()
                                     reminderSetMessage(
                                         appContext,
-                                        ReminderInfo(0L, title, date, timeMinutes),
+                                        ReminderInfo(0L, title, date, timeMinutes, repeat = repeat),
                                         R.string.noted_reminder_set,
                                     )
                                 } else {
-                                    reminderSetMessage(appContext, ReminderRepository(appContext).createReminder(title, date, timeMinutes))
+                                    reminderSetMessage(appContext, ReminderRepository(appContext).createReminder(title, date, timeMinutes, repeat))
                                 }
                             Toast.makeText(appContext, message, Toast.LENGTH_SHORT).show()
                         }
                     } else {
-                        val created = repository.createReminder(title, date, timeMinutes)
+                        val created = repository.createReminder(title, date, timeMinutes, repeat)
                         Toast.makeText(context, reminderSetMessage(context, created), Toast.LENGTH_SHORT).show()
                         requestPermissionsIfFirst()
                     }
@@ -150,10 +156,11 @@ fun ReminderEditorHost() {
                 initialAllDay = !reminder.hasTime,
                 autoFocusTitle = false,
                 onDismiss = ReminderEditorRequests::close,
-                onSave = { title, dateTimeMillis, allDay ->
+                initialRepeat = reminder.repeat,
+                onSave = { title, dateTimeMillis, allDay, repeat ->
                     ReminderEditorRequests.close()
                     val (date, timeMinutes) = toReminderSchedule(dateTimeMillis, allDay)
-                    repository.updateReminder(reminder.reminderId, title, date, timeMinutes)
+                    repository.updateReminder(reminder.reminderId, title, date, timeMinutes, repeat)
                 },
                 onDelete = {
                     ReminderEditorRequests.close()
@@ -171,25 +178,26 @@ private fun ReminderFormDialog(
     initialDateTimeMillis: Long?,
     initialAllDay: Boolean,
     autoFocusTitle: Boolean,
+    initialRepeat: ScheduleRepeat?,
     onDismiss: () -> Unit,
-    onSave: (title: String, dateTimeMillis: Long, allDay: Boolean) -> Unit,
+    onSave: (title: String, dateTimeMillis: Long, allDay: Boolean, repeat: ScheduleRepeat?) -> Unit,
     onDelete: (() -> Unit)?,
 ) {
     val accentColor = MaterialTheme.colorScheme.primary
     val titleVisualTransformation = remember(accentColor) {
         ReminderNaturalLanguageVisualTransformation(accentColor)
     }
+    // The repeat button shows this. Typing a repeat phrase into the title fills it in; after that
+    // the button's own choice stands until a different phrase is typed.
+    var repeat by remember { mutableStateOf(initialRepeat) }
+    var typedRepeat by remember { mutableStateOf<ScheduleRepeat?>(null) }
     ReminderFormDialog(
         initialTitle = initialTitle,
         initialDateTimeMillis = initialDateTimeMillis,
         initialAllDay = initialAllDay,
         onDismiss = onDismiss,
         onConfirm = { title, dateTimeMillis, allDay ->
-            onSave(
-                ReminderNaturalLanguageParser.parse(title)?.title ?: title,
-                dateTimeMillis,
-                allDay,
-            )
+            onSave(ReminderNaturalLanguageParser.parse(title)?.title ?: title, dateTimeMillis, allDay, repeat)
         },
         titleResId = if (reminder == null) R.string.reminder_new_title else R.string.reminder_edit_title,
         confirmResId = R.string.dialog_save,
@@ -209,7 +217,12 @@ private fun ReminderFormDialog(
         titleKeyboardCapitalization =
             if (reminder == null) KeyboardCapitalization.Sentences else KeyboardCapitalization.None,
         titleDateTimeSuggestion = { title ->
-            ReminderNaturalLanguageParser.parse(title)?.let { schedule ->
+            val parsed = ReminderNaturalLanguageParser.parse(title)
+            if (parsed?.repeat != typedRepeat) {
+                typedRepeat = parsed?.repeat
+                parsed?.repeat?.let { repeat = it }
+            }
+            parsed?.let { schedule ->
                 val dateTime = schedule.date.atTime(schedule.time ?: java.time.LocalTime.MIDNIGHT)
                     .atZone(ZoneId.systemDefault())
                     .toInstant()
@@ -219,6 +232,7 @@ private fun ReminderFormDialog(
         },
         titleVisualTransformation = titleVisualTransformation,
         titleMaxLines = 2,
+        belowTime = { ReminderRepeatField(repeat = repeat, onRepeatChange = { repeat = it }) },
     )
 }
 
@@ -306,5 +320,6 @@ private fun reminderSetMessage(
         }
     val whenText =
         if (reminder.hasTime) "$day, ${DateFormat.getTimeFormat(context).format(Date(reminder.dueMillis))}" else day
-    return context.getString(messageResId, whenText)
+    val message = context.getString(messageResId, whenText)
+    return reminder.repeat?.let { "$message • ${ReminderRepeat.label(context.resources, it)}" } ?: message
 }

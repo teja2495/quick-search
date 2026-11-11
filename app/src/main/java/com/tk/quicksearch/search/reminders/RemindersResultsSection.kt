@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.reminders
 
+import com.tk.quicksearch.reminders.ReminderRepeat
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
 import android.text.format.DateFormat
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -336,16 +337,18 @@ fun reminderRelativeDateLabel(reminder: ReminderInfo): String =
         calendarRelativeDateLabel(reminder.dayStartMillis)
     }
 
-/** "Fri, Sep 18 • 3:00 PM", or just the date for reminders without a time. */
+/** "Fri, Sep 18 • 3:00 PM", or just the date for reminders without a time; "• Weekly" when it repeats. */
 @Composable
 fun reminderScheduleLabel(reminder: ReminderInfo): String {
     val context = LocalContext.current
     val dateText = SimpleDateFormat("EEE, MMM d", Locale.getDefault()).format(Date(reminder.dayStartMillis))
-    return if (reminder.hasTime) {
-        "$dateText • ${DateFormat.getTimeFormat(context).format(Date(reminder.dueMillis))}"
-    } else {
-        dateText
-    }
+    val schedule =
+        if (reminder.hasTime) {
+            "$dateText • ${DateFormat.getTimeFormat(context).format(Date(reminder.dueMillis))}"
+        } else {
+            dateText
+        }
+    return reminder.repeat?.let { "$schedule • ${ReminderRepeat.label(context.resources, it)}" } ?: schedule
 }
 
 /** Tick shown on done reminders, tinted like the row's secondary text. */

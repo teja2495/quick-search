@@ -186,6 +186,7 @@ internal fun SearchQuickActionPills(
                                                     .toEpochMilli(),
                                             initialAllDay = schedule.time == null,
                                             autoFocusTitle = false,
+                                            initialRepeat = schedule.repeat,
                                             onCreated = onQuickActionCompleted,
                                     )
                                 },

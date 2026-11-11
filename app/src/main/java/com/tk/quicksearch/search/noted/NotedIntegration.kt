@@ -47,6 +47,12 @@ object NotedIntegration {
     const val COLUMN_LIST_TITLE = "list_title"
     const val COLUMN_DUE_AT = "due_at"
     const val COLUMN_DUE_TIME_SET = "due_time_set"
+
+    /** Optional on a task insert: how many [COLUMN_REPEAT_UNIT]s between repeats. */
+    const val COLUMN_REPEAT_INTERVAL = "repeat_interval"
+
+    /** Optional on a task insert: "day", "week", "month" or "year". */
+    const val COLUMN_REPEAT_UNIT = "repeat_unit"
     const val COLUMN_UPDATED_AT = "updated_at"
     const val COLUMN_DUE_LOCAL_DATE = "due_local_date"
     const val COLUMN_DAYS_TRACK = "days_track"
