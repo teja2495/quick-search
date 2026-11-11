@@ -102,6 +102,16 @@ class NotedRepository(
         }
     }
 
+    /** Puts [text] at the top of Noted's Quick Note. Returns whether Noted took it. */
+    suspend fun addToQuickNote(text: String): Boolean {
+        if (!NotedIntegration.ensureChecked(appContext)) return false
+        val values = ContentValues().apply { put(NotedIntegration.COLUMN_TEXT, text) }
+        val uri = providerUri(NotedIntegration.QUICK_NOTE_PATH).build()
+        return withContext(Dispatchers.IO) {
+            guarded("quick note", false) { appContext.contentResolver.insert(uri, values) != null }
+        }
+    }
+
     private suspend fun queryItems(uri: Uri, label: String): List<NotedItem> {
         if (!NotedIntegration.ensureChecked(appContext)) return emptyList()
         return withContext(Dispatchers.IO) {

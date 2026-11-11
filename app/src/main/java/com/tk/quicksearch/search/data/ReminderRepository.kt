@@ -138,7 +138,7 @@ class ReminderRepository(context: Context) {
             .take(limit)
     }
 
-    /** [getUpcomingReminders] with Noted's upcoming tasks mixed in while "Use Noted" is on. */
+    /** [getUpcomingReminders] with Noted's upcoming tasks mixed in while "Noted Integration" is on. */
     fun getUpcomingRemindersAndNotedTasks(limit: Int): List<ReminderInfo> =
         (getUpcomingReminders(limit) + NotedGlanceTasks.upcomingAsReminders(appContext, limit))
             .sortedBy { it.dueMillis }

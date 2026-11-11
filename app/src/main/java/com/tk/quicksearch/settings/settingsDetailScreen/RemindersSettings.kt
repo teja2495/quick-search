@@ -129,7 +129,7 @@ fun RemindersSettingsSection(
         value = withContext(Dispatchers.IO) { repository.getAllReminders() }
     }
     val notedTasks by produceState(initialValue = emptyList<ReminderEntry.Noted>(), changeCount, resumeCount) {
-        // Only while "Use Noted" is on; toggling it bumps changeCount, which reloads this.
+        // Only while "Noted Integration" is on; toggling it bumps changeCount, which reloads this.
         value =
             if (!reminderPreferences.isUseNotedEnabled()) {
                 emptyList()

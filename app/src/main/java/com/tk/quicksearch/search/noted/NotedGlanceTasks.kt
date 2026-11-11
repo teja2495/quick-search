@@ -26,7 +26,7 @@ internal data class NotedGlanceTask(
     val key: String get() = "noted-${item.id}"
 }
 
-/** Noted's dated open tasks, shown on At a Glance beside reminders while "Use Noted" is on. */
+/** Noted's dated open tasks, shown on At a Glance beside reminders while "Noted Integration" is on. */
 internal object NotedGlanceTasks {
     /**
      * The tasks At a Glance shows now, by the same rules as [ReminderRepository.getHomeCardReminders]:

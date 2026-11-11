@@ -11,7 +11,7 @@ import com.tk.quicksearch.search.noted.NotedLauncher
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 
 /**
- * Noted tasks shown like reminders while "Use Noted" is on, each with its due time to sort it among
+ * Noted tasks shown like reminders while "Noted Integration" is on, each with its due time to sort it among
  * them. They show only their scheduled time, without "Now" or "Overdue". Tapping opens the task in
  * Noted; the check completes it there, and closing dismisses it as a reminder would be.
  */

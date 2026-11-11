@@ -111,7 +111,7 @@ internal class UpcomingRemindersGlance(
     val snooze: (ReminderInfo) -> Unit,
     val dismiss: (ReminderInfo) -> Unit,
     val delete: (ReminderInfo) -> Unit,
-    /** Noted tasks due now or soon, shown like reminders while "Use Noted" is on. */
+    /** Noted tasks due now or soon, shown like reminders while "Noted Integration" is on. */
     val notedTasks: List<NotedGlanceTask> = emptyList(),
     val pendingDoneNotedKeys: Set<String> = emptySet(),
     val markNotedDone: (NotedGlanceTask) -> Unit = {},

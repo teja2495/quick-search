@@ -17,7 +17,10 @@ class ReminderPreferences(
 
     fun setShowTomorrowRemindersEnabled(enabled: Boolean) = setBooleanPref(KEY_SHOW_TOMORROW_REMINDERS, enabled)
 
-    /** New reminders go to the Noted app's To Do list instead; only offered while Noted is connected. */
+    /**
+     * The More Options "Noted Integration" toggle, only offered while Noted is connected: new reminders
+     * go to Noted's To Do list, and see `NotedIntegration.isEnabled` for the rest.
+     */
     fun isUseNotedEnabled(): Boolean = getBooleanPref(KEY_USE_NOTED, false)
 
     fun setUseNotedEnabled(enabled: Boolean) = setBooleanPref(KEY_USE_NOTED, enabled)

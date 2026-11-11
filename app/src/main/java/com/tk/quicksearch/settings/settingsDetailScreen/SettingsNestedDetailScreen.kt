@@ -58,6 +58,7 @@ import com.tk.quicksearch.settings.NoteDeleteConfirmationDialog
 import com.tk.quicksearch.settings.NotesBulkDeleteConfirmationDialog
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.tools.aiSearch.supportsThinkingControl
+import com.tk.quicksearch.settings.bookmarksSettings.BookmarksHeaderMenu
 import com.tk.quicksearch.settings.bookmarksSettings.BookmarksSettingsSection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -233,8 +234,8 @@ internal fun SettingsNestedDetailScreen(
                                     )
                                 }
                             }
-                        } else if (detailType.hasHeaderMenu()) {
-                            { DetailHeaderMenu(detailType) }
+                        } else if (detailType == SettingsDetailType.BOOKMARKS) {
+                            { BookmarksHeaderMenu() }
                         } else if (detailType == SettingsDetailType.CUSTOM_TOOL_EDITOR && pendingAiBackedToolForEditor == null) {
                             val pendingToolIdForHeader = remember { CustomToolNavigationMemory.peekPendingToolId() }
                             val existingToolForHeader = remember(pendingToolIdForHeader, state.customTools) {

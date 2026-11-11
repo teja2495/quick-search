@@ -50,6 +50,7 @@ enum class AliasInfoType {
  * @param currentShortcutId Identifier for the shortcut being edited (excluded from validation)
  * @param onSave Callback when the code is saved
  * @param onDismiss Callback when the dialog is dismissed
+ * @param infoText Replaces the [aliasInfoType] explanation, for aliases none of its types describe
  */
 @Composable
 fun AddEditAliasDialog(
@@ -68,6 +69,7 @@ fun AddEditAliasDialog(
     existingTriggerWords: Collection<String> = emptyList(),
     conflictErrorMessage: String? = null,
     allowEmptyAlias: Boolean = true,
+    infoText: String? = null,
     onDismiss: () -> Unit,
 ) {
     val initialText = normalizeShortcutCodeInput(currentCode)
@@ -108,8 +110,8 @@ fun AddEditAliasDialog(
     } else {
         !isEmptyInput && isValidShortcut && !hasAnyConflict
     }
-    val infoText =
-        when (aliasInfoType) {
+    val resolvedInfoText =
+        infoText ?: when (aliasInfoType) {
             AliasInfoType.SEARCH_TYPE ->
                 stringResource(
                     R.string.dialog_alias_info_search_type,
@@ -183,7 +185,7 @@ fun AddEditAliasDialog(
                         modifier = Modifier.size(16.dp),
                     )
                     Text(
-                        text = infoText,
+                        text = resolvedInfoText,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

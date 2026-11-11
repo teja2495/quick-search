@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 import com.tk.quicksearch.BuildConfig
+import com.tk.quicksearch.search.data.preferences.ReminderPreferences
 
 /**
  * Gate for the Noted integration. Noted is found by its search provider's authority, and the
@@ -27,6 +28,10 @@ object NotedIntegration {
     /** `items?keys=<kind>:<id>,...` returns those items in order, leaving out gone or completed ones. */
     const val ITEMS_PATH = "items"
     const val KEYS_PARAM = "keys"
+
+    /** Insert with [COLUMN_TEXT] to put that text at the top of Noted's Quick Note. */
+    const val QUICK_NOTE_PATH = "quick_note"
+    const val COLUMN_TEXT = "text"
     const val QUERY_PARAM = "q"
     const val LIMIT_PARAM = "limit"
     const val RESULT_LIMIT = 20
@@ -76,6 +81,13 @@ object NotedIntegration {
         if (!checked) refresh(context)
         return isAvailable
     }
+
+    /**
+     * Noted is connected and the More Options "Noted Integration" toggle is on: reminders go to Noted,
+     * and the Quick Note alias works. Noted search results only need [isAvailable].
+     */
+    fun isEnabled(context: Context): Boolean =
+        ensureChecked(context) && ReminderPreferences(context).isUseNotedEnabled()
 
     private fun hasReadPermission(context: Context): Boolean =
         ContextCompat.checkSelfPermission(context, READ_PERMISSION) == PackageManager.PERMISSION_GRANTED

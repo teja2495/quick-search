@@ -42,7 +42,10 @@
     <string name="search_hint_bookmarks">Search Bookmarks…</string>
     <string name="search_hint_noted" translatable="false">Search Noted…</string>
     <string name="noted_item_list" translatable="false">List</string>
-    <string name="reminders_use_noted" translatable="false">Use Noted</string>
+    <string name="noted_integration_title" translatable="false">Noted Integration</string>
+    <string name="noted_quick_note_alias_info" translatable="false">Type this alias at the end of your query to add the query to the top of Noted\'s Quick Note.</string>
+    <string name="noted_quick_note_added" translatable="false">Added to Quick Note</string>
+    <string name="noted_quick_note_failed" translatable="false">Couldn\'t add to Quick Note</string>
     <string name="search_hint_settings">Search Device Settings…</string>
     <string name="search_hint_static">Search Anything</string>
     <string name="search_hint_world_clock">Enter any place to get their local time</string>
