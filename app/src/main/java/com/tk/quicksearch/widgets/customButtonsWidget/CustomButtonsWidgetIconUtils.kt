@@ -21,7 +21,6 @@ import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.R
 import com.tk.quicksearch.media.MediaCommand
 import com.tk.quicksearch.search.contacts.contactInitials
-import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.appShortcutRepository.loadShortcutIconAndroidBitmap
 import com.tk.quicksearch.search.data.MediaPlaybackRepository
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
@@ -156,19 +155,6 @@ fun playPauseIconRes(context: Context): Int {
         else -> R.drawable.ic_widget_media_play
     }
 }
-
-private fun CustomWidgetButtonAction.AppShortcut.toStaticShortcut() =
-    StaticShortcut(
-        packageName = packageName,
-        appLabel = appLabel,
-        id = id,
-        shortLabel = shortLabel,
-        longLabel = longLabel,
-        iconResId = iconResId,
-        iconBase64 = iconBase64,
-        enabled = enabled,
-        intents = intents,
-    )
 
 /**
  * Mirrors the app grid's shortcut presentation: the shortcut icon with the owning app's icon

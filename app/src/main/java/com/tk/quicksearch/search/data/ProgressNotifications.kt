@@ -126,9 +126,6 @@ internal class ProgressNotificationTracker {
         finished = emptyList()
     }
 
-    private fun StatusBarNotification.isOngoing(): Boolean =
-        notification.flags and (Notification.FLAG_ONGOING_EVENT or Notification.FLAG_FOREGROUND_SERVICE) != 0
-
     private fun StatusBarNotification.text(name: String): String? =
         notification.extras?.getCharSequence(name)?.toString()?.trim()?.takeIf(String::isNotEmpty)
 

@@ -188,7 +188,7 @@ fun WidgetThemeSection(
                 modifier = Modifier.weight(1f),
                 color =
                     if (isCustomSelected) {
-                        state.backgroundColor?.let(::Color) ?: Color.Transparent
+                        Color(state.backgroundColor)
                     } else {
                         Color.Transparent
                     },

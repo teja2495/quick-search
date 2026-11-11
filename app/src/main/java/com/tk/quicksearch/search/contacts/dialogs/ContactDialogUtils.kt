@@ -119,7 +119,7 @@ internal fun filterMethodsByPhoneNumber(
 
             // For other methods, require phone number match with the selected number
             else -> {
-                val methodData = method.data?.takeIf { it.isNotBlank() }
+                val methodData = method.data.takeIf { it.isNotBlank() }
                 methodData != null && selectedPhoneNumber != null &&
                     PhoneNumberUtils.isSameNumber(methodData, selectedPhoneNumber)
             }
@@ -217,7 +217,6 @@ internal fun contactMethodToCardAction(
                 displayLabel = method.displayLabel,
             )
         is ContactMethod.ViewInContactsApp -> ContactCardAction.ViewInContactsApp(fallbackData)
-        else -> null
     }
 }
 

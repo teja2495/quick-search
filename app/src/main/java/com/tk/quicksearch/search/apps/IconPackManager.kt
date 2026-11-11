@@ -120,7 +120,7 @@ object IconPackManager {
     ): IconPackInfo? =
         runCatching {
             val appInfo = packageManager.getApplicationInfo(packageName, 0)
-            val label = packageManager.getApplicationLabel(appInfo)?.toString().orEmpty()
+            val label = packageManager.getApplicationLabel(appInfo).toString()
             IconPackInfo(
                 packageName = packageName,
                 label = label.ifBlank { packageName },

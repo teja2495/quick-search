@@ -242,7 +242,7 @@ internal fun Modifier.insetCardBackdrop(enabled: Boolean, shape: Shape, anywhere
     val active =
         enabled && backdrop != null && backdrop.blurSupported &&
             (anywhere || LocalInsetCardBackdropTargetsEnabled.current)
-    return if (active) insetCardBackdropTarget(backdrop!!, shape) else this
+    return if (active) insetCardBackdropTarget(backdrop, shape) else this
 }
 
 /** Surface colour, made translucent while it draws the blurred results behind it. */

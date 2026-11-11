@@ -286,10 +286,10 @@ internal object AtAGlanceWidgetUpdater {
 
         return {
             if (receiverRegistered) runCatching { context.unregisterReceiver(receiver) }
-            if (networkRegistered && networkCallback != null) {
-                runCatching { connectivityManager?.unregisterNetworkCallback(networkCallback) }
+            if (networkRegistered) {
+                runCatching { connectivityManager.unregisterNetworkCallback(networkCallback) }
             }
-            if (torchRegistered) runCatching { cameraManager?.unregisterTorchCallback(torchCallback) }
+            if (torchRegistered) runCatching { cameraManager.unregisterTorchCallback(torchCallback) }
             if (calendarRegistered) runCatching { context.contentResolver.unregisterContentObserver(calendarObserver) }
         }
     }

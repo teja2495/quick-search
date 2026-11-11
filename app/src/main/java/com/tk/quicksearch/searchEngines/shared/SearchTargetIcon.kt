@@ -210,7 +210,7 @@ fun SearchTargetIcon(
                 )
             if (iconResult.bitmap != null) {
                 Image(
-                    bitmap = iconResult.bitmap!!,
+                    bitmap = iconResult.bitmap,
                     contentDescription = target.app.label,
                     modifier =
                         modifier.size(iconSize).then(

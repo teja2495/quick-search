@@ -167,11 +167,8 @@ class TavilyClient(
         if (raw.isBlank()) return null
         return runCatching {
             val detail = JSONObject(raw).opt("detail")
-            when (detail) {
-                is JSONObject -> detail.optString("error")
-                is String -> detail
-                else -> null
-            }?.takeIf { it.isNotBlank() }
+            val message = if (detail is JSONObject) detail.optString("error") else detail as? String
+            message?.takeIf { it.isNotBlank() }
         }.getOrNull()
     }
 }

@@ -116,7 +116,7 @@ internal fun OpenSourceLicensesList(
     ) {
         val annotatedLicenseText =
             buildLicenseAnnotatedText(
-                text = selectedEntry!!.text,
+                text = selectedEntry.text,
                 linkColor = MaterialTheme.colorScheme.primary,
                 onUrlClick = { url ->
                     runCatching {
@@ -125,7 +125,7 @@ internal fun OpenSourceLicensesList(
                 },
             )
         Text(
-            text = selectedEntry!!.title,
+            text = selectedEntry.title,
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
         )

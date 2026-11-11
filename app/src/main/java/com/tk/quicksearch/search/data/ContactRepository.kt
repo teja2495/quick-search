@@ -69,7 +69,7 @@ class ContactRepository(
     internal val isSignalPackageBrandedAsMolly: Boolean by lazy {
         runCatching {
             val appInfo = context.packageManager.getApplicationInfo(SIGNAL_PACKAGE, 0)
-            val label = context.packageManager.getApplicationLabel(appInfo)?.toString().orEmpty()
+            val label = context.packageManager.getApplicationLabel(appInfo).toString()
             label.contains("molly", ignoreCase = true)
         }.getOrDefault(false)
     }

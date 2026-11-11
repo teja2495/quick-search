@@ -262,15 +262,15 @@ class OverlayActivity : FragmentActivity() {
             intent?.getBooleanExtra(OverlayModeController.EXTRA_START_VOICE_SEARCH, false) ?: false
         if (!shouldStartVoiceSearch) return
 
-        intent?.removeExtra(OverlayModeController.EXTRA_START_VOICE_SEARCH)
+        intent.removeExtra(OverlayModeController.EXTRA_START_VOICE_SEARCH)
         val micAction =
             intent
-                ?.getStringExtra(OverlayModeController.EXTRA_MIC_ACTION)
+                .getStringExtra(OverlayModeController.EXTRA_MIC_ACTION)
                 ?.let { actionString ->
                     MicAction.entries.find { it.value == actionString }
                 }
                 ?: MicAction.DEFAULT_VOICE_SEARCH
-        intent?.removeExtra(OverlayModeController.EXTRA_MIC_ACTION)
+        intent.removeExtra(OverlayModeController.EXTRA_MIC_ACTION)
         voiceSearchHandler.handleMicAction(micAction)
     }
 }

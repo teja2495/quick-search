@@ -274,7 +274,7 @@ private fun AddSearchEngineForm(
                     KeyboardActions(
                         onDone = {
                             if (canSave) {
-                                onSave(trimmedName, validTemplate!!, iconBase64.orEmpty(), selectedBrowserPackage)
+                                onSave(trimmedName, validTemplate, iconBase64.orEmpty(), selectedBrowserPackage)
                                 resetForm()
                                 onCancel?.invoke()
                             }
@@ -285,7 +285,7 @@ private fun AddSearchEngineForm(
 
             when {
                 showValidationError -> {
-                    when ((validation as CustomSearchTemplateValidation.Invalid).reason) {
+                    when (validation.reason) {
                         CustomSearchTemplateValidation.Reason.EMPTY -> {
                             Text(
                                 text = stringResource(R.string.settings_add_search_engine_error_required),
@@ -378,7 +378,7 @@ private fun AddSearchEngineForm(
             Button(
                 onClick = {
                     if (canSave) {
-                        onSave(trimmedName, validTemplate!!, iconBase64.orEmpty(), selectedBrowserPackage)
+                        onSave(trimmedName, validTemplate, iconBase64.orEmpty(), selectedBrowserPackage)
                         resetForm()
                         onCancel?.invoke()
                     }

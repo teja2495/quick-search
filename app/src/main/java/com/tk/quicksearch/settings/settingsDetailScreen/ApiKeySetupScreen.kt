@@ -91,7 +91,6 @@ fun ApiKeySetupScreen(
                 Intent(Intent.ACTION_VIEW, Uri.parse(freeApiKeyGuideUrl)),
             )
         }
-        Unit
     }
 
     Column(

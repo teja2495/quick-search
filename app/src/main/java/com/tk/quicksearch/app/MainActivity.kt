@@ -691,8 +691,8 @@ open class MainActivity : FragmentActivity() {
         val shouldStartVoiceSearch =
             intent?.getBooleanExtra(SearchWidget.EXTRA_START_VOICE_SEARCH, false) ?: false
         if (shouldStartVoiceSearch) {
-            intent?.removeExtra(SearchWidget.EXTRA_START_VOICE_SEARCH)
-            val micActionString = intent?.getStringExtra(SearchWidget.EXTRA_MIC_ACTION)
+            intent.removeExtra(SearchWidget.EXTRA_START_VOICE_SEARCH)
+            val micActionString = intent.getStringExtra(SearchWidget.EXTRA_MIC_ACTION)
             val micAction =
                 micActionString?.let { actionString ->
                     MicAction.entries.find { it.value == actionString }

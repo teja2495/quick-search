@@ -723,13 +723,11 @@ private fun AppShortcutDropdownMenu(
                                                 maxLines = 2,
                                                 overflow = TextOverflow.Ellipsis,
                                         )
-                                        shortcut.appLabel?.let { label ->
-                                                Text(
-                                                        text = label,
-                                                        style = MaterialTheme.typography.bodySmall,
-                                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                )
-                                        }
+                                        Text(
+                                                text = shortcut.appLabel,
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
                                 }
                         },
                         shortcutsTitle = stringResource(R.string.app_menu_section_shortcuts),

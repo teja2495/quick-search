@@ -507,7 +507,7 @@ internal fun FileResultThumbnailOrIcon(
                                             Size(THUMBNAIL_LOAD_SIZE_PX, THUMBNAIL_LOAD_SIZE_PX),
                                             null,
                                     )
-                                    ?.asImageBitmap()
+                                    .asImageBitmap()
                         } catch (_: Exception) {
                             null
                         }
@@ -571,7 +571,7 @@ internal fun FileResultThumbnailOrIcon(
             }
 
     if (hasCustomFileIcon) {
-        val ratio = customIconSpec!!.aspectRatio
+        val ratio = customIconSpec.aspectRatio
         val (iconWidth, iconHeight) =
                 if (ratio >= 1f) {
                     Pair(iconSize, iconSize / ratio)
@@ -583,7 +583,7 @@ internal fun FileResultThumbnailOrIcon(
                 contentAlignment = Alignment.Center,
         ) {
             Icon(
-                    imageVector = customIcon!!,
+                    imageVector = customIcon,
                     contentDescription = null,
                     tint = Color.Unspecified,
                     modifier = Modifier.size(width = iconWidth, height = iconHeight),

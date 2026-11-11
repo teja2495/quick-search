@@ -742,8 +742,6 @@ fun SearchContentArea(
                             }
 
                             ExpandedSection.BOOKMARKS -> bookmarksParams?.onExpandClick?.invoke()
-
-                            else -> {}
                         }
                     },
                     modifier =
@@ -756,8 +754,7 @@ fun SearchContentArea(
             if (showRetryButton) {
                 RetryAiSearchButton(
                     onClick = {
-                        val retryQuery =
-                            aiSearchState?.activeQuery?.trim().orEmpty()
+                        val retryQuery = aiSearchState.activeQuery.trim()
                         if (retryQuery.isNotEmpty()) {
                             onSearchTargetClick(
                                 retryQuery,

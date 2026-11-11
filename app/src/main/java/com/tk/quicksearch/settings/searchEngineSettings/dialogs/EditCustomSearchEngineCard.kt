@@ -204,7 +204,7 @@ fun EditCustomSearchEngineDialog(
                         KeyboardActions(
                             onDone = {
                                 if (canSave) {
-                                    onSave(trimmedName, validTemplate!!, normalizedShortcut, iconBase64, selectedBrowserPackage)
+                                    onSave(trimmedName, validTemplate, normalizedShortcut, iconBase64, selectedBrowserPackage)
                                 }
                             },
                         ),
@@ -212,7 +212,7 @@ fun EditCustomSearchEngineDialog(
                         if (showUrlError) {
                             Text(
                                 text =
-                                    when ((validation as CustomSearchTemplateValidation.Invalid).reason) {
+                                    when (validation.reason) {
                                         CustomSearchTemplateValidation.Reason.EMPTY ->
                                             stringResource(R.string.settings_add_search_engine_error_required)
                                         CustomSearchTemplateValidation.Reason.MISSING_QUERY_PLACEHOLDER ->
@@ -242,7 +242,7 @@ fun EditCustomSearchEngineDialog(
                         KeyboardActions(
                             onDone = {
                                 if (canSave) {
-                                    onSave(trimmedName, validTemplate!!, normalizedShortcut, iconBase64, selectedBrowserPackage)
+                                    onSave(trimmedName, validTemplate, normalizedShortcut, iconBase64, selectedBrowserPackage)
                                 }
                             },
                         ),
@@ -272,7 +272,7 @@ fun EditCustomSearchEngineDialog(
             Button(
                 onClick = {
                     if (canSave) {
-                        onSave(trimmedName, validTemplate!!, normalizedShortcut, iconBase64, selectedBrowserPackage)
+                        onSave(trimmedName, validTemplate, normalizedShortcut, iconBase64, selectedBrowserPackage)
                     }
                 },
                 enabled = canSave,

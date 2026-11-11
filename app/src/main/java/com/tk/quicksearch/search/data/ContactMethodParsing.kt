@@ -240,7 +240,7 @@ import java.util.Locale
         val resolved =
             runCatching {
                 val appInfo = context.packageManager.getApplicationInfo(packageName, 0)
-                context.packageManager.getApplicationLabel(appInfo)?.toString()?.takeIf { it.isNotBlank() }
+                context.packageManager.getApplicationLabel(appInfo).toString().takeIf { it.isNotBlank() }
             }.getOrNull() ?: packageName
 
         customAppLabelCache[packageName] = resolved

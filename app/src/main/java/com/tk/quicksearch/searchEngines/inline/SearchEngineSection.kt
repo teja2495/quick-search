@@ -367,10 +367,10 @@ fun SearchEngineIconsSection(
                                 shrinkVertically(animationSpec = tween(durationMillis = 180)),
                     ) {
                         CompactToolActionContent(
-                            label = toolActionLabel!!,
+                            label = toolActionLabel,
                             icon = toolActionIcon,
                             appIconPackage = toolActionAppIconPackage,
-                            onClick = onToolActionClick!!,
+                            onClick = onToolActionClick,
                             addTopPadding = true,
                         )
                     }

@@ -53,7 +53,7 @@ class ReleaseNotesRepository {
 
                     override fun onResponse(call: Call, response: Response) {
                         response.use {
-                            val body = if (it.isSuccessful) it.body?.string() else null
+                            val body = if (it.isSuccessful) it.body.string() else null
                             if (continuation.isActive) continuation.resume(body)
                         }
                     }

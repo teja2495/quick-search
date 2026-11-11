@@ -139,14 +139,12 @@ fun SettingsMoreOptions(
                 ),
             )
         }
-        Unit
     }
 
     val onOpenDeveloperGitHub: () -> Unit = {
         runCatching {
             context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/teja2495/")))
         }
-        Unit
     }
 
     val feedbackItems =

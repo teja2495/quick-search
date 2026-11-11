@@ -43,8 +43,7 @@ internal class StartupConfigReader(private val context: Context) {
                 allPrefs[
                         com.tk.quicksearch.search.data.preferences.BasePreferences
                                 .KEY_ENABLED_FILE_TYPES,
-                ] as? @Suppress("UNCHECKED_CAST")
-                        Set<String>
+                ].asPreferenceStringSet()
         val enabledFileTypes =
                 if (enabledFileTypesNames == null) {
                     // Default: all file types enabled
@@ -83,22 +82,19 @@ internal class StartupConfigReader(private val context: Context) {
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.BasePreferences
                                                 .KEY_FOLDER_WHITELIST_PATTERNS,
-                                ] as?
-                                        Set<String>
+                                ].asPreferenceStringSet()
                                         ?: emptySet(),
                         folderBlacklistPatterns =
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.BasePreferences
                                                 .KEY_FOLDER_BLACKLIST_PATTERNS,
-                                ] as?
-                                        Set<String>
+                                ].asPreferenceStringSet()
                                         ?: emptySet(),
                         excludedFileExtensions =
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.BasePreferences
                                                 .KEY_EXCLUDED_FILE_EXTENSIONS,
-                                ] as?
-                                        Set<String>
+                                ].asPreferenceStringSet()
                                         ?: emptySet(),
                         oneHandedMode = oneHandedMode,
                         bottomSearchBarEnabled =
@@ -301,22 +297,19 @@ internal class StartupConfigReader(private val context: Context) {
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.BasePreferences
                                         .KEY_PINNED,
-                                ] as?
-                                        Set<String>
+                                ].asPreferenceStringSet()
                                 ?: emptySet(),
                         suggestionHiddenPackages =
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.BasePreferences
                                         .KEY_HIDDEN_SUGGESTIONS,
-                                ] as?
-                                        Set<String>
+                                ].asPreferenceStringSet()
                                 ?: emptySet(),
                         resultHiddenPackages =
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.BasePreferences
                                         .KEY_HIDDEN_RESULTS,
-                                ] as?
-                                        Set<String>
+                                ].asPreferenceStringSet()
                                 ?: emptySet(),
                         searchHistoryEnabled =
                                 allPrefs[
@@ -494,3 +487,7 @@ internal class StartupConfigReader(private val context: Context) {
                     Int
                     ?: com.tk.quicksearch.search.data.preferences.UiPreferences
                             .DEFAULT_CUSTOM_ACCENT_COLOR_ARGB
+
+// SharedPreferences stores only strings in set-valued entries.
+@Suppress("UNCHECKED_CAST")
+internal fun Any?.asPreferenceStringSet(): Set<String>? = this as? Set<String>

@@ -58,7 +58,7 @@ internal fun rememberFlashlightGlance(enabled: Boolean): FlashlightGlance? {
                 cameraManager != null &&
                 runCatching { cameraManager.registerTorchCallback(callback, Handler(Looper.getMainLooper())) }.isSuccess
         onDispose {
-            if (registered) runCatching { cameraManager?.unregisterTorchCallback(callback) }
+            if (registered) runCatching { cameraManager.unregisterTorchCallback(callback) }
         }
     }
 

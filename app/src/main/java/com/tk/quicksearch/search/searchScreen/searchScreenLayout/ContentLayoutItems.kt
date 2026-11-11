@@ -88,7 +88,7 @@ internal fun NonSectionLayoutItem(
                     val showGlanceTitle = !hideHomeSectionTitleRows
                     val mediaCardFirst = nowPlaying != null && !isReversed
                     val hasOtherGlanceCard = hasStandaloneTodayCalendarSection || atAGlanceItems.isNotEmpty()
-                    if (mediaCardFirst && nowPlaying != null) {
+                    if (mediaCardFirst) {
                         // Alone, media owns the title so closing it removes the section in one motion.
                         if (showGlanceTitle && hasOtherGlanceCard) AtAGlanceTitle(effectiveShowWallpaperBackground)
                         NowPlayingCard(
@@ -144,11 +144,7 @@ internal fun NonSectionLayoutItem(
             ItemPriorityConfig.ItemType.ERROR_BANNER -> {
                 if (state.screenState is ScreenVisibilityState.Error) {
                     InfoBanner(
-                        message =
-                            (
-                                state.screenState as
-                                        ScreenVisibilityState.Error
-                            ).message,
+                        message = state.screenState.message,
                     )
                 }
             }
