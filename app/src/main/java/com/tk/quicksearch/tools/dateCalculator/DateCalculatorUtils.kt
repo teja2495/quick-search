@@ -1,5 +1,7 @@
 package com.tk.quicksearch.tools.dateCalculator
 
+import com.tk.quicksearch.shared.time.EnglishRelativeTimeStrings
+import com.tk.quicksearch.shared.time.RelativeTimeUnit
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -158,13 +160,21 @@ object DateCalculatorUtils {
     fun diffLabel(date1: LocalDate, date2: LocalDate): String {
         val (start, end) = if (!date1.isAfter(date2)) date1 to date2 else date2 to date1
         val period = Period.between(start, end)
-        val parts = buildList {
-            if (period.years > 0) add("${period.years} ${if (period.years == 1) "year" else "years"}")
-            if (period.months > 0) add("${period.months} ${if (period.months == 1) "month" else "months"}")
-            if (period.days > 0) add("${period.days} ${if (period.days == 1) "day" else "days"}")
-        }
-        return if (parts.isEmpty()) "0 days" else parts.joinToString(" ")
+        return durationLabel(
+            period.years to RelativeTimeUnit.Year,
+            period.months to RelativeTimeUnit.Month,
+            period.days to RelativeTimeUnit.Day,
+        )
     }
+
+    /**
+     * An exact duration in the shared relative-time wording: every non-zero part, largest first
+     * ("1 year 2 months 3 days"), or zero of the last unit ("0 days") when all are zero.
+     */
+    private fun durationLabel(vararg parts: Pair<Int, RelativeTimeUnit>): String =
+        parts.filter { it.first > 0 }
+            .ifEmpty { listOf(0 to parts.last().second) }
+            .joinToString(" ") { (value, unit) -> EnglishRelativeTimeStrings.unit(value, unit) }
 
     // -------------------------------------------------------------------------
     // Time helpers
@@ -229,15 +239,11 @@ object DateCalculatorUtils {
     }
 
     /** Formats an absolute minute count as "X hours Y minutes" with no prefix/suffix. */
-    private fun timeDurationLabel(absMinutes: Long): String {
-        val hours = absMinutes / 60
-        val mins = absMinutes % 60
-        val parts = buildList {
-            if (hours > 0) add("$hours ${if (hours == 1L) "hour" else "hours"}")
-            if (mins > 0) add("$mins ${if (mins == 1L) "minute" else "minutes"}")
-        }
-        return if (parts.isEmpty()) "0 minutes" else parts.joinToString(" ")
-    }
+    private fun timeDurationLabel(absMinutes: Long): String =
+        durationLabel(
+            (absMinutes / 60).toInt() to RelativeTimeUnit.Hour,
+            (absMinutes % 60).toInt() to RelativeTimeUnit.Minute,
+        )
 
     /**
      * Builds a human-readable relative time label from a signed minute offset.
@@ -399,14 +405,7 @@ object DateCalculatorUtils {
                     rawMinutes < 0 -> rawMinutes + (24 * 60)
                     else -> rawMinutes
                 }
-        val hours = totalMinutes / 60
-        val mins = totalMinutes % 60
-        val parts = buildList {
-            if (hours > 0) add("$hours ${if (hours == 1L) "hour" else "hours"}")
-            if (mins > 0) add("$mins ${if (mins == 1L) "minute" else "minutes"}")
-        }
-        val label = if (parts.isEmpty()) "0 minutes" else parts.joinToString(" ")
-        return TimeResult(label = label, isAbsolute = false)
+        return TimeResult(label = timeDurationLabel(totalMinutes), isAbsolute = false)
     }
 
     /**
