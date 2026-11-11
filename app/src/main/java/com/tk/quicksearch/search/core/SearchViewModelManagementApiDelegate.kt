@@ -16,6 +16,7 @@ import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.search.other.OtherSearchItemRegistry
+import com.tk.quicksearch.search.noted.withoutQuickNoteWhileNoted
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -671,15 +672,17 @@ class SearchViewModelManagementApiDelegate internal constructor(
                 .sortedByPinnedOrder(repository.getPinnedNoteOrder()) { it.noteId }
         updateUiState { state ->
             val refreshedResults =
-                if (state.query.isBlank()) {
-                    allNotes
-                } else {
-                    repository.searchNotes(
-                        query = state.query,
-                        includeContent =
-                            state.detectedAliasSearchSection == SearchSection.NOTES,
-                    )
-                }
+                (
+                    if (state.query.isBlank()) {
+                        allNotes
+                    } else {
+                        repository.searchNotes(
+                            query = state.query,
+                            includeContent =
+                                state.detectedAliasSearchSection == SearchSection.NOTES,
+                        )
+                    }
+                ).withoutQuickNoteWhileNoted(repository)
             state.copy(
                 noteResults = refreshedResults,
                 pinnedNotes = pinnedNotes,

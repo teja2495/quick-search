@@ -45,6 +45,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import com.tk.quicksearch.searchEngines.SecondarySearchDataSource
+import com.tk.quicksearch.search.noted.withoutQuickNoteWhileNoted
 
 class UnifiedSearchHandler(
         private val context: Context,
@@ -520,7 +521,7 @@ class UnifiedSearchHandler(
                                                                                         includeContent =
                                                                                                 aliasSection ==
                                                                                                         SearchSection.NOTES,
-                                                                                ),
+                                                                                ).withoutQuickNoteWhileNoted(notesRepository),
                                                                         )
                                                                 },
                                                                 applyResult = { payload ->
