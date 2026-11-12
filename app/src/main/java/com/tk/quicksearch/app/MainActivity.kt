@@ -43,6 +43,7 @@ import com.tk.quicksearch.app.navigation.SettingsNavigationMemory
 import com.tk.quicksearch.app.startup.StartupCoordinator
 import com.tk.quicksearch.pinnedNotifications.PinnedNotifications
 import com.tk.quicksearch.app.startup.StartupMode
+import com.tk.quicksearch.app.startup.StartupTrace
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchViewModel
@@ -145,6 +146,7 @@ open class MainActivity : FragmentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        StartupTrace.beginSurface(javaClass.simpleName)
         CrashLogManager.install(this)
         AppLockGate.trackActivities(application)
         Trace.beginSection(TRACE_ON_CREATE_ENTRY)

@@ -358,7 +358,7 @@ class FileSearchRepository(
     ): List<DeviceFile>? {
         if (isLowRamDevice) return null
         val uri = getFilesContentUri()
-        val index = FileNameIndex.get(contentResolver, uri) ?: return null
+        val index = FileNameIndex.get(contentResolver, uri, cancellationSignal) ?: return null
         val ids = index.matchingIds(queryTokens, extension, foldersOnly, limit, cancellationSignal)
         if (ids.isEmpty()) return emptyList()
 

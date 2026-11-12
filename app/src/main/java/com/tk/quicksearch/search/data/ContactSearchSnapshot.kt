@@ -39,6 +39,7 @@ internal object ContactSearchSnapshot {
 
     private val changeGeneration = AtomicLong()
     private val isObserverRegistered = AtomicBoolean(false)
+    private val loadLock = Any()
     @Volatile private var cached: Cached? = null
 
     fun get(
@@ -46,18 +47,25 @@ internal object ContactSearchSnapshot {
         load: () -> List<ContactSearchEntry>,
     ): List<ContactSearchEntry> {
         ensureObserverRegistered(contentResolver)
-        val nowElapsed = SystemClock.elapsedRealtime()
-        val generation = changeGeneration.get()
-        cached?.let { snapshot ->
-            if (snapshot.changeGeneration == generation &&
-                nowElapsed - snapshot.loadedAtElapsedMillis in 0 until MAX_AGE_MILLIS
-            ) {
-                return snapshot.entries
-            }
+        currentOrNull()?.let { return it.entries }
+        // One load at a time; concurrent keystrokes reuse it instead of each reading every contact.
+        synchronized(loadLock) {
+            currentOrNull()?.let { return it.entries }
+            val generation = changeGeneration.get()
+            val startElapsed = SystemClock.elapsedRealtime()
+            val entries = load()
+            SnapshotLoadLog.loaded("Contact search snapshot", entries.size, startElapsed)
+            cached = Cached(entries, startElapsed, generation)
+            return entries
         }
-        val entries = load()
-        cached = Cached(entries, nowElapsed, generation)
-        return entries
+    }
+
+    private fun currentOrNull(): Cached? {
+        val snapshot = cached ?: return null
+        val age = SystemClock.elapsedRealtime() - snapshot.loadedAtElapsedMillis
+        return snapshot.takeIf {
+            it.changeGeneration == changeGeneration.get() && age in 0 until MAX_AGE_MILLIS
+        }
     }
 
     /** Every whitespace token appears in one of the names, or the space-free query appears in one. */

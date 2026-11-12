@@ -27,6 +27,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.fragment.app.FragmentActivity
 import com.tk.quicksearch.app.startup.StartupCoordinator
 import com.tk.quicksearch.app.startup.StartupMode
+import com.tk.quicksearch.app.startup.StartupTrace
 import com.tk.quicksearch.app.UiSurfaceMemoryManager
 import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.BackgroundSource
@@ -63,6 +64,7 @@ class OverlayActivity : FragmentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        StartupTrace.beginSurface("OverlayActivity")
         Trace.beginSection(TRACE_ON_CREATE_ENTRY)
         AppLockGate.trackActivities(application)
         try {

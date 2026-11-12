@@ -7,7 +7,6 @@ import android.database.ContentObserver
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
-import android.os.SystemClock
 import android.provider.CalendarContract
 import androidx.core.content.ContextCompat
 import com.tk.quicksearch.search.models.CalendarEventInfo
@@ -19,7 +18,6 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicLong
 
 class CalendarRepository(
     private val context: Context,
@@ -46,22 +44,9 @@ class CalendarRepository(
         private const val FUTURE_WINDOW_YEARS = 2L
         private const val MILLIS_PER_YEAR = 1000L * 60L * 60L * 24L * 365L
         internal const val TIMED_EVENT_HIDE_DELAY_MILLIS = 15L * 60L * 1000L
-        private const val SEARCH_ROWS_MAX_AGE_MILLIS = 5L * 60L * 1000L
 
-        // Bumped by a process-wide observer so every repository instance drops cached search rows
-        // as soon as the calendar provider changes.
-        private val calendarChangeGeneration = AtomicLong()
         private val isCalendarObserverRegistered = AtomicBoolean(false)
     }
-
-    private class CachedSearchRows(
-        val rows: List<CalendarEventInfo>,
-        val fetchedAtElapsedMillis: Long,
-        val changeGeneration: Long,
-        val todayStartMillis: Long,
-    )
-
-    @Volatile private var cachedSearchRows: CachedSearchRows? = null
 
     fun hasPermission(): Boolean =
         ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) ==
@@ -113,32 +98,15 @@ class CalendarRepository(
 
     private fun getSearchRows(todayStartMillis: Long): List<CalendarEventInfo> {
         ensureCalendarObserverRegistered()
-        val nowElapsed = SystemClock.elapsedRealtime()
-        val generation = calendarChangeGeneration.get()
-        cachedSearchRows?.let { cached ->
-            if (cached.changeGeneration == generation &&
-                cached.todayStartMillis == todayStartMillis &&
-                nowElapsed - cached.fetchedAtElapsedMillis in 0 until SEARCH_ROWS_MAX_AGE_MILLIS
-            ) {
-                return cached.rows
-            }
-        }
-        val now = System.currentTimeMillis()
-        val rows =
+        return CalendarSearchRowsCache.get(todayStartMillis) {
+            val now = System.currentTimeMillis()
             queryInstancesInWindow(
                 windowStart = now - (MILLIS_PER_YEAR * PAST_WINDOW_YEARS),
                 windowEnd = now + (MILLIS_PER_YEAR * FUTURE_WINDOW_YEARS),
                 limit = MAX_EVENT_SEARCH_CANDIDATES * 8,
                 eventIds = null,
             )
-        cachedSearchRows =
-            CachedSearchRows(
-                rows = rows,
-                fetchedAtElapsedMillis = nowElapsed,
-                changeGeneration = generation,
-                todayStartMillis = todayStartMillis,
-            )
-        return rows
+        }
     }
 
     private fun ensureCalendarObserverRegistered() {
@@ -146,7 +114,7 @@ class CalendarRepository(
         val observer =
             object : ContentObserver(Handler(Looper.getMainLooper())) {
                 override fun onChange(selfChange: Boolean) {
-                    calendarChangeGeneration.incrementAndGet()
+                    CalendarSearchRowsCache.markChanged()
                 }
             }
         val registered =

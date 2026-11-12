@@ -10,6 +10,11 @@ import android.os.Looper
 import android.os.SystemClock
 import android.provider.MediaStore
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 
@@ -65,6 +70,10 @@ internal class FileNameIndex(
     companion object {
         private const val CANCELLATION_CHECK_MASK = 0x3FF
         private const val MAX_AGE_MILLIS = 10L * 60L * 1000L
+        private const val WAIT_POLL_MILLIS = 50L
+
+        // Camera bursts, downloads, and syncs notify MediaStore many times in a row; rebuild once.
+        private const val CHANGE_REBUILD_DELAY_MILLIS = 3_000L
 
         // Past this size the index costs more memory than the provider scan is worth.
         private const val MAX_INDEXED_FILES = 150_000
@@ -78,28 +87,54 @@ internal class FileNameIndex(
         private val changeGeneration = AtomicLong()
         private val isObserverRegistered = AtomicBoolean(false)
         private val loadLock = Any()
-        private val releaseHandler by lazy { Handler(Looper.getMainLooper()) }
-        @Volatile private var cached: Cached? = null
+        private val mainHandler by lazy { Handler(Looper.getMainLooper()) }
+        private val loadExecutor by lazy {
+            Executors.newSingleThreadExecutor { runnable ->
+                Thread(runnable, "FileNameIndexLoad").apply { isDaemon = true }
+            }
+        }
+        private val rebuildAfterChange = Runnable { startLoadIfNeeded(rebuildStale = true) }
 
-        /** The current index, or null when the library is too large to index or the read failed. */
+        @Volatile private var cached: Cached? = null
+        @Volatile private var loadContentResolver: ContentResolver? = null
+        @Volatile private var loadFilesUri: Uri? = null
+
+        // Guarded by loadLock: the load every waiting search shares.
+        private var pendingLoad: Future<FileNameIndex?>? = null
+
+        /**
+         * The current index, or null when the library is too large to index or the read failed.
+         * After a MediaStore change the previous index is still returned while a rebuild runs in
+         * the background; deleted ids simply find no row and new files appear once it finishes.
+         * Without any index the caller waits for the shared load, but stops waiting (throwing
+         * [android.os.OperationCanceledException]) once [cancellationSignal] is cancelled, leaving
+         * the load running for the next keystroke.
+         */
         fun get(
             contentResolver: ContentResolver,
             filesUri: Uri,
+            cancellationSignal: CancellationSignal?,
         ): FileNameIndex? {
+            loadContentResolver = contentResolver
+            loadFilesUri = filesUri
             ensureObserverRegistered(contentResolver, filesUri)
-            currentOrNull()?.let { return it.index }
-            // One load at a time; keystrokes that arrive meanwhile wait for it rather than rescan.
-            synchronized(loadLock) {
-                currentOrNull()?.let { return it.index }
-                val generation = changeGeneration.get()
-                val index = runCatching { load(contentResolver, filesUri) }.getOrNull()
-                val snapshot = Cached(index, SystemClock.elapsedRealtime(), generation)
-                cached = snapshot
-                scheduleRelease(snapshot)
-                return index
+            usableOrNull()?.let { snapshot ->
+                if (snapshot.changeGeneration != changeGeneration.get()) scheduleRebuildAfterChange()
+                return snapshot.index
+            }
+            val load = startLoadIfNeeded(rebuildStale = false) ?: return usableOrNull()?.index
+            while (true) {
+                try {
+                    return load.get(WAIT_POLL_MILLIS, TimeUnit.MILLISECONDS)
+                } catch (_: TimeoutException) {
+                    cancellationSignal?.throwIfCanceled()
+                } catch (_: ExecutionException) {
+                    return null
+                }
             }
         }
 
+        /** Drops the index and forces the next file search to rebuild it before matching. */
         fun invalidate() {
             changeGeneration.incrementAndGet()
             release()
@@ -110,20 +145,59 @@ internal class FileNameIndex(
             cached = null
         }
 
+        /**
+         * Starts the shared load unless one is running. Returns null when no load is needed: a
+         * change-triggered rebuild with no index to refresh, or one that is already current.
+         */
+        private fun startLoadIfNeeded(rebuildStale: Boolean): Future<FileNameIndex?>? {
+            val contentResolver = loadContentResolver ?: return null
+            val filesUri = loadFilesUri ?: return null
+            synchronized(loadLock) {
+                pendingLoad?.takeUnless { it.isDone }?.let { return it }
+                if (rebuildStale) {
+                    val snapshot = cached ?: return null
+                    if (snapshot.changeGeneration == changeGeneration.get()) return null
+                }
+                val load = loadExecutor.submit<FileNameIndex?> { loadAndCache(contentResolver, filesUri) }
+                pendingLoad = load
+                return load
+            }
+        }
+
+        private fun loadAndCache(
+            contentResolver: ContentResolver,
+            filesUri: Uri,
+        ): FileNameIndex? {
+            val generation = changeGeneration.get()
+            val startElapsed = SystemClock.elapsedRealtime()
+            val index = runCatching { load(contentResolver, filesUri) }.getOrNull()
+            SnapshotLoadLog.loaded("File name index", index?.ids?.size ?: -1, startElapsed)
+            val snapshot = Cached(index, SystemClock.elapsedRealtime(), generation)
+            cached = snapshot
+            scheduleRelease(snapshot)
+            // Changes during the scan may be missing from it; pick them up with one more rebuild.
+            if (generation != changeGeneration.get()) scheduleRebuildAfterChange()
+            return index
+        }
+
         // A stale index is never reused, so free it when it expires rather than at the next search.
         private fun scheduleRelease(snapshot: Cached) {
-            releaseHandler.postDelayed(
+            mainHandler.postDelayed(
                 { if (cached === snapshot) cached = null },
                 MAX_AGE_MILLIS,
             )
         }
 
-        private fun currentOrNull(): Cached? {
+        private fun scheduleRebuildAfterChange() {
+            mainHandler.removeCallbacks(rebuildAfterChange)
+            mainHandler.postDelayed(rebuildAfterChange, CHANGE_REBUILD_DELAY_MILLIS)
+        }
+
+        /** The cached index if it is within its TTL, even when MediaStore changed since. */
+        private fun usableOrNull(): Cached? {
             val snapshot = cached ?: return null
             val age = SystemClock.elapsedRealtime() - snapshot.loadedAtElapsedMillis
-            return snapshot.takeIf {
-                it.changeGeneration == changeGeneration.get() && age in 0 until MAX_AGE_MILLIS
-            }
+            return snapshot.takeIf { age in 0 until MAX_AGE_MILLIS }
         }
 
         private fun load(
@@ -173,7 +247,8 @@ internal class FileNameIndex(
             val observer =
                 object : ContentObserver(Handler(Looper.getMainLooper())) {
                     override fun onChange(selfChange: Boolean) {
-                        invalidate()
+                        changeGeneration.incrementAndGet()
+                        scheduleRebuildAfterChange()
                     }
                 }
             val registered =
