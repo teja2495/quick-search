@@ -628,6 +628,8 @@
     <string name="error_open_calendar_event">Unable to open calendar event</string>
     <string name="settings_calendar_events_empty">No calendar events available.</string>
     <string name="settings_calendar_include_past_events_desc">Include past events in search results.</string>
+    <string name="settings_calendar_show_hidden_events">Show hidden items</string>
+    <string name="settings_calendar_hide_hidden_events">Hide hidden items</string>
     <string name="settings_calendar_include_past_events_title">Past Events</string>
     <string name="settings_calendar_permission_title">Calendar</string>
     <string name="settings_calendar_default_title">Open Events in...</string>

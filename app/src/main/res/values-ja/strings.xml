@@ -626,6 +626,8 @@
     <string name="error_open_calendar_event">カレンダーの予定を開けません</string>
     <string name="settings_calendar_events_empty">利用可能なカレンダーの予定はありません。</string>
     <string name="settings_calendar_include_past_events_desc">検索結果に過去の予定を含めます。</string>
+    <string name="settings_calendar_show_hidden_events">非表示の項目を表示</string>
+    <string name="settings_calendar_hide_hidden_events">非表示の項目を隠す</string>
     <string name="settings_calendar_include_past_events_title">過去の予定</string>
     <string name="settings_calendar_permission_title">カレンダー</string>
     <string name="settings_calendar_default_title">予定を開くアプリ...</string>

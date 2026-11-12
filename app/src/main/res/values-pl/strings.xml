@@ -646,6 +646,8 @@
     <string name="error_open_calendar_event">Nie można otworzyć wydarzenia w kalendarzu</string>
     <string name="settings_calendar_events_empty">Brak dostępnych wydarzeń w kalendarzu.</string>
     <string name="settings_calendar_include_past_events_desc">Uwzględniaj przeszłe wydarzenia w wynikach wyszukiwania.</string>
+    <string name="settings_calendar_show_hidden_events">Pokaż ukryte elementy</string>
+    <string name="settings_calendar_hide_hidden_events">Ukryj ukryte elementy</string>
     <string name="settings_calendar_include_past_events_title">Przeszłe wydarzenia</string>
     <string name="settings_calendar_permission_title">Kalendarz</string>
     <string name="settings_calendar_default_title">Otwórz wydarzenia w…</string>

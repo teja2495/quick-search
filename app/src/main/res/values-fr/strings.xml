@@ -619,6 +619,8 @@
 <string name="error_open_calendar_event">Impossible d\'ouvrir l\'événement de l\'agenda</string>
 <string name="settings_calendar_events_empty">Aucun événement d\'agenda disponible.</string>
 <string name="settings_calendar_include_past_events_desc">Inclure les événements passés dans les résultats de recherche.</string>
+<string name="settings_calendar_show_hidden_events">Afficher les éléments masqués</string>
+<string name="settings_calendar_hide_hidden_events">Masquer les éléments masqués</string>
 <string name="settings_calendar_include_past_events_title">Événements passés</string>
 <string name="settings_calendar_permission_title">Agenda</string>
     <string name="settings_calendar_default_title">Ouvrir les événements dans...</string>

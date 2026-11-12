@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.data.preferences
 
 import android.content.Context
+import com.tk.quicksearch.widgets.atAGlanceWidget.AtAGlanceWidgetUpdater
 
 /** Identifies one occurrence of a calendar event, so a repeating event's other days are separate. */
 internal fun glanceOccurrenceKey(eventId: Long, startMillis: Long): String = "$eventId:$startMillis"
@@ -33,11 +34,17 @@ class CalendarPreferences(
             setPinnedEventOrder(getPinnedEventOrder().filterNot { it == eventId })
         }
 
-    fun excludeEvent(eventId: Long): Set<Long> = excludeLongItem(BasePreferences.KEY_EXCLUDED_CALENDAR_EVENT_IDS, eventId)
+    // Hidden events leave the At a Glance widget too, and nothing else tells it the list changed.
+    fun excludeEvent(eventId: Long): Set<Long> =
+        excludeLongItem(BasePreferences.KEY_EXCLUDED_CALENDAR_EVENT_IDS, eventId).also { refreshGlanceWidget() }
 
-    fun removeExcludedEvent(eventId: Long): Set<Long> = removeExcludedLongItem(BasePreferences.KEY_EXCLUDED_CALENDAR_EVENT_IDS, eventId)
+    fun removeExcludedEvent(eventId: Long): Set<Long> =
+        removeExcludedLongItem(BasePreferences.KEY_EXCLUDED_CALENDAR_EVENT_IDS, eventId).also { refreshGlanceWidget() }
 
-    fun clearAllExcludedEvents(): Set<Long> = clearAllExcludedLongItems(BasePreferences.KEY_EXCLUDED_CALENDAR_EVENT_IDS)
+    fun clearAllExcludedEvents(): Set<Long> =
+        clearAllExcludedLongItems(BasePreferences.KEY_EXCLUDED_CALENDAR_EVENT_IDS).also { refreshGlanceWidget() }
+
+    private fun refreshGlanceWidget() = AtAGlanceWidgetUpdater.startIfPlaced(appContext)
 
     fun getIncludePastEvents(): Boolean = getBooleanPref(BasePreferences.KEY_CALENDAR_INCLUDE_PAST_EVENTS, defaultValue = false)
 

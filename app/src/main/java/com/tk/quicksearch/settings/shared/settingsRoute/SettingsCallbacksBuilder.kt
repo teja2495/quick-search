@@ -174,6 +174,8 @@ internal fun buildSettingsScreenCallbacks(
         onDeleteCustomAppShortcut = viewModel::deleteCustomAppShortcut,
         onLaunchDeviceSetting = viewModel::openSetting,
         onLaunchCalendarEvent = viewModel::openCalendarEvent,
+        onHideCalendarEvent = viewModel::excludeCalendarEvent,
+        onUnhideCalendarEvent = viewModel::removeExcludedCalendarEvent,
         onRequestAppUninstall = viewModel::requestUninstall,
         onOpenAppInfo = viewModel::openAppInfo,
         onAddHomeScreenWidget = handlers.onAddHomeScreenWidget,

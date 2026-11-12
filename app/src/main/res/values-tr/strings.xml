@@ -618,6 +618,8 @@
 <string name="error_open_calendar_event">Takvim etkinliği açılamadı</string>
 <string name="settings_calendar_events_empty">Takvim etkinliği bulunmuyor.</string>
 <string name="settings_calendar_include_past_events_desc">Geçmiş etkinlikleri arama sonuçlarına dahil et.</string>
+<string name="settings_calendar_show_hidden_events">Gizli öğeleri göster</string>
+<string name="settings_calendar_hide_hidden_events">Gizli öğeleri gizle</string>
 <string name="settings_calendar_include_past_events_title">Geçmiş etkinlikler</string>
 <string name="settings_calendar_permission_title">Takvim</string>
     <string name="settings_calendar_default_title">Etkinlikleri şurada aç...</string>

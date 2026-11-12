@@ -639,6 +639,8 @@
 <string name="error_open_calendar_event">Не удалось открыть событие календаря</string>
 <string name="settings_calendar_events_empty">Нет доступных событий календаря.</string>
 <string name="settings_calendar_include_past_events_desc">Включать прошедшие события в результаты поиска.</string>
+<string name="settings_calendar_show_hidden_events">Показать скрытые</string>
+<string name="settings_calendar_hide_hidden_events">Скрыть скрытые</string>
 <string name="settings_calendar_include_past_events_title">Прошедшие события</string>
 <string name="settings_calendar_permission_title">Календарь</string>
     <string name="settings_calendar_default_title">Открывать события в...</string>

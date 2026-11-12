@@ -609,6 +609,8 @@
     <string name="error_open_calendar_event">无法打开日历日程</string>
     <string name="settings_calendar_events_empty">无可用日历日程。</string>
     <string name="settings_calendar_include_past_events_desc">在搜索结果中包含过去的日程。</string>
+    <string name="settings_calendar_show_hidden_events">显示隐藏的项目</string>
+    <string name="settings_calendar_hide_hidden_events">不显示隐藏的项目</string>
     <string name="settings_calendar_include_past_events_title">过去的日程</string>
     <string name="settings_calendar_permission_title">日历</string>
     <string name="settings_calendar_default_title">在此打开日程...</string>

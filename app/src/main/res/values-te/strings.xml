@@ -619,6 +619,8 @@
     <string name="error_open_calendar_event">క్యాలెండర్ ఈవెంట్‌ను తెరవడం సాధ్యపడలేదు</string>
     <string name="settings_calendar_events_empty">క్యాలెండర్ ఈవెంట్‌లు ఏవీ అందుబాటులో లేవు.</string>
     <string name="settings_calendar_include_past_events_desc">శోధన ఫలితాలలో గత ఈవెంట్‌లను చేర్చండి.</string>
+    <string name="settings_calendar_show_hidden_events">దాచిన అంశాలను చూపించు</string>
+    <string name="settings_calendar_hide_hidden_events">దాచిన అంశాలను దాచు</string>
     <string name="settings_calendar_include_past_events_title">గత ఈవెంట్‌లు</string>
     <string name="settings_calendar_permission_title">క్యాలెండర్</string>
     <string name="settings_calendar_default_title">ఈవెంట్‌లను ఇందులో తెరవండి...</string>

@@ -622,6 +622,8 @@
     <string name="error_open_calendar_event">Tidak dapat membuka acara kalender</string>
     <string name="settings_calendar_events_empty">Tidak ada acara kalender yang tersedia.</string>
     <string name="settings_calendar_include_past_events_desc">Sertakan acara terdahulu dalam hasil pencarian.</string>
+    <string name="settings_calendar_show_hidden_events">Tampilkan item tersembunyi</string>
+    <string name="settings_calendar_hide_hidden_events">Sembunyikan item tersembunyi</string>
     <string name="settings_calendar_include_past_events_title">Acara Terdahulu</string>
     <string name="settings_calendar_permission_title">Kalender</string>
     <string name="settings_calendar_default_title">Buka Acara di…</string>

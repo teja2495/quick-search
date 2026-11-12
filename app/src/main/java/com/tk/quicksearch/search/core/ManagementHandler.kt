@@ -618,6 +618,7 @@ class CalendarEventManagementConfig : ManagementHandlerConfig<CalendarEventInfo>
             calendarEvents = state.calendarEvents.filterNot { it.eventId == item.eventId },
             pinnedCalendarEvents =
                 state.pinnedCalendarEvents.filterNot { it.eventId == item.eventId },
+            todayCalendarEvents = state.todayCalendarEvents.filterNot { it.eventId == item.eventId },
             excludedCalendarEvents = state.excludedCalendarEvents + item,
         )
 

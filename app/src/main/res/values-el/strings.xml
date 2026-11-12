@@ -619,6 +619,8 @@
     <string name="error_open_calendar_event">Αδυναμία ανοίγματος συμβάντος ημερολογίου</string>
     <string name="settings_calendar_events_empty">Δεν υπάρχουν διαθέσιμα συμβάντα ημερολογίου.</string>
     <string name="settings_calendar_include_past_events_desc">Συμπερίληψη παρελθόντων συμβάντων στα αποτελέσματα αναζήτησης.</string>
+    <string name="settings_calendar_show_hidden_events">Εμφάνιση κρυφών στοιχείων</string>
+    <string name="settings_calendar_hide_hidden_events">Απόκρυψη κρυφών στοιχείων</string>
     <string name="settings_calendar_include_past_events_title">Παρελθόντα συμβάντα</string>
     <string name="settings_calendar_permission_title">Ημερολόγιο</string>
     <string name="settings_calendar_default_title">Άνοιγμα συμβάντων σε...</string>

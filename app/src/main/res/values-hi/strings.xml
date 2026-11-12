@@ -619,6 +619,8 @@
     <string name="error_open_calendar_event">कैलेंडर इवेंट खोला नहीं जा सका</string>
     <string name="settings_calendar_events_empty">कोई कैलेंडर इवेंट उपलब्ध नहीं है।</string>
     <string name="settings_calendar_include_past_events_desc">खोज परिणामों में पिछले इवेंट्स शामिल करें।</string>
+    <string name="settings_calendar_show_hidden_events">छिपे आइटम दिखाएँ</string>
+    <string name="settings_calendar_hide_hidden_events">छिपे आइटम छिपाएँ</string>
     <string name="settings_calendar_include_past_events_title">पिछले इवेंट्स</string>
     <string name="settings_calendar_permission_title">कैलेंडर</string>
     <string name="settings_calendar_default_title">इवेंट्स इसमें खोलें...</string>

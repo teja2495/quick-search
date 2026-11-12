@@ -618,6 +618,8 @@
     <string name="error_open_calendar_event">Impossibile aprire l\u2019evento del calendario</string>
     <string name="settings_calendar_events_empty">Nessun evento del calendario disponibile.</string>
     <string name="settings_calendar_include_past_events_desc">Includi gli eventi passati nei risultati di ricerca.</string>
+    <string name="settings_calendar_show_hidden_events">Mostra elementi nascosti</string>
+    <string name="settings_calendar_hide_hidden_events">Nascondi elementi nascosti</string>
     <string name="settings_calendar_include_past_events_title">Eventi passati</string>
     <string name="settings_calendar_permission_title">Calendario</string>
     <string name="settings_calendar_default_title">Apri eventi in...</string>
