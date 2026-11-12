@@ -225,7 +225,8 @@ fun CalendarEventsSettingsSection(
     val todayIndex = remember(sortedEventGroups, todayStartMillis) {
         sortedEventGroups.indexOfFirst { it.nearestInstance.startMillis >= todayStartMillis }
     }
-    LaunchedEffect(todayIndex, sortedEventGroups.size) {
+    // Keyed on what reloads or re-filters the list, not its size, so hiding an event keeps the scroll position.
+    LaunchedEffect(eventGroups, normalizedSearchQuery, showHiddenEvents) {
         if (todayIndex >= 0 && sortedEventGroups.isNotEmpty()) {
             listState.scrollToItem(todayIndex)
         }
