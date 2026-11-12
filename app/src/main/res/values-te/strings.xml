@@ -1236,7 +1236,7 @@
     <string name="permissions_notifications_desc">రిమైండర్ నోటిఫికేషన్‌ల కోసం మరియు శోధన ఫలితాలను నోటిఫికేషన్ ప్యానెల్‌లో పిన్ చేయడానికి అవసరం</string>
     <string name="permissions_notification_access_desc">నోటిఫికేషన్ డాట్‌లు మరియు నోటిఫికేషన్ చరిత్ర ఫీచర్‌లను ప్రారంభించడానికి అవసరం</string>
     <string name="permissions_accessibility_lock_screen_title">యాక్సెసిబిలిటీ</string>
-    <string name="permissions_accessibility_lock_screen_desc">స్క్రీన్‌ను లాక్ చేయడానికి రెండుసార్లు ట్యాప్ చేసే సంజ్ఞకు, నాచ్ హావభావాలకు, అంచు స్వైప్ సంజ్ఞ లేదా ఫ్లోటింగ్ బటన్‌తో Quick Searchని ప్రారంభించడానికి మరియు Quick Search బయట SpeedBump కోసం అవసరం.</string>
+    <string name="permissions_accessibility_lock_screen_desc">హావభావాలు, ఫ్లోటింగ్ బటన్ మరియు SpeedBumpను ప్రారంభిస్తుంది.</string>
     <string name="permissions_contacts_desc">మీ పరిచయాలను శోధించడానికి అవసరం.</string>
     <string name="permissions_files_desc">మీ పత్రాలు మరియు ఇతర ఫైళ్లను శోధించడానికి అవసరం.</string>
     <string name="permissions_files_title">ఫైళ్ల యాక్సెస్</string>

@@ -78,6 +78,8 @@ internal interface SearchViewModelNavigationApi {
 
     fun openBookmark(bookmark: BookmarkInfo) = navigationApiDelegate.openBookmark(bookmark)
 
+    fun openNotedItem(item: com.tk.quicksearch.search.models.NotedItem) = navigationApiDelegate.openNotedItem(item)
+
     fun onWebSuggestionTap(suggestion: String) = navigationApiDelegate.onWebSuggestionTap(suggestion)
 
     fun onRecentQueryTap(entry: RecentSearchEntry.Query) = navigationApiDelegate.onRecentQueryTap(entry)
@@ -182,6 +184,19 @@ class SearchViewModelNavigationApiDelegate internal constructor(
                 showToastText(app.getString(messageRes, arg.orEmpty()))
             }
         if (!opened) return
+        val query = currentQueryProvider().trim()
+        if (query.isNotEmpty()) {
+            userPreferences.addRecentItem(RecentSearchEntry.Query(query))
+        }
+        onNavigationTriggered()
+    }
+
+    fun openNotedItem(item: com.tk.quicksearch.search.models.NotedItem) {
+        val app = applicationProvider()
+        if (!com.tk.quicksearch.search.noted.NotedLauncher.open(app, item)) {
+            showToastText(app.getString(com.tk.quicksearch.R.string.common_error_unable_to_open, app.getString(com.tk.quicksearch.R.string.section_noted)))
+            return
+        }
         val query = currentQueryProvider().trim()
         if (query.isNotEmpty()) {
             userPreferences.addRecentItem(RecentSearchEntry.Query(query))

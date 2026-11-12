@@ -134,7 +134,7 @@ internal fun WidgetPickerSheet(
                                     },
                             widgets =
                                 providers.sortedBy {
-                                    it.loadLabel(packageManager)?.toString().orEmpty().lowercase()
+                                    it.loadLabel(packageManager).orEmpty().lowercase()
                                 },
                         )
                     }
@@ -558,7 +558,7 @@ private fun WidgetPickerRow(
         }
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(
-                text = provider.loadLabel(packageManager)?.toString().orEmpty(),
+                text = provider.loadLabel(packageManager).orEmpty(),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.fillMaxWidth(),

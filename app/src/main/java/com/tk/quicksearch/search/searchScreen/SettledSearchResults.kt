@@ -133,6 +133,7 @@ internal fun TopMatchItem.stableKey(): String =
         is TopMatchItem.Reminder -> "reminder:${reminder.reminderId}"
         is TopMatchItem.Bookmark -> "bookmark:${bookmark.bookmarkId}"
         is TopMatchItem.Note -> "note:${note.noteId}"
+        is TopMatchItem.Noted -> "noted:${item.key}"
         is TopMatchItem.Other -> "other:$itemId"
     }
 
@@ -146,6 +147,7 @@ private data class RegularSearchResultsSnapshot(
     val calendarEvents: List<CalendarEventInfo> = emptyList(),
     val reminders: List<ReminderInfo> = emptyList(),
     val bookmarks: List<BookmarkInfo> = emptyList(),
+    val noted: List<com.tk.quicksearch.search.models.NotedItem> = emptyList(),
     val notes: List<NoteInfo> = emptyList(),
 )
 
@@ -217,6 +219,13 @@ internal fun rememberSettledRegularSearchRenderingState(
                         currentState.bookmarkResults,
                         SearchSection.BOOKMARKS in secondarySectionsRefreshing,
                     ),
+            noted =
+                remember { SettledSearchResultsBuffer(emptyList<com.tk.quicksearch.search.models.NotedItem>()) }
+                    .displayedValue(
+                        query,
+                        currentState.notedResults,
+                        SearchSection.NOTED in secondarySectionsRefreshing,
+                    ),
             notes =
                 remember { SettledSearchResultsBuffer(emptyList<NoteInfo>()) }
                     .displayedValue(
@@ -238,6 +247,7 @@ internal fun rememberSettledRegularSearchRenderingState(
         hasCalendarResults = displayedSnapshot.calendarEvents.isNotEmpty(),
         hasReminderResults = displayedSnapshot.reminders.isNotEmpty(),
         hasBookmarkResults = displayedSnapshot.bookmarks.isNotEmpty(),
+        hasNotedResults = displayedSnapshot.noted.isNotEmpty(),
         hasNoteResults = displayedSnapshot.notes.isNotEmpty(),
         displayApps = displayedSnapshot.apps,
         appShortcutResults = displayedSnapshot.appShortcuts,
@@ -248,6 +258,7 @@ internal fun rememberSettledRegularSearchRenderingState(
         calendarEvents = displayedSnapshot.calendarEvents,
         reminderResults = displayedSnapshot.reminders,
         bookmarkResults = displayedSnapshot.bookmarks,
+        notedResults = displayedSnapshot.noted,
         noteResults = displayedSnapshot.notes,
     )
 }

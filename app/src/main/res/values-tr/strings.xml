@@ -1235,7 +1235,7 @@
     <string name="permissions_notifications_desc">Hatırlatıcı bildirimleri ve arama sonuçlarını bildirim paneline sabitlemek için gereklidir</string>
     <string name="permissions_notification_access_desc">Bildirim noktaları ve bildirim geçmişi özelliklerini etkinleştirmek için gereklidir</string>
 <string name="permissions_accessibility_lock_screen_title">Erişilebilirlik</string>
-<string name="permissions_accessibility_lock_screen_desc">Ekranı kilitlemek için çift dokunma hareketi, çentik hareketleri, Quick Search’ü kenardan kaydırma hareketi ya da kayan düğmeyle başlatmak ve Quick Search dışında SpeedBump için gereklidir.</string>
+<string name="permissions_accessibility_lock_screen_desc">Hareketleri, kayan düğmeyi ve SpeedBump’ı etkinleştirir.</string>
 <string name="permissions_contacts_desc">Kişilerinde arama yapmak için gereklidir.</string>
 <string name="permissions_files_desc">Belgelerin ve diğer dosyaların arasında arama yapmak için gereklidir.</string>
 <string name="permissions_files_title">Dosya erişimi</string>

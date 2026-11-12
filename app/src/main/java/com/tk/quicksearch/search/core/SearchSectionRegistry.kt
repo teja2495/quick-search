@@ -13,7 +13,8 @@ data class SearchSectionDefinition(
     val section: SearchSection,
     val itemType: ItemPriorityConfig.ItemType,
     val aliasTargetId: String,
-    val appSettingsToggleKey: AppSettingsToggleKey,
+    /** Null for sections with no settings toggle (Noted is shown whenever it's available). */
+    val appSettingsToggleKey: AppSettingsToggleKey?,
     val permissionRequirement: SearchSectionPermissionRequirement? = null,
     val participatesInSecondarySearch: Boolean,
     val minimumQueryLength: Int,
@@ -29,6 +30,7 @@ object SearchSectionRegistry {
     const val SEARCH_SECTION_REMINDERS_ALIAS_ID = "search_section_reminders"
     const val SEARCH_SECTION_NOTES_ALIAS_ID = "search_section_notes"
     const val SEARCH_SECTION_BOOKMARKS_ALIAS_ID = "search_section_bookmarks"
+    const val SEARCH_SECTION_NOTED_ALIAS_ID = "search_section_noted"
     const val SEARCH_SECTION_APP_SETTINGS_ALIAS_ID = "search_section_app_settings"
 
     private val allDefinitions: List<SearchSectionDefinition> =
@@ -92,6 +94,15 @@ object SearchSectionRegistry {
                 participatesInSecondarySearch = true,
                 minimumQueryLength = 1,
             ),
+            // Only for the user's own Noted app; disabled whenever Noted or its permission is missing.
+            SearchSectionDefinition(
+                section = SearchSection.NOTED,
+                itemType = ItemPriorityConfig.ItemType.NOTED_SECTION,
+                aliasTargetId = SEARCH_SECTION_NOTED_ALIAS_ID,
+                appSettingsToggleKey = null,
+                participatesInSecondarySearch = true,
+                minimumQueryLength = 1,
+            ),
             SearchSectionDefinition(
                 section = SearchSection.BOOKMARKS,
                 itemType = ItemPriorityConfig.ItemType.BOOKMARKS_SECTION,
@@ -127,7 +138,10 @@ object SearchSectionRegistry {
         get() = enabledDefinitions.associateBy { it.aliasTargetId }
 
     private val byToggleKey: Map<AppSettingsToggleKey, SearchSectionDefinition>
-        get() = enabledDefinitions.associateBy { it.appSettingsToggleKey }
+        get() =
+            enabledDefinitions
+                .mapNotNull { definition -> definition.appSettingsToggleKey?.let { it to definition } }
+                .toMap()
 
     private val byItemType: Map<ItemPriorityConfig.ItemType, SearchSectionDefinition>
         get() = enabledDefinitions.associateBy { it.itemType }
@@ -137,6 +151,10 @@ object SearchSectionRegistry {
 
     val orderedSections: List<SearchSection>
         get() = enabledDefinitions.map { it.section }
+
+    /** Sections listed in Search Results settings; Noted has no settings. */
+    val settingsSections: List<SearchSection>
+        get() = enabledDefinitions.filter { it.appSettingsToggleKey != null }.map { it.section }
 
     val searchSectionAliasIds: Set<String>
         get() = enabledDefinitions.map { it.aliasTargetId }.toSet()

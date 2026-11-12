@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.core
 
+import com.tk.quicksearch.search.noted.NotedIntegration
 import com.tk.quicksearch.search.apps.notificationDots.NotificationDotsPermission
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.appShortcutRepository.isUserCreatedShortcut
@@ -333,9 +334,11 @@ internal class SearchStartupLifecycleDelegate(
         val hasCalendar = hasCalendarPermission()
         val hasCall = PermissionHelper.checkCallPermission(applicationProvider())
         val hasWallpaper = WallpaperUtils.hasWallpaperAccessPermission(applicationProvider())
+        val notedAvailabilityChanged = NotedIntegration.refresh(applicationProvider())
         val previousState = permissionStateProvider()
         val changed =
-            previousState.hasContactPermission != hasContacts ||
+            notedAvailabilityChanged ||
+                previousState.hasContactPermission != hasContacts ||
                 previousState.hasFilePermission != hasFiles ||
                 previousState.hasCalendarPermission != hasCalendar ||
                 previousState.hasCallPermission != hasCall ||

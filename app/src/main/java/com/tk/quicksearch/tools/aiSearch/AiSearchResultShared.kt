@@ -391,7 +391,6 @@ internal fun CalculatorAttributionRow(
                 SearchToolType.DATE_CALCULATOR -> R.string.date_calculator_info_title
                 SearchToolType.COLOR_VISUALIZER -> R.string.color_visualizer_toggle_title
                 SearchToolType.CALCULATOR -> R.string.calculator_toggle_title
-                else -> R.string.calculator_toggle_title
             }
     val icon =
             when (toolType) {
@@ -399,7 +398,6 @@ internal fun CalculatorAttributionRow(
                 SearchToolType.DATE_CALCULATOR -> MaterialSymbols.CalendarMonth
                 SearchToolType.COLOR_VISUALIZER -> MaterialSymbols.Palette
                 SearchToolType.CALCULATOR -> MaterialSymbols.Calculate
-                else -> MaterialSymbols.Calculate
             }
     ToolAttributionRow(modifier = modifier, icon = icon, titleRes = titleRes)
 }

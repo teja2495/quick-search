@@ -45,6 +45,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import com.tk.quicksearch.searchEngines.SecondarySearchDataSource
+import com.tk.quicksearch.search.noted.withoutQuickNoteWhileNoted
 
 class UnifiedSearchHandler(
         private val context: Context,
@@ -70,6 +71,7 @@ class UnifiedSearchHandler(
         private val calendarPreferences by lazy { CalendarPreferences(context) }
         private val reminderRepository by lazy { ReminderRepository(context) }
         private val bookmarkRepository by lazy { BookmarkRepository(context) }
+        private val notedRepository by lazy { com.tk.quicksearch.search.noted.NotedRepository(context) }
         private val resultRanker = UnifiedResultRanker(userPreferences)
 
         override suspend fun performSearch(
@@ -132,6 +134,8 @@ class UnifiedSearchHandler(
                         val canSearchReminders = remindersConfig.shouldSearch
                         val canSearchBookmarks =
                                 sectionSearchConfig[SearchSection.BOOKMARKS]?.shouldSearch == true
+                        val canSearchNoted =
+                                sectionSearchConfig[SearchSection.NOTED]?.shouldSearch == true
                         val canSearchAppShortcuts = appShortcutsConfig.shouldSearch
                         val enableFuzzyContactSearch = contactsConfig.enableFuzzyMatching
                         val enableFuzzyFileSearch = filesConfig.enableFuzzyMatching
@@ -231,6 +235,7 @@ class UnifiedSearchHandler(
                         var noteMatches: List<NoteInfo> = emptyList()
                         var reminderMatches: List<ReminderInfo> = emptyList()
                         var bookmarkMatches: List<BookmarkInfo> = emptyList()
+                        var notedMatches: List<com.tk.quicksearch.search.models.NotedItem> = emptyList()
                         var appShortcutMatches: List<StaticShortcut> = emptyList()
 
                         coroutineScope {
@@ -516,7 +521,7 @@ class UnifiedSearchHandler(
                                                                                         includeContent =
                                                                                                 aliasSection ==
                                                                                                         SearchSection.NOTES,
-                                                                                ),
+                                                                                ).withoutQuickNoteWhileNoted(notesRepository),
                                                                         )
                                                                 },
                                                                 applyResult = { payload ->
@@ -548,6 +553,24 @@ class UnifiedSearchHandler(
                                                                                 UnifiedSectionSearchResult.Bookmarks(bookmarkMatches)
                                                                         } else {
                                                                                 UnifiedSectionSearchResult.Skipped(SearchSection.BOOKMARKS)
+                                                                        }
+                                                                },
+                                                        ),
+                                                SearchSection.NOTED to
+                                                        SectionSearchSpec(
+                                                                section = SearchSection.NOTED,
+                                                                shouldSearch = canSearchNoted,
+                                                                search = {
+                                                                        SectionSearchResultPayload.Noted(
+                                                                                notedRepository.search(trimmedQuery),
+                                                                        )
+                                                                },
+                                                                applyResult = { payload ->
+                                                                        if (payload is SectionSearchResultPayload.Noted) {
+                                                                                notedMatches = payload.results
+                                                                                UnifiedSectionSearchResult.Noted(notedMatches)
+                                                                        } else {
+                                                                                UnifiedSectionSearchResult.Skipped(SearchSection.NOTED)
                                                                         }
                                                                 },
                                                         ),
@@ -631,6 +654,7 @@ class UnifiedSearchHandler(
                                 calendarEvents = calendarMatches,
                                 reminderResults = reminderMatches,
                                 bookmarkResults = bookmarkMatches,
+                                notedResults = notedMatches,
                                 noteResults = noteMatches,
                                 appSettingResults = appSettingsMatches,
                                 appShortcutResults = appShortcutMatches,

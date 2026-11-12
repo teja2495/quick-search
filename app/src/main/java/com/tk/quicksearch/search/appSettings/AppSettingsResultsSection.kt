@@ -366,7 +366,7 @@ internal fun AppSettingResultRow(
                 modifier = Modifier.padding(end = 6.dp),
             )
         } else if (setting.hasInlineControl) {
-            Unit
+            // The inline control is rendered above.
         } else if (setting.isToggleAction) {
             if (setting.isNavigationToggle) {
                 Row(verticalAlignment = Alignment.CenterVertically) {

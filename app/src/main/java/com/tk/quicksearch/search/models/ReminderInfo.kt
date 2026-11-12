@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.models
 
+import com.tk.quicksearch.shared.time.ScheduleRepeat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -19,6 +20,10 @@ data class ReminderInfo(
     val isDismissedFromHome: Boolean = false,
     /** The local day on which this reminder was dismissed from the Home card. */
     val dismissedFromHomeDate: LocalDate? = null,
+    /** How often the reminder comes back; marking a repeating reminder done moves it to its next date. */
+    val repeat: ScheduleRepeat? = null,
+    /** Set when this stands in for a Noted task in a reminders list; never saved. */
+    val notedItem: NotedItem? = null,
 ) {
     val hasTime: Boolean get() = timeMinutes != null
 

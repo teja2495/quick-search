@@ -43,6 +43,7 @@ import com.tk.quicksearch.app.navigation.SettingsNavigationMemory
 import com.tk.quicksearch.app.startup.StartupCoordinator
 import com.tk.quicksearch.pinnedNotifications.PinnedNotifications
 import com.tk.quicksearch.app.startup.StartupMode
+import com.tk.quicksearch.app.startup.StartupTrace
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchViewModel
@@ -145,6 +146,7 @@ open class MainActivity : FragmentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        StartupTrace.beginSurface(javaClass.simpleName)
         CrashLogManager.install(this)
         AppLockGate.trackActivities(application)
         Trace.beginSection(TRACE_ON_CREATE_ENTRY)
@@ -691,8 +693,8 @@ open class MainActivity : FragmentActivity() {
         val shouldStartVoiceSearch =
             intent?.getBooleanExtra(SearchWidget.EXTRA_START_VOICE_SEARCH, false) ?: false
         if (shouldStartVoiceSearch) {
-            intent?.removeExtra(SearchWidget.EXTRA_START_VOICE_SEARCH)
-            val micActionString = intent?.getStringExtra(SearchWidget.EXTRA_MIC_ACTION)
+            intent.removeExtra(SearchWidget.EXTRA_START_VOICE_SEARCH)
+            val micActionString = intent.getStringExtra(SearchWidget.EXTRA_MIC_ACTION)
             val micAction =
                 micActionString?.let { actionString ->
                     MicAction.entries.find { it.value == actionString }

@@ -35,6 +35,7 @@ import com.tk.quicksearch.search.data.ReminderRepository
 import com.tk.quicksearch.search.data.userAppPreferences.StartupPreferencesFacade
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.data.preferences.UiPreferences
+import com.tk.quicksearch.search.noted.NotedQuickNoteAlias
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsManagementHandler
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsRepository
@@ -145,7 +146,9 @@ class SearchViewModel(
         )
     }
     private val permissionManager by lazy {
-        PermissionManager(contactRepository, calendarRepository, fileRepository, userPreferences)
+        PermissionManager(contactRepository, calendarRepository, fileRepository, userPreferences) {
+            com.tk.quicksearch.search.noted.NotedIntegration.ensureChecked(appContext)
+        }
     }
     private val searchOperations by lazy { SearchOperations(contactRepository) }
     // UI state is split into four flows so typing only copies SearchResultsState. The other three
@@ -522,6 +525,10 @@ class SearchViewModel(
             ReminderRepository.changes.drop(1).collect {
                 handlers.pinningHandler.refreshPinnedReminders()
                 refreshSecondarySearches()
+                // The reminders shortcut's list with no query reloads on its own path.
+                if (_resultsState.value.query.isBlank() && lockedAliasSearchSection == SearchSection.REMINDERS) {
+                    refreshAliasRecentItems(SearchSection.REMINDERS)
+                }
             }
         }
     }
@@ -603,6 +610,8 @@ class SearchViewModel(
         inMemoryRetainedQuery = newQuery
         queryCoordinator.onQueryChange(newQuery)
         refreshScreenTimeResult(newQuery)
+        // Clears only if nothing was typed while Noted saved it.
+        NotedQuickNoteAlias.sendIfTriggered(appContext, newQuery) { if (uiState.value.query == newQuery) clearQuery() }
     }
 
     fun toggleOtherSearchItemPin(itemId: OtherSearchItemId) = toggleOtherItemPin(itemId)
@@ -708,6 +717,18 @@ class SearchViewModel(
     }
 
     fun consumeSearchKeyboardRestoreRequest() = setSearchKeyboardRestoreRequest(false)
+
+    /**
+     * True after search was left for another in-app page (Settings, Widgets). The rebuilt search
+     * field then skips its launch auto-focus, so only [setSearchKeyboardRestoreRequest] decides
+     * whether the keyboard comes back.
+     */
+    var searchLeftForInAppPage = false
+        private set
+
+    fun setSearchLeftForInAppPage(left: Boolean) {
+        searchLeftForInAppPage = left
+    }
     fun onSettingsImported() {
         startupLifecycleDelegate.onSettingsImported(
                 applyStartupPreferences = this::applyStartupPreferences,

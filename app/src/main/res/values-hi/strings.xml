@@ -1236,7 +1236,7 @@
     <string name="permissions_notifications_desc">रिमाइंडर सूचनाओं और खोज परिणामों को सूचना पैनल में पिन करने के लिए आवश्यक</string>
     <string name="permissions_notification_access_desc">सूचना बिंदु और सूचना इतिहास सुविधाएं चालू करने के लिए आवश्यक</string>
     <string name="permissions_accessibility_lock_screen_title">सुलभता</string>
-    <string name="permissions_accessibility_lock_screen_desc">स्क्रीन लॉक करने के लिए डबल-टैप जेस्चर, नॉच जेस्चर, एज स्वाइप जेस्चर या फ़्लोटिंग बटन से Quick Search लॉन्च करने और Quick Search के बाहर SpeedBump के लिए आवश्यक।</string>
+    <string name="permissions_accessibility_lock_screen_desc">जेस्चर, फ़्लोटिंग बटन और SpeedBump सक्षम करता है।</string>
     <string name="permissions_contacts_desc">आपके कॉन्टैक्ट्स खोजने के लिए आवश्यक।</string>
     <string name="permissions_files_desc">आपके दस्तावेज़ों और अन्य फाइलों में खोजने के लिए आवश्यक।</string>
     <string name="permissions_files_title">फाइल पहुंच</string>

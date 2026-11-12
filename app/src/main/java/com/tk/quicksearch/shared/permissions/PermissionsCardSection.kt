@@ -77,6 +77,8 @@ fun PermissionsCardSection(
     showCalendarPermission: Boolean = true,
     showCallingPermission: Boolean = true,
     showNotificationsPermission: Boolean = true,
+    showAccessibilityPermission: Boolean = true,
+    showNotificationAccessPermission: Boolean = true,
     showBackgroundUsage: Boolean = false,
     onRequestUsagePermission: () -> Unit = {},
     onRequestContactPermission: () -> Unit = {},
@@ -422,28 +424,30 @@ fun PermissionsCardSection(
                     ),
                 )
             }
-            add(
-                PermissionCardItem(
-                    title = texts.accessibilityTitle,
-                    description = texts.accessibilityDescription,
-                    permissionState = accessibilityPermissionState,
-                    isMandatory = false,
-                    onToggleChange = { enabled ->
-                        if (enabled && !accessibilityPermissionState.isGranted) {
-                            if (shouldShowAccessibilityDisclosure) {
-                                showAccessibilityDisclosure = true
-                            } else {
+            if (showAccessibilityPermission) {
+                add(
+                    PermissionCardItem(
+                        title = texts.accessibilityTitle,
+                        description = texts.accessibilityDescription,
+                        permissionState = accessibilityPermissionState,
+                        isMandatory = false,
+                        onToggleChange = { enabled ->
+                            if (enabled && !accessibilityPermissionState.isGranted) {
+                                if (shouldShowAccessibilityDisclosure) {
+                                    showAccessibilityDisclosure = true
+                                } else {
+                                    context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                                }
+                            }
+                        },
+                        onGrantedClick = {
+                            runCatching {
                                 context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
                             }
-                        }
-                    },
-                    onGrantedClick = {
-                        runCatching {
-                            context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-                        }
-                    },
-                ),
-            )
+                        },
+                    ),
+                )
+            }
             if (showCallingPermission) {
                 add(
                     PermissionCardItem(
@@ -515,20 +519,22 @@ fun PermissionsCardSection(
                     ),
                 )
             }
-            add(
-                PermissionCardItem(
-                    title = texts.notificationAccessTitle,
-                    description = texts.notificationAccessDescription,
-                    permissionState = notificationAccessPermissionState,
-                    isMandatory = false,
-                    onToggleChange = { enabled ->
-                        if (enabled && !notificationAccessPermissionState.isGranted) {
-                            NotificationDotsPermission.openNotificationListenerSettings(context)
-                        }
-                    },
-                    onGrantedClick = { NotificationDotsPermission.openNotificationListenerSettings(context) },
-                ),
-            )
+            if (showNotificationAccessPermission) {
+                add(
+                    PermissionCardItem(
+                        title = texts.notificationAccessTitle,
+                        description = texts.notificationAccessDescription,
+                        permissionState = notificationAccessPermissionState,
+                        isMandatory = false,
+                        onToggleChange = { enabled ->
+                            if (enabled && !notificationAccessPermissionState.isGranted) {
+                                NotificationDotsPermission.openNotificationListenerSettings(context)
+                            }
+                        },
+                        onGrantedClick = { NotificationDotsPermission.openNotificationListenerSettings(context) },
+                    ),
+                )
+            }
             if (showBackgroundUsage) {
                 add(
                     PermissionCardItem(

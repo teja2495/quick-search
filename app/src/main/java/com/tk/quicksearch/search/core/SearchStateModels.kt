@@ -79,6 +79,7 @@ data class SearchResultsState(
         val pinnedNotes: List<NoteInfo> = emptyList(),
         // Bookmark results
         val bookmarkResults: List<BookmarkInfo> = emptyList(),
+        val notedResults: List<com.tk.quicksearch.search.models.NotedItem> = emptyList(),
         // Computed visibility states (derived from results above)
         val screenState: ScreenVisibilityState = ScreenVisibilityState.Initializing,
         val appsSectionState: AppsSectionVisibility = AppsSectionVisibility.Hidden,
@@ -91,6 +92,7 @@ data class SearchResultsState(
         val remindersSectionState: RemindersSectionVisibility = RemindersSectionVisibility.Hidden,
         val notesSectionState: NotesSectionVisibility = NotesSectionVisibility.Hidden,
         val bookmarksSectionState: BookmarksSectionVisibility = BookmarksSectionVisibility.Hidden,
+        val notedSectionState: NotedSectionVisibility = NotedSectionVisibility.Hidden,
         val searchEnginesState: SearchEnginesVisibility = SearchEnginesVisibility.Hidden,
         // Transient search state (calculator answer, AI search, web suggestions)
         val calculatorState: CalculatorState = CalculatorState(),

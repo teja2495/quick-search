@@ -133,8 +133,9 @@ internal fun CustomInfoRepeatRow(
     }
 }
 
+/** Every-N-units dialog; the reminder form uses it too. */
 @Composable
-private fun CustomRepeatDialog(
+internal fun CustomRepeatDialog(
     initial: CustomInfoRepeat?,
     onDismiss: () -> Unit,
     onConfirm: (CustomInfoRepeat) -> Unit,

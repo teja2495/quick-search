@@ -95,6 +95,23 @@ fun shouldShowBookmarksSection(renderingState: SectionRenderingState): Boolean =
                 renderingState.expandedSection == ExpandedSection.BOOKMARKS
         )
 
+/** True when any result section would render for this state. */
+fun shouldShowAnySection(
+    renderingState: SectionRenderingState,
+    contactsParams: ContactsSectionParams,
+    filesParams: FilesSectionParams,
+    calendarParams: CalendarSectionParams,
+): Boolean =
+    shouldShowAppsSection(renderingState) ||
+        shouldShowAppShortcutsSection(renderingState) ||
+        shouldShowContactsSection(renderingState, contactsParams) ||
+        shouldShowFilesSection(renderingState, filesParams) ||
+        shouldShowSettingsSection(renderingState) ||
+        shouldShowCalendarSection(renderingState, calendarParams) ||
+        shouldShowRemindersSection(renderingState) ||
+        shouldShowNotesSection(renderingState) ||
+        shouldShowBookmarksSection(renderingState)
+
 fun shouldShowNotesSection(renderingState: SectionRenderingState): Boolean =
     renderingState.hasNoteResults &&
         renderingState.shouldShowNotes &&
@@ -476,6 +493,13 @@ fun rememberSectionRenderContext(
             state.bookmarksSectionState is BookmarksSectionVisibility.ShowingResults &&
             (renderingState.expandedSection == ExpandedSection.NONE || isBookmarksExpanded)
     return SectionRenderContext(
+        // Feeds Top matches only; Noted has no results card of its own.
+        notedList =
+            if (isSearching && state.notedSectionState is NotedSectionVisibility.ShowingResults) {
+                renderingState.notedResults
+            } else {
+                emptyList()
+            },
         shouldRenderBookmarks = shouldRenderBookmarks,
         isBookmarksExpanded = isBookmarksExpanded,
         bookmarksList = if (isSearching) renderingState.bookmarkResults else emptyList(),
@@ -645,6 +669,7 @@ data class SectionRenderParams(
     // Only needed where a top match is opened outside composition (keyboard submit); rows read
     // LocalBookmarksSectionParams instead.
     val bookmarksParams: com.tk.quicksearch.search.bookmarks.BookmarksSectionParams? = null,
+    val notedParams: com.tk.quicksearch.search.noted.NotedSectionParams? = null,
 )
 
 /** Context for rendering sections, containing all the state needed for rendering decisions. */
@@ -685,6 +710,7 @@ data class SectionRenderContext(
     val isBookmarksExpanded: Boolean = false,
     val bookmarksList: List<BookmarkInfo> = emptyList(),
     val showBookmarksExpandControls: Boolean = false,
+    val notedList: List<com.tk.quicksearch.search.models.NotedItem> = emptyList(),
     val shouldRenderReminders: Boolean = false,
     val isRemindersExpanded: Boolean = false,
     val remindersList: List<ReminderInfo> = emptyList(),

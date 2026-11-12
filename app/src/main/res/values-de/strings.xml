@@ -1236,7 +1236,7 @@
     <string name="permissions_notifications_desc">Erforderlich für Erinnerungsbenachrichtigungen und um Suchergebnisse im Benachrichtigungsfeld anzuheften</string>
     <string name="permissions_notification_access_desc">Erforderlich für Benachrichtigungspunkte und den Benachrichtigungsverlauf</string>
     <string name="permissions_accessibility_lock_screen_title">Bedienungshilfen</string>
-    <string name="permissions_accessibility_lock_screen_desc">Erforderlich für die Doppeltipp-Geste zum Sperren des Bildschirms, Notch-Gesten, zum Starten von Quick Search per Wischgeste vom Rand oder schwebender Schaltfläche sowie für SpeedBump außerhalb von Quick Search.</string>
+    <string name="permissions_accessibility_lock_screen_desc">Aktiviert Gesten, die schwebende Schaltfläche und SpeedBump.</string>
     <string name="permissions_contacts_desc">Erforderlich, um Kontakte zu durchsuchen.</string>
     <string name="permissions_files_desc">Erforderlich, um Dokumente und andere Dateien zu durchsuchen.</string>
     <string name="permissions_files_title">Dateizugriff</string>

@@ -147,6 +147,7 @@ fun AppearanceSettingsSection(
         remember(homePinnedSectionOrder, pinnedAppShortcutsInAppGrid) {
             homePinnedSectionOrder.filter { section ->
                 FeatureFlags.isSearchSectionEnabled(section) &&
+                    section != SearchSection.NOTED &&
                     !(pinnedAppShortcutsInAppGrid && section == SearchSection.APP_SHORTCUTS)
             }
         }

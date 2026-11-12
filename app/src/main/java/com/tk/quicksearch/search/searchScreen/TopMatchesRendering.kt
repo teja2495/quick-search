@@ -286,6 +286,7 @@ internal fun openTopMatch(
         is TopMatchItem.Note -> params.notesParams?.onNoteClick?.invoke(item.note) ?: return null
         is TopMatchItem.Bookmark ->
             params.bookmarksParams?.onBookmarkClick?.invoke(item.bookmark) ?: return null
+        is TopMatchItem.Noted -> params.notedParams?.onItemClick?.invoke(item.item) ?: return null
         is TopMatchItem.Other -> return true
     }
     return false
@@ -431,6 +432,24 @@ private fun TopMatchRow(
                 bookmark = item.bookmark,
                 onClick = bookmarksParams.onBookmarkClick,
                 isPredicted = isPredicted,
+            )
+        }
+
+        is TopMatchItem.Noted -> com.tk.quicksearch.search.noted.LocalNotedSectionParams.current?.let { notedParams ->
+            com.tk.quicksearch.search.noted.NotedRow(
+                item = item.item,
+                onClick = notedParams.onItemClick,
+                iconPackPackage = notedParams.iconPackPackage,
+                isPredicted = isPredicted,
+                isPinned =
+                    params.remindersParams?.pinnedReminderIds.orEmpty()
+                        .contains(com.tk.quicksearch.search.noted.NotedGlanceTasks.reminderIdFor(item.item.id)),
+                onTogglePin =
+                    params.remindersParams?.let { remindersParams ->
+                        com.tk.quicksearch.search.noted.NotedGlanceTasks.asPinnedReminder(item.item)?.let { reminder ->
+                            { remindersParams.onTogglePin(reminder) }
+                        }
+                    },
             )
         }
 

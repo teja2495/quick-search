@@ -66,7 +66,7 @@ fun PermissionsScreen(
 
     val hasAnyGrantedPermission =
         with(permissionStates) {
-            listOf(usage, contacts, files, calendar, calling, notifications, notificationAccess, accessibility)
+            listOf(usage, contacts, files, calendar)
                 .any { it.isGranted }
         }
 
@@ -142,8 +142,11 @@ fun PermissionsScreen(
                         .heightIn(max = DesignTokens.OnboardingPermissionCardViewportHeight),
                 internalScrollEnabled = true,
                 showCalendarPermission = true,
-                showCallingPermission = true,
-                showNotificationsPermission = true,
+                showCallingPermission = false,
+                showNotificationsPermission = false,
+                showAccessibilityPermission = false,
+                showNotificationAccessPermission = false,
+                showBackgroundUsage = false,
                 cardContainer = { cardModifier, content ->
                     SettingsCard(modifier = cardModifier) {
                         content()
@@ -161,8 +164,7 @@ fun PermissionsScreen(
                     !permissionStates.usage.isGranted ||
                         !permissionStates.contacts.isGranted ||
                         !permissionStates.files.isGranted ||
-                        !permissionStates.calendar.isGranted ||
-                        !permissionStates.notificationAccess.isGranted
+                        !permissionStates.calendar.isGranted
 
                 if (hasUngrantedPermissions) {
                     showPermissionReminderDialog = true
@@ -202,7 +204,6 @@ fun PermissionsScreen(
             contactsPermissionState = permissionStates.contacts,
             filesPermissionState = permissionStates.files,
             calendarPermissionState = permissionStates.calendar,
-            notificationAccessPermissionState = permissionStates.notificationAccess,
             onDismiss = { showPermissionReminderDialog = false },
             onContinue = {
                 showPermissionReminderDialog = false
@@ -221,7 +222,6 @@ private fun PermissionReminderDialog(
     contactsPermissionState: PermissionState,
     filesPermissionState: PermissionState,
     calendarPermissionState: PermissionState,
-    notificationAccessPermissionState: PermissionState,
     onDismiss: () -> Unit,
     onContinue: () -> Unit,
 ) {
@@ -231,7 +231,6 @@ private fun PermissionReminderDialog(
             stringResource(R.string.contacts_action_button_contacts).takeIf { !contactsPermissionState.isGranted },
             stringResource(R.string.permissions_files_title).takeIf { !filesPermissionState.isGranted },
             stringResource(R.string.settings_calendar_permission_title).takeIf { !calendarPermissionState.isGranted },
-            stringResource(R.string.settings_shortcut_notification_listener).takeIf { !notificationAccessPermissionState.isGranted },
         ).joinToString(", ")
 
     PreserveHostKeyboardStateEffect()

@@ -155,7 +155,7 @@ private fun convertShortcutInfo(
     failureReason: StringBuilder = StringBuilder(),
 ): StaticShortcut? {
     val packageName = info.`package`
-    val id = info.id?.trim().orEmpty()
+    val id = info.id.trim()
     if (packageName.isBlank() || id.isBlank()) {
         failureReason.append("blank_pkg_or_id")
         return null

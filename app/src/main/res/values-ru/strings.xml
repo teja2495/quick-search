@@ -1260,7 +1260,7 @@
     <string name="permissions_notifications_desc">Требуется для уведомлений о напоминаниях и закрепления результатов поиска на панели уведомлений</string>
     <string name="permissions_notification_access_desc">Требуется для значков уведомлений и истории уведомлений</string>
 <string name="permissions_accessibility_lock_screen_title">Специальные возможности</string>
-<string name="permissions_accessibility_lock_screen_desc">Требуется для жеста двойного нажатия, чтобы заблокировать экран, жестов выреза, запуска Quick Search жестом смахивания от края либо плавающей кнопкой и SpeedBump вне Quick Search.</string>
+<string name="permissions_accessibility_lock_screen_desc">Включает жесты, плавающую кнопку и SpeedBump.</string>
 <string name="permissions_contacts_desc">Требуется для поиска по вашим контактам.</string>
 <string name="permissions_files_desc">Требуется для поиска по вашим документам и другим файлам.</string>
 <string name="permissions_files_title">Доступ к файлам</string>

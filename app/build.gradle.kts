@@ -15,7 +15,7 @@ android {
         applicationId = "com.tk.quicksearch"
         minSdk = 24
         targetSdk = 37
-        versionCode = 104
+        versionCode = 105
         versionName = "5.0"
         manifestPlaceholders["profileCaptureExported"] =
             providers.gradleProperty("profileCapture").orElse("false").get().toBoolean()
@@ -28,9 +28,12 @@ android {
         create("standard") {
             dimension = "distribution"
             isDefault = true
+            // The author's own Noted app (search/noted/); its manifest entries are in src/standard.
+            buildConfigField("boolean", "NOTED_INTEGRATION", "true")
         }
         create("fdroid") {
             dimension = "distribution"
+            buildConfigField("boolean", "NOTED_INTEGRATION", "false")
         }
     }
 

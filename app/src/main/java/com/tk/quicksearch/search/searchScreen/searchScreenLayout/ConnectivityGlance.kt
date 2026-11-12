@@ -188,7 +188,7 @@ internal fun rememberWifiSignInGlance(enabled: Boolean): WifiSignInGlance? {
         onDispose {
             disposed = true
             mainHandler.removeCallbacksAndMessages(null)
-            if (registered && callback != null) runCatching { connectivityManager?.unregisterNetworkCallback(callback) }
+            if (registered) runCatching { connectivityManager.unregisterNetworkCallback(callback) }
         }
     }
 

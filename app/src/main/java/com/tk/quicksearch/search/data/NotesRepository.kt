@@ -17,7 +17,7 @@ import java.util.Locale
 class NotesRepository(
     context: Context,
 ) {
-    private val appContext = context.applicationContext
+    internal val appContext: Context = context.applicationContext
     private val notesPreferences = NotesPreferences(context)
     private val notesStore = NotesRoomStore(context)
     private val triggerPreferences = TriggerPreferences(context)

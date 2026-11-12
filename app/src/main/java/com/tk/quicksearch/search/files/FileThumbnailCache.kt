@@ -173,7 +173,7 @@ internal object FileThumbnailCache {
                                     synchronized(this@FileThumbnailCache) {
                                         inFlightLoads.remove(uri)
                                         if (loadedBitmap != null) {
-                                            cache[uri] = loadedBitmap!!
+                                            cache[uri] = loadedBitmap
                                             failureTimestamps.remove(uri)
                                         } else {
                                             failureTimestamps[uri] = SystemClock.elapsedRealtime()

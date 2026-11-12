@@ -395,9 +395,11 @@ internal fun OngoingCallRow(
         title = stringResource(R.string.home_ongoing_call),
         subtitle = subtitle,
         pillText =
-            call.startTime?.let { start ->
-                DateUtils.formatElapsedTime(((nowMillis - start).coerceAtLeast(0L)) / 1_000L)
-            },
+            call.startTime
+                ?.let { start -> (nowMillis - start) / 1_000L }
+                // Hidden for the first minute so a just-connected call doesn't show 00:00.
+                ?.takeIf { elapsedSeconds -> elapsedSeconds >= 60L }
+                ?.let(DateUtils::formatElapsedTime),
         onClick = openCallScreen,
         trailing =
             onHangUp?.let { hangUp ->

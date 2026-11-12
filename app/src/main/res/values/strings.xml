@@ -40,6 +40,12 @@
     <string name="search_hint_notes">Search Notes…</string>
     <string name="search_hint_reminders">Search Reminders…</string>
     <string name="search_hint_bookmarks">Search Bookmarks…</string>
+    <string name="search_hint_noted" translatable="false">Search Noted…</string>
+    <string name="noted_item_list" translatable="false">List</string>
+    <string name="noted_integration_title" translatable="false">Noted Integration</string>
+    <string name="noted_quick_note_alias_info" translatable="false">Type this alias at the end of your query to add the query to the top of Noted\'s Quick Note.</string>
+    <string name="noted_quick_note_added" translatable="false">Added to Quick Note</string>
+    <string name="noted_quick_note_failed" translatable="false">Couldn\'t add to Quick Note</string>
     <string name="search_hint_settings">Search Device Settings…</string>
     <string name="search_hint_static">Search Anything</string>
     <string name="search_hint_world_clock">Enter any place to get their local time</string>
@@ -317,6 +323,7 @@
     <string name="section_calendar">Calendar Events</string>
     <string name="section_files">Files</string>
     <string name="section_notes">Notes</string>
+    <string name="section_noted" translatable="false">Noted</string>
     <string name="section_media">Media Controls</string>
     <string name="section_settings">Device Settings</string>
     <string name="search_section_menu_title">Search in</string>
@@ -1251,7 +1258,7 @@
     <string name="permissions_notifications_desc">Needed for reminder notifications and to pin search results to notification panel</string>
     <string name="permissions_notification_access_desc">Needed to enable notification dots and notification history features</string>
     <string name="permissions_accessibility_lock_screen_title">Accessibility</string>
-    <string name="permissions_accessibility_lock_screen_desc">Needed for double-tap to lock screen gesture, notch gestures, launch Quick Search with edge swipe gesture or floating button, and SpeedBump outside Quick Search</string>
+    <string name="permissions_accessibility_lock_screen_desc">Enables gestures, floating button, and SpeedBump.</string>
     <string name="permissions_contacts_desc">Needed to search your contacts.</string>
     <string name="permissions_files_desc">Needed to search through your documents and other files.</string>
     <string name="permissions_files_title">Files Access</string>
@@ -1421,6 +1428,7 @@
     <string name="home_copied">Copied</string>
     <string name="home_reminder_marked_done">Reminder marked as done</string>
     <string name="home_reminder_set">Reminder set for %1$s</string>
+    <string name="noted_reminder_set" translatable="false">Noted reminder created for %1$s</string>
     <string name="home_reminder_set_today">today</string>
     <string name="home_reminder_set_tomorrow">tomorrow</string>
     <string name="home_reminder_snoozed">Reminder snoozed for 30 minutes</string>

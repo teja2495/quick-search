@@ -198,7 +198,7 @@ fun CalendarEventsSection(
                         ),
             ) {
                 if (showGlanceContent && glanceContentFirst) {
-                    glanceContent?.invoke(false, true)
+                    glanceContent.invoke(false, true)
                 }
                 displayEvents.forEachIndexed { index, event ->
                     key(event.eventId) {
@@ -233,7 +233,7 @@ fun CalendarEventsSection(
                 }
 
                 if (showGlanceContent && !glanceContentFirst) {
-                    glanceContent?.invoke(true, false)
+                    glanceContent.invoke(true, false)
                 }
 
                 if (cardState.shouldShowExpandButton) {

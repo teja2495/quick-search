@@ -5,16 +5,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import com.tk.quicksearch.BuildConfig
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.appSettings.AppSettingsToggleKey
 import com.tk.quicksearch.search.apps.notificationDots.rememberNotificationDotsCheckedChange
 import com.tk.quicksearch.search.apps.speedBump.SpeedBumpAccessibilityDisclosureHost
 import com.tk.quicksearch.search.apps.speedBump.SpeedBumpOutsideQuickSearchToggleState
 import com.tk.quicksearch.search.apps.speedBump.rememberSpeedBumpOutsideQuickSearchToggleState
+import com.tk.quicksearch.search.noted.NotedIntegrationSettingCard
 import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.settings.shared.SettingsCommand
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
@@ -157,6 +160,9 @@ fun MoreOptionsSettings(
             onNotificationDotsCheckedChange = onNotificationDotsCheckedChange,
             speedBumpToggle = speedBumpToggle,
         )
+        if (BuildConfig.NOTED_INTEGRATION) {
+            NotedIntegrationSettingCard(modifier = Modifier.padding(top = DesignTokens.SpacingLarge))
+        }
     }
 }
 

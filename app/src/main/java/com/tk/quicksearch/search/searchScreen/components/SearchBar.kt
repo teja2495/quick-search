@@ -358,8 +358,9 @@ internal fun PersistentSearchBar(
         }
     }
 
+    val skipLaunchAutoFocus = LocalSearchReturningFromInAppPage.current
     LaunchedEffect(autoFocusOnStart, hasLaidOutSearchField) {
-        if (!autoFocusOnStart) {
+        if (!autoFocusOnStart || skipLaunchAutoFocus) {
             hasCompletedStartupAutoFocus = true
             return@LaunchedEffect
         }

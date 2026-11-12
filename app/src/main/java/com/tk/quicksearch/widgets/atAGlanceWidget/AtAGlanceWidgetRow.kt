@@ -117,6 +117,12 @@ internal enum class AtAGlanceWidgetTapType {
     /** Marks reminder [AtAGlanceWidgetTap.id] done. */
     REMINDER_DONE,
 
+    /** Opens Noted task [AtAGlanceWidgetTap.key] in Noted. */
+    NOTED_TASK,
+
+    /** Completes Noted task [AtAGlanceWidgetTap.key] in Noted. */
+    NOTED_TASK_DONE,
+
     /** Runs Custom Info item [AtAGlanceWidgetTap.id] again. */
     CUSTOM_INFO_RETRY,
 
@@ -133,6 +139,7 @@ internal enum class AtAGlanceWidgetDismissType {
     OTP,
     ALARM,
     REMINDER,
+    NOTED_TASK,
     MISSED_CALLS,
     APP_NOTIFICATION,
     WEATHER,

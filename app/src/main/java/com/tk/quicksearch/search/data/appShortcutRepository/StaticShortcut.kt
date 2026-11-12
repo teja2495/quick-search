@@ -258,7 +258,7 @@ internal fun resolveAppLabel(context: Context, packageName: String, packageManag
     val appInfo = kotlin.runCatching { packageManager.getApplicationInfo(packageName, 0) }.getOrNull()
     val localizedLabel =
         appInfo?.let {
-            kotlin.runCatching { packageManager.getApplicationLabel(it)?.toString() }.getOrNull()
+            kotlin.runCatching { packageManager.getApplicationLabel(it).toString() }.getOrNull()
         }
     return localizedLabel?.takeIf { it.isNotBlank() }
         ?: appInfo?.nonLocalizedLabel?.toString()?.takeIf { it.isNotBlank() }

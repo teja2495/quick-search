@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Standard builds only: the author's own Noted app integration (search/noted/). F-Droid builds
+     leave it out, along with BuildConfig.NOTED_INTEGRATION. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Noted search: a signature permission, so Android grants it only when Noted is installed
+         first and is signed with the same key. Everyone else never gets it and never sees Noted results. -->
+    <uses-permission android:name="com.tk.noted.permission.READ_CONTENT" />
+
+    <application>
+        <!-- Noted's broadcast when its dated tasks change; Noted sends it only to holders of its read
+             permission. It carries no data and only triggers a redraw. -->
+        <receiver
+            android:name="com.tk.quicksearch.search.noted.NotedTasksChangedReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.tk.noted.action.DUE_TASKS_CHANGED" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

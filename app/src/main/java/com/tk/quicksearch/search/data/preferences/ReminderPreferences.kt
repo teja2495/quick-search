@@ -17,6 +17,14 @@ class ReminderPreferences(
 
     fun setShowTomorrowRemindersEnabled(enabled: Boolean) = setBooleanPref(KEY_SHOW_TOMORROW_REMINDERS, enabled)
 
+    /**
+     * The More Options "Noted Integration" toggle, only offered while Noted is connected: new reminders
+     * go to Noted's To Do list, and see `NotedIntegration.isEnabled` for the rest.
+     */
+    fun isUseNotedEnabled(): Boolean = getBooleanPref(KEY_USE_NOTED, false)
+
+    fun setUseNotedEnabled(enabled: Boolean) = setBooleanPref(KEY_USE_NOTED, enabled)
+
     /** Reminder ids snoozed on the Home card, mapped to when they show again. Notifications follow it. */
     fun getHomeSnoozedUntil(): Map<Long, Long> = getReminderTimes(KEY_HOME_SNOOZED_UNTIL)
 
@@ -44,6 +52,27 @@ class ReminderPreferences(
         val entries = getReminderTimes(key).filter { (id, until) -> id != reminderId && until > nowMillis } +
             listOfNotNull(untilMillis?.let { reminderId to it })
         prefs.edit().putStringSet(key, entries.map { (id, until) -> "$id:$until" }.toSet()).apply()
+    }
+
+    /** Noted tasks dismissed from At a Glance, by Noted task id, mapped to when they show again. */
+    fun getNotedHiddenUntil(): Map<String, Long> =
+        getStringSet(KEY_NOTED_HIDDEN_UNTIL).mapNotNull { entry ->
+            val until = entry.substringAfterLast(':').toLongOrNull() ?: return@mapNotNull null
+            entry.substringBeforeLast(':') to until
+        }.toMap()
+
+    /** Hides Noted task [taskId] from At a Glance until [untilMillis]; drops hides that have ended. */
+    fun setNotedHiddenUntil(taskId: String, untilMillis: Long, nowMillis: Long = System.currentTimeMillis()) {
+        val entries = getNotedHiddenUntil().filter { (id, until) -> id != taskId && until > nowMillis } + (taskId to untilMillis)
+        prefs.edit().putStringSet(KEY_NOTED_HIDDEN_UNTIL, entries.map { (id, until) -> "$id:$until" }.toSet()).apply()
+    }
+
+    /** [NotedItem.key]s of Noted tasks pinned on Home; they are pinned as reminders by [NotedGlanceTasks.reminderIdFor]. */
+    fun getPinnedNotedKeys(): Set<String> = getStringSet(KEY_PINNED_NOTED_ITEMS)
+
+    fun setNotedItemPinned(key: String, pinned: Boolean) {
+        val keys = getPinnedNotedKeys()
+        prefs.edit().putStringSet(KEY_PINNED_NOTED_ITEMS, if (pinned) keys + key else keys - key).apply()
     }
 
     fun getRemindersJson(): String = prefs.getString(BasePreferences.KEY_REMINDERS_DATA, null).orEmpty()
@@ -96,5 +125,8 @@ class ReminderPreferences(
         const val KEY_HOME_SNOOZED_UNTIL = "home_snoozed_reminders"
         const val KEY_HOME_HIDDEN_UNTIL = "home_hidden_reminders"
         const val KEY_SHOW_TOMORROW_REMINDERS = "home_show_tomorrow_reminders"
+        const val KEY_USE_NOTED = "reminders_use_noted"
+        const val KEY_NOTED_HIDDEN_UNTIL = "home_hidden_noted_tasks"
+        const val KEY_PINNED_NOTED_ITEMS = "pinned_noted_items"
     }
 }

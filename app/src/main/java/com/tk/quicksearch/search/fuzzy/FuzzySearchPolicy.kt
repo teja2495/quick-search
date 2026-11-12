@@ -79,6 +79,7 @@ object FuzzySearchPolicyResolver {
             SearchSection.NOTES,
             SearchSection.REMINDERS,
             SearchSection.BOOKMARKS,
+            SearchSection.NOTED,
             -> NOTES_POLICY
         }
 

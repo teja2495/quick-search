@@ -1236,7 +1236,7 @@
     <string name="permissions_notifications_desc">Necesario para las notificaciones de recordatorios y para fijar resultados de búsqueda en el panel de notificaciones</string>
     <string name="permissions_notification_access_desc">Necesario para activar los puntos de notificación y el historial de notificaciones</string>
     <string name="permissions_accessibility_lock_screen_title">Accesibilidad</string>
-    <string name="permissions_accessibility_lock_screen_desc">Necesario para el gesto de doble toque para bloquear la pantalla, los gestos del notch, iniciar Quick Search con un gesto de deslizar desde el borde o el botón flotante, y SpeedBump fuera de Quick Search.</string>
+    <string name="permissions_accessibility_lock_screen_desc">Activa los gestos, el botón flotante y SpeedBump.</string>
     <string name="permissions_contacts_desc">Necesario para buscar tus contactos.</string>
     <string name="permissions_files_desc">Necesario para buscar en tus documentos y otros archivos.</string>
     <string name="permissions_files_title">Acceso a archivos</string>

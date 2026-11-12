@@ -148,7 +148,7 @@ fun loadShortcutsFromSystem(
         resolveInfos.asSequence().distinctBy { it.activityInfo.packageName }.associate { info ->
             val packageName = info.activityInfo.packageName
             val label =
-                kotlin.runCatching { info.loadLabel(packageManager)?.toString() }
+                kotlin.runCatching { info.loadLabel(packageManager).toString() }
                     .getOrNull()
                     ?.takeIf { it.isNotBlank() }
                     ?: info.activityInfo.nonLocalizedLabel

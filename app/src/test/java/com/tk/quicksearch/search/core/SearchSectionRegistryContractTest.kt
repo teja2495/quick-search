@@ -2,6 +2,7 @@ package com.tk.quicksearch.search.core
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -13,7 +14,8 @@ class SearchSectionRegistryContractTest {
         assertEquals(definitions.size, definitions.map { it.section }.distinct().size)
         assertEquals(definitions.size, definitions.map { it.aliasTargetId }.distinct().size)
         assertEquals(definitions.size, definitions.map { it.itemType }.distinct().size)
-        assertEquals(definitions.size, definitions.map { it.appSettingsToggleKey }.distinct().size)
+        val toggleKeys = definitions.mapNotNull { it.appSettingsToggleKey }
+        assertEquals(toggleKeys.size, toggleKeys.distinct().size)
         assertTrue(definitions.all { it.aliasTargetId.isNotBlank() })
     }
 
@@ -25,10 +27,9 @@ class SearchSectionRegistryContractTest {
                 definition,
                 SearchSectionRegistry.definitionForAliasTargetId(definition.aliasTargetId),
             )
-            assertEquals(
-                definition.section,
-                SearchSectionRegistry.sectionForToggle(definition.appSettingsToggleKey),
-            )
+            definition.appSettingsToggleKey?.let { toggleKey ->
+                assertEquals(definition.section, SearchSectionRegistry.sectionForToggle(toggleKey))
+            }
             assertEquals(
                 definition.section,
                 SearchSectionRegistry.sectionForItemType(definition.itemType),
@@ -37,9 +38,11 @@ class SearchSectionRegistryContractTest {
     }
 
     @Test
-    fun everyEnabledSectionHasAnAppSettingsToggle() {
+    fun everyEnabledSectionExceptNotedHasAnAppSettingsToggle() {
+        // Noted shows only when the Noted app grants access, so it deliberately has no setting.
         SearchSectionRegistry.orderedSections.forEach { section ->
-            assertNotNull(SearchSectionRegistry.definitionFor(section).appSettingsToggleKey)
+            val toggleKey = SearchSectionRegistry.definitionFor(section).appSettingsToggleKey
+            if (section == SearchSection.NOTED) assertNull(toggleKey) else assertNotNull(toggleKey)
         }
     }
 }

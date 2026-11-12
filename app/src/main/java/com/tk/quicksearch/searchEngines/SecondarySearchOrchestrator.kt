@@ -137,6 +137,7 @@ class SecondarySearchOrchestrator(
                     calendarEvents = emptyList(),
                     reminderResults = emptyList(),
                     bookmarkResults = emptyList(),
+                    notedResults = emptyList(),
                     noteResults = emptyList(),
                     appSettingResults = emptyList(),
                     appShortcutResults = emptyList(),
@@ -360,6 +361,7 @@ class SecondarySearchOrchestrator(
                     calendarEvents = emptyList(),
                     reminderResults = emptyList(),
                     bookmarkResults = emptyList(),
+                    notedResults = emptyList(),
                     noteResults = emptyList(),
                     appSettingResults = emptyList(),
                     appShortcutResults = emptyList(),
@@ -535,6 +537,7 @@ class SecondarySearchOrchestrator(
                             calendarEvents = emptyList(),
                             reminderResults = emptyList(),
                             bookmarkResults = emptyList(),
+                            notedResults = emptyList(),
                             noteResults = emptyList(),
                             appSettingResults = emptyList(),
                             appShortcutResults = emptyList(),
@@ -672,6 +675,7 @@ class SecondarySearchOrchestrator(
             SearchSection.REMINDERS,
             SearchSection.BOOKMARKS,
             SearchSection.NOTES,
+            SearchSection.NOTED,
             -> false
         }
 
@@ -686,6 +690,7 @@ class SecondarySearchOrchestrator(
             reminderResults = reminderResults.takeIf { SearchSection.REMINDERS in pendingSections }.orEmpty(),
             bookmarkResults = bookmarkResults.takeIf { SearchSection.BOOKMARKS in pendingSections }.orEmpty(),
             noteResults = noteResults.takeIf { SearchSection.NOTES in pendingSections }.orEmpty(),
+            notedResults = notedResults.takeIf { SearchSection.NOTED in pendingSections }.orEmpty(),
             appSettingResults =
                 appSettingResults.takeIf { SearchSection.APP_SETTINGS in pendingSections }.orEmpty(),
             appShortcutResults =
@@ -707,6 +712,7 @@ class SecondarySearchOrchestrator(
                 is UnifiedSectionSearchResult.Reminders -> copy(reminderResults = result.results)
                 is UnifiedSectionSearchResult.Bookmarks -> copy(bookmarkResults = result.results)
                 is UnifiedSectionSearchResult.Notes -> copy(noteResults = result.results)
+                is UnifiedSectionSearchResult.Noted -> copy(notedResults = result.results)
                 is UnifiedSectionSearchResult.AppSettings -> copy(appSettingResults = result.results)
                 is UnifiedSectionSearchResult.AppShortcuts -> copy(appShortcutResults = result.results)
                 is UnifiedSectionSearchResult.Skipped ->
@@ -718,6 +724,7 @@ class SecondarySearchOrchestrator(
                         SearchSection.REMINDERS -> copy(reminderResults = emptyList())
                         SearchSection.BOOKMARKS -> copy(bookmarkResults = emptyList())
                         SearchSection.NOTES -> copy(noteResults = emptyList())
+                        SearchSection.NOTED -> copy(notedResults = emptyList())
                         SearchSection.APP_SETTINGS -> copy(appSettingResults = emptyList())
                         SearchSection.APP_SHORTCUTS -> copy(appShortcutResults = emptyList())
                         SearchSection.APPS -> this
@@ -741,6 +748,7 @@ class SecondarySearchOrchestrator(
             is UnifiedSectionSearchResult.Reminders -> results.isNotEmpty()
             is UnifiedSectionSearchResult.Bookmarks -> results.isNotEmpty()
             is UnifiedSectionSearchResult.Notes -> results.isNotEmpty()
+            is UnifiedSectionSearchResult.Noted -> results.isNotEmpty()
             is UnifiedSectionSearchResult.AppSettings -> results.isNotEmpty()
             is UnifiedSectionSearchResult.AppShortcuts -> results.isNotEmpty()
         }

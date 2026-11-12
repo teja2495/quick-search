@@ -258,7 +258,7 @@ private fun NicknameItemIcon(item: NicknameItem) {
             val iconResult = rememberAppIcon(packageName = item.packageName, userHandleId = item.userHandleId)
             if (iconResult.bitmap != null) {
                 Image(
-                    bitmap = iconResult.bitmap!!,
+                    bitmap = iconResult.bitmap,
                     contentDescription = null,
                     modifier = Modifier.size(DesignTokens.IconSize),
                     contentScale = ContentScale.Fit,
@@ -293,7 +293,7 @@ private fun NicknameItemIcon(item: NicknameItem) {
                 val iconResult = rememberAppIcon(packageName = packageName)
                 if (iconResult.bitmap != null) {
                     Image(
-                        bitmap = iconResult.bitmap!!,
+                        bitmap = iconResult.bitmap,
                         contentDescription = null,
                         modifier = Modifier.size(DesignTokens.IconSize),
                         contentScale = ContentScale.Fit,

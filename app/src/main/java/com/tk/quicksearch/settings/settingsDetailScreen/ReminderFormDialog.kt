@@ -118,6 +118,8 @@ internal fun ReminderFormDialog(
     titleMaxLines: Int = 1,
     showTitleInput: Boolean = true,
     requireExplicitDateOrTime: Boolean = false,
+    /** Extra fields shown below the time button, e.g. a reminder's repeat rule. */
+    belowTime: @Composable () -> Unit = {},
 ) {
     val context = LocalContext.current
     var reminderTitle by remember { mutableStateOf(initialTitle) }
@@ -324,6 +326,7 @@ internal fun ReminderFormDialog(
                                 )
                             }
                         }
+                        belowTime()
                     }
                 },
                 confirmButton = {

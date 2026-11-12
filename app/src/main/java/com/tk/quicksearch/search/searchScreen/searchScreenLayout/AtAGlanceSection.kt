@@ -136,21 +136,24 @@ internal fun rememberAtAGlanceItems(
                 AtAGlanceItem(key = "timer-${timer.key}") { TimerRow(timer, notifications.nowMillis) }
             },
             listOfNotNull(alarm?.let { AtAGlanceItem(key = "alarm") { UpcomingAlarmRow(it) } }),
-            reminders.reminders.map { reminder ->
-                AtAGlanceItem(key = "reminder-${reminder.reminderId}") {
-                    UpcomingReminderRow(
-                        reminder = reminder,
-                        nowMillis = reminders.nowMillis,
-                        isPendingDone = reminder.reminderId in reminders.pendingDoneIds,
-                        onClick = { ReminderEditorRequests.openEdit(reminder) },
-                        onDone = { reminders.markDone(reminder) },
-                        onUndoDone = { reminders.undoDone(reminder) },
-                        onSnooze = { reminders.snooze(reminder) },
-                        onDismiss = { reminders.dismiss(reminder) },
-                        onDelete = { reminders.delete(reminder) },
-                    )
-                }
-            },
+            (
+                reminders.reminders.map { reminder ->
+                    reminder.dueMillis to
+                        AtAGlanceItem(key = "reminder-${reminder.reminderId}") {
+                            UpcomingReminderRow(
+                                reminder = reminder,
+                                nowMillis = reminders.nowMillis,
+                                isPendingDone = reminder.reminderId in reminders.pendingDoneIds,
+                                onClick = { ReminderEditorRequests.openEdit(reminder) },
+                                onDone = { reminders.markDone(reminder) },
+                                onUndoDone = { reminders.undoDone(reminder) },
+                                onSnooze = { reminders.snooze(reminder) },
+                                onDismiss = { reminders.dismiss(reminder) },
+                                onDelete = { reminders.delete(reminder) },
+                            )
+                        }
+                } + reminders.notedTasks.map { task -> task.reminder.dueMillis to notedTaskGlanceItem(task, reminders) }
+            ).sortedBy { it.first }.map { it.second },
             listOfNotNull(
                 notifications.missedCalls.takeIf { it.isNotEmpty() }?.let { calls ->
                     AtAGlanceItem(key = "missed-calls") { MissedCallsRow(calls, notifications.dismissMissedCalls) }

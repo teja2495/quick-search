@@ -10,9 +10,11 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.models.CalendarEventInfo
+import com.tk.quicksearch.shared.time.RelativeTimeFormatter
+import com.tk.quicksearch.shared.time.RelativeTimeStrings
+import com.tk.quicksearch.shared.time.RelativeTimeUnit
 import java.text.SimpleDateFormat
 import java.time.Instant
-import java.time.Period
 import java.time.ZoneId
 import java.time.format.TextStyle
 import java.util.Date
@@ -127,50 +129,41 @@ fun calendarRecurrenceLabel(
     )
 }
 
+/** A time-less date: "Today", "Tomorrow", "in 1 month 4 days". */
 @Composable
 fun calendarRelativeDateLabel(
     eventStartMillis: Long,
     nowMillis: Long = System.currentTimeMillis(),
 ): String = calendarRelativeDateLabel(eventStartMillis, isAllDay = true, nowMillis)
 
+/** An event: "Now" while it runs, otherwise as for its start. */
 @Composable
 fun calendarRelativeDateLabel(
     event: CalendarEventInfo,
     nowMillis: Long = System.currentTimeMillis(),
-): String = calendarRelativeDateLabel(event.startMillis, event.allDay, nowMillis)
+): String = calendarRelativeDateLabel(event.startMillis, event.allDay, nowMillis, endMillis = event.endMillis)
 
+/**
+ * The shared relative label ([RelativeTimeFormatter]) in this app's translated strings: minutes or
+ * hours for timed items that are today or a few hours away, otherwise "Today", "Tomorrow",
+ * "Yesterday", or days, months and years.
+ */
 @Composable
 fun calendarRelativeDateLabel(
     eventStartMillis: Long,
     isAllDay: Boolean,
     nowMillis: Long = System.currentTimeMillis(),
+    endMillis: Long? = null,
 ): String {
-    val zoneId = ZoneId.systemDefault()
-    val today = Instant.ofEpochMilli(nowMillis).atZone(zoneId).toLocalDate()
-    val eventDate = Instant.ofEpochMilli(eventStartMillis).atZone(zoneId).toLocalDate()
-
-    val dayDelta = eventDate.toEpochDay() - today.toEpochDay()
-    if (dayDelta == 0L) {
-        return if (isAllDay) stringResource(R.string.calendar_relative_today)
-        else calendarRelativeTimeLabel(eventStartMillis, nowMillis)
-    }
-    if (dayDelta == -1L) return stringResource(R.string.calendar_relative_yesterday)
-    if (dayDelta == 1L) return stringResource(R.string.calendar_relative_tomorrow)
-
-    val isFuture = dayDelta > 0L
-    val period =
-        if (isFuture) {
-            Period.between(today, eventDate)
-        } else {
-            Period.between(eventDate, today)
-        }
-    val deltaText = formatRelativeUnits(period)
-
-    return if (isFuture) {
-        stringResource(R.string.calendar_relative_in_format, deltaText)
-    } else {
-        stringResource(R.string.calendar_relative_ago_format, deltaText)
-    }
+    // Read so the label follows locale changes, as stringResource does.
+    LocalConfiguration.current
+    return RelativeTimeFormatter.label(
+        date = Instant.ofEpochMilli(eventStartMillis),
+        hasTime = !isAllDay,
+        now = Instant.ofEpochMilli(nowMillis),
+        endDate = endMillis?.let(Instant::ofEpochMilli),
+        strings = ResourceRelativeTimeStrings(LocalContext.current.resources),
+    )
 }
 
 @Composable
@@ -183,63 +176,45 @@ internal fun calendarRelativeTimeLabel(
     return calendarRelativeTimeLabel(LocalContext.current.resources, eventStartMillis, nowMillis)
 }
 
-/** "in 5 minutes" or "2 hours ago": whole minutes, or whole hours from an hour away. */
+/** "Now", "in 5 minutes" or "2 hours ago": whole minutes, or whole hours from an hour away. */
 internal fun calendarRelativeTimeLabel(
     resources: Resources,
     eventStartMillis: Long,
     nowMillis: Long,
-): String {
-    val minutes = (kotlin.math.abs(eventStartMillis - nowMillis) / MILLIS_PER_MINUTE).coerceAtLeast(1L)
-    val hours = (minutes / 60).toInt()
-    val duration =
-        if (hours > 0) {
-            resources.getQuantityString(R.plurals.calendar_relative_hours, hours, hours)
-        } else {
-            resources.getQuantityString(R.plurals.calendar_relative_minutes, minutes.toInt(), minutes.toInt())
-        }
+): String =
+    RelativeTimeFormatter.format(
+        RelativeTimeFormatter.timeDistance(Instant.ofEpochMilli(eventStartMillis), Instant.ofEpochMilli(nowMillis)),
+        ResourceRelativeTimeStrings(resources),
+    )
 
-    return if (eventStartMillis >= nowMillis) {
-        resources.getString(R.string.calendar_relative_in_format, duration)
-    } else {
-        resources.getString(R.string.calendar_relative_ago_format, duration)
-    }
+/** The shared relative-time wording, read from this app's translated resources. */
+internal class ResourceRelativeTimeStrings(private val resources: Resources) : RelativeTimeStrings {
+    override val now: String get() = resources.getString(R.string.calendar_relative_now)
+    override val today: String get() = resources.getString(R.string.calendar_relative_today)
+    override val tomorrow: String get() = resources.getString(R.string.calendar_relative_tomorrow)
+    override val yesterday: String get() = resources.getString(R.string.calendar_relative_yesterday)
+
+    override fun unit(value: Int, unit: RelativeTimeUnit): String =
+        resources.getQuantityString(
+            when (unit) {
+                RelativeTimeUnit.Minute -> R.plurals.calendar_relative_minutes
+                RelativeTimeUnit.Hour -> R.plurals.calendar_relative_hours
+                RelativeTimeUnit.Day -> R.plurals.calendar_relative_days
+                RelativeTimeUnit.Month -> R.plurals.calendar_relative_months
+                RelativeTimeUnit.Year -> R.plurals.calendar_relative_years
+            },
+            value,
+            value,
+        )
+
+    override fun future(duration: String): String = resources.getString(R.string.calendar_relative_in_format, duration)
+
+    override fun past(duration: String): String = resources.getString(R.string.calendar_relative_ago_format, duration)
 }
 
 @Composable
 private fun formatCalendarEventStartTime(startMillis: Long): String =
     DateFormat.getTimeFormat(LocalContext.current).format(Date(startMillis))
-
-@Composable
-private fun formatRelativeUnits(period: Period): String {
-    val years = period.years.coerceAtLeast(0)
-    val months = period.months.coerceAtLeast(0)
-    val days = period.days.coerceAtLeast(0)
-
-    if (years > 0) {
-        val yearLabel = pluralStringResource(R.plurals.calendar_relative_years, years, years)
-        val monthLabel =
-            if (months > 0) {
-                pluralStringResource(R.plurals.calendar_relative_months, months, months)
-            } else {
-                null
-            }
-        return listOfNotNull(yearLabel, monthLabel).joinToString(separator = " ")
-    }
-
-    if (months > 0) {
-        val monthLabel = pluralStringResource(R.plurals.calendar_relative_months, months, months)
-        val dayLabel =
-            if (days > 0) {
-                pluralStringResource(R.plurals.calendar_relative_days, days, days)
-            } else {
-                null
-            }
-        return listOfNotNull(monthLabel, dayLabel).joinToString(separator = " ")
-    }
-
-    val safeDays = days.coerceAtLeast(1)
-    return pluralStringResource(R.plurals.calendar_relative_days, safeDays, safeDays)
-}
 
 private fun parseRecurrenceRule(rule: String?): CalendarRecurrenceInfo? {
     if (rule.isNullOrBlank()) return null

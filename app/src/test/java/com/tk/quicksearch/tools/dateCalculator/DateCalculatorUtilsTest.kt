@@ -120,4 +120,17 @@ class DateCalculatorUtilsTest {
             assertNotNull(DateCalculatorUtils.parseRelativeDateQuery(query))
         }
     }
+
+    @Test
+    fun durationLabelsUseTheSharedUnitWording() {
+        val start = LocalDate.of(2026, 6, 4)
+        assertEquals("1 year 2 months 3 days", DateCalculatorUtils.diffLabel(start, LocalDate.of(2027, 8, 7)))
+        assertEquals("1 month", DateCalculatorUtils.diffLabel(LocalDate.of(2026, 7, 4), start))
+        assertEquals("0 days", DateCalculatorUtils.diffLabel(start, start))
+        assertEquals("in 4 hours 30 minutes", DateCalculatorUtils.timeRelativeLabel(270))
+        assertEquals("1 hour 1 minute ago", DateCalculatorUtils.timeRelativeLabel(-61))
+        assertEquals("in 0 minutes", DateCalculatorUtils.timeRelativeLabel(0))
+        assertEquals("8 hours 30 minutes", DateCalculatorUtils.parseTimeDiffQuery("9am to 5:30pm")?.label)
+        assertEquals("0 minutes", DateCalculatorUtils.parseTimeDiffQuery("9am to 9am")?.label)
+    }
 }

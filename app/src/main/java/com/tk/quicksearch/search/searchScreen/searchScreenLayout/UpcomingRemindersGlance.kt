@@ -67,7 +67,13 @@ import com.tk.quicksearch.reminders.ReminderEditorRequests
 import com.tk.quicksearch.search.calendar.calendarRelativeTimeLabel
 import com.tk.quicksearch.search.data.GlanceTiming
 import com.tk.quicksearch.search.data.ReminderRepository
+import com.tk.quicksearch.search.data.preferences.ReminderPreferences
 import com.tk.quicksearch.search.models.ReminderInfo
+import com.tk.quicksearch.search.noted.NotedGlanceTask
+import com.tk.quicksearch.search.noted.NotedGlanceTasks
+import com.tk.quicksearch.search.noted.NotedAppIcon
+import com.tk.quicksearch.search.noted.NotedLauncher
+import com.tk.quicksearch.search.noted.NotedRepository
 import com.tk.quicksearch.search.reminders.reminderOverdueColor
 import com.tk.quicksearch.search.reminders.reminderScheduleLabel
 import com.tk.quicksearch.shared.ui.components.LocalShowUndoSnackbar
@@ -105,6 +111,12 @@ internal class UpcomingRemindersGlance(
     val snooze: (ReminderInfo) -> Unit,
     val dismiss: (ReminderInfo) -> Unit,
     val delete: (ReminderInfo) -> Unit,
+    /** Noted tasks due now or soon, shown like reminders while "Noted Integration" is on. */
+    val notedTasks: List<NotedGlanceTask> = emptyList(),
+    val pendingDoneNotedKeys: Set<String> = emptySet(),
+    val markNotedDone: (NotedGlanceTask) -> Unit = {},
+    val undoNotedDone: (NotedGlanceTask) -> Unit = {},
+    val dismissNoted: (NotedGlanceTask) -> Unit = {},
 )
 
 /** Polls the home-card reminders while [enabled]; refreshes on resume, on edits and every 10 seconds. */
@@ -114,10 +126,12 @@ internal fun rememberUpcomingRemindersGlance(enabled: Boolean): UpcomingReminder
     val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
     val repository = remember(context) { ReminderRepository(context) }
+    val reminderPreferences = remember(context) { ReminderPreferences(context) }
     val changeCount by ReminderRepository.changes.collectAsState()
     var refreshKey by remember { mutableIntStateOf(0) }
     var nowMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var reminders by remember { mutableStateOf(emptyList<ReminderInfo>()) }
+    var notedTasks by remember { mutableStateOf(emptyList<NotedGlanceTask>()) }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -129,6 +143,7 @@ internal fun rememberUpcomingRemindersGlance(enabled: Boolean): UpcomingReminder
     LaunchedEffect(repository, refreshKey, changeCount, enabled) {
         if (!enabled) {
             reminders = emptyList()
+            notedTasks = emptyList()
             return@LaunchedEffect
         }
         // Home stays composed while another app is in front; only poll while it can be seen.
@@ -136,6 +151,15 @@ internal fun rememberUpcomingRemindersGlance(enabled: Boolean): UpcomingReminder
             while (true) {
                 nowMillis = System.currentTimeMillis()
                 reminders = withContext(Dispatchers.IO) { repository.getHomeCardReminders(nowMillis) }
+                notedTasks =
+                    withContext(Dispatchers.IO) {
+                        NotedGlanceTasks.load(
+                            context,
+                            nowMillis,
+                            isShown = reminderPreferences.isShowUpcomingRemindersEnabled(),
+                            isTomorrowShown = reminderPreferences.isShowTomorrowRemindersEnabled(),
+                        )
+                    }
                 delay(10_000)
             }
         }
@@ -154,6 +178,21 @@ internal fun rememberUpcomingRemindersGlance(enabled: Boolean): UpcomingReminder
             }
             live
         }
+
+    // Noted tasks just marked done, kept in place like reminders so their row can offer Undo.
+    var pendingNotedDone by remember { mutableStateOf(emptyMap<String, Pair<Int, NotedGlanceTask>>()) }
+    val pendingNotedDoneJobs = remember { mutableMapOf<String, Job>() }
+    val displayedNotedTasks =
+        if (pendingNotedDone.isEmpty()) {
+            notedTasks
+        } else {
+            val live = notedTasks.filterNot { it.key in pendingNotedDone }.toMutableList()
+            pendingNotedDone.values.sortedBy { it.first }.forEach { (index, task) ->
+                live.add(index.coerceIn(0, live.size), task)
+            }
+            live
+        }
+    val notedRepository = remember(context) { NotedRepository(context) }
 
     val showUndoSnackbar = LocalShowUndoSnackbar.current
     val snoozedMessage = stringResource(R.string.home_reminder_snoozed)
@@ -225,6 +264,33 @@ internal fun rememberUpcomingRemindersGlance(enabled: Boolean): UpcomingReminder
                 undo = { pinnedOrder -> restore(reminder, pinnedOrder) },
             )
         },
+        notedTasks = displayedNotedTasks,
+        pendingDoneNotedKeys = pendingNotedDone.keys,
+        markNotedDone = { task ->
+            val index = displayedNotedTasks.indexOfFirst { it.key == task.key }.coerceAtLeast(0)
+            pendingNotedDone = pendingNotedDone + (task.key to (index to task))
+            pendingNotedDoneJobs.remove(task.key)?.cancel()
+            pendingNotedDoneJobs[task.key] =
+                scope.launch {
+                    withContext(Dispatchers.IO) { notedRepository.setTaskCompletedBlocking(task.item.id, true) }
+                    ReminderRepository.notifyChanged()
+                    delay(DONE_UNDO_WINDOW_MILLIS)
+                    pendingNotedDone = pendingNotedDone - task.key
+                    pendingNotedDoneJobs.remove(task.key)
+                }
+        },
+        dismissNoted = { task ->
+            notedTasks = notedTasks.filterNot { it.key == task.key }
+            scope.launch(Dispatchers.IO) { NotedGlanceTasks.dismiss(context, task) }
+        },
+        undoNotedDone = { task ->
+            pendingNotedDoneJobs.remove(task.key)?.cancel()
+            scope.launch {
+                withContext(Dispatchers.IO) { notedRepository.setTaskCompletedBlocking(task.item.id, false) }
+                ReminderRepository.notifyChanged()
+                pendingNotedDone = pendingNotedDone - task.key
+            }
+        },
     )
 }
 
@@ -240,6 +306,9 @@ internal fun UpcomingReminderRow(
     onSnooze: () -> Unit,
     onDismiss: () -> Unit,
     onDelete: () -> Unit,
+    /** A Noted task's menu offers only Done and, while it hides the task for a while, Dismiss. */
+    isNotedTask: Boolean = false,
+    leadingIcon: (@Composable () -> Unit)? = null,
 ) {
     val context = LocalContext.current
     var showMenu by remember { mutableStateOf(false) }
@@ -305,7 +374,7 @@ internal fun UpcomingReminderRow(
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(
+            leadingIcon?.invoke() ?: Icon(
                 painter = painterResource(R.drawable.ic_reminder),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
@@ -346,40 +415,48 @@ internal fun UpcomingReminderRow(
                         onDone()
                     },
                 )
-                // Dismiss hides a reminder until it's due (or tomorrow's until the morning). Within 30 minutes
-                // of its time that would be Done, so Snooze takes its place.
-                HorizontalDivider()
+                // Dismiss hides a reminder until it's due (or tomorrow's until the morning), or an overdue one
+                // for the rest of the day. Within 30 minutes of its time that would be Done, so only Snooze shows.
                 val canDismiss =
                     ReminderRepository.canDismissUntilDue(reminder, nowMillis) ||
                         (GlanceTiming.isEvening(nowMillis) && ReminderRepository.isTomorrowEveningItem(reminder, nowMillis))
-                if (!canDismiss) {
-                    DropdownMenuItem(
-                        text = { Text(text = stringResource(R.string.reminder_notification_action_snooze)) },
-                        leadingIcon = { Icon(imageVector = MaterialSymbols.Snooze, contentDescription = null) },
-                        onClick = {
-                            showMenu = false
-                            onSnooze()
-                        },
-                    )
-                } else {
-                    DropdownMenuItem(
-                        text = { Text(text = stringResource(R.string.reminders_home_card_dismiss_for_now)) },
-                        leadingIcon = { Icon(imageVector = MaterialSymbols.Close, contentDescription = null) },
-                        onClick = {
+                if (isNotedTask) {
+                    // Snooze and Delete act on Quick Search reminders; a Noted task is changed in Noted.
+                    if (canDismiss || isOverdue) {
+                        HorizontalDivider()
+                        DismissForNowMenuItem {
                             showMenu = false
                             onDismiss()
+                        }
+                    }
+                } else {
+                    HorizontalDivider()
+                    if (!canDismiss) {
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(R.string.reminder_notification_action_snooze)) },
+                            leadingIcon = { Icon(imageVector = MaterialSymbols.Snooze, contentDescription = null) },
+                            onClick = {
+                                showMenu = false
+                                onSnooze()
+                            },
+                        )
+                    }
+                    if (canDismiss || isOverdue) {
+                        DismissForNowMenuItem {
+                            showMenu = false
+                            onDismiss()
+                        }
+                    }
+                    HorizontalDivider()
+                    DropdownMenuItem(
+                        text = { Text(text = stringResource(R.string.dialog_delete)) },
+                        leadingIcon = { Icon(imageVector = MaterialSymbols.Delete, contentDescription = null) },
+                        onClick = {
+                            showMenu = false
+                            onDelete()
                         },
                     )
                 }
-                HorizontalDivider()
-                DropdownMenuItem(
-                    text = { Text(text = stringResource(R.string.dialog_delete)) },
-                    leadingIcon = { Icon(imageVector = MaterialSymbols.Delete, contentDescription = null) },
-                    onClick = {
-                        showMenu = false
-                        onDelete()
-                    },
-                )
             }
         }
         if (isPendingDone) {
@@ -431,6 +508,15 @@ internal fun UpcomingReminderRow(
     }
 }
 
+@Composable
+private fun DismissForNowMenuItem(onClick: () -> Unit) {
+    DropdownMenuItem(
+        text = { Text(text = stringResource(R.string.reminders_home_card_dismiss_for_now)) },
+        leadingIcon = { Icon(imageVector = MaterialSymbols.Close, contentDescription = null) },
+        onClick = onClick,
+    )
+}
+
 private val UndoCountdownStroke = 2.dp
 private val UndoPillHeight = 24.dp
 
@@ -453,3 +539,22 @@ private fun DrawScope.drawUndoCountdownRing(remaining: Float, trackColor: Color,
     measure.getSegment(0f, measure.length * remaining, arc, startWithMoveTo = true)
     drawPath(arc, color = progressColor, style = stroke)
 }
+
+/** A Noted task as a reminder row: tapping opens it in Noted, and the check completes it there. */
+internal fun notedTaskGlanceItem(task: NotedGlanceTask, glance: UpcomingRemindersGlance): AtAGlanceItem =
+    AtAGlanceItem(key = task.key) {
+        val context = LocalContext.current
+        UpcomingReminderRow(
+            reminder = task.reminder,
+            nowMillis = glance.nowMillis,
+            isPendingDone = task.key in glance.pendingDoneNotedKeys,
+            onClick = { NotedLauncher.open(context, task.item) },
+            onDone = { glance.markNotedDone(task) },
+            onUndoDone = { glance.undoNotedDone(task) },
+            onSnooze = {},
+            onDismiss = { glance.dismissNoted(task) },
+            onDelete = {},
+            isNotedTask = true,
+            leadingIcon = { NotedAppIcon(iconPackPackage = null, modifier = Modifier.size(24.dp)) },
+        )
+    }

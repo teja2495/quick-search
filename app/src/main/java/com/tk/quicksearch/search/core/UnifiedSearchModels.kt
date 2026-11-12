@@ -52,6 +52,7 @@ data class UnifiedSearchResults(
         val reminderResults: List<ReminderInfo> = emptyList(),
         val noteResults: List<NoteInfo> = emptyList(),
         val bookmarkResults: List<BookmarkInfo> = emptyList(),
+        val notedResults: List<com.tk.quicksearch.search.models.NotedItem> = emptyList(),
         val appSettingResults: List<AppSettingResult> = emptyList(),
         val appShortcutResults: List<StaticShortcut> = emptyList(),
         val recencyIndex: RecentResultRankingUtils.RecencyIndex =
@@ -96,6 +97,10 @@ sealed interface UnifiedSectionSearchResult {
 
         data class Bookmarks(val results: List<BookmarkInfo>) : UnifiedSectionSearchResult {
                 override val section = SearchSection.BOOKMARKS
+        }
+
+        data class Noted(val results: List<com.tk.quicksearch.search.models.NotedItem>) : UnifiedSectionSearchResult {
+                override val section = SearchSection.NOTED
         }
 
         data class AppSettings(val results: List<AppSettingResult>) : UnifiedSectionSearchResult {

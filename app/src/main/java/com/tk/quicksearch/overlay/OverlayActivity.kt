@@ -27,6 +27,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.fragment.app.FragmentActivity
 import com.tk.quicksearch.app.startup.StartupCoordinator
 import com.tk.quicksearch.app.startup.StartupMode
+import com.tk.quicksearch.app.startup.StartupTrace
 import com.tk.quicksearch.app.UiSurfaceMemoryManager
 import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.BackgroundSource
@@ -63,6 +64,7 @@ class OverlayActivity : FragmentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        StartupTrace.beginSurface("OverlayActivity")
         Trace.beginSection(TRACE_ON_CREATE_ENTRY)
         AppLockGate.trackActivities(application)
         try {
@@ -262,15 +264,15 @@ class OverlayActivity : FragmentActivity() {
             intent?.getBooleanExtra(OverlayModeController.EXTRA_START_VOICE_SEARCH, false) ?: false
         if (!shouldStartVoiceSearch) return
 
-        intent?.removeExtra(OverlayModeController.EXTRA_START_VOICE_SEARCH)
+        intent.removeExtra(OverlayModeController.EXTRA_START_VOICE_SEARCH)
         val micAction =
             intent
-                ?.getStringExtra(OverlayModeController.EXTRA_MIC_ACTION)
+                .getStringExtra(OverlayModeController.EXTRA_MIC_ACTION)
                 ?.let { actionString ->
                     MicAction.entries.find { it.value == actionString }
                 }
                 ?: MicAction.DEFAULT_VOICE_SEARCH
-        intent?.removeExtra(OverlayModeController.EXTRA_MIC_ACTION)
+        intent.removeExtra(OverlayModeController.EXTRA_MIC_ACTION)
         voiceSearchHandler.handleMicAction(micAction)
     }
 }
