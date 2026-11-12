@@ -717,6 +717,18 @@ class SearchViewModel(
     }
 
     fun consumeSearchKeyboardRestoreRequest() = setSearchKeyboardRestoreRequest(false)
+
+    /**
+     * True after search was left for another in-app page (Settings, Widgets). The rebuilt search
+     * field then skips its launch auto-focus, so only [setSearchKeyboardRestoreRequest] decides
+     * whether the keyboard comes back.
+     */
+    var searchLeftForInAppPage = false
+        private set
+
+    fun setSearchLeftForInAppPage(left: Boolean) {
+        searchLeftForInAppPage = left
+    }
     fun onSettingsImported() {
         startupLifecycleDelegate.onSettingsImported(
                 applyStartupPreferences = this::applyStartupPreferences,

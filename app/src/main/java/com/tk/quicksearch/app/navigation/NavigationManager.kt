@@ -45,6 +45,7 @@ import com.tk.quicksearch.onboarding.permissionScreen.PermissionsScreen
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchViewModel
+import com.tk.quicksearch.search.searchScreen.components.LocalSearchReturningFromInAppPage
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.searchScreen.LocalPageBackdropDrawnByHost
@@ -123,6 +124,10 @@ fun MainContent(
 
     LaunchedEffect(navigationRequest) {
         navigationRequest?.let { request ->
+            when {
+                request.destination == RootDestination.Search -> searchViewModel.setSearchLeftForInAppPage(false)
+                destination == RootDestination.Search -> searchViewModel.setSearchLeftForInAppPage(true)
+            }
             destination = request.destination
             // Only update settingsDetailType when the request explicitly specifies one.
             // When null (e.g. returning to home on app reopen), preserve the last visited
@@ -387,7 +392,12 @@ fun MainContent(
             AppScreen.Main -> {
                 NavigationContent(
                     destination = destination,
-                    onDestinationChange = { destination = it },
+                    onDestinationChange = {
+                        if (destination == RootDestination.Search && it != RootDestination.Search) {
+                            searchViewModel.setSearchLeftForInAppPage(true)
+                        }
+                        destination = it
+                    },
                     settingsDetailType = settingsDetailType,
                     previousSettingsDetailType = previousSettingsDetailType,
                     onSettingsDetailTypeChange = {
@@ -562,95 +572,103 @@ private fun NavigationContent(
                             onDestinationChange(RootDestination.WidgetsPanel)
                             leaveSearchSurface()
                         }
-                        SearchRoute(
-                            viewModel = viewModel,
-                            onCloseAppRequest = onFinishActivity,
-                            onSettingsClick = {
-                                navigateToSettings(settingsDetailType ?: lastOpenedSettingsDetail)
-                            },
-                            onOpenAppSettingDestination = { destination ->
-                                handleAppSettingsDestination(
-                                    destination = destination,
-                                    handlers =
-                                        AppSettingsDestinationHandlers(
-                                            onOpenSettingsDetail = { detailType ->
-                                                navigateToSettings(detailType)
-                                            },
-                                            onReloadApps = { viewModel.refreshApps(showToast = true) },
-                                            onReloadContacts = { viewModel.refreshContacts(showToast = true) },
-                                            onReloadFiles = { viewModel.refreshFiles(showToast = true) },
-                                            onSendFeedback = {
-                                                FeedbackUtils.launchFeedbackEmail(
-                                                    context = context,
-                                                    feedbackText = null,
-                                                )
-                                            },
-                                            onRateQuickSearch = { launchRateQuickSearch(context) },
-                                            onOpenDevelopmentPage = { launchDevelopmentPage(context) },
-                                            onSetDefaultAssistant = {
-                                                openDefaultAssistantSettings(context)
-                                            },
-                                            onSetDefaultLauncher = {
-                                                openDefaultLauncherSettings(context)
-                                            },
-                                            onAddHomeScreenWidget = {
-                                                com.tk.quicksearch.widgets.utils.requestAddQuickSearchWidget(context)
-                                            },
-                                            onAddQuickSettingsTile = {
-                                                com.tk.quicksearch.tile.requestAddQuickSearchTile(context)
-                                            },
-                                        ),
-                                )
-                            },
-                            onOpenNotesDetail = {
-                                val destination =
-                                    if (it != null) {
-                                        SettingsDetailType.NOTE_EDITOR
+                        // Read once on entry: returning from Settings/Widgets skips launch auto-focus, so
+                        // the keyboard only comes back if it was open when search was left.
+                        val returningFromInAppPage = remember { viewModel.searchLeftForInAppPage }
+                        LaunchedEffect(destination) {
+                            if (destination == RootDestination.Search) viewModel.setSearchLeftForInAppPage(false)
+                        }
+                        CompositionLocalProvider(LocalSearchReturningFromInAppPage provides returningFromInAppPage) {
+                            SearchRoute(
+                                viewModel = viewModel,
+                                onCloseAppRequest = onFinishActivity,
+                                onSettingsClick = {
+                                    navigateToSettings(settingsDetailType ?: lastOpenedSettingsDetail)
+                                },
+                                onOpenAppSettingDestination = { destination ->
+                                    handleAppSettingsDestination(
+                                        destination = destination,
+                                        handlers =
+                                            AppSettingsDestinationHandlers(
+                                                onOpenSettingsDetail = { detailType ->
+                                                    navigateToSettings(detailType)
+                                                },
+                                                onReloadApps = { viewModel.refreshApps(showToast = true) },
+                                                onReloadContacts = { viewModel.refreshContacts(showToast = true) },
+                                                onReloadFiles = { viewModel.refreshFiles(showToast = true) },
+                                                onSendFeedback = {
+                                                    FeedbackUtils.launchFeedbackEmail(
+                                                        context = context,
+                                                        feedbackText = null,
+                                                    )
+                                                },
+                                                onRateQuickSearch = { launchRateQuickSearch(context) },
+                                                onOpenDevelopmentPage = { launchDevelopmentPage(context) },
+                                                onSetDefaultAssistant = {
+                                                    openDefaultAssistantSettings(context)
+                                                },
+                                                onSetDefaultLauncher = {
+                                                    openDefaultLauncherSettings(context)
+                                                },
+                                                onAddHomeScreenWidget = {
+                                                    com.tk.quicksearch.widgets.utils.requestAddQuickSearchWidget(context)
+                                                },
+                                                onAddQuickSettingsTile = {
+                                                    com.tk.quicksearch.tile.requestAddQuickSearchTile(context)
+                                                },
+                                            ),
+                                    )
+                                },
+                                onOpenNotesDetail = {
+                                    val destination =
+                                        if (it != null) {
+                                            SettingsDetailType.NOTE_EDITOR
+                                        } else {
+                                            SettingsDetailType.NOTES
+                                        }
+                                    if (destination == SettingsDetailType.NOTE_EDITOR) {
+                                        onDestinationChange(RootDestination.Settings)
+                                        onSettingsDetailTypeChangeFromSearch(destination)
+                                        keyboardController?.hide()
                                     } else {
-                                        SettingsDetailType.NOTES
+                                        navigateToSettings(destination)
                                     }
-                                if (destination == SettingsDetailType.NOTE_EDITOR) {
-                                    onDestinationChange(RootDestination.Settings)
-                                    onSettingsDetailTypeChangeFromSearch(destination)
-                                    keyboardController?.hide()
-                                } else {
-                                    navigateToSettings(destination)
-                                }
-                            },
-                            onOpenNotificationHistory = {
-                                navigateToSettings(SettingsDetailType.NOTIFICATION_HISTORY)
-                            },
-                            onOpenWidgetsPanelFromSwipe = navigateToWidgetsPanelFromSwipeRight,
-                            onSearchEngineLongPress = {
-                                navigateToSettings(SettingsDetailType.SEARCH_ENGINES)
-                            },
-                            onCustomizeSearchEnginesClick = {
-                                navigateToSettings(SettingsDetailType.SEARCH_ENGINES)
-                            },
-                            onOpenAiSearchConfigure = {
-                                navigateToSettings(
-                                    if (viewModel.uiState.value.hasApiKey) {
-                                        SettingsDetailType.GEMINI_API_CONFIG
-                                    } else {
-                                        SettingsDetailType.API_KEY_SETUP
-                                    },
-                                )
-                            },
-                            onOpenToolsSettings = {
-                                navigateToSettings(SettingsDetailType.TOOLS)
-                            },
-                            onOpenCustomToolSettings = { toolId ->
-                                CustomToolNavigationMemory.setPendingToolId(toolId)
-                                navigateToSettings(SettingsDetailType.CUSTOM_TOOL_EDITOR)
-                            },
-                            onOpenReleaseNotesFeatures = {
-                                navigateToSettings(SettingsDetailType.FEATURES_LIST)
-                            },
-                            onWelcomeAnimationCompleted = {
-                                viewModel.onSearchBarWelcomeAnimationCompleted()
-                            },
-                            onWallpaperLoaded = { viewModel.setWallpaperAvailable(true) },
-                        )
+                                },
+                                onOpenNotificationHistory = {
+                                    navigateToSettings(SettingsDetailType.NOTIFICATION_HISTORY)
+                                },
+                                onOpenWidgetsPanelFromSwipe = navigateToWidgetsPanelFromSwipeRight,
+                                onSearchEngineLongPress = {
+                                    navigateToSettings(SettingsDetailType.SEARCH_ENGINES)
+                                },
+                                onCustomizeSearchEnginesClick = {
+                                    navigateToSettings(SettingsDetailType.SEARCH_ENGINES)
+                                },
+                                onOpenAiSearchConfigure = {
+                                    navigateToSettings(
+                                        if (viewModel.uiState.value.hasApiKey) {
+                                            SettingsDetailType.GEMINI_API_CONFIG
+                                        } else {
+                                            SettingsDetailType.API_KEY_SETUP
+                                        },
+                                    )
+                                },
+                                onOpenToolsSettings = {
+                                    navigateToSettings(SettingsDetailType.TOOLS)
+                                },
+                                onOpenCustomToolSettings = { toolId ->
+                                    CustomToolNavigationMemory.setPendingToolId(toolId)
+                                    navigateToSettings(SettingsDetailType.CUSTOM_TOOL_EDITOR)
+                                },
+                                onOpenReleaseNotesFeatures = {
+                                    navigateToSettings(SettingsDetailType.FEATURES_LIST)
+                                },
+                                onWelcomeAnimationCompleted = {
+                                    viewModel.onSearchBarWelcomeAnimationCompleted()
+                                },
+                                onWallpaperLoaded = { viewModel.setWallpaperAvailable(true) },
+                            )
+                        }
                     }
                 }
             }

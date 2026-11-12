@@ -1,6 +1,10 @@
 package com.tk.quicksearch.search.searchScreen.components
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.EnterExitState
+import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -299,6 +303,11 @@ internal fun isSearchBarAliasActive(
         detectedCustomToolId != null ||
         detectedTaskerIntentId != null
 
+/** True while search is rebuilt after returning from Settings or Widgets; skips launch auto-focus. */
+internal val LocalSearchReturningFromInAppPage = staticCompositionLocalOf { false }
+
+private enum class SearchBarTrailingAction { Clear, Mic, Settings, None }
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun SearchBarTrailingIcon(
@@ -311,54 +320,93 @@ internal fun SearchBarTrailingIcon(
     onSettings: () -> Unit,
     onMic: () -> Unit,
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
+    val action =
+        when {
+            showClear -> SearchBarTrailingAction.Clear
+            showMic -> SearchBarTrailingAction.Mic
+            showSettings -> SearchBarTrailingAction.Settings
+            else -> SearchBarTrailingAction.None
+        }
+    // A subtle cross-fade with a slight scale and turn, so clear and mic/settings swap smoothly.
+    AnimatedContent(
+        targetState = action,
+        transitionSpec = {
+            (
+                fadeIn(tween(TrailingIconSwapDurationMs, delayMillis = TrailingIconSwapDurationMs / 3)) +
+                    scaleIn(
+                        tween(TrailingIconSwapDurationMs, easing = FastOutSlowInEasing),
+                        initialScale = TrailingIconSwapScale,
+                    )
+            ).togetherWith(
+                fadeOut(tween(TrailingIconSwapDurationMs / 2)) +
+                    scaleOut(tween(TrailingIconSwapDurationMs / 2), targetScale = TrailingIconSwapScale),
+            ).using(SizeTransform(clip = false))
+        },
+        contentAlignment = Alignment.Center,
         modifier = Modifier.padding(end = DesignTokens.SpacingXSmall),
-    ) {
-        if (showClear) {
-            IconButton(onClick = onClear) {
-                Icon(
-                    imageVector = MaterialSymbols.Close,
-                    contentDescription = stringResource(R.string.desc_clear_search),
-                    tint = accentColor,
-                )
+        label = "SearchBarTrailingIcon",
+    ) { target ->
+        val rotation by transition.animateFloat(
+            transitionSpec = { tween(TrailingIconSwapDurationMs, easing = FastOutSlowInEasing) },
+            label = "SearchBarTrailingIconRotation",
+        ) { state -> if (state == EnterExitState.Visible) 0f else TrailingIconSwapRotation }
+        val iconModifier = Modifier.graphicsLayer { rotationZ = rotation }
+        when (target) {
+            SearchBarTrailingAction.Clear ->
+                IconButton(onClick = onClear) {
+                    Icon(
+                        imageVector = MaterialSymbols.Close,
+                        contentDescription = stringResource(R.string.desc_clear_search),
+                        tint = accentColor,
+                        modifier = iconModifier,
+                    )
+                }
+
+            SearchBarTrailingAction.Mic ->
+                IconButton(onClick = onMic) {
+                    Icon(
+                        imageVector = MaterialSymbols.Mic,
+                        contentDescription = stringResource(R.string.desc_voice_search_icon),
+                        tint = iconColor,
+                        modifier = iconModifier,
+                    )
+                }
+
+            SearchBarTrailingAction.Settings -> {
+                val context = LocalContext.current
+                val view = LocalView.current
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier =
+                        Modifier
+                            .size(DesignTokens.Spacing48)
+                            .clip(CircleShape)
+                            .combinedClickable(
+                                hapticFeedbackEnabled = false,
+                                onLongClick = {
+                                    hapticStrong(view)()
+                                    openDeviceSettings(context)
+                                },
+                                onClick = onSettings,
+                            ),
+                ) {
+                    Icon(
+                        imageVector = MaterialSymbols.Settings,
+                        contentDescription = stringResource(R.string.desc_open_settings),
+                        tint = iconColor,
+                        modifier = iconModifier,
+                    )
+                }
             }
-        } else if (showMic) {
-            IconButton(onClick = onMic) {
-                Icon(
-                    imageVector = MaterialSymbols.Mic,
-                    contentDescription = stringResource(R.string.desc_voice_search_icon),
-                    tint = iconColor,
-                )
-            }
-        } else if (showSettings) {
-            val context = LocalContext.current
-            val view = LocalView.current
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier =
-                    Modifier
-                        .size(DesignTokens.Spacing48)
-                        .clip(CircleShape)
-                        .combinedClickable(
-                            hapticFeedbackEnabled = false,
-                            onLongClick = {
-                                hapticStrong(view)()
-                                openDeviceSettings(context)
-                            },
-                            onClick = onSettings,
-                        ),
-            ) {
-                Icon(
-                    imageVector = MaterialSymbols.Settings,
-                    contentDescription = stringResource(R.string.desc_open_settings),
-                    tint = iconColor,
-                )
-            }
+
+            SearchBarTrailingAction.None -> Unit
         }
     }
 }
+
+private const val TrailingIconSwapDurationMs = 220
+private const val TrailingIconSwapScale = 0.6f
+private const val TrailingIconSwapRotation = -45f
 
 @Composable
 internal fun androidx.compose.foundation.layout.BoxScope.SearchBarAliasMorphText(
