@@ -1236,7 +1236,7 @@
     <string name="permissions_notifications_desc">Requis pour les notifications de rappels et pour épingler des résultats de recherche dans le volet des notifications</string>
     <string name="permissions_notification_access_desc">Requis pour activer les pastilles de notification et l\'historique des notifications</string>
 <string name="permissions_accessibility_lock_screen_title">Accessibilité</string>
-<string name="permissions_accessibility_lock_screen_desc">Nécessaire pour le geste de double appui afin de verrouiller l’écran, les gestes de l’encoche, le lancement de Quick Search avec le geste de balayage depuis le bord ou le bouton flottant, et SpeedBump en dehors de Quick Search.</string>
+<string name="permissions_accessibility_lock_screen_desc">Active les gestes, le bouton flottant et SpeedBump.</string>
 <string name="permissions_contacts_desc">Requis pour rechercher vos contacts.</string>
 <string name="permissions_files_desc">Requis pour rechercher parmi vos documents et autres fichiers.</string>
 <string name="permissions_files_title">Accès aux fichiers</string>

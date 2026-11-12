@@ -1240,7 +1240,7 @@
     <string name="permissions_notifications_desc">Diperlukan untuk notifikasi pengingat dan untuk menyematkan hasil pencarian di panel notifikasi</string>
     <string name="permissions_notification_access_desc">Diperlukan untuk mengaktifkan titik notifikasi dan fitur riwayat notifikasi</string>
     <string name="permissions_accessibility_lock_screen_title">Aksesibilitas</string>
-    <string name="permissions_accessibility_lock_screen_desc">Diperlukan untuk gestur ketuk dua kali guna mengunci layar, gestur notch, meluncurkan Quick Search dengan gestur geser tepi atau tombol mengambang, dan SpeedBump di luar Quick Search.</string>
+    <string name="permissions_accessibility_lock_screen_desc">Mengaktifkan gestur, tombol mengambang, dan SpeedBump.</string>
     <string name="permissions_contacts_desc">Diperlukan untuk mencari kontak Anda.</string>
     <string name="permissions_files_desc">Diperlukan untuk mencari dokumen dan file lainnya.</string>
     <string name="permissions_files_title">Akses File</string>

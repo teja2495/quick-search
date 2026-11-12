@@ -1256,7 +1256,7 @@
     <string name="permissions_notifications_desc">Needed for reminder notifications and to pin search results to notification panel</string>
     <string name="permissions_notification_access_desc">Needed to enable notification dots and notification history features</string>
     <string name="permissions_accessibility_lock_screen_title">Accessibility</string>
-    <string name="permissions_accessibility_lock_screen_desc">Needed for double-tap to lock screen gesture, notch gestures, launch Quick Search with edge swipe gesture or floating button, and SpeedBump outside Quick Search</string>
+    <string name="permissions_accessibility_lock_screen_desc">Enables gestures, floating button, and SpeedBump.</string>
     <string name="permissions_contacts_desc">Needed to search your contacts.</string>
     <string name="permissions_files_desc">Needed to search through your documents and other files.</string>
     <string name="permissions_files_title">Files Access</string>

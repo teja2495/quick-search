@@ -1237,7 +1237,7 @@
     <string name="permissions_notifications_desc">مطلوب لإشعارات التذكيرات ولتثبيت نتائج البحث في لوحة الإشعارات</string>
     <string name="permissions_notification_access_desc">مطلوب لتفعيل نقاط الإشعارات وميزة سجل الإشعارات</string>
     <string name="permissions_accessibility_lock_screen_title">إمكانية الوصول</string>
-    <string name="permissions_accessibility_lock_screen_desc">مطلوب لتمكين إيماءة النقر المزدوج لقفل الشاشة وإيماءات النتوء، أو تشغيل Quick Search بإيماءة السحب من الحافة أو الزر العائم، وSpeedBump خارج Quick Search.</string>
+    <string name="permissions_accessibility_lock_screen_desc">لتفعيل الإيماءات والزر العائم وSpeedBump.</string>
     <string name="permissions_contacts_desc">مطلوب للبحث في جهات الاتصال الخاصة بك.</string>
     <string name="permissions_files_desc">مطلوب للبحث في ملفاتك ومستنداتك المختلفة.</string>
     <string name="permissions_files_title">إذن الوصول إلى الملفات</string>

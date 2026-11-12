@@ -1224,7 +1224,7 @@
     <string name="permissions_notifications_desc">用于提醒通知以及将搜索结果固定到通知面板</string>
     <string name="permissions_notification_access_desc">启用通知圆点和通知历史记录功能所需</string>
     <string name="permissions_accessibility_lock_screen_title">无障碍</string>
-    <string name="permissions_accessibility_lock_screen_desc">用于通过双击手势锁定屏幕、使用刘海手势、通过边缘滑动手势或悬浮按钮启动 Quick Search，以及在 Quick Search 之外使用 SpeedBump。</string>
+    <string name="permissions_accessibility_lock_screen_desc">启用手势、悬浮按钮和 SpeedBump。</string>
     <string name="permissions_contacts_desc">允许检索、匹配并展示您设备通讯录中的联系人信息。</string>
     <string name="permissions_files_desc">用于在您的个人文档、下载内容和其他本地文件中开展精确检索。</string>
     <string name="permissions_files_title">文件读写权限</string>
