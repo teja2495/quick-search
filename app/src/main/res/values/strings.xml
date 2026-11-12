@@ -1216,6 +1216,13 @@
     <string name="widget_countdown_format_detailed">Detailed</string>
     <string name="widget_countdown_format_progress">Progress %</string>
     <string name="widget_countdown_progress_hint">Shows how much of the time from when you set the date has passed.</string>
+    <string name="widget_world_clock_widget_title">World Clock Widget</string>
+    <string name="widget_world_clock_locations">Locations</string>
+    <string name="widget_world_clock_locations_hint">Up to %1$d clocks, shown left to right. Tap a location to rename it.</string>
+    <string name="widget_world_clock_add_location">Add location</string>
+    <string name="widget_world_clock_search_hint">Search city, country or time zone</string>
+    <string name="widget_world_clock_no_results">No locations found</string>
+    <string name="widget_world_clock_label_hint">Name on widget</string>
     <string name="widget_icon_center">Center</string>
     <string name="widget_icon_left">Left</string>
     <string name="widget_icon_off">Off</string>

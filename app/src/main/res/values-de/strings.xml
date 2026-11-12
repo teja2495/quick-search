@@ -1196,6 +1196,13 @@
     <string name="widget_countdown_format_detailed">Detailliert</string>
     <string name="widget_countdown_format_progress">Fortschritt %</string>
     <string name="widget_countdown_progress_hint">Zeigt, wie viel der Zeit seit dem Festlegen des Datums vergangen ist.</string>
+    <string name="widget_world_clock_widget_title">Weltuhr-Widget</string>
+    <string name="widget_world_clock_locations">Orte</string>
+    <string name="widget_world_clock_locations_hint">Bis zu %1$d Uhren, von links nach rechts angezeigt. Tippe auf einen Ort, um ihn umzubenennen.</string>
+    <string name="widget_world_clock_add_location">Ort hinzufügen</string>
+    <string name="widget_world_clock_search_hint">Stadt, Land oder Zeitzone suchen</string>
+    <string name="widget_world_clock_no_results">Keine Orte gefunden</string>
+    <string name="widget_world_clock_label_hint">Name im Widget</string>
     <string name="widget_icon_center">Mitte</string>
     <string name="widget_icon_left">Links</string>
     <string name="widget_icon_off">Aus</string>

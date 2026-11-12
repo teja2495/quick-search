@@ -50,6 +50,8 @@ import com.tk.quicksearch.widgets.utils.hasStoredWidgetConfig
 import com.tk.quicksearch.widgets.utils.applyWidgetPreferences
 import com.tk.quicksearch.widgets.countdownWidget.CountdownWidgetConfigContent
 import com.tk.quicksearch.widgets.countdownWidget.CountdownWidgetReceiver
+import com.tk.quicksearch.widgets.worldClockWidget.WorldClockWidgetConfigContent
+import com.tk.quicksearch.widgets.worldClockWidget.WorldClockWidgetReceiver
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomButtonsWidgetReceiver
 import com.tk.quicksearch.widgets.mediaControlsWidget.MediaControlsWidgetReceiver
 import com.tk.quicksearch.widgets.noteWidget.NoteWidgetPickerScreen
@@ -100,7 +102,9 @@ class SearchWidgetConfigureActivity : ComponentActivity() {
             return
         }
         widgetVariant = resolveWidgetVariant(appWidgetId)
-        val isCountdownWidget = providerClassName(appWidgetId) == CountdownWidgetReceiver::class.java.name
+        val providerClass = providerClassName(appWidgetId)
+        val isCountdownWidget = providerClass == CountdownWidgetReceiver::class.java.name
+        val isWorldClockWidget = providerClass == WorldClockWidgetReceiver::class.java.name
 
         setContent {
             val uiState by searchViewModel.uiState.collectAsStateWithLifecycle()
@@ -143,6 +147,15 @@ class SearchWidgetConfigureActivity : ComponentActivity() {
             ) {
                 if (isCountdownWidget) {
                     CountdownWidgetConfigContent(
+                        appWidgetId = appWidgetId,
+                        onSaved = {
+                            setResult(Activity.RESULT_OK, createResultIntent())
+                            finish()
+                        },
+                        onCancel = { finish() },
+                    )
+                } else if (isWorldClockWidget) {
+                    WorldClockWidgetConfigContent(
                         appWidgetId = appWidgetId,
                         onSaved = {
                             setResult(Activity.RESULT_OK, createResultIntent())

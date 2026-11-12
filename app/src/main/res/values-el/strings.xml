@@ -1196,6 +1196,13 @@
     <string name="widget_countdown_format_detailed">Λεπτομερές</string>
     <string name="widget_countdown_format_progress">Πρόοδος %</string>
     <string name="widget_countdown_progress_hint">Δείχνει πόσος χρόνος έχει περάσει από τότε που ορίσατε την ημερομηνία.</string>
+    <string name="widget_world_clock_widget_title">Γραφικό στοιχείο παγκόσμιου ρολογιού</string>
+    <string name="widget_world_clock_locations">Τοποθεσίες</string>
+    <string name="widget_world_clock_locations_hint">Έως %1$d ρολόγια, από αριστερά προς τα δεξιά. Πατήστε μια τοποθεσία για μετονομασία.</string>
+    <string name="widget_world_clock_add_location">Προσθήκη τοποθεσίας</string>
+    <string name="widget_world_clock_search_hint">Αναζήτηση πόλης, χώρας ή ζώνης ώρας</string>
+    <string name="widget_world_clock_no_results">Δεν βρέθηκαν τοποθεσίες</string>
+    <string name="widget_world_clock_label_hint">Όνομα στο γραφικό στοιχείο</string>
     <string name="widget_icon_center">Κέντρο</string>
     <string name="widget_icon_left">Αριστερά</string>
     <string name="widget_icon_off">Απενεργοποιημένο</string>

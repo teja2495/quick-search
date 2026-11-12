@@ -24,6 +24,8 @@ import com.tk.quicksearch.widgets.noteWidget.NoteWidget
 import com.tk.quicksearch.widgets.noteWidget.NoteWidgetReceiver
 import com.tk.quicksearch.widgets.searchWidget.SearchWidget
 import com.tk.quicksearch.widgets.searchWidget.SearchWidgetReceiver
+import com.tk.quicksearch.widgets.worldClockWidget.WorldClockWidget
+import com.tk.quicksearch.widgets.worldClockWidget.WorldClockWidgetReceiver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -99,6 +101,11 @@ suspend fun refreshNoteWidgets(context: Context) {
 /** Redraws placed Countdown widgets, e.g. when the day changes. */
 suspend fun refreshCountdownWidgets(context: Context) {
     refreshWidgets(context, CountdownWidgetReceiver::class.java, CountdownWidget())
+}
+
+/** Redraws placed World Clock widgets, e.g. when the device's time zone or clock format changes. */
+suspend fun refreshWorldClockWidgets(context: Context) {
+    refreshWidgets(context, WorldClockWidgetReceiver::class.java, WorldClockWidget())
 }
 
 /**

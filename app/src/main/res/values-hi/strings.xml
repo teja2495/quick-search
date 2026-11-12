@@ -1196,6 +1196,13 @@
     <string name="widget_countdown_format_detailed">विस्तृत</string>
     <string name="widget_countdown_format_progress">प्रगति %</string>
     <string name="widget_countdown_progress_hint">दिखाता है कि तारीख सेट करने के बाद से कितना समय बीत चुका है।</string>
+    <string name="widget_world_clock_widget_title">विश्व घड़ी विजेट</string>
+    <string name="widget_world_clock_locations">स्थान</string>
+    <string name="widget_world_clock_locations_hint">अधिकतम %1$d घड़ियाँ, बाएँ से दाएँ दिखाई जाती हैं। नाम बदलने के लिए किसी स्थान पर टैप करें।</string>
+    <string name="widget_world_clock_add_location">स्थान जोड़ें</string>
+    <string name="widget_world_clock_search_hint">शहर, देश या समय क्षेत्र खोजें</string>
+    <string name="widget_world_clock_no_results">कोई स्थान नहीं मिला</string>
+    <string name="widget_world_clock_label_hint">विजेट पर नाम</string>
     <string name="widget_icon_center">मध्य</string>
     <string name="widget_icon_left">बाएं</string>
     <string name="widget_icon_off">बंद</string>

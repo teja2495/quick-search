@@ -1196,6 +1196,13 @@
     <string name="widget_countdown_format_detailed">వివరంగా</string>
     <string name="widget_countdown_format_progress">పురోగతి %</string>
     <string name="widget_countdown_progress_hint">మీరు తేదీని సెట్ చేసినప్పటి నుండి ఎంత సమయం గడిచిందో చూపిస్తుంది.</string>
+    <string name="widget_world_clock_widget_title">ప్రపంచ గడియారం విడ్జెట్</string>
+    <string name="widget_world_clock_locations">ప్రదేశాలు</string>
+    <string name="widget_world_clock_locations_hint">గరిష్టంగా %1$d గడియారాలు, ఎడమ నుండి కుడికి చూపబడతాయి. పేరు మార్చడానికి ప్రదేశంపై నొక్కండి.</string>
+    <string name="widget_world_clock_add_location">ప్రదేశాన్ని జోడించండి</string>
+    <string name="widget_world_clock_search_hint">నగరం, దేశం లేదా టైమ్ జోన్ వెతకండి</string>
+    <string name="widget_world_clock_no_results">ప్రదేశాలు ఏవీ కనుగొనబడలేదు</string>
+    <string name="widget_world_clock_label_hint">విడ్జెట్‌పై పేరు</string>
     <string name="widget_icon_center">మధ్యలో</string>
     <string name="widget_icon_left">ఎడమవైపు</string>
     <string name="widget_icon_off">ఆఫ్</string>

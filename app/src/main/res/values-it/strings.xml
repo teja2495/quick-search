@@ -1195,6 +1195,13 @@
     <string name="widget_countdown_format_detailed">Dettagliato</string>
     <string name="widget_countdown_format_progress">Avanzamento %</string>
     <string name="widget_countdown_progress_hint">Mostra quanto tempo è trascorso da quando hai impostato la data.</string>
+    <string name="widget_world_clock_widget_title">Widget orologio mondiale</string>
+    <string name="widget_world_clock_locations">Località</string>
+    <string name="widget_world_clock_locations_hint">Fino a %1$d orologi, mostrati da sinistra a destra. Tocca una località per rinominarla.</string>
+    <string name="widget_world_clock_add_location">Aggiungi località</string>
+    <string name="widget_world_clock_search_hint">Cerca città, paese o fuso orario</string>
+    <string name="widget_world_clock_no_results">Nessuna località trovata</string>
+    <string name="widget_world_clock_label_hint">Nome sul widget</string>
     <string name="widget_icon_center">Al centro</string>
     <string name="widget_icon_left">A sinistra</string>
     <string name="widget_icon_off">Disattivato</string>

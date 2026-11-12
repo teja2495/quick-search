@@ -1184,6 +1184,13 @@
     <string name="widget_countdown_format_detailed">详细</string>
     <string name="widget_countdown_format_progress">进度 %</string>
     <string name="widget_countdown_progress_hint">显示自设定日期以来已过去的时间比例。</string>
+    <string name="widget_world_clock_widget_title">世界时钟小部件</string>
+    <string name="widget_world_clock_locations">地点</string>
+    <string name="widget_world_clock_locations_hint">最多 %1$d 个时钟，从左到右显示。点按地点可重命名。</string>
+    <string name="widget_world_clock_add_location">添加地点</string>
+    <string name="widget_world_clock_search_hint">搜索城市、国家/地区或时区</string>
+    <string name="widget_world_clock_no_results">未找到地点</string>
+    <string name="widget_world_clock_label_hint">小部件上显示的名称</string>
     <string name="widget_icon_center">居中</string>
     <string name="widget_icon_left">居左</string>
     <string name="widget_icon_off">关闭</string>

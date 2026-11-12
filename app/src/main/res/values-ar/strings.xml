@@ -1197,6 +1197,13 @@
     <string name="widget_countdown_format_detailed">مفصّل</string>
     <string name="widget_countdown_format_progress">التقدّم %</string>
     <string name="widget_countdown_progress_hint">يعرض مقدار ما مضى من الوقت منذ تعيين التاريخ.</string>
+    <string name="widget_world_clock_widget_title">أداة الساعة العالمية</string>
+    <string name="widget_world_clock_locations">المواقع</string>
+    <string name="widget_world_clock_locations_hint">حتى %1$d ساعات، تُعرض من اليسار إلى اليمين. انقر على موقع لإعادة تسميته.</string>
+    <string name="widget_world_clock_add_location">إضافة موقع</string>
+    <string name="widget_world_clock_search_hint">ابحث عن مدينة أو بلد أو منطقة زمنية</string>
+    <string name="widget_world_clock_no_results">لم يتم العثور على مواقع</string>
+    <string name="widget_world_clock_label_hint">الاسم على الأداة</string>
     <string name="widget_icon_center">توسيط</string>
     <string name="widget_icon_left">يسار</string>
     <string name="widget_icon_off">إيقاف</string>

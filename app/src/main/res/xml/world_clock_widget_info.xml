@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="110dp"
+    android:minHeight="40dp"
+    android:minResizeWidth="40dp"
+    android:minResizeHeight="40dp"
+    android:updatePeriodMillis="1800000"
+    android:initialLayout="@layout/widget_world_clock_placeholder"
+    android:previewLayout="@layout/widget_world_clock_placeholder"
+    android:configure="com.tk.quicksearch.widgets.searchWidget.SearchWidgetConfigureActivity"
+    android:widgetCategory="home_screen"
+    android:resizeMode="horizontal|vertical"
+    android:widgetFeatures="reconfigurable"
+    android:targetCellWidth="4"
+    android:targetCellHeight="1"
+    android:description="@string/widget_world_clock_widget_title" />
