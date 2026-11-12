@@ -2,7 +2,7 @@
 
 This document highlights all the available features. It also includes details about hidden or non-obvious features that you might miss. Sections from **Overlay Mode** onward follow the order of the Settings screen (Tools settings are covered in the **Tools** section above).
 
-**Version**: 5.0 (Updated November 5, 2026)
+**Version**: 5.0 (Updated November 12, 2026)
 
 ### Search
 
@@ -11,7 +11,7 @@ This document highlights all the available features. It also includes details ab
 - **Contact Search** - Find contacts and act on them right away: call, SMS, Google Meet (voice/video call), or WhatsApp, Telegram, and Signal (chat, voice/video call).
 - **File Search** - Search files and folders on your device. Search a file extension (e.g. `.pdf`) to see all files of that type.
 - **Calendar Events Search** - Search your calendar events.
-- **Reminders Search** - Create and search reminders directly from the search bar. For example, search `Laundry in 2 hrs`.
+- **Reminders Search** - Create and search reminders directly from the search bar. For example, search `Laundry in 2 hrs`. Reminders can repeat: type a phrase like `every Friday`, `daily`, or `every 2 weeks`, or use the repeat button in the reminder form. Marking a repeating reminder done moves it to its next occurrence.
 - **Notes Search** - Write notes and search them from the search bar. Quick Note is also available in the Widgets Panel. Search `Create Notification Note` to write a note that stays in your notification panel.
 - **Notification History** - Search notifications you've received, or open the full Notification History screen, where you can filter by app, hide an app's notifications, or clear them all. Requires notification access; only notifications received after access is granted are saved.
 - **Bookmarks Search** - Save any website or link as a bookmark and find it from search. You can also import your Chrome desktop bookmarks from an exported HTML file.
@@ -336,9 +336,10 @@ An optional Home section that shows useful information when it matters.
 - **Home Swipe Up/Down** - Assign an action, search engine, or tool, or turn the gesture off. Swipe down can also open the notification panel.
 - **Two-Finger Swipe Up/Down** - Swipe up or down with two fingers on Home to run an action, search engine, or tool.
 - **Double Tap** - Double-tap an empty area on Home to run an action, search engine, or tool, or to lock your screen.
-- **Notch Gestures** - Tap your device's notch or camera cutout to open anything you choose.
+- **Notch Gestures** - Tap or long press your device's notch or camera cutout to open anything you choose.
 - **View All Apps** - Assign **View All Apps** to any gesture to open the All Apps drawer.
 - **App Icon Swipes** - Swipe up or down on an app icon to open any item you choose.
+- **Folder Swipes** - Swipe up or down on a folder to open any item you choose.
 - **Keyboard Gestures** - Choose which swipes open and close the keyboard. They work on Home only when there's nothing to scroll.
 - **Launcher Swipe Right** - When Quick Search is your launcher, swipe right opens the Widgets Panel.
 
