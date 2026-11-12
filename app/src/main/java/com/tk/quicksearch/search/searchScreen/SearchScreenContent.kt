@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import com.tk.quicksearch.shared.ui.components.undoSnackbarAvoidArea
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -728,7 +729,8 @@ internal fun SearchScreenContent(
         }
 
         // Pinned above the keyboard, outside the scrollable content. Pinned glance mode has none.
-        if (showSearchField) SearchScreenBottomChrome(
+        // Undo snackbars lift above it so they never cover the bottom search bar or engine strip.
+        if (showSearchField) Column(Modifier.fillMaxWidth().undoSnackbarAvoidArea()) { SearchScreenBottomChrome(
             state = state,
             expandedSection = expandedSection,
             keyboardSwitchText = keyboardSwitchText,
@@ -780,7 +782,7 @@ internal fun SearchScreenContent(
                     keyboardController?.show()
                 }
             },
-        )
+        ) }
     }
     } 
 }

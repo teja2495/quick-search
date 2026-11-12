@@ -15,6 +15,7 @@ import com.tk.quicksearch.search.core.intentHelpers.FileIntents
 import com.tk.quicksearch.shared.ui.components.AppUndoSnackbarHost
 import com.tk.quicksearch.shared.ui.components.LocalPopupOverlayContent
 import com.tk.quicksearch.shared.ui.components.LocalShowUndoSnackbar
+import com.tk.quicksearch.shared.ui.components.LocalUndoSnackbarAnchor
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -387,6 +388,7 @@ fun SearchRoute(
             LocalAppSettingInlineControls provides appSettingInlineControls(uiState, viewModel),
             LocalPopupOverlayContent provides popupUndoSnackbar,
             LocalShowUndoSnackbar provides undoActions.showUndoSnackbarWithIcon,
+            LocalUndoSnackbarAnchor provides undoActions.snackbarAnchor,
         ) {
             SearchScreenComposable(
                 modifier =
@@ -737,12 +739,10 @@ fun SearchRoute(
         if (overlaySnackbarHostState == null) {
             AppUndoSnackbarHost(
                 hostState = snackbarHostState,
-                modifier =
-                    Modifier.align(Alignment.BottomCenter).imePadding().padding(
-                        start = DesignTokens.SpacingLarge,
-                        end = DesignTokens.SpacingLarge,
-                        bottom = DesignTokens.SpacingHuge,
-                    ),
+                modifier = Modifier.align(Alignment.BottomCenter).imePadding().padding(
+                    start = DesignTokens.SpacingLarge, end = DesignTokens.SpacingLarge, bottom = DesignTokens.SpacingHuge,
+                ),
+                anchor = undoActions.snackbarAnchor,
             )
         }
 

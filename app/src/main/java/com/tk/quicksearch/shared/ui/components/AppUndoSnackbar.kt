@@ -1,6 +1,5 @@
 package com.tk.quicksearch.shared.ui.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,8 +10,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -23,13 +20,25 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.SnackbarVisuals
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -48,7 +57,7 @@ import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -108,27 +117,68 @@ fun rememberUndoSnackbarController(hostState: SnackbarHostState = remember { Sna
     return remember(hostState, scope, undoLabel) { UndoSnackbarController(hostState, scope, undoLabel) }
 }
 
-/** The app's undo snackbar: icon badge, message, optional supporting text and an Undo button. */
+/**
+ * Screen bounds of the chrome pinned to the bottom of the search screen (bottom search bar, engine
+ * strip). Undo snackbars that would overlap it are lifted above it so search stays usable.
+ */
+@Stable
+class UndoSnackbarAnchor {
+    internal var avoidBounds by mutableStateOf<Rect?>(null)
+}
+
+/** The route's [UndoSnackbarAnchor]. Null outside the search route and overlay. */
+val LocalUndoSnackbarAnchor = compositionLocalOf<UndoSnackbarAnchor?> { null }
+
+/** Marks this element as the area undo snackbars must not cover. */
+@Composable
+fun Modifier.undoSnackbarAvoidArea(): Modifier {
+    val anchor = LocalUndoSnackbarAnchor.current ?: return this
+    DisposableEffect(anchor) { onDispose { anchor.avoidBounds = null } }
+    return onGloballyPositioned { anchor.avoidBounds = it.screenBounds() }
+}
+
+private fun LayoutCoordinates.screenBounds(): Rect =
+    Rect(localToScreen(Offset.Zero), Size(size.width.toFloat(), size.height.toFloat()))
+
+/** The app's undo snackbar: accent pill with icon, message, optional supporting text and Undo. */
 @Composable
 fun AppUndoSnackbarHost(
     hostState: SnackbarHostState,
     modifier: Modifier = Modifier,
+    anchor: UndoSnackbarAnchor? = LocalUndoSnackbarAnchor.current,
 ) {
-    SnackbarHost(
-        hostState = hostState,
-        snackbar = { data ->
-            val visuals = data.visuals
-            val undoVisuals = visuals as? UndoSnackbarVisuals
-            UndoSnackbar(
-                message = rememberHighlightedExcludeMessage(visuals.message),
-                supportingText = undoVisuals?.supportingText,
-                icon = if (undoVisuals != null) undoVisuals.icon else MaterialSymbols.VisibilityOff,
-                actionLabel = visuals.actionLabel,
-                onAction = { data.performAction() },
-            )
-        },
-        modifier = modifier,
-    )
+    var hostBounds by remember { mutableStateOf<Rect?>(null) }
+    val gapPx = with(LocalDensity.current) { DesignTokens.SpacingMedium.toPx() }
+    Box(modifier = modifier.onGloballyPositioned { hostBounds = it.screenBounds() }) {
+        SnackbarHost(
+            hostState = hostState,
+            snackbar = { data ->
+                val visuals = data.visuals
+                val undoVisuals = visuals as? UndoSnackbarVisuals
+                UndoSnackbar(
+                    message = rememberHighlightedExcludeMessage(visuals.message),
+                    supportingText = undoVisuals?.supportingText,
+                    icon = if (undoVisuals != null) undoVisuals.icon else MaterialSymbols.VisibilityOff,
+                    actionLabel = visuals.actionLabel,
+                    onAction = { data.performAction() },
+                )
+            },
+            // Read in the draw phase so following the search bar never recomposes the snackbar.
+            modifier =
+                Modifier.graphicsLayer {
+                    val host = hostBounds
+                    val avoid = anchor?.avoidBounds
+                    translationY =
+                        if (host != null && avoid != null && avoid.height > 0f &&
+                            host.top < avoid.bottom && host.bottom > avoid.top - gapPx
+                        ) {
+                            -(host.bottom - avoid.top + gapPx)
+                        } else {
+                            0f
+                        }
+                },
+        )
+    }
 }
 
 /**
@@ -178,41 +228,34 @@ private fun UndoSnackbar(
     actionLabel: String?,
     onAction: () -> Unit,
 ) {
-    val colors = MaterialTheme.colorScheme
-    val isDarkTheme = LocalAppIsDarkTheme.current
-    val backgroundColor = if (isDarkTheme) Color.Black else Color.White
-    val contentColor = if (isDarkTheme) Color.White else Color.Black
+    // Follows the selected theme's accent (and Material You / wallpaper accents) so it stands out
+    // from the wallpaper in both light and dark mode.
+    val containerColor = AppColors.Accent
+    val contentColor = AppColors.OnAccent
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = DesignTokens.ShapeLarge,
-        color = backgroundColor,
+        shape = DesignTokens.ShapeXLarge,
+        color = containerColor,
         contentColor = contentColor,
         shadowElevation = 6.dp,
     ) {
         Row(
             modifier = Modifier
-                .heightIn(min = 64.dp)
-                .padding(start = 14.dp, end = 12.dp, top = 12.dp, bottom = 12.dp),
+                .heightIn(min = 48.dp)
+                .padding(start = 16.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             icon?.let { imageVector ->
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .background(contentColor.copy(alpha = 0.12f), CircleShape),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        imageVector = imageVector,
-                        contentDescription = null,
-                        tint = contentColor,
-                        modifier = Modifier.size(20.dp),
-                    )
-                }
+                Icon(
+                    imageVector = imageVector,
+                    contentDescription = null,
+                    tint = contentColor,
+                    modifier = Modifier.size(20.dp),
+                )
             }
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).padding(vertical = 4.dp),
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 Text(
@@ -230,16 +273,12 @@ private fun UndoSnackbar(
                 }
             }
             actionLabel?.let { label ->
-                Button(
+                TextButton(
                     onClick = onAction,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = colors.primary,
-                        contentColor = colors.onPrimary,
-                    ),
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    modifier = Modifier.heightIn(min = 36.dp),
+                    colors = ButtonDefaults.textButtonColors(contentColor = contentColor),
+                    contentPadding = PaddingValues(horizontal = 14.dp),
                 ) {
-                    Text(text = label, style = MaterialTheme.typography.labelLarge)
+                    Text(text = label, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
                 }
             }
         }

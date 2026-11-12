@@ -28,6 +28,8 @@ import com.tk.quicksearch.search.other.OtherSearchItemId
 import com.tk.quicksearch.search.other.OtherSearchItemRegistry
 import com.tk.quicksearch.search.utils.FileUtils
 import com.tk.quicksearch.shared.ui.components.AppUndoSnackbarHost
+import com.tk.quicksearch.shared.ui.components.LocalUndoSnackbarAnchor
+import com.tk.quicksearch.shared.ui.components.UndoSnackbarAnchor
 import com.tk.quicksearch.shared.ui.components.UndoSnackbarVisuals
 import com.tk.quicksearch.shared.ui.components.rememberUndoSnackbarController
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -35,6 +37,8 @@ import kotlinx.coroutines.launch
 
 internal data class RouteUndoActions(
     val snackbarHostState: SnackbarHostState,
+    /** Shared with the overlay when it hosts the snackbar, so it can lift above the bottom chrome. */
+    val snackbarAnchor: UndoSnackbarAnchor,
     val popupUndoSnackbar: @Composable BoxScope.() -> Unit,
     val showUndoSnackbarWithIcon: (String, androidx.compose.ui.graphics.vector.ImageVector?, () -> Unit) -> Unit,
     val onHideAppWithUndo: (AppInfo) -> Unit,
@@ -60,6 +64,8 @@ internal fun rememberRouteUndoActions(
     // Read at click time so the action lambdas stay stable across search state updates.
     val latestUiState by rememberUpdatedState(uiState)
     val snackbarHostState = remember { SnackbarHostState() }
+    val localSnackbarAnchor = remember { UndoSnackbarAnchor() }
+    val snackbarAnchor = LocalUndoSnackbarAnchor.current ?: localSnackbarAnchor
     val effectiveSnackbarHostState = overlaySnackbarHostState ?: snackbarHostState
     val snackbarScope = rememberCoroutineScope()
     // Mirrors the undo snackbar inside popups so it isn't hidden behind them.
@@ -231,6 +237,7 @@ internal fun rememberRouteUndoActions(
 
     return RouteUndoActions(
         snackbarHostState = snackbarHostState,
+        snackbarAnchor = snackbarAnchor,
         popupUndoSnackbar = popupUndoSnackbar,
         showUndoSnackbarWithIcon = showUndoSnackbarWithIcon,
         onHideAppWithUndo = onHideAppWithUndo,

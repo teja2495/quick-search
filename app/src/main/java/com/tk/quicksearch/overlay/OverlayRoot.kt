@@ -63,6 +63,8 @@ import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.shared.ui.components.AppUndoSnackbarHost
+import com.tk.quicksearch.shared.ui.components.LocalUndoSnackbarAnchor
+import com.tk.quicksearch.shared.ui.components.UndoSnackbarAnchor
 import com.tk.quicksearch.search.searchScreen.searchRoute.SearchRoute
 import com.tk.quicksearch.search.searchScreen.SearchScreenBackground
 import com.tk.quicksearch.search.searchScreen.components.NumberKeyboardOperatorPills
@@ -138,6 +140,7 @@ fun OverlayRoot(
 
         val context = LocalContext.current
         val overlaySnackbarHostState = remember { SnackbarHostState() }
+        val overlaySnackbarAnchor = remember { UndoSnackbarAnchor() }
         var overlayManualNumberKeyboard by remember { mutableStateOf(false) }
         var overlayImeVisible by remember { mutableStateOf(false) }
         var overlayOperatorRowHeightPx by remember { mutableStateOf(0) }
@@ -515,6 +518,7 @@ fun OverlayRoot(
                                         CompositionLocalProvider(
                                                 LocalInsetFullBleedHorizontalExtension provides DesignTokens.SpacingXLarge,
                                                 LocalPinnedGlanceOnly provides pinnedGlanceOnly,
+                                                LocalUndoSnackbarAnchor provides overlaySnackbarAnchor,
                                         ) {
                                             SearchRoute(
                                                     modifier =
@@ -672,6 +676,7 @@ fun OverlayRoot(
 
                         AppUndoSnackbarHost(
                                 hostState = overlaySnackbarHostState,
+                                anchor = overlaySnackbarAnchor,
                                 modifier =
                                         Modifier.align(Alignment.BottomCenter)
                                                 .padding(
