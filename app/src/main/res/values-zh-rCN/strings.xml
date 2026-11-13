@@ -1196,8 +1196,9 @@
     <string name="widget_loading_state">正在加载小部件设置…</string>
     <string name="widget_mic_action_default">默认语音</string>
     <string name="widget_mic_action_digital_assistant">数字助理</string>
-    <string name="widget_mic_action_digital_assistant_limitation">受 Android 系统机制限制，除非您已将 Google 设为默认的数字助理应用，否则无法正常呼出助理。</string>
-    <string name="widget_mic_action_digital_assistant_link_phrase">数字助理应用</string>
+    <string name="widget_mic_action_digital_assistant_current">%1$s 当前已设为你的数字助理，点按此处即可更改。</string>
+    <string name="widget_mic_action_digital_assistant_none">尚未设置数字助理，点按此处即可设置。</string>
+    <string name="widget_mic_action_digital_assistant_tap_here">点按此处</string>
     <string name="widget_mic_icon">麦克风图标</string>
     <string name="widget_search_icon">搜索图标</string>
     <string name="widget_settings_title">搜索小部件样式</string>

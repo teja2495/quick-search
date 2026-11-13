@@ -6,6 +6,7 @@ import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.Preferences
@@ -90,6 +91,11 @@ internal object MediaControlsWidgetDimens {
 class MediaControlsWidget : GlanceAppWidget() {
     override val stateDefinition = PreferencesGlanceStateDefinition
     override val sizeMode: SizeMode = SizeMode.Exact
+
+    companion object {
+        /** Drawn at until the host reports the placed widget's size. */
+        val DEFAULT_SIZE = DpSize(WidgetLayoutUtils.DEFAULT_WIDTH_DP.dp, MediaControlsWidgetDimens.HEIGHT_DP.dp)
+    }
 
     override suspend fun provideGlance(
         context: Context,

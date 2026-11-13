@@ -60,6 +60,8 @@ import com.tk.quicksearch.widgets.atAGlanceWidget.AtAGlanceWidget
 import com.tk.quicksearch.widgets.atAGlanceWidget.AtAGlanceWidgetReceiver
 import com.tk.quicksearch.widgets.noteWidget.withNoteWidgetDefaults
 import com.tk.quicksearch.widgets.utils.glanceWidgetFor
+import com.tk.quicksearch.widgets.utils.defaultWidgetSize
+import com.tk.quicksearch.widgets.utils.drawNow
 import com.tk.quicksearch.widgets.utils.enforceVariantConstraints
 import com.tk.quicksearch.widgets.utils.toWidgetPreferences
 import kotlinx.coroutines.Dispatchers
@@ -217,7 +219,12 @@ class SearchWidgetConfigureActivity : ComponentActivity() {
             mutablePrefs.applyWidgetPreferences(constrainedPrefs, this@SearchWidgetConfigureActivity)
         }
         val widget = glanceWidgetFor(widgetVariant)
-        (widget as? AtAGlanceWidget)?.drawNow(this, appWidgetId, glanceId)
+        // update() alone waits for Glance's session worker, so saved settings would show up late.
+        if (widget is AtAGlanceWidget) {
+            widget.drawNow(this, appWidgetId, glanceId)
+        } else {
+            widget.drawNow(this, appWidgetId, glanceId, defaultWidgetSize(widgetVariant))
+        }
         widget.update(this, glanceId)
     }
 

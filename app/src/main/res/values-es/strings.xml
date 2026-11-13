@@ -1208,8 +1208,9 @@
     <string name="widget_loading_state">Cargando ajustes del widget…</string>
     <string name="widget_mic_action_default">Predeterminado</string>
     <string name="widget_mic_action_digital_assistant">Asistente</string>
-    <string name="widget_mic_action_digital_assistant_limitation">Debido a las limitaciones de Android, no puedes activar el asistente a menos que Google esté configurado como la app de asistente digital predeterminada.</string>
-    <string name="widget_mic_action_digital_assistant_link_phrase">app de asistente digital</string>
+    <string name="widget_mic_action_digital_assistant_current">%1$s está configurado actualmente como tu asistente digital, toca aquí para cambiarlo.</string>
+    <string name="widget_mic_action_digital_assistant_none">No hay ningún asistente digital configurado, toca aquí para elegir uno.</string>
+    <string name="widget_mic_action_digital_assistant_tap_here">toca aquí</string>
     <string name="widget_mic_icon">Icono de micrófono</string>
     <string name="widget_search_icon">Icono de búsqueda</string>
     <string name="widget_settings_title">Widget de búsqueda</string>

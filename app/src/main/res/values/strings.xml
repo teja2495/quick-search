@@ -1228,8 +1228,9 @@
     <string name="widget_loading_state">Loading widget settings…</string>
     <string name="widget_mic_action_default">Default</string>
     <string name="widget_mic_action_digital_assistant">Assistant</string>
-    <string name="widget_mic_action_digital_assistant_limitation">Due to Android\'s limitations, you cannot trigger the assistant unless Google is set as the digital assistant app.</string>
-    <string name="widget_mic_action_digital_assistant_link_phrase">digital assistant app</string>
+    <string name="widget_mic_action_digital_assistant_current">%1$s is currently set as your digital assistant, tap here to change.</string>
+    <string name="widget_mic_action_digital_assistant_none">No digital assistant is set, tap here to set one.</string>
+    <string name="widget_mic_action_digital_assistant_tap_here">tap here</string>
     <string name="widget_mic_icon">Mic Icon</string>
     <string name="widget_search_icon">Search Icon</string>
     <string name="widget_settings_title">Search Widget</string>

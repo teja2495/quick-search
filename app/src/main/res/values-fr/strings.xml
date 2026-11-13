@@ -1208,8 +1208,9 @@
 <string name="widget_loading_state">Chargement des paramètres du widget…</string>
 <string name="widget_mic_action_default">Par défaut</string>
 <string name="widget_mic_action_digital_assistant">Assistant</string>
-<string name="widget_mic_action_digital_assistant_limitation">En raison des limitations d\'Android, vous ne pouvez pas déclencher l\'assistant à moins que Google ne soit défini comme application d\'assistant numérique.</string>
-<string name="widget_mic_action_digital_assistant_link_phrase">l\'application d\'assistant numérique</string>
+<string name="widget_mic_action_digital_assistant_current">%1$s est actuellement défini comme votre assistant numérique, appuyez ici pour le modifier.</string>
+<string name="widget_mic_action_digital_assistant_none">Aucun assistant numérique n’est défini, appuyez ici pour en choisir un.</string>
+<string name="widget_mic_action_digital_assistant_tap_here">appuyez ici</string>
 <string name="widget_mic_icon">Icône Micro</string>
 <string name="widget_search_icon">Icône Recherche</string>
 <string name="widget_settings_title">Widget de recherche</string>

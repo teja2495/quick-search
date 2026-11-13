@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgets.widgetConfigScreen.components
 
+import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -8,6 +9,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -18,7 +23,9 @@ import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.util.defaultAssistantPackage
 import com.tk.quicksearch.widgets.searchWidget.MicAction
 import com.tk.quicksearch.widgets.utils.SearchIconDisplay
 import com.tk.quicksearch.widgets.utils.WidgetConfigConstants
@@ -77,19 +84,25 @@ fun WidgetMicIconSection(
             onSelectionChange = { onStateChange(state.copy(micAction = it)) },
         )
 
-        // Show limitation text when Digital Assistant is selected
+        // Show which app the mic opens when Digital Assistant is selected
         if (state.micAction == MicAction.DIGITAL_ASSISTANT) {
             val context = LocalContext.current
-            val limitationText =
-                stringResource(
-                    R.string.widget_mic_action_digital_assistant_limitation,
-                )
+            var assistantName by remember { mutableStateOf(context.defaultAssistantLabel()) }
+            // The user may change the assistant in system settings and come back.
+            LifecycleResumeEffect(Unit) {
+                assistantName = context.defaultAssistantLabel()
+                onPauseOrDispose {}
+            }
+            val hintText =
+                assistantName?.let {
+                    stringResource(R.string.widget_mic_action_digital_assistant_current, it)
+                } ?: stringResource(R.string.widget_mic_action_digital_assistant_none)
             val linkText =
-                stringResource(R.string.widget_mic_action_digital_assistant_link_phrase)
+                stringResource(R.string.widget_mic_action_digital_assistant_tap_here)
 
             val annotatedString =
                 createClickableText(
-                    fullText = limitationText,
+                    fullText = hintText,
                     linkText = linkText,
                     onClick = {
                         // Voice input settings hold the digital assistant choice.
@@ -124,6 +137,15 @@ fun WidgetMicIconSection(
         }
     }
 }
+
+private fun Context.defaultAssistantLabel(): String? =
+    defaultAssistantPackage()?.let { assistantPackage ->
+        runCatching {
+            packageManager
+                .getApplicationLabel(packageManager.getApplicationInfo(assistantPackage, 0))
+                .toString()
+        }.getOrNull()
+    }
 
 @Composable
 private fun createClickableText(

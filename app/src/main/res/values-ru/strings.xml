@@ -1232,8 +1232,9 @@
 <string name="widget_loading_state">Загрузка настроек виджета…</string>
 <string name="widget_mic_action_default">По умолчанию</string>
 <string name="widget_mic_action_digital_assistant">Помощник</string>
-<string name="widget_mic_action_digital_assistant_limitation">Из-за ограничений Android вы не можете запустить помощника, пока Google не выбран в качестве цифрового помощника по умолчанию.</string>
-<string name="widget_mic_action_digital_assistant_link_phrase">приложение цифрового помощника</string>
+<string name="widget_mic_action_digital_assistant_current">%1$s сейчас выбран в качестве цифрового помощника. Нажмите здесь, чтобы изменить.</string>
+<string name="widget_mic_action_digital_assistant_none">Цифровой помощник не выбран. Нажмите здесь, чтобы выбрать.</string>
+<string name="widget_mic_action_digital_assistant_tap_here">Нажмите здесь</string>
 <string name="widget_mic_icon">Значок микрофона</string>
 <string name="widget_search_icon">Значок поиска</string>
 <string name="widget_settings_title">Виджет поиска</string>

@@ -1212,8 +1212,9 @@
     <string name="widget_loading_state">Memuat pengaturan widget…</string>
     <string name="widget_mic_action_default">Default</string>
     <string name="widget_mic_action_digital_assistant">Asisten</string>
-    <string name="widget_mic_action_digital_assistant_limitation">Karena keterbatasan Android, Anda tidak dapat memicu asisten kecuali Google ditetapkan sebagai aplikasi asisten digital.</string>
-    <string name="widget_mic_action_digital_assistant_link_phrase">aplikasi asisten digital</string>
+    <string name="widget_mic_action_digital_assistant_current">%1$s saat ini ditetapkan sebagai asisten digital Anda, ketuk di sini untuk mengubahnya.</string>
+    <string name="widget_mic_action_digital_assistant_none">Belum ada asisten digital, ketuk di sini untuk menetapkannya.</string>
+    <string name="widget_mic_action_digital_assistant_tap_here">ketuk di sini</string>
     <string name="widget_mic_icon">Ikon Mikrofon</string>
     <string name="widget_search_icon">Ikon Pencarian</string>
     <string name="widget_settings_title">Widget Pencarian</string>

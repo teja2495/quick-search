@@ -1208,8 +1208,9 @@
     <string name="widget_loading_state">Widget-Einstellungen werden geladen…</string>
     <string name="widget_mic_action_default">Standard</string>
     <string name="widget_mic_action_digital_assistant">Assistent</string>
-    <string name="widget_mic_action_digital_assistant_limitation">Aufgrund von Android-Einschränkungen kann der Assistent nicht ausgelöst werden, wenn Google nicht als Digitalassistent-App festgelegt ist.</string>
-    <string name="widget_mic_action_digital_assistant_link_phrase">Digitalassistent-App</string>
+    <string name="widget_mic_action_digital_assistant_current">%1$s ist derzeit als dein Digitalassistent festgelegt, tippe hier, um ihn zu ändern.</string>
+    <string name="widget_mic_action_digital_assistant_none">Kein Digitalassistent festgelegt, tippe hier, um einen festzulegen.</string>
+    <string name="widget_mic_action_digital_assistant_tap_here">tippe hier</string>
     <string name="widget_mic_icon">Mikrofon-Symbol</string>
     <string name="widget_search_icon">Such-Symbol</string>
     <string name="widget_settings_title">Such-Widget</string>

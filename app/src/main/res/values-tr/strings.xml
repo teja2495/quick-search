@@ -1207,8 +1207,9 @@
 <string name="widget_loading_state">Widget ayarları yükleniyor…</string>
 <string name="widget_mic_action_default">Varsayılan</string>
 <string name="widget_mic_action_digital_assistant">Asistan</string>
-<string name="widget_mic_action_digital_assistant_limitation">Android kısıtlamaları nedeniyle, Google varsayılan dijital asistan uygulaması olarak ayarlanmadığı sürece asistanı tetikleyemezsin.</string>
-<string name="widget_mic_action_digital_assistant_link_phrase">dijital asistan uygulaması</string>
+<string name="widget_mic_action_digital_assistant_current">%1$s şu anda dijital asistanın olarak ayarlı, değiştirmek için buraya dokun.</string>
+<string name="widget_mic_action_digital_assistant_none">Dijital asistan ayarlı değil, ayarlamak için buraya dokun.</string>
+<string name="widget_mic_action_digital_assistant_tap_here">buraya dokun</string>
 <string name="widget_mic_icon">Mikrofon simgesi</string>
 <string name="widget_search_icon">Arama simgesi</string>
 <string name="widget_settings_title">Arama widget\'ı</string>

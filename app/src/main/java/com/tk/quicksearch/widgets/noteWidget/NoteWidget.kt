@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.Preferences
 import androidx.glance.GlanceId
@@ -53,6 +54,11 @@ private const val DEFAULT_HEIGHT_DP = 110f
 class NoteWidget : GlanceAppWidget() {
     override val stateDefinition = PreferencesGlanceStateDefinition
     override val sizeMode: SizeMode = SizeMode.Exact
+
+    companion object {
+        /** Drawn at until the host reports the placed widget's size. */
+        val DEFAULT_SIZE = DpSize(DEFAULT_WIDTH_DP.dp, DEFAULT_HEIGHT_DP.dp)
+    }
 
     override suspend fun provideGlance(
         context: Context,

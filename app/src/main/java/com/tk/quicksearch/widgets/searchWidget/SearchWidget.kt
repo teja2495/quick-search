@@ -10,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -83,6 +84,9 @@ class SearchWidget(
     companion object {
         const val EXTRA_START_VOICE_SEARCH = "com.tk.quicksearch.extra.START_VOICE_SEARCH"
         const val EXTRA_MIC_ACTION = "com.tk.quicksearch.extra.MIC_ACTION"
+
+        /** Drawn at until the host reports the placed widget's size. */
+        val DEFAULT_SIZE = DpSize(WidgetLayoutUtils.DEFAULT_WIDTH_DP.dp, WidgetLayoutUtils.DEFAULT_HEIGHT_DP.dp)
     }
 
     override val stateDefinition = PreferencesGlanceStateDefinition

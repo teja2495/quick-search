@@ -1208,8 +1208,9 @@
     <string name="widget_loading_state">Φόρτωση ρυθμίσεων widget…</string>
     <string name="widget_mic_action_default">Προεπιλογή</string>
     <string name="widget_mic_action_digital_assistant">Βοηθός</string>
-    <string name="widget_mic_action_digital_assistant_limitation">Λόγω των περιορισμών του Android, δεν μπορείτε να ενεργοποιήσετε τον βοηθό εκτός εάν η Google έχει οριστεί ως η εφαρμογή ψηφιακού βοηθού.</string>
-    <string name="widget_mic_action_digital_assistant_link_phrase">εφαρμογή ψηφιακού βοηθού</string>
+    <string name="widget_mic_action_digital_assistant_current">Το %1$s έχει οριστεί αυτήν τη στιγμή ως ψηφιακός βοηθός σας, πατήστε εδώ για αλλαγή.</string>
+    <string name="widget_mic_action_digital_assistant_none">Δεν έχει οριστεί ψηφιακός βοηθός, πατήστε εδώ για να ορίσετε έναν.</string>
+    <string name="widget_mic_action_digital_assistant_tap_here">πατήστε εδώ</string>
     <string name="widget_mic_icon">Εικονίδιο μικροφώνου</string>
     <string name="widget_search_icon">Εικονίδιο αναζήτησης</string>
     <string name="widget_settings_title">Widget αναζήτησης</string>

@@ -103,6 +103,11 @@ class AtAGlanceWidget : GlanceAppWidget() {
     override val stateDefinition = PreferencesGlanceStateDefinition
     override val sizeMode: SizeMode = SizeMode.Exact
 
+    companion object {
+        /** Drawn at until the host reports the placed widget's size. */
+        val DEFAULT_SIZE = DpSize(DEFAULT_WIDTH_DP.dp, DEFAULT_HEIGHT_DP.dp)
+    }
+
     override suspend fun provideGlance(
         context: Context,
         id: GlanceId,
@@ -166,7 +171,7 @@ class AtAGlanceWidget : GlanceAppWidget() {
         return if (width > 0 && height > 0) {
             DpSize(width.dp, height.dp)
         } else {
-            DpSize(DEFAULT_WIDTH_DP.dp, DEFAULT_HEIGHT_DP.dp)
+            DEFAULT_SIZE
         }
     }
 

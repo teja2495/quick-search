@@ -1208,8 +1208,9 @@
     <string name="widget_loading_state">विजेट सेटिंग्स लोड हो रही हैं…</string>
     <string name="widget_mic_action_default">डिफ़ॉल्ट</string>
     <string name="widget_mic_action_digital_assistant">असिस्टेंट</string>
-    <string name="widget_mic_action_digital_assistant_limitation">Android की सीमाओं के कारण, जब तक Google को डिजिटल असिस्टेंट ऐप के रूप में सेट न किया जाए, तब तक आप असिस्टेंट को ट्रिगर नहीं कर सकते।</string>
-    <string name="widget_mic_action_digital_assistant_link_phrase">डिजिटल असिस्टेंट ऐप</string>
+    <string name="widget_mic_action_digital_assistant_current">%1$s अभी आपके डिजिटल असिस्टेंट के रूप में सेट है, बदलने के लिए यहां टैप करें।</string>
+    <string name="widget_mic_action_digital_assistant_none">कोई डिजिटल असिस्टेंट सेट नहीं है, सेट करने के लिए यहां टैप करें।</string>
+    <string name="widget_mic_action_digital_assistant_tap_here">यहां टैप करें</string>
     <string name="widget_mic_icon">माइक आइकन</string>
     <string name="widget_search_icon">खोज आइकन</string>
     <string name="widget_settings_title">खोज विजेट</string>

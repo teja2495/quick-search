@@ -1208,8 +1208,9 @@
     <string name="widget_loading_state">విడ్జెట్ సెట్టింగ్‌లను లోడ్ చేస్తోంది…</string>
     <string name="widget_mic_action_default">డిఫాల్ట్</string>
     <string name="widget_mic_action_digital_assistant">అసిస్టెంట్</string>
-    <string name="widget_mic_action_digital_assistant_limitation">Android పరిమితుల కారణంగా, Googleను డిజిటల్ అసిస్టెంట్ యాప్‌గా సెట్ చేస్తే తప్ప మీరు అసిస్టెంట్‌ను ట్రిగ్గర్ చేయలేరు.</string>
-    <string name="widget_mic_action_digital_assistant_link_phrase">డిజిటల్ అసిస్టెంట్ యాప్</string>
+    <string name="widget_mic_action_digital_assistant_current">%1$s ప్రస్తుతం మీ డిజిటల్ అసిస్టెంట్‌గా సెట్ చేయబడింది, మార్చడానికి ఇక్కడ నొక్కండి.</string>
+    <string name="widget_mic_action_digital_assistant_none">డిజిటల్ అసిస్టెంట్ సెట్ చేయబడలేదు, సెట్ చేయడానికి ఇక్కడ నొక్కండి.</string>
+    <string name="widget_mic_action_digital_assistant_tap_here">ఇక్కడ నొక్కండి</string>
     <string name="widget_mic_icon">మైక్ ఐకాన్</string>
     <string name="widget_search_icon">శోధన ఐకాన్</string>
     <string name="widget_settings_title">శోధన విడ్జెట్</string>

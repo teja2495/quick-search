@@ -1209,8 +1209,9 @@
     <string name="widget_loading_state">جارٍ تحميل إعدادات عنصر واجهة المستخدم…</string>
     <string name="widget_mic_action_default">الافتراضي</string>
     <string name="widget_mic_action_digital_assistant">المساعد</string>
-    <string name="widget_mic_action_digital_assistant_limitation">نظراً لقيود نظام Android، لا يمكنك تشغيل المساعد الرقمي ما لم يتم تعيين Google كتطبيق المساعد الرقمي الافتراضي.</string>
-    <string name="widget_mic_action_digital_assistant_link_phrase">تطبيق المساعد الرقمي</string>
+    <string name="widget_mic_action_digital_assistant_current">تم تعيين %1$s حاليًا كمساعدك الرقمي، اضغط هنا للتغيير.</string>
+    <string name="widget_mic_action_digital_assistant_none">لم يتم تعيين مساعد رقمي، اضغط هنا لتعيين واحد.</string>
+    <string name="widget_mic_action_digital_assistant_tap_here">اضغط هنا</string>
     <string name="widget_mic_icon">أيقونة الميكروفون</string>
     <string name="widget_search_icon">أيقونة البحث</string>
     <string name="widget_settings_title">إعدادات أداة البحث</string>

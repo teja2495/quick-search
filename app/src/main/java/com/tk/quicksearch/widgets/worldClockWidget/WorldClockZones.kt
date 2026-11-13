@@ -112,7 +112,7 @@ internal object WorldClockZones {
         locale: Locale = Locale.getDefault(),
     ): String =
         regionOf(canonicalId(zoneId))
-            ?.let { Locale("", it).getDisplayCountry(locale) }
+            ?.let { regionLocale(it)?.getDisplayCountry(locale) }
             .orEmpty()
 
     /** What a clock is titled: its custom label, or else its city. */
@@ -188,7 +188,7 @@ internal object WorldClockZones {
         val id = representative(group, names, now)
         val city = cityOf(id, names)
         val region = regionOf(id)
-        val countryLocale = region?.let { Locale("", it) }
+        val countryLocale = region?.let(::regionLocale)
         val country = countryLocale?.getDisplayCountry(locale).orEmpty()
         val zone = TimeZone.getTimeZone(id)
         val zoneName =
@@ -251,4 +251,8 @@ internal object WorldClockZones {
 
     private fun searchable(terms: List<String>): List<String> =
         terms.map(::normalize).filter { it.isNotEmpty() }.distinct()
+
+    /** A locale for just [region]; null if the code is ill-formed (Locale.Builder rejects those). */
+    private fun regionLocale(region: String): Locale? =
+        runCatching { Locale.Builder().setRegion(region).build() }.getOrNull()
 }
