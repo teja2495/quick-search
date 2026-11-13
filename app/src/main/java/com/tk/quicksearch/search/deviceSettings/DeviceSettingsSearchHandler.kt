@@ -10,7 +10,7 @@ import com.tk.quicksearch.search.utils.SearchQueryContext
 import com.tk.quicksearch.search.utils.SearchTextCache
 import java.util.Locale
 
-private const val RESULT_LIMIT = 25
+internal const val DEVICE_SETTINGS_RESULT_LIMIT = 25
 
 data class DeviceSettingsSearchResults(
     val pinned: List<DeviceSetting>,
@@ -115,6 +115,7 @@ class DeviceSettingsSearchHandler(
         secondaryRankingSignal: com.tk.quicksearch.search.models.SecondaryRankingSignal =
             userPreferences.getSecondaryRankingSignal(),
         enableFuzzyMatching: Boolean = false,
+        resultLimit: Int = DEVICE_SETTINGS_RESULT_LIMIT,
     ): List<DeviceSetting> {
         // Unified secondary search invokes this on its IO worker. Resolve the catalog on first
         // relevant query rather than during generic app startup.
@@ -129,6 +130,7 @@ class DeviceSettingsSearchHandler(
             settingOpenCounts = settingOpenCounts,
             secondaryRankingSignal = secondaryRankingSignal,
             enableFuzzyMatching = enableFuzzyMatching,
+            resultLimit = resultLimit,
         )
     }
 
@@ -139,6 +141,7 @@ class DeviceSettingsSearchHandler(
         settingOpenCounts: Map<String, Int>,
         secondaryRankingSignal: com.tk.quicksearch.search.models.SecondaryRankingSignal,
         enableFuzzyMatching: Boolean = false,
+        resultLimit: Int = DEVICE_SETTINGS_RESULT_LIMIT,
     ): List<DeviceSetting> {
         val nicknameMatches =
             userPreferences
@@ -160,7 +163,7 @@ class DeviceSettingsSearchHandler(
             recentSettingScores = recentSettingScores,
             settingOpenCounts = settingOpenCounts,
             secondaryRankingSignal = secondaryRankingSignal,
-            resultLimit = RESULT_LIMIT,
+            resultLimit = resultLimit,
             enableFuzzyMatching = enableFuzzyMatching,
             isLowRamDevice = isLowRamDevice,
             matcher = searchMatcher,
