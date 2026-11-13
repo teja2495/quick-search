@@ -140,6 +140,7 @@ Available when Quick Search is set as your launcher.
 - **Note Widget** - Show any note on your home screen.
 - **At a Glance Widget** - Works on any launcher, just like At a Glance on the Home screen.
 - **Countdown Widget** - Count down to (or up from) any date, with an optional title. Show the time in days, weeks, months, years, a detailed format (e.g. `6 months 5 days`), or as a progress bar. Adjust text size, colors, and transparency. Tap the widget to change its settings.
+- **World Clock Widget** - Show the current time in multiple cities or time zones. Search for any location, pick from popular cities, and rename each clock. Adjust text colors and transparency.
 
 ---
 
