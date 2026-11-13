@@ -1198,11 +1198,10 @@
     <string name="widget_countdown_progress_hint">Muestra cuánto tiempo ha pasado desde que estableciste la fecha.</string>
     <string name="widget_world_clock_widget_title">Widget de reloj mundial</string>
     <string name="widget_world_clock_locations">Ubicaciones</string>
-    <string name="widget_world_clock_locations_hint">Hasta %1$d relojes, de izquierda a derecha. Toca una ubicación para cambiarle el nombre.</string>
     <string name="widget_world_clock_add_location">Añadir ubicación</string>
-    <string name="widget_world_clock_search_hint">Busca una ciudad, país o zona horaria</string>
+    <string name="widget_world_clock_search_hint">Buscar país o zona horaria</string>
     <string name="widget_world_clock_no_results">No se encontraron ubicaciones</string>
-    <string name="widget_world_clock_label_hint">Nombre en el widget</string>
+    <string name="widget_world_clock_edit_name">Editar nombre del reloj</string>
     <string name="widget_icon_center">Centro</string>
     <string name="widget_icon_left">Izquierda</string>
     <string name="widget_icon_off">Desactivado</string>

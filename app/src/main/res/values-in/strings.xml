@@ -1202,11 +1202,10 @@
     <string name="widget_countdown_progress_hint">Menampilkan seberapa banyak waktu yang telah berlalu sejak Anda menetapkan tanggal.</string>
     <string name="widget_world_clock_widget_title">Widget Jam Dunia</string>
     <string name="widget_world_clock_locations">Lokasi</string>
-    <string name="widget_world_clock_locations_hint">Hingga %1$d jam, ditampilkan dari kiri ke kanan. Ketuk lokasi untuk mengganti namanya.</string>
     <string name="widget_world_clock_add_location">Tambah lokasi</string>
-    <string name="widget_world_clock_search_hint">Cari kota, negara, atau zona waktu</string>
+    <string name="widget_world_clock_search_hint">Cari negara atau zona waktu</string>
     <string name="widget_world_clock_no_results">Lokasi tidak ditemukan</string>
-    <string name="widget_world_clock_label_hint">Nama di widget</string>
+    <string name="widget_world_clock_edit_name">Edit Nama Jam</string>
     <string name="widget_icon_center">Tengah</string>
     <string name="widget_icon_left">Kiri</string>
     <string name="widget_icon_off">Mati</string>

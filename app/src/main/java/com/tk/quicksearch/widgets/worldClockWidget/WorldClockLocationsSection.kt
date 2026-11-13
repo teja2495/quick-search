@@ -17,6 +17,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,6 +25,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
@@ -67,11 +71,6 @@ internal fun WorldClockLocationsSection(
             }
             AddLocationRow(enabled = canAdd, onClick = onAddClick)
         }
-        Text(
-            text = stringResource(R.string.widget_world_clock_locations_hint, WorldClockWidgetDefaults.MAX_LOCATIONS),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
     }
 
     val renaming = renamingIndex?.let { locations.getOrNull(it) }
@@ -180,29 +179,52 @@ private fun AddLocationRow(
     }
 }
 
-/** Sets the name shown on the widget; leaving it empty goes back to the city's name. */
+/**
+ * Sets the name shown on the widget; the current one is the hint. Leaving it empty keeps that name,
+ * and typing the city's name goes back to following the city's name.
+ */
 @Composable
 private fun RenameLocationDialog(
     location: WorldClockLocation,
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit,
 ) {
-    var text by rememberSaveable(location.zoneId) { mutableStateOf(location.label) }
+    val cityName = remember(location.zoneId) { WorldClockZones.cityName(location.zoneId) }
+    val currentName = remember(location) { WorldClockZones.displayName(location) }
+    var text by rememberSaveable(location.zoneId) { mutableStateOf("") }
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+        keyboardController?.show()
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.settings_edit_label)) },
+        title = { Text(stringResource(R.string.widget_world_clock_edit_name)) },
         text = {
             OutlinedTextField(
                 value = text,
                 onValueChange = { text = it.take(WorldClockWidgetDefaults.LABEL_MAX_LENGTH) },
-                label = { Text(stringResource(R.string.widget_world_clock_label_hint)) },
-                placeholder = { Text(WorldClockZones.cityName(location.zoneId)) },
+                placeholder = { Text(currentName) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
             )
         },
-        confirmButton = { TextButton(onClick = { onConfirm(text) }) { Text(stringResource(R.string.dialog_save)) } },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    val name = text.trim()
+                    onConfirm(
+                        when {
+                            name.isEmpty() -> location.label
+                            name == cityName -> ""
+                            else -> name
+                        },
+                    )
+                },
+            ) { Text(stringResource(R.string.dialog_save)) }
+        },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.dialog_cancel)) } },
     )
 }

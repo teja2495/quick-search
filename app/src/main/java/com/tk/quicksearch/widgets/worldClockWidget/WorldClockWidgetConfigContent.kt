@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -18,6 +19,8 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
+import com.tk.quicksearch.widgets.utils.drawNow
+import com.tk.quicksearch.widgets.utils.reportedWidgetSize
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetLoadingState
 import kotlinx.coroutines.launch
 
@@ -41,8 +44,11 @@ fun WorldClockWidgetConfigContent(
         Surface(modifier = Modifier.fillMaxSize()) { WidgetLoadingState(innerPadding = PaddingValues()) }
         return
     }
+    // Previewed at the placed widget's size, so the font size slider stops where the widget does.
+    val widgetSize = remember(appWidgetId) { reportedWidgetSize(context, appWidgetId) }
     WorldClockWidgetConfigScreen(
         config = loaded,
+        widgetSize = widgetSize,
         onConfigChange = { config = it },
         onSave = {
             scope.launch {
@@ -74,5 +80,7 @@ private suspend fun saveWorldClockConfig(
 ) {
     val glanceId = glanceIdFor(context, appWidgetId) ?: return
     updateAppWidgetState(context, glanceId) { prefs -> prefs.applyWorldClockWidgetConfig(config, context) }
-    WorldClockWidget().update(context, glanceId)
+    val widget = WorldClockWidget()
+    widget.drawNow(context, appWidgetId, glanceId, WorldClockWidget.DEFAULT_SIZE)
+    widget.update(context, glanceId)
 }

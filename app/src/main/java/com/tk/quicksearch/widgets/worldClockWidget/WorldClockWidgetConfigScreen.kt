@@ -21,11 +21,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -42,12 +45,17 @@ import kotlin.math.roundToInt
 @Composable
 fun WorldClockWidgetConfigScreen(
     config: WorldClockWidgetConfig,
+    widgetSize: DpSize?,
     onConfigChange: (WorldClockWidgetConfig) -> Unit,
     onSave: () -> Unit,
     onCancel: () -> Unit,
 ) {
     // A new widget has no locations yet, so it opens straight to the search.
     var showSearch by rememberSaveable { mutableStateOf(config.locations.isEmpty()) }
+    // The largest time the preview fits; the font size slider ends there so every step shows.
+    var maxTimeSize by remember { mutableFloatStateOf(WorldClockWidgetDefaults.TEXT_SIZE_MAX_SP) }
+    val sliderMax =
+        maxTimeSize.coerceIn(WorldClockWidgetDefaults.TEXT_SIZE_MIN_SP + 1f, WorldClockWidgetDefaults.TEXT_SIZE_MAX_SP)
 
     Scaffold(
         topBar = {
@@ -95,7 +103,12 @@ fun WorldClockWidgetConfigScreen(
     ) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding).imePadding()) {
             Box(modifier = Modifier.padding(horizontal = WidgetConfigConstants.HORIZONTAL_PADDING)) {
-                WorldClockWidgetPreview(config = config, wallpaperBitmap = rememberWidgetPreviewWallpaper())
+                WorldClockWidgetPreview(
+                    config = config,
+                    wallpaperBitmap = rememberWidgetPreviewWallpaper(),
+                    widgetSize = widgetSize,
+                    onMaxTimeSizeChange = { maxTimeSize = it },
+                )
             }
             Column(
                 modifier =
@@ -128,12 +141,13 @@ fun WorldClockWidgetConfigScreen(
                 Column(verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.SLIDER_ROW_SPACING)) {
                     SliderRow(
                         label = stringResource(R.string.settings_font_size_title),
-                        value = config.textSizeSp,
-                        valueRange = WorldClockWidgetDefaults.TEXT_SIZE_MIN_SP..WorldClockWidgetDefaults.TEXT_SIZE_MAX_SP,
-                        steps = ((WorldClockWidgetDefaults.TEXT_SIZE_MAX_SP - WorldClockWidgetDefaults.TEXT_SIZE_MIN_SP) / 2).toInt(),
+                        value = config.textSizeSp.coerceIn(WorldClockWidgetDefaults.TEXT_SIZE_MIN_SP, sliderMax),
+                        valueRange = WorldClockWidgetDefaults.TEXT_SIZE_MIN_SP..sliderMax,
+                        // The end moves with the widget's size, so the value is rounded instead.
+                        steps = 0,
                         valueFormatter = { "${it.roundToInt()} sp" },
                         showTicks = false,
-                        onValueChange = { onConfigChange(config.copy(textSizeSp = it)) },
+                        onValueChange = { onConfigChange(config.copy(textSizeSp = it.roundToInt().toFloat())) },
                     )
                     WidgetSlidersSection(
                         state = config.style,
@@ -149,10 +163,11 @@ fun WorldClockWidgetConfigScreen(
         WorldClockLocationSearchDialog(
             selectedZoneIds = config.locations.map { it.zoneId }.toSet(),
             onDismiss = { showSearch = false },
-            onSelect = { zone ->
+            onSelect = { zone, city ->
                 showSearch = false
                 if (config.canAddLocation) {
-                    onConfigChange(config.copy(locations = config.locations + WorldClockLocation(zoneId = zone.zoneId)))
+                    val location = WorldClockLocation(zoneId = zone.zoneId, label = city.orEmpty())
+                    onConfigChange(config.copy(locations = config.locations + location))
                 }
             },
         )

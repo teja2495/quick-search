@@ -1197,11 +1197,10 @@
 <string name="widget_countdown_progress_hint">Tarihi belirlediğinizden bu yana geçen sürenin oranını gösterir.</string>
 <string name="widget_world_clock_widget_title">Dünya Saati Widget\'ı</string>
 <string name="widget_world_clock_locations">Konumlar</string>
-<string name="widget_world_clock_locations_hint">Soldan sağa en fazla %1$d saat. Yeniden adlandırmak için bir konuma dokunun.</string>
 <string name="widget_world_clock_add_location">Konum ekle</string>
-<string name="widget_world_clock_search_hint">Şehir, ülke veya saat dilimi ara</string>
+<string name="widget_world_clock_search_hint">Ülke veya saat dilimi ara</string>
 <string name="widget_world_clock_no_results">Konum bulunamadı</string>
-<string name="widget_world_clock_label_hint">Widget\'taki ad</string>
+<string name="widget_world_clock_edit_name">Saat Adını Düzenle</string>
 <string name="widget_icon_center">Ortala</string>
 <string name="widget_icon_left">Sola hizala</string>
 <string name="widget_icon_off">Kapalı</string>

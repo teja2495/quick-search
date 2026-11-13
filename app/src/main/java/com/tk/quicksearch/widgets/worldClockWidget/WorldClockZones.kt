@@ -1,114 +1,110 @@
 package com.tk.quicksearch.widgets.worldClockWidget
 
 import android.icu.text.TimeZoneNames
+import android.icu.text.TimeZoneNames.NameType
 import android.icu.util.TimeZone
+import android.icu.util.ULocale
 import java.text.Normalizer
-import java.time.Instant
 import java.time.ZoneId
 import java.util.Locale
 import kotlin.math.abs
 
-/** A searchable place: a canonical time zone with its city and country in the user's language. */
+/**
+ * A searchable place: one per time zone and country, shown as its capital or best-known city, with
+ * the country and time zone in the user's language. Other cities on the same clock in that country
+ * are folded into it, so they can be searched for.
+ */
 internal data class WorldClockZone(
     val zoneId: String,
     val city: String,
     val country: String,
     /** The zone's generic name, e.g. "Pacific Time". */
     val zoneName: String,
-    /** Other words the place can be found by: English country name, country code and nicknames. */
-    val keywords: String,
+    /** Normalized names the place is found by: its city and the cities folded into it. */
+    val cityTerms: List<String>,
+    /** The cities folded into this place, as written, e.g. "San Francisco" for Pacific Time. */
+    val otherCities: List<String> = emptyList(),
+    /** Normalized country names: localized, English, ISO code and nicknames. */
+    val countryTerms: List<String>,
+    /** Normalized time zone names: generic, English, abbreviations such as "pst", and "utc+5:30". */
+    val zoneTerms: List<String>,
 ) {
-    /** Lower-cased, accent-free text that a search query is matched against. */
-    internal val searchCity: String = WorldClockZones.normalize(city)
-    internal val searchCountry: String = WorldClockZones.normalize("$country $keywords")
-    internal val searchOther: String = WorldClockZones.normalize("$zoneName ${zoneId.replace('_', ' ')}")
+    internal val searchTerms: List<String> = cityTerms + countryTerms + zoneTerms
 }
 
 /** The places a World Clock widget can show, from the time zone database on the device. */
 internal object WorldClockZones {
     private val nonSpacingMarks = Regex("\\p{Mn}+")
+    private val whitespace = Regex("\\s+")
 
     /** Short or informal country names people search by, keyed by ISO country code. */
     private val countryAliases =
         mapOf(
-            "US" to "usa america united states",
-            "GB" to "uk england britain great britain scotland wales",
-            "AE" to "uae emirates dubai",
-            "KR" to "korea south korea",
-            "KP" to "north korea",
-            "RU" to "russia",
-            "CZ" to "czech republic czechia",
-            "NL" to "holland netherlands",
-            "TR" to "turkey turkiye",
-            "CI" to "ivory coast",
-            "MM" to "burma",
-            "CD" to "congo drc",
-            "CG" to "congo",
-            "VN" to "vietnam",
-            "IR" to "iran",
-            "SY" to "syria",
-            "LA" to "laos",
-            "TW" to "taiwan",
-            "BO" to "bolivia",
-            "VE" to "venezuela",
-            "TZ" to "tanzania",
-            "MD" to "moldova",
+            "US" to listOf("usa", "america", "united states"),
+            "GB" to listOf("uk", "england", "britain", "great britain", "scotland", "wales"),
+            "AE" to listOf("uae", "emirates", "dubai"),
+            "KR" to listOf("korea", "south korea"),
+            "KP" to listOf("north korea"),
+            "RU" to listOf("russia"),
+            "CZ" to listOf("czech republic", "czechia"),
+            "NL" to listOf("holland", "netherlands"),
+            "TR" to listOf("turkey", "turkiye"),
+            "CI" to listOf("ivory coast"),
+            "MM" to listOf("burma"),
+            "CD" to listOf("congo", "drc"),
+            "CG" to listOf("congo"),
+            "VN" to listOf("vietnam"),
+            "IR" to listOf("iran"),
+            "SY" to listOf("syria"),
+            "LA" to listOf("laos"),
+            "TW" to listOf("taiwan"),
+            "BO" to listOf("bolivia"),
+            "VE" to listOf("venezuela"),
+            "TZ" to listOf("tanzania"),
+            "MD" to listOf("moldova"),
         )
+
+    /** English locales whose time zone abbreviations people search by, e.g. PST, BST, IST, AEST. */
+    private val abbreviationLocales =
+        listOf(ULocale.US, ULocale.UK, ULocale("en_IN"), ULocale("en_AU"), ULocale("en_NZ"), ULocale("en_CA"))
 
     @Volatile private var cached: Pair<Locale, List<WorldClockZone>>? = null
 
     fun isValid(zoneId: String): Boolean = runCatching { ZoneId.of(zoneId) }.isSuccess
 
-    /** Every city time zone (one per tz database location), sorted by city. Slow on first call. */
+    /**
+     * One place per time zone in each country, sorted by country and zone: e.g. New York for every
+     * US zone on Eastern Time, but Phoenix apart from Denver as it skips daylight saving. Slow on
+     * first call.
+     */
     fun all(locale: Locale = Locale.getDefault()): List<WorldClockZone> {
         cached?.takeIf { it.first == locale }?.let { return it.second }
         val names = TimeZoneNames.getInstance(locale)
+        val now = System.currentTimeMillis()
         val zones =
             TimeZone
                 .getAvailableIDs(TimeZone.SystemTimeZoneType.CANONICAL_LOCATION, null, null)
                 .filter(::isValid)
-                .map { id -> zoneFor(id, locale, names) }
-                .sortedBy { it.searchCity }
+                .groupBy { id -> sameClockKey(id, names, now) }
+                .values
+                .map { group -> zoneFor(group, locale, names, now) }
+                .sortedWith(
+                    compareBy<WorldClockZone>(
+                        { it.country.isEmpty() },
+                        { normalize(it.country) },
+                        { normalize(it.zoneName) },
+                        { it.cityTerms.first() },
+                    ),
+                )
         cached = locale to zones
         return zones
     }
 
-    /**
-     * Places where every word of [query] starts a word of the city, country or zone name, or appears
-     * in them. Cities matching the first word come first, then places in a matching country.
-     */
-    fun search(
-        query: String,
-        zones: List<WorldClockZone>,
-    ): List<WorldClockZone> {
-        val words = normalize(query).split(' ').filter { it.isNotEmpty() }
-        if (words.isEmpty()) return zones
-        val first = words.first()
-        return zones
-            .filter { zone ->
-                words.all { zone.searchCity.contains(it) || zone.searchCountry.contains(it) || zone.searchOther.contains(it) }
-            }.sortedBy { zone ->
-                when {
-                    zone.searchCity.startsWith(first) -> 0
-                    zone.searchCity.contains(first) -> 1
-                    zone.searchCountry.startsWith(first) || zone.searchCountry.contains(" $first") -> 2
-                    zone.searchCountry.contains(first) -> 3
-                    else -> 4
-                }
-            }
-    }
-
-    /** The city a zone is named after, e.g. "New York" for America/New_York. */
+    /** The city a zone is shown as, e.g. "New York" for America/New_York, "New Delhi" for Asia/Kolkata. */
     fun cityName(
         zoneId: String,
         locale: Locale = Locale.getDefault(),
-    ): String {
-        val canonical = canonicalId(zoneId)
-        return runCatching { TimeZoneNames.getInstance(locale).getExemplarLocationName(canonical) }
-            .getOrNull()
-            ?.takeIf { it.isNotBlank() }
-            ?: canonical.substringAfterLast('/').replace('_', ' ')
-    }
+    ): String = cityOf(canonicalId(zoneId), TimeZoneNames.getInstance(locale))
 
     /** The country a zone is in, e.g. "India" for Asia/Kolkata; empty for zones without one. */
     fun countryName(
@@ -123,28 +119,11 @@ internal object WorldClockZones {
     fun displayName(location: WorldClockLocation): String =
         location.label.trim().ifEmpty { cityName(location.zoneId) }
 
-    /**
-     * How far [zoneId] is ahead of (+) or behind (−) this device right now, e.g. "+5:30" or "−8:00";
-     * null when both show the same time.
-     */
-    fun offsetFromDevice(
-        zoneId: String,
-        now: Instant = Instant.now(),
-    ): String? {
-        val zone = runCatching { ZoneId.of(zoneId) }.getOrNull() ?: return null
-        val diffSeconds =
-            zone.rules.getOffset(now).totalSeconds -
-                ZoneId.systemDefault().rules.getOffset(now).totalSeconds
-        if (diffSeconds == 0) return null
-        val minutes = abs(diffSeconds) / 60
-        val sign = if (diffSeconds > 0) "+" else "−"
-        return String.format(Locale.getDefault(), "%s%d:%02d", sign, minutes / 60, minutes % 60)
-    }
-
     fun normalize(text: String): String =
         Normalizer
             .normalize(text.lowercase(Locale.ROOT), Normalizer.Form.NFD)
             .replace(nonSpacingMarks, "")
+            .replace(whitespace, " ")
             .trim()
 
     private fun canonicalId(zoneId: String): String =
@@ -156,27 +135,120 @@ internal object WorldClockZones {
             .getOrNull()
             ?.takeIf { it.length == 2 && it != "001" }
 
-    private fun zoneFor(
+    /**
+     * Zones that always show the same time in the same country share a key: same metazone (e.g.
+     * America_Eastern), offsets and daylight saving. Zones without a metazone stay on their own.
+     */
+    private fun sameClockKey(
         id: String,
+        names: TimeZoneNames,
+        now: Long,
+    ): String {
+        val metaZone = runCatching { names.getMetaZoneID(id, now) }.getOrNull() ?: return id
+        val zone = TimeZone.getTimeZone(id)
+        return "${regionOf(id)}|$metaZone|${zone.getOffset(now)}|${zone.rawOffset}|${zone.useDaylightTime()}"
+    }
+
+    /** The zone a group of same-clock zones is shown as: the one CLDR names for that country, if any. */
+    private fun representative(
+        group: List<String>,
+        names: TimeZoneNames,
+        now: Long,
+    ): String {
+        if (group.size == 1) return group.first()
+        val metaZone = runCatching { names.getMetaZoneID(group.first(), now) }.getOrNull()
+        val preferred =
+            metaZone?.let { mz ->
+                listOfNotNull(regionOf(group.first()), "001")
+                    .mapNotNull { region -> runCatching { names.getReferenceZoneID(mz, region) }.getOrNull() }
+                    .firstOrNull { it in group }
+            }
+        return preferred ?: group.minWith(compareBy<String>({ id -> id.count { it == '/' } }, { it }))
+    }
+
+    /** The city [id] is shown as: a better-known one where set, such as New Delhi, else its namesake. */
+    private fun cityOf(
+        id: String,
+        names: TimeZoneNames,
+    ): String = WorldClockPopularCities.headline(id) ?: namesakeOf(id, names)
+
+    private fun namesakeOf(
+        id: String,
+        names: TimeZoneNames,
+    ): String =
+        runCatching { names.getExemplarLocationName(id) }.getOrNull()?.takeIf { it.isNotBlank() }
+            ?: id.substringAfterLast('/').replace('_', ' ')
+
+    private fun zoneFor(
+        group: List<String>,
         locale: Locale,
         names: TimeZoneNames,
+        now: Long,
     ): WorldClockZone {
-        val city =
-            runCatching { names.getExemplarLocationName(id) }.getOrNull()?.takeIf { it.isNotBlank() }
-                ?: id.substringAfterLast('/').replace('_', ' ')
+        val id = representative(group, names, now)
+        val city = cityOf(id, names)
         val region = regionOf(id)
         val countryLocale = region?.let { Locale("", it) }
         val country = countryLocale?.getDisplayCountry(locale).orEmpty()
-        val keywords =
-            listOfNotNull(
-                countryLocale?.getDisplayCountry(Locale.ENGLISH),
-                region,
-                region?.let { countryAliases[it] },
-            ).joinToString(" ")
+        val zone = TimeZone.getTimeZone(id)
         val zoneName =
-            runCatching { TimeZone.getTimeZone(id).getDisplayName(false, TimeZone.LONG_GENERIC, locale) }
-                .getOrNull()
-                .orEmpty()
-        return WorldClockZone(zoneId = id, city = city, country = country, zoneName = zoneName, keywords = keywords)
+            runCatching { zone.getDisplayName(false, TimeZone.LONG_GENERIC, locale) }.getOrNull().orEmpty()
+        // Every zone's namesake and the well-known cities on this clock, though only one is shown.
+        val otherCities =
+            group
+                .flatMap { listOf(namesakeOf(it, names)) + WorldClockPopularCities.citiesIn(it) }
+                .filter { it != city }
+                .distinct()
+        val countryTerms =
+            listOfNotNull(country, countryLocale?.getDisplayCountry(Locale.ENGLISH), region) +
+                region?.let { countryAliases[it] }.orEmpty()
+        return WorldClockZone(
+            zoneId = id,
+            city = city,
+            country = country,
+            zoneName = zoneName,
+            cityTerms = searchable(listOf(city) + otherCities),
+            otherCities = otherCities,
+            countryTerms = searchable(countryTerms),
+            zoneTerms =
+                searchable(
+                    listOf(zoneName, id.replace('_', ' ').replace('/', ' ')) + zoneNameTerms(id, zone, now),
+                ),
+        )
     }
+
+    /** English names and abbreviations of [id]'s time zone, plus its UTC offset, e.g. "utc+5:30". */
+    private fun zoneNameTerms(
+        id: String,
+        zone: TimeZone,
+        now: Long,
+    ): List<String> {
+        val english = TimeZoneNames.getInstance(ULocale.ENGLISH)
+        val longTypes = listOf(NameType.LONG_GENERIC, NameType.LONG_STANDARD, NameType.LONG_DAYLIGHT)
+        val shortTypes = listOf(NameType.SHORT_GENERIC, NameType.SHORT_STANDARD, NameType.SHORT_DAYLIGHT)
+        val longNames = longTypes.mapNotNull { runCatching { english.getDisplayName(id, it, now) }.getOrNull() }
+        val abbreviations =
+            abbreviationLocales
+                .flatMap { locale ->
+                    val localeNames = TimeZoneNames.getInstance(locale)
+                    shortTypes.mapNotNull { runCatching { localeNames.getDisplayName(id, it, now) }.getOrNull() }
+                }.filterNot { it.startsWith("GMT") || it.startsWith("UTC") }
+        return longNames + abbreviations + offsetNames(zone.getOffset(now))
+    }
+
+    /** "utc+5:30" and "gmt+5:30" for +05:30, "utc-8" and "gmt-8" for -08:00, "utc" and "gmt" for 0. */
+    private fun offsetNames(offsetMillis: Int): List<String> {
+        val minutes = abs(offsetMillis) / 60_000
+        val sign = if (offsetMillis > 0) "+" else "-"
+        val offset =
+            when {
+                minutes == 0 -> ""
+                minutes % 60 == 0 -> "$sign${minutes / 60}"
+                else -> String.format(Locale.ROOT, "%s%d:%02d", sign, minutes / 60, minutes % 60)
+            }
+        return listOf("utc$offset", "gmt$offset")
+    }
+
+    private fun searchable(terms: List<String>): List<String> =
+        terms.map(::normalize).filter { it.isNotEmpty() }.distinct()
 }

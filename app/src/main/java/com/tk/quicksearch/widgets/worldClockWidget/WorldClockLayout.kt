@@ -3,12 +3,15 @@ package com.tk.quicksearch.widgets.worldClockWidget
 import android.content.Context
 import android.graphics.Paint
 import android.graphics.Typeface
+import android.text.SpannableString
+import android.text.Spanned
 import android.text.format.DateFormat
+import android.text.style.RelativeSizeSpan
 import androidx.compose.ui.unit.dp
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.util.Calendar
 import java.util.Locale
 
 /** What fits in one clock's column: text sizes, and whether the city and day lines have room. */
@@ -45,6 +48,15 @@ internal object WorldClockLayout {
     private const val LABEL_RATIO = 0.5f
     private const val LABEL_MIN_SP = 10f
     private const val SUBTITLE_RATIO = 0.9f
+
+    /** The largest time that fits [clockCount] clocks in a widget of [widthDp] x [heightDp]. */
+    fun maxTimeSizeSp(
+        widthDp: Float,
+        heightDp: Float,
+        clockCount: Int,
+        widths: WorldClockTextWidths,
+        fontScale: Float,
+    ): Float = cellLayout(widthDp, heightDp, clockCount, Float.MAX_VALUE, widths, fontScale).timeSizeSp
 
     /**
      * Sizes for [clockCount] clocks side by side in a widget of [widthDp] x [heightDp]. The time is
@@ -89,8 +101,11 @@ internal object WorldClockLayout {
 
 /** Clock text patterns in the user's locale, as TextClock and DateTimeFormatter patterns. */
 internal object WorldClockFormats {
-    /** A wide time to measure, so every other time fits where it does. */
-    private val SAMPLE_TIME: LocalTime = LocalTime.of(10, 58)
+    /** A wide time to measure, 10:58 AM UTC, so every other time fits where it does. */
+    private const val SAMPLE_TIME_MILLIS = (10 * 60 + 58) * 60_000L
+
+    /** How big the AM/PM marker is next to the digits, as on most clock widgets. */
+    private const val MARKER_SIZE_RATIO = 0.5f
     private const val MEASURE_SIZE_SP = 100f
     private val SAMPLE_WEEK_START: LocalDate = LocalDate.of(2024, 1, 1)
 
@@ -112,7 +127,7 @@ internal object WorldClockFormats {
         val metrics = context.resources.displayMetrics
         val fontScale = context.resources.configuration.fontScale.takeIf { it > 0f } ?: 1f
         fun widthPerSp(
-            texts: List<String>,
+            texts: List<CharSequence>,
             typeface: Typeface,
         ): Float {
             val paint =
@@ -120,11 +135,9 @@ internal object WorldClockFormats {
                     this.typeface = typeface
                     textSize = MEASURE_SIZE_SP * fontScale * metrics.density
                 }
-            return (texts.maxOfOrNull { paint.measureText(it) } ?: 0f) / metrics.density / MEASURE_SIZE_SP
+            return (texts.maxOfOrNull { measureText(paint, it) } ?: 0f) / metrics.density / MEASURE_SIZE_SP
         }
-        val time =
-            runCatching { SAMPLE_TIME.format(DateTimeFormatter.ofPattern(timePattern(is24Hour))) }
-                .getOrDefault(if (is24Hour) "10:58" else "10:58 PM")
+        val time = formatTime(timeFormat(is24Hour), SAMPLE_TIME_MILLIS, "UTC")
         val weekdayFormatter =
             runCatching { DateTimeFormatter.ofPattern(subtitlePattern()) }.getOrDefault(DateTimeFormatter.ofPattern("EEE"))
         val weekdays = DayOfWeek.entries.map { SAMPLE_WEEK_START.with(it).format(weekdayFormatter) }
@@ -133,6 +146,54 @@ internal object WorldClockFormats {
             label = widthPerSp(names, Typeface.create("sans-serif-medium", Typeface.NORMAL)),
             subtitle = widthPerSp(weekdays, Typeface.SANS_SERIF),
         )
+    }
+
+    /**
+     * The TextClock format for the time. In 12-hour time an AM/PM marker that follows the digits is
+     * drawn at [MARKER_SIZE_RATIO], so the digits get more of a narrow column. The span starts at
+     * the space before the marker: TextClock keeps spans while it swaps the "a" for "PM", and one
+     * reaching past the replaced text on the left side grows over it rather than being dropped.
+     */
+    fun timeFormat(is24Hour: Boolean): CharSequence {
+        val pattern = timePattern(is24Hour)
+        if (is24Hour) return pattern
+        val marker = pattern.indexOf('a')
+        if (marker <= 0 || !pattern[marker - 1].isWhitespace() || pattern.substring(0, marker).isBlank()) return pattern
+        var end = marker
+        while (end < pattern.length && pattern[end] == 'a') end++
+        return SpannableString(pattern).apply {
+            setSpan(RelativeSizeSpan(MARKER_SIZE_RATIO), marker - 1, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+        }
+    }
+
+    /** [millis] in [zoneId] as TextClock would show it with [format], spans included. */
+    fun formatTime(
+        format: CharSequence,
+        millis: Long,
+        zoneId: String,
+    ): CharSequence =
+        runCatching {
+            DateFormat.format(
+                format,
+                Calendar.getInstance(java.util.TimeZone.getTimeZone(zoneId)).apply { timeInMillis = millis },
+            )
+        }.getOrDefault("")
+
+    /** [text]'s width with [paint], counting text under a [RelativeSizeSpan] at its size. */
+    private fun measureText(
+        paint: Paint,
+        text: CharSequence,
+    ): Float {
+        if (text !is Spanned) return paint.measureText(text.toString())
+        var width = 0f
+        var start = 0
+        while (start < text.length) {
+            val next = text.nextSpanTransition(start, text.length, RelativeSizeSpan::class.java)
+            val scale = text.getSpans(start, next, RelativeSizeSpan::class.java).fold(1f) { acc, span -> acc * span.sizeChange }
+            width += paint.measureText(text, start, next) * scale
+            start = next
+        }
+        return width
     }
 
     /** The weekday under a clock, e.g. "Thu". */

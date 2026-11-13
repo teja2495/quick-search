@@ -10,6 +10,7 @@ import android.widget.RemoteViews
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.Preferences
@@ -61,6 +62,11 @@ private const val DEFAULT_HEIGHT_DP = 80f
 class WorldClockWidget : GlanceAppWidget() {
     override val stateDefinition = PreferencesGlanceStateDefinition
     override val sizeMode: SizeMode = SizeMode.Exact
+
+    companion object {
+        /** Drawn at until the host reports the placed widget's size. */
+        val DEFAULT_SIZE = DpSize(DEFAULT_WIDTH_DP.dp, DEFAULT_HEIGHT_DP.dp)
+    }
 
     override suspend fun provideGlance(
         context: Context,
@@ -201,8 +207,8 @@ class WorldClockWidget : GlanceAppWidget() {
                         context = context,
                         layoutId = R.layout.widget_world_clock_time,
                         zoneId = location.zoneId,
-                        format12Hour = WorldClockFormats.timePattern(is24Hour = false),
-                        format24Hour = WorldClockFormats.timePattern(is24Hour = true),
+                        format12Hour = WorldClockFormats.timeFormat(is24Hour = false),
+                        format24Hour = WorldClockFormats.timeFormat(is24Hour = true),
                         textSizeSp = layout.timeSizeSp,
                         dayColor = colors.day.text,
                         nightColor = colors.night.text,
@@ -236,8 +242,8 @@ class WorldClockWidget : GlanceAppWidget() {
         context: Context,
         layoutId: Int,
         zoneId: String,
-        format12Hour: String,
-        format24Hour: String,
+        format12Hour: CharSequence,
+        format24Hour: CharSequence,
         textSizeSp: Float,
         dayColor: Color,
         nightColor: Color,
