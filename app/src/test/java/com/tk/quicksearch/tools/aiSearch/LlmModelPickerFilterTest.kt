@@ -49,6 +49,30 @@ class LlmModelPickerFilterTest {
     }
 
     @Test
+    fun geminiKeepsLatestOfHydrogenCarbonArgon() {
+        val catalog =
+            models(
+                "gemini-flash-latest",
+                "gemini-3-hydrogen",
+                "gemini-3.5-hydrogen-preview",
+                "gemini-3.5-hydrogen",
+                "gemini-3-carbon-preview",
+                "gemini-2.5-argon",
+                "gemini-3.1-argon",
+                "gemini-3.1-neon",
+            )
+        assertEquals(
+            setOf(
+                "gemini-flash-latest",
+                "gemini-3.5-hydrogen",
+                "gemini-3-carbon-preview",
+                "gemini-3.1-argon",
+            ),
+            GeminiModelCatalog.pickerModels(catalog).ids(),
+        )
+    }
+
+    @Test
     fun openAiKeepsLatestOfLunaSolAstra() {
         val catalog =
             models("gpt-5", "gpt-5.5", "gpt-5.5-pro", "gpt-5.6-luna", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-6-astra", "gpt-6-luna", "gpt-6-sol")
