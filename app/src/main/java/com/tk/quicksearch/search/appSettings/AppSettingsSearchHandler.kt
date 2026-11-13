@@ -11,7 +11,7 @@ import com.tk.quicksearch.search.utils.SearchQueryContext
 import com.tk.quicksearch.search.utils.SearchTextCache
 import java.util.Locale
 
-private const val RESULT_LIMIT = 25
+internal const val APP_SETTINGS_RESULT_LIMIT = 25
 
 class AppSettingsSearchHandler(
     private val repository: AppSettingsRepository,
@@ -47,6 +47,7 @@ class AppSettingsSearchHandler(
         secondaryRankingSignal: com.tk.quicksearch.search.models.SecondaryRankingSignal =
             userPreferences.getSecondaryRankingSignal(),
         enableFuzzyMatching: Boolean = false,
+        resultLimit: Int = APP_SETTINGS_RESULT_LIMIT,
     ): List<AppSettingResult> {
         ensureLoaded()
         return AppSettingsSearchAlgorithm
@@ -56,7 +57,7 @@ class AppSettingsSearchHandler(
                 recentSettingScores = recentSettingScores,
                 settingOpenCounts = settingOpenCounts,
                 secondaryRankingSignal = secondaryRankingSignal,
-                resultLimit = RESULT_LIMIT,
+                resultLimit = resultLimit,
                 enableFuzzyMatching = enableFuzzyMatching,
                 isLowRamDevice = isLowRamDevice,
                 matcher = searchMatcher,

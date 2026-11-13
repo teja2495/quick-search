@@ -15,7 +15,7 @@ import com.tk.quicksearch.search.utils.SearchTextCache
 import java.util.Locale
 
 private const val MIN_QUERY_LENGTH = 2
-private const val RESULT_LIMIT = 25
+internal const val APP_SHORTCUT_RESULT_LIMIT = 25
 private const val CHROME_PACKAGE = "com.android.chrome"
 private const val BRAVE_PACKAGE = "com.brave.browser"
 
@@ -168,6 +168,7 @@ class AppShortcutSearchHandler(
         secondaryRankingSignal: com.tk.quicksearch.search.models.SecondaryRankingSignal =
             userPreferences.getSecondaryRankingSignal(),
         enableFuzzyMatching: Boolean = false,
+        resultLimit: Int = APP_SHORTCUT_RESULT_LIMIT,
     ): List<StaticShortcut> =
         searchShortcutsInternal(
             queryContext = queryContext,
@@ -177,6 +178,7 @@ class AppShortcutSearchHandler(
             shortcutOpenCounts = shortcutOpenCounts,
             secondaryRankingSignal = secondaryRankingSignal,
             enableFuzzyMatching = enableFuzzyMatching,
+            resultLimit = resultLimit,
         )
 
     private fun searchShortcutsInternal(
@@ -187,6 +189,7 @@ class AppShortcutSearchHandler(
         shortcutOpenCounts: Map<String, Int>,
         secondaryRankingSignal: com.tk.quicksearch.search.models.SecondaryRankingSignal,
         enableFuzzyMatching: Boolean = false,
+        resultLimit: Int = APP_SHORTCUT_RESULT_LIMIT,
     ): List<StaticShortcut> =
         mergeIconOverrides(
             AppShortcutSearchAlgorithm.search(
@@ -198,7 +201,7 @@ class AppShortcutSearchHandler(
                 recentShortcutScores = recentShortcutScores,
                 shortcutOpenCounts = shortcutOpenCounts,
                 secondaryRankingSignal = secondaryRankingSignal,
-                resultLimit = RESULT_LIMIT,
+                resultLimit = resultLimit,
                 enableFuzzyMatching = enableFuzzyMatching,
                 isLowRamDevice = isLowRamDevice,
                 matcher = searchMatcher,

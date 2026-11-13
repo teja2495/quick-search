@@ -17,6 +17,9 @@ import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsSearchHandler
 import com.tk.quicksearch.search.files.FileExtensionQuery
+import com.tk.quicksearch.search.appSettings.APP_SETTINGS_RESULT_LIMIT
+import com.tk.quicksearch.search.appShortcuts.APP_SHORTCUT_RESULT_LIMIT
+import com.tk.quicksearch.search.deviceSettings.DEVICE_SETTINGS_RESULT_LIMIT
 import com.tk.quicksearch.search.files.FileSearchHandler
 import com.tk.quicksearch.search.files.FileSearchPolicy
 import com.tk.quicksearch.search.files.FolderPathPatternMatcher
@@ -61,10 +64,11 @@ class UnifiedSearchHandler(
         private val searchOperations: SearchOperations,
 ) : SecondarySearchDataSource {
         companion object {
-                private const val ALIAS_CONTACT_RESULT_LIMIT = 60
-                private const val ALIAS_FILE_RESULT_LIMIT = 60
-                private const val LOW_RAM_ALIAS_CONTACT_RESULT_LIMIT = 35
-                private const val LOW_RAM_ALIAS_FILE_RESULT_LIMIT = 35
+                // Contacts, files, and calendar query content providers, so alias mode keeps a ceiling.
+                private const val ALIAS_RESULT_LIMIT = 500
+                private const val LOW_RAM_ALIAS_RESULT_LIMIT = 150
+                // Settings, app settings, and shortcuts are small in-memory catalogs; alias mode shows every match.
+                private const val ALIAS_CATALOG_RESULT_LIMIT = 1_000
         }
 
         private val isLowRamDevice by lazy { isLowRamDevice(context) }
@@ -145,18 +149,13 @@ class UnifiedSearchHandler(
                         val isContactsAliasSearch = aliasSection == SearchSection.CONTACTS
                         val isFilesAliasSearch = aliasSection == SearchSection.FILES
                         val isCalendarAliasSearch = aliasSection == SearchSection.CALENDAR
-                        val useLowRamAliasLimits = false
+                        val aliasResultLimit =
+                                if (isLowRamDevice) LOW_RAM_ALIAS_RESULT_LIMIT else ALIAS_RESULT_LIMIT
                         val contactResultLimit =
-                                if (isContactsAliasSearch) {
-                                        if (useLowRamAliasLimits) LOW_RAM_ALIAS_CONTACT_RESULT_LIMIT
-                                        else ALIAS_CONTACT_RESULT_LIMIT
-                                }
+                                if (isContactsAliasSearch) aliasResultLimit
                                 else SearchOperations.CONTACT_RESULT_LIMIT
                         val fileResultLimit =
-                                if (isFilesAliasSearch) {
-                                        if (useLowRamAliasLimits) LOW_RAM_ALIAS_FILE_RESULT_LIMIT
-                                        else ALIAS_FILE_RESULT_LIMIT
-                                }
+                                if (isFilesAliasSearch) aliasResultLimit
                                 else FileSearchHandler.FILE_SEARCH_RESULT_LIMIT
                         val contactFuzzyPolicy =
                                 FuzzySearchPolicyResolver.effectivePolicy(
@@ -176,12 +175,16 @@ class UnifiedSearchHandler(
                                 enableFuzzyFileSearch &&
                                         fileFuzzyPolicy.enabled
                         val nicknameOnlyFileUriHydrationLimit = fileResultLimit * 2
-                        val calendarResultLimit =
-                                if (isCalendarAliasSearch) {
-                                        if (useLowRamAliasLimits) 35 else 60
-                                } else {
-                                        25
-                                }
+                        val calendarResultLimit = if (isCalendarAliasSearch) aliasResultLimit else 25
+                        val settingsResultLimit =
+                                if (aliasSection == SearchSection.SETTINGS) ALIAS_CATALOG_RESULT_LIMIT
+                                else DEVICE_SETTINGS_RESULT_LIMIT
+                        val appSettingsResultLimit =
+                                if (aliasSection == SearchSection.APP_SETTINGS) ALIAS_CATALOG_RESULT_LIMIT
+                                else APP_SETTINGS_RESULT_LIMIT
+                        val appShortcutResultLimit =
+                                if (aliasSection == SearchSection.APP_SHORTCUTS) ALIAS_CATALOG_RESULT_LIMIT
+                                else APP_SHORTCUT_RESULT_LIMIT
 
                         // Read all per-query preferences once to avoid repeated SharedPreferences
                         // I/O.
@@ -381,6 +384,7 @@ class UnifiedSearchHandler(
                                                                                         secondaryRankingSignal = secondaryRankingSignal,
                                                                                         enableFuzzyMatching =
                                                                                                 enableFuzzySettingsSearch,
+                                                                                        resultLimit = settingsResultLimit,
                                                                                 )
                                                                         )
                                                                 },
@@ -463,6 +467,7 @@ class UnifiedSearchHandler(
                                                                                                 secondaryRankingSignal,
                                                                                         enableFuzzyMatching =
                                                                                                 enableFuzzyAppSettingsSearch,
+                                                                                        resultLimit = appSettingsResultLimit,
                                                                                 )
                                                                         )
                                                                 },
@@ -587,6 +592,7 @@ class UnifiedSearchHandler(
                                                                                         secondaryRankingSignal = secondaryRankingSignal,
                                                                                         enableFuzzyMatching =
                                                                                                 enableFuzzyAppShortcutSearch,
+                                                                                        resultLimit = appShortcutResultLimit,
                                                                                 )
                                                                         )
                                                                 },
