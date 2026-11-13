@@ -55,12 +55,11 @@ class DateCalculatorHandler(
                 )
             }
 
-            DateCalculatorUtils.parseAbsoluteTimeQuery(trimmedQuery)?.let { (past, future) ->
+            DateCalculatorUtils.parseAbsoluteTimeQuery(trimmedQuery)?.let { (next, last) ->
                 return CalculatorState(
-                    timeResultLabel = past.label,
-                    timeContextLabel = past.contextLabel,
-                    timeResultLabel2 = future.label,
-                    timeContextLabel2 = future.contextLabel,
+                    timeResultLabel = next.label,
+                    timeContextLabel = next.contextLabel,
+                    timeResultLabel2 = last.label,
                     isDateCalculatorMode = true,
                     toolType = SearchToolType.DATE_CALCULATOR,
                 )
@@ -146,12 +145,11 @@ class DateCalculatorHandler(
             )
         }
 
-        DateCalculatorUtils.parseAbsoluteTimeQuery(trimmedQuery)?.let { (past, future) ->
+        DateCalculatorUtils.parseAbsoluteTimeQuery(trimmedQuery)?.let { (next, last) ->
             return CalculatorState(
-                timeResultLabel = past.label,
-                timeContextLabel = past.contextLabel,
-                timeResultLabel2 = future.label,
-                timeContextLabel2 = future.contextLabel,
+                timeResultLabel = next.label,
+                timeContextLabel = next.contextLabel,
+                timeResultLabel2 = last.label,
                 toolType = SearchToolType.DATE_CALCULATOR,
             )
         }

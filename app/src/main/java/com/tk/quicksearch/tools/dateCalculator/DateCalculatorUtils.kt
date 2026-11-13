@@ -313,37 +313,40 @@ object DateCalculatorUtils {
     }
 
     /**
-     * Parses an absolute time reference like "5am", "5:00 AM", "14:30" and returns both
-     * the past occurrence and the next future occurrence as a pair (past, future).
+     * Parses an absolute time reference like "5am", "5:00 AM", "14:30" into a countdown to the
+     * next occurrence plus a note about the most recent past one, returned as (next, last).
      *
-     * e.g. "1pm" at 10:55 PM → past: "9 hours 55 minutes ago" / "today", future: "in 14 hours 5 minutes" / "tomorrow"
-     * e.g. "1pm" at  9:00 AM → past: "20 hours ago" / "yesterday", future: "in 4 hours" / "today"
+     * e.g. "10am" at 10:45 AM → next: "23h 15m" / "Next 10:00 AM · tomorrow",
+     *      last: "Last was 45 min ago"
      *
      * Returns null if the query is not a standalone time expression.
      */
     fun parseAbsoluteTimeQuery(query: String): Pair<TimeResult, TimeResult>? {
         val time = parseTimeString(query.trim()) ?: return null
-        val now = LocalDateTime.now(ZoneId.systemDefault())
-        val nowTime = now.toLocalTime()
+        val nowTime = LocalDateTime.now(ZoneId.systemDefault()).toLocalTime()
         // Signed diff: positive = time is still ahead today, negative = time already passed today
         val diffMinutes = java.time.Duration.between(nowTime, time).toMinutes()
+        val isNextToday = diffMinutes >= 0
+        val minutesUntil = if (isNextToday) diffMinutes else 24 * 60 + diffMinutes
+        val minutesSince = if (isNextToday) 24 * 60 - diffMinutes else -diffMinutes
+        val day = if (isNextToday) "today" else "tomorrow"
+        val next = TimeResult(
+            label = compactDurationLabel(minutesUntil, minuteSuffix = "m"),
+            contextLabel = "Next ${formatTime12Hr(time)} · $day",
+        )
+        val last = TimeResult(label = "Last was ${compactDurationLabel(minutesSince, minuteSuffix = " min")} ago")
+        return next to last
+    }
 
-        val past: TimeResult
-        val future: TimeResult
-        if (diffMinutes >= 0) {
-            // Time is still in the future today
-            val minutesUntil = diffMinutes
-            val minutesSince = 24 * 60 - diffMinutes
-            future = TimeResult(label = "${timeDurationLabel(minutesUntil)} later", contextLabel = "today", isAbsolute = false)
-            past = TimeResult(label = "${timeDurationLabel(minutesSince)} ago", contextLabel = "yesterday", isAbsolute = false)
-        } else {
-            // Time already passed today
-            val minutesSince = -diffMinutes
-            val minutesUntil = 24 * 60 - minutesSince
-            past = TimeResult(label = "${timeDurationLabel(minutesSince)} ago", contextLabel = "today", isAbsolute = false)
-            future = TimeResult(label = "${timeDurationLabel(minutesUntil)} later", contextLabel = "tomorrow", isAbsolute = false)
+    /** "23h 15m", "2h", or minutes alone ("45m" / "45 min") when under an hour. */
+    private fun compactDurationLabel(absMinutes: Long, minuteSuffix: String): String {
+        val hours = absMinutes / 60
+        val minutes = absMinutes % 60
+        return when {
+            hours == 0L -> "$minutes$minuteSuffix"
+            minutes == 0L -> "${hours}h"
+            else -> "${hours}h ${minutes}m"
         }
-        return past to future
     }
 
     /**
