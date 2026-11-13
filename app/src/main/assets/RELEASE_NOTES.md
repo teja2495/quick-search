@@ -3,6 +3,7 @@
 - Compact layout: a card-less design that fits more content on screen (enable in Appearance settings)
 - At a Glance widget for any launcher, works just like At a Glance on the Home screen
 - New Search Category: Bookmarks - Save any website or link as a bookmark and find it from search. You can also import your Chrome desktop bookmarks from an exported HTML file.
+- New Widget: World Clock
 - SpeedBump now works when you open apps from other launchers too (enable in more options)
 - Mic button in the search bar for voice typing (enable in Appearance settings)
 - Long press settings icon in searchbar to open your device settings

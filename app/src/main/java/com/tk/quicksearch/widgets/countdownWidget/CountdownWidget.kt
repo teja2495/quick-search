@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.Preferences
@@ -51,6 +52,11 @@ private const val DEFAULT_SIZE_DP = 110f
 class CountdownWidget : GlanceAppWidget() {
     override val stateDefinition = PreferencesGlanceStateDefinition
     override val sizeMode: SizeMode = SizeMode.Exact
+
+    companion object {
+        /** Drawn at until the host reports the placed widget's size. */
+        val DEFAULT_SIZE = DpSize(DEFAULT_SIZE_DP.dp, DEFAULT_SIZE_DP.dp)
+    }
 
     override suspend fun provideGlance(
         context: Context,

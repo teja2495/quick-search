@@ -409,6 +409,8 @@ data class SettingsScreenCallbacks(
     val onDeleteCustomAppShortcut: (StaticShortcut) -> Unit,
     val onLaunchDeviceSetting: (DeviceSetting) -> Unit,
     val onLaunchCalendarEvent: (CalendarEventInfo) -> Unit,
+    val onHideCalendarEvent: (CalendarEventInfo) -> Unit,
+    val onUnhideCalendarEvent: (CalendarEventInfo) -> Unit,
     val onRequestAppUninstall: (AppInfo) -> Unit,
     val onOpenAppInfo: (AppInfo) -> Unit,
     val onAddHomeScreenWidget: () -> Unit,

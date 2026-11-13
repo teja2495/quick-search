@@ -3,12 +3,15 @@ package com.tk.quicksearch.widgets.searchWidget
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
 import android.speech.RecognizerIntent
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.util.defaultAssistantPackage
 
-/**
+private const val CHATGPT_PACKAGE = "com.openai.chatgpt"
+private const val CHATGPT_VOICE_MODE_URL = "https://chatgpt.com/?mode=voice"/**
  * Handler for voice search and digital assistant functionality.
  * Encapsulates all voice-related operations to keep MainActivity focused on lifecycle management.
  */
@@ -51,12 +54,20 @@ class VoiceSearchHandler(
     }
 
     private fun startDigitalAssistant() {
-        val assistantIntent =
-            Intent(Intent.ACTION_VOICE_COMMAND).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        // A candidate can resolve yet still be refused at launch (e.g. not exported), so try each
+        // in turn; the assistant app's own launcher entry comes after its voice and assist entries.
+        val launched =
+            assistantIntentCandidates().any { intent ->
+                try {
+                    context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                    true
+                } catch (e: ActivityNotFoundException) {
+                    false
+                } catch (e: SecurityException) {
+                    false
+                }
             }
-        if (assistantIntent.resolveActivity(context.packageManager) != null) {
-            context.startActivity(assistantIntent)
+        if (launched) {
             context.finish()
         } else {
             Toast
@@ -66,6 +77,33 @@ class VoiceSearchHandler(
                     Toast.LENGTH_SHORT,
                 ).show()
         }
+    }
+
+    /**
+     * Opens the user's default assistant listening for speech. Unscoped VOICE_COMMAND can land on any
+     * app that handles it, and on recent Google app versions it opens nothing. For Google, hands-free
+     * voice search is what opens the Gemini voice overlay; ChatGPT has no voice intent but opens voice
+     * mode from its voice link; other assistants take VOICE_COMMAND or ASSIST, and an assistant that
+     * handles none of them is opened from its launcher entry.
+     */
+    private fun assistantIntentCandidates(): List<Intent> {
+        val packageManager = context.packageManager
+        val assistantPackage = context.defaultAssistantPackage()?.takeIf { it != context.packageName }
+        val candidates =
+            buildList {
+                if (assistantPackage == CHATGPT_PACKAGE) {
+                    add(Intent(Intent.ACTION_VIEW, Uri.parse(CHATGPT_VOICE_MODE_URL)).setPackage(assistantPackage))
+                }
+                if (assistantPackage != null) {
+                    add(Intent(RecognizerIntent.ACTION_VOICE_SEARCH_HANDS_FREE).setPackage(assistantPackage))
+                    add(Intent(Intent.ACTION_VOICE_COMMAND).setPackage(assistantPackage))
+                    add(Intent(Intent.ACTION_ASSIST).setPackage(assistantPackage))
+                    // Fallback for every assistant: open the app itself when none of the above launches.
+                    packageManager.getLaunchIntentForPackage(assistantPackage)?.let(::add)
+                }
+                add(Intent(Intent.ACTION_VOICE_COMMAND))
+            }
+        return candidates.filter { it.resolveActivity(packageManager) != null }
     }
 
     fun processVoiceInputResult(

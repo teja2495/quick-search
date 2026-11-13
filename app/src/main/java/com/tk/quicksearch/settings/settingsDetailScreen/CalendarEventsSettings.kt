@@ -5,7 +5,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.CalendarContract
 import android.text.format.DateFormat
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,6 +42,7 @@ import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -66,6 +68,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerIconBadge
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerAppIcon
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
@@ -114,6 +118,8 @@ internal val CalendarSettingsBarCornerShape = RoundedCornerShape(28.dp)
 fun CalendarEventsSettingsSection(
     onEventClick: (CalendarEventInfo) -> Unit,
     searchQuery: String = "",
+    onHideEvent: (CalendarEventInfo) -> Unit = {},
+    onUnhideEvent: (CalendarEventInfo) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val locale = Locale.getDefault()
@@ -131,6 +137,10 @@ fun CalendarEventsSettingsSection(
     var includePastEvents by remember { mutableStateOf(calendarPreferences.getIncludePastEvents()) }
     var defaultCalendarPackage by remember { mutableStateOf(calendarPreferences.getDefaultCalendarPackage()) }
     var showDefaultCalendarDialog by remember { mutableStateOf(false) }
+    // Hidden events reuse the calendar exclusion list, so search, history and At a Glance skip them too.
+    var hiddenEventIds by remember { mutableStateOf(calendarPreferences.getExcludedEventIds()) }
+    val showHiddenEvents by CalendarHiddenEventsState.showHiddenEvents.collectAsState()
+    DisposableEffect(Unit) { onDispose { CalendarHiddenEventsState.reset() } }
 
     val calendarApps by produceState(initialValue = emptyList(), context) {
         value = withContext(Dispatchers.IO) { discoverCalendarApps(context) }
@@ -176,12 +186,22 @@ fun CalendarEventsSettingsSection(
                 }
         }
 
+    val hasHiddenEvents = remember(eventGroups, hiddenEventIds) { eventGroups.any { it.eventId in hiddenEventIds } }
+    LaunchedEffect(hasHiddenEvents) {
+        CalendarHiddenEventsState.setHasHiddenEvents(hasHiddenEvents)
+        if (!hasHiddenEvents) CalendarHiddenEventsState.setShowHiddenEvents(false)
+    }
+    val visibleEventGroups =
+        remember(eventGroups, hiddenEventIds, showHiddenEvents) {
+            if (showHiddenEvents) eventGroups else eventGroups.filterNot { it.eventId in hiddenEventIds }
+        }
+
     val filteredEventGroups =
-        remember(eventGroups, normalizedSearchQuery, locale) {
+        remember(visibleEventGroups, normalizedSearchQuery, locale) {
             if (normalizedSearchQuery.isBlank()) {
-                eventGroups
+                visibleEventGroups
             } else {
-                eventGroups
+                visibleEventGroups
                     .mapNotNull { eventGroup ->
                         shortcutMatchPriority(
                             name = eventGroup.title,
@@ -205,7 +225,8 @@ fun CalendarEventsSettingsSection(
     val todayIndex = remember(sortedEventGroups, todayStartMillis) {
         sortedEventGroups.indexOfFirst { it.nearestInstance.startMillis >= todayStartMillis }
     }
-    LaunchedEffect(todayIndex, sortedEventGroups.size) {
+    // Keyed on what reloads or re-filters the list, not its size, so hiding an event keeps the scroll position.
+    LaunchedEffect(eventGroups, normalizedSearchQuery, showHiddenEvents) {
         if (todayIndex >= 0 && sortedEventGroups.isNotEmpty()) {
             listState.scrollToItem(todayIndex)
         }
@@ -291,6 +312,17 @@ fun CalendarEventsSettingsSection(
                             relativeLabel = calendarRelativeDateLabel(eventGroup.nearestInstance),
                             recurrenceLabel = recurrenceLabel,
                             isPast = eventGroup.nearestInstance.endMillis < nowMillis,
+                            isHidden = eventGroup.eventId in hiddenEventIds,
+                            onToggleHidden = {
+                                val event = eventGroup.nearestInstance
+                                if (eventGroup.eventId in hiddenEventIds) {
+                                    hiddenEventIds = hiddenEventIds - eventGroup.eventId
+                                    onUnhideEvent(event)
+                                } else {
+                                    hiddenEventIds = hiddenEventIds + eventGroup.eventId
+                                    onHideEvent(event)
+                                }
+                            },
                             onClick = {
                                 if (eventGroup.isRecurring()) {
                                     selectedEventGroupForSheet = eventGroup
@@ -506,7 +538,7 @@ fun CalendarEventsBottomBar(
 // Create / Edit dialogs
 // ============================================================================
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun CalendarEventManagementRow(
     title: String,
@@ -514,69 +546,84 @@ private fun CalendarEventManagementRow(
     relativeLabel: String,
     recurrenceLabel: String?,
     isPast: Boolean,
+    isHidden: Boolean,
+    onToggleHidden: () -> Unit,
     onClick: () -> Unit,
 ) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .alpha(if (isPast) 0.65f else 1f)
-                .clickable(onClick = onClick)
-                .padding(
-                    horizontal = DesignTokens.CardHorizontalPadding,
-                    vertical = DesignTokens.CardVerticalPadding,
-                ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
-    ) {
-        Icon(
-            imageVector = MaterialSymbols.CalendarMonth,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(DesignTokens.IconSize),
-        )
+    var showMenu by remember { mutableStateOf(false) }
+    Box {
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .alpha(if (isHidden) 0.45f else if (isPast) 0.65f else 1f)
+                    .combinedClickable(onClick = onClick, onLongClick = { showMenu = true })
+                    .padding(
+                        horizontal = DesignTokens.CardHorizontalPadding,
+                        vertical = DesignTokens.CardVerticalPadding,
+                    ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
+        ) {
+            Icon(
+                imageVector = MaterialSymbols.CalendarMonth,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(DesignTokens.IconSize),
+            )
 
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                text = dateLabel,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            recurrenceLabel?.let { recurrence ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    Icon(
-                        imageVector = MaterialSymbols.Repeat,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(12.dp),
-                    )
-                    Text(
-                        text = recurrence,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    text = dateLabel,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                recurrenceLabel?.let { recurrence ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Icon(
+                            imageVector = MaterialSymbols.Repeat,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(12.dp),
+                        )
+                        Text(
+                            text = recurrence,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
                 }
+                Text(
+                    text = relativeLabel,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
-            Text(
-                text = relativeLabel,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
+        }
+        AppDropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
+            AppDropdownMenuItem(
+                text = stringResource(if (isHidden) R.string.action_include_generic else R.string.action_exclude_generic),
+                icon = if (isHidden) MaterialSymbols.Visibility else MaterialSymbols.VisibilityOff,
+                onClick = {
+                    showMenu = false
+                    onToggleHidden()
+                },
             )
         }
     }

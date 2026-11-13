@@ -50,6 +50,8 @@ import com.tk.quicksearch.widgets.utils.hasStoredWidgetConfig
 import com.tk.quicksearch.widgets.utils.applyWidgetPreferences
 import com.tk.quicksearch.widgets.countdownWidget.CountdownWidgetConfigContent
 import com.tk.quicksearch.widgets.countdownWidget.CountdownWidgetReceiver
+import com.tk.quicksearch.widgets.worldClockWidget.WorldClockWidgetConfigContent
+import com.tk.quicksearch.widgets.worldClockWidget.WorldClockWidgetReceiver
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomButtonsWidgetReceiver
 import com.tk.quicksearch.widgets.mediaControlsWidget.MediaControlsWidgetReceiver
 import com.tk.quicksearch.widgets.noteWidget.NoteWidgetPickerScreen
@@ -58,6 +60,8 @@ import com.tk.quicksearch.widgets.atAGlanceWidget.AtAGlanceWidget
 import com.tk.quicksearch.widgets.atAGlanceWidget.AtAGlanceWidgetReceiver
 import com.tk.quicksearch.widgets.noteWidget.withNoteWidgetDefaults
 import com.tk.quicksearch.widgets.utils.glanceWidgetFor
+import com.tk.quicksearch.widgets.utils.defaultWidgetSize
+import com.tk.quicksearch.widgets.utils.drawNow
 import com.tk.quicksearch.widgets.utils.enforceVariantConstraints
 import com.tk.quicksearch.widgets.utils.toWidgetPreferences
 import kotlinx.coroutines.Dispatchers
@@ -100,7 +104,9 @@ class SearchWidgetConfigureActivity : ComponentActivity() {
             return
         }
         widgetVariant = resolveWidgetVariant(appWidgetId)
-        val isCountdownWidget = providerClassName(appWidgetId) == CountdownWidgetReceiver::class.java.name
+        val providerClass = providerClassName(appWidgetId)
+        val isCountdownWidget = providerClass == CountdownWidgetReceiver::class.java.name
+        val isWorldClockWidget = providerClass == WorldClockWidgetReceiver::class.java.name
 
         setContent {
             val uiState by searchViewModel.uiState.collectAsStateWithLifecycle()
@@ -143,6 +149,15 @@ class SearchWidgetConfigureActivity : ComponentActivity() {
             ) {
                 if (isCountdownWidget) {
                     CountdownWidgetConfigContent(
+                        appWidgetId = appWidgetId,
+                        onSaved = {
+                            setResult(Activity.RESULT_OK, createResultIntent())
+                            finish()
+                        },
+                        onCancel = { finish() },
+                    )
+                } else if (isWorldClockWidget) {
+                    WorldClockWidgetConfigContent(
                         appWidgetId = appWidgetId,
                         onSaved = {
                             setResult(Activity.RESULT_OK, createResultIntent())
@@ -204,7 +219,12 @@ class SearchWidgetConfigureActivity : ComponentActivity() {
             mutablePrefs.applyWidgetPreferences(constrainedPrefs, this@SearchWidgetConfigureActivity)
         }
         val widget = glanceWidgetFor(widgetVariant)
-        (widget as? AtAGlanceWidget)?.drawNow(this, appWidgetId, glanceId)
+        // update() alone waits for Glance's session worker, so saved settings would show up late.
+        if (widget is AtAGlanceWidget) {
+            widget.drawNow(this, appWidgetId, glanceId)
+        } else {
+            widget.drawNow(this, appWidgetId, glanceId, defaultWidgetSize(widgetVariant))
+        }
         widget.update(this, glanceId)
     }
 

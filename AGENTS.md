@@ -6,6 +6,7 @@ Repository playbook for coding agents. When prose and code disagree, trust the c
 
 - Keep changes narrow; preserve unrelated work in the tree. Don't mix feature work with speculative refactors or cleanup.
 - Don't `git add`, commit, tag, push, or publish without explicit permission.
+- Don't edit `app/src/main/assets/FEATURES.md` or `RELEASE_NOTES.md` as part of feature work; the user updates them before a release. Touch them only when asked.
 - `scripts/verify.sh` installs and launches the debug build when one device is connected; that is expected. Beyond that, don't drive the device (taps, gestures, settings changes) unless asked. Bug reports are often from other users' devices, so a local run doesn't prove their bug is fixed.
 - Don't run instrumented/Compose UI tests unless asked; the user does manual UI testing.
 - A successful build proves only that it builds. Don't claim a visual state, gesture, keyboard interaction, provider response, or intermittent issue is fixed without reproducing it.

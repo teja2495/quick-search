@@ -20,6 +20,7 @@ import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetLoadingState
 import kotlinx.coroutines.launch
+import com.tk.quicksearch.widgets.utils.drawNow
 
 /** Loads [appWidgetId]'s Countdown settings, shows [CountdownWidgetConfigScreen] and saves on Save. */
 @Composable
@@ -75,6 +76,8 @@ private suspend fun saveCountdownConfig(
     val glanceId = glanceIdFor(context, appWidgetId) ?: return
     val toSave = if (config.startMillis > 0L) config else config.copy(startMillis = System.currentTimeMillis())
     updateAppWidgetState(context, glanceId) { prefs -> prefs.applyCountdownWidgetConfig(toSave, context) }
-    CountdownWidget().update(context, glanceId)
+    val widget = CountdownWidget()
+    widget.drawNow(context, appWidgetId, glanceId, CountdownWidget.DEFAULT_SIZE)
+    widget.update(context, glanceId)
     CountdownWidgetReceiver.scheduleNextDayRefresh(context)
 }

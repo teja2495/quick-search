@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.widget.Toast
+import androidx.compose.ui.unit.DpSize
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.appwidget.GlanceAppWidget
@@ -24,6 +25,8 @@ import com.tk.quicksearch.widgets.noteWidget.NoteWidget
 import com.tk.quicksearch.widgets.noteWidget.NoteWidgetReceiver
 import com.tk.quicksearch.widgets.searchWidget.SearchWidget
 import com.tk.quicksearch.widgets.searchWidget.SearchWidgetReceiver
+import com.tk.quicksearch.widgets.worldClockWidget.WorldClockWidget
+import com.tk.quicksearch.widgets.worldClockWidget.WorldClockWidgetReceiver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -81,24 +84,34 @@ private fun showToast(
  * Play/Pause button's icon reflects a playback-state change that just happened outside of this app.
  */
 suspend fun refreshAllWidgets(context: Context) {
-    refreshWidgets(context, SearchWidgetReceiver::class.java, SearchWidget(WidgetVariant.STANDARD))
-    refreshWidgets(context, CustomButtonsWidgetReceiver::class.java, SearchWidget(WidgetVariant.CUSTOM_BUTTONS_ONLY))
+    refreshAndDrawNow(context, SearchWidgetReceiver::class.java, SearchWidget(WidgetVariant.STANDARD), SearchWidget.DEFAULT_SIZE)
+    refreshAndDrawNow(
+        context,
+        CustomButtonsWidgetReceiver::class.java,
+        SearchWidget(WidgetVariant.CUSTOM_BUTTONS_ONLY),
+        SearchWidget.DEFAULT_SIZE,
+    )
     refreshMediaControlsWidgets(context)
 }
 
 /** Redraws placed media controls widgets, e.g. when the playing track's title or artwork changes. */
 suspend fun refreshMediaControlsWidgets(context: Context) {
-    refreshWidgets(context, MediaControlsWidgetReceiver::class.java, MediaControlsWidget())
+    refreshAndDrawNow(context, MediaControlsWidgetReceiver::class.java, MediaControlsWidget(), MediaControlsWidget.DEFAULT_SIZE)
 }
 
 /** Redraws placed Note widgets, e.g. after a note is edited, deleted or restored from a backup. */
 suspend fun refreshNoteWidgets(context: Context) {
-    refreshWidgets(context, NoteWidgetReceiver::class.java, NoteWidget())
+    refreshAndDrawNow(context, NoteWidgetReceiver::class.java, NoteWidget(), NoteWidget.DEFAULT_SIZE)
 }
 
 /** Redraws placed Countdown widgets, e.g. when the day changes. */
 suspend fun refreshCountdownWidgets(context: Context) {
-    refreshWidgets(context, CountdownWidgetReceiver::class.java, CountdownWidget())
+    refreshAndDrawNow(context, CountdownWidgetReceiver::class.java, CountdownWidget(), CountdownWidget.DEFAULT_SIZE)
+}
+
+/** Redraws placed World Clock widgets, e.g. when the device's time zone or clock format changes. */
+suspend fun refreshWorldClockWidgets(context: Context) {
+    refreshAndDrawNow(context, WorldClockWidgetReceiver::class.java, WorldClockWidget(), WorldClockWidget.DEFAULT_SIZE)
 }
 
 /**
@@ -152,6 +165,29 @@ fun glanceWidgetFor(variant: WidgetVariant): GlanceAppWidget =
         WidgetVariant.NOTE -> NoteWidget()
         WidgetVariant.AT_A_GLANCE -> AtAGlanceWidget()
     }
+
+/** The size [variant]'s widget is drawn at until the host reports the placed size. */
+fun defaultWidgetSize(variant: WidgetVariant): DpSize =
+    when (variant) {
+        WidgetVariant.STANDARD,
+        WidgetVariant.CUSTOM_BUTTONS_ONLY,
+        -> SearchWidget.DEFAULT_SIZE
+        WidgetVariant.MEDIA_CONTROLS -> MediaControlsWidget.DEFAULT_SIZE
+        WidgetVariant.NOTE -> NoteWidget.DEFAULT_SIZE
+        WidgetVariant.AT_A_GLANCE -> AtAGlanceWidget.DEFAULT_SIZE
+    }
+
+/** [refreshWidgets], drawing each widget right away instead of waiting for Glance's session worker. */
+private suspend fun refreshAndDrawNow(
+    context: Context,
+    receiverClass: Class<*>,
+    widget: GlanceAppWidget,
+    defaultSize: DpSize,
+) {
+    refreshWidgets(context, receiverClass, widget) { appWidgetId, glanceId ->
+        widget.drawNow(context, appWidgetId, glanceId, defaultSize)
+    }
+}
 
 private suspend fun refreshWidgets(
     context: Context,

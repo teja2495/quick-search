@@ -236,6 +236,8 @@ internal fun SettingsNestedDetailScreen(
                             }
                         } else if (detailType == SettingsDetailType.BOOKMARKS) {
                             { BookmarksHeaderMenu() }
+                        } else if (detailType == SettingsDetailType.CALENDAR_EVENTS) {
+                            { CalendarEventsHeaderMenu() }
                         } else if (detailType == SettingsDetailType.CUSTOM_TOOL_EDITOR && pendingAiBackedToolForEditor == null) {
                             val pendingToolIdForHeader = remember { CustomToolNavigationMemory.peekPendingToolId() }
                             val existingToolForHeader = remember(pendingToolIdForHeader, state.customTools) {
@@ -343,16 +345,10 @@ internal fun SettingsNestedDetailScreen(
                 CalendarEventsSettingsSection(
                     onEventClick = callbacks.onLaunchCalendarEvent,
                     searchQuery = calendarEventsSearchQuery,
-                    modifier =
-                        Modifier
-                            .settingsContentWidth()
-                            .fillMaxHeight()
-                            .align(androidx.compose.ui.Alignment.CenterHorizontally)
-                            .padding(
-                                start = DesignTokens.ContentHorizontalPadding,
-                                end = DesignTokens.ContentHorizontalPadding,
-                                bottom = 96.dp,
-                            ),
+                    onHideEvent = callbacks.onHideCalendarEvent,
+                    onUnhideEvent = callbacks.onUnhideCalendarEvent,
+                    modifier = Modifier.settingsContentWidth().fillMaxHeight().align(Alignment.CenterHorizontally)
+                        .padding(start = DesignTokens.ContentHorizontalPadding, end = DesignTokens.ContentHorizontalPadding, bottom = 96.dp),
                 )
             } else if (detailType == SettingsDetailType.NOTIFICATION_HISTORY) {
                 NotificationHistorySettingsSection(
