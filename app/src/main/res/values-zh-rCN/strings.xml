@@ -528,6 +528,11 @@
     <string name="file_extension_label">.%s 文件</string>
     <string name="file_info_modified">上次修改时间</string>
     <string name="file_info_path">路径</string>
+    <string name="action_folder_info">文件夹信息</string>
+    <string name="file_info_contents">内容</string>
+    <plurals name="file_info_item_count">
+        <item quantity="other">%d 个项目</item>
+    </plurals>
     <string name="file_path_sd_card">SD 卡</string>
     <string name="file_info_size">大小</string>
     <string name="file_info_type">类型</string>

@@ -551,6 +551,12 @@
     <string name="file_extension_label">.%s-bestanden</string>
     <string name="file_info_modified">Laatst gewijzigd</string>
     <string name="file_info_path">Pad</string>
+    <string name="action_folder_info">Mapinfo</string>
+    <string name="file_info_contents">Inhoud</string>
+    <plurals name="file_info_item_count">
+        <item quantity="one">%d item</item>
+        <item quantity="other">%d items</item>
+    </plurals>
     <string name="file_path_sd_card">SD-kaart</string>
     <string name="file_info_size">Grootte</string>
     <string name="file_info_type">Type</string>

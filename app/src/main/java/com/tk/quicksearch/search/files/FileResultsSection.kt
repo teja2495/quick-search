@@ -702,15 +702,20 @@ internal fun FileResultRow(
                     }
                 }
 
-                if (!deviceFile.isDirectory) {
-                    IconButton(onClick = { showFileInfoDialog = true }) {
-                        Icon(
-                                imageVector = MaterialSymbols.InfoOutlined,
-                                contentDescription = stringResource(R.string.action_file_info),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                                modifier = Modifier.size(18.dp),
-                        )
-                    }
+                IconButton(onClick = { showFileInfoDialog = true }) {
+                    Icon(
+                            imageVector = MaterialSymbols.InfoOutlined,
+                            contentDescription =
+                                    stringResource(
+                                            if (deviceFile.isDirectory) {
+                                                R.string.action_folder_info
+                                            } else {
+                                                R.string.action_file_info
+                                            },
+                                    ),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                            modifier = Modifier.size(18.dp),
+                    )
                 }
             }
         }

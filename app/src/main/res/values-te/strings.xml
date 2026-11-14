@@ -529,6 +529,12 @@
     <string name="file_extension_label">.%s ఫైళ్లు</string>
     <string name="file_info_modified">చివరిగా సవరించబడింది</string>
     <string name="file_info_path">పాత్</string>
+    <string name="action_folder_info">ఫోల్డర్ సమాచారం</string>
+    <string name="file_info_contents">విషయాలు</string>
+    <plurals name="file_info_item_count">
+        <item quantity="one">%d అంశం</item>
+        <item quantity="other">%d అంశాలు</item>
+    </plurals>
     <string name="file_path_sd_card">SD కార్డ్</string>
     <string name="file_info_size">పరిమాణం</string>
     <string name="file_info_type">రకం</string>

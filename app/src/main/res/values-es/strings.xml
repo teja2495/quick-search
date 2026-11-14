@@ -529,6 +529,12 @@
     <string name="file_extension_label">Archivos .%s</string>
     <string name="file_info_modified">Última modificación</string>
     <string name="file_info_path">Ruta</string>
+    <string name="action_folder_info">Información de la carpeta</string>
+    <string name="file_info_contents">Contenido</string>
+    <plurals name="file_info_item_count">
+        <item quantity="one">%d elemento</item>
+        <item quantity="other">%d elementos</item>
+    </plurals>
     <string name="file_path_sd_card">Tarjeta SD</string>
     <string name="file_info_size">Tamaño</string>
     <string name="file_info_type">Tipo</string>

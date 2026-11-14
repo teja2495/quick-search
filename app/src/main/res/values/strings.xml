@@ -537,6 +537,12 @@
     <string name="file_extension_label">.%s files</string>
     <string name="file_info_modified">Last modified</string>
     <string name="file_info_path">Path</string>
+    <string name="action_folder_info">Folder Info</string>
+    <string name="file_info_contents">Contents</string>
+    <plurals name="file_info_item_count">
+        <item quantity="one">%d item</item>
+        <item quantity="other">%d items</item>
+    </plurals>
     <string name="file_path_sd_card">SD card</string>
     <string name="file_info_size">Size</string>
     <string name="file_info_type">Type</string>

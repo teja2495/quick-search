@@ -529,6 +529,12 @@
     <string name="file_extension_label">Αρχεία .%s</string>
     <string name="file_info_modified">Τελευταία τροποποίηση</string>
     <string name="file_info_path">Διαδρομή</string>
+    <string name="action_folder_info">Πληροφορίες φακέλου</string>
+    <string name="file_info_contents">Περιεχόμενα</string>
+    <plurals name="file_info_item_count">
+        <item quantity="one">%d στοιχείο</item>
+        <item quantity="other">%d στοιχεία</item>
+    </plurals>
     <string name="file_path_sd_card">Κάρτα SD</string>
     <string name="file_info_size">Μέγεθος</string>
     <string name="file_info_type">Τύπος</string>

@@ -532,6 +532,12 @@
     <string name="file_extension_label">File .%s</string>
     <string name="file_info_modified">Terakhir diubah</string>
     <string name="file_info_path">Jalur</string>
+    <string name="action_folder_info">Info Folder</string>
+    <string name="file_info_contents">Isi</string>
+    <plurals name="file_info_item_count">
+        <item quantity="one">%d item</item>
+        <item quantity="other">%d item</item>
+    </plurals>
     <string name="file_path_sd_card">Kartu SD</string>
     <string name="file_info_size">Ukuran</string>
     <string name="file_info_type">Jenis</string>

@@ -538,6 +538,14 @@
     <string name="file_extension_label">Pliki .%s</string>
     <string name="file_info_modified">Ostatnia modyfikacja</string>
     <string name="file_info_path">Ścieżka</string>
+    <string name="action_folder_info">Informacje o folderze</string>
+    <string name="file_info_contents">Zawartość</string>
+    <plurals name="file_info_item_count">
+        <item quantity="one">%d element</item>
+        <item quantity="few">%d elementy</item>
+        <item quantity="many">%d elementów</item>
+        <item quantity="other">%d elementu</item>
+    </plurals>
     <string name="file_path_sd_card">Karta SD</string>
     <string name="file_info_size">Rozmiar</string>
     <string name="file_info_type">Typ</string>
