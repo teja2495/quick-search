@@ -555,6 +555,6 @@ internal fun notedTaskGlanceItem(task: NotedGlanceTask, glance: UpcomingReminder
             onDismiss = { glance.dismissNoted(task) },
             onDelete = {},
             isNotedTask = true,
-            leadingIcon = { NotedAppIcon(iconPackPackage = null, modifier = Modifier.size(24.dp)) },
+            leadingIcon = { NotedAppIcon(iconPackPackage = LocalGlanceIconPackPackage.current, modifier = Modifier.size(24.dp)) },
         )
     }

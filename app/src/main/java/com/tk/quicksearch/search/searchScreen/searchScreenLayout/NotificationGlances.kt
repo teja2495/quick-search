@@ -529,7 +529,7 @@ internal fun FinishedProgressNotificationRow(
 /** The posting app's icon for a notification row, or a generic app icon while it loads. */
 @Composable
 internal fun NotificationAppIcon(packageName: String) {
-    val appIcon = rememberAppIcon(packageName = packageName).bitmap
+    val appIcon = rememberAppIcon(packageName = packageName, iconPackPackage = LocalGlanceIconPackPackage.current).bitmap
     if (appIcon != null) {
         Image(
             bitmap = appIcon,

@@ -209,7 +209,8 @@ internal fun UpcomingAlarmRow(glance: UpcomingAlarmGlance) {
 /** The clock app's icon, or the generic alarm icon when its package is unknown or still loading. */
 @Composable
 private fun UpcomingAlarmAppIcon(packageName: String?) {
-    val appIcon = packageName?.let { rememberAppIcon(packageName = it).bitmap }
+    val iconPackPackage = LocalGlanceIconPackPackage.current
+    val appIcon = packageName?.let { rememberAppIcon(packageName = it, iconPackPackage = iconPackPackage).bitmap }
     if (appIcon != null) {
         Image(
             bitmap = appIcon,

@@ -6,9 +6,11 @@ import android.graphics.Bitmap
 import android.text.format.DateFormat
 import androidx.datastore.preferences.core.Preferences
 import androidx.glance.GlanceId
+import com.tk.quicksearch.search.apps.appIconCacheVersion
 import com.tk.quicksearch.search.data.preferences.AppGlanceItemSettings
 import com.tk.quicksearch.search.data.preferences.WidgetGlanceItemSettings
 import com.tk.quicksearch.search.data.preferences.newWidgetGlanceItems
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.widgets.mediaControlsWidget.MediaControlsSnapshot
 import com.tk.quicksearch.widgets.noteWidget.withNoteWidgetDefaults
 import com.tk.quicksearch.widgets.utils.WidgetPreferences
@@ -29,7 +31,7 @@ internal class AtAGlanceWidgetContent(
     val config: WidgetPreferences,
     val snapshot: AtAGlanceWidgetSnapshot,
     val nowPlaying: MediaControlsSnapshot?,
-    /** The device settings the draw also reads: night mode, font scale, density, locale and today's date. */
+    /** The settings the draw also reads: night mode, font scale, density, locale, today's date and app icons. */
     private val environment: List<Any?>,
 ) {
     fun showsSameAs(other: AtAGlanceWidgetContent): Boolean =
@@ -68,6 +70,8 @@ internal class AtAGlanceWidgetContent(
                     configuration.locales.toLanguageTags(),
                     DateFormat.is24HourFormat(context),
                     LocalDate.now(),
+                    appIconCacheVersion.value,
+                    UserAppPreferences(context).uiPreferences.getSelectedIconPackPackage(),
                 )
             return AtAGlanceWidgetContent(prefs, config, snapshot, nowPlaying, environment)
         }

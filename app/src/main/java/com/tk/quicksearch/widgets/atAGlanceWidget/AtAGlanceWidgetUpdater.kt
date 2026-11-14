@@ -21,6 +21,7 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.tk.quicksearch.customInfo.CustomInfoRepository
+import com.tk.quicksearch.search.apps.appIconCacheVersion
 import com.tk.quicksearch.search.data.AppNotificationsSettings
 import com.tk.quicksearch.search.data.GlanceNotificationsStore
 import com.tk.quicksearch.search.data.ReminderRepository
@@ -119,6 +120,7 @@ internal object AtAGlanceWidgetUpdater {
                 ReminderRepository.changes,
                 CustomInfoRepository.changes,
                 AppNotificationsSettings.config,
+                appIconCacheVersion,
             ).map { it.drop(1) }
         unregisterListeners = registerDeviceListeners(appContext)
         job =
