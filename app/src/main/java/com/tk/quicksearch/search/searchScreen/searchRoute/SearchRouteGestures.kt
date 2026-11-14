@@ -211,9 +211,13 @@ internal fun rememberRouteGestures(
             if (event == Lifecycle.Event.ON_RESUME) {
                 isDefaultLauncher = context.isDefaultHomeApp()
                 homeSwipeDownAction = gesturePreferences.getHomeSwipeDownAction(isDefaultLauncher)
-                val isLockScreenAvailable = LockScreenAccessibilityService.isEnabled(context)
+                // Clear the lock action only when the user turned the service off. A service that is
+                // on but not running yet (or stopped by Android) must not wipe the user's choice.
+                val isLockScreenTurnedOff =
+                    !LockScreenAccessibilityService.isEnabled(context) &&
+                        !LockScreenAccessibilityService.isTurnedOnInSettings(context)
                 if (
-                    !isLockScreenAvailable &&
+                    isLockScreenTurnedOff &&
                     gesturePreferences.getHomeDoubleTapAction() == HomeSwipeGestureAction.LOCK_SCREEN
                 ) {
                     gesturePreferences.setHomeDoubleTapAction(HomeSwipeGestureAction.NONE)

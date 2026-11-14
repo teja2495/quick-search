@@ -1,10 +1,8 @@
 package com.tk.quicksearch.shared.permissions
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.PaddingValues
@@ -436,14 +434,12 @@ fun PermissionsCardSection(
                                 if (shouldShowAccessibilityDisclosure) {
                                     showAccessibilityDisclosure = true
                                 } else {
-                                    context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                                    LockScreenAccessibilityService.openAccessibilitySettings(context)
                                 }
                             }
                         },
                         onGrantedClick = {
-                            runCatching {
-                                context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-                            }
+                            LockScreenAccessibilityService.openAccessibilitySettings(context)
                         },
                     ),
                 )
@@ -564,7 +560,7 @@ fun PermissionsCardSection(
         LockScreenAccessibilityDisclosureDialog(
             onAgree = {
                 showAccessibilityDisclosure = false
-                context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                LockScreenAccessibilityService.openAccessibilitySettings(context)
             },
             onDismiss = { showAccessibilityDisclosure = false },
         )

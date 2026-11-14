@@ -150,6 +150,7 @@
     <string name="settings_gesture_lock_screen_requires_accessibility">सुलभता अनुमति आवश्यक है</string>
     <string name="accessibility_lock_screen_service_label">Quick Search</string>
     <string name="accessibility_lock_screen_service_description">Quick Search को होम स्क्रीन पर डबल-टैप जेस्चर से स्क्रीन लॉक करने, नॉच पर टैप का जवाब देने, किसी भी ऐप में किनारे से स्वाइप या फ़्लोटिंग बटन से खुलने और Quick Search के बाहर खोले गए ऐप्स के लिए SpeedBump दिखाने की अनुमति देता है। यह केवल देखता है कि कौन-सा ऐप खुला है और स्क्रीन की सामग्री नहीं पढ़ता।</string>
+    <string name="accessibility_service_stopped_hint">Android ने Quick Search की सुलभता सेवा बंद कर दी है। सुलभता सेटिंग में इसे बंद करके फिर से चालू करें।</string>
 <string name="accessibility_permission_disclaimer_title">सुलभता अनुमति अस्वीकरण</string>
     <string name="accessibility_lock_screen_disclosure_message">Quick Search Accessibility का उपयोग इन कामों के लिए करता है:\n\n• स्क्रीन लॉक करने के लिए डबल-टैप जेस्चर सक्षम करने के लिए।\n• किनारे से स्वाइप जेस्चर से Quick Search खोलने के लिए।\n• फ़्लोटिंग बटन से Quick Search खोलने के लिए।\n• नॉच पर टैप करने पर कार्रवाइयाँ चलाने के लिए।\n• SpeedBump वाला ऐप Quick Search के बाहर खोले जाने पर SpeedBump दिखाने के लिए। इसके लिए यह केवल देखता है कि कौन-सा ऐप खुला है।\n\nयह आपकी स्क्रीन सामग्री या अन्य निजी डेटा को पढ़ता, एकत्र करता, संग्रहीत या साझा नहीं करता है।</string>
     <string name="settings_gesture_none">कोई नहीं</string>

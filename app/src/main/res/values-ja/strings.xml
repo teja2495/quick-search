@@ -151,6 +151,7 @@
     <string name="settings_gesture_lock_screen_requires_accessibility">ユーザー補助の権限が必要です</string>
     <string name="accessibility_lock_screen_service_label">Quick Search</string>
     <string name="accessibility_lock_screen_service_description">ホーム画面のダブルタップジェスチャーで画面をロックし、ノッチのタップに反応し、どのアプリからでも端からのスワイプやフローティングボタンで Quick Search を開き、Quick Search 以外から開いたアプリに SpeedBump を表示できるようにします。どのアプリが開いているかだけを確認し、画面の内容は読み取りません。</string>
+    <string name="accessibility_service_stopped_hint">Android が Quick Search のユーザー補助サービスを停止しました。ユーザー補助の設定でオフにしてから再度オンにしてください。</string>
     <string name="accessibility_permission_disclaimer_title">ユーザー補助の権限に関する免責事項</string>
     <string name="accessibility_lock_screen_disclosure_message">Quick Search は、ユーザー補助機能を次の目的で使用します。\n\n• 画面をロックするダブルタップジェスチャーを有効にする。\n• 端からのスワイプジェスチャーで Quick Search を開く。\n• フローティングボタンで Quick Search を開く。\n• ノッチをタップしたときに操作を実行する。\n• SpeedBump を設定したアプリが Quick Search 以外から開かれたときに SpeedBump を表示する。このために、どのアプリが開いているかだけを確認します。\n\n画面の内容やその他の個人データを読み取り、収集、保存、共有することはありません。</string>
     <string name="settings_gesture_none">なし</string>

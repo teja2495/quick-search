@@ -151,6 +151,7 @@
     <string name="settings_gesture_lock_screen_requires_accessibility">Memerlukan Izin Aksesibilitas</string>
     <string name="accessibility_lock_screen_service_label">Quick Search</string>
     <string name="accessibility_lock_screen_service_description">Mengizinkan Quick Search mengunci layar dari gestur ketuk dua kali di Layar Utama, merespons ketukan pada notch, terbuka dengan geser dari tepi atau tombol mengambang di aplikasi apa pun, dan menampilkan SpeedBump untuk aplikasi yang dibuka di luar Quick Search. Fitur ini hanya memeriksa aplikasi mana yang terbuka dan tidak membaca konten layar.</string>
+    <string name="accessibility_service_stopped_hint">Android menghentikan layanan aksesibilitas Quick Search. Matikan lalu nyalakan lagi di setelan Aksesibilitas.</string>
     <string name="accessibility_permission_disclaimer_title">Pernyataan Izin Aksesibilitas</string>
     <string name="accessibility_lock_screen_disclosure_message">Quick Search menggunakan Aksesibilitas untuk:\n\n• Mengaktifkan gestur ketuk dua kali untuk mengunci layar.\n• Membuka Quick Search dengan gestur geser dari tepi.\n• Membuka Quick Search dengan tombol mengambang.\n• Menjalankan tindakan saat Anda mengetuk notch.\n• Menampilkan SpeedBump saat aplikasi dengan SpeedBump dibuka di luar Quick Search. Untuk ini, Quick Search hanya memeriksa aplikasi mana yang terbuka.\n\nQuick Search tidak membaca, mengumpulkan, menyimpan, atau membagikan konten layar atau data pribadi lainnya.</string>
     <string name="settings_gesture_none">Tidak ada</string>

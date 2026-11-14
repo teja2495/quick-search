@@ -1,11 +1,10 @@
 package com.tk.quicksearch.settings.settingsScreen
 
+import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
 import android.content.ActivityNotFoundException
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenCallbacks as SharedSettingsScreenCallbacks
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenState as SharedSettingsScreenState
-import android.content.Intent
 import android.net.Uri
-import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -489,7 +488,7 @@ fun SettingsScreen(
         LockScreenAccessibilityDisclosureDialog(
             onAgree = {
                 onAccessibilityPermissionDisclaimerDismissed()
-                context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                LockScreenAccessibilityService.openAccessibilitySettings(context)
             },
             onDismiss = onAccessibilityPermissionDisclaimerDismissed,
         )

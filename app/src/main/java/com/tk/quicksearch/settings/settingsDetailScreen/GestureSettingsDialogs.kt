@@ -1,7 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
 import android.content.Context
-import android.content.Intent
 import android.provider.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -115,7 +114,7 @@ internal class GestureSettingsState(
         if (shouldShowAccessibilityDisclosure) {
             showLockScreenAccessibilityDisclosure = true
         } else {
-            context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            LockScreenAccessibilityService.openAccessibilitySettings(context)
         }
     }
 
@@ -452,7 +451,7 @@ internal fun GestureSettingsDialogs(
                     if (shouldShowAccessibilityDisclosure) {
                         state.showLockScreenAccessibilityDisclosure = true
                     } else {
-                        context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                        LockScreenAccessibilityService.openAccessibilitySettings(context)
                     }
                 }
             },
@@ -493,7 +492,7 @@ internal fun GestureSettingsDialogs(
         LockScreenAccessibilityDisclosureDialog(
             onAgree = {
                 state.showLockScreenAccessibilityDisclosure = false
-                context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                LockScreenAccessibilityService.openAccessibilitySettings(context)
             },
             onDismiss = {
                 state.showLockScreenAccessibilityDisclosure = false

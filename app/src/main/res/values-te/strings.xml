@@ -150,6 +150,7 @@
     <string name="settings_gesture_lock_screen_requires_accessibility">యాక్సెసిబిలిటీ అనుమతి అవసరం</string>
     <string name="accessibility_lock_screen_service_label">Quick Search</string>
     <string name="accessibility_lock_screen_service_description">హోమ్ స్క్రీన్‌పై డబుల్-ట్యాప్ సంజ్ఞతో స్క్రీన్‌ను లాక్ చేయడానికి, నాచ్ నొక్కడాలకు స్పందించడానికి, ఏ యాప్‌లోనైనా అంచు నుండి స్వైప్ లేదా ఫ్లోటింగ్ బటన్‌తో తెరవడానికి మరియు Quick Search బయట తెరిచిన యాప్‌లకు SpeedBump చూపడానికి Quick Searchను అనుమతిస్తుంది. ఇది ఏ యాప్ తెరిచి ఉందో మాత్రమే చూస్తుంది, స్క్రీన్ కంటెంట్‌ను చదవదు.</string>
+    <string name="accessibility_service_stopped_hint">Android, Quick Search యాక్సెసిబిలిటీ సేవను ఆపివేసింది. యాక్సెసిబిలిటీ సెట్టింగ్‌లలో దాన్ని ఆఫ్ చేసి మళ్లీ ఆన్ చేయండి.</string>
 <string name="accessibility_permission_disclaimer_title">యాక్సెసిబిలిటీ అనుమతి నిరాకరణ</string>
     <string name="accessibility_lock_screen_disclosure_message">Quick Search యాక్సెసిబిలిటీని వీటి కోసం ఉపయోగిస్తుంది:\n\n• స్క్రీన్‌ను లాక్ చేయడానికి డబుల్-ట్యాప్ సంజ్ఞను ప్రారంభించడానికి.\n• ఎడ్జ్ స్వైప్ సంజ్ఞలతో Quick Searchని తెరవడానికి.\n• ఫ్లోటింగ్ బటన్‌తో Quick Searchని తెరవడానికి.\n• నాచ్‌ను నొక్కినప్పుడు చర్యలను అమలు చేయడానికి.\n• SpeedBump ఉన్న యాప్‌ను Quick Search బయట తెరిచినప్పుడు SpeedBump చూపడానికి. దీని కోసం ఏ యాప్ తెరిచి ఉందో మాత్రమే చూస్తుంది.\n\nఇది మీ స్క్రీన్ కంటెంట్‌ను లేదా ఇతర వ్యక్తిగత డేటాను చదవదు, సేకరించదు, నిల్వ చేయదు లేదా పంచుకోదు.</string>
     <string name="settings_gesture_none">ఏదీ లేదు</string>

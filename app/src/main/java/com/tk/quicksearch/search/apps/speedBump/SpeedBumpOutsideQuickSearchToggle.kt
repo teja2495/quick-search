@@ -1,9 +1,7 @@
 package com.tk.quicksearch.search.apps.speedBump
 
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
-import android.provider.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
@@ -51,11 +49,7 @@ class SpeedBumpOutsideQuickSearchToggleState internal constructor(
     }
 
     internal fun openAccessibilitySettings() {
-        runCatching {
-            context.startActivity(
-                Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-            )
-        }
+        LockScreenAccessibilityService.openAccessibilitySettings(context)
     }
 
     internal fun refresh() {

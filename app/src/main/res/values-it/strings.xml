@@ -149,6 +149,7 @@
     <string name="settings_gesture_lock_screen_requires_accessibility">Richiede l\'autorizzazione di accessibilità</string>
     <string name="accessibility_lock_screen_service_label">Quick Search</string>
     <string name="accessibility_lock_screen_service_description">Consente a Quick Search di bloccare lo schermo con il gesto del doppio tocco nella schermata Home, di rispondere ai tocchi sul notch, di aprirsi con uno scorrimento dal bordo o con un pulsante mobile in qualsiasi app e di mostrare SpeedBump per le app aperte fuori da Quick Search. Controlla solo quale app è aperta e non legge il contenuto dello schermo.</string>
+    <string name="accessibility_service_stopped_hint">Android ha interrotto il servizio di accessibilità di Quick Search. Disattivalo e riattivalo nelle impostazioni di accessibilità.</string>
     <string name="accessibility_permission_disclaimer_title">Informativa sull’autorizzazione di accessibilità</string>
     <string name="accessibility_lock_screen_disclosure_message">Quick Search usa l’accessibilità per:\n\n• Abilitare il gesto del doppio tocco per bloccare lo schermo.\n• Aprire Quick Search con i gesti di scorrimento dal bordo.\n• Aprire Quick Search con il pulsante mobile.\n• Eseguire azioni quando tocchi il notch.\n• Mostrare SpeedBump quando un’app con SpeedBump viene aperta fuori da Quick Search. Per farlo, controlla solo quale app è aperta.\n\nNon legge, raccoglie, archivia o condivide il contenuto dello schermo o altri dati personali.</string>
     <string name="settings_gesture_none">Nessuno</string>

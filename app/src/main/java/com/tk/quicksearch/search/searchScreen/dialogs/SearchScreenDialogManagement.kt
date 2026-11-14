@@ -1,7 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.dialogs
 
-import android.content.Intent
-import android.provider.Settings
+import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -118,7 +117,7 @@ internal fun SearchScreenDialogs(
         LockScreenAccessibilityDisclosureDialog(
             onAgree = {
                 onAccessibilityPermissionDisclaimerDismissed()
-                context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                LockScreenAccessibilityService.openAccessibilitySettings(context)
             },
             onDismiss = onAccessibilityPermissionDisclaimerDismissed,
         )

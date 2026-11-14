@@ -154,6 +154,7 @@
     <string name="settings_gesture_lock_screen_requires_accessibility">Vereist toegankelijkheidsmachtiging</string>
     <string name="accessibility_lock_screen_service_label">Quick Search</string>
     <string name="accessibility_lock_screen_service_description">Hiermee kan Quick Search het scherm vergrendelen via het dubbeltik-gebaar op het startscherm, reageren op tikken op de notch, openen met een veeg vanaf de rand of een zwevende knop in elke app, en SpeedBump tonen voor apps die buiten Quick Search worden geopend. Het controleert alleen welke app open is en leest geen scherminhoud.</string>
+    <string name="accessibility_service_stopped_hint">Android heeft de toegankelijkheidsservice van Quick Search gestopt. Zet deze uit en weer aan in de toegankelijkheidsinstellingen.</string>
     <string name="accessibility_permission_disclaimer_title">Disclaimer toegankelijkheidsmachtiging</string>
     <string name="accessibility_lock_screen_disclosure_message">Quick Search gebruikt Toegankelijkheid om:\n\n• de dubbeltikbeweging om het scherm te vergrendelen in te schakelen.\n• Quick Search te openen met veegbewegingen vanaf de rand.\n• Quick Search te openen met de zwevende knop.\n• acties uit te voeren wanneer je op de notch tikt.\n• SpeedBump te tonen wanneer een app met SpeedBump buiten Quick Search wordt geopend. Daarvoor controleert het alleen welke app open is.\n\nHet leest, verzamelt, bewaart of deelt je scherminhoud of andere persoonlijke gegevens niet.</string>
     <string name="settings_gesture_none">Geen</string>

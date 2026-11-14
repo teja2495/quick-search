@@ -151,6 +151,7 @@
     <string name="settings_gesture_lock_screen_requires_accessibility">يتطلب إذن تسهيل الاستخدام</string>
     <string name="accessibility_lock_screen_service_label">Quick Search</string>
     <string name="accessibility_lock_screen_service_description">يتيح لتطبيق Quick Search قفل الشاشة بإيماءة النقر المزدوج على الشاشة الرئيسية، والاستجابة للنقر على النتوء، وفتحه بالسحب من الحافة أو بزر عائم في أي تطبيق، وعرض SpeedBump للتطبيقات التي تُفتح خارج Quick Search. يتحقق فقط من التطبيق المفتوح ولا يقرأ محتوى الشاشة.</string>
+    <string name="accessibility_service_stopped_hint">أوقف Android خدمة تسهيل الاستخدام في Quick Search. أوقفها ثم شغّلها مرة أخرى في إعدادات تسهيل الاستخدام.</string>
     <string name="accessibility_permission_disclaimer_title">إخلاء مسؤولية إذن إمكانية الوصول</string>
     <string name="accessibility_lock_screen_disclosure_message">يستخدم Quick Search ميزة إمكانية الوصول من أجل:\n\n• تفعيل إيماءة النقر المزدوج لقفل الشاشة.\n• فتح Quick Search باستخدام إيماءات السحب من الحافة.\n• فتح Quick Search باستخدام الزر العائم.\n• تنفيذ إجراءات عند النقر على النتوء.\n• عرض SpeedBump عند فتح تطبيق مفعّل له SpeedBump خارج Quick Search. ولهذا يتحقق فقط من التطبيق المفتوح.\n\nلا يقرأ محتوى شاشتك أو بياناتك الشخصية الأخرى ولا يجمعها أو يخزنها أو يشاركها.</string>
     <string name="settings_gesture_none">بلا</string>
