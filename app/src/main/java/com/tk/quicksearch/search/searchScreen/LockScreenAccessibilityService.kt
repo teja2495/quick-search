@@ -3,11 +3,17 @@ package com.tk.quicksearch.search.searchScreen
 import com.tk.quicksearch.notchGesture.NotchGestureSupport
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
+import android.provider.Settings
+import android.util.Log
 import android.view.accessibility.AccessibilityManager
 import android.view.accessibility.AccessibilityEvent
+import android.widget.Toast
+import com.tk.quicksearch.R
 import com.tk.quicksearch.edgeGesture.EdgeGestureOverlay
 import com.tk.quicksearch.floatingButton.FloatingButtonOverlay
 import com.tk.quicksearch.notchGesture.NotchGestureOverlay
@@ -24,36 +30,50 @@ class LockScreenAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         instance = this
-        // Window events are only read by SpeedBump outside Quick Search, so subscribe only while it
-        // has work; otherwise the XML's subscription would wake the app on every screen change.
-        SpeedBumpLaunchWatcher.attach(this, ::updateWindowEventSubscription)
-        updateWindowEventSubscription(SpeedBumpLaunchWatcher.isActive)
-        edgeGestureOverlay =
-            EdgeGestureOverlay(this).also { overlay ->
-                overlay.setPreviewVisible(edgeGesturePreviewVisible)
-                overlay.attach()
-            }
-        floatingButtonOverlay =
-            FloatingButtonOverlay(this).also { overlay ->
-                overlay.setPreviewVisible(floatingButtonPreviewVisible)
-                overlay.setAppVisible(resumedAppSurfaceCount > 0)
-                overlay.attach()
-            }
-        if (NotchGestureSupport.isSupported(this)) {
-            notchGestureOverlay = NotchGestureOverlay(this).also { overlay -> overlay.attach() }
+        // Each feature starts on its own: if one throws, the others keep working and the service
+        // stays connected. A crash here would leave the system toggle on with nothing running.
+        runFeature("SpeedBump") {
+            // Window events are only read by SpeedBump outside Quick Search, so subscribe only while
+            // it has work; otherwise the XML's subscription would wake the app on every screen change.
+            SpeedBumpLaunchWatcher.attach(this, ::updateWindowEventSubscription)
+            updateWindowEventSubscription(SpeedBumpLaunchWatcher.isActive)
         }
+        runFeature("edge gesture") {
+            edgeGestureOverlay =
+                EdgeGestureOverlay(this).also { overlay ->
+                    overlay.setPreviewVisible(edgeGesturePreviewVisible)
+                    overlay.attach()
+                }
+        }
+        runFeature("floating button") {
+            floatingButtonOverlay =
+                FloatingButtonOverlay(this).also { overlay ->
+                    overlay.setPreviewVisible(floatingButtonPreviewVisible)
+                    overlay.setAppVisible(resumedAppSurfaceCount > 0)
+                    overlay.attach()
+                }
+        }
+        runFeature("notch gesture") {
+            if (NotchGestureSupport.isSupported(this)) {
+                notchGestureOverlay = NotchGestureOverlay(this).also { overlay -> overlay.attach() }
+            }
+        }
+    }
+
+    private inline fun runFeature(name: String, block: () -> Unit) {
+        runCatching(block).onFailure { error -> Log.e(TAG, "$name failed to start", error) }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        edgeGestureOverlay?.refresh()
-        floatingButtonOverlay?.refresh()
-        notchGestureOverlay?.refresh()
+        runFeature("edge gesture") { edgeGestureOverlay?.refresh() }
+        runFeature("floating button") { floatingButtonOverlay?.refresh() }
+        runFeature("notch gesture") { notchGestureOverlay?.refresh() }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-            SpeedBumpLaunchWatcher.onWindowStateChanged(event)
+            runFeature("SpeedBump") { SpeedBumpLaunchWatcher.onWindowStateChanged(event) }
         }
     }
 
@@ -95,8 +115,17 @@ class LockScreenAccessibilityService : AccessibilityService() {
         @Volatile
         private var resumedAppSurfaceCount = 0
 
-        fun lockScreen() {
-            instance?.lockScreen()
+        /**
+         * Locks the screen, or explains why it can't when the service is turned on in system
+         * settings but Android has stopped it.
+         */
+        fun lockScreen(context: Context) {
+            val service = instance
+            if (service != null) {
+                service.lockScreen()
+            } else if (isTurnedOnInSettings(context)) {
+                showStoppedHint(context)
+            }
         }
 
         /** Must be called on the main thread. */
@@ -126,7 +155,9 @@ class LockScreenAccessibilityService : AccessibilityService() {
             instance?.floatingButtonOverlay?.setAppVisible(resumedAppSurfaceCount > 0)
         }
 
+        /** Whether the service is running and its features work. */
         fun isEnabled(context: Context): Boolean {
+            if (instance != null) return true
             val accessibilityManager = context.getSystemService(AccessibilityManager::class.java)
                 ?: return false
             return accessibilityManager
@@ -136,5 +167,46 @@ class LockScreenAccessibilityService : AccessibilityService() {
                         service.resolveInfo.serviceInfo.name == LockScreenAccessibilityService::class.java.name
                 }
         }
+
+        /**
+         * Whether the user turned the service on in system settings. It can be on while the service
+         * isn't running: after a crash Android shows it as "not working" until it is toggled again,
+         * and it is unbound for a moment while the app restarts.
+         */
+        fun isTurnedOnInSettings(context: Context): Boolean {
+            val enabledServices =
+                runCatching {
+                    Settings.Secure.getString(
+                        context.contentResolver,
+                        Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
+                    )
+                }.getOrNull() ?: return false
+            val component = ComponentName(context, LockScreenAccessibilityService::class.java)
+            return enabledServices.split(':').any { entry ->
+                ComponentName.unflattenFromString(entry.trim()) == component
+            }
+        }
+
+        /** Turned on in system settings but not running, so it needs to be toggled off and on. */
+        fun isStopped(context: Context): Boolean = !isEnabled(context) && isTurnedOnInSettings(context)
+
+        /**
+         * Opens the system accessibility settings. When the service is on there but stopped, first
+         * tells the user to turn it off and on, since the settings page will already show it on.
+         */
+        fun openAccessibilitySettings(context: Context) {
+            if (isStopped(context)) showStoppedHint(context)
+            runCatching {
+                context.startActivity(
+                    Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                )
+            }
+        }
+
+        private fun showStoppedHint(context: Context) {
+            Toast.makeText(context, R.string.accessibility_service_stopped_hint, Toast.LENGTH_LONG).show()
+        }
+
+        private const val TAG = "QSAccessibility"
     }
 }

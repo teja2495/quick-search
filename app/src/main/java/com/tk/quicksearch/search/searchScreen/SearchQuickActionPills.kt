@@ -94,6 +94,25 @@ internal fun SearchQuickActionPills(
                                     }
                                 },
                         )
+                        Spacer(modifier = Modifier.size(DesignTokens.SpacingSmall))
+                        CreateReminderPill(
+                                useShortLabel = true,
+                                onClick = {
+                                    val now = java.time.LocalDateTime.now()
+                                    val today = now.toLocalDate().atTime(detectedAlarmTime)
+                                    val next = if (today.isAfter(now)) today else today.plusDays(1)
+                                    ReminderEditorRequests.openNew(
+                                            initialDateTimeMillis =
+                                                    next.atZone(java.time.ZoneId.systemDefault())
+                                                            .toInstant()
+                                                            .toEpochMilli(),
+                                            initialAllDay = false,
+                                            // A bare time has no reminder title; start in the title field.
+                                            autoFocusTitle = true,
+                                            onCreated = onQuickActionCompleted,
+                                    )
+                                },
+                        )
                     }
                     if (detectedTimerSeconds != null) {
                         if (keyboardSwitchText != null ||

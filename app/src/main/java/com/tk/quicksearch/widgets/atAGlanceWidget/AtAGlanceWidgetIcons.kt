@@ -11,8 +11,10 @@ import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.graphics.vector.VectorGroup
 import androidx.compose.ui.graphics.vector.VectorNode
 import androidx.compose.ui.graphics.vector.VectorPath
-import androidx.core.graphics.drawable.toBitmap
+import com.tk.quicksearch.search.apps.appIconCacheVersion
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
+import com.tk.quicksearch.widgets.customButtonsWidget.loadAppIconBitmap
 import kotlin.math.roundToInt
 
 /** Every row icon is parceled into the widget's RemoteViews, so icons stay small. */
@@ -26,6 +28,7 @@ private const val MAX_ICON_PX = 64
 internal object AtAGlanceWidgetIcons {
     private val vectorBitmaps = mutableMapOf<String, Bitmap>()
     private val appBitmaps = mutableMapOf<String, Bitmap?>()
+    private var appBitmapsVersion = appIconCacheVersion.value
 
     fun iconSizePx(context: Context): Int =
         (AtAGlanceWidgetDimens.ICON_SIZE.value * context.resources.displayMetrics.density)
@@ -41,17 +44,24 @@ internal object AtAGlanceWidgetIcons {
         return vectorBitmaps.getOrPut("${vector.name}@$sizePx") { renderVector(vector, sizePx) }
     }
 
-    /** The app's icon, or null when the app is gone. */
+    /**
+     * The app's icon as the app draws it (per-app override, then icon pack), or null when the app
+     * is gone. Cached until the app's icons change.
+     */
     @Synchronized
     fun app(
         context: Context,
         packageName: String,
     ): Bitmap? {
         val sizePx = iconSizePx(context)
-        return appBitmaps.getOrPut("$packageName@$sizePx") {
-            runCatching {
-                context.packageManager.getApplicationIcon(packageName).toBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
-            }.getOrNull()
+        val version = appIconCacheVersion.value
+        if (version != appBitmapsVersion) {
+            appBitmaps.clear()
+            appBitmapsVersion = version
+        }
+        val iconPackPackage = UserAppPreferences(context).uiPreferences.getSelectedIconPackPackage()
+        return appBitmaps.getOrPut("$packageName@$sizePx@$iconPackPackage") {
+            runCatching { loadAppIconBitmap(context, packageName, sizePx, iconPackPackage) }.getOrNull()
         }
     }
 

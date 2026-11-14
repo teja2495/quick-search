@@ -186,7 +186,7 @@ internal fun HomeSwipeGestureAction.performHomeGesture(
 ) {
     when (this) {
         HomeSwipeGestureAction.CLOSE_QUICK_SEARCH -> onCloseQuickSearch()
-        HomeSwipeGestureAction.LOCK_SCREEN -> LockScreenAccessibilityService.lockScreen()
+        HomeSwipeGestureAction.LOCK_SCREEN -> LockScreenAccessibilityService.lockScreen(context)
         HomeSwipeGestureAction.NOTIFICATION_PANEL -> context.openNotificationShade()
         HomeSwipeGestureAction.QUICK_SETTINGS -> context.openQuickSettings()
         HomeSwipeGestureAction.ALL_APPS -> onOpenAllApps()

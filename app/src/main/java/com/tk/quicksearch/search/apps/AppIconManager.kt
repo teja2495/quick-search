@@ -33,6 +33,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
@@ -131,6 +132,9 @@ private object AppIconCache {
     private fun imageBitmapByteCount(bitmap: ImageBitmap): Long =
         bitmap.width.toLong() * bitmap.height.toLong() * BYTES_PER_PIXEL
 }
+
+/** Bumped whenever an icon pack or per-app icon change means every drawn icon must be reloaded. */
+val appIconCacheVersion: StateFlow<Long> get() = appIconCacheEpoch
 
 fun invalidateAppIconCache() {
     AppIconCache.clear()

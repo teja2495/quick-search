@@ -149,6 +149,7 @@
 <string name="settings_gesture_lock_screen_requires_accessibility">Erişilebilirlik İzni Gerekir</string>
 <string name="accessibility_lock_screen_service_label">Quick Search</string>
 <string name="accessibility_lock_screen_service_description">Quick Search\'ün ana ekrandaki çift dokunma hareketiyle ekranı kilitlemesine, çentiğe dokunmalara yanıt vermesine, herhangi bir uygulamada kenardan kaydırma veya kayan bir düğmeyle açılmasına ve Quick Search dışında açılan uygulamalar için SpeedBump göstermesine izin verir. Yalnızca hangi uygulamanın açık olduğunu kontrol eder, ekran içeriğini okumaz.</string>
+<string name="accessibility_service_stopped_hint">Android, Quick Search erişilebilirlik hizmetini durdurdu. Erişilebilirlik ayarlarından kapatıp tekrar açın.</string>
 <string name="accessibility_permission_disclaimer_title">Erişilebilirlik İzni Bildirimi</string>
 <string name="accessibility_lock_screen_disclosure_message">Quick Search Erişilebilirlik’i şunlar için kullanır:\n\n• Ekranı kilitlemek için çift dokunma hareketini etkinleştirmek.\n• Kenardan kaydırma hareketleriyle Quick Search’ü açmak.\n• Kayan düğmeyle Quick Search’ü açmak.\n• Çentiğe dokunduğunuzda işlemleri çalıştırmak.\n• SpeedBump uygulanan bir uygulama Quick Search dışında açıldığında SpeedBump göstermek. Bunun için yalnızca hangi uygulamanın açık olduğunu kontrol eder.\n\nEkran içeriğinizi veya diğer kişisel verilerinizi okumaz, toplamaz, saklamaz ya da paylaşmaz.</string>
 <string name="settings_gesture_none">Hiçbiri</string>
@@ -527,6 +528,12 @@
 <string name="file_extension_label">.%s dosyaları</string>
 <string name="file_info_modified">Son değiştirilme</string>
 <string name="file_info_path">Yol</string>
+<string name="action_folder_info">Klasör Bilgisi</string>
+<string name="file_info_contents">İçerik</string>
+<plurals name="file_info_item_count">
+    <item quantity="one">%d öğe</item>
+    <item quantity="other">%d öğe</item>
+</plurals>
 <string name="file_path_sd_card">SD kart</string>
 <string name="file_info_size">Boyut</string>
 <string name="file_info_type">Tür</string>

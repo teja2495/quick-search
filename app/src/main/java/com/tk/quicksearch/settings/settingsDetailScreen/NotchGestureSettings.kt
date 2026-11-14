@@ -1,7 +1,5 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
-import android.content.Intent
-import android.provider.Settings
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.HorizontalDivider
@@ -111,7 +109,7 @@ internal fun NotchLaunchOptionRow(modifier: Modifier = Modifier) {
         if (shouldShowAccessibilityDisclosure) {
             showDisclosure = true
         } else {
-            context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            LockScreenAccessibilityService.openAccessibilitySettings(context)
         }
     }
 
@@ -119,7 +117,7 @@ internal fun NotchLaunchOptionRow(modifier: Modifier = Modifier) {
         LockScreenAccessibilityDisclosureDialog(
             onAgree = {
                 showDisclosure = false
-                context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                LockScreenAccessibilityService.openAccessibilitySettings(context)
             },
             onDismiss = { showDisclosure = false },
         )

@@ -30,12 +30,14 @@ object GeminiModelCatalog {
         private val pickerAliasIds =
                 setOf("gemini-flash-latest", "gemini-pro-latest", "gemini-flash-lite-latest")
         private val versionedFamilyRegex =
-                Regex("^gemini-(\\d+(?:\\.\\d+)*)-(flash-lite|flash|pro)(?:-preview)?$")
+                Regex(
+                        "^gemini-(\\d+(?:\\.\\d+)*)-(flash-lite|flash|pro|hydrogen|carbon|argon)(?:-preview)?$"
+                )
         private val gemmaVersionRegex = Regex("^gemma-(\\d+(?:\\.\\d+)*)-")
 
         /**
          * Picker list: the `-latest` aliases, every model of the newest Gemma generation, and the
-         * newest versioned Flash, Pro, and Flash Lite.
+         * newest versioned Flash, Pro, Flash Lite, Hydrogen, Carbon, and Argon.
          */
         fun pickerModels(models: List<LlmTextModel>): List<LlmTextModel> {
                 val latestGemmaIds =

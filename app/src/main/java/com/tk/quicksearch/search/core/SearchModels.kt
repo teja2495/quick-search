@@ -303,7 +303,6 @@ data class CalculatorState(
         val isTimeAbsoluteResult: Boolean = false,
         /** Secondary time result shown alongside the primary (used for absolute time queries: past + future). */
         val timeResultLabel2: String? = null,
-        val timeContextLabel2: String? = null,
 ) {
         val isToolMode: Boolean
                 get() = isCalculatorMode || isUnitConverterMode || isDateCalculatorMode || isColorVisualizerMode

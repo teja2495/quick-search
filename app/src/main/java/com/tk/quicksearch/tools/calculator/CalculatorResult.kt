@@ -75,7 +75,6 @@ fun CalculatorResult(
     val timeContextLabel = calculatorState.timeContextLabel
     val isTimeAbsoluteResult = calculatorState.isTimeAbsoluteResult
     val timeResultLabel2 = calculatorState.timeResultLabel2
-    val timeContextLabel2 = calculatorState.timeContextLabel2
 
     val dateLabel: String? =
             if (calculatorState.toolType == SearchToolType.DATE_CALCULATOR &&
@@ -176,7 +175,6 @@ fun CalculatorResult(
                                 timeResultLabel = timeResultLabel,
                                 timeContextLabel = timeContextLabel,
                                 timeResultLabel2 = timeResultLabel2,
-                                timeContextLabel2 = timeContextLabel2,
                                 isTimeAbsoluteResult = isTimeAbsoluteResult,
                                 dayOfWeek = dayOfWeek,
                                 showInvalidExpression = showInvalidExpression,
@@ -274,7 +272,6 @@ private fun CalculatorResultContent(
         timeResultLabel: String?,
         timeContextLabel: String?,
         timeResultLabel2: String?,
-        timeContextLabel2: String?,
         isTimeAbsoluteResult: Boolean,
         dayOfWeek: String?,
         showInvalidExpression: Boolean,
@@ -282,19 +279,33 @@ private fun CalculatorResultContent(
     Column(modifier = Modifier.fillMaxWidth()) {
         when {
             timeResultLabel != null && timeResultLabel2 != null -> {
-                Column(
-                        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
-                ) {
-                    DateCalculatorResultText(
-                            label = timeResultLabel,
-                            contextLabel = timeContextLabel,
-                            isAbsoluteDate = false,
-                    )
-                    DateCalculatorResultText(
-                            label = timeResultLabel2,
-                            contextLabel = timeContextLabel2,
-                            isAbsoluteDate = false,
-                    )
+                // Absolute time ("10am"): what the countdown targets, the countdown, then the last one.
+                Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall)) {
+                    if (timeContextLabel != null) {
+                        Text(
+                                text = timeContextLabel,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    DateCalculatorResultText(label = timeResultLabel, isAbsoluteDate = false)
+                    Row(
+                            modifier = Modifier.padding(top = DesignTokens.SpacingSmall),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
+                    ) {
+                        Icon(
+                                imageVector = MaterialSymbols.History,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(16.dp),
+                        )
+                        Text(
+                                text = timeResultLabel2,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
             }
             timeResultLabel != null -> {

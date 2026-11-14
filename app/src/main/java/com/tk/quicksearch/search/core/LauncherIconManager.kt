@@ -18,23 +18,42 @@ class LauncherIconManager(
         val packageManager = context.packageManager
         // Enable the new alias first, then disable the rest. Enabling before disabling ensures
         // Android does not kill the app when the previously-active alias is disabled.
-        val targetComponent = ComponentName(context, aliasMap[resolved] ?: return)
-        runCatching {
-            packageManager.setComponentEnabledSetting(
-                targetComponent,
-                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                PackageManager.DONT_KILL_APP,
-            )
-        }
+        val targetClass = aliasMap[resolved] ?: return
+        setAliasEnabled(packageManager, targetClass, enabled = true)
         aliasMap.forEach { (option, componentClass) ->
             if (option == resolved) return@forEach
-            runCatching {
-                packageManager.setComponentEnabledSetting(
-                    ComponentName(context, componentClass),
-                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                    PackageManager.DONT_KILL_APP,
-                )
-            }
+            setAliasEnabled(packageManager, componentClass, enabled = false)
+        }
+    }
+
+    /**
+     * Writes the alias state only when it differs from the effective state. This runs on every
+     * startup, and each real write sends PACKAGE_CHANGED, which can make launchers and gesture
+     * apps (e.g. Good Lock HomeUp) drop shortcuts that point at our launcher alias.
+     */
+    private fun setAliasEnabled(
+        packageManager: PackageManager,
+        componentClass: String,
+        enabled: Boolean,
+    ) {
+        val component = ComponentName(context, componentClass)
+        runCatching {
+            val current =
+                when (packageManager.getComponentEnabledSetting(component)) {
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED -> true
+                    PackageManager.COMPONENT_ENABLED_STATE_DEFAULT -> componentClass == DEFAULT_ALIAS
+                    else -> false
+                }
+            if (current == enabled) return@runCatching
+            packageManager.setComponentEnabledSetting(
+                component,
+                if (enabled) {
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                } else {
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+                },
+                PackageManager.DONT_KILL_APP,
+            )
         }
     }
 

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -228,6 +229,9 @@ internal fun rememberAtAGlanceItems(
 internal fun atAGlanceDividerColor(showWallpaperBackground: Boolean) =
     LocalOverlayDividerColor.current
         ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant
+
+/** The icon pack At a Glance app icons are drawn with, so they match the app grid. */
+internal val LocalGlanceIconPackPackage = staticCompositionLocalOf<String?> { null }
 
 /** Renders [items] separated by dividers, optionally with a divider before or after the group. */
 @Composable

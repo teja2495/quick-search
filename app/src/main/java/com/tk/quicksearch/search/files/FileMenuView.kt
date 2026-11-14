@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -82,7 +83,13 @@ fun FileInfoDialog(
 ) {
     val context = LocalContext.current
     var fileSizeBytes by remember(deviceFile.uri) { mutableStateOf<Long?>(null) }
+    var folderContents by remember(deviceFile.uri) { mutableStateOf<FolderContentsSummary?>(null) }
     LaunchedEffect(deviceFile.uri) {
+        if (deviceFile.isDirectory) {
+            folderContents = FolderContentsLoader.load(context, deviceFile)
+            fileSizeBytes = folderContents?.totalSizeBytes
+            return@LaunchedEffect
+        }
         fileSizeBytes =
                 context.contentResolver.query(
                                 deviceFile.uri,
@@ -98,14 +105,28 @@ fun FileInfoDialog(
                             } else null
                         }
     }
-    val extension = FileUtils.getFileExtension(deviceFile.displayName)?.uppercase()
+    val typeText =
+            if (deviceFile.isDirectory) {
+                stringResource(R.string.excluded_item_type_folder)
+            } else {
+                FileUtils.getFileExtension(deviceFile.displayName)?.uppercase()
+            }
+    val title =
+            if (deviceFile.isDirectory) {
+                deviceFile.displayName
+            } else {
+                FileUtils.getFileNameWithoutExtension(deviceFile.displayName)
+            }
     val sdCardLabel = stringResource(R.string.file_path_sd_card)
     val locationText =
             remember(deviceFile, sdCardLabel) {
-                FileFolderPathFormatter.format(deviceFile)?.let { path ->
-                    val parts = if (path.isSecondaryVolume) listOf(sdCardLabel) + path.segments else path.segments
-                    parts.joinToString(" › ")
-                }
+                val path = FileFolderPathFormatter.format(deviceFile)
+                // A folder's path includes the folder itself, so top-level folders still show one.
+                val segments =
+                        path?.segments.orEmpty() +
+                                listOfNotNull(deviceFile.displayName.trim().takeIf { deviceFile.isDirectory })
+                val parts = if (path?.isSecondaryVolume == true) listOf(sdCardLabel) + segments else segments
+                parts.takeIf { it.isNotEmpty() }?.joinToString(" › ")
             }
     // MediaStore DATE_MODIFIED is in seconds.
     val modifiedText =
@@ -135,7 +156,7 @@ fun FileInfoDialog(
                                 iconTint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         Text(
-                                text = FileUtils.getFileNameWithoutExtension(deviceFile.displayName),
+                                text = title,
                                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                                 color = MaterialTheme.colorScheme.onSurface,
                                 maxLines = 3,
@@ -149,9 +170,9 @@ fun FileInfoDialog(
                     Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge)) {
                         Row {
                             FileInfoSection(
-                                    icon = MaterialSymbols.InsertDriveFile,
+                                    icon = if (deviceFile.isDirectory) MaterialSymbols.Folder else MaterialSymbols.InsertDriveFile,
                                     label = stringResource(R.string.file_info_type),
-                                    value = extension ?: "—",
+                                    value = typeText ?: "—",
                                     modifier = Modifier.weight(1f),
                             )
                             FileInfoSection(
@@ -159,6 +180,20 @@ fun FileInfoDialog(
                                     label = stringResource(R.string.file_info_size),
                                     value = fileSizeBytes?.let { formatFileSize(it) } ?: "—",
                                     modifier = Modifier.weight(1f),
+                            )
+                        }
+                        if (deviceFile.isDirectory) {
+                            FileInfoSection(
+                                    icon = MaterialSymbols.FormatListBulleted,
+                                    label = stringResource(R.string.file_info_contents),
+                                    value =
+                                            folderContents?.let {
+                                                pluralStringResource(
+                                                        R.plurals.file_info_item_count,
+                                                        it.itemCount,
+                                                        it.itemCount,
+                                                )
+                                            } ?: "—",
                             )
                         }
                         FileInfoSection(
@@ -363,14 +398,12 @@ fun FileDropdownMenu(
                     group = FileMenuGroup.ROWS,
             ))
         }
-        if (!deviceFile.isDirectory) {
-            add(FileMenuItem(
-                    textResId = R.string.action_file_info,
-                    icon = { Icon(imageVector = MaterialSymbols.Info, contentDescription = null) },
-                    onClick = { onDismissRequest(); onFileInfoClick() },
-                    group = FileMenuGroup.ROWS,
-            ))
-        }
+        add(FileMenuItem(
+                textResId = if (deviceFile.isDirectory) R.string.action_folder_info else R.string.action_file_info,
+                icon = { Icon(imageVector = MaterialSymbols.Info, contentDescription = null) },
+                onClick = { onDismissRequest(); onFileInfoClick() },
+                group = FileMenuGroup.ROWS,
+        ))
         if (fileExtension != null) {
             add(FileMenuItem(
                     textResId = R.string.action_exclude_extension,

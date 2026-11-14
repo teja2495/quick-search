@@ -197,7 +197,8 @@ private fun loadTintedFolderBitmap(
         ?.toBitmap(width = size, height = size)
 }
 
-private fun loadAppIconBitmap(
+/** An app's icon as the app draws it: its own override first, then the icon pack, then the system icon. */
+internal fun loadAppIconBitmap(
     context: Context,
     packageName: String,
     iconSizePx: Int,
