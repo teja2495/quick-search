@@ -10,6 +10,7 @@ import android.os.Build
 import android.provider.OpenableColumns
 import android.os.Bundle
 import android.view.WindowManager
+import android.graphics.PixelFormat
 import android.os.Trace
 import android.view.KeyEvent
 import androidx.fragment.app.FragmentActivity
@@ -485,7 +486,15 @@ open class MainActivity : FragmentActivity() {
         val flag = WindowManager.LayoutParams.FLAG_SHOW_WALLPAPER
         val isShowingWallpaper = window.attributes.flags and flag != 0
         if (showWallpaper == isShowingWallpaper) return
-        if (showWallpaper) window.addFlags(flag) else window.clearFlags(flag)
+        if (showWallpaper) {
+            // onCreate clears the window background, which leaves the surface OPAQUE. An opaque
+            // surface is never cleared between frames, so the transparent root would keep stale
+            // frames on screen (ghosted copies of moving content) and hide the wallpaper.
+            window.setFormat(PixelFormat.TRANSLUCENT)
+            window.addFlags(flag)
+        } else {
+            window.clearFlags(flag)
+        }
     }
 
     private fun updateRecentsVisibility(showInRecents: Boolean) {
