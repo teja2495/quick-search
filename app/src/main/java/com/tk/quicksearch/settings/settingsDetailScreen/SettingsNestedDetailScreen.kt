@@ -6,7 +6,6 @@ import com.tk.quicksearch.search.notificationHistory.NotificationHistoryAccess
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,9 +43,9 @@ import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.settings.appShortcutsSettings.AppShortcutSource
 import com.tk.quicksearch.settings.shared.SettingsCommand
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow
+import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
 import com.tk.quicksearch.settings.shared.SettingsCardItem
-import com.tk.quicksearch.settings.shared.SettingsNavigationRow
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenCallbacks
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenState
@@ -63,9 +62,6 @@ import com.tk.quicksearch.settings.bookmarksSettings.BookmarksSettingsSection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-private val ConfigureApiKeyCardVerticalPadding =
-    DesignTokens.CardVerticalPadding + DesignTokens.SpacingSmall
-
 @Composable
 internal fun SettingsNestedDetailScreen(
     modifier: Modifier = Modifier,
@@ -531,26 +527,21 @@ internal fun SettingsNestedDetailScreen(
                         }
 
                         SettingsDetailType.GEMINI_API_CONFIG -> {
-                            SettingsCard(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = DesignTokens.SpacingLarge),
+                            SettingsSegmentGroup(
+                                modifier = Modifier.padding(bottom = DesignTokens.SpacingLarge),
                             ) {
-                                SettingsNavigationRow(
+                                SettingsSegmentNavigationRow(
                                     item =
                                         SettingsCardItem(
                                             title = stringResource(R.string.settings_configure_api_key_title),
                                             description = stringResource(R.string.settings_api_key_setup_nav_desc),
-                                            iconResId = R.drawable.direct_search,
+                                            icon = MaterialSymbols.Key,
                                             actionOnPress = {
                                                 onNavigateToDetail(SettingsDetailType.API_KEY_SETUP)
                                             },
                                         ),
-                                    contentPadding = PaddingValues(
-                                        horizontal = DesignTokens.CardHorizontalPadding,
-                                        vertical = ConfigureApiKeyCardVerticalPadding,
-                                    ),
+                                    index = 0,
+                                    count = 1,
                                 )
                             }
 

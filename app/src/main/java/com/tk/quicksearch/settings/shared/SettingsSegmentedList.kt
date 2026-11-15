@@ -171,7 +171,10 @@ fun settingsSwitchThumbContent(checked: Boolean): (@Composable () -> Unit)? =
         null
     }
 
-/** Icon, title, and supporting text laid out inside a [SettingsSegment]. */
+/**
+ * Icon, title, and supporting text laid out inside a [SettingsSegment]. Pass [Alignment.Top] as
+ * [verticalAlignment] for three-line content, as Material 3 top-aligns those list items.
+ */
 @Composable
 fun SettingsSegmentRow(
     title: String,
@@ -179,6 +182,7 @@ fun SettingsSegmentRow(
     description: String? = null,
     leading: (@Composable () -> Unit)? = null,
     trailing: (@Composable RowScope.() -> Unit)? = null,
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
 ) {
     Row(
         modifier =
@@ -189,7 +193,7 @@ fun SettingsSegmentRow(
                     horizontal = DesignTokens.SpacingLarge,
                     vertical = DesignTokens.SpacingLarge,
                 ),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = verticalAlignment,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
         leading?.invoke()
