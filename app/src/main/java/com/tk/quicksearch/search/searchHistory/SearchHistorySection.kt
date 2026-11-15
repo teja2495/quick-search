@@ -76,6 +76,10 @@ import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.search.searchScreen.components.CollapseButton
 import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
 import com.tk.quicksearch.search.searchScreen.components.ExpandButton
+import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
+import com.tk.quicksearch.search.searchScreen.shared.ResultRowDivider
+import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
+import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.searchEngines.SearchTargetQueryShortcutActivity
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
@@ -223,6 +227,7 @@ fun SearchHistorySection(
             fillExpandedHeight = false,
             showWallpaperBackground = showWallpaperBackground,
             overlayCardColor = overlayCardColor,
+            segmented = true,
         ) { contentModifier, cardState ->
             val displayAsExpanded = cardState.displayAsExpanded
             val activeItems =
@@ -257,28 +262,43 @@ fun SearchHistorySection(
                     contentModifier
                 }
             Column(modifier = listModifier) {
-                if (displayAsExpanded && showTabs) {
-                    SearchHistoryTabs(
-                        selectedTab = activeSelectedTab,
-                        onTabSelected = ::updateSelectedTab,
-                        showWallpaperBackground = showWallpaperBackground,
-                    )
-                    HorizontalDivider(
-                        modifier = Modifier.compactEdgeToEdge(),
-                        color = dividerColor(showWallpaperBackground, overlayDividerColor),
-                    )
-                }
-
+                val segmented = segmentedRowsActive()
+                val showHistoryTabs = displayAsExpanded && showTabs
                 val cardLayoutEnabled = LocalSearchCardLayoutEnabled.current
                 val showClearAllHistory =
                     displayAsExpanded &&
                         onClearRecentItems != null &&
                         displayItems.isNotEmpty()
+                val showMoreHistory = !displayAsExpanded && canExpand
+                // Segmented: tabs, rows, Clear All and More History are each a tile.
+                val firstRowSegment = if (showHistoryTabs) 1 else 0
+                val segmentCount =
+                    firstRowSegment + displayItems.size +
+                        (if (showClearAllHistory) 1 else 0) +
+                        (if (showMoreHistory) 1 else 0)
+
+                if (showHistoryTabs) {
+                    ResultSegment(index = 0, count = segmentCount) {
+                        SearchHistoryTabs(
+                            selectedTab = activeSelectedTab,
+                            onTabSelected = ::updateSelectedTab,
+                            showWallpaperBackground = showWallpaperBackground,
+                            segmented = segmented,
+                        )
+                    }
+                    ResultRowDivider(
+                        showWallpaperBackground = showWallpaperBackground,
+                        color = dividerColor(showWallpaperBackground, overlayDividerColor),
+                    )
+                }
+
                 // Flat rows (card layout off) also separate the last row from More History.
-                val showMoreHistoryDivider = !displayAsExpanded && canExpand && !cardLayoutEnabled
+                val showMoreHistoryDivider = showMoreHistory && !cardLayoutEnabled
                 displayItems.forEachIndexed { index, item ->
                     val baseShowDivider =
-                        index < displayItems.lastIndex || showClearAllHistory || showMoreHistoryDivider
+                        !segmented &&
+                            (index < displayItems.lastIndex || showClearAllHistory || showMoreHistoryDivider)
+                    ResultSegment(index = firstRowSegment + index, count = segmentCount) {
                     RecentSearchItemRow(
                         item = item,
                         textColor = textColor,
@@ -314,26 +334,39 @@ fun SearchHistorySection(
                         showWallpaperBackground = showWallpaperBackground,
                         overlayDividerColor = overlayDividerColor,
                     )
+                    }
                 }
 
                 if (showClearAllHistory) {
-                    ClearAllHistoryRow(
-                        showWallpaperBackground = showWallpaperBackground,
-                        onClick = { showClearAllConfirmation = true },
-                    )
+                    ResultSegment(index = segmentCount - 1, count = segmentCount) {
+                        ClearAllHistoryRow(
+                            showWallpaperBackground = showWallpaperBackground,
+                            onClick = { showClearAllConfirmation = true },
+                        )
+                    }
                 }
 
-                if (!displayAsExpanded && canExpand) {
-                    ExpandButton(
-                        onClick = {
-                            keyboardOpenBeforeExpand = imeInsets.getBottom(density) > 0
-                            updateExpanded(true)
-                            keyboardController?.hide()
-                        },
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
-                        textResId = R.string.action_more_search_history,
-                        compact = !cardLayoutEnabled,
-                    )
+                if (showMoreHistory) {
+                    val onMoreHistoryClick: () -> Unit = {
+                        keyboardOpenBeforeExpand = imeInsets.getBottom(density) > 0
+                        updateExpanded(true)
+                        keyboardController?.hide()
+                    }
+                    if (segmented) {
+                        ExpandButtonSegment(
+                            index = segmentCount - 1,
+                            count = segmentCount,
+                            onClick = onMoreHistoryClick,
+                            textResId = R.string.action_more_search_history,
+                        )
+                    } else {
+                        ExpandButton(
+                            onClick = onMoreHistoryClick,
+                            modifier = Modifier.align(Alignment.CenterHorizontally),
+                            textResId = R.string.action_more_search_history,
+                            compact = !cardLayoutEnabled,
+                        )
+                    }
                 }
             }
         }
@@ -365,6 +398,7 @@ private fun SearchHistoryTabs(
     selectedTab: SearchHistoryTab,
     onTabSelected: (SearchHistoryTab) -> Unit,
     showWallpaperBackground: Boolean,
+    segmented: Boolean = false,
 ) {
     val contentColor =
         if (showWallpaperBackground) {
@@ -373,7 +407,7 @@ private fun SearchHistoryTabs(
             MaterialTheme.colorScheme.onSurface
         }
     val containerColor =
-        if (showWallpaperBackground) {
+        if (showWallpaperBackground || segmented) {
             Color.Transparent
         } else {
             AppColors.getSettingsCardContainerColor()
@@ -393,7 +427,7 @@ private fun SearchHistoryTabs(
             )
         },
         divider = {
-            HorizontalDivider(color = contentColor.copy(alpha = 0.10f))
+            if (!segmented) HorizontalDivider(color = contentColor.copy(alpha = 0.10f))
         },
     ) {
         SearchHistoryTabItem(
@@ -580,8 +614,8 @@ internal fun RecentQueryRow(
                     onClick = onClick,
                     onLongClick = onLongPress,
                 ).padding(
-                    start = QUERY_ICON_START_PADDING.dp,
-                    end = QUERY_TEXT_END_PADDING.dp,
+                    start = historyRowHorizontalPadding(QUERY_ICON_START_PADDING.dp),
+                    end = historyRowHorizontalPadding(QUERY_TEXT_END_PADDING.dp),
                     top = QUERY_ROW_VERTICAL_PADDING.dp,
                     bottom = QUERY_ROW_VERTICAL_PADDING.dp,
                 ),
@@ -625,3 +659,7 @@ internal fun RecentQueryRow(
         )
     }
 }
+
+/** Row inset; segmented tiles already carry it, so rows drop theirs. */
+@Composable
+internal fun historyRowHorizontalPadding(base: Dp): Dp = if (segmentedRowsActive()) 0.dp else base

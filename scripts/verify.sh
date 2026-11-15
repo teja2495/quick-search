@@ -6,7 +6,8 @@
 #   scripts/verify.sh --no-device   build the APK but don't install it on a connected device
 #
 # After a clean build, install and launch on all USB devices if any are connected, otherwise
-# all wireless devices. ANDROID_SERIAL overrides this selection. Installation revokes accessibility.
+# all wireless devices, skipping Android TVs when ~/.local/bin/android-targets is installed.
+# ANDROID_SERIAL overrides this selection. Installation revokes accessibility.
 #
 # Extra arguments after the flags are passed to Gradle (e.g. --offline).
 # Output is kept short: Gradle's full log goes to build/verify-gradle.log, and on failure only
@@ -95,8 +96,14 @@ if ! ./gradlew -q --console=plain "${tasks[@]}" ${gradle_args[@]+"${gradle_args[
     failures+=("gradle")
 fi
 
-# Match ~/.zshrc's android_target_serials: prefer USB, otherwise use every wireless target.
+# Device selection is shared with ~/.zshrc's run/release via ~/.local/bin/android-targets
+# (skips Android TVs, prefers USB, otherwise every wireless target, honors ANDROID_SERIAL).
+# Without that helper, fall back to: ANDROID_SERIAL, else USB first, else wireless.
 android_target_serials() {
+    if command -v android-targets >/dev/null; then
+        android-targets mobile
+        return
+    fi
     if [[ -n "${ANDROID_SERIAL:-}" ]]; then
         printf '%s\n' "$ANDROID_SERIAL"
         return

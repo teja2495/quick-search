@@ -275,23 +275,27 @@ internal fun RecentSearchItemRow(
     }
 }
 
+@Composable
 private fun contactRowPadding(): PaddingValues =
     PaddingValues(
-        horizontal = DesignTokens.SpacingMedium,
+        horizontal = historyRowHorizontalPadding(DesignTokens.SpacingMedium),
         vertical = DesignTokens.SpacingXSmall,
     )
 
-private fun fileRowPadding(): PaddingValues = PaddingValues(horizontal = DesignTokens.SpacingMedium)
+@Composable
+private fun fileRowPadding(): PaddingValues = PaddingValues(horizontal = historyRowHorizontalPadding(DesignTokens.SpacingMedium))
 
+@Composable
 private fun appShortcutRowPadding(): PaddingValues =
     PaddingValues(
-        horizontal = DesignTokens.SpacingMedium,
+        horizontal = historyRowHorizontalPadding(DesignTokens.SpacingMedium),
         vertical = SHORTCUT_VERTICAL_PADDING.dp,
     )
 
+@Composable
 private fun settingsRowPadding(): PaddingValues =
     PaddingValues(
-        horizontal = SETTINGS_HORIZONTAL_PADDING.dp,
+        horizontal = historyRowHorizontalPadding(SETTINGS_HORIZONTAL_PADDING.dp),
         vertical = SETTINGS_VERTICAL_PADDING.dp,
     )
 
@@ -333,7 +337,7 @@ private fun RecentNoteRow(
                     onClick = onClick,
                     onLongClick = onLongPress,
                 ).padding(
-                    horizontal = DesignTokens.SpacingMedium,
+                    horizontal = historyRowHorizontalPadding(DesignTokens.SpacingMedium),
                     vertical = QUERY_ROW_VERTICAL_PADDING.dp,
                 ),
         verticalAlignment = Alignment.CenterVertically,
