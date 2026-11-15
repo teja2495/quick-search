@@ -59,7 +59,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -81,15 +80,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.SettingsNavigationRow
 import com.tk.quicksearch.settings.shared.SettingsCardItem
-import androidx.compose.foundation.layout.PaddingValues
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.notificationHistory.NotificationHistoryAccess
 import com.tk.quicksearch.search.notificationHistory.NotificationHistoryEntry
 import com.tk.quicksearch.search.notificationHistory.NotificationHistoryStore
-import com.tk.quicksearch.settings.shared.SettingsCard
-import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.settings.shared.SettingsSegment
+import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import java.util.Date
 import java.util.Locale
@@ -182,29 +179,24 @@ fun NotificationHistorySettingsSection(
 
     Column(modifier = modifier) {
         if (accessGranted == false) {
-            SettingsCard(modifier = Modifier.fillMaxWidth()) {
-                SettingsNavigationRow(
-                    item =
-                        SettingsCardItem(
-                            title = stringResource(R.string.permission_required_title),
-                            description = stringResource(R.string.notification_history_permission_desc),
-                            icon = MaterialSymbols.NotificationsActive,
-                            actionOnPress = { NotificationHistoryAccess.openSettings(context) },
-                        ),
-                    contentPadding =
-                        PaddingValues(
-                            horizontal = DesignTokens.CardHorizontalPadding,
-                            vertical = DesignTokens.CardVerticalPadding,
-                        ),
-                )
-            }
+            SettingsSegmentNavigationRow(
+                item =
+                    SettingsCardItem(
+                        title = stringResource(R.string.permission_required_title),
+                        description = stringResource(R.string.notification_history_permission_desc),
+                        icon = MaterialSymbols.NotificationsActive,
+                        actionOnPress = { NotificationHistoryAccess.openSettings(context) },
+                    ),
+                index = 0,
+                count = 1,
+            )
             return@Column
         }
         // Access state is unknown until the first check completes; avoid flashing either state.
         if (accessGranted == null || loadedEntries == null) return@Column
 
-        SettingsCard(modifier = Modifier.fillMaxWidth()) {
-            if (filteredEntries.isEmpty()) {
+        if (filteredEntries.isEmpty()) {
+            SettingsSegment(index = 0, count = 1) {
                 Box(
                     modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
                     contentAlignment = Alignment.Center,
@@ -222,21 +214,25 @@ fun NotificationHistorySettingsSection(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-            } else {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxWidth().heightIn(max = screenHeight),
-                ) {
-                    itemsIndexed(
-                        items = filteredEntries,
-                        // Unique per row (matches the database's unique index), so removals animate.
-                        key = { _, entry -> "${entry.key}|${entry.title}|${entry.text}" },
-                    ) { index, entry ->
-                        val appLabel = appLabels[entry.packageName] ?: entry.packageName
-                        Column(modifier = Modifier.animateItem()) {
-                            SwipeToDeleteContainer(
-                                onDelete = { NotificationHistoryStore.remove(context, entry) },
-                            ) {
+            }
+        } else {
+            LazyColumn(
+                state = listState,
+                modifier =
+                    Modifier.fillMaxWidth().heightIn(max = screenHeight).clip(DesignTokens.ShapeXXLarge),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
+            ) {
+                itemsIndexed(
+                    items = filteredEntries,
+                    // Unique per row (matches the database's unique index), so removals animate.
+                    key = { _, entry -> "${entry.key}|${entry.title}|${entry.text}" },
+                ) { index, entry ->
+                    val appLabel = appLabels[entry.packageName] ?: entry.packageName
+                    Column(modifier = Modifier.animateItem()) {
+                        SwipeToDeleteContainer(
+                            onDelete = { NotificationHistoryStore.remove(context, entry) },
+                        ) {
+                            SettingsSegment(index = index, count = filteredEntries.size) {
                                 NotificationHistoryRow(
                                     entry = entry,
                                     appLabel = appLabel,
@@ -260,9 +256,6 @@ fun NotificationHistorySettingsSection(
                                         )
                                     },
                                 )
-                            }
-                            if (index < filteredEntries.lastIndex) {
-                                HorizontalDivider(color = AppColors.SettingsDivider)
                             }
                         }
                     }

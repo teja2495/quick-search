@@ -6,7 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,10 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,11 +31,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.GlanceStatusRow
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.settings.shared.SettingsSegment
+import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.settings.shared.SettingsTonalButton
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.components.CardTextField
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.MarkdownText
 import java.util.Calendar
@@ -53,40 +52,44 @@ internal fun CustomInfoContentCard(
     previewEnabled: Boolean,
     onPreview: () -> Unit,
 ) {
-    SettingsCard(modifier = Modifier.fillMaxWidth()) {
-        CardTextField(
-            value = title,
-            onValueChange = onTitleChange,
-            label = stringResource(R.string.notes_title_hint),
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = DesignTokens.SpacingSmall, vertical = DesignTokens.SpacingXSmall),
-        )
-        HorizontalDivider(color = AppColors.SettingsDivider)
-        CardTextField(
-            value = prompt,
-            onValueChange = onPromptChange,
-            label = stringResource(R.string.custom_info_prompt),
-            minLines = 3,
-            maxLines = 10,
-            modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp)
-                .padding(horizontal = DesignTokens.SpacingSmall, vertical = DesignTokens.SpacingXSmall),
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(
-                end = DesignTokens.SpacingLarge,
-                bottom = DesignTokens.SpacingMedium,
-            ),
-            horizontalArrangement = Arrangement.End,
-        ) {
-            OutlinedButton(
-                onClick = onPreview,
-                enabled = previewEnabled,
-                modifier = Modifier.height(32.dp),
-                contentPadding = PaddingValues(start = DesignTokens.SpacingMedium, end = DesignTokens.SpacingLarge),
-            ) {
-                Icon(MaterialSymbols.PlayArrow, contentDescription = null, modifier = Modifier.size(16.dp))
-                Box(Modifier.width(DesignTokens.SpacingXSmall))
-                Text(stringResource(R.string.custom_info_preview), style = MaterialTheme.typography.labelMedium)
+    SettingsSegmentGroup {
+        SettingsSegment(index = 0, count = 2) {
+            CardTextField(
+                value = title,
+                onValueChange = onTitleChange,
+                label = stringResource(R.string.notes_title_hint),
+                singleLine = true,
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .padding(horizontal = DesignTokens.SpacingSmall, vertical = DesignTokens.SpacingXSmall),
+            )
+        }
+        SettingsSegment(index = 1, count = 2) {
+            Column {
+                CardTextField(
+                    value = prompt,
+                    onValueChange = onPromptChange,
+                    label = stringResource(R.string.custom_info_prompt),
+                    minLines = 3,
+                    maxLines = 10,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp)
+                        .padding(horizontal = DesignTokens.SpacingSmall, vertical = DesignTokens.SpacingXSmall),
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(
+                        end = DesignTokens.SpacingLarge,
+                        bottom = DesignTokens.SpacingMedium,
+                    ),
+                    horizontalArrangement = Arrangement.End,
+                ) {
+                    SettingsTonalButton(
+                        text = stringResource(R.string.custom_info_preview),
+                        onClick = onPreview,
+                        icon = MaterialSymbols.PlayArrow,
+                        enabled = previewEnabled,
+                        small = true,
+                    )
+                }
             }
         }
     }
@@ -100,7 +103,7 @@ internal fun CustomInfoPreviewCard(
     response: String,
     onDismiss: () -> Unit,
 ) {
-    SettingsCard(modifier = Modifier.fillMaxWidth()) {
+    SettingsSegment(index = 0, count = 1) {
         Box(Modifier.padding(horizontal = DesignTokens.SpacingSmall, vertical = DesignTokens.SpacingXSmall)) {
             GlanceStatusRow(
                 icon = {
@@ -138,29 +141,33 @@ internal fun CustomInfoScheduleCard(
     sendNotification: Boolean,
     onSendNotificationChange: (Boolean) -> Unit,
 ) {
-    SettingsCard(modifier = Modifier.fillMaxWidth()) {
-        SettingsToggleRow(
-            title = dueMillis?.let { customInfoDueLabel(it) } ?: stringResource(R.string.custom_info_set_date_time),
-            checked = false,
-            onCheckedChange = {},
-            onRowClick = onDateClick,
-            showSwitch = false,
-            leadingIcon = MaterialSymbols.CalendarMonth,
-            titleTextStyle = MaterialTheme.typography.bodyLarge,
-            horizontalPadding = DesignTokens.CardHorizontalPadding,
-            isFirstItem = true,
-            trailingAction = { CustomInfoRowChevron() },
-        )
-        CustomInfoRepeatRow(repeat = repeat, onRepeatChange = onRepeatChange)
-        SettingsToggleRow(
-            title = stringResource(R.string.custom_info_send_notification),
-            checked = sendNotification,
-            onCheckedChange = onSendNotificationChange,
-            leadingIcon = MaterialSymbols.NotificationsNone,
-            titleTextStyle = MaterialTheme.typography.bodyLarge,
-            horizontalPadding = DesignTokens.CardHorizontalPadding,
-            isLastItem = true,
-        )
+    SettingsSegmentGroup {
+        SettingsSegment(index = 0, count = 3) {
+            SettingsToggleRow(
+                title = dueMillis?.let { customInfoDueLabel(it) } ?: stringResource(R.string.custom_info_set_date_time),
+                checked = false,
+                onCheckedChange = {},
+                onRowClick = onDateClick,
+                showSwitch = false,
+                leadingIcon = MaterialSymbols.CalendarMonth,
+                isFirstItem = true,
+                isLastItem = true,
+                trailingAction = { CustomInfoRowChevron() },
+            )
+        }
+        SettingsSegment(index = 1, count = 3) {
+            CustomInfoRepeatRow(repeat = repeat, onRepeatChange = onRepeatChange)
+        }
+        SettingsSegment(index = 2, count = 3) {
+            SettingsToggleRow(
+                title = stringResource(R.string.custom_info_send_notification),
+                checked = sendNotification,
+                onCheckedChange = onSendNotificationChange,
+                leadingIcon = MaterialSymbols.NotificationsNone,
+                isFirstItem = true,
+                isLastItem = true,
+            )
+        }
     }
 }
 

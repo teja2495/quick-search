@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -51,6 +50,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.settings.settingsScreen.SettingsBackupManager
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
+import com.tk.quicksearch.settings.shared.SettingsSegment
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -123,184 +123,192 @@ fun ImportSettingsScreen(
 
             Spacer(modifier = Modifier.height(DesignTokens.OnboardingCompactSpacing))
 
-            // Main content — centred in remaining space
+            // Main content: one expressive tile, centred in the remaining space
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxWidth()
-                    .padding(horizontal = DesignTokens.SpacingXLarge),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                    .fillMaxWidth(),
                 verticalArrangement = Arrangement.Center,
             ) {
-                // Icon circle
-                val iconAlpha by animateFloatAsState(
-                    targetValue = if (screenState == ImportScreenState.Importing) 0.38f else 1f,
-                    animationSpec = tween(DesignTokens.AnimationDurationMedium),
-                    label = "iconAlpha",
-                )
-                Surface(
-                    shape = CircleShape,
-                    color = when (screenState) {
-                        ImportScreenState.Success -> MaterialTheme.colorScheme.primaryContainer
-                        ImportScreenState.Error -> MaterialTheme.colorScheme.errorContainer
-                        else -> AppColors.Accent.copy(alpha = 0.12f)
-                    },
-                    modifier = Modifier
-                        .size(88.dp)
-                        .alpha(iconAlpha),
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
+                SettingsSegment(index = 0, count = 1) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                horizontal = DesignTokens.SpacingXXLarge,
+                                vertical = DesignTokens.OnboardingSectionSpacing,
+                            ),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        // Icon circle
+                        val iconAlpha by animateFloatAsState(
+                            targetValue = if (screenState == ImportScreenState.Importing) 0.38f else 1f,
+                            animationSpec = tween(DesignTokens.AnimationDurationMedium),
+                            label = "iconAlpha",
+                        )
+                        Surface(
+                            shape = CircleShape,
+                            color = when (screenState) {
+                                ImportScreenState.Success -> MaterialTheme.colorScheme.primaryContainer
+                                ImportScreenState.Error -> MaterialTheme.colorScheme.errorContainer
+                                else -> AppColors.Accent.copy(alpha = 0.12f)
+                            },
+                            modifier = Modifier
+                                .size(88.dp)
+                                .alpha(iconAlpha),
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                AnimatedContent(
+                                    targetState = screenState,
+                                    transitionSpec = {
+                                        fadeIn(tween(DesignTokens.AnimationDurationShort)) togetherWith
+                                            fadeOut(tween(DesignTokens.AnimationDurationShort))
+                                    },
+                                    label = "iconContent",
+                                ) { state ->
+                                    Icon(
+                                        imageVector = when (state) {
+                                            ImportScreenState.Success -> MaterialSymbols.CheckCircle
+                                            ImportScreenState.Error -> MaterialSymbols.ErrorOutline
+                                            else -> MaterialSymbols.FileDownload
+                                        },
+                                        contentDescription = null,
+                                        modifier = Modifier.size(DesignTokens.IconSizeXLarge),
+                                        tint = when (state) {
+                                            ImportScreenState.Success -> MaterialTheme.colorScheme.onPrimaryContainer
+                                            ImportScreenState.Error -> MaterialTheme.colorScheme.onErrorContainer
+                                            else -> AppColors.Accent
+                                        },
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(DesignTokens.SpacingXXLarge))
+
+                        // Title + description text
                         AnimatedContent(
                             targetState = screenState,
                             transitionSpec = {
-                                fadeIn(tween(DesignTokens.AnimationDurationShort)) togetherWith
+                                fadeIn(tween(DesignTokens.AnimationDurationMedium)) togetherWith
                                     fadeOut(tween(DesignTokens.AnimationDurationShort))
                             },
-                            label = "iconContent",
+                            label = "textContent",
                         ) { state ->
-                            Icon(
-                                imageVector = when (state) {
-                                    ImportScreenState.Success -> MaterialSymbols.CheckCircle
-                                    ImportScreenState.Error -> MaterialSymbols.ErrorOutline
-                                    else -> MaterialSymbols.FileDownload
-                                },
-                                contentDescription = null,
-                                modifier = Modifier.size(DesignTokens.IconSizeXLarge),
-                                tint = when (state) {
-                                    ImportScreenState.Success -> MaterialTheme.colorScheme.onPrimaryContainer
-                                    ImportScreenState.Error -> MaterialTheme.colorScheme.onErrorContainer
-                                    else -> AppColors.Accent
-                                },
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(DesignTokens.SpacingXXLarge))
-
-                // Title + description text
-                AnimatedContent(
-                    targetState = screenState,
-                    transitionSpec = {
-                        fadeIn(tween(DesignTokens.AnimationDurationMedium)) togetherWith
-                            fadeOut(tween(DesignTokens.AnimationDurationShort))
-                    },
-                    label = "textContent",
-                ) { state ->
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(
-                            text = when (state) {
-                                ImportScreenState.Idle -> if (singlePreFoundFile != null) {
-                                    stringResource(R.string.setup_import_backup_found_title)
-                                } else {
-                                    stringResource(R.string.setup_import_description_title)
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Text(
+                                    text = when (state) {
+                                        ImportScreenState.Idle -> if (singlePreFoundFile != null) {
+                                            stringResource(R.string.setup_import_backup_found_title)
+                                        } else {
+                                            stringResource(R.string.setup_import_description_title)
+                                        }
+                                        ImportScreenState.Importing -> stringResource(R.string.setup_import_importing)
+                                        ImportScreenState.Success -> stringResource(R.string.setup_import_success_title)
+                                        ImportScreenState.Error -> stringResource(R.string.setup_import_error_title)
+                                    },
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    textAlign = TextAlign.Center,
+                                )
+                                val subtitleText = when (state) {
+                                    ImportScreenState.Idle -> if (singlePreFoundFile != null) {
+                                        stringResource(R.string.setup_import_backup_found_subtitle)
+                                    } else {
+                                        stringResource(R.string.setup_import_description_subtitle)
+                                    }
+                                    ImportScreenState.Importing -> ""
+                                    ImportScreenState.Success -> stringResource(R.string.setup_import_success_subtitle)
+                                    ImportScreenState.Error -> stringResource(R.string.setup_import_error_subtitle)
                                 }
-                                ImportScreenState.Importing -> stringResource(R.string.setup_import_importing)
-                                ImportScreenState.Success -> stringResource(R.string.setup_import_success_title)
-                                ImportScreenState.Error -> stringResource(R.string.setup_import_error_title)
-                            },
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            textAlign = TextAlign.Center,
-                        )
-                        val subtitleText = when (state) {
-                            ImportScreenState.Idle -> if (singlePreFoundFile != null) {
-                                stringResource(R.string.setup_import_backup_found_subtitle)
-                            } else {
-                                stringResource(R.string.setup_import_description_subtitle)
+                                if (subtitleText.isNotEmpty()) {
+                                    Text(
+                                        text = subtitleText,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        textAlign = TextAlign.Center,
+                                    )
+                                }
                             }
-                            ImportScreenState.Importing -> ""
-                            ImportScreenState.Success -> stringResource(R.string.setup_import_success_subtitle)
-                            ImportScreenState.Error -> stringResource(R.string.setup_import_error_subtitle)
                         }
-                        if (subtitleText.isNotEmpty()) {
-                            Text(
-                                text = subtitleText,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                textAlign = TextAlign.Center,
-                            )
+
+                        Spacer(modifier = Modifier.height(DesignTokens.OnboardingSectionSpacing))
+
+                        // Import / Retry button — hidden while importing or after success
+                        // In single-file mode, "Restore" button imports the pre-found file directly.
+                        // Otherwise, "Import Settings" opens the system file picker.
+                        AnimatedVisibility(
+                            visible = screenState == ImportScreenState.Idle || screenState == ImportScreenState.Error,
+                            enter = fadeIn(tween(DesignTokens.AnimationDurationShort)),
+                            exit = fadeOut(tween(DesignTokens.AnimationDurationShort)),
+                        ) {
+                            if (singlePreFoundFile != null) {
+                                Button(
+                                    onClick = { importFromUri(Uri.fromFile(singlePreFoundFile)) },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = AppColors.Accent,
+                                        contentColor = AppColors.OnAccent,
+                                    ),
+                                    contentPadding = PaddingValues(
+                                        horizontal = DesignTokens.OnboardingButtonHorizontalPadding,
+                                        vertical = DesignTokens.OnboardingButtonVerticalPadding,
+                                    ),
+                                ) {
+                                    Icon(
+                                        imageVector = MaterialSymbols.FileDownload,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(DesignTokens.IconSize),
+                                    )
+                                    Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
+                                    Text(
+                                        text = stringResource(R.string.setup_import_restore_button),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Medium,
+                                    )
+                                }
+                            } else {
+                                Button(
+                                    onClick = { importLauncher.launch(arrayOf("*/*")) },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = AppColors.Accent,
+                                        contentColor = AppColors.OnAccent,
+                                    ),
+                                    contentPadding = PaddingValues(
+                                        horizontal = DesignTokens.OnboardingButtonHorizontalPadding,
+                                        vertical = DesignTokens.OnboardingButtonVerticalPadding,
+                                    ),
+                                ) {
+                                    Icon(
+                                        imageVector = MaterialSymbols.FileDownload,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(DesignTokens.IconSize),
+                                    )
+                                    Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
+                                    Text(
+                                        text = stringResource(R.string.setup_import_button),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Medium,
+                                    )
+                                }
+                            }
+                        }
+
+                        // Progress indicator — visible only while importing
+                        AnimatedVisibility(
+                            visible = screenState == ImportScreenState.Importing,
+                            enter = fadeIn(tween(DesignTokens.AnimationDurationShort)),
+                            exit = fadeOut(tween(DesignTokens.AnimationDurationShort)),
+                        ) {
+                            CircularProgressIndicator(modifier = Modifier.size(48.dp))
                         }
                     }
-                }
-
-                Spacer(modifier = Modifier.height(DesignTokens.OnboardingSectionSpacing))
-
-                // Import / Retry button — hidden while importing or after success
-                // In single-file mode, "Restore" button imports the pre-found file directly.
-                // Otherwise, "Import Settings" opens the system file picker.
-                AnimatedVisibility(
-                    visible = screenState == ImportScreenState.Idle || screenState == ImportScreenState.Error,
-                    enter = fadeIn(tween(DesignTokens.AnimationDurationShort)),
-                    exit = fadeOut(tween(DesignTokens.AnimationDurationShort)),
-                ) {
-                    if (singlePreFoundFile != null) {
-                        Button(
-                            onClick = { importFromUri(Uri.fromFile(singlePreFoundFile)) },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(DesignTokens.OnboardingButtonCornerRadius),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = AppColors.Accent,
-                                contentColor = AppColors.OnAccent,
-                            ),
-                            contentPadding = PaddingValues(
-                                horizontal = DesignTokens.OnboardingButtonHorizontalPadding,
-                                vertical = DesignTokens.OnboardingButtonVerticalPadding,
-                            ),
-                        ) {
-                            Icon(
-                                imageVector = MaterialSymbols.FileDownload,
-                                contentDescription = null,
-                                modifier = Modifier.size(DesignTokens.IconSize),
-                            )
-                            Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
-                            Text(
-                                text = stringResource(R.string.setup_import_restore_button),
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Medium,
-                            )
-                        }
-                    } else {
-                        Button(
-                            onClick = { importLauncher.launch(arrayOf("*/*")) },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(DesignTokens.OnboardingButtonCornerRadius),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = AppColors.Accent,
-                                contentColor = AppColors.OnAccent,
-                            ),
-                            contentPadding = PaddingValues(
-                                horizontal = DesignTokens.OnboardingButtonHorizontalPadding,
-                                vertical = DesignTokens.OnboardingButtonVerticalPadding,
-                            ),
-                        ) {
-                            Icon(
-                                imageVector = MaterialSymbols.FileDownload,
-                                contentDescription = null,
-                                modifier = Modifier.size(DesignTokens.IconSize),
-                            )
-                            Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
-                            Text(
-                                text = stringResource(R.string.setup_import_button),
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Medium,
-                            )
-                        }
-                    }
-                }
-
-                // Progress indicator — visible only while importing
-                AnimatedVisibility(
-                    visible = screenState == ImportScreenState.Importing,
-                    enter = fadeIn(tween(DesignTokens.AnimationDurationShort)),
-                    exit = fadeOut(tween(DesignTokens.AnimationDurationShort)),
-                ) {
-                    CircularProgressIndicator(modifier = Modifier.size(48.dp))
                 }
             }
 
@@ -337,7 +345,6 @@ fun ImportSettingsScreen(
                         horizontal = DesignTokens.OnboardingButtonHorizontalPadding,
                         vertical = DesignTokens.OnboardingButtonVerticalPadding,
                     ),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     ),

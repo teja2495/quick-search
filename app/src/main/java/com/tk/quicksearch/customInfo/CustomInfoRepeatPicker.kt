@@ -89,8 +89,8 @@ internal fun CustomInfoRepeatRow(
             onRowClick = { menuExpanded = true },
             showSwitch = false,
             leadingIcon = MaterialSymbols.Repeat,
-            titleTextStyle = MaterialTheme.typography.bodyLarge,
-            horizontalPadding = DesignTokens.CardHorizontalPadding,
+            isFirstItem = true,
+            isLastItem = true,
             trailingAction = { CustomInfoRowChevron() },
         )
         AppDropdownMenu(

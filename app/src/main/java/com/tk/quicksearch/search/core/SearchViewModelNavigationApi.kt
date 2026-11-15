@@ -173,7 +173,11 @@ class SearchViewModelNavigationApiDelegate internal constructor(
                 userPreferences.addRecentItem(RecentSearchEntry.Query(query))
             }
             userPreferences.addRecentItem(RecentSearchEntry.AppShortcut(shortcutKey(shortcut)))
-            onNavigationTriggered()
+            // Quick Search's own shortcuts (e.g. Notification History) arrive back in onNewIntent and
+            // navigate in-app; treating them as an external launch would send the app away.
+            if (shortcut.packageName != applicationProvider().packageName) {
+                onNavigationTriggered()
+            }
         }
     }
 

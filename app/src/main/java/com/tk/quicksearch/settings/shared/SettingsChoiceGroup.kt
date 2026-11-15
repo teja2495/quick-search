@@ -314,3 +314,28 @@ private val SettingsChoiceMinFontSize = 11.sp
 private val SettingsChoiceSwatchSize: Dp = 16.dp
 private const val SettingsTonalAlpha = 0.14f
 private const val SettingsChoiceDisabledAlpha = 0.5f
+
+/**
+ * A segmented tile with a `titleMedium` heading over a full-width [SettingsChoiceGroup], for a
+ * single choice that needs the whole tile width (edge gesture side, activation).
+ */
+@Composable
+fun <T> SettingsChoiceTile(
+    title: String,
+    options: List<SettingsChoice<T>>,
+    selected: T,
+    onSelect: (T) -> Unit,
+    index: Int,
+    count: Int,
+) {
+    SettingsSegment(index = index, count = count) {
+        SettingsSegmentContent {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            SettingsChoiceGroup(options = options, selected = selected, onSelect = onSelect)
+        }
+    }
+}

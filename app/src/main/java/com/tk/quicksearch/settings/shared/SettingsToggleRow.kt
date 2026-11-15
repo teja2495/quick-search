@@ -37,8 +37,6 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
 
-private const val TipBannerLinkTag = "tip_banner_link"
-
 data class SettingsToggleSliderDetails(
     val value: Float,
     val onValueChange: (Float) -> Unit,
@@ -269,12 +267,6 @@ fun SettingsToggleRow(
                                 start = start,
                                 end = end,
                             )
-                            addStringAnnotation(
-                                tag = TipBannerLinkTag,
-                                annotation = linkText,
-                                start = start,
-                                end = end,
-                            )
                         }
                     }
                 }
@@ -283,11 +275,6 @@ fun SettingsToggleRow(
                 showDismissButton = onTipBannerDismiss != null,
                 onDismiss = onTipBannerDismiss,
                 onContentClick = onTipBannerLinkClick,
-                onTextClick = { clickOffset ->
-                    if (annotatedTipText.getStringAnnotations(TipBannerLinkTag, clickOffset, clickOffset).isNotEmpty()) {
-                        onTipBannerLinkClick?.invoke()
-                    }
-                },
                 modifier =
                     Modifier.padding(
                         start = horizontalPadding,

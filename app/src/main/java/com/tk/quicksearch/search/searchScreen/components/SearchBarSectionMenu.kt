@@ -127,7 +127,7 @@ private fun SectionMenuGrid(
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f).padding(start = DesignTokens.SpacingXSmall),
             )
-            IconButton(onClick = onDismiss, modifier = Modifier.size(40.dp)) {
+            IconButton(onClick = onDismiss) {
                 Icon(
                     imageVector = MaterialSymbols.Close,
                     contentDescription = stringResource(R.string.dialog_cancel),

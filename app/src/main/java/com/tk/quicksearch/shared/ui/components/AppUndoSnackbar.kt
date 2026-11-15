@@ -57,7 +57,6 @@ import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -228,13 +227,15 @@ private fun UndoSnackbar(
     actionLabel: String?,
     onAction: () -> Unit,
 ) {
-    // Follows the selected theme's accent (and Material You / wallpaper accents) so it stands out
-    // from the wallpaper in both light and dark mode.
-    val containerColor = AppColors.Accent
-    val contentColor = AppColors.OnAccent
+    // Material 3 snackbar roles: an inverse surface so it contrasts with whatever is behind it.
+    // The action uses the primary container, which sits at the inverse theme's primary tone (the
+    // baseline inversePrimary isn't derived from the app's accent).
+    val containerColor = MaterialTheme.colorScheme.inverseSurface
+    val contentColor = MaterialTheme.colorScheme.inverseOnSurface
+    val actionColor = MaterialTheme.colorScheme.primaryContainer
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = DesignTokens.ShapeXLarge,
+        shape = DesignTokens.ShapeSmall,
         color = containerColor,
         contentColor = contentColor,
         shadowElevation = 6.dp,
@@ -275,7 +276,7 @@ private fun UndoSnackbar(
             actionLabel?.let { label ->
                 TextButton(
                     onClick = onAction,
-                    colors = ButtonDefaults.textButtonColors(contentColor = contentColor),
+                    colors = ButtonDefaults.textButtonColors(contentColor = actionColor),
                     contentPadding = PaddingValues(horizontal = 14.dp),
                 ) {
                     Text(text = label, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)

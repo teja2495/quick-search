@@ -207,11 +207,14 @@ fun AppItemDropdownMenu(
                 longPressOption = removeNicknameOption,
             ))
         }
-        add(ItemMenuTile(
-            label = stringResource(R.string.action_exclude_generic),
-            icon = { Icon(imageVector = MaterialSymbols.VisibilityOff, contentDescription = null) },
-            onClick = { onDismiss(); onHideApp() },
-        ))
+        // Quick Search's own menu has no other tiles, so Hide pairs with Split Screen instead.
+        if (!isCurrentApp) {
+            add(ItemMenuTile(
+                label = stringResource(R.string.action_exclude_generic),
+                icon = { Icon(imageVector = MaterialSymbols.VisibilityOff, contentDescription = null) },
+                onClick = { onDismiss(); onHideApp() },
+            ))
+        }
     }
 
     val speedBumpAction =
@@ -311,6 +314,13 @@ fun AppItemDropdownMenu(
         }
 
     val splitAndIconButtons = buildList {
+        if (isCurrentApp) {
+            add(ItemMenuRow(
+                label = stringResource(R.string.action_exclude_generic),
+                icon = { Icon(imageVector = MaterialSymbols.VisibilityOff, contentDescription = null) },
+                onClick = { onDismiss(); onHideApp() },
+            ))
+        }
         if (isLaunchableApp && appInfo.userHandleId == null) {
             add(ItemMenuRow(
                 label = stringResource(R.string.action_open_in_split_screen),

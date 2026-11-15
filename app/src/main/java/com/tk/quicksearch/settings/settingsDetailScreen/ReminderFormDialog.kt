@@ -282,29 +282,30 @@ internal fun ReminderFormDialog(
                         }
 
                         if (hasTime) {
-                            OutlinedButton(
-                                onClick = { showTimePicker = true },
+                            Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Icon(
-                                    imageVector = MaterialSymbols.Schedule,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(18.dp),
-                                )
-                                Spacer(Modifier.width(8.dp))
-                                Text(
-                                    text = formatPickedTime(timePickerState.hour, timePickerState.minute),
+                                OutlinedButton(
+                                    onClick = { showTimePicker = true },
                                     modifier = Modifier.weight(1f),
-                                )
-                                IconButton(
-                                    onClick = { hasTime = false },
-                                    modifier = Modifier.size(24.dp),
+                                    shape = RoundedCornerShape(12.dp),
                                 ) {
                                     Icon(
-                                        imageVector = MaterialSymbols.Close,
+                                        imageVector = MaterialSymbols.Schedule,
                                         contentDescription = null,
-                                        modifier = Modifier.size(16.dp),
+                                        modifier = Modifier.size(18.dp),
+                                    )
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(
+                                        text = formatPickedTime(timePickerState.hour, timePickerState.minute),
+                                        modifier = Modifier.weight(1f),
+                                    )
+                                }
+                                IconButton(onClick = { hasTime = false }) {
+                                    Icon(
+                                        imageVector = MaterialSymbols.Close,
+                                        contentDescription = stringResource(R.string.common_action_clear),
                                     )
                                 }
                             }

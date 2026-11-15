@@ -73,7 +73,6 @@ private const val NameHintAlpha = 0.28f
 private const val UnsetSwatchAlpha = 0.6f
 private val ColorSwatchSize = 24.dp
 private val ColorSwatchTouchSize = 40.dp
-private val DefaultFolderPickerColor = Color(0xFF5B8DEF)
 // Muted pastel hues, so the unset swatch hints at color without shouting.
 private val UnsetSwatchHues =
         listOf(0f, 60f, 120f, 180f, 240f, 300f, 0f).map { Color.hsv(it, 0.3f, 0.85f) }
@@ -166,7 +165,7 @@ internal fun FolderContentsPopup(
 
     if (showColorPicker) {
         WidgetColorPickerDialog(
-                initialColor = folder.color?.let(::Color) ?: DefaultFolderPickerColor,
+                initialColor = folder.color?.let(::Color) ?: AppColors.Accent,
                 onDismiss = { showColorPicker = false },
                 onConfirm = { color ->
                     actions.onSetFolderColor(folder.id, color.toArgb())

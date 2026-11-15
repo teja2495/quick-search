@@ -248,7 +248,7 @@ private fun LaunchOptionsCard(
     hasFilePermission: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    SettingsCard(modifier = modifier.fillMaxWidth()) {
+    SettingsSegment(index = 0, count = 1, modifier = modifier) {
         Column(
             modifier = Modifier.padding(
                 horizontal = DesignTokens.SpacingXXLarge,

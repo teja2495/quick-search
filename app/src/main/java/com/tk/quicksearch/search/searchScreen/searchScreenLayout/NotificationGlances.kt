@@ -50,7 +50,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.Lifecycle
@@ -440,7 +439,7 @@ internal fun WorkoutRow(workout: WorkoutNotification) {
         title = workout.title ?: appLabel,
         subtitle = workout.stats ?: appLabel.takeIf { workout.title != null },
         titleMaxLines = GlanceTextMaxLines,
-        subtitleStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 20.sp, lineHeight = 26.sp),
+        subtitleStyle = MaterialTheme.typography.titleLarge,
         pillText = workout.duration,
         onClick = { openNotificationTarget(context, workout.packageName, workout.contentIntent) },
     )
