@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -16,6 +17,8 @@ import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
+import com.tk.quicksearch.search.searchScreen.shared.LocalSegmentedRowsStyle
+import com.tk.quicksearch.search.searchScreen.shared.SegmentedRowsStyle
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 internal data class ExpandableResultsCardState(
@@ -40,6 +43,7 @@ internal fun ExpandableResultsCard(
     fillExpandedHeight: Boolean,
     showWallpaperBackground: Boolean,
     overlayCardColor: Color?,
+    segmented: Boolean = false,
     content: @Composable (Modifier, ExpandableResultsCardState) -> Unit,
 ) {
     val displayAsExpanded = isExpanded || showAllResults
@@ -72,6 +76,21 @@ internal fun ExpandableResultsCard(
                 shape = SearchResultCardDefaults.shape,
                 opaqueCardTopResultBorder = true,
             )
+
+    if (segmented && LocalSearchCardLayoutEnabled.current) {
+        // Rows draw their own tiles (ResultSegment); the card itself is only the group.
+        val containerColor =
+            SearchResultCardDefaults.colors(
+                showWallpaperBackground = showWallpaperBackground,
+                overlayContainerColor = overlayCardColor,
+            ).containerColor
+        CompositionLocalProvider(LocalSegmentedRowsStyle provides SegmentedRowsStyle(containerColor)) {
+            Column(modifier = cardModifier) {
+                content(contentModifier, state)
+            }
+        }
+        return
+    }
 
     SearchResultCard(
         modifier = cardModifier,

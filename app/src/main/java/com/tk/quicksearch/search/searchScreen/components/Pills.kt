@@ -14,12 +14,18 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.ZeroCornerSize
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.unit.Dp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -260,6 +266,13 @@ private fun ClockActionPill(
     }
 }
 
+/**
+ * Home's bottom keyboard strip: a Material 3 Expressive connected button group. Voice search and
+ * Open Keyboard sit 2dp apart with pill outer corners and tight inner corners; a pressed button
+ * squares its corners on the expressive fast spatial spring. Buttons take a light tint of the strip's
+ * foreground, so they stay neutral over every background (theme gradient, wallpaper, custom image,
+ * AMOLED, Material You).
+ */
 @Composable
 internal fun OpenKeyboardAction(
     text: String,
@@ -269,60 +282,126 @@ internal fun OpenKeyboardAction(
     modifier: Modifier = Modifier,
     showMic: Boolean = true,
 ) {
-    val isDarkTheme = LocalAppIsDarkTheme.current
     val backgroundColor =
         insetCardBackground(true, AppColors.getSearchEngineSectionBackground(showWallpaperBackground))
-    val labelColor =
+    // Buttons are tinted from the strip's own foreground, so they sit in the same neutral family as
+    // the strip and the cards above it in every theme instead of introducing a new hue.
+    val contentColor =
         if (showWallpaperBackground && LocalDeviceDynamicColorsActive.current) {
             MaterialTheme.colorScheme.onSurface
-        } else if (isDarkTheme) {
+        } else if (LocalAppIsDarkTheme.current) {
             Color.White
         } else {
             Color.Black
         }
+    val buttonColors = ConnectedButtonColors(container = contentColor.copy(alpha = ConnectedButtonTintAlpha), content = contentColor)
     Surface(
         modifier = modifier.fillMaxWidth().insetCardBackdrop(true, RectangleShape),
         color = backgroundColor,
         tonalElevation = DesignTokens.ElevationLevel0,
     ) {
-        Box(modifier = Modifier.fillMaxWidth().heightIn(min = 75.dp)) {
-            Row(
-                modifier = Modifier.matchParentSize().clickable(onClick = onClick),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    // The engine strip above already ends with its own bottom padding, so the
+                    // spacing goes below the buttons to center them between the strip and the edge.
+                    .padding(
+                        start = DesignTokens.ContentHorizontalPadding,
+                        end = DesignTokens.ContentHorizontalPadding,
+                        bottom = DesignTokens.SpacingXLarge,
+                    ),
+            horizontalArrangement = Arrangement.spacedBy(ConnectedButtonGap),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (showMic) {
+                ConnectedGroupButton(
+                    onClick = onVoiceClick,
+                    roundStart = true,
+                    roundEnd = false,
+                    colors = buttonColors,
+                    modifier = Modifier.width(VoiceButtonWidth),
+                ) {
+                    Icon(
+                        imageVector = MaterialSymbols.Mic,
+                        contentDescription = stringResource(R.string.desc_voice_search_icon),
+                        modifier = Modifier.size(DesignTokens.IconSize),
+                    )
+                }
+            }
+            ConnectedGroupButton(
+                onClick = onClick,
+                roundStart = !showMic,
+                roundEnd = true,
+                colors = buttonColors,
+                modifier = Modifier.weight(1f),
             ) {
                 Icon(
                     imageVector = MaterialSymbols.Keyboard,
                     contentDescription = null,
-                    tint = labelColor,
                     modifier = Modifier.size(DesignTokens.IconSize),
                 )
                 Spacer(modifier = Modifier.size(DesignTokens.SpacingSmall))
                 Text(
                     text = text,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = labelColor,
-                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
                 )
             }
-            if (showMic) {
-                Surface(
-                    onClick = onVoiceClick,
-                    modifier = Modifier.align(Alignment.CenterStart).padding(start = DesignTokens.SpacingXLarge).size(40.dp),
-                    shape = CircleShape,
-                    color = labelColor.copy(alpha = 0.1f),
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = MaterialSymbols.Mic,
-                            contentDescription = stringResource(R.string.desc_voice_search_icon),
-                            tint = labelColor,
-                            modifier = Modifier.size(DesignTokens.IconSize),
-                        )
-                    }
-                }
-            }
         }
+    }
+}
+
+private data class ConnectedButtonColors(val container: Color, val content: Color)
+
+private const val ConnectedButtonTintAlpha = 0.1f
+private val ConnectedButtonGap = 2.dp
+private val ConnectedButtonHeight = 56.dp
+private val VoiceButtonWidth = 72.dp
+private val ConnectedOuterCorner = 28.dp
+private val ConnectedOuterCornerPressed = 16.dp
+private val ConnectedInnerCorner = 8.dp
+private val ConnectedInnerCornerPressed = 4.dp
+
+@Composable
+private fun ConnectedGroupButton(
+    onClick: () -> Unit,
+    roundStart: Boolean,
+    roundEnd: Boolean,
+    colors: ConnectedButtonColors,
+    modifier: Modifier = Modifier,
+    content: @Composable RowScope.() -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressed by interactionSource.collectIsPressedAsState()
+    val cornerSpec = DesignTokens.expressiveFastSpatialSpring<Dp>()
+    val outer by animateDpAsState(
+        targetValue = if (pressed) ConnectedOuterCornerPressed else ConnectedOuterCorner,
+        animationSpec = cornerSpec,
+        label = "connectedOuterCorner",
+    )
+    val inner by animateDpAsState(
+        targetValue = if (pressed) ConnectedInnerCornerPressed else ConnectedInnerCorner,
+        animationSpec = cornerSpec,
+        label = "connectedInnerCorner",
+    )
+    val start = if (roundStart) outer else inner
+    val end = if (roundEnd) outer else inner
+    Surface(
+        onClick = onClick,
+        modifier = modifier.height(ConnectedButtonHeight),
+        interactionSource = interactionSource,
+        shape = RoundedCornerShape(topStart = start, bottomStart = start, topEnd = end, bottomEnd = end),
+        color = colors.container,
+        contentColor = colors.content,
+        tonalElevation = DesignTokens.ElevationLevel0,
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize().padding(horizontal = DesignTokens.SpacingLarge),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+            content = content,
+        )
     }
 }
 

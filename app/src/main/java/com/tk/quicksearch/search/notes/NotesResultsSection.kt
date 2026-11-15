@@ -1,5 +1,10 @@
 package com.tk.quicksearch.search.notes
 
+import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
+import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
+import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
+import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
+import com.tk.quicksearch.search.searchScreen.shared.ResultRowDivider
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -97,6 +102,7 @@ fun NotesResultsSection(
         fillExpandedHeight = fillExpandedHeight,
         showWallpaperBackground = showWallpaperBackground,
         overlayCardColor = overlayCardColor,
+        segmented = true,
     ) { contentModifier, cardState ->
         val displayNotes =
             if (cardState.displayAsExpanded) {
@@ -114,9 +120,14 @@ fun NotesResultsSection(
                     },
                 ),
         ) {
+            val segmentCount = displayNotes.size + if (cardState.shouldShowExpandButton) 1 else 0
+            val segmented = segmentedRowsActive()
             Column(
                 modifier =
-                    Modifier.padding(horizontal = DesignTokens.SpacingMedium, vertical = 4.dp)
+                    Modifier.padding(
+                        horizontal = resultRowsContainerPadding(DesignTokens.SpacingMedium),
+                        vertical = resultRowsContainerPadding(4.dp),
+                    )
                         .padding(
                             bottom =
                                 if (cardState.shouldFillExpandedHeight) {
@@ -130,6 +141,7 @@ fun NotesResultsSection(
                     key(note.noteId) {
                         val isPredicted = predictedNoteId != null && predictedNoteId == note.noteId
                         val showPredictedOnRow = isPredicted && !useCardLevelPrediction
+                        ResultSegment(index = index, count = segmentCount) {
                         NoteRow(
                             note = note,
                             isPinned = pinnedNoteIds.contains(note.noteId),
@@ -142,22 +154,16 @@ fun NotesResultsSection(
                             isPredicted = showPredictedOnRow,
                             showPinnedItemMenu = showPinnedItemMenu,
                         )
+                        }
                         if (index < displayNotes.lastIndex && !showPredictedOnRow) {
-                            HorizontalDivider(
-                                modifier = Modifier.compactEdgeToEdge().fillMaxWidth(),
-                                color =
-                                    overlayDividerColor
-                                        ?: if (showWallpaperBackground) {
-                                            AppColors.WallpaperDivider
-                                        } else {
-                                            MaterialTheme.colorScheme.outlineVariant
-                                        },
-                            )
+                            ResultRowDivider(showWallpaperBackground, color = overlayDividerColor)
                         }
                     }
                 }
 
-                if (cardState.shouldShowExpandButton) {
+                if (cardState.shouldShowExpandButton && segmented) {
+                    ExpandButtonSegment(index = segmentCount - 1, count = segmentCount, onClick = onExpandClick, textResId = R.string.action_expand_more_notes)
+                } else if (cardState.shouldShowExpandButton) {
                     ExpandButtonDivider(showWallpaperBackground)
                     ExpandButton(
                         onClick = onExpandClick,

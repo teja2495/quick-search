@@ -1,5 +1,10 @@
 package com.tk.quicksearch.search.appSettings
 
+import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
+import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
+import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
+import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
+import com.tk.quicksearch.search.searchScreen.shared.ResultRowDivider
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.settings.appearanceSettings.homeTextColorTitleRes
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
@@ -112,6 +117,7 @@ fun AppSettingsResultsSection(
         fillExpandedHeight = fillExpandedHeight,
         showWallpaperBackground = showWallpaperBackground,
         overlayCardColor = overlayCardColor,
+        segmented = true,
     ) { contentModifier, cardState ->
         val displayRows =
             if (cardState.displayAsExpanded) {
@@ -130,13 +136,15 @@ fun AppSettingsResultsSection(
                     },
                 ),
         ) {
+            val segmentCount = displayRows.size + if (cardState.shouldShowExpandButton) 1 else 0
+            val segmented = segmentedRowsActive()
             Column(
                 modifier =
                     Modifier.padding(
-                        start = DesignTokens.SpacingLarge,
-                        top = 4.dp,
-                        end = DesignTokens.SpacingMedium,
-                        bottom = 4.dp,
+                        start = resultRowsContainerPadding(DesignTokens.SpacingLarge),
+                        top = resultRowsContainerPadding(4.dp),
+                        end = resultRowsContainerPadding(DesignTokens.SpacingMedium),
+                        bottom = resultRowsContainerPadding(4.dp),
                     )
                     .padding(
                         bottom =
@@ -151,6 +159,7 @@ fun AppSettingsResultsSection(
                     val showPredictedOnRow =
                         predictedAppSettingId == setting.id && !useCardLevelPrediction
 
+                    ResultSegment(index = index, count = segmentCount) {
                     AppSettingResultRow(
                         setting = setting,
                         checked = isAppSettingToggleChecked(setting),
@@ -164,17 +173,16 @@ fun AppSettingsResultsSection(
                         onAppSettingAppResultRowCountChange = onAppSettingAppResultRowCountChange,
                         isPredicted = showPredictedOnRow,
                     )
+                    }
 
                     if (index != displayRows.lastIndex && !showPredictedOnRow) {
-                        HorizontalDivider(
-                            modifier = Modifier.compactEdgeToEdge().fillMaxWidth(),
-                            color = overlayDividerColor
-                                ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant,
-                        )
+                        ResultRowDivider(showWallpaperBackground, color = overlayDividerColor)
                     }
                 }
 
-                if (cardState.shouldShowExpandButton) {
+                if (cardState.shouldShowExpandButton && segmented) {
+                    ExpandButtonSegment(index = segmentCount - 1, count = segmentCount, onClick = onExpandClick)
+                } else if (cardState.shouldShowExpandButton) {
                     ExpandButtonDivider(showWallpaperBackground)
                     ExpandButton(
                         onClick = onExpandClick,

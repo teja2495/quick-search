@@ -1,5 +1,7 @@
 package com.tk.quicksearch.shared.ui.theme
 
+import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Shape
@@ -190,6 +192,21 @@ object DesignTokens {
      */
     val SearchResultCardShape: Shape = ExtraLargeCardShape
 
+    /** Outer corners of a segmented result list (first and last tile): the result card radius. */
+    val SegmentedListOuterCorner = 28.dp
+
+    /** Corners between neighbouring tiles of a segmented result list. */
+    val SegmentedListInnerCorner = 4.dp
+
+    /** Gap between tiles of a segmented result list. */
+    val SegmentedListGap = 2.dp
+
+    /** Side inset inside a segmented tile (what the card used to pad its rows by). */
+    val SegmentedListTileHorizontalPadding = SpacingMedium
+
+    /** Top and bottom inset inside a segmented tile. */
+    val SegmentedListTileVerticalPadding = SpacingXSmall
+
     /** Corner radius for widgets and cards shown in the widgets panel. */
     val WidgetPanelCornerRadius = 20.dp
 
@@ -234,6 +251,30 @@ object DesignTokens {
 
     /** Spring stiffness for drag animations */
     val SpringStiffness = 300f
+
+    // ============================================================================
+    // EXPRESSIVE MOTION (Material 3 Expressive spatial springs)
+    // ============================================================================
+
+    /** Damping of the expressive fast spatial spring: small components (button shape morphs). */
+    const val ExpressiveFastSpatialDamping = 0.6f
+
+    /** Stiffness of the expressive fast spatial spring. */
+    const val ExpressiveFastSpatialStiffness = 800f
+
+    /** Damping of the expressive default spatial spring: partial-screen movement and rotation. */
+    const val ExpressiveDefaultSpatialDamping = 0.8f
+
+    /** Stiffness of the expressive default spatial spring. */
+    const val ExpressiveDefaultSpatialStiffness = 380f
+
+    /** Fast spatial spring for small shape changes, such as a pressed button squaring its corners. */
+    fun <T> expressiveFastSpatialSpring(): SpringSpec<T> =
+        spring(dampingRatio = ExpressiveFastSpatialDamping, stiffness = ExpressiveFastSpatialStiffness)
+
+    /** Default spatial spring for moves and rotations, such as a section chevron turning. */
+    fun <T> expressiveDefaultSpatialSpring(): SpringSpec<T> =
+        spring(dampingRatio = ExpressiveDefaultSpatialDamping, stiffness = ExpressiveDefaultSpatialStiffness)
 
     // ============================================================================
     // WALLPAPER BACKGROUND CONSTANTS

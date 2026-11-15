@@ -88,6 +88,12 @@ To change the default brand accent, edit `AppAccentLight`/`AppAccentDark` in `Co
 **Motion:** `AnimationDurationMicro` 50, `AnimationDurationShort` 200,
 `AnimationDurationMedium` 300, `AnimationDurationFast` 500, `AnimationDurationLong` 4000;
 drag/spring constants (`DragAlpha`, `SpringDampingRatio`, `SpringStiffness`).
+Material 3 Expressive springs: `expressiveFastSpatialSpring()` for small shape changes (a pressed
+button squaring its corners) and `expressiveDefaultSpatialSpring()` for moves and rotations (a
+section chevron turning). Material3 1.4 keeps `MotionScheme` internal, so use these instead.
+
+**Segmented lists:** `SegmentedListOuterCorner` 28, `SegmentedListInnerCorner` 4, `SegmentedListGap` 2,
+`SegmentedListTileHorizontalPadding`, `SegmentedListTileVerticalPadding`.
 
 **Search field:** `SearchField*` border widths, alphas, and gradient multipliers.
 
@@ -125,6 +131,9 @@ property in sorted order.
 | `CardTextField`, `cardTextFieldColors()` | Borderless text fields stacked as rows of a `SettingsCard` (divided by `HorizontalDivider`); dimmed placeholder that shows before focus (label stays floated when a placeholder is set), and the floated label keeps a gap above the input |
 | `SettingsCard` and `Settings*Row` (`settings/shared/`) | Settings cards, toggle/checkbox/navigation rows. `SettingsToggleRow` takes `subtitleTextStyle` (default `bodySmall`) a `trailingAction` placed after the switch, such as a delete button, and `showNavigationChevron`, which with `onRowClick` adds the chevron and divider of `SettingsNavigationToggleRow` before the switch |
 | `SearchResultCard` (`searchScreen/shared/`) | Every home and result card (sections, history, suggestions, engine cards, tools via `InformationCard`). When the Compact Layout setting is on (`LocalSearchCardLayoutEnabled` is false, provided in `SearchScreen`), it drops its container color and border so content sits on the screen background at the width of section titles and the app grid, and draws a divider under each card in search results (not on Home, via `LocalCardlessSectionDividers`). A list that stacks cards with a gap other than `SpacingMedium` must provide `LocalCardlessStackSpacing` so those dividers stay centred; new home/result cards must use it so they follow the setting |
+| `ResultSegment`, `ResultRowDivider`, `ExpandButtonSegment` (`searchScreen/shared/SegmentedResultRows.kt`) | Material 3 Expressive segmented lists. A section passes `segmented = true` to `ExpandableResultsCard`; with cards on, each row is its own tile (28dp outer, 4dp inner corners, 2dp apart, the card's container color) and the More button is the last tile. Wrap rows in `ResultSegment(index, count)`, use `ResultRowDivider` (drawn only when not segmented) and `resultRowsContainerPadding()` for the list's own padding. In Compact Layout and sections that don't opt in, rows stay on one card with dividers. Opted in: files, contacts, app shortcuts, device settings, app settings, notes, reminders, bookmarks. Top Matches (consecutive result rows; the app grid and Screen Time stay separate cards) and web suggestions build the same tiles from `segmentShape()` on `SearchResultCard` with the outline dropped |
+| `OpenKeyboardAction` (`searchScreen/components/Pills.kt`) | Home's bottom keyboard strip: a Material 3 Expressive connected button group (voice search + Open Keyboard, 2dp apart, pill outer and 8dp inner corners that square on press), filled with the strip's foreground color at 10% (`onSurface` on wallpaper and Material You, white or black otherwise) so it stays neutral over any background |
+| `HomeSectionHeaderRow` (`searchScreenLayout/`) | Home section titles. The expand chevron is one icon that rotates on `expressiveDefaultSpatialSpring()`, a bare `primary` icon with no background |
 | `GlanceStatusRow` (`searchScreenLayout/`) | Home At a Glance rows: icon, title, subtitle or `belowText`, optional pill, trailing action, dismiss |
 | `GlanceActionChip` (`searchScreenLayout/`) | Pill button for a Glance row's own actions: outlined by default, or filled with `GlancePillColors` and an optional icon (missed call Call) |
 | `MarkdownText` (`shared/util/MarkdownRenderer.kt`) | Short Markdown such as AI answers rendered as body text; `RenderMarkdownDocument` is for full documents |

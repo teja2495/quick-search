@@ -1,5 +1,10 @@
 package com.tk.quicksearch.search.contacts
 
+import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
+import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
+import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
+import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
+import com.tk.quicksearch.search.searchScreen.shared.ResultRowDivider
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -222,6 +227,7 @@ private fun ContactsResultCard(
             fillExpandedHeight = fillExpandedHeight,
             showWallpaperBackground = showWallpaperBackground,
             overlayCardColor = overlayCardColor,
+            segmented = true,
         ) { contentModifier, cardState ->
             val displayContacts =
                 if (cardState.displayAsExpanded) {
@@ -325,11 +331,12 @@ private fun ContactList(
     bottomContentPadding: Dp,
     showPinnedItemMenu: Boolean,
 ) {
+    val segmentCount = displayContacts.size + if (shouldShowExpandButton) 1 else 0
     Column(
         modifier =
             Modifier.padding(
-                horizontal = DesignTokens.SpacingMedium,
-                vertical = DesignTokens.SpacingXSmall,
+                horizontal = resultRowsContainerPadding(DesignTokens.SpacingMedium),
+                vertical = resultRowsContainerPadding(DesignTokens.SpacingXSmall),
             ).padding(bottom = bottomContentPadding),
     ) {
         displayContacts.forEachIndexed { index, contactInfo ->
@@ -337,6 +344,8 @@ private fun ContactList(
                 predictedContactId != null &&
                     contactInfo.contactId == predictedContactId
             val showPredictedOnRow = isPredictedContact && !useCardLevelPrediction
+            ResultSegment(index = index, count = segmentCount) {
+            Column {
             key(contactInfo.contactId) {
                 ContactResultRow(
                     contactInfo = contactInfo,
@@ -380,15 +389,21 @@ private fun ContactList(
                     modifier = Modifier.padding(top = DesignTokens.SpacingSmall),
                 )
             }
+            }
+            }
             if (index != displayContacts.lastIndex && !showPredictedOnRow) {
-                HorizontalDivider(
-                    modifier = Modifier.compactEdgeToEdge().fillMaxWidth(),
-                    color = overlayDividerColor ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant,
-                )
+                ResultRowDivider(showWallpaperBackground, color = overlayDividerColor)
             }
         }
 
-        if (shouldShowExpandButton) {
+        if (shouldShowExpandButton && segmentedRowsActive()) {
+            ExpandButtonSegment(
+                index = segmentCount - 1,
+                count = segmentCount,
+                onClick = onExpandClick,
+                textResId = R.string.action_expand_more_contacts,
+            )
+        } else if (shouldShowExpandButton) {
             ExpandButtonDivider(showWallpaperBackground)
             // Flat sections (card layout off) keep the standard button size, like other More buttons.
             val cardLayoutEnabled = LocalSearchCardLayoutEnabled.current

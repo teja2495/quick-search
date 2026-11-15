@@ -1,5 +1,10 @@
 package com.tk.quicksearch.search.reminders
 
+import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
+import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
+import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
+import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
+import com.tk.quicksearch.search.searchScreen.shared.ResultRowDivider
 import com.tk.quicksearch.reminders.ReminderRepeat
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
 import android.text.format.DateFormat
@@ -108,6 +113,7 @@ fun RemindersResultsSection(
         fillExpandedHeight = fillExpandedHeight,
         showWallpaperBackground = showWallpaperBackground,
         overlayCardColor = overlayCardColor,
+        segmented = true,
     ) { contentModifier, cardState ->
         val displayReminders = if (cardState.displayAsExpanded) reminders else collapsedReminders
         Column(
@@ -116,10 +122,15 @@ fun RemindersResultsSection(
                     if (shouldUseInternalScroll) Modifier.verticalScroll(scrollState) else Modifier,
                 ),
         ) {
+            val segmentCount = displayReminders.size + if (cardState.shouldShowExpandButton) 1 else 0
+            val segmented = segmentedRowsActive()
             Column(
                 modifier =
                     Modifier.fillMaxWidth()
-                        .padding(horizontal = DesignTokens.SpacingMedium, vertical = 4.dp)
+                        .padding(
+                        horizontal = resultRowsContainerPadding(DesignTokens.SpacingMedium),
+                        vertical = resultRowsContainerPadding(4.dp),
+                    )
                         .padding(
                             bottom =
                                 if (cardState.shouldFillExpandedHeight) DesignTokens.SpacingSmall else 0.dp,
@@ -127,6 +138,7 @@ fun RemindersResultsSection(
             ) {
                 displayReminders.forEachIndexed { index, reminder ->
                     key(reminder.reminderId) {
+                        ResultSegment(index = index, count = segmentCount) {
                         ReminderRow(
                             reminder = reminder,
                             isPinned = pinnedReminderIds.contains(reminder.reminderId),
@@ -138,22 +150,16 @@ fun RemindersResultsSection(
                             isPredicted = false,
                             showPinnedItemMenu = showPinnedItemMenu,
                         )
+                        }
                         if (index < displayReminders.lastIndex) {
-                            HorizontalDivider(
-                                modifier = Modifier.compactEdgeToEdge().fillMaxWidth(),
-                                color =
-                                    overlayDividerColor
-                                        ?: if (showWallpaperBackground) {
-                                            AppColors.WallpaperDivider
-                                        } else {
-                                            MaterialTheme.colorScheme.outlineVariant
-                                        },
-                            )
+                            ResultRowDivider(showWallpaperBackground, color = overlayDividerColor)
                         }
                     }
                 }
 
-                if (cardState.shouldShowExpandButton) {
+                if (cardState.shouldShowExpandButton && segmented) {
+                    ExpandButtonSegment(index = segmentCount - 1, count = segmentCount, onClick = onExpandClick, textResId = R.string.action_expand_more_reminders)
+                } else if (cardState.shouldShowExpandButton) {
                     ExpandButtonDivider(showWallpaperBackground)
                     ExpandButton(
                         onClick = onExpandClick,

@@ -15,6 +15,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.Alignment
+import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.MaterialTheme
@@ -54,6 +57,24 @@ internal fun ExpandButtonDivider(showWallpaperBackground: Boolean) {
         color = LocalOverlayDividerColor.current
             ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant,
     )
+}
+
+/**
+ * A section's More button as the last tile of a segmented list ([index] of [count]). Only call it
+ * while [segmentedRowsActive]; card and flat sections keep their own More layouts.
+ */
+@Composable
+internal fun ExpandButtonSegment(
+    index: Int,
+    count: Int,
+    onClick: () -> Unit,
+    textResId: Int = R.string.action_expand_more,
+) {
+    ResultSegment(index = index, count = count) {
+        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            ExpandButton(onClick = onClick, textResId = textResId)
+        }
+    }
 }
 
 @Composable

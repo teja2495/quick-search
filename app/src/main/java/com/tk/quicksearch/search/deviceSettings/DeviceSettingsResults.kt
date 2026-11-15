@@ -1,5 +1,10 @@
 package com.tk.quicksearch.search.deviceSettings
 
+import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
+import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
+import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
+import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
+import com.tk.quicksearch.search.searchScreen.shared.ResultRowDivider
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -103,6 +108,7 @@ fun DeviceSettingsResultsSection(
                         fillExpandedHeight = fillExpandedHeight,
                         showWallpaperBackground = showWallpaperBackground,
                         overlayCardColor = overlayCardColor,
+                    segmented = true,
                 ) { contentModifier, cardState ->
                         val displayRows =
                                 if (cardState.displayAsExpanded) {
@@ -121,13 +127,15 @@ fun DeviceSettingsResultsSection(
                                                 },
                                         ),
                         ) {
+                                val segmentCount = displayRows.size + if (cardState.shouldShowExpandButton) 1 else 0
+                                val segmented = segmentedRowsActive()
                                 Column(
                                         modifier =
                                                 Modifier.padding(
-                                                        start = DesignTokens.SpacingLarge,
-                                                        top = 4.dp,
-                                                        end = DesignTokens.SpacingMedium,
-                                                        bottom = 4.dp,
+                                                        start = resultRowsContainerPadding(DesignTokens.SpacingLarge),
+                                                        top = resultRowsContainerPadding(4.dp),
+                                                        end = resultRowsContainerPadding(DesignTokens.SpacingMedium),
+                                                        bottom = resultRowsContainerPadding(4.dp),
                                                 )
                                                 .padding(
                                                         bottom =
@@ -143,6 +151,7 @@ fun DeviceSettingsResultsSection(
                                                         predictedSettingId == shortcut.id &&
                                                                 !useCardLevelPrediction
 
+                                                ResultSegment(index = index, count = segmentCount) {
                                                 SettingResultRow(
                                                         shortcut = shortcut,
                                                         isPinned =
@@ -163,18 +172,17 @@ fun DeviceSettingsResultsSection(
                                                         isPredicted = showPredictedOnRow,
                                                         showPinnedItemMenu = showPinnedItemMenu,
                                                 )
+                                                }
 
                                                 if (index != displayRows.lastIndex &&
                                                         !showPredictedOnRow) {
-                                                        HorizontalDivider(
-                                                                modifier = Modifier.compactEdgeToEdge().fillMaxWidth(),
-                                                                color = overlayDividerColor
-                                                                                ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant,
-                                                        )
+                                                        ResultRowDivider(showWallpaperBackground, color = overlayDividerColor)
                                                 }
                                         }
 
-                                        if (cardState.shouldShowExpandButton) {
+                                        if (cardState.shouldShowExpandButton && segmented) {
+                                                ExpandButtonSegment(index = segmentCount - 1, count = segmentCount, onClick = onExpandClick)
+                                        } else if (cardState.shouldShowExpandButton) {
                                                 ExpandButtonDivider(showWallpaperBackground)
                                                 ExpandButton(
                                                         onClick = onExpandClick,

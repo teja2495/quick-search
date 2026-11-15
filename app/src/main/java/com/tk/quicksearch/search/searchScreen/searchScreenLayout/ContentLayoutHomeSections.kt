@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -143,16 +145,28 @@ internal fun HomeSectionHeaderRow(
             )
         }
         if (isExpanded != null) {
-            Icon(
-                imageVector = if (isExpanded) MaterialSymbols.ExpandLess else MaterialSymbols.ExpandMore,
-                contentDescription = stringResource(
-                    if (isExpanded) R.string.desc_collapse else R.string.desc_expand,
-                ),
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(DesignTokens.IconSizeSmall),
-            )
+            HomeSectionExpandIndicator(isExpanded = isExpanded)
         }
     }
+}
+
+/**
+ * Expand/collapse affordance of a home section header: one chevron that turns on the expressive default
+ * spatial spring.
+ */
+@Composable
+private fun HomeSectionExpandIndicator(isExpanded: Boolean) {
+    val rotation by animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
+        animationSpec = DesignTokens.expressiveDefaultSpatialSpring(),
+        label = "homeSectionChevron",
+    )
+    Icon(
+        imageVector = MaterialSymbols.ExpandMore,
+        contentDescription = stringResource(if (isExpanded) R.string.desc_collapse else R.string.desc_expand),
+        tint = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.size(DesignTokens.IconSizeSmall).graphicsLayer { rotationZ = rotation },
+    )
 }
 
 /**

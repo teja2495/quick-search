@@ -1,5 +1,11 @@
 package com.tk.quicksearch.search.searchScreen
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.graphics.Color
+import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardStyleOverrides
+import com.tk.quicksearch.search.searchScreen.shared.segmentShape
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
@@ -110,10 +116,14 @@ internal fun TopMatchesSection(
     val cardLayoutEnabled = LocalSearchCardLayoutEnabled.current
     val highlightedMatch = selectedMatchIndex?.let(matches::getOrNull) ?: matches.firstOrNull()
     val displayedMatches = if (reverseOrder) matches.asReversed() else matches
+    // With cards on, consecutive result rows form one segmented group: tiles 2dp apart with large
+    // outer and small inner corners. The app grid and Screen Time card stay separate cards.
+    val segmented = cardLayoutEnabled
+    val segmentPositions = remember(displayedMatches) { topMatchSegmentPositions(displayedMatches) }
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
+        verticalArrangement = if (segmented) Arrangement.Top else Arrangement.spacedBy(DesignTokens.SpacingXSmall),
     ) {
         // Bottom-aligned results can stack Top Matches under the app grid, which ends without a
         // divider. Flat cards above already end in one, so only the grid needs this.
@@ -125,9 +135,18 @@ internal fun TopMatchesSection(
         }
 
         CompositionLocalProvider(LocalCardlessStackSpacing provides DesignTokens.SpacingXSmall) {
-            displayedMatches.forEach { item ->
+            displayedMatches.forEachIndexed { index, item ->
                 key(item.stableKey()) {
                     val isTopPredicted = showTopResultIndicator && item == highlightedMatch
+                    val segment = segmentPositions[index]
+                    val topGap =
+                        when {
+                            !segmented -> 0.dp
+                            index == 0 -> if (showHeader) DesignTokens.SpacingXSmall else 0.dp
+                            segment != null && segment.first > 0 -> DesignTokens.SegmentedListGap
+                            else -> DesignTokens.SpacingXSmall
+                        }
+                    if (topGap > 0.dp) Spacer(modifier = Modifier.height(topGap))
                     if (item is TopMatchItem.AppGrid) {
                         // Flat rows end in a divider; keep the icons as far off it as the regular app
                         // grid sits below the section above it (half the results stack spacing).
@@ -178,16 +197,29 @@ internal fun TopMatchesSection(
                                 )
                         }
                     } else {
+                        val rowShape =
+                            if (segmented && segment != null) {
+                                segmentShape(segment.first, segment.second)
+                            } else {
+                                SearchResultCardDefaults.shape
+                            }
                         SearchResultCard(
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
                                     .predictedSubmitHighlight(
                                         isPredicted = isTopPredicted,
-                                        shape = SearchResultCardDefaults.shape,
+                                        shape = rowShape,
                                         opaqueCardTopResultBorder = true,
                                     ),
                             showWallpaperBackground = showWallpaperBackground,
+                            styleOverrides =
+                                if (segmented) {
+                                    // Tiles are set apart by their gap, so they drop the wallpaper outline.
+                                    SearchResultCardStyleOverrides(shape = rowShape, border = NoSegmentBorder)
+                                } else {
+                                    SearchResultCardStyleOverrides()
+                                },
                         ) {
                             Column(
                                 modifier =
@@ -208,6 +240,30 @@ internal fun TopMatchesSection(
             }
         }
     }
+}
+
+private val NoSegmentBorder = BorderStroke(0.dp, Color.Transparent)
+
+/**
+ * Position of each match within its run of consecutive result rows as (index, count), or null for
+ * the app grid and other cards, which aren't part of a segmented group.
+ */
+private fun topMatchSegmentPositions(matches: List<TopMatchItem>): List<Pair<Int, Int>?> {
+    fun isRow(item: TopMatchItem) = item !is TopMatchItem.AppGrid && item !is TopMatchItem.Other
+    val positions = MutableList<Pair<Int, Int>?>(matches.size) { null }
+    var start = 0
+    while (start < matches.size) {
+        if (!isRow(matches[start])) {
+            start++
+            continue
+        }
+        var end = start
+        while (end + 1 < matches.size && isRow(matches[end + 1])) end++
+        val count = end - start + 1
+        for (i in start..end) positions[i] = (i - start) to count
+        start = end + 1
+    }
+    return positions
 }
 
 /** Full-width divider between Top Matches and the regular results (card layout off). */
