@@ -1,15 +1,20 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -21,13 +26,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
-import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.appShortcutRepository.shortcutDisplayName
@@ -40,12 +43,7 @@ import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 private val DEFAULT_ICON_SIZE = DesignTokens.IconSize
-private val ITEM_ROW_PADDING_HORIZONTAL = DesignTokens.CardHorizontalPadding
-private val ITEM_ROW_PADDING_VERTICAL = DesignTokens.CardVerticalPadding
 private val SECTION_SPACER_HEIGHT = 4.dp
-private val LIST_BOTTOM_PADDING = DesignTokens.VersionBottomPadding
-private val ITEM_ROW_ICON_TEXT_SPACING = DesignTokens.ItemRowSpacing
-private val ITEM_ROW_TEXT_VERTICAL_PADDING = 2.dp
 
 @Composable
 fun ExcludedItemScreen(
@@ -98,13 +96,13 @@ fun ExcludedItemScreen(
         return
     }
 
-    Column {
+    Column(modifier = modifier) {
         if (showTitle) {
             Text(
                 text = stringResource(R.string.settings_excluded_items_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding),
+                modifier = Modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding),
             )
 
             Text(
@@ -120,15 +118,13 @@ fun ExcludedItemScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier =
-                    modifier.padding(bottom = DesignTokens.SectionDescriptionBottomPadding),
+                    Modifier.padding(bottom = DesignTokens.SectionDescriptionBottomPadding),
             )
         }
 
         Spacer(modifier = Modifier.height(SECTION_SPACER_HEIGHT))
 
-        SettingsCard(
-            modifier = Modifier.fillMaxWidth().padding(bottom = LIST_BOTTOM_PADDING),
-        ) {
+        Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
             ExcludedItemsList(
                 allItems = allItems,
                 iconPackPackage = iconPackPackage,
@@ -178,15 +174,17 @@ private fun ExcludedItemsList(
     iconPackPackage: String?,
     onRemoveItem: (ExcludedItem) -> Unit,
 ) {
-    Column {
-        allItems.forEachIndexed { index, item ->
-            ExcludedItemRow(
-                item = item,
-                iconPackPackage = iconPackPackage,
-                onRemove = { onRemoveItem(item) },
-            )
-            if (index < allItems.lastIndex) {
-                HorizontalDivider(color = AppColors.SettingsDivider)
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().clip(DesignTokens.ShapeXXLarge),
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
+    ) {
+        itemsIndexed(allItems) { index, item ->
+            SettingsSegment(index = index, count = allItems.size) {
+                ExcludedItemRow(
+                    item = item,
+                    iconPackPackage = iconPackPackage,
+                    onRemove = { onRemoveItem(item) },
+                )
             }
         }
     }
@@ -198,48 +196,29 @@ private fun ExcludedItemRow(
     iconPackPackage: String?,
     onRemove: () -> Unit,
 ) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = ITEM_ROW_PADDING_HORIZONTAL,
-                    vertical = ITEM_ROW_PADDING_VERTICAL,
-                ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Row(
-            modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.spacedBy(ITEM_ROW_ICON_TEXT_SPACING),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            ExcludedItemIcon(item = item, iconPackPackage = iconPackPackage)
-
-            Column(modifier = Modifier.padding(vertical = ITEM_ROW_TEXT_VERTICAL_PADDING)) {
-                Text(
-                    text = item.displayName,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = Int.MAX_VALUE,
-                    overflow = TextOverflow.Visible,
-                )
-                Text(
-                    text = stringResource(item.typeLabelRes),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+    SettingsSegmentRow(
+        title = item.displayName,
+        description = stringResource(item.typeLabelRes),
+        leading = {
+            Box(
+                modifier = Modifier.size(DesignTokens.Spacing40)
+                    .clip(CircleShape)
+                    .background(AppColors.Accent.copy(alpha = 0.14f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                ExcludedItemIcon(item = item, iconPackPackage = iconPackPackage)
+            }
+        },
+        trailing = {
+            IconButton(onClick = onRemove) {
+                Icon(
+                    imageVector = MaterialSymbols.Close,
+                    contentDescription = stringResource(R.string.action_remove),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-        }
-
-        IconButton(onClick = onRemove) {
-            Icon(
-                imageVector = MaterialSymbols.Close,
-                contentDescription = stringResource(R.string.action_remove),
-                tint = MaterialTheme.colorScheme.primary,
-            )
-        }
-    }
+        },
+    )
 }
 
 @Composable
@@ -252,7 +231,7 @@ private fun ExcludedItemIcon(
             Icon(
                 imageVector = MaterialSymbols.Person,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = AppColors.Accent,
                 modifier = Modifier.size(DEFAULT_ICON_SIZE),
             )
         }
@@ -266,7 +245,7 @@ private fun ExcludedItemIcon(
                         MaterialSymbols.InsertDriveFile
                     },
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = AppColors.Accent,
                 modifier = Modifier.size(DEFAULT_ICON_SIZE),
             )
         }
@@ -275,7 +254,7 @@ private fun ExcludedItemIcon(
             Icon(
                 imageVector = MaterialSymbols.InsertDriveFile,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = AppColors.Accent,
                 modifier = Modifier.size(DEFAULT_ICON_SIZE),
             )
         }
@@ -284,7 +263,7 @@ private fun ExcludedItemIcon(
             Icon(
                 imageVector = MaterialSymbols.Settings,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = AppColors.Accent,
                 modifier = Modifier.size(DEFAULT_ICON_SIZE),
             )
         }
@@ -293,7 +272,7 @@ private fun ExcludedItemIcon(
             Icon(
                 imageVector = MaterialSymbols.Timer,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = AppColors.Accent,
                 modifier = Modifier.size(DEFAULT_ICON_SIZE),
             )
         }
@@ -331,7 +310,7 @@ private fun AppShortcutIconPlaceholder(
         Icon(
             imageVector = MaterialSymbols.Apps,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = AppColors.Accent,
             modifier = Modifier.size(DEFAULT_ICON_SIZE),
         )
     }
@@ -360,7 +339,7 @@ private fun AppIconPlaceholder(
         Icon(
             imageVector = MaterialSymbols.Apps,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = AppColors.Accent,
             modifier = Modifier.size(DEFAULT_ICON_SIZE),
         )
     }

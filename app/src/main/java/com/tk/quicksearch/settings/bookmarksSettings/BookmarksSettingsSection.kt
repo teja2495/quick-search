@@ -6,6 +6,9 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,7 +20,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -47,7 +49,9 @@ import com.tk.quicksearch.search.data.bookmarks.BookmarkRepository
 import com.tk.quicksearch.search.data.bookmarks.BookmarkUrls
 import com.tk.quicksearch.search.models.BookmarkInfo
 import com.tk.quicksearch.settings.appShortcutsSettings.shortcutMatchPriority
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.settings.shared.SettingsSegment
+import com.tk.quicksearch.settings.shared.SettingsSegmentRow
+import com.tk.quicksearch.settings.shared.SettingsIconBadge
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.AppUndoSnackbarPopup
 import com.tk.quicksearch.shared.ui.components.rememberUndoSnackbarController
@@ -151,40 +155,50 @@ fun BookmarksSettingsSection(
         // With nothing saved, importing is the main way in, so it gets a card; otherwise it lives in
         // the header's menu.
         if (bookmarks.isEmpty()) {
-            SettingsCard(modifier = Modifier.fillMaxWidth().padding(bottom = DesignTokens.SectionTopPadding)) {
+            SettingsSegment(
+                index = 0,
+                count = 1,
+                modifier = Modifier.padding(bottom = DesignTokens.SpacingMedium),
+            ) {
                 BookmarkImportRow(isImporting = isImporting, onClick = launchImport)
             }
         }
-        SettingsCard(modifier = Modifier.fillMaxWidth().weight(1f, fill = false)) {
+        Column(modifier = Modifier.fillMaxWidth().weight(1f, fill = false)) {
             if (displayed.isEmpty()) {
-                Text(
-                    text =
-                        stringResource(
-                            if (bookmarks.isEmpty()) R.string.bookmarks_empty else R.string.bookmarks_no_matches,
-                        ),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
-                )
+                SettingsSegment(index = 0, count = 1) {
+                    Text(
+                        text =
+                            stringResource(
+                                if (bookmarks.isEmpty()) R.string.bookmarks_empty else R.string.bookmarks_no_matches,
+                            ),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
+                    )
+                }
             } else {
-                LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = screenHeight)) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth().heightIn(max = screenHeight).clip(DesignTokens.ShapeXXLarge),
+                    verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
+                ) {
                     itemsIndexed(items = displayed, key = { _, bookmark -> bookmark.bookmarkId }) { index, bookmark ->
-                        BookmarkManagementRow(
-                            bookmark = bookmark,
-                            onClick = { editorTarget = BookmarkEditorTarget.Existing(bookmark) },
-                            onDelete = {
-                                scope.launch {
-                                    val deleted =
-                                        withContext(Dispatchers.IO) { repository.deleteForUndo(bookmark.bookmarkId) }
-                                            ?: return@launch
-                                    undoSnackbar.show(deletedMessage, MaterialSymbols.Delete) {
-                                        scope.launch(Dispatchers.IO) { repository.restore(deleted) }
+                        SettingsSegment(index = index, count = displayed.size) {
+                            BookmarkManagementRow(
+                                bookmark = bookmark,
+                                onClick = { editorTarget = BookmarkEditorTarget.Existing(bookmark) },
+                                onDelete = {
+                                    scope.launch {
+                                        val deleted =
+                                            withContext(Dispatchers.IO) { repository.deleteForUndo(bookmark.bookmarkId) }
+                                                ?: return@launch
+                                        undoSnackbar.show(deletedMessage, MaterialSymbols.Delete) {
+                                            scope.launch(Dispatchers.IO) { repository.restore(deleted) }
+                                        }
                                     }
-                                }
-                            },
-                        )
-                        if (index < displayed.lastIndex) HorizontalDivider(color = AppColors.SettingsDivider)
+                                },
+                            )
+                        }
                     }
                 }
             }
@@ -265,39 +279,24 @@ private fun BookmarkImportRow(
     isImporting: Boolean,
     onClick: () -> Unit,
 ) {
-    Row(
-        modifier =
-            Modifier.fillMaxWidth()
-                .clickable(enabled = !isImporting, onClick = onClick)
-                .padding(horizontal = DesignTokens.CardHorizontalPadding, vertical = DesignTokens.CardVerticalPadding),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
-    ) {
-        Box(modifier = Modifier.size(DesignTokens.IconSize), contentAlignment = Alignment.Center) {
+    SettingsSegmentRow(
+        title = stringResource(R.string.bookmarks_import_title),
+        description = stringResource(R.string.bookmarks_import_desc),
+        modifier = Modifier.clickable(enabled = !isImporting, onClick = onClick),
+        leading = {
             if (isImporting) {
-                CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                Box(modifier = Modifier.size(DesignTokens.Spacing40), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(DesignTokens.IconSizeSmall),
+                        strokeWidth = DesignTokens.SegmentedListGap,
+                    )
+                }
             } else {
-                Icon(
-                    imageVector = MaterialSymbols.Download,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(DesignTokens.IconSize),
-                )
+                SettingsIconBadge(icon = MaterialSymbols.Download)
             }
-        }
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = stringResource(R.string.bookmarks_import_title),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            Text(
-                text = stringResource(R.string.bookmarks_import_desc),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
+        },
+        verticalAlignment = Alignment.Top,
+    )
 }
 
 @Composable
@@ -310,12 +309,18 @@ private fun BookmarkManagementRow(
         modifier =
             Modifier.fillMaxWidth()
                 .clickable(onClick = onClick)
-                .padding(start = DesignTokens.CardHorizontalPadding, end = DesignTokens.SpacingXSmall)
-                .padding(vertical = DesignTokens.CardVerticalPadding),
+                .padding(horizontal = DesignTokens.SpacingLarge, vertical = DesignTokens.SpacingLarge),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
-        BookmarkFavicon(bookmark = bookmark, size = DesignTokens.IconSize)
+        Box(
+            modifier = Modifier.size(DesignTokens.Spacing40)
+                .clip(CircleShape)
+                .background(AppColors.Accent.copy(alpha = 0.14f)),
+            contentAlignment = Alignment.Center,
+        ) {
+            BookmarkFavicon(bookmark = bookmark, size = DesignTokens.IconSize)
+        }
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = bookmark.name,
@@ -326,7 +331,7 @@ private fun BookmarkManagementRow(
             )
             Text(
                 text = BookmarkUrls.displayHost(bookmark.url),
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

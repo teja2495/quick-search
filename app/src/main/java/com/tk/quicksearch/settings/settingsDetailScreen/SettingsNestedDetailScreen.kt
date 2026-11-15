@@ -337,6 +337,21 @@ internal fun SettingsNestedDetailScreen(
                     modifier = Modifier.settingsContentWidth().fillMaxHeight().align(Alignment.CenterHorizontally)
                         .padding(start = DesignTokens.ContentHorizontalPadding, end = DesignTokens.ContentHorizontalPadding, bottom = 96.dp),
                 )
+            } else if (detailType == SettingsDetailType.DEVICE_SETTINGS) {
+                DeviceSettingsSettingsSection(
+                    modifier = Modifier.settingsContentWidth().fillMaxHeight().align(Alignment.CenterHorizontally)
+                        .padding(start = DesignTokens.ContentHorizontalPadding, end = DesignTokens.ContentHorizontalPadding, bottom = DesignTokens.SectionTopPadding),
+                    settings = state.allDeviceSettings,
+                    onSettingClick = { setting ->
+                        if (setting.id == NOTIFICATION_HISTORY_SETTING_ID) {
+                            onNavigateToDetail(
+                                SettingsDetailType.NOTIFICATION_HISTORY,
+                            )
+                        } else {
+                            callbacks.onLaunchDeviceSetting(setting)
+                        }
+                    },
+                )
             } else if (detailType == SettingsDetailType.CALENDAR_EVENTS) {
                 CalendarEventsSettingsSection(
                     onEventClick = callbacks.onLaunchCalendarEvent,
@@ -418,7 +433,7 @@ internal fun SettingsNestedDetailScreen(
                             .settingsContentWidth()
                             .fillMaxHeight()
                             .align(androidx.compose.ui.Alignment.CenterHorizontally)
-                            .then(if (detailType == SettingsDetailType.AT_A_GLANCE) Modifier else Modifier.verticalScroll(scrollState))
+                            .then(if (detailType in setOf(SettingsDetailType.AT_A_GLANCE, SettingsDetailType.TRIGGERS, SettingsDetailType.EXCLUDED_ITEMS)) Modifier else Modifier.verticalScroll(scrollState))
                             .padding(
                                 start = DesignTokens.ContentHorizontalPadding,
                                 end = DesignTokens.ContentHorizontalPadding,
@@ -433,6 +448,7 @@ internal fun SettingsNestedDetailScreen(
                     when (detailType) {
                         SettingsDetailType.EXCLUDED_ITEMS -> {
                             ExcludedItemScreen(
+                                modifier = Modifier.fillMaxWidth().weight(1f),
                                 suggestionExcludedApps = state.suggestionExcludedApps,
                                 resultExcludedApps = state.resultExcludedApps,
                                 excludedContacts = state.excludedContacts,
@@ -455,20 +471,7 @@ internal fun SettingsNestedDetailScreen(
                         }
 
                         SettingsDetailType.APP_SHORTCUTS -> Unit
-                        SettingsDetailType.DEVICE_SETTINGS -> {
-                            DeviceSettingsSettingsSection(
-                                settings = state.allDeviceSettings,
-                                onSettingClick = { setting ->
-                                    if (setting.id == NOTIFICATION_HISTORY_SETTING_ID) {
-                                        onNavigateToDetail(
-                                            SettingsDetailType.NOTIFICATION_HISTORY,
-                                        )
-                                    } else {
-                                        callbacks.onLaunchDeviceSetting(setting)
-                                    }
-                                },
-                            )
-                        }
+                        SettingsDetailType.DEVICE_SETTINGS -> Unit
 
                         SettingsDetailType.CALLS_TEXTS -> {
                             CallsTextsSettingsSection(
@@ -601,7 +604,7 @@ internal fun SettingsNestedDetailScreen(
                         }
 
                         SettingsDetailType.TRIGGERS -> {
-                            TriggerItemsScreen(modifier = Modifier.fillMaxWidth())
+                            TriggerItemsScreen(modifier = Modifier.fillMaxWidth().weight(1f))
                         }
 
                         SettingsDetailType.GESTURES -> {

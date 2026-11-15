@@ -21,7 +21,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
-import androidx.compose.material3.Checkbox
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.ui.draw.rotate
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.ui.semantics.Role
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -325,34 +328,39 @@ fun AppShortcutCardHeader(
 ) {
     val iconResult = rememberAppIcon(packageName = packageName, iconPackPackage = iconPackPackage)
 
+    val chevronRotation by animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
+        animationSpec = DesignTokens.expressiveDefaultSpatialSpring(),
+        label = "shortcutGroupChevron",
+    )
     Row(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .clickable(onClick = onToggleExpanded)
                 .padding(
-                    horizontal = DesignTokens.CardHorizontalPadding,
-                    vertical = DesignTokens.CardVerticalPadding,
+                    horizontal = DesignTokens.SpacingLarge,
+                    vertical = DesignTokens.SpacingLarge,
                 ),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
         if (searchTarget != null) {
             SearchTargetIcon(
                 target = searchTarget,
-                iconSize = DesignTokens.IconSize,
+                iconSize = DesignTokens.Spacing40,
                 style = IconRenderStyle.ADVANCED,
             )
         } else if (iconResult.bitmap != null) {
             Image(
                 bitmap = iconResult.bitmap,
                 contentDescription = appLabel,
-                modifier = Modifier.size(DesignTokens.IconSize),
+                modifier = Modifier.size(DesignTokens.Spacing40),
                 contentScale = ContentScale.Fit,
             )
         } else {
             Box(
-                modifier = Modifier.size(DesignTokens.IconSize),
+                modifier = Modifier.size(DesignTokens.Spacing40),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -382,16 +390,16 @@ fun AppShortcutCardHeader(
                             shortcutCount,
                         )
                     },
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
 
         Icon(
-            imageVector = if (isExpanded) MaterialSymbols.ExpandLess else MaterialSymbols.ExpandMore,
+            imageVector = MaterialSymbols.ExpandMore,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(DesignTokens.IconSize),
+            modifier = Modifier.size(DesignTokens.IconSize).rotate(chevronRotation),
         )
     }
 }
@@ -425,11 +433,11 @@ fun ShortcutToggleRow(
             Modifier
                 .fillMaxWidth()
                 .padding(
-                    horizontal = DesignTokens.CardHorizontalPadding,
-                    vertical = DesignTokens.CardVerticalPadding,
+                    horizontal = DesignTokens.SpacingLarge,
+                    vertical = DesignTokens.SpacingLarge,
                 ),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
         if (displayIcon != null) {
             Image(
@@ -490,7 +498,7 @@ fun ShortcutToggleRow(
     }
 }
 
-/** App-wide checkbox that also covers shortcuts the app adds later. */
+/** App-wide switch that also covers shortcuts the app adds later. */
 @Composable
 fun DisableAllAppShortcutsRow(
     checked: Boolean,
@@ -501,15 +509,19 @@ fun DisableAllAppShortcutsRow(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .clickable {
-                    hapticToggle(view)()
-                    onCheckedChange(!checked)
-                }.padding(
-                    horizontal = DesignTokens.CardHorizontalPadding,
-                    vertical = DesignTokens.CardVerticalPadding,
+                .toggleable(
+                    value = checked,
+                    role = Role.Switch,
+                    onValueChange = {
+                        hapticToggle(view)()
+                        onCheckedChange(it)
+                    },
+                ).padding(
+                    horizontal = DesignTokens.SpacingLarge,
+                    vertical = DesignTokens.SpacingLarge,
                 ),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
         Text(
             text = stringResource(R.string.settings_app_shortcuts_disable_all),
@@ -517,12 +529,9 @@ fun DisableAllAppShortcutsRow(
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f),
         )
-        Checkbox(
+        SettingsSwitch(
             checked = checked,
-            onCheckedChange = {
-                hapticToggle(view)()
-                onCheckedChange(it)
-            },
+            onCheckedChange = null,
         )
     }
 }

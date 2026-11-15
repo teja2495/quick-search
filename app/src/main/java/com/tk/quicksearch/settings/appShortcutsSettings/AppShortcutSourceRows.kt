@@ -24,6 +24,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
@@ -84,11 +85,11 @@ fun ShortcutSourceRow(
                 .fillMaxWidth()
                 .clickable(onClick = onClick)
                 .padding(
-                    horizontal = DesignTokens.CardHorizontalPadding,
-                    vertical = DesignTokens.CardVerticalPadding,
+                    horizontal = DesignTokens.SpacingLarge,
+                    vertical = DesignTokens.SpacingLarge,
                 ),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
         val icon = rememberShortcutSourceIcon(source)
         val iconBitmap = icon?.bitmap
@@ -123,7 +124,7 @@ fun ShortcutSourceRow(
             modifier = Modifier.weight(1f),
         )
 
-        IconButton(onClick = onClick) {
+        FilledTonalIconButton(onClick = onClick) {
             Icon(
                 imageVector = MaterialSymbols.Add,
                 contentDescription = stringResource(R.string.settings_app_shortcuts_add_button),
@@ -145,11 +146,11 @@ fun SearchTargetShortcutSourceRow(
                 .fillMaxWidth()
                 .clickable(onClick = onClick)
                 .padding(
-                    horizontal = DesignTokens.CardHorizontalPadding,
-                    vertical = DesignTokens.CardVerticalPadding,
+                    horizontal = DesignTokens.SpacingLarge,
+                    vertical = DesignTokens.SpacingLarge,
                 ),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
         SearchTargetIcon(
             target = source.target,
@@ -166,7 +167,7 @@ fun SearchTargetShortcutSourceRow(
             modifier = Modifier.weight(1f),
         )
 
-        IconButton(onClick = onClick) {
+        FilledTonalIconButton(onClick = onClick) {
             Icon(
                 imageVector = MaterialSymbols.Add,
                 contentDescription = stringResource(actionLabelResId),
@@ -187,11 +188,11 @@ fun AppDeepLinkSourceRow(
                 .fillMaxWidth()
                 .clickable(onClick = onClick)
                 .padding(
-                    horizontal = DesignTokens.CardHorizontalPadding,
-                    vertical = DesignTokens.CardVerticalPadding,
+                    horizontal = DesignTokens.SpacingLarge,
+                    vertical = DesignTokens.SpacingLarge,
                 ),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
         val icon = rememberShortcutSourceIcon(source)
         val iconBitmap = icon?.bitmap
@@ -222,7 +223,7 @@ fun AppDeepLinkSourceRow(
             modifier = Modifier.weight(1f),
         )
 
-        IconButton(onClick = onClick) {
+        FilledTonalIconButton(onClick = onClick) {
             Icon(
                 imageVector = MaterialSymbols.Add,
                 contentDescription = stringResource(R.string.settings_app_shortcuts_add_deep_link),

@@ -2,53 +2,32 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.settings.shared.*
-import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-
-private object FileTypesSpacing {
-    val cardHorizontalPadding = DesignTokens.CardHorizontalPadding
-    val cardVerticalPadding = DesignTokens.CardVerticalPadding
-    val chipButtonSize = 16.dp
-    val chipIconSize = 12.dp
-    val excludedExtensionsTitleBottomPadding = DesignTokens.SectionTitleBottomPadding
-    val excludedExtensionsChipSpacing = 8.dp
-    val pathFilterCardSpacing = 12.dp
-    val pathFilterTitleTopSpacing = 4.dp
-    val blacklistTitleTopSpacing = 8.dp
-    val pathFilterDescriptionBottomSpacing = 6.dp
-}
 
 private val multiSlashRegex = "/+".toRegex()
 
@@ -109,44 +88,6 @@ private fun getFileTypeIcon(fileType: FileType): androidx.compose.ui.graphics.ve
         FileType.OTHER -> MaterialSymbols.InsertDriveFile
     }
 
-/** Small chip component for displaying excluded file extensions with remove functionality. */
-@Composable
-private fun ExcludedExtensionChip(
-    extension: String,
-    onRemove: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    androidx.compose.material3.AssistChip(
-        onClick = { /* No click action, only the X button works */ },
-        label = {
-            Text(
-                text = ".$extension",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        },
-        trailingIcon = {
-            IconButton(
-                onClick = onRemove,
-                modifier = Modifier.size(FileTypesSpacing.chipButtonSize),
-            ) {
-                Icon(
-                    imageVector = MaterialSymbols.Close,
-                    contentDescription = stringResource(R.string.action_remove),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(FileTypesSpacing.chipIconSize),
-                )
-            }
-        },
-        modifier = modifier,
-        colors =
-            androidx.compose.material3.AssistChipDefaults.assistChipColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            ),
-    )
-}
-
 /**
  * Settings section for configuring which files and folders are included in search results.
  *
@@ -185,143 +126,95 @@ fun FileTypesSection(
     showTitle: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
-    if (showTitle) {
-        Column(modifier = modifier) {
-            Text(
-                text = stringResource(R.string.settings_file_types_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier =
-                    Modifier.padding(
-                        bottom = DesignTokens.SectionTitleBottomPadding,
-                    ),
-            )
-        }
-    }
-
-    SettingsCard(modifier = Modifier.fillMaxWidth()) {
-        SettingsToggleRow(
+    val orderedFileTypes = listOf(
+        FileType.DOCUMENTS,
+        FileType.PICTURES,
+        FileType.VIDEOS,
+        FileType.AUDIO,
+        FileType.APKS,
+        FileType.OTHER,
+    )
+    SettingsSegmentGroup(
+        modifier = modifier,
+        title = if (showTitle) stringResource(R.string.settings_file_types_title) else null,
+    ) {
+        SettingsSegmentToggleRow(
             title = stringResource(R.string.settings_file_previews_toggle),
-            subtitle = stringResource(R.string.settings_file_previews_description),
+            description = stringResource(R.string.settings_file_previews_description),
             checked = filePreviewsEnabled,
             onCheckedChange = onToggleFilePreviews,
-            leadingIcon = MaterialSymbols.Visibility,
-            isFirstItem = true,
-            isLastItem = true,
+            icon = MaterialSymbols.Visibility,
+            index = 0,
+            count = 1,
         )
     }
 
-    Spacer(modifier = Modifier.height(12.dp))
+    Spacer(modifier = Modifier.height(DesignTokens.SpacingMedium))
 
-    SettingsCard(modifier = Modifier.fillMaxWidth()) {
-        Column {
-            SettingsToggleRow(
-                title = stringResource(R.string.settings_folders_toggle),
-                checked = showFolders,
-                onCheckedChange = onToggleFolders,
-                leadingIcon = MaterialSymbols.Folder,
-                isFirstItem = true,
+    SettingsSegmentGroup {
+        val count = orderedFileTypes.size + 2
+        SettingsSegmentToggleRow(
+            title = stringResource(R.string.settings_folders_toggle),
+            checked = showFolders,
+            onCheckedChange = onToggleFolders,
+            icon = MaterialSymbols.Folder,
+            index = 0,
+            count = count,
+        )
+        orderedFileTypes.forEachIndexed { index, fileType ->
+            SettingsSegmentToggleRow(
+                title = getFileTypeDisplayName(fileType),
+                checked = fileType in enabledFileTypes,
+                onCheckedChange = { onToggleFileType(fileType, it) },
+                icon = getFileTypeIcon(fileType),
+                index = index + 1,
+                count = count,
             )
+        }
+        SettingsSegmentToggleRow(
+            title = stringResource(R.string.settings_system_files_toggle),
+            checked = showSystemFiles,
+            onCheckedChange = onToggleSystemFiles,
+            icon = MaterialSymbols.Visibility,
+            index = count - 1,
+            count = count,
+        )
+    }
 
-            val orderedFileTypes =
-                listOf(
-                    FileType.DOCUMENTS,
-                    FileType.PICTURES,
-                    FileType.VIDEOS,
-                    FileType.AUDIO,
-                    FileType.APKS,
-                    FileType.OTHER,
-                )
-
-            orderedFileTypes.forEachIndexed { index, fileType ->
-                SettingsToggleRow(
-                    title = getFileTypeDisplayName(fileType),
-                    checked = fileType in enabledFileTypes,
-                    onCheckedChange = { enabled ->
-                        onToggleFileType(fileType, enabled)
-                    },
-                    leadingIcon = getFileTypeIcon(fileType),
-                    isFirstItem = false,
-                    isLastItem = false,
-                )
-            }
-
-            SettingsToggleRow(
-                title = stringResource(R.string.settings_system_files_toggle),
-                checked = showSystemFiles,
-                onCheckedChange = onToggleSystemFiles,
-                leadingIcon = MaterialSymbols.Visibility,
-                isFirstItem = false,
-                isLastItem = excludedExtensions.isEmpty(),
-            )
-
-            if (excludedExtensions.isNotEmpty()) {
-                HorizontalDivider(color = AppColors.SettingsDivider)
-
-                Spacer(
-                    modifier =
-                        Modifier.height(
-                            FileTypesSpacing.cardVerticalPadding,
-                        ),
-                )
-
-                Text(
-                    text =
-                        stringResource(
-                            R.string.settings_excluded_extensions_title,
-                        ),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier =
-                        Modifier.padding(
-                            start =
-                                FileTypesSpacing
-                                    .cardHorizontalPadding,
-                            top = FileTypesSpacing.cardVerticalPadding,
-                            end =
-                                FileTypesSpacing
-                                    .cardHorizontalPadding,
-                            bottom =
-                                FileTypesSpacing
-                                    .excludedExtensionsTitleBottomPadding,
-                        ),
-                )
-
-                Row(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                start =
-                                    FileTypesSpacing
-                                        .cardHorizontalPadding,
-                                end =
-                                    FileTypesSpacing
-                                        .cardHorizontalPadding,
-                                bottom =
-                                    FileTypesSpacing
-                                        .cardVerticalPadding,
-                            ),
-                    horizontalArrangement =
-                        Arrangement.spacedBy(
-                            FileTypesSpacing
-                                .excludedExtensionsChipSpacing,
-                        ),
-                ) {
-                    excludedExtensions.sorted().forEach { extension ->
-                        ExcludedExtensionChip(
-                            extension = extension,
-                            onRemove = {
-                                onRemoveExcludedExtension(extension)
-                            },
-                        )
+    if (excludedExtensions.isNotEmpty()) {
+        Spacer(modifier = Modifier.height(DesignTokens.SpacingMedium))
+        SettingsSegmentGroup {
+            SettingsSegment(index = 0, count = 1) {
+                SettingsSegmentContent {
+                    Text(
+                        text = stringResource(R.string.settings_excluded_extensions_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+                    ) {
+                        excludedExtensions.sorted().forEach { extension ->
+                            InputChip(
+                                selected = false,
+                                onClick = { onRemoveExcludedExtension(extension) },
+                                label = { Text(text = ".$extension") },
+                                trailingIcon = {
+                                    Icon(
+                                        imageVector = MaterialSymbols.Close,
+                                        contentDescription = stringResource(R.string.action_remove),
+                                        modifier = Modifier.size(DesignTokens.IconSizeSmall),
+                                    )
+                                },
+                            )
+                        }
                     }
                 }
             }
         }
     }
 
-    Spacer(modifier = Modifier.height(12.dp))
+    Spacer(modifier = Modifier.height(DesignTokens.SpacingMedium))
 
     var activeFolderFilterTarget by remember { mutableStateOf<FolderFilterTarget?>(null) }
 
@@ -351,73 +244,41 @@ fun FileTypesSection(
         )
     }
 
-    SettingsCard(modifier = Modifier.fillMaxWidth()) {
-        Column(
-            modifier =
-                Modifier.padding(
-                    horizontal = DesignTokens.CardHorizontalPadding,
-                    vertical = DesignTokens.CardVerticalPadding,
-                ),
-            verticalArrangement = Arrangement.spacedBy(FileTypesSpacing.pathFilterCardSpacing),
-        ) {
-            Spacer(modifier = Modifier.height(FileTypesSpacing.pathFilterTitleTopSpacing))
-
-            Text(
-                text = stringResource(R.string.settings_folder_filters_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-
-            Text(
-                text = stringResource(R.string.settings_folder_filter_helper),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-
-            Spacer(modifier = Modifier.height(FileTypesSpacing.pathFilterDescriptionBottomSpacing))
-
-            Text(
-                text = stringResource(R.string.settings_folder_whitelist_title),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            Text(
-                text = stringResource(R.string.settings_folder_whitelist_helper),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-
-            FolderFilterList(
+    SettingsSegment(index = 0, count = 1) {
+        Column {
+            SettingsSegmentContent {
+                Text(
+                    text = stringResource(R.string.settings_folder_filters_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    text = stringResource(R.string.settings_folder_filter_helper),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            HorizontalDivider(color = AppColors.SettingsDivider)
+            FolderFilterGroup(
+                title = stringResource(R.string.settings_folder_whitelist_title),
+                description = stringResource(R.string.settings_folder_whitelist_helper),
+                addDescription = stringResource(R.string.settings_folder_whitelist_add),
                 patterns = folderWhitelistPatterns,
                 onAdd = { activeFolderFilterTarget = FolderFilterTarget.Whitelist },
-                onRemove = { pattern ->
-                    onSetFolderWhitelistPatterns(folderWhitelistPatterns - pattern)
-                },
+                onRemove = { onSetFolderWhitelistPatterns(folderWhitelistPatterns - it) },
             )
-
-            Spacer(modifier = Modifier.height(FileTypesSpacing.blacklistTitleTopSpacing))
-
-            Text(
-                text = stringResource(R.string.settings_folder_blacklist_title),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            Text(
-                text = stringResource(R.string.settings_folder_blacklist_helper),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-
-            FolderFilterList(
+            HorizontalDivider(color = AppColors.SettingsDivider)
+            FolderFilterGroup(
+                title = stringResource(R.string.settings_folder_blacklist_title),
+                description = stringResource(R.string.settings_folder_blacklist_helper),
+                addDescription = stringResource(R.string.settings_folder_blacklist_add),
                 patterns = folderBlacklistPatterns,
                 onAdd = { activeFolderFilterTarget = FolderFilterTarget.Blacklist },
-                onRemove = { pattern ->
-                    onSetFolderBlacklistPatterns(folderBlacklistPatterns - pattern)
-                },
+                onRemove = { onSetFolderBlacklistPatterns(folderBlacklistPatterns - it) },
             )
-            Spacer(modifier = Modifier.height(24.dp))
         }
     }
+
 }
 
 private enum class FolderFilterTarget {
@@ -426,85 +287,45 @@ private enum class FolderFilterTarget {
 }
 
 @Composable
-private fun FolderFilterList(
+private fun FolderFilterGroup(
+    title: String,
+    description: String,
+    addDescription: String,
     patterns: Set<String>,
     onAdd: () -> Unit,
     onRemove: (String) -> Unit,
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-    ) {
-        if (patterns.isNotEmpty()) {
-            patterns.sortedBy(::patternDisplayPath).forEach { pattern ->
-                FolderFilterRow(
-                    pattern = pattern,
-                    onRemove = { onRemove(pattern) },
-                )
-            }
-        }
-
-        Button(
-            onClick = onAdd,
-            shape = RoundedCornerShape(50.dp),
-            colors =
-                ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                ),
-        ) {
-            Icon(
-                imageVector = MaterialSymbols.Add,
-                contentDescription = null,
-                modifier = Modifier.size(ButtonDefaults.IconSize),
-            )
-            Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-            Text(text = stringResource(R.string.common_action_add))
-        }
-    }
-}
-
-@Composable
-private fun FolderFilterRow(
-    pattern: String,
-    onRemove: () -> Unit,
-) {
-    val path = patternDisplayPath(pattern)
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(vertical = DesignTokens.SpacingSmall),
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            imageVector = MaterialSymbols.Folder,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(DesignTokens.IconSize),
+    val sortedPatterns = patterns.sortedBy(::patternDisplayPath)
+    Column {
+        SettingsSegmentRow(
+            title = title,
+            description = description,
+            verticalAlignment = Alignment.CenterVertically,
+            leading = { SettingsIconBadge(icon = MaterialSymbols.Folder) },
+            trailing = {
+                FilledTonalIconButton(onClick = onAdd) {
+                    Icon(
+                        imageVector = MaterialSymbols.Add,
+                        contentDescription = addDescription,
+                    )
+                }
+            },
         )
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = path.substringAfterLast('/', path),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                text = displayPathWithLeadingSlash(path),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-        IconButton(onClick = onRemove) {
-            Icon(
-                imageVector = MaterialSymbols.Delete,
-                contentDescription = stringResource(R.string.action_remove),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        sortedPatterns.forEach { pattern ->
+            val path = patternDisplayPath(pattern)
+            SettingsSegmentRow(
+                title = path.substringAfterLast('/', path),
+                description = displayPathWithLeadingSlash(path),
+                leading = { SettingsIconBadge(icon = MaterialSymbols.Folder) },
+                trailing = {
+                    IconButton(onClick = { onRemove(pattern) }) {
+                        Icon(
+                            imageVector = MaterialSymbols.Delete,
+                            contentDescription = stringResource(R.string.action_remove),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                },
             )
         }
     }

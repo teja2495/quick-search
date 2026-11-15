@@ -1,6 +1,5 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
-import com.tk.quicksearch.settings.shared.SettingsSwitch
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -10,6 +9,10 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.ui.text.style.TextAlign
 import android.widget.Toast
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.ui.draw.clip
+import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
 import com.tk.quicksearch.settings.shared.settingsRoute.SectionSettingsSection
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenCallbacks
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenState
@@ -19,7 +22,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.HorizontalDivider
@@ -55,8 +57,6 @@ import androidx.compose.ui.graphics.compositeOver
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
 import com.tk.quicksearch.shared.util.performHapticFeedbackSafely
-import sh.calvin.reorderable.ReorderableColumn
-import sh.calvin.reorderable.ReorderableItem
 
 @Composable
 internal fun AppSuggestionTabsDialog(
@@ -75,37 +75,37 @@ internal fun AppSuggestionTabsDialog(
             )
         }
 
-    AppAlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(text = stringResource(R.string.app_suggestions_tabs_dialog_title)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall)) {
-                Text(
-                    text = stringResource(R.string.app_suggestions_tabs_dialog_message),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+    AppPickerDrawer(
+        title = stringResource(R.string.app_suggestions_tabs_dialog_title),
+        onDismiss = onDismiss,
+        header = {
+            Text(
+                text = stringResource(R.string.app_suggestions_tabs_dialog_message),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+    ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth().clip(DesignTokens.ShapeXXLarge),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
+        ) {
+            itemsIndexed(configurableTabs, key = { _, tab -> tab.first.name }) { index, (tab, title) ->
+                SettingsSegmentToggleRow(
+                    title = title,
+                    checked = tab in enabledTabs,
+                    onCheckedChange = { onTabEnabledChange(tab, it) },
+                    icon = when (tab) {
+                        AppSuggestionTabType.RECENTS -> MaterialSymbols.History
+                        AppSuggestionTabType.NEW_UPDATED -> MaterialSymbols.Refresh
+                        else -> MaterialSymbols.Apps
+                    },
+                    index = index,
+                    count = configurableTabs.size,
                 )
-                configurableTabs.forEachIndexed { index, (tab, title) ->
-                    if (index > 0) {
-                        HorizontalDivider(color = AppColors.SettingsDivider)
-                    }
-                    val isEnabled = tab in enabledTabs
-                    AppSuggestionTabCheckboxItem(
-                        title = title,
-                        subtitle = null,
-                        checked = isEnabled,
-                        onCheckedChange = { enabled -> onTabEnabledChange(tab, enabled) },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
             }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.dialog_done))
-            }
-        },
-    )
+        }
+    }
 }
 
 @Composable
@@ -133,45 +133,6 @@ internal fun buildAppSuggestionTabsSummary(
         .filter { it in enabledTabs }
         .mapNotNull(labels::get)
         .joinToString(separator = ", ")
-}
-
-@Composable
-private fun AppSuggestionTabCheckboxItem(
-    title: String,
-    subtitle: String?,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier =
-            modifier
-                .clickable { onCheckedChange(!checked) }
-                .padding(
-                    vertical = DesignTokens.SpacingXSmall,
-                ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-    ) {
-        Checkbox(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-        )
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            subtitle?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
-    }
 }
 
 @Composable
@@ -275,125 +236,6 @@ private fun TopMatchesLimitSlider(
         isFirstItem = false,
         isLastItem = true,
         showSwitch = false,
-    )
-}
-
-/**
- * Drag-to-reorder dialog for search sections. Per-section enable switches are shown only when
- * [onItemEnabledChange] is provided.
- */
-@Composable
-internal fun PriorityReorderDialog(
-    items: List<SearchSection>,
-    onItemsChange: (List<SearchSection>) -> Unit,
-    onDismiss: () -> Unit,
-    disabledSections: Set<SearchSection> = emptySet(),
-    onItemEnabledChange: ((SearchSection, Boolean) -> Unit)? = null,
-    titleRes: Int = R.string.top_matches_priority_title,
-    infoRes: Int = R.string.top_matches_priority_dialog_info,
-) {
-    val view = LocalView.current
-    AppAlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(text = stringResource(titleRes)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)) {
-                Text(
-                    text = stringResource(infoRes),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                ReorderableColumn(
-                    list = items,
-                    onSettle = { fromIndex, toIndex ->
-                        if (fromIndex != toIndex) {
-                            val newOrder =
-                                items.toMutableList().apply {
-                                    add(toIndex, removeAt(fromIndex))
-                                }
-                            onItemsChange(newOrder)
-                        }
-                    },
-                    onMove = {
-                        performHapticFeedbackSafely(
-                            view,
-                            HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK,
-                        )
-                    },
-                    verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
-                ) { index, item, isDragging ->
-                    ReorderableItem {
-                        // A dragged tile lifts out of the list: fully round, accent-tinted.
-                        SettingsSegment(
-                            index = if (isDragging) 0 else index,
-                            count = if (isDragging) 1 else items.size,
-                            containerColor =
-                                if (isDragging) {
-                                    AppColors.Accent.copy(alpha = 0.24f).compositeOver(AppColors.getSettingsCardContainerColor())
-                                } else {
-                                    AppColors.getSettingsCardContainerColor()
-                                },
-                        ) {
-                            Row(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .longPressDraggableHandle(
-                                            onDragStarted = {
-                                                performHapticFeedbackSafely(view, HapticFeedbackConstantsCompat.GESTURE_START)
-                                            },
-                                            onDragStopped = {
-                                                performHapticFeedbackSafely(view, HapticFeedbackConstantsCompat.GESTURE_END)
-                                            },
-                                        )
-                                        .padding(
-                                            start = DesignTokens.SpacingMedium,
-                                            end = DesignTokens.SpacingLarge,
-                                            top = if (onItemEnabledChange != null) DesignTokens.SpacingSmall else DesignTokens.SpacingMedium,
-                                            bottom = if (onItemEnabledChange != null) DesignTokens.SpacingSmall else DesignTokens.SpacingMedium,
-                                        ),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-                            ) {
-                                Icon(
-                                    imageVector = MaterialSymbols.DragHandle,
-                                    contentDescription = null,
-                                    tint = if (isDragging) AppColors.Accent else MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                                Text(
-                                    text = stringResource(SearchSectionUiMetadataRegistry.metadataFor(item).sectionLabelRes),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.weight(1f),
-                                )
-                                if (onItemEnabledChange != null) {
-                                    val checked = item !in disabledSections
-                                    SettingsSwitch(
-                                        checked = checked,
-                                        onCheckedChange = { enabled ->
-                                            if (!enabled && items.count { it !in disabledSections } <= 1 && checked) {
-                                                Toast.makeText(
-                                                    view.context,
-                                                    view.context.getString(R.string.settings_sections_at_least_one_required),
-                                                    Toast.LENGTH_SHORT,
-                                                ).show()
-                                            } else {
-                                                onItemEnabledChange(item, enabled)
-                                            }
-                                        },
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.common_close))
-            }
-        },
     )
 }
 

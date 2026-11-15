@@ -7,7 +7,7 @@ Repository playbook for coding agents. When prose and code disagree, trust the c
 - Keep changes narrow; preserve unrelated work in the tree. Don't mix feature work with speculative refactors or cleanup.
 - Don't `git add`, commit, tag, push, or publish without explicit permission.
 - Don't edit `app/src/main/assets/FEATURES.md` or `RELEASE_NOTES.md` as part of feature work; the user updates them before a release. Touch them only when asked.
-- `scripts/verify.sh` installs and launches the debug build when one device is connected; that is expected. Beyond that, don't drive the device (taps, gestures, settings changes) unless asked. Bug reports are often from other users' devices, so a local run doesn't prove their bug is fixed.
+- `scripts/verify.sh` installs and launches the debug build on all connected USB devices, or all wireless devices when none use USB (`ANDROID_SERIAL` overrides this); that is expected. Beyond that, don't drive the device (taps, gestures, settings changes) unless asked. Bug reports are often from other users' devices, so a local run doesn't prove their bug is fixed.
 - Don't run instrumented/Compose UI tests unless asked; the user does manual UI testing.
 - A successful build proves only that it builds. Don't claim a visual state, gesture, keyboard interaction, provider response, or intermittent issue is fixed without reproducing it.
 - In app action menus, never leave placeholder gaps between options; reflow so any gap is only at the end of the last row.
@@ -80,7 +80,7 @@ Read the matching guide before implementing. Claude Code loads the skill of the 
 
 ## Validation
 
-- **Definition of done:** `scripts/verify.sh` prints `VERIFY PASSED`. It runs whitespace, string parity, and file-size checks, the standard flavor compile, all unit tests, and `assembleStandardDebug`, and prints only the errors on failure (full log in `build/verify-gradle.log`). When one device is connected it also installs and launches `com.tk.quicksearch.debug` there (this revokes the accessibility grant; the script says when it is off). Use `--no-assemble` for intermediate checks and `--no-device` to skip the install. Report the APK path (`app/build/outputs/apk/standard/debug/app-standard-debug.apk`) and whether it was installed.
+- **Definition of done:** `scripts/verify.sh` prints `VERIFY PASSED`. It runs whitespace, string parity, and file-size checks, the standard flavor compile, all unit tests, and `assembleStandardDebug`, and prints only the errors on failure (full log in `build/verify-gradle.log`). It also installs and launches `com.tk.quicksearch.debug` on all USB devices when any are connected, otherwise all wireless devices (`ANDROID_SERIAL` overrides this) (this revokes the accessibility grant; the script says when it is off). Use `--no-assemble` for intermediate checks and `--no-device` to skip the install. Report the APK path (`app/build/outputs/apk/standard/debug/app-standard-debug.apk`) and whether it was installed.
 - Faster iteration: `./gradlew -q :app:compileStandardDebugKotlin` (plus `:app:compileFdroidDebugKotlin` for flavor code; plain `compileDebugKotlin` doesn't exist), `./gradlew -q :app:testStandardDebugUnitTest --tests '<pattern>'`, and `python3 scripts/check_strings.py` after resource XML changes.
 - On-device verification only when asked: use the `device-verify` skill (`.claude/skills/device-verify/SKILL.md`).
 - Formatting: follow `.editorconfig` and the surrounding code. The codebase is not ktlint-clean, so don't run ktlint or any formatter over whole files.

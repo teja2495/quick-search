@@ -160,12 +160,12 @@ private fun DirectDialCard(
             }
         }
 
-    SettingsCard(
+    SettingsSegmentGroup(
         modifier = Modifier.fillMaxWidth(),
     ) {
-        SettingsToggleRow(
+        SettingsSegmentToggleRow(
             title = stringResource(R.string.settings_direct_dial_title),
-            subtitle = stringResource(R.string.settings_direct_dial_desc),
+            description = stringResource(R.string.settings_direct_dial_desc),
             checked = directDialEnabled,
             onCheckedChange = { newValue ->
                 if (newValue) {
@@ -178,16 +178,18 @@ private fun DirectDialCard(
                     onToggleDirectDial(false)
                 }
             },
-            isFirstItem = true,
-            isLastItem = false,
+            icon = MaterialSymbols.Call,
+            index = 0,
+            count = 2,
         )
-        SettingsToggleRow(
+        SettingsSegmentToggleRow(
             title = stringResource(R.string.settings_number_search_title),
-            subtitle = stringResource(R.string.settings_number_search_desc),
+            description = stringResource(R.string.settings_number_search_desc),
             checked = numberSearchEnabled,
             onCheckedChange = onToggleNumberSearch,
-            isFirstItem = false,
-            isLastItem = true,
+            icon = MaterialSymbols.Search,
+            index = 1,
+            count = 2,
         )
     }
 

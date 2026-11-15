@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,9 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.DropdownMenuItem
-import com.tk.quicksearch.settings.shared.SettingsCard
-import androidx.compose.material3.HorizontalDivider
+import com.tk.quicksearch.settings.shared.SettingsSegment
+import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -58,6 +56,8 @@ import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
 import com.tk.quicksearch.searchEngines.getDisplayName
 import com.tk.quicksearch.searchEngines.isSearchTargetShortcutPackageName
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -357,17 +357,7 @@ val context = LocalContext.current
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         androidx.compose.foundation.layout.Box {
-                            Row(
-                                modifier =
-                                    Modifier
-                                        .clickable { isFilterMenuExpanded = true }
-                                        .padding(
-                                            start = DesignTokens.SpacingXSmall,
-                                            end = DesignTokens.SpacingXSmall,
-                                        ),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(2.dp),
-                            ) {
+                            TextButton(onClick = { isFilterMenuExpanded = true }) {
                                 Text(
                                     text = stringResource(selectedFilterOption.labelResId),
                                     color = MaterialTheme.colorScheme.primary,
@@ -385,10 +375,10 @@ val context = LocalContext.current
                             ) {
                                 ShortcutFilterOption.entries.forEachIndexed { index, option ->
                                     if (index > 0) {
-                                        HorizontalDivider()
+                                        AppDropdownMenuDivider()
                                     }
-                                    DropdownMenuItem(
-                                        text = { Text(text = stringResource(option.labelResId)) },
+                                    AppDropdownMenuItem(
+                                        text = stringResource(option.labelResId),
                                         onClick = {
                                             selectedFilterOption = option
                                             isFilterMenuExpanded = false
@@ -432,137 +422,86 @@ val context = LocalContext.current
                     }
                 }
 
-                SettingsCard(
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    AppShortcutCardHeader(
-                        packageName = group.packageName,
-                        appLabel = group.appLabel,
-                        shortcutCount = group.shortcuts.size,
-                        searchTarget =
-                            if (isSearchTargetShortcutPackageName(group.packageName)) {
-                                group.searchTargetSources.firstOrNull()?.target
-                            } else {
-                                null
-                            },
-                        isExpanded = isExpanded,
-                        onToggleExpanded = {
-                            expandedCards[group.packageName] = !isExpanded
-                        },
-                        iconPackPackage = iconPackPackage,
-                        allShortcutsDisabled = allShortcutsDisabled,
-                    )
-
-                    AnimatedVisibility(
-                        visible = isExpanded,
-                        enter = expandVertically(animationSpec = tween(220)),
-                        exit = shrinkVertically(animationSpec = tween(220)),
-                    ) {
-                        Column {
-                            var hasRenderedSection = false
-                            val appShortcuts = group.shortcuts
-                            if (appShortcuts.isNotEmpty()) {
-                                if (hasRenderedSection) {
-                                    HorizontalDivider(color = AppColors.SettingsDivider)
-                                }
-                                DisableAllAppShortcutsRow(
-                                    checked = allShortcutsDisabled,
-                                    onCheckedChange = { disableAll ->
-                                        onAllAppShortcutsEnabledChange(group.packageName, !disableAll)
-                                    },
-                                )
-                                HorizontalDivider(color = AppColors.SettingsDivider)
-                                appShortcuts.forEachIndexed { index, shortcut ->
-                                    val isCustomShortcut = isUserCreatedShortcut(shortcut)
-                                    ShortcutToggleRow(
-                                        shortcut = shortcut,
-                                        checked = !isShortcutDisabled(shortcut, disabledShortcutIds),
-                                        toggleEnabled = !allShortcutsDisabled,
-                                        showToggle = true,
-                                        onCheckedChange = { enabled ->
-                                            onShortcutEnabledChange(shortcut, enabled)
+                val rows = buildList<@Composable () -> Unit> {
+                    if (group.shortcuts.isNotEmpty()) {
+                        add {
+                            DisableAllAppShortcutsRow(
+                                checked = allShortcutsDisabled,
+                                onCheckedChange = { disableAll ->
+                                    onAllAppShortcutsEnabledChange(group.packageName, !disableAll)
+                                },
+                            )
+                        }
+                        group.shortcuts.forEach { shortcut ->
+                            add {
+                                ShortcutToggleRow(
+                                    shortcut = shortcut,
+                                    checked = !isShortcutDisabled(shortcut, disabledShortcutIds),
+                                    toggleEnabled = !allShortcutsDisabled,
+                                    showToggle = true,
+                                    onCheckedChange = { onShortcutEnabledChange(shortcut, it) },
+                                    onShortcutNameClick = { onShortcutNameClick(shortcut) },
+                                    onEditClick =
+                                        if (isUserCreatedShortcut(shortcut)) {
+                                            { shortcutToEdit = shortcut }
+                                        } else {
+                                            null
                                         },
-                                        onShortcutNameClick = { onShortcutNameClick(shortcut) },
-                                        onEditClick =
-                                            if (isCustomShortcut) {
-                                                { shortcutToEdit = shortcut }
-                                            } else {
-                                                null
-                                            },
-                                        iconPackPackage = iconPackPackage,
-                                    )
-
-                                    if (index < appShortcuts.lastIndex) {
-                                        HorizontalDivider(color = AppColors.SettingsDivider)
-                                    }
-                                }
-                                hasRenderedSection = true
-                            }
-
-                            val regularAppSources =
-                                group.sources.filter { it.sourceType != AppShortcutSourceType.APP_ACTIVITY }
-                            if (regularAppSources.isNotEmpty()) {
-                                if (hasRenderedSection) {
-                                    HorizontalDivider(color = AppColors.SettingsDivider)
-                                }
-
-                                regularAppSources.forEachIndexed { index, source ->
-                                    ShortcutSourceRow(
-                                        source = source,
-                                        onClick = { onAddShortcutFromSource(source) },
-                                    )
-                                    if (index < regularAppSources.lastIndex) {
-                                        HorizontalDivider(color = AppColors.SettingsDivider)
-                                    }
-                                }
-                                hasRenderedSection = true
-                            }
-
-                            val searchTargetSources = group.searchTargetSources
-                            if (searchTargetSources.isNotEmpty()) {
-                                if (hasRenderedSection) {
-                                    HorizontalDivider(color = AppColors.SettingsDivider)
-                                }
-                                searchTargetSources.forEachIndexed { index, source ->
-                                    SearchTargetShortcutSourceRow(
-                                        source = source,
-                                        onClick = { shortcutDialogSource = source },
-                                    )
-                                    if (index < searchTargetSources.lastIndex) {
-                                        HorizontalDivider(color = AppColors.SettingsDivider)
-                                    }
-                                }
-                                hasRenderedSection = true
-                            }
-
-                            val appActivitySources =
-                                group.sources.filter { it.sourceType == AppShortcutSourceType.APP_ACTIVITY }
-                            if (appActivitySources.isNotEmpty() &&
-                                !isSearchTargetShortcutPackageName(group.packageName) &&
-                                group.packageName !in browserPackageNames
-                            ) {
-                                if (hasRenderedSection) {
-                                    HorizontalDivider(color = AppColors.SettingsDivider)
-                                }
-                                AppDeepLinkSourceRow(
-                                    source = appActivitySources.first(),
-                                    onClick = { appDeepLinkDialogSource = appActivitySources.first() },
+                                    iconPackPackage = iconPackPackage,
                                 )
-                                hasRenderedSection = true
                             }
-                            if (appActivitySources.isNotEmpty()) {
-                                if (hasRenderedSection) {
-                                    HorizontalDivider(color = AppColors.SettingsDivider)
-                                }
-                                appActivitySources.forEachIndexed { index, source ->
-                                    ShortcutSourceRow(
-                                        source = source,
-                                        onClick = { onAddShortcutFromSource(source) },
-                                    )
-                                    if (index < appActivitySources.lastIndex) {
-                                        HorizontalDivider(color = AppColors.SettingsDivider)
-                                    }
-                                }
+                        }
+                    }
+                    group.sources.filter { it.sourceType != AppShortcutSourceType.APP_ACTIVITY }
+                        .forEach { source ->
+                            add { ShortcutSourceRow(source, onClick = { onAddShortcutFromSource(source) }) }
+                        }
+                    group.searchTargetSources.forEach { source ->
+                        add { SearchTargetShortcutSourceRow(source, onClick = { shortcutDialogSource = source }) }
+                    }
+                    val appActivitySources =
+                        group.sources.filter { it.sourceType == AppShortcutSourceType.APP_ACTIVITY }
+                    if (appActivitySources.isNotEmpty() &&
+                        !isSearchTargetShortcutPackageName(group.packageName) &&
+                        group.packageName !in browserPackageNames
+                    ) {
+                        add {
+                            AppDeepLinkSourceRow(
+                                source = appActivitySources.first(),
+                                onClick = { appDeepLinkDialogSource = appActivitySources.first() },
+                            )
+                        }
+                    }
+                    appActivitySources.forEach { source ->
+                        add { ShortcutSourceRow(source, onClick = { onAddShortcutFromSource(source) }) }
+                    }
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap)) {
+                    SettingsSegment(index = 0, count = if (isExpanded && rows.isNotEmpty()) rows.size + 1 else 1) {
+                        AppShortcutCardHeader(
+                            packageName = group.packageName,
+                            appLabel = group.appLabel,
+                            shortcutCount = group.shortcuts.size,
+                            searchTarget =
+                                if (isSearchTargetShortcutPackageName(group.packageName)) {
+                                    group.searchTargetSources.firstOrNull()?.target
+                                } else {
+                                    null
+                                },
+                            isExpanded = isExpanded,
+                            onToggleExpanded = { expandedCards[group.packageName] = !isExpanded },
+                            iconPackPackage = iconPackPackage,
+                            allShortcutsDisabled = allShortcutsDisabled,
+                        )
+                    }
+                    AnimatedVisibility(
+                        visible = isExpanded && rows.isNotEmpty(),
+                        enter = expandVertically(animationSpec = DesignTokens.expressiveDefaultSpatialSpring()),
+                        exit = shrinkVertically(animationSpec = DesignTokens.expressiveDefaultSpatialSpring()),
+                    ) {
+                        SettingsSegmentGroup {
+                            rows.forEachIndexed { index, row ->
+                                SettingsSegment(index = index + 1, count = rows.size + 1) { row() }
                             }
                         }
                     }
