@@ -17,7 +17,7 @@ import com.tk.quicksearch.search.data.preferences.ReminderPreferences
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.settings.searchEngineSettings.dialogs.AddEditAliasDialog
 import com.tk.quicksearch.settings.shared.AliasPill
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.settings.shared.SettingsSegment
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -36,7 +36,7 @@ internal fun NotedIntegrationSettingCard(modifier: Modifier = Modifier) {
     var alias by remember { mutableStateOf(NotedQuickNoteAlias.get(context)) }
     var showAliasDialog by remember { mutableStateOf(false) }
 
-    SettingsCard(modifier = modifier.fillMaxWidth()) {
+    SettingsSegment(index = 0, count = 1, modifier = modifier.fillMaxWidth()) {
         SettingsToggleRow(
             title = stringResource(R.string.noted_integration_title),
             checked = enabled,

@@ -39,6 +39,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -73,13 +75,40 @@ val SettingsSegmentToggleHorizontalPadding: Dp = DesignTokens.SpacingXLarge
 @Composable
 fun SettingsSegmentGroup(
     modifier: Modifier = Modifier,
+    title: String? = null,
+    description: String? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
-        content = content,
-    )
+    Column(modifier = modifier.fillMaxWidth()) {
+        if (title != null) {
+            Column(
+                modifier = Modifier.padding(
+                    horizontal = DesignTokens.SpacingLarge,
+                    vertical = DesignTokens.SpacingMedium,
+                ),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = AppColors.Accent,
+                    modifier = Modifier.semantics { heading() },
+                )
+                if (description != null) {
+                    Text(
+                        text = description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
+            content = content,
+        )
+    }
 }
 
 /**

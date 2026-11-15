@@ -2,7 +2,6 @@ package com.tk.quicksearch.settings.settingsScreen
 
 import android.content.res.Resources
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Column
@@ -12,6 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material3.RadioButton
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -20,23 +21,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRowShape
 import com.tk.quicksearch.shared.ui.components.appPickerDrawerItemBackground
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.AppLanguageOption
 
-/** Language picker drawer: a two-column grid of language tiles, System default first. */
+/** Language picker with adaptive radio tiles, System default first. */
 @Composable
 internal fun AppLanguagePickerDialog(
     selectedLanguageTag: String?,
@@ -57,7 +55,8 @@ internal fun AppLanguagePickerDialog(
         onDismiss = onDismiss,
     ) {
         LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+            columns = GridCells.Adaptive(minSize = DesignTokens.Spacing48 * 4),
+            modifier = Modifier.selectableGroup(),
             horizontalArrangement = Arrangement.spacedBy(LanguageTileSpacing),
             verticalArrangement = Arrangement.spacedBy(LanguageTileSpacing),
         ) {
@@ -89,10 +88,6 @@ private fun LanguageTile(
                         selected = selected,
                         unselected = MaterialTheme.colorScheme.onSurface.copy(alpha = UNSELECTED_TILE_ALPHA),
                     ),
-                ).border(
-                    width = DesignTokens.BorderWidth,
-                    color = if (selected) AppColors.Accent else Color.Transparent,
-                    shape = AppPickerDrawerRowShape,
                 ).selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
                 .padding(DesignTokens.SpacingMedium),
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
@@ -104,21 +99,22 @@ private fun LanguageTile(
         ) {
             Text(
                 text = option.label,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
             option.supportingLabel?.let {
                 Text(
                     text = it,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
             }
         }
+        RadioButton(selected = selected, onClick = null)
     }
 }
 
@@ -132,7 +128,7 @@ private fun languageTileHeight(): Dp {
     val typography = MaterialTheme.typography
     val textHeight =
         with(LocalDensity.current) {
-            (typography.bodyLarge.lineHeight.value + typography.bodySmall.lineHeight.value + TALL_SCRIPT_HEADROOM_SP)
+            (typography.titleMedium.lineHeight.value + typography.bodyMedium.lineHeight.value + TALL_SCRIPT_HEADROOM_SP)
                 .sp
                 .toDp()
         }
@@ -144,6 +140,6 @@ private fun deviceLanguageLabel(): String? {
     return locale.getDisplayLanguage(locale).replaceFirstChar { it.titlecase(locale) }.ifBlank { null }
 }
 
-private val LanguageTileSpacing = 8.dp
+private val LanguageTileSpacing = DesignTokens.SpacingSmall
 private const val TALL_SCRIPT_HEADROOM_SP = 14f
 private const val UNSELECTED_TILE_ALPHA = 0.05f

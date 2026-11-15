@@ -1,13 +1,8 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
 import com.tk.quicksearch.notchGesture.NotchGestureSupport
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxWidth
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -18,13 +13,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.shared.ui.theme.AppColors
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.settings.shared.SettingsSegment
+import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow
+import com.tk.quicksearch.settings.shared.SettingsSegmentToggleRow
+import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.settings.shared.SettingsCardItem
-import com.tk.quicksearch.settings.shared.SettingsNavigationRow
-import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.util.isDefaultHomeApp
 
 /**
@@ -69,107 +64,77 @@ fun LaunchOptionsSettings(
         )
     }
 
-    Column(modifier = modifier.fillMaxWidth()) {
-        SettingsCard(
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Column {
-                SettingsNavigationRow(
-                    item =
-                        SettingsCardItem(
+    val options = LaunchOption.entries.filter { option ->
+        when (option) {
+            LaunchOption.VOICE -> isDefaultAssistant
+            LaunchOption.WIDGET -> !isDefaultLauncher
+            LaunchOption.NOTCH -> notchGesturesSupported
+            else -> true
+        }
+    }
+    SettingsSegmentGroup(modifier = modifier) {
+        options.forEachIndexed { index, option ->
+            when (option) {
+                LaunchOption.VOICE -> SettingsSegmentToggleRow(
+                    title = stringResource(R.string.settings_assistant_voice_mode_title),
+                    description = stringResource(R.string.settings_assistant_voice_mode_desc),
+                    icon = MaterialSymbols.Mic,
+                    checked = assistantLaunchVoiceModeEnabled,
+                    onCheckedChange = onToggleAssistantLaunchVoiceMode,
+                    index = index,
+                    count = options.size,
+                )
+                LaunchOption.NOTCH -> SettingsSegment(index = index, count = options.size) {
+                    NotchLaunchOptionRow()
+                }
+                else -> {
+                    val item = when (option) {
+                        LaunchOption.LAUNCHER -> SettingsCardItem(
                             title = stringResource(R.string.settings_default_launcher_title),
                             description = stringResource(R.string.settings_default_launcher_desc),
+                            icon = MaterialSymbols.Home,
                             actionOnPress = onSetDefaultLauncher,
-                        ),
-                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
-                )
-
-                HorizontalDivider(color = AppColors.SettingsDivider)
-
-                SettingsNavigationRow(
-                    item =
-                        SettingsCardItem(
+                        )
+                        LaunchOption.ASSISTANT -> SettingsCardItem(
                             title = stringResource(R.string.settings_default_assistant_title),
-                            description =
-                                stringResource(
-                                    if (isDefaultAssistant) {
-                                        R.string.settings_default_assistant_desc_change
-                                    } else {
-                                        R.string.settings_default_assistant_desc
-                                    },
-                                ),
-                            actionOnPress = onSetDefaultAssistant,
-                        ),
-                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
-                )
-
-                HorizontalDivider(color = AppColors.SettingsDivider)
-
-                if (isDefaultAssistant) {
-                    // Draws its own divider below.
-                    SettingsToggleRow(
-                        title = stringResource(R.string.settings_assistant_voice_mode_title),
-                        subtitle = stringResource(R.string.settings_assistant_voice_mode_desc),
-                        checked = assistantLaunchVoiceModeEnabled,
-                        onCheckedChange = onToggleAssistantLaunchVoiceMode,
-                        extraVerticalPadding = 8.dp,
-                    )
-                }
-
-                if (!isDefaultLauncher) {
-                    SettingsNavigationRow(
-                        item =
-                            SettingsCardItem(
-                                title = stringResource(R.string.settings_home_screen_widget_title),
-                                description = stringResource(R.string.settings_home_screen_widget_desc),
-                                actionOnPress = { showWidgetConfirmDialog = true },
+                            description = stringResource(
+                                if (isDefaultAssistant) R.string.settings_default_assistant_desc_change
+                                else R.string.settings_default_assistant_desc,
                             ),
-                        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
-                    )
-
-                    HorizontalDivider(color = AppColors.SettingsDivider)
-                }
-
-                SettingsNavigationRow(
-                    item =
-                        SettingsCardItem(
+                            icon = MaterialSymbols.AutoAwesome,
+                            actionOnPress = onSetDefaultAssistant,
+                        )
+                        LaunchOption.WIDGET -> SettingsCardItem(
+                            title = stringResource(R.string.settings_home_screen_widget_title),
+                            description = stringResource(R.string.settings_home_screen_widget_desc),
+                            icon = MaterialSymbols.Widgets,
+                            actionOnPress = { showWidgetConfirmDialog = true },
+                        )
+                        LaunchOption.TILE -> SettingsCardItem(
                             title = stringResource(R.string.settings_quick_settings_tile_title),
                             description = stringResource(R.string.settings_quick_settings_tile_desc),
+                            icon = MaterialSymbols.Tune,
                             actionOnPress = onAddQuickSettingsTile,
-                        ),
-                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
-                )
-
-                HorizontalDivider(color = AppColors.SettingsDivider)
-
-                SettingsNavigationRow(
-                    item =
-                        SettingsCardItem(
+                        )
+                        LaunchOption.EDGE -> SettingsCardItem(
                             title = stringResource(R.string.settings_edge_gesture_title),
                             description = stringResource(R.string.settings_edge_gesture_desc),
+                            icon = MaterialSymbols.Swipe,
                             actionOnPress = onOpenEdgeGesture,
-                        ),
-                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
-                )
-
-                HorizontalDivider(color = AppColors.SettingsDivider)
-
-                SettingsNavigationRow(
-                    item =
-                        SettingsCardItem(
+                        )
+                        LaunchOption.FLOATING -> SettingsCardItem(
                             title = stringResource(R.string.settings_floating_button_title),
                             description = stringResource(R.string.settings_floating_button_desc),
+                            icon = MaterialSymbols.Layers,
                             actionOnPress = onOpenFloatingButton,
-                        ),
-                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
-                )
-
-                if (notchGesturesSupported) {
-                    HorizontalDivider(color = AppColors.SettingsDivider)
-
-                    NotchLaunchOptionRow()
+                        )
+                        else -> error("Toggle options are rendered separately")
+                    }
+                    SettingsSegmentNavigationRow(item = item, index = index, count = options.size)
                 }
             }
         }
     }
 }
+
+private enum class LaunchOption { LAUNCHER, ASSISTANT, VOICE, WIDGET, TILE, EDGE, FLOATING, NOTCH }
