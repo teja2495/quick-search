@@ -80,6 +80,26 @@ To change the default brand accent, edit `AppAccentLight`/`AppAccentDark` in `Co
 - `SearchResultCardShape`: all search result cards. Change it here to retune them together.
 - `WidgetPanelCardShape` (20dp): the widgets panel.
 
+**Action menus:** `ItemMenuMaxWidth` caps floating popups at 640dp; `ItemMenuRowHeight`
+sets a 56dp minimum action-row height. Result action tiles use a fast expressive spring
+to round their corners from 20dp to 8dp while pressed. Settings-like rows use the existing
+segmented-list corner and gap tokens; secondary buttons use `ShapeFull`. Quick-action tiles and secondary buttons share
+`surfaceContainerHighest`; destructive buttons keep that neutral fill with error-colored
+text and icons for a restrained warning. `ItemMenuActiveIconTint` preserves the chosen
+accent while strengthening it toward `onSurface` until it reaches 4.5:1 contrast across
+the neutral popup surfaces. Shared long-press popups for apps, files,
+shortcuts, and contacts use 8dp between the header/action groups and buttons, with
+2dp between grouped list rows. Their title row has 8dp above and below it, using
+`AppBottomPopup.headerTopPadding` to keep the top inset independent of the footer.
+Contact action popups reuse `ItemMenuTileButton`
+for call/message/provider actions, retain provider icon colors, and use segmented rows
+for remaining methods. Contact action tiles and the number selector use 8dp gaps; the grouped method
+list uses the 2dp segmented-list gap. Their phone-number selector uses 48dp navigation targets on a
+`surfaceContainerHigh` surface. The contact actions shell uses 20dp top corners,
+28dp bottom corners, and a 16dp header top inset to balance its circular avatar.
+It enables `AppBottomPopup.animateSizeChanges` so switching numbers smoothly resizes
+the shell with the default expressive spring, keeping its bottom edge anchored.
+
 **Sizes:** `IconSizeSmall` 20, `IconSize` 24, `LargeIconSize` 28, `IconSizeXLarge` 52,
 `AppIconSize` 64, `BorderWidth` 1, `DividerThickness` 0.5, `ButtonCornerRadius` 24.
 
@@ -117,15 +137,15 @@ property in sorted order.
 
 | Component | Use for |
 |---|---|
-| `AppAlertDialog` | All alert dialogs |
-| `AppDropdownMenu` | All popup (three-dot / long-press) menus: 24dp corners, `AppDropdownMenuDefaults.containerColor` (`DialogBackground`), non-focusable by default. Long-press menus over result items use `itemMenuContainerColor` (black/white). Put `AppDropdownMenuDivider` between items. `AppDropdownMenuItem` is the text + icon row, with optional `supportingText` for the current value (Default Browser in Bookmarks) and optional `iconTint` (`AppColors.ItemMenuActiveIconTint` marks an assigned folder swipe action); `destructive = true` tints it with the error color for bulk or irreversible actions (Delete All), which must still confirm with an `AppAlertDialog`. Never call `DropdownMenu` directly |
+| `AppAlertDialog` | All alert dialogs; Material 3 layout and `surfaceContainerHigh` tonal surface |
+| `AppDropdownMenu` | All popup (three-dot / long-press) menus: 28dp corners, `surfaceContainer` tonal surfaces, 3dp shadow, non-focusable by default. Long-press menus over result items use the same tonal role through `itemMenuContainerColor`. Put `AppDropdownMenuDivider` between items. `AppDropdownMenuItem` is the text + icon row, with optional `supportingText` for the current value (Default Browser in Bookmarks) and optional `iconTint` (`AppColors.ItemMenuActiveIconTint` marks an assigned folder swipe action); `destructive = true` tints it with the error color for bulk or irreversible actions (Delete All), which must still confirm with an `AppAlertDialog`. Never call `DropdownMenu` directly |
 | `AppUndoSnackbar` | Undo after a removal (hide, exclude, delete). `rememberUndoSnackbarController()` shows one snackbar at a time (a new one replaces the visible one) and runs the undo callback only on Undo. Place `AppUndoSnackbarHost` in a screen's root overlay (search route, overlay); settings pages without one use `AppUndoSnackbarPopup`. Inside search the route provides `LocalShowUndoSnackbar`. It's an accent pill (`AppColors.Accent`/`OnAccent`) that lifts above whatever is marked with `Modifier.undoSnackbarAvoidArea()` (the search screen's bottom chrome) through `LocalUndoSnackbarAnchor`, so it never covers the bottom search bar |
 | `AppBottomSheet` | Modal bottom sheets (swipe/scrim/back dismissal handled) |
 | `AppPickerDrawer` | Pick-one-item drawers (Select Action, Select Model, folder, language, calendar app and gesture pickers): title with close button, optional `titleIcon` before the title (the app's icon in the App notifications keywords drawer), optional pill search field (`AppPickerDrawerSearch`, `autoFocus` when the list is empty until typing; `onSubmit` turns it into an entry field with an add icon, `ShapeLarge` corners, and a Done key that submits, as in the App notifications keywords drawer), optional `header`/`footer`. Fixed 85% height with search, wraps short lists without. Build lists from `AppPickerDrawerRow` (no dividers; space rows with `AppPickerDrawerRowSpacing`). A `selected` row gets an accent tint and a plain accent check unless a custom `trailing` replaces the check. Leading visuals: `AppPickerDrawerAppIcon(packageName)` for apps, `AppPickerDrawerIconBadge(icon)` (accent-tinted rounded square) for everything else, both `AppPickerDrawerLeadingSize`. Use `AppPickerDrawerMessage` for hints/empty states. Custom items (such as the adaptive language radio tiles) reuse `AppPickerDrawerRowShape`, `appPickerDrawerItemBackground(selected)` and `AppPickerDrawerSelectedCheck` so selection looks the same. Prefer it over an `AppAlertDialog` with a radio list |
-| `AppBottomPopup` | Bottom-anchored popup with header and scrollable card of options |
-| `ItemMenuPopup` | Long-press action menus: tile grids, rows, buttons, long-press dropdowns. Never leave placeholder gaps between options; reflow so any gap falls only at the end of the last row. |
+| `AppBottomPopup` | Bottom-anchored popup with header and scrollable options; safe drawing insets, 640dp maximum width, 48dp close target, and expressive spring drag recovery |
+| `ItemMenuPopup` | Long-press action menus: tonal quick-action tiles, segmented option rows, pill buttons, and long-press dropdowns on a `surfaceContainerLow` shell. Never leave placeholder gaps between options; reflow so any gap falls only at the end of the last row. |
 | `TipBanner` | Dismissible tips/hints, optional links and trailing action |
-| `AppPill` | Small pill labels, with an optional accent-tinted `leadingIcon`; `compact` for tight rows (file result type and folder pills) |
+| `AppPill` | Small pill labels, with an optional accent-tinted `leadingIcon`; `compact` for tight labels. Non-interactive file metadata uses plain `bodyMedium` supporting text (`onSurfaceVariant`), with type and parent folder separated by a middle dot; filenames use `bodyLarge` (`onSurface`) |
 | `AppVoiceCallIcon` | App logo plus phone icon for call actions |
 | `dialogTextFieldColors()` | Text fields inside dialogs |
 | `CardTextField`, `cardTextFieldColors()` | Borderless text fields stacked as rows of a `SettingsCard` (divided by `HorizontalDivider`); dimmed placeholder that shows before focus (label stays floated when a placeholder is set), and the floated label keeps a gap above the input |

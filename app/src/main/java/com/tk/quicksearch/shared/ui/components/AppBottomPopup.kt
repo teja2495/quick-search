@@ -1,7 +1,7 @@
 package com.tk.quicksearch.shared.ui.components
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -9,6 +9,9 @@ import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -32,12 +35,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -69,6 +74,9 @@ import kotlin.math.roundToInt
  * @param contentBottomPadding Padding below the scrollable content, inside the card.
  * @param contentHorizontalPadding Padding on both sides of the scrollable content, inside the card.
  * @param contentTopPadding Padding above scrollable content when there is no fixed top content.
+ * @param headerTopPadding Space between the popup top edge and its header row.
+ * @param shape Shape of the outer popup surface.
+ * @param animateSizeChanges Animate content-driven height changes while keeping the bottom anchored.
  * @param showCloseButton Whether the header shows a close button after the title.
  * @param bottomOverlay Optional content drawn over the popup's bottom edge, clipped to its shape.
  * @param content Content rendered inside the scrollable dark card.
@@ -89,12 +97,15 @@ fun AppBottomPopup(
     drawerHeight: Dp? = null,
     contentSpacing: Dp = 24.dp,
     headerSpacing: Dp = 16.dp,
+    headerTopPadding: Dp = DesignTokens.SpacingXXLarge,
     contentTopPadding: Dp = 20.dp,
     contentBottomPadding: Dp = 24.dp,
     contentHorizontalPadding: Dp = 16.dp,
     contentScrollable: Boolean = true,
     bottomOverlay: (@Composable BoxScope.() -> Unit)? = null,
     showCloseButton: Boolean = true,
+    shape: Shape = MaterialTheme.shapes.extraLarge,
+    animateSizeChanges: Boolean = false,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val defaultMaxCardHeight = LocalConfiguration.current.screenHeightDp.dp * 0.72f
@@ -112,10 +123,11 @@ fun AppBottomPopup(
                 decorFitsSystemWindows = false,
             ),
     ) {
-        Box(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
+                .safeDrawingPadding()
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
@@ -126,7 +138,9 @@ fun AppBottomPopup(
             Surface(
                 modifier =
                     modifier
+                        .widthIn(max = DesignTokens.ItemMenuMaxWidth)
                         .fillMaxWidth()
+                        .heightIn(max = maxHeight)
                         .offset { IntOffset(0, offsetY.value.roundToInt()) }
                         .draggable(
                             orientation = Orientation.Vertical,
@@ -140,13 +154,13 @@ fun AppBottomPopup(
                                     onDismiss()
                                 } else {
                                     coroutineScope.launch {
-                                        offsetY.animateTo(0f, spring())
+                                        offsetY.animateTo(0f, DesignTokens.expressiveDefaultSpatialSpring())
                                     }
                                 }
                             },
                         )
-                        .padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 24.dp),
-                shape = MaterialTheme.shapes.extraLarge,
+                        .padding(DesignTokens.SpacingSmall),
+                shape = shape,
                 color = containerColor,
                 contentColor = MaterialTheme.colorScheme.onSurface,
             ) {
@@ -154,13 +168,28 @@ fun AppBottomPopup(
                     Column(
                         modifier =
                             Modifier
+                                .then(
+                                    if (animateSizeChanges) {
+                                        Modifier.animateContentSize(
+                                            animationSpec = DesignTokens.expressiveDefaultSpatialSpring(),
+                                            alignment = Alignment.BottomCenter,
+                                        )
+                                    } else {
+                                        Modifier
+                                    },
+                                )
                                 .fillMaxWidth()
                                 .clickable(
                                     indication = null,
                                     interactionSource = remember { MutableInteractionSource() },
                                     onClick = {},
                                 )
-                                .padding(horizontal = 12.dp, vertical = 24.dp)
+                                .padding(
+                                    start = DesignTokens.SpacingMedium,
+                                    top = headerTopPadding,
+                                    end = DesignTokens.SpacingMedium,
+                                    bottom = DesignTokens.SpacingXXLarge,
+                                )
                                 .then(
                                     if (drawerHeight != null) Modifier.height(drawerHeight)
                                     else Modifier,
@@ -179,7 +208,7 @@ fun AppBottomPopup(
                                 title()
                             }
                             if (showCloseButton) {
-                                IconButton(onClick = onDismiss, modifier = Modifier.size(40.dp)) {
+                                IconButton(onClick = onDismiss, modifier = Modifier.size(DesignTokens.Spacing48)) {
                                     Icon(
                                         imageVector = MaterialSymbols.Close,
                                         contentDescription = stringResource(R.string.dialog_cancel),
@@ -193,9 +222,9 @@ fun AppBottomPopup(
 
                         Card(
                             modifier =
-                                Modifier.fillMaxWidth().then(
+                                Modifier.fillMaxWidth().weight(1f, fill = drawerHeight != null).then(
                                     when {
-                                        drawerHeight != null -> Modifier.weight(1f)
+                                        drawerHeight != null -> Modifier
                                         innerCardHeight != null -> Modifier.height(innerCardHeight)
                                         else -> Modifier.heightIn(max = resolvedMaxCardHeight)
                                     },

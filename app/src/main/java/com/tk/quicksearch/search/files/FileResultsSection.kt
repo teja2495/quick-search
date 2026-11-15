@@ -52,7 +52,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
@@ -75,7 +75,6 @@ import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentP
 import com.tk.quicksearch.search.searchScreen.components.resultRowVerticalPadding
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
 import com.tk.quicksearch.search.utils.FileUtils
-import com.tk.quicksearch.shared.ui.components.AppPill
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -680,11 +679,10 @@ internal fun FileResultRow(
                                                     deviceFile.displayName,
                                             ),
                                     ),
-                            style =
-                                    MaterialTheme.typography.bodyMedium.copy(
-                                            fontWeight = FontWeight.SemiBold,
-                                    ),
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.86f),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
                     )
                     val sdCardLabel = stringResource(R.string.file_path_sd_card)
                     val folderLabel =
@@ -695,22 +693,15 @@ internal fun FileResultRow(
                                 )
                             }
                     if (extension != null || folderLabel != null) {
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Row(
-                                horizontalArrangement =
-                                        Arrangement.spacedBy(DesignTokens.SpacingSmall),
-                                verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            extension?.let { AppPill(text = it.uppercase(), compact = true) }
-                            folderLabel?.let {
-                                AppPill(
-                                        text = it,
-                                        leadingIcon = MaterialSymbols.Folder,
-                                        compact = true,
-                                        modifier = Modifier.weight(1f, fill = false),
-                                )
-                            }
-                        }
+                        Spacer(modifier = Modifier.height(DesignTokens.SpacingXSmall))
+                        Text(
+                                text = listOfNotNull(extension?.uppercase(), folderLabel)
+                                        .joinToString(" · "),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                        )
                     }
                 }
 
@@ -725,7 +716,7 @@ internal fun FileResultRow(
                                                 R.string.action_file_info
                                             },
                                     ),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(18.dp),
                     )
                 }

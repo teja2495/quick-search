@@ -29,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.preferences.ResultTrigger
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
@@ -129,6 +130,7 @@ fun TriggerDialog(
                     label = { Text(stringResource(R.string.dialog_trigger_hint)) },
                     modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                     singleLine = true,
+                    shape = DesignTokens.ShapeLarge,
                     trailingIcon = {
                         if (triggerText.text.isNotEmpty()) {
                             IconButton(onClick = { triggerText = TextFieldValue("") }) {

@@ -176,6 +176,12 @@ object DesignTokens {
      */
     val ShapeXXLarge: Shape = RoundedCornerShape(28.dp)
 
+    /** Maximum width of floating action popups on tablets and landscape windows. */
+    val ItemMenuMaxWidth = 640.dp
+
+    /** Minimum height of an action row, including its touch target. */
+    val ItemMenuRowHeight = 56.dp
+
     /** Full circle shape */
     val ShapeFull: Shape = CircleShape
 

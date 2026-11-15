@@ -2,13 +2,13 @@ package com.tk.quicksearch.shared.ui.components
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.DialogProperties
-import com.tk.quicksearch.shared.ui.theme.AppColors
 
 /**
  * App-level wrapper for Material 3 [AlertDialog].
@@ -25,7 +25,7 @@ fun AppAlertDialog(
     title: (@Composable () -> Unit)? = null,
     text: (@Composable () -> Unit)? = null,
     shape: Shape = AlertDialogDefaults.shape,
-    containerColor: Color = AppColors.DialogBackground,
+    containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
     iconContentColor: Color = AlertDialogDefaults.iconContentColor,
     titleContentColor: Color = AlertDialogDefaults.titleContentColor,
     textContentColor: Color = AlertDialogDefaults.textContentColor,

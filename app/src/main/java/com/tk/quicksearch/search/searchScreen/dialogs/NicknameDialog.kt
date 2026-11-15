@@ -27,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.utils.NicknameUtils
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -92,6 +93,7 @@ fun NicknameDialog(
                     label = { Text(stringResource(R.string.common_nickname)) },
                     modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                     singleLine = true,
+                    shape = DesignTokens.ShapeLarge,
                     trailingIcon = {
                         if (nicknameText.text.isNotEmpty()) {
                             IconButton(onClick = { nicknameText = TextFieldValue("") }) {
