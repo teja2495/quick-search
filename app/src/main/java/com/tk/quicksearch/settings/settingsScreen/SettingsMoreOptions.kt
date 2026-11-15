@@ -10,7 +10,9 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +37,7 @@ import com.tk.quicksearch.settings.preloadFeaturesMarkdown
 import com.tk.quicksearch.settings.shared.SettingsCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -50,6 +53,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -195,35 +199,33 @@ fun SettingsMoreOptions(
         SettingsSegment(index = count - 2, count = count) {
             SettingsSegmentRow(
                 title = stringResource(R.string.settings_more_apps_from_developer_title),
+                leading = { SettingsIconBadge(icon = MaterialSymbols.Apps) },
                 trailing = {
-                    IconButton(onClick = onOpenDeveloperGooglePlay) {
-                        Icon(
-                            painter = painterResource(R.drawable.google_play),
-                            contentDescription = "Google Play",
-                            tint = androidx.compose.ui.graphics.Color.Unspecified,
-                        )
-                    }
-                    IconButton(onClick = onOpenDeveloperGitHub) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_github),
-                            contentDescription = "GitHub",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                    Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)) {
+                        FilledTonalIconButton(onClick = onOpenDeveloperGooglePlay) {
+                            Icon(
+                                painter = painterResource(R.drawable.google_play),
+                                contentDescription = "Google Play",
+                                tint = androidx.compose.ui.graphics.Color.Unspecified,
+                                modifier = Modifier.size(DesignTokens.IconSizeSmall),
+                            )
+                        }
+                        FilledTonalIconButton(onClick = onOpenDeveloperGitHub) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_github),
+                                contentDescription = "GitHub",
+                                modifier = Modifier.size(DesignTokens.IconSizeSmall),
+                            )
+                        }
                     }
                 },
             )
         }
 
         SettingsSegment(index = count - 1, count = count, onClick = onOpenOssLicenses) {
-            Text(
-                text = stringResource(R.string.settings_open_source_licenses_title),
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = DesignTokens.SpacingXLarge),
+            SettingsSegmentRow(
+                title = stringResource(R.string.settings_open_source_licenses_title),
+                leading = { SettingsIconBadge(icon = MaterialSymbols.Description) },
             )
         }
     }
@@ -378,8 +380,8 @@ fun SettingsVersionDisplay(
                 withStyle(
                     style =
                         SpanStyle(
-                            color = AppColors.LinkColor,
-                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.SemiBold,
                         ),
                 ) {
                     append(developerName)
@@ -403,13 +405,17 @@ fun SettingsVersionDisplay(
                 ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        // Version sits in a tonal pill; the tap gestures stay hidden (no ripple) as before.
         Text(
             text = stringResource(R.string.settings_feedback_developer_title, stringResource(R.string.app_name), versionName),
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
             textAlign = TextAlign.Center,
             modifier =
-                Modifier.combinedClickable(
+                Modifier
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.secondaryContainer)
+                    .combinedClickable(
                     interactionSource = versionTapInteractionSource,
                     indication = null,
                     onClick = {
@@ -453,25 +459,27 @@ fun SettingsVersionDisplay(
                     onLongClick = {
                         FeedbackUtils.launchFeedbackEmailWithCrashLog(context)
                     },
-                ),
+                ).padding(horizontal = DesignTokens.SpacingLarge, vertical = DesignTokens.SpacingSmall),
         )
 
         androidx.compose.foundation.layout
-            .Spacer(modifier = Modifier.height(DesignTokens.SpacingXSmall))
+            .Spacer(modifier = Modifier.height(DesignTokens.SpacingMedium))
 
         Text(
             text = annotatedDeveloperDesc,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier =
-                Modifier.clickable {
+                Modifier
+                    .clip(CircleShape)
+                    .clickable {
                     val url = "https://teja2495.github.io/teja-karlapudi-links/"
                     try {
                         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                     } catch (e: Exception) {
                     }
-                },
+                }.padding(horizontal = DesignTokens.SpacingMedium, vertical = DesignTokens.SpacingXSmall),
         )
     }
 }

@@ -172,7 +172,7 @@ fun TriggerDialog(
             }
         },
         confirmButton = {
-            Button(
+            TextButton(
                 onClick = {
                     val word = triggerText.text.trim().substringBefore(' ')
                     onSave(

@@ -111,7 +111,7 @@ fun NicknameDialog(
             }
         },
         confirmButton = {
-            Button(
+            TextButton(
                 onClick = { onSave(NicknameUtils.normalizeInput(nicknameText.text)) },
             ) { Text(text = stringResource(R.string.dialog_save)) }
         },

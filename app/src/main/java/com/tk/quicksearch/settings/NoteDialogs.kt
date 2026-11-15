@@ -30,7 +30,7 @@ fun NoteDeleteConfirmationDialog(
             )
         },
         confirmButton = {
-            Button(onClick = onConfirm) {
+            TextButton(onClick = onConfirm) {
                 Text(text = stringResource(R.string.dialog_delete))
             }
         },
@@ -64,7 +64,7 @@ fun NotesBulkDeleteConfirmationDialog(
             )
         },
         confirmButton = {
-            Button(onClick = onConfirm) {
+            TextButton(onClick = onConfirm) {
                 Text(text = stringResource(R.string.dialog_delete))
             }
         },

@@ -186,7 +186,7 @@ internal fun AppShortcutIconEditDialog(
             }
         },
         confirmButton = {
-            Button(onClick = { onSave(iconBase64) }) {
+            TextButton(onClick = { onSave(iconBase64) }) {
                 Text(text = stringResource(R.string.dialog_save))
             }
         },

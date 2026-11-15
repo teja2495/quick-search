@@ -269,7 +269,7 @@ fun EditCustomSearchEngineDialog(
             }
         },
         confirmButton = {
-            Button(
+            TextButton(
                 onClick = {
                     if (canSave) {
                         onSave(trimmedName, validTemplate, normalizedShortcut, iconBase64, selectedBrowserPackage)

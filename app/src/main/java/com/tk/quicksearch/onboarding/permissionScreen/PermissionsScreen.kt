@@ -253,10 +253,7 @@ private fun PermissionReminderDialog(
             AppAlertDialog(
                 onDismissRequest = onDismiss,
                 title = {
-                    Text(
-                        text = stringResource(R.string.permissions_reminder_dialog_title),
-                        style = MaterialTheme.typography.titleLarge,
-                    )
+                    Text(text = stringResource(R.string.permissions_reminder_dialog_title))
                 },
                 text = {
                     Text(
@@ -265,12 +262,10 @@ private fun PermissionReminderDialog(
                                 R.string.permissions_reminder_dialog_message,
                                 permissionsList,
                             ),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 },
                 confirmButton = {
-                    Button(onClick = onContinue) {
+                    TextButton(onClick = onContinue) {
                         Text(stringResource(R.string.dialog_ok))
                     }
                 },

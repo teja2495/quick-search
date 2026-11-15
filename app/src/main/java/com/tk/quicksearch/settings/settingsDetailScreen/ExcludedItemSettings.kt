@@ -364,7 +364,7 @@ fun ClearAllConfirmationDialog(
             )
         },
         confirmButton = {
-            androidx.compose.material3.Button(onClick = onConfirm) {
+            TextButton(onClick = onConfirm) {
                 Text(stringResource(R.string.settings_action_clear_all))
             }
         },

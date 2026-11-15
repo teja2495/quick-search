@@ -161,7 +161,7 @@ internal fun SearchScreenDialogLogic(
                 )
             },
             confirmButton = {
-                Button(
+                TextButton(
                     onClick = {
                         val trimmed = personalContextInput.text.trim()
                         onSetPersonalContext(trimmed.takeIf { it.isNotEmpty() })

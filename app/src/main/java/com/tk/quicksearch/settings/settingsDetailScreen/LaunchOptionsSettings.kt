@@ -49,7 +49,7 @@ fun LaunchOptionsSettings(
             title = { Text(stringResource(R.string.settings_home_screen_widget_title)) },
             text = { Text(stringResource(R.string.settings_home_screen_widget_confirm_message)) },
             confirmButton = {
-                Button(onClick = {
+                TextButton(onClick = {
                     showWidgetConfirmDialog = false
                     onAddHomeScreenWidget()
                 }) {

@@ -233,6 +233,13 @@ internal fun SearchScreenBottomChrome(
                         // The search bar's own mic already covers voice search.
                         showMic = !state.searchBarStyle.showMicIcon,
                         showWallpaperBackground = state.showWallpaperBackground,
+                        extendBehindNavigationBar = !isOverlayPresentation,
+                        // Only the engine strip / AI follow-up input bring their own bottom spacing.
+                        padTop =
+                                isSearchHistoryExpanded ||
+                                        (!isAiFollowUpInputVisible &&
+                                                state.searchEnginesState is
+                                                        com.tk.quicksearch.search.core.SearchEnginesVisibility.Hidden),
                         // Keep the Open Keyboard surface in the same vertical-swipe path as
                         // the fixed search field and engine strip. This routes configured
                         // keyboard gestures first, then the regular Home swipe actions.

@@ -109,7 +109,7 @@ fun PhoneNumberSelectionDialog(
             }
         },
         confirmButton = {
-            Button(
+            TextButton(
                 onClick = {
                     selectedNumber?.let { number ->
                         onPhoneNumberSelected(number, rememberChoice)
@@ -208,7 +208,7 @@ fun DirectDialChoiceDialog(
             }
         },
         confirmButton = {
-            Button(onClick = { onSelectOption(selectedOption, true) }) {
+            TextButton(onClick = { onSelectOption(selectedOption, true) }) {
                 Text(text = stringResource(R.string.dialog_ok))
             }
         },

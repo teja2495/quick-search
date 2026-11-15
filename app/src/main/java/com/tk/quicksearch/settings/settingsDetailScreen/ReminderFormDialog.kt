@@ -331,9 +331,9 @@ internal fun ReminderFormDialog(
                     }
                 },
                 confirmButton = {
-                    Button(
+                    TextButton(
                         onClick = {
-                            val utcDateMillis = selectedDateMillis ?: return@Button
+                            val utcDateMillis = selectedDateMillis ?: return@TextButton
                             val localDayMillis = utcMidnightToLocalMidnight(utcDateMillis)
                             val dateTimeMillis = if (hasTime) {
                                 localDayMillis +

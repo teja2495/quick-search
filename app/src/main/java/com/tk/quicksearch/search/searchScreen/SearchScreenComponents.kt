@@ -268,6 +268,8 @@ internal fun OpenKeyboardAction(
     showWallpaperBackground: Boolean,
     modifier: Modifier = Modifier,
     showMic: Boolean = true,
+    extendBehindNavigationBar: Boolean = false,
+    padTop: Boolean = false,
 ) = com.tk.quicksearch.search.searchScreen.components.OpenKeyboardAction(
     text = text,
     onClick = onClick,
@@ -275,6 +277,8 @@ internal fun OpenKeyboardAction(
     showWallpaperBackground = showWallpaperBackground,
     modifier = modifier,
     showMic = showMic,
+    extendBehindNavigationBar = extendBehindNavigationBar,
+    padTop = padTop,
 )
 
 @Composable

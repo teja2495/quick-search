@@ -141,7 +141,7 @@ fun EditAmazonDomainDialog(
             }
         },
         confirmButton = {
-            Button(
+            TextButton(
                 onClick = {
                     if (isValid) {
                         val domainToSave =

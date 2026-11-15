@@ -4,6 +4,12 @@ import androidx.compose.ui.graphics.RectangleShape
 import com.tk.quicksearch.search.searchScreen.insetCardBackdrop
 import com.tk.quicksearch.search.searchScreen.insetCardBackground
 import android.content.Intent
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -281,6 +287,8 @@ internal fun OpenKeyboardAction(
     showWallpaperBackground: Boolean,
     modifier: Modifier = Modifier,
     showMic: Boolean = true,
+    extendBehindNavigationBar: Boolean = false,
+    padTop: Boolean = false,
 ) {
     val backgroundColor =
         insetCardBackground(true, AppColors.getSearchEngineSectionBackground(showWallpaperBackground))
@@ -295,8 +303,23 @@ internal fun OpenKeyboardAction(
             Color.Black
         }
     val buttonColors = ConnectedButtonColors(container = contentColor.copy(alpha = ConnectedButtonTintAlpha), content = contentColor)
+    // The strip ends at the navigation bar inset; carry its colour on down to the screen edge so it
+    // reads as one surface behind the gesture bar instead of stopping short above it.
+    val navigationBarBottom =
+        if (extendBehindNavigationBar) WindowInsets.navigationBars.getBottom(LocalDensity.current) else 0
     Surface(
-        modifier = modifier.fillMaxWidth().insetCardBackdrop(true, RectangleShape),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .drawBehind {
+                    if (navigationBarBottom > 0) {
+                        drawRect(
+                            color = backgroundColor,
+                            topLeft = Offset(0f, size.height),
+                            size = Size(size.width, navigationBarBottom.toFloat()),
+                        )
+                    }
+                }.insetCardBackdrop(true, RectangleShape),
         color = backgroundColor,
         tonalElevation = DesignTokens.ElevationLevel0,
     ) {
@@ -304,10 +327,11 @@ internal fun OpenKeyboardAction(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    // The engine strip above already ends with its own bottom padding, so the
-                    // spacing goes below the buttons to center them between the strip and the edge.
+                    // An engine strip above already ends with its own bottom padding; without one
+                    // ([padTop]) the band needs the same space above the buttons as below them.
                     .padding(
                         start = DesignTokens.ContentHorizontalPadding,
+                        top = if (padTop) DesignTokens.SpacingXLarge else 0.dp,
                         end = DesignTokens.ContentHorizontalPadding,
                         bottom = DesignTokens.SpacingXLarge,
                     ),

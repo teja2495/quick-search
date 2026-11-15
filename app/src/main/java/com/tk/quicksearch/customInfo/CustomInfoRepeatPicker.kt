@@ -174,7 +174,7 @@ internal fun CustomRepeatDialog(
             }
         },
         confirmButton = {
-            Button(
+            TextButton(
                 onClick = { interval?.let { onConfirm(CustomInfoRepeat(unit, it)) } },
                 enabled = interval != null,
             ) {
