@@ -1,15 +1,13 @@
 package com.tk.quicksearch.widgets.widgetConfigScreen.components
 
+import com.tk.quicksearch.settings.shared.SettingsSwitch
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
@@ -60,10 +58,6 @@ private fun ToggleRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(text = label)
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            colors = SwitchDefaults.colors(uncheckedTrackColor = Color.Transparent),
-        )
+        SettingsSwitch(checked = checked, onCheckedChange = onCheckedChange)
     }
 }

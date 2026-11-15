@@ -13,7 +13,7 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.viewModels
 import androidx.core.content.IntentCompat
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,14 +26,13 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
@@ -54,9 +53,11 @@ import com.tk.quicksearch.search.data.AppNotificationFilters
 import com.tk.quicksearch.search.data.preferences.GlancePreferences
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.rememberAppLabel
-import com.tk.quicksearch.settings.settingsDetailScreen.CalendarSettingsBarCornerShape
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailHeader
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.settings.shared.SettingsFloatingActionHeight
+import com.tk.quicksearch.settings.shared.SettingsSegment
+import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.settings.shared.settingsFloatingActionShape
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
@@ -184,7 +185,8 @@ private fun AppNotificationsScreen(
             )
         },
         bottomBar = {
-            // Matches the Create new tool button in Tools settings.
+            // Matches the Add button in the At a Glance bottom bar.
+            val addInteraction = remember { MutableInteractionSource() }
             ExtendedFloatingActionButton(
                 onClick = {
                     viewModel.loadInstalledApps()
@@ -193,10 +195,12 @@ private fun AppNotificationsScreen(
                 expanded = true,
                 modifier = Modifier.fillMaxWidth()
                     .padding(horizontal = DesignTokens.ContentHorizontalPadding)
-                    .padding(bottom = DesignTokens.SpacingLarge),
-                shape = CalendarSettingsBarCornerShape,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
+                    .padding(bottom = DesignTokens.SpacingLarge)
+                    .height(SettingsFloatingActionHeight),
+                shape = settingsFloatingActionShape(addInteraction),
+                containerColor = AppColors.Accent,
+                contentColor = AppColors.OnAccent,
+                interactionSource = addInteraction,
                 text = { Text(text = stringResource(R.string.app_notifications_add_app)) },
                 icon = {
                     Icon(
@@ -223,7 +227,8 @@ private fun AppNotificationsScreen(
                 modifier = Modifier.padding(horizontal = DesignTokens.SpacingXSmall),
             )
 
-            SettingsCard(modifier = Modifier.fillMaxWidth()) {
+            val sourceCount = filters.apps.size + 1
+            SettingsSegmentGroup {
                 SourceRow(
                     packageName = null,
                     title = stringResource(R.string.app_notifications_any_app),
@@ -232,10 +237,11 @@ private fun AppNotificationsScreen(
                     } else {
                         keywordsSummary(filters.keywords)
                     },
+                    index = 0,
+                    count = sourceCount,
                     onClick = { editing = ANY_APP },
                 )
-                filters.apps.forEach { app ->
-                    HorizontalDivider(color = AppColors.SettingsDivider)
+                filters.apps.forEachIndexed { index, app ->
                     SourceRow(
                         packageName = app.packageName,
                         title = rememberAppLabel(app.packageName),
@@ -244,6 +250,8 @@ private fun AppNotificationsScreen(
                         } else {
                             keywordsSummary(app.keywords)
                         },
+                        index = index + 1,
+                        count = sourceCount,
                         onClick = { editing = app.packageName },
                         onRemove = { viewModel.removeApp(app.packageName) },
                     )
@@ -293,20 +301,22 @@ private fun AppNotificationsScreen(
 }
 
 /**
- * A source in the list: icon, name, a summary of what it shows (up to two lines), and a chevron.
- * With [onRemove], a divider and a delete button follow the chevron, like a navigation toggle row.
+ * A source tile at [index] of [count]: icon, name, a summary of what it shows (up to two lines), and
+ * a chevron. With [onRemove], a tonal delete button replaces the chevron.
  */
 @Composable
 private fun SourceRow(
     packageName: String?,
     title: String,
     subtitle: String,
+    index: Int,
+    count: Int,
     onClick: () -> Unit,
     onRemove: (() -> Unit)? = null,
-) {
+) = SettingsSegment(index = index, count = count, onClick = onClick) {
     Row(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)
-            .padding(horizontal = DesignTokens.SpacingLarge, vertical = DesignTokens.SpacingMedium),
+        modifier = Modifier.fillMaxWidth()
+            .padding(horizontal = DesignTokens.SpacingLarge, vertical = DesignTokens.SpacingLarge),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
     ) {
@@ -321,28 +331,35 @@ private fun SourceRow(
             )
             Text(
                 text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
         }
-        Icon(
-            imageVector = MaterialSymbols.ChevronRight,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
         if (onRemove != null) {
-            VerticalDivider(modifier = Modifier.height(DesignTokens.IconSize), color = AppColors.SettingsDivider)
-            IconButton(onClick = onRemove) {
+            val error = MaterialTheme.colorScheme.error
+            FilledTonalIconButton(
+                onClick = onRemove,
+                colors = IconButtonDefaults.filledTonalIconButtonColors(
+                    containerColor = error.copy(alpha = RemoveButtonTonalAlpha),
+                    contentColor = error,
+                ),
+            ) {
                 Icon(
                     imageVector = MaterialSymbols.DeleteOutline,
                     contentDescription = stringResource(R.string.app_notifications_remove_app, title),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+        } else {
+            Icon(
+                imageVector = MaterialSymbols.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }
 
 private val AddAppIconSize = 18.dp
+private const val RemoveButtonTonalAlpha = 0.14f

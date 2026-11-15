@@ -16,7 +16,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -33,7 +32,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.LauncherAppIcon
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.settings.shared.SettingsTonalButton
+import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
+import com.tk.quicksearch.settings.shared.SettingsSegment
+import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
@@ -57,7 +59,8 @@ fun AppLauncherIconCard(
 ) {
     val tiles = launcherIconPickerTiles()
 
-    SettingsCard(modifier = modifier.fillMaxWidth()) {
+    SettingsSegmentGroup(modifier = modifier) {
+      SettingsSegment(index = 0, count = 1) {
         Column(
             modifier =
                 Modifier
@@ -72,7 +75,7 @@ fun AppLauncherIconCard(
                 text = stringResource(R.string.settings_launcher_icon_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding),
+                modifier = Modifier.padding(bottom = DesignTokens.SpacingXSmall),
             )
 
             Column(
@@ -105,14 +108,15 @@ fun AppLauncherIconCard(
                 }
             }
 
-            TextButton(
+            SettingsTonalButton(
+                text = stringResource(R.string.settings_launcher_icon_reset_default),
+                icon = MaterialSymbols.RestartAlt,
                 onClick = { onSetLauncherAppIcon(LauncherAppIcon.DEFAULT) },
                 enabled = launcherAppIcon != LauncherAppIcon.DEFAULT,
                 modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(text = stringResource(R.string.settings_launcher_icon_reset_default))
-            }
+            )
         }
+      }
     }
 }
 
@@ -134,13 +138,13 @@ private fun LauncherIconOptionTile(
     val view = LocalView.current
     val borderColor =
         if (selected) {
-            MaterialTheme.colorScheme.primary
+            AppColors.Accent
         } else {
             AppColors.SettingsDivider
         }
     val backgroundColor =
         if (selected) {
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+            AppColors.Accent.copy(alpha = 0.14f)
         } else {
             Color.Transparent
         }

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.searchEngineSettings
 
+import com.tk.quicksearch.settings.shared.SettingsSwitch
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -18,8 +19,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,7 +28,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -571,17 +569,13 @@ private fun SearchEngineRowContent(
         }
 
         if (showToggle) {
-            Switch(
+            SettingsSwitch(
                 checked = isEnabled,
                 onCheckedChange = { enabled ->
                     hapticToggle(view)()
                     onToggle(enabled)
                 },
                 enabled = switchEnabled,
-                modifier = Modifier.scale(0.85f),
-                colors = SwitchDefaults.colors(
-                    uncheckedTrackColor = Color.Transparent,
-                ),
             )
         }
     }

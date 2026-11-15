@@ -1,14 +1,11 @@
 package com.tk.quicksearch.settings.appearanceSettings
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -21,18 +18,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.data.preferences.UiPreferences
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.settings.shared.SettingsChoice
+import com.tk.quicksearch.settings.shared.SettingsChoiceGroup
+import com.tk.quicksearch.settings.shared.SettingsSegment
+import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
 import com.tk.quicksearch.settings.shared.SettingsToggleSliderDetails
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
 import com.tk.quicksearch.shared.util.isTablet
@@ -59,107 +57,113 @@ fun AppIconCard(
         lastIconSizeStep = appIconSizeStep
     }
 
-    SettingsCard(modifier = modifier.fillMaxWidth()) {
-        Column {
-            SettingsToggleRow(
-                    title = stringResource(R.string.settings_app_icon_size_title),
-                    checked = true,
-                    onCheckedChange = {},
-                    sliderDetails =
-                            SettingsToggleSliderDetails(
-                                    value = appIconSizeStep.toFloat(),
-                                    onValueChange = { value ->
-                                        val step = value.toInt()
-                                        if (step != lastIconSizeStep) {
-                                            hapticToggle(view)()
-                                            lastIconSizeStep = step
-                                        }
-                                        onSetAppIconSizeStep(step)
-                                    },
-                                    valueRange =
-                                            UiPreferences.MIN_APP_ICON_SIZE_STEP.toFloat()..
-                                                    UiPreferences.MAX_APP_ICON_SIZE_STEP.toFloat(),
-                                    steps =
-                                            UiPreferences.MAX_APP_ICON_SIZE_STEP -
-                                                    UiPreferences.MIN_APP_ICON_SIZE_STEP - 1,
-                                    valueLabel =
-                                            stringResource(
-                                                    R.string.settings_app_icon_size_percent,
-                                                    UiPreferences.appIconSizePercent(appIconSizeStep),
-                                            ),
-                                    valueLabelWidth = 44.dp,
-                            ),
-                    isFirstItem = true,
-                    showSwitch = false,
-            )
+    val showColumns = !isTablet()
+    val count = if (showColumns) 5 else 4
+    SettingsSegmentGroup(modifier = modifier) {
+        var index = 0
+        SettingsSegment(index = index++, count = count) {
+                SettingsToggleRow(
+                        title = stringResource(R.string.settings_app_icon_size_title),
+                        checked = true,
+                        onCheckedChange = {},
+                        sliderDetails =
+                                SettingsToggleSliderDetails(
+                                        value = appIconSizeStep.toFloat(),
+                                        onValueChange = { value ->
+                                            val step = value.toInt()
+                                            if (step != lastIconSizeStep) {
+                                                hapticToggle(view)()
+                                                lastIconSizeStep = step
+                                            }
+                                            onSetAppIconSizeStep(step)
+                                        },
+                                        valueRange =
+                                                UiPreferences.MIN_APP_ICON_SIZE_STEP.toFloat()..
+                                                        UiPreferences.MAX_APP_ICON_SIZE_STEP.toFloat(),
+                                        steps =
+                                                UiPreferences.MAX_APP_ICON_SIZE_STEP -
+                                                        UiPreferences.MIN_APP_ICON_SIZE_STEP - 1,
+                                        valueLabel =
+                                                stringResource(
+                                                        R.string.settings_app_icon_size_percent,
+                                                        UiPreferences.appIconSizePercent(appIconSizeStep),
+                                                ),
+                                        valueLabelWidth = 44.dp,
+                                ),
+                        isFirstItem = true,
+                        showSwitch = false,
+                )
+        }
 
-            if (!isTablet()) {
+        if (showColumns) {
+            SettingsSegment(index = index++, count = count) {
                 AppColumnsSelector(
                         selectedColumns = phoneAppGridColumns,
                         onSelectColumns = onSetPhoneAppGridColumns,
                 )
-                HorizontalDivider(color = AppColors.SettingsDivider)
             }
+        }
 
-            SettingsToggleRow(
-                    title = stringResource(R.string.settings_show_app_labels_title),
-                    subtitle = stringResource(R.string.settings_show_app_labels_desc),
-                    checked = showAppLabels,
-                    onCheckedChange = onToggleAppLabels,
-                    extraVerticalPadding = 8.dp,
-                    isFirstItem = false,
-                    showDivider = false,
-            )
+        SettingsSegment(index = index++, count = count) {
+                SettingsToggleRow(
+                        title = stringResource(R.string.settings_show_app_labels_title),
+                        subtitle = stringResource(R.string.settings_show_app_labels_desc),
+                        checked = showAppLabels,
+                        onCheckedChange = onToggleAppLabels,
+                        extraVerticalPadding = 8.dp,
+                        isFirstItem = false,
+                        showDivider = false,
+                )
+        }
 
-            HorizontalDivider(color = AppColors.SettingsDivider)
+        SettingsSegment(index = index++, count = count) {
+                SettingsToggleRow(
+                        title = stringResource(R.string.settings_circular_app_icons_title),
+                        subtitle = stringResource(R.string.settings_circular_app_icons_desc),
+                        checked = appIconShape == AppIconShape.CIRCLE,
+                        onCheckedChange = { enabled ->
+                            onSetAppIconShape(if (enabled) AppIconShape.CIRCLE else AppIconShape.DEFAULT)
+                        },
+                        isFirstItem = false,
+                        isLastItem = false,
+                )
+        }
 
-            SettingsToggleRow(
-                    title = stringResource(R.string.settings_circular_app_icons_title),
-                    subtitle = stringResource(R.string.settings_circular_app_icons_desc),
-                    checked = appIconShape == AppIconShape.CIRCLE,
-                    onCheckedChange = { enabled ->
-                        onSetAppIconShape(if (enabled) AppIconShape.CIRCLE else AppIconShape.DEFAULT)
-                    },
-                    isFirstItem = false,
-                    isLastItem = false,
-            )
-
-            // Icon Pack Section
-            Row(
-                    modifier =
-                            Modifier.fillMaxWidth()
-                                    .clickable(onClick = onIconPackClick)
-                                    .padding(
-                                            start = 24.dp,
-                                            top = 16.dp,
-                                            end = 24.dp,
-                                            bottom = 16.dp,
-                                    ),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
+        SettingsSegment(index = index, count = count, onClick = onIconPackClick) {
+                Row(
+                        modifier =
+                                Modifier.fillMaxWidth()
+                                        .padding(
+                                                start = 20.dp,
+                                                top = 16.dp,
+                                                end = 20.dp,
+                                                bottom = 16.dp,
+                                        ),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
-                            text = iconPackTitle,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Text(
-                            text = iconPackDescription,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Text(
+                                text = iconPackTitle,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                        )
+                        Text(
+                                text = iconPackDescription,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Icon(
+                            imageVector = MaterialSymbols.ChevronRight,
+                            contentDescription = stringResource(R.string.desc_navigate_forward),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 8.dp),
                     )
                 }
-                Icon(
-                        imageVector = MaterialSymbols.ChevronRight,
-                        contentDescription = stringResource(R.string.desc_navigate_forward),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(start = 8.dp),
-                )
-            }
         }
     }
 }
@@ -174,9 +178,9 @@ private fun AppColumnsSelector(
                     Modifier
                             .fillMaxWidth()
                             .padding(
-                                    start = DesignTokens.SpacingXXLarge,
+                                    start = DesignTokens.SpacingXLarge,
                                     top = DesignTokens.SpacingLarge,
-                                    end = DesignTokens.SpacingXXLarge,
+                                    end = DesignTokens.SpacingXLarge,
                                     bottom = DesignTokens.SpacingLarge,
                             ),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -189,43 +193,15 @@ private fun AppColumnsSelector(
                     color = MaterialTheme.colorScheme.onSurface,
             )
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)) {
-            val fourSelected = selectedColumns == 4
-            AssistChip(
-                    onClick = { onSelectColumns(4) },
-                    label = { Text(stringResource(R.string.settings_app_columns_4)) },
-                    shape = DesignTokens.ShapeFull,
-                    border =
-                            BorderStroke(
-                                    if (fourSelected) 1.5.dp else 1.dp,
-                                    if (fourSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else AppColors.SettingsDivider,
-                            ),
-                    colors =
-                            AssistChipDefaults.assistChipColors(
-                                    containerColor = Color.Transparent,
-                                    labelColor =
-                                            if (fourSelected) MaterialTheme.colorScheme.primary
-                                            else MaterialTheme.colorScheme.onSurface,
-                            ),
-            )
-            val fiveSelected = selectedColumns != 4
-            AssistChip(
-                    onClick = { onSelectColumns(5) },
-                    label = { Text(stringResource(R.string.settings_app_columns_5)) },
-                    shape = DesignTokens.ShapeFull,
-                    border =
-                            BorderStroke(
-                                    if (fiveSelected) 1.5.dp else 1.dp,
-                                    if (fiveSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else AppColors.SettingsDivider,
-                            ),
-                    colors =
-                            AssistChipDefaults.assistChipColors(
-                                    containerColor = Color.Transparent,
-                                    labelColor =
-                                            if (fiveSelected) MaterialTheme.colorScheme.primary
-                                            else MaterialTheme.colorScheme.onSurface,
-                            ),
-            )
-        }
+        SettingsChoiceGroup(
+                options =
+                        listOf(
+                                SettingsChoice(4, stringResource(R.string.settings_app_columns_4)),
+                                SettingsChoice(5, stringResource(R.string.settings_app_columns_5)),
+                        ),
+                selected = if (selectedColumns == 4) 4 else 5,
+                onSelect = onSelectColumns,
+                fillWidth = false,
+        )
     }
 }

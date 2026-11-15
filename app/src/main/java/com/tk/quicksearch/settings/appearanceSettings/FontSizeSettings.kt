@@ -22,7 +22,9 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.HomeTextColor
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.settings.shared.SettingsSegment
+import com.tk.quicksearch.settings.shared.SettingsSegmentContent
+import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
@@ -44,43 +46,35 @@ fun FontSizeCard(
         modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
-    SettingsCard(modifier = modifier.fillMaxWidth()) {
-        Column(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
+    SettingsSegmentGroup(modifier = modifier) {
+        SettingsSegment(index = 0, count = 3) {
             SettingsToggleRow(
                     title = stringResource(R.string.settings_use_system_font_title),
                     subtitle = stringResource(R.string.settings_use_system_font_desc),
                     checked = useSystemFont,
                     onCheckedChange = onUseSystemFontChange,
                     leadingIcon = MaterialSymbols.TextFields,
-                    horizontalPadding = 4.dp,
                     showDivider = false,
             )
-
-            HorizontalDivider(
-                    color = AppColors.SettingsDivider,
-                    modifier = Modifier.padding(start = 4.dp, top = 1.dp, end = 4.dp, bottom = 4.dp),
-            )
-
-            FontSizeSlider(
-                    fontScaleMultiplier = fontScaleMultiplier,
-                    onFontScaleMultiplierChange = onFontScaleMultiplierChange,
-            )
-
-            HorizontalDivider(
-                    color = AppColors.SettingsDivider,
-                    modifier = Modifier.padding(start = 4.dp, top = 1.dp, end = 4.dp, bottom = 4.dp),
-            )
-
-            HomeTextColorOptions(
-                    selectedColor = homeTextColorOverride,
-                    onColorSelected = onHomeTextColorChange,
-                    backgroundSource = backgroundSource,
-                    customImageUri = customImageUri,
-                    compactLayoutEnabled = compactLayoutEnabled,
-            )
+        }
+        SettingsSegment(index = 1, count = 3) {
+            SettingsSegmentContent {
+                FontSizeSlider(
+                        fontScaleMultiplier = fontScaleMultiplier,
+                        onFontScaleMultiplierChange = onFontScaleMultiplierChange,
+                )
+            }
+        }
+        SettingsSegment(index = 2, count = 3) {
+            SettingsSegmentContent {
+                HomeTextColorOptions(
+                        selectedColor = homeTextColorOverride,
+                        onColorSelected = onHomeTextColorChange,
+                        backgroundSource = backgroundSource,
+                        customImageUri = customImageUri,
+                        compactLayoutEnabled = compactLayoutEnabled,
+                )
+            }
         }
     }
 }
@@ -121,7 +115,7 @@ private fun FontSizeSlider(
             Text(
                     text = stringResource(FONT_SIZE_STEPS[activeIndex].labelRes),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = AppColors.Accent,
             )
         }
 

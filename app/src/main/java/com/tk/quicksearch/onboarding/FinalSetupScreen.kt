@@ -1,5 +1,6 @@
 package com.tk.quicksearch.onboarding
 
+import com.tk.quicksearch.settings.shared.SettingsSwitch
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,12 +17,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.ui.draw.scale
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
-import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -245,15 +242,13 @@ fun FinalSetupScreen(
                                             .onSurface,
                                 )
                             }
-                            Switch(
+                            SettingsSwitch(
                                 checked = uiState.showFolders,
                                 onCheckedChange = { enabled ->
                                     viewModel.setShowFolders(
                                         enabled,
                                     )
                                 },
-                                modifier = Modifier.scale(0.85f),
-                                colors = SwitchDefaults.colors(uncheckedTrackColor = Color.Transparent),
                             )
                         }
                     }
@@ -368,7 +363,7 @@ fun FinalSetupScreen(
                                                     .onSurface,
                                         )
                                     }
-                                    Switch(
+                                    SettingsSwitch(
                                         checked =
                                             fileType in
                                                 uiState.enabledFileTypes,
@@ -379,8 +374,6 @@ fun FinalSetupScreen(
                                                     enabled,
                                                 )
                                         },
-                                        modifier = Modifier.scale(0.85f),
-                                        colors = SwitchDefaults.colors(uncheckedTrackColor = Color.Transparent),
                                     )
                                 }
 

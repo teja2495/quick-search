@@ -190,38 +190,23 @@ fun SettingsScreen(
             }
 
             val isOverlayModeBlockedByLauncher = context.isDefaultHomeApp()
-            SettingsCard(
-                modifier =
-                    Modifier
-                        .alpha(if (isOverlayModeBlockedByLauncher) 0.72f else 1f)
-                        .fillMaxWidth()
-                        .padding(bottom = DesignTokens.SectionTopPadding),
-            ) {
-                val overlayModeSubtitleRes =
-                    if (isOverlayModeBlockedByLauncher) {
-                        R.string.settings_overlay_mode_desc_launcher_blocked
-                    } else {
-                        R.string.settings_overlay_mode_desc
-                    }
-                Column {
-                    SettingsToggleRow(
-                        title = stringResource(R.string.settings_overlay_mode_title),
-                        subtitleContent = {
-                            Text(
-                                text = stringResource(overlayModeSubtitleRes),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        },
-                        checked = state.overlayModeEnabled,
-                        enabled = !isOverlayModeBlockedByLauncher,
-                        onCheckedChange = callbacks.onToggleOverlayMode,
-                        leadingIcon = MaterialSymbols.Layers,
-                        isFirstItem = true,
-                        isLastItem = true,
-                        showDivider = false,
-                    )
+            val overlayModeSubtitleRes =
+                if (isOverlayModeBlockedByLauncher) {
+                    R.string.settings_overlay_mode_desc_launcher_blocked
+                } else {
+                    R.string.settings_overlay_mode_desc
                 }
+            SettingsSegmentGroup(modifier = Modifier.padding(bottom = DesignTokens.SectionTopPadding)) {
+                SettingsSegmentToggleRow(
+                    title = stringResource(R.string.settings_overlay_mode_title),
+                    description = stringResource(overlayModeSubtitleRes),
+                    icon = MaterialSymbols.Layers,
+                    checked = state.overlayModeEnabled,
+                    enabled = !isOverlayModeBlockedByLauncher,
+                    onCheckedChange = callbacks.onToggleOverlayMode,
+                    index = 0,
+                    count = 1,
+                )
             }
 
             if (state.overlayModeEnabled && !state.hasSeenOverlayAssistantTip) {
@@ -343,120 +328,64 @@ fun SettingsScreen(
                     )
                 }
 
-            SettingsCard(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = DesignTokens.SectionTopPadding),
-            ) {
-                Column {
-                    navigationItems.forEachIndexed { index, item ->
-                        SettingsNavigationRow(
-                            item = item,
-                            contentPadding =
-                                PaddingValues(
-                                    horizontal = DesignTokens.SpacingXXLarge,
-                                    vertical = DesignTokens.SpacingLarge,
-                                ),
-                        )
-
-                        if (index < navigationItems.lastIndex) {
-                            HorizontalDivider(
-                                color = AppColors.SettingsDivider,
-                            )
-                        }
-                    }
+            SettingsSegmentGroup(modifier = Modifier.padding(bottom = DesignTokens.SectionTopPadding)) {
+                navigationItems.forEachIndexed { index, item ->
+                    SettingsSegmentNavigationRow(item = item, index = index, count = navigationItems.size)
                 }
             }
 
-            SettingsCard(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = DesignTokens.SectionTopPadding),
-            ) {
-                Column {
-                    SettingsNavigationRow(
-                        item =
-                            SettingsCardItem(
-                                title = stringResource(R.string.settings_launch_options_title),
-                                description = stringResource(R.string.settings_launch_options_desc),
-                                icon = MaterialSymbols.RocketLaunch,
-                                actionOnPress = {
-                                    onNavigateToDetail(SettingsDetailType.LAUNCH_OPTIONS)
-                                },
-                            ),
-                        contentPadding =
-                            PaddingValues(
-                                horizontal = DesignTokens.SpacingXXLarge,
-                                vertical = DesignTokens.SpacingLarge,
-                            ),
-                    )
-
-                    HorizontalDivider(
-                        color = AppColors.SettingsDivider,
-                    )
-
-                    SettingsNavigationRow(
-                        item =
-                            SettingsCardItem(
-                                title = stringResource(R.string.settings_permissions_title),
-                                description = stringResource(R.string.settings_permissions_desc),
-                                icon = MaterialSymbols.AdminPanelSettings,
-                                actionOnPress = {
-                                    onNavigateToDetail(SettingsDetailType.PERMISSIONS)
-                                },
-                            ),
-                        contentPadding =
-                            PaddingValues(
-                                horizontal = DesignTokens.SpacingXXLarge,
-                                vertical = DesignTokens.SpacingLarge,
-                            ),
-                    )
-
-                    HorizontalDivider(
-                        color = AppColors.SettingsDivider,
-                    )
-
-                    SettingsNavigationRow(
-                        item =
-                            SettingsCardItem(
-                                title = stringResource(R.string.settings_app_language_title),
-                                description =
-                                    stringResource(
-                                        R.string.settings_app_language_desc,
-                                        selectedLanguageLabel,
-                                    ),
-                                icon = MaterialSymbols.Translate,
-                                actionOnPress = {
-                                    showLanguageDialog = true
-                                },
-                            ),
-                        contentPadding =
-                            PaddingValues(
-                                horizontal = DesignTokens.SpacingXXLarge,
-                                vertical = DesignTokens.SpacingLarge,
-                            ),
-                    )
-
-                    HorizontalDivider(
-                        color = AppColors.SettingsDivider,
-                    )
-
-                    BackupRestoreRow(
-                        onImportClick = {
-                            showImportWarningDialog = true
+            val systemItems =
+                listOf(
+                    SettingsCardItem(
+                        title = stringResource(R.string.settings_launch_options_title),
+                        description = stringResource(R.string.settings_launch_options_desc),
+                        icon = MaterialSymbols.RocketLaunch,
+                        actionOnPress = {
+                            onNavigateToDetail(SettingsDetailType.LAUNCH_OPTIONS)
                         },
-                        onExportClick = {
-                            coroutineScope.launch {
-                                // API keys live in encrypted storage; keep keystore work off the main thread.
-                                exportSelectionState =
-                                    withContext(Dispatchers.IO) { loadExportSelectionState(context) }
-                                showExportSelectionDialog = true
-                            }
+                    ),
+                    SettingsCardItem(
+                        title = stringResource(R.string.settings_permissions_title),
+                        description = stringResource(R.string.settings_permissions_desc),
+                        icon = MaterialSymbols.AdminPanelSettings,
+                        actionOnPress = {
+                            onNavigateToDetail(SettingsDetailType.PERMISSIONS)
                         },
-                    )
+                    ),
+                    SettingsCardItem(
+                        title = stringResource(R.string.settings_app_language_title),
+                        description =
+                            stringResource(
+                                R.string.settings_app_language_desc,
+                                selectedLanguageLabel,
+                            ),
+                        icon = MaterialSymbols.Translate,
+                        actionOnPress = {
+                            showLanguageDialog = true
+                        },
+                    ),
+                )
+            // The backup tile closes this group.
+            val systemCount = systemItems.size + 1
+            SettingsSegmentGroup(modifier = Modifier.padding(bottom = DesignTokens.SectionTopPadding)) {
+                systemItems.forEachIndexed { index, item ->
+                    SettingsSegmentNavigationRow(item = item, index = index, count = systemCount)
                 }
+                BackupRestoreRow(
+                    index = systemCount - 1,
+                    count = systemCount,
+                    onImportClick = {
+                        showImportWarningDialog = true
+                    },
+                    onExportClick = {
+                        coroutineScope.launch {
+                            // API keys live in encrypted storage; keep keystore work off the main thread.
+                            exportSelectionState =
+                                withContext(Dispatchers.IO) { loadExportSelectionState(context) }
+                            showExportSelectionDialog = true
+                        }
+                    },
+                )
             }
 
             SettingsMoreOptions(

@@ -835,7 +835,7 @@
     <string name="settings_more_options_title">Mais opções</string>
     <string name="settings_overlay_assistant_setup_now">Configurar agora</string>
     <string name="settings_overlay_assistant_tip">Dica: Defina este app como seu assistente digital para abrir a sobreposição de qualquer lugar.</string>
-    <string name="settings_overlay_mode_desc">A barra de pesquisa se abre como uma sobreposição no topo de outros apps</string>
+    <string name="settings_overlay_mode_desc">A barra de pesquisa se abre como uma sobreposição sobre outros apps</string>
     <string name="settings_overlay_mode_desc_launcher_blocked">Indisponível enquanto o Quick Search for seu launcher padrão</string>
     <string name="settings_overlay_mode_title">Modo sobreposição</string>
     <string name="settings_overlay_source_add_custom">Adicionar imagem personalizada</string>

@@ -13,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -216,7 +215,6 @@ private fun SearchEngineAliasSuffixCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Checkbox(
-                    modifier = Modifier.scale(0.85f),
                     checked = triggerAfterSpaceEnabled,
                     onCheckedChange = null,
                 )

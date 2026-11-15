@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.settings.shared.SettingsSwitch
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -31,10 +32,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -46,8 +45,6 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalContext
@@ -74,6 +71,8 @@ import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.settings.shared.SettingsSegment
+import androidx.compose.ui.graphics.compositeOver
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
 import com.tk.quicksearch.shared.util.performHapticFeedbackSafely
@@ -179,7 +178,6 @@ private fun AppSuggestionTabCheckboxItem(
         Checkbox(
             checked = checked,
             onCheckedChange = onCheckedChange,
-            modifier = Modifier.scale(0.82f),
         )
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(
@@ -329,7 +327,7 @@ internal fun PriorityReorderDialog(
             Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)) {
                 Text(
                     text = stringResource(infoRes),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 ReorderableColumn(
@@ -349,14 +347,19 @@ internal fun PriorityReorderDialog(
                             HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK,
                         )
                     },
+                    verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
                 ) { index, item, isDragging ->
                     ReorderableItem {
-                        if (index > 0) {
-                            HorizontalDivider(color = AppColors.SettingsDivider)
-                        }
-                        Surface(
-                            color = if (isDragging) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
-                            modifier = Modifier.fillMaxWidth(),
+                        // A dragged tile lifts out of the list: fully round, accent-tinted.
+                        SettingsSegment(
+                            index = if (isDragging) 0 else index,
+                            count = if (isDragging) 1 else items.size,
+                            containerColor =
+                                if (isDragging) {
+                                    AppColors.Accent.copy(alpha = 0.24f).compositeOver(AppColors.getSettingsCardContainerColor())
+                                } else {
+                                    AppColors.getSettingsCardContainerColor()
+                                },
                         ) {
                             Row(
                                 modifier =
@@ -364,61 +367,49 @@ internal fun PriorityReorderDialog(
                                         .fillMaxWidth()
                                         .longPressDraggableHandle(
                                             onDragStarted = {
-                                                performHapticFeedbackSafely(
-                                                    view,
-                                                    HapticFeedbackConstantsCompat.GESTURE_START,
-                                                )
+                                                performHapticFeedbackSafely(view, HapticFeedbackConstantsCompat.GESTURE_START)
                                             },
                                             onDragStopped = {
-                                                performHapticFeedbackSafely(
-                                                    view,
-                                                    HapticFeedbackConstantsCompat.GESTURE_END,
-                                                )
+                                                performHapticFeedbackSafely(view, HapticFeedbackConstantsCompat.GESTURE_END)
                                             },
                                         )
                                         .padding(
-                                            vertical =
-                                                if (onItemEnabledChange != null) {
-                                                    DesignTokens.SpacingXSmall
-                                                } else {
-                                                    DesignTokens.SpacingMedium
-                                                },
-                                            horizontal = DesignTokens.SpacingSmall,
+                                            start = DesignTokens.SpacingMedium,
+                                            end = DesignTokens.SpacingLarge,
+                                            top = if (onItemEnabledChange != null) DesignTokens.SpacingSmall else DesignTokens.SpacingMedium,
+                                            bottom = if (onItemEnabledChange != null) DesignTokens.SpacingSmall else DesignTokens.SpacingMedium,
                                         ),
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+                                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                             ) {
                                 Icon(
                                     imageVector = MaterialSymbols.DragHandle,
                                     contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    tint = if (isDragging) AppColors.Accent else MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                                 Text(
-                                    text =
-                                        stringResource(
-                                            SearchSectionUiMetadataRegistry
-                                                .metadataFor(item)
-                                                .sectionLabelRes,
-                                        ),
-                                    style = MaterialTheme.typography.bodyMedium,
+                                    text = stringResource(SearchSectionUiMetadataRegistry.metadataFor(item).sectionLabelRes),
+                                    style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurface,
                                     modifier = Modifier.weight(1f),
                                 )
-                                if (onItemEnabledChange != null) Switch(
-                                    modifier = Modifier.scale(0.7f),
-                                    checked = item !in disabledSections,
-                                    onCheckedChange = { enabled ->
-                                        if (!enabled && items.count { it !in disabledSections } <= 1 && item !in disabledSections) {
-                                            Toast.makeText(
-                                                view.context,
-                                                view.context.getString(R.string.settings_sections_at_least_one_required),
-                                                Toast.LENGTH_SHORT,
-                                            ).show()
-                                        } else {
-                                            onItemEnabledChange(item, enabled)
-                                        }
-                                    },
-                                )
+                                if (onItemEnabledChange != null) {
+                                    val checked = item !in disabledSections
+                                    SettingsSwitch(
+                                        checked = checked,
+                                        onCheckedChange = { enabled ->
+                                            if (!enabled && items.count { it !in disabledSections } <= 1 && checked) {
+                                                Toast.makeText(
+                                                    view.context,
+                                                    view.context.getString(R.string.settings_sections_at_least_one_required),
+                                                    Toast.LENGTH_SHORT,
+                                                ).show()
+                                            } else {
+                                                onItemEnabledChange(item, enabled)
+                                            }
+                                        },
+                                    )
+                                }
                             }
                         }
                     }

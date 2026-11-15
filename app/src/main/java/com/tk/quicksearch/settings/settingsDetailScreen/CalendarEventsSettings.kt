@@ -1,5 +1,10 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.settings.shared.settingsFloatingActionShape
+import com.tk.quicksearch.settings.shared.SettingsFloatingTonalContainer
+import com.tk.quicksearch.settings.shared.SettingsFloatingActionHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -459,6 +464,9 @@ fun CalendarEventsBottomBar(
 ) {
     val searchFocusRequester = remember { FocusRequester() }
     var isSearchExpanded by remember { mutableStateOf(false) }
+    val searchInteraction = remember { MutableInteractionSource() }
+    val newItemInteraction = remember { MutableInteractionSource() }
+    val newItemShape = settingsFloatingActionShape(newItemInteraction)
 
     LaunchedEffect(isSearchExpanded) {
         if (isSearchExpanded) {
@@ -488,10 +496,11 @@ fun CalendarEventsBottomBar(
             if (showNewItem) {
                 FloatingActionButton(
                     onClick = onNewEvent,
-                    modifier = Modifier.size(48.dp),
-                    shape = CalendarSettingsBarCornerShape,
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(SettingsFloatingActionHeight),
+                    shape = newItemShape,
+                    containerColor = AppColors.Accent,
+                    contentColor = AppColors.OnAccent,
+                    interactionSource = newItemInteraction,
                 ) {
                     Icon(
                         imageVector = MaterialSymbols.Add,
@@ -501,10 +510,14 @@ fun CalendarEventsBottomBar(
                 }
             }
         } else {
+            // Same height and round shape as the new-item button beside it, in the accent's tonal tint.
             FloatingActionButton(
                 onClick = { isSearchExpanded = true },
-                modifier = Modifier.size(48.dp),
-                shape = CalendarSettingsBarCornerShape,
+                modifier = Modifier.size(SettingsFloatingActionHeight),
+                shape = settingsFloatingActionShape(searchInteraction),
+                containerColor = SettingsFloatingTonalContainer,
+                contentColor = AppColors.Accent,
+                interactionSource = searchInteraction,
             ) {
                 Icon(
                     imageVector = MaterialSymbols.Search,
@@ -516,10 +529,11 @@ fun CalendarEventsBottomBar(
                 ExtendedFloatingActionButton(
                     onClick = onNewEvent,
                     expanded = true,
-                    modifier = Modifier.weight(1f),
-                    shape = CalendarSettingsBarCornerShape,
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.weight(1f).height(SettingsFloatingActionHeight),
+                    shape = newItemShape,
+                    containerColor = AppColors.Accent,
+                    contentColor = AppColors.OnAccent,
+                    interactionSource = newItemInteraction,
                     text = { Text(text = stringResource(newItemLabelResId)) },
                     icon = {
                         Icon(

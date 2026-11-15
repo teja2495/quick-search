@@ -1,6 +1,5 @@
 package com.tk.quicksearch.settings.appearanceSettings
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -12,16 +11,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -36,8 +30,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
@@ -46,7 +38,11 @@ import com.tk.quicksearch.search.searchScreen.components.backgroundColor
 import com.tk.quicksearch.search.searchScreen.components.borderColor
 import com.tk.quicksearch.search.searchScreen.components.borderWidth
 import com.tk.quicksearch.search.searchScreen.components.cornerRadius
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.settings.shared.SettingsTonalButton
+import com.tk.quicksearch.settings.shared.SettingsChoice
+import com.tk.quicksearch.settings.shared.SettingsChoiceGroup
+import com.tk.quicksearch.settings.shared.SettingsSegment
+import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
@@ -63,7 +59,6 @@ private const val TransparencySteps = 9
 private const val CornerRadiusStepDp = 2f
 private const val CornerRadiusSteps =
     ((SearchBarStyle.MAX_CORNER_RADIUS_DP - SearchBarStyle.MIN_CORNER_RADIUS_DP) / CornerRadiusStepDp).toInt() - 1
-private val SwatchSize = 16.dp
 private val SliderValueWidth = 64.dp
 private val PreviewHeight = 56.dp
 
@@ -98,7 +93,8 @@ fun SearchBarStyleCard(
             cornerRadiusDp = cornerRadiusDp,
         )
 
-    SettingsCard(modifier = modifier.fillMaxWidth()) {
+    SettingsSegmentGroup(modifier = modifier) {
+      SettingsSegment(index = 0, count = 4) {
         Column(
             modifier =
                 Modifier
@@ -113,7 +109,7 @@ fun SearchBarStyleCard(
                 text = stringResource(R.string.settings_search_bar_style_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding),
+                modifier = Modifier.padding(bottom = DesignTokens.SpacingXSmall),
             )
 
             SearchBarStylePreview(
@@ -205,8 +201,9 @@ fun SearchBarStyleCard(
                 },
             )
 
-            // Grouped without the column's spacing so the rows' own padding sets the gaps.
-            Column {
+        }
+      }
+      SettingsSegment(index = 1, count = 4) {
                 SettingsToggleRow(
                     title = stringResource(R.string.settings_icon_title),
                     subtitle =
@@ -218,9 +215,10 @@ fun SearchBarStyleCard(
                     checked = settingsIconEnabled,
                     onCheckedChange = onToggleSettingsIcon,
                     enabled = !settingsIconRequired,
-                    horizontalPadding = 0.dp,
                     showDivider = false,
                 )
+      }
+      SettingsSegment(index = 2, count = 4) {
                 SettingsToggleRow(
                     title = stringResource(R.string.settings_mic_icon_title),
                     subtitle = stringResource(R.string.settings_mic_icon_desc),
@@ -228,22 +226,21 @@ fun SearchBarStyleCard(
                     onCheckedChange = { enabled ->
                         onSetSearchBarStyle(searchBarStyle.copy(showMicIcon = enabled))
                     },
-                    horizontalPadding = 0.dp,
                     showDivider = false,
                 )
-            }
-
-            TextButton(
+      }
+      SettingsSegment(index = 3, count = 4) {
+            SettingsTonalButton(
+                text = stringResource(R.string.settings_launcher_icon_reset_default),
+                icon = MaterialSymbols.RestartAlt,
                 onClick = {
                     onSetSearchBarStyle(SearchBarStyle())
                     if (!settingsIconEnabled) onToggleSettingsIcon(true)
                 },
                 enabled = !previewStyle.isDefault || !settingsIconEnabled,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(text = stringResource(R.string.settings_launcher_icon_reset_default))
-            }
-        }
+                modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
+            )
+      }
     }
 
     colorPickerTarget?.let { target ->
@@ -385,8 +382,8 @@ private fun SliderSetting(
     Column {
         Text(
             text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         // No spacing: the value is centered in the gap between the slider end and the card edge.
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -420,73 +417,18 @@ private fun ColorChoiceRow(
     Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall)) {
         Text(
             text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurface,
         )
-        Row(
-            modifier = Modifier.fillMaxWidth().selectableGroup(),
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            ColorChoiceChip(
-                label = defaultLabel,
-                selected = customArgb == null,
-                onClick = onSelectDefault,
-                modifier = Modifier.weight(1f),
-            )
-            ColorChoiceChip(
-                label = stringResource(R.string.common_custom),
-                selected = customArgb != null,
-                onClick = onSelectCustom,
-                swatchColor = customArgb?.let { Color(it) },
-                modifier = Modifier.weight(1f),
-            )
-        }
+        SettingsChoiceGroup(
+            options =
+                listOf(
+                    SettingsChoice(false, defaultLabel),
+                    SettingsChoice(true, stringResource(R.string.common_custom), swatch = customArgb?.let { Color(it) }),
+                ),
+            selected = customArgb != null,
+            onSelect = { custom -> if (custom) onSelectCustom() else if (customArgb != null) onSelectDefault() },
+            haptic = false,
+        )
     }
-}
-
-@Composable
-private fun ColorChoiceChip(
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    swatchColor: Color? = null,
-) {
-    AssistChip(
-        onClick = onClick,
-        modifier = modifier.semantics { this.selected = selected },
-        label = {
-            Text(
-                text = label,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-            )
-        },
-        leadingIcon =
-            swatchColor?.let { color ->
-                {
-                    Box(
-                        modifier =
-                            Modifier
-                                .size(SwatchSize)
-                                .clip(CircleShape)
-                                .background(color)
-                                .border(DesignTokens.BorderWidth, AppColors.SettingsDivider, CircleShape),
-                    )
-                }
-            },
-        shape = DesignTokens.ShapeFull,
-        border =
-            BorderStroke(
-                if (selected) 1.5.dp else 1.dp,
-                if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else AppColors.SettingsDivider,
-            ),
-        colors =
-            AssistChipDefaults.assistChipColors(
-                containerColor = Color.Transparent,
-                labelColor =
-                    if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-            ),
-    )
 }

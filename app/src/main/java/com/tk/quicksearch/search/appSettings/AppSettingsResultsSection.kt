@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.appSettings
 
+import com.tk.quicksearch.settings.shared.SettingsSwitch
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
 import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
 import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
@@ -25,14 +26,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
@@ -69,7 +68,6 @@ private const val QUICK_SEARCH_PACKAGE_NAME = "com.tk.quicksearch"
 private const val ROW_MIN_HEIGHT = 52
 private const val ICON_SIZE = 24
 private const val EXPAND_BUTTON_HORIZONTAL_PADDING = 12
-private const val TOGGLE_SCALE = 0.85f
 
 @Composable
 fun AppSettingsResultsSection(
@@ -389,14 +387,13 @@ internal fun AppSettingResultRow(
                     )
                 }
             }
-            Switch(
+            SettingsSwitch(
                 checked = checked,
                 onCheckedChange = { enabled ->
                     hapticToggle(view)()
                     onToggle(setting, enabled)
                 },
                 enabled = !isBlockedByLauncher,
-                modifier = Modifier.scale(TOGGLE_SCALE),
                 // Material's disabled colors are composited over the theme surface, which turns the
                 // thumb into an opaque blob on result cards; keep them translucent instead.
                 colors = SwitchDefaults.colors(

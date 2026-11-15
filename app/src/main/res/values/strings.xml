@@ -845,7 +845,7 @@
     <string name="settings_more_options_title">More Options</string>
     <string name="settings_overlay_assistant_setup_now">Setup Now</string>
     <string name="settings_overlay_assistant_tip">Tip: Set this app as your digital assistant to open the overlay from anywhere.</string>
-    <string name="settings_overlay_mode_desc">Search bar opens as an overlay on top of other apps</string>
+    <string name="settings_overlay_mode_desc">Search bar opens as an overlay over other apps</string>
     <string name="settings_overlay_mode_desc_launcher_blocked">Unavailable while Quick Search is your default launcher</string>
     <string name="settings_overlay_mode_title">Overlay Mode</string>
     <string name="settings_overlay_source_add_custom">Add custom image</string>

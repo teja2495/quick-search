@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
@@ -22,7 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -145,19 +142,13 @@ fun SettingsNavigationToggleRow(
             }
         }
 
-        Switch(
+        SettingsSwitch(
             checked = checked,
             onCheckedChange = { enabled ->
                 hapticToggle(view)()
                 onCheckedChange(enabled)
             },
             enabled = enabled,
-            modifier = Modifier.scale(0.85f),
-            colors = SwitchDefaults.colors(
-                uncheckedTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-                uncheckedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-                uncheckedThumbColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-            ),
         )
     }
 }

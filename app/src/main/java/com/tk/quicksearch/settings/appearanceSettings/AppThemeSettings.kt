@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -66,7 +65,11 @@ import com.tk.quicksearch.search.core.AccentColorMode
 import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.AppTheme
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.settings.shared.SettingsChoice
+import com.tk.quicksearch.settings.shared.SettingsChoiceGroup
+import com.tk.quicksearch.settings.shared.SettingsSegment
+import com.tk.quicksearch.settings.shared.SettingsSegmentContent
+import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.shared.permissions.PermissionHelper
@@ -155,54 +158,31 @@ fun AppThemeCard(
                 )
             }
 
-    SettingsCard(
-            modifier = modifier.fillMaxWidth(),
-    ) {
-        Column(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
+    val count = 2 + listOf(showMaterialYouToggle, showAmoledThemeToggle, showThemedIconsToggle).count { it }
+    SettingsSegmentGroup(modifier = modifier) {
+        var index = 0
+        SettingsSegment(index = index++, count = count) {
+            SettingsSegmentContent {
             Text(
                     text = stringResource(R.string.settings_app_theme_title),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(start = 4.dp, end = 4.dp, bottom = 4.dp),
             )
-
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Row(
-                            modifier = Modifier.fillMaxWidth().selectableGroup(),
-                            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-                            verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        AppModeOption(
-                                label = stringResource(R.string.common_theme_light),
-                                icon = MaterialSymbols.LightMode,
-                                selected = appThemeMode == AppThemeMode.LIGHT,
-                                onClick = { onSetAppThemeMode(AppThemeMode.LIGHT) },
-                                modifier = Modifier.weight(1f),
-                        )
-                        AppModeOption(
-                                label = stringResource(R.string.common_theme_dark),
-                                icon = MaterialSymbols.DarkMode,
-                                selected = appThemeMode == AppThemeMode.DARK,
-                                onClick = { onSetAppThemeMode(AppThemeMode.DARK) },
-                                modifier = Modifier.weight(1f),
-                        )
-                        AppModeOption(
-                                label = stringResource(R.string.common_theme_system),
-                                icon = MaterialSymbols.Settings,
-                                selected = appThemeMode == AppThemeMode.SYSTEM,
-                                onClick = { onSetAppThemeMode(AppThemeMode.SYSTEM) },
-                                modifier = Modifier.weight(1f),
-                        )
-                    }
-
-                    HorizontalDivider(
-                            color = AppColors.SettingsDivider,
-                            modifier = Modifier.padding(horizontal = 75.dp, vertical = 12.dp),
+                    SettingsChoiceGroup(
+                            options =
+                                    listOf(
+                                            SettingsChoice(AppThemeMode.LIGHT, stringResource(R.string.common_theme_light), MaterialSymbols.LightMode),
+                                            SettingsChoice(AppThemeMode.DARK, stringResource(R.string.common_theme_dark), MaterialSymbols.DarkMode),
+                                            SettingsChoice(AppThemeMode.SYSTEM, stringResource(R.string.common_theme_system), MaterialSymbols.Settings),
+                                    ),
+                            selected = appThemeMode,
+                            onSelect = { mode -> if (mode != appThemeMode) onSetAppThemeMode(mode) },
                     )
-
+            }
+        }
+        SettingsSegment(index = index++, count = count) {
+            SettingsSegmentContent {
                     Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -346,125 +326,46 @@ fun AppThemeCard(
                             )
                         }
                     }
-
             }
-
-            if (showMaterialYouToggle) {
+        }
+        if (showMaterialYouToggle) {
+            SettingsSegment(index = index++, count = count) {
                 SettingsToggleRow(
                         title = stringResource(R.string.settings_device_theme_title),
                         subtitle = stringResource(R.string.settings_device_theme_desc),
                         checked = deviceThemeEnabled,
                         onCheckedChange = onDeviceThemeToggle,
-                        horizontalPadding = DesignTokens.SpacingSmall,
                         isLastItem = !showAmoledThemeToggle && !showThemedIconsToggle,
                         showDivider = showAmoledThemeToggle || showThemedIconsToggle,
                 )
             }
-
-            if (showAmoledThemeToggle) {
+        }
+        if (showAmoledThemeToggle) {
+            SettingsSegment(index = index++, count = count) {
                 SettingsToggleRow(
                         title = stringResource(R.string.settings_amoled_theme_title),
                         subtitle = stringResource(R.string.settings_amoled_theme_desc),
                         checked = amoledThemeEnabled,
                         onCheckedChange = onAmoledThemeToggle,
-                        horizontalPadding = DesignTokens.SpacingSmall,
                         extraVerticalPadding = (-4).dp,
                         isLastItem = !showThemedIconsToggle,
                         showDivider = showThemedIconsToggle,
                 )
             }
-
-            if (showThemedIconsToggle) {
+        }
+        if (showThemedIconsToggle) {
+            SettingsSegment(index = index++, count = count) {
                 SettingsToggleRow(
                         title = stringResource(R.string.settings_themed_icons_title),
                         subtitle = stringResource(R.string.settings_themed_icons_desc),
                         checked = themedIconsEnabled,
                         onCheckedChange = onThemedIconsToggle,
-                        horizontalPadding = DesignTokens.SpacingSmall,
                         extraVerticalPadding = (-4).dp,
                         isLastItem = true,
                         showDivider = false,
                 )
             }
         }
-    }
-}
-
-@Composable
-internal fun AppModeOption(
-        label: String,
-        icon: ImageVector,
-        selected: Boolean,
-        onClick: () -> Unit,
-        modifier: Modifier = Modifier,
-        swatchColor: Color? = null,
-        iconLabelSpacing: Dp = DesignTokens.SpacingXSmall,
-        compactLabel: Boolean = false,
-        enabled: Boolean = true,
-) {
-    val contentAlpha = if (enabled) 1f else 0.5f
-    val borderColor =
-            if (selected) MaterialTheme.colorScheme.primary
-            else AppColors.SettingsDivider
-    val backgroundColor =
-            if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-            else Color.Transparent
-
-    Column(
-            modifier =
-                    modifier
-                            .clip(MaterialTheme.shapes.large)
-                            .background(color = backgroundColor, shape = MaterialTheme.shapes.large)
-                            .border(
-                                    width = DesignTokens.BorderWidth,
-                                    color = borderColor,
-                                    shape = MaterialTheme.shapes.large,
-                            )
-                            .selectable(
-                                    selected = selected,
-                                    enabled = enabled,
-                                    onClick = onClick,
-                                    role = Role.RadioButton,
-                            )
-                            .padding(
-                                    horizontal = DesignTokens.ChipHorizontalPadding,
-                                    vertical = DesignTokens.ChipVerticalPadding,
-                            )
-                            .alpha(contentAlpha),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(iconLabelSpacing),
-    ) {
-        if (swatchColor != null) {
-            Box(
-                    modifier =
-                            Modifier.size(24.dp)
-                                    .clip(CircleShape)
-                                    .background(swatchColor)
-                                    .border(
-                                            width = 1.dp,
-                                            color = MaterialTheme.colorScheme.outline,
-                                            shape = CircleShape,
-                                    ),
-            )
-        } else {
-            Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        Text(
-                text = label,
-                style =
-                        if (compactLabel) {
-                            MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp)
-                        } else {
-                            MaterialTheme.typography.labelSmall
-                        },
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-        )
     }
 }
 

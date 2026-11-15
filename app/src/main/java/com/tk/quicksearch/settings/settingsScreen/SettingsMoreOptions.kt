@@ -26,6 +26,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import com.tk.quicksearch.settings.preloadFeaturesMarkdown
@@ -182,158 +185,145 @@ fun SettingsMoreOptions(
             ),
         )
 
-    SettingsCard(
-        modifier = modifier.fillMaxWidth(),
-    ) {
-        Column {
-            feedbackItems.forEachIndexed { index, item ->
-                SettingsNavigationRow(
-                    item = item,
-                    contentPadding =
-                        PaddingValues(
-                            horizontal = DesignTokens.SpacingXXLarge,
-                            vertical = DesignTokens.SpacingLarge,
-                        ),
-                )
+    // Feedback rows, then More apps, then the licenses link close the group.
+    val count = feedbackItems.size + 2
+    SettingsSegmentGroup(modifier = modifier) {
+        feedbackItems.forEachIndexed { index, item ->
+            SettingsSegmentNavigationRow(item = item, index = index, count = count)
+        }
 
-                if (index < feedbackItems.lastIndex) {
-                    HorizontalDivider(
-                        color = AppColors.SettingsDivider,
-                    )
-                }
-            }
-
-            HorizontalDivider(
-                color = AppColors.SettingsDivider,
+        SettingsSegment(index = count - 2, count = count) {
+            SettingsSegmentRow(
+                title = stringResource(R.string.settings_more_apps_from_developer_title),
+                trailing = {
+                    IconButton(onClick = onOpenDeveloperGooglePlay) {
+                        Icon(
+                            painter = painterResource(R.drawable.google_play),
+                            contentDescription = "Google Play",
+                            tint = androidx.compose.ui.graphics.Color.Unspecified,
+                        )
+                    }
+                    IconButton(onClick = onOpenDeveloperGitHub) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_github),
+                            contentDescription = "GitHub",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                },
             )
+        }
 
-            MoreAppsFromDeveloperRow(
-                onGooglePlayClick = onOpenDeveloperGooglePlay,
-                onGitHubClick = onOpenDeveloperGitHub,
-            )
-
-            HorizontalDivider(
-                color = AppColors.SettingsDivider,
-            )
-
-            Box(
+        SettingsSegment(index = count - 1, count = count, onClick = onOpenOssLicenses) {
+            Text(
+                text = stringResource(R.string.settings_open_source_licenses_title),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .clickable(onClick = onOpenOssLicenses)
-                        .padding(
-                            horizontal = DesignTokens.SpacingXXLarge,
-                            vertical = DesignTokens.SpacingLarge,
-                        ),
-            ) {
-                Text(
-                    text = stringResource(R.string.settings_open_source_licenses_title),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun MoreAppsFromDeveloperRow(
-    onGooglePlayClick: () -> Unit,
-    onGitHubClick: () -> Unit,
-) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = DesignTokens.SpacingXXLarge,
-                    vertical = DesignTokens.SpacingLarge,
-                ),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = stringResource(R.string.settings_more_apps_from_developer_title),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f),
-        )
-
-        IconButton(onClick = onGooglePlayClick) {
-            Icon(
-                painter = painterResource(R.drawable.google_play),
-                contentDescription = "Google Play",
-                tint = androidx.compose.ui.graphics.Color.Unspecified,
-            )
-        }
-
-        IconButton(onClick = onGitHubClick) {
-            Icon(
-                painter = painterResource(R.drawable.ic_github),
-                contentDescription = "GitHub",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        .padding(vertical = DesignTokens.SpacingXLarge),
             )
         }
     }
 }
 
+/** Backup tile: title and description over a connected Import / Export button pair. */
 @Composable
 internal fun BackupRestoreRow(
+    index: Int,
+    count: Int,
     onImportClick: () -> Unit,
     onExportClick: () -> Unit,
 ) {
-    Column(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = DesignTokens.SpacingXXLarge,
-                    vertical = DesignTokens.SpacingLarge,
-                ),
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-    ) {
-        Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall)) {
-            Text(
-                text = stringResource(R.string.settings_backup_restore_title),
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            Text(
-                text = stringResource(R.string.settings_backup_restore_desc),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
+    SettingsSegment(index = index, count = count) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = DesignTokens.SpacingLarge,
+                        vertical = DesignTokens.SpacingLarge,
+                    ),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
         ) {
-            OutlinedButton(
-                onClick = onImportClick,
-                modifier = Modifier.weight(1f),
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
             ) {
-                Icon(
-                    imageVector = MaterialSymbols.Download,
-                    contentDescription = null,
-                )
-                Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
-                Text(text = stringResource(R.string.settings_backup_import_button))
+                SettingsIconBadge(icon = MaterialSymbols.History)
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(
+                        text = stringResource(R.string.settings_backup_restore_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Text(
+                        text = stringResource(R.string.settings_backup_restore_desc),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
-            OutlinedButton(
-                onClick = onExportClick,
-                modifier = Modifier.weight(1f),
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
             ) {
-                Icon(
-                    imageVector = MaterialSymbols.Upload,
-                    contentDescription = null,
+                BackupButton(
+                    text = stringResource(R.string.settings_backup_import_button),
+                    icon = MaterialSymbols.Download,
+                    onClick = onImportClick,
+                    shape = BackupButtonStartShape,
+                    modifier = Modifier.weight(1f),
                 )
-                Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
-                Text(text = stringResource(R.string.settings_backup_export_button))
+                BackupButton(
+                    text = stringResource(R.string.settings_backup_export_button),
+                    icon = MaterialSymbols.Upload,
+                    onClick = onExportClick,
+                    shape = BackupButtonEndShape,
+                    modifier = Modifier.weight(1f),
+                )
             }
         }
     }
 }
+
+@Composable
+private fun BackupButton(
+    text: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    onClick: () -> Unit,
+    shape: androidx.compose.ui.graphics.Shape,
+    modifier: Modifier = Modifier,
+) {
+    androidx.compose.material3.Button(
+        onClick = onClick,
+        modifier = modifier.height(BackupButtonHeight),
+        shape = shape,
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = AppColors.Accent.copy(alpha = BackupButtonTintAlpha),
+                contentColor = AppColors.Accent,
+            ),
+        contentPadding = PaddingValues(horizontal = DesignTokens.SpacingLarge),
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(ButtonDefaults.IconSize),
+        )
+        Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
+        Text(text = text, style = MaterialTheme.typography.labelLarge, maxLines = 1)
+    }
+}
+
+private val BackupButtonHeight = 48.dp
+private const val BackupButtonTintAlpha = 0.14f
+private val BackupButtonStartShape =
+    RoundedCornerShape(topStart = 24.dp, bottomStart = 24.dp, topEnd = 8.dp, bottomEnd = 8.dp)
+private val BackupButtonEndShape =
+    RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp, topEnd = 24.dp, bottomEnd = 24.dp)
 
 /**
  * Header component for the settings screen.
@@ -361,7 +351,7 @@ fun SettingsHeader(onBack: () -> Unit) {
             .Spacer(modifier = Modifier.width(DesignTokens.HeaderIconSpacing))
         Text(
             text = stringResource(R.string.settings_gesture_settings),
-            style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onSurface,
         )
     }

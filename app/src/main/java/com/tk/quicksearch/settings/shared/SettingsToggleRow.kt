@@ -15,14 +15,11 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -69,7 +66,7 @@ fun SettingsToggleRow(
     enabled: Boolean = true,
     modifier: Modifier = Modifier,
     subtitle: String? = null,
-    subtitleTextStyle: TextStyle = MaterialTheme.typography.bodySmall,
+    subtitleTextStyle: TextStyle = MaterialTheme.typography.bodyMedium,
     titleContent: (@Composable () -> Unit)? = null,
     subtitleContent: (@Composable () -> Unit)? = null,
     sliderDetails: SettingsToggleSliderDetails? = null,
@@ -91,8 +88,15 @@ fun SettingsToggleRow(
     onTipBannerDismiss: (() -> Unit)? = null,
 ) {
     val view = LocalView.current
-    val topPadding = DesignTokens.cardItemTopPadding(isFirstItem) + extraVerticalPadding
-    val bottomPadding = DesignTokens.cardItemBottomPadding(isLastItem) + extraVerticalPadding
+    val segmented = LocalSettingsSegmented.current
+    // A tile has its own inset; the card defaults (24dp sides, first/last padding) apply only on a card.
+    val horizontalPadding =
+        if (segmented && horizontalPadding == DesignTokens.SpacingXXLarge) SettingsSegmentToggleHorizontalPadding else horizontalPadding
+    // Tiles share one height rhythm, so per-card spacing tweaks (extraVerticalPadding) don't apply.
+    val topPadding =
+        if (segmented) SettingsSegmentRowPadding else DesignTokens.cardItemTopPadding(isFirstItem) + extraVerticalPadding
+    val bottomPadding =
+        if (segmented) SettingsSegmentRowPadding else DesignTokens.cardItemBottomPadding(isLastItem) + extraVerticalPadding
     val onToggle: (Boolean) -> Unit = { newValue ->
         if (enabled) {
             hapticToggle(view)()
@@ -238,18 +242,7 @@ fun SettingsToggleRow(
                 }
             }
             if (showSwitch) {
-                Switch(
-                    checked = checked,
-                    onCheckedChange = onToggle,
-                    enabled = enabled,
-                    modifier = Modifier.scale(0.85f),
-                    colors =
-                        SwitchDefaults.colors(
-                            uncheckedTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-                            uncheckedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-                            uncheckedThumbColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-                        ),
-                )
+                SettingsSwitch(checked = checked, onCheckedChange = onToggle, enabled = enabled)
             }
             trailingAction?.invoke()
         }
@@ -300,7 +293,7 @@ fun SettingsToggleRow(
             )
         }
 
-        if (showDivider && !isLastItem) {
+        if (showDivider && !isLastItem && !segmented) {
             HorizontalDivider(
                 color = AppColors.SettingsDivider,
             )
