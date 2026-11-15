@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.appSettings
 
+import com.tk.quicksearch.settings.shared.SettingsChoice
+import com.tk.quicksearch.settings.shared.SettingsChoiceGroup
 import com.tk.quicksearch.settings.shared.SettingsSwitch
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
 import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
@@ -334,24 +336,19 @@ internal fun AppSettingResultRow(
         }
 
         if (isAppsPerRowSetting) {
-            val fourSelected = appSettingPhoneAppGridColumns == 4
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-                modifier = Modifier.padding(end = 6.dp),
-            ) {
-                AppSettingChoiceChip(
-                    label = stringResource(R.string.settings_app_columns_4),
-                    selected = fourSelected,
-                    onClick = { onAppSettingPhoneAppGridColumnsChange(4) },
-                    showCheck = false,
-                )
-                AppSettingChoiceChip(
-                    label = stringResource(R.string.settings_app_columns_5),
-                    selected = !fourSelected,
-                    onClick = { onAppSettingPhoneAppGridColumnsChange(5) },
-                    showCheck = false,
-                )
-            }
+            SettingsChoiceGroup(
+                options =
+                    listOf(
+                        SettingsChoice(4, stringResource(R.string.settings_app_columns_4)),
+                        SettingsChoice(5, stringResource(R.string.settings_app_columns_5)),
+                    ),
+                selected = if (appSettingPhoneAppGridColumns == 4) 4 else 5,
+                onSelect = { columns ->
+                    if (columns != appSettingPhoneAppGridColumns) onAppSettingPhoneAppGridColumnsChange(columns)
+                },
+                fillWidth = false,
+                modifier = Modifier.padding(start = DesignTokens.SpacingSmall),
+            )
         } else if (isAppResultRowsSetting) {
             AppResultRowsChips(
                 selectedRowCount = appSettingAppResultRowCount,
@@ -361,13 +358,6 @@ internal fun AppSettingResultRow(
             Icon(
                 imageVector = MaterialSymbols.UnfoldMore,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(end = 6.dp),
-            )
-        } else if (setting.id == THEME_MODE_SETTING_ID) {
-            Icon(
-                imageVector = MaterialSymbols.ChevronRight,
-                contentDescription = stringResource(R.string.desc_navigate_forward),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(end = 6.dp),
             )
@@ -424,19 +414,13 @@ private fun AppResultRowsChips(
     selectedRowCount: Int,
     onSelectRowCount: (Int) -> Unit,
 ) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-        modifier = Modifier.padding(end = 6.dp),
-    ) {
-        listOf(1, 2).forEach { rowCount ->
-            AppSettingChoiceChip(
-                label = rowCount.toString(),
-                selected = selectedRowCount == rowCount,
-                onClick = { onSelectRowCount(rowCount) },
-                showCheck = false,
-            )
-        }
-    }
+    SettingsChoiceGroup(
+        options = listOf(1, 2).map { rowCount -> SettingsChoice(rowCount, rowCount.toString()) },
+        selected = if (selectedRowCount == 2) 2 else 1,
+        onSelect = { rowCount -> if (rowCount != selectedRowCount) onSelectRowCount(rowCount) },
+        fillWidth = false,
+        modifier = Modifier.padding(start = DesignTokens.SpacingSmall),
+    )
 }
 
 @Composable

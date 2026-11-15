@@ -39,10 +39,9 @@ internal fun AppNotificationsSettingsRow(
         subtitle = appNotificationsSubtitle(hasNotificationAccess, filters),
         checked = checked,
         onCheckedChange = onCheckedChange,
-        onRowClick = { openAppNotificationsSettings(context) },
+        // Without access, the text asks for it (and turns the toggle on) instead of opening the page.
+        onRowClick = { if (hasNotificationAccess) openAppNotificationsSettings(context) else onCheckedChange(true) },
         showNavigationChevron = true,
-        enabled = hasNotificationAccess,
-        onDisabledClick = { onCheckedChange(true) },
         isFirstItem = isFirstItem,
         isLastItem = isLastItem,
     )
@@ -77,13 +76,15 @@ internal fun WidgetAppNotificationsSettingsRow(
         checked = checked && hasNotificationAccess,
         onCheckedChange = onToggle,
         onRowClick = {
+            if (!hasNotificationAccess) {
+                onToggle(true)
+                return@SettingsToggleRow
+            }
             editor.launch(filters)
             @Suppress("DEPRECATION")
             (context as? Activity)?.overridePendingTransition(R.anim.custom_info_slide_in_right, R.anim.custom_info_slide_out_left)
         },
         showNavigationChevron = true,
-        enabled = hasNotificationAccess,
-        onDisabledClick = { onToggle(true) },
         isFirstItem = isFirstItem,
         isLastItem = isLastItem,
     )

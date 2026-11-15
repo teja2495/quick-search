@@ -2,7 +2,6 @@ package com.tk.quicksearch.search.appSettings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,6 +28,9 @@ import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.HomeTextColor
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.settings.appearanceSettings.FONT_SIZE_STEPS
+import com.tk.quicksearch.settings.shared.SettingsChoice
+import com.tk.quicksearch.settings.shared.SettingsChoiceGroup
+import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.hapticToggle
@@ -210,50 +212,38 @@ private fun HomeTextColorInlineChips(controls: AppSettingInlineControls) {
                 ?: defaultColor
     }
     val selected = controls.homeTextColorOverride ?: wallpaperDefaultColor
-    InlineChipRow {
-        AppSettingChoiceChip(
-            label = stringResource(R.string.widget_text_icon_color_white),
-            selected = selected == HomeTextColor.WHITE,
-            onClick = { controls.onHomeTextColorChange(HomeTextColor.WHITE) },
-            compact = true,
-            modifier = Modifier.weight(1f),
-        )
-        AppSettingChoiceChip(
-            label = stringResource(R.string.widget_text_icon_color_black),
-            selected = selected == HomeTextColor.BLACK,
-            onClick = { controls.onHomeTextColorChange(HomeTextColor.BLACK) },
-            compact = true,
-            modifier = Modifier.weight(1f),
-        )
-    }
+    SettingsChoiceGroup(
+        options =
+            listOf(
+                SettingsChoice(
+                    value = HomeTextColor.WHITE,
+                    label = stringResource(R.string.widget_text_icon_color_white),
+                    icon = MaterialSymbols.LightMode,
+                ),
+                SettingsChoice(
+                    value = HomeTextColor.BLACK,
+                    label = stringResource(R.string.widget_text_icon_color_black),
+                    icon = MaterialSymbols.DarkMode,
+                ),
+            ),
+        selected = selected,
+        onSelect = { color -> if (color != selected) controls.onHomeTextColorChange(color) },
+        modifier = Modifier.padding(top = 8.dp),
+    )
 }
 
+/** Plain labels: the row shares its width with the trailing chevron, too narrow for three icons. */
 @Composable
 private fun ThemeModeInlineChips(controls: AppSettingInlineControls) {
-    InlineChipRow {
-        listOf(
-            AppThemeMode.LIGHT to R.string.common_theme_light,
-            AppThemeMode.DARK to R.string.common_theme_dark,
-            AppThemeMode.SYSTEM to R.string.common_theme_system,
-        ).forEach { (mode, labelRes) ->
-            AppSettingChoiceChip(
-                label = stringResource(labelRes),
-                selected = controls.appThemeMode == mode,
-                onClick = { controls.onAppThemeModeChange(mode) },
-                compact = true,
-                modifier = Modifier.weight(1f),
-            )
-        }
-    }
-}
-
-/** One line of equal-width compact chips. */
-@Composable
-private fun InlineChipRow(content: @Composable RowScope.() -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        content()
-    }
+    SettingsChoiceGroup(
+        options =
+            listOf(
+                SettingsChoice(AppThemeMode.LIGHT, stringResource(R.string.common_theme_light)),
+                SettingsChoice(AppThemeMode.DARK, stringResource(R.string.common_theme_dark)),
+                SettingsChoice(AppThemeMode.SYSTEM, stringResource(R.string.common_theme_system)),
+            ),
+        selected = controls.appThemeMode,
+        onSelect = { mode -> if (mode != controls.appThemeMode) controls.onAppThemeModeChange(mode) },
+        modifier = Modifier.padding(top = 8.dp),
+    )
 }

@@ -41,7 +41,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -119,6 +118,14 @@ fun <T> SettingsChoiceGroup(
     BoxWithConstraints(modifier = modifier.then(if (fillWidth) Modifier.fillMaxWidth() else Modifier)) {
         val available = maxWidth - SettingsChoiceGap * (options.size - 1).coerceAtLeast(0)
         val compact = fillWidth && reservedWidths.fold(0.dp) { sum, width -> sum + width } > available
+        // Labels never ellipsize: when even the smallest font can't keep them on one line, they
+        // wrap at that size and the buttons grow taller.
+        val minScale = SettingsChoiceMinFontSize.value / labelStyle.fontSize.value
+        val wrapLabels =
+            compact &&
+                options.indices.fold(0.dp) { sum, index ->
+                    sum + compactWidths[index] - labelWidths[index] * (1f - minScale)
+                } > available
         val targetWeights = (if (compact) compactWidths else reservedWidths).map { it.value }
         Row(
             modifier =
@@ -140,6 +147,7 @@ fun <T> SettingsChoiceGroup(
                     isStart = index == 0,
                     isEnd = index == options.lastIndex,
                     enabled = enabled,
+                    wrapLabel = wrapLabels,
                     onClick = {
                         if (haptic && option.value != selected) hapticToggle(view)()
                         onSelect(option.value)
@@ -158,6 +166,7 @@ private fun <T> SettingsChoiceButton(
     isStart: Boolean,
     isEnd: Boolean,
     enabled: Boolean,
+    wrapLabel: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -217,22 +226,35 @@ private fun <T> SettingsChoiceButton(
                     modifier = Modifier.size(SettingsChoiceIconSize),
                 )
         }
-        // One line: shrinks toward SettingsChoiceMinFontSize when the row is too narrow, and only
-        // past that ellipsizes.
+        // One line, shrinking toward SettingsChoiceMinFontSize when the row is too narrow; past
+        // that ([wrapLabel]) the label wraps at the minimum size. Never ellipsized.
         val labelStyle = MaterialTheme.typography.labelLarge
-        BasicText(
-            text = option.label,
-            style = labelStyle.copy(color = content, textAlign = TextAlign.Center),
-            maxLines = 1,
-            softWrap = false,
-            overflow = TextOverflow.Ellipsis,
-            autoSize =
-                TextAutoSize.StepBased(
-                    minFontSize = SettingsChoiceMinFontSize,
-                    maxFontSize = labelStyle.fontSize,
-                    stepSize = 0.5.sp,
-                ),
-        )
+        if (wrapLabel) {
+            BasicText(
+                text = option.label,
+                style =
+                    labelStyle.copy(
+                        color = content,
+                        textAlign = TextAlign.Center,
+                        fontSize = SettingsChoiceMinFontSize,
+                        lineHeight = SettingsChoiceMinFontSize * 1.3f,
+                    ),
+                modifier = Modifier.padding(vertical = 6.dp),
+            )
+        } else {
+            BasicText(
+                text = option.label,
+                style = labelStyle.copy(color = content, textAlign = TextAlign.Center),
+                maxLines = 1,
+                softWrap = false,
+                autoSize =
+                    TextAutoSize.StepBased(
+                        minFontSize = SettingsChoiceMinFontSize,
+                        maxFontSize = labelStyle.fontSize,
+                        stepSize = 0.5.sp,
+                    ),
+            )
+        }
     }
 }
 
@@ -282,8 +304,7 @@ fun SettingsTonalButton(
         Text(
             text = text,
             style = if (small) MaterialTheme.typography.labelMedium else MaterialTheme.typography.labelLarge,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center,
         )
     }
 }

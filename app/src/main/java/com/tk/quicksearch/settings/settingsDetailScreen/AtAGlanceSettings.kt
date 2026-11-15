@@ -232,7 +232,7 @@ fun AtAGlanceSettingsSection(
     val notificationCheckedChanges =
         NOTIFICATION_ITEMS.associateWith { item -> rememberNotificationDotsCheckedChange { setShown(item, it) } }
 
-    /** A toggle that needs notification access; its description gives way to the permission hint. */
+    /** A toggle that needs notification access; turning it on without access asks for it first. */
     fun notificationToggle(
         item: GlanceItem,
         title: String,
@@ -244,14 +244,12 @@ fun AtAGlanceSettingsSection(
             subtitle = if (hasNotificationAccess) description else needsPermissionText,
             checked = isShown(item) && hasNotificationAccess,
             onCheckedChange = onCheckedChange,
-            enabled = hasNotificationAccess,
-            onDisabledClick = { onCheckedChange(true) },
             isFirstItem = isFirst,
             isLastItem = isLast,
         )
     }
 
-    /** A toggle that needs a runtime permission tracked by [gate]. */
+    /** A toggle that needs a runtime permission tracked by [gate]; turning it on without it requests it. */
     fun permissionToggle(
         item: GlanceItem,
         title: String,
@@ -264,9 +262,7 @@ fun AtAGlanceSettingsSection(
                 title = title,
                 subtitle = if (gate.hasAccess) description else needsPermissionText,
                 checked = isShown(item) && gate.hasAccess,
-                onCheckedChange = { setShown(item, it) },
-                enabled = gate.hasAccess,
-                onDisabledClick = gate.request,
+                onCheckedChange = { checked -> if (checked && !gate.hasAccess) gate.request() else setShown(item, checked) },
                 isFirstItem = isFirst,
                 isLastItem = isLast,
             )

@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.shared
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -62,6 +63,7 @@ internal fun ResultSegment(
     index: Int,
     count: Int,
     modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
     val style = LocalSegmentedRowsStyle.current
@@ -77,6 +79,7 @@ internal fun ResultSegment(
                 .fillMaxWidth()
                 .clip(shape)
                 .background(style.containerColor, shape)
+                .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
                 .padding(
                     horizontal = DesignTokens.SegmentedListTileHorizontalPadding,
                     vertical = DesignTokens.SegmentedListTileVerticalPadding,
