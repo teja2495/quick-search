@@ -18,6 +18,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +47,7 @@ import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.data.preferences.ResultTrigger
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.homeTextColor
 import com.tk.quicksearch.shared.util.hapticConfirm
 import java.util.Locale
 
@@ -116,7 +120,15 @@ internal fun AppShortcutGridItem(
             ).bitmap
     var showOptions by remember { mutableStateOf(false) }
     var isLocalDragging by remember { mutableStateOf(false) }
+    var isHeld by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
     val showDraggedPresentation = isDragging || isLocalDragging
+    val pressScale by animateFloatAsState(
+        targetValue = if ((isPressed || isHeld) && !showDraggedPresentation && !isMergeTarget) AppGridPressedScale else 1f,
+        animationSpec = DesignTokens.expressiveFastSpatialSpring(),
+        label = "gridIconPressScale",
+    )
     val dragScale by animateFloatAsState(
             targetValue =
                     when {
@@ -146,7 +158,10 @@ internal fun AppShortcutGridItem(
                     onPinnedDragStart = onPinnedDragStart,
                     onPinnedDrag = onPinnedDrag,
                     onPinnedDragEnd = onPinnedDragEnd,
-                    onHoldChange = onHoldChange,
+                    onHoldChange = { held ->
+                        isHeld = held
+                        onHoldChange?.invoke(held)
+                    },
             )
     val isDraggable = onPinnedDragStart != null && onPinnedDrag != null && onPinnedDragEnd != null
     val clickModifier =
@@ -154,6 +169,8 @@ internal fun AppShortcutGridItem(
                 Modifier
             } else {
                 Modifier.combinedClickable(
+                        interactionSource = interactionSource,
+                        indication = ripple(color = homeTextColor()),
                         onClick = {
                             if (!showOptions) {
                                 hapticConfirm(view)()
@@ -199,7 +216,11 @@ internal fun AppShortcutGridItem(
                             Modifier.requiredSize(iconSurfaceSize)
                                     .clip(DesignTokens.ShapeLarge)
                                     .then(dragModifier)
-                                    .then(clickModifier),
+                                    .then(clickModifier)
+                                    .graphicsLayer {
+                                        scaleX = pressScale
+                                        scaleY = pressScale
+                                    },
                     contentAlignment = Alignment.Center,
             ) {
                 if (isMergeTarget) {

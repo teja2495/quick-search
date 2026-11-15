@@ -214,7 +214,7 @@ object DesignTokens {
     val SegmentedListTileVerticalPadding = SpacingXSmall
 
     /** Corner radius for widgets and cards shown in the widgets panel. */
-    val WidgetPanelCornerRadius = 20.dp
+    val WidgetPanelCornerRadius = 28.dp
 
     /** Shape for widgets and cards shown in the widgets panel. */
     val WidgetPanelCardShape: Shape = RoundedCornerShape(WidgetPanelCornerRadius)

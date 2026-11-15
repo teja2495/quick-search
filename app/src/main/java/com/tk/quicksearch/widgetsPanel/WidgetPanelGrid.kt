@@ -48,6 +48,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -121,36 +123,43 @@ internal fun WidgetsPanelHeader(
     onAddWidget: () -> Unit,
     onExitEditMode: () -> Unit,
 ) {
-    val mutedColor = homeTextColor().copy(alpha = 0.7f)
+    val foreground = homeTextColor()
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().padding(vertical = DesignTokens.SpacingSmall),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = stringResource(R.string.widgets_panel_title),
-            style = MaterialTheme.typography.titleMedium,
-            color = mutedColor,
+            style = MaterialTheme.typography.headlineSmall,
+            color = foreground,
             modifier = Modifier.weight(1f),
         )
         if (inEditMode) {
-            TextButton(
+            FilledTonalButton(
                 onClick = onExitEditMode,
-                colors = ButtonDefaults.textButtonColors(contentColor = homeTextColor()),
+                shape = DesignTokens.ShapeFull,
+                colors = ButtonDefaults.filledTonalButtonColors(
+                    containerColor = foreground.copy(alpha = 0.12f),
+                    contentColor = foreground,
+                ),
             ) {
-                Text(
-                    text = stringResource(R.string.dialog_done),
-                    style = MaterialTheme.typography.labelLarge,
-                )
+                Icon(imageVector = MaterialSymbols.Check, contentDescription = null, modifier = Modifier.size(DesignTokens.IconSizeSmall))
+                Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
+                Text(text = stringResource(R.string.dialog_done))
             }
         } else {
-            IconButton(
+            FilledTonalIconButton(
                 onClick = onAddWidget,
-                colors = IconButtonDefaults.iconButtonColors(contentColor = mutedColor),
+                modifier = Modifier.size(DesignTokens.Spacing48),
+                colors = IconButtonDefaults.filledTonalIconButtonColors(
+                    containerColor = foreground.copy(alpha = 0.12f),
+                    contentColor = foreground,
+                ),
             ) {
                 Icon(
                     imageVector = MaterialSymbols.Add,
                     contentDescription = stringResource(R.string.common_action_add),
-                    modifier = Modifier.size(22.dp),
+                    modifier = Modifier.size(DesignTokens.IconSize),
                 )
             }
         }

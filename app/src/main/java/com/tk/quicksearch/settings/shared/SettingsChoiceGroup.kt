@@ -2,6 +2,7 @@ package com.tk.quicksearch.settings.shared
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.text.BasicText
@@ -10,6 +11,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -67,8 +69,9 @@ data class SettingsChoice<T>(
  * on the settings tile over wallpaper, custom image, AMOLED, and Material You alike.
  *
  * [fillWidth] spreads the options across the row, each button's share proportional to its label so
- * a long label gets the room a short one doesn't need; labels stay on one line and shrink a little
- * only when the row is still too narrow. Otherwise each button wraps its label, for a group placed
+ * a long label gets the room a short one doesn't need. When that doesn't fit, only the selected
+ * plain option keeps room for its check (the widths animate on selection), and labels stay on one
+ * line, shrinking a little only when the row is still too narrow. Otherwise each button wraps its label, for a group placed
  * at the end of a row. [onSelect] also gets taps on the selected option, so a Custom
  * option can reopen its picker; [haptic] plays the toggle haptic on a change, off for callers that
  * play their own.
@@ -89,35 +92,61 @@ fun <T> SettingsChoiceGroup(
     val density = LocalDensity.current
     // Natural width of each button. Plain options reserve the check's slot whether or not they're
     // selected, so changing the selection doesn't shift the buttons.
-    val weights =
+    val labelWidths =
         remember(options, labelStyle, density) {
             options.map { option ->
-                val labelWidth = textMeasurer.measure(option.label, labelStyle, maxLines = 1).size.width
-                val leading = if (option.swatch != null) SettingsChoiceSwatchSize else SettingsChoiceIconSize
-                with(density) { labelWidth.toDp() } + leading + SettingsChoiceIconSpacing + SettingsChoicePadding * 2
-            }.map { it.value }
+                with(density) { textMeasurer.measure(option.label, labelStyle, maxLines = 1).size.width.toDp() }
+            }
         }
-    Row(
-        modifier =
-            modifier
-                .then(if (fillWidth) Modifier.fillMaxWidth() else Modifier)
-                .selectableGroup()
-                .alpha(if (enabled) 1f else SettingsChoiceDisabledAlpha),
-        horizontalArrangement = Arrangement.spacedBy(SettingsChoiceGap),
-    ) {
-        options.forEachIndexed { index, option ->
-            SettingsChoiceButton(
-                option = option,
-                checked = option.value == selected,
-                isStart = index == 0,
-                isEnd = index == options.lastIndex,
-                enabled = enabled,
-                onClick = {
-                    if (haptic && option.value != selected) hapticToggle(view)()
-                    onSelect(option.value)
-                },
-                modifier = if (fillWidth) Modifier.weight(weights[index]) else Modifier,
-            )
+    val reservedWidths =
+        options.mapIndexed { index, option ->
+            val leading = if (option.swatch != null) SettingsChoiceSwatchSize else SettingsChoiceIconSize
+            labelWidths[index] + leading + SettingsChoiceIconSpacing + SettingsChoicePadding * 2
+        }
+    // When the row is too narrow for that, only the selected plain option keeps the check's slot,
+    // so the room goes to the labels instead of empty slots and long labels stay whole.
+    val compactWidths =
+        options.mapIndexed { index, option ->
+            val hasLeading = option.icon != null || option.swatch != null || option.value == selected
+            val leading =
+                when {
+                    option.swatch != null -> SettingsChoiceSwatchSize + SettingsChoiceIconSpacing
+                    hasLeading -> SettingsChoiceIconSize + SettingsChoiceIconSpacing
+                    else -> 0.dp
+                }
+            labelWidths[index] + leading + SettingsChoicePadding * 2
+        }
+    BoxWithConstraints(modifier = modifier.then(if (fillWidth) Modifier.fillMaxWidth() else Modifier)) {
+        val available = maxWidth - SettingsChoiceGap * (options.size - 1).coerceAtLeast(0)
+        val compact = fillWidth && reservedWidths.fold(0.dp) { sum, width -> sum + width } > available
+        val targetWeights = (if (compact) compactWidths else reservedWidths).map { it.value }
+        Row(
+            modifier =
+                Modifier
+                    .then(if (fillWidth) Modifier.fillMaxWidth() else Modifier)
+                    .selectableGroup()
+                    .alpha(if (enabled) 1f else SettingsChoiceDisabledAlpha),
+            horizontalArrangement = Arrangement.spacedBy(SettingsChoiceGap),
+        ) {
+            options.forEachIndexed { index, option ->
+                val weight by animateFloatAsState(
+                    targetValue = targetWeights[index],
+                    animationSpec = DesignTokens.expressiveFastSpatialSpring(),
+                    label = "choiceWeight",
+                )
+                SettingsChoiceButton(
+                    option = option,
+                    checked = option.value == selected,
+                    isStart = index == 0,
+                    isEnd = index == options.lastIndex,
+                    enabled = enabled,
+                    onClick = {
+                        if (haptic && option.value != selected) hapticToggle(view)()
+                        onSelect(option.value)
+                    },
+                    modifier = if (fillWidth) Modifier.weight(weight) else Modifier,
+                )
+            }
         }
     }
 }

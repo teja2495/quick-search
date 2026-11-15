@@ -657,7 +657,7 @@ internal fun FileResultRow(
                                                         },
                                 )
                                 .topPredictedRowContentPadding()
-                                .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingLarge)),
+                                .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),
         ) {
             Row(
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
@@ -679,7 +679,7 @@ internal fun FileResultRow(
                                                     deviceFile.displayName,
                                             ),
                                     ),
-                            style = MaterialTheme.typography.bodyLarge,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
@@ -693,11 +693,11 @@ internal fun FileResultRow(
                                 )
                             }
                     if (extension != null || folderLabel != null) {
-                        Spacer(modifier = Modifier.height(DesignTokens.SpacingXSmall))
+                        Spacer(modifier = Modifier.height(DesignTokens.SpacingXSmall / 2))
                         Text(
                                 text = listOfNotNull(extension?.uppercase(), folderLabel)
                                         .joinToString(" · "),
-                                style = MaterialTheme.typography.bodyMedium,
+                                style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,

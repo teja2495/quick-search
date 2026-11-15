@@ -15,6 +15,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
+import com.tk.quicksearch.search.searchScreen.shared.LocalSegmentedRowsStyle
+import com.tk.quicksearch.search.searchScreen.shared.SegmentedRowsStyle
+import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
+import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
+import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
+import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
@@ -233,7 +241,7 @@ internal fun atAGlanceDividerColor(showWallpaperBackground: Boolean) =
 /** The icon pack At a Glance app icons are drawn with, so they match the app grid. */
 internal val LocalGlanceIconPackPackage = staticCompositionLocalOf<String?> { null }
 
-/** Renders [items] separated by dividers, optionally with a divider before or after the group. */
+/** Renders animated glance rows as segments, or with dividers in Compact Layout. */
 @Composable
 internal fun AtAGlanceRows(
     items: List<AtAGlanceItem>,
@@ -242,10 +250,11 @@ internal fun AtAGlanceRows(
     dividerAfter: Boolean = false,
 ) {
     val dividerColor = atAGlanceDividerColor(showWallpaperBackground)
+    val segmented = segmentedRowsActive()
     val rows = rememberAnimatedGlanceRows(items)
     if (rows.isEmpty()) return
     Column(modifier = Modifier.fillMaxWidth()) {
-        if (dividerBefore) HorizontalDivider(modifier = Modifier.compactEdgeToEdge(), color = dividerColor)
+        if (dividerBefore && !segmented) HorizontalDivider(modifier = Modifier.compactEdgeToEdge(), color = dividerColor)
         rows.forEachIndexed { index, row ->
             key(row.item.key) {
                 AnimatedVisibility(
@@ -253,14 +262,21 @@ internal fun AtAGlanceRows(
                     enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
                     exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
                 ) {
-                    Column {
-                        if (index > 0) HorizontalDivider(modifier = Modifier.compactEdgeToEdge(), color = dividerColor)
-                        row.item.content()
+                    ResultSegment(
+                        index = index + if (dividerBefore) 1 else 0,
+                        count = rows.size + (if (dividerBefore) 1 else 0) + (if (dividerAfter) 1 else 0),
+                    ) {
+                        Column {
+                            if (index > 0 && !segmented) {
+                                HorizontalDivider(modifier = Modifier.compactEdgeToEdge(), color = dividerColor)
+                            }
+                            row.item.content()
+                        }
                     }
                 }
             }
         }
-        if (dividerAfter) HorizontalDivider(modifier = Modifier.compactEdgeToEdge(), color = dividerColor)
+        if (dividerAfter && !segmented) HorizontalDivider(modifier = Modifier.compactEdgeToEdge(), color = dividerColor)
     }
 }
 
@@ -340,8 +356,19 @@ internal fun AtAGlanceTitle(showWallpaperBackground: Boolean) {
 @Composable
 internal fun AtAGlanceCardShell(
     showWallpaperBackground: Boolean,
+    segmented: Boolean = false,
     content: @Composable () -> Unit,
 ) {
+    if (segmented && LocalSearchCardLayoutEnabled.current) {
+        val containerColor = SearchResultCardDefaults.colors(
+            showWallpaperBackground = showWallpaperBackground,
+            overlayContainerColor = LocalOverlayResultCardColor.current,
+        ).containerColor
+        CompositionLocalProvider(LocalSegmentedRowsStyle provides SegmentedRowsStyle(containerColor)) {
+            Column(modifier = Modifier.fillMaxWidth()) { content() }
+        }
+        return
+    }
     SearchResultCard(
         modifier = Modifier.fillMaxWidth(),
         showWallpaperBackground = showWallpaperBackground,
@@ -375,7 +402,7 @@ internal fun AtAGlanceCard(
         // Matches the spacing of the home column the title and card sit in.
         Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
             if (showTitle) AtAGlanceTitle(showWallpaperBackground)
-            AtAGlanceCardShell(showWallpaperBackground = showWallpaperBackground) {
+            AtAGlanceCardShell(showWallpaperBackground = showWallpaperBackground, segmented = true) {
                 AtAGlanceRows(items = items, showWallpaperBackground = showWallpaperBackground)
             }
         }

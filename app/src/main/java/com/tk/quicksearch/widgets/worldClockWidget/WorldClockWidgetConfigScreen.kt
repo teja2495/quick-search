@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -31,12 +30,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
+import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.widgets.noteWidget.NoteWidgetBackgroundSection
 import com.tk.quicksearch.widgets.noteWidget.WidgetTextColorSection
 import com.tk.quicksearch.widgets.utils.WidgetConfigConstants
 import com.tk.quicksearch.widgets.utils.rememberWidgetPreviewWallpaper
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.SliderRow
+import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetSaveButton
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetSlidersSection
 import kotlin.math.roundToInt
 
@@ -90,13 +91,11 @@ fun WorldClockWidgetConfigScreen(
                             ),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Button(
-                        onClick = onSave,
+                    WidgetSaveButton(
+                        text = stringResource(R.string.dialog_save),
                         enabled = config.locations.isNotEmpty(),
-                        modifier = Modifier.fillMaxWidth().height(WidgetConfigConstants.BOTTOM_BUTTON_HEIGHT),
-                    ) {
-                        Text(text = stringResource(R.string.dialog_save), style = MaterialTheme.typography.labelLarge)
-                    }
+                        onClick = onSave,
+                    )
                 }
             }
         },
@@ -130,31 +129,37 @@ fun WorldClockWidgetConfigScreen(
                     onAddClick = { showSearch = true },
                     onLocationsChange = { onConfigChange(config.copy(locations = it)) },
                 )
-                NoteWidgetBackgroundSection(
-                    state = config.style,
-                    onStateChange = { onConfigChange(config.copy(style = it)) },
-                )
-                WidgetTextColorSection(
-                    style = config.style,
-                    onStyleChange = { onConfigChange(config.copy(style = it)) },
-                )
-                Column(verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.SLIDER_ROW_SPACING)) {
-                    SliderRow(
-                        label = stringResource(R.string.settings_font_size_title),
-                        value = config.textSizeSp.coerceIn(WorldClockWidgetDefaults.TEXT_SIZE_MIN_SP, sliderMax),
-                        valueRange = WorldClockWidgetDefaults.TEXT_SIZE_MIN_SP..sliderMax,
-                        // The end moves with the widget's size, so the value is rounded instead.
-                        steps = 0,
-                        valueFormatter = { "${it.roundToInt()} sp" },
-                        showTicks = false,
-                        onValueChange = { onConfigChange(config.copy(textSizeSp = it.roundToInt().toFloat())) },
-                    )
-                    WidgetSlidersSection(
+                SettingsSegmentGroup {
+                    NoteWidgetBackgroundSection(
                         state = config.style,
-                        showBorderControls = false,
+                        index = 0,
+                        count = 2,
                         onStateChange = { onConfigChange(config.copy(style = it)) },
                     )
+                    WidgetTextColorSection(
+                        style = config.style,
+                        index = 1,
+                        count = 2,
+                        onStyleChange = { onConfigChange(config.copy(style = it)) },
+                    )
                 }
+                WidgetSlidersSection(
+                    state = config.style,
+                    showBorderControls = false,
+                    leadingTile = {
+                        SliderRow(
+                            label = stringResource(R.string.settings_font_size_title),
+                            value = config.textSizeSp.coerceIn(WorldClockWidgetDefaults.TEXT_SIZE_MIN_SP, sliderMax),
+                            valueRange = WorldClockWidgetDefaults.TEXT_SIZE_MIN_SP..sliderMax,
+                            // The end moves with the widget's size, so the value is rounded instead.
+                            steps = 0,
+                            valueFormatter = { "${it.roundToInt()} sp" },
+                            showTicks = false,
+                            onValueChange = { onConfigChange(config.copy(textSizeSp = it.roundToInt().toFloat())) },
+                        )
+                    },
+                    onStateChange = { onConfigChange(config.copy(style = it)) },
+                )
             }
         }
     }

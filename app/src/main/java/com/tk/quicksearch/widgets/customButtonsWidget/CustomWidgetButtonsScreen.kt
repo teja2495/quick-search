@@ -6,7 +6,6 @@ import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.graphics.drawable.toBitmap
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
@@ -33,7 +32,6 @@ import com.tk.quicksearch.shared.ui.components.AppBottomSheet
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -53,6 +51,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -73,6 +72,8 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetSettingTile
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
@@ -84,7 +85,6 @@ import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.media.MediaCommand
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -138,14 +138,7 @@ fun CustomWidgetButtonsSection(
         searchViewModel.onQueryChange("")
     }
 
-    Column(
-        verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.COLOR_SECTION_SPACING),
-    ) {
-        Text(
-            text = stringResource(R.string.widget_custom_buttons_title),
-            style = MaterialTheme.typography.titleSmall,
-        )
-
+    WidgetSettingTile(title = stringResource(R.string.widget_custom_buttons_title)) {
         CustomButtonsRow(
             actions = state.customButtons.normalizedSlots(maxButtons),
             iconPackPackage = iconPackPackage,
@@ -499,10 +492,10 @@ private fun CustomButtonSlotContent(
     iconSize: androidx.compose.ui.unit.Dp,
     shape: Shape,
 ) {
+    // Tonal slots, as in the expressive settings tiles: empty slots are a lighter accent tint.
     Surface(
-        color = Color.Transparent,
+        color = AppColors.Accent.copy(alpha = if (action == null) EMPTY_SLOT_TINT_ALPHA else FILLED_SLOT_TINT_ALPHA),
         shape = shape,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         tonalElevation = 0.dp,
         shadowElevation = 0.dp,
     ) {
@@ -515,13 +508,13 @@ private fun CustomButtonSlotContent(
                 Icon(
                     imageVector = MaterialSymbols.Add,
                     contentDescription = stringResource(R.string.widget_custom_button_add_desc),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = AppColors.Accent,
                     modifier = Modifier.size(iconSize),
                 )
                 Text(
                     text = stringResource(R.string.common_action_add),
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = AppColors.Accent,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -547,3 +540,6 @@ private fun CustomButtonSlotContent(
         }
     }
 }
+
+private const val EMPTY_SLOT_TINT_ALPHA = 0.08f
+private const val FILLED_SLOT_TINT_ALPHA = 0.14f

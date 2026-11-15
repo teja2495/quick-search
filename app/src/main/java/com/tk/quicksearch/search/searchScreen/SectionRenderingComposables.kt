@@ -389,7 +389,7 @@ private fun renderCalendarSection(
         if (!context.hideHomeSectionTitleRows) {
             AtAGlanceTitle(calendarParams.showWallpaperBackground)
         }
-        AtAGlanceCardShell(showWallpaperBackground = calendarParams.showWallpaperBackground) {
+        AtAGlanceCardShell(showWallpaperBackground = calendarParams.showWallpaperBackground, segmented = true) {
             atAGlanceContent(false, false)
         }
     }

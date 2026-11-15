@@ -1,12 +1,10 @@
 package com.tk.quicksearch.widgets.countdownWidget
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,14 +12,15 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -41,7 +40,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.settings.shared.SettingsIconBadge
+import com.tk.quicksearch.settings.shared.SettingsSegment
+import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.settings.shared.SettingsSegmentRow
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.widgets.noteWidget.NoteWidgetBackgroundSection
@@ -49,7 +52,10 @@ import com.tk.quicksearch.widgets.noteWidget.WidgetTextColorSection
 import com.tk.quicksearch.widgets.utils.WidgetConfigConstants
 import com.tk.quicksearch.widgets.utils.rememberWidgetPreviewWallpaper
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.SliderRow
+import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetSettingTile
+import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetSaveButton
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetSlidersSection
+import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetTileTextInset
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -103,13 +109,11 @@ fun CountdownWidgetConfigScreen(
                             ),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Button(
-                        onClick = onSave,
+                    WidgetSaveButton(
+                        text = stringResource(R.string.dialog_save),
                         enabled = config.targetEpochDay != null,
-                        modifier = Modifier.fillMaxWidth().height(WidgetConfigConstants.BOTTOM_BUTTON_HEIGHT),
-                    ) {
-                        Text(text = stringResource(R.string.dialog_save), style = MaterialTheme.typography.labelLarge)
-                    }
+                        onClick = onSave,
+                    )
                 }
             }
         },
@@ -132,43 +136,58 @@ fun CountdownWidgetConfigScreen(
                         ),
                 verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.SECTION_SPACING),
             ) {
-                CountdownDateSection(
-                    targetEpochDay = config.targetEpochDay,
-                    onClick = { showDatePicker = true },
-                )
-                OutlinedTextField(
-                    value = config.title,
-                    onValueChange = { onConfigChange(config.copy(title = it.take(CountdownWidgetDefaults.TITLE_MAX_LENGTH))) },
-                    label = { Text(stringResource(R.string.notes_title_hint)) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                CountdownFormatSection(config = config, onConfigChange = onConfigChange)
-                NoteWidgetBackgroundSection(
-                    state = config.style,
-                    onStateChange = { onConfigChange(config.copy(style = it)) },
-                )
-                WidgetTextColorSection(
-                    style = config.style,
-                    onStyleChange = { onConfigChange(config.copy(style = it)) },
-                )
-                Column(verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.SLIDER_ROW_SPACING)) {
-                    SliderRow(
-                        label = stringResource(R.string.settings_font_size_title),
-                        value = config.textSizeSp,
-                        valueRange = CountdownWidgetDefaults.TEXT_SIZE_MIN_SP..CountdownWidgetDefaults.TEXT_SIZE_MAX_SP,
-                        steps = ((CountdownWidgetDefaults.TEXT_SIZE_MAX_SP - CountdownWidgetDefaults.TEXT_SIZE_MIN_SP) / 2).toInt(),
-                        valueFormatter = { "${it.roundToInt()} sp" },
-                        showTicks = false,
-                        onValueChange = { onConfigChange(config.copy(textSizeSp = it)) },
+                SettingsSegmentGroup {
+                    CountdownDateSection(
+                        targetEpochDay = config.targetEpochDay,
+                        onClick = { showDatePicker = true },
+                        index = 0,
+                        count = 2,
                     )
-                    WidgetSlidersSection(
+                    WidgetSettingTile(index = 1, count = 2) {
+                        OutlinedTextField(
+                            value = config.title,
+                            onValueChange = {
+                                onConfigChange(config.copy(title = it.take(CountdownWidgetDefaults.TITLE_MAX_LENGTH)))
+                            },
+                            label = { Text(stringResource(R.string.notes_title_hint)) },
+                            singleLine = true,
+                            shape = DesignTokens.ShapeLarge,
+                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                }
+                CountdownFormatSection(config = config, onConfigChange = onConfigChange)
+                SettingsSegmentGroup {
+                    NoteWidgetBackgroundSection(
                         state = config.style,
-                        showBorderControls = false,
+                        index = 0,
+                        count = 2,
                         onStateChange = { onConfigChange(config.copy(style = it)) },
                     )
+                    WidgetTextColorSection(
+                        style = config.style,
+                        index = 1,
+                        count = 2,
+                        onStyleChange = { onConfigChange(config.copy(style = it)) },
+                    )
                 }
+                WidgetSlidersSection(
+                    state = config.style,
+                    showBorderControls = false,
+                    leadingTile = {
+                        SliderRow(
+                            label = stringResource(R.string.settings_font_size_title),
+                            value = config.textSizeSp,
+                            valueRange = CountdownWidgetDefaults.TEXT_SIZE_MIN_SP..CountdownWidgetDefaults.TEXT_SIZE_MAX_SP,
+                            steps = ((CountdownWidgetDefaults.TEXT_SIZE_MAX_SP - CountdownWidgetDefaults.TEXT_SIZE_MIN_SP) / 2).toInt(),
+                            valueFormatter = { "${it.roundToInt()} sp" },
+                            showTicks = false,
+                            onValueChange = { onConfigChange(config.copy(textSizeSp = it)) },
+                        )
+                    },
+                    onStateChange = { onConfigChange(config.copy(style = it)) },
+                )
             }
         }
     }
@@ -204,47 +223,18 @@ fun CountdownWidgetConfigScreen(
 private fun CountdownDateSection(
     targetEpochDay: Long?,
     onClick: () -> Unit,
+    index: Int,
+    count: Int,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.COLOR_SECTION_SPACING)) {
-        Text(
-            text = stringResource(R.string.widget_countdown_date),
-            style = MaterialTheme.typography.titleSmall,
+    SettingsSegment(index = index, count = count, onClick = onClick) {
+        SettingsSegmentRow(
+            title = stringResource(R.string.widget_countdown_date),
+            description =
+                targetEpochDay?.let {
+                    LocalDate.ofEpochDay(it).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
+                } ?: stringResource(R.string.calendar_create_event_select_date),
+            leading = { SettingsIconBadge(icon = MaterialSymbols.CalendarMonth) },
         )
-        SettingsCard(modifier = Modifier.fillMaxWidth()) {
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .clickable(onClick = onClick)
-                        .padding(
-                            horizontal = DesignTokens.CardHorizontalPadding,
-                            vertical = DesignTokens.CardVerticalPadding,
-                        ),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-            ) {
-                Icon(
-                    imageVector = MaterialSymbols.CalendarMonth,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(DesignTokens.IconSizeSmall),
-                )
-                Text(
-                    text =
-                        targetEpochDay?.let {
-                            LocalDate.ofEpochDay(it).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
-                        } ?: stringResource(R.string.calendar_create_event_select_date),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f),
-                )
-                Icon(
-                    imageVector = MaterialSymbols.ChevronRight,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
     }
 }
 
@@ -285,26 +275,36 @@ private fun CountdownFormatSection(
     val isFuture = config.targetEpochDay?.let { it > today } ?: false
     val formats = CountdownFormat.entries.filter { it != CountdownFormat.PROGRESS || isFuture }
 
-    Column(verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.COLOR_SECTION_SPACING)) {
-        Text(
-            text = stringResource(R.string.settings_shortcut_display),
-            style = MaterialTheme.typography.titleSmall,
-        )
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)) {
+    WidgetSettingTile(
+        title = stringResource(R.string.settings_shortcut_display),
+        description =
+            stringResource(R.string.widget_countdown_progress_hint).takeIf { config.format == CountdownFormat.PROGRESS },
+    ) {
+        FlowRow(
+            modifier = Modifier.padding(horizontal = WidgetTileTextInset),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+        ) {
             formats.forEach { format ->
+                val selected = config.format == format
                 FilterChip(
-                    selected = config.format == format,
+                    selected = selected,
                     onClick = { onConfigChange(config.copy(format = format)) },
                     label = { Text(stringResource(format.labelResId)) },
+                    leadingIcon =
+                        if (selected) {
+                            { Icon(MaterialSymbols.Check, contentDescription = null, modifier = Modifier.size(FilterChipDefaults.IconSize)) }
+                        } else {
+                            null
+                        },
+                    shape = CircleShape,
+                    colors =
+                        FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = AppColors.Accent,
+                            selectedLabelColor = AppColors.OnAccent,
+                            selectedLeadingIconColor = AppColors.OnAccent,
+                        ),
                 )
             }
-        }
-        if (config.format == CountdownFormat.PROGRESS) {
-            Text(
-                text = stringResource(R.string.widget_countdown_progress_hint),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
         }
     }
 }

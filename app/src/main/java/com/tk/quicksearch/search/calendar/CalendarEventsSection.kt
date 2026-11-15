@@ -41,6 +41,10 @@ import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.search.searchScreen.components.ExpandButton
+import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
+import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
+import com.tk.quicksearch.search.searchScreen.shared.ResultRowDivider
+import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonDivider
 import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContainer
@@ -166,6 +170,7 @@ fun CalendarEventsSection(
         fillExpandedHeight = fillExpandedHeight,
         showWallpaperBackground = showWallpaperBackground,
         overlayCardColor = overlayCardColor,
+        segmented = isHomeScreenMode,
     ) { contentModifier, cardState ->
         val displayEvents =
             if (cardState.displayAsExpanded) {
@@ -184,10 +189,17 @@ fun CalendarEventsSection(
                 ),
         ) {
             val showGlanceContent = glanceContent != null && !cardState.displayAsExpanded
+            // Glance rows form one contiguous run; only their group's outer edges affect shape.
+            val leadingGlanceSegment = if (showGlanceContent && glanceContentFirst) 1 else 0
+            val segmentCount = displayEvents.size + (if (showGlanceContent) 1 else 0) +
+                (if (cardState.shouldShowExpandButton) 1 else 0)
             Column(
                 modifier =
                     Modifier.fillMaxWidth()
-                        .padding(horizontal = DesignTokens.SpacingMedium, vertical = 4.dp)
+                        .padding(
+                            horizontal = resultRowsContainerPadding(DesignTokens.SpacingMedium),
+                            vertical = resultRowsContainerPadding(DesignTokens.SpacingXSmall),
+                        )
                         .padding(
                             bottom =
                                 if (cardState.shouldFillExpandedHeight) {
@@ -205,42 +217,42 @@ fun CalendarEventsSection(
                         val isPredicted = predictedEventId != null && event.eventId == predictedEventId
                         val showPredictedOnRow = isPredicted && !useCardLevelPrediction
                         val isPinned = pinnedEventIds.contains(event.eventId)
-                        CalendarEventRow(
-                            event = event,
-                            isPinned = isPinned,
-                            isExcluded = excludedEventIds.contains(event.eventId),
-                            hasNickname = !getEventNickname(event.eventId).isNullOrBlank(),
-                            onClick = onEventClick,
-                            onTogglePin = onTogglePin,
-                            onMovePinned = onMovePinned,
-                            onExclude = onExclude,
-                            onInclude = onInclude,
-                            onNicknameClick = onNicknameClick,
-                            isPredicted = showPredictedOnRow,
-                            isHomescreenTodayEvent =
-                                isHomeScreenMode && !isPinned && !cardState.displayAsExpanded,
-                            onArchive = onArchiveTodayEvent,
-                            showDoneOnlyMenu = isHomeScreenMode && !isPinned,
-                            showPinnedItemMenu = showPinnedItemMenu,
-                        )
-                        if (index < displayEvents.lastIndex && !showPredictedOnRow) {
-                            HorizontalDivider(
-                                modifier = Modifier.compactEdgeToEdge().fillMaxWidth(),
-                                color = overlayDividerColor ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant,
+                        ResultSegment(index = index + leadingGlanceSegment, count = segmentCount) {
+                            CalendarEventRow(
+                                event = event,
+                                isPinned = isPinned,
+                                isExcluded = excludedEventIds.contains(event.eventId),
+                                hasNickname = !getEventNickname(event.eventId).isNullOrBlank(),
+                                onClick = onEventClick,
+                                onTogglePin = onTogglePin,
+                                onMovePinned = onMovePinned,
+                                onExclude = onExclude,
+                                onInclude = onInclude,
+                                onNicknameClick = onNicknameClick,
+                                isPredicted = showPredictedOnRow,
+                                isHomescreenTodayEvent =
+                                    isHomeScreenMode && !isPinned && !cardState.displayAsExpanded,
+                                onArchive = onArchiveTodayEvent,
+                                showDoneOnlyMenu = isHomeScreenMode && !isPinned,
+                                showPinnedItemMenu = showPinnedItemMenu,
                             )
+                        }
+                        if (index < displayEvents.lastIndex && !showPredictedOnRow) {
+                            ResultRowDivider(showWallpaperBackground = showWallpaperBackground, color = overlayDividerColor)
                         }
                     }
                 }
 
                 if (showGlanceContent && !glanceContentFirst) {
-                    glanceContent.invoke(true, false)
+                    glanceContent.invoke(true, cardState.shouldShowExpandButton)
                 }
 
                 if (cardState.shouldShowExpandButton) {
                     ExpandButtonDivider(showWallpaperBackground)
-                    ExpandButton(
+                    ExpandButtonSegment(
+                        index = segmentCount - 1,
+                        count = segmentCount,
                         onClick = onExpandClick,
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
                         textResId = R.string.action_expand_more_events,
                     )
                 }

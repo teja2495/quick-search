@@ -22,7 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -271,7 +271,7 @@ private fun CustomWidgetResultFilterChips(
                 selected = selected,
                 onClick = { onFilterSelected(filter) },
                 label = { Text(text = stringResource(filter.labelRes)) },
-                shape = RoundedCornerShape(50.dp),
+                shape = CircleShape,
                 border =
                     FilterChipDefaults.filterChipBorder(
                         enabled = true,
@@ -281,8 +281,8 @@ private fun CustomWidgetResultFilterChips(
                     ),
                 colors =
                     FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = MaterialTheme.colorScheme.primary,
-                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                        selectedContainerColor = AppColors.Accent,
+                        selectedLabelColor = AppColors.OnAccent,
                     ),
             )
         }

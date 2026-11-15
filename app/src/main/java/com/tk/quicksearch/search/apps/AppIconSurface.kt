@@ -25,6 +25,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.material3.ripple
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.Modifier
@@ -77,7 +84,15 @@ internal fun AppIconSurface(
         showPinnedIndicator: Boolean = false,
         showNotificationDot: Boolean = false,
         folderPreviewMember: AppFolderMember? = null,
+        isHeld: Boolean = false,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val pressScale by animateFloatAsState(
+        targetValue = if (isPressed || isHeld) AppGridPressedScale else 1f,
+        animationSpec = DesignTokens.expressiveFastSpatialSpring(),
+        label = "appIconPressScale",
+    )
     val view = LocalView.current
     val context = LocalContext.current
     val isDarkTheme = LocalAppIsDarkTheme.current
@@ -139,6 +154,8 @@ internal fun AppIconSurface(
                     Modifier
                 } else if (onLongClick != null) {
                     Modifier.combinedClickable(
+                            interactionSource = interactionSource,
+                            indication = ripple(color = homeTextColor()),
                             onClick = {
                                 hapticConfirm(view)()
                                 onClick()
@@ -146,7 +163,10 @@ internal fun AppIconSurface(
                             onLongClick = onLongClick,
                     )
                 } else {
-                    Modifier.clickable {
+                    Modifier.clickable(
+                        interactionSource = interactionSource,
+                        indication = ripple(color = homeTextColor()),
+                    ) {
                         hapticConfirm(view)()
                         onClick()
                     }
@@ -155,7 +175,11 @@ internal fun AppIconSurface(
                 modifier =
                         Modifier.fillMaxSize()
                                 .then(if (isSuspended) Modifier.greyscale() else Modifier)
-                                .then(clickModifier),
+                                .then(clickModifier)
+                                .graphicsLayer {
+                                    scaleX = pressScale
+                                    scaleY = pressScale
+                                },
                 contentAlignment = Alignment.Center,
         ) {
             if (folderPreviewMember != null) {
@@ -337,20 +361,12 @@ internal fun AppLabelText(
         isOverlayPresentation: Boolean,
 ) {
     val labelColor = homeTextColor()
-    Spacer(
-            modifier =
-                    Modifier.height(
-                            if (isOverlayPresentation) {
-                                4.dp
-                            } else {
-                                DesignTokens.SpacingXSmall
-                            },
-                    ),
-    )
+    Spacer(modifier = Modifier.height(DesignTokens.SpacingXSmall))
     Text(
             text = rememberQueryHighlightedText(appName),
-            style = MaterialTheme.typography.labelSmall,
+            style = if (isOverlayPresentation) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelMedium,
             color = labelColor,
+            minLines = 1,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,

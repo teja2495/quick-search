@@ -128,6 +128,7 @@ internal fun AppGridItem(
     val indicatorAlpha by rememberPredictedSubmitIndicatorAlpha(isPredicted)
     val showTopResultIndicator = indicatorAlpha > 0f
     var isLocalDragging by remember { mutableStateOf(false) }
+    var isHeld by remember { mutableStateOf(false) }
     val showDraggedPresentation = isDragging || isLocalDragging
     val dragScale by animateFloatAsState(
             targetValue =
@@ -158,7 +159,10 @@ internal fun AppGridItem(
                     onPinnedDragStart = onPinnedDragStart,
                     onPinnedDrag = onPinnedDrag,
                     onPinnedDragEnd = onPinnedDragEnd,
-                    onHoldChange = onHoldChange,
+                    onHoldChange = { held ->
+                        isHeld = held
+                        onHoldChange?.invoke(held)
+                    },
             )
 
     Box(
@@ -217,6 +221,7 @@ internal fun AppGridItem(
                             Modifier.appSwipeGestures(appInfo)
                                     .then(dragModifier),
                     clickGesturesEnabled = !isDraggable,
+                    isHeld = isHeld && !showDraggedPresentation,
                     appIconSurfaceSize = appIconSurfaceSize,
                     appIconSize = appIconSize,
                     appIconShape = appIconShape,

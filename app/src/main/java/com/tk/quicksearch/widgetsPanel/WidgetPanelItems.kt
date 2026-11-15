@@ -276,23 +276,29 @@ internal fun HostedWidget(
             )
         }
 
+    // AndroidView.update also runs for unrelated recompositions (focus, editing, content updates).
+    // Re-sending options there asks the provider to rebuild its RemoteViews again.
+    val appliedOptions = remember(appWidgetId, appWidgetHost) { arrayOfNulls<Bundle>(1) }
     AndroidView(
         factory = { ctx ->
+            // createView already binds the id/provider and loads the system's cached RemoteViews.
             appWidgetHost.createView(ctx, appWidgetId, providerInfo).apply {
-                setAppWidget(appWidgetId, providerInfo)
                 layoutParams = ViewGroup.LayoutParams(widthPx, heightPx)
-                appWidgetManager.updateAppWidgetOptions(appWidgetId, displayOptions)
-                // displayOptions already carries OPTION_APPWIDGET_SIZES; this overload keeps the host
-                // view's padding handling unchanged.
-                @Suppress("DEPRECATION")
-                updateAppWidgetSize(displayOptions, widthDp, heightDp, widthDp, heightDp)
             }
         },
         update = { hostView ->
-            hostView.layoutParams = ViewGroup.LayoutParams(widthPx, heightPx)
-            appWidgetManager.updateAppWidgetOptions(appWidgetId, displayOptions)
-            @Suppress("DEPRECATION")
-            hostView.updateAppWidgetSize(displayOptions, widthDp, heightDp, widthDp, heightDp)
+            if (hostView.layoutParams.width != widthPx || hostView.layoutParams.height != heightPx) {
+                hostView.layoutParams = ViewGroup.LayoutParams(widthPx, heightPx)
+            }
+            if (appliedOptions[0] !== displayOptions) {
+                val currentOptions = appWidgetManager.getAppWidgetOptions(appWidgetId)
+                if (!widgetOptionsMatch(currentOptions.asWidgetOptionValues(), displayOptions.asWidgetOptionValues())) {
+                    // The bundle already contains exact bounds and responsive sizes. Calling the
+                    // legacy updateAppWidgetSize afterward clears SIZES and triggers another update.
+                    appWidgetManager.updateAppWidgetOptions(appWidgetId, displayOptions)
+                }
+                appliedOptions[0] = displayOptions
+            }
         },
         modifier = modifier,
     )
@@ -590,3 +596,6 @@ internal fun EdgeResizeHandle(
         )
     }
 }
+
+@Suppress("DEPRECATION")
+private fun Bundle.asWidgetOptionValues(): Map<String, Any?> = keySet().associateWith { get(it) }
