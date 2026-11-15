@@ -17,9 +17,7 @@ import com.tk.quicksearch.search.folders.ResolvedAppFolder
 import com.tk.quicksearch.search.folders.shortcutGridKey
 
 internal const val ROW_COUNT = 2
-internal const val TabSlideOffsetPx = 64
 internal const val SuggestionsEnterDurationMillis = 320
-internal const val SuggestionTabSwipeThresholdPx = 48f
 internal val AppGridRowSpacing = DesignTokens.SpacingXSmall
 internal val AppGridWidthRoundingSlack = 1.dp
 internal val RegularAppIconSize = DesignTokens.IconSizeXLarge - DesignTokens.SpacingXXSmall

@@ -4,6 +4,7 @@ import com.tk.quicksearch.search.searchScreen.LocalInsetCardBackdrop
 import com.tk.quicksearch.search.searchScreen.contentBottomInset
 import com.tk.quicksearch.search.searchScreen.contentTopInset
 import com.tk.quicksearch.search.searchScreen.resultsClipShape
+import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
@@ -491,6 +492,8 @@ fun SearchContentArea(
                     Modifier
                 }
 
+            val roundExpandedViewport = LocalSearchCardLayoutEnabled.current &&
+                (renderingState.expandedSection != ExpandedSection.NONE || isSearchHistoryExpanded)
             Box {
                 Column(
                     modifier =
@@ -498,6 +501,13 @@ fun SearchContentArea(
                             .edgeBleed(edgeBleed).fillMaxWidth()
                             .then(expansionTransitionModifier).then(heightModifier)
                             .clip(LocalInsetCardBackdrop.current.resultsClipShape(TopRoundedShape, edgeBleed))
+                            .then(
+                                if (roundExpandedViewport) {
+                                    Modifier.clip(ExpandedResultsViewportShape(edgeBleed, LocalInsetCardBackdrop.current?.topTarget == null))
+                                } else {
+                                    Modifier
+                                },
+                            )
                             .then(edgeFadeModifier)
                             .then(
                                 if (!hasQuery) {
