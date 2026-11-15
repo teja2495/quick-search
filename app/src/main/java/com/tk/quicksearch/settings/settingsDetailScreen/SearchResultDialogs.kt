@@ -1,37 +1,28 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
 import com.tk.quicksearch.settings.shared.SettingsSwitch
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.ui.text.style.TextAlign
 import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.border
 import com.tk.quicksearch.settings.shared.settingsRoute.SectionSettingsSection
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenCallbacks
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -41,17 +32,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.core.view.HapticFeedbackConstantsCompat
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.preferences.NicknamePreferences
@@ -60,16 +45,10 @@ import com.tk.quicksearch.search.core.AppSuggestionTabType
 import com.tk.quicksearch.search.core.ItemPriorityConfig
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchSectionUiMetadataRegistry
-import com.tk.quicksearch.search.models.SecondaryRankingSignal
-import com.tk.quicksearch.pinnedNotifications.PinnedNotifications
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
-import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonType
 import com.tk.quicksearch.settings.shared.*
-import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
-import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.settings.shared.SettingsSegment
 import androidx.compose.ui.graphics.compositeOver
@@ -78,7 +57,6 @@ import com.tk.quicksearch.shared.util.hapticToggle
 import com.tk.quicksearch.shared.util.performHapticFeedbackSafely
 import sh.calvin.reorderable.ReorderableColumn
 import sh.calvin.reorderable.ReorderableItem
-import sh.calvin.reorderable.rememberReorderableLazyListState
 
 @Composable
 internal fun AppSuggestionTabsDialog(
@@ -218,35 +196,30 @@ private fun TopMatchesCard(
             }
         }
 
-    SettingsCard(modifier = modifier.fillMaxWidth()) {
-        Column {
-            SettingsToggleRow(
-                title = stringResource(R.string.top_matches_title),
-                subtitle = stringResource(R.string.top_matches_toggle_desc),
-                checked = topMatchesEnabled,
-                onCheckedChange = onTopMatchesToggle,
-                leadingIcon = MaterialSymbols.AutoAwesome,
-                enabled = !isLocked,
-                isFirstItem = true,
-                isLastItem = !topMatchesEnabled,
+    val tileCount = if (topMatchesEnabled) 3 else 1
+    SettingsSegmentGroup(modifier = modifier) {
+        SettingsSegmentToggleRow(
+            title = stringResource(R.string.top_matches_title),
+            description = stringResource(R.string.top_matches_toggle_desc),
+            checked = topMatchesEnabled,
+            onCheckedChange = onTopMatchesToggle,
+            icon = MaterialSymbols.AutoAwesome,
+            enabled = !isLocked,
+            index = 0,
+            count = tileCount,
+        )
+        if (topMatchesEnabled) {
+            SettingsSegmentNavigationRow(
+                item = SettingsCardItem(
+                    title = stringResource(R.string.top_matches_priority_title),
+                    description = stringResource(R.string.top_matches_priority_desc),
+                    icon = MaterialSymbols.Reorder,
+                    actionOnPress = { showPriorityDialog = true },
+                ),
+                index = 1,
+                count = tileCount,
             )
-
-            if (topMatchesEnabled) {
-                SettingsNavigationRow(
-                    item =
-                        SettingsCardItem(
-                            title = stringResource(R.string.top_matches_priority_title),
-                            description = stringResource(R.string.top_matches_priority_desc),
-                            icon = MaterialSymbols.Reorder,
-                            actionOnPress = { showPriorityDialog = true },
-                        ),
-                    contentPadding =
-                        PaddingValues(
-                            horizontal = DesignTokens.SpacingXXLarge,
-                            vertical = DesignTokens.SpacingLarge,
-                        ),
-                )
-                HorizontalDivider(color = AppColors.SettingsDivider)
+            SettingsSegment(index = 2, count = tileCount) {
                 TopMatchesLimitSlider(
                     selectedLimit = topMatchesLimit,
                     onLimitSelected = onTopMatchesLimitChange,
@@ -443,12 +416,12 @@ private fun LaunchOptionsCard(
         ) {
             Text(
                 text = stringResource(R.string.settings_refresh_data_title),
-                style = MaterialTheme.typography.titleSmall,
+                style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
             )
             Text(
                 text = stringResource(R.string.settings_refresh_data_note),
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Row(
@@ -457,10 +430,14 @@ private fun LaunchOptionsCard(
                     .height(IntrinsicSize.Max),
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
             ) {
-                OutlinedButton(
+                FilledTonalButton(
                     onClick = { onRefreshApps(true) },
                     modifier = Modifier.weight(1f).fillMaxHeight(),
-                    shape = DesignTokens.ShapeMedium,
+                    shape = DesignTokens.ShapeFull,
+                    colors = ButtonDefaults.filledTonalButtonColors(
+                        containerColor = AppColors.Accent.copy(alpha = 0.14f),
+                        contentColor = AppColors.Accent,
+                    ),
                     contentPadding = PaddingValues(
                         horizontal = DesignTokens.SpacingSmall,
                         vertical = DesignTokens.SpacingMedium,
@@ -477,16 +454,20 @@ private fun LaunchOptionsCard(
                         )
                         Text(
                             text = stringResource(R.string.section_apps),
-                            style = MaterialTheme.typography.labelSmall,
+                            style = MaterialTheme.typography.labelLarge,
                             textAlign = TextAlign.Center,
                         )
                     }
                 }
                 if (hasContactPermission) {
-                    OutlinedButton(
+                    FilledTonalButton(
                         onClick = { onRefreshContacts(true) },
                         modifier = Modifier.weight(1f).fillMaxHeight(),
-                        shape = DesignTokens.ShapeMedium,
+                        shape = DesignTokens.ShapeFull,
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = AppColors.Accent.copy(alpha = 0.14f),
+                            contentColor = AppColors.Accent,
+                        ),
                         contentPadding = PaddingValues(
                             horizontal = DesignTokens.SpacingSmall,
                             vertical = DesignTokens.SpacingMedium,
@@ -503,17 +484,21 @@ private fun LaunchOptionsCard(
                             )
                             Text(
                                 text = stringResource(R.string.contacts_action_button_contacts),
-                                style = MaterialTheme.typography.labelSmall,
+                                style = MaterialTheme.typography.labelLarge,
                                 textAlign = TextAlign.Center,
                             )
                         }
                     }
                 }
                 if (hasFilePermission) {
-                    OutlinedButton(
+                    FilledTonalButton(
                         onClick = { onRefreshFiles(true) },
                         modifier = Modifier.weight(1f).fillMaxHeight(),
-                        shape = DesignTokens.ShapeMedium,
+                        shape = DesignTokens.ShapeFull,
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = AppColors.Accent.copy(alpha = 0.14f),
+                            contentColor = AppColors.Accent,
+                        ),
                         contentPadding = PaddingValues(
                             horizontal = DesignTokens.SpacingSmall,
                             vertical = DesignTokens.SpacingMedium,
@@ -530,7 +515,7 @@ private fun LaunchOptionsCard(
                             )
                             Text(
                                 text = stringResource(R.string.section_files),
-                                style = MaterialTheme.typography.labelSmall,
+                                style = MaterialTheme.typography.labelLarge,
                                 textAlign = TextAlign.Center,
                             )
                         }

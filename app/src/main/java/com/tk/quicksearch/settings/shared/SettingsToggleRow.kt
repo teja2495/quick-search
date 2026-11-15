@@ -147,12 +147,16 @@ fun SettingsToggleRow(
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
         ) {
             leadingIcon?.let {
-                Icon(
-                    imageVector = it,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(leadingIconSize),
-                )
+                if (segmented) {
+                    SettingsIconBadge(icon = it)
+                } else {
+                    Icon(
+                        imageVector = it,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(leadingIconSize),
+                    )
+                }
             }
 
             Column(

@@ -7,7 +7,9 @@ import android.os.Build
 import androidx.annotation.StringRes
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +18,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,12 +25,25 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenuItem
-import com.tk.quicksearch.settings.shared.SettingsCard
+import androidx.compose.material3.FilledTonalIconButton
+import com.tk.quicksearch.settings.shared.SettingsSegment
+import com.tk.quicksearch.settings.shared.SettingsTonalButton
+import com.tk.quicksearch.settings.shared.SettingsFloatingActionHeight
+import com.tk.quicksearch.settings.shared.settingsFloatingActionShape
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -107,6 +121,8 @@ fun AppManagementSettingsSection(
     var selectedSortOption by rememberSaveable { mutableStateOf(AppSortOption.NAME) }
     var isSortAscending by rememberSaveable { mutableStateOf(true) }
     var isSortMenuExpanded by remember { mutableStateOf(false) }
+    var sortButtonWidthPx by remember { mutableStateOf(0) }
+    val density = LocalDensity.current
     var selectedAppKeys by rememberSaveable { mutableStateOf(setOf<String>()) }
     var uninstallQueueKeys by remember { mutableStateOf<List<String>>(emptyList()) }
     var currentUninstallKey by remember { mutableStateOf<String?>(null) }
@@ -115,6 +131,7 @@ fun AppManagementSettingsSection(
     var batchUninstallInProgress by remember { mutableStateOf(false) }
     var selectedAppForDetails by remember { mutableStateOf<AppInfo?>(null) }
     val listState = rememberLazyListState()
+    val uninstallInteraction = remember { MutableInteractionSource() }
     val appByKey = remember(apps) { apps.associateBy { it.launchCountKey() } }
     val availableSortOptions =
         remember(hasUsagePermission) {
@@ -272,43 +289,31 @@ fun AppManagementSettingsSection(
 
     Column(modifier = modifier) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier.fillMaxWidth().padding(bottom = DesignTokens.SpacingMedium),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box {
-                Row(
-                    modifier =
-                        Modifier
-                            .clickable { isSortMenuExpanded = true }
-                            .padding(start = 4.dp, end = 4.dp, top = 0.dp, bottom = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(2.dp),
-                ) {
-                    Text(
-                        text =
-                            stringResource(
-                                R.string.settings_app_sort_by_format,
-                                stringResource(selectedSortOption.labelResId),
-                            ),
-                        color = AppColors.LinkColor,
-                    )
-                    Icon(
-                        imageVector = MaterialSymbols.ExpandMore,
-                        contentDescription = null,
-                        tint = AppColors.LinkColor,
-                    )
-                }
+            Box(modifier = Modifier.onSizeChanged { sortButtonWidthPx = it.width }) {
+                SettingsTonalButton(
+                    text = stringResource(
+                        R.string.settings_app_sort_by_format,
+                        stringResource(selectedSortOption.labelResId),
+                    ),
+                    onClick = { isSortMenuExpanded = true },
+                    icon = MaterialSymbols.ExpandMore,
+                )
                 AppDropdownMenu(
                     expanded = isSortMenuExpanded,
                     onDismissRequest = { isSortMenuExpanded = false },
+                    modifier = Modifier.width(with(density) { sortButtonWidthPx.toDp() }),
+                    offset = DpOffset(0.dp, DesignTokens.SpacingSmall),
                 ) {
                     availableSortOptions.forEachIndexed { index, option ->
-                        if (index > 0) {
-                            HorizontalDivider()
-                        }
-                        DropdownMenuItem(
-                            text = { Text(text = stringResource(option.labelResId)) },
+                        if (index > 0) AppDropdownMenuDivider()
+                        AppDropdownMenuItem(
+                            text = stringResource(option.labelResId),
+                            icon = if (option == selectedSortOption) MaterialSymbols.Check else null,
+                            iconTint = AppColors.Accent,
                             onClick = {
                                 selectedSortOption = option
                                 isSortMenuExpanded = false
@@ -318,8 +323,7 @@ fun AppManagementSettingsSection(
                 }
             }
             Spacer(modifier = Modifier.weight(1f))
-            IconButton(
-                modifier = Modifier.offset(y = (-3).dp),
+            FilledTonalIconButton(
                 onClick = { isSortAscending = !isSortAscending },
             ) {
                 Icon(
@@ -342,9 +346,7 @@ fun AppManagementSettingsSection(
 
         val screenHeight = LocalConfiguration.current.screenHeightDp.dp
         Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
-            SettingsCard(
-                modifier = Modifier.fillMaxWidth(),
-            ) {
+            Box(modifier = Modifier.fillMaxWidth()) {
                 if (sortedApps.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
@@ -360,7 +362,12 @@ fun AppManagementSettingsSection(
                     LazyColumn(
                         state = listState,
                         modifier = Modifier.fillMaxWidth().heightIn(max = screenHeight),
-                        contentPadding = PaddingValues(bottom = if (selectedCount > 0) 96.dp else 0.dp),
+                        verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
+                        contentPadding = PaddingValues(
+                            bottom = if (selectedCount > 0) {
+                                SettingsFloatingActionHeight + DesignTokens.Spacing48
+                            } else DesignTokens.SpacingSmall,
+                        ),
                     ) {
                         itemsIndexed(
                             items = sortedApps,
@@ -369,25 +376,30 @@ fun AppManagementSettingsSection(
                             val appKey = app.launchCountKey()
                             val canUninstall = !app.isSystemApp
 
-                            AppManagementRow(
-                                app = app,
-                                apkSizeBytes = appSortMetadataByKey[appKey]?.sizeBytes ?: 0L,
-                                iconPackPackage = iconPackPackage,
-                                isSelected = appKey in selectedAppKeys,
-                                checkboxEnabled = canUninstall,
-                                onSelectionChanged = { checked ->
-                                    selectedAppKeys =
-                                        if (checked) {
-                                            selectedAppKeys + appKey
-                                        } else {
-                                            selectedAppKeys - appKey
-                                        }
-                                },
-                                onItemClick = { selectedAppForDetails = app },
-                            )
-
-                            if (index < sortedApps.lastIndex) {
-                                HorizontalDivider(color = AppColors.SettingsDivider)
+                            SettingsSegment(
+                                index = index,
+                                count = sortedApps.size,
+                                onClick = { selectedAppForDetails = app },
+                                containerColor = if (appKey in selectedAppKeys) {
+                                    AppColors.Accent.copy(alpha = 0.14f)
+                                        .compositeOver(AppColors.getSettingsCardContainerColor())
+                                } else AppColors.getSettingsCardContainerColor(),
+                            ) {
+                                AppManagementRow(
+                                    app = app,
+                                    apkSizeBytes = appSortMetadataByKey[appKey]?.sizeBytes ?: 0L,
+                                    iconPackPackage = iconPackPackage,
+                                    isSelected = appKey in selectedAppKeys,
+                                    checkboxEnabled = canUninstall,
+                                    onSelectionChanged = { checked ->
+                                        selectedAppKeys =
+                                            if (checked) {
+                                                selectedAppKeys + appKey
+                                            } else {
+                                                selectedAppKeys - appKey
+                                            }
+                                    },
+                                )
                             }
                         }
                     }
@@ -425,7 +437,10 @@ fun AppManagementSettingsSection(
                     modifier =
                         Modifier
                             .align(Alignment.BottomCenter)
-                            .padding(16.dp),
+                            .padding(DesignTokens.SpacingLarge)
+                            .height(SettingsFloatingActionHeight),
+                    shape = settingsFloatingActionShape(uninstallInteraction),
+                    interactionSource = uninstallInteraction,
                     containerColor = MaterialTheme.colorScheme.error,
                     contentColor = MaterialTheme.colorScheme.onError,
                     icon = {
@@ -470,7 +485,6 @@ private fun AppManagementRow(
     isSelected: Boolean,
     checkboxEnabled: Boolean,
     onSelectionChanged: (Boolean) -> Unit,
-    onItemClick: () -> Unit,
 ) {
     val iconResult =
         rememberAppIcon(
@@ -483,20 +497,19 @@ private fun AppManagementRow(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .clickable(onClick = onItemClick)
                 .padding(
-                    horizontal = DesignTokens.CardHorizontalPadding,
-                    vertical = DesignTokens.CardVerticalPadding,
+                    horizontal = DesignTokens.SpacingLarge,
+                    vertical = DesignTokens.SpacingLarge,
                 ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
     ) {
-        Box(modifier = Modifier.size(DesignTokens.IconSize), contentAlignment = Alignment.Center) {
+        Box(modifier = Modifier.size(DesignTokens.Spacing40), contentAlignment = Alignment.Center) {
             if (iconResult.bitmap != null) {
                 Image(
                     bitmap = iconResult.bitmap,
                     contentDescription = null,
-                    modifier = Modifier.size(DesignTokens.IconSize),
+                    modifier = Modifier.size(DesignTokens.Spacing40),
                     contentScale = ContentScale.Fit,
                 )
             } else {
@@ -508,7 +521,10 @@ private fun AppManagementRow(
             }
         }
 
-        Column(modifier = Modifier.weight(1f)) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall / 2),
+        ) {
             Text(
                 text = app.appName,
                 style = MaterialTheme.typography.bodyLarge,
@@ -522,7 +538,7 @@ private fun AppManagementRow(
                         R.string.settings_app_apk_size_format,
                         apkSizeBytes.toDouble() / (1024.0 * 1024.0),
                     ),
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
@@ -531,6 +547,7 @@ private fun AppManagementRow(
             checked = isSelected,
             onCheckedChange = onSelectionChanged,
             enabled = checkboxEnabled,
+            modifier = Modifier.semantics { contentDescription = app.appName },
         )
     }
 }
@@ -567,51 +584,69 @@ private fun AppDetailsDialog(
     AppAlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
-            ) {
-                Box(modifier = Modifier.size(DesignTokens.IconSize), contentAlignment = Alignment.Center) {
-                    if (iconResult.bitmap != null) {
-                        Image(
-                            bitmap = iconResult.bitmap,
-                            contentDescription = null,
-                            modifier = Modifier.size(DesignTokens.IconSize),
-                            contentScale = ContentScale.Fit,
-                        )
-                    } else {
-                        Text(
-                            text = app.appName.take(1).uppercase(Locale.getDefault()),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
+                ) {
+                    Box(modifier = Modifier.size(DesignTokens.Spacing40), contentAlignment = Alignment.Center) {
+                        if (iconResult.bitmap != null) {
+                            Image(
+                                bitmap = iconResult.bitmap,
+                                contentDescription = null,
+                                modifier = Modifier.size(DesignTokens.Spacing40).clip(DesignTokens.ShapeMedium),
+                                contentScale = ContentScale.Fit,
+                            )
+                        } else {
+                            Text(
+                                text = app.appName.take(1).uppercase(Locale.getDefault()),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
+                    Text(
+                        text = app.appName,
+                        style = MaterialTheme.typography.titleLarge,
+                    )
                 }
-                Text(text = app.appName)
+                Text(
+                    text = metadata.packageName,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)) {
-                AppDetailLine(
-                    label = stringResource(R.string.settings_app_info_package_name),
-                    value = metadata.packageName,
-                )
-                AppDetailLine(
-                    label = stringResource(R.string.settings_app_info_version),
-                    value = metadata.versionName,
-                )
-                AppDetailLine(
-                    label = stringResource(R.string.settings_app_info_version_code),
-                    value = metadata.versionCode,
-                )
-                AppDetailLine(
-                    label = stringResource(R.string.settings_app_info_target_sdk),
-                    value = metadata.targetSdk,
-                )
-                AppDetailLine(
-                    label = stringResource(R.string.settings_app_info_minimum_sdk),
-                    value = metadata.minimumSdk,
-                )
+            val detailGroups = listOf(
+                listOf(
+                    R.string.settings_app_info_version to metadata.versionName,
+                    R.string.settings_app_info_version_code to metadata.versionCode,
+                ),
+                listOf(
+                    R.string.settings_app_info_minimum_sdk to metadata.minimumSdk,
+                    R.string.settings_app_info_target_sdk to metadata.targetSdk,
+                ),
+            )
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
+            ) {
+                detailGroups.forEach { group ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
+                    ) {
+                        group.forEach { (label, value) ->
+                            AppDetailLine(
+                                label = stringResource(label),
+                                value = value,
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
+                    }
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                }
                 AppDetailLine(
                     label = stringResource(R.string.settings_app_info_install_date),
                     value = metadata.installDate,
@@ -628,14 +663,13 @@ private fun AppDetailsDialog(
             }
         },
         dismissButton = {
-            androidx.compose.material3.TextButton(
+            SettingsTonalButton(
+                text = stringResource(R.string.action_app_info),
                 onClick = {
                     onDismiss()
                     onOpenAppInfo(app)
                 },
-            ) {
-                Text(text = stringResource(R.string.action_app_info))
-            }
+            )
         },
     )
 }
@@ -644,8 +678,12 @@ private fun AppDetailsDialog(
 private fun AppDetailLine(
     label: String,
     value: String,
+    modifier: Modifier = Modifier,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
+    ) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelMedium,
