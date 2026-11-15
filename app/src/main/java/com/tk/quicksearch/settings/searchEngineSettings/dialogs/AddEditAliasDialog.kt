@@ -1,16 +1,13 @@
 package com.tk.quicksearch.settings.searchEngineSettings.dialogs
 
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -28,13 +25,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
 import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
-import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 enum class AliasInfoType {
     SEARCH_TYPE,
@@ -147,8 +144,13 @@ fun AddEditAliasDialog(
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
             ) {
+                Text(
+                    text = resolvedInfoText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
                 TextField(
                     value = editingCode,
                     onValueChange = {
@@ -172,43 +174,28 @@ fun AddEditAliasDialog(
                                 }
                             },
                         ),
+                    label = { Text(text = stringResource(R.string.settings_custom_tool_alias_label)) },
+                    supportingText =
+                        if (showShortcutError) {
+                            {
+                                Text(
+                                    text =
+                                        if (!isValidConflict) {
+                                            conflictErrorMessage ?: stringResource(R.string.dialog_edit_alias_error_prefix)
+                                        } else {
+                                            stringResource(R.string.dialog_edit_alias_error_trigger_conflict)
+                                        },
+                                )
+                            }
+                        } else {
+                            null
+                        },
                     colors = dialogTextFieldColors(),
                 )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Icon(
-                        imageVector = MaterialSymbols.Info,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(16.dp),
-                    )
-                    Text(
-                        text = resolvedInfoText,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                if (showShortcutError) {
-                    val errorMessage =
-                        when {
-                            !isValidConflict ->
-                                conflictErrorMessage ?: stringResource(R.string.dialog_edit_alias_error_prefix)
-                            hasTriggerConflict ->
-                                stringResource(R.string.dialog_edit_alias_error_trigger_conflict)
-                            else -> ""
-                        }
-                    Text(
-                        text = errorMessage,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                }
             }
         },
         confirmButton = {
-            Button(
+            TextButton(
                 onClick = {
                     if (confirmEnabled) {
                         onSave(if (isEmptyInput) "" else editingCode.text)
@@ -216,12 +203,16 @@ fun AddEditAliasDialog(
                     }
                 },
                 enabled = confirmEnabled,
+                colors = ButtonDefaults.textButtonColors(contentColor = AppColors.Accent),
             ) {
                 Text(text = stringResource(R.string.dialog_save))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            TextButton(
+                onClick = onDismiss,
+                colors = ButtonDefaults.textButtonColors(contentColor = AppColors.Accent),
+            ) {
                 Text(text = stringResource(R.string.dialog_cancel))
             }
         },

@@ -22,7 +22,6 @@ import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
 import com.tk.quicksearch.settings.searchEngineSettings.dialogs.AliasInfoType
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
-import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.settings.shared.AliasPill
 import com.tk.quicksearch.settings.searchEngineSettings.dialogs.AddEditAliasDialog
 
@@ -32,7 +31,6 @@ enum class AliasDisplayType {
     TOOL,
 }
 
-private val SetupAliasIconTextSpacing = 2.dp
 
 /**
  * Display component for alias code with edit dialog.
@@ -112,8 +110,6 @@ internal fun AliasCodeDisplay(
                     buildAnnotatedString {
                         append(shortcutCode)
                     },
-                textStyle = MaterialTheme.typography.bodySmall,
-                textColor = AppColors.LinkColor,
                 leadingIcon = MaterialSymbols.Bolt,
                 onClick = if (allowAliasDialog) ({ showDialog = true }) else null,
                 onClearClick =
@@ -135,21 +131,7 @@ internal fun AliasCodeDisplay(
                             },
                         )
                     },
-                textStyle =
-                    if (isCustomEngine) {
-                        MaterialTheme.typography.bodyMedium
-                    } else {
-                        MaterialTheme.typography.bodySmall
-                    },
-                textColor = AppColors.LinkColor,
-                showBackground = false,
                 leadingIcon = MaterialSymbols.Bolt,
-                iconTextSpacing =
-                    if (isCustomEngine) {
-                        DesignTokens.SpacingXSmall
-                    } else {
-                        SetupAliasIconTextSpacing
-                    },
                 onClick = if (allowAliasDialog) ({ showDialog = true }) else null,
             )
         }

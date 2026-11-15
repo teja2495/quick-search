@@ -1,19 +1,12 @@
 package com.tk.quicksearch.tools.aiSearch
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,22 +15,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRowSpacing
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerMessage
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRow
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerSearch
+import com.tk.quicksearch.settings.shared.SettingsSwitch
+import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 data class LlmModelPickerOption(
@@ -136,25 +125,18 @@ fun ModelPickerDialog(
         footer =
             if (showGroundingToggle && supportsGrounding) {
                 {
-                    Row(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(DesignTokens.SpacingMedium))
-                                .clickable { onGroundingChange(!groundingEnabled) },
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-                    ) {
-                        Checkbox(
-                            checked = groundingEnabled,
-                            onCheckedChange = onGroundingChange,
-                        )
-                        Text(
-                            text = stringResource(R.string.settings_direct_search_grounding_label),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                    }
+                    AppPickerDrawerRow(
+                        title = stringResource(R.string.settings_direct_search_grounding_label),
+                        onClick = { onGroundingChange(!groundingEnabled) },
+                        leading = {
+                            Icon(
+                                imageVector = MaterialSymbols.Public,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        },
+                        trailing = { SettingsSwitch(checked = groundingEnabled, onCheckedChange = null) },
+                    )
                 }
             } else {
                 null
@@ -171,17 +153,16 @@ fun ModelPickerDialog(
                     AppPickerDrawerRow(
                         title = option.model.displayName,
                         selected = option.providerId == selectedProviderId && option.model.id == selectedModelId,
-                        supportingContent =
+                        // M3 list item: with several providers, the logo leads and the provider is
+                        // named under the model. With one, every row would repeat the same logo, so
+                        // the rows are text only.
+                        leading =
                             if (showProviderLabels) {
-                                {
-                                    ProviderWordmark(
-                                        providerId = option.providerId,
-                                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                }
+                                { AiProviderBadge(providerId = option.providerId) }
                             } else {
                                 null
                             },
+                        subtitle = if (showProviderLabels) aiProviderDisplayName(option.providerId) else null,
                         onClick = {
                             onProviderModelSelected(option.providerId, option.model.id)
                             dismiss()
@@ -233,109 +214,6 @@ private fun providerSortOrder(providerId: AiSearchLlmProviderId): Int =
         AiSearchLlmProviderId.OPENCODE -> 5
         else -> 6
     }
-
-@Composable
-private fun ProviderWordmark(
-    providerId: AiSearchLlmProviderId,
-    contentColor: androidx.compose.ui.graphics.Color,
-) {
-    when (providerId) {
-        AiSearchLlmProviderId.OPENAI -> {
-            Image(
-                painter = painterResource(R.drawable.openai_wordmark),
-                contentDescription = stringResource(R.string.settings_ai_provider_openai),
-                contentScale = ContentScale.Fit,
-                colorFilter = ColorFilter.tint(contentColor),
-                modifier = Modifier.size(width = 56.dp, height = 15.dp),
-            )
-        }
-        AiSearchLlmProviderId.ANTHROPIC -> {
-            Box(modifier = Modifier.size(width = 72.dp, height = 15.dp)) {
-                Image(
-                    painter = painterResource(R.drawable.claude_wordmark_mark),
-                    contentDescription = stringResource(R.string.search_engine_claude),
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.fillMaxSize(),
-                )
-                Image(
-                    painter = painterResource(R.drawable.claude_wordmark_type),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    colorFilter = ColorFilter.tint(contentColor),
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-        }
-        AiSearchLlmProviderId.GROQ -> {
-            Image(
-                painter = painterResource(R.drawable.groq_wordmark),
-                contentDescription = stringResource(R.string.settings_ai_provider_groq),
-                contentScale = ContentScale.Fit,
-                colorFilter = ColorFilter.tint(contentColor),
-                modifier = Modifier.size(width = 41.dp, height = 15.dp),
-            )
-        }
-        AiSearchLlmProviderId.META -> {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.meta_logo),
-                    contentDescription = stringResource(R.string.settings_ai_provider_meta),
-                    modifier = Modifier.size(15.dp),
-                )
-                Text(
-                    text = stringResource(R.string.settings_ai_provider_meta),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = contentColor,
-                )
-            }
-        }
-        AiSearchLlmProviderId.OPENCODE -> {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Image(
-                    painter = painterResource(openCodeLogoRes(contentColor)),
-                    contentDescription = stringResource(R.string.settings_ai_provider_opencode),
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(width = 12.dp, height = 15.dp),
-                )
-                Text(
-                    text = stringResource(R.string.settings_ai_provider_opencode),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = contentColor,
-                )
-            }
-        }
-        AiSearchLlmProviderId.GEMINI -> {
-            Box(modifier = Modifier.size(width = 67.dp, height = 15.dp)) {
-                Image(
-                    painter = painterResource(R.drawable.gemini_wordmark_mark),
-                    contentDescription = stringResource(R.string.search_engine_gemini),
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.fillMaxSize(),
-                )
-                Image(
-                    painter = painterResource(R.drawable.gemini_wordmark_type),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    colorFilter = ColorFilter.tint(contentColor),
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-        }
-        else -> {
-            Text(
-                text = stringResource(R.string.common_custom),
-                style = MaterialTheme.typography.labelSmall,
-                color = contentColor,
-            )
-        }
-    }
-}
 
 private fun providerSearchName(providerId: AiSearchLlmProviderId): String =
     when (providerId) {

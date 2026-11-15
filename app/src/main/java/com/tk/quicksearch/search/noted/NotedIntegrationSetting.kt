@@ -20,7 +20,6 @@ import com.tk.quicksearch.settings.shared.AliasPill
 import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 /**
@@ -104,7 +103,6 @@ private fun NotedQuickNoteAliasPill(
     if (alias.isNotBlank()) {
         AliasPill(
             text = AnnotatedString(alias),
-            textColor = AppColors.LinkColor,
             leadingIcon = MaterialSymbols.Bolt,
             onClick = onEdit,
             onClearClick = onClear,
@@ -113,8 +111,6 @@ private fun NotedQuickNoteAliasPill(
     } else {
         AliasPill(
             text = AnnotatedString(stringResource(R.string.settings_add_alias)),
-            textColor = AppColors.LinkColor,
-            showBackground = false,
             leadingIcon = MaterialSymbols.Bolt,
             onClick = onEdit,
             modifier = modifier,

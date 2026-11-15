@@ -238,7 +238,7 @@ fun SettingsSegmentNavigationRow(
 @Composable
 fun SettingsSegmentToggleRow(
     title: String,
-    description: String,
+    description: String? = null,
     icon: ImageVector,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,

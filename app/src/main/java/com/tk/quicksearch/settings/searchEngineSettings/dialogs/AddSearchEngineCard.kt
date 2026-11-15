@@ -16,8 +16,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -52,6 +52,7 @@ import com.tk.quicksearch.searchEngines.IN_APP_BROWSER_PACKAGE
 import com.tk.quicksearch.searchEngines.loadCustomIconAsBase64
 import com.tk.quicksearch.searchEngines.validateCustomSearchTemplate
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
+import com.tk.quicksearch.settings.shared.SettingsSegmentRowPadding
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.withoutWhitespaces
@@ -191,8 +192,8 @@ private fun AddSearchEngineForm(
             Modifier
                 .fillMaxWidth()
                 .padding(
-                    horizontal = DesignTokens.ContentHorizontalPadding,
-                    vertical = DesignTokens.SpacingLarge,
+                    horizontal = SettingsSegmentRowPadding,
+                    vertical = SettingsSegmentRowPadding,
                 )
 
         Column(
@@ -204,11 +205,24 @@ private fun AddSearchEngineForm(
                 },
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
         ) {
-            Text(
-                text = stringResource(R.string.settings_add_search_engine_button),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
+            // Header laid out like the other settings tiles: title, then supporting text.
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall / 2),
+            ) {
+                Text(
+                    text = stringResource(R.string.settings_add_search_engine_button),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                if (validTemplate == null) {
+                    Text(
+                        text = stringResource(R.string.settings_add_search_engine_dialog_message),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
 
             if (validTemplate != null) {
                 Row(
@@ -223,7 +237,7 @@ private fun AddSearchEngineForm(
                         onClick = { pickIconLauncher.launch(arrayOf("image/*")) },
                     )
                     if (isEditingName) {
-                        OutlinedTextField(
+                        TextField(
                             value = nameInput,
                             onValueChange = { nameInput = it },
                             modifier =
@@ -241,7 +255,7 @@ private fun AddSearchEngineForm(
                     } else {
                         Text(
                             text = nameInput.text,
-                            style = MaterialTheme.typography.headlineSmall,
+                            style = MaterialTheme.typography.titleLarge,
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier =
                                 Modifier
@@ -251,12 +265,6 @@ private fun AddSearchEngineForm(
                         )
                     }
                 }
-            } else {
-                Text(
-                    text = stringResource(R.string.settings_add_search_engine_dialog_message),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
             }
 
             TextField(
@@ -280,74 +288,77 @@ private fun AddSearchEngineForm(
                             }
                         },
                     ),
+                label = { Text(text = stringResource(R.string.settings_app_shortcuts_url_label)) },
+                supportingText =
+                    if (showValidationError) {
+                        {
+                            when (validation.reason) {
+                                CustomSearchTemplateValidation.Reason.EMPTY -> {
+                                    Text(
+                                        text = stringResource(R.string.settings_add_search_engine_error_required),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.error,
+                                    )
+                                }
+
+                                CustomSearchTemplateValidation.Reason.MISSING_QUERY_PLACEHOLDER -> {
+                                    val fullMessage = stringResource(R.string.settings_add_search_engine_error_placeholder)
+                                    val messageText =
+                                        buildAnnotatedString {
+                                            val placeholderStart = fullMessage.indexOf(CUSTOM_QUERY_PLACEHOLDER)
+                                            if (placeholderStart < 0) {
+                                                append(fullMessage)
+                                                return@buildAnnotatedString
+                                            }
+                                            val placeholderEnd = placeholderStart + CUSTOM_QUERY_PLACEHOLDER.length
+                                            append(fullMessage.substring(0, placeholderStart))
+                                            val placeholderLink =
+                                                LinkAnnotation.Clickable(tag = CUSTOM_QUERY_PLACEHOLDER) {
+                                                    val appendedText = "${urlInput.text}$CUSTOM_QUERY_PLACEHOLDER"
+                                                    urlInput =
+                                                        TextFieldValue(
+                                                            text = appendedText,
+                                                            selection = TextRange(appendedText.length),
+                                                        )
+                                                }
+                                            withLink(placeholderLink) {
+                                                withStyle(
+                                                    style =
+                                                        SpanStyle(
+                                                            color = AppColors.LinkColor,
+                                                        ),
+                                                ) {
+                                                    append(CUSTOM_QUERY_PLACEHOLDER)
+                                                }
+                                            }
+                                            append(fullMessage.substring(placeholderEnd))
+                                        }
+                                    Text(
+                                        text = messageText,
+                                        style =
+                                            MaterialTheme.typography.bodySmall.copy(
+                                                color = MaterialTheme.colorScheme.error,
+                                            ),
+                                    )
+                                }
+
+                                CustomSearchTemplateValidation.Reason.MULTIPLE_QUERY_PLACEHOLDERS -> {
+                                    Text(
+                                        text =
+                                            stringResource(
+                                                R.string.settings_add_search_engine_error_multiple_placeholders,
+                                            ),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.error,
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        null
+                    },
                 colors = dialogTextFieldColors(),
             )
-
-            when {
-                showValidationError -> {
-                    when (validation.reason) {
-                        CustomSearchTemplateValidation.Reason.EMPTY -> {
-                            Text(
-                                text = stringResource(R.string.settings_add_search_engine_error_required),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.error,
-                            )
-                        }
-
-                        CustomSearchTemplateValidation.Reason.MISSING_QUERY_PLACEHOLDER -> {
-                            val fullMessage = stringResource(R.string.settings_add_search_engine_error_placeholder)
-                            val messageText =
-                                buildAnnotatedString {
-                                    val placeholderStart = fullMessage.indexOf(CUSTOM_QUERY_PLACEHOLDER)
-                                    if (placeholderStart < 0) {
-                                        append(fullMessage)
-                                        return@buildAnnotatedString
-                                    }
-                                    val placeholderEnd = placeholderStart + CUSTOM_QUERY_PLACEHOLDER.length
-                                    append(fullMessage.substring(0, placeholderStart))
-                                    val placeholderLink =
-                                        LinkAnnotation.Clickable(tag = CUSTOM_QUERY_PLACEHOLDER) {
-                                            val appendedText = "${urlInput.text}$CUSTOM_QUERY_PLACEHOLDER"
-                                            urlInput =
-                                                TextFieldValue(
-                                                    text = appendedText,
-                                                    selection = TextRange(appendedText.length),
-                                                )
-                                        }
-                                    withLink(placeholderLink) {
-                                        withStyle(
-                                            style =
-                                                SpanStyle(
-                                                    color = AppColors.LinkColor,
-                                                ),
-                                        ) {
-                                            append(CUSTOM_QUERY_PLACEHOLDER)
-                                        }
-                                    }
-                                    append(fullMessage.substring(placeholderEnd))
-                                }
-                            Text(
-                                text = messageText,
-                                style =
-                                    MaterialTheme.typography.bodySmall.copy(
-                                        color = MaterialTheme.colorScheme.error,
-                                    ),
-                            )
-                        }
-
-                        CustomSearchTemplateValidation.Reason.MULTIPLE_QUERY_PLACEHOLDERS -> {
-                            Text(
-                                text =
-                                    stringResource(
-                                        R.string.settings_add_search_engine_error_multiple_placeholders,
-                                    ),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.error,
-                            )
-                        }
-                    }
-                }
-            }
 
             if (validTemplate != null) {
                 BrowserPickerField(
@@ -364,14 +375,17 @@ private fun AddSearchEngineForm(
                 Modifier
                     .fillMaxWidth()
                     .padding(
-                        horizontal = DesignTokens.ContentHorizontalPadding,
-                        vertical = DesignTokens.SpacingMedium,
+                        start = SettingsSegmentRowPadding,
+                        end = SettingsSegmentRowPadding,
+                        bottom = SettingsSegmentRowPadding,
                     ),
-            horizontalArrangement = Arrangement.End,
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall, Alignment.End),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             TextButton(
                 onClick = { resetForm() },
+                enabled = urlInput.text.isNotEmpty(),
+                colors = ButtonDefaults.textButtonColors(contentColor = AppColors.Accent),
             ) {
                 Text(text = stringResource(R.string.common_action_clear))
             }
@@ -384,6 +398,11 @@ private fun AddSearchEngineForm(
                     }
                 },
                 enabled = canSave,
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = AppColors.Accent,
+                        contentColor = AppColors.OnAccent,
+                    ),
             ) {
                 Text(text = stringResource(R.string.dialog_save))
             }

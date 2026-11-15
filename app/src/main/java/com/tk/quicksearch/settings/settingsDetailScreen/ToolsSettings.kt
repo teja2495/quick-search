@@ -2,14 +2,12 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,12 +20,12 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.CustomTool
 import com.tk.quicksearch.search.apps.rememberAppIcon
-import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.settings.shared.SettingsCardItem
-import com.tk.quicksearch.settings.shared.SettingsNavigationRow
+import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow
 import com.tk.quicksearch.settings.shared.ToolToggleCardModel
 import com.tk.quicksearch.settings.shared.ToolToggleRows
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.tools.tasker.TaskerIntegration
 
@@ -151,21 +149,17 @@ fun ToolsSettingsSection(
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
         if (showTaskerIntegration) {
-            SettingsCard(modifier = Modifier.fillMaxWidth()) {
-                SettingsNavigationRow(
-                    item = SettingsCardItem(
-                        title = stringResource(R.string.tasker_integration_title),
-                        description = stringResource(R.string.tasker_integration_description),
-                        icon = MaterialSymbols.Bolt,
-                        iconBitmap = taskerIcon,
-                        actionOnPress = onNavigateToTaskerIntegration,
-                    ),
-                    contentPadding = PaddingValues(
-                        horizontal = DesignTokens.CardHorizontalPadding,
-                        vertical = DesignTokens.CardVerticalPadding,
-                    ),
-                )
-            }
+            SettingsSegmentNavigationRow(
+                item = SettingsCardItem(
+                    title = stringResource(R.string.tasker_integration_title),
+                    description = stringResource(R.string.tasker_integration_description),
+                    icon = MaterialSymbols.Bolt,
+                    iconBitmap = taskerIcon,
+                    actionOnPress = onNavigateToTaskerIntegration,
+                ),
+                index = 0,
+                count = 1,
+            )
         }
 
         ToolToggleRows(
@@ -174,7 +168,7 @@ fun ToolsSettingsSection(
                 scrollState = scrollState,
         )
 
-        // Matches the Custom Info button in At a Glance settings.
+        // Matches the new-item button in Calendar Events settings.
         ExtendedFloatingActionButton(
                 onClick = {
                     if (hasApiKey) onCreateNewTool() else showApiKeyRequiredDialog = true
@@ -182,8 +176,8 @@ fun ToolsSettingsSection(
                 expanded = true,
                 modifier = Modifier.fillMaxWidth().padding(top = DesignTokens.SpacingSmall),
                 shape = CalendarSettingsBarCornerShape,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
+                containerColor = AppColors.Accent,
+                contentColor = AppColors.OnAccent,
                 text = { Text(text = stringResource(R.string.settings_create_new_tool_button)) },
                 icon = {
                     Icon(

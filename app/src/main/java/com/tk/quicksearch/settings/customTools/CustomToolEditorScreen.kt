@@ -2,6 +2,7 @@ package com.tk.quicksearch.settings.customTools
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -11,9 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,12 +32,17 @@ import com.tk.quicksearch.search.core.CustomTool
 import com.tk.quicksearch.search.data.preferences.WeatherTemperatureUnit
 import com.tk.quicksearch.search.data.preferences.WeatherWindSpeedUnit
 import com.tk.quicksearch.settings.shared.ModelFeatureSettingsCard
-import com.tk.quicksearch.settings.shared.SettingsCard
-import com.tk.quicksearch.settings.shared.SettingsCheckboxPill
+import com.tk.quicksearch.settings.shared.SettingsChoice
+import com.tk.quicksearch.settings.shared.SettingsChoiceGroup
+import com.tk.quicksearch.settings.shared.SettingsSegment
+import com.tk.quicksearch.settings.shared.SettingsSegmentContent
+import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.settings.shared.SettingsSegmentRowPadding
 import com.tk.quicksearch.settings.shared.TavilyKeyState
 import com.tk.quicksearch.settings.shared.rememberTavilyKeyState
 import com.tk.quicksearch.settings.settingsDetailScreen.AdvancedPayloadSettingsSection
 import com.tk.quicksearch.shared.ui.components.CardTextField
+import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
@@ -193,21 +199,26 @@ fun CustomToolEditorScreen(
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         ) {
             if (showWebSearchWarning) {
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.errorContainer,
-                    shape = DesignTokens.ShapeLarge,
+                SettingsSegment(
+                    index = 0,
+                    count = 1,
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
                 ) {
-                    Text(
-                        text = stringResource(R.string.settings_weather_no_web_search_warning),
-                        modifier =
-                            Modifier.padding(
-                                horizontal = DesignTokens.SpacingLarge,
-                                vertical = DesignTokens.SpacingMedium,
-                            ),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onErrorContainer,
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(SettingsSegmentRowPadding),
+                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
+                    ) {
+                        Icon(
+                            imageVector = MaterialSymbols.ErrorOutline,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onErrorContainer,
+                        )
+                        Text(
+                            text = stringResource(R.string.settings_weather_no_web_search_warning),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                        )
+                    }
                 }
             }
 
@@ -286,6 +297,7 @@ fun CustomToolEditorScreen(
                 .padding(DesignTokens.ContentHorizontalPadding),
         ) {
             Button(
+                colors = ButtonDefaults.buttonColors(containerColor = AppColors.Accent, contentColor = AppColors.OnAccent),
                 onClick = {
                     if (canSave) {
                         onSave(
@@ -318,7 +330,7 @@ fun CustomToolEditorScreen(
 
 }
 
-/** Name, prompt, location, and alias as divided rows of one card, like the At a Glance editor. */
+/** Name, prompt, location, and alias as segmented tiles, one field per tile. */
 @Composable
 private fun CustomToolInputsCard(
     showNameInput: Boolean,
@@ -390,10 +402,9 @@ private fun CustomToolInputsCard(
                 }
             }
         }
-    SettingsCard(modifier = Modifier.fillMaxWidth()) {
+    SettingsSegmentGroup {
         rows.forEachIndexed { index, row ->
-            if (index > 0) HorizontalDivider(color = AppColors.SettingsDivider)
-            row()
+            SettingsSegment(index = index, count = rows.size) { row() }
         }
     }
 }
@@ -403,27 +414,21 @@ private fun WeatherUnitSettingsSection(
     temperatureUnit: WeatherTemperatureUnit,
     onTemperatureUnitSelected: (WeatherTemperatureUnit) -> Unit,
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-    ) {
-        Text(
-            text = stringResource(R.string.weather_temperature_unit_label),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        androidx.compose.foundation.layout.Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-        ) {
-            WeatherTemperatureUnit.entries.forEach { unit ->
-                SettingsCheckboxPill(
-                    label = stringResource(unit.labelRes),
-                    checked = temperatureUnit == unit,
-                    onCheckedChange = { onTemperatureUnitSelected(unit) },
-                    modifier = Modifier.weight(1f),
-                )
-            }
+    SettingsSegment(index = 0, count = 1) {
+        SettingsSegmentContent {
+            Text(
+                text = stringResource(R.string.weather_temperature_unit_label),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            SettingsChoiceGroup(
+                options =
+                    WeatherTemperatureUnit.entries.map { unit ->
+                        SettingsChoice(value = unit, label = stringResource(unit.labelRes))
+                    },
+                selected = temperatureUnit,
+                onSelect = onTemperatureUnitSelected,
+            )
         }
     }
 }

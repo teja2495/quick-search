@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -35,7 +36,7 @@ import com.tk.quicksearch.shared.util.hapticToggle
  * and a toggle switch. Matches the visual style of search result type toggle rows.
  *
  * When [onRowClick] is provided, a chevron and vertical divider appear between the
- * navigation area and the toggle switch.
+ * navigation area and the toggle switch. Inside a [SettingsSegment] it takes the tile layout.
  */
 @Composable
 fun SettingsNavigationToggleRow(
@@ -55,6 +56,8 @@ fun SettingsNavigationToggleRow(
     val view = LocalView.current
     val rowInteractionSource = remember { MutableInteractionSource() }
     val rowIndication = LocalIndication.current
+    // In a segmented tile: tonal icon badge, tile padding, and bodyMedium supporting text.
+    val segmented = LocalSettingsSegmented.current
 
     Row(
         modifier =
@@ -72,11 +75,15 @@ fun SettingsNavigationToggleRow(
                         rowModifier
                     }
                 }
-                .padding(
-                    start = DesignTokens.CardHorizontalPadding,
-                    end = DesignTokens.CardHorizontalPadding,
-                    top = DesignTokens.CardVerticalPadding,
-                    bottom = DesignTokens.CardVerticalPadding,
+                .then(
+                    if (segmented) {
+                        Modifier.heightIn(min = SettingsNavigationToggleTileMinHeight).padding(SettingsSegmentRowPadding)
+                    } else {
+                        Modifier.padding(
+                            horizontal = DesignTokens.CardHorizontalPadding,
+                            vertical = DesignTokens.CardVerticalPadding,
+                        )
+                    },
                 ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
@@ -84,15 +91,19 @@ fun SettingsNavigationToggleRow(
         Row(
             modifier = Modifier.weight(1f),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
+            horizontalArrangement = Arrangement.spacedBy(if (segmented) SettingsSegmentRowPadding else DesignTokens.ItemRowSpacing),
         ) {
             leadingIcon?.let {
-                Icon(
-                    imageVector = it,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(DesignTokens.IconSize),
-                )
+                if (segmented) {
+                    SettingsIconBadge(icon = it)
+                } else {
+                    Icon(
+                        imageVector = it,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(DesignTokens.IconSize),
+                    )
+                }
             }
 
             Column(modifier = Modifier.weight(1f)) {
@@ -113,9 +124,9 @@ fun SettingsNavigationToggleRow(
                 if (!subtitle.isNullOrBlank()) {
                     Text(
                         text = subtitle,
-                        style = MaterialTheme.typography.bodySmall,
+                        style = if (segmented) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = 4.dp),
+                        modifier = Modifier.padding(top = if (segmented) DesignTokens.SpacingXXSmall / 2 else 4.dp),
                     )
                 }
 
@@ -152,3 +163,5 @@ fun SettingsNavigationToggleRow(
         )
     }
 }
+
+private val SettingsNavigationToggleTileMinHeight = 72.dp
