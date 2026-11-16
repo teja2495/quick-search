@@ -1065,9 +1065,8 @@
     <string name="settings_backup_import_warning_title">Impor pengaturan?</string>
     <string name="settings_backup_restore_desc">Ekspor atau impor pengaturan aplikasi Anda</string>
     <string name="settings_backup_restore_title">Cadangkan &amp; Pulihkan</string>
-    <string name="settings_feedback_developer_desc">Dibuat oleh %1$s</string>
     <string name="settings_feedback_developer_name">Teja Karlapudi</string>
-    <string name="settings_feedback_developer_title">%1$s v%2$s</string>
+    <string name="settings_feedback_developer_made_by">Dibuat oleh</string>
     <string name="settings_feedback_github_desc">Lihat kode sumber proyek ini di GitHub</string>
     <string name="settings_feedback_github_title">Pengembangan</string>
     <string name="settings_feedback_rate_desc">Beri rating bintang 5 jika Anda merasa aplikasi ini bermanfaat 🙏</string>

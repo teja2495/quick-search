@@ -1061,9 +1061,8 @@
 <string name="settings_backup_import_warning_title">Ayarlar içe aktarılsın mı?</string>
 <string name="settings_backup_restore_desc">Uygulama ayarlarını dışa aktar veya içe aktar</string>
 <string name="settings_backup_restore_title">Yedekle &amp; Geri yükle</string>
-<string name="settings_feedback_developer_desc">%1$s tarafından geliştirildi</string>
 <string name="settings_feedback_developer_name">Teja Karlapudi</string>
-<string name="settings_feedback_developer_title">%1$s v%2$s</string>
+<string name="settings_feedback_developer_made_by">Geliştiren</string>
 <string name="settings_feedback_github_desc">Bu projenin kaynak kodunu GitHub\'da görüntüle</string>
 <string name="settings_feedback_github_title">Geliştirme</string>
 <string name="settings_feedback_rate_desc">Uygulamayı faydalı buluyorsan 5 yıldız ver 🙏</string>

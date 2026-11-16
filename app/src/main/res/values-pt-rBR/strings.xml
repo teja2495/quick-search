@@ -1062,9 +1062,8 @@
     <string name="settings_backup_import_warning_title">Importar configurações?</string>
     <string name="settings_backup_restore_desc">Exporte ou importe as configurações do seu app</string>
     <string name="settings_backup_restore_title">Backup e Restauração</string>
-    <string name="settings_feedback_developer_desc">Criado por %1$s</string>
     <string name="settings_feedback_developer_name">Teja Karlapudi</string>
-    <string name="settings_feedback_developer_title">%1$s v%2$s</string>
+    <string name="settings_feedback_developer_made_by">Criado por</string>
     <string name="settings_feedback_github_desc">Veja o código-fonte deste projeto no GitHub</string>
     <string name="settings_feedback_github_title">Desenvolvimento</string>
     <string name="settings_feedback_rate_desc">Deixe uma avaliação de 5 estrelas se você achar este app útil 🙏</string>

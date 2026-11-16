@@ -1061,9 +1061,8 @@
     <string name="settings_backup_import_warning_title">Importare le impostazioni?</string>
     <string name="settings_backup_restore_desc">Esporta o importa le impostazioni dell\u2019app</string>
     <string name="settings_backup_restore_title">Backup e ripristino</string>
-    <string name="settings_feedback_developer_desc">Sviluppata da %1$s</string>
     <string name="settings_feedback_developer_name">Teja Karlapudi</string>
-    <string name="settings_feedback_developer_title">%1$s v%2$s</string>
+    <string name="settings_feedback_developer_made_by">Sviluppata da</string>
     <string name="settings_feedback_github_desc">Visualizza il codice sorgente di questo progetto su GitHub</string>
     <string name="settings_feedback_github_title">Sviluppo</string>
     <string name="settings_feedback_rate_desc">Lascia una valutazione a 5 stelle se trovi utile questa app 🙏</string>

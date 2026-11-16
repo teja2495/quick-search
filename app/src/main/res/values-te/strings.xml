@@ -1062,9 +1062,8 @@
     <string name="settings_backup_import_warning_title">సెట్టింగ్‌లను దిగుమతి చేయాలా?</string>
     <string name="settings_backup_restore_desc">మీ యాప్ సెట్టింగ్‌లను ఎగుమతి లేదా దిగుమతి చేసుకోండి</string>
     <string name="settings_backup_restore_title">బ్యాకప్ &amp; పునరుద్ధరణ</string>
-    <string name="settings_feedback_developer_desc">%1$s ద్వారా రూపొందించబడింది</string>
     <string name="settings_feedback_developer_name">తేజ కర్లపూడి</string>
-    <string name="settings_feedback_developer_title">%1$s v%2$s</string>
+    <string name="settings_feedback_developer_made_by">రూపొందించినవారు</string>
     <string name="settings_feedback_github_desc">GitHub లో ఈ ప్రాజెక్ట్ యొక్క సోర్స్ కోడ్‌ను వీక్షించండి</string>
     <string name="settings_feedback_github_title">డెవలప్‌మెంట్</string>
     <string name="settings_feedback_rate_desc">ఈ యాప్ మీకు ఉపయోగకరంగా అనిపిస్తే 5 స్టార్ రేటింగ్ ఇవ్వండి 🙏</string>

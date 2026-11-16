@@ -1063,9 +1063,8 @@
     <string name="settings_backup_import_warning_title">استيراد الإعدادات؟</string>
     <string name="settings_backup_restore_desc">تصدير أو استيراد إعدادات التطبيق</string>
     <string name="settings_backup_restore_title">النسخ الاحتياطي والاستعادة</string>
-    <string name="settings_feedback_developer_desc">تطوير %1$s</string>
     <string name="settings_feedback_developer_name">Teja Karlapudi</string>
-    <string name="settings_feedback_developer_title">%1$s v%2$s</string>
+    <string name="settings_feedback_developer_made_by">تطوير</string>
     <string name="settings_feedback_github_desc">عرض الكود المصدري للمشروع على GitHub</string>
     <string name="settings_feedback_github_title">المساهمة والتطوير</string>
     <string name="settings_feedback_rate_desc">اترك تقييم 5 نجوم إذا وجدت هذا التطبيق مفيداً 🙏</string>

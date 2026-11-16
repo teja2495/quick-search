@@ -1049,9 +1049,8 @@
     <string name="settings_backup_import_warning_title">导入配置设置吗？</string>
     <string name="settings_backup_restore_desc">导出或导入您的应用配置设置</string>
     <string name="settings_backup_restore_title">备份与恢复</string>
-    <string name="settings_feedback_developer_desc">创作者：%1$s</string>
     <string name="settings_feedback_developer_name">Teja Karlapudi</string>
-    <string name="settings_feedback_developer_title">%1$s v%2$s</string>
+    <string name="settings_feedback_developer_made_by">创作者</string>
     <string name="settings_feedback_github_desc">在 GitHub 上查看此开源项目的源码</string>
     <string name="settings_feedback_github_title">开发进度</string>
     <string name="settings_feedback_rate_desc">如果您觉得本应用对您有所帮助，请留下 5 星好评 🙏</string>

@@ -1081,9 +1081,8 @@
     <string name="settings_backup_import_warning_title">Import settings?</string>
     <string name="settings_backup_restore_desc">Export or import your app settings</string>
     <string name="settings_backup_restore_title">Backup &amp; Restore</string>
-    <string name="settings_feedback_developer_desc">Made by %1$s</string>
     <string name="settings_feedback_developer_name">Teja Karlapudi</string>
-    <string name="settings_feedback_developer_title">%1$s v%2$s</string>
+    <string name="settings_feedback_developer_made_by">Made by</string>
     <string name="settings_feedback_github_desc">View this project\'s source code on GitHub</string>
     <string name="settings_feedback_github_title">Development</string>
     <string name="settings_feedback_rate_desc">Leave a 5 star rating if you find this app useful 🙏</string>

@@ -1062,9 +1062,8 @@
 <string name="settings_backup_import_warning_title">Importer les paramètres ?</string>
 <string name="settings_backup_restore_desc">Exporter ou importer les paramètres de votre application</string>
 <string name="settings_backup_restore_title">Sauvegarde &amp; Restauration</string>
-<string name="settings_feedback_developer_desc">Développé par %1$s</string>
 <string name="settings_feedback_developer_name">Teja Karlapudi</string>
-<string name="settings_feedback_developer_title">%1$s v%2$s</string>
+<string name="settings_feedback_developer_made_by">Développé par</string>
 <string name="settings_feedback_github_desc">Voir le code source de ce projet sur GitHub</string>
 <string name="settings_feedback_github_title">Développement</string>
 <string name="settings_feedback_rate_desc">Laissez une note de 5 étoiles si vous trouvez cette application utile 🙏</string>

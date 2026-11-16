@@ -1062,9 +1062,8 @@
     <string name="settings_backup_import_warning_title">Εισαγωγή ρυθμίσεων;</string>
     <string name="settings_backup_restore_desc">Εξαγωγή ή εισαγωγή των ρυθμίσεων της εφαρμογής σας</string>
     <string name="settings_backup_restore_title">Αντίγραφα ασφαλείας &amp; Επαναφορά</string>
-    <string name="settings_feedback_developer_desc">Δημιουργήθηκε από τον %1$s</string>
     <string name="settings_feedback_developer_name">Teja Karlapudi</string>
-    <string name="settings_feedback_developer_title">%1$s v%2$s</string>
+    <string name="settings_feedback_developer_made_by">Δημιουργήθηκε από</string>
     <string name="settings_feedback_github_desc">Δείτε τον πηγαίο κώδικα αυτού του έργου στο GitHub</string>
     <string name="settings_feedback_github_title">Ανάπτυξη</string>
     <string name="settings_feedback_rate_desc">Αφήστε μια αξιολόγηση 5 αστέρων εάν βρίσκετε αυτή την εφαρμογή χρήσιμη 🙏</string>

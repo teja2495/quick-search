@@ -1062,9 +1062,8 @@
     <string name="settings_backup_import_warning_title">Einstellungen importieren?</string>
     <string name="settings_backup_restore_desc">App-Einstellungen exportieren oder importieren</string>
     <string name="settings_backup_restore_title">Sichern &amp; Wiederherstellen</string>
-    <string name="settings_feedback_developer_desc">Entwickelt von %1$s</string>
     <string name="settings_feedback_developer_name">Teja Karlapudi</string>
-    <string name="settings_feedback_developer_title">%1$s v%2$s</string>
+    <string name="settings_feedback_developer_made_by">Entwickelt von</string>
     <string name="settings_feedback_github_desc">Quellcode dieses Projekts auf GitHub anzeigen</string>
     <string name="settings_feedback_github_title">Entwicklung</string>
     <string name="settings_feedback_rate_desc">Hinterlasse eine 5-Sterne-Bewertung, wenn du die App nützlich findest 🙏</string>

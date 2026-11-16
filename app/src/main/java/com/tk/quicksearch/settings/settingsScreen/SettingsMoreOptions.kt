@@ -63,6 +63,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import com.tk.quicksearch.BuildConfig
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.searchScreen.dialogs.ReleaseNotesDrawer
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
@@ -411,15 +412,11 @@ fun SettingsVersionDisplay(
     onFeatureFlagsChanged: () -> Unit = {},
 ) {
     val context = LocalContext.current
-    val versionName = getAppVersionName() ?: "1.2.2"
+    val versionName = getAppVersionName() ?: BuildConfig.VERSION_NAME
     val appName = stringResource(R.string.app_name)
-    // Localized "v<version>" taken from the existing "<app> v<version>" string.
-    val versionLabel =
-        stringResource(R.string.settings_feedback_developer_title, appName, versionName)
-            .replace(appName, "")
-            .trim()
+    val versionLabel = stringResource(R.string.app_menu_version, versionName)
     val developerName = stringResource(R.string.settings_feedback_developer_name)
-    val developerDesc = stringResource(R.string.settings_feedback_developer_desc, developerName)
+    val madeByLabel = stringResource(R.string.settings_feedback_developer_made_by)
     val appIcon =
         remember(context) {
             runCatching {
@@ -429,9 +426,6 @@ fun SettingsVersionDisplay(
                     .asImageBitmap()
             }.getOrNull()
         }
-
-    // "Made by" prefix from the localized "Made by %s" string.
-    val madeByLabel = developerDesc.substringBefore(developerName).trim()
 
     var versionTapCount by remember { mutableIntStateOf(0) }
     val versionTapInteractionSource = remember { MutableInteractionSource() }
@@ -506,11 +500,11 @@ fun SettingsVersionDisplay(
             contentAlignment = Alignment.Center,
             modifier =
                 Modifier
+                    .weight(1f)
                     .fillMaxHeight()
                     .clip(iconShape)
                     .background(tileColor, iconShape)
-                    .then(identityModifier)
-                    .padding(horizontal = DesignTokens.SpacingXLarge),
+                    .then(identityModifier),
         ) {
             if (appIcon != null) {
                 Image(
@@ -520,55 +514,81 @@ fun SettingsVersionDisplay(
                 )
             }
         }
+        // Icon tile takes a third of the width so all three tiles have about the same area.
         Column(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(2f).fillMaxHeight(),
             verticalArrangement = Arrangement.spacedBy(gap),
         ) {
-            // App name with the version beside it, centered in the tile.
-            Row(
-                horizontalArrangement = Arrangement.Center,
+            // App name leads; the version sits beneath it as a tonal pill.
+            Column(
+                verticalArrangement = Arrangement.Center,
                 modifier =
                     Modifier
                         .fillMaxWidth()
+                        .weight(1f)
                         .clip(nameShape)
                         .background(tileColor, nameShape)
                         .then(identityModifier)
-                        .padding(DesignTokens.SpacingLarge),
+                        .padding(horizontal = DesignTokens.SpacingXLarge, vertical = DesignTokens.SpacingLarge),
             ) {
                 Text(
                     text = appName,
                     style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.alignByBaseline(),
                 )
-                Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
+                Spacer(modifier = Modifier.height(DesignTokens.SpacingXSmall))
                 Text(
                     text = versionLabel,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.alignByBaseline(),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier =
+                        Modifier
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.secondaryContainer, CircleShape)
+                            .padding(horizontal = DesignTokens.SpacingSmall + 2.dp, vertical = 2.dp),
                 )
             }
-            Column(
+            // Developer credit, with a round link button so the tile reads as tappable.
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier =
                     Modifier
                         .fillMaxWidth()
+                        .weight(1f)
                         .clip(creditShape)
                         .background(tileColor, creditShape)
                         .clickable(onClick = onDeveloperClick)
-                        .padding(DesignTokens.SpacingLarge),
+                        .padding(start = DesignTokens.SpacingXLarge, end = DesignTokens.SpacingLarge),
             ) {
-                Text(
-                    text = madeByLabel,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Text(
-                    text = developerName,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = AppColors.Accent,
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = madeByLabel,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        text = developerName,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+                Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier =
+                        Modifier
+                            .size(36.dp)
+                            .background(MaterialTheme.colorScheme.secondaryContainer, CircleShape),
+                ) {
+                    Icon(
+                        imageVector = MaterialSymbols.OpenInNew,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.size(18.dp),
+                    )
+                }
             }
         }
     }

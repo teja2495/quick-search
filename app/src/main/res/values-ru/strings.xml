@@ -1088,9 +1088,8 @@
 <string name="settings_backup_import_warning_title">Импортировать настройки?</string>
 <string name="settings_backup_restore_title">Резервное копирование и восстановление</string>
 <string name="settings_backup_restore_desc">Экспорт или импорт настроек вашего приложения</string>
-<string name="settings_feedback_developer_desc">Создатель: %1$s</string>
 <string name="settings_feedback_developer_name">Teja Karlapudi</string>
-<string name="settings_feedback_developer_title">%1$s v%2$s</string>
+<string name="settings_feedback_developer_made_by">Создатель</string>
 <string name="settings_feedback_github_desc">Посмотреть исходный код проекта на GitHub</string>
 <string name="settings_feedback_github_title">Разработка</string>
 <string name="settings_feedback_rate_desc">Поставьте нам 5 звезд, если приложение вам нравится 🙏</string>

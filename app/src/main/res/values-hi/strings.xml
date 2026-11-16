@@ -1062,9 +1062,8 @@
     <string name="settings_backup_import_warning_title">सेटिंग्स इम्पोर्ट करें?</string>
     <string name="settings_backup_restore_desc">अपनी ऐप सेटिंग्स एक्सपोर्ट या इम्पोर्ट करें</string>
     <string name="settings_backup_restore_title">बैकअप और रिस्टोर</string>
-    <string name="settings_feedback_developer_desc">निर्माता: %1$s</string>
     <string name="settings_feedback_developer_name">Teja Karlapudi</string>
-    <string name="settings_feedback_developer_title">%1$s v%2$s</string>
+    <string name="settings_feedback_developer_made_by">निर्माता</string>
     <string name="settings_feedback_github_desc">इस प्रोजेक्ट का स्रोत कोड GitHub पर देखें</string>
     <string name="settings_feedback_github_title">डेवलपमेंट</string>
     <string name="settings_feedback_rate_desc">अगर आपको यह ऐप उपयोगी लगता है तो 5 स्टार रेटिंग दें 🙏</string>
