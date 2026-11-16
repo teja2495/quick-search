@@ -426,9 +426,7 @@ fun SettingsVersionDisplay(
     val appIcon =
         remember(context) {
             runCatching {
-                context.packageManager
-                    .getApplicationIcon(context.packageName)
-                    .toBitmap(width = 192, height = 192)
+                circularAppIconBitmap(context.packageManager.getApplicationIcon(context.packageName))
                     .asImageBitmap()
             }.getOrNull()
         }
@@ -531,7 +529,7 @@ fun SettingsVersionDisplay(
                 Image(
                     bitmap = appIcon,
                     contentDescription = null,
-                    modifier = Modifier.size(VersionFooterIconSize),
+                    modifier = Modifier.size(VersionFooterIconSize).clip(CircleShape),
                 )
             }
         }
@@ -615,7 +613,7 @@ fun SettingsVersionDisplay(
     }
 }
 
-private val VersionFooterIconSize = 56.dp
+private val VersionFooterIconSize = 44.dp
 private val VersionFooterCookieSize = 88.dp
 private val FooterCookieShape = CookieShape(lobes = 9)
 private val FooterCloverShape = CookieShape(lobes = 4, depth = 0.22f)
