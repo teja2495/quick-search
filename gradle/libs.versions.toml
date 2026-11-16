@@ -11,6 +11,7 @@ activityCompose = "1.13.0"
 composeBom = "2026.09.00"
 materialColorUtilities = "0.1.2"
 glance = "1.2.0"
+graphicsShapes = "1.0.1"
 # TODO: Drop with LegacySecretsMigration; only reads the pre-Keystore API key store.
 securityCrypto = "1.1.0"
 okhttp = "5.5.1"
@@ -44,6 +45,7 @@ androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", versi
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-graphics-shapes = { group = "androidx.graphics", name = "graphics-shapes", version.ref = "graphicsShapes" }
 androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glance" }
 material-color-utilities = { group = "me.tatarka.google.material", name = "material-color-utilities", version.ref = "materialColorUtilities" }
 androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCrypto" }
