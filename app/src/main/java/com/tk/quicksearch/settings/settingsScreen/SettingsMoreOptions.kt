@@ -10,6 +10,11 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -55,6 +60,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -506,6 +512,21 @@ fun SettingsVersionDisplay(
                     .background(tileColor, iconShape)
                     .then(identityModifier),
         ) {
+            // Slowly spinning scalloped backdrop behind the app icon.
+            val spin = rememberInfiniteTransition(label = "footerCookieSpin")
+            val rotation by spin.animateFloat(
+                initialValue = 0f,
+                targetValue = 360f,
+                animationSpec = infiniteRepeatable(tween(durationMillis = 24_000, easing = LinearEasing)),
+                label = "footerCookieRotation",
+            )
+            Box(
+                modifier =
+                    Modifier
+                        .size(VersionFooterCookieSize)
+                        .graphicsLayer { rotationZ = rotation }
+                        .background(MaterialTheme.colorScheme.secondaryContainer, FooterCookieShape),
+            )
             if (appIcon != null) {
                 Image(
                     bitmap = appIcon,
@@ -579,8 +600,8 @@ fun SettingsVersionDisplay(
                     contentAlignment = Alignment.Center,
                     modifier =
                         Modifier
-                            .size(36.dp)
-                            .background(MaterialTheme.colorScheme.secondaryContainer, CircleShape),
+                            .size(40.dp)
+                            .background(MaterialTheme.colorScheme.secondaryContainer, FooterCloverShape),
                 ) {
                     Icon(
                         imageVector = MaterialSymbols.OpenInNew,
@@ -595,3 +616,6 @@ fun SettingsVersionDisplay(
 }
 
 private val VersionFooterIconSize = 56.dp
+private val VersionFooterCookieSize = 88.dp
+private val FooterCookieShape = CookieShape(lobes = 9)
+private val FooterCloverShape = CookieShape(lobes = 4, depth = 0.22f)
