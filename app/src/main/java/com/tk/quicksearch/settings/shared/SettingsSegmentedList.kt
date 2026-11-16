@@ -1,6 +1,11 @@
 package com.tk.quicksearch.settings.shared
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -212,6 +217,8 @@ fun SettingsSegmentRow(
     leading: (@Composable () -> Unit)? = null,
     trailing: (@Composable RowScope.() -> Unit)? = null,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    /** Animates [description] in and out when toggled, for rows that reveal it on expand. */
+    descriptionVisible: Boolean = true,
 ) {
     Row(
         modifier =
@@ -236,11 +243,17 @@ fun SettingsSegmentRow(
                 color = MaterialTheme.colorScheme.onSurface,
             )
             if (description != null) {
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                AnimatedVisibility(
+                    visible = descriptionVisible,
+                    enter = expandVertically() + fadeIn(),
+                    exit = shrinkVertically() + fadeOut(),
+                ) {
+                    Text(
+                        text = description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
         trailing?.invoke(this)

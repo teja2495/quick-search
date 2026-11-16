@@ -39,6 +39,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.draw.rotate
@@ -203,6 +204,10 @@ private fun AddSearchEngineForm(
         targetValue = if (isExpanded) 180f else 0f,
         label = "addSearchEngineChevronRotation",
     )
+    val headerAlignmentBias by animateFloatAsState(
+        targetValue = if (isExpanded) -1f else 0f,
+        label = "addSearchEngineHeaderAlignment",
+    )
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     // Once the form has expanded, scroll so the whole card is on screen.
     LaunchedEffect(isExpanded) {
@@ -219,8 +224,10 @@ private fun AddSearchEngineForm(
         SettingsSegmentRow(
             title = stringResource(R.string.settings_add_search_engine_button),
             // The URL instructions show under the title only while the form is open.
-            description = if (isExpanded) stringResource(R.string.settings_add_search_engine_dialog_message) else null,
-            verticalAlignment = if (isExpanded) Alignment.Top else Alignment.CenterVertically,
+            description = stringResource(R.string.settings_add_search_engine_dialog_message),
+            descriptionVisible = isExpanded,
+            // Glides from centered to top-aligned as the description grows in.
+            verticalAlignment = BiasAlignment.Vertical(headerAlignmentBias),
             leading = { SettingsIconBadge(icon = MaterialSymbols.Add) },
             trailing = {
                 Icon(

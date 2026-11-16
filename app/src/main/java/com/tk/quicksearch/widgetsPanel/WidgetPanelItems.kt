@@ -16,9 +16,11 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
+import androidx.compose.animation.EnterExitState
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -82,6 +84,7 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
@@ -209,6 +212,10 @@ internal fun BoxScope.QuickNotePanelGridItem(
 /**
  * Shows a widget's edit overlay (border, handles, action buttons) with a quick fade and a springy
  * scale-in when the widget enters edit mode, instead of popping in.
+ *
+ * The fade uses [CompositingStrategy.ModulateAlpha]: AnimatedVisibility's own fade draws through an
+ * offscreen buffer the size of the widget, which cuts off the badges and handles that overhang its
+ * edges until the fade finishes.
  */
 @Composable
 internal fun BoxScope.AnimatedWidgetEditOverlay(
@@ -218,15 +225,43 @@ internal fun BoxScope.AnimatedWidgetEditOverlay(
     AnimatedVisibility(
         visible = visible,
         modifier = Modifier.matchParentSize(),
-        enter =
-            fadeIn(animationSpec = tween(WIDGET_EDIT_OVERLAY_FADE_IN_MS)) +
-                scaleIn(
-                    initialScale = WIDGET_EDIT_OVERLAY_INITIAL_SCALE,
-                    animationSpec = DesignTokens.expressiveFastSpatialSpring(),
-                ),
-        exit = fadeOut(animationSpec = tween(WIDGET_EDIT_OVERLAY_FADE_OUT_MS)),
+        enter = EnterTransition.None,
+        exit = ExitTransition.None,
     ) {
-        Box(modifier = Modifier.fillMaxSize(), content = content)
+        val alpha by
+            transition.animateFloat(
+                transitionSpec = {
+                    if (targetState == EnterExitState.Visible) {
+                        tween(WIDGET_EDIT_OVERLAY_FADE_IN_MS)
+                    } else {
+                        tween(WIDGET_EDIT_OVERLAY_FADE_OUT_MS)
+                    }
+                },
+                label = "widgetEditOverlayAlpha",
+            ) { state -> if (state == EnterExitState.Visible) 1f else 0f }
+        val scale by
+            transition.animateFloat(
+                transitionSpec = {
+                    if (targetState == EnterExitState.Visible) {
+                        DesignTokens.expressiveFastSpatialSpring()
+                    } else {
+                        snap()
+                    }
+                },
+                label = "widgetEditOverlayScale",
+            ) { state -> if (state == EnterExitState.PreEnter) WIDGET_EDIT_OVERLAY_INITIAL_SCALE else 1f }
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        this.alpha = alpha
+                        scaleX = scale
+                        scaleY = scale
+                        compositingStrategy = CompositingStrategy.ModulateAlpha
+                    },
+            content = content,
+        )
     }
 }
 

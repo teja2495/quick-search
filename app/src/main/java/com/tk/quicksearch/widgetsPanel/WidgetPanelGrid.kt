@@ -106,7 +106,10 @@ import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.data.preferences.NotesPreferences
+import com.tk.quicksearch.search.searchScreen.LocalFrostedCardSource
+import com.tk.quicksearch.search.searchScreen.frostedCardBackground
 import com.tk.quicksearch.search.searchScreen.searchRoute.SearchScreenWallpaperLogic
+import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -573,8 +576,17 @@ private fun BoxScope.WidgetPanelGridItem(
                 modifier =
                     Modifier
                         .fillMaxSize()
+                        .frostedCardBackground(DesignTokens.WidgetPanelCardShape)
                         .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            color =
+                                if (LocalFrostedCardSource.current?.isActive == true) {
+                                    SearchResultCardDefaults.containerColor(
+                                        showWallpaperBackground = true,
+                                        overlayContainerColor = null,
+                                    )
+                                } else {
+                                    MaterialTheme.colorScheme.surfaceVariant
+                                },
                             shape = DesignTokens.WidgetPanelCardShape,
                         ),
                 contentAlignment = Alignment.Center,

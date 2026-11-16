@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -103,7 +104,8 @@ private fun DictionaryEntryContent(dictionaryState: DictionaryState) {
         )
         HorizontalDivider(
                 modifier = Modifier.padding(vertical = DesignTokens.SpacingXXSmall),
-                color = MaterialTheme.colorScheme.outlineVariant,
+                thickness = 0.5.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
         )
         Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium)) {
             dictionaryState.senses.forEach { sense -> DictionarySenseContent(sense) }

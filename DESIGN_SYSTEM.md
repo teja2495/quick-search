@@ -63,7 +63,8 @@ Main `AppColors` groups:
   don't re-derive these per component. Content inside a card (e.g. the history tab row) stays
   transparent.
 - **Frosted cards:** over a wallpaper or custom image on Android 12+ (not low-RAM devices),
-  result cards, segment tiles, permission cards and the bottom chrome surfaces that use
+  result cards, segment tiles, permission cards, the widgets panel's Quick Note card and widget
+  loading placeholder, and the bottom chrome surfaces that use
   `insetCardBackdrop` (search bar, compact engine strip, number keyboard strip) show a blurred copy of the wallpaper behind
   them (`searchScreen/FrostedCardBackdrop.kt`). The search background bakes one small blurred
   bitmap when the wallpaper or blur setting changes; `Modifier.frostedCardBackground(shape)` draws

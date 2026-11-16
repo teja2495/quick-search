@@ -37,6 +37,9 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.notes.NotesTextUtils
+import com.tk.quicksearch.search.searchScreen.LocalFrostedCardSource
+import com.tk.quicksearch.search.searchScreen.frostedCardBackground
+import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.Dispatchers
@@ -126,12 +129,21 @@ internal fun CompactQuickNoteWidget(
         }
     }
 
+    // Over a frosted wallpaper the note matches search result cards: frost behind a lighter scrim.
+    val isFrosted = LocalFrostedCardSource.current?.isActive == true
     Surface(
-        modifier = surfaceModifier,
+        modifier = surfaceModifier.frostedCardBackground(DesignTokens.WidgetPanelCardShape),
         shape = DesignTokens.WidgetPanelCardShape,
         color =
-            AppColors.getSettingsCardContainerColor().let { containerColor ->
-                containerColor.copy(alpha = max(containerColor.alpha, QUICK_NOTE_MINIMUM_CONTAINER_ALPHA))
+            if (isFrosted) {
+                SearchResultCardDefaults.containerColor(
+                    showWallpaperBackground = true,
+                    overlayContainerColor = null,
+                )
+            } else {
+                AppColors.getSettingsCardContainerColor().let { containerColor ->
+                    containerColor.copy(alpha = max(containerColor.alpha, QUICK_NOTE_MINIMUM_CONTAINER_ALPHA))
+                }
             },
     ) {
         Column(
