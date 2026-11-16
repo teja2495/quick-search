@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AiSearchStatus
+import com.tk.quicksearch.search.core.SearchBarStyle
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchUiState
@@ -283,6 +284,12 @@ internal fun SearchScreenContent(
     val shouldShowNumberKeyboardOperators =
             isImeVisible && (manuallySwitchedToNumberKeyboard || isCalculatorMode)
     val showBottomSearchBar = showSearchField && state.bottomSearchBarEnabled
+    val barStyle =
+            if (SearchBarStyle.hasFixedShape(state.bottomSearchBarEnabled, state.isSearchEngineCompactMode)) {
+                state.searchBarStyle.withFixedShape()
+            } else {
+                state.searchBarStyle
+            }
     val surfaceColors = rememberSearchSurfaceColors(state)
     val amoledSurfacesActive = surfaceColors.amoledSurfacesActive
     val searchColorTheme = surfaceColors.searchColorTheme
@@ -561,8 +568,9 @@ internal fun SearchScreenContent(
                 focusRequester = searchFocusRequester,
                 forceRestingOutline = showBottomSearchBar,
                 transparentBackground = useInsetEngineStrip,
-                cornerRadius = state.searchBarStyle.cornerRadius(),
-                searchBarStyle = state.searchBarStyle,
+                cornerRadius = barStyle.cornerRadius(),
+                // Inside the compact engine card the card carries the outline, not the bar.
+                searchBarStyle = if (useInsetEngineStrip) barStyle.copy(borderWidthDp = 0f) else barStyle,
                 modifier = searchFieldModifier,
                 onMoveTopResultSelectionUp = { moveSelectedTopMatch(-1) },
                 onMoveTopResultSelectionDown = { moveSelectedTopMatch(1) },

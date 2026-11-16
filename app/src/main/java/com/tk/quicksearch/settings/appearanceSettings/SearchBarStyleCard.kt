@@ -32,12 +32,19 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.SearchBarStyle
+import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.searchScreen.components.backgroundColor
 import com.tk.quicksearch.search.searchScreen.components.borderColor
 import com.tk.quicksearch.search.searchScreen.components.borderWidth
 import com.tk.quicksearch.search.searchScreen.components.cornerRadius
+import com.tk.quicksearch.searchEngines.inline.InsetSearchBarGeometry
+import com.tk.quicksearch.searchEngines.inline.SearchEngineIconsSection
+import com.tk.quicksearch.searchEngines.inline.insetCardGlow
+import com.tk.quicksearch.searchEngines.inline.rememberInsetCardStyle
 import com.tk.quicksearch.settings.shared.SettingsTonalButton
 import com.tk.quicksearch.settings.shared.SettingsChoice
 import com.tk.quicksearch.settings.shared.SettingsChoiceGroup
@@ -73,6 +80,11 @@ fun SearchBarStyleCard(
     settingsIconRequired: Boolean,
     onToggleSettingsIcon: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    fixedShape: Boolean = false,
+    enabledSearchEngines: List<SearchTarget> = emptyList(),
+    searchEngineCompactRowCount: Int = 1,
+    appIconShape: AppIconShape = AppIconShape.DEFAULT,
+    iconPackPackage: String? = null,
 ) {
     val view = LocalView.current
     // Sliders drive the preview locally and persist once the drag settles.
@@ -87,11 +99,12 @@ fun SearchBarStyleCard(
     }
     var colorPickerTarget by rememberSaveable { mutableStateOf<SearchBarColorTarget?>(null) }
     val previewStyle =
-        searchBarStyle.copy(
-            borderWidthDp = borderWidthDp,
-            backgroundTransparency = transparency,
-            cornerRadiusDp = cornerRadiusDp,
-        )
+        searchBarStyle
+            .copy(
+                borderWidthDp = borderWidthDp,
+                backgroundTransparency = transparency,
+                cornerRadiusDp = cornerRadiusDp,
+            ).let { if (fixedShape) it.withFixedShape() else it }
 
     SettingsSegmentGroup(modifier = modifier) {
       SettingsSegment(index = 0, count = 4) {
@@ -112,12 +125,25 @@ fun SearchBarStyleCard(
                 modifier = Modifier.padding(bottom = DesignTokens.SpacingXSmall),
             )
 
-            SearchBarStylePreview(
-                style = previewStyle,
-                showWallpaperBackground = showWallpaperBackground,
-                showSettingsIcon = settingsIconEnabled,
-                modifier = Modifier.padding(bottom = DesignTokens.SpacingMedium),
-            )
+            if (fixedShape && enabledSearchEngines.isNotEmpty()) {
+                InsetSearchCardPreview(
+                    style = previewStyle,
+                    showWallpaperBackground = showWallpaperBackground,
+                    showSettingsIcon = settingsIconEnabled,
+                    enabledSearchEngines = enabledSearchEngines,
+                    compactRowCount = searchEngineCompactRowCount,
+                    appIconShape = appIconShape,
+                    iconPackPackage = iconPackPackage,
+                    modifier = Modifier.padding(bottom = DesignTokens.SpacingMedium),
+                )
+            } else {
+                SearchBarStylePreview(
+                    style = previewStyle,
+                    showWallpaperBackground = showWallpaperBackground,
+                    showSettingsIcon = settingsIconEnabled,
+                    modifier = Modifier.padding(bottom = DesignTokens.SpacingMedium),
+                )
+            }
 
             ColorChoiceRow(
                 label = stringResource(R.string.settings_search_bar_background_color_label),
@@ -147,41 +173,44 @@ fun SearchBarStyleCard(
                 },
             )
 
-            SliderSetting(
-                label = stringResource(R.string.widget_slider_border),
-                value = borderWidthDp,
-                valueRange = SearchBarStyle.MIN_BORDER_WIDTH_DP..SearchBarStyle.MAX_BORDER_WIDTH_DP,
-                steps = BorderWidthSteps,
-                valueText = String.format(Locale.getDefault(), "%.1f dp", borderWidthDp),
-                onValueChange = { value ->
-                    val snapped = (value / BorderWidthStepDp).roundToInt() * BorderWidthStepDp
-                    if (snapped != borderWidthDp) {
-                        hapticToggle(view)()
-                        borderWidthDp = snapped
-                    }
-                },
-                onValueChangeFinished = {
-                    onSetSearchBarStyle(searchBarStyle.copy(borderWidthDp = borderWidthDp))
-                },
-            )
+            // The compact engine card fixes the bar's shape (SearchBarStyle.hasFixedShape).
+            if (!fixedShape) {
+                SliderSetting(
+                    label = stringResource(R.string.widget_slider_border),
+                    value = borderWidthDp,
+                    valueRange = SearchBarStyle.MIN_BORDER_WIDTH_DP..SearchBarStyle.MAX_BORDER_WIDTH_DP,
+                    steps = BorderWidthSteps,
+                    valueText = String.format(Locale.getDefault(), "%.1f dp", borderWidthDp),
+                    onValueChange = { value ->
+                        val snapped = (value / BorderWidthStepDp).roundToInt() * BorderWidthStepDp
+                        if (snapped != borderWidthDp) {
+                            hapticToggle(view)()
+                            borderWidthDp = snapped
+                        }
+                    },
+                    onValueChangeFinished = {
+                        onSetSearchBarStyle(searchBarStyle.copy(borderWidthDp = borderWidthDp))
+                    },
+                )
 
-            SliderSetting(
-                label = stringResource(R.string.widget_slider_radius),
-                value = cornerRadiusDp,
-                valueRange = SearchBarStyle.MIN_CORNER_RADIUS_DP..SearchBarStyle.MAX_CORNER_RADIUS_DP,
-                steps = CornerRadiusSteps,
-                valueText = String.format(Locale.getDefault(), "%.0f dp", cornerRadiusDp),
-                onValueChange = { value ->
-                    val snapped = (value / CornerRadiusStepDp).roundToInt() * CornerRadiusStepDp
-                    if (snapped != cornerRadiusDp) {
-                        hapticToggle(view)()
-                        cornerRadiusDp = snapped
-                    }
-                },
-                onValueChangeFinished = {
-                    onSetSearchBarStyle(searchBarStyle.copy(cornerRadiusDp = cornerRadiusDp))
-                },
-            )
+                SliderSetting(
+                    label = stringResource(R.string.widget_slider_radius),
+                    value = cornerRadiusDp,
+                    valueRange = SearchBarStyle.MIN_CORNER_RADIUS_DP..SearchBarStyle.MAX_CORNER_RADIUS_DP,
+                    steps = CornerRadiusSteps,
+                    valueText = String.format(Locale.getDefault(), "%.0f dp", cornerRadiusDp),
+                    onValueChange = { value ->
+                        val snapped = (value / CornerRadiusStepDp).roundToInt() * CornerRadiusStepDp
+                        if (snapped != cornerRadiusDp) {
+                            hapticToggle(view)()
+                            cornerRadiusDp = snapped
+                        }
+                    },
+                    onValueChangeFinished = {
+                        onSetSearchBarStyle(searchBarStyle.copy(cornerRadiusDp = cornerRadiusDp))
+                    },
+                )
+            }
 
             SliderSetting(
                 label = stringResource(R.string.settings_wallpaper_transparency_label),
@@ -279,12 +308,62 @@ fun SearchBarStyleCard(
     }
 }
 
+/**
+ * The bottom search bar sitting in its compact engine card, built from the same card and engine row
+ * the search screen uses, so the preview shows the card's real shape, fill and glow.
+ */
+@Composable
+private fun InsetSearchCardPreview(
+    style: SearchBarStyle,
+    showWallpaperBackground: Boolean,
+    showSettingsIcon: Boolean,
+    enabledSearchEngines: List<SearchTarget>,
+    compactRowCount: Int,
+    appIconShape: AppIconShape,
+    iconPackPackage: String?,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        // Drawn above the card, which reaches up behind it, matching SearchBarGeometry's insets.
+        SearchBarStylePreview(
+            style = style,
+            showWallpaperBackground = showWallpaperBackground,
+            showSettingsIcon = showSettingsIcon,
+            insetInCard = true,
+            modifier =
+                Modifier
+                    .zIndex(1f)
+                    .padding(
+                        start = InsetSearchBarGeometry.BarHorizontalInset,
+                        end = InsetSearchBarGeometry.BarHorizontalInset,
+                        top = InsetSearchBarGeometry.BarTopSpacing,
+                        bottom = InsetSearchBarGeometry.BarBottomSpacing,
+                    ),
+        )
+        SearchEngineIconsSection(
+            query = "",
+            enabledEngines = enabledSearchEngines,
+            onSearchEngineClick = { _, _ -> },
+            onSearchEngineLongPress = {},
+            showWallpaperBackground = showWallpaperBackground,
+            compactRowCount = compactRowCount,
+            appIconShape = appIconShape,
+            iconPackPackage = iconPackPackage,
+            useInsetContainer = true,
+            insetOverlap = InsetSearchBarGeometry.ContainerOverlap,
+            insetCardStyle = rememberInsetCardStyle(style, showWallpaperBackground),
+        )
+    }
+}
+
+/** @param insetInCard the bar sits in the compact engine card, which paints its fill and outline. */
 @Composable
 private fun SearchBarStylePreview(
     style: SearchBarStyle,
     showWallpaperBackground: Boolean,
     showSettingsIcon: Boolean,
     modifier: Modifier = Modifier,
+    insetInCard: Boolean = false,
 ) {
     val iconAndTextColor = AppColors.getSearchBarTextAndIconColor(showWallpaperBackground)
     val iconTint = AppColors.getSearchBarSecondaryIconTint(showWallpaperBackground)
@@ -299,7 +378,15 @@ private fun SearchBarStylePreview(
                 Modifier
                     .weight(1f)
                     .height(PreviewHeight)
-                    .searchBarPreviewSurface(style, showWallpaperBackground),
+                    .then(
+                        if (insetInCard) {
+                            Modifier
+                        } else {
+                            Modifier
+                                .insetCardGlow(style.borderColor(AppColors.Accent), RoundedCornerShape(style.cornerRadius()))
+                                .searchBarPreviewSurface(style, showWallpaperBackground)
+                        },
+                    ),
             contentAlignment = Alignment.CenterStart,
         ) {
             Row(

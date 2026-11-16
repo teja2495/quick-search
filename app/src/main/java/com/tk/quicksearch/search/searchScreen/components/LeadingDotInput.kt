@@ -25,3 +25,17 @@ internal fun TextFieldValue.withoutAutoSpaceAfterLeadingDot(previousText: String
         composition = composition?.let { TextRange(shift(it.start), shift(it.end)) },
     )
 }
+
+/** Most lines the search field wraps to before it scrolls; it grows with the query up to this. */
+internal const val SearchFieldMaxLines = 3
+
+/**
+ * The search field is multi-line only so long queries wrap; pasted line breaks become spaces. The
+ * length is unchanged, so the selection stays valid.
+ */
+internal fun TextFieldValue.withLineBreaksAsSpaces(): TextFieldValue =
+    if (text.any { it == '\n' || it == '\r' }) {
+        copy(text = text.replace('\n', ' ').replace('\r', ' '))
+    } else {
+        this
+    }

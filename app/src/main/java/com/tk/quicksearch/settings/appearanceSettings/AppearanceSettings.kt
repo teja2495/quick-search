@@ -26,6 +26,7 @@ import com.tk.quicksearch.search.core.IconPackInfo
 import com.tk.quicksearch.search.core.LauncherAppIcon
 import com.tk.quicksearch.search.core.SearchBarStyle
 import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.data.preferences.BasePreferences
@@ -84,7 +85,7 @@ fun AppearanceSettingsSection(
         onRequestWallpaperPermission: () -> Unit,
         isSearchEngineCompactMode: Boolean,
         searchEngineCompactRowCount: Int,
-        hasEnabledSearchEngines: Boolean,
+        enabledSearchEngines: List<SearchTarget>,
         onToggleSearchEngineCompactMode: (Boolean) -> Unit,
         onSetSearchEngineCompactRowCount: (Int) -> Unit,
         selectedIconPackPackage: String?,
@@ -235,11 +236,16 @@ fun AppearanceSettingsSection(
                 settingsIconEnabled = settingsIconEnabled,
                 settingsIconRequired = settingsIconRequired,
                 onToggleSettingsIcon = onToggleSettingsIcon,
+                fixedShape = SearchBarStyle.hasFixedShape(bottomSearchBarEnabled, isSearchEngineCompactMode),
+                enabledSearchEngines = enabledSearchEngines,
+                searchEngineCompactRowCount = searchEngineCompactRowCount,
+                appIconShape = appIconShape,
+                iconPackPackage = selectedIconPackPackage,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (hasEnabledSearchEngines) {
+        if (enabledSearchEngines.isNotEmpty()) {
             SearchEngineAppearanceCard(
                     isSearchEngineCompactMode = isSearchEngineCompactMode,
                     onToggleSearchEngineCompactMode = onToggleSearchEngineCompactMode,

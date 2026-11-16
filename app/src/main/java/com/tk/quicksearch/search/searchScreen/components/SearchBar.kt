@@ -2,6 +2,7 @@ package com.tk.quicksearch.search.searchScreen.components
 
 import com.tk.quicksearch.search.searchScreen.insetCardBackdrop
 import com.tk.quicksearch.search.searchScreen.insetCardBackground
+import com.tk.quicksearch.searchEngines.inline.insetCardGlow
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
@@ -475,6 +476,7 @@ internal fun PersistentSearchBar(
         modifier =
             modifier
                 .fillMaxWidth()
+                .then(if (transparentBackground) Modifier else Modifier.insetCardGlow(restingBorderColor, barShape))
                 .graphicsLayer {
                     // The inset strip already paints the card behind a transparent bar, so an
                     // accent-tinted shadow would only wash colour across the bar's interior.
@@ -522,10 +524,7 @@ internal fun PersistentSearchBar(
                             brush = brush,
                             cornerRadius =
                                 CornerRadius(cornerRadiusVal),
-                            style =
-                                Stroke(
-                                    width = strokeWidth * 4f,
-                                ), // Wide spill
+                            style = Stroke(width = strokeWidth * 4f), // Wide spill
                             alpha = alpha * 0.3f, // Low opacity
                         )
                         drawRoundRect(
@@ -571,7 +570,8 @@ internal fun PersistentSearchBar(
         TextField(
             value = textFieldValue,
             onValueChange = { rawValue ->
-                val newValue = rawValue.withoutAutoSpaceAfterLeadingDot(textFieldValue.text)
+                val newValue =
+                    rawValue.withLineBreaksAsSpaces().withoutAutoSpaceAfterLeadingDot(textFieldValue.text)
                 if (textFieldValue.text.isEmpty() && newValue.text.isNotEmpty()) {
                     StartupTrace.mark("QS.Home.FirstInputAccepted")
                 }
@@ -668,8 +668,7 @@ internal fun PersistentSearchBar(
             },
             textStyle =
                 MaterialTheme.typography.titleMedium.copy(color = iconAndTextColor),
-            singleLine = true,
-            maxLines = 1,
+            maxLines = SearchFieldMaxLines,
             leadingIcon = {
                 Box {
                     AnimatedContent(

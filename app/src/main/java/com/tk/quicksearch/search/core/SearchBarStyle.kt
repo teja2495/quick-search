@@ -24,6 +24,10 @@ data class SearchBarStyle(
     val hasCustomBorder: Boolean
         get() = borderWidthDp != DEFAULT_BORDER_WIDTH_DP || borderColorArgb != null
 
+    /** This style with the fixed shape used when [hasFixedShape]: no border, default corner radius. */
+    fun withFixedShape(): SearchBarStyle =
+        copy(borderWidthDp = 0f, cornerRadiusDp = DEFAULT_CORNER_RADIUS_DP)
+
     companion object {
         const val DEFAULT_BORDER_WIDTH_DP = 1f
         const val MIN_BORDER_WIDTH_DP = 0f
@@ -33,5 +37,12 @@ data class SearchBarStyle(
         const val DEFAULT_CORNER_RADIUS_DP = 28f
         const val MIN_CORNER_RADIUS_DP = 0f
         const val MAX_CORNER_RADIUS_DP = 28f
+
+        /**
+         * With the bottom search bar and compact engines, the bar sits in a card whose shape is
+         * fixed (no border, default corner radius), so those customizations don't apply.
+         */
+        fun hasFixedShape(bottomSearchBarEnabled: Boolean, compactEnginesEnabled: Boolean): Boolean =
+            bottomSearchBarEnabled && compactEnginesEnabled
     }
 }

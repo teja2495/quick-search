@@ -123,12 +123,7 @@ object AppColors {
         get() = current.searchBarBackground
 
     @Composable
-    fun getSearchBarBackground(showWallpaperBackground: Boolean): Color {
-        if (showWallpaperBackground && LocalDeviceDynamicColorsActive.current) {
-            return MaterialTheme.colorScheme.surfaceContainerHigh
-        }
-        return SearchBarBackground
-    }
+    fun getSearchBarBackground(@Suppress("UNUSED_PARAMETER") showWallpaperBackground: Boolean): Color = SearchBarBackground
 
     val SearchBarBorder: Color
         @Composable
@@ -139,20 +134,10 @@ object AppColors {
         get() = current.searchBarTextAndIcon
 
     @Composable
-    fun getSearchBarTextAndIconColor(showWallpaperBackground: Boolean): Color {
-        if (showWallpaperBackground && LocalDeviceDynamicColorsActive.current) {
-            return MaterialTheme.colorScheme.onSurface
-        }
-        return SearchBarTextAndIcon
-    }
+    fun getSearchBarTextAndIconColor(@Suppress("UNUSED_PARAMETER") showWallpaperBackground: Boolean): Color = SearchBarTextAndIcon
 
     @Composable
-    fun getSearchBarSecondaryIconTint(showWallpaperBackground: Boolean): Color {
-        if (showWallpaperBackground && LocalDeviceDynamicColorsActive.current) {
-            return MaterialTheme.colorScheme.onSurfaceVariant
-        }
-        return SecondaryIconTint
-    }
+    fun getSearchBarSecondaryIconTint(@Suppress("UNUSED_PARAMETER") showWallpaperBackground: Boolean): Color = SecondaryIconTint
 
     val SettingsBackground: Color = Color.Transparent
 

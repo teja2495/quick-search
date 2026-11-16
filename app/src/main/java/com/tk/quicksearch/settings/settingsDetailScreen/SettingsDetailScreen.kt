@@ -310,8 +310,8 @@ internal fun SettingsDetailLevel1Screen(
                     }
 
                     SettingsDetailType.APPEARANCE -> {
-                        val hasEnabledSearchEngines =
-                            state.searchEngineOrder.any { target ->
+                        val enabledSearchEngines =
+                            state.searchEngineOrder.filter { target ->
                                 target.getId() !in state.disabledSearchEngines
                             }
 
@@ -445,7 +445,7 @@ internal fun SettingsDetailLevel1Screen(
                             onRequestWallpaperPermission = callbacks.onRequestWallpaperPermission,
                             isSearchEngineCompactMode = state.isSearchEngineCompactMode,
                             searchEngineCompactRowCount = state.searchEngineCompactRowCount,
-                            hasEnabledSearchEngines = hasEnabledSearchEngines,
+                            enabledSearchEngines = enabledSearchEngines,
                             onToggleSearchEngineCompactMode = { enabled ->
                                 callbacks.onApplySettingsCommand(
                                     SettingsCommand.Toggle(

@@ -16,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.zIndex
+import com.tk.quicksearch.searchEngines.inline.rememberInsetCardStyle
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.searchEngines.extendToScreenEdges
@@ -69,6 +71,61 @@ internal fun SearchScreenBottomChrome(
     onVoiceClick: () -> Unit,
     onOpenKeyboardActionClicked: () -> Unit,
 ) {
+    // With compact engines the bar sits at the top of a card that the engine row (or the AI follow-up
+    // input) paints from below, so that content moves under the bar. The bar keeps the same slot in
+    // composition either way, so toggling the card never resets its text field.
+    val engineArea: @Composable () -> Unit = {
+        if (expandedSection == ExpandedSection.NONE && !isSearchHistoryExpanded) {
+            CompositionLocalProvider(
+                    LocalOverlayResultCardColor provides overlayCardColor,
+                    LocalOverlayDividerColor provides overlayDividerTint,
+                    LocalOverlayActionColor provides overlayActionTint,
+            ) {
+                if (isAiFollowUpInputVisible) {
+                    AiFollowUpInputSection(
+                            value = aiFollowUpText,
+                            onValueChange = onAiFollowUpTextChange,
+                            onSend = {
+                                val followUp = aiFollowUpText.trim()
+                                if (followUp.isNotEmpty()) {
+                                    onAiFollowUpInputVisibilityChange(false)
+                                    onAiFollowUpTextChange("")
+                                    onAiFollowUpSubmit(followUp)
+                                }
+                            },
+                            showWallpaperBackground = state.showWallpaperBackground,
+                            useInsetContainer = useInsetEngineStrip,
+                            insetOverlap = insetEngineStripOverlap,
+                            insetFullBleedFraction = insetEngineStripFullBleedFraction,
+                            insetCardStyle =
+                                    rememberInsetCardStyle(
+                                            state.searchBarStyle,
+                                            state.showWallpaperBackground,
+                                    ),
+                            modifier = searchEnginesModifier,
+                    )
+                } else {
+                    AnimatedSearchEngineStrip(
+                        state = state,
+                        bottomBarSwipeModifier = bottomBarSwipeModifier,
+                        enabledTargets = enabledTargets,
+                        onSearchTargetClick = onSearchTargetClick,
+                        onSearchEngineLongPress = onSearchEngineLongPress,
+                        searchEngineScrollState = searchEngineScrollState,
+                        onClearDetectedShortcut = onClearDetectedShortcut,
+                        predictedTargetForIndicator = predictedTargetForIndicator,
+                        activeToolCardConfig = activeToolCardConfig,
+                        showOnlyToolActionInCompactSection = showOnlyToolActionInCompactSection,
+                        useInsetEngineStrip = useInsetEngineStrip,
+                        insetEngineStripOverlap = insetEngineStripOverlap,
+                        insetEngineStripFullBleedFraction = insetEngineStripFullBleedFraction,
+                        searchEnginesModifier = searchEnginesModifier,
+                    )
+                }
+            }
+        }
+    }
+
     // Surfaces pinned here float over the results, which scroll beneath them and show through blurred.
     CompositionLocalProvider(LocalInsetCardBackdropTargetsEnabled provides true) {
         if (expandedSection == ExpandedSection.NONE) {
@@ -82,50 +139,7 @@ internal fun SearchScreenBottomChrome(
                 onKeyboardSwitchToggle = onKeyboardSwitchToggle,
                 onQuickActionCompleted = onQuickActionCompleted,
             )
-            if (!isSearchHistoryExpanded) {
-                CompositionLocalProvider(
-                        LocalOverlayResultCardColor provides overlayCardColor,
-                        LocalOverlayDividerColor provides overlayDividerTint,
-                        LocalOverlayActionColor provides overlayActionTint,
-                ) {
-                    if (isAiFollowUpInputVisible) {
-                        AiFollowUpInputSection(
-                                value = aiFollowUpText,
-                                onValueChange = onAiFollowUpTextChange,
-                                onSend = {
-                                    val followUp = aiFollowUpText.trim()
-                                    if (followUp.isNotEmpty()) {
-                                        onAiFollowUpInputVisibilityChange(false)
-                                        onAiFollowUpTextChange("")
-                                        onAiFollowUpSubmit(followUp)
-                                    }
-                                },
-                                showWallpaperBackground = state.showWallpaperBackground,
-                                useInsetContainer = useInsetEngineStrip,
-                                insetOverlap = insetEngineStripOverlap,
-                                insetFullBleedFraction = insetEngineStripFullBleedFraction,
-                                modifier = searchEnginesModifier,
-                        )
-                    } else {
-                        AnimatedSearchEngineStrip(
-                            state = state,
-                            bottomBarSwipeModifier = bottomBarSwipeModifier,
-                            enabledTargets = enabledTargets,
-                            onSearchTargetClick = onSearchTargetClick,
-                            onSearchEngineLongPress = onSearchEngineLongPress,
-                            searchEngineScrollState = searchEngineScrollState,
-                            onClearDetectedShortcut = onClearDetectedShortcut,
-                            predictedTargetForIndicator = predictedTargetForIndicator,
-                            activeToolCardConfig = activeToolCardConfig,
-                            showOnlyToolActionInCompactSection = showOnlyToolActionInCompactSection,
-                            useInsetEngineStrip = useInsetEngineStrip,
-                            insetEngineStripOverlap = insetEngineStripOverlap,
-                            insetEngineStripFullBleedFraction = insetEngineStripFullBleedFraction,
-                            searchEnginesModifier = searchEnginesModifier,
-                        )
-                    }
-                }
-            }
+            if (!useInsetEngineStrip) engineArea()
 
             Box(modifier = Modifier.fillMaxWidth().extendToScreenEdges()) {
                 androidx.compose.animation.AnimatedVisibility(
@@ -158,12 +172,14 @@ internal fun SearchScreenBottomChrome(
         }
 
         if (showSearchField && showBottomSearchBar) {
-            // The compact engine strip carries its own rounded background, so the search bar
-            // stays transparent over the wallpaper instead of sitting on a full-bleed band.
-            Box(modifier = Modifier.fillMaxWidth().then(bottomBarSwipeModifier)) {
+            // The compact engine card carries the bar's background, so the bar itself stays
+            // transparent over it instead of sitting on a full-bleed band.
+            // Drawn above the card that reaches up behind it from the engine area below.
+            Box(modifier = Modifier.fillMaxWidth().zIndex(1f).then(bottomBarSwipeModifier)) {
                 searchFieldContent()
             }
             if (useInsetEngineStrip) {
+                engineArea()
                 // Keeps the pills below from sitting flush against the card's bottom edge. Without
                 // the pills it collapses as the card goes full bleed so the card meets the keyboard.
                 val showsNumberKeyboardPills =
