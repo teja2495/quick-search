@@ -472,12 +472,12 @@ internal fun NumberKeyboardOperatorPills(
     modifier: Modifier = Modifier,
 ) {
     val operators = remember { listOf("+", "-", "×", "/", "(", ")") }
-    val isDarkTheme = LocalAppIsDarkTheme.current
     val containerBackgroundColor =
         when {
             transparentBackground -> Color.Transparent
+            // Same frosted band as the engine strip it sits under.
             showWallpaperBackground ->
-                if (isDarkTheme) Color.Black else Color.White
+                insetCardBackground(true, AppColors.getSearchEngineSectionBackground(true))
             isOverlayPresentation -> MaterialTheme.colorScheme.surface
             MaterialTheme.colorScheme.surface == MaterialTheme.colorScheme.background &&
                 MaterialTheme.colorScheme.background.red < 0.1f &&
@@ -491,7 +491,9 @@ internal fun NumberKeyboardOperatorPills(
     val operatorChipBorderColor = AppColors.SearchChromeOutlineBorder
 
     Surface(
-        modifier = if (extendToScreenEdges) modifier.extendToScreenEdges() else modifier,
+        modifier =
+            (if (extendToScreenEdges) modifier.extendToScreenEdges() else modifier)
+                .insetCardBackdrop(showWallpaperBackground && !transparentBackground, RectangleShape),
         color = containerBackgroundColor,
         shape = RoundedCornerShape(ZeroCornerSize),
         tonalElevation = DesignTokens.ElevationLevel0,

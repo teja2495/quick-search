@@ -33,13 +33,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppTheme
-import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
+import com.tk.quicksearch.search.searchScreen.frostedCardBackground
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
 import com.tk.quicksearch.settings.shared.settingsFloatingActionShape
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.LocalAppTheme
 
 private const val EXPAND_ICON_SIZE = 18
@@ -152,15 +151,13 @@ internal fun CollapseButton(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val contentColor = MaterialTheme.colorScheme.primary
+    val shape = settingsFloatingActionShape(interactionSource)
     Surface(
         onClick = onClick,
-        modifier = modifier.height(COLLAPSE_BUTTON_HEIGHT),
-        shape = settingsFloatingActionShape(interactionSource),
-        color =
-            AppColors.getSearchResultCardContainerColor(
-                showWallpaperBackground,
-                LocalOverlayResultCardColor.current,
-            ),
+        // Frosted like the result cards it floats over, with their lighter frosted scrim.
+        modifier = modifier.height(COLLAPSE_BUTTON_HEIGHT).frostedCardBackground(shape),
+        shape = shape,
+        color = SearchResultCardDefaults.containerColor(showWallpaperBackground),
         contentColor = contentColor,
         interactionSource = interactionSource,
     ) {

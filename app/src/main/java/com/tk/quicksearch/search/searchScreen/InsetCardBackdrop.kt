@@ -36,6 +36,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.shared.ui.theme.FrostedResultCardScrimFactor
 
 /** Blur applied to results showing through the bottom chrome surfaces. */
 private val InsetCardBackdropBlurRadius = 20.dp
@@ -246,17 +247,22 @@ internal fun Modifier.insetCardBackdrop(enabled: Boolean, shape: Shape, anywhere
     return if (active) frosted.insetCardBackdropTarget(backdrop, shape) else frosted
 }
 
-/** Surface colour, made translucent while it draws the blurred results behind it. */
+/**
+ * Surface colour, made translucent while it draws the blurred results behind it. Over a frosted
+ * wallpaper it takes the result cards' lighter scrim ([FrostedResultCardScrimFactor]) so the
+ * chrome shows the same blur as the cards.
+ */
 @Composable
 internal fun insetCardBackground(enabled: Boolean, color: Color, anywhere: Boolean = false): Color {
-    val backdrop = LocalInsetCardBackdrop.current ?: return color
-    val active =
-        enabled && backdrop.blurSupported && (anywhere || LocalInsetCardBackdropTargetsEnabled.current)
-    return if (active) {
-        color.copy(alpha = color.alpha.coerceAtMost(InsetCardBlurredBackgroundMaxAlpha))
-    } else {
-        color
-    }
+    if (!enabled) return color
+    val eligible = anywhere || LocalInsetCardBackdropTargetsEnabled.current
+    val frosted = eligible && LocalFrostedCardSource.current?.isActive == true
+    val backdrop = LocalInsetCardBackdrop.current
+    val blurred = eligible && backdrop != null && backdrop.blurSupported
+    var alpha = color.alpha
+    if (blurred) alpha = alpha.coerceAtMost(InsetCardBlurredBackgroundMaxAlpha)
+    if (frosted) alpha = minOf(alpha, color.alpha * FrostedResultCardScrimFactor)
+    return if (alpha == color.alpha) color else color.copy(alpha = alpha)
 }
 
 @Composable
