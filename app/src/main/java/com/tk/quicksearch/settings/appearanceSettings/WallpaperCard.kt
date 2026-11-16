@@ -388,64 +388,65 @@ fun WallpaperCard(
                                 )
                             }
                         }
-                        Box(
-                                modifier =
-                                        Modifier.align(Alignment.TopEnd)
-                                                .padding(6.dp)
-                                                .size(20.dp)
-                                                .clip(CircleShape)
-                                                .background(AppColors.CustomImageEditButtonBackground)
-                                                .clickable {
-                                                    hapticToggle(view)()
-                                                    if (isCustomSourceSelected) {
-                                                        onSetBackgroundSource(
-                                                                if (
-                                                                        canDisplaySystemWallpaper &&
-                                                                                !isLiveWallpaperUnsupported &&
-                                                                                !shouldHideSystemWallpaperSource
-                                                                ) {
-                                                                    BackgroundSource.SYSTEM_WALLPAPER
-                                                                } else {
-                                                                    BackgroundSource.THEME
-                                                                },
-                                                        )
-                                                    }
-                                                    onRemoveCustomImage()
-                                                },
-                                contentAlignment = Alignment.Center,
+                        Row(
+                                modifier = Modifier.align(Alignment.TopEnd).padding(6.dp),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
                         ) {
-                            Icon(
-                                    imageVector = MaterialSymbols.Close,
-                                    contentDescription =
-                                            stringResource(
-                                                    R.string.settings_overlay_source_remove_custom
-                                            ),
-                                    tint = AppColors.CustomImageEditButtonIcon,
-                                    modifier = Modifier.size(12.dp),
-                            )
-                        }
-                        Box(
-                                modifier =
-                                        Modifier.align(Alignment.BottomEnd)
-                                                .padding(6.dp)
-                                                .size(20.dp)
-                                                .clip(CircleShape)
-                                                .background(AppColors.CustomImageEditButtonBackground)
-                                                .clickable {
-                                                    hapticToggle(view)()
-                                                    onPickCustomImage()
-                                                },
-                                contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(
-                                    imageVector = MaterialSymbols.Edit,
-                                    contentDescription =
-                                            stringResource(
-                                                    R.string.settings_overlay_source_edit_custom
-                                            ),
-                                    tint = AppColors.CustomImageEditButtonIcon,
-                                    modifier = Modifier.size(12.dp),
-                            )
+                            Box(
+                                    modifier =
+                                            Modifier.size(20.dp)
+                                                    .clip(CircleShape)
+                                                    .background(AppColors.CustomImageEditButtonBackground)
+                                                    .clickable {
+                                                        hapticToggle(view)()
+                                                        onPickCustomImage()
+                                                    },
+                                    contentAlignment = Alignment.Center,
+                            ) {
+                                Icon(
+                                        imageVector = MaterialSymbols.Edit,
+                                        contentDescription =
+                                                stringResource(
+                                                        R.string.settings_overlay_source_edit_custom
+                                                ),
+                                        tint = AppColors.CustomImageEditButtonIcon,
+                                        modifier = Modifier.size(12.dp),
+                                )
+                            }
+                            Box(
+                                    modifier =
+                                            Modifier.size(20.dp)
+                                                    .clip(CircleShape)
+                                                    .background(AppColors.CustomImageEditButtonBackground)
+                                                    .clickable {
+                                                        hapticToggle(view)()
+                                                        if (isCustomSourceSelected) {
+                                                            onSetBackgroundSource(
+                                                                    if (
+                                                                            canDisplaySystemWallpaper &&
+                                                                                    !isLiveWallpaperUnsupported &&
+                                                                                    !shouldHideSystemWallpaperSource
+                                                                    ) {
+                                                                        BackgroundSource.SYSTEM_WALLPAPER
+                                                                    } else {
+                                                                        BackgroundSource.THEME
+                                                                    },
+                                                            )
+                                                        }
+                                                        onRemoveCustomImage()
+                                                    },
+                                    contentAlignment = Alignment.Center,
+                            ) {
+                                Icon(
+                                        imageVector = MaterialSymbols.Close,
+                                        contentDescription =
+                                                stringResource(
+                                                        R.string.settings_overlay_source_remove_custom
+                                                ),
+                                        tint = AppColors.CustomImageEditButtonIcon,
+                                        modifier = Modifier.size(12.dp),
+                                )
+                            }
                         }
                     } else {
                         Icon(

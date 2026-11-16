@@ -122,8 +122,10 @@ object AppColors {
         @Composable
         get() = current.searchBarBackground
 
+    // Same fill as the compact engine strip, so the bar and strip read as one surface by default.
     @Composable
-    fun getSearchBarBackground(@Suppress("UNUSED_PARAMETER") showWallpaperBackground: Boolean): Color = SearchBarBackground
+    fun getSearchBarBackground(showWallpaperBackground: Boolean): Color =
+        getSearchEngineSectionBackground(showWallpaperBackground)
 
     val SearchBarBorder: Color
         @Composable
