@@ -410,6 +410,13 @@ internal class StartupConfigReader(private val context: Context) {
                                 ] as?
                                         Boolean
                                         ?: false,
+                        searchChromeBlurEnabled =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .KEY_SEARCH_CHROME_BLUR_ENABLED,
+                                ] as?
+                                        Boolean
+                                        ?: false,
                         accentColorMode = accentColorModeFromPrefs(allPrefs),
                         customAccentColorArgb = customAccentColorArgbFromPrefs(allPrefs),
                         maskUnsupportedIconPackIcons =

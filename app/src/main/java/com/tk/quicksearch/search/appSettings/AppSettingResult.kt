@@ -134,6 +134,7 @@ enum class AppSettingsToggleKey {
     THEMED_ICONS,
     DEVICE_THEME,
     AMOLED_THEME,
+    SEARCH_CHROME_BLUR,
     USE_SYSTEM_FONT,
     FONT_SIZE,
     APP_ICON_SIZE,

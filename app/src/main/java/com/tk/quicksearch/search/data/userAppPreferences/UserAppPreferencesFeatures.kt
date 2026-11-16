@@ -624,6 +624,10 @@ open class UserAppPreferencesFeatures(context: Context) : UserAppPreferencesCore
 
     fun setAmoledThemeEnabled(enabled: Boolean) = uiPreferences.setAmoledThemeEnabled(enabled)
 
+    fun isSearchChromeBlurEnabled(): Boolean = uiPreferences.isSearchChromeBlurEnabled()
+
+    fun setSearchChromeBlurEnabled(enabled: Boolean) = uiPreferences.setSearchChromeBlurEnabled(enabled)
+
     fun isWallpaperAccentEnabled(): Boolean = uiPreferences.isWallpaperAccentEnabled()
 
     fun setWallpaperAccentEnabled(enabled: Boolean) = uiPreferences.setWallpaperAccentEnabled(enabled)

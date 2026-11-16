@@ -105,12 +105,7 @@ internal fun AiFollowUpInputSection(
         keyboardController?.show()
     }
 
-    val dividerColor =
-        if (showWallpaperBackground) {
-            AppColors.WallpaperDivider
-        } else {
-            AppColors.Accent.copy(alpha = 0.22f)
-        }
+    val dividerColor = compactTopDividerColor(showWallpaperBackground)
     val inputContent: @Composable ColumnScope.() -> Unit = {
         OutlinedTextField(
             value = value,

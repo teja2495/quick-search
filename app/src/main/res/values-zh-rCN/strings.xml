@@ -815,6 +815,8 @@
     <string name="settings_unified_pinned_items_desc">在主屏幕上将固定项目显示为一个统一列表。</string>
     <string name="settings_show_status_bar_title">显示状态栏</string>
     <string name="settings_show_status_bar_desc">在屏幕顶部显示 Android 状态栏。</string>
+    <string name="settings_search_chrome_blur_title">模糊背景</string>
+    <string name="settings_search_chrome_blur_desc">模糊搜索栏后面的内容。</string>
     <string name="settings_pinned_sections_order_title">固定分区顺序</string>
     <string name="settings_pinned_sections_order_desc">重新排列主页上的固定分区</string>
     <string name="settings_pinned_sections_order_dialog_info">长按并拖动以更改主页上固定分区的顺序。</string>

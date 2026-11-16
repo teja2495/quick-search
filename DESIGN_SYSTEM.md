@@ -71,6 +71,11 @@ Main `AppColors` groups:
   lowers the scrim by `FrostedResultCardScrimFactor` while it is active. New home/result card
   surfaces that draw their own container should add the modifier before their background. No
   frost with the system wallpaper backdrop (Android draws that wallpaper, so the app has no copy).
+- **Search chrome blur:** the search bar and bottom chrome (`insetCardBackdrop` /
+  `insetCardBackground`) are solid by default: no frosted wallpaper or blurred results behind them,
+  and their translucent colour is flattened onto `surfaceContainer` (black for AMOLED). The
+  "Blurred Background" toggle in the Appearance search bar card (`LocalSearchChromeBlurEnabled`) restores the
+  frosted chrome. Result cards are unaffected.
 - **Settings and dialogs:** `SettingsCardBackground`, `SettingsText`, `SettingsIconTint`,
   `DialogBackground`, `DialogText`, `Overlay*`.
 - **Contact actions:** `ActionPhone`, `ActionSms`, `ActionWhatsApp`, `ActionTelegram`,

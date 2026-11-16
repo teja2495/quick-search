@@ -79,6 +79,8 @@ fun SearchBarStyleCard(
     settingsIconEnabled: Boolean,
     settingsIconRequired: Boolean,
     onToggleSettingsIcon: (Boolean) -> Unit,
+    searchChromeBlurEnabled: Boolean,
+    onToggleSearchChromeBlur: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     fixedShape: Boolean = false,
     enabledSearchEngines: List<SearchTarget> = emptyList(),
@@ -107,7 +109,7 @@ fun SearchBarStyleCard(
             ).let { if (fixedShape) it.withFixedShape() else it }
 
     SettingsSegmentGroup(modifier = modifier) {
-      SettingsSegment(index = 0, count = 4) {
+      SettingsSegment(index = 0, count = 5) {
         Column(
             modifier =
                 Modifier
@@ -232,7 +234,16 @@ fun SearchBarStyleCard(
 
         }
       }
-      SettingsSegment(index = 1, count = 4) {
+      SettingsSegment(index = 1, count = 5) {
+                SettingsToggleRow(
+                    title = stringResource(R.string.settings_search_chrome_blur_title),
+                    subtitle = stringResource(R.string.settings_search_chrome_blur_desc),
+                    checked = searchChromeBlurEnabled,
+                    onCheckedChange = onToggleSearchChromeBlur,
+                    showDivider = false,
+                )
+      }
+      SettingsSegment(index = 2, count = 5) {
                 SettingsToggleRow(
                     title = stringResource(R.string.settings_icon_title),
                     subtitle =
@@ -247,7 +258,7 @@ fun SearchBarStyleCard(
                     showDivider = false,
                 )
       }
-      SettingsSegment(index = 2, count = 4) {
+      SettingsSegment(index = 3, count = 5) {
                 SettingsToggleRow(
                     title = stringResource(R.string.settings_mic_icon_title),
                     subtitle = stringResource(R.string.settings_mic_icon_desc),
@@ -258,15 +269,16 @@ fun SearchBarStyleCard(
                     showDivider = false,
                 )
       }
-      SettingsSegment(index = 3, count = 4) {
+      SettingsSegment(index = 4, count = 5) {
             SettingsTonalButton(
                 text = stringResource(R.string.settings_launcher_icon_reset_default),
                 icon = MaterialSymbols.RestartAlt,
                 onClick = {
                     onSetSearchBarStyle(SearchBarStyle())
                     if (!settingsIconEnabled) onToggleSettingsIcon(true)
+                    if (searchChromeBlurEnabled) onToggleSearchChromeBlur(false)
                 },
-                enabled = !previewStyle.isDefault || !settingsIconEnabled,
+                enabled = !previewStyle.isDefault || !settingsIconEnabled || searchChromeBlurEnabled,
                 modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
             )
       }

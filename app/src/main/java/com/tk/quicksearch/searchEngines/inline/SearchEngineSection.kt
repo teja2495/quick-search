@@ -78,6 +78,18 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
 
+/**
+ * Hairline along the top of the full-bleed engine strip and the bands that match it. Kept faint so
+ * it separates the strip from the results without reading as a glow over a dark background.
+ */
+@Composable
+internal fun compactTopDividerColor(showWallpaperBackground: Boolean): Color =
+    if (showWallpaperBackground) {
+        AppColors.WallpaperDivider.copy(alpha = AppColors.WallpaperDivider.alpha * 0.5f)
+    } else {
+        AppColors.Accent.copy(alpha = 0.11f)
+    }
+
 internal object SearchEngineSectionConstants {
     val ICON_SIZE = SearchTargetConstants.DEFAULT_ICON_SIZE
     val SPACING = 20.dp
@@ -195,12 +207,7 @@ fun SearchEngineIconsSection(
             }
         }
     } else {
-        val compactTopDividerColor =
-            if (showWallpaperBackground) {
-                AppColors.WallpaperDivider
-            } else {
-                AppColors.Accent.copy(alpha = 0.22f)
-            }
+        val compactTopDividerColor = compactTopDividerColor(showWallpaperBackground)
         val sectionContent: @Composable ColumnScope.() -> Unit = {
             if ((showOnlyToolAction || enabledEngines.isEmpty()) && hasToolAction) {
                 AnimatedVisibility(

@@ -136,6 +136,7 @@ internal suspend fun SearchStartupLifecycleDelegate.loadCacheAndMinimalPrefs() {
                     themedIconsEnabled = startupSnapshot.themedIconsEnabled,
                     deviceThemeEnabled = startupSnapshot.deviceThemeEnabled,
                     amoledThemeEnabled = startupSnapshot.amoledThemeEnabled,
+                    searchChromeBlurEnabled = startupSnapshot.searchChromeBlurEnabled,
                     maskUnsupportedIconPackIcons = startupSnapshot.maskUnsupportedIconPackIcons,
                     isInitializing = true,
                 )
@@ -251,6 +252,7 @@ internal fun SearchStartupLifecycleDelegate.applyStartupPreferences(prefs: Start
                 themedIconsEnabled = snapshot.themedIconsEnabled,
                 deviceThemeEnabled = snapshot.deviceThemeEnabled,
                 amoledThemeEnabled = snapshot.amoledThemeEnabled,
+                searchChromeBlurEnabled = snapshot.searchChromeBlurEnabled,
                 maskUnsupportedIconPackIcons = snapshot.maskUnsupportedIconPackIcons,
                 showWallpaperBackground = snapshot.backgroundSource != BackgroundSource.THEME,
                 wallpaperBackgroundAlpha = snapshot.wallpaperBackgroundAlpha,

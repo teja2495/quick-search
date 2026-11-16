@@ -826,6 +826,8 @@
     <string name="settings_unified_pinned_items_desc">Εμφάνιση καρφιτσωμένων στοιχείων ως μία ενοποιημένη λίστα στην αρχική οθόνη.</string>
     <string name="settings_show_status_bar_title">Εμφάνιση γραμμής κατάστασης</string>
     <string name="settings_show_status_bar_desc">Εμφάνιση της γραμμής κατάστασης Android στο επάνω μέρος της οθόνης.</string>
+    <string name="settings_search_chrome_blur_title">Θολό φόντο</string>
+    <string name="settings_search_chrome_blur_desc">Θόλωμα του φόντου πίσω από τη γραμμή αναζήτησης.</string>
     <string name="settings_pinned_sections_order_title">Σειρά καρφιτσωμένων ενοτήτων</string>
     <string name="settings_pinned_sections_order_desc">Αναδιάταξη καρφιτσωμένων ενοτήτων στην αρχική</string>
     <string name="settings_pinned_sections_order_dialog_info">Πατήστε παρατεταμένα και σύρετε για να αλλάξετε τη σειρά των καρφιτσωμένων ενοτήτων στην αρχική.</string>

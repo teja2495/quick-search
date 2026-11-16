@@ -837,6 +837,8 @@
     <string name="settings_unified_pinned_items_desc">Show pinned items as one unified list in home.</string>
     <string name="settings_show_status_bar_title">Show Status Bar</string>
     <string name="settings_show_status_bar_desc">Show the Android status bar at the top of the screen.</string>
+    <string name="settings_search_chrome_blur_title">Blurred Background</string>
+    <string name="settings_search_chrome_blur_desc">Blur what’s behind the search bar.</string>
     <string name="settings_pinned_sections_order_title">Pinned Sections Order</string>
     <string name="settings_pinned_sections_order_desc">Reorder pinned sections on home</string>
     <string name="settings_pinned_sections_order_dialog_info">Hold and drag to change the order of pinned sections on home.</string>

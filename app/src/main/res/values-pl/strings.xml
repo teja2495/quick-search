@@ -857,6 +857,8 @@
     <string name="settings_unified_pinned_items_desc">Pokazuj przypięte elementy jako jedną ujednoliconą listę na ekranie głównym.</string>
     <string name="settings_show_status_bar_title">Pokaż pasek stanu</string>
     <string name="settings_show_status_bar_desc">Pokazuj pasek stanu Androida u góry ekranu.</string>
+    <string name="settings_search_chrome_blur_title">Rozmyte tło</string>
+    <string name="settings_search_chrome_blur_desc">Rozmywaj to, co jest za paskiem wyszukiwania.</string>
     <string name="settings_pinned_sections_order_title">Kolejność przypiętych sekcji</string>
     <string name="settings_pinned_sections_order_desc">Zmień kolejność przypiętych sekcji na ekranie głównym</string>
     <string name="settings_pinned_sections_order_dialog_info">Przytrzymaj i przeciągnij, aby zmienić kolejność przypiętych sekcji na ekranie głównym.</string>

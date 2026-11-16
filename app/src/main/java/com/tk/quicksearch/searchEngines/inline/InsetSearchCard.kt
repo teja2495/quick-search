@@ -180,10 +180,10 @@ internal fun Modifier.attachBelowBottomSearchBar(
     }
 
 /** How far the accent glow spills past the card's edge. */
-private val InsetCardGlowExtent = 12.dp
+private val InsetCardGlowExtent = 10.dp
 
 /** Glow opacity right at the card's edge, eased out to nothing at [InsetCardGlowExtent]. */
-private const val InsetCardGlowPeakAlpha = 0.11f
+private const val InsetCardGlowPeakAlpha = 0.06f
 
 /** Concentric strokes that approximate the blur; enough that no single ring reads as a line. */
 private const val InsetCardGlowSteps = 20

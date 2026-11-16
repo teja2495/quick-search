@@ -376,6 +376,15 @@ internal fun SettingsDetailLevel1Screen(
                                     ),
                                 )
                             },
+                            searchChromeBlurEnabled = state.searchChromeBlurEnabled,
+                            onToggleSearchChromeBlur = { enabled ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.Toggle(
+                                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.SEARCH_CHROME_BLUR,
+                                        enabled = enabled,
+                                    ),
+                                )
+                            },
                             settingsIconEnabled = state.settingsIconEnabled,
                             onToggleSettingsIcon = { enabled ->
                                 callbacks.onApplySettingsCommand(

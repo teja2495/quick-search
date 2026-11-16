@@ -420,6 +420,7 @@ class UiPreferences(context: Context) : UiPreferencesFeatures(context) {
         const val KEY_THEMED_ICONS_ENABLED = "themed_icons_enabled"
         const val KEY_DEVICE_THEME_ENABLED = "device_theme_enabled"
         const val KEY_AMOLED_THEME_ENABLED = "amoled_theme_enabled"
+        const val KEY_SEARCH_CHROME_BLUR_ENABLED = "search_chrome_blur_enabled"
         const val KEY_WALLPAPER_ACCENT_ENABLED = "wallpaper_accent_enabled"
         const val KEY_ACCENT_COLOR_MODE = "accent_color_mode"
         const val KEY_CUSTOM_ACCENT_COLOR_ARGB = "custom_accent_color_argb"

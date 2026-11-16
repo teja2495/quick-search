@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.layout.ColumnScope
 import com.tk.quicksearch.searchEngines.inline.SearchEngineSectionConstants
+import com.tk.quicksearch.searchEngines.inline.compactTopDividerColor
 import com.tk.quicksearch.search.searchScreen.components.NumberKeyboardOperatorRowTopPadding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.foundation.layout.Column
@@ -215,12 +216,7 @@ internal fun SearchScreenBottomChrome(
                     // Same hairline the compact engine strip draws along its top edge.
                     if (hasQuickActions) {
                         HorizontalDivider(
-                                color =
-                                        if (state.showWallpaperBackground) {
-                                            AppColors.WallpaperDivider
-                                        } else {
-                                            AppColors.Accent.copy(alpha = 0.22f)
-                                        },
+                                color = compactTopDividerColor(state.showWallpaperBackground),
                                 thickness = DesignTokens.BorderWidth,
                         )
                     }

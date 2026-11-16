@@ -826,6 +826,8 @@
     <string name="settings_unified_pinned_items_desc">पिन किए गए आइटम को होम स्क्रीन पर एक एकीकृत सूची के रूप में दिखाएं।</string>
     <string name="settings_show_status_bar_title">स्टेटस बार दिखाएं</string>
     <string name="settings_show_status_bar_desc">स्क्रीन के ऊपर Android स्टेटस बार दिखाएं।</string>
+    <string name="settings_search_chrome_blur_title">धुंधली पृष्ठभूमि</string>
+    <string name="settings_search_chrome_blur_desc">सर्च बार के पीछे की चीज़ें धुंधली करें।</string>
     <string name="settings_pinned_sections_order_title">पिन किए गए सेक्शन का क्रम</string>
     <string name="settings_pinned_sections_order_desc">होम पर पिन किए गए सेक्शन का क्रम बदलें</string>
     <string name="settings_pinned_sections_order_dialog_info">होम पर पिन किए गए सेक्शन का क्रम बदलने के लिए दबाकर रखें और खींचें।</string>

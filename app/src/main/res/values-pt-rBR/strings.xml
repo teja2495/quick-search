@@ -826,6 +826,8 @@
     <string name="settings_unified_pinned_items_desc">Mostrar itens fixados como uma lista unificada na tela inicial.</string>
     <string name="settings_show_status_bar_title">Mostrar barra de status</string>
     <string name="settings_show_status_bar_desc">Mostra a barra de status do Android na parte superior da tela.</string>
+    <string name="settings_search_chrome_blur_title">Fundo desfocado</string>
+    <string name="settings_search_chrome_blur_desc">Desfoca o que fica atrás da barra de pesquisa.</string>
     <string name="settings_pinned_sections_order_title">Ordem das seções fixadas</string>
     <string name="settings_pinned_sections_order_desc">Reordene as seções fixadas na tela inicial</string>
     <string name="settings_pinned_sections_order_dialog_info">Toque e segure e arraste para alterar a ordem das seções fixadas na tela inicial.</string>

@@ -827,6 +827,8 @@
     <string name="settings_unified_pinned_items_desc">عرض العناصر المثبتة كقائمة موحدة واحدة في الشاشة الرئيسية.</string>
     <string name="settings_show_status_bar_title">إظهار شريط الحالة</string>
     <string name="settings_show_status_bar_desc">إظهار شريط حالة Android أعلى الشاشة.</string>
+    <string name="settings_search_chrome_blur_title">خلفية ضبابية</string>
+    <string name="settings_search_chrome_blur_desc">تمويه ما خلف شريط البحث.</string>
     <string name="settings_pinned_sections_order_title">ترتيب الأقسام المثبتة</string>
     <string name="settings_pinned_sections_order_desc">إعادة ترتيب الأقسام المثبتة في الشاشة الرئيسية</string>
     <string name="settings_pinned_sections_order_dialog_info">اضغط مطولًا واسحب لتغيير ترتيب الأقسام المثبتة في الشاشة الرئيسية.</string>

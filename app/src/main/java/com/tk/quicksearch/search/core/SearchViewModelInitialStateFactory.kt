@@ -325,6 +325,7 @@ internal object SearchViewModelInitialStateFactory {
                 themedIconsEnabled = startupPreferencesReader.isThemedIconsEnabled(),
                 deviceThemeEnabled = startupPreferencesReader.isDeviceThemeEnabled(),
                 amoledThemeEnabled = startupPreferencesReader.isAmoledThemeEnabled(),
+                searchChromeBlurEnabled = startupPreferencesReader.isSearchChromeBlurEnabled(),
                 maskUnsupportedIconPackIcons =
                     startupPreferencesReader.isIconPackUnsupportedIconMaskEnabled(),
                 appSuggestionsEnabled =

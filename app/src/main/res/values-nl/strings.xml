@@ -860,6 +860,8 @@
     <string name="settings_unified_pinned_items_desc">Toon vastgemaakte items als één gecombineerde lijst op het startscherm.</string>
     <string name="settings_show_status_bar_title">Statusbalk tonen</string>
     <string name="settings_show_status_bar_desc">Toon de Android-statusbalk bovenaan het scherm.</string>
+    <string name="settings_search_chrome_blur_title">Vervaagde achtergrond</string>
+    <string name="settings_search_chrome_blur_desc">Vervaag wat achter de zoekbalk zit.</string>
     <string name="settings_pinned_sections_order_title">Volgorde vastgezette secties</string>
     <string name="settings_pinned_sections_order_desc">Vastgezette secties op het startscherm herschikken</string>
     <string name="settings_pinned_sections_order_dialog_info">Houd ingedrukt en sleep om de volgorde van vastgezette secties op het startscherm te wijzigen.</string>

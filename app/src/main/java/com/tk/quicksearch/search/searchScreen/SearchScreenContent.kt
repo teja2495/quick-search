@@ -646,6 +646,7 @@ internal fun SearchScreenContent(
         LocalAmoledThemeActive provides amoledSurfacesActive,
         LocalSearchResultQuery provides state.query.trim(),
         LocalInsetCardBackdrop provides searchBarGeometry.insetCardBackdrop,
+        LocalSearchChromeBlurEnabled provides state.searchChromeBlurEnabled,
         com.tk.quicksearch.tools.calculator.LocalCalculatorResultQueryHandler provides onQueryChanged,
     ) {
     Column(modifier = contentModifier, verticalArrangement = Arrangement.Top) {

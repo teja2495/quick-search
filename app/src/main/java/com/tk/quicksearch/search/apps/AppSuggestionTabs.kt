@@ -22,6 +22,7 @@ import com.tk.quicksearch.shared.util.hapticToggle
 import androidx.compose.ui.platform.LocalView
 
 private val TabStripOpticalShift = 2.dp
+private val SuggestionTabHeight = 36.dp
 
 /** Every enabled suggestion category stays reachable; long translations scroll without truncation. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,8 +42,7 @@ internal fun AppSuggestionTabStrip(
         // tops below make the lower gap read tighter, so the strip sits a little lower.
         modifier =
             Modifier.fillMaxWidth().padding(
-                top = DesignTokens.SpacingXSmall - TabStripOpticalShift,
-                bottom = DesignTokens.SpacingXSmall + TabStripOpticalShift,
+                bottom = TabStripOpticalShift * 2,
             ),
         containerColor = Color.Transparent,
         contentColor = foreground,
@@ -63,12 +63,12 @@ internal fun AppSuggestionTabStrip(
                         onSelectedIndexChange(index)
                     }
                 },
-                modifier = Modifier.heightIn(min = DesignTokens.Spacing48),
+                modifier = Modifier.heightIn(min = SuggestionTabHeight),
                 selectedContentColor = foreground,
                 unselectedContentColor = foreground.copy(alpha = 0.50f),
             ) {
                 Box(
-                    modifier = Modifier.heightIn(min = DesignTokens.Spacing48)
+                    modifier = Modifier.heightIn(min = SuggestionTabHeight)
                         .padding(horizontal = DesignTokens.SpacingLarge),
                     contentAlignment = Alignment.Center,
                 ) {

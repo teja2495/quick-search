@@ -826,6 +826,8 @@
     <string name="settings_unified_pinned_items_desc">Muestra los elementos fijados como una lista unificada en la pantalla de inicio.</string>
     <string name="settings_show_status_bar_title">Mostrar barra de estado</string>
     <string name="settings_show_status_bar_desc">Muestra la barra de estado de Android en la parte superior de la pantalla.</string>
+    <string name="settings_search_chrome_blur_title">Fondo desenfocado</string>
+    <string name="settings_search_chrome_blur_desc">Desenfoca lo que hay detrás de la barra de búsqueda.</string>
     <string name="settings_pinned_sections_order_title">Orden de secciones fijadas</string>
     <string name="settings_pinned_sections_order_desc">Reordena las secciones fijadas en la pantalla de inicio</string>
     <string name="settings_pinned_sections_order_dialog_info">Mantén pulsado y arrastra para cambiar el orden de las secciones fijadas en la pantalla de inicio.</string>

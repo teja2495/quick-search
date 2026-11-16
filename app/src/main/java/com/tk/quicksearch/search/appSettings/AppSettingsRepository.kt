@@ -21,14 +21,7 @@ class AppSettingsRepository(
                 titleRes = R.string.settings_appearance_title,
                 descriptionRes = R.string.settings_appearance_desc,
                 destination = AppSettingsDestination.APPEARANCE,
-                keywords =
-                    listOf(
-                        "wallpaper",
-                        "style",
-                        "search engines style",
-                        "inline",
-                        "compact"
-                    ),
+                keywords = listOf("wallpaper", "style", "search engines style", "inline", "compact"),
             )
             addNavigation(
                 id = THEME_MODE_SETTING_ID,
@@ -496,6 +489,13 @@ class AppSettingsRepository(
                 descriptionRes = R.string.settings_show_status_bar_desc,
                 toggleKey = AppSettingsToggleKey.SHOW_STATUS_BAR,
                 keywords = listOf("status bar", "fullscreen", "immersive", "hide", "system bar"),
+            )
+            addToggle(
+                id = "app_toggle_search_chrome_blur",
+                titleRes = R.string.settings_search_chrome_blur_title,
+                descriptionRes = R.string.settings_search_chrome_blur_desc,
+                toggleKey = AppSettingsToggleKey.SEARCH_CHROME_BLUR,
+                keywords = listOf("blur", "frosted", "glass", "transparent", "translucent", "search bar", "keyboard"),
             )
             addToggle(
                 id = "app_toggle_search_hints",

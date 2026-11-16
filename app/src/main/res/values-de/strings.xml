@@ -826,6 +826,8 @@
     <string name="settings_unified_pinned_items_desc">Angeheftete Elemente als eine vereinheitlichte Liste auf dem Startbildschirm anzeigen.</string>
     <string name="settings_show_status_bar_title">Statusleiste anzeigen</string>
     <string name="settings_show_status_bar_desc">Die Android-Statusleiste oben auf dem Bildschirm anzeigen.</string>
+    <string name="settings_search_chrome_blur_title">Weichgezeichneter Hintergrund</string>
+    <string name="settings_search_chrome_blur_desc">Den Bereich hinter der Suchleiste weichzeichnen.</string>
     <string name="settings_pinned_sections_order_title">Reihenfolge angehefteter Bereiche</string>
     <string name="settings_pinned_sections_order_desc">Angeheftete Bereiche auf dem Startbildschirm neu anordnen</string>
     <string name="settings_pinned_sections_order_dialog_info">Gedrückt halten und ziehen, um die Reihenfolge der angehefteten Bereiche auf dem Startbildschirm zu ändern.</string>
