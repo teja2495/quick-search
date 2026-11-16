@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.customTools
 
+import com.tk.quicksearch.settings.shared.settingsScrollClip
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -190,12 +191,10 @@ fun CustomToolEditorScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
+                .padding(horizontal = DesignTokens.ContentHorizontalPadding)
+                .settingsScrollClip()
                 .verticalScroll(scrollState)
-                .padding(
-                    start = DesignTokens.ContentHorizontalPadding,
-                    end = DesignTokens.ContentHorizontalPadding,
-                    bottom = DesignTokens.SpacingLarge,
-                ),
+                .padding(bottom = DesignTokens.SpacingLarge),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         ) {
             if (showWebSearchWarning) {

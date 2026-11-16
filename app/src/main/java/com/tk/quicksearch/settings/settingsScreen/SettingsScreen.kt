@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsScreen
 
+import com.tk.quicksearch.settings.shared.settingsScrollClip
 import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
 import android.content.ActivityNotFoundException
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenCallbacks as SharedSettingsScreenCallbacks
@@ -178,8 +179,9 @@ fun SettingsScreen(
                     .settingsContentWidth()
                     .fillMaxHeight()
                     .align(Alignment.CenterHorizontally)
-                    .verticalScroll(scrollState)
-                    .padding(horizontal = DesignTokens.ContentHorizontalPadding),
+                    .padding(horizontal = DesignTokens.ContentHorizontalPadding)
+                    .settingsScrollClip()
+                    .verticalScroll(scrollState),
         ) {
             if (shouldShowSettingsSearchTip) {
                 TipBanner(

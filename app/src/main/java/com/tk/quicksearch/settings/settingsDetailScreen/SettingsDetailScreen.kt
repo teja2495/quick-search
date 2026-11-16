@@ -56,6 +56,7 @@ import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenState
 import com.tk.quicksearch.settings.shared.isAppSettingToggleEnabled
 import com.tk.quicksearch.settings.shared.settingsContentWidth
+import com.tk.quicksearch.settings.shared.settingsScrollClip
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -187,12 +188,10 @@ internal fun SettingsDetailLevel1Screen(
                         .settingsContentWidth()
                         .fillMaxHeight()
                         .align(Alignment.CenterHorizontally)
+                        .padding(horizontal = DesignTokens.ContentHorizontalPadding)
+                        .settingsScrollClip()
                         .verticalScroll(scrollState)
-                        .padding(
-                            start = DesignTokens.ContentHorizontalPadding,
-                            end = DesignTokens.ContentHorizontalPadding,
-                            bottom = DesignTokens.SectionTopPadding,
-                        ),
+                        .padding(bottom = DesignTokens.SectionTopPadding),
             ) {
                 when (detailType) {
                     SettingsDetailType.SEARCH_ENGINES -> {

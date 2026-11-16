@@ -51,6 +51,7 @@ import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenState
 import com.tk.quicksearch.settings.shared.SettingsManagementSearchBar
 import com.tk.quicksearch.settings.shared.settingsContentWidth
+import com.tk.quicksearch.settings.shared.settingsScrollClip
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.settings.NoteDeleteConfirmationDialog
@@ -279,7 +280,8 @@ internal fun SettingsNestedDetailScreen(
                                 start = DesignTokens.ContentHorizontalPadding,
                                 end = DesignTokens.ContentHorizontalPadding,
                                 bottom = 96.dp,
-                            ),
+                            )
+                            .settingsScrollClip(),
                 )
             } else if (detailType == SettingsDetailType.APP_SHORTCUTS) {
                 AppShortcutsDetailContent(
@@ -311,7 +313,8 @@ internal fun SettingsNestedDetailScreen(
                             start = DesignTokens.ContentHorizontalPadding,
                             end = DesignTokens.ContentHorizontalPadding,
                             bottom = DesignTokens.SectionTopPadding,
-                        ),
+                        )
+                        .settingsScrollClip(),
                 )
             } else if (detailType == SettingsDetailType.CUSTOM_TOOL_EDITOR) {
                 CustomToolEditorDetailContent(state, callbacks, context)
@@ -327,7 +330,8 @@ internal fun SettingsNestedDetailScreen(
                                 start = DesignTokens.ContentHorizontalPadding,
                                 end = DesignTokens.ContentHorizontalPadding,
                                 bottom = 96.dp,
-                            ),
+                            )
+                            .settingsScrollClip(),
                 )
             } else if (detailType == SettingsDetailType.BOOKMARKS) {
                 BookmarksSettingsSection(
@@ -335,12 +339,12 @@ internal fun SettingsNestedDetailScreen(
                     availableBrowsers = state.searchEngineOrder.filterIsInstance<SearchTarget.Browser>().map { it.app },
                     addRequest = bookmarksAddRequest,
                     modifier = Modifier.settingsContentWidth().fillMaxHeight().align(Alignment.CenterHorizontally)
-                        .padding(start = DesignTokens.ContentHorizontalPadding, end = DesignTokens.ContentHorizontalPadding, bottom = 96.dp),
+                        .padding(start = DesignTokens.ContentHorizontalPadding, end = DesignTokens.ContentHorizontalPadding, bottom = 96.dp).settingsScrollClip(),
                 )
             } else if (detailType == SettingsDetailType.DEVICE_SETTINGS) {
                 DeviceSettingsSettingsSection(
                     modifier = Modifier.settingsContentWidth().fillMaxHeight().align(Alignment.CenterHorizontally)
-                        .padding(start = DesignTokens.ContentHorizontalPadding, end = DesignTokens.ContentHorizontalPadding, bottom = DesignTokens.SectionTopPadding),
+                        .padding(start = DesignTokens.ContentHorizontalPadding, end = DesignTokens.ContentHorizontalPadding, bottom = DesignTokens.SectionTopPadding).settingsScrollClip(),
                     settings = state.allDeviceSettings,
                     onSettingClick = { setting ->
                         if (setting.id == NOTIFICATION_HISTORY_SETTING_ID) {
@@ -359,7 +363,7 @@ internal fun SettingsNestedDetailScreen(
                     onHideEvent = callbacks.onHideCalendarEvent,
                     onUnhideEvent = callbacks.onUnhideCalendarEvent,
                     modifier = Modifier.settingsContentWidth().fillMaxHeight().align(Alignment.CenterHorizontally)
-                        .padding(start = DesignTokens.ContentHorizontalPadding, end = DesignTokens.ContentHorizontalPadding, bottom = 96.dp),
+                        .padding(start = DesignTokens.ContentHorizontalPadding, end = DesignTokens.ContentHorizontalPadding, bottom = 96.dp).settingsScrollClip(),
                 )
             } else if (detailType == SettingsDetailType.NOTIFICATION_HISTORY) {
                 NotificationHistorySettingsSection(
@@ -375,7 +379,8 @@ internal fun SettingsNestedDetailScreen(
                                 start = DesignTokens.ContentHorizontalPadding,
                                 end = DesignTokens.ContentHorizontalPadding,
                                 bottom = 96.dp,
-                            ),
+                            )
+                            .settingsScrollClip(),
                 )
             } else if (detailType == SettingsDetailType.NOTES) {
                 NotesSettingsSection(
@@ -408,7 +413,8 @@ internal fun SettingsNestedDetailScreen(
                                 start = DesignTokens.ContentHorizontalPadding,
                                 end = DesignTokens.ContentHorizontalPadding,
                                 bottom = 96.dp,
-                            ),
+                            )
+                            .settingsScrollClip(),
                 )
             } else if (detailType == SettingsDetailType.NOTE_EDITOR) {
                 NoteEditor(
@@ -424,7 +430,8 @@ internal fun SettingsNestedDetailScreen(
                             .padding(
                                 start = DesignTokens.ContentHorizontalPadding,
                                 end = DesignTokens.ContentHorizontalPadding,
-                            ),
+                            )
+                            .settingsScrollClip(),
                 )
             } else {
                 Column(
@@ -433,10 +440,10 @@ internal fun SettingsNestedDetailScreen(
                             .settingsContentWidth()
                             .fillMaxHeight()
                             .align(androidx.compose.ui.Alignment.CenterHorizontally)
+                            .padding(horizontal = DesignTokens.ContentHorizontalPadding)
+                            .settingsScrollClip()
                             .then(if (detailType in setOf(SettingsDetailType.AT_A_GLANCE, SettingsDetailType.TRIGGERS, SettingsDetailType.EXCLUDED_ITEMS)) Modifier else Modifier.verticalScroll(scrollState))
                             .padding(
-                                start = DesignTokens.ContentHorizontalPadding,
-                                end = DesignTokens.ContentHorizontalPadding,
                                 bottom =
                                     when (detailType) {
                                         SettingsDetailType.APP_SHORTCUTS -> 96.dp
