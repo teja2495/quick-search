@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import com.tk.quicksearch.search.searchHistory.QUERY_ROW_ICON_SIZE
+import com.tk.quicksearch.search.searchHistory.QUERY_ROW_VERTICAL_PADDING
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -44,6 +46,9 @@ import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 internal val GlanceDismissButtonSize = 28.dp
+
+/** Same height as a search history row, so the home cards line up. */
+private val GlanceRowMinHeight = (QUERY_ROW_ICON_SIZE + QUERY_ROW_VERTICAL_PADDING * 2).dp
 
 /** Descriptions wrap in full rather than cutting off. */
 internal const val GlanceTextMaxLines = Int.MAX_VALUE
@@ -105,7 +110,7 @@ internal fun GlanceStatusRow(
 ) {
     Row(
         modifier =
-            Modifier.fillMaxWidth().heightIn(min = 52.dp).padding(
+            Modifier.fillMaxWidth().heightIn(min = GlanceRowMinHeight).padding(
                 start = 7.dp,
                 end = if (onDismiss == null) 7.dp else 0.dp,
                 top = DesignTokens.SpacingMedium,

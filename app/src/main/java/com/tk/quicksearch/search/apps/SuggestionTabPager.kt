@@ -182,11 +182,26 @@ internal class SuggestionTabPagerState(
                     initialValue = offset,
                     targetValue = 0f,
                     initialVelocity = velocity,
-                    animationSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow),
+                    animationSpec =
+                        spring(
+                            dampingRatio = Spring.DampingRatioNoBouncy,
+                            stiffness = Spring.StiffnessMediumLow,
+                            // Ends at half a pixel instead of creeping on for sub-pixel frames.
+                            visibilityThreshold = SettleVisibilityThresholdPx,
+                        ),
                 ) { value, _ -> offsetState.floatValue = value }
                 peer = null
                 reportDisplayed()
             }
+    }
+
+    /** Ends a running slide at its destination right away. */
+    internal fun finishSettle() {
+        if (peer == null && offset == 0f) return
+        stop()
+        offsetState.floatValue = 0f
+        peer = null
+        reportDisplayed()
     }
 
     private fun reportDisplayed() {
@@ -205,6 +220,7 @@ internal class SuggestionTabPagerState(
 
     private companion object {
         const val MinFlingDistanceFraction = 0.25f
+        const val SettleVisibilityThresholdPx = 0.5f
     }
 }
 
@@ -268,7 +284,12 @@ internal fun Modifier.suggestionTabSwipe(
             val index = tabs.indexOf(state.displayed)
             // Dragging right (+1) reveals the previous tab.
             val hasNeighbour = index >= 0 && tabs.getOrNull(index - direction) != null
-            if (state.peer == null && !hasNeighbour) return@awaitEachGesture
+            if (!hasNeighbour) {
+                // Toward a side with no tab: finish any slide still running and leave the drag
+                // to the root page swipe, even right after arriving on this tab.
+                state.finishSettle()
+                return@awaitEachGesture
+            }
             // Claim the drag on the event that crossed the slop; otherwise the root page swipe
             // also starts on it and nudges the whole page before cancelling.
             slopChange?.consume()

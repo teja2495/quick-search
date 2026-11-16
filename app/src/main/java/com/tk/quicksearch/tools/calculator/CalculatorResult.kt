@@ -3,7 +3,14 @@ package com.tk.quicksearch.tools.calculator
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -18,7 +25,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
@@ -49,10 +55,11 @@ import com.tk.quicksearch.tools.aiSearch.compactAttributionTopPadding
 private val unitResultRegex = Regex("^([+-]?(?:\\d+(?:\\.\\d+)?|\\.\\d+))(?:\\s+(.+))?$")
 private val dateNumberRegex = Regex("(\\d+)")
 private const val COPY_CONFIRMATION_MILLIS = 1500L
-private const val ACTION_CHIP_BACKGROUND_ALPHA = 0.08f
-private val ACTION_CHIP_ICON_SIZE = 14.dp
-private val ACTION_CHIP_VERTICAL_PADDING = 6.dp
-// 48dp chip touch target plus the bottom inset and a small gap above it.
+private const val ACTION_BUTTON_CONTAINER_ALPHA = 0.6f
+private val ACTION_BUTTON_HEIGHT = 32.dp
+private val ACTION_BUTTON_ICON_SIZE = 20.dp
+private val ACTION_BUTTON_PRESSED_CORNER = 8.dp
+// 48dp button touch target plus the bottom inset and a small gap above it.
 private val ACTION_ROW_RESERVED_HEIGHT = 56.dp
 
 /** Replaces the search query; provided by the search screen so the calculator can reuse its result. */
@@ -231,34 +238,46 @@ private fun CalculatorResultActions(
     }
 }
 
+/**
+ * Material 3 Expressive extra-small filled tonal button: 32dp tall, fully round at rest, and
+ * morphing to tighter corners while pressed on the expressive spring.
+ */
 @Composable
 private fun CalculatorActionChip(
         icon: ImageVector,
         label: String,
         onClick: () -> Unit,
 ) {
-    Surface(
-            onClick = onClick,
-            shape = DesignTokens.ShapeFull,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = ACTION_CHIP_BACKGROUND_ALPHA),
-            contentColor = MaterialTheme.colorScheme.onSurface,
-    ) {
-        Row(
-                modifier =
-                        Modifier.padding(
-                                horizontal = DesignTokens.SpacingMedium,
-                                vertical = ACTION_CHIP_VERTICAL_PADDING,
-                        ),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
-        ) {
-            Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    modifier = Modifier.size(ACTION_CHIP_ICON_SIZE),
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressed by interactionSource.collectIsPressedAsState()
+    val corner by
+            animateDpAsState(
+                    targetValue = if (pressed) ACTION_BUTTON_PRESSED_CORNER else ACTION_BUTTON_HEIGHT / 2,
+                    animationSpec = DesignTokens.expressiveFastSpatialSpring(),
+                    label = "calculatorActionCorner",
             )
-            Text(text = label, style = MaterialTheme.typography.labelMedium)
-        }
+    FilledTonalButton(
+            onClick = onClick,
+            modifier = Modifier.heightIn(min = ACTION_BUTTON_HEIGHT),
+            shape = RoundedCornerShape(corner),
+            colors =
+                    ButtonDefaults.filledTonalButtonColors(
+                            containerColor =
+                                    MaterialTheme.colorScheme.secondaryContainer.copy(
+                                            alpha = ACTION_BUTTON_CONTAINER_ALPHA,
+                                    ),
+                    ),
+            contentPadding =
+                    PaddingValues(horizontal = DesignTokens.SpacingMedium, vertical = 0.dp),
+            interactionSource = interactionSource,
+    ) {
+        Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(ACTION_BUTTON_ICON_SIZE),
+        )
+        Spacer(modifier = Modifier.width(DesignTokens.SpacingXSmall))
+        Text(text = label, style = MaterialTheme.typography.labelLarge)
     }
 }
 
@@ -396,7 +415,7 @@ private fun UnitConverterResultText(result: String) {
     val value = match?.groupValues?.getOrNull(1) ?: result
     val unit = match?.groupValues?.getOrNull(2).orEmpty()
     val valueTextStyle = MaterialTheme.typography.displayMedium
-    val unitTextStyle = MaterialTheme.typography.bodyMedium
+    val unitTextStyle = MaterialTheme.typography.titleMedium
 
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val density = LocalDensity.current
@@ -439,13 +458,13 @@ private fun UnitConverterResultText(result: String) {
         } else {
             Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
             ) {
                 Text(
                         text = value,
                         style = valueTextStyle,
                         color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.alignByBaseline(),
                 )
                 if (unit.isNotBlank()) {
                     Text(
@@ -453,7 +472,7 @@ private fun UnitConverterResultText(result: String) {
                             style = unitTextStyle,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
-                            modifier = Modifier.offset(y = 10.dp),
+                            modifier = Modifier.alignByBaseline(),
                     )
                 }
             }

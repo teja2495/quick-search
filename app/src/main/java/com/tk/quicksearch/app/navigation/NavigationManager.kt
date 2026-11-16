@@ -49,6 +49,7 @@ import com.tk.quicksearch.search.searchScreen.components.LocalSearchReturningFro
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.searchScreen.LocalPageBackdropDrawnByHost
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.LocalHomeAppearedContentKeys
 import com.tk.quicksearch.search.searchScreen.SharedPageBackdrop
 import com.tk.quicksearch.search.searchScreen.searchRoute.SearchRoute
 import com.tk.quicksearch.settings.settingsDetailScreen.level
@@ -484,6 +485,8 @@ private fun NavigationContent(
         )
         rootAnimationDirectionOverride = null
     }
+    // Outlives the Search page, which is disposed while Widgets or Settings is shown.
+    val homeAppearedContentKeys = remember { mutableSetOf<String>() }
     Box(modifier = Modifier.fillMaxSize()) {
         // Opaque cover under Settings; a transparent (system wallpaper) window would smear trails.
         val backgroundColor = MaterialTheme.colorScheme.background
@@ -506,6 +509,7 @@ private fun NavigationContent(
         )
         CompositionLocalProvider(
             LocalPageBackdropDrawnByHost provides true,
+            LocalHomeAppearedContentKeys provides homeAppearedContentKeys,
             LocalPageSwipeController provides if (returnToOverlay) null else pageSwipeController,
         ) {
             PageSwipeHost(controller = pageSwipeController) { targetDestination ->

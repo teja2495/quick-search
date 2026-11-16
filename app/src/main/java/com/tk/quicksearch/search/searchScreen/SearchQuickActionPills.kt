@@ -9,10 +9,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +36,19 @@ internal fun SearchQuickActionPills(
     onQuickActionCompleted: () -> Unit,
 ) {
     val context = LocalContext.current
+    val buttonCount =
+            listOf(
+                    keyboardSwitchText != null,
+                    shouldShowPhoneCallAction,
+                    detectedAlarmTime != null,
+                    detectedAlarmTime != null,
+                    detectedTimerSeconds != null,
+                    detectedTimerSeconds != null,
+                    detectedTimerSeconds != null,
+                    detectedReminderSchedule != null,
+            ).count { it }
+    // Three or more buttons drop their icons so the labels keep a readable size on one row.
+    val showIcons = buttonCount < 3
             AnimatedVisibility(
                     visible =
                             keyboardSwitchText != null ||
@@ -52,22 +63,26 @@ internal fun SearchQuickActionPills(
                         modifier =
                                 Modifier.fillMaxWidth()
                                         .padding(
-                                                top = DesignTokens.SpacingSmall,
-                                                bottom = DesignTokens.SpacingSmall,
+                                                horizontal = DesignTokens.ContentHorizontalPadding,
+                                                vertical = DesignTokens.SpacingSmall,
                                         ),
-                        horizontalArrangement = Arrangement.Center,
+                        horizontalArrangement =
+                                Arrangement.spacedBy(DesignTokens.SpacingSmall, Alignment.CenterHorizontally),
                         verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (keyboardSwitchText != null) {
                         KeyboardSwitchPill(
-                                text = keyboardSwitchText,
+                                modifier = Modifier.weight(1f, fill = false),
+                                showIcon = showIcons,
+text = keyboardSwitchText,
                                 onClick = onKeyboardSwitchToggle,
                         )
                     }
                     if (shouldShowPhoneCallAction) {
-                        Spacer(modifier = Modifier.size(DesignTokens.SpacingSmall))
                         PhoneCallPill(
-                                onClick = {
+                                modifier = Modifier.weight(1f, fill = false),
+                                showIcon = showIcons,
+onClick = {
                                     context.startActivity(
                                             Intent(Intent.ACTION_DIAL).apply {
                                                 data = Uri.parse("tel:${Uri.encode(query)}")
@@ -77,11 +92,10 @@ internal fun SearchQuickActionPills(
                         )
                     }
                     if (detectedAlarmTime != null) {
-                        if (keyboardSwitchText != null || shouldShowPhoneCallAction) {
-                            Spacer(modifier = Modifier.size(DesignTokens.SpacingSmall))
-                        }
                         SetAlarmPill(
-                                onClick = {
+                                modifier = Modifier.weight(1f, fill = false),
+                                showIcon = showIcons,
+onClick = {
                                     if (SetAlarmHandler.launchSetAlarm(context, detectedAlarmTime)) {
                                         onQuickActionCompleted()
                                     } else {
@@ -94,9 +108,10 @@ internal fun SearchQuickActionPills(
                                     }
                                 },
                         )
-                        Spacer(modifier = Modifier.size(DesignTokens.SpacingSmall))
                         CreateReminderPill(
-                                useShortLabel = true,
+                                modifier = Modifier.weight(1f, fill = false),
+                                showIcon = showIcons,
+useShortLabel = true,
                                 onClick = {
                                     val now = java.time.LocalDateTime.now()
                                     val today = now.toLocalDate().atTime(detectedAlarmTime)
@@ -115,14 +130,10 @@ internal fun SearchQuickActionPills(
                         )
                     }
                     if (detectedTimerSeconds != null) {
-                        if (keyboardSwitchText != null ||
-                                        shouldShowPhoneCallAction ||
-                                        detectedAlarmTime != null
-                        ) {
-                            Spacer(modifier = Modifier.size(DesignTokens.SpacingSmall))
-                        }
                         StartTimerPill(
-                                onClick = {
+                                modifier = Modifier.weight(1f, fill = false),
+                                showIcon = showIcons,
+onClick = {
                                     val started =
                                             StartTimerHandler.launchStartTimer(
                                                     context,
@@ -143,9 +154,10 @@ internal fun SearchQuickActionPills(
                                     if (started) onQuickActionCompleted()
                                 },
                         )
-                        Spacer(modifier = Modifier.size(DesignTokens.SpacingSmall))
                         SetAlarmPill(
-                                onClick = {
+                                modifier = Modifier.weight(1f, fill = false),
+                                showIcon = showIcons,
+onClick = {
                                     val alarmTime =
                                             StartTimerHandler.alarmTimeFor(detectedTimerSeconds)
                                     if (SetAlarmHandler.launchSetAlarm(context, alarmTime)) {
@@ -160,9 +172,10 @@ internal fun SearchQuickActionPills(
                                     }
                                 },
                         )
-                        Spacer(modifier = Modifier.size(DesignTokens.SpacingSmall))
                         CreateReminderPill(
-                                useShortLabel = true,
+                                modifier = Modifier.weight(1f, fill = false),
+                                showIcon = showIcons,
+useShortLabel = true,
                                 onClick = {
                                     ReminderEditorRequests.openNew(
                                             initialDateTimeMillis =
@@ -178,15 +191,10 @@ internal fun SearchQuickActionPills(
                         )
                     }
                     if (detectedReminderSchedule != null) {
-                        if (keyboardSwitchText != null ||
-                                        shouldShowPhoneCallAction ||
-                                        detectedAlarmTime != null ||
-                                        detectedTimerSeconds != null
-                        ) {
-                            Spacer(modifier = Modifier.size(DesignTokens.SpacingSmall))
-                        }
                         CreateReminderPill(
-                                onClick = {
+                                modifier = Modifier.weight(1f, fill = false),
+                                showIcon = showIcons,
+onClick = {
                                     val schedule = detectedReminderSchedule
                                     val dateTime = schedule.date.atTime(
                                             schedule.time ?: java.time.LocalTime.MIDNIGHT,

@@ -15,10 +15,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.homeTextColor
 import com.tk.quicksearch.shared.util.hapticToggle
 import androidx.compose.ui.platform.LocalView
+
+private val TabStripOpticalShift = 2.dp
 
 /** Every enabled suggestion category stays reachable; long translations scroll without truncation. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,7 +37,13 @@ internal fun AppSuggestionTabStrip(
     val view = LocalView.current
     SecondaryScrollableTabRow(
         selectedTabIndex = selected,
-        modifier = Modifier.fillMaxWidth().padding(vertical = DesignTokens.SpacingXSmall),
+        // Spacing around the strip is even to the text baseline, but descenders and the solid icon
+        // tops below make the lower gap read tighter, so the strip sits a little lower.
+        modifier =
+            Modifier.fillMaxWidth().padding(
+                top = DesignTokens.SpacingXSmall - TabStripOpticalShift,
+                bottom = DesignTokens.SpacingXSmall + TabStripOpticalShift,
+            ),
         containerColor = Color.Transparent,
         contentColor = foreground,
         edgePadding = DesignTokens.SpacingXSmall,

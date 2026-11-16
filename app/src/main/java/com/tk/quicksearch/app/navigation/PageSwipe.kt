@@ -6,7 +6,9 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.horizontalDrag
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,8 +25,12 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputScope
+import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.addPointerInputChange
 import androidx.compose.ui.platform.LocalDensity
@@ -35,6 +41,7 @@ import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 /**
  * Root page switcher for Home / Widgets panel / Settings.
@@ -271,7 +278,7 @@ internal suspend fun PointerInputScope.detectPageSwipe(
     var locked = 0
     var live = false
     try {
-        detectHorizontalDragGestures(
+        detectHorizontalDominantDrag(
             onDragStart = {
                 velocityTracker.resetTracking()
                 total = 0f
@@ -322,4 +329,40 @@ internal suspend fun PointerInputScope.detectPageSwipe(
         // The pointer input can be cancelled mid-drag (restart/disposal); never leave a page half-revealed.
         if (live) controller?.release(commit = false, velocity = 0f)
     }
+}
+
+/**
+ * Like `detectHorizontalDragGestures`, but a gesture whose touch-slop movement is mostly vertical
+ * is ignored entirely. Otherwise a vertical swipe that drifts sideways would start revealing the
+ * neighbouring page (composing Search and flashing its restored keyboard over the widgets panel).
+ */
+private suspend fun PointerInputScope.detectHorizontalDominantDrag(
+    onDragStart: () -> Unit,
+    onHorizontalDrag: (change: PointerInputChange, dragAmount: Float) -> Unit,
+    onDragEnd: () -> Unit,
+    onDragCancel: () -> Unit,
+) = awaitEachGesture {
+    val down = awaitFirstDown(requireUnconsumed = false)
+    val touchSlop = viewConfiguration.touchSlop
+    var moved = Offset.Zero
+    val start: PointerInputChange
+    while (true) {
+        val change = awaitPointerEvent().changes.firstOrNull { it.id == down.id } ?: return@awaitEachGesture
+        if (change.changedToUpIgnoreConsumed() || change.isConsumed) return@awaitEachGesture
+        moved += change.positionChange()
+        if (moved.getDistance() >= touchSlop) {
+            if (abs(moved.x) <= abs(moved.y)) return@awaitEachGesture
+            start = change
+            break
+        }
+    }
+    onDragStart()
+    start.consume()
+    onHorizontalDrag(start, moved.x)
+    val completed =
+        horizontalDrag(down.id) { change ->
+            onHorizontalDrag(change, change.positionChange().x)
+            change.consume()
+        }
+    if (completed) onDragEnd() else onDragCancel()
 }

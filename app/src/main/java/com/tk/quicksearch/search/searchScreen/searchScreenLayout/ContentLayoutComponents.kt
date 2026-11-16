@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -50,6 +51,17 @@ import com.tk.quicksearch.search.searchScreen.RemindersSectionParams
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
 import com.tk.quicksearch.R
+
+/**
+ * Keys of Home sections that already played their first-appearance animation. The navigation host
+ * provides one set for the whole activity, so leaving Home for another page and coming back does
+ * not replay the fade. Hosts without a provider (overlay) fall back to a per-composition set.
+ */
+val LocalHomeAppearedContentKeys = staticCompositionLocalOf<MutableSet<String>?> { null }
+
+@Composable
+internal fun rememberHomeAppearedContentKeys(): MutableSet<String> =
+    LocalHomeAppearedContentKeys.current ?: remember { mutableSetOf() }
 
 /**
  * Fades home sections in when their asynchronously loaded data first arrives. By default the

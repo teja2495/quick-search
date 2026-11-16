@@ -56,6 +56,8 @@ internal fun ExpandableResultsCard(
             shouldFillExpandedHeight = fillExpandedHeight && isExpanded && hasScrollableContent,
         )
 
+    val cardLayoutEnabled = LocalSearchCardLayoutEnabled.current
+    val cardShape = SearchResultCardDefaults.shape
     val contentModifier =
         if (isExpanded && constrainExpandedHeight) {
             Modifier.fillMaxWidth()
@@ -63,6 +65,9 @@ internal fun ExpandableResultsCard(
                     min = if (state.shouldFillExpandedHeight) expandedCardMaxHeight else 0.dp,
                     max = expandedCardMaxHeight,
                 )
+                // The expanded rows scroll inside this viewport; round it like the card so rows
+                // passing its top and bottom edges follow the card corners instead of a square cut.
+                .then(if (cardLayoutEnabled) Modifier.clip(cardShape) else Modifier)
         } else {
             Modifier.fillMaxWidth()
         }
@@ -73,11 +78,11 @@ internal fun ExpandableResultsCard(
             .animateContentSize()
             .predictedSubmitHighlight(
                 isPredicted = isTopPredicted,
-                shape = SearchResultCardDefaults.shape,
+                shape = cardShape,
                 opaqueCardTopResultBorder = true,
             )
 
-    if (segmented && LocalSearchCardLayoutEnabled.current) {
+    if (segmented && cardLayoutEnabled) {
         // Rows draw their own tiles (ResultSegment); the card itself is only the group.
         val containerColor =
             SearchResultCardDefaults.colors(

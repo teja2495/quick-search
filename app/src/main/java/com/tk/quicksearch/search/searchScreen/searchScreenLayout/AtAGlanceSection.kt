@@ -75,7 +75,11 @@ internal class AtAGlanceItems(
 private class RetainedAtAGlanceItems {
     var lastShown: List<AtAGlanceItem> = emptyList()
     var visibility: MutableTransitionState<Boolean>? = null
+    var hasShownRows = false
 }
+
+private const val AT_A_GLANCE_CARD_APPEARED_KEY = "at-a-glance-card"
+private const val AT_A_GLANCE_ROW_APPEARED_KEY_PREFIX = "at-a-glance-row-"
 
 /**
  * Keeps [live]'s last rows around while the card collapses after its last row goes. While
@@ -87,8 +91,17 @@ private fun rememberRetainedAtAGlanceItems(
     live: List<AtAGlanceItem>,
 ): AtAGlanceItems {
     val holder = remember { RetainedAtAGlanceItems() }
-    val visibility =
+    val appearedKeys = rememberHomeAppearedContentKeys()
+    var visibility =
         holder.visibility?.takeIf { enabled } ?: MutableTransitionState(live.isNotEmpty()).also { holder.visibility = it }
+    // The glance sources reload from empty whenever Home is rebuilt (returning from Widgets or
+    // Settings). A card that already appeared earlier in this activity comes back without its entrance.
+    if (enabled && live.isNotEmpty() && !holder.hasShownRows) {
+        holder.hasShownRows = true
+        if (!appearedKeys.add(AT_A_GLANCE_CARD_APPEARED_KEY) && !visibility.targetState) {
+            visibility = MutableTransitionState(true).also { holder.visibility = it }
+        }
+    }
     if (!enabled) holder.visibility = null
     if (live.isNotEmpty()) holder.lastShown = live
     // Reading the transition state here recomposes once the card has finished collapsing.
@@ -289,6 +302,7 @@ private class AnimatedGlanceRow(
 private class AnimatedGlanceRows {
     var rows: List<AnimatedGlanceRow> = emptyList()
     var initialized = false
+    val seenKeys = mutableSetOf<String>()
 }
 
 /**
@@ -299,11 +313,18 @@ private class AnimatedGlanceRows {
 @Composable
 private fun rememberAnimatedGlanceRows(items: List<AtAGlanceItem>): List<AnimatedGlanceRow> {
     val holder = remember { AnimatedGlanceRows() }
+    val appearedKeys = rememberHomeAppearedContentKeys()
     val previous = holder.rows.associateBy { it.item.key }
     fun rowFor(item: AtAGlanceItem): AnimatedGlanceRow {
         val visibility =
-            previous[item.key]?.visibility
-                ?: MutableTransitionState(!holder.initialized).apply { targetState = true }
+            previous[item.key]?.visibility ?: run {
+                // A row that already appeared in this activity, now reloading after a page switch,
+                // shows at once; one that arrives while this group is on screen still grows in.
+                val firstInThisGroup = holder.seenKeys.add(item.key)
+                val appearedBefore = !appearedKeys.add(AT_A_GLANCE_ROW_APPEARED_KEY_PREFIX + item.key)
+                MutableTransitionState(!holder.initialized || (firstInThisGroup && appearedBefore))
+                    .apply { targetState = true }
+            }
         return AnimatedGlanceRow(item, visibility)
     }
     val currentIndex = items.withIndex().associate { (index, item) -> item.key to index }

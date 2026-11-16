@@ -282,11 +282,11 @@ internal fun AiProviderAttributionRow(
     Row(
             modifier = rowModifier,
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
     ) {
         Text(
                 text = poweredByText,
-                style = MaterialTheme.typography.labelSmall,
+                style = MaterialTheme.typography.bodySmall,
                 color = contentColor,
         )
         when (llmProviderId) {
@@ -331,7 +331,7 @@ internal fun AiProviderAttributionRow(
                     )
                     Text(
                             text = stringResource(R.string.settings_ai_provider_meta),
-                            style = MaterialTheme.typography.labelSmall,
+                            style = MaterialTheme.typography.bodySmall,
                             color = contentColor,
                     )
                 }
@@ -350,7 +350,7 @@ internal fun AiProviderAttributionRow(
                 if (llmProviderId.isCustom) {
                     Text(
                             text = usedModelId.orEmpty(),
-                            style = MaterialTheme.typography.labelSmall,
+                            style = MaterialTheme.typography.bodySmall,
                             color = contentColor,
                     )
                 } else {
@@ -413,17 +413,18 @@ internal fun ToolAttributionRow(
     Row(
             modifier = modifier.padding(horizontal = attributionHorizontalPadding()),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
+        // Decorative: the label beside it already names the tool for screen readers.
         Icon(
                 imageVector = icon,
-                contentDescription = stringResource(titleRes),
+                contentDescription = null,
                 tint = contentColor,
-                modifier = Modifier.size(14.dp),
+                modifier = Modifier.size(16.dp),
         )
         Text(
                 text = stringResource(titleRes),
-                style = MaterialTheme.typography.labelSmall,
+                style = MaterialTheme.typography.bodySmall,
                 color = contentColor,
         )
     }

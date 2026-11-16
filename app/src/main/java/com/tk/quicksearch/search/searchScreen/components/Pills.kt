@@ -48,6 +48,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.R
 import com.tk.quicksearch.searchEngines.extendToScreenEdges
@@ -57,59 +59,100 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.ui.theme.LocalDeviceDynamicColorsActive
 
-private val PhoneCallPillIconSize = 14.dp
+private val QuickActionIconSize = 16.dp
+private val QuickActionButtonHeight = 32.dp
+private val QuickActionPressedCorner = 8.dp
+private val QuickActionMinFontSize = 10.sp
 
+/**
+ * Material 3 Expressive extra-small filled tonal button for the search screen's quick actions
+ * (Number Keyboard, Call, Set Alarm, Start Timer, Reminder, All Apps): 32dp tall on
+ * `secondaryContainer`/`onSecondaryContainer`, fully round corners that square to 8dp on press on
+ * the expressive fast spatial spring. The label shrinks (down to 10sp) rather than wrapping or
+ * ellipsizing, so a row of quick actions always fits on one line.
+ */
 @Composable
-internal fun KeyboardSwitchPill(
-    text: String,
+private fun QuickActionButton(
+    label: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    leadingIcon: (@Composable () -> Unit)? = null,
 ) {
-    val isDarkTheme = LocalAppIsDarkTheme.current
-    val backgroundColor = if (isDarkTheme) Color.Black else Color.White
-    val labelColor = if (isDarkTheme) Color.White else Color.Black
     val interactionSource = remember { MutableInteractionSource() }
-    val borderColor =
-        if (isDarkTheme) {
-            AppColors.Accent.copy(alpha = 0.22f)
-        } else {
-            Color.Black.copy(alpha = 0.1f)
-        }
+    val pressed by interactionSource.collectIsPressedAsState()
+    val corner by animateDpAsState(
+        targetValue = if (pressed) QuickActionPressedCorner else QuickActionButtonHeight / 2,
+        animationSpec = DesignTokens.expressiveFastSpatialSpring(),
+        label = "quickActionCorner",
+    )
+    val labelStyle = MaterialTheme.typography.labelLarge
     Surface(
+        modifier = modifier.height(QuickActionButtonHeight),
         onClick = onClick,
         interactionSource = interactionSource,
-        shape = DesignTokens.ShapeFull,
-        color = backgroundColor,
-        border = BorderStroke(DesignTokens.KeyboardPillBorderStrokeWidth, borderColor),
+        shape = RoundedCornerShape(corner),
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
         tonalElevation = DesignTokens.ElevationLevel0,
     ) {
         Row(
             modifier =
-                Modifier
-                    .padding(
-                        horizontal = DesignTokens.SpacingMedium,
-                        vertical = DesignTokens.SpacingXSmall,
-                    ).height(DesignTokens.IconSize),
-            verticalAlignment = Alignment.CenterVertically,
+                Modifier.padding(
+                    start = if (leadingIcon != null) DesignTokens.SpacingMedium else DesignTokens.SpacingLarge,
+                    end = DesignTokens.SpacingLarge,
+                ),
             horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
+            if (leadingIcon != null) {
+                leadingIcon()
+                Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
+            }
             Text(
-                text = text,
-                style = MaterialTheme.typography.labelSmall,
-                color = labelColor,
-                fontWeight = FontWeight.Medium,
+                text = label,
+                style = labelStyle,
+                maxLines = 1,
+                // Without this the label wraps onto a clipped second line instead of auto-shrinking.
+                softWrap = false,
+                autoSize =
+                    TextAutoSize.StepBased(
+                        minFontSize = QuickActionMinFontSize,
+                        maxFontSize = labelStyle.fontSize,
+                    ),
             )
         }
     }
 }
 
 @Composable
+private fun QuickActionVectorIcon(icon: ImageVector) {
+    Icon(
+        imageVector = icon,
+        contentDescription = null,
+        modifier = Modifier.size(QuickActionIconSize),
+    )
+}
+
+@Composable
+internal fun KeyboardSwitchPill(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    showIcon: Boolean = true,
+) = QuickActionButton(
+    label = text,
+    onClick = onClick,
+    modifier = modifier,
+    leadingIcon = if (showIcon) ({ QuickActionVectorIcon(MaterialSymbols.Keyboard) }) else null,
+)
+
+@Composable
 internal fun PhoneCallPill(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    showIcon: Boolean = true,
 ) {
     val context = LocalContext.current
-    val isDarkTheme = LocalAppIsDarkTheme.current
     val phoneAppIcon =
         remember(context) {
             runCatching {
@@ -118,68 +161,42 @@ internal fun PhoneCallPill(
                 resolveInfo?.loadIcon(context.packageManager)?.toBitmap()?.asImageBitmap()
             }.getOrNull()
         }
-    val interactionSource = remember { MutableInteractionSource() }
-    val borderColor =
-        if (isDarkTheme) {
-            AppColors.Accent.copy(alpha = 0.22f)
-        } else {
-            Color.Black.copy(alpha = 0.1f)
-        }
-
-    Surface(
-        modifier = modifier,
+    QuickActionButton(
+        label = stringResource(R.string.contact_method_call_label),
         onClick = onClick,
-        interactionSource = interactionSource,
-        shape = DesignTokens.ShapeFull,
-        color = if (isDarkTheme) Color.Black else Color.White,
-        border = BorderStroke(DesignTokens.KeyboardPillBorderStrokeWidth, borderColor),
-        tonalElevation = DesignTokens.ElevationLevel0,
-    ) {
-        Row(
-            modifier =
-                Modifier
-                    .padding(
-                        horizontal = DesignTokens.SpacingMedium,
-                        vertical = DesignTokens.SpacingXSmall,
-                    )
-                    .height(DesignTokens.IconSize),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+        modifier = modifier,
+        leadingIcon = if (!showIcon) null else {
+            {
             if (phoneAppIcon != null) {
                 Image(
                     painter = BitmapPainter(phoneAppIcon),
-                    contentDescription = stringResource(R.string.contact_method_call_label),
-                    modifier = Modifier.size(PhoneCallPillIconSize),
+                    contentDescription = null,
+                    modifier = Modifier.size(QuickActionIconSize),
                 )
             } else {
                 Icon(
                     imageVector = MaterialSymbols.Call,
-                    contentDescription = stringResource(R.string.contact_method_call_label),
+                    contentDescription = null,
                     tint = AppColors.ActionPhone,
-                    modifier = Modifier.size(PhoneCallPillIconSize),
+                    modifier = Modifier.size(QuickActionIconSize),
                 )
             }
-            Spacer(modifier = Modifier.size(DesignTokens.SpacingXSmall))
-            Text(
-                text = stringResource(R.string.contact_method_call_label),
-                style = MaterialTheme.typography.labelSmall,
-                color = if (isDarkTheme) Color.White else Color.Black,
-                fontWeight = FontWeight.Medium,
-            )
-        }
-    }
+            }
+        },
+    )
 }
 
 @Composable
 internal fun SetAlarmPill(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    showIcon: Boolean = true,
 ) = ClockActionPill(
     icon = MaterialSymbols.Alarm,
     label = stringResource(R.string.set_alarm_action_label),
     onClick = onClick,
     modifier = modifier,
+    showIcon = showIcon,
 )
 
 @Composable
@@ -200,11 +217,13 @@ internal fun AllAppsPill(
 internal fun StartTimerPill(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    showIcon: Boolean = true,
 ) = ClockActionPill(
     icon = MaterialSymbols.Timer,
     label = stringResource(R.string.start_timer_action_label),
     onClick = onClick,
     modifier = modifier,
+    showIcon = showIcon,
 )
 
 @Composable
@@ -212,11 +231,13 @@ internal fun CreateReminderPill(
     onClick: () -> Unit,
     useShortLabel: Boolean = false,
     modifier: Modifier = Modifier,
+    showIcon: Boolean = true,
 ) = ClockActionPill(
     icon = MaterialSymbols.Notifications,
     label = stringResource(if (useShortLabel) R.string.reminder_name_hint else R.string.app_setting_create_reminder),
     onClick = onClick,
     modifier = modifier,
+    showIcon = showIcon,
 )
 
 @Composable
@@ -225,52 +246,13 @@ private fun ClockActionPill(
     label: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-) {
-    val isDarkTheme = LocalAppIsDarkTheme.current
-    val interactionSource = remember { MutableInteractionSource() }
-    val borderColor =
-        if (isDarkTheme) {
-            AppColors.Accent.copy(alpha = 0.22f)
-        } else {
-            Color.Black.copy(alpha = 0.1f)
-        }
-
-    Surface(
-        modifier = modifier,
-        onClick = onClick,
-        interactionSource = interactionSource,
-        shape = DesignTokens.ShapeFull,
-        color = if (isDarkTheme) Color.Black else Color.White,
-        border = BorderStroke(DesignTokens.KeyboardPillBorderStrokeWidth, borderColor),
-        tonalElevation = DesignTokens.ElevationLevel0,
-    ) {
-        Row(
-            modifier =
-                Modifier
-                    .padding(
-                        horizontal = DesignTokens.SpacingMedium,
-                        vertical = DesignTokens.SpacingXSmall,
-                    )
-                    .height(DesignTokens.IconSize),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = AppColors.Accent,
-                modifier = Modifier.size(PhoneCallPillIconSize),
-            )
-            Spacer(modifier = Modifier.size(DesignTokens.SpacingXSmall))
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = if (isDarkTheme) Color.White else Color.Black,
-                fontWeight = FontWeight.Medium,
-            )
-        }
-    }
-}
+    showIcon: Boolean = true,
+) = QuickActionButton(
+    label = label,
+    onClick = onClick,
+    modifier = modifier,
+    leadingIcon = if (showIcon) ({ QuickActionVectorIcon(icon) }) else null,
+)
 
 /**
  * Home's bottom keyboard strip: a Material 3 Expressive connected button group. Voice search and

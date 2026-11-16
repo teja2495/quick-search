@@ -216,37 +216,45 @@ internal fun KeyboardSwitchPill(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    showIcon: Boolean = true,
 ) = com.tk.quicksearch.search.searchScreen.components.KeyboardSwitchPill(
     text = text,
     onClick = onClick,
     modifier = modifier,
+    showIcon = showIcon,
 )
 
 @Composable
 internal fun PhoneCallPill(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    showIcon: Boolean = true,
 ) = com.tk.quicksearch.search.searchScreen.components.PhoneCallPill(
     onClick = onClick,
     modifier = modifier,
+    showIcon = showIcon,
 )
 
 @Composable
 internal fun SetAlarmPill(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    showIcon: Boolean = true,
 ) = com.tk.quicksearch.search.searchScreen.components.SetAlarmPill(
     onClick = onClick,
     modifier = modifier,
+    showIcon = showIcon,
 )
 
 @Composable
 internal fun StartTimerPill(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    showIcon: Boolean = true,
 ) = com.tk.quicksearch.search.searchScreen.components.StartTimerPill(
     onClick = onClick,
     modifier = modifier,
+    showIcon = showIcon,
 )
 
 @Composable
@@ -254,10 +262,12 @@ internal fun CreateReminderPill(
     onClick: () -> Unit,
     useShortLabel: Boolean = false,
     modifier: Modifier = Modifier,
+    showIcon: Boolean = true,
 ) = com.tk.quicksearch.search.searchScreen.components.CreateReminderPill(
     onClick = onClick,
     useShortLabel = useShortLabel,
     modifier = modifier,
+    showIcon = showIcon,
 )
 
 @Composable

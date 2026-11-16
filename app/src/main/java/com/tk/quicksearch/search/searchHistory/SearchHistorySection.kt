@@ -5,18 +5,15 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -27,6 +24,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
@@ -47,8 +45,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -97,7 +93,6 @@ internal const val SETTINGS_HORIZONTAL_PADDING = 16
 internal const val SETTINGS_VERTICAL_PADDING = 4
 internal const val SHORTCUT_VERTICAL_PADDING = 4
 private const val SEARCH_HISTORY_TAB_SWIPE_THRESHOLD_PX = 64f
-private const val SEARCH_HISTORY_TAB_ROW_HEIGHT = 56
 private val SEARCH_HISTORY_EXPANDED_CARD_MIN_HEIGHT = 180.dp
 
 @Composable
@@ -393,6 +388,7 @@ fun SearchHistorySection(
     }
 }
 
+/** Material 3 primary tabs: primary-colored label and a content-width rounded indicator. */
 @Composable
 private fun SearchHistoryTabs(
     selectedTab: SearchHistoryTab,
@@ -400,11 +396,12 @@ private fun SearchHistoryTabs(
     showWallpaperBackground: Boolean,
     segmented: Boolean = false,
 ) {
-    val contentColor =
+    val selectedColor = MaterialTheme.colorScheme.primary
+    val unselectedColor =
         if (showWallpaperBackground) {
-            AppColors.WallpaperTextPrimary
+            AppColors.WallpaperTextSecondary
         } else {
-            MaterialTheme.colorScheme.onSurface
+            MaterialTheme.colorScheme.onSurfaceVariant
         }
     val containerColor =
         if (showWallpaperBackground || segmented) {
@@ -416,62 +413,50 @@ private fun SearchHistoryTabs(
     PrimaryTabRow(
         selectedTabIndex = selectedTab.ordinal,
         containerColor = containerColor,
-        contentColor = contentColor,
+        contentColor = selectedColor,
         modifier = Modifier.fillMaxWidth(),
         indicator = {
             TabRowDefaults.PrimaryIndicator(
-                modifier = Modifier.tabIndicatorOffset(selectedTab.ordinal),
+                modifier = Modifier.tabIndicatorOffset(selectedTab.ordinal, matchContentSize = true),
                 width = Dp.Unspecified,
-                height = 2.dp,
-                color = contentColor.copy(alpha = 0.42f),
+                color = selectedColor,
             )
         },
         divider = {
-            if (!segmented) HorizontalDivider(color = contentColor.copy(alpha = 0.10f))
+            if (!segmented) {
+                HorizontalDivider(
+                    color =
+                        if (showWallpaperBackground) {
+                            AppColors.WallpaperDivider
+                        } else {
+                            MaterialTheme.colorScheme.outlineVariant
+                        },
+                )
+            }
         },
     ) {
-        SearchHistoryTabItem(
-            text = stringResource(R.string.search_history_tab_searches),
-            selected = selectedTab == SearchHistoryTab.SEARCHES,
-            contentColor = contentColor,
-            onClick = { onTabSelected(SearchHistoryTab.SEARCHES) },
-        )
-        SearchHistoryTabItem(
-            text = stringResource(R.string.search_history_tab_recently_opened),
-            selected = selectedTab == SearchHistoryTab.RECENTLY_OPENED,
-            contentColor = contentColor,
-            onClick = { onTabSelected(SearchHistoryTab.RECENTLY_OPENED) },
-        )
-    }
-}
-
-@Composable
-private fun SearchHistoryTabItem(
-    text: String,
-    selected: Boolean,
-    contentColor: Color,
-    onClick: () -> Unit,
-) {
-    Box(
-        modifier = Modifier
-            .height(SEARCH_HISTORY_TAB_ROW_HEIGHT.dp)
-            .selectable(
-                selected = selected,
-                onClick = onClick,
-                role = Role.Tab,
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() },
-            ),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = text,
-            modifier = Modifier.fillMaxWidth(),
-            color = if (selected) contentColor else contentColor.copy(alpha = 0.72f),
-            textAlign = TextAlign.Center,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+        SearchHistoryTab.entries.forEach { tab ->
+            Tab(
+                selected = selectedTab == tab,
+                onClick = { if (selectedTab != tab) onTabSelected(tab) },
+                selectedContentColor = selectedColor,
+                unselectedContentColor = unselectedColor,
+                text = {
+                    Text(
+                        text =
+                            stringResource(
+                                when (tab) {
+                                    SearchHistoryTab.RECENTLY_OPENED -> R.string.search_history_tab_recently_opened
+                                    else -> R.string.search_history_tab_searches
+                                },
+                            ),
+                        style = MaterialTheme.typography.titleSmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                },
+            )
+        }
     }
 }
 
@@ -544,12 +529,7 @@ private fun ClearAllHistoryRow(
     onClick: () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val clearColor =
-        if (showWallpaperBackground) {
-            MaterialTheme.colorScheme.error.copy(alpha = 0.72f)
-        } else {
-            MaterialTheme.colorScheme.error.copy(alpha = 0.78f)
-        }
+    val clearColor = MaterialTheme.colorScheme.error
 
     Row(
         modifier =
@@ -577,7 +557,7 @@ private fun ClearAllHistoryRow(
 
         Text(
             text = stringResource(R.string.action_clear_all_history),
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.labelLarge,
             color = clearColor,
             modifier = Modifier.padding(start = DesignTokens.SpacingSmall),
         )

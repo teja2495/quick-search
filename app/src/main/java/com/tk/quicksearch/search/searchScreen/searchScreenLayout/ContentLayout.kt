@@ -158,7 +158,7 @@ fun ContentLayout(
     // Home sections reserve their full height as soon as their data arrives and only fade in, so
     // nothing above them reflows while the rest of the agenda is still loading.
     var suggestionsAppGridHasAppeared by remember { mutableStateOf(false) }
-    val appearedHomeContentKeys = remember { mutableSetOf<String>() }
+    val appearedHomeContentKeys = rememberHomeAppearedContentKeys()
     val effectiveAppsParams = appsParams.copy(
         predictedTarget = predictedTarget,
         onGridAppeared = {
