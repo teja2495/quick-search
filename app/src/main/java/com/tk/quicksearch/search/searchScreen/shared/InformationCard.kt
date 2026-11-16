@@ -24,7 +24,7 @@ fun InformationCard(
         modifier = modifier,
         showWallpaperBackground = showWallpaperBackground,
         overlayContainerColor = overlayContainerColor,
-        styleOverrides = styleOverrides,
+        styleOverrides = styleOverrides.copy(showBorder = false),
         content = content,
     )
 }

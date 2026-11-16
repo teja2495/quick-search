@@ -61,6 +61,7 @@ data class SearchResultCardStyleOverrides(
     val border: BorderStroke? = null,
     val colors: CardColors? = null,
     val containerColor: Color? = null,
+    val showBorder: Boolean = true,
 )
 
 /**
@@ -154,7 +155,7 @@ fun SearchResultCard(
     val cardLayoutEnabled = LocalSearchCardLayoutEnabled.current
     val shape = styleOverrides.shape ?: SearchResultCardDefaults.shape
     val border =
-        if (cardLayoutEnabled) {
+        if (cardLayoutEnabled && styleOverrides.showBorder) {
             styleOverrides.border ?: SearchResultCardDefaults.border(showWallpaperBackground)
         } else {
             null

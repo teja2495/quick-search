@@ -47,7 +47,7 @@ fun DictionaryResult(
             usedModelId = null,
             copyText = copyText,
             toolAttribution =
-                    ToolAttribution(MaterialSymbols.MenuBook, R.string.dictionary_toggle_title)
+                    ToolAttribution(MaterialSymbols.MenuBookOutlined, R.string.dictionary_toggle_title)
                             .takeIf { dictionaryState.status == DictionaryStatus.Success },
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {

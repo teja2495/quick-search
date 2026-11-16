@@ -7,6 +7,10 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.height
@@ -29,15 +33,14 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchToolType
 import com.tk.quicksearch.search.searchScreen.shared.InformationCard
-import com.tk.quicksearch.search.searchScreen.shared.LocalCardlessStackSpacing
+import com.tk.quicksearch.search.searchScreen.shared.InformationCardCopyAction
+import com.tk.quicksearch.search.searchScreen.shared.InformationCardFooter
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 internal val AiResultCardMinHeight = 175.dp
@@ -69,7 +72,7 @@ internal fun GeminiResultCard(
     )
 }
 
-/** Tool branding shown under a result card in place of the AI provider attribution. */
+/** Tool branding shown at the bottom of a result card in place of the AI provider attribution. */
 internal data class ToolAttribution(
         val icon: ImageVector,
         @param:StringRes val titleRes: Int,
@@ -88,7 +91,6 @@ private fun ColumnWithContent(
         copyText: String?,
         toolAttribution: ToolAttribution?,
 ) {
-    val hasAttribution = showAttribution || toolAttribution != null
     @Suppress("DEPRECATION")
     val clipboardManager = LocalClipboardManager.current
     // Flat (compact) cards have no container to fill, so they size to the answer.
@@ -96,7 +98,6 @@ private fun ColumnWithContent(
     val cardModifier =
             Modifier.fillMaxWidth()
                     .heightIn(min = cardMinHeight)
-                    .padding(bottom = if (hasAttribution) compactAttributionCardBottomPadding() else 0.dp)
                     .let { baseModifier ->
                         if (copyText.isNullOrBlank()) {
                             baseModifier
@@ -110,76 +111,37 @@ private fun ColumnWithContent(
                         }
                     }
 
-    androidx.compose.foundation.layout.Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+    InformationCard(
+            modifier = cardModifier,
+            showWallpaperBackground = showWallpaperBackground,
     ) {
-        InformationCard(
-                modifier = cardModifier,
-                showWallpaperBackground = showWallpaperBackground,
-        ) {
-            content()
-        }
-
-        if (toolAttribution != null) {
-            ToolAttributionRow(
-                    modifier = Modifier.fillMaxWidth().padding(top = compactAttributionTopPadding()),
-                    icon = toolAttribution.icon,
-                    titleRes = toolAttribution.titleRes,
-            )
-        } else if (showAttribution) {
-            AiProviderAttributionRow(
-                    modifier = Modifier.fillMaxWidth().padding(top = compactAttributionTopPadding()),
-                    usedModelId = usedModelId,
-                    llmProviderId = llmProviderId,
-                    isClickable = isAttributionClickable,
-                    onClick = onGeminiModelInfoClick,
-                    onLongClick = onOpenAiSearchConfigure,
+        content()
+        val copyAnswer = copyText?.takeIf { it.isNotBlank() }
+        if (toolAttribution != null || showAttribution || copyAnswer != null) {
+            // Pins the footer to the card's bottom edge when the answer is shorter than the minimum height.
+            Spacer(modifier = Modifier.weight(1f))
+            InformationCardFooter(
+                    source = {
+                        if (toolAttribution != null) {
+                            ToolAttributionRow(icon = toolAttribution.icon, titleRes = toolAttribution.titleRes)
+                        } else if (showAttribution) {
+                            AiProviderAttributionRow(
+                                    usedModelId = usedModelId,
+                                    llmProviderId = llmProviderId,
+                                    isClickable = isAttributionClickable,
+                                    onClick = onGeminiModelInfoClick,
+                                    onLongClick = onOpenAiSearchConfigure,
+                            )
+                        }
+                    },
+                    actions = { copyAnswer?.let { InformationCardCopyAction(text = it) } },
             )
         }
     }
 }
 
-/**
- * Gap between a flat (compact) card's bottom divider and the attribution row below it. The cards
- * above pad their content so the space over the divider looks the same once text leading is counted.
- */
-private val CompactAttributionDividerGap = 18.dp
-
-/**
- * Extra space above an attribution row that follows a flat (compact) card. The card's divider is
- * drawn half the stack spacing below the card, which leaves it almost touching the attribution.
- */
 @Composable
-internal fun compactAttributionTopPadding(): Dp {
-    if (LocalSearchCardLayoutEnabled.current) return 0.dp
-    return CompactAttributionDividerGap + LocalCardlessStackSpacing.current / 2 - DesignTokens.SpacingSmall
-}
-
-/**
- * Extra bottom padding for a flat (compact) card followed by an attribution row, so the space above
- * its divider matches [CompactAttributionDividerGap] below it. [extra] covers content that ends
- * closer to the card edge than the usual [DesignTokens.SpacingLarge] inset.
- */
-@Composable
-internal fun compactAttributionCardBottomPadding(extra: Dp = DesignTokens.SpacingXSmall): Dp =
-        if (LocalSearchCardLayoutEnabled.current) 0.dp else extra
-
-/**
- * Lines the attribution up with the card's content. Flat (compact) cards bleed their content
- * [DesignTokens.SpacingSmall] past the slot, so the row drops that much of its inset to match.
- */
-@Composable
-private fun attributionHorizontalPadding(): Dp =
-        if (LocalSearchCardLayoutEnabled.current) {
-            DesignTokens.SpacingLarge
-        } else {
-            DesignTokens.SpacingLarge - DesignTokens.SpacingSmall
-        }
-
-@Composable
-private fun informationAttributionContentColor(): Color =
-    AppColors.wallpaperAwareMutedSearchForeground(alpha = 1f)
+private fun informationAttributionContentColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
 
 @Composable
 private fun AnthropicClaudeWordmark(
@@ -268,27 +230,25 @@ internal fun AiProviderAttributionRow(
     val isGemma = usedModelId?.lowercase()?.startsWith("gemma-") == true
     val rowModifier =
             if (isClickable) {
+                // Full footer height as the touch target, with a rounded ripple around the wordmark.
+                // The offset cancels the ripple's side padding so the wordmark stays on the body inset.
                 modifier
-                        .padding(horizontal = attributionHorizontalPadding())
+                        .offset(x = -DesignTokens.SpacingXSmall)
+                        .heightIn(min = 48.dp)
+                        .clip(RoundedCornerShape(DesignTokens.SpacingSmall))
                         .combinedClickable(
-                                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                                indication = null,
                                 onClick = onClick,
                                 onLongClick = onLongClick,
                         )
+                        .padding(horizontal = DesignTokens.SpacingXSmall)
             } else {
-                modifier.padding(horizontal = attributionHorizontalPadding())
+                modifier
             }
     Row(
             modifier = rowModifier,
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
     ) {
-        Text(
-                text = poweredByText,
-                style = MaterialTheme.typography.bodySmall,
-                color = contentColor,
-        )
         when (llmProviderId) {
             AiSearchLlmProviderId.OPENAI -> {
                 Image(
@@ -331,7 +291,7 @@ internal fun AiProviderAttributionRow(
                     )
                     Text(
                             text = stringResource(R.string.settings_ai_provider_meta),
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.labelMedium,
                             color = contentColor,
                     )
                 }
@@ -350,7 +310,7 @@ internal fun AiProviderAttributionRow(
                 if (llmProviderId.isCustom) {
                     Text(
                             text = usedModelId.orEmpty(),
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.labelMedium,
                             color = contentColor,
                     )
                 } else {
@@ -394,10 +354,10 @@ internal fun CalculatorAttributionRow(
             }
     val icon =
             when (toolType) {
-                SearchToolType.UNIT_CONVERTER -> MaterialSymbols.Straighten
-                SearchToolType.DATE_CALCULATOR -> MaterialSymbols.CalendarMonth
-                SearchToolType.COLOR_VISUALIZER -> MaterialSymbols.Palette
-                SearchToolType.CALCULATOR -> MaterialSymbols.Calculate
+                SearchToolType.UNIT_CONVERTER -> MaterialSymbols.StraightenOutlined
+                SearchToolType.DATE_CALCULATOR -> MaterialSymbols.CalendarMonthOutlined
+                SearchToolType.COLOR_VISUALIZER -> MaterialSymbols.PaletteOutlined
+                SearchToolType.CALCULATOR -> MaterialSymbols.CalculateOutlined
             }
     ToolAttributionRow(modifier = modifier, icon = icon, titleRes = titleRes)
 }
@@ -411,7 +371,7 @@ internal fun ToolAttributionRow(
 ) {
     val contentColor = informationAttributionContentColor()
     Row(
-            modifier = modifier.padding(horizontal = attributionHorizontalPadding()),
+            modifier = modifier,
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
@@ -424,7 +384,7 @@ internal fun ToolAttributionRow(
         )
         Text(
                 text = stringResource(titleRes),
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.labelMedium,
                 color = contentColor,
         )
     }
