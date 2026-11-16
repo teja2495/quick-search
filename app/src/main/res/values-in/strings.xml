@@ -721,6 +721,7 @@
     <string name="settings_all_quick_search_features">Daftar Fitur</string>
     <string name="settings_all_quick_search_features_desc">Lihat daftar lengkap fitur dan kemampuan</string>
     <string name="settings_more_apps_from_developer_title">Aplikasi Lainnya dari Pengembang</string>
+    <string name="settings_github_label">GitHub</string>
     <string name="settings_app_settings_desc">Cari pengaturan Quick Search</string>
     <string name="settings_features_load_failed">Tidak dapat memuat dokumentasi fitur.</string>
     <string name="settings_features_export">Unduh dan bagikan fitur</string>

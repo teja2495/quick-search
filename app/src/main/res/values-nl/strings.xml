@@ -748,6 +748,7 @@
     <string name="settings_all_quick_search_features">Functielijst</string>
     <string name="settings_all_quick_search_features_desc">Bekijk de volledige lijst met functies en mogelijkheden</string>
     <string name="settings_more_apps_from_developer_title">Meer apps van de ontwikkelaar</string>
+    <string name="settings_github_label">GitHub</string>
     <string name="settings_app_settings_desc">Zoek naar Quick Search-instellingen</string>
     <string name="settings_features_load_failed">Kan functiedocumentatie niet laden.</string>
     <string name="settings_features_export">Functies downloaden en delen</string>

@@ -1411,6 +1411,7 @@
     <string name="tasker_not_installed">Приложение Tasker не установлено</string>
     <string name="tasker_broadcast_failed">Не удалось отправить трансляцию Tasker</string>
     <string name="settings_more_apps_from_developer_title">Другие приложения разработчика</string>
+    <string name="settings_github_label">GitHub</string>
 <string name="icon_picker_no_icon_packs">Для изменения значка приложения не установлены пакеты значков.</string>
 <string name="icon_picker_download_icon_packs">Скачать</string>
     <string name="app_menu_usage_today">%1$s сегодня · Открыто %2$s</string>

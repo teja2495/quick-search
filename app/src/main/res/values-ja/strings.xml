@@ -724,6 +724,7 @@
     <string name="settings_all_quick_search_features">機能一覧</string>
     <string name="settings_all_quick_search_features_desc">すべての機能と性能の一覧を表示</string>
     <string name="settings_more_apps_from_developer_title">開発者のその他のアプリ</string>
+    <string name="settings_github_label">GitHub</string>
     <string name="settings_app_settings_desc">Quick Searchの設定を検索</string>
     <string name="settings_features_load_failed">機能の説明を読み込めませんでした。</string>
     <string name="settings_features_export">機能をダウンロードして共有</string>

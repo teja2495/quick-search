@@ -727,6 +727,7 @@
     <string name="settings_all_quick_search_features">Features List</string>
     <string name="settings_all_quick_search_features_desc">View the complete list of features and capabilities</string>
     <string name="settings_more_apps_from_developer_title">More Apps from the Developer</string>
+    <string name="settings_github_label">GitHub</string>
     <string name="settings_app_settings_desc">Search for Quick Search settings</string>
     <string name="settings_features_load_failed">Unable to load feature documentation.</string>
     <string name="settings_features_export">Download and share features</string>

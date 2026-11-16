@@ -395,7 +395,7 @@ fun SettingsScreen(
             )
 
             SettingsVersionDisplay(
-                modifier = Modifier.padding(top = DesignTokens.Spacing40, bottom = 60.dp),
+                modifier = Modifier.padding(top = DesignTokens.SectionTopPadding, bottom = 60.dp),
                 onFeatureFlagsChanged = onSettingsImported,
             )
         }

@@ -1385,6 +1385,7 @@
     <string name="tasker_not_installed">Tasker ఇన్‌స్టాల్ చేయబడలేదు</string>
     <string name="tasker_broadcast_failed">Tasker బ్రాడ్‌కాస్ట్‌ను పంపలేకపోయాము</string>
     <string name="settings_more_apps_from_developer_title">డెవలపర్ నుండి మరిన్ని యాప్‌లు</string>
+    <string name="settings_github_label">GitHub</string>
     <string name="icon_picker_no_icon_packs">యాప్ ఐకాన్‌ను మార్చడానికి ఐకాన్ ప్యాక్‌లు ఏవీ ఇన్‌స్టాల్ చేయబడలేదు.</string>
     <string name="icon_picker_download_icon_packs">డౌన్‌లోడ్ చేయండి</string>
     <string name="app_menu_usage_today">ఈరోజు %1$s ఉపయోగించారు · %2$s సార్లు తెరిచారు</string>

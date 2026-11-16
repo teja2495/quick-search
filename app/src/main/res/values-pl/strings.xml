@@ -747,6 +747,7 @@
     <string name="settings_all_quick_search_features">Lista funkcji</string>
     <string name="settings_all_quick_search_features_desc">Wyświetl pełną listę funkcji i możliwości</string>
     <string name="settings_more_apps_from_developer_title">Więcej aplikacji od dewelopera</string>
+    <string name="settings_github_label">GitHub</string>
     <string name="settings_app_settings_desc">Szukaj w ustawieniach Quick Search</string>
     <string name="settings_features_load_failed">Nie udało się załadować dokumentacji funkcji.</string>
     <string name="settings_features_export">Pobierz i udostępnij funkcje</string>

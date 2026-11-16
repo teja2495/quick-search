@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,7 +39,6 @@ import com.tk.quicksearch.settings.preloadFeaturesMarkdown
 import com.tk.quicksearch.settings.shared.SettingsCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -57,12 +58,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.core.graphics.drawable.toBitmap
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.searchScreen.dialogs.ReleaseNotesDrawer
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
@@ -197,29 +197,58 @@ fun SettingsMoreOptions(
         }
 
         SettingsSegment(index = count - 2, count = count) {
-            SettingsSegmentRow(
-                title = stringResource(R.string.settings_more_apps_from_developer_title),
-                leading = { SettingsIconBadge(icon = MaterialSymbols.Apps) },
-                trailing = {
-                    Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)) {
-                        FilledTonalIconButton(onClick = onOpenDeveloperGooglePlay) {
+            // Title row, then a connected Google Play / GitHub pair in the Backup button style.
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(DesignTokens.SpacingLarge),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
+                ) {
+                    SettingsIconBadge(icon = MaterialSymbols.Apps)
+                    Text(
+                        text = stringResource(R.string.settings_more_apps_from_developer_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
+                ) {
+                    BackupButton(
+                        text = stringResource(R.string.search_engine_google_play),
+                        icon = {
                             Icon(
                                 painter = painterResource(R.drawable.google_play),
-                                contentDescription = "Google Play",
+                                contentDescription = null,
                                 tint = androidx.compose.ui.graphics.Color.Unspecified,
-                                modifier = Modifier.size(DesignTokens.IconSizeSmall),
+                                modifier = Modifier.size(ButtonDefaults.IconSize),
                             )
-                        }
-                        FilledTonalIconButton(onClick = onOpenDeveloperGitHub) {
+                        },
+                        onClick = onOpenDeveloperGooglePlay,
+                        shape = BackupButtonStartShape,
+                        modifier = Modifier.weight(1f),
+                    )
+                    BackupButton(
+                        text = stringResource(R.string.settings_github_label),
+                        icon = {
                             Icon(
                                 painter = painterResource(R.drawable.ic_github),
-                                contentDescription = "GitHub",
-                                modifier = Modifier.size(DesignTokens.IconSizeSmall),
+                                contentDescription = null,
+                                modifier = Modifier.size(ButtonDefaults.IconSize),
                             )
-                        }
-                    }
-                },
-            )
+                        },
+                        onClick = onOpenDeveloperGitHub,
+                        shape = BackupButtonEndShape,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
         }
 
         SettingsSegment(index = count - 1, count = count, onClick = onOpenOssLicenses) {
@@ -283,14 +312,14 @@ internal fun BackupRestoreRow(
             ) {
                 BackupButton(
                     text = stringResource(R.string.settings_backup_import_button),
-                    icon = MaterialSymbols.Download,
+                    icon = { BackupButtonIcon(MaterialSymbols.Download) },
                     onClick = onImportClick,
                     shape = BackupButtonStartShape,
                     modifier = Modifier.weight(1f),
                 )
                 BackupButton(
                     text = stringResource(R.string.settings_backup_export_button),
-                    icon = MaterialSymbols.Upload,
+                    icon = { BackupButtonIcon(MaterialSymbols.Upload) },
                     onClick = onExportClick,
                     shape = BackupButtonEndShape,
                     modifier = Modifier.weight(1f),
@@ -301,9 +330,18 @@ internal fun BackupRestoreRow(
 }
 
 @Composable
+private fun BackupButtonIcon(icon: androidx.compose.ui.graphics.vector.ImageVector) {
+    Icon(
+        imageVector = icon,
+        contentDescription = null,
+        modifier = Modifier.size(ButtonDefaults.IconSize),
+    )
+}
+
+@Composable
 private fun BackupButton(
     text: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: @Composable () -> Unit,
     onClick: () -> Unit,
     shape: androidx.compose.ui.graphics.Shape,
     modifier: Modifier = Modifier,
@@ -319,11 +357,7 @@ private fun BackupButton(
             ),
         contentPadding = PaddingValues(horizontal = DesignTokens.SpacingLarge),
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.size(ButtonDefaults.IconSize),
-        )
+        icon()
         Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
         Text(text = text, style = MaterialTheme.typography.labelLarge, maxLines = 1)
     }
@@ -369,7 +403,7 @@ fun SettingsHeader(onBack: () -> Unit) {
 }
 
 /**
- * Displays the app version and developer info in a card at the bottom of the settings screen.
+ * App identity footer at the bottom of the settings screen: icon, name, version, and developer link.
  */
 @Composable
 fun SettingsVersionDisplay(
@@ -378,117 +412,166 @@ fun SettingsVersionDisplay(
 ) {
     val context = LocalContext.current
     val versionName = getAppVersionName() ?: "1.2.2"
+    val appName = stringResource(R.string.app_name)
+    // Localized "v<version>" taken from the existing "<app> v<version>" string.
+    val versionLabel =
+        stringResource(R.string.settings_feedback_developer_title, appName, versionName)
+            .replace(appName, "")
+            .trim()
     val developerName = stringResource(R.string.settings_feedback_developer_name)
     val developerDesc = stringResource(R.string.settings_feedback_developer_desc, developerName)
-
-    val annotatedDeveloperDesc =
-        buildAnnotatedString {
-            val parts = developerDesc.split(developerName)
-            if (parts.size > 1) {
-                append(parts[0])
-                withStyle(
-                    style =
-                        SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.SemiBold,
-                        ),
-                ) {
-                    append(developerName)
-                }
-                append(parts[1])
-            } else {
-                append(developerDesc)
-            }
+    val appIcon =
+        remember(context) {
+            runCatching {
+                context.packageManager
+                    .getApplicationIcon(context.packageName)
+                    .toBitmap(width = 192, height = 192)
+                    .asImageBitmap()
+            }.getOrNull()
         }
+
+    // "Made by" prefix from the localized "Made by %s" string.
+    val madeByLabel = developerDesc.substringBefore(developerName).trim()
 
     var versionTapCount by remember { mutableIntStateOf(0) }
     val versionTapInteractionSource = remember { MutableInteractionSource() }
     val hasNewFeaturesAvailable = FeatureFlag.entries.isNotEmpty()
-    Column(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = DesignTokens.SpacingXXLarge,
-                    vertical = DesignTokens.SpacingXLarge,
-                ),
-        horizontalAlignment = Alignment.CenterHorizontally,
+    val identityModifier =
+        Modifier.combinedClickable(
+            interactionSource = versionTapInteractionSource,
+            indication = null,
+            onClick = {
+                versionTapCount += 1
+                if (versionTapCount < 5) {
+                    return@combinedClickable
+                }
+                versionTapCount = 0
+
+                if (FeatureFlags.isAnyEnabled()) {
+                    FeatureFlags.setAll(context, enabled = false)
+                    Toast
+                        .makeText(
+                            context,
+                            context.getString(R.string.settings_beta_features_disabled),
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                    onFeatureFlagsChanged()
+                    return@combinedClickable
+                }
+
+                if (!hasNewFeaturesAvailable) {
+                    Toast
+                        .makeText(
+                            context,
+                            context.getString(R.string.settings_beta_features_unavailable),
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                    return@combinedClickable
+                }
+
+                FeatureFlags.setAll(context, enabled = true)
+                Toast
+                    .makeText(
+                        context,
+                        context.getString(R.string.settings_beta_features_enabled),
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                onFeatureFlagsChanged()
+            },
+            onLongClick = {
+                FeedbackUtils.launchFeedbackEmailWithCrashLog(context)
+            },
+        )
+    val onDeveloperClick = {
+        val url = "https://teja2495.github.io/teja-karlapudi-links/"
+        try {
+            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        } catch (e: Exception) {
+        }
+    }
+    // Bento: the icon tile spans both rows; name/version and the credit stack to its right.
+    val outer = DesignTokens.SegmentedListOuterCorner
+    val inner = DesignTokens.SegmentedListInnerCorner
+    val gap = DesignTokens.SegmentedListGap
+    val tileColor = AppColors.getSettingsCardContainerColor()
+    val iconShape = RoundedCornerShape(topStart = outer, bottomStart = outer, topEnd = inner, bottomEnd = inner)
+    val nameShape = RoundedCornerShape(topStart = inner, topEnd = outer, bottomStart = inner, bottomEnd = inner)
+    val creditShape = RoundedCornerShape(topStart = inner, topEnd = inner, bottomStart = inner, bottomEnd = outer)
+    Row(
+        modifier = modifier.fillMaxWidth().height(IntrinsicSize.Min),
+        horizontalArrangement = Arrangement.spacedBy(gap),
     ) {
-        // Version sits in a tonal pill; the tap gestures stay hidden (no ripple) as before.
-        Text(
-            text = stringResource(R.string.settings_feedback_developer_title, stringResource(R.string.app_name), versionName),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
-            textAlign = TextAlign.Center,
+        // Icon and name tiles keep the hidden tap / long-press gestures.
+        Box(
+            contentAlignment = Alignment.Center,
             modifier =
                 Modifier
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.secondaryContainer)
-                    .combinedClickable(
-                    interactionSource = versionTapInteractionSource,
-                    indication = null,
-                    onClick = {
-                        versionTapCount += 1
-                        if (versionTapCount < 5) {
-                            return@combinedClickable
-                        }
-                        versionTapCount = 0
-
-                        if (FeatureFlags.isAnyEnabled()) {
-                            FeatureFlags.setAll(context, enabled = false)
-                            Toast
-                                .makeText(
-                                    context,
-                                    context.getString(R.string.settings_beta_features_disabled),
-                                    Toast.LENGTH_SHORT,
-                                ).show()
-                            onFeatureFlagsChanged()
-                            return@combinedClickable
-                        }
-
-                        if (!hasNewFeaturesAvailable) {
-                            Toast
-                                .makeText(
-                                    context,
-                                    context.getString(R.string.settings_beta_features_unavailable),
-                                    Toast.LENGTH_SHORT,
-                                ).show()
-                            return@combinedClickable
-                        }
-
-                        FeatureFlags.setAll(context, enabled = true)
-                        Toast
-                            .makeText(
-                                context,
-                                context.getString(R.string.settings_beta_features_enabled),
-                                Toast.LENGTH_SHORT,
-                            ).show()
-                        onFeatureFlagsChanged()
-                    },
-                    onLongClick = {
-                        FeedbackUtils.launchFeedbackEmailWithCrashLog(context)
-                    },
-                ).padding(horizontal = DesignTokens.SpacingLarge, vertical = DesignTokens.SpacingSmall),
-        )
-
-        androidx.compose.foundation.layout
-            .Spacer(modifier = Modifier.height(DesignTokens.SpacingMedium))
-
-        Text(
-            text = annotatedDeveloperDesc,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            modifier =
-                Modifier
-                    .clip(CircleShape)
-                    .clickable {
-                    val url = "https://teja2495.github.io/teja-karlapudi-links/"
-                    try {
-                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-                    } catch (e: Exception) {
-                    }
-                }.padding(horizontal = DesignTokens.SpacingMedium, vertical = DesignTokens.SpacingXSmall),
-        )
+                    .fillMaxHeight()
+                    .clip(iconShape)
+                    .background(tileColor, iconShape)
+                    .then(identityModifier)
+                    .padding(horizontal = DesignTokens.SpacingXLarge),
+        ) {
+            if (appIcon != null) {
+                Image(
+                    bitmap = appIcon,
+                    contentDescription = null,
+                    modifier = Modifier.size(VersionFooterIconSize),
+                )
+            }
+        }
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(gap),
+        ) {
+            // App name with the version beside it, centered in the tile.
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clip(nameShape)
+                        .background(tileColor, nameShape)
+                        .then(identityModifier)
+                        .padding(DesignTokens.SpacingLarge),
+            ) {
+                Text(
+                    text = appName,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.alignByBaseline(),
+                )
+                Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
+                Text(
+                    text = versionLabel,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.alignByBaseline(),
+                )
+            }
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clip(creditShape)
+                        .background(tileColor, creditShape)
+                        .clickable(onClick = onDeveloperClick)
+                        .padding(DesignTokens.SpacingLarge),
+            ) {
+                Text(
+                    text = madeByLabel,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = developerName,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = AppColors.Accent,
+                )
+            }
+        }
     }
 }
+
+private val VersionFooterIconSize = 56.dp
