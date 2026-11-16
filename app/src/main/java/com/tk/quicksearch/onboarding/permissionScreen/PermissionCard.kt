@@ -55,6 +55,7 @@ fun PermissionCard(
     itemContentPadding: PaddingValues = PaddingValues(DesignTokens.SpacingXLarge),
     internalScrollEnabled: Boolean = false,
     segmented: Boolean = false,
+    showItemIcons: Boolean = true,
 ) {
     cardContainer(modifier) {
         Column(
@@ -69,7 +70,7 @@ fun PermissionCard(
             items.forEachIndexed { index, item ->
                 if (segmented) {
                     SettingsSegment(index = index, count = items.size) {
-                        SegmentedPermissionItem(item)
+                        SegmentedPermissionItem(item, showIcon = showItemIcons)
                     }
                 } else {
                     PermissionItem(
@@ -199,7 +200,10 @@ fun PermissionItem(
 
 /** Settings-only presentation; onboarding retains its existing permission layout. */
 @Composable
-private fun SegmentedPermissionItem(item: PermissionCardItem) {
+private fun SegmentedPermissionItem(
+    item: PermissionCardItem,
+    showIcon: Boolean,
+) {
     val view = LocalView.current
     val granted = item.permissionState.isGranted
     val onClick = when {
@@ -219,7 +223,7 @@ private fun SegmentedPermissionItem(item: PermissionCardItem) {
         title = item.title,
         description = item.description,
         modifier = interactionModifier,
-        leading = { SettingsIconBadge(item.icon) },
+        leading = if (showIcon) ({ SettingsIconBadge(item.icon) }) else null,
         trailing = {
             when {
                 item.isNavigationItem -> Icon(MaterialSymbols.ChevronRight, contentDescription = null)

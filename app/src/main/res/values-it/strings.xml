@@ -1250,7 +1250,7 @@
     <string name="permissions_calling_desc">Richiesta per chiamare i tuoi contatti direttamente senza aprire il tastierino telefonico.</string>
     <string name="settings_notifications_permission_title">Pubblica notifiche</string>
     <string name="permissions_notifications_desc">Necessario per le notifiche dei promemoria e per fissare i risultati di ricerca nel pannello delle notifiche</string>
-    <string name="permissions_notification_access_desc">Necessario per attivare i punti di notifica e la cronologia delle notifiche</string>
+    <string name="permissions_notification_access_desc">Necessario per attivare i punti di notifica, la cronologia delle notifiche e utili funzioni di In breve.</string>
     <string name="permissions_accessibility_lock_screen_title">Accessibilità</string>
     <string name="permissions_accessibility_lock_screen_desc">Abilita gesti, pulsante mobile e SpeedBump.</string>
     <string name="permissions_contacts_desc">Richiesta per cercare tra i tuoi contatti.</string>
@@ -1265,6 +1265,10 @@
     <string name="permissions_open_source_desc">Scopri esattamente come vengono usate queste autorizzazioni.</string>
     <string name="permissions_open_source_action">Tocca per vedere il codice.</string>
     <string name="permissions_screen_optional_emphasis">facoltative</string>
+    <string name="permissions_trust_optional">Ogni autorizzazione è facoltativa</string>
+    <string name="permissions_trust_on_device">I tuoi dati restano sul dispositivo</string>
+    <string name="permissions_trust_open_source">Completamente open source</string>
+    <string name="permissions_trust_view_code">Vedi codice</string>
     <string name="permissions_usage_desc">Richiesta per mostrare le app usate di recente nei suggerimenti.</string>
     <string name="setup_action_next">Avanti</string>
     <string name="setup_action_skip_permissions">Continua senza autorizzazioni</string>

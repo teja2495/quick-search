@@ -1251,7 +1251,7 @@
     <string name="permissions_calling_desc">డయలర్ తెరవకుండానే మీ పరిచయాలకు నేరుగా కాల్ చేయడానికి అవసరం.</string>
     <string name="settings_notifications_permission_title">పోస్ట్ నోటిఫికేషన్‌లు</string>
     <string name="permissions_notifications_desc">రిమైండర్ నోటిఫికేషన్‌ల కోసం మరియు శోధన ఫలితాలను నోటిఫికేషన్ ప్యానెల్‌లో పిన్ చేయడానికి అవసరం</string>
-    <string name="permissions_notification_access_desc">నోటిఫికేషన్ డాట్‌లు మరియు నోటిఫికేషన్ చరిత్ర ఫీచర్‌లను ప్రారంభించడానికి అవసరం</string>
+    <string name="permissions_notification_access_desc">నోటిఫికేషన్ డాట్‌లు, నోటిఫికేషన్ చరిత్ర మరియు ఉపయోగకరమైన ఒక్క చూపులో ఫీచర్‌లను ప్రారంభించడానికి అవసరం.</string>
     <string name="permissions_accessibility_lock_screen_title">యాక్సెసిబిలిటీ</string>
     <string name="permissions_accessibility_lock_screen_desc">హావభావాలు, ఫ్లోటింగ్ బటన్ మరియు SpeedBumpను ప్రారంభిస్తుంది.</string>
     <string name="permissions_contacts_desc">మీ పరిచయాలను శోధించడానికి అవసరం.</string>
@@ -1266,6 +1266,10 @@
     <string name="permissions_open_source_desc">ఈ అనుమతులు ఎలా ఉపయోగించబడుతున్నాయో చూడండి.</string>
     <string name="permissions_open_source_action">కోడ్ చూడటానికి నొక్కండి.</string>
     <string name="permissions_screen_optional_emphasis">ఐచ్ఛికం</string>
+    <string name="permissions_trust_optional">ప్రతి అనుమతి ఐచ్ఛికం</string>
+    <string name="permissions_trust_on_device">మీ డేటా పరికరంలోనే ఉంటుంది</string>
+    <string name="permissions_trust_open_source">పూర్తిగా ఓపెన్ సోర్స్</string>
+    <string name="permissions_trust_view_code">కోడ్ చూడండి</string>
     <string name="permissions_usage_desc">మీరు ఇటీవల ఉపయోగించిన యాప్‌లను సూచనలలో చూపించడానికి అవసరం.</string>
     <string name="setup_action_next">తదుపరి</string>
     <string name="setup_action_skip_permissions">అనుమతులు లేకుండా కొనసాగించు</string>

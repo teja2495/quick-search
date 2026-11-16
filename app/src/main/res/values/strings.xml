@@ -1272,7 +1272,7 @@
     <string name="permissions_calling_desc">Needed to call your contacts directly without opening the dialer.</string>
     <string name="settings_notifications_permission_title">Post Notifications</string>
     <string name="permissions_notifications_desc">Needed for reminder notifications and to pin search results to notification panel</string>
-    <string name="permissions_notification_access_desc">Needed to enable notification dots and notification history features</string>
+    <string name="permissions_notification_access_desc">Needed to enable notification dots, notification history, and useful At a Glance features.</string>
     <string name="permissions_accessibility_lock_screen_title">Accessibility</string>
     <string name="permissions_accessibility_lock_screen_desc">Enables gestures, floating button, and SpeedBump.</string>
     <string name="permissions_contacts_desc">Needed to search your contacts.</string>
@@ -1287,6 +1287,10 @@
     <string name="permissions_open_source_desc">See exactly how these permissions are used.</string>
     <string name="permissions_open_source_action">Tap to view code.</string>
     <string name="permissions_screen_optional_emphasis">optional</string>
+    <string name="permissions_trust_optional">Every permission is optional</string>
+    <string name="permissions_trust_on_device">Your data stays on the device</string>
+    <string name="permissions_trust_open_source">Fully open source</string>
+    <string name="permissions_trust_view_code">View Code</string>
     <string name="permissions_usage_desc">Needed to show your recently used apps in suggestions.</string>
     <string name="setup_action_next">Next</string>
     <string name="setup_action_skip_permissions">Continue without permissions</string>

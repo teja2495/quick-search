@@ -1251,7 +1251,7 @@
     <string name="permissions_calling_desc">Erforderlich, um Kontakte direkt anzurufen, ohne die Telefon-App zu öffnen.</string>
     <string name="settings_notifications_permission_title">Benachrichtigungen senden</string>
     <string name="permissions_notifications_desc">Erforderlich für Erinnerungsbenachrichtigungen und um Suchergebnisse im Benachrichtigungsfeld anzuheften</string>
-    <string name="permissions_notification_access_desc">Erforderlich für Benachrichtigungspunkte und den Benachrichtigungsverlauf</string>
+    <string name="permissions_notification_access_desc">Erforderlich für Benachrichtigungspunkte, den Benachrichtigungsverlauf und nützliche Auf-einen-Blick-Funktionen.</string>
     <string name="permissions_accessibility_lock_screen_title">Bedienungshilfen</string>
     <string name="permissions_accessibility_lock_screen_desc">Aktiviert Gesten, die schwebende Schaltfläche und SpeedBump.</string>
     <string name="permissions_contacts_desc">Erforderlich, um Kontakte zu durchsuchen.</string>
@@ -1266,6 +1266,10 @@
     <string name="permissions_open_source_desc">Sieh genau, wie diese Berechtigungen verwendet werden.</string>
     <string name="permissions_open_source_action">Tippe, um den Code anzusehen.</string>
     <string name="permissions_screen_optional_emphasis">optional</string>
+    <string name="permissions_trust_optional">Jede Berechtigung ist optional</string>
+    <string name="permissions_trust_on_device">Deine Daten bleiben auf dem Gerät</string>
+    <string name="permissions_trust_open_source">Vollständig Open Source</string>
+    <string name="permissions_trust_view_code">Code ansehen</string>
     <string name="permissions_usage_desc">Erforderlich, um zuletzt verwendete Apps in Vorschlägen anzuzeigen.</string>
     <string name="setup_action_next">Weiter</string>
     <string name="setup_action_skip_permissions">Ohne Berechtigungen fortfahren</string>

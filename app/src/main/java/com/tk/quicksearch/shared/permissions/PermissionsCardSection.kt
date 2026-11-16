@@ -74,6 +74,7 @@ fun PermissionsCardSection(
     itemContentPadding: PaddingValues = PaddingValues(DesignTokens.SpacingXLarge),
     internalScrollEnabled: Boolean = false,
     segmented: Boolean = false,
+    showItemIcons: Boolean = true,
     showCalendarPermission: Boolean = true,
     showCallingPermission: Boolean = true,
     showNotificationsPermission: Boolean = true,
@@ -567,6 +568,7 @@ fun PermissionsCardSection(
         itemContentPadding = itemContentPadding,
         internalScrollEnabled = internalScrollEnabled,
         segmented = segmented,
+        showItemIcons = showItemIcons,
     )
 
     if (showAccessibilityDisclosure) {

@@ -13,7 +13,6 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,15 +20,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -119,6 +113,7 @@ fun ImportSettingsScreen(
                 title = stringResource(R.string.setup_import_title),
                 currentStep = currentStep,
                 totalSteps = totalSteps,
+                topPadding = DesignTokens.SpacingMedium,
             )
 
             Spacer(modifier = Modifier.height(DesignTokens.OnboardingCompactSpacing))
@@ -247,57 +242,23 @@ fun ImportSettingsScreen(
                             enter = fadeIn(tween(DesignTokens.AnimationDurationShort)),
                             exit = fadeOut(tween(DesignTokens.AnimationDurationShort)),
                         ) {
-                            if (singlePreFoundFile != null) {
-                                Button(
-                                    onClick = { importFromUri(Uri.fromFile(singlePreFoundFile)) },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = AppColors.Accent,
-                                        contentColor = AppColors.OnAccent,
-                                    ),
-                                    contentPadding = PaddingValues(
-                                        horizontal = DesignTokens.OnboardingButtonHorizontalPadding,
-                                        vertical = DesignTokens.OnboardingButtonVerticalPadding,
-                                    ),
-                                ) {
-                                    Icon(
-                                        imageVector = MaterialSymbols.FileDownload,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(DesignTokens.IconSize),
-                                    )
-                                    Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
-                                    Text(
-                                        text = stringResource(R.string.setup_import_restore_button),
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        fontWeight = FontWeight.Medium,
-                                    )
-                                }
-                            } else {
-                                Button(
-                                    onClick = { importLauncher.launch(arrayOf("*/*")) },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = AppColors.Accent,
-                                        contentColor = AppColors.OnAccent,
-                                    ),
-                                    contentPadding = PaddingValues(
-                                        horizontal = DesignTokens.OnboardingButtonHorizontalPadding,
-                                        vertical = DesignTokens.OnboardingButtonVerticalPadding,
-                                    ),
-                                ) {
-                                    Icon(
-                                        imageVector = MaterialSymbols.FileDownload,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(DesignTokens.IconSize),
-                                    )
-                                    Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
-                                    Text(
-                                        text = stringResource(R.string.setup_import_button),
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        fontWeight = FontWeight.Medium,
-                                    )
-                                }
-                            }
+                            OnboardingActionButton(
+                                text = stringResource(
+                                    if (singlePreFoundFile != null) {
+                                        R.string.setup_import_restore_button
+                                    } else {
+                                        R.string.setup_import_button
+                                    },
+                                ),
+                                icon = MaterialSymbols.FileDownload,
+                                onClick = {
+                                    if (singlePreFoundFile != null) {
+                                        importFromUri(Uri.fromFile(singlePreFoundFile))
+                                    } else {
+                                        importLauncher.launch(arrayOf("*/*"))
+                                    }
+                                },
+                            )
                         }
 
                         // Progress indicator — visible only while importing
@@ -306,7 +267,11 @@ fun ImportSettingsScreen(
                             enter = fadeIn(tween(DesignTokens.AnimationDurationShort)),
                             exit = fadeOut(tween(DesignTokens.AnimationDurationShort)),
                         ) {
-                            CircularProgressIndicator(modifier = Modifier.size(48.dp))
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(48.dp),
+                                color = AppColors.Accent,
+                                trackColor = AppColors.Accent.copy(alpha = 0.12f),
+                            )
                         }
                     }
                 }
@@ -315,47 +280,23 @@ fun ImportSettingsScreen(
             Spacer(modifier = Modifier.height(DesignTokens.OnboardingSectionSpacing))
 
             // Bottom CTA: outlined "Skip" normally, primary "Start Searching!" after successful import
-            if (screenState == ImportScreenState.Success) {
-                Button(
-                    onClick = onImportSuccess,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = DesignTokens.OnboardingButtonOuterHorizontalPadding),
-                    shape = RoundedCornerShape(DesignTokens.OnboardingButtonCornerRadius),
-                    contentPadding = PaddingValues(
-                        horizontal = DesignTokens.OnboardingButtonHorizontalPadding,
-                        vertical = DesignTokens.OnboardingButtonVerticalPadding,
+            val isImported = screenState == ImportScreenState.Success
+            AnimatedContent(
+                targetState = isImported,
+                transitionSpec = {
+                    fadeIn(tween(DesignTokens.AnimationDurationMedium)) togetherWith
+                        fadeOut(tween(DesignTokens.AnimationDurationShort))
+                },
+                label = "bottomAction",
+            ) { imported ->
+                OnboardingBottomActionButton(
+                    text = stringResource(
+                        if (imported) R.string.setup_action_start else R.string.setup_import_skip,
                     ),
+                    onClick = if (imported) onImportSuccess else onSkip,
+                    outlined = !imported,
                     enabled = screenState != ImportScreenState.Importing,
-                ) {
-                    Text(
-                        text = stringResource(R.string.setup_action_start),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium,
-                    )
-                }
-            } else {
-                OutlinedButton(
-                    onClick = onSkip,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = DesignTokens.OnboardingButtonOuterHorizontalPadding),
-                    shape = RoundedCornerShape(DesignTokens.OnboardingButtonCornerRadius),
-                    contentPadding = PaddingValues(
-                        horizontal = DesignTokens.OnboardingButtonHorizontalPadding,
-                        vertical = DesignTokens.OnboardingButtonVerticalPadding,
-                    ),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    ),
-                    enabled = screenState != ImportScreenState.Importing,
-                ) {
-                    Text(
-                        text = stringResource(R.string.setup_import_skip),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium,
-                    )
-                }
+                )
             }
 
             Spacer(modifier = Modifier.height(DesignTokens.OnboardingSectionSpacing))

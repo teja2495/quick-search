@@ -2,7 +2,6 @@ package com.tk.quicksearch.onboarding
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,9 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,7 +21,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.R
@@ -67,6 +63,7 @@ fun SearchEngineSetupScreen(
             title = stringResource(R.string.settings_app_shortcuts_filter_search_engines),
             currentStep = currentStep,
             totalSteps = totalSteps,
+            topPadding = DesignTokens.SpacingMedium,
         )
 
         Text(
@@ -145,25 +142,10 @@ fun SearchEngineSetupScreen(
 
         Spacer(modifier = Modifier.height(DesignTokens.OnboardingSectionSpacing))
 
-        Button(
+        OnboardingBottomActionButton(
+            text = stringResource(continueButtonTextRes),
             onClick = onContinue,
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = DesignTokens.OnboardingButtonOuterHorizontalPadding),
-            shape = RoundedCornerShape(DesignTokens.OnboardingButtonCornerRadius),
-            contentPadding =
-                PaddingValues(
-                    horizontal = DesignTokens.OnboardingButtonHorizontalPadding,
-                    vertical = DesignTokens.OnboardingButtonVerticalPadding,
-                ),
-        ) {
-            Text(
-                text = stringResource(continueButtonTextRes),
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium,
-            )
-        }
+        )
 
         Spacer(modifier = Modifier.height(DesignTokens.OnboardingSectionSpacing))
     }

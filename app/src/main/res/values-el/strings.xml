@@ -1251,7 +1251,7 @@
     <string name="permissions_calling_desc">Απαραίτητο για την απευθείας κλήση των επαφών σας χωρίς το άνοιγμα της εφαρμογής κλήσεων.</string>
     <string name="settings_notifications_permission_title">Δημοσίευση ειδοποιήσεων</string>
     <string name="permissions_notifications_desc">Απαιτείται για ειδοποιήσεις υπενθυμίσεων και για καρφίτσωμα αποτελεσμάτων αναζήτησης στον πίνακα ειδοποιήσεων</string>
-    <string name="permissions_notification_access_desc">Απαιτείται για την ενεργοποίηση των κουκκίδων ειδοποιήσεων και του ιστορικού ειδοποιήσεων</string>
+    <string name="permissions_notification_access_desc">Απαιτείται για τις κουκκίδες ειδοποιήσεων, το ιστορικό ειδοποιήσεων και χρήσιμες λειτουργίες του Με μια ματιά.</string>
     <string name="permissions_accessibility_lock_screen_title">Προσβασιμότητα</string>
     <string name="permissions_accessibility_lock_screen_desc">Ενεργοποιεί χειρονομίες, αιωρούμενο κουμπί και SpeedBump.</string>
     <string name="permissions_contacts_desc">Απαραίτητο για την αναζήτηση των επαφών σας.</string>
@@ -1266,6 +1266,10 @@
     <string name="permissions_open_source_desc">Δείτε ακριβώς πώς χρησιμοποιούνται αυτά τα δικαιώματα.</string>
     <string name="permissions_open_source_action">Πατήστε για προβολή του κώδικα.</string>
     <string name="permissions_screen_optional_emphasis">προαιρετικές</string>
+    <string name="permissions_trust_optional">Κάθε άδεια είναι προαιρετική</string>
+    <string name="permissions_trust_on_device">Τα δεδομένα σας μένουν στη συσκευή</string>
+    <string name="permissions_trust_open_source">Πλήρως ανοιχτού κώδικα</string>
+    <string name="permissions_trust_view_code">Προβολή κώδικα</string>
     <string name="permissions_usage_desc">Απαραίτητο για την εμφάνιση των πρόσφατα χρησιμοποιημένων εφαρμογών σας στις προτάσεις.</string>
     <string name="setup_action_next">Επόμενο</string>
     <string name="setup_action_skip_permissions">Συνέχεια χωρίς άδειες</string>

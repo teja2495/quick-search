@@ -1256,7 +1256,7 @@
     <string name="permissions_calling_desc">Diperlukan untuk menelepon kontak secara langsung tanpa membuka dialer.</string>
     <string name="settings_notifications_permission_title">Kirim Notifikasi</string>
     <string name="permissions_notifications_desc">Diperlukan untuk notifikasi pengingat dan untuk menyematkan hasil pencarian di panel notifikasi</string>
-    <string name="permissions_notification_access_desc">Diperlukan untuk mengaktifkan titik notifikasi dan fitur riwayat notifikasi</string>
+    <string name="permissions_notification_access_desc">Diperlukan untuk mengaktifkan titik notifikasi, riwayat notifikasi, dan fitur Sekilas yang berguna.</string>
     <string name="permissions_accessibility_lock_screen_title">Aksesibilitas</string>
     <string name="permissions_accessibility_lock_screen_desc">Mengaktifkan gestur, tombol mengambang, dan SpeedBump.</string>
     <string name="permissions_contacts_desc">Diperlukan untuk mencari kontak Anda.</string>
@@ -1271,6 +1271,10 @@
     <string name="permissions_open_source_desc">Lihat persis bagaimana izin ini digunakan.</string>
     <string name="permissions_open_source_action">Ketuk untuk melihat kode.</string>
     <string name="permissions_screen_optional_emphasis">opsional</string>
+    <string name="permissions_trust_optional">Setiap izin bersifat opsional</string>
+    <string name="permissions_trust_on_device">Data Anda tetap di perangkat</string>
+    <string name="permissions_trust_open_source">Sepenuhnya sumber terbuka</string>
+    <string name="permissions_trust_view_code">Lihat Kode</string>
     <string name="permissions_usage_desc">Diperlukan untuk menampilkan aplikasi yang baru saja digunakan dalam saran.</string>
     <string name="setup_action_next">Berikutnya</string>
     <string name="setup_action_skip_permissions">Lanjutkan tanpa izin</string>

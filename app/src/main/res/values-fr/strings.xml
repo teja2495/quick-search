@@ -1251,7 +1251,7 @@
 <string name="permissions_calling_desc">Requis pour appeler vos contacts directement sans ouvrir le clavier numérique.</string>
 <string name="settings_notifications_permission_title">Publier des notifications</string>
     <string name="permissions_notifications_desc">Requis pour les notifications de rappels et pour épingler des résultats de recherche dans le volet des notifications</string>
-    <string name="permissions_notification_access_desc">Requis pour activer les pastilles de notification et l\'historique des notifications</string>
+    <string name="permissions_notification_access_desc">Requis pour activer les pastilles de notification, l\'historique des notifications et des fonctionnalités utiles d\'En un coup d\'œil.</string>
 <string name="permissions_accessibility_lock_screen_title">Accessibilité</string>
 <string name="permissions_accessibility_lock_screen_desc">Active les gestes, le bouton flottant et SpeedBump.</string>
 <string name="permissions_contacts_desc">Requis pour rechercher vos contacts.</string>
@@ -1266,6 +1266,10 @@
 <string name="permissions_open_source_desc">Voyez exactement comment ces autorisations sont utilisées.</string>
 <string name="permissions_open_source_action">Appuyez pour voir le code.</string>
 <string name="permissions_screen_optional_emphasis">facultatives</string>
+<string name="permissions_trust_optional">Chaque autorisation est facultative</string>
+<string name="permissions_trust_on_device">Vos données restent sur l\'appareil</string>
+<string name="permissions_trust_open_source">Entièrement open source</string>
+<string name="permissions_trust_view_code">Voir le code</string>
 <string name="permissions_usage_desc">Requis pour afficher vos applications récemment utilisées dans les suggestions.</string>
 <string name="setup_action_next">Suivant</string>
 <string name="setup_action_skip_permissions">Continuer sans autorisations</string>

@@ -1238,7 +1238,7 @@
     <string name="permissions_calling_desc">允许直接呼叫您的联系人，省去跳转并开启系统拨号盘的步骤。</string>
     <string name="settings_notifications_permission_title">发送通知</string>
     <string name="permissions_notifications_desc">用于提醒通知以及将搜索结果固定到通知面板</string>
-    <string name="permissions_notification_access_desc">启用通知圆点和通知历史记录功能所需</string>
+    <string name="permissions_notification_access_desc">启用通知圆点、通知历史记录和实用的一览功能所需。</string>
     <string name="permissions_accessibility_lock_screen_title">无障碍</string>
     <string name="permissions_accessibility_lock_screen_desc">启用手势、悬浮按钮和 SpeedBump。</string>
     <string name="permissions_contacts_desc">允许检索、匹配并展示您设备通讯录中的联系人信息。</string>
@@ -1253,6 +1253,10 @@
     <string name="permissions_open_source_desc">查看这些权限的具体使用方式。</string>
     <string name="permissions_open_source_action">点按查看代码。</string>
     <string name="permissions_screen_optional_emphasis">可选</string>
+    <string name="permissions_trust_optional">所有权限均为可选</string>
+    <string name="permissions_trust_on_device">您的数据只保留在设备上</string>
+    <string name="permissions_trust_open_source">完全开源</string>
+    <string name="permissions_trust_view_code">查看代码</string>
     <string name="permissions_usage_desc">用于在智能建议面板中优先展示您近期最常使用或新运行的应用。</string>
     <string name="setup_action_next">下一步</string>
     <string name="setup_action_skip_permissions">不授予权限，继续</string>
