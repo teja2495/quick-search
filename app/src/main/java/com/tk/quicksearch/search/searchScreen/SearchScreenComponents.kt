@@ -40,11 +40,13 @@ internal fun PermissionDisabledCard(
     message: String,
     actionLabel: String,
     onActionClick: () -> Unit,
+    showWallpaperBackground: Boolean,
 ) = com.tk.quicksearch.search.searchScreen.components.PermissionDisabledCard(
     title = title,
     message = message,
     actionLabel = actionLabel,
     onActionClick = onActionClick,
+    showWallpaperBackground = showWallpaperBackground,
 )
 
 @Composable
@@ -52,10 +54,12 @@ internal fun UsagePermissionCard(
     modifier: Modifier = Modifier,
     onRequestPermission: () -> Unit,
     onDismiss: () -> Unit,
+    showWallpaperBackground: Boolean,
 ) = com.tk.quicksearch.search.searchScreen.components.UsagePermissionCard(
     modifier = modifier,
     onRequestPermission = onRequestPermission,
     onDismiss = onDismiss,
+    showWallpaperBackground = showWallpaperBackground,
 )
 
 // Banners

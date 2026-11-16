@@ -283,6 +283,9 @@ object AppColors {
         @Composable
         get() = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
 
+    /** Border on result cards over a wallpaper/custom image in dark mode. */
+    val WallpaperDarkCardBorder = Color.White.copy(alpha = 0.12f)
+
     /** Divider color used between result rows when the wallpaper background is active. */
     val WallpaperDivider: Color
         @Composable

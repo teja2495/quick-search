@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
@@ -22,7 +21,6 @@ import com.tk.quicksearch.search.searchScreen.shared.SegmentedRowsStyle
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
 import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
-import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
@@ -42,9 +40,7 @@ import com.tk.quicksearch.reminders.ReminderEditorRequests
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination
 import com.tk.quicksearch.search.appSettings.LocalOpenAppSettingDestination
 import com.tk.quicksearch.search.models.ContactInfo
-import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 /**
@@ -246,11 +242,6 @@ internal fun rememberAtAGlanceItems(
     return rememberRetainedAtAGlanceItems(enabled, (if (reversed) groups.asReversed() else groups).flatten())
 }
 
-@Composable
-internal fun atAGlanceDividerColor(showWallpaperBackground: Boolean) =
-    LocalOverlayDividerColor.current
-        ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant
-
 /** The icon pack At a Glance app icons are drawn with, so they match the app grid. */
 internal val LocalGlanceIconPackPackage = staticCompositionLocalOf<String?> { null }
 
@@ -262,7 +253,7 @@ internal fun AtAGlanceRows(
     dividerBefore: Boolean = false,
     dividerAfter: Boolean = false,
 ) {
-    val dividerColor = atAGlanceDividerColor(showWallpaperBackground)
+    val dividerColor = SearchResultCardDefaults.dividerColor(showWallpaperBackground)
     val segmented = segmentedRowsActive()
     val rows = rememberAnimatedGlanceRows(items)
     if (rows.isEmpty()) return
@@ -381,10 +372,7 @@ internal fun AtAGlanceCardShell(
     content: @Composable () -> Unit,
 ) {
     if (segmented && LocalSearchCardLayoutEnabled.current) {
-        val containerColor = SearchResultCardDefaults.colors(
-            showWallpaperBackground = showWallpaperBackground,
-            overlayContainerColor = LocalOverlayResultCardColor.current,
-        ).containerColor
+        val containerColor = SearchResultCardDefaults.containerColor(showWallpaperBackground)
         CompositionLocalProvider(LocalSegmentedRowsStyle provides SegmentedRowsStyle(containerColor)) {
             Column(modifier = Modifier.fillMaxWidth()) { content() }
         }

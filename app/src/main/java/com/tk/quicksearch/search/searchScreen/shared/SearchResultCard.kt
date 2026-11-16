@@ -81,7 +81,7 @@ object SearchResultCardDefaults {
 
     /** Subtle border shown when wallpaper/custom image is active in dark mode. */
     private val wallpaperDarkBorder =
-        BorderStroke(DesignTokens.BorderWidth, Color.White.copy(alpha = 0.12f))
+        BorderStroke(DesignTokens.BorderWidth, AppColors.WallpaperDarkCardBorder)
 
     @Composable
     fun border(showWallpaperBackground: Boolean): BorderStroke? {
@@ -98,6 +98,28 @@ object SearchResultCardDefaults {
         showWallpaperBackground = showWallpaperBackground,
         overlayContainerColor = containerColorOverride ?: overlayContainerColor,
     )
+
+    /** Resolved container color for result cards, segment tiles and other home/search cards. */
+    @Composable
+    fun containerColor(
+        showWallpaperBackground: Boolean,
+        overlayContainerColor: Color? = LocalOverlayResultCardColor.current,
+    ): Color = AppColors.getSearchResultCardContainerColor(
+        showWallpaperBackground = showWallpaperBackground,
+        overlayContainerColor = overlayContainerColor,
+    )
+
+    /**
+     * Hairline color for dividers between result rows, sections and flat (cardless) cards:
+     * overlay theme tint first, then the wallpaper divider, then Material outlineVariant.
+     */
+    @Composable
+    fun dividerColor(
+        showWallpaperBackground: Boolean,
+        overlayDividerColor: Color? = LocalOverlayDividerColor.current,
+    ): Color =
+        overlayDividerColor
+            ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant
 }
 
 /**
@@ -148,7 +170,7 @@ fun SearchResultCard(
     // A flat card is a plain column spanning the screen width, so nothing on it (animateContentSize,
     // the predicted highlight) clips its row dividers short of the edges. Its content is padded back
     // to the usual flat-card bleed.
-    val cardlessDividerColor = cardlessDividerColor(showWallpaperBackground)
+    val cardlessDividerColor = SearchResultCardDefaults.dividerColor(showWallpaperBackground)
     val slotEdges = remember { EdgeDistances() }
     val rowBleed = DesignTokens.SpacingSmall
     Column(
@@ -264,11 +286,6 @@ internal fun Modifier.reportCardlessTrailingEdge(): Modifier {
 }
 
 private fun LayoutCoordinates.bottomInRoot(): Float = localToRoot(Offset(0f, size.height.toFloat())).y
-
-@Composable
-internal fun cardlessDividerColor(showWallpaperBackground: Boolean): Color =
-    LocalOverlayDividerColor.current
-        ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant
 
 /**
  * Flat cards have no edges, so each one draws a hairline along its bottom edge (where it meets the

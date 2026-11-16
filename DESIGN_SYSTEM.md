@@ -53,7 +53,15 @@ Main `AppColors` groups:
   `SearchChromeOutlineBorder`, `KeyboardPill*`, `InlineEngineHighlight*`,
   `InlineEngineDivider`.
 - **Wallpaper surfaces:** `ResultCardWallpaperBackground`, `CompactSectionBackground`,
-  `WallpaperText*`, `WallpaperDivider`, `wallpaperAwareMutedSearchForeground(...)`.
+  `WallpaperText*`, `WallpaperDivider`, `WallpaperDarkCardBorder`,
+  `wallpaperAwareMutedSearchForeground(...)`.
+- **Home and result cards:** resolve colors only through `SearchResultCardDefaults`
+  (`searchScreen/shared/SearchResultCard.kt`): `colors(...)`/`containerColor(...)` for card and
+  segment-tile containers, `border(...)`, and `dividerColor(...)` for row, section and Compact
+  Layout dividers. They apply the overlay theme tint (`LocalOverlayResultCardColor`,
+  `LocalOverlayDividerColor`), then the wallpaper surface, then the Material/theme default, so
+  don't re-derive these per component. Content inside a card (e.g. the history tab row) stays
+  transparent.
 - **Settings and dialogs:** `SettingsCardBackground`, `SettingsText`, `SettingsIconTint`,
   `DialogBackground`, `DialogText`, `Overlay*`.
 - **Contact actions:** `ActionPhone`, `ActionSms`, `ActionWhatsApp`, `ActionTelegram`,

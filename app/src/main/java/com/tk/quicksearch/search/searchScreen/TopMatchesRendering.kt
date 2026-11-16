@@ -7,7 +7,6 @@ import androidx.compose.ui.graphics.Color
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardStyleOverrides
 import com.tk.quicksearch.search.searchScreen.shared.segmentShape
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -271,8 +270,7 @@ private fun topMatchSegmentPositions(matches: List<TopMatchItem>): List<Pair<Int
 private fun TopMatchesBoundaryDivider(showWallpaperBackground: Boolean, modifier: Modifier = Modifier) {
     HorizontalDivider(
         modifier = Modifier.compactEdgeToEdge().then(modifier),
-        color = LocalOverlayDividerColor.current
-            ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant,
+        color = SearchResultCardDefaults.dividerColor(showWallpaperBackground),
     )
 }
 

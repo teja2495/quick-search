@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,7 +33,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppTheme
-import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
@@ -57,8 +57,7 @@ internal fun ExpandButtonDivider(showWallpaperBackground: Boolean) {
     if (LocalSearchCardLayoutEnabled.current) return
     HorizontalDivider(
         modifier = Modifier.compactEdgeToEdge().fillMaxWidth(),
-        color = LocalOverlayDividerColor.current
-            ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant,
+        color = SearchResultCardDefaults.dividerColor(showWallpaperBackground),
     )
 }
 

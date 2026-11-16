@@ -48,7 +48,7 @@ import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnable
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
 import com.tk.quicksearch.search.searchScreen.shared.LocalCardlessStackSpacing
 import com.tk.quicksearch.search.searchScreen.shared.EdgeDistances
-import com.tk.quicksearch.search.searchScreen.shared.cardlessDividerColor
+import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.search.searchScreen.shared.leftOr
 import com.tk.quicksearch.search.searchScreen.shared.rightOr
 import com.tk.quicksearch.search.searchScreen.shared.trackEdgeDistances
@@ -75,7 +75,7 @@ private val CompactHeaderCentering = 1.dp
  */
 @Composable
 private fun Modifier.compactHeaderDivider(showWallpaperBackground: Boolean): Modifier {
-    val dividerColor = cardlessDividerColor(showWallpaperBackground)
+    val dividerColor = SearchResultCardDefaults.dividerColor(showWallpaperBackground)
     val below = LocalCardlessStackSpacing.current / 2
     val edges = remember { EdgeDistances() }
     return trackEdgeDistances(edges).drawWithContent {

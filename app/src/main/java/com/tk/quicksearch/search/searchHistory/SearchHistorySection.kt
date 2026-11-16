@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchHistory
 
+import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -283,7 +284,7 @@ fun SearchHistorySection(
                     }
                     ResultRowDivider(
                         showWallpaperBackground = showWallpaperBackground,
-                        color = dividerColor(showWallpaperBackground, overlayDividerColor),
+                        color = SearchResultCardDefaults.dividerColor(showWallpaperBackground, overlayDividerColor),
                     )
                 }
 
@@ -403,16 +404,10 @@ private fun SearchHistoryTabs(
         } else {
             MaterialTheme.colorScheme.onSurfaceVariant
         }
-    val containerColor =
-        if (showWallpaperBackground || segmented) {
-            Color.Transparent
-        } else {
-            AppColors.getSettingsCardContainerColor()
-        }
-
     PrimaryTabRow(
         selectedTabIndex = selectedTab.ordinal,
-        containerColor = containerColor,
+        // The enclosing result card or segment tile supplies the background.
+        containerColor = Color.Transparent,
         contentColor = selectedColor,
         modifier = Modifier.fillMaxWidth(),
         indicator = {
@@ -563,14 +558,6 @@ private fun ClearAllHistoryRow(
         )
     }
 }
-
-@Composable
-private fun dividerColor(
-    showWallpaperBackground: Boolean,
-    overlayDividerColor: Color?,
-): Color =
-    overlayDividerColor
-        ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -33,14 +33,17 @@ internal fun PermissionDisabledCard(
     message: String,
     actionLabel: String,
     onActionClick: () -> Unit,
+    showWallpaperBackground: Boolean,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors =
-            CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            SearchResultCardDefaults.colors(
+                showWallpaperBackground = showWallpaperBackground,
+                overlayContainerColor = LocalOverlayResultCardColor.current,
             ),
-        elevation = AppColors.getCardElevation(false),
+        border = SearchResultCardDefaults.border(showWallpaperBackground),
+        elevation = AppColors.getCardElevation(showWallpaperBackground),
         shape = SearchResultCardDefaults.shape,
     ) {
         Column(
@@ -73,14 +76,17 @@ internal fun UsagePermissionCard(
     modifier: Modifier = Modifier,
     onRequestPermission: () -> Unit,
     onDismiss: () -> Unit,
+    showWallpaperBackground: Boolean,
 ) {
     Card(
         modifier = modifier,
         colors =
-            CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            SearchResultCardDefaults.colors(
+                showWallpaperBackground = showWallpaperBackground,
+                overlayContainerColor = LocalOverlayResultCardColor.current,
             ),
-        elevation = AppColors.getCardElevation(false),
+        border = SearchResultCardDefaults.border(showWallpaperBackground),
+        elevation = AppColors.getCardElevation(showWallpaperBackground),
         shape = SearchResultCardDefaults.shape,
     ) {
         Column(

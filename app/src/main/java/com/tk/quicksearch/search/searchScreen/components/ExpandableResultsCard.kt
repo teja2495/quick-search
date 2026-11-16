@@ -85,10 +85,7 @@ internal fun ExpandableResultsCard(
     if (segmented && cardLayoutEnabled) {
         // Rows draw their own tiles (ResultSegment); the card itself is only the group.
         val containerColor =
-            SearchResultCardDefaults.colors(
-                showWallpaperBackground = showWallpaperBackground,
-                overlayContainerColor = overlayCardColor,
-            ).containerColor
+            SearchResultCardDefaults.containerColor(showWallpaperBackground, overlayCardColor)
         CompositionLocalProvider(LocalSegmentedRowsStyle provides SegmentedRowsStyle(containerColor)) {
             Column(modifier = cardModifier) {
                 content(contentModifier, state)

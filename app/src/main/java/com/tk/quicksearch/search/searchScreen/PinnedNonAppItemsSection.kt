@@ -252,10 +252,7 @@ private fun PinnedItemsContainer(
     content: @Composable () -> Unit,
 ) {
     if (LocalSearchCardLayoutEnabled.current) {
-        val containerColor = SearchResultCardDefaults.colors(
-            showWallpaperBackground = showWallpaperBackground,
-            overlayContainerColor = LocalOverlayResultCardColor.current,
-        ).containerColor
+        val containerColor = SearchResultCardDefaults.containerColor(showWallpaperBackground)
         CompositionLocalProvider(LocalSegmentedRowsStyle provides SegmentedRowsStyle(containerColor)) {
             Column(modifier = modifier.fillMaxWidth()) { content() }
         }
