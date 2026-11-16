@@ -10,10 +10,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RemoteViews
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -34,12 +31,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -79,8 +75,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 private val WidgetPickerStageHeight = 176.dp
-private val WidgetPickerStageShape = RoundedCornerShape(20.dp)
-private const val EXPANDED_CHEVRON_CONTAINER_ALPHA = 0.5f
 
 /** Tile tone that stays visible on the drawer's `surfaceContainerHigh` sheet. */
 @Composable
@@ -170,7 +164,7 @@ internal fun WidgetPickerSheet(
         ),
     ) {
         if (apps == null) {
-            AppPickerDrawerMessage(text = stringResource(R.string.widgets_picker_loading), centered = true)
+            WidgetPickerLoading()
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
@@ -195,6 +189,18 @@ internal fun WidgetPickerSheet(
                 }
             }
         }
+    }
+}
+
+/** Fills the drawer's list area so the message sits in its vertical center. */
+@Composable
+private fun WidgetPickerLoading() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text(
+            text = stringResource(R.string.widgets_picker_loading),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
@@ -234,18 +240,12 @@ private fun WidgetPickerAppGroup(
         animationSpec = DesignTokens.expressiveDefaultSpatialSpring(),
         label = "widgetPickerChevronRotation",
     )
-    // Expressive expanded state: the open app's header takes the secondary container tone.
-    val headerColor by animateColorAsState(
-        targetValue = if (isExpanded) MaterialTheme.colorScheme.secondaryContainer else widgetPickerTileColor(),
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-        label = "widgetPickerHeaderColor",
-    )
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap)) {
         SettingsSegment(
             index = 0,
             count = if (isExpanded) app.widgets.size + 1 else 1,
             onClick = onToggleExpanded,
-            containerColor = headerColor,
+            containerColor = widgetPickerTileColor(),
         ) {
             SettingsSegmentRow(
                 title = app.appLabel,
@@ -258,27 +258,12 @@ private fun WidgetPickerAppGroup(
                     )
                 },
                 trailing = {
-                    Box(
-                        modifier =
-                            Modifier
-                                .size(DesignTokens.SpacingHuge)
-                                .clip(CircleShape)
-                                .background(
-                                    if (isExpanded) {
-                                        MaterialTheme.colorScheme.surface.copy(alpha = EXPANDED_CHEVRON_CONTAINER_ALPHA)
-                                    } else {
-                                        MaterialTheme.colorScheme.surfaceContainerLow
-                                    },
-                                ),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            imageVector = MaterialSymbols.ExpandMore,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(DesignTokens.IconSizeSmall).rotate(chevronRotation),
-                        )
-                    }
+                    Icon(
+                        imageVector = MaterialSymbols.ExpandMore,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.rotate(chevronRotation),
+                    )
                 },
             )
         }
@@ -351,44 +336,40 @@ private fun WidgetPickerRow(
                 .padding(DesignTokens.SpacingSmall),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
     ) {
-        // Inset stage so the preview reads as a widget sitting on a surface, not loose content.
-        Surface(
+        Box(
             modifier = Modifier.fillMaxWidth().height(WidgetPickerStageHeight),
-            shape = WidgetPickerStageShape,
-            color = MaterialTheme.colorScheme.surfaceContainerLow,
+            contentAlignment = Alignment.Center,
         ) {
-            Box(contentAlignment = Alignment.Center) {
-                when {
-                    previewImage != null -> {
-                        DrawableImage(
-                            drawable = previewImage,
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize().padding(DesignTokens.SpacingLarge),
-                        )
-                    }
-                    previewLayoutRes != 0 -> {
-                        WidgetRemoteViewsPreview(
-                            packageName = provider.provider.packageName,
-                            layoutRes = previewLayoutRes,
-                            fallbackIcon = widgetIcon,
-                            modifier = Modifier.fillMaxSize().padding(DesignTokens.SpacingLarge),
-                        )
-                    }
-                    widgetIcon != null -> {
-                        DrawableImage(
-                            drawable = widgetIcon,
-                            contentDescription = null,
-                            modifier = Modifier.size(56.dp),
-                        )
-                    }
-                    else -> {
-                        Text(
-                            text = stringResource(R.string.widgets_picker_preview_unavailable),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(DesignTokens.SpacingSmall),
-                        )
-                    }
+            when {
+                previewImage != null -> {
+                    DrawableImage(
+                        drawable = previewImage,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize().padding(DesignTokens.SpacingLarge),
+                    )
+                }
+                previewLayoutRes != 0 -> {
+                    WidgetRemoteViewsPreview(
+                        packageName = provider.provider.packageName,
+                        layoutRes = previewLayoutRes,
+                        fallbackIcon = widgetIcon,
+                        modifier = Modifier.fillMaxSize().padding(DesignTokens.SpacingLarge),
+                    )
+                }
+                widgetIcon != null -> {
+                    DrawableImage(
+                        drawable = widgetIcon,
+                        contentDescription = null,
+                        modifier = Modifier.size(56.dp),
+                    )
+                }
+                else -> {
+                    Text(
+                        text = stringResource(R.string.widgets_picker_preview_unavailable),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(DesignTokens.SpacingSmall),
+                    )
                 }
             }
         }
@@ -417,24 +398,23 @@ private fun WidgetPickerRow(
                         initialGridSize.first,
                         initialGridSize.second,
                     ),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    modifier =
-                        Modifier
-                            .clip(DesignTokens.ShapeSmall)
-                            .background(MaterialTheme.colorScheme.secondaryContainer)
-                            .padding(horizontal = DesignTokens.SpacingSmall, vertical = DesignTokens.SpacingXXSmall / 2),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            FilledTonalButton(onClick = onClick, shape = DesignTokens.ShapeFull) {
+            Button(
+                onClick = onClick,
+                shape = DesignTokens.ShapeFull,
+                contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+            ) {
                 Icon(
                     imageVector = MaterialSymbols.Add,
                     contentDescription = null,
-                    modifier = Modifier.size(DesignTokens.IconSizeSmall),
+                    modifier = Modifier.size(ButtonDefaults.IconSize),
                 )
                 Text(
                     text = stringResource(R.string.common_action_add),
-                    modifier = Modifier.padding(start = DesignTokens.SpacingSmall),
+                    modifier = Modifier.padding(start = ButtonDefaults.IconSpacing),
                 )
             }
         }

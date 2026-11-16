@@ -14,6 +14,13 @@ import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.Spring
@@ -134,37 +141,53 @@ internal fun WidgetsPanelHeader(
             color = foreground,
             modifier = Modifier.weight(1f),
         )
-        if (inEditMode) {
-            FilledTonalButton(
-                onClick = onExitEditMode,
-                shape = DesignTokens.ShapeFull,
-                colors = ButtonDefaults.filledTonalButtonColors(
-                    containerColor = foreground.copy(alpha = 0.12f),
-                    contentColor = foreground,
-                ),
-            ) {
-                Icon(imageVector = MaterialSymbols.Check, contentDescription = null, modifier = Modifier.size(DesignTokens.IconSizeSmall))
-                Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
-                Text(text = stringResource(R.string.dialog_done))
-            }
-        } else {
-            FilledTonalIconButton(
-                onClick = onAddWidget,
-                modifier = Modifier.size(DesignTokens.Spacing48),
-                colors = IconButtonDefaults.filledTonalIconButtonColors(
-                    containerColor = foreground.copy(alpha = 0.12f),
-                    contentColor = foreground,
-                ),
-            ) {
-                Icon(
-                    imageVector = MaterialSymbols.Add,
-                    contentDescription = stringResource(R.string.common_action_add),
-                    modifier = Modifier.size(DesignTokens.IconSize),
-                )
+        // Swap the add button for Done with a fade and springy scale instead of a hard cut.
+        AnimatedContent(
+            targetState = inEditMode,
+            transitionSpec = {
+                (fadeIn(tween(HEADER_ACTION_FADE_MS)) +
+                    scaleIn(initialScale = HEADER_ACTION_INITIAL_SCALE, animationSpec = DesignTokens.expressiveFastSpatialSpring()))
+                    .togetherWith(fadeOut(tween(HEADER_ACTION_FADE_MS)))
+                    .using(SizeTransform(clip = false))
+            },
+            contentAlignment = Alignment.CenterEnd,
+            label = "widgetPanelHeaderAction",
+        ) { editing ->
+            if (editing) {
+                FilledTonalButton(
+                    onClick = onExitEditMode,
+                    shape = DesignTokens.ShapeFull,
+                    colors = ButtonDefaults.filledTonalButtonColors(
+                        containerColor = foreground.copy(alpha = 0.12f),
+                        contentColor = foreground,
+                    ),
+                ) {
+                    Icon(imageVector = MaterialSymbols.Check, contentDescription = null, modifier = Modifier.size(DesignTokens.IconSizeSmall))
+                    Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
+                    Text(text = stringResource(R.string.dialog_done))
+                }
+            } else {
+                FilledTonalIconButton(
+                    onClick = onAddWidget,
+                    modifier = Modifier.size(DesignTokens.Spacing40),
+                    colors = IconButtonDefaults.filledTonalIconButtonColors(
+                        containerColor = foreground.copy(alpha = 0.12f),
+                        contentColor = foreground,
+                    ),
+                ) {
+                    Icon(
+                        imageVector = MaterialSymbols.Add,
+                        contentDescription = stringResource(R.string.common_action_add),
+                        modifier = Modifier.size(DesignTokens.IconSize),
+                    )
+                }
             }
         }
     }
 }
+
+private const val HEADER_ACTION_FADE_MS = 150
+private const val HEADER_ACTION_INITIAL_SCALE = 0.85f
 
 @Composable
 internal fun WidgetPanelGrid(
@@ -478,7 +501,8 @@ private fun BoxScope.WidgetPanelGridItem(
     val animatedHeight by
         animateDpAsState(targetValue = height, animationSpec = WidgetLayoutMotion, label = "widgetHeight")
     val editScale by animateFloatAsState(
-        targetValue = if (isEditing) 1.02f else 1f,
+        targetValue = if (isEditing) WIDGET_EDIT_LIFT_SCALE else 1f,
+        animationSpec = DesignTokens.expressiveDefaultSpatialSpring(),
         label = "widgetEditScale",
     )
 
@@ -535,8 +559,8 @@ private fun BoxScope.WidgetPanelGridItem(
             providerInfo = providerInfo,
             appWidgetManager = appWidgetManager,
             appWidgetHost = appWidgetHost,
-            width = animatedWidth,
-            height = animatedHeight,
+            width = width,
+            height = height,
             columnSpan = columnSpan,
             rowSpan = rowSpan,
             modifier = Modifier.fillMaxSize(),
@@ -563,7 +587,7 @@ private fun BoxScope.WidgetPanelGridItem(
             }
         }
 
-        if (isEditing) {
+        AnimatedWidgetEditOverlay(visible = isEditing) {
             WidgetEditOverlay(
                 column = column,
                 row = row,

@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -138,7 +137,7 @@ internal fun CompactQuickNoteWidget(
         Column(
             modifier =
                 (if (fitContentHeight) Modifier.fillMaxWidth() else Modifier.fillMaxSize())
-                    .padding(DesignTokens.CardHorizontalPadding),
+                    .padding(DesignTokens.SpacingLarge),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
         ) {
             Box(
@@ -165,7 +164,6 @@ internal fun CompactQuickNoteWidget(
                     color = MaterialTheme.colorScheme.onSurface,
                 )
             }
-            HorizontalDivider(color = AppColors.SettingsDivider)
             BasicTextField(
                 value = bodyInput,
                 onValueChange = {
@@ -202,6 +200,8 @@ internal fun CompactQuickNoteWidget(
                         Text(
                             text = stringResource(R.string.notes_body_hint),
                             style = MaterialTheme.typography.bodyLarge,
+                            // Dimmed: the card is darker than a standard surface over the wallpaper,
+                            // so full onSurfaceVariant reads almost as bright as typed text.
                             color =
                                 MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                         )
