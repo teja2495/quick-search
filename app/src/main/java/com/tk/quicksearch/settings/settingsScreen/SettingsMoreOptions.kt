@@ -223,9 +223,18 @@ fun SettingsMoreOptions(
         }
 
         SettingsSegment(index = count - 1, count = count, onClick = onOpenOssLicenses) {
-            SettingsSegmentRow(
-                title = stringResource(R.string.settings_open_source_licenses_title),
-                leading = { SettingsIconBadge(icon = MaterialSymbols.Description) },
+            Text(
+                text = stringResource(R.string.settings_open_source_licenses_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = DesignTokens.SpacingLarge,
+                            vertical = DesignTokens.SpacingLarge,
+                        ),
             )
         }
     }
