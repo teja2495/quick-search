@@ -16,12 +16,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.ColumnScope
+import com.tk.quicksearch.searchEngines.inline.SearchEngineSectionConstants
+import com.tk.quicksearch.search.searchScreen.components.NumberKeyboardOperatorRowTopPadding
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.layout.Column
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import androidx.compose.ui.zIndex
 import com.tk.quicksearch.searchEngines.inline.rememberInsetCardStyle
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.searchEngines.extendToScreenEdges
 import com.tk.quicksearch.searchEngines.inline.AiFollowUpInputSection
+import com.tk.quicksearch.searchEngines.inline.LocalSearchEngineAreaFooter
+import com.tk.quicksearch.search.core.SearchEnginesVisibility
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.reminders.ReminderNaturalLanguageParser
 
@@ -126,20 +137,114 @@ internal fun SearchScreenBottomChrome(
         }
     }
 
+    val quickActionPills: @Composable (androidx.compose.ui.unit.Dp, androidx.compose.ui.unit.Dp) -> Unit = {
+        topPadding,
+        bottomPadding,
+    ->
+        SearchQuickActionPills(
+            query = state.query,
+            keyboardSwitchText = keyboardSwitchText,
+            shouldShowPhoneCallAction = shouldShowPhoneCallAction,
+            detectedAlarmTime = detectedAlarmTime,
+            detectedTimerSeconds = detectedTimerSeconds,
+            detectedReminderSchedule = detectedReminderSchedule,
+            onKeyboardSwitchToggle = onKeyboardSwitchToggle,
+            onQuickActionCompleted = onQuickActionCompleted,
+            topPadding = topPadding,
+            bottomPadding = bottomPadding,
+        )
+    }
+
+    val hasQuickActions =
+            keyboardSwitchText != null ||
+                    shouldShowPhoneCallAction ||
+                    detectedAlarmTime != null ||
+                    detectedTimerSeconds != null ||
+                    detectedReminderSchedule != null
+    // With the bottom search bar the pills go below it; otherwise below the engine area.
+    val pillsBelowBottomSearchBar = showSearchField && showBottomSearchBar
+    // When the engine area (compact card or full-bleed strip) sits directly above the keyboard, it
+    // hosts the pills at its bottom so they share its surface; otherwise they get their own band.
+    val engineAreaHostsPills =
+            (useInsetEngineStrip || !pillsBelowBottomSearchBar) &&
+                    !isSearchHistoryExpanded &&
+                    (isAiFollowUpInputVisible ||
+                            state.searchEnginesState is SearchEnginesVisibility.Compact ||
+                            state.searchEnginesState is SearchEnginesVisibility.Full ||
+                            (state.searchEnginesState is SearchEnginesVisibility.Hidden &&
+                                    activeToolCardConfig != null))
+    val numberOperatorsBelowPills =
+            shouldRenderInlineNumberKeyboardOperators &&
+                    (pillsBelowBottomSearchBar || useInsetEngineStrip || !showBottomSearchBar)
+    // The pills' bottom padding mirrors the space above them. A number operator row directly below
+    // adds its own top padding, so it is taken off here to keep the pills centered.
+    val pillsBottomPadding: (androidx.compose.ui.unit.Dp) -> androidx.compose.ui.unit.Dp = { gapAbove ->
+        if (numberOperatorsBelowPills && !useInsetEngineStrip) {
+            (gapAbove - NumberKeyboardOperatorRowTopPadding).coerceAtLeast(0.dp)
+        } else {
+            gapAbove
+        }
+    }
+    // Hosted pills sit right under the engine row, whose own bottom padding is the gap above them.
+    val hostedQuickActionPills: (@Composable ColumnScope.() -> Unit)? =
+            if (engineAreaHostsPills) {
+                {
+                    quickActionPills(
+                            0.dp,
+                            pillsBottomPadding(SearchEngineSectionConstants.VERTICAL_PADDING),
+                    )
+                }
+            } else {
+                null
+            }
+    val standaloneQuickActionPills: @Composable () -> Unit = {
+        if (!engineAreaHostsPills) {
+            Surface(
+                    modifier =
+                            Modifier.fillMaxWidth()
+                                    .extendToScreenEdges()
+                                    .insetCardBackdrop(true, RectangleShape),
+                    color =
+                            insetCardBackground(
+                                    true,
+                                    AppColors.getSearchEngineSectionBackground(state.showWallpaperBackground),
+                            ),
+                    shape = RectangleShape,
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    // Same hairline the compact engine strip draws along its top edge.
+                    if (hasQuickActions) {
+                        HorizontalDivider(
+                                color =
+                                        if (state.showWallpaperBackground) {
+                                            AppColors.WallpaperDivider
+                                        } else {
+                                            AppColors.Accent.copy(alpha = 0.22f)
+                                        },
+                                thickness = DesignTokens.BorderWidth,
+                        )
+                    }
+                    quickActionPills(
+                            DesignTokens.SpacingMedium,
+                            pillsBottomPadding(DesignTokens.SpacingMedium),
+                    )
+                }
+            }
+        }
+    }
+
     // Surfaces pinned here float over the results, which scroll beneath them and show through blurred.
     CompositionLocalProvider(LocalInsetCardBackdropTargetsEnabled provides true) {
         if (expandedSection == ExpandedSection.NONE) {
-            SearchQuickActionPills(
-                query = state.query,
-                keyboardSwitchText = keyboardSwitchText,
-                shouldShowPhoneCallAction = shouldShowPhoneCallAction,
-                detectedAlarmTime = detectedAlarmTime,
-                detectedTimerSeconds = detectedTimerSeconds,
-                detectedReminderSchedule = detectedReminderSchedule,
-                onKeyboardSwitchToggle = onKeyboardSwitchToggle,
-                onQuickActionCompleted = onQuickActionCompleted,
-            )
-            if (!useInsetEngineStrip) engineArea()
+            if (!useInsetEngineStrip) {
+                CompositionLocalProvider(
+                        LocalSearchEngineAreaFooter provides
+                                hostedQuickActionPills.takeIf { !pillsBelowBottomSearchBar },
+                ) {
+                    engineArea()
+                }
+            }
+            if (!useInsetEngineStrip && !pillsBelowBottomSearchBar) standaloneQuickActionPills()
 
             Box(modifier = Modifier.fillMaxWidth().extendToScreenEdges()) {
                 androidx.compose.animation.AnimatedVisibility(
@@ -178,8 +283,14 @@ internal fun SearchScreenBottomChrome(
             Box(modifier = Modifier.fillMaxWidth().zIndex(1f).then(bottomBarSwipeModifier)) {
                 searchFieldContent()
             }
+            if (!useInsetEngineStrip && expandedSection == ExpandedSection.NONE) {
+                standaloneQuickActionPills()
+            }
             if (useInsetEngineStrip) {
-                engineArea()
+                CompositionLocalProvider(LocalSearchEngineAreaFooter provides hostedQuickActionPills) {
+                    engineArea()
+                }
+                standaloneQuickActionPills()
                 // Keeps the pills below from sitting flush against the card's bottom edge. Without
                 // the pills it collapses as the card goes full bleed so the card meets the keyboard.
                 val showsNumberKeyboardPills =

@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.tools.setAlarm.SetAlarmHandler
@@ -34,6 +35,8 @@ internal fun SearchQuickActionPills(
     onKeyboardSwitchToggle: () -> Unit,
     /** Clears the query once an alarm, timer, or reminder has actually been set. */
     onQuickActionCompleted: () -> Unit,
+    topPadding: Dp = DesignTokens.SpacingMedium,
+    bottomPadding: Dp = DesignTokens.SpacingMedium,
 ) {
     val context = LocalContext.current
     val buttonCount =
@@ -63,8 +66,10 @@ internal fun SearchQuickActionPills(
                         modifier =
                                 Modifier.fillMaxWidth()
                                         .padding(
-                                                horizontal = DesignTokens.ContentHorizontalPadding,
-                                                vertical = DesignTokens.SpacingSmall,
+                                                start = DesignTokens.ContentHorizontalPadding,
+                                                end = DesignTokens.ContentHorizontalPadding,
+                                                top = topPadding,
+                                                bottom = bottomPadding,
                                         ),
                         horizontalArrangement =
                                 Arrangement.spacedBy(DesignTokens.SpacingSmall, Alignment.CenterHorizontally),

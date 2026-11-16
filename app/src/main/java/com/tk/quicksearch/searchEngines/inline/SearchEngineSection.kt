@@ -275,6 +275,7 @@ fun SearchEngineIconsSection(
                         thickness = SearchEngineSectionConstants.COMPACT_TOP_DIVIDER_THICKNESS,
                     )
                     sectionContent()
+                    LocalSearchEngineAreaFooter.current?.invoke(this)
                 }
             }
         }

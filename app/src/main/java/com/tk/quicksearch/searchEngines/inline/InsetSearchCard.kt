@@ -46,6 +46,14 @@ val LocalInsetFullBleedHorizontalExtension =
     staticCompositionLocalOf { InsetSearchBarGeometry.FullBleedHorizontalExtension }
 
 /**
+ * Extra content drawn at the bottom of the engine area (the inset card or the full-bleed engine
+ * strip), below its engine row, tool action, or AI follow-up input, so it shares that surface's
+ * background (the search screen's quick-action pills).
+ */
+val LocalSearchEngineAreaFooter =
+    staticCompositionLocalOf<(@Composable ColumnScope.() -> Unit)?> { null }
+
+/**
  * Geometry shared by the bottom search bar and the card it sits in when compact engines are shown.
  * The bar sits at the top of the card and the engine row (or AI follow-up input) fills the rest
  * below a divider. The card is painted by the content below the bar and reaches up behind it, so the
@@ -259,6 +267,7 @@ internal fun InsetSearchCard(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = InsetCardDividerAlpha),
             )
             content()
+            LocalSearchEngineAreaFooter.current?.invoke(this)
         }
     }
 }

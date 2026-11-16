@@ -165,6 +165,7 @@ internal fun AiFollowUpInputSection(
                     thickness = SearchEngineSectionConstants.COMPACT_TOP_DIVIDER_THICKNESS,
                 )
                 inputContent()
+                LocalSearchEngineAreaFooter.current?.invoke(this)
             }
         }
     }

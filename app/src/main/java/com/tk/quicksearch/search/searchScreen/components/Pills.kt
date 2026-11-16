@@ -60,15 +60,23 @@ import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.ui.theme.LocalDeviceDynamicColorsActive
 
 private val QuickActionIconSize = 16.dp
+
+/** Space above the number keyboard operator row, inside its band. */
+internal val NumberKeyboardOperatorRowTopPadding = 9.dp
 private val QuickActionButtonHeight = 32.dp
 private val QuickActionPressedCorner = 8.dp
 private val QuickActionMinFontSize = 10.sp
 
+/** Container opacity of the search quick actions (50% transparent). */
+private const val QuickActionTranslucentAlpha = 0.5f
+
 /**
- * Material 3 Expressive extra-small filled tonal button for the search screen's quick actions
- * (Number Keyboard, Call, Set Alarm, Start Timer, Reminder, All Apps): 32dp tall on
- * `secondaryContainer`/`onSecondaryContainer`, fully round corners that square to 8dp on press on
- * the expressive fast spatial spring. The label shrinks (down to 10sp) rather than wrapping or
+ * Material 3 Expressive extra-small button for the search screen's quick actions (Number Keyboard,
+ * Call, Set Alarm, Start Timer, Reminder, All Apps): 32dp tall, fully round corners that square to
+ * 8dp on press on the expressive fast spatial spring. Filled tonal
+ * (`secondaryContainer`/`onSecondaryContainer`); the search quick actions draw the container 50%
+ * transparent, while All Apps keeps it opaque. Content padding is symmetric so the icon and
+ * label stay centered in the button. The label shrinks (down to 10sp) rather than wrapping or
  * ellipsizing, so a row of quick actions always fits on one line.
  */
 @Composable
@@ -77,6 +85,7 @@ private fun QuickActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     leadingIcon: (@Composable () -> Unit)? = null,
+    translucent: Boolean = true,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
@@ -91,16 +100,15 @@ private fun QuickActionButton(
         onClick = onClick,
         interactionSource = interactionSource,
         shape = RoundedCornerShape(corner),
-        color = MaterialTheme.colorScheme.secondaryContainer,
+        color =
+            MaterialTheme.colorScheme.secondaryContainer.let { container ->
+                if (translucent) container.copy(alpha = container.alpha * QuickActionTranslucentAlpha) else container
+            },
         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
         tonalElevation = DesignTokens.ElevationLevel0,
     ) {
         Row(
-            modifier =
-                Modifier.padding(
-                    start = if (leadingIcon != null) DesignTokens.SpacingMedium else DesignTokens.SpacingLarge,
-                    end = DesignTokens.SpacingLarge,
-                ),
+            modifier = Modifier.padding(horizontal = DesignTokens.SpacingLarge),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -209,6 +217,7 @@ internal fun AllAppsPill(
             icon = MaterialSymbols.Apps,
             label = stringResource(R.string.settings_app_shortcuts_filter_all_apps),
             onClick = onClick,
+            translucent = false,
         )
     }
 }
@@ -247,11 +256,13 @@ private fun ClockActionPill(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     showIcon: Boolean = true,
+    translucent: Boolean = true,
 ) = QuickActionButton(
     label = label,
     onClick = onClick,
     modifier = modifier,
     leadingIcon = if (showIcon) ({ QuickActionVectorIcon(icon) }) else null,
+    translucent = translucent,
 )
 
 /**
@@ -488,7 +499,7 @@ internal fun NumberKeyboardOperatorPills(
                     .padding(
                         start = DesignTokens.SpacingLarge,
                         end = DesignTokens.SpacingLarge,
-                        top = 9.dp,
+                        top = NumberKeyboardOperatorRowTopPadding,
                         bottom = 7.dp,
                     ),
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
