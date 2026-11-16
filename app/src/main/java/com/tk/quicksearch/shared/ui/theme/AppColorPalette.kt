@@ -23,6 +23,9 @@ internal const val LightWallpaperSearchResultCardAlpha = 0.9f
 /** Result cards, compact engine strip, and search color theme surfaces over wallpaper / custom image in dark mode. */
 internal const val DarkWallpaperSearchSurfaceAlpha = 0.70f
 
+/** Scales the result card scrim when a frosted wallpaper is drawn behind the card. */
+internal const val FrostedResultCardScrimFactor = 0.72f
+
 /** Search bar scrim fill alpha for the dark palette (black). */
 internal const val SearchBarBackgroundAlphaDark = 0.65f
 

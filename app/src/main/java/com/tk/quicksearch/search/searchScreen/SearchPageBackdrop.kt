@@ -86,6 +86,7 @@ internal fun SearchPageBackdrop(
         appTheme = if (useMonoThemeFallback) AppTheme.MONOCHROME else state.appTheme,
         overlayThemeIntensity = state.overlayThemeIntensity,
         amoledThemeEnabled = state.amoledThemeEnabled,
+        publishFrostedCards = true,
         modifier = modifier,
     )
 }

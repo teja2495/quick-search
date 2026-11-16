@@ -312,12 +312,14 @@ internal fun NumberKeyboardOperatorPills(
     isOverlayPresentation: Boolean = false,
     extendToScreenEdges: Boolean = true,
     showWallpaperBackground: Boolean = false,
+    transparentBackground: Boolean = false,
     modifier: Modifier = Modifier,
 ) = com.tk.quicksearch.search.searchScreen.components.NumberKeyboardOperatorPills(
     onOperatorClick = onOperatorClick,
     isOverlayPresentation = isOverlayPresentation,
     extendToScreenEdges = extendToScreenEdges,
     showWallpaperBackground = showWallpaperBackground,
+    transparentBackground = transparentBackground,
     modifier = modifier,
 )
 

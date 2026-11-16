@@ -1,5 +1,6 @@
 package com.tk.quicksearch.overlay
 
+import com.tk.quicksearch.search.searchScreen.setContentWithFrostedCards
 import com.tk.quicksearch.search.apps.appLock.AppLockGate
 import android.content.ComponentCallbacks2
 import android.content.Context
@@ -8,7 +9,6 @@ import android.os.Trace
 import android.view.KeyEvent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.SystemBarStyle
-import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
@@ -182,7 +182,7 @@ class OverlayActivity : FragmentActivity() {
     }
 
     private fun renderOverlayContent() {
-        setContent {
+        setContentWithFrostedCards {
             val uiState by searchViewModel.uiState.collectAsStateWithLifecycle()
             val context = LocalContext.current
             val isSystemDarkTheme = isSystemInDarkTheme()

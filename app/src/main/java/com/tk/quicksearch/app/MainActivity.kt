@@ -1,5 +1,6 @@
 package com.tk.quicksearch.app
 
+import com.tk.quicksearch.search.searchScreen.setContentWithFrostedCards
 import com.tk.quicksearch.search.apps.appLock.AppLockGate
 import android.app.SearchManager
 import android.content.ComponentCallbacks2
@@ -15,7 +16,6 @@ import android.os.Trace
 import android.view.KeyEvent
 import androidx.fragment.app.FragmentActivity
 import androidx.activity.SystemBarStyle
-import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -330,7 +330,7 @@ open class MainActivity : FragmentActivity() {
     }
 
     private fun setupContent() {
-        setContent {
+        setContentWithFrostedCards {
             val rootStateFlow =
                 remember {
                     searchViewModel.uiState.map(MainRootState::from).distinctUntilChanged()

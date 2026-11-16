@@ -42,6 +42,7 @@ internal fun SearchScreenBackground(
     overlayThemeIntensity: Float = UiPreferences.DEFAULT_OVERLAY_THEME_INTENSITY,
     amoledThemeEnabled: Boolean = false,
     wallpaperFixedHeight: Dp? = null,
+    publishFrostedCards: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     // Check if we're in dark mode by checking the background color luminance
@@ -93,6 +94,17 @@ internal fun SearchScreenBackground(
         } else {
             if (hasWallpaperLayer) blurRadius else 0f
         }
+
+    val frostedCardSource = if (publishFrostedCards) LocalFrostedCardSource.current else null
+    if (publishFrostedCards) {
+        PublishFrostedWallpaper(
+            wallpaperBitmap = wallpaperBitmap,
+            enabled = hasWallpaperLayer,
+            wallpaperBlurRadiusDp = blurRadius,
+            tint = AppColors.WallpaperOverlayTint.copy(alpha = wallpaperOverlayAlpha),
+            alpha = wallpaperLayerAlpha,
+        )
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         val fallbackModifier =
@@ -146,6 +158,7 @@ internal fun SearchScreenBackground(
                     contentDescription = null,
                     modifier =
                         wallpaperModifier
+                            .frostedWallpaperAnchor(frostedCardSource)
                             .blur(radius = effectiveBlurRadius.dp)
                             .graphicsLayer(alpha = wallpaperLayerAlpha),
                     contentScale = ContentScale.Crop,

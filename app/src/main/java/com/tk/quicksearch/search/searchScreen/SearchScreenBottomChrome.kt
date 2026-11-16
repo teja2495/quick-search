@@ -233,6 +233,38 @@ internal fun SearchScreenBottomChrome(
         }
     }
 
+    val operatorsVisible = shouldRenderInlineNumberKeyboardOperators
+    // Under the bottom search card the operator row joins the card's own surface, so the card
+    // carries one frosted background down to the keyboard instead of stacking a separate band.
+    val numberOperatorsInInsetCard = useInsetEngineStrip && engineAreaHostsPills
+    val numberKeyboardOperators: @Composable (Boolean, Boolean) -> Unit = { visible, insideCard ->
+        AnimatedVisibility(
+                visible = visible,
+                modifier = Modifier.fillMaxWidth(),
+                enter =
+                        fadeIn(animationSpec = tween(durationMillis = 180)) +
+                                expandVertically(
+                                        expandFrom = Alignment.Bottom,
+                                        animationSpec = tween(durationMillis = 220),
+                                ),
+                exit =
+                        fadeOut(animationSpec = tween(durationMillis = 130)) +
+                                shrinkVertically(
+                                        shrinkTowards = Alignment.Bottom,
+                                        animationSpec = tween(durationMillis = 180),
+                                ),
+        ) {
+            NumberKeyboardOperatorPills(
+                    modifier = if (insideCard) Modifier else Modifier.imePadding(),
+                    isOverlayPresentation = isOverlayPresentation,
+                    extendToScreenEdges = false,
+                    showWallpaperBackground = state.showWallpaperBackground,
+                    transparentBackground = insideCard,
+                    onOperatorClick = { operator -> onQueryChanged(state.query + operator) },
+            )
+        }
+    }
+
     // Surfaces pinned here float over the results, which scroll beneath them and show through blurred.
     CompositionLocalProvider(LocalInsetCardBackdropTargetsEnabled provides true) {
         if (expandedSection == ExpandedSection.NONE) {
@@ -287,49 +319,42 @@ internal fun SearchScreenBottomChrome(
                 standaloneQuickActionPills()
             }
             if (useInsetEngineStrip) {
-                CompositionLocalProvider(LocalSearchEngineAreaFooter provides hostedQuickActionPills) {
+                CompositionLocalProvider(
+                        LocalSearchEngineAreaFooter provides
+                                if (numberOperatorsInInsetCard) {
+                                    {
+                                        hostedQuickActionPills?.invoke(this)
+                                        numberKeyboardOperators(
+                                                operatorsVisible && expandedSection == ExpandedSection.NONE,
+                                                true,
+                                        )
+                                    }
+                                } else {
+                                    hostedQuickActionPills
+                                },
+                ) {
                     engineArea()
                 }
                 standaloneQuickActionPills()
-                // Keeps the pills below from sitting flush against the card's bottom edge. Without
-                // the pills it collapses as the card goes full bleed so the card meets the keyboard.
-                val showsNumberKeyboardPills =
+                // Keeps standalone operator pills below from sitting flush against the card's
+                // bottom edge. Otherwise it collapses as the card goes full bleed so the card (and
+                // any operator row inside it) meets the keyboard.
+                val showsStandaloneNumberKeyboardPills =
                         expandedSection == ExpandedSection.NONE &&
-                                shouldRenderInlineNumberKeyboardOperators
+                                operatorsVisible &&
+                                !numberOperatorsInInsetCard
                 val gapFraction =
-                        if (showsNumberKeyboardPills) 0f else insetEngineStripFullBleedFraction
+                        if (showsStandaloneNumberKeyboardPills) 0f else insetEngineStripFullBleedFraction
                 Spacer(modifier = Modifier.height(DesignTokens.SpacingSmall * (1f - gapFraction)))
             }
 
             Box(modifier = Modifier.fillMaxWidth().extendToScreenEdges()) {
-                androidx.compose.animation.AnimatedVisibility(
-                        visible =
-                                expandedSection == ExpandedSection.NONE &&
-                                        shouldRenderInlineNumberKeyboardOperators,
-                        modifier = Modifier.fillMaxWidth(),
-                        enter =
-                                fadeIn(animationSpec = tween(durationMillis = 180)) +
-                                        expandVertically(
-                                                expandFrom = Alignment.Bottom,
-                                                animationSpec = tween(durationMillis = 220),
-                                        ),
-                        exit =
-                                fadeOut(animationSpec = tween(durationMillis = 130)) +
-                                        shrinkVertically(
-                                                shrinkTowards = Alignment.Bottom,
-                                                animationSpec = tween(durationMillis = 180),
-                                        ),
-                ) {
-                    NumberKeyboardOperatorPills(
-                            modifier = Modifier.imePadding(),
-                            isOverlayPresentation = isOverlayPresentation,
-                            extendToScreenEdges = false,
-                            showWallpaperBackground = state.showWallpaperBackground,
-                            onOperatorClick = { operator ->
-                                onQueryChanged(state.query + operator)
-                            },
-                    )
-                }
+                numberKeyboardOperators(
+                        expandedSection == ExpandedSection.NONE &&
+                                operatorsVisible &&
+                                !numberOperatorsInInsetCard,
+                        false,
+                )
             }
         }
 

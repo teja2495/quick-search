@@ -239,10 +239,11 @@ internal fun Modifier.insetCardBackdropSource(backdrop: InsetCardBackdrop): Modi
 @Composable
 internal fun Modifier.insetCardBackdrop(enabled: Boolean, shape: Shape, anywhere: Boolean = false): Modifier {
     val backdrop = LocalInsetCardBackdrop.current
-    val active =
-        enabled && backdrop != null && backdrop.blurSupported &&
-            (anywhere || LocalInsetCardBackdropTargetsEnabled.current)
-    return if (active) insetCardBackdropTarget(backdrop, shape) else this
+    val eligible = enabled && (anywhere || LocalInsetCardBackdropTargetsEnabled.current)
+    // Frosted wallpaper first, so the blurred results draw over it and the surface color on top.
+    val frosted = if (eligible) frostedCardBackground(shape) else this
+    val active = eligible && backdrop != null && backdrop.blurSupported
+    return if (active) frosted.insetCardBackdropTarget(backdrop, shape) else frosted
 }
 
 /** Surface colour, made translucent while it draws the blurred results behind it. */

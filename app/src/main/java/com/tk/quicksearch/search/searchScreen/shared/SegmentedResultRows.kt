@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.shared
 
+import com.tk.quicksearch.search.searchScreen.frostedCardBackground
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -74,6 +75,7 @@ internal fun ResultSegment(
             modifier
                 .padding(top = if (index > 0) DesignTokens.SegmentedListGap else 0.dp)
                 .fillMaxWidth()
+                .frostedCardBackground(shape)
                 .clip(shape)
                 .background(style.containerColor, shape)
                 .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)

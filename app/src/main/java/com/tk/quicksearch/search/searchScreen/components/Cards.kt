@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
+import com.tk.quicksearch.search.searchScreen.frostedCardBackground
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -36,7 +37,7 @@ internal fun PermissionDisabledCard(
     showWallpaperBackground: Boolean,
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().frostedCardBackground(SearchResultCardDefaults.shape),
         colors =
             SearchResultCardDefaults.colors(
                 showWallpaperBackground = showWallpaperBackground,
@@ -79,7 +80,7 @@ internal fun UsagePermissionCard(
     showWallpaperBackground: Boolean,
 ) {
     Card(
-        modifier = modifier,
+        modifier = modifier.frostedCardBackground(SearchResultCardDefaults.shape),
         colors =
             SearchResultCardDefaults.colors(
                 showWallpaperBackground = showWallpaperBackground,

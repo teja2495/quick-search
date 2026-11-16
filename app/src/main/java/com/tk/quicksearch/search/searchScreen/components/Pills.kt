@@ -467,12 +467,15 @@ internal fun NumberKeyboardOperatorPills(
     isOverlayPresentation: Boolean = false,
     extendToScreenEdges: Boolean = true,
     showWallpaperBackground: Boolean = false,
+    // Drawn inside a host surface (the bottom search card), whose background shows through.
+    transparentBackground: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val operators = remember { listOf("+", "-", "×", "/", "(", ")") }
     val isDarkTheme = LocalAppIsDarkTheme.current
     val containerBackgroundColor =
         when {
+            transparentBackground -> Color.Transparent
             showWallpaperBackground ->
                 if (isDarkTheme) Color.Black else Color.White
             isOverlayPresentation -> MaterialTheme.colorScheme.surface
@@ -499,7 +502,8 @@ internal fun NumberKeyboardOperatorPills(
                     .padding(
                         start = DesignTokens.SpacingLarge,
                         end = DesignTokens.SpacingLarge,
-                        top = NumberKeyboardOperatorRowTopPadding,
+                        // Inside a host card the row above already ends with its own spacing.
+                        top = if (transparentBackground) 0.dp else NumberKeyboardOperatorRowTopPadding,
                         bottom = 7.dp,
                     ),
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),

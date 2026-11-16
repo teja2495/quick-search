@@ -32,10 +32,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.offset
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import com.tk.quicksearch.search.searchScreen.LocalFrostedCardSource
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.search.searchScreen.frostedCardBackground
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.FrostedResultCardScrimFactor
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 
 private const val RESULT_CARD_FADE_DURATION_MS = 140
@@ -94,20 +97,33 @@ object SearchResultCardDefaults {
         showWallpaperBackground: Boolean,
         overlayContainerColor: Color?,
         containerColorOverride: Color? = null,
-    ): CardColors = AppColors.getSearchResultCardColors(
-        showWallpaperBackground = showWallpaperBackground,
-        overlayContainerColor = containerColorOverride ?: overlayContainerColor,
-    )
+    ): CardColors =
+        CardDefaults.cardColors(
+            containerColor =
+                containerColor(
+                    showWallpaperBackground = showWallpaperBackground,
+                    overlayContainerColor = containerColorOverride ?: overlayContainerColor,
+                ),
+        )
 
     /** Resolved container color for result cards, segment tiles and other home/search cards. */
     @Composable
     fun containerColor(
         showWallpaperBackground: Boolean,
         overlayContainerColor: Color? = LocalOverlayResultCardColor.current,
-    ): Color = AppColors.getSearchResultCardContainerColor(
-        showWallpaperBackground = showWallpaperBackground,
-        overlayContainerColor = overlayContainerColor,
-    )
+    ): Color {
+        val base =
+            AppColors.getSearchResultCardContainerColor(
+                showWallpaperBackground = showWallpaperBackground,
+                overlayContainerColor = overlayContainerColor,
+            )
+        // Over a frosted wallpaper ([frostedCardBackground]) the scrim can be lighter and still
+        // keep text readable, so the blur shows through.
+        val frosted =
+            showWallpaperBackground && overlayContainerColor == null &&
+                LocalFrostedCardSource.current?.isActive == true
+        return if (frosted) base.copy(alpha = base.alpha * FrostedResultCardScrimFactor) else base
+    }
 
     /**
      * Hairline color for dividers between result rows, sections and flat (cardless) cards:
@@ -164,7 +180,13 @@ fun SearchResultCard(
             }
         }
     if (cardLayoutEnabled) {
-        Card(modifier = modifier, colors = colors, shape = shape, border = border, content = content)
+        Card(
+            modifier = modifier.frostedCardBackground(shape),
+            colors = colors,
+            shape = shape,
+            border = border,
+            content = content,
+        )
         return
     }
     // A flat card is a plain column spanning the screen width, so nothing on it (animateContentSize,

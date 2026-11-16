@@ -507,6 +507,7 @@ fun OverlayRoot(
                                                 overlayThemeIntensity =
                                                         uiState.overlayThemeIntensity,
                                                 amoledThemeEnabled = uiState.amoledThemeEnabled,
+                                                publishFrostedCards = true,
                                                 // matchParentSize lets the card take its size from the content.
                                                 modifier =
                                                         if (pinnedGlanceOnly) Modifier.matchParentSize() else Modifier.fillMaxSize(),
