@@ -35,6 +35,7 @@ import com.tk.quicksearch.searchEngines.shared.SearchTargetIcon
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
+import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardStyleOverrides
 import com.tk.quicksearch.search.searchScreen.predictedSubmitHighlight
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.util.hapticConfirm
@@ -160,6 +161,7 @@ fun SearchEngineCard(
                     onLongClick = onLongClick,
                 ),
         showWallpaperBackground = showWallpaperBackground,
+        styleOverrides = SearchResultCardStyleOverrides(showBorder = false),
     ) {
         Row(
             modifier =
@@ -239,6 +241,7 @@ private fun SearchTargetCard(
                     onLongClick = onLongClick,
                 ),
         showWallpaperBackground = showWallpaperBackground,
+        styleOverrides = SearchResultCardStyleOverrides(showBorder = false),
     ) {
         Row(
             modifier =
