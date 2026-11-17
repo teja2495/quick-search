@@ -20,6 +20,8 @@ internal class SearchStartupCoordinator(
     private val loadCacheAndMinimalPrefsBlock: suspend () -> Unit,
     private val loadRemainingStartupPreferencesBlock: suspend () -> Unit,
     private val launchDeferredInitializationBlock: () -> Unit,
+    /** Main thread, once the keyboard has settled (or right after phase 1 without one). */
+    private val onKeyboardWindowEndBlock: () -> Unit = {},
 ) {
     private companion object {
         const val KeyboardStartupMaxWaitMs = 350L
@@ -64,6 +66,7 @@ internal class SearchStartupCoordinator(
             AppSearchPerformanceLogger.log {
                 "startupPinned keyboardWaitDone atMs=${SystemClock.elapsedRealtime() - startedAtMs}"
             }
+            onKeyboardWindowEndBlock()
             updateStartupPhase(StartupPhase.PHASE_2_HEAVY_FEATURES)
             Trace.beginSection("QS.Startup.Phase2.HeavyInit")
             try {

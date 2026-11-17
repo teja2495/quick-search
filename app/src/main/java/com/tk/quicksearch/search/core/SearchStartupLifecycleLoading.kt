@@ -10,11 +10,14 @@ import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.apps.AppSearchPerformanceLogger
-import com.tk.quicksearch.search.apps.prefetchAppIcons
+import com.tk.quicksearch.search.apps.AppIconRequest
+import com.tk.quicksearch.search.apps.prefetchAppIconRequests
 import com.tk.quicksearch.searchEngines.getAppPackageCandidates
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.shared.util.PackageConstants
 import com.tk.quicksearch.shared.util.WallpaperUtils
+import com.tk.quicksearch.shared.util.getAppGridColumns
+import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.shared.util.isDefaultHomeApp
 import com.tk.quicksearch.overlay.OverlayModeController
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
@@ -23,6 +26,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,6 +36,7 @@ import com.tk.quicksearch.search.apps.invalidateAppIcon
 import android.os.SystemClock
 
 private const val PACKAGE_REFRESH_DEBOUNCE_MS = 400L
+private const val STARTUP_ICON_PREFETCH_PARALLELISM = 4
 
 internal fun SearchStartupLifecycleDelegate.startPackageChangeMonitoring() {
         repository.startPackageChangeMonitoring { change, isRepeat ->
@@ -88,6 +93,9 @@ internal fun SearchStartupLifecycleDelegate.shouldReconcileAppsAtStartup(): Bool
 
 internal suspend fun SearchStartupLifecycleDelegate.loadCacheAndMinimalPrefs() {
         val startedAtElapsedMs = SystemClock.elapsedRealtime()
+        // Optional speed-up: a failure here must not fail phase 1, which publishes suggestions anyway.
+        val snapshotSuggestions =
+            scope.async(Dispatchers.IO) { runCatching { prepareSnapshotSuggestions() }.getOrNull() }
         val startupConfig = userPreferences.loadStartupConfig()
         setPrefCache(
             SearchPreferenceCache.from(
@@ -160,6 +168,8 @@ internal suspend fun SearchStartupLifecycleDelegate.loadCacheAndMinimalPrefs() {
             if (!cachedAppsList.isNullOrEmpty()) {
                 initializeWithCacheMinimal(cachedAppsList)
                 StartupTrace.mark("QS.Home.CachedAppsAvailable")
+                // Text typed (or shared in) before the catalog loaded was searched against no apps.
+                rerunCurrentQuery()
             }
         }
         markPermissionSnapshotRefreshed()
@@ -172,18 +182,24 @@ internal suspend fun SearchStartupLifecycleDelegate.loadCacheAndMinimalPrefs() {
                 scope.launch(Dispatchers.Default) {
                     warmSearchableAppsSnapshot(cachedAppsList)
                 }
+            // Shown when phase 2 starts: composing the grid while the keyboard slides in (an
+            // animation the app's main thread drives) measurably delayed the keyboard.
+            pendingSnapshotSuggestions = snapshotSuggestions.await()
             if (userPreferences.areAppSuggestionsEnabled()) {
+                // Icons for the fresh order the later usage refresh settles on (mostly cache hits).
                 val visibleApps =
                     selectSuggestedApps(cachedAppsList, getGridItemCount(), hasUsagePermission)
-                val iconPack = userPreferences.getSelectedIconPackPackage()
-                prefetchAppIcons(
+                prefetchAppIconRequests(
                     context = applicationProvider(),
-                    packageNames = visibleApps.map { it.packageName },
-                    iconPackPackage = iconPack,
+                    requests = visibleApps.map { AppIconRequest(it.packageName, it.userHandleId) },
+                    iconPackPackage = userPreferences.getSelectedIconPackPackage(),
                     forceCircularMask = startupSnapshot.appIconShape == AppIconShape.CIRCLE,
+                    parallelism = STARTUP_ICON_PREFETCH_PARALLELISM,
                 )
             }
             searchableAppsWarmupJob.join()
+        } else {
+            snapshotSuggestions.cancel()
         }
         AppSearchPerformanceLogger.logTiming(
             event = "startupCacheAndMinimalPrefsReady",
@@ -193,6 +209,58 @@ internal suspend fun SearchStartupLifecycleDelegate.loadCacheAndMinimalPrefs() {
             "cachedApps=${cachedAppsList?.size ?: 0} usagePermission=$hasUsagePermission"
         }
     }
+
+internal class SnapshotSuggestions(val recents: List<AppInfo>, val pinned: List<AppInfo>)
+
+/**
+ * Last session's suggestions (the startup snapshot), checked for uninstalled apps and with their
+ * icons decoded into memory, or null when the visible tab doesn't show them. Runs alongside the
+ * rest of phase 1 so the grid can be shown, without placeholder icons, as soon as phase 1 is done.
+ */
+private suspend fun SearchStartupLifecycleDelegate.prepareSnapshotSuggestions(): SnapshotSuggestions? {
+    val config = configStateProvider()
+    val showsRecentsTab =
+        config.selectedAppSuggestionTab == AppSuggestionTabType.RECENTS &&
+            AppSuggestionTabType.RECENTS in config.enabledAppSuggestionTabs
+    if (!config.appSuggestionsEnabled || !showsRecentsTab) return null
+    if (resultsStateProvider().appsSectionState is AppsSectionVisibility.ShowingResults) return null
+    val home = startupSnapshotProvider()?.withAvailableStartupApps(applicationProvider())?.homeSurface ?: return null
+    val recents = home.recentApps.takeIf { it.isNotEmpty() } ?: return null
+    val pinnedKeys = userPreferences.getPinnedPackages()
+    val gridItemCount =
+        SearchScreenConstants.ROW_COUNT *
+            getAppGridColumns(applicationProvider(), userPreferences.getPhoneAppGridColumns())
+    prefetchAppIconRequests(
+        context = applicationProvider(),
+        requests = recents.take(gridItemCount).map { AppIconRequest(it.packageName, it.userHandleId) },
+        iconPackPackage = userPreferences.getSelectedIconPackPackage(),
+        forceCircularMask = config.appIconShape == AppIconShape.CIRCLE,
+        parallelism = STARTUP_ICON_PREFETCH_PARALLELISM,
+    )
+    return SnapshotSuggestions(recents, home.pinnedApps.filter { it.launchCountKey() in pinnedKeys })
+}
+
+/**
+ * Shows the prepared snapshot suggestions instead of holding the grid until fresh usage data is in;
+ * the later refresh merges the fresh order in and only reorders when a newer launch changed it.
+ */
+internal fun SearchStartupLifecycleDelegate.publishPendingSnapshotSuggestions() {
+    val suggestions = pendingSnapshotSuggestions ?: return
+    pendingSnapshotSuggestions = null
+    updateResultsState { state ->
+        if (state.query.isNotBlank() || state.appsSectionState is AppsSectionVisibility.ShowingResults) {
+            state
+        } else {
+            state.copy(
+                recentApps = suggestions.recents,
+                pinnedApps = suggestions.pinned,
+                screenState = ScreenVisibilityState.Content,
+                appsSectionState = AppsSectionVisibility.ShowingResults(hasPinned = suggestions.pinned.isNotEmpty()),
+            )
+        }
+    }
+    StartupTrace.mark("QS.Home.SnapshotSuggestionsPublished")
+}
 
 internal suspend fun SearchStartupLifecycleDelegate.loadRemainingStartupPreferences(applyStartupPreferences: (StartupPreferencesFacade.StartupPreferences) -> Unit) {
         val startedAtElapsedMs = SystemClock.elapsedRealtime()

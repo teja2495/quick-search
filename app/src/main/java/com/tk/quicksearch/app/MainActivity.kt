@@ -188,6 +188,12 @@ open class MainActivity : FragmentActivity() {
             isFirstLaunchAtActivityStart =
                 !skipOnboardingForBaselineProfile && BootstrapPreferences.isFirstLaunch(this)
 
+            // Before the window attaches, so the first frame already has the wallpaper behind it.
+            updateSystemWallpaperWindowFlag(
+                canShowSystemWallpaperBackdrop &&
+                    searchViewModel.uiState.value.backgroundSource ==
+                    com.tk.quicksearch.search.core.BackgroundSource.SYSTEM_WALLPAPER,
+            )
             Trace.beginSection(TRACE_SET_CONTENT)
             try {
                 setupContent()
@@ -248,6 +254,7 @@ open class MainActivity : FragmentActivity() {
     override fun onPause() {
         super.onPause()
         LockScreenAccessibilityService.onAppSurfacePaused()
+        com.tk.quicksearch.shared.util.expireDefaultHomeAppStatusReuse()
     }
 
     override fun onStart() {
@@ -272,8 +279,12 @@ open class MainActivity : FragmentActivity() {
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
         // UI_HIDDEN only means the user left the app; keep icons cached so they reappear instantly.
+        // As the Home app, BACKGROUND too: every Home press would otherwise redecode icons and wallpaper.
+        val isHomeInBackground =
+            level == ComponentCallbacks2.TRIM_MEMORY_BACKGROUND && this is HomeActivity && canShowSystemWallpaperBackdrop
         if (level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW &&
-            level != ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN
+            level != ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN &&
+            !isHomeInBackground
         ) {
             UiSurfaceMemoryManager.clearMemoryCaches()
         }

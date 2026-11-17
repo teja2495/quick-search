@@ -55,6 +55,16 @@ internal class SearchQueryCoordinator(
         onQueryChangeInternal(newQuery, clearShortcutWhenBlank = false)
     }
 
+    /**
+     * Searches the current query again once data it needs has loaded (e.g. the startup app catalog),
+     * keeping the alias state its original run resolved. The query and text field are untouched.
+     */
+    fun rerunCurrentQuery() {
+        val query = currentResultsStateProvider().query
+        if (query.isBlank()) return
+        onQueryChangeInternal(query, clearShortcutWhenBlank = false, force = true)
+    }
+
     fun activateSearchSectionFilter(section: SearchSection) {
         setDetectedAliasMode(shortcutTarget = null, section = section, toolMode = null)
         val currentQuery = currentResultsStateProvider().query
@@ -348,12 +358,13 @@ internal class SearchQueryCoordinator(
     private fun onQueryChangeInternal(
         newQuery: String,
         clearShortcutWhenBlank: Boolean,
+        force: Boolean = false,
     ) {
         val previousQuery = currentResultsStateProvider().query
-        if (newQuery == previousQuery) return
+        if (!force && newQuery == previousQuery) return
 
         val trimmedQuery = newQuery.trim()
-        if (trimmedQuery.isNotBlank() && trimmedQuery == previousQuery.trim()) {
+        if (!force && trimmedQuery.isNotBlank() && trimmedQuery == previousQuery.trim()) {
             updateUiState { it.copy(query = newQuery) }
             when (val aliasResolution = resolveAliasQueryResolution(newQuery)) {
                 is AliasQueryResolution.ReprocessQuery -> {
@@ -529,7 +540,8 @@ internal class SearchQueryCoordinator(
             return
         }
 
-        when (val aliasResolution = resolveAliasQueryResolution(newQuery)) {
+        // A forced re-run keeps the alias state its original run resolved (resolution has side effects).
+        when (val aliasResolution = if (force) AliasQueryResolution.None else resolveAliasQueryResolution(newQuery)) {
             is AliasQueryResolution.ReprocessQuery -> {
                 onQueryChangeInternal(
                     aliasResolution.queryWithoutAlias,

@@ -224,7 +224,8 @@ internal class SearchDerivedStateDelegate(
                 recentApps = recents,
                 newOrUpdatedApps = newOrUpdatedApps,
                 mostUsedApps = mostUsedApps,
-                searchResults = searchResults,
+                // The query may have changed while this ran; keep the newer query's own results.
+                searchResults = if (state.query == query) searchResults else state.searchResults,
                 pinnedApps = pinnedAppsForSuggestions,
                 suggestionExcludedApps = suggestionHiddenAppList,
                 resultExcludedApps = resultHiddenAppList,
@@ -242,6 +243,7 @@ internal class SearchDerivedStateDelegate(
             pinnedApps = pinnedAppsForSuggestions,
             recents = recents,
             searchResults = searchResults,
+            forceCircularMask = configStateProvider().appIconShape == AppIconShape.CIRCLE,
         )
 
         val totalElapsedMs = SystemClock.elapsedRealtime() - startedAtElapsedMs
@@ -381,6 +383,11 @@ internal class SearchDerivedStateDelegate(
                     .take(suggestionLimit)
 
             if (!allowDuringQuery && results.query.isNotBlank()) {
+                return@launch
+            }
+            // Until startup publishes suggestions the app lists are still empty; saving now would
+            // wipe the cached Home the next launch draws first. Later saves cover these changes.
+            if (results.screenState is ScreenVisibilityState.Initializing) {
                 return@launch
             }
 

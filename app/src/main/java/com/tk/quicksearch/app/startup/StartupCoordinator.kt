@@ -2,6 +2,8 @@ package com.tk.quicksearch.app.startup
 
 import android.app.Activity
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.os.Trace
 import android.view.Window
 import android.view.ViewTreeObserver
@@ -61,7 +63,9 @@ class StartupCoordinator(
 
                     Trace.beginSection(TRACE_FIRST_DRAW)
                     Trace.endSection()
-                    decorView.post {
+                    // Front of the queue: run right after this frame instead of behind every frame
+                    // the first composition's effects schedule next (measured 100-250 ms later).
+                    Handler(Looper.getMainLooper()).postAtFrontOfQueue {
                         if (decorView.viewTreeObserver.isAlive) {
                             decorView.viewTreeObserver.removeOnDrawListener(this)
                         }

@@ -166,11 +166,15 @@ internal class SearchStartupLifecycleDelegate(
     internal val loadPinnedAndExcludedCalendarEvents: () -> Unit,
     internal val setDirectDialEnabled: (Boolean, Boolean) -> Unit,
     internal val isQueryActive: () -> Boolean,
+    internal val rerunCurrentQuery: () -> Unit,
+    internal val startupSnapshotProvider: () -> com.tk.quicksearch.search.startup.StartupSurfaceSnapshot?,
 ) {
     internal var optionalStartupJob: Job? = null
     internal var packageRefreshJob: Job? = null
     internal var appUsageRefreshJob: Job? = null
     internal var resumeCalendarRefreshJob: Job? = null
+    private var resumePermissionJob: Job? = null
+    internal var pendingSnapshotSuggestions: SnapshotSuggestions? = null
     internal val pinningHandler get() = handlersProvider().pinningHandler
     internal val searchEngineManager get() = handlersProvider().searchEngineManager
     internal val secondarySearchOrchestrator get() = handlersProvider().secondarySearchOrchestrator
@@ -215,33 +219,11 @@ internal class SearchStartupLifecycleDelegate(
     }
 
     fun handleOnResume() {
-        disableOverlayModeForDefaultLauncher()
         val startupComplete = stateAccess.isStartupComplete
-
-        val shouldRefreshLaunchPermissions = shouldRefreshPermissionSnapshot()
-        var optionalPermissionsChanged = false
-        if (shouldRefreshLaunchPermissions) {
-            val previousUsage = permissionStateProvider().hasUsagePermission
-            val latestUsage = repository.hasUsageAccess()
-            val usageChanged = previousUsage != latestUsage
-            if (usageChanged) {
-                updatePermissionState { it.copy(hasUsagePermission = latestUsage) }
-                if (startupComplete) {
-                    if (latestUsage) refreshApps() else refreshAppSuggestions()
-                }
-            }
-
-            optionalPermissionsChanged = run {
-                val before = permissionStateProvider()
-                handleOptionalPermissionChangeInternal(allowAppRefresh = startupComplete)
-                permissionStateProvider() != before
-            }
-            markPermissionSnapshotRefreshed()
-        }
-
-        if (startupComplete && optionalPermissionsChanged) {
-            pinningHandler.loadPinnedContactsAndFiles()
-            pinningHandler.loadExcludedContactsAndFiles()
+        // Role, app-op and permission checks are binder calls: run them off the main thread (as the
+        // launch-time snapshot does) so returning to the search surface draws its frame at once.
+        if (resumePermissionJob?.isActive != true) {
+            resumePermissionJob = scope.launch(Dispatchers.Default) { refreshPermissionsOnResume(startupComplete) }
         }
 
         if (startupComplete && PinnedShortcutRequests.consumeRefreshNeeded()) {
@@ -274,6 +256,27 @@ internal class SearchStartupLifecycleDelegate(
                 searchEngineManager.ensureInitialized()
                 searchEngineManager.refreshBrowserTargets()
             }
+        }
+    }
+
+    private suspend fun refreshPermissionsOnResume(startupComplete: Boolean) {
+        disableOverlayModeForDefaultLauncher()
+        if (!shouldRefreshPermissionSnapshot()) return
+        val previousUsage = permissionStateProvider().hasUsagePermission
+        val latestUsage = repository.hasUsageAccess()
+        if (previousUsage != latestUsage) {
+            updatePermissionState { it.copy(hasUsagePermission = latestUsage) }
+            if (startupComplete) {
+                if (latestUsage) refreshApps() else refreshAppSuggestions()
+            }
+        }
+        val before = permissionStateProvider()
+        handleOptionalPermissionChangeInternal(allowAppRefresh = startupComplete)
+        val optionalPermissionsChanged = permissionStateProvider() != before
+        markPermissionSnapshotRefreshed()
+        if (startupComplete && optionalPermissionsChanged) {
+            pinningHandler.loadPinnedContactsAndFiles()
+            pinningHandler.loadExcludedContactsAndFiles()
         }
     }
 
@@ -323,14 +326,16 @@ internal class SearchStartupLifecycleDelegate(
         saveStartupSurfaceSnapshotAsync(true, false)
     }
 
-    private fun disableOverlayModeForDefaultLauncher() {
+    private suspend fun disableOverlayModeForDefaultLauncher() {
         if (!applicationProvider().isDefaultHomeApp() || !userPreferences.isOverlayModeEnabled()) {
             return
         }
 
-        userPreferences.setOverlayModeEnabled(false)
-        updateUiState { it.copy(overlayModeEnabled = false) }
-        OverlayModeController.stopOverlay(applicationProvider())
+        withContext(Dispatchers.Main) {
+            userPreferences.setOverlayModeEnabled(false)
+            updateUiState { it.copy(overlayModeEnabled = false) }
+            OverlayModeController.stopOverlay(applicationProvider())
+        }
     }
 
     fun refreshOptionalPermissions(

@@ -136,6 +136,7 @@ class OverlayActivity : FragmentActivity() {
     override fun onPause() {
         super.onPause()
         LockScreenAccessibilityService.onAppSurfacePaused()
+        com.tk.quicksearch.shared.util.expireDefaultHomeAppStatusReuse()
     }
 
     override fun onStart() {

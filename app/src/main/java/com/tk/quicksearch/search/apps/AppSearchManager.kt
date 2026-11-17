@@ -66,6 +66,8 @@ class AppSearchManager(
 
     fun initCache(initialApps: List<AppInfo>) {
         cachedApps = initialApps
+        // A query typed before the catalog loaded matched nothing; that miss says nothing about it.
+        noMatchPrefix = null
         preparedAppSearchData = emptyMap()
         scope.launch(Dispatchers.Default) {
             rebuildPreparedAppSearchData(initialApps)

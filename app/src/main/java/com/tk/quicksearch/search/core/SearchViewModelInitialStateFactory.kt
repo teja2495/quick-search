@@ -12,6 +12,8 @@ import com.tk.quicksearch.search.startup.StartupSurfaceSnapshot
 import com.tk.quicksearch.search.startup.StartupSurfaceStore
 import com.tk.quicksearch.search.utils.PermissionUtils
 import com.tk.quicksearch.searchEngines.getId
+import com.tk.quicksearch.shared.util.StartupBackgroundPreview
+import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.isLowRamDevice
 import com.tk.quicksearch.app.startup.StartupTrace
 
@@ -32,37 +34,30 @@ internal object SearchViewModelInitialStateFactory {
         inMemoryRetainedQuery: String,
     ): SearchViewModelInitialState {
         val instantStartupSurfaceEnabled = startupPreferencesReader.isInstantStartupSurfaceEnabled()
+        // Not yet checked for uninstalled apps: that costs a PackageManager call per app, so only
+        // apps drawn in the first frame are checked here; phase 1 checks the rest off the main thread.
+        val rawStartupSnapshot =
+            if (instantStartupSurfaceEnabled) startupSurfaceStore.loadSnapshot() else null
+        val clearQueryOnLaunch = startupPreferencesReader.isClearQueryOnLaunchEnabled()
+        val initialQuery = if (clearQueryOnLaunch) "" else inMemoryRetainedQuery
+        val pinnedAppKeys = startupPreferencesReader.getPinnedPackages()
+        val selectedAppSuggestionTab = startupPreferencesReader.getSelectedAppSuggestionTab()
+        val enabledAppSuggestionTabs = startupPreferencesReader.getEnabledAppSuggestionTabs()
+        val appFolders = startupPreferencesReader.getAppFolders()
+        // Pinned apps don't depend on usage metadata, so when the Pinned tab is the one on screen
+        // it shows straight from the snapshot instead of waiting for startup to publish recents.
+        // Folders need the full app catalog to resolve, so a grid with folders waits for it.
+        val canShowCachedPinnedTab =
+            initialQuery.isBlank() &&
+                rawStartupSnapshot?.homeSurface?.pinnedApps.orEmpty().any { it.launchCountKey() in pinnedAppKeys } &&
+                appFolders.isEmpty() &&
+                selectedAppSuggestionTab == AppSuggestionTabType.PINNED &&
+                AppSuggestionTabType.PINNED in enabledAppSuggestionTabs
         val startupSnapshot =
-            if (instantStartupSurfaceEnabled) {
-                startupSurfaceStore.loadSnapshot()?.let { snapshot ->
-                    val cachedHome = snapshot.homeSurface
-                    val availableStartupApps =
-                        filterAvailableStartupApps(
-                            context = appContext,
-                            apps =
-                                (snapshot.suggestedApps + cachedHome.pinnedApps + cachedHome.recentApps)
-                                    .distinctBy { it.launchCountKey() },
-                        )
-                    val availableAppKeys =
-                        availableStartupApps.mapTo(mutableSetOf()) { it.launchCountKey() }
-                    snapshot.copy(
-                        suggestedApps =
-                            snapshot.suggestedApps.filter { it.launchCountKey() in availableAppKeys },
-                        homeSurface =
-                            cachedHome.copy(
-                                pinnedApps =
-                                    cachedHome.pinnedApps.filter {
-                                        it.launchCountKey() in availableAppKeys
-                                    },
-                                recentApps =
-                                    cachedHome.recentApps.filter {
-                                        it.launchCountKey() in availableAppKeys
-                                    },
-                            ),
-                    )
-                }
+            if (canShowCachedPinnedTab) {
+                rawStartupSnapshot?.withAvailableStartupApps(appContext)
             } else {
-                null
+                rawStartupSnapshot
             }
         if (startupSnapshot != null) {
             StartupTrace.mark("QS.Home.StartupSnapshotAvailable")
@@ -90,13 +85,23 @@ internal object SearchViewModelInitialStateFactory {
                         startupSnapshot.customImageUri == initialCustomImageUri) &&
                     !snapshotPath.isNullOrBlank()
             }
+        // Decode the preview off the main thread while the activity is still being created, so the
+        // first composition can draw it instead of a solid color.
+        val needsStartupPreview =
+            when (initialBackgroundSource) {
+                BackgroundSource.CUSTOM_IMAGE ->
+                    WallpaperUtils.getCachedOverlayCustomImageBitmap(initialCustomImageUri) == null
+                BackgroundSource.SYSTEM_WALLPAPER ->
+                    WallpaperUtils.getCachedWallpaperBitmap(Int.MAX_VALUE) == null &&
+                        WallpaperUtils.hasWallpaperAccessPermission(appContext)
+                BackgroundSource.THEME -> false
+            }
+        if (needsStartupPreview) StartupBackgroundPreview.prefetch(initialPreviewPath)
 
-        val clearQueryOnLaunch = startupPreferencesReader.isClearQueryOnLaunchEnabled()
         val hasContactPermission = PermissionUtils.hasContactsPermission(appContext)
         val hasFilePermission = PermissionUtils.hasFileAccessPermission(appContext)
         val hasCalendarPermission = PermissionUtils.hasCalendarPermission(appContext)
         val cachedHome = startupSnapshot?.homeSurface
-        val pinnedAppKeys = startupPreferencesReader.getPinnedPackages()
         val pinnedContactIds = startupPreferencesReader.getPinnedContactIds()
         val pinnedFileUris = startupPreferencesReader.getPinnedFileUris()
         val pinnedSettingIds = startupPreferencesReader.getPinnedSettingIds()
@@ -141,21 +146,15 @@ internal object SearchViewModelInitialStateFactory {
                 }
             } == true
 
-        val initialQuery = if (clearQueryOnLaunch) "" else inMemoryRetainedQuery
+        // Snapshot apps reach the state only once checked for uninstalls: here for the Pinned tab drawn
+        // in the first frame, otherwise in phase 1 (publishSnapshotSuggestions).
         val cachedPinnedApps =
-            cachedHome?.pinnedApps.orEmpty().filter { it.launchCountKey() in pinnedAppKeys }
-        val selectedAppSuggestionTab = startupPreferencesReader.getSelectedAppSuggestionTab()
-        val enabledAppSuggestionTabs = startupPreferencesReader.getEnabledAppSuggestionTabs()
-        val appFolders = startupPreferencesReader.getAppFolders()
-        // Pinned apps don't depend on usage metadata, so when the Pinned tab is the one on screen
-        // it shows straight from the snapshot instead of waiting for startup to publish recents.
-        // Folders need the full app catalog to resolve, so a grid with folders waits for it.
-        val showCachedPinnedTab =
-            initialQuery.isBlank() &&
-                cachedPinnedApps.isNotEmpty() &&
-                appFolders.isEmpty() &&
-                selectedAppSuggestionTab == AppSuggestionTabType.PINNED &&
-                AppSuggestionTabType.PINNED in enabledAppSuggestionTabs
+            if (canShowCachedPinnedTab) {
+                cachedHome?.pinnedApps.orEmpty().filter { it.launchCountKey() in pinnedAppKeys }
+            } else {
+                emptyList()
+            }
+        val showCachedPinnedTab = canShowCachedPinnedTab && cachedPinnedApps.isNotEmpty()
         AppSearchPerformanceLogger.log {
             "startupPinned initialState showCachedPinnedTab=$showCachedPinnedTab " +
                 "snapshot=${startupSnapshot != null} pinned=${cachedPinnedApps.size} " +
@@ -165,7 +164,7 @@ internal object SearchViewModelInitialStateFactory {
         val initialResultsState =
             SearchResultsState(
                 query = initialQuery,
-                recentApps = cachedHome?.recentApps.orEmpty(),
+                recentApps = if (canShowCachedPinnedTab) cachedHome?.recentApps.orEmpty() else emptyList(),
                 pinnedApps = cachedPinnedApps,
                 screenState =
                     if (showCachedPinnedTab) {
@@ -354,5 +353,22 @@ internal object SearchViewModelInitialStateFactory {
             configState = initialConfigState,
         )
     }
+}
 
+/** Drops snapshot apps that were uninstalled or disabled since it was saved (PackageManager calls). */
+internal fun StartupSurfaceSnapshot.withAvailableStartupApps(context: Context): StartupSurfaceSnapshot {
+    val cachedHome = homeSurface
+    val availableAppKeys =
+        filterAvailableStartupApps(
+            context = context,
+            apps = (suggestedApps + cachedHome.pinnedApps + cachedHome.recentApps).distinctBy { it.launchCountKey() },
+        ).mapTo(mutableSetOf()) { it.launchCountKey() }
+    return copy(
+        suggestedApps = suggestedApps.filter { it.launchCountKey() in availableAppKeys },
+        homeSurface =
+            cachedHome.copy(
+                pinnedApps = cachedHome.pinnedApps.filter { it.launchCountKey() in availableAppKeys },
+                recentApps = cachedHome.recentApps.filter { it.launchCountKey() in availableAppKeys },
+            ),
+    )
 }

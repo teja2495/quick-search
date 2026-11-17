@@ -161,6 +161,8 @@ internal class SearchStaticDataDelegate(
         // keep the newer results in that case.
         val updateResults =
             snapshot.updateResults && snapshot.query == resultsStateProvider().query
+        // A query typed before the shortcuts loaded missed them; let later keystrokes search them.
+        secondarySearchOrchestrator.forgetNoResults(SearchSection.APP_SHORTCUTS)
         updateUiState { state ->
             state.copy(
                 allAppShortcuts = snapshot.all,

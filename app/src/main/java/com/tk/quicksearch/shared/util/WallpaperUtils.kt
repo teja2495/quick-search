@@ -228,6 +228,7 @@ object WallpaperUtils {
         cachedOverlayCustomDivisor = 1
         cachedOverlayCustomAppearanceUri = null
         cachedOverlayCustomAppearance = null
+        StartupBackgroundPreview.release()
     }
 
     /**
@@ -414,15 +415,10 @@ object WallpaperUtils {
         }
     }
 
+    /** Shares the decode [StartupBackgroundPreview] may already have started during activity creation. */
     suspend fun loadStartupBackgroundPreviewBitmap(
         previewPath: String?,
-    ): Bitmap? =
-        withContext(Dispatchers.IO) {
-            val normalized = previewPath?.trim()?.takeIf { it.isNotEmpty() } ?: return@withContext null
-            val file = File(normalized)
-            if (!file.exists() || !file.isFile) return@withContext null
-            runCatching { BitmapFactory.decodeFile(file.absolutePath) }.getOrNull()
-        }
+    ): Bitmap? = StartupBackgroundPreview.load(previewPath)
 
     suspend fun saveStartupBackgroundPreview(
         context: Context,
@@ -468,6 +464,8 @@ object WallpaperUtils {
             if (preview != sourceBitmap) {
                 preview.recycle()
             }
+            // The file at this path changed; a previously decoded preview is now stale.
+            StartupBackgroundPreview.release()
 
             if (writeSucceeded) file.absolutePath else null
         }

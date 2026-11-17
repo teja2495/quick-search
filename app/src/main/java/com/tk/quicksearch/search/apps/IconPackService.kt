@@ -136,22 +136,22 @@ class IconPackService(
         pinnedApps: List<com.tk.quicksearch.search.models.AppInfo>,
         recents: List<com.tk.quicksearch.search.models.AppInfo>,
         searchResults: List<com.tk.quicksearch.search.models.AppInfo>,
+        forceCircularMask: Boolean,
     ) {
         val iconPack = selectedIconPackPackage ?: return
-        val packageNames =
-            buildList {
-                addAll(pinnedApps.map { it.packageName })
-                addAll(recents.map { it.packageName })
-                addAll(searchResults.take(10).map { it.packageName }) // 10 is default GRID_ITEM_COUNT
-            }
-        if (packageNames.isEmpty()) return
+        // Same cache-key inputs as the grid's rememberAppIcon (shape, work profile), or nothing hits.
+        val requests =
+            (pinnedApps + recents + searchResults.take(10)) // 10 is default GRID_ITEM_COUNT
+                .map { AppIconRequest(it.packageName, it.userHandleId) }
+        if (requests.isEmpty()) return
 
         scope.launch(Dispatchers.IO) {
-            prefetchAppIcons(
+            prefetchAppIconRequests(
                 context = application,
-                packageNames = packageNames,
+                requests = requests,
                 iconPackPackage = iconPack,
                 maxCount = 30,
+                forceCircularMask = forceCircularMask,
             )
         }
     }

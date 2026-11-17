@@ -36,6 +36,7 @@ internal fun SharedPageBackdrop(
         useImageBackground = wallpaperState.usesWallpaperBackground,
         useSystemWallpaperBackdrop = wallpaperState.usesSystemWallpaperBackdrop,
         useMonoThemeFallback = wallpaperState.usesMonoThemeFallback,
+        systemWallpaperUnderBitmap = wallpaperState.systemWallpaperUnderBitmap,
         modifier = modifier,
     )
 }
@@ -47,6 +48,7 @@ internal fun SearchPageBackdrop(
     useImageBackground: Boolean,
     useSystemWallpaperBackdrop: Boolean,
     useMonoThemeFallback: Boolean,
+    systemWallpaperUnderBitmap: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     if (useSystemWallpaperBackdrop) {
@@ -76,7 +78,10 @@ internal fun SearchPageBackdrop(
                 AppMotion.DurationMedium + 120
             },
         fallbackBackgroundAlpha =
-            if (!state.deviceThemeEnabled && effectiveBackgroundSource == BackgroundSource.THEME) {
+            if (systemWallpaperUnderBitmap) {
+                // The window's system wallpaper is the fallback; no solid color under the blurred bitmap.
+                0f
+            } else if (!state.deviceThemeEnabled && effectiveBackgroundSource == BackgroundSource.THEME) {
                 ThemeModeFallbackBackgroundAlpha
             } else {
                 1f

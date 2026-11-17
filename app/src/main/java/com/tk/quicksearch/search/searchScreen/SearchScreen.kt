@@ -432,6 +432,7 @@ fun SearchScreen(
                 useImageBackground = stateResult.useImageBackground,
                 useSystemWallpaperBackdrop = stateResult.useSystemWallpaperBackdrop,
                 useMonoThemeFallback = stateResult.useMonoThemeFallback,
+                systemWallpaperUnderBitmap = stateResult.systemWallpaperUnderBitmap,
             )
         }
 

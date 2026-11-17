@@ -114,8 +114,9 @@ class SecondarySearchOrchestrator(
 
     fun performSecondarySearches(query: String) {
         if (!isOnMainThread()) {
+            // A background refresh captured the query earlier; search what is typed now instead.
             scope.launch(mainDispatcher) {
-                performSecondarySearchesInternal(query)
+                currentStateProvider().query.takeIf { it.isNotBlank() }?.let(::performSecondarySearchesInternal)
             }
             return
         }
@@ -516,6 +517,11 @@ class SecondarySearchOrchestrator(
                     }
                 }
             }
+    }
+
+    /** Forgets [section]'s earlier misses once its data has loaded or changed. */
+    fun forgetNoResults(section: SearchSection) {
+        if (isOnMainThread()) clearNoResultTracking(section) else scope.launch(mainDispatcher) { clearNoResultTracking(section) }
     }
 
     fun resetNoResultTracking() {
