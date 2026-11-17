@@ -211,6 +211,16 @@ internal fun HomeWidgetStack(
         if (!showWidgets) editingWidgetId = null
     }
 
+    // While a query hides the widgets, their updates wait; the views stay kept for when they return.
+    DisposableEffect(host, showWidgets) {
+        host.setSuspended(!showWidgets)
+        onDispose { }
+    }
+
+    LaunchedEffect(host, widgets) {
+        host.retainViews(widgets.mapTo(HashSet()) { it.appWidgetId })
+    }
+
     // Home scrolls under the widgets: a touch that stops a fling, or one the scroll takes over,
     // must not turn into a long-press edit.
     val currentIsScrollInProgress by rememberUpdatedState(isScrollInProgress)

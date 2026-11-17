@@ -3,6 +3,7 @@ package com.tk.quicksearch.widgetsPanel
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetHostView
+import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
 import android.graphics.Outline
@@ -11,6 +12,7 @@ import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
+import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.widget.RemoteViews
 import androidx.lifecycle.Lifecycle
@@ -18,7 +20,10 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.CrashLogManager
 import com.tk.quicksearch.shared.util.MemoryDiagnostics
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.abs
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 private const val WIDGET_EDIT_LONG_PRESS_CONFIRMATION_MS = 100L
 
@@ -55,6 +60,74 @@ internal class WidgetPanelHost(
 
     private val liveViews = mutableSetOf<WidgetPanelHostView>()
 
+    /** The latest view made for each widget, kept while detached so showing it again reuses it. */
+    private val viewsById = mutableMapOf<Int, WidgetPanelHostView>()
+
+    private val appWidgetManager = AppWidgetManager.getInstance(context.applicationContext)
+
+    /** Provider info by widget id; refreshed by the provider-change callbacks below. */
+    private val providerInfoCache = ConcurrentHashMap<Int, AppWidgetProviderInfo>()
+
+    private var isLifecycleStarted = false
+    private var isSuspended = false
+
+    /**
+     * The provider of [appWidgetId], or null when the id is no longer bound. Answers repeat lookups
+     * from memory; the first one is a call into the system, so prefer [preloadProviderInfo] off the
+     * main thread where a surface can wait for it.
+     */
+    fun providerInfo(appWidgetId: Int): AppWidgetProviderInfo? =
+        providerInfoCache[appWidgetId]
+            ?: appWidgetManager.getAppWidgetInfo(appWidgetId)?.also { providerInfoCache[appWidgetId] = it }
+
+    /** Looks up [appWidgetIds] on a background thread; returns the ids that are still bound. */
+    suspend fun preloadProviderInfo(appWidgetIds: Collection<Int>): Set<Int> =
+        withContext(Dispatchers.IO) {
+            appWidgetIds.filterTo(HashSet()) { providerInfo(it) != null }
+        }
+
+    /**
+     * Returns the host view for [appWidgetId]. A view this host made earlier that is no longer on
+     * screen (Home hides its widgets while a query is typed) is reused as is, instead of fetching
+     * and inflating the provider's views again.
+     */
+    fun obtainView(
+        context: Context,
+        appWidgetId: Int,
+        info: AppWidgetProviderInfo,
+    ): AppWidgetHostView {
+        val cached = viewsById[appWidgetId]
+        if (
+            cached != null &&
+            !cached.isAttachedToWindow &&
+            cached.context === context &&
+            cached.appWidgetInfo?.provider == info.provider
+        ) {
+            (cached.parent as? ViewGroup)?.removeView(cached)
+            if (liveViews.add(cached)) MemoryDiagnostics.widgetViewCreated()
+            return cached
+        }
+        return createView(context, appWidgetId, info)
+    }
+
+    /** Drops kept views of widgets that are no longer shown by this surface. */
+    fun retainViews(appWidgetIds: Set<Int>) {
+        val iterator = viewsById.entries.iterator()
+        while (iterator.hasNext()) {
+            val (appWidgetId, view) = iterator.next()
+            if (appWidgetId !in appWidgetIds && !view.isAttachedToWindow) {
+                view.releaseCallbacks()
+                iterator.remove()
+            }
+        }
+    }
+
+    override fun deleteAppWidgetId(appWidgetId: Int) {
+        super.deleteAppWidgetId(appWidgetId)
+        providerInfoCache.remove(appWidgetId)
+        viewsById.remove(appWidgetId)?.let { view -> if (!view.isAttachedToWindow) view.releaseCallbacks() }
+    }
+
     override fun onCreateView(
         context: Context,
         appWidgetId: Int,
@@ -72,6 +145,7 @@ internal class WidgetPanelHost(
                 if (liveViews.remove(view)) MemoryDiagnostics.widgetViewsReleased(1)
             }
             liveViews.add(view)
+            viewsById[appWidgetId] = view
             MemoryDiagnostics.widgetViewCreated()
         }
 
@@ -79,10 +153,12 @@ internal class WidgetPanelHost(
         appWidgetId: Int,
         appWidget: AppWidgetProviderInfo,
     ) {
+        providerInfoCache[appWidgetId] = appWidget
         super.onProviderChanged(appWidgetId, appWidget)
     }
 
     override fun onProvidersChanged() {
+        providerInfoCache.clear()
         super.onProvidersChanged()
     }
 
@@ -117,13 +193,33 @@ internal class WidgetPanelHost(
         val observer =
             LifecycleEventObserver { _, event ->
                 when (event) {
-                    Lifecycle.Event.ON_START -> startListeningShared()
-                    Lifecycle.Event.ON_STOP -> pauseListening()
+                    Lifecycle.Event.ON_START -> {
+                        isLifecycleStarted = true
+                        applyListening()
+                    }
+                    Lifecycle.Event.ON_STOP -> {
+                        isLifecycleStarted = false
+                        applyListening()
+                    }
                     else -> Unit
                 }
             }
         lifecycle.addObserver(observer)
         return { lifecycle.removeObserver(observer) }
+    }
+
+    /**
+     * Stops applying widget updates while [suspended], such as while Home hides its widgets for a
+     * query. Like a stopped surface, the system sends the missed updates when listening resumes.
+     */
+    fun setSuspended(suspended: Boolean) {
+        if (isSuspended == suspended) return
+        isSuspended = suspended
+        applyListening()
+    }
+
+    private fun applyListening() {
+        if (isLifecycleStarted && !isSuspended) startListeningShared() else pauseListening()
     }
 
     /** Stops this host's updates, handing them back to the previous surface if it was the listener. */
@@ -142,6 +238,10 @@ internal class WidgetPanelHost(
         val releasedViewCount = liveViews.size
         liveViews.toList().forEach { it.releaseCallbacks() }
         liveViews.clear()
+        viewsById.values.forEach { it.releaseCallbacks() }
+        viewsById.clear()
+        providerInfoCache.clear()
+        isLifecycleStarted = false
         onWidgetLongPress = null
         onWidgetDragMove = null
         onWidgetDragEnd = null

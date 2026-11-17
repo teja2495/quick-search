@@ -225,8 +225,11 @@ fun WidgetsPanelScreen(
         HomePinnedWidgetsStore.publish(next)
     }
 
-    fun discardInvalidRestoredWidgets() {
-        val validWidgets = widgets.filter { appWidgetManager.getAppWidgetInfo(it.appWidgetId) != null }
+    // Looks the providers up off the main thread; the grid then reads them from the host's cache.
+    suspend fun discardInvalidRestoredWidgets() {
+        val checkedIds = widgets.mapTo(HashSet()) { it.appWidgetId }
+        val invalidIds = checkedIds - appWidgetHost.preloadProviderInfo(checkedIds)
+        val validWidgets = widgets.filterNot { it.appWidgetId in invalidIds }
         if (validWidgets != widgets) {
             persistWidgets(validWidgets)
         }

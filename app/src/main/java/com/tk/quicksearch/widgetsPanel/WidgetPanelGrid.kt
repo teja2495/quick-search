@@ -170,7 +170,7 @@ internal fun WidgetPanelGrid(
         val gridUnitHeightPx = with(density) { (rowHeight + gap).toPx() }
 
         val specs =
-            remember(widgets, appWidgetManager, cellWidth) {
+            remember(widgets, appWidgetHost, cellWidth) {
                 widgets.associate { widget ->
                     widget.appWidgetId to
                         if (widget.isQuickNoteWidget()) {
@@ -179,7 +179,7 @@ internal fun WidgetPanelGrid(
                                 minRowSpan = 1,
                             )
                         } else {
-                            val info = appWidgetManager.getAppWidgetInfo(widget.appWidgetId)
+                            val info = appWidgetHost.providerInfo(widget.appWidgetId)
                             val minWidthDp =
                                 (info?.minResizeWidth?.takeIf { it > 0 } ?: info?.minWidth ?: 0)
                                     .let { with(density) { it.toDp().value } }
@@ -478,8 +478,8 @@ private fun BoxScope.WidgetPanelGridItem(
         return
     }
 
-    val providerInfo = remember(widget.appWidgetId, appWidgetManager) {
-        appWidgetManager.getAppWidgetInfo(widget.appWidgetId)
+    val providerInfo = remember(widget.appWidgetId, appWidgetHost) {
+        appWidgetHost.providerInfo(widget.appWidgetId)
     }
     if (providerInfo == null) return
 

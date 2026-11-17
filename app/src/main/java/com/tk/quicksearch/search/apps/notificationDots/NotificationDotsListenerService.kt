@@ -19,7 +19,6 @@ import com.tk.quicksearch.search.notificationHistory.NotificationHistoryAccess
 import com.tk.quicksearch.search.notificationHistory.NotificationHistoryStore
 import com.tk.quicksearch.widgets.atAGlanceWidget.AtAGlanceWidgetUpdater
 import com.tk.quicksearch.widgets.utils.refreshAllWidgets
-import com.tk.quicksearch.widgets.utils.refreshAtAGlanceWidgets
 import com.tk.quicksearch.widgets.utils.refreshMediaControlsWidgets
 import java.util.concurrent.Executors
 import kotlinx.coroutines.CoroutineScope
@@ -215,6 +214,7 @@ class NotificationDotsListenerService : NotificationListenerService() {
                     // shows and which are too costly to redraw for every second.
                     private var lastWidgetState: Triple<Int, Long, List<String>>? = null
                     private var settleRefresh: Job? = null
+                    private var metadataRefresh: Job? = null
 
                     override fun onPlaybackStateChanged(state: PlaybackState?) {
                         // Compare the delivered state, not a re-read of controller.playbackState:
@@ -244,11 +244,16 @@ class NotificationDotsListenerService : NotificationListenerService() {
 
                     // Only the media controls and At a Glance widgets show the track, so a new
                     // title or artwork does not need to redraw the search widgets.
+                    // Players often report several metadata changes for one track change (title,
+                    // then artwork), so a burst redraws once.
                     override fun onMetadataChanged(metadata: MediaMetadata?) {
-                        widgetRefreshScope.launch {
-                            refreshMediaControlsWidgets(this@NotificationDotsListenerService)
-                        }
-                        refreshGlanceWidgets()
+                        metadataRefresh?.cancel()
+                        metadataRefresh =
+                            widgetRefreshScope.launch {
+                                delay(METADATA_REFRESH_COALESCE_MS)
+                                refreshMediaControlsWidgets(this@NotificationDotsListenerService)
+                                AtAGlanceWidgetUpdater.refreshNow(this@NotificationDotsListenerService)
+                            }
                     }
 
                     override fun onSessionDestroyed() {
@@ -262,10 +267,13 @@ class NotificationDotsListenerService : NotificationListenerService() {
         refreshGlanceWidgets()
     }
 
-    /** Redraws At a Glance widgets for their Now Playing row. */
+    /**
+     * Redraws At a Glance widgets for their Now Playing row. Goes through the updater so a widget
+     * already showing the current state is not drawn again, and draws never overlap.
+     */
     private fun refreshGlanceWidgets() {
         widgetRefreshScope.launch {
-            refreshAtAGlanceWidgets(this@NotificationDotsListenerService)
+            AtAGlanceWidgetUpdater.refreshNow(this@NotificationDotsListenerService)
         }
     }
 
@@ -277,6 +285,7 @@ class NotificationDotsListenerService : NotificationListenerService() {
 
     companion object {
         private const val PLAYBACK_SETTLE_REFRESH_DELAY_MS = 750L
+        private const val METADATA_REFRESH_COALESCE_MS = 150L
 
         @Volatile
         private var connected: NotificationDotsListenerService? = null

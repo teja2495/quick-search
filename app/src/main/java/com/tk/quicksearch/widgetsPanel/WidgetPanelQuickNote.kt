@@ -43,8 +43,12 @@ import com.tk.quicksearch.search.searchScreen.frostedCardBackground
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.max
 
@@ -52,6 +56,14 @@ private const val QUICK_NOTE_SAVE_DELAY_MS = 450L
 private const val QUICK_NOTE_MINIMUM_CONTAINER_ALPHA = 0.78f
 private val QuickNoteHeight = 164.dp
 private val QuickNoteFocusedHeight = 280.dp
+
+// One queue for every Quick Note read and write, so a card reopened right after another closed
+// reads the text that closing save wrote.
+@OptIn(ExperimentalCoroutinesApi::class)
+private val quickNoteIoDispatcher = Dispatchers.IO.limitedParallelism(1)
+
+// Saves made as the card leaves composition outlive it, and stay off the main thread.
+private val quickNoteSaveScope = CoroutineScope(SupervisorJob() + quickNoteIoDispatcher)
 
 @Composable
 internal fun CompactQuickNoteWidget(
@@ -85,7 +97,7 @@ internal fun CompactQuickNoteWidget(
         }
 
     LaunchedEffect(Unit) {
-        val note = withContext(Dispatchers.IO) { repository.getOrCreateQuickNote() }
+        val note = withContext(quickNoteIoDispatcher) { repository.getOrCreateQuickNote() }
         quickNoteId = note.noteId
         bodyInput =
             TextFieldValue(
@@ -104,7 +116,7 @@ internal fun CompactQuickNoteWidget(
         val baseline = baselineBody ?: return@LaunchedEffect
         if (id <= 0L || bodyInput.text == baseline) return@LaunchedEffect
         delay(QUICK_NOTE_SAVE_DELAY_MS)
-        withContext(Dispatchers.IO) {
+        withContext(quickNoteIoDispatcher) {
             repository.updateNote(
                 noteId = id,
                 title = context.getString(R.string.notes_quick_note_title),
@@ -120,12 +132,12 @@ internal fun CompactQuickNoteWidget(
         onDispose {
             val id = quickNoteId
             val baseline = currentBaseline
-            if (id > 0L && baseline != null && currentBody != baseline) {
-                repository.updateNote(
-                    noteId = id,
-                    title = context.getString(R.string.notes_quick_note_title),
-                    markdownContent = currentBody,
-                )
+            val body = currentBody
+            if (id > 0L && baseline != null && body != baseline) {
+                val title = context.getString(R.string.notes_quick_note_title)
+                quickNoteSaveScope.launch {
+                    runCatching { repository.updateNote(noteId = id, title = title, markdownContent = body) }
+                }
             }
         }
     }

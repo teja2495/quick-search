@@ -369,8 +369,9 @@ internal fun HostedWidget(
     Box(modifier = modifier.clipToBounds()) {
         AndroidView(
             factory = { ctx ->
-                // createView already binds the id/provider and loads the system's cached RemoteViews.
-                appWidgetHost.createView(ctx, appWidgetId, providerInfo).apply {
+                // createView already binds the id/provider and loads the system's cached RemoteViews;
+                // a view kept from an earlier showing is reused instead.
+                appWidgetHost.obtainView(ctx, appWidgetId, providerInfo).apply {
                     layoutParams = ViewGroup.LayoutParams(widthPx, heightPx)
                 }
             },

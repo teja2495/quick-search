@@ -2,7 +2,6 @@ package com.tk.quicksearch.widgetsPanel
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
-import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.view.ViewGroup
@@ -52,8 +51,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -79,6 +81,7 @@ private fun widgetPickerTileColor() = MaterialTheme.colorScheme.surfaceContainer
 private const val WIDGET_PREVIEW_FALLBACK_SIZE_PX = 96
 private const val MAX_WIDGET_PREVIEW_DIMENSION_PX = 1024
 private const val MAX_WIDGET_PREVIEW_PIXELS = 1_048_576
+private val WidgetPickerIconSize = 56.dp
 private val WIDGET_PANEL_GRID_ROW_HEIGHT_DP = 80f
 private val WIDGET_PANEL_GRID_GAP_DP = 8f
 
@@ -86,11 +89,23 @@ private data class WidgetPickerApp(
     val packageName: String,
     val profileId: Int,
     val appLabel: String,
-    val icon: Drawable?,
-    val widgets: List<AppWidgetProviderInfo>,
+    val icon: ImageBitmap?,
+    val widgets: List<WidgetPickerProvider>,
 ) {
     val key: String = "$packageName:$profileId"
 }
+
+/** A provider with its label, resolved once while the list loads rather than on every draw. */
+private data class WidgetPickerProvider(
+    val info: AppWidgetProviderInfo,
+    val label: String,
+)
+
+/** A row's preview, loaded and scaled to the row off the main thread. */
+private data class WidgetPickerPreview(
+    val image: ImageBitmap?,
+    val icon: ImageBitmap?,
+)
 
 @Composable
 internal fun WidgetPickerSheet(
@@ -102,10 +117,11 @@ internal fun WidgetPickerSheet(
 ) {
     val context = LocalContext.current
     val packageManager = context.packageManager
+    val appIconSizePx = with(LocalDensity.current) { DesignTokens.Spacing40.roundToPx() }
     var query by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue("")) }
     val apps by produceState<List<WidgetPickerApp>?>(initialValue = null, appWidgetManager, packageManager) {
         value =
-            withContext(Dispatchers.Default) {
+            withContext(Dispatchers.IO) {
                 appWidgetManager.installedProviders
                     .groupBy { it.provider.packageName to UserHandleUtils.getIdentifier(it.profile) }
                     .map { (appKey, providers) ->
@@ -129,11 +145,20 @@ internal fun WidgetPickerSheet(
                                     ?.let { icon ->
                                         runCatching { packageManager.getUserBadgedIcon(icon, profile) }
                                             .getOrDefault(icon)
-                                    },
+                                    }
+                                    // Kept as a bitmap at its drawn size, not the full drawable.
+                                    ?.let { icon -> rasterize(icon, appIconSizePx, appIconSizePx) },
                             widgets =
-                                providers.sortedBy {
-                                    it.loadLabel(packageManager).orEmpty().lowercase()
-                                },
+                                providers
+                                    .map { provider ->
+                                        WidgetPickerProvider(
+                                            info = provider,
+                                            label =
+                                                runCatching { provider.loadLabel(packageManager) }
+                                                    .getOrNull()
+                                                    .orEmpty(),
+                                        )
+                                    }.sortedBy { it.label.lowercase() },
                         )
                     }
                     .sortedBy { it.appLabel.lowercase() }
@@ -176,7 +201,6 @@ internal fun WidgetPickerSheet(
                         onToggleExpanded = {
                             expandedApps = if (app.key in expandedApps) expandedApps - app.key else expandedApps + app.key
                         },
-                        packageManager = packageManager,
                         onSelectWidget = onSelectWidget,
                     )
                 }
@@ -227,7 +251,6 @@ private fun WidgetPickerAppGroup(
     app: WidgetPickerApp,
     isExpanded: Boolean,
     onToggleExpanded: () -> Unit,
-    packageManager: PackageManager,
     onSelectWidget: (AppWidgetProviderInfo) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -247,8 +270,8 @@ private fun WidgetPickerAppGroup(
                 title = app.appLabel,
                 description = stringResource(R.string.widgets_picker_widget_count, app.widgets.size),
                 leading = {
-                    DrawableImage(
-                        drawable = app.icon,
+                    BitmapImage(
+                        bitmap = app.icon,
                         contentDescription = null,
                         modifier = Modifier.size(DesignTokens.Spacing40).clip(CircleShape),
                     )
@@ -273,10 +296,10 @@ private fun WidgetPickerAppGroup(
                     SegmentedTile(
                         index = index + 1,
                         count = app.widgets.size + 1,
-                        onClick = { onSelectWidget(provider) },
+                        onClick = { onSelectWidget(provider.info) },
                         containerColor = widgetPickerTileColor(),
                     ) {
-                        WidgetPickerRow(provider, packageManager, onClick = { onSelectWidget(provider) })
+                        WidgetPickerRow(provider, onClick = { onSelectWidget(provider.info) })
                     }
                 }
             }
@@ -286,27 +309,44 @@ private fun WidgetPickerAppGroup(
 
 @Composable
 private fun WidgetPickerRow(
-    provider: AppWidgetProviderInfo,
-    packageManager: PackageManager,
+    pickerProvider: WidgetPickerProvider,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val provider = pickerProvider.info
     val context = LocalContext.current
     val density = LocalDensity.current
     val densityDpi = context.resources.displayMetrics.densityDpi
-    val previewImage = remember(provider) {
-        runCatching { provider.loadPreviewImage(context, densityDpi) }.getOrNull()
-            ?: runCatching { provider.loadPreviewImage(context, android.util.DisplayMetrics.DENSITY_DEVICE_STABLE) }
-                .getOrNull()
-            ?: runCatching { provider.loadPreviewImage(context, android.util.DisplayMetrics.DENSITY_DEFAULT) }
-                .getOrNull()
+    // Previews are decoded and scaled to the stage off the main thread; the stage keeps its fixed
+    // height while one loads, so rows do not shift.
+    val stageWidthPx = with(density) { LocalConfiguration.current.screenWidthDp.dp.roundToPx() }
+    val stageHeightPx = with(density) { WidgetPickerStageHeight.roundToPx() }
+    val iconSizePx = with(density) { WidgetPickerIconSize.roundToPx() }
+    val preview by produceState<WidgetPickerPreview?>(null, provider, stageWidthPx, stageHeightPx) {
+        value =
+            withContext(Dispatchers.IO) {
+                val previewImage =
+                    runCatching { provider.loadPreviewImage(context, densityDpi) }.getOrNull()
+                        ?: runCatching {
+                            provider.loadPreviewImage(context, android.util.DisplayMetrics.DENSITY_DEVICE_STABLE)
+                        }.getOrNull()
+                        ?: runCatching {
+                            provider.loadPreviewImage(context, android.util.DisplayMetrics.DENSITY_DEFAULT)
+                        }.getOrNull()
+                WidgetPickerPreview(
+                    image = previewImage?.let { rasterize(it, stageWidthPx, stageHeightPx) },
+                    icon =
+                        runCatching { provider.loadIcon(context, densityDpi) }
+                            .getOrNull()
+                            ?.let { rasterize(it, iconSizePx, iconSizePx) },
+                )
+            }
     }
     val previewLayoutRes = remember(provider) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) provider.previewLayout else 0
     }
-    val widgetIcon = remember(provider) {
-        runCatching { provider.loadIcon(context, densityDpi) }.getOrNull()
-    }
+    val previewImage = preview?.image
+    val widgetIcon = preview?.icon
     val minWidth = with(density) { provider.minWidth.toDp() }
     val minHeight = with(density) { provider.minHeight.toDp() }
     val initialGridSize =
@@ -337,9 +377,10 @@ private fun WidgetPickerRow(
             contentAlignment = Alignment.Center,
         ) {
             when {
+                preview == null -> Unit
                 previewImage != null -> {
-                    DrawableImage(
-                        drawable = previewImage,
+                    BitmapImage(
+                        bitmap = previewImage,
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize().padding(DesignTokens.SpacingLarge),
                     )
@@ -353,10 +394,10 @@ private fun WidgetPickerRow(
                     )
                 }
                 widgetIcon != null -> {
-                    DrawableImage(
-                        drawable = widgetIcon,
+                    BitmapImage(
+                        bitmap = widgetIcon,
                         contentDescription = null,
-                        modifier = Modifier.size(56.dp),
+                        modifier = Modifier.size(WidgetPickerIconSize),
                     )
                 }
                 else -> {
@@ -382,7 +423,7 @@ private fun WidgetPickerRow(
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
             ) {
                 Text(
-                    text = provider.loadLabel(packageManager).orEmpty(),
+                    text = pickerProvider.label,
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,
@@ -409,7 +450,7 @@ private fun WidgetPickerRow(
 private fun WidgetRemoteViewsPreview(
     packageName: String,
     layoutRes: Int,
-    fallbackIcon: Drawable?,
+    fallbackIcon: ImageBitmap?,
     modifier: Modifier = Modifier,
 ) {
     AndroidView(
@@ -438,7 +479,7 @@ private fun WidgetRemoteViewsPreview(
             } else if (fallbackIcon != null) {
                 val iconView =
                     ImageView(ctx).apply {
-                        setImageDrawable(fallbackIcon)
+                        setImageBitmap(fallbackIcon.asAndroidBitmap())
                         scaleType = ImageView.ScaleType.FIT_CENTER
                     }
                 container.addView(
@@ -455,53 +496,50 @@ private fun WidgetRemoteViewsPreview(
 }
 
 @Composable
-private fun DrawableImage(
-    drawable: Drawable?,
+private fun BitmapImage(
+    bitmap: ImageBitmap?,
     contentDescription: String?,
     modifier: Modifier = Modifier,
 ) {
-    if (drawable == null) {
-        Box(
-            modifier = modifier.background(MaterialTheme.colorScheme.surfaceVariant),
-        )
-        return
-    }
-    val bitmap =
-        remember(drawable) {
-            val sourceWidth =
-                drawable.intrinsicWidth
-                    .takeIf { it > 0 }
-                    ?: WIDGET_PREVIEW_FALLBACK_SIZE_PX
-            val sourceHeight =
-                drawable.intrinsicHeight
-                    .takeIf { it > 0 }
-                    ?: WIDGET_PREVIEW_FALLBACK_SIZE_PX
-            val scale =
-                minOf(
-                    1f,
-                    MAX_WIDGET_PREVIEW_DIMENSION_PX.toFloat() / sourceWidth,
-                    MAX_WIDGET_PREVIEW_DIMENSION_PX.toFloat() / sourceHeight,
-                    kotlin.math.sqrt(
-                        MAX_WIDGET_PREVIEW_PIXELS.toFloat() /
-                            (sourceWidth.toFloat() * sourceHeight.toFloat()),
-                    ).coerceAtMost(1f),
-                )
-            val width = (sourceWidth * scale).toInt().coerceAtLeast(1)
-            val height = (sourceHeight * scale).toInt().coerceAtLeast(1)
-            runCatching {
-                drawable.toBitmap(width = width, height = height).asImageBitmap()
-            }.getOrNull()
-        }
     if (bitmap == null) {
         Box(
             modifier = modifier.background(MaterialTheme.colorScheme.surfaceVariant),
         )
     } else {
+        val painter = remember(bitmap) { BitmapPainter(bitmap) }
         Image(
-            painter = BitmapPainter(bitmap),
+            painter = painter,
             contentDescription = contentDescription,
             modifier = modifier,
             contentScale = ContentScale.Fit,
         )
     }
+}
+
+/**
+ * Draws [drawable] into a bitmap no larger than it is shown ([maxWidthPx] by [maxHeightPx]), and
+ * never past the overall preview limits, so the picker holds pixels it draws rather than full-size
+ * previews. Returns null if the drawable cannot be drawn.
+ */
+private fun rasterize(
+    drawable: Drawable,
+    maxWidthPx: Int,
+    maxHeightPx: Int,
+): ImageBitmap? {
+    val sourceWidth = drawable.intrinsicWidth.takeIf { it > 0 } ?: WIDGET_PREVIEW_FALLBACK_SIZE_PX
+    val sourceHeight = drawable.intrinsicHeight.takeIf { it > 0 } ?: WIDGET_PREVIEW_FALLBACK_SIZE_PX
+    val maxWidth = maxWidthPx.coerceIn(1, MAX_WIDGET_PREVIEW_DIMENSION_PX).toFloat()
+    val maxHeight = maxHeightPx.coerceIn(1, MAX_WIDGET_PREVIEW_DIMENSION_PX).toFloat()
+    val scale =
+        minOf(
+            1f,
+            maxWidth / sourceWidth,
+            maxHeight / sourceHeight,
+            kotlin.math.sqrt(
+                MAX_WIDGET_PREVIEW_PIXELS.toFloat() / (sourceWidth.toFloat() * sourceHeight.toFloat()),
+            ).coerceAtMost(1f),
+        )
+    val width = (sourceWidth * scale).toInt().coerceAtLeast(1)
+    val height = (sourceHeight * scale).toInt().coerceAtLeast(1)
+    return runCatching { drawable.toBitmap(width = width, height = height).asImageBitmap() }.getOrNull()
 }

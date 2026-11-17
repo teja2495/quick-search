@@ -355,8 +355,8 @@ internal fun HomePinnedWidgetItem(
     val context = LocalContext.current
     val home = widget.home ?: return
     val providerInfo =
-        remember(widget.appWidgetId, appWidgetManager) {
-            appWidgetManager.getAppWidgetInfo(widget.appWidgetId)
+        remember(widget.appWidgetId, appWidgetHost) {
+            appWidgetHost.providerInfo(widget.appWidgetId)
         } ?: return
     val configureIntent =
         remember(providerInfo, widget.appWidgetId) {

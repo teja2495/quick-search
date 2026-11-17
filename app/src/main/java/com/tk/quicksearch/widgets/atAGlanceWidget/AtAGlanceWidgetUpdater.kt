@@ -84,6 +84,14 @@ internal object AtAGlanceWidgetUpdater {
         }
     }
 
+    /**
+     * Redraws right away, without the debounce, only the placed widgets whose content changed, and
+     * one draw at a time. For sources that must show without delay, such as a Play/Pause change.
+     */
+    suspend fun refreshNow(context: Context) {
+        refreshMutex.withLock { refreshChanged(context.applicationContext) }
+    }
+
     /** Starts watching and redraws, for callers that change what the rows show while no widget is drawing. */
     fun startIfPlaced(context: Context) {
         val appContext = context.applicationContext
