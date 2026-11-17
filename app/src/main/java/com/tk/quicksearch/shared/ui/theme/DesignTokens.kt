@@ -344,8 +344,8 @@ object DesignTokens {
     /** Corner radius for permission cards in onboarding */
     val OnboardingPermissionCardCornerRadius = SpacingXLarge
 
-    /** Height of the onboarding permission-card viewport before its remaining rows scroll */
-    val OnboardingPermissionCardViewportHeight = 600.dp
+    /** Max height of the onboarding permission list: four rows plus a faded half-row peek that signals scrolling */
+    val OnboardingPermissionCardViewportHeight = 480.dp
 
     /** Backdrop blur radius used by full-screen onboarding dialogs */
     val OnboardingDialogBlurRadius = SpacingXLarge

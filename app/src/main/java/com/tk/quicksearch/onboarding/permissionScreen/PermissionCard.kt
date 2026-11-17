@@ -33,6 +33,7 @@ import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
+import com.tk.quicksearch.widgetsPanel.widgetPanelEdgeFade
 
 data class PermissionCardItem(
     val title: String,
@@ -58,10 +59,13 @@ fun PermissionCard(
     showItemIcons: Boolean = true,
 ) {
     cardContainer(modifier) {
+        val scrollState = rememberScrollState()
         Column(
             modifier =
                 if (internalScrollEnabled) {
-                    Modifier.verticalScroll(rememberScrollState())
+                    Modifier
+                        .widgetPanelEdgeFade(scrollState)
+                        .verticalScroll(scrollState)
                 } else {
                     Modifier
                 },

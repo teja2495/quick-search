@@ -93,12 +93,12 @@ fun PermissionsScreen(
                     .padding(top = DesignTokens.SpacingSmall),
         )
 
-        Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
+        Spacer(modifier = Modifier.height(DesignTokens.SpacingXXLarge))
 
         Column(
             modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Top,
         ) {
             PermissionsCardSection(
                 texts =
@@ -145,7 +145,7 @@ fun PermissionsScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(DesignTokens.OnboardingCompactSpacing))
+        Spacer(modifier = Modifier.height(DesignTokens.SpacingXXLarge))
 
         OnboardingBottomActionButton(
             text =
