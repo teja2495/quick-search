@@ -7,9 +7,6 @@ import android.os.Environment
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,6 +36,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.tk.quicksearch.onboarding.FinalSetupScreen
+import com.tk.quicksearch.onboarding.LocalWelcomeBackdropReport
+import com.tk.quicksearch.onboarding.LocalWelcomeMorph
+import com.tk.quicksearch.onboarding.WelcomeMorphBackdrop
+import com.tk.quicksearch.onboarding.WelcomeMorphOverlay
+import com.tk.quicksearch.onboarding.WelcomeMorphState
+import com.tk.quicksearch.onboarding.LocalWelcomeExit
 import com.tk.quicksearch.onboarding.ImportSettingsScreen
 import com.tk.quicksearch.onboarding.SearchEngineSetupScreen
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionsScreen
@@ -113,6 +116,7 @@ fun MainContent(
         )
     }
     val coroutineScope = rememberCoroutineScope()
+    val welcomeMorph = remember { WelcomeMorphState() }
     var foundQuicksearchFiles by remember { mutableStateOf<List<File>>(emptyList()) }
     val initialDestination = navigationRequest?.destination ?: RootDestination.Search
     val initialSettingsDetailType = navigationRequest?.settingsDetailType
@@ -160,53 +164,24 @@ fun MainContent(
                     ),
                 ),
     ) {
+    // Under every page, so the search wallpaper can fade in behind the setup content.
+    WelcomeMorphBackdrop(
+        state = welcomeMorph,
+        backdrop = {
+            val searchUiState by searchViewModel.uiState.collectAsStateWithLifecycle()
+            SharedPageBackdrop(state = searchUiState)
+        },
+    )
+    CompositionLocalProvider(
+        LocalWelcomeMorph provides welcomeMorph,
+        LocalWelcomeBackdropReport provides welcomeMorph.hostBackdropReport,
+    ) {
     AnimatedContent(
         targetState = currentScreen,
-        transitionSpec = {
-            val screenOrder =
-                listOf(
-                    AppScreen.Permissions,
-                    AppScreen.ImportSettings,
-                    AppScreen.SearchEngineSetup,
-                    AppScreen.FinalSetup,
-                    AppScreen.Main,
-                )
-            val fromIndex = screenOrder.indexOf(initialState)
-            val toIndex = screenOrder.indexOf(targetState)
-            val isForward = toIndex > fromIndex
-
-            if (isForward) {
-                // Forward: slide in from right, slide out to left
-                slideInHorizontally(
-                    animationSpec =
-                        androidx.compose.animation.core
-                            .tween(NAVIGATION_ANIMATION_DURATION_MS),
-                    initialOffsetX = { it },
-                ) togetherWith
-                    slideOutHorizontally(
-                        animationSpec =
-                            androidx.compose.animation.core
-                                .tween(NAVIGATION_ANIMATION_DURATION_MS),
-                        targetOffsetX = { -it },
-                    )
-            } else {
-                // Backward: slide in from left, slide out to right
-                slideInHorizontally(
-                    animationSpec =
-                        androidx.compose.animation.core
-                            .tween(NAVIGATION_ANIMATION_DURATION_MS),
-                    initialOffsetX = { -it },
-                ) togetherWith
-                    slideOutHorizontally(
-                        animationSpec =
-                            androidx.compose.animation.core
-                                .tween(NAVIGATION_ANIMATION_DURATION_MS),
-                        targetOffsetX = { it },
-                    )
-            }
-        },
+        transitionSpec = { appScreenTransform(welcomeMorph) },
         label = "ScreenTransition",
     ) { targetScreen ->
+        CompositionLocalProvider(LocalWelcomeExit provides welcomeMorph.takeIf { targetScreen != AppScreen.Main }) {
         when (targetScreen) {
             AppScreen.Permissions -> {
                 QuickSearchTheme(
@@ -427,7 +402,14 @@ fun MainContent(
                 )
             }
         }
+        }
     }
+    }
+    WelcomeMorphOverlay(
+        state = welcomeMorph,
+        onSearchScreen = currentScreen == AppScreen.Main,
+        onFinished = searchViewModel::onSearchBarWelcomeAnimationCompleted,
+    )
     }
 }
 

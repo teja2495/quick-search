@@ -2,6 +2,8 @@ package com.tk.quicksearch.search.searchScreen.components
 
 import com.tk.quicksearch.search.searchScreen.insetCardBackdrop
 import com.tk.quicksearch.search.searchScreen.insetCardBackground
+import com.tk.quicksearch.onboarding.LocalWelcomeMorph
+import com.tk.quicksearch.onboarding.welcomeMorphTarget
 import com.tk.quicksearch.searchEngines.inline.insetCardGlow
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
@@ -418,19 +420,20 @@ internal fun PersistentSearchBar(
     }
 
     // Welcome animation: the gradient scans across the border once, ending on its white tail,
-    // then the glow fades out while the resting border fades in.
+    // then the glow fades out while the resting border fades in. The first-run morph replaces it.
+    val playBorderSweep = showWelcomeAnimation && LocalWelcomeMorph.current?.isActive != true
     val animationProgress = remember { Animatable(0f) }
 
     val glowAlpha = remember { Animatable(0f) }
     val borderAlpha =
         remember {
             Animatable(
-                if (showWelcomeAnimation) 0f else 1f,
+                if (playBorderSweep) 0f else 1f,
             )
         }
 
-    LaunchedEffect(showWelcomeAnimation, query.isEmpty()) {
-        if (showWelcomeAnimation) {
+    LaunchedEffect(playBorderSweep, query.isEmpty()) {
+        if (playBorderSweep) {
             glowAlpha.snapTo(1f)
             borderAlpha.snapTo(0f)
             animationProgress.snapTo(0f)
@@ -476,6 +479,7 @@ internal fun PersistentSearchBar(
         modifier =
             modifier
                 .fillMaxWidth()
+                .welcomeMorphTarget(cornerRadius, searchBarBackground)
                 .then(if (transparentBackground) Modifier else Modifier.insetCardGlow(restingBorderColor, barShape))
                 .graphicsLayer {
                     // The inset strip already paints the card behind a transparent bar, so an
@@ -522,15 +526,13 @@ internal fun PersistentSearchBar(
                         // Wide, faint strokes behind the border fake a blurred glow.
                         drawRoundRect(
                             brush = brush,
-                            cornerRadius =
-                                CornerRadius(cornerRadiusVal),
+                            cornerRadius = CornerRadius(cornerRadiusVal),
                             style = Stroke(width = strokeWidth * 4f), // Wide spill
                             alpha = alpha * 0.3f, // Low opacity
                         )
                         drawRoundRect(
                             brush = brush,
-                            cornerRadius =
-                                CornerRadius(cornerRadiusVal),
+                            cornerRadius = CornerRadius(cornerRadiusVal),
                             style =
                                 Stroke(
                                     width = strokeWidth * 2f,
@@ -541,8 +543,7 @@ internal fun PersistentSearchBar(
                         // 2. Draw "Core" sharp line
                         drawRoundRect(
                             brush = brush,
-                            cornerRadius =
-                                CornerRadius(cornerRadiusVal),
+                            cornerRadius = CornerRadius(cornerRadiusVal),
                             style = Stroke(width = strokeWidth),
                             alpha = alpha,
                         )

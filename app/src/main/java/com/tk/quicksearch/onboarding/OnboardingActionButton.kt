@@ -14,8 +14,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import com.tk.quicksearch.settings.shared.SettingsFloatingActionHeight
@@ -26,7 +34,7 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 /**
  * Material 3 Expressive medium (56dp) button for onboarding actions: fully round at rest, squaring
  * its corners while pressed, with a `titleMedium` label. Filled with the accent, or outlined for
- * secondary actions such as Skip.
+ * secondary actions such as Skip and for the glowing button that finishes setup.
  */
 @Composable
 fun OnboardingActionButton(
@@ -36,12 +44,38 @@ fun OnboardingActionButton(
     icon: ImageVector? = null,
     outlined: Boolean = false,
     enabled: Boolean = true,
+    finishesSetup: Boolean = false,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
+    var windowBounds by remember { mutableStateOf<Rect?>(null) }
+    // The finishing tap turns this button into the search bar; see WelcomeMorph.
+    val welcomeMorph = LocalWelcomeMorph.current.takeIf { finishesSetup }
+    val isOutlined = outlined || finishesSetup
+    val labelStyle = MaterialTheme.typography.titleMedium
+    val containerColor = if (isOutlined) Color.Transparent else AppColors.Accent
+    val contentColor = if (isOutlined) MaterialTheme.colorScheme.onSurfaceVariant else AppColors.OnAccent
+    val handleClick = {
+        val bounds = windowBounds
+        if (welcomeMorph != null && bounds != null) {
+            welcomeMorph.start(bounds, text, containerColor, contentColor, labelStyle, onClick)
+        } else {
+            onClick()
+        }
+    }
     val buttonModifier =
         modifier
             .fillMaxWidth()
             .height(SettingsFloatingActionHeight)
+            .then(
+                if (welcomeMorph == null) {
+                    Modifier
+                } else {
+                    Modifier
+                        .onGloballyPositioned { windowBounds = it.boundsInWindow() }
+                        .graphicsLayer { alpha = if (welcomeMorph.isActive) 0f else 1f }
+                        .welcomeGlow()
+                },
+            )
     val shape = settingsFloatingActionShape(interactionSource)
     val content: @Composable () -> Unit = {
         if (icon != null) {
@@ -54,33 +88,35 @@ fun OnboardingActionButton(
         }
         Text(
             text = text,
-            style = MaterialTheme.typography.titleMedium,
+            style = labelStyle,
             textAlign = TextAlign.Center,
         )
     }
-    if (outlined) {
+    if (isOutlined) {
         OutlinedButton(
-            onClick = onClick,
+            onClick = handleClick,
             enabled = enabled,
             modifier = buttonModifier,
             shape = shape,
             interactionSource = interactionSource,
+            // The welcome glow is this button's border.
+            border = if (welcomeMorph != null) null else ButtonDefaults.outlinedButtonBorder(enabled),
             colors =
                 ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    contentColor = contentColor,
                 ),
         ) { content() }
     } else {
         Button(
-            onClick = onClick,
+            onClick = handleClick,
             enabled = enabled,
             modifier = buttonModifier,
             shape = shape,
             interactionSource = interactionSource,
             colors =
                 ButtonDefaults.buttonColors(
-                    containerColor = AppColors.Accent,
-                    contentColor = AppColors.OnAccent,
+                    containerColor = containerColor,
+                    contentColor = contentColor,
                 ),
         ) { content() }
     }
@@ -94,12 +130,14 @@ fun OnboardingBottomActionButton(
     modifier: Modifier = Modifier,
     outlined: Boolean = false,
     enabled: Boolean = true,
+    finishesSetup: Boolean = false,
 ) {
     OnboardingActionButton(
         text = text,
         onClick = onClick,
         outlined = outlined,
         enabled = enabled,
+        finishesSetup = finishesSetup,
         modifier = modifier.padding(horizontal = DesignTokens.OnboardingButtonOuterHorizontalPadding),
     )
 }

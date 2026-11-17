@@ -77,6 +77,7 @@ fun FinalSetupScreen(
             currentStep = currentStep,
             totalSteps = totalSteps,
             topPadding = DesignTokens.SpacingMedium,
+            modifier = Modifier.welcomeExitItem(),
         )
 
         Spacer(modifier = Modifier.height(DesignTokens.OnboardingCompactSpacing))
@@ -221,6 +222,7 @@ fun FinalSetupScreen(
         OnboardingBottomActionButton(
             text = stringResource(R.string.setup_action_start),
             onClick = onContinue,
+            finishesSetup = true,
         )
 
         Spacer(modifier = Modifier.height(DesignTokens.OnboardingSectionSpacing))

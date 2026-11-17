@@ -64,6 +64,7 @@ fun SearchEngineSetupScreen(
             currentStep = currentStep,
             totalSteps = totalSteps,
             topPadding = DesignTokens.SpacingMedium,
+            modifier = Modifier.welcomeExitItem(),
         )
 
         Text(
@@ -71,7 +72,7 @@ fun SearchEngineSetupScreen(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Start,
-            modifier = Modifier.padding(top = DesignTokens.SpacingSmall),
+            modifier = Modifier.padding(top = DesignTokens.SpacingSmall).welcomeExitItem(),
         )
 
         Spacer(modifier = Modifier.height(DesignTokens.OnboardingSectionSpacing))
@@ -145,6 +146,7 @@ fun SearchEngineSetupScreen(
         OnboardingBottomActionButton(
             text = stringResource(continueButtonTextRes),
             onClick = onContinue,
+            finishesSetup = continueButtonTextRes == R.string.setup_action_start,
         )
 
         Spacer(modifier = Modifier.height(DesignTokens.OnboardingSectionSpacing))

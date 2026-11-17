@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.shared
 
+import com.tk.quicksearch.onboarding.welcomeExitItem
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandVertically
@@ -87,7 +88,7 @@ fun SettingsSegmentGroup(
     Column(modifier = modifier.fillMaxWidth()) {
         if (title != null) {
             Column(
-                modifier = Modifier.padding(
+                modifier = Modifier.welcomeExitItem().padding(
                     horizontal = DesignTokens.SpacingLarge,
                     vertical = DesignTokens.SpacingMedium,
                 ),
@@ -143,6 +144,7 @@ fun SettingsSegment(
     Box(
         modifier =
             modifier
+                .welcomeExitItem()
                 .fillMaxWidth()
                 .clip(shape)
                 .background(containerColor, shape)

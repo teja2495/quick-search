@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen
 
+import com.tk.quicksearch.onboarding.welcomeMorphHoldsKeyboard
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -551,7 +552,7 @@ internal fun SearchScreenContent(
                 placeholderText = searchHintText,
                 showWelcomeAnimation = state.showSearchBarWelcomeAnimation,
                 showWallpaperBackground = state.showWallpaperBackground,
-                autoFocusOnStart = state.openKeyboardOnLaunch,
+                autoFocusOnStart = state.openKeyboardOnLaunch && !welcomeMorphHoldsKeyboard(),
                 releaseFocusOnLeave = !isOverlayPresentation && state.clearQueryOnLaunch,
                 restoreKeyboardOnEnter = !isOverlayPresentation && state.restoreSearchKeyboard,
                 onRestoreKeyboardHandled = onRestoreSearchKeyboardHandled,

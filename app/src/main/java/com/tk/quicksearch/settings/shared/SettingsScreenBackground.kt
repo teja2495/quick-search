@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.shared
 
+import com.tk.quicksearch.onboarding.welcomeBackgroundFade
+import com.tk.quicksearch.onboarding.welcomePagePush
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.background
@@ -59,13 +61,14 @@ fun SettingsScreenBackground(
                     appTheme = appTheme,
                     overlayThemeIntensity = overlayThemeIntensity,
                     amoledThemeEnabled = amoledThemeEnabled,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize().welcomeBackgroundFade(),
                 )
                 if (useSystemWallpaperBackdrop) {
                     Box(
                         modifier =
                             Modifier
                                 .fillMaxSize()
+                                .welcomeBackgroundFade()
                                 .background(
                                     com.tk.quicksearch.shared.ui.theme.AppColors.WallpaperOverlayTint.copy(
                                         alpha = wallpaperBackgroundAlpha.coerceIn(0f, 1f),
@@ -74,7 +77,9 @@ fun SettingsScreenBackground(
                     )
                 }
             }
-            content()
+            Box(modifier = Modifier.fillMaxSize().welcomePagePush(), propagateMinConstraints = true) {
+                content()
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen
 
+import com.tk.quicksearch.onboarding.welcomeContentReveal
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.background
@@ -443,7 +444,7 @@ fun SearchScreen(
                 if (isOverlayPresentation) {
                     Modifier.fillMaxWidth()
                 } else {
-                    Modifier.fillMaxSize()
+                    Modifier.fillMaxSize().welcomeContentReveal()
                 },
             state = stateResult.effectiveStateForCards,
             renderingState = stateResult.renderingState,

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Modifier
+import com.tk.quicksearch.onboarding.ReportWelcomeBackdropReady
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.SearchUiState
@@ -29,6 +30,7 @@ internal fun SharedPageBackdrop(
     modifier: Modifier = Modifier,
 ) {
     val wallpaperState = SearchScreenWallpaperLogic(state = state)
+    ReportWelcomeBackdropReady(!wallpaperState.usesWallpaperBackground || wallpaperState.imageBitmap != null)
     SearchPageBackdrop(
         state = state,
         imageBitmap = wallpaperState.imageBitmap,
