@@ -23,4 +23,46 @@
     <color name="launcher_icon_sunset_light_foreground">#7B1E00</color>
     <color name="launcher_icon_sunset_dark_background">#BF360C</color>
     <color name="launcher_icon_sunset_dark_foreground">#FFCCBC</color>
+
+    <!-- Lavender -->
+    <color name="launcher_icon_lavender_light_background">#E1BEE7</color>
+    <color name="launcher_icon_lavender_light_foreground">#4A148C</color>
+    <color name="launcher_icon_lavender_dark_background">#6A1B9A</color>
+    <color name="launcher_icon_lavender_dark_foreground">#E1BEE7</color>
+
+    <!-- Teal -->
+    <color name="launcher_icon_teal_light_background">#B2DFDB</color>
+    <color name="launcher_icon_teal_light_foreground">#004D40</color>
+    <color name="launcher_icon_teal_dark_background">#00796B</color>
+    <color name="launcher_icon_teal_dark_foreground">#B2DFDB</color>
+
+    <!-- Amber -->
+    <color name="launcher_icon_amber_light_background">#FFECB3</color>
+    <color name="launcher_icon_amber_light_foreground">#5C4300</color>
+    <color name="launcher_icon_amber_dark_background">#8D6E00</color>
+    <color name="launcher_icon_amber_dark_foreground">#FFECB3</color>
+
+    <!-- Indigo -->
+    <color name="launcher_icon_indigo_light_background">#C5CAE9</color>
+    <color name="launcher_icon_indigo_light_foreground">#1A237E</color>
+    <color name="launcher_icon_indigo_dark_background">#3949AB</color>
+    <color name="launcher_icon_indigo_dark_foreground">#C5CAE9</color>
+
+    <!-- Slate -->
+    <color name="launcher_icon_slate_light_background">#CFD8DC</color>
+    <color name="launcher_icon_slate_light_foreground">#263238</color>
+    <color name="launcher_icon_slate_dark_background">#455A64</color>
+    <color name="launcher_icon_slate_dark_foreground">#CFD8DC</color>
+
+    <!-- Rose -->
+    <color name="launcher_icon_rose_light_background">#FFD9E5</color>
+    <color name="launcher_icon_rose_light_foreground">#3D0023</color>
+    <color name="launcher_icon_rose_dark_background">#851753</color>
+    <color name="launcher_icon_rose_dark_foreground">#FFD9E5</color>
+
+    <!-- Mocha -->
+    <color name="launcher_icon_mocha_light_background">#FFDBC9</color>
+    <color name="launcher_icon_mocha_light_foreground">#2D1608</color>
+    <color name="launcher_icon_mocha_dark_background">#5E402F</color>
+    <color name="launcher_icon_mocha_dark_foreground">#FFDBC9</color>
 </resources>

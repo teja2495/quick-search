@@ -146,10 +146,11 @@ fun ItemMenuPopup(
         leadingContent = leadingContent,
         containerColor = dialogBackground,
         contentCardColor = dialogBackground,
-        // Keep the header and action groups on the same spacing rhythm as contact actions.
-        contentSpacing = DesignTokens.SpacingSmall,
+        // Same top inset as contact actions, with room between the header and the first group.
+        contentSpacing = DesignTokens.SpacingLarge,
         headerSpacing = DesignTokens.SpacingMedium,
-        headerTopPadding = DesignTokens.SpacingSmall,
+        headerTopPadding = DesignTokens.SpacingLarge,
+        bottomPadding = DesignTokens.SpacingLarge,
         contentTopPadding = 0.dp,
         // The popup's own bottom padding already separates the last item from the edge.
         contentBottomPadding = 0.dp,
@@ -195,8 +196,8 @@ fun ItemMenuPopup(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        // Matches the popup's own 24dp bottom padding so the caption sits evenly between the footer and the edge.
-                        .padding(top = DesignTokens.SpacingXXLarge),
+                        // Matches the popup's own bottom padding so the caption sits evenly between the footer and the edge.
+                        .padding(top = DesignTokens.SpacingLarge),
                     contentAlignment = Alignment.Center,
                 ) {
                     caption()
@@ -374,7 +375,8 @@ private fun ItemMenuListRow(row: ItemMenuRow, first: Boolean, last: Boolean) {
                 .fillMaxWidth()
                 .heightIn(min = DesignTokens.ItemMenuRowHeight)
                 .clip(shape)
-                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                // Same fill as the tiles and buttons around it.
+                .background(MaterialTheme.colorScheme.surfaceContainerHighest)
                 .combinedClickable(
                     role = Role.Button,
                     onClick = row.onClick,

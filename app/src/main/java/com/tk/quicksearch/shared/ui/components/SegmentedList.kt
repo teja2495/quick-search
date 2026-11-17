@@ -124,7 +124,8 @@ fun SegmentedGroup(
  * One tile at [index] of [count] in a [SegmentedGroup] (or any segmented list). [containerColor]
  * overrides the tile color, e.g. to highlight a tile being dragged. [backdrop] draws behind the
  * tile in its shape (search results use the frosted card backdrop); [contentPadding] insets the
- * content; [pressMorph] off keeps the inner corners fixed while pressed.
+ * content; [pressMorph] off keeps the inner corners fixed while pressed. [shape] replaces the
+ * index-based shape, for tiles that animate their own corners.
  */
 @Composable
 fun SegmentedTile(
@@ -137,10 +138,12 @@ fun SegmentedTile(
     backdrop: @Composable (Modifier, Shape) -> Modifier = { m, _ -> m },
     contentPadding: PaddingValues = PaddingValues(),
     pressMorph: Boolean = true,
+    shape: Shape? = null,
     content: @Composable () -> Unit,
 ) {
     val shape =
-        if (pressMorph) pressMorphSegmentShape(interactionSource, index, count) else AppShapes.segment(index, count)
+        shape
+            ?: if (pressMorph) pressMorphSegmentShape(interactionSource, index, count) else AppShapes.segment(index, count)
     Box(
         modifier =
             modifier

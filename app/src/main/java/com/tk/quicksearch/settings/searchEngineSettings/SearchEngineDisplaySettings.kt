@@ -1,29 +1,25 @@
 package com.tk.quicksearch.settings.searchEngineSettings
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.components.ChoiceOption
 import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
-import com.tk.quicksearch.shared.ui.components.SegmentedTile
-import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.ExpandableSegmentedGroup
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.util.hapticToggle
 
 /**
- * Card for toggling the appearance of the search engine section (Compact vs Inline).
+ * Collapsible card for the search engine section style: an Inline/Compact button group with a
+ * line describing the selected style, and the row count group while Compact is selected.
  */
 @Composable
 fun SearchEngineAppearanceCard(
@@ -31,130 +27,56 @@ fun SearchEngineAppearanceCard(
     onToggleSearchEngineCompactMode: (Boolean) -> Unit,
     compactRowCount: Int,
     onSetCompactRowCount: (Int) -> Unit,
+    expanded: Boolean = true,
+    onExpandedChange: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    val view = LocalView.current
-
-    // One tile: the two display options are a single choice.
-    SegmentedGroup(modifier = modifier) {
-      SegmentedTile(index = 0, count = 1) {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = DesignTokens.SpacingMedium),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-        ) {
-            Text(
-                text = stringResource(R.string.settings_search_engine_display_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier =
-                    Modifier.padding(
-                        start = DesignTokens.SpacingXLarge,
-                        top = DesignTokens.SpacingSmall,
-                        end = DesignTokens.SpacingLarge,
+    ExpandableSegmentedGroup(
+        title = stringResource(R.string.settings_search_engine_display_title),
+        expanded = expanded,
+        onExpandedChange = onExpandedChange,
+        tileCount = 1,
+        modifier = modifier,
+        firstTileContent = {
+            ConnectedChoiceGroup(
+                options =
+                    listOf(
+                        ChoiceOption(false, stringResource(R.string.settings_search_engine_display_inline_title)),
+                        ChoiceOption(true, stringResource(R.string.settings_search_engine_display_compact_title)),
                     ),
+                selected = isSearchEngineCompactMode,
+                onSelect = { compact ->
+                    if (compact != isSearchEngineCompactMode) onToggleSearchEngineCompactMode(compact)
+                },
             )
-
-            Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
-                SearchEngineDisplayOption(
-                    title = stringResource(R.string.settings_search_engine_display_inline_title),
-                    description = stringResource(R.string.settings_search_engine_display_inline_desc),
-                    selected = !isSearchEngineCompactMode,
-                    onClick = {
+            Text(
+                text =
+                    stringResource(
                         if (isSearchEngineCompactMode) {
-                            hapticToggle(view)()
-                            onToggleSearchEngineCompactMode(false)
-                        }
-                    },
-                )
-
-                SearchEngineDisplayOption(
-                    title = stringResource(R.string.settings_search_engine_display_compact_title),
-                    description = stringResource(R.string.settings_search_engine_display_compact_desc),
-                    selected = isSearchEngineCompactMode,
-                    onClick = {
-                        if (!isSearchEngineCompactMode) {
-                            hapticToggle(view)()
-                            onToggleSearchEngineCompactMode(true)
-                        }
-                    },
-                    extraContent = {
-                        CompactRowCountPills(
-                            selectedRowCount = compactRowCount,
-                            onSelectRowCount = onSetCompactRowCount,
-                        )
-                    },
-                )
-            }
-        }
-      }
-    }
-}
-
-@Composable
-private fun SearchEngineDisplayOption(
-    title: String,
-    description: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-    extraContent: (@Composable () -> Unit)? = null,
-) {
-    Column(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onClick)
-                .padding(
-                    start = DesignTokens.SpacingXLarge,
-                    end = DesignTokens.SpacingLarge,
-                    top = DesignTokens.SpacingMedium,
-                    bottom = DesignTokens.SpacingMedium,
-                ),
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
-        ) {
-            androidx.compose.material3.RadioButton(
-                selected = selected,
-                onClick = null, // Handled by Row clickable
+                            R.string.settings_search_engine_display_compact_desc
+                        } else {
+                            R.string.settings_search_engine_display_inline_desc
+                        },
+                    ),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = DesignTokens.SpacingXSmall),
             )
-            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall)) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+            AnimatedVisibility(
+                visible = isSearchEngineCompactMode,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut(),
+            ) {
+                ConnectedChoiceGroup(
+                    options =
+                        listOf(
+                            ChoiceOption(1, stringResource(R.string.settings_compact_rows_one_row)),
+                            ChoiceOption(2, stringResource(R.string.settings_compact_rows_two_rows)),
+                        ),
+                    selected = if (compactRowCount == 2) 2 else 1,
+                    onSelect = onSetCompactRowCount,
                 )
             }
-        }
-        if (selected && extraContent != null) {
-            extraContent()
-        }
-    }
-}
-
-@Composable
-private fun CompactRowCountPills(
-    selectedRowCount: Int,
-    onSelectRowCount: (Int) -> Unit,
-) {
-    ConnectedChoiceGroup(
-        options =
-            listOf(
-                ChoiceOption(1, stringResource(R.string.settings_compact_rows_one_row)),
-                ChoiceOption(2, stringResource(R.string.settings_compact_rows_two_rows)),
-            ),
-        selected = if (selectedRowCount == 2) 2 else 1,
-        onSelect = onSelectRowCount,
-        fillWidth = false,
-        modifier = Modifier.padding(start = DesignTokens.IconSizeXLarge),
+        },
     )
 }

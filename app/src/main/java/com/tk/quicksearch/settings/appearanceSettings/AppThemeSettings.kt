@@ -69,7 +69,7 @@ import com.tk.quicksearch.shared.ui.components.ChoiceOption
 import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
-import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.ExpandableSegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.shared.permissions.PermissionHelper
@@ -99,6 +99,8 @@ fun AppThemeCard(
         onDeviceThemeToggle: (Boolean) -> Unit,
         amoledThemeEnabled: Boolean,
         onAmoledThemeToggle: (Boolean) -> Unit,
+        expanded: Boolean = true,
+        onExpandedChange: (Boolean) -> Unit = {},
         modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
@@ -164,28 +166,26 @@ fun AppThemeCard(
     }
 
     val count = 2 + listOf(showMaterialYouToggle, showAmoledThemeToggle, showThemedIconsToggle).count { it }
-    SegmentedGroup(modifier = modifier) {
-        var index = 0
-        SegmentedTile(index = index++, count = count) {
-            SegmentedTileContent {
-            Text(
-                    text = stringResource(R.string.settings_app_theme_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(start = DesignTokens.SpacingXSmall, end = DesignTokens.SpacingXSmall, bottom = DesignTokens.SpacingXSmall),
-            )
-                    ConnectedChoiceGroup(
-                            options =
-                                    listOf(
-                                            ChoiceOption(AppThemeMode.LIGHT, stringResource(R.string.common_theme_light), MaterialSymbols.LightMode),
-                                            ChoiceOption(AppThemeMode.DARK, stringResource(R.string.common_theme_dark), MaterialSymbols.DarkMode),
-                                            ChoiceOption(AppThemeMode.SYSTEM, stringResource(R.string.common_theme_system), MaterialSymbols.Settings),
-                                    ),
-                            selected = appThemeMode,
-                            onSelect = { mode -> if (mode != appThemeMode) onSetAppThemeMode(mode) },
-                    )
-            }
-        }
+    ExpandableSegmentedGroup(
+            title = stringResource(R.string.settings_app_theme_title),
+            expanded = expanded,
+            onExpandedChange = onExpandedChange,
+            tileCount = count,
+            modifier = modifier,
+            firstTileContent = {
+                ConnectedChoiceGroup(
+                        options =
+                                listOf(
+                                        ChoiceOption(AppThemeMode.LIGHT, stringResource(R.string.common_theme_light), MaterialSymbols.LightMode),
+                                        ChoiceOption(AppThemeMode.DARK, stringResource(R.string.common_theme_dark), MaterialSymbols.DarkMode),
+                                        ChoiceOption(AppThemeMode.SYSTEM, stringResource(R.string.common_theme_system), MaterialSymbols.Settings),
+                                ),
+                        selected = appThemeMode,
+                        onSelect = { mode -> if (mode != appThemeMode) onSetAppThemeMode(mode) },
+                )
+            },
+    ) {
+        var index = 1
         SegmentedTile(index = index++, count = count) {
             SegmentedTileContent {
                     Row(

@@ -107,6 +107,14 @@ open class UiPreferencesFeatures(context: Context) : UiPreferencesCore(context) 
         prefs.edit().putInt(UiPreferences.KEY_CUSTOM_ACCENT_COLOR_ARGB, argb).apply()
     }
 
+    /** Whether the Appearance settings card [cardKey] is expanded; UI state, so not backed up. */
+    fun isAppearanceCardExpanded(cardKey: String): Boolean =
+            sessionPrefs.getBoolean(UiPreferences.KEY_APPEARANCE_CARD_EXPANDED_PREFIX + cardKey, true)
+
+    fun setAppearanceCardExpanded(cardKey: String, expanded: Boolean) {
+        sessionPrefs.edit().putBoolean(UiPreferences.KEY_APPEARANCE_CARD_EXPANDED_PREFIX + cardKey, expanded).apply()
+    }
+
     fun shouldShowAppLabels(): Boolean = getBooleanPref(UiPreferences.KEY_SHOW_APP_LABELS, true)
 
     fun setShowAppLabels(show: Boolean) {

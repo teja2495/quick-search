@@ -69,7 +69,7 @@ import com.tk.quicksearch.shared.ui.components.ChoiceOption
 import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
-import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.ExpandableSegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.shared.permissions.PermissionHelper
@@ -106,6 +106,8 @@ fun WallpaperCard(
         overlayThemeIntensity: Float,
         amoledThemeEnabled: Boolean,
         deviceThemeEnabled: Boolean = false,
+        expanded: Boolean = true,
+        onExpandedChange: (Boolean) -> Unit = {},
         modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
@@ -215,15 +217,13 @@ fun WallpaperCard(
         }
     }
 
-    SegmentedGroup(modifier = modifier) {
-      SegmentedTile(index = 0, count = 2) {
-        SegmentedTileContent {
-            Text(
-                    text = stringResource(R.string.settings_wallpaper_card_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(start = DesignTokens.SpacingXSmall, end = DesignTokens.SpacingXSmall, bottom = DesignTokens.SpacingXSmall),
-            )
+    ExpandableSegmentedGroup(
+            title = stringResource(R.string.settings_wallpaper_card_title),
+            expanded = expanded,
+            onExpandedChange = onExpandedChange,
+            tileCount = 2,
+            modifier = modifier,
+            firstTileContent = {
 
             Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -575,8 +575,8 @@ fun WallpaperCard(
                 }
 
             }
-        }
-      }
+            },
+    ) {
       SegmentedTile(index = 1, count = 2) {
         SegmentedTileContent {
             Column(

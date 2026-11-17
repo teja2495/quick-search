@@ -77,6 +77,7 @@ import com.tk.quicksearch.shared.ui.theme.AppMotion
  * @param contentHorizontalPadding Padding on both sides of the scrollable content, inside the card.
  * @param contentTopPadding Padding above scrollable content when there is no fixed top content.
  * @param headerTopPadding Space between the popup top edge and its header row.
+ * @param bottomPadding Space between the popup's content and its bottom edge.
  * @param shape Shape of the outer popup surface.
  * @param animateSizeChanges Animate content-driven height changes while keeping the bottom anchored.
  * @param showCloseButton Whether the header shows a close button after the title.
@@ -100,6 +101,7 @@ fun AppBottomPopup(
     contentSpacing: Dp = 24.dp,
     headerSpacing: Dp = 16.dp,
     headerTopPadding: Dp = DesignTokens.SpacingXXLarge,
+    bottomPadding: Dp = DesignTokens.SpacingXXLarge,
     contentTopPadding: Dp = 20.dp,
     contentBottomPadding: Dp = 24.dp,
     contentHorizontalPadding: Dp = 16.dp,
@@ -190,7 +192,7 @@ fun AppBottomPopup(
                                     start = DesignTokens.SpacingMedium,
                                     top = headerTopPadding,
                                     end = DesignTokens.SpacingMedium,
-                                    bottom = DesignTokens.SpacingXXLarge,
+                                    bottom = bottomPadding,
                                 )
                                 .then(
                                     if (drawerHeight != null) Modifier.height(drawerHeight)

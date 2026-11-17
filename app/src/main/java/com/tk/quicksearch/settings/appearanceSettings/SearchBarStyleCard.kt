@@ -49,7 +49,7 @@ import com.tk.quicksearch.shared.ui.components.TonalButton
 import com.tk.quicksearch.shared.ui.components.ChoiceOption
 import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
-import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.ExpandableSegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
@@ -81,6 +81,8 @@ fun SearchBarStyleCard(
     onToggleSettingsIcon: (Boolean) -> Unit,
     searchChromeBlurEnabled: Boolean,
     onToggleSearchChromeBlur: (Boolean) -> Unit,
+    expanded: Boolean = true,
+    onExpandedChange: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier,
     fixedShape: Boolean = false,
     enabledSearchEngines: List<SearchTarget> = emptyList(),
@@ -108,24 +110,13 @@ fun SearchBarStyleCard(
                 cornerRadiusDp = cornerRadiusDp,
             ).let { if (fixedShape) it.withFixedShape() else it }
 
-    SegmentedGroup(modifier = modifier) {
-      SegmentedTile(index = 0, count = 5) {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = DesignTokens.CardHorizontalPadding,
-                        vertical = DesignTokens.SpacingLarge,
-                    ),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-        ) {
-            Text(
-                text = stringResource(R.string.settings_search_bar_style_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(bottom = DesignTokens.SpacingXSmall),
-            )
+    ExpandableSegmentedGroup(
+        title = stringResource(R.string.settings_search_bar_style_title),
+        expanded = expanded,
+        onExpandedChange = onExpandedChange,
+        tileCount = 5,
+        modifier = modifier,
+        firstTileContent = {
 
             if (fixedShape && enabledSearchEngines.isNotEmpty()) {
                 InsetSearchCardPreview(
@@ -231,9 +222,8 @@ fun SearchBarStyleCard(
                     onSetSearchBarStyle(searchBarStyle.copy(backgroundTransparency = transparency))
                 },
             )
-
-        }
-      }
+        },
+    ) {
       SegmentedTile(index = 1, count = 5) {
                 SettingsToggleRow(
                     title = stringResource(R.string.settings_search_chrome_blur_title),

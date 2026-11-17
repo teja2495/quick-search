@@ -69,6 +69,20 @@ class LauncherIconManager(
         private const val AURORA_DARK_ALIAS = "com.tk.quicksearch.app.MainActivityAliasAuroraDark"
         private const val SUNSET_LIGHT_ALIAS = "com.tk.quicksearch.app.MainActivityAliasSunsetLight"
         private const val SUNSET_DARK_ALIAS = "com.tk.quicksearch.app.MainActivityAliasSunsetDark"
+        private const val LAVENDER_LIGHT_ALIAS = "com.tk.quicksearch.app.MainActivityAliasLavenderLight"
+        private const val LAVENDER_DARK_ALIAS = "com.tk.quicksearch.app.MainActivityAliasLavenderDark"
+        private const val TEAL_LIGHT_ALIAS = "com.tk.quicksearch.app.MainActivityAliasTealLight"
+        private const val TEAL_DARK_ALIAS = "com.tk.quicksearch.app.MainActivityAliasTealDark"
+        private const val AMBER_LIGHT_ALIAS = "com.tk.quicksearch.app.MainActivityAliasAmberLight"
+        private const val AMBER_DARK_ALIAS = "com.tk.quicksearch.app.MainActivityAliasAmberDark"
+        private const val INDIGO_LIGHT_ALIAS = "com.tk.quicksearch.app.MainActivityAliasIndigoLight"
+        private const val INDIGO_DARK_ALIAS = "com.tk.quicksearch.app.MainActivityAliasIndigoDark"
+        private const val SLATE_LIGHT_ALIAS = "com.tk.quicksearch.app.MainActivityAliasSlateLight"
+        private const val SLATE_DARK_ALIAS = "com.tk.quicksearch.app.MainActivityAliasSlateDark"
+        private const val ROSE_LIGHT_ALIAS = "com.tk.quicksearch.app.MainActivityAliasRoseLight"
+        private const val ROSE_DARK_ALIAS = "com.tk.quicksearch.app.MainActivityAliasRoseDark"
+        private const val MOCHA_LIGHT_ALIAS = "com.tk.quicksearch.app.MainActivityAliasMochaLight"
+        private const val MOCHA_DARK_ALIAS = "com.tk.quicksearch.app.MainActivityAliasMochaDark"
 
         private val aliasMap: Map<LauncherAppIcon, String> =
             mapOf(
@@ -81,6 +95,20 @@ class LauncherIconManager(
                 LauncherAppIcon.AURORA_DARK to AURORA_DARK_ALIAS,
                 LauncherAppIcon.SUNSET_LIGHT to SUNSET_LIGHT_ALIAS,
                 LauncherAppIcon.SUNSET_DARK to SUNSET_DARK_ALIAS,
+                LauncherAppIcon.LAVENDER_LIGHT to LAVENDER_LIGHT_ALIAS,
+                LauncherAppIcon.LAVENDER_DARK to LAVENDER_DARK_ALIAS,
+                LauncherAppIcon.TEAL_LIGHT to TEAL_LIGHT_ALIAS,
+                LauncherAppIcon.TEAL_DARK to TEAL_DARK_ALIAS,
+                LauncherAppIcon.AMBER_LIGHT to AMBER_LIGHT_ALIAS,
+                LauncherAppIcon.AMBER_DARK to AMBER_DARK_ALIAS,
+                LauncherAppIcon.INDIGO_LIGHT to INDIGO_LIGHT_ALIAS,
+                LauncherAppIcon.INDIGO_DARK to INDIGO_DARK_ALIAS,
+                LauncherAppIcon.SLATE_LIGHT to SLATE_LIGHT_ALIAS,
+                LauncherAppIcon.SLATE_DARK to SLATE_DARK_ALIAS,
+                LauncherAppIcon.ROSE_LIGHT to ROSE_LIGHT_ALIAS,
+                LauncherAppIcon.ROSE_DARK to ROSE_DARK_ALIAS,
+                LauncherAppIcon.MOCHA_LIGHT to MOCHA_LIGHT_ALIAS,
+                LauncherAppIcon.MOCHA_DARK to MOCHA_DARK_ALIAS,
             )
     }
 }

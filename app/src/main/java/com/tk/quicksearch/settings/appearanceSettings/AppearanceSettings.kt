@@ -146,6 +146,10 @@ fun AppearanceSettingsSection(
         preferences.registerOnSharedPreferenceChangeListener(listener)
         onDispose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
     }
+    var themeCardExpanded by remember { mutableStateOf(gesturePreferences.isAppearanceCardExpanded(CARD_THEME)) }
+    var backgroundCardExpanded by remember { mutableStateOf(gesturePreferences.isAppearanceCardExpanded(CARD_BACKGROUND)) }
+    var searchBarCardExpanded by remember { mutableStateOf(gesturePreferences.isAppearanceCardExpanded(CARD_SEARCH_BAR)) }
+    var searchEnginesCardExpanded by remember { mutableStateOf(gesturePreferences.isAppearanceCardExpanded(CARD_SEARCH_ENGINES)) }
     var showIconPackDialog by remember { mutableStateOf(false) }
     var showPinnedSectionOrderDialog by rememberSaveable { mutableStateOf(false) }
     val pinnedSectionOrderItems =
@@ -205,6 +209,11 @@ fun AppearanceSettingsSection(
                 onDeviceThemeToggle = onDeviceThemeToggle,
                 amoledThemeEnabled = amoledThemeEnabled,
                 onAmoledThemeToggle = onAmoledThemeToggle,
+                expanded = themeCardExpanded,
+                onExpandedChange = { expanded ->
+                    themeCardExpanded = expanded
+                    gesturePreferences.setAppearanceCardExpanded(CARD_THEME, expanded)
+                },
         )
 
         Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
@@ -230,19 +239,14 @@ fun AppearanceSettingsSection(
                 overlayThemeIntensity = overlayThemeIntensity,
                 amoledThemeEnabled = amoledThemeEnabled,
                 deviceThemeEnabled = deviceThemeEnabled,
+                expanded = backgroundCardExpanded,
+                onExpandedChange = { expanded ->
+                    backgroundCardExpanded = expanded
+                    gesturePreferences.setAppearanceCardExpanded(CARD_BACKGROUND, expanded)
+                },
         )
 
         Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
-
-        // Alternate launcher icons are adaptive icons (mipmap-anydpi-v26 only).
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            AppLauncherIconCard(
-                    launcherAppIcon = launcherAppIcon,
-                    onSetLauncherAppIcon = onSetLauncherAppIcon,
-            )
-
-            Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
-        }
 
         SearchBarStyleCard(
                 searchBarStyle = searchBarStyle,
@@ -258,6 +262,11 @@ fun AppearanceSettingsSection(
                 searchEngineCompactRowCount = searchEngineCompactRowCount,
                 appIconShape = appIconShape,
                 iconPackPackage = selectedIconPackPackage,
+                expanded = searchBarCardExpanded,
+                onExpandedChange = { expanded ->
+                    searchBarCardExpanded = expanded
+                    gesturePreferences.setAppearanceCardExpanded(CARD_SEARCH_BAR, expanded)
+                },
         )
 
         Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
@@ -268,6 +277,11 @@ fun AppearanceSettingsSection(
                     onToggleSearchEngineCompactMode = onToggleSearchEngineCompactMode,
                     compactRowCount = searchEngineCompactRowCount,
                     onSetCompactRowCount = onSetSearchEngineCompactRowCount,
+                    expanded = searchEnginesCardExpanded,
+                    onExpandedChange = { expanded ->
+                        searchEnginesCardExpanded = expanded
+                        gesturePreferences.setAppearanceCardExpanded(CARD_SEARCH_ENGINES, expanded)
+                    },
             )
 
             Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
@@ -281,8 +295,20 @@ fun AppearanceSettingsSection(
                             Triple(R.string.settings_compact_layout_title, R.string.settings_compact_layout_desc, compactLayoutEnabled to onToggleCompactLayout),
                             Triple(R.string.settings_show_status_bar_title, R.string.settings_show_status_bar_desc, showStatusBar to onToggleShowStatusBar),
                     )
+            // Alternate launcher icons are adaptive icons (mipmap-anydpi-v26 only).
+            val showLauncherIcon = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+            val offset = if (showLauncherIcon) 1 else 0
+            val tileCount = layoutToggles.size + offset
+            if (showLauncherIcon) {
+                AppLauncherIconTile(
+                        launcherAppIcon = launcherAppIcon,
+                        onSetLauncherAppIcon = onSetLauncherAppIcon,
+                        index = 0,
+                        count = tileCount,
+                )
+            }
             layoutToggles.forEachIndexed { index, (titleRes, descRes, toggle) ->
-                SegmentedTile(index = index, count = layoutToggles.size) {
+                SegmentedTile(index = index + offset, count = tileCount) {
                     SettingsToggleRow(
                             title = stringResource(titleRes),
                             subtitle = stringResource(descRes),
@@ -391,6 +417,11 @@ fun AppearanceSettingsSection(
         )
     }
 }
+
+private const val CARD_THEME = "theme"
+private const val CARD_BACKGROUND = "background"
+private const val CARD_SEARCH_BAR = "search_bar"
+private const val CARD_SEARCH_ENGINES = "search_engines"
 
 /** Keeps sections hidden from the reorder dialog at their saved positions. */
 internal fun withHiddenPinnedSectionsRestored(

@@ -98,7 +98,7 @@ internal fun RemainingMethodsList(
                             .fillMaxWidth()
                             .heightIn(min = DesignTokens.ItemMenuRowHeight)
                             .clip(shape)
-                            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
                             .combinedClickable(
                                 role = Role.Button,
                                 onClick = { onMethodClick(method) },

@@ -67,6 +67,12 @@ class UserAppPreferences(context: Context) : UserAppPreferencesFeatures(context)
     fun setEnabledAppSuggestionTabs(tabs: Set<AppSuggestionTabType>) =
             uiPreferences.setEnabledAppSuggestionTabs(tabs)
 
+    fun isAppearanceCardExpanded(cardKey: String): Boolean =
+            uiPreferences.isAppearanceCardExpanded(cardKey)
+
+    fun setAppearanceCardExpanded(cardKey: String, expanded: Boolean) =
+            uiPreferences.setAppearanceCardExpanded(cardKey, expanded)
+
     fun shouldShowAppLabels(): Boolean = uiPreferences.shouldShowAppLabels()
 
     fun setShowAppLabels(show: Boolean) = uiPreferences.setShowAppLabels(show)

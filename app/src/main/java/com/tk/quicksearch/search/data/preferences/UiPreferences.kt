@@ -440,6 +440,7 @@ class UiPreferences(context: Context) : UiPreferencesFeatures(context) {
             }
         }
         const val KEY_SHOW_APP_LABELS = "show_app_labels"
+        const val KEY_APPEARANCE_CARD_EXPANDED_PREFIX = "appearance_card_expanded_"
         const val KEY_PHONE_APP_GRID_COLUMNS = "phone_app_grid_columns"
         const val KEY_APP_ICON_SIZE_STEP = "app_icon_size_step"
         const val DEFAULT_PHONE_APP_GRID_COLUMNS = 4
