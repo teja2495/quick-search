@@ -525,9 +525,9 @@ class UiPreferences(context: Context) : UiPreferencesFeatures(context) {
         const val KEY_RECENT_QUERIES_ENABLED = "recent_queries_enabled"
 
         const val DEFAULT_WALLPAPER_BACKGROUND_ALPHA = 0.5f
-        const val DEFAULT_WALLPAPER_BLUR_RADIUS = 20f
+        const val DEFAULT_WALLPAPER_BLUR_RADIUS = 0f
         const val DEFAULT_WALLPAPER_BACKGROUND_ALPHA_LIGHT = 0.10f
-        const val DEFAULT_WALLPAPER_BLUR_RADIUS_LIGHT = 4.8f
+        const val DEFAULT_WALLPAPER_BLUR_RADIUS_LIGHT = 0f
         const val DEFAULT_APP_THEME = "MONOCHROME"
         const val DEFAULT_OVERLAY_THEME_INTENSITY = 0.5f
         const val DEFAULT_FONT_SCALE_MULTIPLIER = 1f
