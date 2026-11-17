@@ -511,6 +511,7 @@
     <string name="error_telegram_chat_failed">Telegramチャットを開けませんでした</string>
     <string name="error_telegram_not_installed">Telegramがインストールされていません</string>
     <string name="error_whatsapp_call_failed">WhatsAppの通話に失敗しました。WhatsAppがインストールされていることを確認してください。</string>
+    <string name="error_whatsapp_call_unavailable_opened_chat">WhatsApp でこの連絡先に直接発信できません。代わりにチャットを開きました。</string>
     <string name="error_whatsapp_chat_failed">WhatsAppチャットを開けませんでした</string>
     <string name="error_whatsapp_not_installed">WhatsAppがインストールされていません</string>
     <string name="error_whatsapp_video_call_failed">WhatsAppビデオ通話の開始に失敗しました</string>

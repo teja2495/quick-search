@@ -505,6 +505,7 @@
     <string name="error_telegram_chat_failed">无法打开 Telegram 聊天</string>
     <string name="error_telegram_not_installed">未安装 Telegram</string>
     <string name="error_whatsapp_call_failed">WhatsApp 呼叫失败。请确保已安装 WhatsApp。</string>
+    <string name="error_whatsapp_call_unavailable_opened_chat">WhatsApp 无法直接呼叫此联系人，已改为打开聊天。</string>
     <string name="error_whatsapp_chat_failed">无法打开 WhatsApp 聊天</string>
     <string name="error_whatsapp_not_installed">未安装 WhatsApp</string>
     <string name="error_whatsapp_video_call_failed">无法打开 WhatsApp 视频通话</string>

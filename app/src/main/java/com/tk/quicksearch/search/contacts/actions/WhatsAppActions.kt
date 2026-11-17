@@ -83,73 +83,95 @@ object WhatsAppActions {
     }
 
     /**
-     * Initiates a WhatsApp call using the contact data URI approach.
-     * This method uses ACTION_VIEW with the specific contact data MIME type.
+     * Initiates a WhatsApp voice call through the contact data row. [whatsAppId] (the row's JID,
+     * e.g. `15551234567@s.whatsapp.net`) lets a stale row fall back to opening the chat.
      */
     fun openWhatsAppCall(
         context: Application,
         dataId: Long?,
+        whatsAppId: String? = null,
         onShowToast: ((Int) -> Unit)? = null,
+    ): Boolean =
+        launchWhatsAppCall(
+            context = context,
+            dataId = dataId,
+            whatsAppId = whatsAppId,
+            mimeType = WHATSAPP_VOICE_CALL_MIME,
+            unresolvedErrorRes = R.string.error_whatsapp_not_installed,
+            failedErrorRes = R.string.error_whatsapp_call_failed,
+            onShowToast = onShowToast,
+        )
+
+    /** Opens a WhatsApp video call; see [openWhatsAppCall]. */
+    fun openWhatsAppVideoCall(
+        context: Application,
+        dataId: Long?,
+        whatsAppId: String? = null,
+        onShowToast: ((Int) -> Unit)? = null,
+    ): Boolean =
+        launchWhatsAppCall(
+            context = context,
+            dataId = dataId,
+            whatsAppId = whatsAppId,
+            mimeType = WHATSAPP_VIDEO_CALL_MIME,
+            unresolvedErrorRes = R.string.error_whatsapp_video_call_unavailable,
+            failedErrorRes = R.string.error_whatsapp_video_call_failed,
+            onShowToast = onShowToast,
+        )
+
+    private fun launchWhatsAppCall(
+        context: Application,
+        dataId: Long?,
+        whatsAppId: String?,
+        mimeType: String,
+        unresolvedErrorRes: Int,
+        failedErrorRes: Int,
+        onShowToast: ((Int) -> Unit)?,
     ): Boolean {
         if (dataId == null) {
-            Log.w("WhatsAppActions", "No dataId provided for WhatsApp call")
+            Log.w("WhatsAppActions", "No dataId provided for WhatsApp call ($mimeType)")
             return false
         }
 
         return try {
+            // WhatsApp's call landing screen closes silently for a row that no longer exists.
+            if (!contactDataRowExists(context, dataId, mimeType)) {
+                Log.w("WhatsAppActions", "WhatsApp call row $dataId no longer exists")
+                return openChatForUnavailableCall(context, whatsAppId, failedErrorRes, onShowToast)
+            }
             if (
                 launchContactDataIntent(
                     context = context,
                     dataId = dataId,
                     packageName = WHATSAPP_PACKAGE,
-                    mimeType = WHATSAPP_VOICE_CALL_MIME,
+                    mimeType = mimeType,
                 )
             ) {
                 true
             } else {
-                Log.w("WhatsAppActions", "WhatsApp call intent cannot be resolved")
-                onShowToast?.invoke(R.string.error_whatsapp_not_installed)
+                Log.w("WhatsAppActions", "WhatsApp call intent cannot be resolved ($mimeType)")
+                onShowToast?.invoke(unresolvedErrorRes)
                 false
             }
         } catch (e: Exception) {
-            Log.e("WhatsAppActions", "Failed to initiate WhatsApp call", e)
-            onShowToast?.invoke(R.string.error_whatsapp_call_failed)
+            Log.e("WhatsAppActions", "Failed to start WhatsApp call ($mimeType)", e)
+            onShowToast?.invoke(failedErrorRes)
             false
         }
     }
 
-    /**
-     * Opens a WhatsApp video call using the specific dataId and MIME type pattern.
-     */
-    fun openWhatsAppVideoCall(
+    private fun openChatForUnavailableCall(
         context: Application,
-        dataId: Long?,
-        onShowToast: ((Int) -> Unit)? = null,
+        whatsAppId: String?,
+        failedErrorRes: Int,
+        onShowToast: ((Int) -> Unit)?,
     ): Boolean {
-        if (dataId == null) {
-            Log.w("WhatsAppActions", "No dataId provided for WhatsApp video call")
+        val number = whatsAppId?.substringBefore('@')?.takeIf { it.isNotBlank() }
+        if (number == null || !openWhatsAppChat(context, number, onShowToast)) {
+            if (number == null) onShowToast?.invoke(failedErrorRes)
             return false
         }
-
-        return try {
-            if (
-                launchContactDataIntent(
-                    context = context,
-                    dataId = dataId,
-                    packageName = WHATSAPP_PACKAGE,
-                    mimeType = WHATSAPP_VIDEO_CALL_MIME,
-                )
-            ) {
-                true
-            } else {
-                Log.w("WhatsAppActions", "No activity found to handle WhatsApp video call")
-                onShowToast?.invoke(R.string.error_whatsapp_video_call_unavailable)
-                false
-            }
-        } catch (e: Exception) {
-            Log.e("WhatsAppActions", "Failed to open WhatsApp video call", e)
-            onShowToast?.invoke(R.string.error_whatsapp_video_call_failed)
-            false
-        }
+        onShowToast?.invoke(R.string.error_whatsapp_call_unavailable_opened_chat)
+        return true
     }
 }

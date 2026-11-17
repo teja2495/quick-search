@@ -505,6 +505,7 @@
 <string name="error_telegram_chat_failed">Telegram sohbeti açılamadı</string>
 <string name="error_telegram_not_installed">Telegram yüklü değil</string>
 <string name="error_whatsapp_call_failed">WhatsApp araması başarısız oldu. Lütfen WhatsApp\'ın yüklü olduğundan emin olun.</string>
+<string name="error_whatsapp_call_unavailable_opened_chat">WhatsApp bu kişiyi doğrudan arayamıyor. Bunun yerine sohbet açıldı.</string>
 <string name="error_whatsapp_chat_failed">WhatsApp sohbeti açılamadı</string>
 <string name="error_whatsapp_not_installed">WhatsApp yüklü değil</string>
 <string name="error_whatsapp_video_call_failed">WhatsApp görüntülü araması açılamadı</string>

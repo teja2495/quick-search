@@ -513,6 +513,7 @@
     <string name="error_telegram_chat_failed">Nie udało się otworzyć czatu Telegram</string>
     <string name="error_telegram_not_installed">Aplikacja Telegram nie jest zainstalowana</string>
     <string name="error_whatsapp_call_failed">Połączenie WhatsApp nie powiodło się. Upewnij się, że aplikacja WhatsApp jest zainstalowana.</string>
+    <string name="error_whatsapp_call_unavailable_opened_chat">WhatsApp nie może bezpośrednio zadzwonić do tego kontaktu. Zamiast tego otwarto czat.</string>
     <string name="error_whatsapp_chat_failed">Nie udało się otworzyć czatu WhatsApp</string>
     <string name="error_whatsapp_not_installed">Aplikacja WhatsApp nie jest zainstalowana</string>
     <string name="error_whatsapp_video_call_failed">Nie udało się rozpocząć rozmowy wideo WhatsApp</string>

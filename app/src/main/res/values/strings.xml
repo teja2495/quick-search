@@ -511,6 +511,7 @@
     <string name="error_telegram_chat_failed">Failed to open Telegram chat</string>
     <string name="error_telegram_not_installed">Telegram is not installed</string>
     <string name="error_whatsapp_call_failed">WhatsApp call failed. Please ensure WhatsApp is installed.</string>
+    <string name="error_whatsapp_call_unavailable_opened_chat">WhatsApp can\'t call this contact directly. Opened the chat instead.</string>
     <string name="error_whatsapp_chat_failed">Failed to open WhatsApp chat</string>
     <string name="error_whatsapp_not_installed">WhatsApp is not installed</string>
     <string name="error_whatsapp_video_call_failed">Failed to open WhatsApp video call</string>

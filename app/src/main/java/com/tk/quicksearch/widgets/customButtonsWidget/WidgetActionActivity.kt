@@ -289,7 +289,7 @@ class WidgetActionActivity : FragmentActivity() {
             }
 
             is ContactMethod.WhatsAppCall -> {
-                ContactIntentHelpers.openWhatsAppCall(application, method.dataId) { resId ->
+                ContactIntentHelpers.openWhatsAppCall(application, method.dataId, method.data) { resId ->
                     showToast(resId)
                 }
             }
@@ -301,7 +301,7 @@ class WidgetActionActivity : FragmentActivity() {
             }
 
             is ContactMethod.WhatsAppVideoCall -> {
-                ContactIntentHelpers.openWhatsAppVideoCall(application, method.dataId) { resId ->
+                ContactIntentHelpers.openWhatsAppVideoCall(application, method.dataId, method.data) { resId ->
                     showToast(resId)
                 }
             }

@@ -507,6 +507,7 @@
     <string name="error_telegram_chat_failed">فشل فتح محادثة Telegram</string>
     <string name="error_telegram_not_installed">تطبيق Telegram غير مثبت</string>
     <string name="error_whatsapp_call_failed">فشلت مكالمة WhatsApp. يرجى التأكد من تثبيت تطبيق WhatsApp.</string>
+    <string name="error_whatsapp_call_unavailable_opened_chat">لا يمكن لـ WhatsApp الاتصال بجهة الاتصال هذه مباشرةً. تم فتح الدردشة بدلاً من ذلك.</string>
     <string name="error_whatsapp_chat_failed">فشل فتح محادثة WhatsApp</string>
     <string name="error_whatsapp_not_installed">تطبيق WhatsApp غير مثبت</string>
     <string name="error_whatsapp_video_call_failed">فشل بدء مكالمة فيديو WhatsApp</string>

@@ -505,6 +505,7 @@
     <string name="error_telegram_chat_failed">Impossibile aprire la chat di Telegram</string>
     <string name="error_telegram_not_installed">Telegram non è installato</string>
     <string name="error_whatsapp_call_failed">Chiamata WhatsApp fallita. Assicurati che WhatsApp sia installato.</string>
+    <string name="error_whatsapp_call_unavailable_opened_chat">WhatsApp non può chiamare direttamente questo contatto. È stata aperta la chat.</string>
     <string name="error_whatsapp_chat_failed">Impossibile aprire la chat di WhatsApp</string>
     <string name="error_whatsapp_not_installed">WhatsApp non è installato</string>
     <string name="error_whatsapp_video_call_failed">Impossibile avviare la videochiamata WhatsApp</string>

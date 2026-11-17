@@ -506,6 +506,7 @@
     <string name="error_telegram_chat_failed">Αποτυχία ανοίγματος συνομιλίας Telegram</string>
     <string name="error_telegram_not_installed">Το Telegram δεν είναι εγκατεστημένο</string>
     <string name="error_whatsapp_call_failed">Η κλήση WhatsApp απέτυχε. Βεβαιωθείτε ότι το WhatsApp είναι εγκατεστημένο.</string>
+    <string name="error_whatsapp_call_unavailable_opened_chat">Το WhatsApp δεν μπορεί να καλέσει απευθείας αυτήν την επαφή. Άνοιξε η συνομιλία.</string>
     <string name="error_whatsapp_chat_failed">Αποτυχία ανοίγματος συνομιλίας WhatsApp</string>
     <string name="error_whatsapp_not_installed">Το WhatsApp δεν είναι εγκατεστημένο</string>
     <string name="error_whatsapp_video_call_failed">Αποτυχία έναρξης βιντεοκλήσης WhatsApp</string>

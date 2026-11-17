@@ -507,6 +507,7 @@
     <string name="error_telegram_chat_failed">Gagal membuka chat Telegram</string>
     <string name="error_telegram_not_installed">Telegram tidak terpasang</string>
     <string name="error_whatsapp_call_failed">Panggilan WhatsApp gagal. Pastikan WhatsApp telah terpasang.</string>
+    <string name="error_whatsapp_call_unavailable_opened_chat">WhatsApp tidak dapat langsung menelepon kontak ini. Chat dibuka sebagai gantinya.</string>
     <string name="error_whatsapp_chat_failed">Gagal membuka chat WhatsApp</string>
     <string name="error_whatsapp_not_installed">WhatsApp tidak terpasang</string>
     <string name="error_whatsapp_video_call_failed">Gagal membuka panggilan video WhatsApp</string>

@@ -524,6 +524,7 @@
     <string name="error_telegram_chat_failed">Openen van Telegram-chat mislukt</string>
     <string name="error_telegram_not_installed">Telegram is niet geïnstalleerd</string>
     <string name="error_whatsapp_call_failed">WhatsApp-oproep mislukt. Controleer of WhatsApp is geïnstalleerd.</string>
+    <string name="error_whatsapp_call_unavailable_opened_chat">WhatsApp kan dit contact niet rechtstreeks bellen. De chat is in plaats daarvan geopend.</string>
     <string name="error_whatsapp_chat_failed">Openen van WhatsApp-chat mislukt</string>
     <string name="error_whatsapp_not_installed">WhatsApp is niet geïnstalleerd</string>
     <string name="error_whatsapp_video_call_failed">Openen van WhatsApp-videogesprek mislukt</string>

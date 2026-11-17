@@ -73,14 +73,16 @@ object ContactIntentHelpers {
     fun openWhatsAppCall(
         context: android.app.Application,
         dataId: Long?,
+        whatsAppId: String? = null,
         onShowToast: ((Int) -> Unit)? = null,
-    ): Boolean = WhatsAppActions.openWhatsAppCall(context, dataId, onShowToast)
+    ): Boolean = WhatsAppActions.openWhatsAppCall(context, dataId, whatsAppId, onShowToast)
 
     fun openWhatsAppVideoCall(
         context: android.app.Application,
         dataId: Long?,
+        whatsAppId: String? = null,
         onShowToast: ((Int) -> Unit)? = null,
-    ): Boolean = WhatsAppActions.openWhatsAppVideoCall(context, dataId, onShowToast)
+    ): Boolean = WhatsAppActions.openWhatsAppVideoCall(context, dataId, whatsAppId, onShowToast)
 
     // ===== TELEGRAM ACTIONS =====
     fun openTelegramChat(

@@ -506,6 +506,7 @@
     <string name="error_telegram_chat_failed">Telegram चैट खोलने में विफल</string>
     <string name="error_telegram_not_installed">Telegram इंस्टॉल नहीं है</string>
     <string name="error_whatsapp_call_failed">WhatsApp कॉल विफल हुई। कृपया सुनिश्चित करें कि WhatsApp इंस्टॉल है।</string>
+    <string name="error_whatsapp_call_unavailable_opened_chat">WhatsApp इस संपर्क को सीधे कॉल नहीं कर सकता। इसके बजाय चैट खोली गई।</string>
     <string name="error_whatsapp_chat_failed">WhatsApp चैट खोलने में विफल</string>
     <string name="error_whatsapp_not_installed">WhatsApp इंस्टॉल नहीं है</string>
     <string name="error_whatsapp_video_call_failed">WhatsApp वीडियो कॉल खोलने में विफल</string>

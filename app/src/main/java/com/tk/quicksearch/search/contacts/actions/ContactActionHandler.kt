@@ -237,7 +237,7 @@ class ContactActionHandler(
             }
 
             is ContactMethod.WhatsAppCall -> {
-                handleWhatsAppCallWithPermission(method.dataId)
+                handleWhatsAppCallWithPermission(method.dataId, method.data)
             }
 
             is ContactMethod.WhatsAppMessage -> {
@@ -248,7 +248,7 @@ class ContactActionHandler(
             }
 
             is ContactMethod.WhatsAppVideoCall -> {
-                handleWhatsAppVideoCallWithPermission(method.dataId)
+                handleWhatsAppVideoCallWithPermission(method.dataId, method.data)
             }
 
             is ContactMethod.TelegramMessage -> {
@@ -399,10 +399,13 @@ class ContactActionHandler(
      * Handles WhatsApp call with permission checking.
      * WhatsApp calls require CALL_PHONE permission.
      */
-    private fun handleWhatsAppCallWithPermission(dataId: Long?) {
+    private fun handleWhatsAppCallWithPermission(
+        dataId: Long?,
+        whatsAppId: String?,
+    ) {
         val hasPermission = PermissionHelper.checkCallPermission(context)
         if (hasPermission) {
-            val success = ContactIntentHelpers.openWhatsAppCall(context, dataId) { resId -> showToastCallback(resId) }
+            val success = ContactIntentHelpers.openWhatsAppCall(context, dataId, whatsAppId) { resId -> showToastCallback(resId) }
             if (success) {
                 clearQueryIfEnabled()
             }
@@ -411,6 +414,7 @@ class ContactActionHandler(
                 PendingThirdPartyCall(
                     app = CallingApp.WHATSAPP,
                     dataId = dataId,
+                    phoneNumber = whatsAppId,
                 ),
             )
         }
@@ -420,7 +424,10 @@ class ContactActionHandler(
      * Handles WhatsApp video call with permission checking.
      * WhatsApp video calls require CALL_PHONE permission and valid dataId.
      */
-    private fun handleWhatsAppVideoCallWithPermission(dataId: Long?) {
+    private fun handleWhatsAppVideoCallWithPermission(
+        dataId: Long?,
+        whatsAppId: String?,
+    ) {
         if (dataId == null) {
             Log.w("ContactActionHandler", "WhatsApp video call missing dataId")
             showToastCallback(R.string.error_whatsapp_video_call_missing_data)
@@ -429,7 +436,7 @@ class ContactActionHandler(
 
         val hasPermission = PermissionHelper.checkCallPermission(context)
         if (hasPermission) {
-            val success = ContactIntentHelpers.openWhatsAppVideoCall(context, dataId) { resId -> showToastCallback(resId) }
+            val success = ContactIntentHelpers.openWhatsAppVideoCall(context, dataId, whatsAppId) { resId -> showToastCallback(resId) }
             if (success) {
                 clearQueryIfEnabled()
             }
@@ -438,6 +445,7 @@ class ContactActionHandler(
                 PendingThirdPartyCall(
                     app = CallingApp.WHATSAPP,
                     dataId = dataId,
+                    phoneNumber = whatsAppId,
                     isVideoCall = true,
                 ),
             )
@@ -536,9 +544,9 @@ class ContactActionHandler(
             CallingApp.WHATSAPP -> {
                 val success =
                     if (pendingCall.isVideoCall) {
-                        ContactIntentHelpers.openWhatsAppVideoCall(context, pendingCall.dataId) { resId -> showToastCallback(resId) }
+                        ContactIntentHelpers.openWhatsAppVideoCall(context, pendingCall.dataId, pendingCall.phoneNumber) { resId -> showToastCallback(resId) }
                     } else {
-                        ContactIntentHelpers.openWhatsAppCall(context, pendingCall.dataId) { resId -> showToastCallback(resId) }
+                        ContactIntentHelpers.openWhatsAppCall(context, pendingCall.dataId, pendingCall.phoneNumber) { resId -> showToastCallback(resId) }
                     }
                 if (success) {
                     clearQueryIfEnabled()
