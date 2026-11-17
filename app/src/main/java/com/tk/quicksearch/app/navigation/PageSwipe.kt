@@ -1,5 +1,7 @@
 package com.tk.quicksearch.app.navigation
 
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
@@ -38,6 +40,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -251,6 +254,39 @@ internal fun PageSwipeHost(
     }
 }
 
+/**
+ * Back from a root page to [target], driven by the predictive back gesture: [target] peeks in as
+ * the gesture progresses (the same slide a page swipe uses), then a commit finishes the slide and
+ * runs [onBack]. Without a live [LocalPageSwipeController] (e.g. overlay) it is a plain handler.
+ */
+@Composable
+internal fun PageBackHandler(
+    target: RootDestination = RootDestination.Search,
+    enabled: Boolean = true,
+    onBack: () -> Unit,
+) {
+    val controller = LocalPageSwipeController.current
+    val latestOnBack by rememberUpdatedState(onBack)
+    if (controller == null) {
+        BackHandler(enabled = enabled) { latestOnBack() }
+        return
+    }
+    PredictiveBackHandler(enabled = enabled) { events ->
+        val fingerDirection = if (target.ordinal > controller.settled.ordinal) -1 else 1
+        val live = controller.beginDrag(target, fingerDirection)
+        try {
+            events.collect { event -> if (live) controller.dragTo(event.progress * BACK_PEEK_FRACTION) }
+            if (live) controller.release(commit = true, velocity = 0f) { latestOnBack() } else latestOnBack()
+        } catch (cancelled: CancellationException) {
+            if (live) controller.release(commit = false, velocity = 0f)
+            throw cancelled
+        }
+    }
+}
+
+/** How much of the previous page a full back gesture reveals before the user commits. */
+private const val BACK_PEEK_FRACTION = 0.3f
+
 /** Null when the host cannot reveal pages live (e.g. overlay), so gestures navigate on release. */
 val LocalPageSwipeController = staticCompositionLocalOf<PageSwipeController?> { null }
 
@@ -265,18 +301,21 @@ private const val MIN_FLING_DISTANCE_FRACTION = 0.25f
  * page tracks the finger and release settles by velocity: a flick forward commits, a flick back
  * returns, a slow release commits past [thresholdPx]. [onSwipe] runs once a navigation commits.
  * Otherwise [onSwipe] runs on release once the drag passes [thresholdPx].
+ * [onThresholdCrossed] fires each time a live drag moves past [thresholdPx] or back short of it.
  */
 internal suspend fun PointerInputScope.detectPageSwipe(
     controller: PageSwipeController?,
     thresholdPx: Float,
     targetFor: (direction: Int) -> RootDestination?,
     onSwipe: (direction: Int) -> Unit,
+    onThresholdCrossed: (pastThreshold: Boolean) -> Unit = {},
 ) {
     val velocityTracker = VelocityTracker()
     val flingVelocityPx = FLING_VELOCITY.toPx()
     var total = 0f
     var locked = 0
     var live = false
+    var pastThreshold = false
     try {
         detectHorizontalDominantDrag(
             onDragStart = {
@@ -284,6 +323,7 @@ internal suspend fun PointerInputScope.detectPageSwipe(
                 total = 0f
                 locked = 0
                 live = false
+                pastThreshold = false
             },
             onHorizontalDrag = { change, amount ->
                 velocityTracker.addPointerInputChange(change)
@@ -295,6 +335,11 @@ internal suspend fun PointerInputScope.detectPageSwipe(
                 }
                 if (live && size.width > 0) {
                     controller?.dragTo(locked * total / size.width)
+                }
+                // Only a page that is tracking the finger can be pulled back short of the threshold.
+                if (live && (locked * total >= thresholdPx) != pastThreshold) {
+                    pastThreshold = !pastThreshold
+                    onThresholdCrossed(pastThreshold)
                 }
             },
             onDragEnd = {

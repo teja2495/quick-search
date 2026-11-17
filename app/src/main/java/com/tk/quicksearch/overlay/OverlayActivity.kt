@@ -7,6 +7,9 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Trace
 import android.view.KeyEvent
+import com.tk.quicksearch.app.quickSearchKeyboardShortcuts
+import android.view.KeyboardShortcutGroup
+import android.view.Menu
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
@@ -169,6 +172,15 @@ class OverlayActivity : FragmentActivity() {
             return true
         }
         return super.dispatchKeyEvent(event)
+    }
+
+    override fun onProvideKeyboardShortcuts(
+        data: MutableList<KeyboardShortcutGroup>,
+        menu: Menu?,
+        deviceId: Int,
+    ) {
+        super.onProvideKeyboardShortcuts(data, menu, deviceId)
+        data.add(quickSearchKeyboardShortcuts(this, includeOpenSettings = false))
     }
 
     override fun finish() {

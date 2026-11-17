@@ -115,6 +115,9 @@
     <string name="action_open_folder">Buka Folder</string>
     <string name="action_open_keyboard">Buka Keyboard</string>
     <string name="action_open_settings">Buka pengaturan</string>
+    <string name="keyboard_shortcut_open_top_result">Buka hasil teratas atau cari</string>
+    <string name="keyboard_shortcut_previous_result">Pilih hasil sebelumnya</string>
+    <string name="keyboard_shortcut_next_result">Pilih hasil berikutnya</string>
     <string name="settings_gestures_title">Gestur</string>
     <string name="settings_gestures_desc">Sesuaikan tindakan geser</string>
     <string name="settings_gesture_swipe_right">Geser ke Kanan</string>

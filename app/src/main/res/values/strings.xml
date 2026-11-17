@@ -114,6 +114,9 @@
     <string name="action_open_folder">Open Folder</string>
     <string name="action_open_keyboard">Open Keyboard</string>
     <string name="action_open_settings">Open settings</string>
+    <string name="keyboard_shortcut_open_top_result">Open top result or search</string>
+    <string name="keyboard_shortcut_previous_result">Select previous result</string>
+    <string name="keyboard_shortcut_next_result">Select next result</string>
     <string name="settings_gestures_title">Gestures</string>
     <string name="settings_gestures_desc">Customize swipe actions</string>
     <string name="settings_gesture_swipe_right">Swipe Right</string>

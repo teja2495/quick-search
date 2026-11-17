@@ -114,6 +114,9 @@
     <string name="action_open_folder">Abrir pasta</string>
     <string name="action_open_keyboard">Abrir teclado</string>
     <string name="action_open_settings">Abrir configurações</string>
+    <string name="keyboard_shortcut_open_top_result">Abrir o primeiro resultado ou pesquisar</string>
+    <string name="keyboard_shortcut_previous_result">Selecionar o resultado anterior</string>
+    <string name="keyboard_shortcut_next_result">Selecionar o próximo resultado</string>
     <string name="settings_gestures_title">Gestos</string>
     <string name="settings_gestures_desc">Personalizar ações de deslizar</string>
     <string name="settings_gesture_swipe_right">Deslizar para a direita</string>

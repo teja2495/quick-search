@@ -114,6 +114,9 @@
     <string name="action_open_folder">फोल्डर खोलें</string>
     <string name="action_open_keyboard">कीबोर्ड खोलें</string>
     <string name="action_open_settings">सेटिंग्स खोलें</string>
+    <string name="keyboard_shortcut_open_top_result">शीर्ष परिणाम खोलें या खोजें</string>
+    <string name="keyboard_shortcut_previous_result">पिछला परिणाम चुनें</string>
+    <string name="keyboard_shortcut_next_result">अगला परिणाम चुनें</string>
     <string name="settings_gestures_title">जेस्चर</string>
     <string name="settings_gestures_desc">स्वाइप क्रियाओं को कस्टमाइज़ करें</string>
     <string name="settings_gesture_swipe_right">दाएँ स्वाइप करें</string>

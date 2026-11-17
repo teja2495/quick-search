@@ -113,6 +113,9 @@
     <string name="action_open_folder">Apri cartella</string>
     <string name="action_open_keyboard">Apri tastiera</string>
     <string name="action_open_settings">Apri impostazioni</string>
+    <string name="keyboard_shortcut_open_top_result">Apri il primo risultato o cerca</string>
+    <string name="keyboard_shortcut_previous_result">Seleziona il risultato precedente</string>
+    <string name="keyboard_shortcut_next_result">Seleziona il risultato successivo</string>
     <string name="settings_gestures_title">Gesti</string>
     <string name="settings_gestures_desc">Personalizza le azioni di scorrimento</string>
     <string name="settings_gesture_swipe_right">Scorri a destra</string>

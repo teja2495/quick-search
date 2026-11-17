@@ -114,6 +114,9 @@
     <string name="action_open_folder">Abrir carpeta</string>
     <string name="action_open_keyboard">Abrir teclado</string>
     <string name="action_open_settings">Abrir ajustes</string>
+    <string name="keyboard_shortcut_open_top_result">Abrir el primer resultado o buscar</string>
+    <string name="keyboard_shortcut_previous_result">Seleccionar el resultado anterior</string>
+    <string name="keyboard_shortcut_next_result">Seleccionar el resultado siguiente</string>
     <string name="settings_gestures_title">Gestos</string>
     <string name="settings_gestures_desc">Personalizar acciones de deslizamiento</string>
     <string name="settings_gesture_swipe_right">Deslizar a la derecha</string>

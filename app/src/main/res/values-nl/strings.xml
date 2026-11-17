@@ -118,6 +118,9 @@
     <string name="action_open_folder">Map openen</string>
     <string name="action_open_keyboard">Toetsenbord openen</string>
     <string name="action_open_settings">Instellingen openen</string>
+    <string name="keyboard_shortcut_open_top_result">Topresultaat openen of zoeken</string>
+    <string name="keyboard_shortcut_previous_result">Vorig resultaat selecteren</string>
+    <string name="keyboard_shortcut_next_result">Volgend resultaat selecteren</string>
     <string name="settings_gestures_title">Gebaren</string>
     <string name="settings_gestures_desc">Veegacties aanpassen</string>
     <string name="settings_gesture_swipe_right">Naar rechts vegen</string>

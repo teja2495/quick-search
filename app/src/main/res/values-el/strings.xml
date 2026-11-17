@@ -114,6 +114,9 @@
     <string name="action_open_folder">Άνοιγμα φακέλου</string>
     <string name="action_open_keyboard">Άνοιγμα πληκτρολογίου</string>
     <string name="action_open_settings">Άνοιγμα ρυθμίσεων</string>
+    <string name="keyboard_shortcut_open_top_result">Άνοιγμα κορυφαίου αποτελέσματος ή αναζήτηση</string>
+    <string name="keyboard_shortcut_previous_result">Επιλογή προηγούμενου αποτελέσματος</string>
+    <string name="keyboard_shortcut_next_result">Επιλογή επόμενου αποτελέσματος</string>
     <string name="settings_gestures_title">Χειρονομίες</string>
     <string name="settings_gestures_desc">Προσαρμογή ενεργειών σάρωσης</string>
     <string name="settings_gesture_swipe_right">Σάρωση δεξιά</string>

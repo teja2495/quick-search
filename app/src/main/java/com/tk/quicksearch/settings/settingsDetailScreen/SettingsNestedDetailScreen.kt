@@ -3,7 +3,6 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 import com.tk.quicksearch.reminders.ReminderEditorRequests
 import androidx.compose.runtime.collectAsState
 import com.tk.quicksearch.search.notificationHistory.NotificationHistoryAccess
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -34,6 +33,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.app.navigation.SettingsPageBackHandler
+import com.tk.quicksearch.shared.ui.components.predictiveBackPreview
+import com.tk.quicksearch.shared.ui.components.rememberPredictiveBackPreviewState
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.core.SearchTarget
@@ -167,8 +169,11 @@ internal fun SettingsNestedDetailScreen(
         }
     }
 
-    BackHandler {
-        if (detailType == SettingsDetailType.NOTES && notesMultiSelectActive) {
+    val backPreview = rememberPredictiveBackPreviewState()
+    val backExitsMultiSelect = detailType == SettingsDetailType.NOTES && notesMultiSelectActive
+    // Leaving multi-select keeps the notes page, so only a real exit previews the page leaving.
+    SettingsPageBackHandler(backPreview, preview = !backExitsMultiSelect) {
+        if (backExitsMultiSelect) {
             notesMultiSelectActive = false
             notesSelectedIds = emptySet()
         } else {
@@ -180,7 +185,7 @@ internal fun SettingsNestedDetailScreen(
         overlayThemeIntensity = state.overlayThemeIntensity,
         deviceThemeEnabled = state.deviceThemeEnabled,
         amoledThemeEnabled = state.amoledThemeEnabled,
-        modifier = modifier,
+        modifier = modifier.predictiveBackPreview(backPreview),
     ) {
     Box(
         modifier =

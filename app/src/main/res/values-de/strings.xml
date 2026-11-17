@@ -114,6 +114,9 @@
     <string name="action_open_folder">Ordner öffnen</string>
     <string name="action_open_keyboard">Tastatur öffnen</string>
     <string name="action_open_settings">Einstellungen öffnen</string>
+    <string name="keyboard_shortcut_open_top_result">Top-Ergebnis öffnen oder suchen</string>
+    <string name="keyboard_shortcut_previous_result">Vorheriges Ergebnis auswählen</string>
+    <string name="keyboard_shortcut_next_result">Nächstes Ergebnis auswählen</string>
     <string name="settings_gestures_title">Gesten</string>
     <string name="settings_gestures_desc">Wischgesten anpassen</string>
     <string name="settings_gesture_swipe_right">Nach rechts wischen</string>

@@ -113,6 +113,9 @@
 <string name="action_open_folder">Klasörü aç</string>
 <string name="action_open_keyboard">Klavyeyi aç</string>
 <string name="action_open_settings">Ayarları aç</string>
+<string name="keyboard_shortcut_open_top_result">En iyi sonucu aç veya ara</string>
+<string name="keyboard_shortcut_previous_result">Önceki sonucu seç</string>
+<string name="keyboard_shortcut_next_result">Sonraki sonucu seç</string>
 <string name="settings_gestures_title">Hareketler</string>
 <string name="settings_gestures_desc">Kaydırma işlemlerini özelleştir</string>
 <string name="settings_gesture_swipe_right">Sağa Kaydır</string>

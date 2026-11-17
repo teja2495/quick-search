@@ -2,7 +2,6 @@ package com.tk.quicksearch.app
 
 import com.tk.quicksearch.search.searchScreen.setContentWithFrostedCards
 import com.tk.quicksearch.search.apps.appLock.AppLockGate
-import android.app.SearchManager
 import android.content.ComponentCallbacks2
 import android.content.Context
 import android.content.Intent
@@ -14,6 +13,8 @@ import android.view.WindowManager
 import android.graphics.PixelFormat
 import android.os.Trace
 import android.view.KeyEvent
+import android.view.KeyboardShortcutGroup
+import android.view.Menu
 import androidx.fragment.app.FragmentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
@@ -282,7 +283,20 @@ open class MainActivity : FragmentActivity() {
             finish()
             return true
         }
+        if (event.isOpenSettingsShortcut()) {
+            navigationRequest.value = NavigationRequest(destination = RootDestination.Settings)
+            return true
+        }
         return super.dispatchKeyEvent(event)
+    }
+
+    override fun onProvideKeyboardShortcuts(
+        data: MutableList<KeyboardShortcutGroup>,
+        menu: Menu?,
+        deviceId: Int,
+    ) {
+        super.onProvideKeyboardShortcuts(data, menu, deviceId)
+        data.add(quickSearchKeyboardShortcuts(this, includeOpenSettings = true))
     }
 
     private fun initializePreferences() {
@@ -324,7 +338,7 @@ open class MainActivity : FragmentActivity() {
                 startVoiceSearch =
                     startVoiceForAssistant || startVoiceFromShortcut || startVoiceFromWidget,
                 micAction = micAction,
-                initialQuery = extractTextFromIntent(intent),
+                initialQuery = extractQueryFromIntent(intent),
             )
             finish()
             return true
@@ -522,42 +536,6 @@ open class MainActivity : FragmentActivity() {
         appTask?.setExcludeFromRecents(!showInRecents)
     }
 
-    private fun extractTextFromIntent(intent: Intent?): String? {
-        if (intent == null) return null
-
-        val queryFromCommonExtras =
-            listOf(
-                    SearchManager.QUERY,
-                    Intent.EXTRA_TEXT,
-                    "query",
-                    "q",
-                    "text",
-                )
-                .asSequence()
-                // Callers put the query under any of these keys with any type, so read it untyped.
-                .mapNotNull { key ->
-                    @Suppress("DEPRECATION")
-                    intent.extras?.get(key)?.toString()?.trim()
-                }
-                .firstOrNull { it.isNotBlank() }
-
-        return when (intent.action) {
-            Intent.ACTION_PROCESS_TEXT ->
-                intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)?.toString()?.trim()
-                    ?.takeIf { it.isNotBlank() }
-            Intent.ACTION_SEND ->
-                if (intent.type == "text/plain")
-                    intent.getStringExtra(Intent.EXTRA_TEXT)?.trim()?.takeIf { it.isNotBlank() }
-                else null
-            Intent.ACTION_SEARCH,
-            Intent.ACTION_WEB_SEARCH,
-            Intent.ACTION_VIEW,
-            Intent.ACTION_MAIN,
-            -> queryFromCommonExtras
-            else -> null
-        }
-    }
-
     private fun handleIntent(intent: Intent?) {
         if (intent?.action == Intent.ACTION_VIEW && intent.data != null) {
             val intentSnapshot = Intent(intent)
@@ -601,7 +579,7 @@ open class MainActivity : FragmentActivity() {
             }
         }
 
-        val incomingText = extractTextFromIntent(intent)
+        val incomingText = extractQueryFromIntent(intent)
         if (incomingText != null) {
             searchViewModel.onQueryChange(incomingText)
         }

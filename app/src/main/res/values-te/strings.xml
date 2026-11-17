@@ -114,6 +114,9 @@
     <string name="action_open_folder">ఫోల్డర్ తెరువు</string>
     <string name="action_open_keyboard">కీబోర్డ్ తెరువు</string>
     <string name="action_open_settings">సెట్టింగ్‌లను తెరువు</string>
+    <string name="keyboard_shortcut_open_top_result">అగ్ర ఫలితాన్ని తెరవండి లేదా వెతకండి</string>
+    <string name="keyboard_shortcut_previous_result">మునుపటి ఫలితాన్ని ఎంచుకోండి</string>
+    <string name="keyboard_shortcut_next_result">తదుపరి ఫలితాన్ని ఎంచుకోండి</string>
     <string name="settings_gestures_title">హావభావాలు</string>
     <string name="settings_gestures_desc">స్వైప్ చర్యలను అనుకూలీకరించండి</string>
     <string name="settings_gesture_swipe_right">కుడికి స్వైప్ చేయండి</string>

@@ -115,6 +115,9 @@
     <string name="action_open_folder">Otwórz folder</string>
     <string name="action_open_keyboard">Otwórz klawiaturę</string>
     <string name="action_open_settings">Otwórz ustawienia</string>
+    <string name="keyboard_shortcut_open_top_result">Otwórz najlepszy wynik lub wyszukaj</string>
+    <string name="keyboard_shortcut_previous_result">Wybierz poprzedni wynik</string>
+    <string name="keyboard_shortcut_next_result">Wybierz następny wynik</string>
     <string name="settings_gestures_title">Gesty</string>
     <string name="settings_gestures_desc">Dostosuj gesty przesunięcia</string>
     <string name="settings_gesture_swipe_right">Przesunięcie w prawo</string>

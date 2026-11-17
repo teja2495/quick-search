@@ -114,6 +114,9 @@
 <string name="action_open_folder">Открыть папку</string>
 <string name="action_open_keyboard">Открыть клавиатуру</string>
 <string name="action_open_settings">Открыть настройки</string>
+<string name="keyboard_shortcut_open_top_result">Открыть лучший результат или искать</string>
+<string name="keyboard_shortcut_previous_result">Выбрать предыдущий результат</string>
+<string name="keyboard_shortcut_next_result">Выбрать следующий результат</string>
 <string name="settings_gestures_title">Жесты</string>
 <string name="settings_gestures_desc">Настройка жестов смахивания</string>
 <string name="settings_gesture_swipe_right">Смахивание вправо</string>

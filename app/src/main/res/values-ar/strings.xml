@@ -115,6 +115,9 @@
     <string name="action_open_folder">فتح المجلد</string>
     <string name="action_open_keyboard">فتح لوحة المفاتيح</string>
     <string name="action_open_settings">فتح الإعدادات</string>
+    <string name="keyboard_shortcut_open_top_result">فتح أفضل نتيجة أو البحث</string>
+    <string name="keyboard_shortcut_previous_result">تحديد النتيجة السابقة</string>
+    <string name="keyboard_shortcut_next_result">تحديد النتيجة التالية</string>
     <string name="settings_gestures_title">الإيماءات</string>
     <string name="settings_gestures_desc">تخصيص إجراءات السحب</string>
     <string name="settings_gesture_swipe_right">السحب لليمين</string>

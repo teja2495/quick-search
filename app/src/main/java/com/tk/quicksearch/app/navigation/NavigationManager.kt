@@ -7,6 +7,7 @@ import android.os.Environment
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +28,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
@@ -470,24 +472,27 @@ private fun NavigationContent(
     // Outlives the Search page, which is disposed while Widgets or Settings is shown.
     val homeAppearedContentKeys = remember { mutableSetOf<String>() }
     Box(modifier = Modifier.fillMaxSize()) {
-        // Opaque cover under Settings; a transparent (system wallpaper) window would smear trails.
+        // Opaque cover under Settings that slides with it; a transparent (system wallpaper) window
+        // would smear trails. Cross-fading it would let the app behind show through mid-switch.
         val backgroundColor = MaterialTheme.colorScheme.background
         Box(
             modifier =
                 Modifier
                     .fillMaxSize()
                     .drawBehind {
-                        val alpha = pageSwipeController.visibilityOf(RootDestination.Settings)
-                        if (alpha > 0f) drawRect(backgroundColor, alpha = alpha)
+                        if (pageSwipeController.visibilityOf(RootDestination.Settings) <= 0f) return@drawBehind
+                        val left = pageSwipeController.offsetFraction(RootDestination.Settings) * size.width
+                        drawRect(backgroundColor, topLeft = Offset(left, 0f), size = size)
                     },
         )
         // Kept composed across Settings so returning never rebuilds (and re-fades) the wallpaper.
+        // Stays opaque until Settings fully covers it, so the uncovered side never shows through.
         SharedPageBackdrop(
             state = uiState,
             modifier =
                 Modifier
                     .graphicsLayer {
-                        alpha = 1f - pageSwipeController.visibilityOf(RootDestination.Settings)
+                        alpha = if (pageSwipeController.visibilityOf(RootDestination.Settings) >= 1f) 0f else 1f
                     }.welcomeBackdropZoom(),
         )
         CompositionLocalProvider(
@@ -506,7 +511,7 @@ private fun NavigationContent(
                                 onDestinationChange(RootDestination.Search)
                             }
                         }
-                        BackHandler(onBack = navigateToSearch)
+                        PageBackHandler(onBack = navigateToSearch)
                         WidgetsPanelScreen(
                             onNavigateToSearch = navigateToSearch,
                             uiState = uiState,
@@ -687,8 +692,10 @@ private fun SettingsNavigationContent(
         onSettingsDetailAnimationDirectionConsumed()
     }
 
-    AnimatedContent(
-        targetState = settingsDetailType,
+    val backSeek =
+        rememberSettingsBackSeek(settingsDetailType, previousSettingsDetailType, settingsDetailAnimationDirectionOverride)
+    CompositionLocalProvider(LocalSettingsBackSeek provides backSeek) {
+    rememberTransition(backSeek.transitionState, label = "SettingsDetailTransition").AnimatedContent(
         transitionSpec = {
             val isForward =
                 when {
@@ -712,7 +719,7 @@ private fun SettingsNavigationContent(
                     else -> false
                 }
             val animationDirection =
-                settingsDetailAnimationDirectionOverride
+                backSeek.directionOverride.takeUnless { backSeek.isSeeking }
                     ?: if (isForward) {
                         SwipeAnimationDirection.LEFT
                     } else {
@@ -720,7 +727,6 @@ private fun SettingsNavigationContent(
                     }
             directionalNavigationTransition(animationDirection)
         },
-        label = "SettingsDetailTransition",
     ) { currentDetailType ->
         if (currentDetailType != null) {
             val detailScrollState =
@@ -774,5 +780,6 @@ private fun SettingsNavigationContent(
                 scrollState = settingsScrollState,
             )
         }
+    }
     }
 }

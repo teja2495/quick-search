@@ -5,7 +5,6 @@ import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenCallbacks as SharedSettingsScreenCallbacks
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenState as SharedSettingsScreenState
 import android.net.Uri
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
@@ -32,6 +31,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.app.navigation.PageBackHandler
 import com.tk.quicksearch.search.searchScreen.dialogs.ReleaseNotesDrawer
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.settings.shared.*
@@ -94,7 +94,7 @@ fun SettingsScreen(
     scrollState: androidx.compose.foundation.ScrollState =
         androidx.compose.foundation.rememberScrollState(),
 ) {
-    BackHandler(onBack = callbacks.onBack)
+    PageBackHandler(onBack = callbacks.onBack)
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     FeatureFlags.initialize(context)

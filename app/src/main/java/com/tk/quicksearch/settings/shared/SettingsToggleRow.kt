@@ -35,7 +35,7 @@ import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.util.hapticToggle
+import com.tk.quicksearch.shared.util.hapticToggleState
 import com.tk.quicksearch.shared.ui.components.SegmentedTileContentPadding
 import com.tk.quicksearch.shared.ui.components.SegmentedTileToggleHorizontalPadding
 import com.tk.quicksearch.shared.ui.components.LocalInSegmentedTile
@@ -102,7 +102,7 @@ fun SettingsToggleRow(
         if (segmented) SegmentedTileContentPadding else DesignTokens.cardItemBottomPadding(isLastItem) + extraVerticalPadding
     val onToggle: (Boolean) -> Unit = { newValue ->
         if (enabled) {
-            hapticToggle(view)()
+            hapticToggleState(view, newValue)
             onCheckedChange(newValue)
         }
     }

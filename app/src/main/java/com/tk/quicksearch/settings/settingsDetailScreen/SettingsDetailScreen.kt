@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.widget.Toast
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
@@ -38,6 +37,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.tk.quicksearch.R
+import com.tk.quicksearch.app.navigation.SettingsPageBackHandler
+import com.tk.quicksearch.shared.ui.components.predictiveBackPreview
+import com.tk.quicksearch.shared.ui.components.rememberPredictiveBackPreviewState
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.SearchUiState
@@ -128,7 +130,13 @@ internal fun SettingsDetailLevel1Screen(
         } else {
             callbacks.onBack
         }
-    BackHandler(onBack = onBackAction)
+    val backPreview = rememberPredictiveBackPreviewState()
+    // Closing an open license entry keeps this page, so it gets no page-level preview.
+    SettingsPageBackHandler(
+        previewState = backPreview,
+        preview = !(detailType == SettingsDetailType.OPEN_SOURCE_LICENSES && selectedOpenSourceLicense != null),
+        onBack = onBackAction,
+    )
     val hasExcludedItems =
         state.suggestionExcludedApps.isNotEmpty() ||
             state.resultExcludedApps.isNotEmpty() ||
@@ -147,7 +155,7 @@ internal fun SettingsDetailLevel1Screen(
         overlayThemeIntensity = state.overlayThemeIntensity,
         deviceThemeEnabled = effectiveDeviceThemeEnabled,
         amoledThemeEnabled = state.amoledThemeEnabled,
-        modifier = modifier,
+        modifier = modifier.predictiveBackPreview(backPreview),
     ) {
     MonoThemeWrapper(
         applyMono = shouldForceMonochromeTheme,

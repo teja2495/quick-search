@@ -114,6 +114,9 @@
     <string name="action_open_folder">打开文件夹</string>
     <string name="action_open_keyboard">打开键盘</string>
     <string name="action_open_settings">打开设置</string>
+    <string name="keyboard_shortcut_open_top_result">打开首个结果或搜索</string>
+    <string name="keyboard_shortcut_previous_result">选择上一个结果</string>
+    <string name="keyboard_shortcut_next_result">选择下一个结果</string>
     <string name="settings_gestures_title">手势</string>
     <string name="settings_gestures_desc">自定义滑动手势</string>
     <string name="settings_gesture_swipe_right">向右滑动</string>

@@ -115,6 +115,9 @@
     <string name="action_open_folder">フォルダを開く</string>
     <string name="action_open_keyboard">キーボードを開く</string>
     <string name="action_open_settings">設定を開く</string>
+    <string name="keyboard_shortcut_open_top_result">トップの結果を開くか検索</string>
+    <string name="keyboard_shortcut_previous_result">前の結果を選択</string>
+    <string name="keyboard_shortcut_next_result">次の結果を選択</string>
     <string name="settings_gestures_title">ジェスチャー</string>
     <string name="settings_gestures_desc">スワイプ操作をカスタマイズ</string>
     <string name="settings_gesture_swipe_right">右にスワイプ</string>

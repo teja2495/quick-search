@@ -114,6 +114,9 @@
 <string name="action_open_folder">Ouvrir le dossier</string>
 <string name="action_open_keyboard">Ouvrir le clavier</string>
 <string name="action_open_settings">Ouvrir les paramètres</string>
+<string name="keyboard_shortcut_open_top_result">Ouvrir le premier résultat ou rechercher</string>
+<string name="keyboard_shortcut_previous_result">Sélectionner le résultat précédent</string>
+<string name="keyboard_shortcut_next_result">Sélectionner le résultat suivant</string>
 <string name="settings_gestures_title">Gestes</string>
 <string name="settings_gestures_desc">Personnaliser les actions de balayage</string>
 <string name="settings_gesture_swipe_right">Balayer vers la droite</string>

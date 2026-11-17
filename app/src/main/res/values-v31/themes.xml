@@ -24,8 +24,4 @@
         <item name="android:windowShowWallpaper">true</item>
     </style>
 
-    <style name="Theme.QuickSearch.SettingsOpaque" parent="Theme.QuickSearch">
-        <item name="android:windowIsTranslucent">false</item>
-    </style>
-
 </resources>

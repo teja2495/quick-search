@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -42,6 +41,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.tk.quicksearch.shared.ui.components.PredictiveBackSlideHandler
+import com.tk.quicksearch.shared.ui.components.predictiveBackSlide
+import com.tk.quicksearch.shared.ui.components.rememberPredictiveBackSlideState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -96,13 +98,21 @@ internal object EditWidgetAppNotificationFilters : ActivityResultContract<AppNot
 class AppNotificationsActivity : ComponentActivity() {
     private val viewModel: AppNotificationsViewModel by viewModels()
 
+    /** Set when the back gesture has already slid the page away, so closing adds no animation. */
+    private var closedByBackGesture = false
+
+    /** Every way out (header back, back key, back gesture) ends here. */
     @Suppress("DEPRECATION")
-    private fun finishWithSlide() {
+    override fun finish() {
         if (viewModel.isWidget) {
             viewModel.filters.value?.let { setResult(RESULT_OK, Intent().putExtra(EXTRA_WIDGET_FILTERS, it)) }
         }
-        finish()
-        overridePendingTransition(R.anim.custom_info_slide_in_left, R.anim.custom_info_slide_out_right)
+        super.finish()
+        if (closedByBackGesture) {
+            overridePendingTransition(0, 0)
+        } else {
+            overridePendingTransition(R.anim.custom_info_slide_in_left, R.anim.custom_info_slide_out_right)
+        }
     }
 
     override fun attachBaseContext(newBase: Context) {
@@ -116,9 +126,6 @@ class AppNotificationsActivity : ComponentActivity() {
             navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
         )
         super.onCreate(savedInstanceState)
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() = finishWithSlide()
-        })
         val preferences = UserAppPreferences(applicationContext)
         setContent {
             val useDarkSystemBars = when (preferences.getAppThemeMode()) {
@@ -138,14 +145,19 @@ class AppNotificationsActivity : ComponentActivity() {
                 customAccentColorArgb = preferences.getCustomAccentColorArgb(),
                 deviceThemeEnabled = preferences.isDeviceThemeEnabled(),
             ) {
+                val backSlide = rememberPredictiveBackSlideState()
+                PredictiveBackSlideHandler(backSlide) {
+                    closedByBackGesture = true
+                    finish()
+                }
                 SettingsScreenBackground(
                     appTheme = preferences.getAppTheme(),
                     overlayThemeIntensity = preferences.getOverlayThemeIntensity(),
                     deviceThemeEnabled = preferences.isDeviceThemeEnabled(),
                     amoledThemeEnabled = preferences.isAmoledThemeEnabled(),
-                    modifier = Modifier.background(MaterialTheme.colorScheme.background),
+                    modifier = Modifier.predictiveBackSlide(backSlide).background(MaterialTheme.colorScheme.background),
                 ) {
-                    AppNotificationsScreen(onBack = ::finishWithSlide, viewModel = viewModel)
+                    AppNotificationsScreen(onBack = ::finish, viewModel = viewModel)
                 }
             }
         }

@@ -92,11 +92,11 @@
         <activity
             android:name=".customInfo.CustomInfoActivity"
             android:exported="false"
-            android:theme="@style/Theme.QuickSearch.SettingsOpaque" />
+            android:theme="@style/Theme.QuickSearch" />
         <activity
             android:name=".appNotifications.AppNotificationsActivity"
             android:exported="false"
-            android:theme="@style/Theme.QuickSearch.SettingsOpaque" />
+            android:theme="@style/Theme.QuickSearch" />
         <receiver android:name=".customInfo.CustomInfoAlarmReceiver" android:exported="false" />
         <service android:name=".customInfo.CustomInfoJobService" android:permission="android.permission.BIND_JOB_SERVICE" android:exported="true" />
 

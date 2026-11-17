@@ -97,7 +97,10 @@ import androidx.compose.ui.zIndex
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.util.hapticGestureThreshold
+import com.tk.quicksearch.app.navigation.PageBackHandler
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.SearchUiState
@@ -321,15 +324,14 @@ fun WidgetsPanelScreen(
         }
     }
 
-    BackHandler {
-        when {
-            editingWidgetId != null -> editingWidgetId = null
-            showPicker -> showPicker = false
-            else -> onNavigateToSearch()
-        }
+    // Leaving the panel previews Search sliding in; closing the editor or picker stays a plain back.
+    PageBackHandler(enabled = editingWidgetId == null && !showPicker, onBack = onNavigateToSearch)
+    BackHandler(enabled = editingWidgetId != null || showPicker) {
+        if (editingWidgetId != null) editingWidgetId = null else showPicker = false
     }
 
     val pageSwipeController = LocalPageSwipeController.current
+    val view = LocalView.current
     val latestOnNavigateToSearch by rememberUpdatedState(onNavigateToSearch)
     val swipeBackModifier =
         Modifier.pointerInput(pageSwipeController) {
@@ -338,6 +340,7 @@ fun WidgetsPanelScreen(
                 thresholdPx = WIDGET_PANEL_SWIPE_THRESHOLD_PX,
                 targetFor = { direction -> RootDestination.Search.takeIf { direction < 0 } },
                 onSwipe = { direction -> if (direction < 0) latestOnNavigateToSearch() },
+                onThresholdCrossed = { hapticGestureThreshold(view, it) },
             )
         }
 
