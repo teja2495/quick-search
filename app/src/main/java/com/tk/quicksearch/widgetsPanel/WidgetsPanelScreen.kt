@@ -25,6 +25,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.scrollBy
 import com.tk.quicksearch.app.navigation.LocalPageSwipeController
+import com.tk.quicksearch.app.navigation.LocalRootPageSettled
 import com.tk.quicksearch.app.navigation.RootDestination
 import com.tk.quicksearch.app.navigation.detectPageSwipe
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -168,9 +169,7 @@ fun WidgetsPanelScreen(
     val density = LocalDensity.current
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    // Only the swipe from search hides the keyboard on its way out; the app shortcut and the
-    // overlay hand-off switch here directly, sometimes right after resume re-raised it for search.
-    LaunchedEffect(Unit) { keyboardController?.hide() }
+    val pageSettled = LocalRootPageSettled.current
     val appWidgetManager = remember(appContext) { AppWidgetManager.getInstance(appContext) }
     val appWidgetHost = remember(appContext) { WidgetPanelHost(appContext, QUICK_SEARCH_WIDGET_HOST_ID) }
     val preferences = remember(appContext) { WidgetsPanelPreferences(appContext) }
@@ -208,9 +207,7 @@ fun WidgetsPanelScreen(
     // reserving invisible cells ahead of widgets added on this device.
     var restoredWidgetIdsValidated by remember { mutableStateOf(false) }
     val widgetContentAvailable = remember { mutableStateMapOf<Int, Boolean>() }
-    // Keep the first panel frame independent of third-party RemoteViews. Some providers perform
-    // expensive work while their host view is created; doing that during navigation blocks the
-    // whole panel from appearing.
+    // Keep the panel slide independent of third-party RemoteViews inflation.
     var showHostedWidgets by remember { mutableStateOf(false) }
     val panelScrollState = rememberScrollState()
     // Window bounds of the scroll viewport, used to auto-scroll a widget back into view while it is
@@ -295,8 +292,10 @@ fun WidgetsPanelScreen(
         }
     }
 
-    LaunchedEffect(appWidgetHost) {
-        // Let the host begin listening and the panel draw once before creating provider views.
+    LaunchedEffect(appWidgetHost, pageSettled) {
+        if (!pageSettled || showHostedWidgets) return@LaunchedEffect
+        // Also handle direct entries from the shortcut or overlay, which bypass Home's IME hide.
+        keyboardController?.hide()
         withFrameNanos { }
         showHostedWidgets = true
     }
@@ -489,9 +488,10 @@ fun WidgetsPanelScreen(
                                 if (isQuickNoteEnabled) add(quickNoteWidget)
                                 addAll(panelWidgets)
                             }
-                        if (panelItems.isNotEmpty() && showHostedWidgets && restoredWidgetIdsValidated) {
+                        if (panelItems.isNotEmpty() && restoredWidgetIdsValidated) {
                             WidgetPanelGrid(
                                 widgets = panelItems,
+                                showHostedWidgets = showHostedWidgets,
                                 appWidgetManager = appWidgetManager,
                                 appWidgetHost = appWidgetHost,
                                 widgetContentAvailable = widgetContentAvailable,

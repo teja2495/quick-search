@@ -87,6 +87,7 @@ import com.tk.quicksearch.search.core.SearchBarStyle
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.app.HomeActivity
+import com.tk.quicksearch.app.navigation.LocalRootPageSettled
 import com.tk.quicksearch.app.startup.StartupTrace
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.util.hapticStrong
@@ -237,7 +238,7 @@ internal fun PersistentSearchBar(
     val aliasMorphProgress = remember { Animatable(1f) }
     var aliasMorphText by remember { mutableStateOf<String?>(null) }
     var previousLeadingIconState by remember { mutableStateOf(leadingIconState) }
-    var hasCompletedStartupAutoFocus by remember { mutableStateOf(!autoFocusOnStart) }
+    var hasCompletedStartupAutoFocus by remember(autoFocusOnStart) { mutableStateOf(!autoFocusOnStart) }
     val searchBarInteractionSource = remember { MutableInteractionSource() }
     // A caret with no way to type is noise: hide it while the soft keyboard is closed, unless a
     // hardware keyboard can still type into the field.
@@ -362,8 +363,11 @@ internal fun PersistentSearchBar(
         }
     }
 
+    val pageSettled = LocalRootPageSettled.current
+    val latestPageSettled = rememberUpdatedState(pageSettled)
     val skipLaunchAutoFocus = LocalSearchReturningFromInAppPage.current
-    LaunchedEffect(autoFocusOnStart, hasLaidOutSearchField) {
+    LaunchedEffect(autoFocusOnStart, hasLaidOutSearchField, pageSettled) {
+        if (!pageSettled || hasCompletedStartupAutoFocus) return@LaunchedEffect
         if (!autoFocusOnStart || skipLaunchAutoFocus) {
             hasCompletedStartupAutoFocus = true
             return@LaunchedEffect
@@ -395,6 +399,7 @@ internal fun PersistentSearchBar(
                             if (
                                 autoFocusOnStart &&
                                 hasCompletedStartupAutoFocus &&
+                                latestPageSettled.value &&
                                 (context as? HomeActivity)?.consumeResumeAutoFocusSuppression() != true
                             ) {
                                 focusRequester.requestFocus()
@@ -408,13 +413,10 @@ internal fun PersistentSearchBar(
             onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
         }
     }
-    // Navigating to settings/widgets and back rebuilds this field from scratch, so a keyboard the
-    // user opened by hand is only restored when the ViewModel says it was open on the way out.
-    // The request is read once on entry: it is set while the outgoing field is still composed for
-    // the exit animation, and reacting there reopens the keyboard over the page being opened.
-    val restoreKeyboardOnThisEntry = remember { restoreKeyboardOnEnter }
-    LaunchedEffect(restoreKeyboardOnThisEntry, hasLaidOutSearchField) {
-        if (!restoreKeyboardOnThisEntry || !hasLaidOutSearchField) return@LaunchedEffect
+    // The IME changes Home's layout. Wait until the page settles before restoring it, and leave
+    // the request pending if a swipe only previews Home and is then cancelled.
+    LaunchedEffect(restoreKeyboardOnEnter, hasLaidOutSearchField, pageSettled) {
+        if (!restoreKeyboardOnEnter || !hasLaidOutSearchField || !pageSettled) return@LaunchedEffect
         focusRequester.requestFocus()
         keyboardController?.show()
         onRestoreKeyboardHandled()

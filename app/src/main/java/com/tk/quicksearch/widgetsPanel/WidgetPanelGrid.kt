@@ -144,6 +144,7 @@ private const val HEADER_ACTION_INITIAL_SCALE = 0.85f
 @Composable
 internal fun WidgetPanelGrid(
     widgets: List<PanelWidgetInfo>,
+    showHostedWidgets: Boolean,
     appWidgetManager: AppWidgetManager,
     appWidgetHost: WidgetPanelHost,
     widgetContentAvailable: Map<Int, Boolean>,
@@ -352,6 +353,7 @@ internal fun WidgetPanelGrid(
                 key(widget.appWidgetId) {
                     WidgetPanelGridItem(
                         widget = widget,
+                        showHostedWidget = showHostedWidgets,
                         appWidgetManager = appWidgetManager,
                         appWidgetHost = appWidgetHost,
                         hasWidgetContent = widgetContentAvailable[widget.appWidgetId] == true,
@@ -412,6 +414,7 @@ internal fun WidgetPanelGrid(
 @Composable
 private fun BoxScope.WidgetPanelGridItem(
     widget: PanelWidgetInfo,
+    showHostedWidget: Boolean,
     appWidgetManager: AppWidgetManager,
     appWidgetHost: WidgetPanelHost,
     hasWidgetContent: Boolean,
@@ -506,17 +509,19 @@ private fun BoxScope.WidgetPanelGridItem(
                     scaleY = editScale
                 },
     ) {
-        HostedWidget(
-            appWidgetId = widget.appWidgetId,
-            providerInfo = providerInfo,
-            appWidgetManager = appWidgetManager,
-            appWidgetHost = appWidgetHost,
-            width = width,
-            height = height,
-            columnSpan = columnSpan,
-            rowSpan = rowSpan,
-            modifier = Modifier.fillMaxSize(),
-        )
+        if (showHostedWidget) {
+            HostedWidget(
+                appWidgetId = widget.appWidgetId,
+                providerInfo = providerInfo,
+                appWidgetManager = appWidgetManager,
+                appWidgetHost = appWidgetHost,
+                width = width,
+                height = height,
+                columnSpan = columnSpan,
+                rowSpan = rowSpan,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
         if (!hasWidgetContent) {
             // A plain Box rather than Surface: Surface consumes touches, which would block the host
             // view's long-press and leave a widget whose provider never sends content impossible

@@ -5,19 +5,19 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animate
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.horizontalDrag
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.ime
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
@@ -36,10 +36,7 @@ import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.addPointerInputChange
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
-import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -75,7 +72,6 @@ class PageSwipeController internal constructor(
     private var headingToTarget = false
 
     internal var onPrepare: (RootDestination) -> Unit = {}
-    internal var onCancelled: (RootDestination) -> Unit = {}
     internal var onSettled: (RootDestination) -> Unit = {}
 
     /** Pages that must be composed: the settled one plus any page sliding in. */
@@ -185,7 +181,6 @@ class PageSwipeController internal constructor(
                 if (toTarget) settled = page
                 target = null
                 progressState.floatValue = 0f
-                if (!toTarget) onCancelled(page)
                 onSettled(settled)
             }
     }
@@ -203,27 +198,16 @@ internal fun rememberPageSwipeController(
     destination: RootDestination,
     settingsDetailType: SettingsDetailType?,
     onSettingsDetailTypeChange: (SettingsDetailType?) -> Unit,
-    viewModel: SearchViewModel,
 ): PageSwipeController {
     val scope = rememberCoroutineScope()
     val controller = remember(scope) { PageSwipeController(destination, scope) }
     val latestDestination by rememberUpdatedState(destination)
     val latestSettingsDetailType by rememberUpdatedState(settingsDetailType)
     val latestOnSettingsDetailTypeChange by rememberUpdatedState(onSettingsDetailTypeChange)
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val imeInsets = WindowInsets.ime
-    val density = LocalDensity.current
     controller.onPrepare = { target ->
         // Show the page Settings would open on, so the commit does not switch it mid-slide.
         if (target == RootDestination.Settings && latestSettingsDetailType == null) {
             SettingsNavigationMemory.getLastOpenedSettingsDetail()?.let(latestOnSettingsDetailTypeChange)
-        }
-    }
-    controller.onCancelled = { target ->
-        // Revealing Search restores its keyboard; a cancelled drag must not leave it over this page.
-        if (target == RootDestination.Search && imeInsets.getBottom(density) > 0) {
-            keyboardController?.hide()
-            viewModel.setSearchKeyboardRestoreRequest(true)
         }
     }
     // The navigation state stays the source of truth: if a committed swipe did not navigate there,
@@ -232,23 +216,41 @@ internal fun rememberPageSwipeController(
     return controller
 }
 
+/** False while a root page is sliding or only being previewed by a gesture. */
+internal val LocalRootPageSettled = compositionLocalOf { true }
+
 /** Lays out the composed root pages side by side, offset by the controller's progress. */
 @Composable
 internal fun PageSwipeHost(
     controller: PageSwipeController,
+    destination: RootDestination,
     modifier: Modifier = Modifier,
     content: @Composable (RootDestination) -> Unit,
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         for (page in controller.composedPages) {
             key(page) {
+                // Settings has a translucent theme gradient. Its opaque base must travel with it
+                // above the shared wallpaper so the gradient looks the same throughout the slide.
+                val background =
+                    if (page == RootDestination.Settings) {
+                        Modifier.background(MaterialTheme.colorScheme.background)
+                    } else {
+                        Modifier
+                    }
                 Box(
                     modifier =
                         Modifier
                             .fillMaxSize()
-                            .graphicsLayer { translationX = controller.offsetFraction(page) * size.width },
+                            .graphicsLayer { translationX = controller.offsetFraction(page) * size.width }
+                            .then(background),
                 ) {
-                    content(page)
+                    CompositionLocalProvider(
+                        LocalRootPageSettled provides
+                            (page == destination && page == controller.settled && controller.target == null),
+                    ) {
+                        content(page)
+                    }
                 }
             }
         }
@@ -380,7 +382,7 @@ internal suspend fun PointerInputScope.detectPageSwipe(
 /**
  * Like `detectHorizontalDragGestures`, but a gesture whose touch-slop movement is mostly vertical
  * is ignored entirely. Otherwise a vertical swipe that drifts sideways would start revealing the
- * neighbouring page (composing Search and flashing its restored keyboard over the widgets panel).
+ * neighbouring page.
  */
 private suspend fun PointerInputScope.detectHorizontalDominantDrag(
     onDragStart: () -> Unit,

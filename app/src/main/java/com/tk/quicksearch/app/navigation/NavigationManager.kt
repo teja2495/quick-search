@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -23,13 +22,10 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -456,7 +452,7 @@ private fun NavigationContent(
     // content slides. Settings covers it with an opaque background. Everything is driven by the
     // page controller's progress in the draw phase, so the backdrop and pages never drift apart.
     val pageSwipeController =
-        rememberPageSwipeController(destination, settingsDetailType, onSettingsDetailTypeChange, viewModel)
+        rememberPageSwipeController(destination, settingsDetailType, onSettingsDetailTypeChange)
     LaunchedEffect(destination) {
         pageSwipeController.navigateTo(
             destination,
@@ -472,19 +468,6 @@ private fun NavigationContent(
     // Outlives the Search page, which is disposed while Widgets or Settings is shown.
     val homeAppearedContentKeys = remember { mutableSetOf<String>() }
     Box(modifier = Modifier.fillMaxSize()) {
-        // Opaque cover under Settings that slides with it; a transparent (system wallpaper) window
-        // would smear trails. Cross-fading it would let the app behind show through mid-switch.
-        val backgroundColor = MaterialTheme.colorScheme.background
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .drawBehind {
-                        if (pageSwipeController.visibilityOf(RootDestination.Settings) <= 0f) return@drawBehind
-                        val left = pageSwipeController.offsetFraction(RootDestination.Settings) * size.width
-                        drawRect(backgroundColor, topLeft = Offset(left, 0f), size = size)
-                    },
-        )
         // Kept composed across Settings so returning never rebuilds (and re-fades) the wallpaper.
         // Stays opaque until Settings fully covers it, so the uncovered side never shows through.
         SharedPageBackdrop(
@@ -500,7 +483,7 @@ private fun NavigationContent(
             LocalHomeAppearedContentKeys provides homeAppearedContentKeys,
             LocalPageSwipeController provides if (returnToOverlay) null else pageSwipeController,
         ) {
-            PageSwipeHost(controller = pageSwipeController) { targetDestination ->
+            PageSwipeHost(controller = pageSwipeController, destination = destination) { targetDestination ->
                 when (targetDestination) {
                     RootDestination.WidgetsPanel -> {
                         val navigateToSearch: () -> Unit = {
@@ -511,7 +494,6 @@ private fun NavigationContent(
                                 onDestinationChange(RootDestination.Search)
                             }
                         }
-                        PageBackHandler(onBack = navigateToSearch)
                         WidgetsPanelScreen(
                             onNavigateToSearch = navigateToSearch,
                             uiState = uiState,
@@ -538,7 +520,8 @@ private fun NavigationContent(
                     }
 
                     RootDestination.Search -> {
-                        BackHandler { onSearchBackPressed() }
+                        val pageSettled = LocalRootPageSettled.current
+                        BackHandler(enabled = pageSettled) { onSearchBackPressed() }
                         val keyboardController =
                             androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
                         val lastOpenedSettingsDetail = SettingsNavigationMemory.getLastOpenedSettingsDetail()
@@ -567,8 +550,8 @@ private fun NavigationContent(
                         // Read once on entry: returning from Settings/Widgets skips launch auto-focus, so
                         // the keyboard only comes back if it was open when search was left.
                         val returningFromInAppPage = remember { viewModel.searchLeftForInAppPage }
-                        LaunchedEffect(destination) {
-                            if (destination == RootDestination.Search) viewModel.setSearchLeftForInAppPage(false)
+                        LaunchedEffect(pageSettled) {
+                            if (pageSettled) viewModel.setSearchLeftForInAppPage(false)
                         }
                         CompositionLocalProvider(LocalSearchReturningFromInAppPage provides returningFromInAppPage) {
                             SearchRoute(

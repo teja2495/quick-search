@@ -62,6 +62,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.tk.quicksearch.app.navigation.LocalRootPageSettled
 import com.tk.quicksearch.search.core.ItemPriorityConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -183,7 +184,8 @@ internal fun HomeWidgetStack(
     var settleJob by remember { mutableStateOf<Job?>(null) }
     // Written during measure and read only from gesture callbacks, so it isn't snapshot state.
     val gridUnitWidthPx = remember { floatArrayOf(0f) }
-    // Let Home draw before third-party RemoteViews are inflated.
+    // Let Home finish sliding in before third-party RemoteViews are inflated.
+    val pageSettled = LocalRootPageSettled.current
     var showHostedWidgets by remember { mutableStateOf(false) }
     val bounds = remember { mutableMapOf<Any, HomeEntryBounds>() }
     // Each widget's on-screen bounds, for the screen-level edit tap guard.
@@ -197,7 +199,8 @@ internal fun HomeWidgetStack(
     val currentLayoutOrder by rememberUpdatedState(layoutOrder)
     val currentIsReversed by rememberUpdatedState(isReversed)
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(pageSettled) {
+        if (!pageSettled || showHostedWidgets) return@LaunchedEffect
         withFrameNanos { }
         showHostedWidgets = true
     }
