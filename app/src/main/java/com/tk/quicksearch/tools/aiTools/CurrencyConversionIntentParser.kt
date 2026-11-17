@@ -55,98 +55,100 @@ object CurrencyConversionIntentParser {
     )
 
     /** Currency name (lowercase, singular & plural) → ISO 4217 code. */
-    private val NAME_TO_CODE: Map<String, String> = buildMap {
-        fun add(code: String, vararg names: String) = names.forEach { put(it.lowercase(), code) }
+    private val NAME_TO_CODE: Map<String, String> by lazy {
+        buildMap {
+            fun add(code: String, vararg names: String) = names.forEach { put(it.lowercase(), code) }
 
-        // Americas
-        add("USD", "dollar", "dollars", "us dollar", "us dollars", "american dollar", "american dollars")
-        add("CAD", "canadian dollar", "canadian dollars")
-        add("AUD", "australian dollar", "australian dollars")
-        add("NZD", "new zealand dollar", "new zealand dollars")
-        add("MXN", "mexican peso", "mexican pesos", "peso", "pesos")
-        add("BRL", "real", "reais", "brazilian real", "brazilian reais")
-        add("ARS", "argentinian peso", "argentinian pesos", "argentine peso", "argentine pesos")
-        add("CLP", "chilean peso", "chilean pesos")
-        add("COP", "colombian peso", "colombian pesos")
-        add("PEN", "sol", "soles", "peruvian sol", "peruvian soles")
-        add("BOB", "boliviano", "bolivianos")
-        add("PYG", "guarani", "guaranis", "paraguayan guarani")
-        add("CRC", "colon", "colones", "costa rican colon")
+            // Americas
+            add("USD", "dollar", "dollars", "us dollar", "us dollars", "american dollar", "american dollars")
+            add("CAD", "canadian dollar", "canadian dollars")
+            add("AUD", "australian dollar", "australian dollars")
+            add("NZD", "new zealand dollar", "new zealand dollars")
+            add("MXN", "mexican peso", "mexican pesos", "peso", "pesos")
+            add("BRL", "real", "reais", "brazilian real", "brazilian reais")
+            add("ARS", "argentinian peso", "argentinian pesos", "argentine peso", "argentine pesos")
+            add("CLP", "chilean peso", "chilean pesos")
+            add("COP", "colombian peso", "colombian pesos")
+            add("PEN", "sol", "soles", "peruvian sol", "peruvian soles")
+            add("BOB", "boliviano", "bolivianos")
+            add("PYG", "guarani", "guaranis", "paraguayan guarani")
+            add("CRC", "colon", "colones", "costa rican colon")
 
-        // Europe
-        add("EUR", "euro", "euros")
-        add("GBP", "pound", "pounds", "british pound", "british pounds", "pound sterling", "sterling")
-        add("CHF", "franc", "francs", "swiss franc", "swiss francs")
-        add("NOK", "norwegian krone", "norwegian kroner", "norwegian krones")
-        add("SEK", "swedish krona", "swedish kronor", "swedish krone")
-        add("DKK", "danish krone", "danish kroner")
-        add("PLN", "zloty", "zlotys", "polish zloty")
-        add("CZK", "koruna", "korunas", "czech koruna")
-        add("HUF", "forint", "forints", "hungarian forint")
-        add("RON", "leu", "lei", "romanian leu")
-        add("BGN", "lev", "leva", "bulgarian lev")
-        add("HRK", "kuna", "kunas", "croatian kuna")
-        add("RSD", "serbian dinar", "serbian dinars")
-        add("TRY", "lira", "liras", "lire", "turkish lira", "turkish liras")
-        add("RUB", "ruble", "rubles", "rouble", "roubles", "russian ruble", "russian rubles")
-        add("UAH", "hryvnia", "hryvnias", "ukrainian hryvnia")
-        add("GEL", "lari", "laris", "georgian lari")
-        add("AMD", "dram", "drams", "armenian dram")
-        add("AZN", "manat", "manats", "azerbaijani manat")
+            // Europe
+            add("EUR", "euro", "euros")
+            add("GBP", "pound", "pounds", "british pound", "british pounds", "pound sterling", "sterling")
+            add("CHF", "franc", "francs", "swiss franc", "swiss francs")
+            add("NOK", "norwegian krone", "norwegian kroner", "norwegian krones")
+            add("SEK", "swedish krona", "swedish kronor", "swedish krone")
+            add("DKK", "danish krone", "danish kroner")
+            add("PLN", "zloty", "zlotys", "polish zloty")
+            add("CZK", "koruna", "korunas", "czech koruna")
+            add("HUF", "forint", "forints", "hungarian forint")
+            add("RON", "leu", "lei", "romanian leu")
+            add("BGN", "lev", "leva", "bulgarian lev")
+            add("HRK", "kuna", "kunas", "croatian kuna")
+            add("RSD", "serbian dinar", "serbian dinars")
+            add("TRY", "lira", "liras", "lire", "turkish lira", "turkish liras")
+            add("RUB", "ruble", "rubles", "rouble", "roubles", "russian ruble", "russian rubles")
+            add("UAH", "hryvnia", "hryvnias", "ukrainian hryvnia")
+            add("GEL", "lari", "laris", "georgian lari")
+            add("AMD", "dram", "drams", "armenian dram")
+            add("AZN", "manat", "manats", "azerbaijani manat")
 
-        // Asia-Pacific
-        add("JPY", "yen", "japanese yen")
-        add("CNY", "yuan", "renminbi", "chinese yuan", "rmb")
-        add("TWD", "new taiwan dollar", "taiwan dollar", "taiwan dollars")
-        add("HKD", "hong kong dollar", "hong kong dollars")
-        add("SGD", "singapore dollar", "singapore dollars")
-        add("KRW", "won", "south korean won", "korean won")
-        add("INR", "rupee", "rupees", "indian rupee", "indian rupees")
-        add("PKR", "pakistani rupee", "pakistani rupees")
-        add("LKR", "sri lankan rupee", "sri lankan rupees")
-        add("BDT", "taka", "takas", "bangladeshi taka")
-        add("NPR", "nepalese rupee", "nepalese rupees", "nepali rupee", "nepali rupees")
-        add("MYR", "ringgit", "ringgits", "malaysian ringgit")
-        add("IDR", "rupiah", "rupiyas", "indonesian rupiah")
-        add("THB", "baht", "thai baht")
-        add("VND", "dong", "vietnamese dong")
-        add("PHP", "philippine peso", "philippine pesos")
-        add("MMK", "kyat", "burmese kyat")
-        add("KHR", "riel", "riels", "cambodian riel")
-        add("LAK", "kip", "kips", "laotian kip")
-        add("MNT", "tugrik", "tugriks", "mongolian tugrik")
-        add("KZT", "tenge", "kazakhstani tenge")
-        add("UZS", "uzbekistani som", "uzbek som")
-        add("KGS", "kyrgyzstani som", "kyrgyz som")
-        add("TJS", "somoni", "tajikistani somoni")
-        add("TMT", "turkmenistani manat")
-        add("AFN", "afghani", "afghan afghani")
+            // Asia-Pacific
+            add("JPY", "yen", "japanese yen")
+            add("CNY", "yuan", "renminbi", "chinese yuan", "rmb")
+            add("TWD", "new taiwan dollar", "taiwan dollar", "taiwan dollars")
+            add("HKD", "hong kong dollar", "hong kong dollars")
+            add("SGD", "singapore dollar", "singapore dollars")
+            add("KRW", "won", "south korean won", "korean won")
+            add("INR", "rupee", "rupees", "indian rupee", "indian rupees")
+            add("PKR", "pakistani rupee", "pakistani rupees")
+            add("LKR", "sri lankan rupee", "sri lankan rupees")
+            add("BDT", "taka", "takas", "bangladeshi taka")
+            add("NPR", "nepalese rupee", "nepalese rupees", "nepali rupee", "nepali rupees")
+            add("MYR", "ringgit", "ringgits", "malaysian ringgit")
+            add("IDR", "rupiah", "rupiyas", "indonesian rupiah")
+            add("THB", "baht", "thai baht")
+            add("VND", "dong", "vietnamese dong")
+            add("PHP", "philippine peso", "philippine pesos")
+            add("MMK", "kyat", "burmese kyat")
+            add("KHR", "riel", "riels", "cambodian riel")
+            add("LAK", "kip", "kips", "laotian kip")
+            add("MNT", "tugrik", "tugriks", "mongolian tugrik")
+            add("KZT", "tenge", "kazakhstani tenge")
+            add("UZS", "uzbekistani som", "uzbek som")
+            add("KGS", "kyrgyzstani som", "kyrgyz som")
+            add("TJS", "somoni", "tajikistani somoni")
+            add("TMT", "turkmenistani manat")
+            add("AFN", "afghani", "afghan afghani")
 
-        // Middle East & Africa
-        add("SAR", "saudi riyal", "saudi riyals", "riyal", "riyals")
-        add("AED", "dirham", "dirhams", "uae dirham", "emirati dirham")
-        add("QAR", "qatari riyal", "qatari riyals")
-        add("KWD", "kuwaiti dinar", "kuwaiti dinars")
-        add("BHD", "bahraini dinar", "bahraini dinars")
-        add("OMR", "omani rial", "omani rials", "rial", "rials")
-        add("JOD", "jordanian dinar", "jordanian dinars")
-        add("ILS", "shekel", "shekels", "new shekel", "new shekels", "israeli shekel", "israeli shekels")
-        add("EGP", "egyptian pound", "egyptian pounds")
-        add("LYD", "libyan dinar", "libyan dinars")
-        add("TND", "tunisian dinar", "tunisian dinars")
-        add("MAD", "moroccan dirham", "moroccan dirhams")
-        add("DZD", "algerian dinar", "algerian dinars")
-        add("ZAR", "rand", "south african rand")
-        add("NGN", "naira", "nigerian naira")
-        add("GHS", "cedi", "cedis", "ghanaian cedi")
-        add("KES", "kenyan shilling", "kenyan shillings", "shilling", "shillings")
-        add("TZS", "tanzanian shilling", "tanzanian shillings")
-        add("UGX", "ugandan shilling", "ugandan shillings")
-        add("ETB", "birr", "birrs", "ethiopian birr")
+            // Middle East & Africa
+            add("SAR", "saudi riyal", "saudi riyals", "riyal", "riyals")
+            add("AED", "dirham", "dirhams", "uae dirham", "emirati dirham")
+            add("QAR", "qatari riyal", "qatari riyals")
+            add("KWD", "kuwaiti dinar", "kuwaiti dinars")
+            add("BHD", "bahraini dinar", "bahraini dinars")
+            add("OMR", "omani rial", "omani rials", "rial", "rials")
+            add("JOD", "jordanian dinar", "jordanian dinars")
+            add("ILS", "shekel", "shekels", "new shekel", "new shekels", "israeli shekel", "israeli shekels")
+            add("EGP", "egyptian pound", "egyptian pounds")
+            add("LYD", "libyan dinar", "libyan dinars")
+            add("TND", "tunisian dinar", "tunisian dinars")
+            add("MAD", "moroccan dirham", "moroccan dirhams")
+            add("DZD", "algerian dinar", "algerian dinars")
+            add("ZAR", "rand", "south african rand")
+            add("NGN", "naira", "nigerian naira")
+            add("GHS", "cedi", "cedis", "ghanaian cedi")
+            add("KES", "kenyan shilling", "kenyan shillings", "shilling", "shillings")
+            add("TZS", "tanzanian shilling", "tanzanian shillings")
+            add("UGX", "ugandan shilling", "ugandan shillings")
+            add("ETB", "birr", "birrs", "ethiopian birr")
 
-        // Crypto
-        add("BTC", "bitcoin")
-        add("ETH", "ethereum")
+            // Crypto
+            add("BTC", "bitcoin")
+            add("ETH", "ethereum")
+        }
     }
 
     /** ISO 4217 codes plus the non-ISO codes above (e.g. BTC), so arbitrary words aren't treated as codes. */
@@ -155,9 +157,9 @@ object CurrencyConversionIntentParser {
             SYMBOL_TO_CODE.values + NAME_TO_CODE.values
     }
 
-    // Per-symbol regexes pre-compiled once at startup, longest-first for greedy matching.
+    // Per-symbol regexes compiled on first confirmed conversion, longest-first for greedy matching.
     // Each entry: (symbol, symBeforeAmountRegex, amountBeforeSymRegex)
-    private val SYMBOL_REGEXES: List<Triple<String, Regex, Regex>> =
+    private val SYMBOL_REGEXES: List<Triple<String, Regex, Regex>> by lazy {
         SYMBOL_TO_CODE.keys
             .sortedByDescending { it.length }
             .map { sym ->
@@ -168,6 +170,7 @@ object CurrencyConversionIntentParser {
                     Regex("""^(\d+(?:[.,]\d+)*)\s*$e$"""),
                 )
             }
+    }
 
     // --- Candidate (cheap) check ---
     private val HAS_DIGIT = Regex("""\d""")

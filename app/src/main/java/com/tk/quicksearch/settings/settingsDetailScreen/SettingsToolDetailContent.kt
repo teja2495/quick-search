@@ -29,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -83,6 +84,13 @@ internal fun ColumnScope.ToolsDetailContent(
     onNavigateToDetail: (SettingsDetailType) -> Unit,
     scrollState: androidx.compose.foundation.ScrollState,
 ) {
+    val taskerInstalled by produceState(false, context) {
+        value = withContext(Dispatchers.IO) {
+            runCatching {
+                context.packageManager.getPackageInfo(TaskerIntegration.PACKAGE_NAME, 0)
+            }.isSuccess
+        }
+    }
 
                 Column(
                         modifier =
@@ -195,11 +203,7 @@ internal fun ColumnScope.ToolsDetailContent(
                                     },
                                 )
                             },
-                            showTaskerIntegration = remember(context) {
-                                runCatching {
-                                    context.packageManager.getPackageInfo(TaskerIntegration.PACKAGE_NAME, 0)
-                                }.isSuccess
-                            },
+                            showTaskerIntegration = taskerInstalled,
                             onNavigateToTaskerIntegration = {
                                 onNavigateToDetail(SettingsDetailType.TASKER_INTEGRATION)
                             },
@@ -235,61 +239,75 @@ internal fun ColumnScope.CustomToolEditorDetailContent(
 
                 val pendingToolId = remember { CustomToolNavigationMemory.consumePendingToolId() }
                 val pendingAiBackedTool = remember { CustomToolNavigationMemory.consumePendingAiBackedTool() }
-                val aiToolPreferences =
-                    remember(context) { UserAppPreferences(context.applicationContext) }
                 val existingTool = remember(pendingToolId, state.customTools) {
                     pendingToolId?.let { id -> state.customTools.firstOrNull { it.id == id } }
                 }
-                val builtInToolConfig = remember(pendingAiBackedTool, context) {
-                    pendingAiBackedTool?.let { tool ->
-                        when (tool) {
-                            AiBackedToolConfigId.CURRENCY_CONVERTER -> BuiltInToolConfig(
-                                toolId = tool,
-                                title = context.getString(R.string.currency_converter_toggle_title),
-                                modelId = aiToolPreferences.getCurrencyConverterModel(),
-                                providerId = aiToolPreferences.getCurrencyConverterProviderId(),
-                                groundingEnabled = aiToolPreferences.isCurrencyConverterGroundingEnabled(),
-                                thinkingEnabled = aiToolPreferences.isCurrencyConverterThinkingEnabled(),
-                                advancedPayload = aiToolPreferences.getCurrencyConverterAdvancedPayload(),
-                                aliasFeatureId = AliasHandler.CURRENCY_CONVERTER_ALIAS_FEATURE_ID,
-                            )
-                            AiBackedToolConfigId.WORD_CLOCK -> BuiltInToolConfig(
-                                toolId = tool,
-                                title = context.getString(R.string.world_clock_toggle_title),
-                                modelId = aiToolPreferences.getWorldClockModel(),
-                                providerId = aiToolPreferences.getWorldClockProviderId(),
-                                groundingEnabled = aiToolPreferences.isWorldClockGroundingEnabled(),
-                                thinkingEnabled = aiToolPreferences.isWorldClockThinkingEnabled(),
-                                advancedPayload = aiToolPreferences.getWorldClockAdvancedPayload(),
-                                aliasFeatureId = AliasHandler.WORD_CLOCK_ALIAS_FEATURE_ID,
-                            )
-                            AiBackedToolConfigId.DICTIONARY -> BuiltInToolConfig(
-                                toolId = tool,
-                                title = context.getString(R.string.dictionary_toggle_title),
-                                modelId = aiToolPreferences.getDictionaryModel(),
-                                providerId = aiToolPreferences.getDictionaryProviderId(),
-                                groundingEnabled = aiToolPreferences.isDictionaryGroundingEnabled(),
-                                thinkingEnabled = aiToolPreferences.isDictionaryThinkingEnabled(),
-                                advancedPayload = aiToolPreferences.getDictionaryAdvancedPayload(),
-                                aliasFeatureId = AliasHandler.DICTIONARY_ALIAS_FEATURE_ID,
-                            )
-                            AiBackedToolConfigId.WEATHER -> BuiltInToolConfig(
-                                toolId = tool,
-                                title = context.getString(R.string.weather_toggle_title),
-                                modelId = aiToolPreferences.getWeatherModel(),
-                                providerId = aiToolPreferences.getWeatherProviderId(),
-                                groundingEnabled = aiToolPreferences.isWeatherGroundingEnabled(),
-                                thinkingEnabled = aiToolPreferences.isWeatherThinkingEnabled(),
-                                advancedPayload = aiToolPreferences.getWeatherAdvancedPayload(),
-                                aliasFeatureId = AliasHandler.WEATHER_ALIAS_FEATURE_ID,
-                                prompt = aiToolPreferences.getWeatherSystemPrompt(),
-                                location = aiToolPreferences.getWeatherLocation(),
-                                temperatureUnit = aiToolPreferences.getWeatherTemperatureUnit(),
-                                windSpeedUnit = aiToolPreferences.getWeatherWindSpeedUnit(),
-                            )
-                        }
+                val editorPreferences by produceState<ToolEditorPreferences?>(
+                    null, pendingAiBackedTool, context, state.llmApiKeyLast4ByProvider.keys,
+                ) {
+                    value = withContext(Dispatchers.IO) {
+                        val aiToolPreferences = UserAppPreferences(context.applicationContext)
+                        val config =
+                            pendingAiBackedTool?.let { tool ->
+                                when (tool) {
+                                    AiBackedToolConfigId.CURRENCY_CONVERTER -> BuiltInToolConfig(
+                                        toolId = tool,
+                                        title = context.getString(R.string.currency_converter_toggle_title),
+                                        modelId = aiToolPreferences.getCurrencyConverterModel(),
+                                        providerId = aiToolPreferences.getCurrencyConverterProviderId(),
+                                        groundingEnabled = aiToolPreferences.isCurrencyConverterGroundingEnabled(),
+                                        thinkingEnabled = aiToolPreferences.isCurrencyConverterThinkingEnabled(),
+                                        advancedPayload = aiToolPreferences.getCurrencyConverterAdvancedPayload(),
+                                        aliasFeatureId = AliasHandler.CURRENCY_CONVERTER_ALIAS_FEATURE_ID,
+                                    )
+                                    AiBackedToolConfigId.WORD_CLOCK -> BuiltInToolConfig(
+                                        toolId = tool,
+                                        title = context.getString(R.string.world_clock_toggle_title),
+                                        modelId = aiToolPreferences.getWorldClockModel(),
+                                        providerId = aiToolPreferences.getWorldClockProviderId(),
+                                        groundingEnabled = aiToolPreferences.isWorldClockGroundingEnabled(),
+                                        thinkingEnabled = aiToolPreferences.isWorldClockThinkingEnabled(),
+                                        advancedPayload = aiToolPreferences.getWorldClockAdvancedPayload(),
+                                        aliasFeatureId = AliasHandler.WORD_CLOCK_ALIAS_FEATURE_ID,
+                                    )
+                                    AiBackedToolConfigId.DICTIONARY -> BuiltInToolConfig(
+                                        toolId = tool,
+                                        title = context.getString(R.string.dictionary_toggle_title),
+                                        modelId = aiToolPreferences.getDictionaryModel(),
+                                        providerId = aiToolPreferences.getDictionaryProviderId(),
+                                        groundingEnabled = aiToolPreferences.isDictionaryGroundingEnabled(),
+                                        thinkingEnabled = aiToolPreferences.isDictionaryThinkingEnabled(),
+                                        advancedPayload = aiToolPreferences.getDictionaryAdvancedPayload(),
+                                        aliasFeatureId = AliasHandler.DICTIONARY_ALIAS_FEATURE_ID,
+                                    )
+                                    AiBackedToolConfigId.WEATHER -> BuiltInToolConfig(
+                                        toolId = tool,
+                                        title = context.getString(R.string.weather_toggle_title),
+                                        modelId = aiToolPreferences.getWeatherModel(),
+                                        providerId = aiToolPreferences.getWeatherProviderId(),
+                                        groundingEnabled = aiToolPreferences.isWeatherGroundingEnabled(),
+                                        thinkingEnabled = aiToolPreferences.isWeatherThinkingEnabled(),
+                                        advancedPayload = aiToolPreferences.getWeatherAdvancedPayload(),
+                                        aliasFeatureId = AliasHandler.WEATHER_ALIAS_FEATURE_ID,
+                                        prompt = aiToolPreferences.getWeatherSystemPrompt(),
+                                        location = aiToolPreferences.getWeatherLocation(),
+                                        temperatureUnit = aiToolPreferences.getWeatherTemperatureUnit(),
+                                        windSpeedUnit = aiToolPreferences.getWeatherWindSpeedUnit(),
+                                    )
+                                }
+                            }
+                        ToolEditorPreferences(
+                            builtInToolConfig = config,
+                            thinkingEnabledByProvider = state.llmApiKeyLast4ByProvider.keys.associateWith(
+                                aiToolPreferences::isLlmThinkingEnabled,
+                            ),
+                        )
                     }
                 }
+                // Create the editor only after its saved values are loaded so its remembered
+                // fields never initialize from temporary defaults.
+                val loadedPreferences = editorPreferences ?: return
+                val builtInToolConfig = loadedPreferences.builtInToolConfig
                 val editorTool = remember(existingTool, builtInToolConfig) {
                     existingTool ?: builtInToolConfig?.toCustomTool()
                 }
@@ -316,10 +334,7 @@ internal fun ColumnScope.CustomToolEditorDetailContent(
                     selectedProviderId = state.aiSearchLlmProviderId,
                     defaultModelId = state.activeLlmModel,
                     defaultThinkingEnabled = state.activeLlmThinkingEnabled,
-                    thinkingEnabledByProvider =
-                        state.llmApiKeyLast4ByProvider.keys.associateWith(
-                            aiToolPreferences::isLlmThinkingEnabled,
-                        ),
+                    thinkingEnabledByProvider = loadedPreferences.thinkingEnabledByProvider,
                     availableModels = state.activeLlmAvailableModels,
                     availableModelsByProvider = state.availableLlmModelsByProvider,
                     configuredProviderIds = state.llmApiKeyLast4ByProvider.keys,
@@ -367,6 +382,11 @@ internal fun ColumnScope.CustomToolEditorDetailContent(
                         .align(Alignment.CenterHorizontally),
                 )
 }
+
+private data class ToolEditorPreferences(
+    val builtInToolConfig: BuiltInToolConfig?,
+    val thinkingEnabledByProvider: Map<AiSearchLlmProviderId, Boolean>,
+)
 
 private data class BuiltInToolConfig(
     val toolId: AiBackedToolConfigId,

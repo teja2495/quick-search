@@ -65,6 +65,7 @@ object UnitConverterUtils {
         val toUnitRaw: String,
     )
 
+    private val whitespaceRegex = Regex("\\s+")
     private val separatorRegex = Regex("\\b(?:in|to)\\b", RegexOption.IGNORE_CASE)
     private val leftQueryRegex =
         Regex(
@@ -663,7 +664,7 @@ object UnitConverterUtils {
         normalized = normalized.replace("\u00B3", "3")
         normalized = normalized.replace("^", "")
         normalized = normalized.replace(".", "")
-        normalized = normalized.replace(Regex("\\s+"), " ")
+        normalized = normalized.replace(whitespaceRegex, " ")
         normalized = normalized.replace(" per ", "/")
         normalized = normalized.replace(" / ", "/")
         normalized = normalized.replace(" /", "/")
@@ -673,7 +674,7 @@ object UnitConverterUtils {
         normalized = normalized.replace("cubic ", "cu ")
         normalized = normalized.replace("cubed", "3")
         normalized = normalized.replace("-", " ")
-        normalized = normalized.replace(Regex("\\s+"), " ")
+        normalized = normalized.replace(whitespaceRegex, " ")
         return normalized.trim()
     }
 }

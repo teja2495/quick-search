@@ -2,6 +2,8 @@ package com.tk.quicksearch.tools.aiTools
 
 import android.content.Context
 import com.tk.quicksearch.R
+import com.tk.quicksearch.tools.aiSearch.trackCancellation
+import com.tk.quicksearch.tools.aiSearch.withCancellableHttp
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
@@ -19,27 +21,29 @@ class DictionaryHandler(
         private val context: Context,
 ) {
     suspend fun define(confirmed: ConfirmedDictionaryQuery): Result<DictionaryModelResult> =
-            runCatching {
-                val term = confirmed.term.trim()
-                var connection: HttpURLConnection? = null
-                try {
-                    val encodedTerm = URLEncoder.encode(term.lowercase(Locale.ROOT), "UTF-8").replace("+", "%20")
-                    connection = (URL(DICTIONARY_API_URL + encodedTerm).openConnection() as HttpURLConnection).apply {
-                        connectTimeout = 10_000
-                        readTimeout = 10_000
-                        requestMethod = "GET"
-                        setRequestProperty("Accept", "application/json")
+            withCancellableHttp {
+                runCatching {
+                    val term = confirmed.term.trim()
+                    var connection: HttpURLConnection? = null
+                    try {
+                        val encodedTerm = URLEncoder.encode(term.lowercase(Locale.ROOT), "UTF-8").replace("+", "%20")
+                        connection = (URL(DICTIONARY_API_URL + encodedTerm).openConnection() as HttpURLConnection).trackCancellation().apply {
+                            connectTimeout = 10_000
+                            readTimeout = 10_000
+                            requestMethod = "GET"
+                            setRequestProperty("Accept", "application/json")
+                        }
+                        val responseCode = runCatching { connection.responseCode }.getOrElse { error(unavailableMessage()) }
+                        if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
+                            error(context.getString(R.string.dictionary_definition_not_found, term))
+                        }
+                        if (responseCode !in 200..299) error(unavailableMessage())
+                        val body = runCatching { connection.inputStream.bufferedReader().use { it.readText() } }
+                                .getOrElse { error(unavailableMessage()) }
+                        parseDictionaryEntries(body) ?: error(unavailableMessage())
+                    } finally {
+                        connection?.disconnect()
                     }
-                    val responseCode = runCatching { connection.responseCode }.getOrElse { error(unavailableMessage()) }
-                    if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
-                        error(context.getString(R.string.dictionary_definition_not_found, term))
-                    }
-                    if (responseCode !in 200..299) error(unavailableMessage())
-                    val body = runCatching { connection.inputStream.bufferedReader().use { it.readText() } }
-                            .getOrElse { error(unavailableMessage()) }
-                    parseDictionaryEntries(body) ?: error(unavailableMessage())
-                } finally {
-                    connection?.disconnect()
                 }
             }
 

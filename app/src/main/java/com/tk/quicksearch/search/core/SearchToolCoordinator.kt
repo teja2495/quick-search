@@ -47,6 +47,7 @@ internal class SearchToolCoordinator(
     private val weatherHandler: WeatherHandler,
     private val toolAliasStateProvider: () -> ToolAliasState,
     private val hasApiKeyProvider: () -> Boolean,
+    private val currentResultsProvider: () -> SearchResultsState,
     private val currentQueryProvider: () -> String,
     private val clearInformationCardsExcept: (SearchViewModel.ActiveInformationCard) -> Unit,
     private val updateResultsState: ((SearchResultsState) -> SearchResultsState) -> Unit,
@@ -155,6 +156,7 @@ internal class SearchToolCoordinator(
 
     fun scheduleCurrencyConversion(trimmedQuery: String, showingTool: Boolean) {
         currencyConversionJob?.cancel()
+        if (currentResultsProvider().currencyConverterState.status == CurrencyConverterStatus.Idle) return
         val aliasState = toolAliasStateProvider()
         val lockedCurrencyConverterAlias = aliasState.lockedCurrencyConverterAlias
         if (!userPreferences.isCurrencyConverterEnabled() && !lockedCurrencyConverterAlias) {
@@ -265,6 +267,7 @@ internal class SearchToolCoordinator(
 
     fun scheduleWorldClock(trimmedQuery: String, showingTool: Boolean) {
         worldClockJob?.cancel()
+        if (currentResultsProvider().worldClockState.status == WorldClockStatus.Idle) return
         val aliasState = toolAliasStateProvider()
         val lockedWorldClockAlias = aliasState.lockedWorldClockAlias
         val hasApiKey = hasApiKeyProvider()
@@ -397,6 +400,7 @@ internal class SearchToolCoordinator(
 
     fun scheduleDictionaryLookup(trimmedQuery: String, showingTool: Boolean) {
         dictionaryJob?.cancel()
+        if (currentResultsProvider().dictionaryState.status == DictionaryStatus.Idle) return
         val aliasState = toolAliasStateProvider()
         val lockedDictionaryAlias = aliasState.lockedDictionaryAlias
 
@@ -511,6 +515,7 @@ internal class SearchToolCoordinator(
 
     fun scheduleWeatherLookup(trimmedQuery: String, showingTool: Boolean) {
         weatherJob?.cancel()
+        if (currentResultsProvider().weatherState.status == WeatherStatus.Idle) return
         val aliasState = toolAliasStateProvider()
         val canUseWeather =
             (userPreferences.isWeatherEnabled() || aliasState.lockedWeatherAlias) &&

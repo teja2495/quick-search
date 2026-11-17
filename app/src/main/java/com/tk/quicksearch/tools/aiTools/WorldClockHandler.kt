@@ -19,6 +19,12 @@ import java.util.Locale
 
 class WorldClockNotRecognizedException : Exception()
 
+private val utcParenthesesPattern = Regex("""\([^)]*UTC[^)]*\)""", RegexOption.IGNORE_CASE)
+private val parenthesesPattern = Regex("""\s*\([^)]*\)\s*""")
+private val labelSeparatorPattern = Regex("""[\s\-/]+""")
+private val nonAlphanumericPattern = Regex("""[^\p{Alnum}\s]""")
+private val whitespacePattern = Regex("""\s+""")
+
 private const val WORD_CLOCK_SYSTEM_INSTRUCTION =
         "You are a world-clock formatter. " +
                 "Respond with ONLY a single JSON object (no markdown, no code fences). " +
@@ -134,10 +140,10 @@ class WorldClockHandler(
     private fun normalizeTimeZoneText(raw: String): String {
         if (raw.isBlank()) return raw
         val normalized = raw.trim()
-        val hasUtcInParentheses = Regex("""\([^)]*UTC[^)]*\)""", RegexOption.IGNORE_CASE).containsMatchIn(normalized)
+        val hasUtcInParentheses = utcParenthesesPattern.containsMatchIn(normalized)
         if (!hasUtcInParentheses) return normalized
 
-        val baseLabel = normalized.replace(Regex("""\s*\([^)]*\)\s*"""), "").trim()
+        val baseLabel = normalized.replace(parenthesesPattern, "").trim()
         val abbreviation = deriveTimeZoneAbbreviation(baseLabel)
         return if (abbreviation != null && baseLabel.isNotBlank()) {
             "$baseLabel ($abbreviation)"
@@ -150,7 +156,7 @@ class WorldClockHandler(
         if (label.isBlank()) return null
         val stopWords = setOf("time", "standard", "daylight", "summer")
         val parts =
-                label.split(Regex("""[\s\-/]+"""))
+                label.split(labelSeparatorPattern)
                         .map { it.trim() }
                         .filter { it.isNotEmpty() }
         val significant = parts.filterNot { stopWords.contains(it.lowercase()) }
@@ -161,8 +167,8 @@ class WorldClockHandler(
 
     private fun resolveFixedLocationResult(timeExpression: String): WorldClockModelResult? {
         val normalized =
-                timeExpression.trim().lowercase(Locale.ENGLISH).replace(Regex("""[^\p{Alnum}\s]"""), " ")
-                        .replace(Regex("""\s+"""), " ")
+                timeExpression.trim().lowercase(Locale.ENGLISH).replace(nonAlphanumericPattern, " ")
+                        .replace(whitespacePattern, " ")
                         .trim()
 
         val londonAliases =

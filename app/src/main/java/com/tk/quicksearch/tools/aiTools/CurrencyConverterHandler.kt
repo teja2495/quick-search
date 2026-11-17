@@ -3,6 +3,10 @@ package com.tk.quicksearch.tools.aiTools
 import android.content.Context
 import android.util.Xml
 import com.tk.quicksearch.R
+import com.tk.quicksearch.tools.aiSearch.trackCancellation
+import com.tk.quicksearch.tools.aiSearch.withCancellableHttp
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import java.io.InputStream
 import java.math.BigDecimal
 import java.math.MathContext
@@ -37,40 +41,47 @@ class CurrencyConverterHandler(
 
     /** Fetches one complete EUR-based rate snapshot on demand, then reuses it for four hours. */
     suspend fun convert(confirmed: ConfirmedCurrencyQuery): Result<CurrencyConversionModelResult> =
-            runCatching {
-                val ratesSnapshot = loadRates()
-                val sourceRate = ratesSnapshot.rates[confirmed.fromCurrency]
-                        ?: error(unsupportedCurrencyMessage(confirmed.fromCurrency))
-                val targetRate = ratesSnapshot.rates[confirmed.toCurrency]
-                        ?: error(unsupportedCurrencyMessage(confirmed.toCurrency))
-                val converted = confirmed.amount.toBigDecimal()
-                        .multiply(targetRate, CALCULATION_CONTEXT)
-                        .divide(sourceRate, CALCULATION_CONTEXT)
-                CurrencyConversionModelResult(
-                        convertedAmount = converted.stripTrailingZeros().toPlainString(),
-                        targetCurrencyCode = confirmed.toCurrency,
-                        targetCurrencyName = currencyDisplayName(confirmed.toCurrency),
-                        sourceAmount = confirmed.amount,
-                        sourceCurrencyCode = confirmed.fromCurrency,
-                        ratesFetchedAtMillis = ratesSnapshot.fetchedAtMillis,
-                )
+            withCancellableHttp {
+                runCatching {
+                    val ratesSnapshot = loadRates()
+                    val sourceRate = ratesSnapshot.rates[confirmed.fromCurrency]
+                            ?: error(unsupportedCurrencyMessage(confirmed.fromCurrency))
+                    val targetRate = ratesSnapshot.rates[confirmed.toCurrency]
+                            ?: error(unsupportedCurrencyMessage(confirmed.toCurrency))
+                    val converted = confirmed.amount.toBigDecimal()
+                            .multiply(targetRate, CALCULATION_CONTEXT)
+                            .divide(sourceRate, CALCULATION_CONTEXT)
+                    CurrencyConversionModelResult(
+                            convertedAmount = converted.stripTrailingZeros().toPlainString(),
+                            targetCurrencyCode = confirmed.toCurrency,
+                            targetCurrencyName = currencyDisplayName(confirmed.toCurrency),
+                            sourceAmount = confirmed.amount,
+                            sourceCurrencyCode = confirmed.fromCurrency,
+                            ratesFetchedAtMillis = ratesSnapshot.fetchedAtMillis,
+                    )
+                }
             }
 
-    private fun loadRates(): CachedRates {
+    private suspend fun loadRates(): CachedRates {
         readCachedRates()?.takeIf { it.fetchedAtMillis + CACHE_DURATION_MS > System.currentTimeMillis() }
                 ?.let { return it }
-        return saveRates(fetchRates())
+        val rates = fetchRates()
+        currentCoroutineContext().ensureActive()
+        return saveRates(rates)
     }
 
     /** Tries each source in order; raw network/TLS errors are replaced with a readable message. */
-    private fun fetchRates(): Map<String, BigDecimal> {
+    private suspend fun fetchRates(): Map<String, BigDecimal> {
         val sources = listOf(
                 CURRENCY_API_URL to ::parseCurrencyApiRates,
                 CURRENCY_API_MIRROR_URL to ::parseCurrencyApiRates,
                 ECB_RATES_URL to ::parseEcbRates,
         )
         for ((url, parse) in sources) {
-            runCatching { fetchFrom(url, parse) }.getOrNull()?.let { return it }
+            currentCoroutineContext().ensureActive()
+            val rates = runCatching { fetchFrom(url, parse) }.getOrNull()
+            currentCoroutineContext().ensureActive()
+            if (rates != null) return rates
         }
         error(context.getString(R.string.currency_converter_rates_unavailable))
     }
@@ -81,7 +92,7 @@ class CurrencyConverterHandler(
     ): Map<String, BigDecimal> {
         var connection: HttpURLConnection? = null
         try {
-            connection = (URL(url).openConnection() as HttpURLConnection).apply {
+            connection = (URL(url).openConnection() as HttpURLConnection).trackCancellation().apply {
                 connectTimeout = 10_000
                 readTimeout = 10_000
                 requestMethod = "GET"

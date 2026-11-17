@@ -33,6 +33,11 @@ object DateCalculatorUtils {
     private val yearPattern = Regex("\\b(\\d{4})\\b")
     private val dayPattern = Regex("\\b(\\d{1,2})\\b")
 
+    private val dateUnitPattern = Regex("""(\d+)\s*(years?|months?|weeks?|days?)""")
+    private val absoluteTimePattern = Regex("""^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$""")
+    private val relativeTimeUnitPattern = Regex("""(\d+)\s*(hours?|hrs?|h|minutes?|mins?|seconds?|secs?)""")
+    private val timeOffsetUnitPattern = Regex("""(\d+)\s*(hours?|hrs?|h|minutes?|mins?)""")
+
     /**
      * Parses a relative date expression and returns the resulting [LocalDate] relative to today.
      *
@@ -55,7 +60,7 @@ object DateCalculatorUtils {
             else -> lower
         }
 
-        val unitPattern = Regex("""(\d+)\s*(years?|months?|weeks?|days?)""")
+        val unitPattern = dateUnitPattern
         var years = 0
         var months = 0
         var weeks = 0
@@ -113,7 +118,7 @@ object DateCalculatorUtils {
 
             val baseDate = parseDateQuery(datePart) ?: continue
 
-            val unitPattern = Regex("""(\d+)\s*(years?|months?|weeks?|days?)""")
+            val unitPattern = dateUnitPattern
             var years = 0; var months = 0; var weeks = 0; var days = 0
             var remaining = unitsPart
             for (match in unitPattern.findAll(unitsPart)) {
@@ -190,7 +195,7 @@ object DateCalculatorUtils {
      */
     fun parseTimeString(s: String): LocalTime? {
         val lower = s.trim().lowercase(Locale.US)
-        val match = Regex("""^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$""").matchEntire(lower) ?: return null
+        val match = absoluteTimePattern.matchEntire(lower) ?: return null
         var hour = match.groupValues[1].toIntOrNull() ?: return null
         val minute = match.groupValues[2].let { if (it.isEmpty()) 0 else it.toIntOrNull() ?: return null }
         val ampm = match.groupValues[3].takeIf { it.isNotEmpty() }
@@ -276,7 +281,7 @@ object DateCalculatorUtils {
             else -> lower
         }
 
-        val unitPattern = Regex("""(\d+)\s*(hours?|hrs?|h|minutes?|mins?|seconds?|secs?)""")
+        val unitPattern = relativeTimeUnitPattern
         var hours = 0L
         var minutes = 0L
         var seconds = 0L
@@ -365,7 +370,7 @@ object DateCalculatorUtils {
             val timePart = query.substring(idx + sep.length).trim()
             val baseTime = parseTimeString(timePart) ?: continue
 
-            val unitPattern = Regex("""(\d+)\s*(hours?|hrs?|h|minutes?|mins?)""")
+            val unitPattern = timeOffsetUnitPattern
             var hours = 0L
             var minutes = 0L
             var remaining = unitsPart
