@@ -3,10 +3,8 @@ package com.tk.quicksearch.search.searchScreen
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -59,8 +57,8 @@ internal fun SearchQuickActionPills(
                                     detectedAlarmTime != null ||
                                     detectedTimerSeconds != null ||
                                     detectedReminderSchedule != null,
-                    enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
-                    exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top),
+                    enter = fadeIn(),
+                    exit = fadeOut(),
             ) {
                 Row(
                         modifier =

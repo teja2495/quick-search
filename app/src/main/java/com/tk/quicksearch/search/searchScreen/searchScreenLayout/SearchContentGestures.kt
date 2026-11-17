@@ -185,19 +185,5 @@ internal fun Modifier.searchHistoryExpandedTabSwipe(
     }
 }
 
-internal const val ExpansionTransitionDurationMillis = 220
-internal val ExpansionTransitionOffset = 16.dp
-
-/** Flips its phase whenever the expansion key changes, so each change restarts the transition. */
-internal class ExpansionPhaseTracker {
-    private var lastKey: Any? = null
-    private var phase = true
-
-    fun phaseFor(key: Any): Boolean {
-        if (lastKey != null && key != lastKey) phase = !phase
-        lastKey = key
-        return phase
-    }
-}
 internal const val SEARCH_HISTORY_TAB_SWIPE_THRESHOLD_PX = 64f
 internal const val OVERSCROLL_FOCUS_THRESHOLD_PX = 24f

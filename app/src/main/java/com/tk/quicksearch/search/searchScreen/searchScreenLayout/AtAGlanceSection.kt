@@ -98,7 +98,12 @@ private fun rememberRetainedAtAGlanceItems(
             visibility = MutableTransitionState(true).also { holder.visibility = it }
         }
     }
-    if (!enabled) holder.visibility = null
+    if (!enabled) {
+        holder.visibility = null
+        // Sources reload after clearing a query. Let the first returning rows use the
+        // appeared-key check again, so an existing card returns at its final height.
+        holder.hasShownRows = false
+    }
     if (live.isNotEmpty()) holder.lastShown = live
     // Reading the transition state here recomposes once the card has finished collapsing.
     val collapsed = !visibility.targetState && visibility.isIdle

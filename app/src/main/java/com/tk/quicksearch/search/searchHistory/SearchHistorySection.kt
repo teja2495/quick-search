@@ -234,8 +234,6 @@ fun SearchHistorySection(
                 }
             val listModifier =
                 if (displayAsExpanded) {
-                    // Min height lives inside the card so its animateContentSize animates the
-                    // growth instead of the card snapping to the min height on the first frame.
                     contentModifier
                         .heightIn(min = SEARCH_HISTORY_EXPANDED_CARD_MIN_HEIGHT)
                         .searchHistoryTabSwipe(

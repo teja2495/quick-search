@@ -4,11 +4,8 @@ import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
@@ -123,11 +120,7 @@ private fun InlineCardEnterAnimation(
     AnimatedVisibility(
         visibleState = enterState,
         enter =
-            fadeIn(animationSpec = tween(durationMillis = 170, easing = FastOutSlowInEasing)) +
-                slideInVertically(
-                    initialOffsetY = { fullHeight -> -(fullHeight / 5) },
-                    animationSpec = tween(durationMillis = 190, easing = FastOutSlowInEasing),
-                ),
+            fadeIn(animationSpec = tween(durationMillis = 170, easing = FastOutSlowInEasing)),
     ) {
         content()
     }
@@ -213,11 +206,9 @@ fun SearchEngineIconsSection(
                 AnimatedVisibility(
                     visible = true,
                     enter =
-                        fadeIn(animationSpec = tween(durationMillis = 180)) +
-                            expandVertically(animationSpec = tween(durationMillis = 220)),
+                        fadeIn(animationSpec = tween(durationMillis = 180)),
                     exit =
-                        fadeOut(animationSpec = tween(durationMillis = 130)) +
-                            shrinkVertically(animationSpec = tween(durationMillis = 180)),
+                        fadeOut(animationSpec = tween(durationMillis = 130)),
                 ) {
                     CompactToolActionContent(
                         label = toolActionLabel,
@@ -246,11 +237,9 @@ fun SearchEngineIconsSection(
                 AnimatedVisibility(
                     visible = hasToolAction,
                     enter =
-                        fadeIn(animationSpec = tween(durationMillis = 180)) +
-                            expandVertically(animationSpec = tween(durationMillis = 220)),
+                        fadeIn(animationSpec = tween(durationMillis = 180)),
                     exit =
-                        fadeOut(animationSpec = tween(durationMillis = 130)) +
-                            shrinkVertically(animationSpec = tween(durationMillis = 180)),
+                        fadeOut(animationSpec = tween(durationMillis = 130)),
                 ) {
                     CompactToolActionContent(
                         label = toolActionLabel ?: return@AnimatedVisibility,

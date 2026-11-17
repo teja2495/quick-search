@@ -5,10 +5,6 @@ import com.tk.quicksearch.search.searchScreen.contentBottomInset
 import com.tk.quicksearch.search.searchScreen.contentTopInset
 import com.tk.quicksearch.search.searchScreen.resultsClipShape
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -302,36 +298,6 @@ fun SearchContentArea(
             val bottomOverlayInset = LocalInsetCardBackdrop.current?.contentBottomInset() ?: 0.dp
             val topOverlayInset = LocalInsetCardBackdrop.current?.contentTopInset() ?: 0.dp
             val footerBottomPadding = 28.dp + bottomOverlayInset
-            // Expanding or collapsing a section or search history rebuilds the whole layout in
-            // one frame (other sections drop out, bottom alignment and scroll direction flip), so
-            // no per-card size animation can bridge it. Fade and lift the new layout in instead.
-            // The phase flips on every expansion change and is read during composition, so the
-            // first frame of the new layout is already hidden.
-            val expansionPhase =
-                remember { ExpansionPhaseTracker() }
-                    .phaseFor(renderingState.expandedSection to isSearchHistoryExpanded)
-            val expansionTransition = updateTransition(expansionPhase, label = "resultsExpansion")
-            val expansionPhaseProgress by
-                expansionTransition.animateFloat(
-                    transitionSpec = {
-                        tween(durationMillis = ExpansionTransitionDurationMillis, easing = LinearOutSlowInEasing)
-                    },
-                    label = "resultsExpansionProgress",
-                ) { phase -> if (phase) 1f else 0f }
-            val expansionTransitionOffsetPx =
-                with(LocalDensity.current) { ExpansionTransitionOffset.toPx() }
-            val expansionTransitionModifier =
-                Modifier.graphicsLayer {
-                    val enterProgress =
-                        if (expansionPhase) {
-                            expansionPhaseProgress
-                        } else {
-                            1f - expansionPhaseProgress
-                        }
-                    alpha = enterProgress
-                    translationY = (1f - enterProgress) * expansionTransitionOffsetPx
-                }
-
             // Use bottom alignment when one-handed mode is enabled and no special states are
             // showing
             val verticalArrangement =
@@ -469,7 +435,7 @@ fun SearchContentArea(
                     modifier =
                         Modifier
                             .edgeBleed(edgeBleed).fillMaxWidth()
-                            .then(expansionTransitionModifier).then(heightModifier)
+                            .then(heightModifier)
                             .clip(LocalInsetCardBackdrop.current.resultsClipShape(TopRoundedShape, edgeBleed))
                             .then(
                                 if (roundExpandedViewport) {
