@@ -3,9 +3,7 @@ package com.tk.quicksearch.tools.aiSearch
 import android.content.Context
 import android.util.Log
 import com.tk.quicksearch.BuildConfig
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -42,11 +40,11 @@ class AnthropicClient(
             apiKey: String,
             context: Context,
         ): Result<List<LlmTextModel>> =
-            withContext(Dispatchers.IO) {
+            withCancellableHttp {
                 runCatching {
                     val url = URL(MODELS_ENDPOINT)
                     val connection =
-                        (url.openConnection() as HttpURLConnection).apply {
+                        (url.openConnection() as HttpURLConnection).trackCancellation().apply {
                             requestMethod = "GET"
                             setRequestProperty("x-api-key", apiKey)
                             setRequestProperty("anthropic-version", ANTHROPIC_VERSION)
@@ -112,7 +110,7 @@ class AnthropicClient(
         systemInstruction: String? = null,
         history: List<AiConversationTurn> = emptyList(),
     ): Result<String> =
-        withContext(Dispatchers.IO) {
+        withCancellableHttp {
             var attempt = 1
             var delayMs = INITIAL_RETRY_DELAY_MS
             var lastError: Throwable? = null
@@ -129,11 +127,11 @@ class AnthropicClient(
                         systemInstruction = systemInstruction,
                         history = history,
                     )
-                if (result.isSuccess) return@withContext result
+                if (result.isSuccess) return@withCancellableHttp result
 
                 lastError = result.exceptionOrNull()
                 if (attempt == MAX_ATTEMPTS || !shouldRetry(lastError)) {
-                    return@withContext Result.failure(lastError ?: IllegalStateException("Unknown error"))
+                    return@withCancellableHttp Result.failure(lastError ?: IllegalStateException("Unknown error"))
                 }
                 delay(delayMs)
                 delayMs *= 2
@@ -156,7 +154,7 @@ class AnthropicClient(
         return try {
             val url = URL(MESSAGES_ENDPOINT)
             connection =
-                (url.openConnection() as HttpURLConnection).apply {
+                (url.openConnection() as HttpURLConnection).trackCancellation().apply {
                     requestMethod = "POST"
                     setRequestProperty("x-api-key", apiKey)
                     setRequestProperty("anthropic-version", ANTHROPIC_VERSION)

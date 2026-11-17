@@ -7,12 +7,14 @@ import com.tk.quicksearch.search.core.AiSearchStatus
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.UUID
 
 class AiSearchHandler(
@@ -24,28 +26,34 @@ class AiSearchHandler(
     private val _aiSearchState = MutableStateFlow(AiSearchState())
     val aiSearchState: StateFlow<AiSearchState> = _aiSearchState.asStateFlow()
 
-    private var activeProviderId: AiSearchLlmProviderId = AiSearchLlmProviderId.GEMINI
-    private var activeProvider: AiSearchLlmProvider =
+    // Written on the startup/IO threads and read on Main, so every field is @Volatile and
+    // initialization runs under [initLock].
+    @Volatile private var activeProviderId: AiSearchLlmProviderId = AiSearchLlmProviderId.GEMINI
+    @Volatile private var activeProvider: AiSearchLlmProvider =
         AiSearchLlmProviderRegistry.get(AiSearchLlmProviderId.GEMINI, context)
     @Volatile private var llmApiKey: String? = null
-    private var personalContext: String = ""
-    private var selectedModelId: String = ""
-    private var groundingEnabled: Boolean = GeminiModelCatalog.DEFAULT_GROUNDING_ENABLED
-    private var thinkingEnabled: Boolean = false
-    private var availableModels: List<LlmTextModel> = emptyList()
-    private var hasLoadedModelsFromApi: Boolean = false
+    @Volatile private var personalContext: String = ""
+    @Volatile private var selectedModelId: String = ""
+    @Volatile private var groundingEnabled: Boolean = GeminiModelCatalog.DEFAULT_GROUNDING_ENABLED
+    @Volatile private var thinkingEnabled: Boolean = false
+    @Volatile private var availableModels: List<LlmTextModel> = emptyList()
+    private val initLock = Any()
 
     @Volatile private var hasAnyLlmApiKey: Boolean = false
     @Volatile private var hasLoadedApiKeyCache: Boolean = false
     @Volatile private var isInitialized = false
     private var aiSearchJob: Job? = null
+    /** A request waiting for first-time initialization to finish off the main thread. */
+    private var pendingInitRequest: Job? = null
     private val conversationTurns = mutableListOf<AiConversationTurn>()
     /** Shared by every request of the current conversation; replaced when a new one starts. */
     private var conversationSessionId: String? = null
     private var isQuickSearchHelpConversation = false
 
-    private fun ensureInitialized() {
-        if (!isInitialized) {
+    private fun ensureInitialized(configuredApiKey: Boolean? = null) {
+        if (isInitialized) return
+        synchronized(initLock) {
+            if (isInitialized) return
             activeProviderId = userPreferences.getAiSearchProviderId()
             activeProvider = AiSearchLlmProviderRegistry.get(activeProviderId, context)
             llmApiKey = userPreferences.getLlmApiKey(activeProviderId)
@@ -54,10 +62,20 @@ class AiSearchHandler(
             groundingEnabled = userPreferences.isLlmGroundingEnabled(activeProviderId)
             thinkingEnabled = userPreferences.isLlmThinkingEnabled(activeProviderId)
             availableModels = emptyList()
-            hasLoadedModelsFromApi = false
-            hasAnyLlmApiKey = userPreferences.hasAnyLlmApiKey()
+            hasAnyLlmApiKey = configuredApiKey ?: userPreferences.hasAnyLlmApiKey()
             hasLoadedApiKeyCache = true
             isInitialized = true
+        }
+    }
+
+    /** Reuses the authoritative key check performed by deferred startup. Call off Main. */
+    fun initializeForStartup(hasApiKey: Boolean) {
+        LlmModelCatalogCache.restore(context)
+        ensureInitialized(hasApiKey)
+        synchronized(initLock) {
+            if (availableModels.isEmpty()) {
+                availableModels = LlmModelCatalogCache.get(activeProviderId).orEmpty()
+            }
         }
     }
 
@@ -80,7 +98,6 @@ class AiSearchHandler(
         groundingEnabled = userPreferences.isLlmGroundingEnabled(providerId)
         thinkingEnabled = userPreferences.isLlmThinkingEnabled(providerId)
         availableModels = emptyList()
-        hasLoadedModelsFromApi = false
         clearAiSearchState()
     }
 
@@ -95,7 +112,6 @@ class AiSearchHandler(
         if (normalized == llmApiKey) return
 
         llmApiKey = normalized
-        hasLoadedModelsFromApi = false
         userPreferences.setLlmApiKey(activeProviderId, normalized)
 
         hasAnyLlmApiKey = userPreferences.hasAnyLlmApiKey()
@@ -120,7 +136,6 @@ class AiSearchHandler(
                     (isNewKey && outranksActiveProvider(providerId))) -> {
                 setAiSearchProviderId(providerId)
                 llmApiKey = normalized
-                hasLoadedModelsFromApi = false
             }
             providerId == activeProviderId && normalized == null -> {
                 val nextProvider =
@@ -134,7 +149,6 @@ class AiSearchHandler(
                 } else {
                     llmApiKey = null
                     availableModels = emptyList()
-                    hasLoadedModelsFromApi = false
                     clearAiSearchState()
                 }
             }
@@ -233,9 +247,11 @@ class AiSearchHandler(
     }
 
     fun reloadFromPreferences() {
-        isInitialized = false
-        hasLoadedApiKeyCache = false
-        ensureInitialized()
+        synchronized(initLock) {
+            isInitialized = false
+            hasLoadedApiKeyCache = false
+            ensureInitialized()
+        }
         clearAiSearchState()
     }
 
@@ -254,27 +270,29 @@ class AiSearchHandler(
     suspend fun refreshAvailableModels(forceRefresh: Boolean = false): List<LlmTextModel> {
         ensureInitialized()
 
+        val providerId = activeProviderId
+        val provider = activeProvider
         val apiKey = llmApiKey ?: return availableModels
-        if (!forceRefresh && hasLoadedModelsFromApi) {
+        val result = LlmModelCatalogCache.fetchIfNeeded(
+            context, providerId, if (forceRefresh) 0L else LlmModelCatalogCache.STARTUP_MAX_AGE_MS,
+        ) { provider.fetchAvailableTextModels(apiKey, context) }
+        synchronized(initLock) {
+            // Settings may have switched providers while this request was in flight.
+            if (activeProviderId != providerId || llmApiKey != apiKey) return availableModels
+            val fetched = result.getOrNull() ?: LlmModelCatalogCache.get(providerId) ?: return availableModels
+            if (result.isSuccess) {
+                val resolvedModelId = resolveModelSelectionOrDefault(providerId, selectedModelId, fetched)
+                if (resolvedModelId != selectedModelId) setSelectedModelId(resolvedModelId)
+            }
+            availableModels = ensureModelExists(fetched)
             return availableModels
         }
-
-        val result = activeProvider.fetchAvailableTextModels(apiKey, context)
-        val fetched = result.getOrDefault(emptyList())
-        if (result.isSuccess) {
-            val resolvedModelId = resolveModelSelectionOrDefault(activeProviderId, selectedModelId, fetched)
-            if (resolvedModelId != selectedModelId) setSelectedModelId(resolvedModelId)
-        }
-        availableModels = ensureModelExists(fetched)
-        hasLoadedModelsFromApi = true
-        return availableModels
     }
 
     /** Reuses a catalog already fetched by settings instead of issuing a second network request. */
     fun updateAvailableModels(models: List<LlmTextModel>) {
         ensureInitialized()
         availableModels = ensureModelExists(models)
-        hasLoadedModelsFromApi = true
     }
 
     fun requestAiSearch(query: String) {
@@ -322,11 +340,34 @@ class AiSearchHandler(
         requestAiSearchInternal(query = query, isFollowUp = true)
     }
 
+    /**
+     * Runs [block] on Main once the handler is initialized. The first request after a cold start
+     * reads (and decrypts) preferences on IO instead of blocking the main thread.
+     */
+    private fun runWhenInitialized(block: () -> Unit) {
+        pendingInitRequest?.cancel()
+        pendingInitRequest = null
+        if (isInitialized) {
+            block()
+            return
+        }
+        pendingInitRequest =
+            scope.launch {
+                withContext(Dispatchers.IO) { ensureInitialized() }
+                pendingInitRequest = null
+                block()
+            }
+    }
+
     private fun requestAiSearchInternal(
         query: String,
         isFollowUp: Boolean,
+    ) = runWhenInitialized { startAiSearch(query, isFollowUp) }
+
+    private fun startAiSearch(
+        query: String,
+        isFollowUp: Boolean,
     ) {
-        ensureInitialized()
         val trimmedQuery = query.trim()
         if (trimmedQuery.isBlank()) {
             showToastCallback(R.string.direct_search_enter_query)
@@ -515,42 +556,58 @@ class AiSearchHandler(
         groundingEnabled: Boolean,
         thinkingEnabled: Boolean = false,
         advancedPayloadJson: String? = null,
+    ) = runWhenInitialized {
+        startCustomToolSearch(
+            query, systemInstruction, providerId, modelId, groundingEnabled, thinkingEnabled, advancedPayloadJson,
+        )
+    }
+
+    private fun startCustomToolSearch(
+        query: String,
+        systemInstruction: String,
+        providerId: AiSearchLlmProviderId,
+        modelId: String,
+        groundingEnabled: Boolean,
+        thinkingEnabled: Boolean,
+        advancedPayloadJson: String?,
     ) {
-        ensureInitialized()
         val trimmedQuery = query.trim()
         if (trimmedQuery.isBlank()) return
         val resolvedSystemInstruction = expandCustomToolPrompt(systemInstruction)
 
-        val provider = AiSearchLlmProviderRegistry.get(providerId, context)
-        val apiKey = userPreferences.getLlmApiKey(providerId)?.trim()
-        if (apiKey.isNullOrBlank()) {
-            _aiSearchState.update {
-                AiSearchState(
-                    status = AiSearchStatus.Error,
-                    errorMessage = context.getString(R.string.direct_search_error_no_key),
-                    activeQuery = trimmedQuery,
-                    canRetry = false,
-                    llmProviderId = providerId,
-                )
-            }
-            return
-        }
-        if (modelId.isBlank()) {
-            _aiSearchState.update {
-                AiSearchState(
-                    status = AiSearchStatus.Error,
-                    errorMessage = context.getString(R.string.ai_error_selected_model_unavailable),
-                    activeQuery = trimmedQuery,
-                    canRetry = false,
-                    llmProviderId = providerId,
-                )
-            }
-            return
-        }
-
         aiSearchJob?.cancel()
         aiSearchJob =
             scope.launch {
+                // Provider lookup and key decryption read encrypted preferences; keep them off Main.
+                val (provider, apiKey) =
+                    withContext(Dispatchers.IO) {
+                        AiSearchLlmProviderRegistry.get(providerId, context) to
+                            userPreferences.getLlmApiKey(providerId)?.trim()
+                    }
+                if (apiKey.isNullOrBlank()) {
+                    _aiSearchState.update {
+                        AiSearchState(
+                            status = AiSearchStatus.Error,
+                            errorMessage = context.getString(R.string.direct_search_error_no_key),
+                            activeQuery = trimmedQuery,
+                            canRetry = false,
+                            llmProviderId = providerId,
+                        )
+                    }
+                    return@launch
+                }
+                if (modelId.isBlank()) {
+                    _aiSearchState.update {
+                        AiSearchState(
+                            status = AiSearchStatus.Error,
+                            errorMessage = context.getString(R.string.ai_error_selected_model_unavailable),
+                            activeQuery = trimmedQuery,
+                            canRetry = false,
+                            llmProviderId = providerId,
+                        )
+                    }
+                    return@launch
+                }
                 _aiSearchState.update {
                     AiSearchState(
                         status = AiSearchStatus.Loading,
@@ -652,6 +709,8 @@ class AiSearchHandler(
     }
 
     fun clearAiSearchState() {
+        pendingInitRequest?.cancel()
+        pendingInitRequest = null
         aiSearchJob?.cancel()
         aiSearchJob = null
         conversationTurns.clear()

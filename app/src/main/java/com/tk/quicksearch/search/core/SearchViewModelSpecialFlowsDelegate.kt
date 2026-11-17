@@ -2,9 +2,13 @@ package com.tk.quicksearch.search.core
 
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 internal class SearchViewModelSpecialFlowsDelegate(
     private val scope: CoroutineScope,
@@ -19,6 +23,8 @@ internal class SearchViewModelSpecialFlowsDelegate(
     private val updateFeatureState: ((SearchFeatureState) -> SearchFeatureState) -> Unit,
     private val resultsStateProvider: () -> SearchResultsState,
 ) {
+    private var lastAiHistoryWrite: Job? = null
+
     fun clearInformationCardsExcept(activeCard: SearchViewModel.ActiveInformationCard) {
         cancelInactiveTools(activeCard)
         if (
@@ -76,7 +82,7 @@ internal class SearchViewModelSpecialFlowsDelegate(
                 if (aiState.status == AiSearchStatus.Loading && !aiState.isFollowUp) {
                     val activeQuery = aiState.activeQuery?.trim().orEmpty()
                     if (shouldRecordPendingAiSearchQueryInHistory() && activeQuery.isNotEmpty()) {
-                        userPreferences.addRecentItem(RecentSearchEntry.Query(activeQuery))
+                        recordAiSearchHistory(RecentSearchEntry.Query(activeQuery))
                     }
                     setShouldRecordPendingAiSearchQueryInHistory(true)
                 }
@@ -84,7 +90,7 @@ internal class SearchViewModelSpecialFlowsDelegate(
                     val activeQuery = aiState.activeQuery?.trim().orEmpty()
                     val answer = aiState.answer?.trim().orEmpty()
                     if (activeQuery.isNotEmpty() && answer.isNotEmpty()) {
-                        userPreferences.addRecentItem(
+                        recordAiSearchHistory(
                             RecentSearchEntry.Query(
                                 query = activeQuery,
                                 aiAnswer = answer,
@@ -100,6 +106,23 @@ internal class SearchViewModelSpecialFlowsDelegate(
                 updateResultsState { it.copy(AiSearchState = aiState) }
             }
         }
+    }
+
+    /**
+     * Writes AI search history off the main thread. Each write waits for the previous one so the
+     * answer snapshot always lands after the pending query entry, and finishes even if the
+     * surface closes. Only called from the main-thread collector, so [lastAiHistoryWrite] needs
+     * no lock.
+     */
+    private fun recordAiSearchHistory(entry: RecentSearchEntry) {
+        val previous = lastAiHistoryWrite
+        lastAiHistoryWrite =
+            scope.launch(Dispatchers.IO, start = CoroutineStart.ATOMIC) {
+                withContext(NonCancellable) {
+                    previous?.join()
+                    userPreferences.addRecentItem(entry)
+                }
+            }
     }
 
     fun shouldShowSearchBarWelcome(): Boolean {

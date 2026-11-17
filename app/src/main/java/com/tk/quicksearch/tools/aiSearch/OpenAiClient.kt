@@ -3,9 +3,7 @@ package com.tk.quicksearch.tools.aiSearch
 import android.content.Context
 import android.util.Log
 import com.tk.quicksearch.BuildConfig
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -42,11 +40,11 @@ class OpenAiClient(
             filterForOpenAiPicker: Boolean = true,
             trustUserCertificates: Boolean = false,
         ): Result<List<LlmTextModel>> =
-            withContext(Dispatchers.IO) {
+            withCancellableHttp {
                 runCatching {
                     val url = URL("${baseUrl.trim().trimEnd('/')}/models")
                     val connection =
-                        (url.openConnection() as HttpURLConnection).apply {
+                        (url.openConnection() as HttpURLConnection).trackCancellation().apply {
                             requestMethod = "GET"
                             setRequestProperty("Authorization", "Bearer $apiKey")
                             connectTimeout = 15000
@@ -116,7 +114,7 @@ class OpenAiClient(
         history: List<AiConversationTurn> = emptyList(),
         advancedPayloadJson: String? = null,
     ): Result<String> =
-        withContext(Dispatchers.IO) {
+        withCancellableHttp {
             var attempt = 1
             var delayMs = INITIAL_RETRY_DELAY_MS
             var lastError: Throwable? = null
@@ -133,11 +131,11 @@ class OpenAiClient(
                         history = history,
                         advancedPayloadJson = advancedPayloadJson,
                     )
-                if (result.isSuccess) return@withContext result
+                if (result.isSuccess) return@withCancellableHttp result
 
                 lastError = result.exceptionOrNull()
                 if (attempt == MAX_ATTEMPTS || !shouldRetry(lastError)) {
-                    return@withContext Result.failure(lastError ?: IllegalStateException("Unknown error"))
+                    return@withCancellableHttp Result.failure(lastError ?: IllegalStateException("Unknown error"))
                 }
                 delay(delayMs)
                 delayMs *= 2
@@ -160,7 +158,7 @@ class OpenAiClient(
         return try {
             val url = URL("${baseUrl.trim().trimEnd('/')}/chat/completions")
             connection =
-                (url.openConnection() as HttpURLConnection).apply {
+                (url.openConnection() as HttpURLConnection).trackCancellation().apply {
                     requestMethod = "POST"
                     setRequestProperty("Authorization", "Bearer $apiKey")
                     setRequestProperty("Content-Type", "application/json")

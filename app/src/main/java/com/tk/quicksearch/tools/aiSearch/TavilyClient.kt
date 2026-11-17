@@ -2,8 +2,6 @@ package com.tk.quicksearch.tools.aiSearch
 
 import android.util.Log
 import com.tk.quicksearch.BuildConfig
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.IOException
@@ -104,7 +102,7 @@ class TavilyClient(
     }
 
     suspend fun search(query: String): Result<List<TavilySearchResult>> =
-        withContext(Dispatchers.IO) {
+        withCancellableHttp {
             runCatching {
                 val body =
                     JSONObject()
@@ -117,7 +115,7 @@ class TavilyClient(
                     Log.d(LOG_TAG, "Tavily search request")
                 }
                 val connection =
-                    (URL(SEARCH_ENDPOINT).openConnection() as HttpURLConnection).apply {
+                    (URL(SEARCH_ENDPOINT).openConnection() as HttpURLConnection).trackCancellation().apply {
                         requestMethod = "POST"
                         doOutput = true
                         setRequestProperty("Authorization", "Bearer $apiKey")

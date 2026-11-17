@@ -195,7 +195,7 @@ internal fun SearchPreferencesDelegate.refreshAvailableLlmModels() {
                                 if (apiKey.isNullOrBlank()) {
                                     Result.success(emptyList())
                                 } else {
-                                    fetchAvailableModels(providerId, apiKey)
+                                    fetchAvailableModels(providerId, apiKey, LlmModelCatalogCache.SETTINGS_MAX_AGE_MS)
                                 }
                             }
                         }.mapValues { (_, deferred) -> deferred.await() }
@@ -232,8 +232,9 @@ internal fun SearchPreferencesDelegate.refreshAvailableLlmModels() {
                     }
                 }
             }
+            val currentCustomTools = userPreferences.getCustomTools()
             val refreshedCustomTools =
-                userPreferences.getCustomTools().map { tool ->
+                currentCustomTools.map { tool ->
                     val models = results[tool.providerId]?.getOrNull() ?: return@map tool
                     if (tool.modelId.isNotBlank() && models.none { it.id == tool.modelId }) {
                         tool.copy(modelId = "")
@@ -241,7 +242,9 @@ internal fun SearchPreferencesDelegate.refreshAvailableLlmModels() {
                         tool
                     }
                 }
-            userPreferences.setCustomTools(refreshedCustomTools)
+            if (refreshedCustomTools != currentCustomTools) {
+                userPreferences.setCustomTools(refreshedCustomTools)
+            }
             var activeModels: List<LlmTextModel> = emptyList()
             updateFeatureState {
                 // A failed fetch keeps the previously cached catalog instead of blanking it.
@@ -282,11 +285,12 @@ internal suspend fun SearchPreferencesDelegate.showCustomProviderModelsError(err
 internal suspend fun SearchPreferencesDelegate.fetchAvailableModels(
         providerId: AiSearchLlmProviderId,
         apiKey: String,
+        maxAgeMs: Long = 0L,
     ): Result<List<LlmTextModel>> {
         val provider = AiSearchLlmProviderRegistry.get(providerId, applicationProvider())
-        return provider
-            .fetchAvailableTextModels(apiKey.trim(), applicationProvider())
-            .onSuccess { LlmModelCatalogCache.put(applicationProvider(), providerId, it) }
+        return LlmModelCatalogCache.fetchIfNeeded(applicationProvider(), providerId, maxAgeMs) {
+            provider.fetchAvailableTextModels(apiKey.trim(), applicationProvider())
+        }
     }
 
 internal fun SearchPreferencesDelegate.updateBooleanPreference(

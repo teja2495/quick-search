@@ -11,6 +11,10 @@ class SearchHistoryPreferences(
 ) : BasePreferences(context) {
     companion object {
         private const val MAX_RECENT_QUERIES = 15
+
+        // History is read-modified-written from Main and IO through separate instances; one
+        // process-wide lock keeps concurrent writers from dropping each other's entries.
+        private val writeLock = Any()
     }
 
     // ============================================================================
@@ -39,6 +43,10 @@ class SearchHistoryPreferences(
         if (!areRecentQueriesEnabled()) return
         if (entry is RecentSearchEntry.Query && entry.trimmedQuery.isBlank()) return
 
+        synchronized(writeLock) { writeRecentItem(entry) }
+    }
+
+    private fun writeRecentItem(entry: RecentSearchEntry) {
         val currentItems = getRecentItems().toMutableList()
 
         currentItems.removeAll { it.stableKey == entry.stableKey }
@@ -58,7 +66,7 @@ class SearchHistoryPreferences(
     /**
      * Clear all recent queries.
      */
-    fun clearRecentQueries() {
+    fun clearRecentQueries() = synchronized(writeLock) {
         com.tk.quicksearch.search.data.preferences.PreferenceUtils.setStringListPref(
             sessionPrefs,
             BasePreferences.KEY_RECENT_QUERIES,
@@ -69,7 +77,7 @@ class SearchHistoryPreferences(
     /**
      * Delete a specific recent item from the list.
      */
-    fun deleteRecentItem(entry: RecentSearchEntry) {
+    fun deleteRecentItem(entry: RecentSearchEntry) = synchronized(writeLock) {
         val currentItems = getRecentItems().toMutableList()
         currentItems.removeAll { it.stableKey == entry.stableKey }
         val serialized = currentItems.map { it.toJsonString() }

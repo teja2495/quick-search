@@ -490,10 +490,11 @@ internal class SearchStartupLifecycleDelegate(
             val packageNames = appSearchManager.cachedApps.map { it.packageName }.toSet()
             val messagingInfo = getMessagingAppInfo(packageNames)
 
-            searchEngineManager.ensureInitialized()
+            val hasApiKey = userPreferences.hasAnyLlmApiKey()
+            searchEngineManager.ensureInitialized(hasApiKey)
+            aiSearchHandler.initializeForStartup(hasApiKey)
             val shortcutsState = aliasHandler.getInitialState()
             val customTools = normalizeCustomToolModels(userPreferences.getCustomTools())
-            val hasApiKey = userPreferences.hasAnyLlmApiKey()
             val activeProviderId = aiSearchHandler.getAiSearchProviderId()
             val availableAiModels = aiSearchHandler.getAvailableModels()
 

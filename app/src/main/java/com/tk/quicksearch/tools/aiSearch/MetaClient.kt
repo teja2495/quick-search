@@ -3,9 +3,7 @@ package com.tk.quicksearch.tools.aiSearch
 import android.content.Context
 import android.util.Log
 import com.tk.quicksearch.BuildConfig
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -36,10 +34,10 @@ class MetaClient(
             apiKey: String,
             @Suppress("UNUSED_PARAMETER") context: Context,
         ): Result<List<LlmTextModel>> =
-            withContext(Dispatchers.IO) {
+            withCancellableHttp {
                 runCatching {
                     val connection =
-                        (URL(MODELS_ENDPOINT).openConnection() as HttpURLConnection).apply {
+                        (URL(MODELS_ENDPOINT).openConnection() as HttpURLConnection).trackCancellation().apply {
                             requestMethod = "GET"
                             setRequestProperty("Authorization", "Bearer $apiKey")
                             connectTimeout = 15000
@@ -103,7 +101,7 @@ class MetaClient(
         history: List<AiConversationTurn> = emptyList(),
         responseMimeType: String = "text/plain",
     ): Result<String> =
-        withContext(Dispatchers.IO) {
+        withCancellableHttp {
             var attempt = 1
             var retryDelayMs = INITIAL_RETRY_DELAY_MS
             var lastError: Throwable? = null
@@ -120,10 +118,10 @@ class MetaClient(
                         history = history,
                         responseMimeType = responseMimeType,
                     )
-                if (result.isSuccess) return@withContext result
+                if (result.isSuccess) return@withCancellableHttp result
                 lastError = result.exceptionOrNull()
                 if (attempt == MAX_ATTEMPTS || !shouldRetry(lastError)) {
-                    return@withContext Result.failure(lastError ?: IllegalStateException("Unknown error"))
+                    return@withCancellableHttp Result.failure(lastError ?: IllegalStateException("Unknown error"))
                 }
                 delay(retryDelayMs)
                 retryDelayMs *= 2
@@ -146,7 +144,7 @@ class MetaClient(
         var connection: HttpURLConnection? = null
         return try {
             connection =
-                (URL(RESPONSES_ENDPOINT).openConnection() as HttpURLConnection).apply {
+                (URL(RESPONSES_ENDPOINT).openConnection() as HttpURLConnection).trackCancellation().apply {
                     requestMethod = "POST"
                     setRequestProperty("Authorization", "Bearer $apiKey")
                     setRequestProperty("Content-Type", "application/json")

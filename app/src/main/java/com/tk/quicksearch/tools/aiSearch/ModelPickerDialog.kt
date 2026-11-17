@@ -149,7 +149,10 @@ fun ModelPickerDialog(
                 state = listState,
                 verticalArrangement = Arrangement.spacedBy(AppPickerDrawerRowSpacing),
             ) {
-                itemsIndexed(filteredOptions) { _, option ->
+                itemsIndexed(
+                    filteredOptions,
+                    key = { _, option -> "${option.providerId.storageValue}:${option.model.id}" },
+                ) { _, option ->
                     AppPickerDrawerRow(
                         title = option.model.displayName,
                         selected = option.providerId == selectedProviderId && option.model.id == selectedModelId,

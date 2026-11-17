@@ -3,9 +3,8 @@ package com.tk.quicksearch.tools.aiSearch
 import android.util.Log
 import com.tk.quicksearch.BuildConfig
 import com.tk.quicksearch.R
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.ensureActive
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -47,7 +46,7 @@ class GeminiClient(
             Regex("""<\|channel>thought[\s\S]*?<channel\|>""")
 
         suspend fun fetchAvailableTextModels(apiKey: String, context: android.content.Context): Result<List<LlmTextModel>> =
-            withContext(Dispatchers.IO) {
+            withCancellableHttp {
                 runCatching {
                     val models = mutableListOf<LlmTextModel>()
                     var pageToken: String? = null
@@ -60,7 +59,7 @@ class GeminiClient(
                         val url = URL("$MODELS_ENDPOINT?key=$apiKey$nextPageQuery")
 
                         val connection =
-                            (url.openConnection() as HttpURLConnection).apply {
+                            (url.openConnection() as HttpURLConnection).trackCancellation().apply {
                                 requestMethod = "GET"
                                 connectTimeout = 15000
                                 readTimeout = 20000
@@ -160,7 +159,7 @@ class GeminiClient(
         history: List<AiConversationTurn> = emptyList(),
         responseMimeType: String = "text/plain",
     ): Result<LlmResponse> =
-        withContext(Dispatchers.IO) {
+        withCancellableHttp {
             var attempt = 1
             var delayMs = INITIAL_RETRY_DELAY_MS
             var lastError: Throwable? = null
@@ -180,7 +179,7 @@ class GeminiClient(
                         responseMimeType = responseMimeType,
                     )
                 if (result.isSuccess) {
-                    return@withContext Result.success(
+                    return@withCancellableHttp Result.success(
                         LlmResponse(
                             text = result.getOrThrow(),
                             webSearchDisabledForRequest =
@@ -195,10 +194,11 @@ class GeminiClient(
                     if (BuildConfig.DEBUG) {
                         Log.d(LOG_TAG, "Retrying Gemini request without grounding after quota/rate-limit style error")
                     }
+                    coroutineContext.ensureActive()
                     continue
                 }
                 if (attempt == MAX_ATTEMPTS || !shouldRetry(lastError)) {
-                    return@withContext Result.failure(lastError ?: IllegalStateException("Unknown error"))
+                    return@withCancellableHttp Result.failure(lastError ?: IllegalStateException("Unknown error"))
                 }
 
                 delay(delayMs)
@@ -225,7 +225,7 @@ class GeminiClient(
             val endpointModelId = modelId.trim().ifBlank { GeminiModelCatalog.DEFAULT_MODEL_ID }
             val url = URL("$BASE_API_URL/models/$endpointModelId:generateContent?key=$apiKey")
             connection =
-                (url.openConnection() as HttpURLConnection).apply {
+                (url.openConnection() as HttpURLConnection).trackCancellation().apply {
                     requestMethod = "POST"
                     setRequestProperty("Content-Type", "application/json")
                     doOutput = true

@@ -44,8 +44,7 @@ class SearchEngineManager(
 
     private var isInitialized = false
 
-    private fun loadFromPreferences() {
-        val hasLlmApiKey = userPreferences.hasAnyLlmApiKey()
+    private fun loadFromPreferences(hasLlmApiKey: Boolean = userPreferences.hasAnyLlmApiKey()) {
         val availableEngines = getAvailableEngines(hasLlmApiKey)
         val availableBrowsers = loadInstalledBrowsers()
         customSearchEngines = userPreferences.getCustomSearchEngines()
@@ -70,9 +69,9 @@ class SearchEngineManager(
         searchEngineCompactRowCount = userPreferences.getSearchEngineCompactRowCount()
     }
 
-    fun ensureInitialized() {
+    fun ensureInitialized(hasLlmApiKey: Boolean? = null) {
         if (!isInitialized) {
-            loadFromPreferences()
+            loadFromPreferences(hasLlmApiKey ?: userPreferences.hasAnyLlmApiKey())
             isInitialized = true
         }
     }

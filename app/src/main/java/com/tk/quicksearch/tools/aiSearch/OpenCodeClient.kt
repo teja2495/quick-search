@@ -3,9 +3,7 @@ package com.tk.quicksearch.tools.aiSearch
 import android.content.Context
 import android.util.Log
 import com.tk.quicksearch.BuildConfig
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -55,10 +53,10 @@ class OpenCodeClient(
             apiKey: String,
             context: Context,
         ): Result<List<LlmTextModel>> =
-            withContext(Dispatchers.IO) {
+            withCancellableHttp {
                 val results = OpenCodeTier.entries.map { tier -> tier to fetchTierModelIds(apiKey, tier) }
                 if (results.all { it.second.isFailure }) {
-                    return@withContext Result.failure(
+                    return@withCancellableHttp Result.failure(
                         results.first().second.exceptionOrNull() ?: IOException("Failed to load OpenCode models"),
                     )
                 }
@@ -80,7 +78,7 @@ class OpenCodeClient(
             runCatching {
                 val url = URL("${tier.baseUrl}/models")
                 val connection =
-                    (url.openConnection() as HttpURLConnection).apply {
+                    (url.openConnection() as HttpURLConnection).trackCancellation().apply {
                         requestMethod = "GET"
                         setRequestProperty("Authorization", "Bearer $apiKey")
                         setRequestProperty("User-Agent", USER_AGENT)
@@ -259,11 +257,11 @@ class OpenCodeClient(
         history: List<AiConversationTurn> = emptyList(),
         advancedPayloadJson: String? = null,
     ): Result<String> =
-        withContext(Dispatchers.IO) {
+        withCancellableHttp {
             val (tier, modelId) = OpenCodeModelCatalog.parseModelRef(modelRef)
             val primaryFormat =
                 OpenCodeModelCatalog.apiFormatFor(tier, modelId)
-                    ?: return@withContext Result.failure(IllegalStateException("Model $modelId is not supported"))
+                    ?: return@withCancellableHttp Result.failure(IllegalStateException("Model $modelId is not supported"))
             // One id per question, reused across retries and format fallbacks of that question.
             val requestId = UUID.randomUUID().toString()
             val session = sessionId?.takeIf { it.isNotBlank() } ?: UUID.randomUUID().toString()
@@ -333,7 +331,7 @@ class OpenCodeClient(
         return try {
             val url = URL(tier.baseUrl + format.path)
             connection =
-                (url.openConnection() as HttpURLConnection).apply {
+                (url.openConnection() as HttpURLConnection).trackCancellation().apply {
                     requestMethod = "POST"
                     buildHeaders(apiKey, format, sessionId, requestId).forEach { (name, value) ->
                         setRequestProperty(name, value)
