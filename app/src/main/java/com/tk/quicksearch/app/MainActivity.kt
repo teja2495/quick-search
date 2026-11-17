@@ -534,6 +534,10 @@ open class MainActivity : FragmentActivity() {
         } else {
             window.clearFlags(flag)
         }
+        // The translucent theme would otherwise leave the activity underneath (another launcher)
+        // visible through the transparent root. Android only infers occlusion from the wallpaper
+        // flag at some visibility updates, so state it: opaque while the wallpaper is the backdrop.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) setTranslucent(!showWallpaper)
     }
 
     private fun updateRecentsVisibility(showInRecents: Boolean) {

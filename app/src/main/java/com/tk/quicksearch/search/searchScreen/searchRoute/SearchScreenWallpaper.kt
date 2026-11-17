@@ -19,6 +19,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.core.content.ContextCompat
+import com.tk.quicksearch.app.HomeActivity
 import com.tk.quicksearch.app.MainActivity
 import com.tk.quicksearch.search.core.AccentColorMode
 import com.tk.quicksearch.search.core.BackgroundSource
@@ -284,9 +285,12 @@ internal fun SearchScreenWallpaperLogic(
                     sourceWallpaperState.value.loadResult != WallpaperUtils.WallpaperLoadResult.Unavailable))
     // While the blurred bitmap loads, Android already draws the system wallpaper behind this window,
     // so show it (sharp) instead of a solid fallback; the blurred image then fades in over it.
+    // Only Home's opaque window shows nothing but the wallpaper behind it. MainActivity's window is
+    // translucent, so leaving it transparent would also show the app underneath (another launcher).
+    val systemWallpaperIsOnlyContentBehind = canShowSystemWallpaperBackdrop && context is HomeActivity
     val isLoadingBlurredSystemWallpaper =
         allowUnblurredSystemBackdrop &&
-            canShowSystemWallpaperBackdrop &&
+            systemWallpaperIsOnlyContentBehind &&
             state.backgroundSource == BackgroundSource.SYSTEM_WALLPAPER &&
             !usesSystemWallpaperBackdrop &&
             imageBitmap == null &&
@@ -318,7 +322,7 @@ internal fun SearchScreenWallpaperLogic(
         // never paints a solid color over it while that bitmap loads or fades in.
         systemWallpaperUnderBitmap =
             allowUnblurredSystemBackdrop &&
-                canShowSystemWallpaperBackdrop &&
+                systemWallpaperIsOnlyContentBehind &&
                 state.backgroundSource == BackgroundSource.SYSTEM_WALLPAPER &&
                 !usesSystemWallpaperBackdrop &&
                 !useMonoThemeFallback,
