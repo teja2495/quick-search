@@ -122,7 +122,7 @@ class SearchViewModel(
     private val initialConfigState = initialState.configState
     private val repository by lazy { AppsRepository(appContext) }
     private val appShortcutRepository by lazy {
-        AppShortcutRepository(appContext)
+        AppShortcutRepository.getInstance(appContext)
     }
     private val calendarRepository by lazy { CalendarRepository(appContext) }
     private val contactRepository by lazy { ContactRepository(appContext) }

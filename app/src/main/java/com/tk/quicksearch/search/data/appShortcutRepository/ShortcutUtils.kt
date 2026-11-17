@@ -208,6 +208,8 @@ fun mergeAndSortShortcuts(
     customShortcuts: List<StaticShortcut> = emptyList(),
     context: Context,
     packageManager: PackageManager,
+    /** True when [staticShortcuts] were already filtered by a loader, e.g. when read back from its cache. */
+    staticShortcutsValidated: Boolean = false,
 ): List<StaticShortcut> {
     val locale = Locale.getDefault()
     val hardcodedShortcuts = loadHardcodedShortcuts(staticShortcuts, context, packageManager)
@@ -220,8 +222,13 @@ fun mergeAndSortShortcuts(
         customShortcuts.filter { shortcut ->
             shortcut.enabled && shortcut.intents.isNotEmpty() && isUserCreatedShortcut(shortcut)
         }
-    return (filterShortcuts(staticShortcuts + hardcodedShortcuts, packageManager, context) +
-        validCustomShortcuts)
+    val launchableShortcuts =
+        if (staticShortcutsValidated) {
+            staticShortcuts + filterShortcuts(hardcodedShortcuts, packageManager, context)
+        } else {
+            filterShortcuts(staticShortcuts + hardcodedShortcuts, packageManager, context)
+        }
+    return (launchableShortcuts + validCustomShortcuts)
         .distinctBy { shortcutKey(it) }
         .sortedWith(
             compareBy<StaticShortcut> { it.appLabel.lowercase(locale) }

@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class AppShortcutRepository(
+class AppShortcutRepository private constructor(
     private val context: Context,
 ) {
     private val packageManager: PackageManager = context.packageManager
@@ -38,6 +38,9 @@ class AppShortcutRepository(
                     customShortcuts = custom,
                     context = context,
                     packageManager = packageManager,
+                    // The loaders filter before saving, and the idle-phase system refresh
+                    // re-checks everything, so skip one resolveActivity per cached shortcut.
+                    staticShortcutsValidated = true,
                 )
             val availableShortcuts = storeInMemory(merged)
             if (availableShortcuts.isNotEmpty()) {
@@ -281,8 +284,19 @@ class AppShortcutRepository(
         return listOf(fallbackIntent, appIntent)
     }
 
-    private companion object {
-        const val CUSTOM_DEEP_LINK_ID_PREFIX = "custom_deeplink_"
+    companion object {
+        @Volatile private var instance: AppShortcutRepository? = null
+
+        /**
+         * One repository per process, so Home, the main screen and the overlay share the loaded
+         * shortcut list and package-availability state instead of each holding its own copy.
+         */
+        fun getInstance(context: Context): AppShortcutRepository =
+            instance ?: synchronized(this) {
+                instance ?: AppShortcutRepository(context.applicationContext).also { instance = it }
+            }
+
+        private const val CUSTOM_DEEP_LINK_ID_PREFIX = "custom_deeplink_"
 
         /**
          * Toggle for switching between the two shortcut fetch implementations.
@@ -296,7 +310,7 @@ class AppShortcutRepository(
          * Behaviour outside of fetching (custom shortcuts, hardcoded shortcuts, caching,
          * launching) is intentionally unchanged.
          */
-        const val USE_LAUNCHER_APPS_API_FOR_SHORTCUTS = true
+        private const val USE_LAUNCHER_APPS_API_FOR_SHORTCUTS = true
     }
 
     suspend fun addSearchTargetQueryShortcut(

@@ -121,15 +121,25 @@ class AppShortcutPreferences(
                 assetStore.putBase64("${ManagedAssetStore.SHORTCUT_ICON_PREFIX}$id", it)
             }
 
+    /**
+     * All icon overrides, keyed by shortcut key. Reading them means one file read and encode per
+     * icon, so the map is kept in memory for the process and updated by every writer.
+     */
     fun getAllAppShortcutIconOverrides(): Map<String, String> {
-        val prefix = BasePreferences.KEY_APP_SHORTCUT_ICON_OVERRIDE_PREFIX
-        val out = mutableMapOf<String, String>()
-        for ((key, value) in prefs.all) {
-            if (!key.startsWith(prefix)) continue
-            if (value !is String || value.isBlank()) continue
-            out[key.removePrefix(prefix)] = value
+        cachedIconOverrides?.let { return it }
+        synchronized(iconOverrideLock) {
+            cachedIconOverrides?.let { return it }
+            val prefix = BasePreferences.KEY_APP_SHORTCUT_ICON_OVERRIDE_PREFIX
+            val out = mutableMapOf<String, String>()
+            for ((key, value) in prefs.all) {
+                if (!key.startsWith(prefix)) continue
+                if (value !is String || value.isBlank()) continue
+                out[key.removePrefix(prefix)] = value
+            }
+            val loaded = out + assetStore.getAllBase64(ManagedAssetStore.SHORTCUT_ICON_PREFIX)
+            cachedIconOverrides = loaded
+            return loaded
         }
-        return out + assetStore.getAllBase64(ManagedAssetStore.SHORTCUT_ICON_PREFIX)
     }
 
     fun setAppShortcutIconOverride(
@@ -138,17 +148,33 @@ class AppShortcutPreferences(
     ) {
         val key = iconOverrideKey(id)
         val assetId = "${ManagedAssetStore.SHORTCUT_ICON_PREFIX}$id"
-        // commit() so a follow-up read (e.g. refreshAppShortcutsState) sees the new value;
-        // apply() is async and can race with immediate UI refresh.
-        if (iconBase64.isNullOrBlank()) {
-            assetStore.remove(assetId)
-            prefs.edit().remove(key).commit()
-        } else {
-            if (!assetStore.putBase64(assetId, iconBase64)) return
-            prefs.edit().putString(key, iconBase64).commit()
+        synchronized(iconOverrideLock) {
+            // commit() so a follow-up read (e.g. refreshAppShortcutsState) sees the new value;
+            // apply() is async and can race with immediate UI refresh.
+            if (iconBase64.isNullOrBlank()) {
+                assetStore.remove(assetId)
+                prefs.edit().remove(key).commit()
+                cachedIconOverrides = cachedIconOverrides?.minus(id)
+            } else {
+                if (!assetStore.putBase64(assetId, iconBase64)) return
+                prefs.edit().putString(key, iconBase64).commit()
+                cachedIconOverrides = cachedIconOverrides?.plus(id to iconBase64)
+            }
         }
     }
 
     private fun iconOverrideKey(id: String): String =
         "${BasePreferences.KEY_APP_SHORTCUT_ICON_OVERRIDE_PREFIX}$id"
+
+    companion object {
+        private val iconOverrideLock = Any()
+
+        @Volatile
+        private var cachedIconOverrides: Map<String, String>? = null
+
+        /** Drops the in-memory overrides after their stored copy was replaced, e.g. by a restore. */
+        fun invalidateIconOverrideCache() {
+            synchronized(iconOverrideLock) { cachedIconOverrides = null }
+        }
+    }
 }

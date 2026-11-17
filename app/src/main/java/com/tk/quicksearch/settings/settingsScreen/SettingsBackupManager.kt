@@ -6,6 +6,7 @@ import com.tk.quicksearch.customInfo.CustomInfoRepository
 import com.tk.quicksearch.customInfo.CustomInfoScheduler
 import com.tk.quicksearch.reminders.ReminderScheduler
 import com.tk.quicksearch.search.apps.IconPackManager
+import com.tk.quicksearch.search.data.preferences.AppShortcutPreferences
 import com.tk.quicksearch.search.data.preferences.BasePreferences
 import com.tk.quicksearch.search.data.preferences.CustomLlmProviderPreferences
 import com.tk.quicksearch.search.data.preferences.GeminiPreferences
@@ -281,6 +282,9 @@ object SettingsBackupManager {
                 throw IOException("Failed to import $prefName")
             }
         }
+
+        // Shortcut icon overrides are kept in memory; reread them from the restored preferences.
+        AppShortcutPreferences.invalidateIconOverrideCache()
 
         if (selectedExportItems == null || ExportItem.SETTINGS in selectedExportItems) {
             importSelectedIconPack(context, root)

@@ -101,6 +101,17 @@ private fun loadShortcutIconBitmap(
 ): ImageBitmap? {
     val cacheKey = shortcutIconCacheKey(shortcut, iconSizePx)
     ShortcutIconMemoryCache.get(cacheKey)?.let { return it }
+    if (ShortcutIconMemoryCache.isRecentFailure(cacheKey)) return null
+    return loadShortcutIconBitmapUncached(context, shortcut, iconSizePx, cacheKey)
+        .also { icon -> if (icon == null) ShortcutIconMemoryCache.markFailure(cacheKey) }
+}
+
+private fun loadShortcutIconBitmapUncached(
+    context: Context,
+    shortcut: StaticShortcut,
+    iconSizePx: Int,
+    cacheKey: String,
+): ImageBitmap? {
 
     val embedded = shortcut.iconBase64?.takeIf { it.isNotBlank() }
     if (embedded != null) {
@@ -274,8 +285,30 @@ private object ShortcutIconMemoryCache {
         synchronized(cache) { cache.put(key, icon) }
     }
 
+    // Icons that failed to load, with when they failed. Rows scrolled back into view skip the
+    // system lookups for a while; the time limit lets a transient failure (e.g. an app still
+    // installing) recover without clearing the whole cache.
+    private const val FAILURE_RETRY_MS = 60_000L
+    private val failures = LruCache<String, Long>(256)
+
+    fun isRecentFailure(key: String): Boolean =
+        synchronized(failures) {
+            val failedAt = failures.get(key) ?: return false
+            if (android.os.SystemClock.elapsedRealtime() - failedAt < FAILURE_RETRY_MS) {
+                true
+            } else {
+                failures.remove(key)
+                false
+            }
+        }
+
+    fun markFailure(key: String) {
+        synchronized(failures) { failures.put(key, android.os.SystemClock.elapsedRealtime()) }
+    }
+
     fun clear() {
         synchronized(cache) { cache.evictAll() }
+        synchronized(failures) { failures.evictAll() }
     }
 }
 

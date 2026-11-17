@@ -157,9 +157,8 @@ internal fun loadHardcodedShortcuts(
             .map { shortcut ->
                 shortcut.packageName to shortcutDisplayName(shortcut).trim().lowercase(locale)
             }.toSet()
-    val sourceIconByComponent = loadShortcutSourceIconBase64ByComponent(context, packageManager)
-
-    return HARDCODED_SHORTCUT_DEFINITIONS
+    val definitions =
+        HARDCODED_SHORTCUT_DEFINITIONS
         .asSequence()
         .map { definition ->
             definition.copy(
@@ -180,7 +179,21 @@ internal fun loadHardcodedShortcuts(
             )
         }.filter { definition ->
             isAppInstalled(definition.packageName, packageManager)
-        }.map { definition ->
+        }.toList()
+    if (definitions.isEmpty()) return emptyList()
+    // Only the source activities these definitions name need an icon.
+    val sourceIconByComponent =
+        loadShortcutSourceIconBase64ByComponent(
+            packageManager = packageManager,
+            wantedComponents =
+                definitions.mapNotNullTo(mutableSetOf()) { definition ->
+                    definition.shortcutSourceClassName?.let { "${definition.packageName}/$it" }
+                },
+        )
+
+    return definitions
+        .asSequence()
+        .map { definition ->
             val sourceComponentKey =
                 definition.shortcutSourceClassName?.let { sourceClassName ->
                     "${definition.packageName}/$sourceClassName"
@@ -203,21 +216,22 @@ private fun isAppInstalled(packageName: String, packageManager: PackageManager):
     kotlin.runCatching { packageManager.getApplicationInfo(packageName, 0) }.isSuccess
 
 private fun loadShortcutSourceIconBase64ByComponent(
-    context: Context,
     packageManager: PackageManager,
+    wantedComponents: Set<String>,
 ): Map<String, String> {
+    if (wantedComponents.isEmpty()) return emptyMap()
     val resolveInfos =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            packageManager.queryIntentActivities(
-                Intent(Intent.ACTION_CREATE_SHORTCUT),
-                PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong()),
-            )
-        } else {
-            @Suppress("DEPRECATION")
-            packageManager.queryIntentActivities(
-                Intent(Intent.ACTION_CREATE_SHORTCUT),
-                PackageManager.MATCH_DEFAULT_ONLY,
-            )
+        wantedComponents.map { it.substringBefore('/') }.distinct().flatMap { packageName ->
+            val intent = Intent(Intent.ACTION_CREATE_SHORTCUT).setPackage(packageName)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.queryIntentActivities(
+                    intent,
+                    PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong()),
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
+            }
         }
 
     return resolveInfos
@@ -227,6 +241,7 @@ private fun loadShortcutSourceIconBase64ByComponent(
             if (!activityInfo.exported) return@mapNotNull null
             val packageName = activityInfo.packageName
             val className = resolveClassName(packageName, activityInfo.name)
+            if ("$packageName/$className" !in wantedComponents) return@mapNotNull null
             val iconBase64 =
                 resolveShortcutSourceIconDrawable(resolveInfo, packageManager)
                     ?.toBitmap(width = 96, height = 96)

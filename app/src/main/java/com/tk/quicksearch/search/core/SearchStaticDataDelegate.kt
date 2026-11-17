@@ -85,13 +85,13 @@ internal class SearchStaticDataDelegate(
         try {
             val loadedCached = appShortcutSearchHandler.loadCachedShortcutsOnly()
             if (loadedCached) {
-                withContext(Dispatchers.Main) { refreshAppShortcutsState() }
+                refreshAppShortcutsStateFromBackground()
                 StartupTrace.mark("QS.Home.ShortcutsCacheAvailable")
             }
 
             val loadedFresh = appShortcutSearchHandler.refreshShortcutsFromSystem()
             if (loadedFresh || !loadedCached) {
-                withContext(Dispatchers.Main) { refreshAppShortcutsState() }
+                refreshAppShortcutsStateFromBackground()
             }
             StartupTrace.mark("QS.Startup.ShortcutsRefreshComplete")
         } finally {
@@ -127,50 +127,59 @@ internal class SearchStaticDataDelegate(
         }
     }
 
-    private fun applyAppShortcutIconOverrides(
-        shortcuts: List<StaticShortcut>,
-        overrides: Map<String, String>,
-    ): List<StaticShortcut> {
-        if (overrides.isEmpty()) return shortcuts
-        return shortcuts.map { shortcut ->
-            val key = shortcutKey(shortcut)
-            val overrideIcon = overrides[key] ?: return@map shortcut
-            if (isUserCreatedShortcut(shortcut)) shortcut else shortcut.copy(iconBase64 = overrideIcon)
-        }
-    }
+    private class AppShortcutsStateSnapshot(
+        val query: String,
+        val updateResults: Boolean,
+        val disabledIds: Set<String>,
+        val all: List<StaticShortcut>,
+        val pinned: List<StaticShortcut>,
+        val excluded: List<StaticShortcut>,
+        val results: List<StaticShortcut>,
+    )
 
-    fun refreshAppShortcutsState(updateResults: Boolean = true) {
+    /** Safe off the main thread; the handler already applies icon overrides to every list. */
+    private fun computeAppShortcutsState(updateResults: Boolean): AppShortcutsStateSnapshot {
         val query = if (updateResults) resultsStateProvider().query else ""
-        val disabledShortcutIds = userPreferences.getDisabledAppShortcutIds()
-        val iconOverrides = userPreferences.getAllAppShortcutIconOverrides()
         val currentState =
             appShortcutSearchHandler.getShortcutsState(
                 query = query,
                 isSectionEnabled = SearchSection.APP_SHORTCUTS !in sectionManager.disabledSections,
             )
+        return AppShortcutsStateSnapshot(
+            query = query,
+            updateResults = updateResults,
+            disabledIds = userPreferences.getDisabledAppShortcutIds(),
+            all = appShortcutSearchHandler.getAvailableShortcuts(),
+            pinned = currentState.pinned,
+            excluded = currentState.excluded,
+            results = currentState.results,
+        )
+    }
 
-        val pinned = applyAppShortcutIconOverrides(currentState.pinned, iconOverrides)
-        val excluded = applyAppShortcutIconOverrides(currentState.excluded, iconOverrides)
-        val allShortcuts =
-            applyAppShortcutIconOverrides(
-                appShortcutSearchHandler.getAvailableShortcuts(),
-                iconOverrides,
-            )
-
+    private fun publishAppShortcutsState(snapshot: AppShortcutsStateSnapshot) {
+        // A snapshot computed in the background may be for a query the user has since changed;
+        // keep the newer results in that case.
+        val updateResults =
+            snapshot.updateResults && snapshot.query == resultsStateProvider().query
         updateUiState { state ->
             state.copy(
-                allAppShortcuts = allShortcuts,
-                disabledAppShortcutIds = disabledShortcutIds,
-                pinnedAppShortcuts = pinned,
-                excludedAppShortcuts = excluded,
-                appShortcutResults =
-                    if (updateResults) {
-                        applyAppShortcutIconOverrides(currentState.results, iconOverrides)
-                    } else {
-                        state.appShortcutResults
-                    },
+                allAppShortcuts = snapshot.all,
+                disabledAppShortcutIds = snapshot.disabledIds,
+                pinnedAppShortcuts = snapshot.pinned,
+                excludedAppShortcuts = snapshot.excluded,
+                appShortcutResults = if (updateResults) snapshot.results else state.appShortcutResults,
             )
         }
+    }
+
+    fun refreshAppShortcutsState(updateResults: Boolean = true) {
+        publishAppShortcutsState(computeAppShortcutsState(updateResults))
+    }
+
+    /** Builds the shortcut state on the calling (background) thread and publishes it on Main. */
+    private suspend fun refreshAppShortcutsStateFromBackground() {
+        val snapshot = computeAppShortcutsState(updateResults = true)
+        withContext(Dispatchers.Main) { publishAppShortcutsState(snapshot) }
     }
 
     fun refreshUsageAccess() {

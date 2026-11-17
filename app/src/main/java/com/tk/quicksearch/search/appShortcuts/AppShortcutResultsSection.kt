@@ -31,6 +31,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -522,9 +523,18 @@ private fun AppShortcutDropdownMenu(
         val displayName = shortcutDisplayName(shortcut)
         val density = LocalDensity.current
         val iconSizePx = remember(density) { with(density) { 40.dp.roundToPx().coerceAtLeast(1) } }
-        val iconBitmap = rememberShortcutIcon(shortcut = shortcut, iconSizePx = iconSizePx)
-        val appIconResult = rememberAppIcon(packageName = shortcut.packageName, iconPackPackage = iconPackPackage)
-        val headerIcon = iconBitmap ?: appIconResult.bitmap
+        // Every result row composes its menu while closed; only load its icons and state once
+        // it has been opened (and keep them for the close animation).
+        var hasOpened by remember { mutableStateOf(expanded) }
+        LaunchedEffect(expanded) { if (expanded) hasOpened = true }
+        val isActive = expanded || hasOpened
+        val iconBitmap = if (isActive) rememberShortcutIcon(shortcut = shortcut, iconSizePx = iconSizePx) else null
+        val headerIcon =
+                iconBitmap ?: if (isActive) {
+                        rememberAppIcon(packageName = shortcut.packageName, iconPackPackage = iconPackPackage).bitmap
+                } else {
+                        null
+                }
         val isUserCreated = isUserCreatedShortcut(shortcut)
         val notificationAction = CustomWidgetButtonAction.AppShortcut(
                 packageName = shortcut.packageName,
@@ -537,10 +547,14 @@ private fun AppShortcutDropdownMenu(
                 enabled = shortcut.enabled,
                 intents = shortcut.intents,
         )
-        val isPinnedToNotifications = PinnedNotifications.isPinned(context, notificationAction)
+        val isPinnedToNotifications = remember(shortcut, expanded) {
+                isActive && PinnedNotifications.isPinned(context, notificationAction)
+        }
         val openAppSettingDestination = LocalOpenAppSettingDestination.current
         val hasIconOverride = remember(shortcut, expanded) {
-                !UserAppPreferences(context).getAppShortcutIconOverride(shortcutKey(shortcut)).isNullOrBlank()
+                isActive &&
+                        UserAppPreferences(context).getAllAppShortcutIconOverrides()[shortcutKey(shortcut)]
+                                .isNullOrBlank().not()
         }
 
         // Removing keeps the menu open, so the menu tracks it until it's next opened.

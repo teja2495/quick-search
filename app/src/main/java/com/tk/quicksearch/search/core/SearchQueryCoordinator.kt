@@ -581,7 +581,7 @@ internal class SearchQueryCoordinator(
 
         val shouldSkipSearch = appSearchManager.shouldSkipDueToNoMatchPrefix(normalizedQuery)
 
-        if (trimmedQuery.isNotBlank() && appShortcutSearchHandler.getAvailableShortcuts().isEmpty()) {
+        if (trimmedQuery.isNotBlank() && appShortcutSearchHandler.needsInitialLoad()) {
             loadAppShortcuts()
         }
 

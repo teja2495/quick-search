@@ -87,6 +87,7 @@ fun loadShortcutsViaLauncherApps(
         }
 
     val labelCache = mutableMapOf<String, String>()
+    val userSerialCache = mutableMapOf<android.os.UserHandle, Long>()
     val results = mutableListOf<StaticShortcut>()
     val convertFailReasons = mutableMapOf<String, Int>()
     var rawTotal = 0
@@ -116,6 +117,7 @@ fun loadShortcutsViaLauncherApps(
                     launcherApps = launcherApps,
                     info = info,
                     labelCache = labelCache,
+                    userSerialCache = userSerialCache,
                     failureReason = failureReason,
                 )
             if (converted == null) {
@@ -152,6 +154,7 @@ private fun convertShortcutInfo(
     launcherApps: LauncherApps,
     info: ShortcutInfo,
     labelCache: MutableMap<String, String>,
+    userSerialCache: MutableMap<android.os.UserHandle, Long>,
     failureReason: StringBuilder = StringBuilder(),
 ): StaticShortcut? {
     val packageName = info.`package`
@@ -180,10 +183,12 @@ private fun convertShortcutInfo(
     // publisher-visible intent happens to be available. This is the only reliable launch
     // path for shortcuts whose target activity is non-exported (most dynamic shortcuts).
     val userSerial =
-        kotlin.runCatching {
-            val um = context.getSystemService(Context.USER_SERVICE) as android.os.UserManager
-            um.getSerialNumberForUser(info.userHandle)
-        }.getOrDefault(-1L)
+        userSerialCache.getOrPut(info.userHandle) {
+            kotlin.runCatching {
+                val um = context.getSystemService(Context.USER_SERVICE) as android.os.UserManager
+                um.getSerialNumberForUser(info.userHandle)
+            }.getOrDefault(-1L)
+        }
 
     val sentinelIntent =
         Intent(ACTION_LAUNCHER_APPS_SHORTCUT).apply {

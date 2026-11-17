@@ -68,6 +68,7 @@ object AppShortcutSearchAlgorithm {
         isLowRamDevice: Boolean = false,
         matcher: SearchMatcher = DefaultSearchMatcher,
         textCache: SearchTextCache = SearchTextCache(),
+        combinedFieldsCache: AppShortcutCombinedFieldsCache? = null,
     ): List<StaticShortcut> {
         if (fullList.isEmpty()) return emptyList()
         if (queryContext.normalizedQuery.isBlank()) return emptyList()
@@ -88,6 +89,8 @@ object AppShortcutSearchAlgorithm {
                         nickname = nickname,
                         query = queryContext,
                         matcher = matcher,
+                        combinedFields =
+                            combinedFieldsCache?.get(shortcutId, displayName, shortcut.appLabel, nickname),
                     )
 
                 if (!DefaultSearchMatcher.isMatch(priority)) {
