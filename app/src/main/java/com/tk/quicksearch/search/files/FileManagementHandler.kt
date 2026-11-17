@@ -1,6 +1,5 @@
 package com.tk.quicksearch.search.files
 
-import android.net.Uri
 import com.tk.quicksearch.search.core.FileManagementConfig
 import com.tk.quicksearch.search.core.GenericManagementHandler
 import com.tk.quicksearch.search.core.ManagementHandler
@@ -64,7 +63,8 @@ class FileManagementHandler(
         nickname: String?,
     ) = setItemNickname(deviceFile, nickname)
 
-    fun getFileNickname(uri: String): String? = getItemNickname(DeviceFile(Uri.parse(uri), "", null, 0L, false))
+    // Read straight from the cache: rows and Top matches call this per result during composition.
+    fun getFileNickname(uri: String): String? = userPreferences.getFileNickname(uri)
 
     fun clearAllExcludedFiles() = clearAllExcludedItems()
 }

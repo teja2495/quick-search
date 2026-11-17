@@ -12,7 +12,7 @@ import kotlinx.coroutines.CoroutineScope
  * Handles contact management operations like pinning, excluding, and nicknames.
  */
 class ContactManagementHandler(
-    userPreferences: UserAppPreferences,
+    private val userPreferences: UserAppPreferences,
     scope: CoroutineScope,
     onStateChanged: () -> Unit,
     onUiStateUpdate: ((SearchUiState) -> SearchUiState) -> Unit,
@@ -36,7 +36,8 @@ class ContactManagementHandler(
         nickname: String?,
     ) = setItemNickname(contactInfo, nickname)
 
-    fun getContactNickname(contactId: Long): String? = getItemNickname(ContactInfo(contactId, "", "", emptyList()))
+    // Read straight from the cache: rows and Top matches call this per result during composition.
+    fun getContactNickname(contactId: Long): String? = userPreferences.getContactNickname(contactId)
 
     fun clearAllExcludedContacts() = clearAllExcludedItems()
 }

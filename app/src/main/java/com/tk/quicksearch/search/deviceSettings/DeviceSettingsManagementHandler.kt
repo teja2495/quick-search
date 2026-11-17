@@ -35,7 +35,8 @@ class DeviceSettingsManagementHandler(
         nickname: String?,
     ) = setItemNickname(setting, nickname)
 
-    fun getSettingNickname(id: String): String? = getItemNickname(DeviceSetting(id, "", "", emptyList(), ""))
+    // Read straight from the cache: rows and Top matches call this per result during composition.
+    fun getSettingNickname(id: String): String? = userPreferences.getSettingNickname(id)
 
     fun clearAllExcludedSettings() = clearAllExcludedItems()
 }

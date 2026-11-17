@@ -212,20 +212,38 @@ object SearchRankingUtils {
         query: String,
     ): Int {
         if (query.isBlank()) return PRIORITY_NO_MATCH
+        return calculateMatchPriorityWithNickname(primaryText, nickname, prepareRankingQuery(query))
+    }
 
+    /** A raw query normalized once, for scoring many candidates against it. */
+    class RankingQuery internal constructor(
+        val normalizedQuery: String,
+        val queryTokens: List<String>,
+        val compactQuery: String,
+    )
+
+    /** Same query preparation as the raw-query overloads, done once instead of per candidate. */
+    fun prepareRankingQuery(query: String): RankingQuery {
         val normalizedQuery = SearchTextNormalizer.normalizeForSearch(query.trim())
-        // Parse query tokens once for reuse
-        val queryTokens = normalizedQuery.split(WHITESPACE_REGEX).filter { it.isNotBlank() }
-        val compactQuery = SearchTextNormalizer.compactForSearch(normalizedQuery)
-
-        return calculateMatchPriorityWithNickname(
-            primaryText,
-            nickname,
-            normalizedQuery,
-            queryTokens,
-            compactQuery,
+        return RankingQuery(
+            normalizedQuery = normalizedQuery,
+            queryTokens = normalizedQuery.split(WHITESPACE_REGEX).filter { it.isNotBlank() },
+            compactQuery = SearchTextNormalizer.compactForSearch(normalizedQuery),
         )
     }
+
+    fun calculateMatchPriorityWithNickname(
+        primaryText: String,
+        nickname: String?,
+        query: RankingQuery,
+    ): Int =
+        calculateMatchPriorityWithNickname(
+            primaryText,
+            nickname,
+            query.normalizedQuery,
+            query.queryTokens,
+            query.compactQuery,
+        )
 
     /**
      * Optimized version of calculateMatchPriorityWithNickname.

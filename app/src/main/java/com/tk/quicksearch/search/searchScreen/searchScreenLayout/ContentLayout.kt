@@ -28,10 +28,7 @@ import com.tk.quicksearch.searchEngines.*
 import com.tk.quicksearch.search.searchScreen.ExpandedSection
 import com.tk.quicksearch.search.searchScreen.hasAnySearchResults
 import com.tk.quicksearch.search.searchScreen.renderSection
-import com.tk.quicksearch.search.searchScreen.rememberSettledRegularSearchRenderingState
-import com.tk.quicksearch.search.searchScreen.rememberSettledTopMatches
-import com.tk.quicksearch.search.searchScreen.rememberTopMatches
-import com.tk.quicksearch.search.searchScreen.shouldDeferTopMatchesForLocalSearch
+import com.tk.quicksearch.search.searchScreen.SearchTopMatchesState
 import com.tk.quicksearch.search.searchScreen.ContactsSectionParams
 import com.tk.quicksearch.search.searchScreen.FilesSectionParams
 import com.tk.quicksearch.search.searchScreen.AppShortcutsSectionParams
@@ -44,12 +41,11 @@ import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.search.searchScreen.PinnedNonAppItemsSection
 import com.tk.quicksearch.search.searchScreen.components.SectionPermissionResultCard
 import com.tk.quicksearch.search.other.OtherSearchItemActionHandler
-import com.tk.quicksearch.search.other.OtherSearchItemRegistry
 import com.tk.quicksearch.R
 
 /** Unified content layout that handles both one-handed mode and top-aligned layouts. */
 @Composable
-fun ContentLayout(
+internal fun ContentLayout(
     modifier: Modifier = Modifier,
     state: SearchUiState,
     renderingState: SectionRenderingState,
@@ -98,6 +94,7 @@ fun ContentLayout(
     onOpenPermissionsSettings: () -> Unit = {},
     onHomePinnedSectionOrderChange: (List<SearchSection>) -> Unit = {},
     selectedTopMatchIndex: Int? = null,
+    topMatches: SearchTopMatchesState,
     isScrollInProgress: () -> Boolean = { false },
 ) {
     val context = LocalContext.current
@@ -138,19 +135,9 @@ fun ContentLayout(
             expandedCardMaxHeight = expandedCardMaxHeight,
         )
     val hasQuery = state.query.isNotBlank()
-    val isLocalSearchRefreshing =
-        shouldDeferTopMatchesForLocalSearch(
-            query = state.query,
-            isAppSearchInProgress = state.isAppSearchInProgress,
-            isSecondarySearchInProgress = state.isSecondarySearchInProgress,
-        )
-    val regularRenderingState =
-        rememberSettledRegularSearchRenderingState(
-            query = state.query,
-            currentState = renderingState,
-            isAppSearchRefreshing = state.isAppSearchInProgress,
-            secondarySectionsRefreshing = state.secondarySearchSectionsInProgress,
-        )
+    // Settled once at screen level, where the same top matches drive keyboard submit.
+    val isLocalSearchRefreshing = topMatches.isLocalSearchRefreshing
+    val regularRenderingState = topMatches.regularRenderingState
     // Home sections reserve their full height as soon as their data arrives and only fade in, so
     // nothing above them reflows while the rest of the agenda is still loading.
     var suggestionsAppGridHasAppeared by remember { mutableStateOf(false) }
@@ -330,31 +317,7 @@ fun ContentLayout(
     // until the grid has appeared makes cards below the grid (such as Screen Time) pop back in
     // at their final position instead of being smoothly pushed down by the expanding grid.
     val hideOtherContent = waitingForSuggestions
-    val topMatches =
-        rememberTopMatches(
-            query = state.query,
-            renderingState = regularRenderingState,
-            context = sectionContextForRecentHistoryExpansion,
-            params = sectionParams,
-            limit = state.topMatchesLimit,
-            topMatchesSectionOrder = state.topMatchesSectionOrder,
-            disabledTopMatchesSections = state.disabledTopMatchesSections,
-            secondaryRankingSignal = state.secondaryRankingSignal,
-            filterStaleCandidates = isLocalSearchRefreshing,
-            otherSearchItemIds =
-                OtherSearchItemRegistry.visibleSearchItemIds(
-                    query = state.query,
-                    pinnedItemOrder = state.pinnedNonAppItemOrder,
-                    screenTimeState = state.screenTimeState,
-                ),
-        )
-    val settledTopMatches =
-        rememberSettledTopMatches(
-            query = state.query,
-            currentMatches = topMatches,
-            isSearchRefreshing = isLocalSearchRefreshing,
-            limit = state.topMatchesLimit,
-        )
+    val settledTopMatches = topMatches.settled
     val displayedTopMatches = settledTopMatches.matches
     val canShowTopMatches =
         state.topMatchesEnabled &&

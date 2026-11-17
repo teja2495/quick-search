@@ -712,6 +712,7 @@ internal fun SearchScreenContent(
                     )
                 },
                 selectedTopMatchIndex = selectedTopMatchIndex,
+                topMatches = topMatchSubmission.topMatches,
                 isBottomChromeAnimating = searchBarGeometry.isInsetEngineStripAnimating,
         )
         }

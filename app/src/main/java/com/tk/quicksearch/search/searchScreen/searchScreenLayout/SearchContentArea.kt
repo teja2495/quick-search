@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
 import com.tk.quicksearch.search.searchScreen.rememberImeSettledHeight
+import com.tk.quicksearch.search.searchScreen.SearchTopMatchesState
 import com.tk.quicksearch.search.searchScreen.LocalInsetCardBackdrop
 import com.tk.quicksearch.search.searchScreen.contentBottomInset
 import com.tk.quicksearch.search.searchScreen.contentTopInset
@@ -81,7 +82,7 @@ import com.tk.quicksearch.widgetsPanel.HomeAddWidgetSheet
 
 /** Renders the scrollable content area with sections based on layout mode. */
 @Composable
-fun SearchContentArea(
+internal fun SearchContentArea(
     modifier: Modifier = Modifier,
     state: SearchUiState,
     renderingState: SectionRenderingState,
@@ -133,6 +134,7 @@ fun SearchContentArea(
     onLauncherOverscrollDown: () -> Unit = {},
     onHomeDoubleTap: () -> Unit = {},
     selectedTopMatchIndex: Int? = null,
+    topMatches: SearchTopMatchesState,
     /** True while the bottom chrome animates its height; card heights hold until it settles. */
     isBottomChromeAnimating: () -> Boolean = { false },
 ) {
@@ -580,6 +582,7 @@ fun SearchContentArea(
                                 onOpenPermissionsSettings = onOpenPermissionsSettings,
                                 onHomePinnedSectionOrderChange = onHomePinnedSectionOrderChange,
                                 selectedTopMatchIndex = selectedTopMatchIndex,
+                                topMatches = topMatches,
                                 isScrollInProgress = { scrollState.isScrollInProgress },
                             )
                         }

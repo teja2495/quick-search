@@ -12,8 +12,19 @@ import com.tk.quicksearch.search.core.rememberSectionRenderContext
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
 import com.tk.quicksearch.search.other.OtherSearchItemRegistry
 
+/**
+ * Top matches built once per frame and shared by the keyboard submit path and the displayed
+ * section, so Enter always opens what is on screen.
+ */
+internal data class SearchTopMatchesState(
+    val regularRenderingState: SectionRenderingState,
+    val settled: SettledTopMatchesState,
+    val isLocalSearchRefreshing: Boolean,
+)
+
 internal data class TopMatchSubmission(
     val params: SectionRenderParams,
+    val topMatches: SearchTopMatchesState,
     val matches: List<TopMatchItem>,
     val shouldSubmit: Boolean,
     val selectedIndex: Int?,
@@ -42,10 +53,19 @@ internal fun rememberTopMatchSubmission(
                     isAppSearchInProgress = state.isAppSearchInProgress,
                     isSecondarySearchInProgress = state.isSecondarySearchInProgress,
             )
+    // The settled state is what the results area shows; ranking from it keeps the submit target
+    // and the highlighted row in step while sections refresh.
+    val regularRenderingState =
+            rememberSettledRegularSearchRenderingState(
+                    query = state.query,
+                    currentState = renderingState,
+                    isAppSearchRefreshing = state.isAppSearchInProgress,
+                    secondarySectionsRefreshing = state.secondarySearchSectionsInProgress,
+            )
     val topMatchSubmitContext =
             rememberSectionRenderContext(
                     state = state,
-                    renderingState = renderingState,
+                    renderingState = regularRenderingState,
                     filesParams = filesParams,
                     contactsParams = contactsParams,
                     settingsParams = settingsParams,
@@ -75,7 +95,7 @@ internal fun rememberTopMatchSubmission(
     val currentTopMatchesForSubmit =
             rememberTopMatches(
                     query = state.query,
-                    renderingState = renderingState,
+                    renderingState = regularRenderingState,
                     context = topMatchSubmitContext,
                     params = topMatchSubmitParams,
                     limit = state.topMatchesLimit,
@@ -84,11 +104,13 @@ internal fun rememberTopMatchSubmission(
                     secondaryRankingSignal = state.secondaryRankingSignal,
                     filterStaleCandidates = isLocalSearchRefreshing,
                     otherSearchItemIds =
-                        OtherSearchItemRegistry.visibleSearchItemIds(
-                            query = state.query,
-                            pinnedItemOrder = state.pinnedNonAppItemOrder,
-                            screenTimeState = state.screenTimeState,
-                        ),
+                        remember(state.query, state.pinnedNonAppItemOrder, state.screenTimeState) {
+                            OtherSearchItemRegistry.visibleSearchItemIds(
+                                query = state.query,
+                                pinnedItemOrder = state.pinnedNonAppItemOrder,
+                                screenTimeState = state.screenTimeState,
+                            )
+                        },
                 )
     val settledTopMatchesForSubmit =
             rememberSettledTopMatches(
@@ -152,6 +174,12 @@ internal fun rememberTopMatchSubmission(
     }
     return TopMatchSubmission(
         params = topMatchSubmitParams,
+        topMatches =
+            SearchTopMatchesState(
+                regularRenderingState = regularRenderingState,
+                settled = settledTopMatchesForSubmit,
+                isLocalSearchRefreshing = isLocalSearchRefreshing,
+            ),
         matches = topMatchesForSubmit,
         shouldSubmit = shouldSubmitTopMatch,
         selectedIndex = selectedTopMatchIndex,

@@ -195,6 +195,58 @@ internal sealed interface TopMatchItem {
     ) : TopMatchItem
 }
 
+/**
+ * Exactly what [buildTopMatches] reads. Keying the build on this, rather than on the whole render
+ * context and params, keeps unrelated changes (predicted target, startup phase, pinned lists,
+ * expand callbacks) from re-ranking every candidate.
+ */
+internal data class TopMatchInputs(
+    val displayApps: List<AppInfo>,
+    val appShortcuts: List<StaticShortcut>,
+    val contacts: List<ContactInfo>,
+    val files: List<DeviceFile>,
+    val settings: List<DeviceSetting>,
+    val appSettings: List<AppSettingResult>,
+    val calendarEvents: List<CalendarEventInfo>,
+    val reminders: List<ReminderInfo>,
+    val bookmarks: List<BookmarkInfo>,
+    val noted: List<com.tk.quicksearch.search.models.NotedItem>,
+    val notes: List<NoteInfo>,
+    val recencyIndex: com.tk.quicksearch.search.utils.RecentResultRankingUtils.RecencyIndex,
+    val getAppNickname: ((String) -> String?)?,
+    val getShortcutNickname: ((String) -> String?)?,
+    val getContactNickname: (Long) -> String?,
+    val getFileNickname: (String) -> String?,
+    val getSettingNickname: ((String) -> String?)?,
+    val getEventNickname: ((Long) -> String?)?,
+)
+
+internal fun topMatchInputs(
+    renderingState: SectionRenderingState,
+    context: SectionRenderContext,
+    params: SectionRenderParams,
+): TopMatchInputs =
+    TopMatchInputs(
+        displayApps = renderingState.displayApps,
+        appShortcuts = context.appShortcutsList,
+        contacts = context.contactsList,
+        files = context.filesList,
+        settings = context.settingsList,
+        appSettings = context.appSettingsList,
+        calendarEvents = context.calendarEventsList,
+        reminders = context.remindersList,
+        bookmarks = context.bookmarksList,
+        noted = context.notedList,
+        notes = context.notesList,
+        recencyIndex = context.recentResultRecencyIndex,
+        getAppNickname = params.appsParams?.getAppNickname,
+        getShortcutNickname = params.appShortcutsParams?.getShortcutNickname,
+        getContactNickname = params.contactsParams.getContactNickname,
+        getFileNickname = params.filesParams.getFileNickname,
+        getSettingNickname = params.settingsParams?.getSettingNickname,
+        getEventNickname = params.calendarParams?.getEventNickname,
+    )
+
 @Composable
 internal fun rememberTopMatches(
     query: String,
@@ -207,12 +259,11 @@ internal fun rememberTopMatches(
     secondaryRankingSignal: SecondaryRankingSignal,
     otherSearchItemIds: List<OtherSearchItemId> = emptyList(),
     filterStaleCandidates: Boolean = false,
-): List<TopMatchItem> =
-    remember(
+): List<TopMatchItem> {
+    val inputs = topMatchInputs(renderingState, context, params)
+    return remember(
         query,
-        renderingState,
-        context,
-        params,
+        inputs,
         limit,
         topMatchesSectionOrder,
         disabledTopMatchesSections,
@@ -225,9 +276,7 @@ internal fun rememberTopMatches(
         } else {
             buildTopMatches(
                 query = query,
-                renderingState = renderingState,
-                context = context,
-                params = params,
+                inputs = inputs,
                 limit = limit,
                 topMatchesSectionOrder = topMatchesSectionOrder,
                 disabledTopMatchesSections = disabledTopMatchesSections,
@@ -237,12 +286,11 @@ internal fun rememberTopMatches(
             )
         }
     }
+}
 
 private fun buildTopMatches(
     query: String,
-    renderingState: SectionRenderingState,
-    context: SectionRenderContext,
-    params: SectionRenderParams,
+    inputs: TopMatchInputs,
     limit: Int,
     topMatchesSectionOrder: List<SearchSection>,
     disabledTopMatchesSections: Set<SearchSection>,
@@ -255,10 +303,12 @@ private fun buildTopMatches(
     fun order(section: SearchSection): Int = sectionOrder[section] ?: Int.MAX_VALUE
     fun isTopMatchesSectionEnabled(section: SearchSection): Boolean =
         section !in disabledTopMatchesSections && section in sectionOrder
+    // Normalize the query once; the raw-query overload would redo it for every candidate.
+    val rankingQuery = SearchRankingUtils.prepareRankingQuery(query)
     fun priority(text: String, nickname: String? = null): Int =
-        SearchRankingUtils.calculateMatchPriorityWithNickname(text, nickname, query)
+        SearchRankingUtils.calculateMatchPriorityWithNickname(text, nickname, rankingQuery)
     val queryContext = SearchQueryContext.fromRawQuery(query)
-    val recencyIndex = context.recentResultRecencyIndex
+    val recencyIndex = inputs.recencyIndex
 
     val matches = mutableListOf<TopMatchItem>()
     otherSearchItemIds.forEachIndexed { index, itemId ->
@@ -272,14 +322,14 @@ private fun buildTopMatches(
             )
     }
     if (isTopMatchesSectionEnabled(SearchSection.APPS)) {
-        renderingState.displayApps.firstOrNull()?.let { topApp ->
+        inputs.displayApps.firstOrNull()?.let { topApp ->
             matches +=
                 TopMatchItem.AppGrid(
-                    apps = renderingState.displayApps,
+                    apps = inputs.displayApps,
                     priority =
                         appTopMatchPriority(
                             app = topApp,
-                            nickname = params.appsParams?.getAppNickname?.invoke(topApp.launchCountKey()),
+                            nickname = inputs.getAppNickname?.invoke(topApp.launchCountKey()),
                             query = queryContext,
                         ),
                     sectionOrder = order(SearchSection.APPS),
@@ -294,13 +344,13 @@ private fun buildTopMatches(
         }
     }
     if (isTopMatchesSectionEnabled(SearchSection.APP_SHORTCUTS)) {
-        context.appShortcutsList.forEachIndexed { index, shortcut ->
+        inputs.appShortcuts.forEachIndexed { index, shortcut ->
             val id = shortcutKey(shortcut)
             matches += TopMatchItem.AppShortcut(
                 shortcut = shortcut,
                 priority = appShortcutTopMatchPriority(
                     shortcut = shortcut,
-                    nickname = params.appShortcutsParams?.getShortcutNickname?.invoke(id),
+                    nickname = inputs.getShortcutNickname?.invoke(id),
                     query = queryContext,
                 ),
                 sectionOrder = order(SearchSection.APP_SHORTCUTS),
@@ -314,12 +364,12 @@ private fun buildTopMatches(
         }
     }
     if (isTopMatchesSectionEnabled(SearchSection.CONTACTS)) {
-        context.contactsList.forEachIndexed { index, contact ->
+        inputs.contacts.forEachIndexed { index, contact ->
             matches += TopMatchItem.Contact(
                 contact = contact,
                 priority = priority(
                     contact.displayName,
-                    params.contactsParams.getContactNickname(contact.contactId),
+                    inputs.getContactNickname(contact.contactId),
                 ),
                 sectionOrder = order(SearchSection.CONTACTS),
                 secondaryScore = secondaryScore(
@@ -332,30 +382,28 @@ private fun buildTopMatches(
         }
     }
     if (isTopMatchesSectionEnabled(SearchSection.FILES)) {
-        context.filesList.forEachIndexed { index, file ->
+        inputs.files.forEachIndexed { index, file ->
+            val uri = file.uri.toString()
             matches += TopMatchItem.File(
                 file = file,
-                priority = priority(
-                    file.displayName,
-                    params.filesParams.getFileNickname(file.uri.toString()),
-                ),
+                priority = priority(file.displayName, inputs.getFileNickname(uri)),
                 sectionOrder = order(SearchSection.FILES),
                 secondaryScore = secondaryScore(
                     secondaryRankingSignal,
-                    recencyIndex.fileScores[file.uri.toString()],
-                    recencyIndex.fileOpenCounts[file.uri.toString()],
+                    recencyIndex.fileScores[uri],
+                    recencyIndex.fileOpenCounts[uri],
                 ),
                 index = index,
             )
         }
     }
     if (isTopMatchesSectionEnabled(SearchSection.SETTINGS)) {
-        context.settingsList.forEachIndexed { index, setting ->
+        inputs.settings.forEachIndexed { index, setting ->
             matches += TopMatchItem.Setting(
                 setting = setting,
                 priority = priority(
                     setting.title,
-                    params.settingsParams?.getSettingNickname?.invoke(setting.id),
+                    inputs.getSettingNickname?.invoke(setting.id),
                 ),
                 sectionOrder = order(SearchSection.SETTINGS),
                 secondaryScore = secondaryScore(
@@ -368,7 +416,7 @@ private fun buildTopMatches(
         }
     }
     if (isTopMatchesSectionEnabled(SearchSection.APP_SETTINGS)) {
-        context.appSettingsList.forEachIndexed { index, setting ->
+        inputs.appSettings.forEachIndexed { index, setting ->
             matches += TopMatchItem.AppSetting(
                 setting = setting,
                 priority = priority(setting.title),
@@ -383,12 +431,12 @@ private fun buildTopMatches(
         }
     }
     if (isTopMatchesSectionEnabled(SearchSection.CALENDAR)) {
-        context.calendarEventsList.forEachIndexed { index, event ->
+        inputs.calendarEvents.forEachIndexed { index, event ->
             matches += TopMatchItem.Calendar(
                 event = event,
                 priority = priority(
                     event.title,
-                    params.calendarParams?.getEventNickname?.invoke(event.eventId),
+                    inputs.getEventNickname?.invoke(event.eventId),
                 ),
                 sectionOrder = order(SearchSection.CALENDAR),
                 secondaryScore = topMatchSecondaryScore(
@@ -401,7 +449,7 @@ private fun buildTopMatches(
         }
     }
     if (isTopMatchesSectionEnabled(SearchSection.REMINDERS)) {
-        context.remindersList.forEachIndexed { index, reminder ->
+        inputs.reminders.forEachIndexed { index, reminder ->
             matches += TopMatchItem.Reminder(
                 reminder = reminder,
                 priority = priority(reminder.title),
@@ -413,7 +461,7 @@ private fun buildTopMatches(
         }
     }
     if (isTopMatchesSectionEnabled(SearchSection.BOOKMARKS)) {
-        context.bookmarksList.forEachIndexed { index, bookmark ->
+        inputs.bookmarks.forEachIndexed { index, bookmark ->
             matches += TopMatchItem.Bookmark(
                 bookmark = bookmark,
                 // The site's domain counts like a nickname, one step below a name match.
@@ -425,7 +473,7 @@ private fun buildTopMatches(
         }
     }
     if (isTopMatchesSectionEnabled(SearchSection.NOTED)) {
-        context.notedList.forEachIndexed { index, item ->
+        inputs.noted.forEachIndexed { index, item ->
             matches += TopMatchItem.Noted(
                 item = item,
                 priority = priority(item.title),
@@ -440,7 +488,7 @@ private fun buildTopMatches(
         FeatureFlags.isSearchSectionEnabled(SearchSection.NOTES) &&
             isTopMatchesSectionEnabled(SearchSection.NOTES)
     ) {
-        context.notesList.forEachIndexed { index, note ->
+        inputs.notes.forEachIndexed { index, note ->
             matches += TopMatchItem.Note(
                 note = note,
                 priority = priority(note.title),
