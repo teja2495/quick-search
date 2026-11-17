@@ -43,10 +43,10 @@ internal fun AppSettingsCatalogBuilder.addToggleAndInlineSettings(context: Conte
         keywords = listOf("pinned", "home", "sections", "list"),
     )
     addNavigation(
-        id = PINNED_SECTIONS_ORDER_SETTING_ID,
+        id = "app_settings_pinned_sections_order",
         titleRes = R.string.settings_pinned_sections_order_title,
         descriptionRes = R.string.settings_pinned_sections_order_desc,
-        destination = AppSettingsDestination.APPEARANCE,
+        destination = AppSettingsDestination.PINNED_SECTIONS_ORDER,
         keywords = listOf("pinned", "sections", "order", "reorder", "home"),
     )
     addToggle(
@@ -104,11 +104,23 @@ internal fun AppSettingsCatalogBuilder.addToggleAndInlineSettings(context: Conte
         keywords = listOf("font", "typeface"),
     )
     addToggle(
+        id = "app_setting_search_engine_style",
+        titleRes = R.string.settings_search_engine_display_title,
+        toggleKey = AppSettingsToggleKey.SEARCH_ENGINE_COMPACT_MODE,
+        keywords = listOf("search engine style", "inline", "compact", "search engine rows"),
+    )
+    addToggle(
         id = "app_toggle_alias_after_query",
         titleRes = R.string.settings_search_engine_alias_suffix_title,
         descriptionRes = R.string.settings_search_engine_alias_suffix_desc,
         toggleKey = AppSettingsToggleKey.SEARCH_ENGINE_ALIAS_SUFFIX,
         keywords = listOf("suffix", "search engine"),
+    )
+    addToggle(
+        id = "app_toggle_alias_trigger_after_space",
+        titleRes = R.string.alias_trigger_after_space,
+        toggleKey = AppSettingsToggleKey.ALIAS_TRIGGER_AFTER_SPACE,
+        keywords = listOf("alias after query", "suffix", "search engine", "space"),
     )
     addToggle(
         id = "app_toggle_calculator",
@@ -320,11 +332,11 @@ internal fun AppSettingsCatalogBuilder.addToggleAndInlineSettings(context: Conte
         keywords = listOf("call"),
     )
     addAll(context.searchSectionToggleRows())
-    addNavigation(
+    addToggle(
         id = "app_toggle_wallpaper_accent",
         titleRes = R.string.settings_wallpaper_accent_title,
         descriptionRes = R.string.settings_wallpaper_accent_desc,
-        destination = AppSettingsDestination.APPEARANCE,
+        toggleKey = AppSettingsToggleKey.ACCENT_COLOR,
         keywords = listOf("wallpaper", "background", "accent", "custom color"),
     )
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

@@ -152,15 +152,6 @@ fun AppearanceSettingsSection(
     var searchEnginesCardExpanded by remember { mutableStateOf(gesturePreferences.isAppearanceCardExpanded(CARD_SEARCH_ENGINES)) }
     var showIconPackDialog by remember { mutableStateOf(false) }
     var showPinnedSectionOrderDialog by rememberSaveable { mutableStateOf(false) }
-    val pinnedSectionOrderItems =
-        remember(homePinnedSectionOrder, pinnedAppShortcutsInAppGrid) {
-            homePinnedSectionOrder.filter { section ->
-                FeatureFlags.isSearchSectionEnabled(section) &&
-                    section != SearchSection.NOTED &&
-                    !(pinnedAppShortcutsInAppGrid && section == SearchSection.APP_SHORTCUTS)
-            }
-        }
-
     val hasIconPacks = availableIconPacks.isNotEmpty()
     val systemIconPackLabel = stringResource(R.string.settings_icon_pack_option_system)
     val selectedIconPackLabel =
@@ -391,16 +382,11 @@ fun AppearanceSettingsSection(
     }
 
     if (showPinnedSectionOrderDialog) {
-        PriorityReorderDialog(
-                items = pinnedSectionOrderItems,
-                onItemsChange = { order ->
-                    onHomePinnedSectionOrderChange(
-                            withHiddenPinnedSectionsRestored(order, homePinnedSectionOrder),
-                    )
-                },
+        PinnedSectionsOrderDrawer(
+                homePinnedSectionOrder = homePinnedSectionOrder,
+                pinnedAppShortcutsInAppGrid = pinnedAppShortcutsInAppGrid,
+                onOrderChange = onHomePinnedSectionOrderChange,
                 onDismiss = { showPinnedSectionOrderDialog = false },
-                titleRes = R.string.settings_pinned_sections_order_title,
-                infoRes = R.string.settings_pinned_sections_order_dialog_info,
         )
     }
 
@@ -422,6 +408,32 @@ private const val CARD_THEME = "theme"
 private const val CARD_BACKGROUND = "background"
 private const val CARD_SEARCH_BAR = "search_bar"
 private const val CARD_SEARCH_ENGINES = "search_engines"
+
+@Composable
+internal fun PinnedSectionsOrderDrawer(
+    homePinnedSectionOrder: List<SearchSection>,
+    pinnedAppShortcutsInAppGrid: Boolean,
+    onOrderChange: (List<SearchSection>) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val visibleOrder =
+        remember(homePinnedSectionOrder, pinnedAppShortcutsInAppGrid) {
+            homePinnedSectionOrder.filter { section ->
+                FeatureFlags.isSearchSectionEnabled(section) &&
+                    section != SearchSection.NOTED &&
+                    !(pinnedAppShortcutsInAppGrid && section == SearchSection.APP_SHORTCUTS)
+            }
+        }
+    PriorityReorderDialog(
+        items = visibleOrder,
+        onItemsChange = { order ->
+            onOrderChange(withHiddenPinnedSectionsRestored(order, homePinnedSectionOrder))
+        },
+        onDismiss = onDismiss,
+        titleRes = R.string.settings_pinned_sections_order_title,
+        infoRes = R.string.settings_pinned_sections_order_dialog_info,
+    )
+}
 
 /** Keeps sections hidden from the reorder dialog at their saved positions. */
 internal fun withHiddenPinnedSectionsRestored(

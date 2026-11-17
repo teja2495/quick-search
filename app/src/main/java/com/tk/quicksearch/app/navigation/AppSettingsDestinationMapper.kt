@@ -67,6 +67,8 @@ internal fun AppSettingsDestination.toSettingsDetailTypeOrNull(): SettingsDetail
         AppSettingsDestination.OPEN_EVENTS_IN -> null
         AppSettingsDestination.TOP_MATCHES_PRIORITY -> null
         AppSettingsDestination.APP_SUGGESTION_TABS -> null
+        AppSettingsDestination.LAUNCHER_ICON -> null
+        AppSettingsDestination.PINNED_SECTIONS_ORDER -> null
         AppSettingsDestination.APP_NOTIFICATIONS -> null
         AppSettingsDestination.PINNED_NOTIFICATION_ITEMS -> null
         AppSettingsDestination.EXPORT_SETTINGS -> null

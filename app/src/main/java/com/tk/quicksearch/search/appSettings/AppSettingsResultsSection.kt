@@ -335,6 +335,8 @@ internal fun AppSettingResultRow(
                     steps = 3,
                     label = webSuggestionsCount.toString(),
                 )
+            } else if (checked && setting.toggleKey == AppSettingsToggleKey.RECENT_QUERIES) {
+                SearchHistoryCountSlider()
             }
         }
 

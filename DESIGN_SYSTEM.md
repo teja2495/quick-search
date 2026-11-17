@@ -252,4 +252,8 @@ property in sorted order.
 | `GlanceActionChip` (`searchScreenLayout/`) | Pill button for a Glance row's own actions: outlined by default, or filled with `GlancePillColors` and an optional icon (missed call Call) |
 | `MarkdownText` (`shared/util/MarkdownRenderer.kt`) | Short Markdown such as AI answers rendered as body text; `RenderMarkdownDocument` is for full documents |
 
+Appearance and App Settings results share the launcher icon and pinned section order drawers. The Search Engines Style result uses the same connected choices as Appearance, with row count choices shown in Compact mode.
+
+Appearance and the Accent Color search result share the same connected choices and Custom color picker. The Search History result uses an inline slider for its item count while history is enabled.
+
 The main Settings screen's About tiles follow the segment pattern: "More Apps from the Developer" has an `Apps` icon badge with a `ConnectedButtonRow` for Google Play and GitHub, and "Open Source Licenses" has a `Description` icon badge. Below them, the footer shows the app icon on `AppShapes.cookie9` and the version as a `labelLarge` pill on `secondaryContainer`. The "Made by" line is `bodyMedium` `onSurfaceVariant`, with the developer name in `primary`. On the search screen, the Open Keyboard strip carries its background down behind the navigation bar to the screen edge (not in overlay mode).

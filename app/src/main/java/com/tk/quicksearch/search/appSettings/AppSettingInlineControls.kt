@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.appSettings
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -25,11 +27,16 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.AccentColorMode
+import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.HomeTextColor
 import com.tk.quicksearch.search.data.preferences.UiPreferences
+import com.tk.quicksearch.settings.appearanceSettings.AccentColorChoices
 import com.tk.quicksearch.settings.appearanceSettings.FONT_SIZE_STEPS
+import com.tk.quicksearch.settings.searchEngineSettings.SearchEngineCompactRowChoices
+import com.tk.quicksearch.settings.searchEngineSettings.SearchEngineStyleChoices
 import com.tk.quicksearch.shared.ui.components.ChoiceOption
 import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -56,6 +63,20 @@ data class AppSettingInlineControls(
     val onAppThemeModeChange: (AppThemeMode) -> Unit = {},
     val topMatchesLimit: Int = UiPreferences.DEFAULT_TOP_MATCHES_LIMIT,
     val onTopMatchesLimitChange: (Int) -> Unit = {},
+    val hasEnabledSearchEngines: Boolean = false,
+    val searchEngineCompactMode: Boolean = false,
+    val onSearchEngineCompactModeChange: (Boolean) -> Unit = {},
+    val searchEngineCompactRowCount: Int = 1,
+    val onSearchEngineCompactRowCountChange: (Int) -> Unit = {},
+    val recentQueriesDisplayCount: Int = UiPreferences.DEFAULT_RECENT_QUERIES_DISPLAY_COUNT,
+    val onRecentQueriesDisplayCountChange: (Int) -> Unit = {},
+    val appTheme: AppTheme = AppTheme.MONOCHROME,
+    val deviceThemeEnabled: Boolean = false,
+    val wallpaperAccentAvailable: Boolean = false,
+    val accentColorMode: AccentColorMode = AccentColorMode.NONE,
+    val customAccentColorArgb: Int = UiPreferences.DEFAULT_CUSTOM_ACCENT_COLOR_ARGB,
+    val onAccentColorModeChange: (AccentColorMode) -> Unit = {},
+    val onCustomAccentColorChange: (Int) -> Unit = {},
     val aiModel: AiModelInlineState = AiModelInlineState(),
 )
 
@@ -66,6 +87,8 @@ internal val AppSettingResult.hasInlineControl: Boolean
         toggleKey == AppSettingsToggleKey.FONT_SIZE ||
             toggleKey == AppSettingsToggleKey.APP_ICON_SIZE ||
             toggleKey == AppSettingsToggleKey.HOME_TEXT_COLOR ||
+            toggleKey == AppSettingsToggleKey.ACCENT_COLOR ||
+            toggleKey == AppSettingsToggleKey.SEARCH_ENGINE_COMPACT_MODE ||
             id == THEME_MODE_SETTING_ID ||
             id == TOP_MATCHES_COUNT_SETTING_ID ||
             destination == AppSettingsDestination.AI_MODEL
@@ -79,6 +102,35 @@ internal fun AppSettingInlineControlContent(setting: AppSettingResult) {
         setting.toggleKey == AppSettingsToggleKey.APP_ICON_SIZE ->
             IconSizeInlineSlider(controls.appIconSizeStep, controls.onAppIconSizeStepChange)
         setting.toggleKey == AppSettingsToggleKey.HOME_TEXT_COLOR -> HomeTextColorInlineChips(controls)
+        setting.toggleKey == AppSettingsToggleKey.ACCENT_COLOR ->
+            AccentColorChoices(
+                accentColorMode = controls.accentColorMode,
+                customAccentColorArgb = controls.customAccentColorArgb,
+                wallpaperAccentAvailable = controls.wallpaperAccentAvailable,
+                appTheme = controls.appTheme,
+                deviceThemeEnabled = controls.deviceThemeEnabled,
+                onAccentColorModeChange = controls.onAccentColorModeChange,
+                onCustomAccentColorChange = controls.onCustomAccentColorChange,
+                modifier = Modifier.padding(top = DesignTokens.SpacingSmall),
+            )
+        setting.toggleKey == AppSettingsToggleKey.SEARCH_ENGINE_COMPACT_MODE -> {
+            Column(
+                modifier = Modifier.padding(top = DesignTokens.SpacingSmall),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+            ) {
+                SearchEngineStyleChoices(
+                    compact = controls.searchEngineCompactMode,
+                    onSelect = controls.onSearchEngineCompactModeChange,
+                    enabled = controls.hasEnabledSearchEngines,
+                )
+                if (controls.hasEnabledSearchEngines && controls.searchEngineCompactMode) {
+                    SearchEngineCompactRowChoices(
+                        rowCount = controls.searchEngineCompactRowCount,
+                        onSelect = controls.onSearchEngineCompactRowCountChange,
+                    )
+                }
+            }
+        }
         setting.id == THEME_MODE_SETTING_ID ->
             ThemeModeInlineChips(controls)
         setting.id == TOP_MATCHES_COUNT_SETTING_ID ->
@@ -164,6 +216,33 @@ private fun TopMatchesCountInlineSlider(
     )
 }
 
+@Composable
+internal fun SearchHistoryCountSlider() {
+    val view = LocalView.current
+    val controls = LocalAppSettingInlineControls.current
+    val options = UiPreferences.RECENT_QUERIES_DISPLAY_COUNT_OPTIONS
+    val savedIndex = options.indexOf(controls.recentQueriesDisplayCount).coerceAtLeast(0)
+    var selectedIndex by remember(savedIndex) { mutableIntStateOf(savedIndex) }
+    InlineSliderRow(
+        value = selectedIndex.toFloat(),
+        onValueChange = { value ->
+            val index = value.roundToInt().coerceIn(0, options.lastIndex)
+            if (index != selectedIndex) {
+                selectedIndex = index
+                hapticToggle(view)()
+            }
+        },
+        valueRange = 0f..options.lastIndex.toFloat(),
+        steps = options.size - 2,
+        label = options[selectedIndex].toString(),
+        onValueChangeFinished = {
+            if (selectedIndex != savedIndex) {
+                controls.onRecentQueriesDisplayCountChange(options[selectedIndex])
+            }
+        },
+    )
+}
+
 /** Full-width slider for inline app-setting rows, with a track that stays visible on result cards. */
 @Composable
 internal fun InlineSliderRow(
@@ -172,6 +251,7 @@ internal fun InlineSliderRow(
     valueRange: ClosedFloatingPointRange<Float>,
     steps: Int,
     label: String,
+    onValueChangeFinished: (() -> Unit)? = null,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(top = DesignTokens.SpacingSmall),
@@ -181,6 +261,7 @@ internal fun InlineSliderRow(
         Slider(
             value = value,
             onValueChange = onValueChange,
+            onValueChangeFinished = onValueChangeFinished,
             valueRange = valueRange,
             steps = steps,
             colors =

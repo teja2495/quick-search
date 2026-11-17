@@ -38,16 +38,9 @@ fun SearchEngineAppearanceCard(
         tileCount = 1,
         modifier = modifier,
         firstTileContent = {
-            ConnectedChoiceGroup(
-                options =
-                    listOf(
-                        ChoiceOption(false, stringResource(R.string.settings_search_engine_display_inline_title)),
-                        ChoiceOption(true, stringResource(R.string.settings_search_engine_display_compact_title)),
-                    ),
-                selected = isSearchEngineCompactMode,
-                onSelect = { compact ->
-                    if (compact != isSearchEngineCompactMode) onToggleSearchEngineCompactMode(compact)
-                },
+            SearchEngineStyleChoices(
+                compact = isSearchEngineCompactMode,
+                onSelect = onToggleSearchEngineCompactMode,
             )
             Text(
                 text =
@@ -67,16 +60,45 @@ fun SearchEngineAppearanceCard(
                 enter = expandVertically() + fadeIn(),
                 exit = shrinkVertically() + fadeOut(),
             ) {
-                ConnectedChoiceGroup(
-                    options =
-                        listOf(
-                            ChoiceOption(1, stringResource(R.string.settings_compact_rows_one_row)),
-                            ChoiceOption(2, stringResource(R.string.settings_compact_rows_two_rows)),
-                        ),
-                    selected = if (compactRowCount == 2) 2 else 1,
+                SearchEngineCompactRowChoices(
+                    rowCount = compactRowCount,
                     onSelect = onSetCompactRowCount,
                 )
             }
         },
+    )
+}
+
+@Composable
+internal fun SearchEngineStyleChoices(
+    compact: Boolean,
+    onSelect: (Boolean) -> Unit,
+    enabled: Boolean = true,
+) {
+    ConnectedChoiceGroup(
+        options =
+            listOf(
+                ChoiceOption(false, stringResource(R.string.settings_search_engine_display_inline_title)),
+                ChoiceOption(true, stringResource(R.string.settings_search_engine_display_compact_title)),
+            ),
+        selected = compact,
+        enabled = enabled,
+        onSelect = { selected -> if (selected != compact) onSelect(selected) },
+    )
+}
+
+@Composable
+internal fun SearchEngineCompactRowChoices(
+    rowCount: Int,
+    onSelect: (Int) -> Unit,
+) {
+    ConnectedChoiceGroup(
+        options =
+            listOf(
+                ChoiceOption(1, stringResource(R.string.settings_compact_rows_one_row)),
+                ChoiceOption(2, stringResource(R.string.settings_compact_rows_two_rows)),
+            ),
+        selected = if (rowCount == 2) 2 else 1,
+        onSelect = onSelect,
     )
 }

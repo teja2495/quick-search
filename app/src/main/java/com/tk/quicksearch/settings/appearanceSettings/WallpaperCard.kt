@@ -36,7 +36,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,10 +43,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -65,8 +62,6 @@ import com.tk.quicksearch.search.core.AccentColorMode
 import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.AppTheme
-import com.tk.quicksearch.shared.ui.components.ChoiceOption
-import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
 import com.tk.quicksearch.shared.ui.components.ExpandableSegmentedGroup
@@ -79,7 +74,6 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.hapticToggle
-import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetColorPickerDialog
 import kotlin.math.roundToInt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -156,10 +150,7 @@ fun WallpaperCard(
     // A wallpaper source that can't be shown falls back to the theme gradient.
     val isThemeSourceSelected = !isWallpaperSourceSelected && !isCustomSourceSelected
     val wallpaperPixelEffectsAvailable =
-            isCustomSourceSelected ||
-                    (backgroundSource == BackgroundSource.SYSTEM_WALLPAPER &&
-                            hasWallpaperPermission &&
-                            wallpaperAvailable)
+            hasWallpaperColorSource(backgroundSource, hasWallpaperPermission, wallpaperAvailable)
     val shouldHideSystemWallpaperSource =
             !canShowSystemWallpaperBackdrop &&
                     !hasWallpaperPermission &&
@@ -175,46 +166,6 @@ fun WallpaperCard(
                         .roundToInt()
                         .coerceIn(0, 7),
         )
-    }
-    var showCustomAccentPicker by rememberSaveable { mutableStateOf(false) }
-
-    val selectAccentMode: (AccentColorMode) -> Unit = { mode ->
-        val wallpaperAccentAvailable =
-                (backgroundSource == BackgroundSource.SYSTEM_WALLPAPER &&
-                        hasWallpaperPermission &&
-                        wallpaperAvailable) ||
-                        isCustomSourceSelected
-        val requiresOverride = mode != AccentColorMode.NONE
-        if (mode == AccentColorMode.FROM_WALLPAPER && !wallpaperAccentAvailable) {
-            Toast.makeText(
-                            context,
-                            context.getString(R.string.settings_accent_color_wallpaper_required_toast),
-                            Toast.LENGTH_SHORT,
-                    )
-                    .show()
-        } else if (mode == AccentColorMode.FROM_WALLPAPER && appTheme != AppTheme.MONOCHROME) {
-            // A Colorful theme supplies its own accent; the wallpaper accent pairs with Default.
-            Toast.makeText(
-                            context,
-                            context.getString(R.string.settings_accent_color_default_theme_required_toast),
-                            Toast.LENGTH_SHORT,
-                    )
-                    .show()
-        } else if (requiresOverride && deviceThemeEnabled) {
-            Toast.makeText(
-                            context,
-                            context.getString(R.string.settings_device_theme_blocked_toast),
-                            Toast.LENGTH_SHORT,
-                    )
-                    .show()
-        } else {
-            hapticToggle(view)()
-            if (mode == AccentColorMode.CUSTOM) {
-                showCustomAccentPicker = true
-            } else if (accentColorMode != mode) {
-                onAccentColorModeChange(mode)
-            }
-        }
     }
 
     ExpandableSegmentedGroup(
@@ -595,55 +546,20 @@ fun WallpaperCard(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                ConnectedChoiceGroup(
-                        options =
-                                listOfNotNull(
-                                        ChoiceOption(
-                                                AccentColorMode.NONE,
-                                                stringResource(R.string.settings_app_theme_title),
-                                        ),
-                                        if (wallpaperPixelEffectsAvailable) {
-                                            ChoiceOption(
-                                                    AccentColorMode.FROM_WALLPAPER,
-                                                    stringResource(R.string.settings_accent_color_from_wallpaper),
-                                            )
-                                        } else {
-                                            null
-                                        },
-                                        ChoiceOption(
-                                                value = AccentColorMode.CUSTOM,
-                                                label = stringResource(R.string.common_custom),
-                                                swatch =
-                                                        if (accentColorMode == AccentColorMode.CUSTOM) {
-                                                            Color(customAccentColorArgb)
-                                                        } else {
-                                                            null
-                                                        },
-                                        ),
-                                ),
-                        selected = accentColorMode,
-                        onSelect = selectAccentMode,
-                        haptic = false,
+                AccentColorChoices(
+                        accentColorMode = accentColorMode,
+                        customAccentColorArgb = customAccentColorArgb,
+                        wallpaperAccentAvailable = wallpaperPixelEffectsAvailable,
+                        appTheme = appTheme,
+                        deviceThemeEnabled = deviceThemeEnabled,
+                        onAccentColorModeChange = onAccentColorModeChange,
+                        onCustomAccentColorChange = onCustomAccentColorChange,
                 )
             }
         }
       }
     }
 
-    if (showCustomAccentPicker) {
-        WidgetColorPickerDialog(
-                initialColor = Color(customAccentColorArgb),
-                onDismiss = { showCustomAccentPicker = false },
-                onConfirm = { color ->
-                    onCustomAccentColorChange(color.toArgb())
-                    if (accentColorMode != AccentColorMode.CUSTOM) {
-                        onAccentColorModeChange(AccentColorMode.CUSTOM)
-                    }
-                    showCustomAccentPicker = false
-                },
-                title = stringResource(R.string.settings_accent_color_picker_title),
-        )
-    }
 }
 
 @Composable

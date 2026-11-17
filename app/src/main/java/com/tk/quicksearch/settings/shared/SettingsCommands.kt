@@ -114,6 +114,8 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
                     setSearchEngineCompactMode(command.enabled)
                 AppSettingsToggleKey.SEARCH_ENGINE_ALIAS_SUFFIX ->
                     setSearchEngineAliasSuffixEnabled(command.enabled)
+                AppSettingsToggleKey.ALIAS_TRIGGER_AFTER_SPACE ->
+                    setAliasTriggerAfterSpaceEnabled(command.enabled)
                 AppSettingsToggleKey.CALCULATOR -> setCalculatorEnabled(command.enabled)
                 AppSettingsToggleKey.UNIT_CONVERTER -> setUnitConverterEnabled(command.enabled)
                 AppSettingsToggleKey.DATE_CALCULATOR -> setDateCalculatorEnabled(command.enabled)
@@ -170,7 +172,8 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
                 AppSettingsToggleKey.APP_RESULT_ROWS,
                 AppSettingsToggleKey.FONT_SIZE,
                 AppSettingsToggleKey.APP_ICON_SIZE,
-                AppSettingsToggleKey.HOME_TEXT_COLOR -> Unit
+                AppSettingsToggleKey.HOME_TEXT_COLOR,
+                AppSettingsToggleKey.ACCENT_COLOR -> Unit
                 AppSettingsToggleKey.SEARCH_APPS,
                 AppSettingsToggleKey.SEARCH_APP_SHORTCUTS,
                 AppSettingsToggleKey.SEARCH_CONTACTS,
@@ -239,6 +242,7 @@ internal fun SearchUiState.isAppSettingToggleEnabled(toggleKey: AppSettingsToggl
         AppSettingsToggleKey.APP_LABELS -> showAppLabels
         AppSettingsToggleKey.SEARCH_ENGINE_COMPACT_MODE -> isSearchEngineCompactMode
         AppSettingsToggleKey.SEARCH_ENGINE_ALIAS_SUFFIX -> isSearchEngineAliasSuffixEnabled
+        AppSettingsToggleKey.ALIAS_TRIGGER_AFTER_SPACE -> isAliasTriggerAfterSpaceEnabled
         AppSettingsToggleKey.CALCULATOR -> calculatorEnabled
         AppSettingsToggleKey.UNIT_CONVERTER -> unitConverterEnabled
         AppSettingsToggleKey.DATE_CALCULATOR -> dateCalculatorEnabled
@@ -284,7 +288,8 @@ internal fun SearchUiState.isAppSettingToggleEnabled(toggleKey: AppSettingsToggl
         AppSettingsToggleKey.APP_RESULT_ROWS,
         AppSettingsToggleKey.FONT_SIZE,
         AppSettingsToggleKey.APP_ICON_SIZE,
-        AppSettingsToggleKey.HOME_TEXT_COLOR -> false
+        AppSettingsToggleKey.HOME_TEXT_COLOR,
+        AppSettingsToggleKey.ACCENT_COLOR -> false
         AppSettingsToggleKey.SEARCH_APPS,
         AppSettingsToggleKey.SEARCH_APP_SHORTCUTS,
         AppSettingsToggleKey.SEARCH_CONTACTS,

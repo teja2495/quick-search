@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.view.HapticFeedbackConstantsCompat
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.core.AppSuggestionTabType
 import com.tk.quicksearch.search.models.SecondaryRankingSignal
 import com.tk.quicksearch.pinnedNotifications.PinnedNotifications
@@ -62,7 +63,7 @@ import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
 import com.tk.quicksearch.shared.ui.components.ChoiceOption
 import com.tk.quicksearch.shared.ui.components.AppTextButton
 
-private val RecentQueriesDisplayCountOptions = listOf(1, 3, 5, 7, 10)
+private val RecentQueriesDisplayCountOptions = UiPreferences.RECENT_QUERIES_DISPLAY_COUNT_OPTIONS
 
 private fun recentQueriesDisplayCountOptionIndex(count: Int): Int =
     RecentQueriesDisplayCountOptions.indexOf(count).coerceAtLeast(0)

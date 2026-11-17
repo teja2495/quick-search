@@ -120,7 +120,7 @@ fun AppLauncherIconTile(
  * change re-registers the launcher entry.
  */
 @Composable
-private fun LauncherIconDrawer(
+internal fun LauncherIconDrawer(
     selectedIcon: LauncherAppIcon,
     onIconSelected: (LauncherAppIcon) -> Unit,
     onDismissRequest: () -> Unit,

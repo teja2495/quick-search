@@ -27,6 +27,7 @@ internal fun SearchPreferencesDelegate.setSearchEngineAliasSuffixEnabled(enabled
         scope.launch(Dispatchers.IO) {
             userPreferences.setSearchEngineAliasSuffixEnabled(enabled)
             updateFeatureState { it.copy(isSearchEngineAliasSuffixEnabled = enabled) }
+            rerunSecondarySearchIfNeeded()
         }
     }
 

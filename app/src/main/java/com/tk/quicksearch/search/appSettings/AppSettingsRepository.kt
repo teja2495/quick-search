@@ -8,8 +8,6 @@ import com.tk.quicksearch.pinnedNotifications.PinnedNotifications
 import com.tk.quicksearch.search.data.preferences.RATE_QUICK_SEARCH_ENABLED
 import com.tk.quicksearch.search.utils.SearchQueryContext
 
-internal const val PINNED_SECTIONS_ORDER_SETTING_ID = "app_settings_pinned_sections_order"
-
 class AppSettingsRepository(
     private val context: Context,
 ) {
@@ -51,7 +49,7 @@ class AppSettingsRepository(
                 addNavigation(
                     id = "app_settings_launcher_icon",
                     titleRes = R.string.settings_launcher_icon_title,
-                    destination = AppSettingsDestination.APPEARANCE,
+                    destination = AppSettingsDestination.LAUNCHER_ICON,
                     keywords = listOf("app icon", "launcher icon", "change icon", "home screen icon"),
                 )
             }

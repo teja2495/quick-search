@@ -13,6 +13,8 @@ import com.tk.quicksearch.pinnedNotifications.PinnedNotifications
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination
+import com.tk.quicksearch.settings.appearanceSettings.LauncherIconDrawer
+import com.tk.quicksearch.settings.appearanceSettings.PinnedSectionsOrderDrawer
 import com.tk.quicksearch.settings.settingsDetailScreen.AiApiKeyRequiredDialog
 import com.tk.quicksearch.settings.settingsDetailScreen.AppSuggestionTabsDialog
 import com.tk.quicksearch.settings.settingsDetailScreen.GestureSettingsDialogs
@@ -32,6 +34,8 @@ import com.tk.quicksearch.tools.aiSearch.ModelPickerDialog
 internal enum class AppSettingRouteDialog {
     TOP_MATCHES_PRIORITY,
     APP_SUGGESTION_TABS,
+    LAUNCHER_ICON,
+    PINNED_SECTIONS_ORDER,
     PINNED_NOTIFICATION_ITEMS,
     API_KEY_REQUIRED,
     AI_MODEL,
@@ -73,6 +77,19 @@ internal fun AppSettingRouteDialogs(
                 onTabEnabledChange = { tab, enabled ->
                     viewModel.applySettingsCommand(SettingsCommand.AppSuggestionTabEnabled(tab, enabled))
                 },
+                onDismiss = onDismiss,
+            )
+        AppSettingRouteDialog.LAUNCHER_ICON ->
+            LauncherIconDrawer(
+                selectedIcon = uiState.launcherAppIcon,
+                onIconSelected = viewModel::setLauncherAppIcon,
+                onDismissRequest = onDismiss,
+            )
+        AppSettingRouteDialog.PINNED_SECTIONS_ORDER ->
+            PinnedSectionsOrderDrawer(
+                homePinnedSectionOrder = uiState.homePinnedSectionOrder,
+                pinnedAppShortcutsInAppGrid = uiState.pinnedAppShortcutsInAppGrid,
+                onOrderChange = viewModel::setHomePinnedSectionOrder,
                 onDismiss = onDismiss,
             )
         AppSettingRouteDialog.PINNED_NOTIFICATION_ITEMS -> {

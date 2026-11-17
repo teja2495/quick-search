@@ -95,6 +95,9 @@ class AppSettingsSearchHandler(
         val hidePinnedSectionsOrder by lazy(LazyThreadSafetyMode.NONE) {
             userPreferences.isUnifiedPinnedItemsEnabled()
         }
+        val hideAliasTriggerAfterSpace by lazy(LazyThreadSafetyMode.NONE) {
+            !userPreferences.isSearchEngineAliasSuffixEnabled()
+        }
         val hideTopMatchesOptions by lazy(LazyThreadSafetyMode.NONE) { !userPreferences.isTopMatchesEnabled() }
         val hideAppSuggestionTabs by lazy(LazyThreadSafetyMode.NONE) {
             !userPreferences.areAppSuggestionsEnabled()
@@ -120,7 +123,8 @@ class AppSettingsSearchHandler(
                     setting.destination == AppSettingsDestination.PINNED_NOTIFICATION_ITEMS &&
                         hidePinnedNotificationItems -> true
                     setting.toggleKey == AppSettingsToggleKey.TOP_RESULT_INDICATOR && hideTopResultIndicator -> true
-                    setting.id == PINNED_SECTIONS_ORDER_SETTING_ID && hidePinnedSectionsOrder -> true
+                    setting.destination == AppSettingsDestination.PINNED_SECTIONS_ORDER && hidePinnedSectionsOrder -> true
+                    setting.toggleKey == AppSettingsToggleKey.ALIAS_TRIGGER_AFTER_SPACE && hideAliasTriggerAfterSpace -> true
                     (setting.destination == AppSettingsDestination.TOP_MATCHES_PRIORITY ||
                         setting.id == TOP_MATCHES_COUNT_SETTING_ID) && hideTopMatchesOptions -> true
                     setting.destination == AppSettingsDestination.APP_SUGGESTION_TABS && hideAppSuggestionTabs -> true

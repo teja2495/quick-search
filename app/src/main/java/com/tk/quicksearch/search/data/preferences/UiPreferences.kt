@@ -505,7 +505,7 @@ class UiPreferences(context: Context) : UiPreferencesFeatures(context) {
         const val KEY_WEB_SUGGESTIONS_COUNT = "web_suggestions_count"
         const val KEY_RECENT_QUERIES_DISPLAY_COUNT = "recent_queries_display_count"
         const val DEFAULT_RECENT_QUERIES_DISPLAY_COUNT = 1
-        val RECENT_QUERIES_DISPLAY_COUNT_OPTIONS = setOf(1, 3, 5, 7, 10)
+        val RECENT_QUERIES_DISPLAY_COUNT_OPTIONS = listOf(1, 3, 5, 7, 10)
         const val KEY_APP_RESULT_ROW_COUNT = "app_result_row_count"
         const val DEFAULT_APP_RESULT_ROW_COUNT = 1
         val APP_RESULT_ROW_COUNT_OPTIONS = setOf(1, 2)

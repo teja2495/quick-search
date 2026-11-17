@@ -171,6 +171,14 @@ internal fun rememberRouteSettingActions(
                 activeDialog.value = AppSettingRouteDialog.APP_SUGGESTION_TABS
                 return@appSettingClick
             }
+            if (destination == AppSettingsDestination.LAUNCHER_ICON) {
+                activeDialog.value = AppSettingRouteDialog.LAUNCHER_ICON
+                return@appSettingClick
+            }
+            if (destination == AppSettingsDestination.PINNED_SECTIONS_ORDER) {
+                activeDialog.value = AppSettingRouteDialog.PINNED_SECTIONS_ORDER
+                return@appSettingClick
+            }
             if (destination == AppSettingsDestination.PINNED_NOTIFICATION_ITEMS) {
                 activeDialog.value = AppSettingRouteDialog.PINNED_NOTIFICATION_ITEMS
                 return@appSettingClick
@@ -192,7 +200,11 @@ internal fun rememberRouteSettingActions(
                 return@appSettingClick
             }
             if (destination == AppSettingsDestination.APP_NOTIFICATIONS) {
-                openAppNotificationsSettings(context)
+                if (NotificationDotsPermission.hasNotificationListenerAccess(context)) {
+                    openAppNotificationsSettings(context)
+                } else {
+                    onAppNotificationsCheckedChange(true)
+                }
                 return@appSettingClick
             }
             if (destination == AppSettingsDestination.RELEASE_NOTES) {
