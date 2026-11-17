@@ -241,7 +241,7 @@ class ContactActionHandler(
             }
 
             is ContactMethod.WhatsAppMessage -> {
-                val success = ContactIntentHelpers.openWhatsAppChat(context, method.dataId) { resId -> showToastCallback(resId) }
+                val success = ContactIntentHelpers.openWhatsAppChat(context, method.data) { resId -> showToastCallback(resId) }
                 if (success) {
                     clearQueryIfEnabled()
                 }
@@ -350,8 +350,12 @@ class ContactActionHandler(
         when (val resolvedAction = ContactButtonResolver.resolveForContact(contactInfo, action, isPrimary, number)) {
             ContactButtonAction.CALL -> beginRegularCallFlow(contactInfo.displayName, number)
             ContactButtonAction.SMS -> performSms(number)
-            ContactButtonAction.WHATSAPP_MESSAGE ->
-                ContactIntentHelpers.openWhatsAppChat(context, number) { resId -> showToastCallback(resId) }
+            ContactButtonAction.WHATSAPP_MESSAGE -> {
+                val success = ContactIntentHelpers.openWhatsAppChat(context, number) { resId -> showToastCallback(resId) }
+                if (success) {
+                    clearQueryIfEnabled()
+                }
+            }
             ContactButtonAction.WHATSAPP_BUSINESS_MESSAGE -> {
                 val method =
                     ContactButtonResolver

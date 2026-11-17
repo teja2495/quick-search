@@ -54,64 +54,31 @@ object WhatsAppActions {
         }
     }
 
-    /**
-     * Opens WhatsApp chat for a phone number with multiple fallback methods.
-     */
+    /** Opens the chat directly, avoiding WhatsApp's contact-profile trampoline. */
     fun openWhatsAppChat(
         context: Application,
         phoneNumber: String,
         onShowToast: ((Int) -> Unit)? = null,
         packageName: String = WHATSAPP_PACKAGE,
-    ) {
-        if (!PhoneNumberUtils.isValidPhoneNumber(phoneNumber)) {
-            Log.w("WhatsAppActions", "Invalid phone number for WhatsApp: $phoneNumber")
-            return
-        }
-
+    ): Boolean {
         val cleanNumber = PhoneNumberUtils.cleanPhoneNumber(phoneNumber)
         if (cleanNumber == null) {
-            Log.w("WhatsAppActions", "Could not clean phone number for WhatsApp: $phoneNumber")
-            return
+            onShowToast?.invoke(R.string.error_missing_phone_number)
+            return false
         }
 
-        try {
-            // Method 1: Use ACTION_SENDTO with smsto scheme for direct chat
-            val smsIntent =
-                Intent(Intent.ACTION_SENDTO).apply {
-                    data = Uri.parse("smsto:$cleanNumber")
+        return try {
+            val intent =
+                Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/${cleanNumber.removePrefix("+")}")).apply {
                     setPackage(packageName)
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
-            context.startActivity(smsIntent)
+            context.startActivity(intent)
+            true
         } catch (e: Exception) {
-            Log.w("WhatsAppActions", "WhatsApp method 1 failed", e)
-            try {
-                // Method 2: Use ACTION_SEND with WhatsApp package
-                val sendIntent =
-                    Intent(Intent.ACTION_SEND).apply {
-                        type = "text/plain"
-                        putExtra("jid", "$cleanNumber@s.whatsapp.net")
-                        setPackage(packageName)
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    }
-                context.startActivity(sendIntent)
-            } catch (e2: Exception) {
-                Log.w("WhatsAppActions", "WhatsApp method 2 failed", e2)
-                try {
-                    // Method 3: Try standard messaging intent
-                    val messageIntent =
-                        Intent(Intent.ACTION_VIEW).apply {
-                            data = Uri.parse("sms:$cleanNumber")
-                            setPackage(packageName)
-                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        }
-                    context.startActivity(messageIntent)
-                } catch (e3: Exception) {
-                    Log.w("WhatsAppActions", "WhatsApp method 3 failed", e3)
-                    // Final fallback to SMS
-                    CallSmsActions.performSms(context, cleanNumber)
-                }
-            }
+            Log.e("WhatsAppActions", "Failed to open WhatsApp chat by phone number", e)
+            onShowToast?.invoke(R.string.error_whatsapp_chat_failed)
+            false
         }
     }
 

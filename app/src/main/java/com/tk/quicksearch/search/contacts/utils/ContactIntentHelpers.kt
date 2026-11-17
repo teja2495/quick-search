@@ -57,7 +57,7 @@ object ContactIntentHelpers {
         context: android.app.Application,
         phoneNumber: String,
         onShowToast: ((Int) -> Unit)? = null,
-    ) = WhatsAppActions.openWhatsAppChat(context, phoneNumber, onShowToast)
+    ): Boolean = WhatsAppActions.openWhatsAppChat(context, phoneNumber, onShowToast)
 
     fun openWhatsAppBusinessChat(
         context: android.app.Application,
