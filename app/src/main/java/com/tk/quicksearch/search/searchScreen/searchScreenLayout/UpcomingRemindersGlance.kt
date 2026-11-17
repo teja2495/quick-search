@@ -107,7 +107,8 @@ internal class UpcomingRemindersGlance(
     val reminders: List<ReminderInfo>,
     /** Reminders in [reminders] just marked done, still shown so their row can offer Undo. */
     val pendingDoneIds: Set<Long>,
-    val nowMillis: Long,
+    /** Read inside the row, so the minute tick recomposes only the reminder rows. */
+    val nowMillis: () -> Long,
     val markDone: (ReminderInfo) -> Unit,
     val undoDone: (ReminderInfo) -> Unit,
     val snooze: (ReminderInfo) -> Unit,
@@ -142,12 +143,8 @@ internal fun rememberUpcomingRemindersGlance(enabled: Boolean): UpcomingReminder
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
-    LaunchedEffect(repository, refreshKey, changeCount, enabled) {
-        if (!enabled) {
-            reminders = emptyList()
-            notedTasks = emptyList()
-            return@LaunchedEffect
-        }
+    // Not keyed on [enabled]: typing a query hides the rows without restarting the reads.
+    LaunchedEffect(repository, refreshKey, changeCount) {
         // Home stays composed while another app is in front; only poll while it can be seen.
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             // Noted's tasks change only with a change signal or on resume, both of which restart
@@ -230,9 +227,9 @@ internal fun rememberUpcomingRemindersGlance(enabled: Boolean): UpcomingReminder
         }
     }
     return UpcomingRemindersGlance(
-        reminders = displayedReminders,
+        reminders = if (enabled) displayedReminders else emptyList(),
         pendingDoneIds = pendingDone.keys,
-        nowMillis = nowMillis,
+        nowMillis = { nowMillis },
         markDone = { reminder ->
             val index = displayedReminders.indexOfFirst { it.reminderId == reminder.reminderId }.coerceAtLeast(0)
             pendingDone = pendingDone + (reminder.reminderId to (index to reminder))
@@ -275,7 +272,7 @@ internal fun rememberUpcomingRemindersGlance(enabled: Boolean): UpcomingReminder
                 undo = { pinnedOrder -> restore(reminder, pinnedOrder) },
             )
         },
-        notedTasks = displayedNotedTasks,
+        notedTasks = if (enabled) displayedNotedTasks else emptyList(),
         pendingDoneNotedKeys = pendingNotedDone.keys,
         markNotedDone = { task ->
             val index = displayedNotedTasks.indexOfFirst { it.key == task.key }.coerceAtLeast(0)
@@ -557,7 +554,7 @@ internal fun notedTaskGlanceItem(task: NotedGlanceTask, glance: UpcomingReminder
         val context = LocalContext.current
         UpcomingReminderRow(
             reminder = task.reminder,
-            nowMillis = glance.nowMillis,
+            nowMillis = glance.nowMillis(),
             isPendingDone = task.key in glance.pendingDoneNotedKeys,
             onClick = { NotedLauncher.open(context, task.item) },
             onDone = { glance.markNotedDone(task) },

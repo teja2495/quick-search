@@ -57,7 +57,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.appLock.AppLockGate
-import com.tk.quicksearch.search.apps.notificationDots.NotificationDotsPermission
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.data.FinishedProgressNotification
 import com.tk.quicksearch.search.data.GlanceNotificationAction
@@ -105,8 +104,11 @@ internal class NotificationGlances(
     val weather: List<WeatherNotification>,
     /** Hides the row and clears the notification from the shade when the app allows. */
     val dismissWeather: (WeatherNotification) -> Unit,
-    /** Wall clock the timer and call rows count from; ticks every second while one shows. */
-    val nowMillis: Long,
+    /**
+     * Wall clock the timer and call rows count from; ticks every second while one shows. Read it
+     * inside the row so each tick recomposes only that row, not the whole home layout.
+     */
+    val nowMillis: () -> Long,
 )
 
 /**
@@ -114,7 +116,11 @@ internal class NotificationGlances(
  * notification access shared with notification dots and media.
  */
 @Composable
-internal fun rememberNotificationGlances(enabled: Boolean): NotificationGlances {
+internal fun rememberNotificationGlances(
+    enabled: Boolean,
+    /** Notification listener access, read once per resume for every notification glance. */
+    hasAccess: Boolean,
+): NotificationGlances {
     val context = LocalContext.current
     val preferences = remember(context) { GlancePreferences(context.applicationContext) }
     val refreshKey = rememberResumeRefreshKey()
@@ -126,7 +132,6 @@ internal fun rememberNotificationGlances(enabled: Boolean): NotificationGlances 
     val allWorkouts by GlanceNotificationsStore.workouts.collectAsState()
     val allOtps by GlanceNotificationsStore.otps.collectAsState()
     val allWeather by GlanceNotificationsStore.weather.collectAsState()
-    val hasAccess = remember(refreshKey) { NotificationDotsPermission.hasNotificationListenerAccess(context) }
     val showTimers = remember(refreshKey) { preferences.isShowTimersEnabled() }
     val showProgress = remember(refreshKey) { preferences.isShowProgressNotificationsEnabled() }
     val showMissedCalls = remember(refreshKey) { preferences.isShowMissedCallsEnabled() }
@@ -196,7 +201,7 @@ internal fun rememberNotificationGlances(enabled: Boolean): NotificationGlances 
         dismissOtp = GlanceNotificationsStore::dismissOtp,
         weather = weather,
         dismissWeather = { GlanceNotificationsStore.dismissWeather(it.key) },
-        nowMillis = nowMillis,
+        nowMillis = { nowMillis },
     )
 }
 
@@ -222,14 +227,23 @@ internal fun launchNotificationTarget(
     runCatching { context.startActivity(launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
 }
 
+/**
+ * App labels by package and locale, kept for the process: notification rows come and go with every
+ * post, and each would otherwise ask the package manager again on the main thread.
+ */
+private val appLabelCache = java.util.concurrent.ConcurrentHashMap<String, String>()
+
 @Composable
 internal fun rememberAppLabel(packageName: String): String {
     val context = LocalContext.current
-    return remember(packageName) {
-        val packageManager = context.packageManager
-        runCatching {
-            packageManager.getApplicationInfo(packageName, 0).loadLabel(packageManager).toString()
-        }.getOrDefault(packageName)
+    val locale = context.resources.configuration.locales[0]
+    return remember(packageName, locale) {
+        appLabelCache.getOrPut("$packageName/$locale") {
+            val packageManager = context.packageManager
+            runCatching {
+                packageManager.getApplicationInfo(packageName, 0).loadLabel(packageManager).toString()
+            }.getOrDefault(packageName)
+        }
     }
 }
 

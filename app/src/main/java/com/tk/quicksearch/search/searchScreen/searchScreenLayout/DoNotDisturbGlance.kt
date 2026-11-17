@@ -39,7 +39,7 @@ internal fun rememberDoNotDisturbGlance(enabled: Boolean): DoNotDisturbGlance? {
     val preferences = remember(context) { GlancePreferences(context.applicationContext) }
     val notificationManager = remember(context) { context.getSystemService(NotificationManager::class.java) }
     val refreshKey = rememberResumeRefreshKey()
-    val show = remember(enabled, refreshKey) { enabled && preferences.isShowDoNotDisturbEnabled() }
+    val show = remember(refreshKey) { preferences.isShowDoNotDisturbEnabled() }
     var filter by remember { mutableIntStateOf(NotificationManager.INTERRUPTION_FILTER_ALL) }
 
     DisposableEffect(show, refreshKey, notificationManager) {
@@ -71,10 +71,13 @@ internal fun rememberDoNotDisturbGlance(enabled: Boolean): DoNotDisturbGlance? {
         }
     }
 
-    if (notificationManager == null || !isDoNotDisturbOn(filter)) return null
+    // A binder call; the grant only changes in Settings, so re-check it on resume.
     val canTurnOff =
-        Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM &&
-            runCatching { notificationManager.isNotificationPolicyAccessGranted }.getOrDefault(false)
+        remember(refreshKey, notificationManager) {
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM &&
+                runCatching { notificationManager?.isNotificationPolicyAccessGranted == true }.getOrDefault(false)
+        }
+    if (!enabled || notificationManager == null || !isDoNotDisturbOn(filter)) return null
     return DoNotDisturbGlance(
         onClick = {
             if (canTurnOff) {

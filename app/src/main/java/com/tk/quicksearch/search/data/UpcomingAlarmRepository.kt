@@ -22,6 +22,7 @@ class UpcomingAlarmRepository(
 ) {
     private val alarmManager = context.getSystemService(AlarmManager::class.java)
     private val preferences = UpcomingAlarmPreferences(context)
+    private val clockAppCache = HashMap<String, Boolean>()
 
     fun nextWithinFortyFiveMinutes(nowMillis: Long = System.currentTimeMillis()): AlarmManager.AlarmClockInfo? {
         val alarm = nextClockAlarm() ?: return null
@@ -52,21 +53,25 @@ class UpcomingAlarmRepository(
     private fun nextClockAlarm(): AlarmManager.AlarmClockInfo? {
         if (!glanceItems.isShown(GlanceItem.UPCOMING_ALARM)) return null
         val alarm = alarmManager?.nextAlarmClock ?: return null
-        if (!isFromClockApp(alarm)) return null
-        if (alarm.showIntent?.creatorPackage?.let(preferences::isHiddenPackage) == true) return null
+        val creatorPackage = alarm.showIntent?.creatorPackage ?: return null
+        if (!isClockApp(creatorPackage)) return null
+        if (preferences.isHiddenPackage(creatorPackage)) return null
         return alarm
     }
 
     /**
      * Any app can schedule an alarm clock (e.g. reminder or sleep-tracking apps), so only surface
-     * alarms created by apps that handle the standard clock-app intents.
+     * alarms created by apps that handle the standard clock-app intents. Cached per package for
+     * this repository's lifetime, since the home card re-reads the next alarm every minute.
      */
-    private fun isFromClockApp(alarm: AlarmManager.AlarmClockInfo): Boolean {
-        val creatorPackage = alarm.showIntent?.creatorPackage ?: return false
-        return CLOCK_APP_ACTIONS.any { action ->
-            queryActivityPackages(Intent(action).setPackage(creatorPackage)).isNotEmpty()
+    private fun isClockApp(creatorPackage: String): Boolean =
+        synchronized(clockAppCache) {
+            clockAppCache.getOrPut(creatorPackage) {
+                CLOCK_APP_ACTIONS.any { action ->
+                    queryActivityPackages(Intent(action).setPackage(creatorPackage)).isNotEmpty()
+                }
+            }
         }
-    }
 
     private fun queryActivityPackages(intent: Intent): Set<String> =
         runCatching {

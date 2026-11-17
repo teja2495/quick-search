@@ -59,11 +59,12 @@ internal fun rememberTomorrowEventsGlance(enabled: Boolean): TomorrowEventsGlanc
     val refreshKey = rememberResumeRefreshKey()
     var events by remember { mutableStateOf<List<CalendarEventInfo>>(emptyList()) }
 
-    LaunchedEffect(enabled, refreshKey) {
+    // Not keyed on [enabled]: typing a query hides the rows without reading the calendar again.
+    LaunchedEffect(refreshKey) {
         while (true) {
             val now = LocalDateTime.now()
             events =
-                if (enabled && now.hour >= TOMORROW_EVENTS_START_HOUR) {
+                if (now.hour >= TOMORROW_EVENTS_START_HOUR) {
                     withContext(Dispatchers.IO) {
                         if (
                             calendarPreferences.getShowTodayEvents() &&
@@ -83,7 +84,7 @@ internal fun rememberTomorrowEventsGlance(enabled: Boolean): TomorrowEventsGlanc
     }
 
     return TomorrowEventsGlance(
-        events = events,
+        events = if (enabled) events else emptyList(),
         open = { event ->
             IntentHelpers.openCalendarEvent(
                 context = appContext as Application,

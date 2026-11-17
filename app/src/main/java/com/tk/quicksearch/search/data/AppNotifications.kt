@@ -28,6 +28,13 @@ internal object AppNotifications {
     private val dismissed = mutableMapOf<String, Long>()
 
     /**
+     * Each notification read by [candidates], by key, with the post time it was read at. Every
+     * rescan re-reads all posted notifications, and the system stamps a new post time on each
+     * update, so only new or updated ones are read again. Guarded by itself.
+     */
+    private val parsed = mutableMapOf<String, Pair<Long, AppNotification?>>()
+
+    /**
      * Every notification of [posted] that App notifications could show, whatever the apps and
      * keywords, so Home and each At a Glance widget can match their own. [excludedKeys] are
      * notifications another At a Glance row already shows.
@@ -38,8 +45,17 @@ internal object AppNotifications {
     ): List<AppNotification> {
         val postedKeys = posted.map { it.key }.toSet()
         synchronized(dismissed) { dismissed.keys.retainAll(postedKeys) }
-        return posted.mapNotNull { sbn ->
-            sbn.takeIf { it.key !in excludedKeys && isCandidate(it) }?.toAppNotification()
+        return synchronized(parsed) {
+            parsed.keys.retainAll(postedKeys)
+            posted.mapNotNull { sbn ->
+                if (sbn.key in excludedKeys || !isCandidate(sbn)) return@mapNotNull null
+                val cached = parsed[sbn.key]
+                if (cached != null && cached.first == sbn.postTime) {
+                    cached.second
+                } else {
+                    sbn.toAppNotification().also { parsed[sbn.key] = sbn.postTime to it }
+                }
+            }
         }
     }
 
@@ -69,6 +85,7 @@ internal object AppNotifications {
 
     fun clear() {
         synchronized(dismissed) { dismissed.clear() }
+        synchronized(parsed) { parsed.clear() }
     }
 
     /** Whether [sbn] is a kind App notifications shows, before checking the user's apps and keywords. */

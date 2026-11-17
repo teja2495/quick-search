@@ -42,22 +42,19 @@ internal fun rememberCustomInfoGlance(enabled: Boolean): CustomInfoGlance {
     val change by CustomInfoRepository.changes.collectAsState()
     val resumeKey = rememberResumeRefreshKey()
     var items by remember { mutableStateOf(emptyList<CustomInfoItem>()) }
-    LaunchedEffect(enabled, change, resumeKey) {
+    // Not keyed on [enabled]: typing a query hides the rows without reading them again.
+    LaunchedEffect(change, resumeKey) {
         items =
-            if (enabled) {
-                withContext(Dispatchers.IO) {
-                    repository.all().filter { item ->
-                        item.enabled && item.showOnHome &&
-                            (item.status == CustomInfoItem.ERROR ||
-                                (item.status == CustomInfoItem.COMPLETE && item.answer.isNotBlank()))
-                    }
+            withContext(Dispatchers.IO) {
+                repository.all().filter { item ->
+                    item.enabled && item.showOnHome &&
+                        (item.status == CustomInfoItem.ERROR ||
+                            (item.status == CustomInfoItem.COMPLETE && item.answer.isNotBlank()))
                 }
-            } else {
-                emptyList()
             }
     }
     return CustomInfoGlance(
-        items = items,
+        items = if (enabled) items else emptyList(),
         dismiss = { item ->
             CustomInfoScheduler.cancelNotification(appContext, item.id)
             repository.update(item.id) { it.copy(showOnHome = false) }

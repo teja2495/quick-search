@@ -49,9 +49,10 @@ internal fun rememberBirthdaysGlance(
     val refreshKey = rememberResumeRefreshKey()
     var birthdays by remember { mutableStateOf<List<ContactBirthday>>(emptyList()) }
 
-    LaunchedEffect(enabled, refreshKey) {
+    // Not keyed on [enabled]: typing a query hides the rows without reading contacts again.
+    LaunchedEffect(refreshKey) {
         birthdays =
-            if (enabled && preferences.isShowBirthdaysEnabled() && repository.hasPermission()) {
+            if (preferences.isShowBirthdaysEnabled() && repository.hasPermission()) {
                 withContext(Dispatchers.IO) {
                     val today = LocalDate.now()
                     val dismissed = preferences.getDismissedBirthdays(today.toString())
@@ -63,7 +64,7 @@ internal fun rememberBirthdaysGlance(
     }
 
     return BirthdaysGlance(
-        birthdays = birthdays,
+        birthdays = if (enabled) birthdays else emptyList(),
         open = { birthday ->
             scope.launch {
                 val contact =

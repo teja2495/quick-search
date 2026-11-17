@@ -29,6 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.apps.notificationDots.NotificationDotsPermission
 import com.tk.quicksearch.reminders.ReminderEditorRequests
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination
 import com.tk.quicksearch.search.appSettings.LocalOpenAppSettingDestination
@@ -129,8 +131,12 @@ internal fun rememberAtAGlanceItems(
     reversed: Boolean,
     onShowContactMethods: (ContactInfo) -> Unit,
 ): AtAGlanceItems {
+    val context = LocalContext.current
+    val refreshKey = rememberResumeRefreshKey()
+    val hasNotificationAccess =
+        remember(refreshKey) { NotificationDotsPermission.hasNotificationListenerAccess(context) }
     val battery = rememberBatteryGlances(enabled)
-    val notifications = rememberNotificationGlances(enabled)
+    val notifications = rememberNotificationGlances(enabled, hasNotificationAccess)
     val alarm = rememberUpcomingAlarmGlance(enabled)
     val reminders = rememberUpcomingRemindersGlance(enabled)
     val birthdays = rememberBirthdaysGlance(enabled, onShowContactMethods)
@@ -142,13 +148,13 @@ internal fun rememberAtAGlanceItems(
     val hotspot = rememberHotspotGlance(enabled)
     val tomorrowEvents = rememberTomorrowEventsGlance(enabled)
     val customInfo = rememberCustomInfoGlance(enabled)
-    val appNotifications = rememberAppNotificationsGlance(enabled, excludedKeys = setOfNotNull(notifications.otp?.key))
+    val appNotifications = rememberAppNotificationsGlance(enabled, hasNotificationAccess, excludedKeys = setOfNotNull(notifications.otp?.key))
     // Most time-critical first: live and expiring items, then things due soon, then what needs a
     // look, then today's and tomorrow's context, and the passive device states last.
     val groups =
         listOf(
             notifications.ongoingCalls.map { call ->
-                AtAGlanceItem(key = "ongoing-call-${call.key}") { OngoingCallRow(call, notifications.nowMillis) }
+                AtAGlanceItem(key = "ongoing-call-${call.key}") { OngoingCallRow(call, notifications.nowMillis()) }
             },
             listOfNotNull(
                 notifications.otp?.let { otp ->
@@ -156,7 +162,7 @@ internal fun rememberAtAGlanceItems(
                 },
             ),
             notifications.timers.map { timer ->
-                AtAGlanceItem(key = "timer-${timer.key}") { TimerRow(timer, notifications.nowMillis) }
+                AtAGlanceItem(key = "timer-${timer.key}") { TimerRow(timer, notifications.nowMillis()) }
             },
             listOfNotNull(alarm?.let { AtAGlanceItem(key = "alarm") { UpcomingAlarmRow(it) } }),
             (
@@ -165,7 +171,7 @@ internal fun rememberAtAGlanceItems(
                         AtAGlanceItem(key = "reminder-${reminder.reminderId}") {
                             UpcomingReminderRow(
                                 reminder = reminder,
-                                nowMillis = reminders.nowMillis,
+                                nowMillis = reminders.nowMillis(),
                                 isPendingDone = reminder.reminderId in reminders.pendingDoneIds,
                                 onClick = { ReminderEditorRequests.openEdit(reminder) },
                                 onDone = { reminders.markDone(reminder) },

@@ -34,7 +34,7 @@ internal fun rememberFlashlightGlance(enabled: Boolean): FlashlightGlance? {
     val cameraManager =
         remember(context) { runCatching { context.applicationContext.getSystemService(CameraManager::class.java) }.getOrNull() }
     val refreshKey = rememberResumeRefreshKey()
-    val show = remember(enabled, refreshKey) { enabled && preferences.isShowFlashlightEnabled() }
+    val show = remember(refreshKey) { preferences.isShowFlashlightEnabled() }
     var litCameraIds by remember { mutableStateOf(emptySet<String>()) }
 
     DisposableEffect(show, refreshKey, cameraManager) {
@@ -62,7 +62,7 @@ internal fun rememberFlashlightGlance(enabled: Boolean): FlashlightGlance? {
         }
     }
 
-    if (cameraManager == null || litCameraIds.isEmpty()) return null
+    if (!enabled || cameraManager == null || litCameraIds.isEmpty()) return null
     val cameraIds = litCameraIds
     return FlashlightGlance(
         onClick = {

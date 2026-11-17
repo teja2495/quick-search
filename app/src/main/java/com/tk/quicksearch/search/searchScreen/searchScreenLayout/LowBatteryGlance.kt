@@ -176,15 +176,33 @@ internal fun rememberBatteryGlances(enabled: Boolean): BatteryGlances {
     }
 
     // Battery broadcasts arrive every few seconds while charging, so listen only while home is visible.
-    LifecycleStartEffect(appContext, enabled, refreshKey) {
+    // Not keyed on [enabled]: typing a query hides the rows without re-registering the receiver.
+    LifecycleStartEffect(appContext, refreshKey) {
         showLowBattery = preferences.isShowLowBatteryEnabled()
         showCharging = preferences.isShowChargingEnabled()
-        if (!enabled || (!showLowBattery && !showCharging)) {
+        if (!showLowBattery && !showCharging) {
             battery = null
             return@LifecycleStartEffect onStopOrDispose {}
         }
+        // Broadcasts also fire for temperature and voltage; skip those, and the estimate's binder call.
+        // The time-to-full estimate can change at a steady level, so re-read it at most once a minute.
+        var lastInputs: List<Int>? = null
+        var lastReadMillis = 0L
         fun updateBattery(intent: Intent?) {
+            val inputs =
+                intent?.let {
+                    listOf(
+                        it.getIntExtra(BatteryManager.EXTRA_LEVEL, -1),
+                        it.getIntExtra(BatteryManager.EXTRA_SCALE, -1),
+                        it.getIntExtra(BatteryManager.EXTRA_STATUS, -1),
+                        it.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0),
+                    )
+                }
+            val now = SystemClock.elapsedRealtime()
+            if (inputs != null && inputs == lastInputs && now - lastReadMillis < 60_000L) return
             val status = BatteryStatus.from(intent, batteryManager) ?: return
+            lastInputs = inputs
+            lastReadMillis = now
             battery = status
             // A dismissed charging row stays hidden until the phone is unplugged. A lower level
             // than at dismissal means it was unplugged while home was not showing.
@@ -223,7 +241,7 @@ internal fun rememberBatteryGlances(enabled: Boolean): BatteryGlances {
         onStopOrDispose { runCatching { appContext.unregisterReceiver(receiver) } }
     }
 
-    val current = battery
+    val current = battery.takeIf { enabled }
     return BatteryGlances(
         lowBattery =
             current?.takeIf { showLowBattery && it.isLow }?.let {

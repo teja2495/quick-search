@@ -2,6 +2,10 @@ package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
 import com.tk.quicksearch.search.apps.appLock.AppLockGate
 import android.app.AlarmManager
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.text.format.DateFormat
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -33,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -45,7 +50,9 @@ import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import java.util.Date
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 private val UpcomingAlarmDismissSize = 28.dp
 
@@ -55,8 +62,11 @@ private val UpcomingAlarmDismissSize = 28.dp
  */
 internal class UpcomingAlarmGlance(
     val alarm: AlarmManager.AlarmClockInfo,
-    val nowMillis: Long,
+    /** Read inside the row, so the minute tick recomposes only the alarm row. */
+    val nowMillis: () -> Long,
     val isTomorrow: Boolean,
+    /** The app that scheduled the alarm, read once rather than on every recomposition. */
+    val creatorPackage: String?,
     val open: () -> Boolean,
     val dismiss: () -> Unit,
     /** Label of the app that scheduled the alarm, or null when it cannot be identified. */
@@ -64,51 +74,98 @@ internal class UpcomingAlarmGlance(
     val hideAlarmsFromApp: () -> Unit,
 )
 
+/** One read of the next alarm; kept across reads while its time and app are unchanged. */
+private class UpcomingAlarmRead(
+    val alarm: AlarmManager.AlarmClockInfo,
+    val isTomorrow: Boolean,
+    val creatorPackage: String?,
+    val appLabel: String?,
+) {
+    fun sameAs(other: UpcomingAlarmRead?): Boolean =
+        other != null &&
+            other.alarm.triggerTime == alarm.triggerTime &&
+            other.isTomorrow == isTomorrow &&
+            other.creatorPackage == creatorPackage
+}
+
 /**
- * Polls the next alarm within 45 minutes, or else tomorrow's first alarm in the evening, while
- * [enabled]; refreshes on resume and every 10 seconds while visible.
+ * Reads the next alarm within 45 minutes, or else tomorrow's first alarm in the evening, off the
+ * main thread: on resume, at each minute boundary while visible, and when the system's next alarm
+ * changes. Returns null while not [enabled].
  */
 @Composable
 internal fun rememberUpcomingAlarmGlance(enabled: Boolean): UpcomingAlarmGlance? {
     val context = LocalContext.current
+    val appContext = context.applicationContext
     val lifecycleOwner = LocalLifecycleOwner.current
-    val repository = remember(context) { UpcomingAlarmRepository(context) }
+    val repository = remember(appContext) { UpcomingAlarmRepository(appContext) }
     var refreshKey by remember { mutableIntStateOf(0) }
     var nowMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
-    var alarm by remember { mutableStateOf<AlarmManager.AlarmClockInfo?>(null) }
-    var isTomorrow by remember { mutableStateOf(false) }
+    var read by remember { mutableStateOf<UpcomingAlarmRead?>(null) }
 
-    DisposableEffect(lifecycleOwner) {
+    DisposableEffect(lifecycleOwner, appContext) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) refreshKey++
         }
         lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
-    LaunchedEffect(repository, refreshKey, enabled) {
-        if (!enabled) {
-            alarm = null
-            return@LaunchedEffect
+        val receiver =
+            object : BroadcastReceiver() {
+                override fun onReceive(context: Context, intent: Intent) {
+                    refreshKey++
+                }
+            }
+        val registered =
+            runCatching {
+                ContextCompat.registerReceiver(
+                    appContext,
+                    receiver,
+                    IntentFilter(AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED),
+                    ContextCompat.RECEIVER_NOT_EXPORTED,
+                )
+            }.isSuccess
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            if (registered) runCatching { appContext.unregisterReceiver(receiver) }
         }
-        // Home stays composed while another app is in front; only poll while it can be seen.
+    }
+    LaunchedEffect(repository, refreshKey) {
+        // Home stays composed while another app is in front; only read while it can be seen.
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             while (true) {
-                nowMillis = System.currentTimeMillis()
-                val soon = repository.nextWithinFortyFiveMinutes(nowMillis)
-                alarm = soon ?: repository.tomorrowsFirstAlarm(nowMillis)
-                isTomorrow = soon == null && alarm != null
-                delay(10_000)
+                val now = System.currentTimeMillis()
+                val next =
+                    withContext(Dispatchers.IO) {
+                        val soon = repository.nextWithinFortyFiveMinutes(now)
+                        val alarm = soon ?: repository.tomorrowsFirstAlarm(now)
+                        alarm?.let {
+                            val creatorPackage = it.showIntent?.creatorPackage
+                            val candidate = UpcomingAlarmRead(it, soon == null, creatorPackage, null)
+                            val current = read
+                            if (candidate.sameAs(current)) {
+                                current
+                            } else {
+                                UpcomingAlarmRead(it, soon == null, creatorPackage, repository.appLabel(it))
+                            }
+                        }
+                    }
+                nowMillis = now
+                if (next !== read) read = next
+                // Labels and the 45-minute window move by the minute, as do alarm trigger times.
+                delay(MINUTE_MILLIS - now % MINUTE_MILLIS + 50L)
             }
         }
     }
 
-    val nextAlarm = alarm ?: return null
+    if (!enabled) return null
+    val current = read ?: return null
+    val nextAlarm = current.alarm
     return UpcomingAlarmGlance(
         alarm = nextAlarm,
-        nowMillis = nowMillis,
-        isTomorrow = isTomorrow,
+        nowMillis = { nowMillis },
+        isTomorrow = current.isTomorrow,
+        creatorPackage = current.creatorPackage,
         open = {
-            val clockPackage = nextAlarm.showIntent?.creatorPackage
+            val clockPackage = current.creatorPackage
             if (clockPackage != null && AppLockGate.isProtected(context, clockPackage)) {
                 AppLockGate.runAfterUnlock(context, clockPackage) { repository.open(nextAlarm) }
                 true
@@ -117,16 +174,18 @@ internal fun rememberUpcomingAlarmGlance(enabled: Boolean): UpcomingAlarmGlance?
             }
         },
         dismiss = {
-            if (isTomorrow) repository.dismissTomorrow(nextAlarm) else repository.dismiss(nextAlarm)
-            alarm = null
+            if (current.isTomorrow) repository.dismissTomorrow(nextAlarm) else repository.dismiss(nextAlarm)
+            read = null
         },
-        appLabel = remember(nextAlarm) { repository.appLabel(nextAlarm) },
+        appLabel = current.appLabel,
         hideAlarmsFromApp = {
             repository.hideAlarmsFromApp(nextAlarm)
-            alarm = null
+            read = null
         },
     )
 }
+
+private const val MINUTE_MILLIS = 60_000L
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -139,7 +198,7 @@ internal fun UpcomingAlarmRow(glance: UpcomingAlarmGlance) {
         if (glance.isTomorrow) {
             stringResource(R.string.calendar_relative_tomorrow)
         } else {
-            calendarRelativeTimeLabel(glance.alarm.triggerTime, glance.nowMillis)
+            calendarRelativeTimeLabel(glance.alarm.triggerTime, glance.nowMillis())
         }
     val scheduleLabel = "$alarmTime • $relativeLabel"
     val title = stringResource(R.string.home_upcoming_alarm)
@@ -163,7 +222,7 @@ internal fun UpcomingAlarmRow(glance: UpcomingAlarmGlance) {
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            UpcomingAlarmAppIcon(glance.alarm.showIntent?.creatorPackage)
+            UpcomingAlarmAppIcon(glance.creatorPackage)
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
                     text = title,

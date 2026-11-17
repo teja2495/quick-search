@@ -59,7 +59,7 @@ internal fun rememberAirplaneModeGlance(enabled: Boolean): AirplaneModeGlance? {
     val context = LocalContext.current
     val preferences = remember(context) { GlancePreferences(context.applicationContext) }
     val refreshKey = rememberResumeRefreshKey()
-    val show = remember(enabled, refreshKey) { enabled && preferences.isShowAirplaneModeEnabled() }
+    val show = remember(refreshKey) { preferences.isShowAirplaneModeEnabled() }
     var isOn by remember { mutableStateOf(false) }
 
     DisposableEffect(show, refreshKey) {
@@ -75,7 +75,7 @@ internal fun rememberAirplaneModeGlance(enabled: Boolean): AirplaneModeGlance? {
         }
     }
 
-    if (!isOn) return null
+    if (!enabled || !isOn) return null
     return AirplaneModeGlance(onClick = { openAirplaneModeSettings(context) })
 }
 
@@ -103,7 +103,7 @@ internal fun rememberHotspotGlance(enabled: Boolean): HotspotGlance? {
     val context = LocalContext.current
     val preferences = remember(context) { GlancePreferences(context.applicationContext) }
     val refreshKey = rememberResumeRefreshKey()
-    val show = remember(enabled, refreshKey) { enabled && preferences.isShowHotspotEnabled() }
+    val show = remember(refreshKey) { preferences.isShowHotspotEnabled() }
     var isOn by remember { mutableStateOf(false) }
 
     DisposableEffect(show, refreshKey) {
@@ -133,7 +133,7 @@ internal fun rememberHotspotGlance(enabled: Boolean): HotspotGlance? {
         }
     }
 
-    if (!isOn) return null
+    if (!enabled || !isOn) return null
     return HotspotGlance(onClick = { openHotspotSettings(context) })
 }
 
@@ -157,7 +157,7 @@ internal fun rememberWifiSignInGlance(enabled: Boolean): WifiSignInGlance? {
     val context = LocalContext.current
     val preferences = remember(context) { GlancePreferences(context.applicationContext) }
     val refreshKey = rememberResumeRefreshKey()
-    val show = remember(enabled, refreshKey) { enabled && preferences.isShowWifiSignInEnabled() }
+    val show = remember(refreshKey) { preferences.isShowWifiSignInEnabled() }
     var needsSignIn by remember { mutableStateOf(false) }
 
     DisposableEffect(show, refreshKey) {
@@ -192,7 +192,7 @@ internal fun rememberWifiSignInGlance(enabled: Boolean): WifiSignInGlance? {
         }
     }
 
-    if (!needsSignIn || WifiSignInDismissal.dismissed) return null
+    if (!enabled || !needsSignIn || WifiSignInDismissal.dismissed) return null
     return WifiSignInGlance(
         onClick = { openWifiPanel(context) },
         dismiss = { WifiSignInDismissal.dismissed = true },

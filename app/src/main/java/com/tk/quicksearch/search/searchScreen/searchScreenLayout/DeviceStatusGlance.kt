@@ -106,9 +106,10 @@ internal fun rememberLowStorageGlance(enabled: Boolean): LowStorageGlance? {
     var space by remember { mutableStateOf<Pair<Long, Long>?>(null) }
     var isDismissed by remember { mutableStateOf(false) }
 
-    LaunchedEffect(enabled, refreshKey) {
+    // Not keyed on [enabled]: typing a query hides the row without reading storage again.
+    LaunchedEffect(refreshKey) {
         space =
-            if (enabled && preferences.isShowLowStorageEnabled()) {
+            if (preferences.isShowLowStorageEnabled()) {
                 withContext(Dispatchers.IO) { readInternalStorage() }
             } else {
                 null
@@ -116,6 +117,7 @@ internal fun rememberLowStorageGlance(enabled: Boolean): LowStorageGlance? {
         isDismissed = space?.let { (free, total) -> updateLowStorageDismissal(preferences, free, total) } ?: false
     }
 
+    if (!enabled) return null
     val (free, total) = space ?: return null
     if (isDismissed || !isLowStorage(free, total)) return null
     return LowStorageGlance(
