@@ -763,8 +763,17 @@
 <string name="customize_search_engines">Настройка поисковых систем</string>
 <string name="settings_app_theme_aurora">Аврора</string>
 <string name="settings_app_theme_forest">Лес</string>
-<string name="settings_app_theme_monochrome">Монохром</string>
+<string name="settings_app_theme_monochrome">По умолчанию</string>
+<string name="settings_app_theme_colorful">Цветная</string>
 <string name="settings_app_theme_sunset">Закат</string>
+<string name="settings_app_theme_custom_dialog_title">Выберите цвет</string>
+<string name="settings_app_theme_amber">Янтарный</string>
+<string name="settings_app_theme_teal">Бирюзовый</string>
+<string name="settings_app_theme_lavender">Лавандовый</string>
+<string name="settings_app_theme_indigo">Индиго</string>
+<string name="settings_app_theme_slate">Сланцевый</string>
+<string name="settings_app_theme_rose">Розовый</string>
+<string name="settings_app_theme_mocha">Мокко</string>
 <string name="settings_app_theme_title">Тема оформления</string>
 <string name="settings_appearance_desc">Обои, стили поисковых систем, режим управления одной рукой и т. д.</string>
 <string name="settings_appearance_title">Внешний вид</string>
@@ -788,7 +797,7 @@
 <string name="settings_default_assistant_title">Помощник по умолчанию</string>
 <string name="settings_default_launcher_desc">Установить это приложение в качестве главного экрана по умолчанию.</string>
 <string name="settings_default_launcher_title">Главный экран по умолчанию</string>
-<string name="settings_amoled_theme_desc">Использовать абсолютно чёрный фон для темы Mono</string>
+<string name="settings_amoled_theme_desc">Использовать абсолютно чёрный фон в тёмном режиме</string>
 <string name="settings_amoled_theme_title">Тема AMOLED</string>
 <string name="settings_device_theme_blocked_toast">Недоступно, пока включена тема Material You</string>
 <string name="settings_device_theme_desc">Использовать динамическую цветовую палитру устройства для темы приложения</string>
@@ -987,13 +996,13 @@
 <string name="settings_use_system_font_desc">Использовать системный стиль шрифта вашего устройства</string>
 <string name="settings_use_system_font_title">Системный шрифт</string>
 <string name="settings_accent_color_from_wallpaper">Обои</string>
-<string name="settings_accent_color_none">Нет</string>
 <string name="settings_accent_color_picker_title">Цвет акцента</string>
 <string name="settings_accent_color_wallpaper_required_toast">Сначала настройте фон из обоев</string>
+<string name="settings_accent_color_default_theme_required_toast">Сначала переключитесь на тему «По умолчанию»</string>
 <string name="settings_wallpaper_accent_desc">Брать акцентный цвет с обоев или выбрать свой</string>
 <string name="settings_wallpaper_accent_title">Акцентный цвет</string>
 <string name="settings_wallpaper_blur_label">Размытие</string>
-<string name="settings_wallpaper_card_title">Фон обоев</string>
+<string name="settings_wallpaper_card_title">Фон</string>
 <string name="settings_wallpaper_transparency_label">Прозрачность</string>
 
 <!-- ============================================================================

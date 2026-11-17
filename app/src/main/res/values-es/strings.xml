@@ -741,8 +741,17 @@
     <string name="customize_search_engines">Personalizar motores de búsqueda</string>
     <string name="settings_app_theme_aurora">Aurora</string>
     <string name="settings_app_theme_forest">Bosque</string>
-    <string name="settings_app_theme_monochrome">Monocromo</string>
+    <string name="settings_app_theme_monochrome">Predeterminado</string>
+    <string name="settings_app_theme_colorful">Colorido</string>
     <string name="settings_app_theme_sunset">Atardecer</string>
+    <string name="settings_app_theme_custom_dialog_title">Elige un color</string>
+    <string name="settings_app_theme_amber">Ámbar</string>
+    <string name="settings_app_theme_teal">Verde azulado</string>
+    <string name="settings_app_theme_lavender">Lavanda</string>
+    <string name="settings_app_theme_indigo">Índigo</string>
+    <string name="settings_app_theme_slate">Pizarra</string>
+    <string name="settings_app_theme_rose">Rosa</string>
+    <string name="settings_app_theme_mocha">Moca</string>
     <string name="settings_app_theme_title">Tema</string>
     <string name="settings_appearance_desc">Fondo de pantalla, estilo de motores de búsqueda, modo a una mano, etc.</string>
     <string name="settings_appearance_title">Apariencia</string>
@@ -766,7 +775,7 @@
     <string name="settings_default_assistant_title">Asistente predeterminado</string>
     <string name="settings_default_launcher_desc">Establece esta app como tu lanzador de inicio predeterminado.</string>
     <string name="settings_default_launcher_title">Lanzador predeterminado</string>
-    <string name="settings_amoled_theme_desc">Usar fondo negro puro para el tema Mono</string>
+    <string name="settings_amoled_theme_desc">Usar fondo negro puro en modo oscuro</string>
     <string name="settings_amoled_theme_title">Tema AMOLED</string>
     <string name="settings_device_theme_blocked_toast">Desactivado mientras el tema Material You esté activo</string>
     <string name="settings_device_theme_desc">Usa la paleta de colores dinámicos de tu dispositivo como tema de la app</string>
@@ -961,13 +970,13 @@
     <string name="settings_use_system_font_desc">Usa el estilo de fuente de tu dispositivo</string>
     <string name="settings_use_system_font_title">Usar fuente del sistema</string>
     <string name="settings_accent_color_from_wallpaper">Fondo de pantalla</string>
-    <string name="settings_accent_color_none">Ninguno</string>
     <string name="settings_accent_color_picker_title">Color de acento</string>
     <string name="settings_accent_color_wallpaper_required_toast">Configura primero un fondo de pantalla</string>
+    <string name="settings_accent_color_default_theme_required_toast">Cambia primero al tema Predeterminado</string>
     <string name="settings_wallpaper_accent_desc">Obtén el color de acento del fondo de pantalla o elige un color personalizado</string>
     <string name="settings_wallpaper_accent_title">Color de acento</string>
     <string name="settings_wallpaper_blur_label">Desenfoque</string>
-    <string name="settings_wallpaper_card_title">Fondo de pantalla</string>
+    <string name="settings_wallpaper_card_title">Fondo</string>
     <string name="settings_wallpaper_transparency_label">Transparencia</string>
 
     <!-- ============================================================================

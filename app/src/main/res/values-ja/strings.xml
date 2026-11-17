@@ -749,8 +749,17 @@
     <string name="customize_search_engines">検索エンジンのカスタマイズ</string>
     <string name="settings_app_theme_aurora">オーロラ</string>
     <string name="settings_app_theme_forest">フォレスト</string>
-    <string name="settings_app_theme_monochrome">モノクロ</string>
+    <string name="settings_app_theme_monochrome">デフォルト</string>
+    <string name="settings_app_theme_colorful">カラフル</string>
     <string name="settings_app_theme_sunset">サンセット</string>
+    <string name="settings_app_theme_custom_dialog_title">色を選択</string>
+    <string name="settings_app_theme_amber">アンバー</string>
+    <string name="settings_app_theme_teal">ティール</string>
+    <string name="settings_app_theme_lavender">ラベンダー</string>
+    <string name="settings_app_theme_indigo">インディゴ</string>
+    <string name="settings_app_theme_slate">スレート</string>
+    <string name="settings_app_theme_rose">ローズ</string>
+    <string name="settings_app_theme_mocha">モカ</string>
     <string name="settings_app_theme_title">テーマ</string>
     <string name="settings_appearance_desc">壁紙、検索エンジンスタイル、片手モードなど</string>
     <string name="settings_appearance_title">外観</string>
@@ -774,7 +783,7 @@
     <string name="settings_default_assistant_title">デフォルトのアシスタント</string>
     <string name="settings_default_launcher_desc">このアプリをデフォルトのホームアプリとして設定します。</string>
     <string name="settings_default_launcher_title">デフォルトのランチャー</string>
-    <string name="settings_amoled_theme_desc">モノクロテーマで完全な黒（True Black）の背景を使用</string>
+    <string name="settings_amoled_theme_desc">ダークモードで完全な黒（True Black）の背景を使用</string>
     <string name="settings_amoled_theme_title">AMOLEDテーマ</string>
     <string name="settings_device_theme_blocked_toast">Material Youテーマが有効な間は無効です</string>
     <string name="settings_device_theme_desc">端末のダイナミックカラーパレットをアプリのテーマとして使用</string>
@@ -967,13 +976,13 @@
     <string name="settings_use_system_font_desc">端末のフォントスタイルに従う</string>
     <string name="settings_use_system_font_title">システムフォントを使用</string>
     <string name="settings_accent_color_from_wallpaper">壁紙</string>
-    <string name="settings_accent_color_none">なし</string>
     <string name="settings_accent_color_picker_title">アクセントカラー</string>
     <string name="settings_accent_color_wallpaper_required_toast">最初に壁紙の背景を設定してください</string>
+    <string name="settings_accent_color_default_theme_required_toast">最初にデフォルトのテーマに切り替えてください</string>
     <string name="settings_wallpaper_accent_desc">壁紙からアクセントカラーを抽出するか、カスタムカラーを選択</string>
     <string name="settings_wallpaper_accent_title">アクセントカラー</string>
     <string name="settings_wallpaper_blur_label">ぼかし</string>
-    <string name="settings_wallpaper_card_title">壁紙の背景</string>
+    <string name="settings_wallpaper_card_title">背景</string>
     <string name="settings_wallpaper_transparency_label">透明度</string>
 
     <!-- ============================================================================

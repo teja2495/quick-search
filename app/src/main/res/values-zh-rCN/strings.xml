@@ -730,8 +730,17 @@
     <string name="customize_search_engines">自定义搜索引擎</string>
     <string name="settings_app_theme_aurora">极光</string>
     <string name="settings_app_theme_forest">森林</string>
-    <string name="settings_app_theme_monochrome">单色</string>
+    <string name="settings_app_theme_monochrome">默认</string>
+    <string name="settings_app_theme_colorful">多彩</string>
     <string name="settings_app_theme_sunset">落日</string>
+    <string name="settings_app_theme_custom_dialog_title">选择颜色</string>
+    <string name="settings_app_theme_amber">琥珀</string>
+    <string name="settings_app_theme_teal">青色</string>
+    <string name="settings_app_theme_lavender">薰衣草</string>
+    <string name="settings_app_theme_indigo">靛蓝</string>
+    <string name="settings_app_theme_slate">石板灰</string>
+    <string name="settings_app_theme_rose">玫瑰</string>
+    <string name="settings_app_theme_mocha">摩卡</string>
     <string name="settings_app_theme_title">主题</string>
     <string name="settings_appearance_desc">壁纸、搜索引擎样式、单手模式等。</string>
     <string name="settings_appearance_title">外观效果</string>
@@ -755,7 +764,7 @@
     <string name="settings_default_assistant_title">默认助理</string>
     <string name="settings_default_launcher_desc">将此应用设置为您的默认启动器。</string>
     <string name="settings_default_launcher_title">默认启动器</string>
-    <string name="settings_amoled_theme_desc">为 Mono 主题使用纯黑背景</string>
+    <string name="settings_amoled_theme_desc">在深色模式下使用纯黑背景</string>
     <string name="settings_amoled_theme_title">AMOLED 主题</string>
     <string name="settings_device_theme_blocked_toast">当 Material You 主题启用时此项已被禁用</string>
     <string name="settings_device_theme_desc">将设备的动态调色板应用为应用自身的主题色彩</string>
@@ -948,13 +957,13 @@
     <string name="settings_use_system_font_desc">匹配并跟随您设备的系统字体样式</string>
     <string name="settings_use_system_font_title">使用系统字体</string>
     <string name="settings_accent_color_from_wallpaper">壁纸</string>
-    <string name="settings_accent_color_none">无</string>
     <string name="settings_accent_color_picker_title">强调色</string>
     <string name="settings_accent_color_wallpaper_required_toast">请先设置壁纸背景</string>
+    <string name="settings_accent_color_default_theme_required_toast">请先切换到默认主题</string>
     <string name="settings_wallpaper_accent_desc">从壁纸提取强调色或选择自定义颜色</string>
     <string name="settings_wallpaper_accent_title">强调色</string>
     <string name="settings_wallpaper_blur_label">模糊度</string>
-    <string name="settings_wallpaper_card_title">壁纸背景</string>
+    <string name="settings_wallpaper_card_title">背景不透明度</string>
     <string name="settings_wallpaper_transparency_label">透明度</string>
 
     <!-- ============================================================================

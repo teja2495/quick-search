@@ -108,10 +108,8 @@ class AppSettingsSearchHandler(
         val hideArchivedApps =
             android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM
         val hideAmoledTheme by lazy(LazyThreadSafetyMode.NONE) {
-            userPreferences.getAppTheme() != com.tk.quicksearch.search.core.AppTheme.MONOCHROME ||
-                userPreferences.getAppThemeMode() != com.tk.quicksearch.search.core.AppThemeMode.DARK ||
-                userPreferences.isDeviceThemeEnabled() ||
-                userPreferences.getBackgroundSource() != com.tk.quicksearch.search.core.BackgroundSource.THEME
+            userPreferences.getAppThemeMode() == com.tk.quicksearch.search.core.AppThemeMode.LIGHT ||
+                userPreferences.isDeviceThemeEnabled()
         }
         return availableSettings.filter { setting ->
             val hidden =

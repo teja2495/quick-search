@@ -746,8 +746,17 @@
     <string name="customize_search_engines">Sesuaikan Mesin Pencari</string>
     <string name="settings_app_theme_aurora">Aurora</string>
     <string name="settings_app_theme_forest">Forest</string>
-    <string name="settings_app_theme_monochrome">Mono</string>
+    <string name="settings_app_theme_monochrome">Default</string>
+    <string name="settings_app_theme_colorful">Berwarna</string>
     <string name="settings_app_theme_sunset">Sunset</string>
+    <string name="settings_app_theme_custom_dialog_title">Pilih warna</string>
+    <string name="settings_app_theme_amber">Amber</string>
+    <string name="settings_app_theme_teal">Hijau toska</string>
+    <string name="settings_app_theme_lavender">Lavender</string>
+    <string name="settings_app_theme_indigo">Nila</string>
+    <string name="settings_app_theme_slate">Batu tulis</string>
+    <string name="settings_app_theme_rose">Mawar</string>
+    <string name="settings_app_theme_mocha">Moka</string>
     <string name="settings_app_theme_title">Tema</string>
     <string name="settings_appearance_desc">Wallpaper, gaya mesin pencari, mode satu tangan, dll.</string>
     <string name="settings_appearance_title">Tampilan</string>
@@ -771,7 +780,7 @@
     <string name="settings_default_assistant_title">Asisten Default</string>
     <string name="settings_default_launcher_desc">Jadikan aplikasi ini sebagai aplikasi layar utama default Anda.</string>
     <string name="settings_default_launcher_title">Peluncur Default</string>
-    <string name="settings_amoled_theme_desc">Gunakan latar belakang Hitam Pekat untuk Tema Mono</string>
+    <string name="settings_amoled_theme_desc">Gunakan latar belakang Hitam Pekat dalam mode gelap</string>
     <string name="settings_amoled_theme_title">Tema AMOLED</string>
     <string name="settings_device_theme_blocked_toast">Dinonaktifkan saat tema Material You aktif</string>
     <string name="settings_device_theme_desc">Gunakan palet warna dinamis perangkat Anda sebagai tema aplikasi</string>
@@ -964,13 +973,13 @@
     <string name="settings_use_system_font_desc">Gunakan gaya font perangkat Anda</string>
     <string name="settings_use_system_font_title">Gunakan Font Sistem</string>
     <string name="settings_accent_color_from_wallpaper">Wallpaper</string>
-    <string name="settings_accent_color_none">Tidak ada</string>
     <string name="settings_accent_color_picker_title">Warna Aksen</string>
     <string name="settings_accent_color_wallpaper_required_toast">Atur latar belakang wallpaper terlebih dahulu</string>
+    <string name="settings_accent_color_default_theme_required_toast">Beralih ke tema Default terlebih dahulu</string>
     <string name="settings_wallpaper_accent_desc">Ambil warna aksen dari wallpaper atau pilih warna kustom</string>
     <string name="settings_wallpaper_accent_title">Warna Aksen</string>
     <string name="settings_wallpaper_blur_label">Buram</string>
-    <string name="settings_wallpaper_card_title">Latar Belakang Wallpaper</string>
+    <string name="settings_wallpaper_card_title">Latar Belakang</string>
     <string name="settings_wallpaper_transparency_label">Transparansi</string>
 
     <!-- ============================================================================

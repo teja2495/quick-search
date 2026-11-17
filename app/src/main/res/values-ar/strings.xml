@@ -742,8 +742,17 @@
     <string name="customize_search_engines">تخصيص محركات البحث</string>
     <string name="settings_app_theme_aurora">Aurora</string>
     <string name="settings_app_theme_forest">Forest</string>
-    <string name="settings_app_theme_monochrome">Mono</string>
+    <string name="settings_app_theme_monochrome">الافتراضي</string>
+    <string name="settings_app_theme_colorful">ملوّن</string>
     <string name="settings_app_theme_sunset">Sunset</string>
+    <string name="settings_app_theme_custom_dialog_title">اختر لونًا</string>
+    <string name="settings_app_theme_amber">كهرماني</string>
+    <string name="settings_app_theme_teal">أزرق مخضر</string>
+    <string name="settings_app_theme_lavender">خزامى</string>
+    <string name="settings_app_theme_indigo">نيلي</string>
+    <string name="settings_app_theme_slate">أردوازي</string>
+    <string name="settings_app_theme_rose">وردي</string>
+    <string name="settings_app_theme_mocha">موكا</string>
     <string name="settings_app_theme_title">السمة</string>
     <string name="settings_appearance_desc">تغيير الخلفية، أنماط محرك البحث، الوضع بيد واحدة، إلخ.</string>
     <string name="settings_appearance_title">المظهر</string>
@@ -767,7 +776,7 @@
     <string name="settings_default_assistant_title">المساعد الافتراضي</string>
     <string name="settings_default_launcher_desc">تعيين هذا التطبيق كمشغل افتراضي للشاشة الرئيسية.</string>
     <string name="settings_default_launcher_title">المشغل الافتراضي</string>
-    <string name="settings_amoled_theme_desc">استخدم خلفية سوداء حقيقية لسمة Mono</string>
+    <string name="settings_amoled_theme_desc">استخدم خلفية سوداء حقيقية في الوضع الداكن</string>
     <string name="settings_amoled_theme_title">سمة AMOLED</string>
     <string name="settings_device_theme_blocked_toast">معطل عند تفعيل سمة Material You</string>
     <string name="settings_device_theme_desc">استخدام الألوان الديناميكية لجهازك كسمة للتطبيق</string>
@@ -962,13 +971,13 @@
     <string name="settings_use_system_font_desc">اتباع خط النظام الافتراضي للجهاز</string>
     <string name="settings_use_system_font_title">استخدام خط النظام</string>
     <string name="settings_accent_color_from_wallpaper">الخلفية</string>
-    <string name="settings_accent_color_none">بدون</string>
     <string name="settings_accent_color_picker_title">لون السمة</string>
     <string name="settings_accent_color_wallpaper_required_toast">أعد خلفية الشاشة أولاً</string>
+    <string name="settings_accent_color_default_theme_required_toast">انتقل إلى السمة الافتراضي أولاً</string>
     <string name="settings_wallpaper_accent_desc">اشتقاق لون السمة من الخلفية أو اختيار لون مخصص</string>
     <string name="settings_wallpaper_accent_title">لون السمة</string>
     <string name="settings_wallpaper_blur_label">تمويه</string>
-    <string name="settings_wallpaper_card_title">خلفية الشاشة</string>
+    <string name="settings_wallpaper_card_title">الخلفية</string>
     <string name="settings_wallpaper_transparency_label">الشفافية</string>
 
     <!-- ============================================================================

@@ -741,8 +741,17 @@
     <string name="customize_search_engines">Προσαρμογή μηχανών αναζήτησης</string>
     <string name="settings_app_theme_aurora">Aurora</string>
     <string name="settings_app_theme_forest">Forest</string>
-    <string name="settings_app_theme_monochrome">Mono</string>
+    <string name="settings_app_theme_monochrome">Προεπιλογή</string>
+    <string name="settings_app_theme_colorful">Πολύχρωμο</string>
     <string name="settings_app_theme_sunset">Sunset</string>
+    <string name="settings_app_theme_custom_dialog_title">Επιλέξτε χρώμα</string>
+    <string name="settings_app_theme_amber">Κεχριμπάρι</string>
+    <string name="settings_app_theme_teal">Πετρόλ</string>
+    <string name="settings_app_theme_lavender">Λεβάντα</string>
+    <string name="settings_app_theme_indigo">Λουλακί</string>
+    <string name="settings_app_theme_slate">Σχιστόλιθος</string>
+    <string name="settings_app_theme_rose">Ροζ</string>
+    <string name="settings_app_theme_mocha">Μόκα</string>
     <string name="settings_app_theme_title">Θέμα</string>
     <string name="settings_appearance_desc">Ταπετσαρία, στυλ μηχανών αναζήτησης, λειτουργία ενός χεριού, κ.λπ.</string>
     <string name="settings_appearance_title">Εμφάνιση</string>
@@ -766,7 +775,7 @@
     <string name="settings_default_assistant_title">Προεπιλεγμένος βοηθός</string>
     <string name="settings_default_launcher_desc">Ορίστε αυτήν την εφαρμογή ως την προεπιλεγμένη αρχική σας εφαρμογή (Launcher).</string>
     <string name="settings_default_launcher_title">Προεπιλεγμένος Launcher</string>
-    <string name="settings_amoled_theme_desc">Χρήση πραγματικού μαύρου φόντου για το θέμα Mono</string>
+    <string name="settings_amoled_theme_desc">Χρήση πραγματικού μαύρου φόντου στη σκοτεινή λειτουργία</string>
     <string name="settings_amoled_theme_title">Θέμα AMOLED</string>
     <string name="settings_device_theme_blocked_toast">Απενεργοποιημένο όσο το θέμα Material You είναι ενεργό</string>
     <string name="settings_device_theme_desc">Χρήση της δυναμικής παλέτας χρωμάτων της συσκευής σας ως θέμα εφαρμογής</string>
@@ -961,13 +970,13 @@
     <string name="settings_use_system_font_desc">Χρήση του στυλ γραμματοσειράς της συσκευής</string>
     <string name="settings_use_system_font_title">Χρήση γραμματοσειράς συστήματος</string>
     <string name="settings_accent_color_from_wallpaper">Ταπετσαρία</string>
-    <string name="settings_accent_color_none">Καμία</string>
     <string name="settings_accent_color_picker_title">Χρώμα έμφασης</string>
     <string name="settings_accent_color_wallpaper_required_toast">Ρυθμίστε πρώτα το φόντο ταπετσαρίας</string>
+    <string name="settings_accent_color_default_theme_required_toast">Μεταβείτε πρώτα στο θέμα Προεπιλογή</string>
     <string name="settings_wallpaper_accent_desc">Προκύπτει το χρώμα έμφασης από την ταπετσαρία ή επιλέξτε προσαρμοσμένο χρώμα</string>
     <string name="settings_wallpaper_accent_title">Χρώμα έμφασης</string>
     <string name="settings_wallpaper_blur_label">Θόλωση</string>
-    <string name="settings_wallpaper_card_title">Φόντο ταπετσαρίας</string>
+    <string name="settings_wallpaper_card_title">Φόντο</string>
     <string name="settings_wallpaper_transparency_label">Διαφάνεια</string>
 
     <!-- ============================================================================

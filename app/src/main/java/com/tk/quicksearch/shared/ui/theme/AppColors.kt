@@ -530,34 +530,6 @@ object AppColors {
             Color.White,
         )
 
-    // ============================================================================
-    // APP THEME GRADIENT PALETTES
-    // ============================================================================
-
-    val ForestDarkPalette
-        get() = ThemeColorRegistry.gradient(AppTheme.FOREST, isDarkMode = true)
-
-    val AuroraDarkPalette
-        get() = ThemeColorRegistry.gradient(AppTheme.AURORA, isDarkMode = true)
-
-    val SunsetDarkPalette
-        get() = ThemeColorRegistry.gradient(AppTheme.SUNSET, isDarkMode = true)
-
-    val MonochromeDarkPalette
-        get() = ThemeColorRegistry.gradient(AppTheme.MONOCHROME, isDarkMode = true)
-
-    val ForestLightPalette
-        get() = ThemeColorRegistry.gradient(AppTheme.FOREST, isDarkMode = false)
-
-    val AuroraLightPalette
-        get() = ThemeColorRegistry.gradient(AppTheme.AURORA, isDarkMode = false)
-
-    val SunsetLightPalette
-        get() = ThemeColorRegistry.gradient(AppTheme.SUNSET, isDarkMode = false)
-
-    val MonochromeLightPalette
-        get() = ThemeColorRegistry.gradient(AppTheme.MONOCHROME, isDarkMode = false)
-
     val ThemeFallbackGradientScrimColors: List<Color>
         @Composable
         get() = if (LocalAppIsDarkTheme.current) ThemeColorRegistry.ThemeFallbackScrimDark else ThemeColorRegistry.ThemeFallbackScrimLight

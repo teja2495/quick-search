@@ -110,9 +110,7 @@ internal fun SearchScreenBackground(
     Box(modifier = modifier.fillMaxSize()) {
         val fallbackModifier =
             if (useGradientFallback) {
-                val useAmoledMonoBackground =
-                    amoledThemeEnabled && isDarkMode && appTheme == AppTheme.MONOCHROME
-                if (useAmoledMonoBackground) {
+                if (amoledThemeEnabled && isDarkMode) {
                     Modifier.fillMaxSize().background(Color.Black)
                 } else {
                     val fallbackGradientBrush =

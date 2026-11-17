@@ -752,8 +752,17 @@
     <string name="customize_search_engines">Customize Search Engines</string>
     <string name="settings_app_theme_aurora">Aurora</string>
     <string name="settings_app_theme_forest">Forest</string>
-    <string name="settings_app_theme_monochrome">Mono</string>
+    <string name="settings_app_theme_monochrome">Default</string>
+    <string name="settings_app_theme_colorful">Colorful</string>
     <string name="settings_app_theme_sunset">Sunset</string>
+    <string name="settings_app_theme_custom_dialog_title">Choose a color</string>
+    <string name="settings_app_theme_amber">Amber</string>
+    <string name="settings_app_theme_teal">Teal</string>
+    <string name="settings_app_theme_lavender">Lavender</string>
+    <string name="settings_app_theme_indigo">Indigo</string>
+    <string name="settings_app_theme_slate">Slate</string>
+    <string name="settings_app_theme_rose">Rose</string>
+    <string name="settings_app_theme_mocha">Mocha</string>
     <string name="settings_app_theme_title">Theme</string>
     <string name="settings_appearance_desc">Wallpaper, search engine styles, one-handed mode, etc.</string>
     <string name="settings_appearance_title">Appearance</string>
@@ -777,7 +786,7 @@
     <string name="settings_default_assistant_title">Default Assistant</string>
     <string name="settings_default_launcher_desc">Set this app as your default home app.</string>
     <string name="settings_default_launcher_title">Default Launcher</string>
-    <string name="settings_amoled_theme_desc">Use True Black background for Mono Theme</string>
+    <string name="settings_amoled_theme_desc">Use a true black background in dark mode</string>
     <string name="settings_amoled_theme_title">AMOLED Theme</string>
     <string name="settings_device_theme_blocked_toast">Disabled while Material You theme is enabled</string>
     <string name="settings_device_theme_desc">Use your device\'s dynamic color palette as the app theme</string>
@@ -972,13 +981,13 @@
     <string name="settings_use_system_font_desc">Follow your device font style</string>
     <string name="settings_use_system_font_title">Use System Font</string>
     <string name="settings_accent_color_from_wallpaper">Wallpaper</string>
-    <string name="settings_accent_color_none">None</string>
     <string name="settings_accent_color_picker_title">Accent color</string>
     <string name="settings_accent_color_wallpaper_required_toast">Setup wallpaper background first</string>
+    <string name="settings_accent_color_default_theme_required_toast">Switch to the Default theme first</string>
     <string name="settings_wallpaper_accent_desc">Derive accent color from wallpaper or pick a custom color</string>
     <string name="settings_wallpaper_accent_title">Accent Color</string>
     <string name="settings_wallpaper_blur_label">Blur</string>
-    <string name="settings_wallpaper_card_title">Wallpaper Background</string>
+    <string name="settings_wallpaper_card_title">Background</string>
     <string name="settings_wallpaper_transparency_label">Transparency</string>
 
     <!-- ============================================================================

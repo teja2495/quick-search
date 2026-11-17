@@ -56,7 +56,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -119,11 +118,9 @@ fun AppThemeCard(
     val isThemeSourceSelected = effectiveBackgroundSource == BackgroundSource.THEME
     val showThemedIconsToggle = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
     val showMaterialYouToggle = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-    val showAmoledThemeToggle =
-            appThemeMode == AppThemeMode.DARK &&
-                    !deviceThemeEnabled &&
-                    isThemeSourceSelected &&
-                    effectiveSelectedTheme == AppTheme.MONOCHROME
+    val showAmoledThemeToggle = isDarkMode && !deviceThemeEnabled
+    val amoledPreviewActive = amoledThemeEnabled && isDarkMode
+    var showCustomPaletteDialog by rememberSaveable { mutableStateOf(false) }
 
     val minIntensity = UiPreferences.MIN_OVERLAY_THEME_INTENSITY
     val maxIntensity = UiPreferences.MAX_OVERLAY_THEME_INTENSITY
@@ -141,23 +138,30 @@ fun AppThemeCard(
             remember {
                 listOf(
                         AppThemeOption(
-                                theme = AppTheme.MONOCHROME,
+                                isCustom = false,
                                 labelRes = R.string.settings_app_theme_monochrome,
                         ),
                         AppThemeOption(
-                                theme = AppTheme.FOREST,
-                                labelRes = R.string.settings_app_theme_forest,
-                        ),
-                        AppThemeOption(
-                                theme = AppTheme.AURORA,
-                                labelRes = R.string.settings_app_theme_aurora,
-                        ),
-                        AppThemeOption(
-                                theme = AppTheme.SUNSET,
-                                labelRes = R.string.settings_app_theme_sunset,
+                                isCustom = true,
+                                labelRes = R.string.settings_app_theme_colorful,
                         ),
                 )
             }
+
+    if (showCustomPaletteDialog) {
+        ThemePaletteDrawer(
+                selectedTheme = if (!deviceThemeEnabled) effectiveSelectedTheme else null,
+                isDarkMode = isDarkMode,
+                intensity = overlayThemeIntensity,
+                onPaletteSelected = { palette ->
+                    hapticToggle(view)()
+                    onThemeSelected(palette)
+                    // A wallpaper or custom image background stays; only the theme changes.
+                    if (useMonoThemeFallback) onSetBackgroundSource(BackgroundSource.THEME)
+                },
+                onDismissRequest = { showCustomPaletteDialog = false },
+        )
+    }
 
     val count = 2 + listOf(showMaterialYouToggle, showAmoledThemeToggle, showThemedIconsToggle).count { it }
     SegmentedGroup(modifier = modifier) {
@@ -191,7 +195,9 @@ fun AppThemeCard(
                         themeOptions.forEach { option ->
                             val selectedThemeForDisplay =
                                     if (deviceThemeEnabled) AppTheme.MONOCHROME else effectiveSelectedTheme
-                            val isSelected = selectedThemeForDisplay == option.theme && isThemeSourceSelected
+                            // The theme stays selected whatever the background; only the background tiles change.
+                            val isSelected =
+                                    (selectedThemeForDisplay == AppTheme.MONOCHROME) != option.isCustom
                             val showSelection = isSelected && !deviceThemeEnabled
                             val interactionSource = remember { MutableInteractionSource() }
                             Column(
@@ -207,45 +213,35 @@ fun AppThemeCard(
                                                                     context.getString(R.string.settings_device_theme_blocked_toast),
                                                                     Toast.LENGTH_SHORT,
                                                             ).show()
+                                                        } else if (option.isCustom) {
+                                                            showCustomPaletteDialog = true
                                                         } else {
                                                             if (!isSelected) {
                                                                 hapticToggle(view)()
                                                             }
-                                                            onThemeSelected(option.theme)
-                                                            onSetBackgroundSource(BackgroundSource.THEME)
+                                                            onThemeSelected(AppTheme.MONOCHROME)
+                                                            if (useMonoThemeFallback) {
+                                                                onSetBackgroundSource(BackgroundSource.THEME)
+                                                            }
                                                         }
                                                     },
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.spacedBy(6.dp),
                             ) {
+                                val previewColors =
+                                        themeOptionPreviewColors(
+                                                isCustom = option.isCustom,
+                                                selectedTheme = selectedThemeForDisplay,
+                                                isDarkMode = isDarkMode,
+                                                intensity = overlayThemeIntensity,
+                                                amoledPreviewActive = amoledPreviewActive,
+                                        )
                                 Box(
                                         modifier =
                                                 Modifier.fillMaxWidth()
                                                         .height(44.dp)
                                                         .clip(AppShapes.medium)
-                                                        .background(
-                                                                Brush.linearGradient(
-                                                                        colors =
-                                                                                if (
-                                                                                        amoledThemeEnabled &&
-                                                                                                option.theme == AppTheme.MONOCHROME &&
-                                                                                                isDarkMode
-                                                                                ) {
-                                                                                    listOf(
-                                                                                            Color.Black,
-                                                                                            Color.Black,
-                                                                                            Color.Black,
-                                                                                            Color.Black,
-                                                                                    )
-                                                                                } else {
-                                                                                    AppThemeColors(
-                                                                                            theme = option.theme,
-                                                                                            isDarkMode = isDarkMode,
-                                                                                            intensity = overlayThemeIntensity,
-                                                                                    )
-                                                                                },
-                                                                ),
-                                                        )
+                                                        .background(Brush.linearGradient(previewColors))
                                                         .border(
                                                                 width = DesignTokens.BorderWidth,
                                                                 color = AppColors.SettingsDivider,
@@ -253,7 +249,15 @@ fun AppThemeCard(
                                                         ),
                                         contentAlignment = Alignment.Center,
                                 ) {
-                                    if (showSelection) {
+                                    if (option.isCustom && selectedThemeForDisplay == AppTheme.MONOCHROME) {
+                                        // No palette picked yet: the Default look with a palette icon.
+                                        Icon(
+                                                imageVector = MaterialSymbols.Palette,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.onSurface,
+                                                modifier = Modifier.size(22.dp),
+                                        )
+                                    } else if (showSelection) {
                                         Box(
                                                 modifier =
                                                         Modifier.size(22.dp)
@@ -377,6 +381,7 @@ internal fun OverlaySourceBox(
         label: String,
         enabled: Boolean = true,
         hasImage: Boolean = false,
+        selectedIndicatorInCorner: Boolean = false,
         onClick: () -> Unit,
         content: @Composable BoxScope.() -> Unit,
 ) {
@@ -416,9 +421,16 @@ internal fun OverlaySourceBox(
         ) {
             content()
             if (selected) {
+                // In the corner it mirrors the 20 dp edit/remove buttons in the top-end corner.
                 Box(
                         modifier =
-                                Modifier.size(22.dp)
+                                (
+                                    if (selectedIndicatorInCorner) {
+                                        Modifier.align(Alignment.TopStart).padding(6.dp).size(20.dp)
+                                    } else {
+                                        Modifier.size(22.dp)
+                                    }
+                                )
                                         .clip(CircleShape)
                                         .background(MaterialTheme.colorScheme.primary),
                         contentAlignment = Alignment.Center,
@@ -427,7 +439,7 @@ internal fun OverlaySourceBox(
                             imageVector = MaterialSymbols.Check,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(14.dp),
+                            modifier = Modifier.size(if (selectedIndicatorInCorner) 12.dp else 14.dp),
                     )
                 }
             }
@@ -448,6 +460,6 @@ internal fun OverlaySourceBox(
 }
 
 private data class AppThemeOption(
-        val theme: AppTheme,
+        val isCustom: Boolean,
         val labelRes: Int,
 )

@@ -740,8 +740,17 @@
 <string name="customize_search_engines">Arama motorlarını özelleştir</string>
 <string name="settings_app_theme_aurora">Aurora</string>
 <string name="settings_app_theme_forest">Orman</string>
-<string name="settings_app_theme_monochrome">Mono</string>
+<string name="settings_app_theme_monochrome">Varsayılan</string>
+<string name="settings_app_theme_colorful">Renkli</string>
 <string name="settings_app_theme_sunset">Gün batımı</string>
+<string name="settings_app_theme_custom_dialog_title">Bir renk seçin</string>
+<string name="settings_app_theme_amber">Kehribar</string>
+<string name="settings_app_theme_teal">Camgöbeği</string>
+<string name="settings_app_theme_lavender">Lavanta</string>
+<string name="settings_app_theme_indigo">Çivit</string>
+<string name="settings_app_theme_slate">Arduvaz</string>
+<string name="settings_app_theme_rose">Gül</string>
+<string name="settings_app_theme_mocha">Moka</string>
 <string name="settings_app_theme_title">Tema</string>
 <string name="settings_appearance_desc">Duvar kağıdı, arama motoru stilleri, tek el modu vb.</string>
 <string name="settings_appearance_title">Görünüm</string>
@@ -765,7 +774,7 @@
 <string name="settings_default_assistant_title">Varsayılan asistan</string>
 <string name="settings_default_launcher_desc">Bu uygulamayı varsayılan ana ekran uygulaman olarak ayarla.</string>
 <string name="settings_default_launcher_title">Varsayılan başlatıcı</string>
-<string name="settings_amoled_theme_desc">Mono teması için gerçek siyah arka plan kullan</string>
+<string name="settings_amoled_theme_desc">Koyu modda gerçek siyah arka plan kullan</string>
 <string name="settings_amoled_theme_title">AMOLED Teması</string>
 <string name="settings_device_theme_blocked_toast">Material You teması etkinken devre dışı</string>
 <string name="settings_device_theme_desc">Cihazının dinamik renk paletini uygulama teması olarak kullan</string>
@@ -960,13 +969,13 @@
 <string name="settings_use_system_font_desc">Cihazının yazı tipi stilini takip et</string>
 <string name="settings_use_system_font_title">Sistem yazı tipini kullan</string>
 <string name="settings_accent_color_from_wallpaper">Duvar kağıdı</string>
-<string name="settings_accent_color_none">Yok</string>
 <string name="settings_accent_color_picker_title">Vurgu rengi</string>
 <string name="settings_accent_color_wallpaper_required_toast">Önce duvar kağıdı arka planını ayarlayın</string>
+<string name="settings_accent_color_default_theme_required_toast">Önce Varsayılan temaya geçin</string>
 <string name="settings_wallpaper_accent_desc">Vurgu rengini duvar kağıdından türetin veya özel bir renk seçin</string>
 <string name="settings_wallpaper_accent_title">Vurgu rengi</string>
 <string name="settings_wallpaper_blur_label">Bulanıklık</string>
-<string name="settings_wallpaper_card_title">Duvar kağıdı arka planı</string>
+<string name="settings_wallpaper_card_title">Arka plan</string>
 <string name="settings_wallpaper_transparency_label">Şeffaflık</string>
 
 <!-- ============================================================================

@@ -775,8 +775,17 @@
     <string name="customize_search_engines">Zoekmachines aanpassen</string>
     <string name="settings_app_theme_aurora">Aurora</string>
     <string name="settings_app_theme_forest">Bos</string>
-    <string name="settings_app_theme_monochrome">Mono</string>
+    <string name="settings_app_theme_monochrome">Standaard</string>
+    <string name="settings_app_theme_colorful">Kleurrijk</string>
     <string name="settings_app_theme_sunset">Zonsondergang</string>
+    <string name="settings_app_theme_custom_dialog_title">Kies een kleur</string>
+    <string name="settings_app_theme_amber">Amber</string>
+    <string name="settings_app_theme_teal">Blauwgroen</string>
+    <string name="settings_app_theme_lavender">Lavendel</string>
+    <string name="settings_app_theme_indigo">Indigo</string>
+    <string name="settings_app_theme_slate">Leisteen</string>
+    <string name="settings_app_theme_rose">Roze</string>
+    <string name="settings_app_theme_mocha">Mokka</string>
     <string name="settings_app_theme_title">Thema</string>
     <string name="settings_appearance_desc">Achtergrond, zoekmachinestijlen, eenhandige modus enz.</string>
     <string name="settings_appearance_title">Weergave</string>
@@ -800,7 +809,7 @@
     <string name="settings_default_assistant_title">Standaardassistent</string>
     <string name="settings_default_launcher_desc">Stel deze app in als je standaard start-app.</string>
     <string name="settings_default_launcher_title">Standaard launcher</string>
-    <string name="settings_amoled_theme_desc">Gebruik een echt zwarte achtergrond voor het Mono-thema</string>
+    <string name="settings_amoled_theme_desc">Gebruik een echt zwarte achtergrond in donkere modus</string>
     <string name="settings_amoled_theme_title">AMOLED-thema</string>
     <string name="settings_device_theme_blocked_toast">Uitgeschakeld zolang het Material You-thema is ingeschakeld</string>
     <string name="settings_device_theme_desc">Gebruik het dynamische kleurenpalet van je apparaat als app-thema</string>
@@ -995,13 +1004,13 @@
     <string name="settings_use_system_font_desc">Het lettertype van je apparaat volgen</string>
     <string name="settings_use_system_font_title">Systeemlettertype gebruiken</string>
     <string name="settings_accent_color_from_wallpaper">Achtergrond</string>
-    <string name="settings_accent_color_none">Geen</string>
     <string name="settings_accent_color_picker_title">Accentkleur</string>
     <string name="settings_accent_color_wallpaper_required_toast">Stel eerst een achtergrond in</string>
+    <string name="settings_accent_color_default_theme_required_toast">Schakel eerst over naar het thema Standaard</string>
     <string name="settings_wallpaper_accent_desc">Leid accentkleur af van de achtergrond of kies een aangepaste kleur</string>
     <string name="settings_wallpaper_accent_title">Accentkleur</string>
     <string name="settings_wallpaper_blur_label">Vervaging</string>
-    <string name="settings_wallpaper_card_title">Achtergrondafbeelding</string>
+    <string name="settings_wallpaper_card_title">Achtergrond</string>
     <string name="settings_wallpaper_transparency_label">Transparantie</string>
 
     

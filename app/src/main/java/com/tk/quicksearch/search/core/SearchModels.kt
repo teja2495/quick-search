@@ -131,12 +131,41 @@ enum class CallingApp {
         SIGNAL,
 }
 
+/**
+ * Persisted app theme. [MONOCHROME] is the "Default" theme; every other value is a palette
+ * offered under "Custom" (see [CUSTOM_APP_THEME_PALETTES]).
+ */
 enum class AppTheme {
         FOREST,
         AURORA,
         SUNSET,
         MONOCHROME,
+        LAVENDER,
+        TEAL,
+        AMBER,
+        INDIGO,
+        SLATE,
+        ROSE,
+        MOCHA,
 }
+
+/**
+ * Preset palettes shown in the Colorful theme picker, in display order: one or two per popular
+ * color family (roughly by hue, then brown and grey).
+ */
+val CUSTOM_APP_THEME_PALETTES: List<AppTheme> =
+        listOf(
+                AppTheme.ROSE,
+                AppTheme.SUNSET,
+                AppTheme.AMBER,
+                AppTheme.FOREST,
+                AppTheme.TEAL,
+                AppTheme.AURORA,
+                AppTheme.INDIGO,
+                AppTheme.LAVENDER,
+                AppTheme.MOCHA,
+                AppTheme.SLATE,
+        )
 
 enum class BackgroundSource {
         THEME,

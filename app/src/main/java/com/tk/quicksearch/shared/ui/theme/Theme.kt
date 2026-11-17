@@ -314,7 +314,13 @@ fun QuickSearchTheme(
     // the app, which lands on the first frame of the keyboard animation when the app opens.
     val configuration = LocalConfiguration.current
     val colorScheme =
-        remember(useDeviceDynamicColors, useDarkTheme, imageAccentSlots, appTheme, configuration) {
+        remember(
+            useDeviceDynamicColors,
+            useDarkTheme,
+            imageAccentSlots,
+            appTheme,
+            configuration,
+        ) {
             if (useDeviceDynamicColors) {
                 val dynamicScheme =
                     if (useDarkTheme) {

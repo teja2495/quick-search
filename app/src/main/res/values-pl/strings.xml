@@ -772,8 +772,17 @@
     <string name="customize_search_engines">Dostosuj wyszukiwarki</string>
     <string name="settings_app_theme_aurora">Zorza</string>
     <string name="settings_app_theme_forest">Las</string>
-    <string name="settings_app_theme_monochrome">Mono</string>
+    <string name="settings_app_theme_monochrome">Domyślny</string>
+    <string name="settings_app_theme_colorful">Kolorowy</string>
     <string name="settings_app_theme_sunset">Zachód słońca</string>
+    <string name="settings_app_theme_custom_dialog_title">Wybierz kolor</string>
+    <string name="settings_app_theme_amber">Bursztyn</string>
+    <string name="settings_app_theme_teal">Morski</string>
+    <string name="settings_app_theme_lavender">Lawenda</string>
+    <string name="settings_app_theme_indigo">Indygo</string>
+    <string name="settings_app_theme_slate">Łupek</string>
+    <string name="settings_app_theme_rose">Róż</string>
+    <string name="settings_app_theme_mocha">Mokka</string>
     <string name="settings_app_theme_title">Motyw</string>
     <string name="settings_appearance_desc">Tapeta, style wyszukiwarek, tryb obsługi jedną ręką itp.</string>
     <string name="settings_appearance_title">Wygląd</string>
@@ -797,7 +806,7 @@
     <string name="settings_default_assistant_title">Domyślny asystent</string>
     <string name="settings_default_launcher_desc">Ustaw tę aplikację jako domyślną aplikację ekranu głównego.</string>
     <string name="settings_default_launcher_title">Domyślny program uruchamiający</string>
-    <string name="settings_amoled_theme_desc">Używaj prawdziwej czerni dla motywu Mono</string>
+    <string name="settings_amoled_theme_desc">Używaj prawdziwej czerni w trybie ciemnym</string>
     <string name="settings_amoled_theme_title">Motyw AMOLED</string>
     <string name="settings_device_theme_blocked_toast">Wyłączone, gdy włączony jest motyw Material You</string>
     <string name="settings_device_theme_desc">Użyj dynamicznej palety kolorów urządzenia jako motywu aplikacji</string>
@@ -996,13 +1005,13 @@
     <string name="settings_use_system_font_desc">Używaj czcionki systemowej urządzenia</string>
     <string name="settings_use_system_font_title">Użyj czcionki systemowej</string>
     <string name="settings_accent_color_from_wallpaper">Tapeta</string>
-    <string name="settings_accent_color_none">Brak</string>
     <string name="settings_accent_color_picker_title">Kolor akcentu</string>
     <string name="settings_accent_color_wallpaper_required_toast">Najpierw ustaw tło z tapety</string>
+    <string name="settings_accent_color_default_theme_required_toast">Najpierw przełącz na motyw Domyślny</string>
     <string name="settings_wallpaper_accent_desc">Pobierz kolor akcentu z tapety lub wybierz własny kolor</string>
     <string name="settings_wallpaper_accent_title">Kolor akcentu</string>
     <string name="settings_wallpaper_blur_label">Rozmycie</string>
-    <string name="settings_wallpaper_card_title">Tło tapety</string>
+    <string name="settings_wallpaper_card_title">Tło</string>
     <string name="settings_wallpaper_transparency_label">Przezroczystość</string>
 
     <!-- ============================================================================

@@ -27,6 +27,7 @@ import com.tk.quicksearch.search.core.LauncherAppIcon
 import com.tk.quicksearch.search.core.SearchBarStyle
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchTarget
+import com.tk.quicksearch.search.core.AccentColorMode
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.data.preferences.BasePreferences
@@ -182,7 +183,16 @@ fun AppearanceSettingsSection(
         AppThemeCard(
                 selectedTheme = appTheme,
                 overlayThemeIntensity = overlayThemeIntensity,
-                onThemeSelected = onSetAppTheme,
+                onThemeSelected = { theme ->
+                    // Over a wallpaper or custom image, a new theme takes over the accent color.
+                    val switchAccentToTheme =
+                            theme != appTheme &&
+                                    (accentColorMode == AccentColorMode.FROM_WALLPAPER ||
+                                            (backgroundSource != BackgroundSource.THEME &&
+                                                    accentColorMode != AccentColorMode.NONE))
+                    onSetAppTheme(theme)
+                    if (switchAccentToTheme) onAccentColorModeChange(AccentColorMode.NONE)
+                },
                 onOverlayThemeIntensityChange = onOverlayThemeIntensityChange,
                 backgroundSource = backgroundSource,
                 onSetBackgroundSource = onSetBackgroundSource,
@@ -216,6 +226,9 @@ fun AppearanceSettingsSection(
                 customAccentColorArgb = customAccentColorArgb,
                 onAccentColorModeChange = onAccentColorModeChange,
                 onCustomAccentColorChange = onCustomAccentColorChange,
+                appTheme = appTheme,
+                overlayThemeIntensity = overlayThemeIntensity,
+                amoledThemeEnabled = amoledThemeEnabled,
                 deviceThemeEnabled = deviceThemeEnabled,
         )
 

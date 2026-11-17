@@ -741,8 +741,17 @@
     <string name="customize_search_engines">सर्च इंजन कस्टमाइज़ करें</string>
     <string name="settings_app_theme_aurora">ऑरोरा</string>
     <string name="settings_app_theme_forest">फॉरेस्ट</string>
-    <string name="settings_app_theme_monochrome">मोनो</string>
+    <string name="settings_app_theme_monochrome">डिफ़ॉल्ट</string>
+    <string name="settings_app_theme_colorful">रंगीन</string>
     <string name="settings_app_theme_sunset">सनसेट</string>
+    <string name="settings_app_theme_custom_dialog_title">रंग चुनें</string>
+    <string name="settings_app_theme_amber">एम्बर</string>
+    <string name="settings_app_theme_teal">टील</string>
+    <string name="settings_app_theme_lavender">लैवेंडर</string>
+    <string name="settings_app_theme_indigo">नील</string>
+    <string name="settings_app_theme_slate">स्लेटी</string>
+    <string name="settings_app_theme_rose">गुलाबी</string>
+    <string name="settings_app_theme_mocha">मोचा</string>
     <string name="settings_app_theme_title">थीम</string>
     <string name="settings_appearance_desc">वॉलपेपर, सर्च इंजन स्टाइल, एक-हाथ मोड, आदि।</string>
     <string name="settings_appearance_title">दिखावट</string>
@@ -766,7 +775,7 @@
     <string name="settings_default_assistant_title">डिफ़ॉल्ट असिस्टेंट</string>
     <string name="settings_default_launcher_desc">इस ऐप को अपना डिफ़ॉल्ट होम ऐप बनाएं।</string>
     <string name="settings_default_launcher_title">डिफ़ॉल्ट लॉन्चर</string>
-    <string name="settings_amoled_theme_desc">Mono थीम के लिए ट्रू ब्लैक बैकग्राउंड इस्तेमाल करें</string>
+    <string name="settings_amoled_theme_desc">डार्क मोड में ट्रू ब्लैक बैकग्राउंड इस्तेमाल करें</string>
     <string name="settings_amoled_theme_title">AMOLED थीम</string>
     <string name="settings_device_theme_blocked_toast">Material You थीम चालू होने पर बंद</string>
     <string name="settings_device_theme_desc">ऐप थीम के रूप में अपने डिवाइस का डायनैमिक रंग पैलेट इस्तेमाल करें</string>
@@ -961,13 +970,13 @@
     <string name="settings_use_system_font_desc">अपने डिवाइस की फ़ॉन्ट शैली का पालन करें</string>
     <string name="settings_use_system_font_title">सिस्टम फ़ॉन्ट उपयोग करें</string>
     <string name="settings_accent_color_from_wallpaper">वॉलपेपर</string>
-    <string name="settings_accent_color_none">कोई नहीं</string>
     <string name="settings_accent_color_picker_title">एक्सेंट रंग</string>
     <string name="settings_accent_color_wallpaper_required_toast">पहले वॉलपेपर बैकग्राउंड सेट करें</string>
+    <string name="settings_accent_color_default_theme_required_toast">पहले डिफ़ॉल्ट थीम पर स्विच करें</string>
     <string name="settings_wallpaper_accent_desc">वॉलपेपर से एक्सेंट रंग प्राप्त करें या कस्टम रंग चुनें</string>
     <string name="settings_wallpaper_accent_title">एक्सेंट रंग</string>
     <string name="settings_wallpaper_blur_label">ब्लर</string>
-    <string name="settings_wallpaper_card_title">वॉलपेपर पृष्ठभूमि</string>
+    <string name="settings_wallpaper_card_title">पृष्ठभूमि</string>
     <string name="settings_wallpaper_transparency_label">पारदर्शिता</string>
 
     <!-- ============================================================================

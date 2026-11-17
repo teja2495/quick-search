@@ -596,21 +596,33 @@ internal class SearchPreferencesDelegate(
             userPreferences.clearHomeTextColorOverride()
             stateAccess.backgroundSource = source
             stateAccess.homeTextColorOverride = null
-            val autoTheme =
-                if (source != BackgroundSource.THEME && stateAccess.appTheme != AppTheme.MONOCHROME) {
-                    userPreferences.setAppTheme(AppTheme.MONOCHROME)
-                    stateAccess.appTheme = AppTheme.MONOCHROME
-                    AppTheme.MONOCHROME
-                } else {
-                    null
-                }
+            // A Colorful theme stays over a wallpaper or custom image and keeps its own accent; the
+            // wallpaper accent only pairs with the Default theme.
+            val dropWallpaperAccent =
+                source != BackgroundSource.THEME &&
+                    stateAccess.appTheme != AppTheme.MONOCHROME &&
+                    stateAccess.accentColorMode == AccentColorMode.FROM_WALLPAPER
+            if (dropWallpaperAccent) {
+                userPreferences.setAccentColorMode(AccentColorMode.NONE)
+                stateAccess.accentColorMode = AccentColorMode.NONE
+            }
             updateConfigState {
                 it.copy(
                     backgroundSource = source,
                     showWallpaperBackground = source != BackgroundSource.THEME,
-                    appTheme = autoTheme ?: it.appTheme,
+                    accentColorMode = if (dropWallpaperAccent) AccentColorMode.NONE else it.accentColorMode,
                     homeTextColorOverride = null,
                 )
+            }
+            if (dropWallpaperAccent) {
+                withContext(Dispatchers.Main) {
+                    val app = applicationProvider()
+                    android.widget.Toast.makeText(
+                        app,
+                        app.getString(R.string.settings_accent_color_default_theme_required_toast),
+                        android.widget.Toast.LENGTH_SHORT,
+                    ).show()
+                }
             }
             stateAccess.saveStartupSurfaceSnapshotAsync(
                 forcePreviewRefresh = true,

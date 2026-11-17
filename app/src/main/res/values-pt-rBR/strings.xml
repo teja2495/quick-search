@@ -741,8 +741,17 @@
     <string name="customize_search_engines">Personalizar mecanismos de busca</string>
     <string name="settings_app_theme_aurora">Aurora</string>
     <string name="settings_app_theme_forest">Floresta</string>
-    <string name="settings_app_theme_monochrome">Mono</string>
+    <string name="settings_app_theme_monochrome">Padrão</string>
+    <string name="settings_app_theme_colorful">Colorido</string>
     <string name="settings_app_theme_sunset">Pôr do sol</string>
+    <string name="settings_app_theme_custom_dialog_title">Escolha uma cor</string>
+    <string name="settings_app_theme_amber">Âmbar</string>
+    <string name="settings_app_theme_teal">Verde-azulado</string>
+    <string name="settings_app_theme_lavender">Lavanda</string>
+    <string name="settings_app_theme_indigo">Índigo</string>
+    <string name="settings_app_theme_slate">Ardósia</string>
+    <string name="settings_app_theme_rose">Rosa</string>
+    <string name="settings_app_theme_mocha">Mocha</string>
     <string name="settings_app_theme_title">Tema</string>
     <string name="settings_appearance_desc">Papel de parede, estilos dos mecanismos de busca, modo de uma mão, etc.</string>
     <string name="settings_appearance_title">Aparência</string>
@@ -766,7 +775,7 @@
     <string name="settings_default_assistant_title">Assistente padrão</string>
     <string name="settings_default_launcher_desc">Defina este app como seu inicializador (launcher) padrão.</string>
     <string name="settings_default_launcher_title">Launcher padrão</string>
-    <string name="settings_amoled_theme_desc">Usar fundo preto puro no tema Mono</string>
+    <string name="settings_amoled_theme_desc">Usar fundo preto puro no modo escuro</string>
     <string name="settings_amoled_theme_title">Tema AMOLED</string>
     <string name="settings_device_theme_blocked_toast">Desativado enquanto o tema Material You estiver ativo</string>
     <string name="settings_device_theme_desc">Usar a paleta de cores dinâmicas do seu dispositivo como tema do app</string>
@@ -961,13 +970,13 @@
     <string name="settings_use_system_font_desc">Seguir o estilo de fonte do seu dispositivo</string>
     <string name="settings_use_system_font_title">Usar fonte do sistema</string>
     <string name="settings_accent_color_from_wallpaper">Papel de parede</string>
-    <string name="settings_accent_color_none">Nenhum</string>
     <string name="settings_accent_color_picker_title">Cor de destaque</string>
     <string name="settings_accent_color_wallpaper_required_toast">Configure primeiro um fundo de papel de parede</string>
+    <string name="settings_accent_color_default_theme_required_toast">Mude primeiro para o tema Padrão</string>
     <string name="settings_wallpaper_accent_desc">Obtenha a cor de destaque do papel de parede ou escolha uma cor personalizada</string>
     <string name="settings_wallpaper_accent_title">Cor de destaque</string>
     <string name="settings_wallpaper_blur_label">Desfoque</string>
-    <string name="settings_wallpaper_card_title">Fundo do papel de parede</string>
+    <string name="settings_wallpaper_card_title">Fundo</string>
     <string name="settings_wallpaper_transparency_label">Transparência</string>
 
     <!-- ============================================================================

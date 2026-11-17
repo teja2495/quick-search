@@ -104,7 +104,14 @@ fun ProvideSettingsColors(
             backgroundSource = backgroundSource,
         )
     val searchColorTheme =
-        remember(appTheme, overlayThemeIntensity, isDarkMode, deviceThemeEnabled, amoledThemeEnabled, backgroundSource) {
+        remember(
+            appTheme,
+            overlayThemeIntensity,
+            isDarkMode,
+            deviceThemeEnabled,
+            amoledThemeEnabled,
+            backgroundSource,
+        ) {
             if (deviceThemeEnabled) {
                 null
             } else {

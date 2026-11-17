@@ -741,8 +741,17 @@
 <string name="customize_search_engines">Personnaliser les moteurs de recherche</string>
 <string name="settings_app_theme_aurora">Aurore</string>
 <string name="settings_app_theme_forest">Forêt</string>
-<string name="settings_app_theme_monochrome">Mono</string>
+<string name="settings_app_theme_monochrome">Par défaut</string>
+<string name="settings_app_theme_colorful">Coloré</string>
 <string name="settings_app_theme_sunset">Crépuscule</string>
+<string name="settings_app_theme_custom_dialog_title">Choisir une couleur</string>
+<string name="settings_app_theme_amber">Ambre</string>
+<string name="settings_app_theme_teal">Sarcelle</string>
+<string name="settings_app_theme_lavender">Lavande</string>
+<string name="settings_app_theme_indigo">Indigo</string>
+<string name="settings_app_theme_slate">Ardoise</string>
+<string name="settings_app_theme_rose">Rose</string>
+<string name="settings_app_theme_mocha">Moka</string>
 <string name="settings_app_theme_title">Thème</string>
 <string name="settings_appearance_desc">Fond d\'écran, styles de moteurs de recherche, mode à une main, etc.</string>
 <string name="settings_appearance_title">Apparence</string>
@@ -766,7 +775,7 @@
 <string name="settings_default_assistant_title">Assistant par défaut</string>
 <string name="settings_default_launcher_desc">Définir cette application comme écran d\'accueil par défaut.</string>
 <string name="settings_default_launcher_title">Lanceur par défaut</string>
-<string name="settings_amoled_theme_desc">Utiliser un fond noir pur pour le thème Mono</string>
+<string name="settings_amoled_theme_desc">Utiliser un fond noir pur en mode sombre</string>
 <string name="settings_amoled_theme_title">Thème AMOLED</string>
 <string name="settings_device_theme_blocked_toast">Désactivé lorsque le thème Material You est activé</string>
 <string name="settings_device_theme_desc">Utiliser la palette de couleurs dynamiques de votre appareil comme thème de l\'application</string>
@@ -961,13 +970,13 @@
 <string name="settings_use_system_font_desc">Suivre le style de police de votre appareil</string>
 <string name="settings_use_system_font_title">Utiliser la police système</string>
 <string name="settings_accent_color_from_wallpaper">Fond d\'écran</string>
-<string name="settings_accent_color_none">Aucune</string>
 <string name="settings_accent_color_picker_title">Couleur d\'accentuation</string>
 <string name="settings_accent_color_wallpaper_required_toast">Configurez d\'abord un fond d\'écran</string>
+<string name="settings_accent_color_default_theme_required_toast">Passez d\'abord au thème Par défaut</string>
 <string name="settings_wallpaper_accent_desc">Dériver la couleur d\'accentuation du fond d\'écran ou choisir une couleur personnalisée</string>
 <string name="settings_wallpaper_accent_title">Couleur d\'accentuation</string>
 <string name="settings_wallpaper_blur_label">Flou</string>
-<string name="settings_wallpaper_card_title">Arrière-plan du fond d\'écran</string>
+<string name="settings_wallpaper_card_title">Arrière-plan</string>
 <string name="settings_wallpaper_transparency_label">Transparence</string>
 
 <!-- ============================================================================

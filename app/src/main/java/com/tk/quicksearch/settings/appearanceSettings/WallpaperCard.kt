@@ -56,7 +56,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -103,6 +102,9 @@ fun WallpaperCard(
         customAccentColorArgb: Int,
         onAccentColorModeChange: (AccentColorMode) -> Unit,
         onCustomAccentColorChange: (Int) -> Unit,
+        appTheme: AppTheme,
+        overlayThemeIntensity: Float,
+        amoledThemeEnabled: Boolean,
         deviceThemeEnabled: Boolean = false,
         modifier: Modifier = Modifier,
 ) {
@@ -149,6 +151,8 @@ fun WallpaperCard(
                     canDisplaySystemWallpaper &&
                     !isLiveWallpaperUnsupported
     val isCustomSourceSelected = backgroundSource == BackgroundSource.CUSTOM_IMAGE
+    // A wallpaper source that can't be shown falls back to the theme gradient.
+    val isThemeSourceSelected = !isWallpaperSourceSelected && !isCustomSourceSelected
     val wallpaperPixelEffectsAvailable =
             isCustomSourceSelected ||
                     (backgroundSource == BackgroundSource.SYSTEM_WALLPAPER &&
@@ -186,6 +190,14 @@ fun WallpaperCard(
                             Toast.LENGTH_SHORT,
                     )
                     .show()
+        } else if (mode == AccentColorMode.FROM_WALLPAPER && appTheme != AppTheme.MONOCHROME) {
+            // A Colorful theme supplies its own accent; the wallpaper accent pairs with Default.
+            Toast.makeText(
+                            context,
+                            context.getString(R.string.settings_accent_color_default_theme_required_toast),
+                            Toast.LENGTH_SHORT,
+                    )
+                    .show()
         } else if (requiresOverride && deviceThemeEnabled) {
             Toast.makeText(
                             context,
@@ -217,6 +229,36 @@ fun WallpaperCard(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
             ) {
+                // The gradient of whichever theme is selected (Default or a Colorful palette).
+                val themePreviewColors =
+                        if (deviceThemeEnabled) {
+                            listOf(
+                                    MaterialTheme.colorScheme.primaryContainer,
+                                    MaterialTheme.colorScheme.secondaryContainer,
+                            )
+                        } else {
+                            themeOptionPreviewColors(
+                                    isCustom = appTheme != AppTheme.MONOCHROME,
+                                    selectedTheme = appTheme,
+                                    isDarkMode = isDarkMode,
+                                    intensity = overlayThemeIntensity,
+                                    amoledPreviewActive = amoledThemeEnabled && isDarkMode,
+                            )
+                        }
+                OverlaySourceBox(
+                        modifier = Modifier.weight(THEME_SOURCE_TILE_WEIGHT),
+                        selected = isThemeSourceSelected,
+                        onClick = {
+                            if (!isThemeSourceSelected) {
+                                hapticToggle(view)()
+                                onSetBackgroundSource(BackgroundSource.THEME)
+                            }
+                        },
+                        label = stringResource(R.string.settings_app_theme_title),
+                ) {
+                    Box(modifier = Modifier.fillMaxSize().background(Brush.linearGradient(themePreviewColors)))
+                }
+
                 if (!shouldHideSystemWallpaperSource) {
                     OverlaySourceBox(
                             modifier = Modifier.weight(1f),
@@ -224,10 +266,9 @@ fun WallpaperCard(
                             enabled = true,
                             hasImage = wallpaperPreviewBitmap != null,
                             onClick = {
+                                if (isWallpaperSourceSelected) return@OverlaySourceBox
                                 hapticToggle(view)()
-                                if (isWallpaperSourceSelected) {
-                                    onSetBackgroundSource(BackgroundSource.THEME)
-                                } else if (isLiveWallpaperUnsupported) {
+                                if (isLiveWallpaperUnsupported) {
                                     Toast.makeText(
                                                     context,
                                                     context.getString(
@@ -350,6 +391,8 @@ fun WallpaperCard(
                         selected = isCustomSourceSelected,
                         enabled = true,
                         hasImage = customPreviewBitmap != null,
+                        // Top-start, opposite the edit and remove buttons in the top-end corner.
+                        selectedIndicatorInCorner = customPreviewBitmap != null,
                         onClick = {
                             hapticToggle(view)()
                             if (customPreviewBitmap != null) {
@@ -557,7 +600,7 @@ fun WallpaperCard(
                                 listOfNotNull(
                                         ChoiceOption(
                                                 AccentColorMode.NONE,
-                                                stringResource(R.string.settings_accent_color_none),
+                                                stringResource(R.string.settings_app_theme_title),
                                         ),
                                         if (wallpaperPixelEffectsAvailable) {
                                             ChoiceOption(
@@ -643,3 +686,6 @@ private fun clearWallpaperPreviewSurface(holder: SurfaceHolder) {
         holder.unlockCanvasAndPost(canvas)
     }
 }
+
+/** The Theme tile is narrower than the Wallpaper and Custom tiles beside it. */
+private const val THEME_SOURCE_TILE_WEIGHT = 0.7f

@@ -40,6 +40,8 @@ import kotlinx.coroutines.launch
  * @param onFullyExpanded Called once the open animation has settled.
  * @param onDismissStarted Called as soon as the sheet starts closing (back gesture, `dismiss`,
  *   scrim tap or swipe), before the close animation finishes and [onDismissRequest] is called.
+ * @param scrimColor Dims the screen behind the sheet; pass [Color.Transparent] to keep the screen
+ *   behind fully visible (as when previewing a change live).
  * @param background Drawn behind the whole sheet, drag handle included, in place of the dialog
  *   color.
  * @param content Receives `dismiss`, which animates the sheet closed and then calls
@@ -53,6 +55,7 @@ fun AppBottomSheet(
     dismissOnClickOutside: Boolean = true,
     onFullyExpanded: (() -> Unit)? = null,
     onDismissStarted: (() -> Unit)? = null,
+    scrimColor: Color = BottomSheetDefaults.ScrimColor,
     background: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.(dismiss: () -> Unit) -> Unit,
 ) {
@@ -82,6 +85,7 @@ fun AppBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
         sheetGesturesEnabled = swipeToDismissEnabled,
+        scrimColor = scrimColor,
         properties =
             ModalBottomSheetProperties(
                 shouldDismissOnBackPress = true,

@@ -741,8 +741,17 @@
     <string name="customize_search_engines">శోధన ఇంజిన్‌లను అనుకూలీకరించండి</string>
     <string name="settings_app_theme_aurora">అరోరా</string>
     <string name="settings_app_theme_forest">ఫారెస్ట్</string>
-    <string name="settings_app_theme_monochrome">మోనో</string>
+    <string name="settings_app_theme_monochrome">డిఫాల్ట్</string>
+    <string name="settings_app_theme_colorful">రంగురంగుల</string>
     <string name="settings_app_theme_sunset">సన్‌సెట్</string>
+    <string name="settings_app_theme_custom_dialog_title">రంగును ఎంచుకోండి</string>
+    <string name="settings_app_theme_amber">కాషాయం</string>
+    <string name="settings_app_theme_teal">నీలి ఆకుపచ్చ</string>
+    <string name="settings_app_theme_lavender">లావెండర్</string>
+    <string name="settings_app_theme_indigo">నీలిమందు</string>
+    <string name="settings_app_theme_slate">స్లేట్</string>
+    <string name="settings_app_theme_rose">గులాబీ</string>
+    <string name="settings_app_theme_mocha">మోకా</string>
     <string name="settings_app_theme_title">థీమ్</string>
     <string name="settings_appearance_desc">వాల్‌పేపర్, శోధన ఇంజిన్ శైలులు, వన్-హ్యాండెడ్ మోడ్ మొదలైనవి.</string>
     <string name="settings_appearance_title">రూపకల్పన</string>
@@ -766,7 +775,7 @@
     <string name="settings_default_assistant_title">డిఫాల్ట్ అసిస్టెంట్</string>
     <string name="settings_default_launcher_desc">ఈ యాప్‌ను మీ డిఫాల్ట్ హోమ్ యాప్‌గా సెట్ చేయండి.</string>
     <string name="settings_default_launcher_title">డిఫాల్ట్ లాంచర్</string>
-    <string name="settings_amoled_theme_desc">Mono థీమ్ కోసం నిజమైన నలుపు నేపథ్యం ఉపయోగించండి</string>
+    <string name="settings_amoled_theme_desc">డార్క్ మోడ్‌లో నిజమైన నలుపు నేపథ్యం ఉపయోగించండి</string>
     <string name="settings_amoled_theme_title">AMOLED థీమ్</string>
     <string name="settings_device_theme_blocked_toast">Material You థీమ్ సక్రియంగా ఉన్నప్పుడు నిలిపివేయబడుతుంది</string>
     <string name="settings_device_theme_desc">మీ పరికరం యొక్క డైనమిక్ రంగుల ప్యాలెట్‌ను యాప్ థీమ్‌గా ఉపయోగించండి</string>
@@ -961,13 +970,13 @@
     <string name="settings_use_system_font_desc">మీ పరికర ఫాంట్ శైలిని అనుసరించండి</string>
     <string name="settings_use_system_font_title">సిస్టమ్ ఫాంట్‌ను ఉపయోగించండి</string>
     <string name="settings_accent_color_from_wallpaper">వాల్‌పేపర్</string>
-    <string name="settings_accent_color_none">ఏదీ కాదు</string>
     <string name="settings_accent_color_picker_title">యాక్సెంట్ రంగు</string>
     <string name="settings_accent_color_wallpaper_required_toast">ముందుగా వాల్‌పేపర్ నేపథ్యాన్ని సెటప్ చేయండి</string>
+    <string name="settings_accent_color_default_theme_required_toast">ముందుగా డిఫాల్ట్ థీమ్‌కు మారండి</string>
     <string name="settings_wallpaper_accent_desc">వాల్‌పేపర్ నుండి యాక్సెంట్ రంగును పొందండి లేదా అనుకూల రంగును ఎంచుకోండి</string>
     <string name="settings_wallpaper_accent_title">యాక్సెంట్ రంగు</string>
     <string name="settings_wallpaper_blur_label">బ్లర్</string>
-    <string name="settings_wallpaper_card_title">వాల్‌పేపర్ బ్యాక్‌గ్రౌండ్</string>
+    <string name="settings_wallpaper_card_title">నేపథ్యం</string>
     <string name="settings_wallpaper_transparency_label">పారదర్శకత</string>
 
     <!-- ============================================================================
