@@ -11,6 +11,7 @@ import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.CalendarRepository
 import com.tk.quicksearch.search.data.preferences.CalendarPreferences
 import com.tk.quicksearch.search.data.ContactRepository
+import com.tk.quicksearch.search.data.ContactSearchSnapshot
 import com.tk.quicksearch.search.data.FileSearchRepository
 import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
@@ -26,7 +27,10 @@ import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.models.ReminderInfo
 import com.tk.quicksearch.search.data.ReminderRepository
+import com.tk.quicksearch.search.utils.CachedSearchMatcher
 import com.tk.quicksearch.search.utils.DefaultSearchMatcher
+import com.tk.quicksearch.search.utils.NicknameUtils
+import com.tk.quicksearch.search.utils.SearchTokenCoveragePolicy
 import com.tk.quicksearch.search.utils.FileClassifier
 import com.tk.quicksearch.search.utils.FuzzyMatcher
 import com.tk.quicksearch.search.utils.FileUtils
@@ -65,6 +69,9 @@ internal class UnifiedResultRanker(private val userPreferences: UserAppPreferenc
                 // Pre-fetch all contact nicknames in a single call to reduce SharedPreferences
                 // reads
                 val distinctContacts = contacts.distinctBy { it.contactId }
+                // Names repeat across keystrokes, so reuse their normalized forms from the snapshot cache.
+                val textCache = ContactSearchSnapshot.textCache
+                val contactMatcher = CachedSearchMatcher(textCache)
                 val contactNicknames =
                         distinctContacts.associate { contact ->
                                 contact.contactId to
@@ -82,8 +89,9 @@ internal class UnifiedResultRanker(private val userPreferences: UserAppPreferenc
                                                 query = queryContext,
                                                 phoneNumbers = contact.phoneNumbers,
                                                 allowNumberSearch = allowNumberSearch,
+                                                matcher = contactMatcher,
                                         )
-                                if (!DefaultSearchMatcher.isMatch(priority)) {
+                                if (!contactMatcher.isMatch(priority)) {
                                         null
                                 } else {
                                         Pair(contact, priority)
@@ -116,14 +124,11 @@ internal class UnifiedResultRanker(private val userPreferences: UserAppPreferenc
                                 .filterNot { exactContactIds.contains(it.contactId) }
                                 .take(fuzzyCandidateBudget)
                                 .mapNotNull { contact ->
-                                        val normalizedName =
-                                                SearchTextNormalizer.normalizeForSearch(
-                                                        contact.displayName
-                                                )
+                                        val preparedName = textCache.prepare(contact.displayName)
+                                        val normalizedName = preparedName.normalized
                                         val nickname = contactNicknames[contact.contactId]
                                         val normalizedNickname =
-                                                nickname
-                                                        ?.let { SearchTextNormalizer.normalizeForSearch(it) }
+                                                nickname?.let { textCache.prepare(it).normalized }
                                         val fuzzyScore =
                                                 FuzzyMatcher.score(
                                                         query = queryContext.normalizedQuery,
@@ -134,10 +139,12 @@ internal class UnifiedResultRanker(private val userPreferences: UserAppPreferenc
                                         if (fuzzyScore < fuzzyMinScore) {
                                                 null
                                         } else if (
-                                                !ContactSearchPolicy.areAllQueryTokensCovered(
+                                                !SearchTokenCoveragePolicy.areAllTokensCovered(
                                                         query = queryContext,
-                                                        displayName = contact.displayName,
-                                                        nickname = nickname,
+                                                        primaryText = preparedName,
+                                                        supportingText =
+                                                                NicknameUtils.searchText(nickname)
+                                                                        ?.let(textCache::prepare),
                                                         fuzzyMinScore = fuzzyMinScore,
                                                         fuzzyMaxEditDistance = fuzzyMaxEditDistance,
                                                 )

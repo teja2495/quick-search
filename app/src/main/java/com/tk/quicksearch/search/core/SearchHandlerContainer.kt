@@ -308,6 +308,15 @@ internal class SearchHandlerContainer(
     lateinit var contactActionHandler: ContactActionHandler
         private set
 
+    /**
+     * Loads the contacts search snapshot ahead of the first contact query. Skipped on low-RAM
+     * devices, where the snapshot is only built once contacts are actually searched. Call on IO.
+     */
+    fun prewarmContactSearch() {
+        if (isLowRamDevice || SearchSection.CONTACTS in sectionManager.disabledSections) return
+        contactRepository.prewarmSearchSnapshot()
+    }
+
     fun initializeServices(
         getPrimaryContactButton: () -> ContactButtonAction,
         getSecondaryContactButton: () -> ContactButtonAction,

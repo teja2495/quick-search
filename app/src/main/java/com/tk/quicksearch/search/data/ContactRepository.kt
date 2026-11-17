@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteException
 import android.net.Uri
+import android.os.CancellationSignal
 import android.provider.ContactsContract
 import android.util.Log
 import com.tk.quicksearch.R
@@ -27,10 +28,13 @@ import java.util.Locale
  * - Managing contact permissions
  */
 class ContactRepository(
-    internal val context: Context,
+    sourceContext: Context,
 ) {
+    // Application context: instances are created from composables and background reloads may
+    // outlive the caller.
+    internal val context: Context = sourceContext.applicationContext
     internal val contentResolver = context.contentResolver
-    internal val otherLabel = context.getString(R.string.contact_method_fallback_label)
+    internal val otherLabel by lazy { context.getString(R.string.contact_method_fallback_label) }
 
     // Cache GoogleMeet availability to avoid repeated PackageManager queries
     internal val isGoogleMeetInstalled: Boolean by lazy {
@@ -43,18 +47,18 @@ class ContactRepository(
     }
 
     // Contact method display labels
-    internal val callLabel = context.getString(R.string.contact_method_call_label)
-    internal val messageLabel = context.getString(R.string.contact_method_message_label)
-    internal val emailLabel = context.getString(R.string.contact_method_email_label)
-    internal val whatsAppVoiceCallLabel = context.getString(R.string.contact_method_whatsapp_voice_call_label)
-    internal val whatsAppMessageLabel = context.getString(R.string.contact_method_whatsapp_message_label)
-    internal val whatsAppVideoCallLabel = context.getString(R.string.contact_method_whatsapp_video_call_label)
-    internal val telegramMessageLabel = context.getString(R.string.contact_method_telegram_message_label)
-    internal val telegramVoiceCallLabel = context.getString(R.string.contact_method_telegram_voice_call_label)
-    internal val telegramVideoCallLabel = context.getString(R.string.contact_method_telegram_video_call_label)
-    internal val signalMessageLabel = context.getString(R.string.contact_method_signal_message_label)
-    internal val signalVoiceCallLabel = context.getString(R.string.contact_method_signal_voice_call_label)
-    internal val signalVideoCallLabel = context.getString(R.string.contact_method_signal_video_call_label)
+    internal val callLabel by lazy { context.getString(R.string.contact_method_call_label) }
+    internal val messageLabel by lazy { context.getString(R.string.contact_method_message_label) }
+    internal val emailLabel by lazy { context.getString(R.string.contact_method_email_label) }
+    internal val whatsAppVoiceCallLabel by lazy { context.getString(R.string.contact_method_whatsapp_voice_call_label) }
+    internal val whatsAppMessageLabel by lazy { context.getString(R.string.contact_method_whatsapp_message_label) }
+    internal val whatsAppVideoCallLabel by lazy { context.getString(R.string.contact_method_whatsapp_video_call_label) }
+    internal val telegramMessageLabel by lazy { context.getString(R.string.contact_method_telegram_message_label) }
+    internal val telegramVoiceCallLabel by lazy { context.getString(R.string.contact_method_telegram_voice_call_label) }
+    internal val telegramVideoCallLabel by lazy { context.getString(R.string.contact_method_telegram_video_call_label) }
+    internal val signalMessageLabel by lazy { context.getString(R.string.contact_method_signal_message_label) }
+    internal val signalVoiceCallLabel by lazy { context.getString(R.string.contact_method_signal_voice_call_label) }
+    internal val signalVideoCallLabel by lazy { context.getString(R.string.contact_method_signal_video_call_label) }
     internal val packageNameByMimeCache = Collections.synchronizedMap(mutableMapOf<String, String?>())
     internal val customAppLabelCache = Collections.synchronizedMap(mutableMapOf<String, String>())
     internal val discoveredMollyPackageName: String? by lazy {
@@ -73,15 +77,23 @@ class ContactRepository(
             label.contains("molly", ignoreCase = true)
         }.getOrDefault(false)
     }
-    private val hydratedContactDetailsCache =
-        Collections.synchronizedMap(
-            object : LinkedHashMap<Long, CachedContactDetails>(MAX_HYDRATED_CONTACT_CACHE_SIZE, 0.75f, true) {
-                override fun removeEldestEntry(eldest: MutableMap.MutableEntry<Long, CachedContactDetails>?): Boolean =
-                    size > MAX_HYDRATED_CONTACT_CACHE_SIZE
-            },
-        )
-
     companion object {
+        // Process-wide so MainActivity, OverlayActivity and composable-owned instances share it.
+        private val hydratedContactDetailsCache =
+            Collections.synchronizedMap(
+                object : LinkedHashMap<Long, CachedContactDetails>(MAX_HYDRATED_CONTACT_CACHE_SIZE, 0.75f, true) {
+                    override fun removeEldestEntry(eldest: MutableMap.MutableEntry<Long, CachedContactDetails>?): Boolean =
+                        size > MAX_HYDRATED_CONTACT_CACHE_SIZE
+                },
+            )
+        @Volatile private var hydratedCacheGeneration = Long.MIN_VALUE
+
+        /** Releases the process-wide contact search caches under memory pressure. */
+        fun releaseMemoryCaches() {
+            hydratedContactDetailsCache.clear()
+            ContactSearchSnapshot.release()
+        }
+
         // Common projection fields for phone number queries
         private val PHONE_PROJECTION =
             arrayOf(
@@ -142,34 +154,25 @@ class ContactRepository(
     fun hasPermission(): Boolean = PermissionUtils.hasContactsPermission(context)
 
     /**
-     * Performs a lightweight provider read to refresh contact data visibility from ContactsProvider.
-     * Returns true when the query succeeds (even if there are no contacts).
+     * Drops every cached contact read (search snapshot, hydrated details, avatars) and rebuilds the
+     * search snapshot from ContactsProvider on the calling (background) thread.
+     * Returns true when the provider read succeeds (even if there are no contacts).
      */
     fun refreshContactsProviderSnapshot(): Boolean {
         if (!hasPermission()) return false
 
-        val projection = arrayOf(ContactsContract.CommonDataKinds.Phone.CONTACT_ID)
-        val refreshed =
-            runCatching {
-                contentResolver.query(
-                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                    projection,
-                    null,
-                    null,
-                    SORT_ORDER,
-                )?.use { cursor ->
-                    if (cursor.moveToFirst()) {
-                        cursor.getLong(0)
-                    }
-                }
-                true
-            }.getOrDefault(false)
+        ContactsChangeTracker.markChanged()
+        ContactSearchSnapshot.release()
+        hydratedContactDetailsCache.clear()
+        return runCatching { contactSearchEntries() }.isSuccess
+    }
 
-        if (refreshed) {
-            hydratedContactDetailsCache.clear()
-        }
-
-        return refreshed
+    /** Loads the search snapshot ahead of the first contact search; call off the main thread. */
+    fun prewarmSearchSnapshot() {
+        if (!hasPermission()) return
+        runCatching {
+            ContactSearchSnapshot.prewarm(contentResolver, ::loadContactSearchEntries)
+        }.onFailure { Log.w(TAG, "Contact search snapshot prewarm failed", it) }
     }
 
     /**
@@ -213,13 +216,14 @@ class ContactRepository(
         query: String,
         limit: Int,
         allowNumberSearch: Boolean = false,
+        cancellationSignal: CancellationSignal? = null,
     ): List<ContactInfo> {
         if (query.isBlank() || limit <= 0 || !hasPermission()) return emptyList()
 
         val normalizedProviderQuery = SearchTextNormalizer.normalizeQueryWhitespace(query)
         val contacts = LinkedHashMap<Long, ContactInfo>()
         if (allowNumberSearch || normalizedProviderQuery.none(Char::isDigit)) {
-            queryContactsBySearch(normalizedProviderQuery, limit).values.forEach { contact ->
+            queryContactsBySearch(normalizedProviderQuery, limit, cancellationSignal).values.forEach { contact ->
                 contacts[contact.contactId] = contact.toMinimalContactInfo()
             }
         }
@@ -247,41 +251,46 @@ class ContactRepository(
     }
 
     private fun contactSearchEntries(): List<ContactSearchEntry> =
-        ContactSearchSnapshot.get(context.applicationContext.contentResolver) {
-            val alternativeNames = HashMap<Long, String>()
-            val cursor =
-                contentResolver.query(
-                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                    PHONE_PROJECTION + ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_ALTERNATIVE,
-                    null,
-                    null,
-                    SORT_ORDER,
-                ) ?: return@get emptyList()
-            val contacts =
-                cursor.use {
-                    val idIndex = it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.CONTACT_ID)
-                    val alternativeIndex =
-                        it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_ALTERNATIVE)
-                    processPhoneCursor(it) { rowCursor ->
-                        rowCursor.getString(alternativeIndex)?.let { name ->
-                            alternativeNames[rowCursor.getLong(idIndex)] = name
-                        }
+        ContactSearchSnapshot.get(contentResolver, ::loadContactSearchEntries)
+
+    private fun loadContactSearchEntries(): List<ContactSearchEntry> {
+        val alternativeNames = HashMap<Long, String>()
+        val cursor =
+            contentResolver.query(
+                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                PHONE_PROJECTION + ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_ALTERNATIVE,
+                null,
+                null,
+                SORT_ORDER,
+            ) ?: return emptyList()
+        val contacts =
+            cursor.use {
+                val idIndex = it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.CONTACT_ID)
+                val alternativeIndex =
+                    it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_ALTERNATIVE)
+                processPhoneCursor(it) { rowCursor ->
+                    rowCursor.getString(alternativeIndex)?.let { name ->
+                        alternativeNames[rowCursor.getLong(idIndex)] = name
                     }
                 }
-            contacts.values.map { contact ->
-                ContactSearchEntry(
-                    contact = contact.toMinimalContactInfo(),
-                    primaryName = contact.displayName,
-                    alternativeName = alternativeNames[contact.contactId],
-                )
             }
+        return contacts.values.map { contact ->
+            ContactSearchEntry(
+                contact = contact.toMinimalContactInfo(),
+                primaryName = contact.displayName,
+                alternativeName = alternativeNames[contact.contactId],
+            )
         }
+    }
 
     /**
      * Hydrates photos + contact methods for already-ranked contacts.
      * Designed for keystroke search path: hydrate only the visible/top items.
      */
-    fun hydrateContactsForDisplay(contacts: List<ContactInfo>): List<ContactInfo> {
+    fun hydrateContactsForDisplay(
+        contacts: List<ContactInfo>,
+        cancellationSignal: CancellationSignal? = null,
+    ): List<ContactInfo> {
         if (contacts.isEmpty() || !hasPermission()) return contacts
 
         val mutableContacts =
@@ -300,7 +309,7 @@ class ContactRepository(
                 }
             }
 
-        hydrateContactDetails(mutableContacts)
+        hydrateContactDetails(mutableContacts, cancellationSignal)
         return contacts.mapNotNull { original ->
             mutableContacts[original.contactId]?.toContactInfo()
         }
@@ -330,6 +339,7 @@ class ContactRepository(
     private fun queryContactsBySearch(
         query: String,
         limit: Int,
+        cancellationSignal: CancellationSignal?,
     ): LinkedHashMap<Long, MutableContact> {
         val filterUri = Uri.withAppendedPath(ContactsContract.CommonDataKinds.Phone.CONTENT_FILTER_URI, Uri.encode(query))
         val cursor =
@@ -340,6 +350,7 @@ class ContactRepository(
                     null,
                     null,
                     SORT_ORDER,
+                    cancellationSignal,
                 )
             } catch (exception: SQLiteException) {
                 // Some OEM Contacts providers fail while resolving CONTENT_FILTER_URI. Returning no
@@ -359,6 +370,8 @@ class ContactRepository(
         val contacts = LinkedHashMap<Long, MutableContact>()
 
         val columnIndices = PhoneColumnIndices.fromCursor(cursor)
+        // Standard type labels repeat on almost every row; resolve each one from resources once.
+        val typeLabels = HashMap<Int, String>()
 
         while (cursor.moveToNext()) {
             val contactId = cursor.getLong(columnIndices.idIndex)
@@ -368,7 +381,7 @@ class ContactRepository(
                 cursor
                     .getString(columnIndices.numberIndex)
                     ?.takeIf { it.isNotBlank() } ?: continue
-            val phoneNumberLabel = cursor.getPhoneNumberLabel(columnIndices)
+            val phoneNumberLabel = cursor.getPhoneNumberLabel(columnIndices, typeLabels)
             onRow?.invoke(cursor)
 
             val existing = contacts[contactId]
@@ -393,7 +406,10 @@ class ContactRepository(
         return contacts
     }
 
-    private fun fetchPhotoUris(contacts: LinkedHashMap<Long, MutableContact>) {
+    private fun fetchPhotoUris(
+        contacts: LinkedHashMap<Long, MutableContact>,
+        cancellationSignal: CancellationSignal?,
+    ) {
         if (contacts.isEmpty()) return
 
         val selection = buildInClause(ContactsContract.Contacts._ID, contacts.keys)
@@ -404,6 +420,7 @@ class ContactRepository(
                 selection,
                 null,
                 null,
+                cancellationSignal,
             ) ?: return
 
         cursor.use { c ->
@@ -428,7 +445,10 @@ class ContactRepository(
      * Fetches all contact methods for the given contacts from the Data table.
      * This includes phone, email, and app-specific methods like WhatsApp, Telegram, etc.
      */
-    private fun fetchContactMethods(contacts: LinkedHashMap<Long, MutableContact>) {
+    private fun fetchContactMethods(
+        contacts: LinkedHashMap<Long, MutableContact>,
+        cancellationSignal: CancellationSignal?,
+    ) {
         if (contacts.isEmpty()) return
 
         val selection = buildInClause(ContactsContract.Data.CONTACT_ID, contacts.keys)
@@ -440,6 +460,7 @@ class ContactRepository(
                 selection,
                 null,
                 "${ContactsContract.Data.IS_SUPER_PRIMARY} DESC, ${ContactsContract.Data.IS_PRIMARY} DESC",
+                cancellationSignal,
             ) ?: return
 
         cursor.use { c ->
@@ -515,8 +536,18 @@ class ContactRepository(
         }
     }
 
-    private fun hydrateContactDetails(contacts: LinkedHashMap<Long, MutableContact>) {
+    private fun hydrateContactDetails(
+        contacts: LinkedHashMap<Long, MutableContact>,
+        cancellationSignal: CancellationSignal? = null,
+    ) {
         if (contacts.isEmpty()) return
+
+        // Photos and contact methods change with the provider; drop cached details when it does.
+        val generation = ContactsChangeTracker.generation(contentResolver)
+        if (generation != hydratedCacheGeneration) {
+            hydratedContactDetailsCache.clear()
+            hydratedCacheGeneration = generation
+        }
 
         val missingContactIds = mutableListOf<Long>()
         contacts.forEach { (contactId, contact) ->
@@ -537,9 +568,11 @@ class ContactRepository(
                     contacts[contactId]?.let { put(contactId, it) }
                 }
             }
-        fetchPhotoUris(missingContacts)
-        fetchContactMethods(missingContacts)
+        fetchPhotoUris(missingContacts, cancellationSignal)
+        fetchContactMethods(missingContacts, cancellationSignal)
 
+        // Results read before a provider change finished must not repopulate the cleared cache.
+        if (ContactsChangeTracker.currentGeneration() != generation) return
         missingContacts.forEach { (contactId, contact) ->
             hydratedContactDetailsCache[contactId] =
                 CachedContactDetails(
@@ -602,12 +635,23 @@ class ContactRepository(
         }
     }
 
-    private fun Cursor.getPhoneNumberLabel(columnIndices: PhoneColumnIndices): String {
+    private fun Cursor.getPhoneNumberLabel(
+        columnIndices: PhoneColumnIndices,
+        typeLabels: MutableMap<Int, String>,
+    ): String {
         val type = getInt(columnIndices.typeIndex)
         val customLabel = getString(columnIndices.labelIndex)
-        return ContactsContract.CommonDataKinds.Phone
-            .getTypeLabel(context.resources, type, customLabel)
-            .toString()
+        if (!customLabel.isNullOrEmpty()) {
+            return ContactsContract.CommonDataKinds.Phone
+                .getTypeLabel(context.resources, type, customLabel)
+                .toString()
+        }
+        // Without a custom label the result depends on the type alone.
+        return typeLabels.getOrPut(type) {
+            ContactsContract.CommonDataKinds.Phone
+                .getTypeLabel(context.resources, type, null)
+                .toString()
+        }
     }
 
     private data class MutableContact(
@@ -626,21 +670,8 @@ class ContactRepository(
                 contactMethods.filter { method ->
                     method !is ContactMethod.Email || seenEmails.add(method.data.trim().lowercase())
                 }
-            // Reorder contact methods so email comes last
-            val reorderedMethods =
-                uniqueMethods.sortedWith(
-                    compareBy<ContactMethod> {
-                        when (it) {
-                            is ContactMethod.Email -> 1
-
-                            // Email comes last
-                            else -> 0 // Everything else comes first
-                        }
-                    }.thenBy {
-                        // Within the same priority group, maintain original order
-                        uniqueMethods.indexOf(it)
-                    },
-                )
+            // Email comes last; sortedBy is stable, so each group keeps its original order.
+            val reorderedMethods = uniqueMethods.sortedBy { if (it is ContactMethod.Email) 1 else 0 }
 
             return ContactInfo(
                 contactId = contactId,
@@ -663,7 +694,7 @@ class ContactRepository(
             )
     }
 
-    private data class CachedContactDetails(
+    private class CachedContactDetails(
         val photoUri: String?,
         val contactMethods: List<ContactMethod>,
     )

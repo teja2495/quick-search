@@ -1,15 +1,13 @@
 package com.tk.quicksearch.search.data
 
 import android.content.ContentResolver
-import android.database.ContentObserver
-import android.os.Handler
-import android.os.Looper
 import android.os.SystemClock
-import android.provider.ContactsContract
+import android.util.Log
 import com.tk.quicksearch.search.models.ContactInfo
+import com.tk.quicksearch.search.utils.SearchTextCache
 import java.util.Locale
+import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicLong
 
 /** A contact with a phone number plus the lowercased names used for in-memory matching. */
 internal class ContactSearchEntry(
@@ -26,10 +24,13 @@ internal class ContactSearchEntry(
 /**
  * Process-wide snapshot of every contact with a phone number, sorted by display name. Typing
  * reuses it for name-token matching and fuzzy candidates instead of re-reading the provider on
- * each keystroke. A ContactsContract observer and a TTL invalidate it.
+ * each keystroke. A provider change ([ContactsChangeTracker]) or the TTL marks it stale; a stale
+ * snapshot keeps serving while one background reload replaces it, so a keystroke never waits on a
+ * full provider scan once a snapshot exists.
  */
 internal object ContactSearchSnapshot {
-    private const val MAX_AGE_MILLIS = 10L * 60L * 1000L
+    // The observer catches real changes; the TTL only bounds staleness if it failed to register.
+    private const val MAX_AGE_MILLIS = 30L * 60L * 1000L
 
     private class Cached(
         val entries: List<ContactSearchEntry>,
@@ -37,34 +38,93 @@ internal object ContactSearchSnapshot {
         val changeGeneration: Long,
     )
 
-    private val changeGeneration = AtomicLong()
-    private val isObserverRegistered = AtomicBoolean(false)
     private val loadLock = Any()
+    private val isBackgroundReloadQueued = AtomicBoolean(false)
+    private val backgroundExecutor by lazy {
+        Executors.newSingleThreadExecutor { runnable ->
+            Thread(runnable, "ContactSearchSnapshot").apply { isDaemon = true }
+        }
+    }
     @Volatile private var cached: Cached? = null
+
+    /** Prepared (normalized) contact names and nicknames for ranking; cleared with the snapshot. */
+    val textCache = SearchTextCache()
 
     fun get(
         contentResolver: ContentResolver,
         load: () -> List<ContactSearchEntry>,
     ): List<ContactSearchEntry> {
-        ensureObserverRegistered(contentResolver)
-        currentOrNull()?.let { return it.entries }
+        val generation = ContactsChangeTracker.generation(contentResolver)
+        cached?.let { snapshot ->
+            if (!snapshot.isFresh(generation)) reloadInBackground(contentResolver, load)
+            return snapshot.entries
+        }
         // One load at a time; concurrent keystrokes reuse it instead of each reading every contact.
         synchronized(loadLock) {
-            currentOrNull()?.let { return it.entries }
-            val generation = changeGeneration.get()
-            val startElapsed = SystemClock.elapsedRealtime()
-            val entries = load()
-            SnapshotLoadLog.loaded("Contact search snapshot", entries.size, startElapsed)
-            cached = Cached(entries, startElapsed, generation)
-            return entries
+            cached?.let { return it.entries }
+            return loadLocked(contentResolver, load)
         }
     }
 
-    private fun currentOrNull(): Cached? {
-        val snapshot = cached ?: return null
-        val age = SystemClock.elapsedRealtime() - snapshot.loadedAtElapsedMillis
-        return snapshot.takeIf {
-            it.changeGeneration == changeGeneration.get() && age in 0 until MAX_AGE_MILLIS
+    /** Builds the snapshot ahead of the first search, or refreshes it when stale. */
+    fun prewarm(
+        contentResolver: ContentResolver,
+        load: () -> List<ContactSearchEntry>,
+    ) {
+        val generation = ContactsChangeTracker.generation(contentResolver)
+        if (cached?.isFresh(generation) == true) return
+        synchronized(loadLock) {
+            if (cached?.isFresh(ContactsChangeTracker.generation(contentResolver)) == true) return
+            loadLocked(contentResolver, load)
+        }
+    }
+
+    /** Drops the snapshot so the next read reloads it (memory pressure or permission loss). */
+    fun release() {
+        cached = null
+        textCache.clear()
+    }
+
+    private fun Cached.isFresh(generation: Long): Boolean {
+        val age = SystemClock.elapsedRealtime() - loadedAtElapsedMillis
+        return changeGeneration == generation && age in 0 until MAX_AGE_MILLIS
+    }
+
+    private fun loadLocked(
+        contentResolver: ContentResolver,
+        load: () -> List<ContactSearchEntry>,
+    ): List<ContactSearchEntry> {
+        val generation = ContactsChangeTracker.generation(contentResolver)
+        val startElapsed = SystemClock.elapsedRealtime()
+        val entries = load()
+        SnapshotLoadLog.loaded("Contact search snapshot", entries.size, startElapsed)
+        cached = Cached(entries, startElapsed, generation)
+        // Names that left the snapshot shouldn't stay prepared forever.
+        textCache.clear()
+        return entries
+    }
+
+    private fun reloadInBackground(
+        contentResolver: ContentResolver,
+        load: () -> List<ContactSearchEntry>,
+    ) {
+        if (!isBackgroundReloadQueued.compareAndSet(false, true)) return
+        backgroundExecutor.execute {
+            try {
+                synchronized(loadLock) {
+                    val current = cached
+                    if (current == null || !current.isFresh(ContactsChangeTracker.generation(contentResolver))) {
+                        loadLocked(contentResolver, load)
+                    }
+                }
+            } catch (_: SecurityException) {
+                // Permission revoked: stop serving contacts that can no longer be read.
+                release()
+            } catch (exception: Exception) {
+                Log.w(TAG, "Contact search snapshot reload failed", exception)
+            } finally {
+                isBackgroundReloadQueued.set(false)
+            }
         }
     }
 
@@ -99,19 +159,5 @@ internal object ContactSearchSnapshot {
         return results
     }
 
-    private fun ensureObserverRegistered(contentResolver: ContentResolver) {
-        if (!isObserverRegistered.compareAndSet(false, true)) return
-        val observer =
-            object : ContentObserver(Handler(Looper.getMainLooper())) {
-                override fun onChange(selfChange: Boolean) {
-                    changeGeneration.incrementAndGet()
-                }
-            }
-        val registered =
-            runCatching {
-                contentResolver.registerContentObserver(ContactsContract.AUTHORITY_URI, true, observer)
-            }.isSuccess
-        // Without an observer the TTL alone bounds staleness; retry registration next search.
-        if (!registered) isObserverRegistered.set(false)
-    }
+    private const val TAG = "ContactSearchSnapshot"
 }

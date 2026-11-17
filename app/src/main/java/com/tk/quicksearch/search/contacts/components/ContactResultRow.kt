@@ -1,7 +1,5 @@
 package com.tk.quicksearch.search.contacts.components
 
-import android.graphics.BitmapFactory
-import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -22,6 +20,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -30,9 +29,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
@@ -40,7 +38,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.R
 import com.tk.quicksearch.pinnedNotifications.PinnedNotifications
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -251,26 +248,27 @@ internal fun ContactAvatar(
         textStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyLarge,
 ) {
         val context = LocalContext.current
+        // Decode at the drawn size; full-resolution display photos would otherwise fill the heap.
+        var photoSizePx by remember { mutableIntStateOf(0) }
         val contactPhoto by
-                produceState<ImageBitmap?>(initialValue = null, key1 = photoUri) {
+                produceState(
+                        initialValue =
+                                photoUri?.takeIf { photoSizePx > 0 }?.let {
+                                        ContactImageCache.cachedPhoto(it, photoSizePx)
+                                },
+                        key1 = photoUri,
+                        key2 = photoSizePx,
+                ) {
+                        val uri = photoUri
+                        if (uri == null || photoSizePx <= 0) {
+                                value = null
+                                return@produceState
+                        }
                         value =
-                                photoUri?.let { uri ->
-                                        withContext(Dispatchers.IO) {
-                                                runCatching {
-                                                                val parsedUri = Uri.parse(uri)
-                                                                context.contentResolver
-                                                                        .openInputStream(parsedUri)
-                                                                        ?.use { stream ->
-                                                                                BitmapFactory
-                                                                                        .decodeStream(
-                                                                                                stream,
-                                                                                        )
-                                                                                        ?.asImageBitmap()
-                                                                        }
-                                                        }
-                                                        .getOrNull()
+                                ContactImageCache.cachedPhoto(uri, photoSizePx)
+                                        ?: withContext(Dispatchers.IO) {
+                                                ContactImageCache.loadPhoto(context, uri, photoSizePx)
                                         }
-                                }
                 }
 
         val placeholderInitials =
@@ -280,14 +278,19 @@ internal fun ContactAvatar(
 
         Surface(
                 modifier =
-                        modifier.then(
-                                if (onClick != null) {
-                                        // Keeps the press ripple inside the circle.
-                                        Modifier.clip(CircleShape).clickable(onClick = onClick)
-                                } else {
-                                        Modifier
-                                },
-                        ),
+                        modifier
+                                .onSizeChanged { size ->
+                                        val sizePx = maxOf(size.width, size.height)
+                                        if (sizePx > 0 && sizePx != photoSizePx) photoSizePx = sizePx
+                                }
+                                .then(
+                                        if (onClick != null) {
+                                                // Keeps the press ripple inside the circle.
+                                                Modifier.clip(CircleShape).clickable(onClick = onClick)
+                                        } else {
+                                                Modifier
+                                        },
+                                ),
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme.primaryContainer,
         ) {
@@ -574,22 +577,24 @@ private fun AppPackageIcon(
         enabled: Boolean,
 ) {
         val context = LocalContext.current
-        val appIcon =
-                remember(packageName) {
-                        packageName?.let { targetPackage ->
-                                runCatching {
-                                                context.packageManager
-                                                        .getApplicationIcon(targetPackage)
-                                                        .toBitmap()
-                                                        .asImageBitmap()
-                                        }
-                                        .getOrNull()
-                        }
+        val appIcon by
+                produceState(
+                        initialValue = packageName?.let(ContactImageCache::cachedAppIcon),
+                        key1 = packageName,
+                ) {
+                        value =
+                                packageName?.let { targetPackage ->
+                                        ContactImageCache.cachedAppIcon(targetPackage)
+                                                ?: withContext(Dispatchers.IO) {
+                                                        ContactImageCache.loadAppIcon(context, targetPackage)
+                                                }
+                                }
                 }
 
-        if (appIcon != null) {
+        val icon = appIcon
+        if (icon != null) {
                         Image(
-                                bitmap = appIcon,
+                                bitmap = icon,
                                 contentDescription = null,
                                 modifier = modifier,
                         )

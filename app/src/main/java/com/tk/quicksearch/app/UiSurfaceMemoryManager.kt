@@ -7,7 +7,9 @@ import com.tk.quicksearch.search.data.appShortcutRepository.clearShortcutIconMem
 import com.tk.quicksearch.search.files.clearFileThumbnailMemoryCache
 import com.tk.quicksearch.settings.appShortcutsSettings.clearShortcutSourceIconMemoryCache
 import com.tk.quicksearch.search.apps.IconPackManager
+import com.tk.quicksearch.search.contacts.components.ContactImageCache
 import com.tk.quicksearch.search.data.CalendarSearchRowsCache
+import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileNameIndex
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import java.util.concurrent.atomic.AtomicInteger
@@ -52,9 +54,11 @@ object UiSurfaceMemoryManager {
         clearFileThumbnailMemoryCache()
         clearShortcutSourceIconMemoryCache()
         IconPackManager.clearAllCaches()
+        ContactImageCache.clear()
         if (releaseSearchIndexes) {
             FileNameIndex.release()
             CalendarSearchRowsCache.release()
+            ContactRepository.releaseMemoryCaches()
         }
     }
 }

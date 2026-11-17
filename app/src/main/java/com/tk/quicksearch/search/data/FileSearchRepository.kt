@@ -604,10 +604,10 @@ class FileSearchRepository(
 }
 
 /**
- * Runs a blocking MediaStore read with a [CancellationSignal] that is cancelled with the calling
- * coroutine, so a superseded keystroke's query stops instead of running to the end.
+ * Runs a blocking content-provider read with a [CancellationSignal] that is cancelled with the
+ * calling coroutine, so a superseded keystroke's query stops instead of running to the end.
  */
-internal suspend fun <T> withQueryCancellation(block: (CancellationSignal) -> T): T =
+internal suspend fun <T> withQueryCancellation(block: suspend (CancellationSignal) -> T): T =
     coroutineScope {
         val signal = CancellationSignal()
         val result =

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.core
 
+import android.os.CancellationSignal
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.utils.SearchQueryContext
@@ -23,6 +24,7 @@ class SearchOperations(
         enableFuzzyMatching: Boolean = false,
         fuzzyCandidateLimit: Int = FUZZY_CONTACT_CANDIDATE_LIMIT,
         allowNumberSearch: Boolean = false,
+        cancellationSignal: CancellationSignal? = null,
     ): List<ContactInfo> {
         val prefetchMultiplier =
             if (queryContext.normalizedQuery.length <= SHORT_QUERY_LENGTH_THRESHOLD) {
@@ -44,6 +46,7 @@ class SearchOperations(
                     query = queryContext.normalizedQuery,
                     limit = prefetchLimit,
                     allowNumberSearch = allowNumberSearch,
+                    cancellationSignal = cancellationSignal,
                 )
                 .filterNot { excludedContactIds.contains(it.contactId) }
 

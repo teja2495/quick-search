@@ -167,7 +167,8 @@ class PinningHandler(
         val excludedIds = userPreferences.getExcludedContactIds()
         if (excludedIds.isEmpty()) return emptyList()
 
-        return contactRepository.getContactsByIds(excludedIds)
+        // The excluded list shows only names, so skip photo and contact-method hydration.
+        return contactRepository.getContactsByIdsMinimal(excludedIds)
     }
 
     private fun loadExcludedFiles(hasPermission: Boolean): List<com.tk.quicksearch.search.models.DeviceFile> {

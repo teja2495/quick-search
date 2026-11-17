@@ -426,6 +426,8 @@ internal class SearchStartupLifecycleDelegate(
                 }
                 StartupTrace.mark("QS.Home.PinnedSettingsAvailable")
                 StartupTrace.mark("QS.Home.EnabledSectionsAvailable")
+                // After Home content is ready, so the first contact query skips the full load.
+                handlersProvider().prewarmContactSearch()
             }
 
             // Pinned shortcuts are part of the empty-query home surface. Restore the bounded

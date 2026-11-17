@@ -14,6 +14,11 @@ internal data class SectionSearchSpec(
         val shouldSearch: Boolean,
         val search: suspend () -> SectionSearchResultPayload,
         val applyResult: suspend (SectionSearchResultPayload) -> UnifiedSectionSearchResult,
+        /**
+         * Optional second pass emitted after [applyResult]'s result is shown, e.g. hydrating rows
+         * that were first displayed with only their provider data. Returns null when nothing changed.
+         */
+        val followUp: (suspend () -> UnifiedSectionSearchResult?)? = null,
 )
 
 internal fun UnifiedSectionSearchResult.resultCount(): Int =

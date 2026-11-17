@@ -77,6 +77,8 @@ class UnifiedSearchHandler(
         private val bookmarkRepository by lazy { BookmarkRepository(context) }
         private val notedRepository by lazy { com.tk.quicksearch.search.noted.NotedRepository(context) }
         private val resultRanker = UnifiedResultRanker(userPreferences)
+        private val contactSectionSearch =
+                ContactSectionSearch(contactRepository, userPreferences, searchOperations, resultRanker)
 
         override suspend fun performSearch(
                 query: String,
@@ -245,59 +247,23 @@ class UnifiedSearchHandler(
                                 val sectionSearchSpecBySection =
                                         mapOf(
                                                 SearchSection.CONTACTS to
-                                                        SectionSearchSpec(
-                                                                section = SearchSection.CONTACTS,
+                                                        contactSectionSearch.sectionSpec(
                                                                 shouldSearch = canSearchContacts,
-                                                                search = {
-                                                                        SectionSearchResultPayload.Contacts(
-                                                                                searchOperations.searchContacts(
-                                                                                        queryContext,
-                                                                                        excludedContactIds,
-                                                                                        limit =
-                                                                                                contactResultLimit,
-                                                                                        enableFuzzyMatching =
-                                                                                                useFuzzyContactSearch,
-                                                                                        fuzzyCandidateLimit =
-                                                                                                contactFuzzyCandidateLimit,
-                                                                                        allowNumberSearch = allowNumberSearch,
-                                                                                )
-                                                                        )
-                                                                },
-                                                                applyResult = { payload ->
-                                                                        if (payload is SectionSearchResultPayload.Contacts) {
-                                                                                val nicknameResults =
-                                                                                        findNicknameOnlyContacts(
-                                                                                                payload.results,
-                                                                                                queryContext,
-                                                                                                canSearchContacts,
-                                                                                                excludedContactIds,
-                                                                                        )
-                                                                                val filteredResults =
-                                                                                        resultRanker.filterAndRankContacts(
-                                                                                                payload.results + nicknameResults,
-                                                                                                queryContext,
-                                                                                                recencyIndex.contactScores,
-                                                                                                recencyIndex.contactOpenCounts,
-                                                                                                secondaryRankingSignal,
-                                                                                                useFuzzyContactSearch,
-                                                                                                contactFuzzyPolicy.minimumScore,
-                                                                                                contactFuzzyPolicy.maximumEditDistance,
-                                                                                                contactResultLimit,
-                                                                                                allowNumberSearch,
-                                                                                        )
-                                                                                contactResults =
-                                                                                        contactRepository.hydrateContactsForDisplay(
-                                                                                                filteredResults
-                                                                                        )
-                                                                                UnifiedSectionSearchResult.Contacts(
-                                                                                        contactResults
-                                                                                )
-                                                                        } else {
-                                                                                UnifiedSectionSearchResult.Skipped(
-                                                                                        SearchSection.CONTACTS
-                                                                                )
-                                                                        }
-                                                                },
+                                                                request =
+                                                                        ContactSectionSearch.Request(
+                                                                                queryContext = queryContext,
+                                                                                excludedContactIds = excludedContactIds,
+                                                                                resultLimit = contactResultLimit,
+                                                                                enableFuzzyMatching = useFuzzyContactSearch,
+                                                                                fuzzyCandidateLimit = contactFuzzyCandidateLimit,
+                                                                                fuzzyMinScore = contactFuzzyPolicy.minimumScore,
+                                                                                fuzzyMaxEditDistance =
+                                                                                        contactFuzzyPolicy.maximumEditDistance,
+                                                                                allowNumberSearch = allowNumberSearch,
+                                                                                recencyIndex = recencyIndex,
+                                                                                secondaryRankingSignal = secondaryRankingSignal,
+                                                                        ),
+                                                                onResults = { contactResults = it },
                                                         ),
                                                 SearchSection.FILES to
                                                         SectionSearchSpec(
@@ -639,7 +605,11 @@ class UnifiedSearchHandler(
                                                                 "section=${spec.section} debounceMs=$delayMillis results=${result.resultCount()}"
                                                         }
                                                         onSectionResult(result, recencyIndex)
-                                                        result
+                                                        // A follow-up refines rows already shown (e.g. contact hydration).
+                                                        spec.followUp
+                                                                ?.invoke()
+                                                                ?.also { onSectionResult(it, recencyIndex) }
+                                                                ?: result
                                                 }
                                         }
                                         .awaitAll()
@@ -669,32 +639,6 @@ class UnifiedSearchHandler(
                 }
 
         private fun shouldSkipSearch(query: String): Boolean = query.isBlank()
-
-        private suspend fun findNicknameOnlyContacts(
-                displayNameContacts: List<ContactInfo>,
-                queryContext: SearchQueryContext,
-                canSearchContacts: Boolean,
-                excludedContactIds: Set<Long>,
-        ): List<ContactInfo> {
-                if (!canSearchContacts) return emptyList()
-
-                val nicknameMatchingIds =
-                        userPreferences.findContactsWithMatchingNickname(queryContext.normalizedQuery).filterNot {
-                                excludedContactIds.contains(it)
-                        }
-
-                if (nicknameMatchingIds.isEmpty()) return emptyList()
-
-                val displayNameMatchedIds = displayNameContacts.map { it.contactId }.toSet()
-                val nicknameOnlyIds =
-                        nicknameMatchingIds.filterNot { displayNameMatchedIds.contains(it) }
-
-                return if (nicknameOnlyIds.isNotEmpty()) {
-                        contactRepository.getContactsByIds(nicknameOnlyIds.toSet())
-                } else {
-                        emptyList()
-                }
-        }
 
         private suspend fun findNicknameOnlyFiles(
                 displayNameFiles: List<DeviceFile>,

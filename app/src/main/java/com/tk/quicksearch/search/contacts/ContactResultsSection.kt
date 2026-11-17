@@ -24,6 +24,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
+import androidx.compose.foundation.ScrollState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -211,6 +220,14 @@ private fun ContactsResultCard(
         hasPredictedContact && (!displayAsExpanded || contacts.size == 1)
 
     val scrollState = androidx.compose.foundation.rememberScrollState()
+    // The expanded card scrolls a plain Column, so alias searches (hundreds of rows) are composed
+    // a page at a time as the user nears the end instead of all at once.
+    val expandedRowCount =
+        rememberProgressiveRowCount(
+            contacts = contacts,
+            scrollState = scrollState,
+            enabled = isExpanded,
+        )
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -231,7 +248,7 @@ private fun ContactsResultCard(
         ) { contentModifier, cardState ->
             val displayContacts =
                 if (cardState.displayAsExpanded) {
-                    contacts
+                    if (isExpanded) contacts.take(expandedRowCount) else contacts
                 } else {
                     contacts.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
                 }
@@ -589,4 +606,36 @@ private fun ContactActionHintBubble(
             }
         }
     }
+}
+
+private const val EXPANDED_ROWS_PAGE_SIZE = 30
+private val EXPANDED_ROWS_PREFETCH_DISTANCE = 600.dp
+
+/** How many expanded rows to compose; grows a page whenever the scroll nears the end. */
+@Composable
+private fun rememberProgressiveRowCount(
+    contacts: List<ContactInfo>,
+    scrollState: ScrollState,
+    enabled: Boolean,
+): Int {
+    // A new result set starts from one page again; a re-emission of the same rows does not.
+    val rowCountState =
+        remember(contacts.size, contacts.firstOrNull()?.contactId) {
+            mutableIntStateOf(EXPANDED_ROWS_PAGE_SIZE)
+        }
+    var rowCount by rowCountState
+    val prefetchDistancePx = with(LocalDensity.current) { EXPANDED_ROWS_PREFETCH_DISTANCE.roundToPx() }
+    val latestContactCount by rememberUpdatedState(contacts.size)
+    LaunchedEffect(rowCountState, scrollState, enabled, prefetchDistancePx) {
+        if (!enabled) return@LaunchedEffect
+        snapshotFlow {
+            // Includes rowCount so a page that still leaves the viewport unfilled loads the next.
+            (scrollState.maxValue - scrollState.value <= prefetchDistancePx) to rowCount
+        }.collect { (isNearEnd, count) ->
+            if (isNearEnd && count < latestContactCount) {
+                rowCount = count + EXPANDED_ROWS_PAGE_SIZE
+            }
+        }
+    }
+    return if (enabled) rowCount.coerceAtMost(contacts.size) else contacts.size
 }
