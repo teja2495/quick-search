@@ -36,9 +36,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.tk.quicksearch.onboarding.FinalSetupScreen
-import com.tk.quicksearch.onboarding.LocalWelcomeBackdropReport
 import com.tk.quicksearch.onboarding.LocalWelcomeMorph
-import com.tk.quicksearch.onboarding.WelcomeMorphBackdrop
+import com.tk.quicksearch.onboarding.welcomeBackdropZoom
 import com.tk.quicksearch.onboarding.WelcomeMorphOverlay
 import com.tk.quicksearch.onboarding.WelcomeMorphState
 import com.tk.quicksearch.onboarding.LocalWelcomeExit
@@ -164,18 +163,7 @@ fun MainContent(
                     ),
                 ),
     ) {
-    // Under every page, so the search wallpaper can fade in behind the setup content.
-    WelcomeMorphBackdrop(
-        state = welcomeMorph,
-        backdrop = {
-            val searchUiState by searchViewModel.uiState.collectAsStateWithLifecycle()
-            SharedPageBackdrop(state = searchUiState)
-        },
-    )
-    CompositionLocalProvider(
-        LocalWelcomeMorph provides welcomeMorph,
-        LocalWelcomeBackdropReport provides welcomeMorph.hostBackdropReport,
-    ) {
+    CompositionLocalProvider(LocalWelcomeMorph provides welcomeMorph) {
     // Built from the import step on, hidden under the setup pages, so finishing setup only reveals it.
     SearchSurfaceLayer(
         composed = currentScreen != AppScreen.Permissions,
@@ -492,9 +480,10 @@ private fun NavigationContent(
         SharedPageBackdrop(
             state = uiState,
             modifier =
-                Modifier.graphicsLayer {
-                    alpha = 1f - pageSwipeController.visibilityOf(RootDestination.Settings)
-                },
+                Modifier
+                    .graphicsLayer {
+                        alpha = 1f - pageSwipeController.visibilityOf(RootDestination.Settings)
+                    }.welcomeBackdropZoom(),
         )
         CompositionLocalProvider(
             LocalPageBackdropDrawnByHost provides true,

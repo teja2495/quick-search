@@ -50,10 +50,33 @@ private val GlowColors: IntArray by lazy {
 }
 
 /**
+ * Reusable shader and stroke for one glowing surface, so drawing a frame allocates nothing: the
+ * sweep is built once around the origin and only its rotation and position change.
+ */
+internal class WelcomeGlowPainter {
+    private val matrix = Matrix()
+    private val shader = SweepGradient(0f, 0f, GlowColors, null)
+    val brush = ShaderBrush(shader)
+    private var stroke = Stroke(0f)
+
+    fun stroke(width: Float): Stroke {
+        if (stroke.width != width) stroke = Stroke(width)
+        return stroke
+    }
+
+    fun aim(center: Offset) {
+        matrix.setRotate(welcomeGlowAngle())
+        matrix.postTranslate(center.x, center.y)
+        shader.setLocalMatrix(matrix)
+    }
+}
+
+/**
  * Draws the rotating gradient as a single line just inside the rounded rect's edge, so it reads
  * as the shape's own border.
  */
 internal fun DrawScope.drawWelcomeGlow(
+    painter: WelcomeGlowPainter,
     topLeft: Offset,
     size: Size,
     cornerRadius: Float,
@@ -61,19 +84,15 @@ internal fun DrawScope.drawWelcomeGlow(
 ) {
     if (alpha <= 0f || size.width <= 0f || size.height <= 0f) return
     val stroke = DesignTokens.SearchFieldBorderWidth.toPx()
-    val center = Offset(topLeft.x + size.width / 2f, topLeft.y + size.height / 2f)
-    val shader =
-        SweepGradient(center.x, center.y, GlowColors, null).apply {
-            setLocalMatrix(Matrix().apply { setRotate(welcomeGlowAngle(), center.x, center.y) })
-        }
+    painter.aim(Offset(topLeft.x + size.width / 2f, topLeft.y + size.height / 2f))
     val inset = stroke / 2f
     drawRoundRect(
-        brush = ShaderBrush(shader),
+        brush = painter.brush,
         topLeft = Offset(topLeft.x + inset, topLeft.y + inset),
         size = Size(size.width - stroke, size.height - stroke),
         cornerRadius = CornerRadius((cornerRadius - inset).coerceAtLeast(0f)),
         alpha = alpha,
-        style = Stroke(stroke),
+        style = painter.stroke(stroke),
     )
 }
 
@@ -81,9 +100,10 @@ internal fun DrawScope.drawWelcomeGlow(
 fun Modifier.welcomeGlow(): Modifier =
     composed {
         val tick = rememberGlowFrameTick()
+        val painter = remember { WelcomeGlowPainter() }
         Modifier.drawWithContent {
             drawContent()
             tick()
-            drawWelcomeGlow(Offset.Zero, size, size.height / 2f, alpha = 1f)
+            drawWelcomeGlow(painter, Offset.Zero, size, size.height / 2f, alpha = 1f)
         }
     }

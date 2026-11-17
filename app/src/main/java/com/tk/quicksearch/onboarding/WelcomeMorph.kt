@@ -1,6 +1,5 @@
 package com.tk.quicksearch.onboarding
 
-import android.os.SystemClock
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animate
@@ -19,11 +18,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -41,6 +38,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.lerp
@@ -151,23 +149,11 @@ class WelcomeMorphState {
     internal var navigate: (() -> Unit)? = null
 
     internal var target by mutableStateOf<Rect?>(null)
-    internal var backdropReady by mutableStateOf(true)
-    internal var overlayBackdropReadyAt by mutableStateOf<Long?>(null)
-
-    /** Reporter for the search screen's backdrop; see [LocalWelcomeBackdropReport]. */
-    val hostBackdropReport: (Boolean) -> Unit = { backdropReady = it }
-    internal val overlayBackdropReport: (Boolean) -> Unit = { ready ->
-        if (ready && overlayBackdropReadyAt == null) overlayBackdropReadyAt = SystemClock.uptimeMillis()
-    }
     internal var targetCornerPx = 0f
     internal var targetColor = Color.Unspecified
 
     internal var press by mutableFloatStateOf(1f)
-    internal var morph by mutableFloatStateOf(0f)
     internal var curtain by mutableFloatStateOf(0f)
-
-    /** The welcome's own copy of the wallpaper; hidden once the search screen draws its own. */
-    internal var backdropAlpha by mutableFloatStateOf(1f)
     internal var push by mutableFloatStateOf(0f)
     internal var travel by mutableFloatStateOf(0f)
 
@@ -193,8 +179,6 @@ class WelcomeMorphState {
         originTextStyle = textStyle
         navigate = onNavigate
         resetProgress()
-        backdropReady = false
-        overlayBackdropReadyAt = null
         phase = WelcomeMorphPhase.Exiting
     }
 
@@ -230,9 +214,7 @@ class WelcomeMorphState {
 
     private fun resetProgress() {
         press = 1f
-        morph = 0f
         curtain = 0f
-        backdropAlpha = 1f
         push = 0f
         travel = 0f
         handoff = 0f
@@ -274,7 +256,11 @@ fun Modifier.welcomeBackgroundFade(): Modifier =
     composed {
         val state = LocalWelcomeExit.current ?: return@composed Modifier
         val pushed = remember { BooleanArray(1) }
-        Modifier.graphicsLayer { alpha = if (pushedAway(state, pushed)) 0f else 1f - state.curtain }
+        Modifier.graphicsLayer {
+            // Per draw, not offscreen: this layer covers the whole screen for the entire fade.
+            compositingStrategy = CompositingStrategy.ModulateAlpha
+            alpha = if (pushedAway(state, pushed)) 0f else 1f - state.curtain
+        }
     }
 
 /** Fades this element out as the push carries it up to the bar's landing line. */
@@ -315,15 +301,6 @@ fun welcomeMorphHoldsKeyboard(): Boolean {
 fun welcomeMorphRunning(): Boolean {
     val phase = LocalWelcomeMorph.current?.phase
     return phase == WelcomeMorphPhase.Exiting || phase == WelcomeMorphPhase.Landing
-}
-
-/** Where a page backdrop reports whether its wallpaper image is drawn; null outside the welcome. */
-val LocalWelcomeBackdropReport = staticCompositionLocalOf<((Boolean) -> Unit)?> { null }
-
-@Composable
-fun ReportWelcomeBackdropReady(ready: Boolean) {
-    val report = LocalWelcomeBackdropReport.current ?: return
-    SideEffect { report(ready) }
 }
 
 /** Carries the search screen's content (not its backdrop) up with the travelling bar as it lands. */
@@ -372,32 +349,18 @@ fun Modifier.welcomeMorphTarget(
     }
 
 /**
- * The search screen's wallpaper, drawn under every page while the welcome runs so it can fade in
- * behind the setup content. Place it below the pages; composed from the tap on, so the wallpaper
- * loads while the button morphs.
+ * The search screen's wallpaper settles from a slight zoom while the welcome fades it in under the
+ * setup page. Apply to the backdrop the search surface already draws, not to a second copy.
  */
-@Composable
-fun WelcomeMorphBackdrop(
-    state: WelcomeMorphState,
-    backdrop: @Composable () -> Unit,
-) {
-    if (state.phase != WelcomeMorphPhase.Exiting && state.phase != WelcomeMorphPhase.Landing) return
-    // Hidden until the slide (the page's background is see-through), then fades in ahead of it.
-    // The slight zoom settles as the page clears.
-    Box(
-        modifier =
-            Modifier.fillMaxSize().graphicsLayer {
-                alpha = state.backdropAlpha * state.curtain
-                val scale = lerp(WallpaperStartScale, 1f, state.curtain)
-                scaleX = scale
-                scaleY = scale
-            },
-    ) {
-        CompositionLocalProvider(LocalWelcomeBackdropReport provides state.overlayBackdropReport) {
-            backdrop()
+fun Modifier.welcomeBackdropZoom(): Modifier =
+    composed {
+        val state = LocalWelcomeMorph.current ?: return@composed Modifier
+        Modifier.graphicsLayer {
+            val scale = if (state.phase == WelcomeMorphPhase.Landing) lerp(WallpaperStartScale, 1f, state.curtain) else 1f
+            scaleX = scale
+            scaleY = scale
         }
     }
-}
 
 /**
  * Drives the sequence. [onSearchScreen] is true once the search screen is the current page; taps
@@ -445,7 +408,6 @@ fun WelcomeMorphOverlay(
             animate(0f, 1f, animationSpec = tween(scaled(TravelMs), easing = TravelEasing)) { v, _ ->
                 state.travel = v
                 state.push = v
-                state.morph = v
                 state.curtain = (v * CurtainLead).coerceAtMost(1f)
             }
         }
@@ -489,6 +451,7 @@ private fun LandedGlow(
     modifier: Modifier = Modifier,
 ) {
     val tick = rememberGlowFrameTick()
+    val glowPainter = remember { WelcomeGlowPainter() }
     var overlayOffset by remember { mutableStateOf(Offset.Zero) }
     Box(
         modifier =
@@ -499,7 +462,7 @@ private fun LandedGlow(
                     tick()
                     val target = state.target ?: return@drawBehind
                     val rect = target.translate(-overlayOffset)
-                    drawWelcomeGlow(rect.topLeft, rect.size, state.targetCornerPx.coerceAtMost(rect.height / 2f), state.glow)
+                    drawWelcomeGlow(glowPainter, rect.topLeft, rect.size, state.targetCornerPx.coerceAtMost(rect.height / 2f), state.glow)
                 },
     )
 }
@@ -516,6 +479,7 @@ private fun TravellingSearchBar(
     val hintSlidePx = with(LocalDensity.current) { 12.dp.toPx() }
     var overlayOffset by remember { mutableStateOf(Offset.Zero) }
     val tick = rememberGlowFrameTick()
+    val glowPainter = remember { WelcomeGlowPainter() }
 
     fun currentRect(): Rect? = state.barRect()?.translate(-overlayOffset)
 
@@ -533,11 +497,11 @@ private fun TravellingSearchBar(
                         scaleX = state.press
                         scaleY = state.press
                     }.drawBehind {
-                        val morphColor = lerp(state.originColor, barColor, state.morph)
+                        val morphColor = lerp(state.originColor, barColor, state.travel)
                         val endColor = state.targetColor.takeIf { it.isSpecified && it.alpha >= 0.5f } ?: barColor
                         val travelT = state.travel.coerceIn(0f, 1f)
                         val corner =
-                            lerp(lerp(size.height / 2f, barCornerPx, state.morph), state.targetCornerPx, travelT)
+                            lerp(lerp(size.height / 2f, barCornerPx, state.travel), state.targetCornerPx, travelT)
                         tick()
                         val clampedCorner = corner.coerceAtMost(size.height / 2f)
                         // The fill hands off to the real bar; the glow stays until LandedGlow takes over.
@@ -546,7 +510,7 @@ private fun TravellingSearchBar(
                             cornerRadius = CornerRadius(clampedCorner),
                             alpha = 1f - state.handoff,
                         )
-                        drawWelcomeGlow(Offset.Zero, size, clampedCorner, alpha = 1f)
+                        drawWelcomeGlow(glowPainter, Offset.Zero, size, clampedCorner, alpha = 1f)
                     },
             contentAlignment = Alignment.Center,
         ) {
@@ -555,16 +519,20 @@ private fun TravellingSearchBar(
                 style = state.originTextStyle,
                 color = state.originContentColor,
                 maxLines = 1,
-                modifier = Modifier.graphicsLayer { alpha = (1f - state.morph * 2.5f).coerceIn(0f, 1f) },
+                modifier =
+                    Modifier
+                        .measuredAtWidth(centered = true) { state.origin?.width ?: 0f }
+                        .graphicsLayer { alpha = (1f - state.travel * 2.5f).coerceIn(0f, 1f) },
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier =
                     Modifier
                         .align(Alignment.CenterStart)
+                        .measuredAtWidth(centered = false) { (state.target ?: state.predicted ?: state.origin)?.width ?: 0f }
                         .padding(horizontal = DesignTokens.SpacingLarge)
                         .graphicsLayer {
-                            val a = ((state.morph - 0.4f) / 0.6f).coerceIn(0f, 1f)
+                            val a = ((state.travel - 0.4f) / 0.6f).coerceIn(0f, 1f)
                             alpha = a * (1f - state.handoff)
                             translationX = -hintSlidePx * (1f - a)
                         },
@@ -587,3 +555,21 @@ private fun TravellingSearchBar(
         }
     }
 }
+
+/**
+ * Measures the content at a steady width instead of the bar's changing one, so its text is laid
+ * out once rather than on every frame of the rise. Wider content overflows the bar, centred or
+ * from the start.
+ */
+private fun Modifier.measuredAtWidth(
+    centered: Boolean,
+    widthPx: () -> Float,
+): Modifier =
+    layout { measurable, constraints ->
+        val placeable = measurable.measure(Constraints(maxWidth = widthPx().roundToInt().coerceAtLeast(0)))
+        val width = placeable.width.coerceAtMost(constraints.maxWidth)
+        val height = placeable.height.coerceAtMost(constraints.maxHeight)
+        layout(width, height) {
+            placeable.place(if (centered) (width - placeable.width) / 2 else 0, (height - placeable.height) / 2)
+        }
+    }

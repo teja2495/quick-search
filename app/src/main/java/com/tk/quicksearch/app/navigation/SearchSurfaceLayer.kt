@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.CompositingStrategy
@@ -18,12 +21,21 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.tk.quicksearch.onboarding.LocalSearchSurfaceHidden
 import com.tk.quicksearch.onboarding.WelcomeMorphPhase
 import com.tk.quicksearch.onboarding.WelcomeMorphState
+import kotlinx.coroutines.delay
 
 /**
  * Drawn at about 1/255: invisible under the setup pages, yet still drawn, so icons and wallpaper
  * are already on the GPU when the welcome reveals the screen.
  */
 private const val HiddenAlpha = 1f / 255f
+
+/**
+ * While hidden the surface is drawn only for a couple of frames at a time, then skipped: the
+ * setup pages redraw every frame (the Start button glows), and replaying the whole search screen
+ * under them each time would double the work. The pulse keeps late icons and textures warm.
+ */
+private const val WarmFrames = 2
+private const val KeepWarmIntervalMs = 1000L
 
 /**
  * Hosts the search surface under the onboarding pages. While not [visible] it stays composed but
@@ -49,6 +61,16 @@ internal fun SearchSurfaceLayer(
             }
         }
     val backOwner = LocalOnBackPressedDispatcherOwner.current?.takeUnless { hidden } ?: inertBack
+    val hiddenAlpha = remember { mutableFloatStateOf(HiddenAlpha) }
+    LaunchedEffect(hidden) {
+        if (!hidden) return@LaunchedEffect
+        while (true) {
+            hiddenAlpha.floatValue = HiddenAlpha
+            repeat(WarmFrames) { withFrameNanos {} }
+            hiddenAlpha.floatValue = 0f
+            delay(KeepWarmIntervalMs)
+        }
+    }
     Box(modifier = Modifier.fillMaxSize()) {
         Box(
             modifier =
@@ -61,7 +83,7 @@ internal fun SearchSurfaceLayer(
                             when {
                                 welcomeMorph.phase == WelcomeMorphPhase.Exiting ||
                                     welcomeMorph.phase == WelcomeMorphPhase.Landing -> welcomeMorph.curtain
-                                hidden -> HiddenAlpha
+                                hidden -> hiddenAlpha.floatValue
                                 else -> 1f
                             }
                     }.then(if (hidden) Modifier.clearAndSetSemantics {} else Modifier),
