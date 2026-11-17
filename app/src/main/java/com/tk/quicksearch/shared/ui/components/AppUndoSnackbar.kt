@@ -20,7 +20,6 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.SnackbarVisuals
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
@@ -274,7 +273,7 @@ private fun UndoSnackbar(
                 }
             }
             actionLabel?.let { label ->
-                TextButton(
+                AppTextButton(
                     onClick = onAction,
                     colors = ButtonDefaults.textButtonColors(contentColor = actionColor),
                     contentPadding = PaddingValues(horizontal = 14.dp),

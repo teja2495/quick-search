@@ -22,9 +22,9 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.HomeTextColor
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentContent
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
@@ -46,8 +46,8 @@ fun FontSizeCard(
         modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
-    SettingsSegmentGroup(modifier = modifier) {
-        SettingsSegment(index = 0, count = 3) {
+    SegmentedGroup(modifier = modifier) {
+        SegmentedTile(index = 0, count = 3) {
             SettingsToggleRow(
                     title = stringResource(R.string.settings_use_system_font_title),
                     subtitle = stringResource(R.string.settings_use_system_font_desc),
@@ -57,16 +57,16 @@ fun FontSizeCard(
                     showDivider = false,
             )
         }
-        SettingsSegment(index = 1, count = 3) {
-            SettingsSegmentContent {
+        SegmentedTile(index = 1, count = 3) {
+            SegmentedTileContent {
                 FontSizeSlider(
                         fontScaleMultiplier = fontScaleMultiplier,
                         onFontScaleMultiplierChange = onFontScaleMultiplierChange,
                 )
             }
         }
-        SettingsSegment(index = 2, count = 3) {
-            SettingsSegmentContent {
+        SegmentedTile(index = 2, count = 3) {
+            SegmentedTileContent {
                 HomeTextColorOptions(
                         selectedColor = homeTextColorOverride,
                         onColorSelected = onHomeTextColorChange,

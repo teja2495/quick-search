@@ -8,8 +8,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.settings.shared.SettingsChoice
-import com.tk.quicksearch.settings.shared.SettingsChoiceGroup
+import com.tk.quicksearch.shared.ui.components.ChoiceOption
+import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.widgets.utils.TextIconColorOverride
 import com.tk.quicksearch.widgets.utils.WidgetPreferences
@@ -35,9 +35,9 @@ fun NoteWidgetBackgroundSection(
         WidgetColorChoiceGroup(
             options =
                 listOf(
-                    SettingsChoice(WidgetTheme.SYSTEM.name, stringResource(R.string.common_theme_system)),
-                    SettingsChoice(WidgetTheme.LIGHT.name, stringResource(R.string.common_theme_light)),
-                    SettingsChoice(WidgetTheme.DARK.name, stringResource(R.string.common_theme_dark)),
+                    ChoiceOption(WidgetTheme.SYSTEM.name, stringResource(R.string.common_theme_system)),
+                    ChoiceOption(WidgetTheme.LIGHT.name, stringResource(R.string.common_theme_light)),
+                    ChoiceOption(WidgetTheme.DARK.name, stringResource(R.string.common_theme_dark)),
                 ),
             selected = state.theme.name,
             onSelect = { name ->
@@ -71,15 +71,15 @@ fun NoteWidgetTextColorSection(
         NoteWidgetColors.forWidget(state, isSystemDark = isSystemInDarkTheme()).title == AppColors.WidgetTextLight
 
     WidgetSettingTile(title = stringResource(R.string.widget_text_color), index = index, count = count) {
-        SettingsChoiceGroup(
+        ConnectedChoiceGroup(
             options =
                 listOf(
-                    SettingsChoice(
+                    ChoiceOption(
                         TextIconColorOverride.WHITE,
                         stringResource(R.string.widget_text_icon_color_white),
                         icon = MaterialSymbols.LightMode,
                     ),
-                    SettingsChoice(
+                    ChoiceOption(
                         TextIconColorOverride.BLACK,
                         stringResource(R.string.widget_text_icon_color_black),
                         icon = MaterialSymbols.DarkMode,

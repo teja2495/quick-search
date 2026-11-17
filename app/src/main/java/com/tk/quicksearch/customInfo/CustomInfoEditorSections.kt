@@ -31,9 +31,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.GlanceStatusRow
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
-import com.tk.quicksearch.settings.shared.SettingsTonalButton
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.TonalButton
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.components.CardTextField
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -52,8 +52,8 @@ internal fun CustomInfoContentCard(
     previewEnabled: Boolean,
     onPreview: () -> Unit,
 ) {
-    SettingsSegmentGroup {
-        SettingsSegment(index = 0, count = 2) {
+    SegmentedGroup {
+        SegmentedTile(index = 0, count = 2) {
             CardTextField(
                 value = title,
                 onValueChange = onTitleChange,
@@ -64,7 +64,7 @@ internal fun CustomInfoContentCard(
                         .padding(horizontal = DesignTokens.SpacingSmall, vertical = DesignTokens.SpacingXSmall),
             )
         }
-        SettingsSegment(index = 1, count = 2) {
+        SegmentedTile(index = 1, count = 2) {
             Column {
                 CardTextField(
                     value = prompt,
@@ -82,7 +82,7 @@ internal fun CustomInfoContentCard(
                     ),
                     horizontalArrangement = Arrangement.End,
                 ) {
-                    SettingsTonalButton(
+                    TonalButton(
                         text = stringResource(R.string.custom_info_preview),
                         onClick = onPreview,
                         icon = MaterialSymbols.PlayArrow,
@@ -103,7 +103,7 @@ internal fun CustomInfoPreviewCard(
     response: String,
     onDismiss: () -> Unit,
 ) {
-    SettingsSegment(index = 0, count = 1) {
+    SegmentedTile(index = 0, count = 1) {
         Box(Modifier.padding(horizontal = DesignTokens.SpacingSmall, vertical = DesignTokens.SpacingXSmall)) {
             GlanceStatusRow(
                 icon = {
@@ -141,8 +141,8 @@ internal fun CustomInfoScheduleCard(
     sendNotification: Boolean,
     onSendNotificationChange: (Boolean) -> Unit,
 ) {
-    SettingsSegmentGroup {
-        SettingsSegment(index = 0, count = 3) {
+    SegmentedGroup {
+        SegmentedTile(index = 0, count = 3) {
             SettingsToggleRow(
                 title = dueMillis?.let { customInfoDueLabel(it) } ?: stringResource(R.string.custom_info_set_date_time),
                 checked = false,
@@ -155,10 +155,10 @@ internal fun CustomInfoScheduleCard(
                 trailingAction = { CustomInfoRowChevron() },
             )
         }
-        SettingsSegment(index = 1, count = 3) {
+        SegmentedTile(index = 1, count = 3) {
             CustomInfoRepeatRow(repeat = repeat, onRepeatChange = onRepeatChange)
         }
-        SettingsSegment(index = 2, count = 3) {
+        SegmentedTile(index = 2, count = 3) {
             SettingsToggleRow(
                 title = stringResource(R.string.custom_info_send_notification),
                 checked = sendNotification,

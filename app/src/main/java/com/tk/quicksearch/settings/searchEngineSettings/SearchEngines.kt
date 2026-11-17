@@ -14,10 +14,10 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.shared.SettingsCardItem
 import com.tk.quicksearch.settings.shared.SettingsNestedCheckbox
-import com.tk.quicksearch.settings.shared.SettingsSegment
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow
-import com.tk.quicksearch.settings.shared.SettingsSegmentRowPadding
-import com.tk.quicksearch.settings.shared.SettingsSegmentToggleHorizontalPadding
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContentPadding
+import com.tk.quicksearch.shared.ui.components.SegmentedTileToggleHorizontalPadding
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
@@ -174,7 +174,7 @@ private fun SearchEngineAliasSuffixCard(
     onToggleTriggerAfterSpace: ((Boolean) -> Unit)? = null,
 ) {
     // One tile: the switch row, with its trigger-after-space option nested below while it is on.
-    SettingsSegment(
+    SegmentedTile(
         index = 0,
         count = 1,
         modifier = Modifier.padding(bottom = 12.dp),
@@ -195,9 +195,9 @@ private fun SearchEngineAliasSuffixCard(
                     modifier =
                         Modifier
                             .padding(
-                                start = SettingsSegmentToggleHorizontalPadding,
-                                end = SettingsSegmentToggleHorizontalPadding,
-                                bottom = SettingsSegmentRowPadding,
+                                start = SegmentedTileToggleHorizontalPadding,
+                                end = SegmentedTileToggleHorizontalPadding,
+                                bottom = SegmentedTileContentPadding,
                             ),
                 )
             }

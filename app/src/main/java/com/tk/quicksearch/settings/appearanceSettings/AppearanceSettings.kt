@@ -32,8 +32,8 @@ import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.data.preferences.BasePreferences
 import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
 import com.tk.quicksearch.settings.settingsDetailScreen.PriorityReorderDialog
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsCardItem
 import com.tk.quicksearch.settings.shared.SettingsNavigationRow
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
@@ -260,7 +260,7 @@ fun AppearanceSettingsSection(
             Spacer(modifier = Modifier.height(16.dp))
         }
 
-        SettingsSegmentGroup {
+        SegmentedGroup {
             val layoutToggles =
                     listOf(
                             Triple(R.string.settings_layout_option_bottom_title, R.string.settings_layout_option_bottom_desc, oneHandedMode to onToggleOneHandedMode),
@@ -269,7 +269,7 @@ fun AppearanceSettingsSection(
                             Triple(R.string.settings_show_status_bar_title, R.string.settings_show_status_bar_desc, showStatusBar to onToggleShowStatusBar),
                     )
             layoutToggles.forEachIndexed { index, (titleRes, descRes, toggle) ->
-                SettingsSegment(index = index, count = layoutToggles.size) {
+                SegmentedTile(index = index, count = layoutToggles.size) {
                     SettingsToggleRow(
                             title = stringResource(titleRes),
                             subtitle = stringResource(descRes),
@@ -282,10 +282,10 @@ fun AppearanceSettingsSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        SettingsSegmentGroup {
+        SegmentedGroup {
             val pinnedCount = if (unifiedPinnedItemsEnabled) 2 else 3
             var index = 0
-            SettingsSegment(index = index++, count = pinnedCount) {
+            SegmentedTile(index = index++, count = pinnedCount) {
                 SettingsToggleRow(
                         title = stringResource(R.string.settings_unified_pinned_items_title),
                         subtitle = stringResource(R.string.settings_unified_pinned_items_desc),
@@ -294,7 +294,7 @@ fun AppearanceSettingsSection(
                 )
             }
             if (!unifiedPinnedItemsEnabled) {
-                SettingsSegment(index = index++, count = pinnedCount) {
+                SegmentedTile(index = index++, count = pinnedCount) {
                     SettingsNavigationRow(
                             item =
                                     SettingsCardItem(
@@ -310,7 +310,7 @@ fun AppearanceSettingsSection(
                     )
                 }
             }
-            SettingsSegment(index = index, count = pinnedCount) {
+            SegmentedTile(index = index, count = pinnedCount) {
                 SettingsToggleRow(
                         title = stringResource(R.string.settings_pinned_app_shortcuts_in_app_grid_title),
                         subtitle = stringResource(R.string.settings_pinned_app_shortcuts_in_app_grid_desc),

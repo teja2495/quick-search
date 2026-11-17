@@ -40,7 +40,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.TextButton
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
@@ -85,13 +84,14 @@ import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.notificationHistory.NotificationHistoryAccess
 import com.tk.quicksearch.search.notificationHistory.NotificationHistoryEntry
 import com.tk.quicksearch.search.notificationHistory.NotificationHistoryStore
-import com.tk.quicksearch.settings.shared.SettingsSegment
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import java.util.Date
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 /**
  * Lists the notifications captured while notification listener access was granted, filtered by the
@@ -196,7 +196,7 @@ fun NotificationHistorySettingsSection(
         if (accessGranted == null || loadedEntries == null) return@Column
 
         if (filteredEntries.isEmpty()) {
-            SettingsSegment(index = 0, count = 1) {
+            SegmentedTile(index = 0, count = 1) {
                 Box(
                     modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
                     contentAlignment = Alignment.Center,
@@ -232,7 +232,7 @@ fun NotificationHistorySettingsSection(
                         SwipeToDeleteContainer(
                             onDelete = { NotificationHistoryStore.remove(context, entry) },
                         ) {
-                            SettingsSegment(index = index, count = filteredEntries.size) {
+                            SegmentedTile(index = index, count = filteredEntries.size) {
                                 NotificationHistoryRow(
                                     entry = entry,
                                     appLabel = appLabel,
@@ -514,7 +514,7 @@ private fun NotificationHistoryAppFilterDialog(
                 )
             },
             confirmButton = {
-                TextButton(
+                AppTextButton(
                     onClick = {
                         showClearAllConfirmation = false
                         onClearAll()
@@ -527,7 +527,7 @@ private fun NotificationHistoryAppFilterDialog(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showClearAllConfirmation = false }) {
+                AppTextButton(onClick = { showClearAllConfirmation = false }) {
                     Text(text = stringResource(R.string.dialog_cancel))
                 }
             },
@@ -598,7 +598,7 @@ private fun NotificationHistoryAppFilterDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(text = stringResource(R.string.dialog_done))
             }
         },

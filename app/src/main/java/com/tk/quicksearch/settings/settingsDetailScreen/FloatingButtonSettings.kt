@@ -22,8 +22,8 @@ import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.data.preferences.FloatingButtonConfig
 import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
 import com.tk.quicksearch.settings.shared.SettingsCardItem
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.settings.shared.SettingsToggleSliderDetails
@@ -95,8 +95,8 @@ fun FloatingButtonSettingsSection(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
         val enableCount = if (showAccessibilityRow) 2 else 1
-        SettingsSegmentGroup {
-            SettingsSegment(index = 0, count = enableCount) {
+        SegmentedGroup {
+            SegmentedTile(index = 0, count = enableCount) {
                 SettingsToggleRow(
                     title = stringResource(R.string.settings_floating_button_title),
                     subtitle = stringResource(R.string.settings_floating_button_desc),
@@ -137,7 +137,7 @@ fun FloatingButtonSettingsSection(modifier: Modifier = Modifier) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = DesignTokens.SpacingLarge),
                 )
-                SettingsSegmentGroup {
+                SegmentedGroup {
                     SettingsSliderTile(
                         title = stringResource(R.string.settings_edge_gesture_size),
                         index = 0,

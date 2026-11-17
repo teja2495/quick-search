@@ -64,6 +64,8 @@ import com.tk.quicksearch.settings.shared.settingsRoute.SettingsRoute
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.shared.util.FeedbackUtils
 import com.tk.quicksearch.widgetsPanel.WidgetsPanelScreen
+import com.tk.quicksearch.shared.ui.components.LocalSegmentedItemModifier
+import com.tk.quicksearch.onboarding.welcomeExitItem
 
 enum class RootDestination {
     WidgetsPanel,
@@ -211,7 +213,10 @@ fun MainContent(
         transitionSpec = { appScreenTransform(welcomeMorph) },
         label = "ScreenTransition",
     ) { targetScreen ->
-        CompositionLocalProvider(LocalWelcomeExit provides welcomeMorph.takeIf { targetScreen != AppScreen.Main }) {
+        CompositionLocalProvider(
+            LocalWelcomeExit provides welcomeMorph.takeIf { targetScreen != AppScreen.Main },
+            LocalSegmentedItemModifier provides { it.welcomeExitItem() },
+        ) {
         when (targetScreen) {
             AppScreen.Permissions -> {
                 QuickSearchTheme(

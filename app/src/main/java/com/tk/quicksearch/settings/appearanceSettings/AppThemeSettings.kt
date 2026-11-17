@@ -65,11 +65,11 @@ import com.tk.quicksearch.search.core.AccentColorMode
 import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.AppTheme
-import com.tk.quicksearch.settings.shared.SettingsChoice
-import com.tk.quicksearch.settings.shared.SettingsChoiceGroup
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentContent
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.ChoiceOption
+import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.shared.permissions.PermissionHelper
@@ -159,30 +159,30 @@ fun AppThemeCard(
             }
 
     val count = 2 + listOf(showMaterialYouToggle, showAmoledThemeToggle, showThemedIconsToggle).count { it }
-    SettingsSegmentGroup(modifier = modifier) {
+    SegmentedGroup(modifier = modifier) {
         var index = 0
-        SettingsSegment(index = index++, count = count) {
-            SettingsSegmentContent {
+        SegmentedTile(index = index++, count = count) {
+            SegmentedTileContent {
             Text(
                     text = stringResource(R.string.settings_app_theme_title),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(start = 4.dp, end = 4.dp, bottom = 4.dp),
             )
-                    SettingsChoiceGroup(
+                    ConnectedChoiceGroup(
                             options =
                                     listOf(
-                                            SettingsChoice(AppThemeMode.LIGHT, stringResource(R.string.common_theme_light), MaterialSymbols.LightMode),
-                                            SettingsChoice(AppThemeMode.DARK, stringResource(R.string.common_theme_dark), MaterialSymbols.DarkMode),
-                                            SettingsChoice(AppThemeMode.SYSTEM, stringResource(R.string.common_theme_system), MaterialSymbols.Settings),
+                                            ChoiceOption(AppThemeMode.LIGHT, stringResource(R.string.common_theme_light), MaterialSymbols.LightMode),
+                                            ChoiceOption(AppThemeMode.DARK, stringResource(R.string.common_theme_dark), MaterialSymbols.DarkMode),
+                                            ChoiceOption(AppThemeMode.SYSTEM, stringResource(R.string.common_theme_system), MaterialSymbols.Settings),
                                     ),
                             selected = appThemeMode,
                             onSelect = { mode -> if (mode != appThemeMode) onSetAppThemeMode(mode) },
                     )
             }
         }
-        SettingsSegment(index = index++, count = count) {
-            SettingsSegmentContent {
+        SegmentedTile(index = index++, count = count) {
+            SegmentedTileContent {
                     Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -329,7 +329,7 @@ fun AppThemeCard(
             }
         }
         if (showMaterialYouToggle) {
-            SettingsSegment(index = index++, count = count) {
+            SegmentedTile(index = index++, count = count) {
                 SettingsToggleRow(
                         title = stringResource(R.string.settings_device_theme_title),
                         subtitle = stringResource(R.string.settings_device_theme_desc),
@@ -341,7 +341,7 @@ fun AppThemeCard(
             }
         }
         if (showAmoledThemeToggle) {
-            SettingsSegment(index = index++, count = count) {
+            SegmentedTile(index = index++, count = count) {
                 SettingsToggleRow(
                         title = stringResource(R.string.settings_amoled_theme_title),
                         subtitle = stringResource(R.string.settings_amoled_theme_desc),
@@ -354,7 +354,7 @@ fun AppThemeCard(
             }
         }
         if (showThemedIconsToggle) {
-            SettingsSegment(index = index++, count = count) {
+            SegmentedTile(index = index++, count = count) {
                 SettingsToggleRow(
                         title = stringResource(R.string.settings_themed_icons_title),
                         subtitle = stringResource(R.string.settings_themed_icons_desc),

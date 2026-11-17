@@ -18,9 +18,9 @@ import com.tk.quicksearch.search.apps.speedBump.SpeedBumpAccessibilityDisclosure
 import com.tk.quicksearch.search.apps.speedBump.SpeedBumpOutsideQuickSearchToggleState
 import com.tk.quicksearch.search.apps.speedBump.rememberSpeedBumpOutsideQuickSearchToggleState
 import com.tk.quicksearch.search.noted.NotedIntegrationSettingCard
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsCommand
-import com.tk.quicksearch.settings.shared.SettingsSegmentToggleRow
+import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.isDefaultHomeApp
@@ -175,7 +175,7 @@ private fun MoreOptionsToggleGroup(
     onNotificationDotsCheckedChange: (Boolean) -> Unit,
     speedBumpToggle: SpeedBumpOutsideQuickSearchToggleState,
 ) {
-    SettingsSegmentGroup(
+    SegmentedGroup(
         modifier = Modifier.fillMaxWidth(),
     ) {
         items.forEachIndexed { index, item ->
@@ -188,7 +188,7 @@ private fun MoreOptionsToggleGroup(
                     stringResource(R.string.settings_notch_accessibility_needed)
                 else -> stringResource(item.subtitleRes)
             }
-            SettingsSegmentToggleRow(
+            SegmentedToggleTile(
                 title = stringResource(item.titleRes),
                 description = itemSubtitle,
                 checked = isToggleEnabled(item.key),

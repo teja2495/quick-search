@@ -3,8 +3,6 @@ package com.tk.quicksearch.search.apps
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.tk.quicksearch.search.apps.swipeGestures.appSwipeGestures
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -15,8 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
@@ -44,6 +40,9 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.ui.theme.homeBackgroundIsDark
 import com.tk.quicksearch.search.folders.AppFolderMember
+import com.tk.quicksearch.shared.ui.theme.AppMotion
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -137,7 +136,7 @@ internal fun AppGridItem(
                         showDraggedPresentation -> DraggedPinnedAppScale
                         else -> 1f
                     },
-            animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+            animationSpec = AppMotion.dragFeedback(),
             label = "pinnedAppDragScale",
     )
     val dragAlpha by animateFloatAsState(
@@ -147,7 +146,7 @@ internal fun AppGridItem(
                         showDraggedPresentation -> DraggedPinnedAppAlpha
                         else -> 1f
                     },
-            animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+            animationSpec = AppMotion.dragFeedback(),
             label = "pinnedAppDragAlpha",
     )
     val dragModifier =

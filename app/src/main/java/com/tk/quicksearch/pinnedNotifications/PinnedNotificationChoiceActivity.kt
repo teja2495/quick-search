@@ -16,7 +16,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +34,7 @@ import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
 import com.tk.quicksearch.shared.util.lockPortraitOrientationOnPhones
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 class PinnedNotificationChoiceActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,7 +75,7 @@ class PinnedNotificationChoiceActivity : ComponentActivity() {
                         }
                     },
                     confirmButton = {
-                        TextButton(
+                        AppTextButton(
                             colors =
                                 ButtonDefaults.textButtonColors(
                                     contentColor = MaterialTheme.colorScheme.primary,
@@ -89,7 +89,7 @@ class PinnedNotificationChoiceActivity : ComponentActivity() {
                         }
                     },
                     dismissButton = {
-                        TextButton(onClick = ::finish) {
+                        AppTextButton(onClick = ::finish) {
                             Text(stringResource(R.string.dialog_cancel))
                         }
                     },

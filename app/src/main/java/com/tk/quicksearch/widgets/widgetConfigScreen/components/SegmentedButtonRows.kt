@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.SettingsChoice
-import com.tk.quicksearch.settings.shared.SettingsChoiceGroup
+import com.tk.quicksearch.shared.ui.components.ChoiceOption
+import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.widgets.searchWidget.MicAction
 import com.tk.quicksearch.widgets.utils.BorderColorOption
@@ -19,12 +19,12 @@ fun ThemeChoiceSegmentedButtonRow(
     selectedTheme: WidgetTheme?,
     onSelectionChange: (WidgetTheme) -> Unit,
 ) {
-    SettingsChoiceGroup<WidgetTheme?>(
+    ConnectedChoiceGroup<WidgetTheme?>(
         options =
             listOf(
-                SettingsChoice(WidgetTheme.LIGHT, stringResource(R.string.common_theme_light)),
-                SettingsChoice(WidgetTheme.DARK, stringResource(R.string.common_theme_dark)),
-                SettingsChoice(WidgetTheme.SYSTEM, stringResource(R.string.common_theme_system)),
+                ChoiceOption(WidgetTheme.LIGHT, stringResource(R.string.common_theme_light)),
+                ChoiceOption(WidgetTheme.DARK, stringResource(R.string.common_theme_dark)),
+                ChoiceOption(WidgetTheme.SYSTEM, stringResource(R.string.common_theme_system)),
             ),
         selected = selectedTheme,
         onSelect = { it?.let(onSelectionChange) },
@@ -36,12 +36,12 @@ fun SearchIconChoiceSegmentedButtonRow(
     selectedDisplay: SearchIconDisplay,
     onSelectionChange: (SearchIconDisplay) -> Unit,
 ) {
-    SettingsChoiceGroup(
+    ConnectedChoiceGroup(
         options =
             listOf(
-                SettingsChoice(SearchIconDisplay.LEFT, stringResource(R.string.widget_icon_left)),
-                SettingsChoice(SearchIconDisplay.CENTER, stringResource(R.string.widget_icon_center)),
-                SettingsChoice(SearchIconDisplay.OFF, stringResource(R.string.widget_icon_off)),
+                ChoiceOption(SearchIconDisplay.LEFT, stringResource(R.string.widget_icon_left)),
+                ChoiceOption(SearchIconDisplay.CENTER, stringResource(R.string.widget_icon_center)),
+                ChoiceOption(SearchIconDisplay.OFF, stringResource(R.string.widget_icon_off)),
             ),
         selected = selectedDisplay,
         onSelect = onSelectionChange,
@@ -53,12 +53,12 @@ fun MicActionChoiceSegmentedButtonRow(
     selectedAction: MicAction,
     onSelectionChange: (MicAction) -> Unit,
 ) {
-    SettingsChoiceGroup(
+    ConnectedChoiceGroup(
         options =
             listOf(
-                SettingsChoice(MicAction.DEFAULT_VOICE_SEARCH, stringResource(R.string.widget_mic_action_default)),
-                SettingsChoice(MicAction.DIGITAL_ASSISTANT, stringResource(R.string.widget_mic_action_digital_assistant)),
-                SettingsChoice(MicAction.OFF, stringResource(R.string.widget_icon_off)),
+                ChoiceOption(MicAction.DEFAULT_VOICE_SEARCH, stringResource(R.string.widget_mic_action_default)),
+                ChoiceOption(MicAction.DIGITAL_ASSISTANT, stringResource(R.string.widget_mic_action_digital_assistant)),
+                ChoiceOption(MicAction.OFF, stringResource(R.string.widget_icon_off)),
             ),
         selected = selectedAction,
         onSelect = onSelectionChange,
@@ -70,16 +70,16 @@ fun TextIconColorChoiceSegmentedButtonRow(
     selectedOverride: TextIconColorOverride,
     onSelectionChange: (TextIconColorOverride) -> Unit,
 ) {
-    SettingsChoiceGroup(
+    ConnectedChoiceGroup(
         options =
             listOf(
-                SettingsChoice(TextIconColorOverride.THEME, stringResource(R.string.settings_app_theme_title)),
-                SettingsChoice(
+                ChoiceOption(TextIconColorOverride.THEME, stringResource(R.string.settings_app_theme_title)),
+                ChoiceOption(
                     TextIconColorOverride.WHITE,
                     stringResource(R.string.widget_text_icon_color_white),
                     icon = MaterialSymbols.LightMode,
                 ),
-                SettingsChoice(
+                ChoiceOption(
                     TextIconColorOverride.BLACK,
                     stringResource(R.string.widget_text_icon_color_black),
                     icon = MaterialSymbols.DarkMode,
@@ -106,25 +106,25 @@ fun BorderColorChoiceSegmentedButtonRow(
 ) {
     val fixed =
         if (useDeviceTheme) {
-            listOf(SettingsChoice(BorderColorOption.DEVICE_THEME, stringResource(R.string.common_theme_device)))
+            listOf(ChoiceOption(BorderColorOption.DEVICE_THEME, stringResource(R.string.common_theme_device)))
         } else {
             listOf(
-                SettingsChoice(
+                ChoiceOption(
                     BorderColorOption.WHITE,
                     stringResource(R.string.widget_text_icon_color_white),
                     icon = MaterialSymbols.LightMode,
                 ),
-                SettingsChoice(
+                ChoiceOption(
                     BorderColorOption.BLACK,
                     stringResource(R.string.widget_text_icon_color_black),
                     icon = MaterialSymbols.DarkMode,
                 ),
             )
         }
-    SettingsChoiceGroup(
+    ConnectedChoiceGroup(
         options =
             fixed +
-                SettingsChoice(
+                ChoiceOption(
                     BorderColorOption.CUSTOM,
                     stringResource(R.string.common_custom),
                     icon = if (customColor == null) MaterialSymbols.Palette else null,

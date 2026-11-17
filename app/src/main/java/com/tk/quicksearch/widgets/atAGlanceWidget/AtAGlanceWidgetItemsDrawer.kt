@@ -21,9 +21,9 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.AppNotificationFilters
 import com.tk.quicksearch.settings.settingsDetailScreen.AtAGlanceSettingsSection
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow
-import com.tk.quicksearch.settings.shared.SettingsSegmentToggleRow
+import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
 import com.tk.quicksearch.settings.shared.SettingsCardItem
 import com.tk.quicksearch.settings.shared.ProvideSettingsColors
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
@@ -44,7 +44,7 @@ fun AtAGlanceWidgetItemsSection(
     searchViewModel: SearchViewModel,
 ) {
     var showDrawer by rememberSaveable { mutableStateOf(false) }
-    SettingsSegmentGroup {
+    SegmentedGroup {
         SettingsSegmentNavigationRow(
             item =
                 SettingsCardItem(
@@ -57,7 +57,7 @@ fun AtAGlanceWidgetItemsSection(
             count = 2,
         )
         // Whether the widget shows today's date or stays blank when there are no items.
-        SettingsSegmentToggleRow(
+        SegmentedToggleTile(
             title = stringResource(R.string.widget_toggle_show_empty_date),
             icon = MaterialSymbols.Event,
             checked = state.showEmptyDate,

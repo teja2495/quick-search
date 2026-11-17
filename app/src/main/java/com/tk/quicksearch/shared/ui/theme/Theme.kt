@@ -379,6 +379,7 @@ fun QuickSearchTheme(
         MaterialTheme(
             colorScheme = colorScheme,
             typography = quickSearchTypography(useSystemFont),
+            shapes = AppShapes.material,
             content = content,
         )
     }
@@ -438,6 +439,7 @@ fun HomeTextContrastTheme(
         MaterialTheme(
             colorScheme = colorScheme,
             typography = MaterialTheme.typography,
+            shapes = MaterialTheme.shapes,
             content = content,
         )
     }

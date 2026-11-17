@@ -30,7 +30,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalIconButton
@@ -76,6 +75,7 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.AppButton
 
 private val PREVIEW_CORNER_RADIUS = 16.dp
 private val DIALOG_MAX_WIDTH = 640.dp
@@ -194,7 +194,7 @@ private fun FilePreviewActions(
                 modifier = Modifier.size(ACTION_ICON_SIZE),
             )
         }
-        Button(
+        AppButton(
             onClick = onOpen,
             modifier = Modifier
                 .weight(1f)

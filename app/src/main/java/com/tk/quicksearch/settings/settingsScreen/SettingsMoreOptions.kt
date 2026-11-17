@@ -1,15 +1,9 @@
 package com.tk.quicksearch.settings.settingsScreen
 
 import android.content.ActivityNotFoundException
-import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenCallbacks as SharedSettingsScreenCallbacks
-import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenState as SharedSettingsScreenState
 import android.content.Intent
 import android.net.Uri
-import android.provider.Settings
 import android.widget.Toast
-import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -24,41 +18,31 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import com.tk.quicksearch.settings.preloadFeaturesMarkdown
-import com.tk.quicksearch.settings.shared.SettingsCard
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
@@ -66,27 +50,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.core.graphics.drawable.toBitmap
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import com.tk.quicksearch.BuildConfig
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.searchScreen.dialogs.ReleaseNotesDrawer
-import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.shared.featureFlags.FeatureFlag
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
-import com.tk.quicksearch.shared.permissions.LockScreenAccessibilityDisclosureDialog
-import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.util.AppLanguageManager
 import com.tk.quicksearch.shared.util.FeedbackUtils
-import com.tk.quicksearch.shared.util.isDefaultHomeApp
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
+import com.tk.quicksearch.shared.ui.components.ConnectedButton
+import com.tk.quicksearch.shared.ui.components.ConnectedButtonRow
 
 /**
  * More options section with rating, feedback, GitHub, and features.
@@ -198,12 +177,12 @@ fun SettingsMoreOptions(
 
     // Feedback rows, then More apps, then the licenses link close the group.
     val count = feedbackItems.size + 2
-    SettingsSegmentGroup(modifier = modifier) {
+    SegmentedGroup(modifier = modifier) {
         feedbackItems.forEachIndexed { index, item ->
             SettingsSegmentNavigationRow(item = item, index = index, count = count)
         }
 
-        SettingsSegment(index = count - 2, count = count) {
+        SegmentedTile(index = count - 2, count = count) {
             // Title row, then a connected Google Play / GitHub pair in the Backup button style.
             Column(
                 modifier =
@@ -216,17 +195,14 @@ fun SettingsMoreOptions(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
                 ) {
-                    SettingsIconBadge(icon = MaterialSymbols.Apps)
+                    TonalIconBadge(icon = MaterialSymbols.Apps)
                     Text(
                         text = stringResource(R.string.settings_more_apps_from_developer_title),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
-                ) {
+                ConnectedButtonRow(modifier = Modifier.fillMaxWidth()) {
                     BackupButton(
                         text = stringResource(R.string.search_engine_google_play),
                         icon = {
@@ -238,7 +214,7 @@ fun SettingsMoreOptions(
                             )
                         },
                         onClick = onOpenDeveloperGooglePlay,
-                        shape = BackupButtonStartShape,
+                        isStart = true,
                         modifier = Modifier.weight(1f),
                     )
                     BackupButton(
@@ -251,14 +227,14 @@ fun SettingsMoreOptions(
                             )
                         },
                         onClick = onOpenDeveloperGitHub,
-                        shape = BackupButtonEndShape,
+                        isStart = false,
                         modifier = Modifier.weight(1f),
                     )
                 }
             }
         }
 
-        SettingsSegment(index = count - 1, count = count, onClick = onOpenOssLicenses) {
+        SegmentedTile(index = count - 1, count = count, onClick = onOpenOssLicenses) {
             Text(
                 text = stringResource(R.string.settings_open_source_licenses_title),
                 style = MaterialTheme.typography.titleMedium,
@@ -284,7 +260,7 @@ internal fun BackupRestoreRow(
     onImportClick: () -> Unit,
     onExportClick: () -> Unit,
 ) {
-    SettingsSegment(index = index, count = count) {
+    SegmentedTile(index = index, count = count) {
         Column(
             modifier =
                 Modifier
@@ -299,7 +275,7 @@ internal fun BackupRestoreRow(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
             ) {
-                SettingsIconBadge(icon = MaterialSymbols.History)
+                TonalIconBadge(icon = MaterialSymbols.History)
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(
                         text = stringResource(R.string.settings_backup_restore_title),
@@ -313,22 +289,19 @@ internal fun BackupRestoreRow(
                     )
                 }
             }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
-            ) {
+            ConnectedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 BackupButton(
                     text = stringResource(R.string.settings_backup_import_button),
                     icon = { BackupButtonIcon(MaterialSymbols.Download) },
                     onClick = onImportClick,
-                    shape = BackupButtonStartShape,
+                    isStart = true,
                     modifier = Modifier.weight(1f),
                 )
                 BackupButton(
                     text = stringResource(R.string.settings_backup_export_button),
                     icon = { BackupButtonIcon(MaterialSymbols.Upload) },
                     onClick = onExportClick,
-                    shape = BackupButtonEndShape,
+                    isStart = false,
                     modifier = Modifier.weight(1f),
                 )
             }
@@ -350,32 +323,26 @@ private fun BackupButton(
     text: String,
     icon: @Composable () -> Unit,
     onClick: () -> Unit,
-    shape: androidx.compose.ui.graphics.Shape,
+    isStart: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    androidx.compose.material3.Button(
+    ConnectedButton(
         onClick = onClick,
-        modifier = modifier.height(BackupButtonHeight),
-        shape = shape,
-        colors =
-            ButtonDefaults.buttonColors(
-                containerColor = AppColors.Accent.copy(alpha = BackupButtonTintAlpha),
-                contentColor = AppColors.Accent,
-            ),
-        contentPadding = PaddingValues(horizontal = DesignTokens.SpacingLarge),
+        isStart = isStart,
+        isEnd = !isStart,
+        containerColor = AppColors.AccentTintTonal,
+        contentColor = AppColors.Accent,
+        modifier = modifier,
+        height = BackupButtonHeight,
+        pressMorph = false,
     ) {
         icon()
         Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
-        Text(text = text, style = MaterialTheme.typography.labelLarge, maxLines = 1)
+        Text(text = text, maxLines = 1)
     }
 }
 
 private val BackupButtonHeight = 48.dp
-private const val BackupButtonTintAlpha = 0.14f
-private val BackupButtonStartShape =
-    RoundedCornerShape(topStart = 24.dp, bottomStart = 24.dp, topEnd = 8.dp, bottomEnd = 8.dp)
-private val BackupButtonEndShape =
-    RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp, topEnd = 24.dp, bottomEnd = 24.dp)
 
 /**
  * Header component for the settings screen.
@@ -523,7 +490,7 @@ fun SettingsVersionDisplay(
                     Modifier
                         .size(VersionFooterCookieSize)
                         .graphicsLayer { rotationZ = rotation }
-                        .background(MaterialTheme.colorScheme.secondaryContainer, FooterCookieShape),
+                        .background(MaterialTheme.colorScheme.secondaryContainer, AppShapes.cookie9),
             )
             if (appIcon != null) {
                 Image(
@@ -599,7 +566,7 @@ fun SettingsVersionDisplay(
                     modifier =
                         Modifier
                             .size(40.dp)
-                            .background(MaterialTheme.colorScheme.secondaryContainer, FooterCloverShape),
+                            .background(MaterialTheme.colorScheme.secondaryContainer, AppShapes.clover4),
                 ) {
                     Icon(
                         imageVector = MaterialSymbols.OpenInNew,
@@ -615,5 +582,3 @@ fun SettingsVersionDisplay(
 
 private val VersionFooterIconSize = 44.dp
 private val VersionFooterCookieSize = 88.dp
-private val FooterCookieShape = CookieShape(lobes = 9)
-private val FooterCloverShape = CookieShape(lobes = 4, depth = 0.22f)

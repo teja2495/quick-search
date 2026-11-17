@@ -2,72 +2,39 @@ package com.tk.quicksearch.settings.settingsScreen
 
 import com.tk.quicksearch.settings.shared.settingsScrollClip
 import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
-import android.content.ActivityNotFoundException
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenCallbacks as SharedSettingsScreenCallbacks
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenState as SharedSettingsScreenState
 import android.net.Uri
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.verticalScroll
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
-import androidx.compose.material3.ButtonDefaults
-import com.tk.quicksearch.settings.shared.SettingsCard
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.searchScreen.dialogs.ReleaseNotesDrawer
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.settings.shared.*
-import com.tk.quicksearch.shared.featureFlags.FeatureFlag
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.permissions.LockScreenAccessibilityDisclosureDialog
 import com.tk.quicksearch.shared.ui.components.TipBanner
@@ -75,12 +42,13 @@ import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.AppLanguageManager
-import com.tk.quicksearch.shared.util.AppLanguageOption
-import com.tk.quicksearch.shared.util.FeedbackUtils
 import com.tk.quicksearch.shared.util.isDefaultHomeApp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 /**
  * Retrieves the app version name from the package manager.
@@ -198,8 +166,8 @@ fun SettingsScreen(
                 } else {
                     R.string.settings_overlay_mode_desc
                 }
-            SettingsSegmentGroup(modifier = Modifier.padding(bottom = DesignTokens.SectionTopPadding)) {
-                SettingsSegmentToggleRow(
+            SegmentedGroup(modifier = Modifier.padding(bottom = DesignTokens.SectionTopPadding)) {
+                SegmentedToggleTile(
                     title = stringResource(R.string.settings_overlay_mode_title),
                     description = stringResource(overlayModeSubtitleRes),
                     icon = MaterialSymbols.Layers,
@@ -330,7 +298,7 @@ fun SettingsScreen(
                     )
                 }
 
-            SettingsSegmentGroup(modifier = Modifier.padding(bottom = DesignTokens.SectionTopPadding)) {
+            SegmentedGroup(modifier = Modifier.padding(bottom = DesignTokens.SectionTopPadding)) {
                 navigationItems.forEachIndexed { index, item ->
                     SettingsSegmentNavigationRow(item = item, index = index, count = navigationItems.size)
                 }
@@ -369,7 +337,7 @@ fun SettingsScreen(
                 )
             // The backup tile closes this group.
             val systemCount = systemItems.size + 1
-            SettingsSegmentGroup(modifier = Modifier.padding(bottom = DesignTokens.SectionTopPadding)) {
+            SegmentedGroup(modifier = Modifier.padding(bottom = DesignTokens.SectionTopPadding)) {
                 systemItems.forEachIndexed { index, item ->
                     SettingsSegmentNavigationRow(item = item, index = index, count = systemCount)
                 }
@@ -437,7 +405,7 @@ fun SettingsScreen(
                 Text(text = stringResource(R.string.settings_backup_import_warning_message))
             },
             confirmButton = {
-                TextButton(
+                AppTextButton(
                     onClick = {
                         showImportWarningDialog = false
                         val externalUri = pendingImportSourceUri
@@ -458,7 +426,7 @@ fun SettingsScreen(
                 }
             },
             dismissButton = {
-                TextButton(
+                AppTextButton(
                     onClick = {
                         showImportWarningDialog = false
                         pendingImportSourceUri = null

@@ -1,6 +1,6 @@
 package com.tk.quicksearch.settings.appShortcutsSettings
 
-import com.tk.quicksearch.settings.shared.SettingsSwitch
+import com.tk.quicksearch.shared.ui.components.AppSwitch
 import android.graphics.BitmapFactory
 import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -18,22 +18,18 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.ui.draw.rotate
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.semantics.Role
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,14 +42,11 @@ import kotlinx.coroutines.withContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -74,6 +67,8 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
 import com.tk.quicksearch.shared.util.withoutWhitespaces
 import java.util.Locale
+import com.tk.quicksearch.shared.ui.theme.AppMotion
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 @Composable
 fun EditCustomShortcutDialog(
@@ -254,7 +249,7 @@ fun EditCustomShortcutDialog(
             }
         },
         confirmButton = {
-            TextButton(
+            AppTextButton(
                 onClick = { onSave(trimmedName, editableConfiguredValue?.let { trimmedValue }, iconBase64) },
                 enabled = canSave,
             ) {
@@ -262,7 +257,7 @@ fun EditCustomShortcutDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(text = stringResource(R.string.dialog_cancel))
             }
         },
@@ -330,7 +325,7 @@ fun AppShortcutCardHeader(
 
     val chevronRotation by animateFloatAsState(
         targetValue = if (isExpanded) 180f else 0f,
-        animationSpec = DesignTokens.expressiveDefaultSpatialSpring(),
+        animationSpec = AppMotion.defaultSpatial(),
         label = "shortcutGroupChevron",
     )
     Row(
@@ -486,7 +481,7 @@ fun ShortcutToggleRow(
         }
 
         if (showToggle) {
-            SettingsSwitch(
+            AppSwitch(
                 checked = checked,
                 onCheckedChange = {
                     hapticToggle(view)()
@@ -529,7 +524,7 @@ fun DisableAllAppShortcutsRow(
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f),
         )
-        SettingsSwitch(
+        AppSwitch(
             checked = checked,
             onCheckedChange = null,
         )

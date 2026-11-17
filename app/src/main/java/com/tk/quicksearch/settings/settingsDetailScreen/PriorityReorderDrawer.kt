@@ -25,8 +25,8 @@ import androidx.core.view.HapticFeedbackConstantsCompat
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchSectionUiMetadataRegistry
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSwitch
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.AppSwitch
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
@@ -73,11 +73,11 @@ internal fun PriorityReorderDialog(
         ) {
             itemsIndexed(orderedItems, key = { _, section -> section.name }) { index, section ->
                 ReorderableItem(state = reorderState, key = section.name) { isDragging ->
-                    SettingsSegment(
+                    SegmentedTile(
                         index = if (isDragging) 0 else index,
                         count = if (isDragging) 1 else orderedItems.size,
                         containerColor = if (isDragging) {
-                            AppColors.Accent.copy(alpha = 0.24f).compositeOver(AppColors.getSettingsCardContainerColor())
+                            AppColors.AccentTintStrong.compositeOver(AppColors.getSettingsCardContainerColor())
                         } else {
                             AppColors.getSettingsCardContainerColor()
                         },
@@ -114,7 +114,7 @@ internal fun PriorityReorderDialog(
                             )
                             if (onItemEnabledChange != null) {
                                 val checked = section !in disabledSections
-                                SettingsSwitch(
+                                AppSwitch(
                                     checked = checked,
                                     onCheckedChange = { enabled ->
                                         if (!enabled && orderedItems.count { it !in disabledSections } <= 1 && checked) {

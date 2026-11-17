@@ -119,6 +119,7 @@ import com.tk.quicksearch.shared.ui.theme.homeTextColor
 import com.tk.quicksearch.shared.util.ImageAppearanceUtils
 import android.util.SizeF
 import kotlin.math.roundToInt
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 
 @Composable
 internal fun BoxScope.QuickNotePanelGridItem(
@@ -158,7 +159,7 @@ internal fun BoxScope.QuickNotePanelGridItem(
     var totalDragY by remember { mutableFloatStateOf(0f) }
     val editScale by animateFloatAsState(
         targetValue = if (isEditing) WIDGET_EDIT_LIFT_SCALE else 1f,
-        animationSpec = DesignTokens.expressiveDefaultSpatialSpring(),
+        animationSpec = AppMotion.defaultSpatial(),
         label = "quickNoteEditScale",
     )
 
@@ -243,7 +244,7 @@ internal fun BoxScope.AnimatedWidgetEditOverlay(
             transition.animateFloat(
                 transitionSpec = {
                     if (targetState == EnterExitState.Visible) {
-                        DesignTokens.expressiveFastSpatialSpring()
+                        AppMotion.fastSpatial()
                     } else {
                         snap()
                     }

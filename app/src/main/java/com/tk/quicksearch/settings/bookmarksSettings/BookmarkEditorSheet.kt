@@ -26,7 +26,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -69,6 +68,7 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.AppButton
 
 private const val CUSTOM_ICON_MAX_SIZE_PX = 256
 
@@ -286,7 +286,7 @@ private fun BookmarkEditorForm(
                 modifier = Modifier.padding(top = OutlinedTextFieldLabelInset),
             )
         }
-        Button(
+        AppButton(
             onClick = onSave,
             enabled = isUrlValid,
             modifier =
@@ -362,7 +362,7 @@ private fun BookmarkIconPicker(
                         .align(Alignment.BottomEnd)
                         .size(22.dp)
                         .clip(CircleShape)
-                        .background(AppColors.Accent.copy(alpha = 0.3f).compositeOver(AppColors.DialogBackground))
+                        .background(AppColors.AccentTintEmphasis.compositeOver(AppColors.DialogBackground))
                         .clickable(onClick = onClick),
                 contentAlignment = Alignment.Center,
             ) {

@@ -44,15 +44,15 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.notes.NotesTextUtils
-import com.tk.quicksearch.settings.shared.SettingsSegment
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.settings.shared.SettingsIconBadge
-import com.tk.quicksearch.settings.shared.SettingsFloatingActionHeight
-import com.tk.quicksearch.settings.shared.settingsFloatingActionShape
-import com.tk.quicksearch.settings.shared.SettingsSegmentRow
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.floatingActionShape
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
 
 @Composable
 fun NotesSettingsBottomBar(
@@ -80,9 +80,9 @@ fun NotesSettingsBottomBar(
             ExtendedFloatingActionButton(
                 onClick = { if (deleteEnabled) onDeleteSelected() },
                 expanded = true,
-                modifier = Modifier.fillMaxWidth().height(SettingsFloatingActionHeight)
+                modifier = Modifier.fillMaxWidth().height(DesignTokens.FloatingActionHeight)
                     .alpha(if (deleteEnabled) 1f else 0.38f),
-                shape = settingsFloatingActionShape(interactionSource),
+                shape = floatingActionShape(interactionSource),
                 interactionSource = interactionSource,
                 containerColor = MaterialTheme.colorScheme.error,
                 contentColor = MaterialTheme.colorScheme.onError,
@@ -158,10 +158,10 @@ fun NotesSettingsSection(
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
         quickNote?.let { note ->
-            SettingsSegment(index = 0, count = 1, onClick = { onOpenNoteEditor(note.noteId) }) {
-                SettingsSegmentRow(
+            SegmentedTile(index = 0, count = 1, onClick = { onOpenNoteEditor(note.noteId) }) {
+                SegmentedTileRow(
                     title = stringResource(R.string.notes_quick_note_title),
-                    leading = { SettingsIconBadge(icon = MaterialSymbols.EditNote) },
+                    leading = { TonalIconBadge(icon = MaterialSymbols.EditNote) },
                 )
             }
         }
@@ -169,7 +169,7 @@ fun NotesSettingsSection(
         if (filteredNotes.isNotEmpty() || normalizedSearchQuery.isNotBlank()) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 if (filteredNotes.isEmpty()) {
-                    SettingsSegment(index = 0, count = 1) {
+                    SegmentedTile(index = 0, count = 1) {
                         Box(
                             modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
                             contentAlignment = Alignment.Center,
@@ -216,11 +216,11 @@ private fun NotesList(
             key = { _, note -> note.noteId },
         ) { index, note ->
             val selected = multiSelectActive && note.noteId in selectedNoteIds
-            SettingsSegment(
+            SegmentedTile(
                 index = index,
                 count = notes.size,
                 containerColor = if (selected) {
-                    AppColors.Accent.copy(alpha = 0.14f).compositeOver(AppColors.getSettingsCardContainerColor())
+                    AppColors.AccentTintTonal.compositeOver(AppColors.getSettingsCardContainerColor())
                 } else {
                     AppColors.getSettingsCardContainerColor()
                 },
@@ -274,7 +274,7 @@ private fun NoteListRow(
                 onCheckedChange = { onToggleSelected() },
             )
         } else {
-            SettingsIconBadge(icon = MaterialSymbols.EditNote)
+            TonalIconBadge(icon = MaterialSymbols.EditNote)
         }
         androidx.compose.foundation.layout.Column(
             modifier = Modifier.weight(1f),

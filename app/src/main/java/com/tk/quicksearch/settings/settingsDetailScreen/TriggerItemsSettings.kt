@@ -39,8 +39,8 @@ import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
 import com.tk.quicksearch.search.data.preferences.TriggerPreferences
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsRepository
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentRow
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -167,7 +167,7 @@ fun TriggerItemsScreen(
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
         ) {
             itemsIndexed(allItems) { index, item ->
-                SettingsSegment(index = index, count = allItems.size) {
+                SegmentedTile(index = index, count = allItems.size) {
                     TriggerItemRow(
                         item = item,
                         onRemove = {
@@ -195,14 +195,14 @@ private fun TriggerItemRow(
     item: TriggerItem,
     onRemove: () -> Unit,
 ) {
-    SettingsSegmentRow(
+    SegmentedTileRow(
         title = item.word,
         description = item.itemName.takeIf { it.isNotBlank() },
         leading = {
             Box(
                 modifier = Modifier.size(DesignTokens.Spacing40)
                     .clip(CircleShape)
-                    .background(AppColors.Accent.copy(alpha = 0.14f)),
+                    .background(AppColors.AccentTintTonal),
                 contentAlignment = Alignment.Center,
             ) {
                 TriggerItemIcon(item)

@@ -20,7 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.graphics.Color
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.widgets.utils.WidgetPreferences
 import com.tk.quicksearch.widgets.utils.WidgetRanges
@@ -41,7 +41,7 @@ fun WidgetSlidersSection(
 ) {
     val offset = if (leadingTile != null) 1 else 0
     val count = offset + if (showBorderControls) 3 else 2
-    SettingsSegmentGroup {
+    SegmentedGroup {
         if (leadingTile != null) {
             WidgetSettingTile(index = 0, count = count, content = leadingTile)
         }

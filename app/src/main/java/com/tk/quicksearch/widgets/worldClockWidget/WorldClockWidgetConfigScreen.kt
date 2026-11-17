@@ -30,7 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.widgets.noteWidget.NoteWidgetBackgroundSection
 import com.tk.quicksearch.widgets.noteWidget.WidgetTextColorSection
@@ -129,7 +129,7 @@ fun WorldClockWidgetConfigScreen(
                     onAddClick = { showSearch = true },
                     onLocationsChange = { onConfigChange(config.copy(locations = it)) },
                 )
-                SettingsSegmentGroup {
+                SegmentedGroup {
                     NoteWidgetBackgroundSection(
                         state = config.style,
                         index = 0,

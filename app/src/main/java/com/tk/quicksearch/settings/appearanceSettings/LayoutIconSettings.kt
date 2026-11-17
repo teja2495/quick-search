@@ -24,10 +24,10 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.data.preferences.UiPreferences
-import com.tk.quicksearch.settings.shared.SettingsChoice
-import com.tk.quicksearch.settings.shared.SettingsChoiceGroup
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.ChoiceOption
+import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsToggleSliderDetails
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -59,9 +59,9 @@ fun AppIconCard(
 
     val showColumns = !isTablet()
     val count = if (showColumns) 5 else 4
-    SettingsSegmentGroup(modifier = modifier) {
+    SegmentedGroup(modifier = modifier) {
         var index = 0
-        SettingsSegment(index = index++, count = count) {
+        SegmentedTile(index = index++, count = count) {
                 SettingsToggleRow(
                         title = stringResource(R.string.settings_app_icon_size_title),
                         checked = true,
@@ -96,7 +96,7 @@ fun AppIconCard(
         }
 
         if (showColumns) {
-            SettingsSegment(index = index++, count = count) {
+            SegmentedTile(index = index++, count = count) {
                 AppColumnsSelector(
                         selectedColumns = phoneAppGridColumns,
                         onSelectColumns = onSetPhoneAppGridColumns,
@@ -104,7 +104,7 @@ fun AppIconCard(
             }
         }
 
-        SettingsSegment(index = index++, count = count) {
+        SegmentedTile(index = index++, count = count) {
                 SettingsToggleRow(
                         title = stringResource(R.string.settings_show_app_labels_title),
                         subtitle = stringResource(R.string.settings_show_app_labels_desc),
@@ -116,7 +116,7 @@ fun AppIconCard(
                 )
         }
 
-        SettingsSegment(index = index++, count = count) {
+        SegmentedTile(index = index++, count = count) {
                 SettingsToggleRow(
                         title = stringResource(R.string.settings_circular_app_icons_title),
                         subtitle = stringResource(R.string.settings_circular_app_icons_desc),
@@ -129,7 +129,7 @@ fun AppIconCard(
                 )
         }
 
-        SettingsSegment(index = index, count = count, onClick = onIconPackClick) {
+        SegmentedTile(index = index, count = count, onClick = onIconPackClick) {
                 Row(
                         modifier =
                                 Modifier.fillMaxWidth()
@@ -193,11 +193,11 @@ private fun AppColumnsSelector(
                     color = MaterialTheme.colorScheme.onSurface,
             )
         }
-        SettingsChoiceGroup(
+        ConnectedChoiceGroup(
                 options =
                         listOf(
-                                SettingsChoice(4, stringResource(R.string.settings_app_columns_4)),
-                                SettingsChoice(5, stringResource(R.string.settings_app_columns_5)),
+                                ChoiceOption(4, stringResource(R.string.settings_app_columns_4)),
+                                ChoiceOption(5, stringResource(R.string.settings_app_columns_5)),
                         ),
                 selected = if (selectedColumns == 4) 4 else 5,
                 onSelect = onSelectColumns,

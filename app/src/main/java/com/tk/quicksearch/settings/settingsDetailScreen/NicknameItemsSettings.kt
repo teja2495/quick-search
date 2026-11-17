@@ -37,9 +37,9 @@ import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.data.appShortcutRepository.AppShortcutCache
 import com.tk.quicksearch.search.data.preferences.NicknamePreferences
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsRepository
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
-import com.tk.quicksearch.settings.shared.SettingsSegmentRow
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -175,9 +175,9 @@ fun NicknameItemsScreen(
             modifier = Modifier.padding(bottom = DesignTokens.SectionDescriptionBottomPadding),
         )
 
-        SettingsSegmentGroup {
+        SegmentedGroup {
             allItems.forEachIndexed { index, item ->
-                SettingsSegment(index = index, count = allItems.size) {
+                SegmentedTile(index = index, count = allItems.size) {
                     NicknameItemRow(
                         item = item,
                         onRemove = {
@@ -205,7 +205,7 @@ private fun NicknameItemRow(
     item: NicknameItem,
     onRemove: () -> Unit,
 ) {
-    SettingsSegmentRow(
+    SegmentedTileRow(
         title = item.nickname,
         description = item.itemName.takeIf { it.isNotBlank() },
         leading = {

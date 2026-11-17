@@ -7,7 +7,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,19 +21,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.SettingsChoice
-import com.tk.quicksearch.settings.shared.SettingsFloatingActionHeight
-import com.tk.quicksearch.settings.shared.SettingsChoiceGroup
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentContent
-import com.tk.quicksearch.settings.shared.settingsFloatingActionShape
+import com.tk.quicksearch.shared.ui.components.ChoiceOption
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
+import com.tk.quicksearch.shared.ui.theme.floatingActionShape
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
-import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.AppButton
 
 /**
  * One widget setting as a Material 3 Expressive settings tile at [index] of [count] in a
- * [com.tk.quicksearch.settings.shared.SettingsSegmentGroup]: an optional `titleMedium` heading and
+ * [com.tk.quicksearch.settings.shared.SegmentedGroup]: an optional `titleMedium` heading and
  * description over free-form [content] (choice groups, sliders, pickers).
  */
 @Composable
@@ -46,8 +46,8 @@ fun WidgetSettingTile(
     count: Int = 1,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    SettingsSegment(index = index, count = count, modifier = modifier) {
-        SettingsSegmentContent {
+    SegmentedTile(index = index, count = count, modifier = modifier) {
+        SegmentedTileContent {
             if (title != null || description != null) {
                 Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall / 2)) {
                     if (title != null) {
@@ -85,7 +85,7 @@ internal const val WIDGET_CUSTOM_COLOR_CHOICE = "custom"
  */
 @Composable
 internal fun WidgetColorChoiceGroup(
-    options: List<SettingsChoice<String>>,
+    options: List<ChoiceOption<String>>,
     selected: String?,
     onSelect: (String) -> Unit,
     customColor: Color?,
@@ -95,13 +95,13 @@ internal fun WidgetColorChoiceGroup(
 ) {
     var showColorPicker by rememberSaveable { mutableStateOf(false) }
     val custom =
-        SettingsChoice(
+        ChoiceOption(
             value = WIDGET_CUSTOM_COLOR_CHOICE,
             label = stringResource(R.string.common_custom),
             icon = if (customColor == null) MaterialSymbols.Palette else null,
             swatch = customColor,
         )
-    SettingsChoiceGroup(
+    ConnectedChoiceGroup(
         options = options + custom,
         // An empty key matches no option, for a state none of the choices describes.
         selected = if (customColor != null) WIDGET_CUSTOM_COLOR_CHOICE else selected.orEmpty(),
@@ -134,11 +134,11 @@ fun WidgetSaveButton(
     modifier: Modifier = Modifier,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    Button(
+    AppButton(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier.fillMaxWidth().height(SettingsFloatingActionHeight),
-        shape = settingsFloatingActionShape(interactionSource),
+        modifier = modifier.fillMaxWidth().height(DesignTokens.FloatingActionHeight),
+        shape = floatingActionShape(interactionSource),
         interactionSource = interactionSource,
         colors =
             ButtonDefaults.buttonColors(

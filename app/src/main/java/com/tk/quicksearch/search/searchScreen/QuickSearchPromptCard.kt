@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.Image
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -25,6 +24,7 @@ import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.components.AppTonalButton
 
 private const val QUICK_SEARCH_PACKAGE_NAME = "com.tk.quicksearch"
 private val RateCardIconSize = 24.dp
@@ -117,7 +117,7 @@ internal fun QuickSearchPromptCard(
                     modifier = Modifier.weight(1f),
                     contentAlignment = Alignment.Center,
                 ) {
-                    FilledTonalButton(
+                    AppTonalButton(
                         onClick = onClick,
                         modifier = Modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(

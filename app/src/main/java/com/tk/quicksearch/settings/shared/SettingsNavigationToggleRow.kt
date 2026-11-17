@@ -30,13 +30,18 @@ import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContentPadding
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.LocalInSegmentedTile
+import com.tk.quicksearch.shared.ui.components.AppSwitch
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
 
 /**
  * A settings row with a leading icon, title/subtitle text, an optional navigation arrow,
  * and a toggle switch. Matches the visual style of search result type toggle rows.
  *
  * When [onRowClick] is provided, a chevron and vertical divider appear between the
- * navigation area and the toggle switch. Inside a [SettingsSegment] it takes the tile layout.
+ * navigation area and the toggle switch. Inside a [SegmentedTile] it takes the tile layout.
  */
 @Composable
 fun SettingsNavigationToggleRow(
@@ -57,7 +62,7 @@ fun SettingsNavigationToggleRow(
     val rowInteractionSource = remember { MutableInteractionSource() }
     val rowIndication = LocalIndication.current
     // In a segmented tile: tonal icon badge, tile padding, and bodyMedium supporting text.
-    val segmented = LocalSettingsSegmented.current
+    val segmented = LocalInSegmentedTile.current
 
     Row(
         modifier =
@@ -77,7 +82,7 @@ fun SettingsNavigationToggleRow(
                 }
                 .then(
                     if (segmented) {
-                        Modifier.heightIn(min = SettingsNavigationToggleTileMinHeight).padding(SettingsSegmentRowPadding)
+                        Modifier.heightIn(min = SettingsNavigationToggleTileMinHeight).padding(SegmentedTileContentPadding)
                     } else {
                         Modifier.padding(
                             horizontal = DesignTokens.CardHorizontalPadding,
@@ -91,11 +96,11 @@ fun SettingsNavigationToggleRow(
         Row(
             modifier = Modifier.weight(1f),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(if (segmented) SettingsSegmentRowPadding else DesignTokens.ItemRowSpacing),
+            horizontalArrangement = Arrangement.spacedBy(if (segmented) SegmentedTileContentPadding else DesignTokens.ItemRowSpacing),
         ) {
             leadingIcon?.let {
                 if (segmented) {
-                    SettingsIconBadge(icon = it)
+                    TonalIconBadge(icon = it)
                 } else {
                     Icon(
                         imageVector = it,
@@ -153,7 +158,7 @@ fun SettingsNavigationToggleRow(
             }
         }
 
-        SettingsSwitch(
+        AppSwitch(
             checked = checked,
             onCheckedChange = { enabled ->
                 hapticToggle(view)()

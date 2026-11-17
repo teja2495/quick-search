@@ -16,13 +16,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import com.tk.quicksearch.shared.ui.components.AppBottomPopup
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -50,6 +48,9 @@ import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.NoteInfo
 import androidx.compose.ui.platform.LocalContext
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.components.AppButton
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 @Composable
 internal fun ReleaseNotesDrawer(
@@ -181,10 +182,10 @@ internal fun ReleaseNotesDrawer(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                TextButton(onClick = onViewAllFeatures) {
+                AppTextButton(onClick = onViewAllFeatures) {
                     Text(text = stringResource(R.string.release_notes_action_all_features))
                 }
-                Button(onClick = onAcknowledge) {
+                AppButton(onClick = onAcknowledge) {
                     Text(text = stringResource(R.string.release_notes_action_got_it))
                 }
             }
@@ -238,7 +239,7 @@ private fun ReleaseNotesExpanderRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(DesignTokens.CornerSmall))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -271,7 +272,7 @@ private fun ReleaseNotesNavigationRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(DesignTokens.CornerSmall))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,

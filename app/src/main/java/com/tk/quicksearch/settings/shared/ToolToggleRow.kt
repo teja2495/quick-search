@@ -16,6 +16,8 @@ import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
 import com.tk.quicksearch.settings.searchEngineSettings.AliasDisplayType
 import com.tk.quicksearch.settings.searchEngineSettings.AliasCodeDisplay
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
 
 data class ToolToggleCardModel(
     val title: String,
@@ -42,7 +44,7 @@ fun ToolToggleRows(
 ) {
     // With a [scrollState], the tiles scroll inside the group; give [modifier] a bounded height.
     // The group is clipped to the outer corners so tiles scrolling past its edge stay rounded.
-    SettingsSegmentGroup(
+    SegmentedGroup(
         modifier =
             modifier
                 .fillMaxWidth()
@@ -50,7 +52,7 @@ fun ToolToggleRows(
                 .then(if (scrollState != null) Modifier.verticalScroll(scrollState) else Modifier),
     ) {
         tools.forEachIndexed { index, tool ->
-            SettingsSegment(index = index, count = tools.size) {
+            SegmentedTile(index = index, count = tools.size) {
                 ToolToggleRow(tool = tool)
             }
         }

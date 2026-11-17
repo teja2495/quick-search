@@ -5,10 +5,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.ui.text.style.TextAlign
-import android.widget.Toast
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.ui.draw.clip
@@ -24,9 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,24 +34,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.view.HapticFeedbackConstantsCompat
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.preferences.NicknamePreferences
 import com.tk.quicksearch.search.data.preferences.TriggerPreferences
 import com.tk.quicksearch.search.core.AppSuggestionTabType
 import com.tk.quicksearch.search.core.ItemPriorityConfig
 import com.tk.quicksearch.search.core.SearchSection
-import com.tk.quicksearch.search.core.SearchSectionUiMetadataRegistry
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
-import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.theme.AppColors
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import androidx.compose.ui.graphics.compositeOver
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
-import com.tk.quicksearch.shared.util.performHapticFeedbackSafely
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
+import com.tk.quicksearch.shared.ui.components.AppTonalButton
 
 @Composable
 internal fun AppSuggestionTabsDialog(
@@ -91,7 +84,7 @@ internal fun AppSuggestionTabsDialog(
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
         ) {
             itemsIndexed(configurableTabs, key = { _, tab -> tab.first.name }) { index, (tab, title) ->
-                SettingsSegmentToggleRow(
+                SegmentedToggleTile(
                     title = title,
                     checked = tab in enabledTabs,
                     onCheckedChange = { onTabEnabledChange(tab, it) },
@@ -158,8 +151,8 @@ private fun TopMatchesCard(
         }
 
     val tileCount = if (topMatchesEnabled) 3 else 1
-    SettingsSegmentGroup(modifier = modifier) {
-        SettingsSegmentToggleRow(
+    SegmentedGroup(modifier = modifier) {
+        SegmentedToggleTile(
             title = stringResource(R.string.top_matches_title),
             description = stringResource(R.string.top_matches_toggle_desc),
             checked = topMatchesEnabled,
@@ -180,7 +173,7 @@ private fun TopMatchesCard(
                 index = 1,
                 count = tileCount,
             )
-            SettingsSegment(index = 2, count = tileCount) {
+            SegmentedTile(index = 2, count = tileCount) {
                 TopMatchesLimitSlider(
                     selectedLimit = topMatchesLimit,
                     onLimitSelected = onTopMatchesLimitChange,
@@ -248,7 +241,7 @@ private fun LaunchOptionsCard(
     hasFilePermission: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    SettingsSegment(index = 0, count = 1, modifier = modifier) {
+    SegmentedTile(index = 0, count = 1, modifier = modifier) {
         Column(
             modifier = Modifier.padding(
                 horizontal = DesignTokens.SpacingXXLarge,
@@ -272,12 +265,12 @@ private fun LaunchOptionsCard(
                     .height(IntrinsicSize.Max),
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
             ) {
-                FilledTonalButton(
+                AppTonalButton(
                     onClick = { onRefreshApps(true) },
                     modifier = Modifier.weight(1f).fillMaxHeight(),
                     shape = DesignTokens.ShapeFull,
                     colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = AppColors.Accent.copy(alpha = 0.14f),
+                        containerColor = AppColors.AccentTintTonal,
                         contentColor = AppColors.Accent,
                     ),
                     contentPadding = PaddingValues(
@@ -302,12 +295,12 @@ private fun LaunchOptionsCard(
                     }
                 }
                 if (hasContactPermission) {
-                    FilledTonalButton(
+                    AppTonalButton(
                         onClick = { onRefreshContacts(true) },
                         modifier = Modifier.weight(1f).fillMaxHeight(),
                         shape = DesignTokens.ShapeFull,
                         colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = AppColors.Accent.copy(alpha = 0.14f),
+                            containerColor = AppColors.AccentTintTonal,
                             contentColor = AppColors.Accent,
                         ),
                         contentPadding = PaddingValues(
@@ -333,12 +326,12 @@ private fun LaunchOptionsCard(
                     }
                 }
                 if (hasFilePermission) {
-                    FilledTonalButton(
+                    AppTonalButton(
                         onClick = { onRefreshFiles(true) },
                         modifier = Modifier.weight(1f).fillMaxHeight(),
                         shape = DesignTokens.ShapeFull,
                         colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = AppColors.Accent.copy(alpha = 0.14f),
+                            containerColor = AppColors.AccentTintTonal,
                             contentColor = AppColors.Accent,
                         ),
                         contentPadding = PaddingValues(

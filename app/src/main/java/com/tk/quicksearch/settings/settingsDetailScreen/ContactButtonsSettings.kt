@@ -26,9 +26,9 @@ import com.tk.quicksearch.search.contacts.components.ContactResultRow
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.contacts.components.ContactButtonActionIcon
 import com.tk.quicksearch.search.contacts.models.ContactButtonAction
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
-import com.tk.quicksearch.settings.shared.SettingsSegmentRow
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRow
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRowSpacing
@@ -54,20 +54,20 @@ internal fun ContactButtonsSettings(
     // true while picking the first button, false for the second, null when no picker is open
     var pickingPrimaryButton by remember { mutableStateOf<Boolean?>(null) }
 
-    SettingsSegmentGroup(modifier = modifier) {
-        SettingsSegment(index = 0, count = 3) {
+    SegmentedGroup(modifier = modifier) {
+        SegmentedTile(index = 0, count = 3) {
             ContactCardPreview(
                 primaryContactButton = primaryContactButton,
                 secondaryContactButton = secondaryContactButton,
             )
         }
-        SettingsSegment(index = 1, count = 3, onClick = { pickingPrimaryButton = true }) {
+        SegmentedTile(index = 1, count = 3, onClick = { pickingPrimaryButton = true }) {
             ContactButtonPickerRow(
                 label = stringResource(R.string.settings_contact_first_button_title),
                 action = primaryContactButton,
             )
         }
-        SettingsSegment(index = 2, count = 3) {
+        SegmentedTile(index = 2, count = 3) {
             Column {
                 Box(modifier = Modifier.clickable { pickingPrimaryButton = false }) {
                     ContactButtonPickerRow(
@@ -150,7 +150,7 @@ private fun ActionIconSlot(action: ContactButtonAction) {
         modifier = Modifier
             .size(DesignTokens.Spacing40)
             .clip(CircleShape)
-            .background(AppColors.Accent.copy(alpha = 0.14f)),
+            .background(AppColors.AccentTintTonal),
         contentAlignment = Alignment.Center,
     ) {
         ContactButtonActionIcon(action = action)
@@ -162,7 +162,7 @@ private fun ContactButtonPickerRow(
     label: String,
     action: ContactButtonAction,
 ) {
-    SettingsSegmentRow(
+    SegmentedTileRow(
         title = label,
         description = stringResource(action.labelRes),
         leading = { ActionIconSlot(action) },

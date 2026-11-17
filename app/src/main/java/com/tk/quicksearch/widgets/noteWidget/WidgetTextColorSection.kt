@@ -8,7 +8,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.settings.shared.SettingsChoice
+import com.tk.quicksearch.shared.ui.components.ChoiceOption
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.widgets.utils.TextIconColorOverride
 import com.tk.quicksearch.widgets.utils.WidgetPreferences
@@ -36,12 +36,12 @@ internal fun WidgetTextColorSection(
         WidgetColorChoiceGroup(
             options =
                 listOf(
-                    SettingsChoice(
+                    ChoiceOption(
                         TextIconColorOverride.WHITE.name,
                         stringResource(R.string.widget_text_icon_color_white),
                         icon = MaterialSymbols.LightMode,
                     ),
-                    SettingsChoice(
+                    ChoiceOption(
                         TextIconColorOverride.BLACK.name,
                         stringResource(R.string.widget_text_icon_color_black),
                         icon = MaterialSymbols.DarkMode,

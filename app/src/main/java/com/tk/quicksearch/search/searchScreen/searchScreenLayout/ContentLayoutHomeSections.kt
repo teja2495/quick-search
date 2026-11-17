@@ -50,6 +50,7 @@ import com.tk.quicksearch.search.searchScreen.shared.leftOr
 import com.tk.quicksearch.search.searchScreen.shared.rightOr
 import com.tk.quicksearch.search.searchScreen.shared.trackEdgeDistances
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 
 /**
  * Side inset for a collapsed pinned-section header. Flat cards bleed [DesignTokens.SpacingSmall]
@@ -172,7 +173,7 @@ internal fun HomeSectionHeaderRow(
 private fun HomeSectionExpandIndicator(isExpanded: Boolean) {
     val rotation by animateFloatAsState(
         targetValue = if (isExpanded) 180f else 0f,
-        animationSpec = DesignTokens.expressiveDefaultSpatialSpring(),
+        animationSpec = AppMotion.defaultSpatial(),
         label = "homeSectionChevron",
     )
     Icon(

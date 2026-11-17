@@ -63,7 +63,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import com.tk.quicksearch.R
-import com.tk.quicksearch.reminders.ReminderEditorRequests
 import com.tk.quicksearch.search.calendar.calendarRelativeTimeLabel
 import com.tk.quicksearch.search.data.GlanceTiming
 import com.tk.quicksearch.search.data.ReminderRepository
@@ -87,6 +86,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 private val UpcomingReminderDismissSize = 28.dp
 private const val DAY_MILLIS = 24L * 60L * 60L * 1000L
@@ -472,7 +472,7 @@ internal fun UpcomingReminderRow(
             val progressColor = AppColors.Accent
             // Drop the 48dp touch-target padding so the ring hugs the compact pill.
             CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
-                TextButton(
+                AppTextButton(
                     onClick = onUndoDone,
                     contentPadding = PaddingValues(horizontal = DesignTokens.SpacingMedium),
                     modifier =

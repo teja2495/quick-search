@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -28,7 +27,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,10 +38,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.SettingsIconBadge
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
-import com.tk.quicksearch.settings.shared.SettingsSegmentRow
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -61,6 +58,8 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import kotlin.math.roundToInt
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 private const val MILLIS_PER_DAY = 86_400_000L
 
@@ -136,7 +135,7 @@ fun CountdownWidgetConfigScreen(
                         ),
                 verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.SECTION_SPACING),
             ) {
-                SettingsSegmentGroup {
+                SegmentedGroup {
                     CountdownDateSection(
                         targetEpochDay = config.targetEpochDay,
                         onClick = { showDatePicker = true },
@@ -158,7 +157,7 @@ fun CountdownWidgetConfigScreen(
                     }
                 }
                 CountdownFormatSection(config = config, onConfigChange = onConfigChange)
-                SettingsSegmentGroup {
+                SegmentedGroup {
                     NoteWidgetBackgroundSection(
                         state = config.style,
                         index = 0,
@@ -226,14 +225,14 @@ private fun CountdownDateSection(
     index: Int,
     count: Int,
 ) {
-    SettingsSegment(index = index, count = count, onClick = onClick) {
-        SettingsSegmentRow(
+    SegmentedTile(index = index, count = count, onClick = onClick) {
+        SegmentedTileRow(
             title = stringResource(R.string.widget_countdown_date),
             description =
                 targetEpochDay?.let {
                     LocalDate.ofEpochDay(it).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
                 } ?: stringResource(R.string.calendar_create_event_select_date),
-            leading = { SettingsIconBadge(icon = MaterialSymbols.CalendarMonth) },
+            leading = { TonalIconBadge(icon = MaterialSymbols.CalendarMonth) },
         )
     }
 }
@@ -252,12 +251,12 @@ private fun CountdownDatePickerDialog(
     DatePickerDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(
+            AppTextButton(
                 onClick = { state.selectedDateMillis?.let { onConfirm(Math.floorDiv(it, MILLIS_PER_DAY)) } ?: onDismiss() },
             ) { Text(stringResource(R.string.dialog_save)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.dialog_cancel)) }
+            AppTextButton(onClick = onDismiss) { Text(stringResource(R.string.dialog_cancel)) }
         },
     ) {
         DatePicker(state = state)

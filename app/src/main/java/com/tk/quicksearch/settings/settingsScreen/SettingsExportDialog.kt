@@ -7,24 +7,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.SettingsIconBadge
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
-import com.tk.quicksearch.settings.shared.SettingsSegmentRow
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
+import com.tk.quicksearch.shared.ui.components.AppButton
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 @Composable
 fun SettingsExportDialog(
@@ -62,10 +62,10 @@ fun SettingsExportDialog(
         title = stringResource(R.string.settings_backup_export_selection_title),
         onDismiss = onDismiss,
         footer = {
-            Button(onClick = onExport, modifier = Modifier.fillMaxWidth()) {
+            AppButton(onClick = onExport, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.settings_backup_export_button))
             }
-            TextButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) {
+            AppTextButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.dialog_cancel))
             }
         },
@@ -74,10 +74,10 @@ fun SettingsExportDialog(
             modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         ) {
-            SettingsSegmentGroup {
+            SegmentedGroup {
                 options.forEachIndexed { index, option ->
-                    SettingsSegment(index = index, count = options.size) {
-                        SettingsSegmentRow(
+                    SegmentedTile(index = index, count = options.size) {
+                        SegmentedTileRow(
                             title = stringResource(option.titleRes),
                             modifier = Modifier.toggleable(
                                 value = option.checked,
@@ -85,7 +85,7 @@ fun SettingsExportDialog(
                                 role = Role.Checkbox,
                                 onValueChange = option.onCheckedChange,
                             ),
-                            leading = { SettingsIconBadge(option.icon) },
+                            leading = { TonalIconBadge(option.icon) },
                             trailing = {
                                 Checkbox(
                                     checked = option.checked,

@@ -21,10 +21,10 @@ import com.tk.quicksearch.search.data.preferences.EdgeGestureConfig
 import com.tk.quicksearch.search.data.preferences.EdgeGestureSide
 import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
 import com.tk.quicksearch.settings.shared.SettingsCardItem
-import com.tk.quicksearch.settings.shared.SettingsChoice
-import com.tk.quicksearch.settings.shared.SettingsChoiceTile
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.ChoiceOption
+import com.tk.quicksearch.shared.ui.components.ChoiceTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.settings.shared.SettingsToggleSliderDetails
@@ -95,8 +95,8 @@ fun EdgeGestureSettingsSection(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
         val enableCount = if (showAccessibilityRow) 2 else 1
-        SettingsSegmentGroup {
-            SettingsSegment(index = 0, count = enableCount) {
+        SegmentedGroup {
+            SegmentedTile(index = 0, count = enableCount) {
                 SettingsToggleRow(
                     title = stringResource(R.string.settings_edge_gesture_title),
                     subtitle = stringResource(R.string.settings_edge_gesture_desc),
@@ -131,13 +131,13 @@ fun EdgeGestureSettingsSection(modifier: Modifier = Modifier) {
 
         if (config.enabled && isAccessibilityEnabled) {
             val count = 6
-            SettingsSegmentGroup {
-                SettingsChoiceTile(
+            SegmentedGroup {
+                ChoiceTile(
                     title = stringResource(R.string.settings_edge_gesture_side),
                     options =
                         listOf(
-                            SettingsChoice(EdgeGestureSide.LEFT, stringResource(R.string.settings_edge_gesture_side_left)),
-                            SettingsChoice(EdgeGestureSide.RIGHT, stringResource(R.string.settings_edge_gesture_side_right)),
+                            ChoiceOption(EdgeGestureSide.LEFT, stringResource(R.string.settings_edge_gesture_side_left)),
+                            ChoiceOption(EdgeGestureSide.RIGHT, stringResource(R.string.settings_edge_gesture_side_right)),
                         ),
                     selected = config.side,
                     onSelect = { side ->
@@ -147,15 +147,15 @@ fun EdgeGestureSettingsSection(modifier: Modifier = Modifier) {
                     index = 0,
                     count = count,
                 )
-                SettingsChoiceTile(
+                ChoiceTile(
                     title = stringResource(R.string.settings_edge_gesture_activation),
                     options =
                         listOf(
-                            SettingsChoice(
+                            ChoiceOption(
                                 EdgeGestureActivation.TAP,
                                 stringResource(R.string.settings_edge_gesture_activation_tap),
                             ),
-                            SettingsChoice(
+                            ChoiceOption(
                                 EdgeGestureActivation.SLIDE,
                                 stringResource(R.string.settings_edge_gesture_activation_slide),
                             ),
@@ -251,7 +251,7 @@ internal fun SettingsSliderTile(
     index: Int,
     count: Int,
 ) {
-    SettingsSegment(index = index, count = count) {
+    SegmentedTile(index = index, count = count) {
         SettingsToggleRow(
             title = title,
             checked = false,

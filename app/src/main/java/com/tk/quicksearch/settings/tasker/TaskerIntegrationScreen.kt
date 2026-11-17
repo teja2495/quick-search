@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -34,15 +33,16 @@ import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
 import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
 import com.tk.quicksearch.search.apps.rememberAppIcon
-import com.tk.quicksearch.settings.shared.SettingsIconBadge
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentContent
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.tools.tasker.TaskerIntentTool
 import com.tk.quicksearch.tools.tasker.TaskerIntegration
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
+import com.tk.quicksearch.shared.ui.components.AppButton
 
 @Composable
 fun TaskerIntegrationScreen(
@@ -65,8 +65,8 @@ fun TaskerIntegrationScreen(
         modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
-        SettingsSegment(index = 0, count = 1) {
-            SettingsSegmentContent {
+        SegmentedTile(index = 0, count = 1) {
+            SegmentedTileContent {
                 Text(
                     stringResource(R.string.tasker_add_intent_title),
                     style = MaterialTheme.typography.titleMedium,
@@ -108,7 +108,7 @@ fun TaskerIntegrationScreen(
                     singleLine = true,
                     colors = dialogTextFieldColors(),
                 )
-                Button(
+                AppButton(
                     onClick = {
                         onAdd(normalizedAlias, name.trim(), action.trim())
                         alias = ""
@@ -126,9 +126,9 @@ fun TaskerIntegrationScreen(
         if (tools.isNotEmpty()) {
             Spacer(Modifier.height(DesignTokens.SpacingSmall))
         }
-        SettingsSegmentGroup {
+        SegmentedGroup {
             tools.forEachIndexed { index, tool ->
-                SettingsSegment(index = index, count = tools.size) {
+                SegmentedTile(index = index, count = tools.size) {
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(
                             start = DesignTokens.SpacingLarge,
@@ -149,7 +149,7 @@ fun TaskerIntegrationScreen(
                                 )
                             }
                         } else {
-                            SettingsIconBadge(icon = MaterialSymbols.Bolt)
+                            TonalIconBadge(icon = MaterialSymbols.Bolt)
                         }
                         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall)) {
                             Text(

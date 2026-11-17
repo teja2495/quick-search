@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import com.tk.quicksearch.shared.util.FeedbackUtils
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.shared.util.PhoneEmailLinkifiedText
+import com.tk.quicksearch.shared.ui.components.AppTonalButton
 
 /** Composable that displays AI search results with loading, success, and error states. */
 @Composable
@@ -162,7 +162,7 @@ private fun QuickSearchHelpContactButton(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    FilledTonalButton(
+    AppTonalButton(
         onClick = {
             FeedbackUtils.launchFeedbackEmail(context, QuickSearchHelp.stripAlias(question))
         },

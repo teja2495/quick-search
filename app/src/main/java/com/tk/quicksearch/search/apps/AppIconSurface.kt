@@ -59,6 +59,7 @@ import com.tk.quicksearch.shared.ui.theme.LocalWallpaperDynamicAccentActive
 import com.tk.quicksearch.search.folders.AppFolderMember
 import com.tk.quicksearch.search.folders.FolderPreviewIcon
 import com.tk.quicksearch.shared.util.hapticConfirm
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -90,7 +91,7 @@ internal fun AppIconSurface(
     val isPressed by interactionSource.collectIsPressedAsState()
     val pressScale by animateFloatAsState(
         targetValue = if (isPressed || isHeld) AppGridPressedScale else 1f,
-        animationSpec = DesignTokens.expressiveFastSpatialSpring(),
+        animationSpec = AppMotion.fastSpatial(),
         label = "appIconPressScale",
     )
     val view = LocalView.current

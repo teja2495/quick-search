@@ -23,12 +23,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -64,9 +62,8 @@ import com.tk.quicksearch.searchEngines.IN_APP_BROWSER_PACKAGE
 import com.tk.quicksearch.searchEngines.loadCustomIconAsBase64
 import com.tk.quicksearch.searchEngines.validateCustomSearchTemplate
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
-import com.tk.quicksearch.settings.shared.SettingsIconBadge
-import com.tk.quicksearch.settings.shared.SettingsSegmentRow
-import com.tk.quicksearch.settings.shared.SettingsSegmentRowPadding
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContentPadding
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -77,6 +74,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.withLink
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
+import com.tk.quicksearch.shared.ui.components.AppButton
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 @Composable
 fun AddSearchEngineCard(
@@ -221,14 +221,14 @@ private fun AddSearchEngineForm(
         modifier = modifier.fillMaxWidth().bringIntoViewRequester(bringIntoViewRequester),
     ) {
         // Collapsed by default like Add Custom Provider: a header tile that expands the form.
-        SettingsSegmentRow(
+        SegmentedTileRow(
             title = stringResource(R.string.settings_add_search_engine_button),
             // The URL instructions show under the title only while the form is open.
             description = stringResource(R.string.settings_add_search_engine_dialog_message),
             descriptionVisible = isExpanded,
             // Glides from centered to top-aligned as the description grows in.
             verticalAlignment = BiasAlignment.Vertical(headerAlignmentBias),
-            leading = { SettingsIconBadge(icon = MaterialSymbols.Add) },
+            leading = { TonalIconBadge(icon = MaterialSymbols.Add) },
             trailing = {
                 Icon(
                     imageVector = MaterialSymbols.ExpandMore,
@@ -251,9 +251,9 @@ private fun AddSearchEngineForm(
                     Modifier
                         .fillMaxWidth()
                         .padding(
-                            start = SettingsSegmentRowPadding,
-                            end = SettingsSegmentRowPadding,
-                            bottom = SettingsSegmentRowPadding,
+                            start = SegmentedTileContentPadding,
+                            end = SegmentedTileContentPadding,
+                            bottom = SegmentedTileContentPadding,
                         )
 
                 Column(
@@ -417,21 +417,21 @@ private fun AddSearchEngineForm(
                         Modifier
                             .fillMaxWidth()
                             .padding(
-                                start = SettingsSegmentRowPadding,
-                                end = SettingsSegmentRowPadding,
-                                bottom = SettingsSegmentRowPadding,
+                                start = SegmentedTileContentPadding,
+                                end = SegmentedTileContentPadding,
+                                bottom = SegmentedTileContentPadding,
                             ),
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall, Alignment.End),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    TextButton(
+                    AppTextButton(
                         onClick = { resetForm() },
                         enabled = urlInput.text.isNotEmpty(),
                         colors = ButtonDefaults.textButtonColors(contentColor = AppColors.Accent),
                     ) {
                         Text(text = stringResource(R.string.common_action_clear))
                     }
-                    Button(
+                    AppButton(
                         onClick = {
                             if (canSave) {
                                 onSave(trimmedName, validTemplate, iconBase64.orEmpty(), selectedBrowserPackage)

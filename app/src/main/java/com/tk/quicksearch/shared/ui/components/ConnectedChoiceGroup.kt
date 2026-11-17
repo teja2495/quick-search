@@ -1,14 +1,12 @@
-package com.tk.quicksearch.settings.shared
+package com.tk.quicksearch.shared.ui.components
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -20,9 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -48,9 +43,11 @@ import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
+import com.tk.quicksearch.shared.ui.theme.AppMotion
+import com.tk.quicksearch.shared.ui.theme.connectedButtonShape
 
-/** One option of a [SettingsChoiceGroup]: a label with an optional icon or color swatch. */
-data class SettingsChoice<T>(
+/** One option of a [ConnectedChoiceGroup]: a label with an optional icon or color swatch. */
+data class ChoiceOption<T>(
     val value: T,
     val label: String,
     val icon: ImageVector? = null,
@@ -76,8 +73,8 @@ data class SettingsChoice<T>(
  * play their own.
  */
 @Composable
-fun <T> SettingsChoiceGroup(
-    options: List<SettingsChoice<T>>,
+fun <T> ConnectedChoiceGroup(
+    options: List<ChoiceOption<T>>,
     selected: T,
     onSelect: (T) -> Unit,
     modifier: Modifier = Modifier,
@@ -99,8 +96,8 @@ fun <T> SettingsChoiceGroup(
         }
     val reservedWidths =
         options.mapIndexed { index, option ->
-            val leading = if (option.swatch != null) SettingsChoiceSwatchSize else SettingsChoiceIconSize
-            labelWidths[index] + leading + SettingsChoiceIconSpacing + SettingsChoicePadding * 2
+            val leading = if (option.swatch != null) ChoiceSwatchSize else ChoiceIconSize
+            labelWidths[index] + leading + ChoiceIconSpacing + ChoicePadding * 2
         }
     // When the row is too narrow for that, only the selected plain option keeps the check's slot,
     // so the room goes to the labels instead of empty slots and long labels stay whole.
@@ -109,18 +106,18 @@ fun <T> SettingsChoiceGroup(
             val hasLeading = option.icon != null || option.swatch != null || option.value == selected
             val leading =
                 when {
-                    option.swatch != null -> SettingsChoiceSwatchSize + SettingsChoiceIconSpacing
-                    hasLeading -> SettingsChoiceIconSize + SettingsChoiceIconSpacing
+                    option.swatch != null -> ChoiceSwatchSize + ChoiceIconSpacing
+                    hasLeading -> ChoiceIconSize + ChoiceIconSpacing
                     else -> 0.dp
                 }
-            labelWidths[index] + leading + SettingsChoicePadding * 2
+            labelWidths[index] + leading + ChoicePadding * 2
         }
     BoxWithConstraints(modifier = modifier.then(if (fillWidth) Modifier.fillMaxWidth() else Modifier)) {
-        val available = maxWidth - SettingsChoiceGap * (options.size - 1).coerceAtLeast(0)
+        val available = maxWidth - DesignTokens.ConnectedGroupGap * (options.size - 1).coerceAtLeast(0)
         val compact = fillWidth && reservedWidths.fold(0.dp) { sum, width -> sum + width } > available
         // Labels never ellipsize: when even the smallest font can't keep them on one line, they
         // wrap at that size and the buttons grow taller.
-        val minScale = SettingsChoiceMinFontSize.value / labelStyle.fontSize.value
+        val minScale = ChoiceMinFontSize.value / labelStyle.fontSize.value
         val wrapLabels =
             compact &&
                 options.indices.fold(0.dp) { sum, index ->
@@ -132,16 +129,16 @@ fun <T> SettingsChoiceGroup(
                 Modifier
                     .then(if (fillWidth) Modifier.fillMaxWidth() else Modifier)
                     .selectableGroup()
-                    .alpha(if (enabled) 1f else SettingsChoiceDisabledAlpha),
-            horizontalArrangement = Arrangement.spacedBy(SettingsChoiceGap),
+                    .alpha(if (enabled) 1f else ChoiceDisabledAlpha),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.ConnectedGroupGap),
         ) {
             options.forEachIndexed { index, option ->
                 val weight by animateFloatAsState(
                     targetValue = targetWeights[index],
-                    animationSpec = DesignTokens.expressiveFastSpatialSpring(),
+                    animationSpec = AppMotion.fastSpatial(),
                     label = "choiceWeight",
                 )
-                SettingsChoiceButton(
+                ChoiceButton(
                     option = option,
                     checked = option.value == selected,
                     isStart = index == 0,
@@ -160,8 +157,8 @@ fun <T> SettingsChoiceGroup(
 }
 
 @Composable
-private fun <T> SettingsChoiceButton(
-    option: SettingsChoice<T>,
+private fun <T> ChoiceButton(
+    option: ChoiceOption<T>,
     checked: Boolean,
     isStart: Boolean,
     isEnd: Boolean,
@@ -171,26 +168,16 @@ private fun <T> SettingsChoiceButton(
     modifier: Modifier = Modifier,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
-    val innerTarget =
-        when {
-            checked -> SettingsChoiceRound
-            pressed -> SettingsChoicePressedInnerCorner
-            else -> SettingsChoiceInnerCorner
-        }
-    val inner by animateDpAsState(innerTarget, DesignTokens.expressiveFastSpatialSpring(), label = "choiceInnerCorner")
-    val start = if (isStart) SettingsChoiceRound else inner
-    val end = if (isEnd) SettingsChoiceRound else inner
-    // Start/end corners follow reading order, so the round ends stay at the group's edges in RTL.
     val shape =
-        RoundedCornerShape(
-            topStart = start,
-            bottomStart = start,
-            topEnd = end,
-            bottomEnd = end,
+        connectedButtonShape(
+            interactionSource,
+            isStart = isStart,
+            isEnd = isEnd,
+            outer = ChoiceRound,
+            selected = checked,
         )
     val container by animateColorAsState(
-        if (checked) AppColors.Accent else AppColors.Accent.copy(alpha = SettingsTonalAlpha),
+        if (checked) AppColors.Accent else AppColors.AccentTintTonal,
         label = "choiceContainer",
     )
     val content by animateColorAsState(
@@ -200,7 +187,7 @@ private fun <T> SettingsChoiceButton(
     Row(
         modifier =
             modifier
-                .heightIn(min = SettingsChoiceHeight)
+                .heightIn(min = ChoiceHeight)
                 .clip(shape)
                 .background(container, shape)
                 .selectable(
@@ -211,22 +198,22 @@ private fun <T> SettingsChoiceButton(
                     indication = ripple(color = content),
                     onClick = onClick,
                 )
-                .padding(horizontal = SettingsChoicePadding),
-        horizontalArrangement = Arrangement.spacedBy(SettingsChoiceIconSpacing, Alignment.CenterHorizontally),
+                .padding(horizontal = ChoicePadding),
+        horizontalArrangement = Arrangement.spacedBy(ChoiceIconSpacing, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val leadingIcon = option.icon ?: if (checked && option.swatch == null) MaterialSymbols.Check else null
         when {
-            option.swatch != null -> SettingsChoiceSwatch(option.swatch)
+            option.swatch != null -> ChoiceSwatch(option.swatch)
             leadingIcon != null ->
                 Icon(
                     imageVector = leadingIcon,
                     contentDescription = null,
                     tint = content,
-                    modifier = Modifier.size(SettingsChoiceIconSize),
+                    modifier = Modifier.size(ChoiceIconSize),
                 )
         }
-        // One line, shrinking toward SettingsChoiceMinFontSize when the row is too narrow; past
+        // One line, shrinking toward ChoiceMinFontSize when the row is too narrow; past
         // that ([wrapLabel]) the label wraps at the minimum size. Never ellipsized.
         val labelStyle = MaterialTheme.typography.labelLarge
         if (wrapLabel) {
@@ -236,8 +223,8 @@ private fun <T> SettingsChoiceButton(
                     labelStyle.copy(
                         color = content,
                         textAlign = TextAlign.Center,
-                        fontSize = SettingsChoiceMinFontSize,
-                        lineHeight = SettingsChoiceMinFontSize * 1.3f,
+                        fontSize = ChoiceMinFontSize,
+                        lineHeight = ChoiceMinFontSize * 1.3f,
                     ),
                 modifier = Modifier.padding(vertical = 6.dp),
             )
@@ -249,7 +236,7 @@ private fun <T> SettingsChoiceButton(
                 softWrap = false,
                 autoSize =
                     TextAutoSize.StepBased(
-                        minFontSize = SettingsChoiceMinFontSize,
+                        minFontSize = ChoiceMinFontSize,
                         maxFontSize = labelStyle.fontSize,
                         stepSize = 0.5.sp,
                     ),
@@ -258,105 +245,49 @@ private fun <T> SettingsChoiceButton(
     }
 }
 
-/**
- * Tonal action button inside a settings tile, such as Reset or Edit: an accent tint with accent
- * content (or [contentColor], e.g. the error color for Delete). [small] is for buttons beside text.
- */
-@Composable
-fun SettingsTonalButton(
-    text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    icon: ImageVector? = null,
-    enabled: Boolean = true,
-    contentColor: Color = AppColors.Accent,
-    small: Boolean = false,
-) {
-    FilledTonalButton(
-        onClick = onClick,
-        modifier = modifier.heightIn(min = if (small) SettingsSmallButtonHeight else SettingsChoiceHeight),
-        enabled = enabled,
-        shape = CircleShape,
-        colors =
-            ButtonDefaults.filledTonalButtonColors(
-                containerColor = contentColor.copy(alpha = SettingsTonalAlpha),
-                contentColor = contentColor,
-                disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
-                disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-            ),
-        contentPadding =
-            if (small) {
-                androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 4.dp)
-            } else {
-                ButtonDefaults.ContentPadding
-            },
-    ) {
-        if (icon != null) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier =
-                    Modifier
-                        .padding(end = if (small) 6.dp else ButtonDefaults.IconSpacing)
-                        .size(if (small) 16.dp else ButtonDefaults.IconSize),
-            )
-        }
-        Text(
-            text = text,
-            style = if (small) MaterialTheme.typography.labelMedium else MaterialTheme.typography.labelLarge,
-            textAlign = TextAlign.Center,
-        )
-    }
-}
-
 /** A color dot; outlined so white and black stay visible on either fill. */
 @Composable
-private fun SettingsChoiceSwatch(color: Color) {
+private fun ChoiceSwatch(color: Color) {
     Box(
         modifier =
             Modifier
-                .size(SettingsChoiceSwatchSize)
+                .size(ChoiceSwatchSize)
                 .clip(CircleShape)
                 .background(color)
                 .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape),
     )
 }
 
-private val SettingsChoiceHeight: Dp = 48.dp
-private val SettingsSmallButtonHeight: Dp = 32.dp
-private val SettingsChoiceRound: Dp = SettingsChoiceHeight / 2
-private val SettingsChoiceInnerCorner: Dp = 8.dp
-private val SettingsChoicePressedInnerCorner: Dp = 4.dp
-private val SettingsChoiceGap: Dp = 2.dp
-private val SettingsChoicePadding: Dp = 12.dp
-private val SettingsChoiceIconSize: Dp = 18.dp
-private val SettingsChoiceIconSpacing: Dp = 8.dp
-private val SettingsChoiceMinFontSize = 11.sp
-private val SettingsChoiceSwatchSize: Dp = 16.dp
-private const val SettingsTonalAlpha = 0.14f
-private const val SettingsChoiceDisabledAlpha = 0.5f
+private val ChoiceHeight: Dp = 48.dp
+private val ChoiceRound: Dp = ChoiceHeight / 2
+private val ChoicePadding: Dp = 12.dp
+private val ChoiceIconSize: Dp = 18.dp
+private val ChoiceIconSpacing: Dp = 8.dp
+private val ChoiceMinFontSize = 11.sp
+private val ChoiceSwatchSize: Dp = 16.dp
+private const val ChoiceDisabledAlpha = 0.5f
 
 /**
- * A segmented tile with a `titleMedium` heading over a full-width [SettingsChoiceGroup], for a
+ * A segmented tile with a `titleMedium` heading over a full-width [ConnectedChoiceGroup], for a
  * single choice that needs the whole tile width (edge gesture side, activation).
  */
 @Composable
-fun <T> SettingsChoiceTile(
+fun <T> ChoiceTile(
     title: String,
-    options: List<SettingsChoice<T>>,
+    options: List<ChoiceOption<T>>,
     selected: T,
     onSelect: (T) -> Unit,
     index: Int,
     count: Int,
 ) {
-    SettingsSegment(index = index, count = count) {
-        SettingsSegmentContent {
+    SegmentedTile(index = index, count = count) {
+        SegmentedTileContent {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
             )
-            SettingsChoiceGroup(options = options, selected = selected, onSelect = onSelect)
+            ConnectedChoiceGroup(options = options, selected = selected, onSelect = onSelect)
         }
     }
 }

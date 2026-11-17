@@ -1,10 +1,10 @@
 package com.tk.quicksearch.settings.searchEngineSettings
 
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
-import com.tk.quicksearch.settings.shared.SettingsSegmentRow
-import com.tk.quicksearch.settings.shared.SettingsSegmentRowPadding
-import com.tk.quicksearch.settings.shared.SettingsSwitch
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContentPadding
+import com.tk.quicksearch.shared.ui.components.AppSwitch
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -155,12 +155,12 @@ fun SearchEngineListCard(
                 key(engine.getId()) {
                     ReorderableItem {
                         // A dragged tile lifts out of the list: fully round, accent-tinted.
-                        SettingsSegment(
+                        SegmentedTile(
                             index = if (isDragging) 0 else index,
                             count = if (isDragging) 1 else enabledEngines.size,
                             containerColor =
                                 if (isDragging) {
-                                    AppColors.Accent.copy(alpha = DraggedTileTintAlpha)
+                                    AppColors.AccentTintStrong
                                         .compositeOver(AppColors.getSettingsCardContainerColor())
                                 } else {
                                     AppColors.getSettingsCardContainerColor()
@@ -280,9 +280,9 @@ fun SearchEngineListCard(
                         Modifier
                             .fillMaxWidth()
                             .padding(
-                                start = SettingsSegmentRowPadding,
+                                start = SegmentedTileContentPadding,
                                 top = if (enabledEngines.isNotEmpty()) 24.dp else 0.dp,
-                                end = SettingsSegmentRowPadding,
+                                end = SegmentedTileContentPadding,
                                 bottom = 8.dp,
                             ).then(disabledHeaderModifier),
                     verticalAlignment = Alignment.CenterVertically,
@@ -306,7 +306,7 @@ fun SearchEngineListCard(
                     modifier =
                         Modifier.padding(top = if (enabledEngines.isNotEmpty()) 24.dp else 0.dp, bottom = 8.dp),
                 ) {
-                    SettingsSegment(
+                    SegmentedTile(
                         index = 0,
                         count = 1,
                         onClick = {
@@ -317,7 +317,7 @@ fun SearchEngineListCard(
                             }
                         },
                     ) {
-                        SettingsSegmentRow(
+                        SegmentedTileRow(
                             title = stringResource(collapsedHeaderTextRes),
                             trailing = {
                                 Icon(
@@ -337,14 +337,14 @@ fun SearchEngineListCard(
                 enter = expandVertically(),
                 exit = shrinkVertically(),
             ) {
-                SettingsSegmentGroup {
+                SegmentedGroup {
                     disabledEngines.forEachIndexed { index, engine ->
                         val engineInfo = (engine as? SearchTarget.Engine)?.engine
                         val targetId = engine.getId()
                         val shortcutCode = shortcutCodes[targetId].orEmpty()
                         val isShortcutEnabled =
                             shortcutEnabled[targetId] ?: shortcutCode.isNotEmpty()
-                        SettingsSegment(index = index, count = disabledEngines.size) {
+                        SegmentedTile(index = index, count = disabledEngines.size) {
                             SearchEngineRowContent(
                                 engine = engine,
                                 isEnabled = false,
@@ -391,7 +391,7 @@ fun SearchEngineListCard(
         }
 
         if (showAddSearchEngineButton && onAddCustomSearchEngine != null) {
-            SettingsSegment(
+            SegmentedTile(
                 index = 0,
                 count = 1,
                 modifier = Modifier.padding(top = 24.dp, bottom = 24.dp),
@@ -448,7 +448,7 @@ private fun SearchEngineRowContent(
                     },
                 )
                 .padding(
-                    horizontal = SettingsSegmentRowPadding,
+                    horizontal = SegmentedTileContentPadding,
                     vertical = DesignTokens.SpacingMedium,
                 ),
         verticalAlignment = Alignment.CenterVertically,
@@ -558,7 +558,7 @@ private fun SearchEngineRowContent(
         }
 
         if (showToggle) {
-            SettingsSwitch(
+            AppSwitch(
                 checked = isEnabled,
                 onCheckedChange = { enabled ->
                     hapticToggle(view)()
@@ -605,5 +605,3 @@ private fun AmazonDomainLink(
         )
     }
 }
-
-private const val DraggedTileTintAlpha = 0.24f

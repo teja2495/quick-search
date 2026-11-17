@@ -100,7 +100,7 @@ internal fun OtpCodeRow(
             Row(
                 modifier =
                     Modifier
-                        .clip(RoundedCornerShape(8.dp))
+                        .clip(RoundedCornerShape(DesignTokens.CornerSmall))
                         .clickable(role = Role.Button) { copied = copySensitiveText(context, copyLabel, otp.code) },
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                 verticalAlignment = Alignment.CenterVertically,

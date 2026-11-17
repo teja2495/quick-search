@@ -33,9 +33,9 @@ fun dialogTextFieldColors(
     unfocusedIndicatorColor: Color = MaterialTheme.colorScheme.outline,
 ): TextFieldColors =
     TextFieldDefaults.colors(
-        focusedContainerColor = AppColors.Accent.copy(alpha = 0.14f),
-        unfocusedContainerColor = AppColors.Accent.copy(alpha = 0.08f),
-        disabledContainerColor = AppColors.Accent.copy(alpha = 0.05f),
+        focusedContainerColor = AppColors.AccentTintTonal,
+        unfocusedContainerColor = AppColors.AccentTintSubtle,
+        disabledContainerColor = AppColors.AccentTintFaint,
         errorContainerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.22f),
         focusedIndicatorColor = AppColors.Accent,
         unfocusedIndicatorColor = unfocusedIndicatorColor,

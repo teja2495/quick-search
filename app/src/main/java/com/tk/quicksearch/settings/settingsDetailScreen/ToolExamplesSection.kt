@@ -14,9 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentContent
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
@@ -44,10 +44,10 @@ internal fun ToolExamplesSection(
             modifier = Modifier.padding(horizontal = DesignTokens.SpacingLarge),
         )
 
-        SettingsSegmentGroup {
+        SegmentedGroup {
             categories.forEachIndexed { index, category ->
-                SettingsSegment(index = index, count = categories.size) {
-                    SettingsSegmentContent(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)) {
+                SegmentedTile(index = index, count = categories.size) {
+                    SegmentedTileContent(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)) {
                         Text(
                             text = stringResource(category.nameRes),
                             style = MaterialTheme.typography.titleSmall,

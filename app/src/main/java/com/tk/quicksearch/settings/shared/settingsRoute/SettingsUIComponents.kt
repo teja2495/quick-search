@@ -14,8 +14,8 @@ import com.tk.quicksearch.search.core.SearchSectionUiMetadataRegistry
 import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
 import com.tk.quicksearch.settings.searchEngineSettings.AliasDisplayType
 import com.tk.quicksearch.settings.searchEngineSettings.AliasCodeDisplay
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsNavigationToggleRow
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
@@ -68,7 +68,7 @@ fun SectionSettingsSection(
         )
     }
 
-    SettingsSegmentGroup(modifier = Modifier.fillMaxWidth()) {
+    SegmentedGroup(modifier = Modifier.fillMaxWidth()) {
         sectionOrder.forEachIndexed { index, section ->
             val isSectionEnabled = section !in disabledSections
             val isAppsRow = section == SearchSection.APPS
@@ -85,7 +85,7 @@ fun SectionSettingsSection(
             val aliasTargetId = SearchSectionUiMetadataRegistry.metadataFor(section).aliasTargetId
             val metadata = getSectionMetadata(section)
 
-            SettingsSegment(index = index, count = sectionOrder.size) {
+            SegmentedTile(index = index, count = sectionOrder.size) {
                 SettingsNavigationToggleRow(
                     title = metadata.name,
                     checked = isSectionEnabled,

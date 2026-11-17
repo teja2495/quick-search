@@ -1,7 +1,5 @@
 package com.tk.quicksearch.shared.ui.theme
 
-import androidx.compose.animation.core.SpringSpec
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Shape
@@ -152,29 +150,78 @@ object DesignTokens {
     val DraggableItemHeight = 60.dp
 
     // ============================================================================
-    // SHAPES (Material 3 Scale)
+    // SHAPES (Material 3 corner scale)
     // ============================================================================
+    // Every corner radius in the app comes from this scale or a role token below it. Build shapes
+    // through [AppShapes]; a new design language changes the values here, not at call sites.
+
+    /** No rounding. */
+    val CornerNone = 0.dp
+
+    /** Extra small corner - 4dp. */
+    val CornerExtraSmall = 4.dp
+
+    /** Small corner - 8dp. */
+    val CornerSmall = 8.dp
+
+    /** Medium corner - 12dp. */
+    val CornerMedium = 12.dp
+
+    /** Large corner - 16dp. */
+    val CornerLarge = 16.dp
+
+    /** Large increased corner - 20dp (Material 3 Expressive). */
+    val CornerLargeIncreased = 20.dp
+
+    /** Extra large corner - 28dp. */
+    val CornerExtraLarge = 28.dp
 
     /** Extra Small shape - 4dp Use for: Autocomplete menu, very small containers */
-    val ShapeExtraSmall: Shape = RoundedCornerShape(4.dp)
+    val ShapeExtraSmall: Shape = RoundedCornerShape(CornerExtraSmall)
 
     /** Small shape - 8dp Use for: Chips, Dialogs, Small FAB */
-    val ShapeSmall: Shape = RoundedCornerShape(8.dp)
+    val ShapeSmall: Shape = RoundedCornerShape(CornerSmall)
 
     /** Medium shape - 12dp Use for: Cards, Small FAB */
-    val ShapeMedium: Shape = RoundedCornerShape(12.dp)
+    val ShapeMedium: Shape = RoundedCornerShape(CornerMedium)
 
     /** Large shape - 16dp Use for: Large FAB, Extended FAB, Navigation drawers */
-    val ShapeLarge: Shape = RoundedCornerShape(16.dp)
+    val ShapeLarge: Shape = RoundedCornerShape(CornerLarge)
 
     /** Extra large shape - 28dp Use for: Large Dialogs, Large Cards */
-    val ShapeXLarge: Shape = RoundedCornerShape(28.dp)
+    val ShapeXLarge: Shape = RoundedCornerShape(CornerExtraLarge)
 
     /**
      * Extra extra large shape - 28dp (Circle-like for search bar height) Use for: Search bar,
      * Round buttons
      */
-    val ShapeXXLarge: Shape = RoundedCornerShape(28.dp)
+    val ShapeXXLarge: Shape = RoundedCornerShape(CornerExtraLarge)
+
+    // ============================================================================
+    // PRESS MORPH (Material 3 Expressive shape change on press)
+    // ============================================================================
+    // Read through [AppShapes] helpers (pressMorphShape, connectedButtonShape, segment shapes).
+
+    /** Corner a fully round extra-small/small button (32-40dp) squares to while pressed. */
+    val ButtonPressedCornerSmall = CornerSmall
+
+    /** Corner a fully round medium button (48-56dp) squares to while pressed. */
+    val ButtonPressedCornerMedium = CornerLarge
+
+    /** Inner corner a pressed segmented tile rounds to. */
+    val SegmentPressedInnerCorner = CornerLarge
+
+    /** Height of floating actions (bottom bars of settings pages, onboarding, save buttons). */
+    val FloatingActionHeight = 56.dp
+
+    /** Gap between the buttons of a connected button group. */
+    val ConnectedGroupGap = 2.dp
+
+    /** Corners between neighbouring buttons of a connected button group. */
+    val ConnectedGroupInnerCorner = CornerSmall
+
+    /** Inner corners of a pressed button in a connected button group. */
+    val ConnectedGroupPressedInnerCorner = CornerExtraSmall
 
     /** Maximum width of floating action popups on tablets and landscape windows. */
     val ItemMenuMaxWidth = 640.dp
@@ -199,10 +246,10 @@ object DesignTokens {
     val SearchResultCardShape: Shape = ExtraLargeCardShape
 
     /** Outer corners of a segmented result list (first and last tile): the result card radius. */
-    val SegmentedListOuterCorner = 28.dp
+    val SegmentedListOuterCorner = CornerExtraLarge
 
     /** Corners between neighbouring tiles of a segmented result list. */
-    val SegmentedListInnerCorner = 4.dp
+    val SegmentedListInnerCorner = CornerExtraSmall
 
     /** Gap between tiles of a segmented result list. */
     val SegmentedListGap = 2.dp
@@ -214,7 +261,7 @@ object DesignTokens {
     val SegmentedListTileVerticalPadding = SpacingXSmall
 
     /** Corner radius for widgets and cards shown in the widgets panel. */
-    val WidgetPanelCornerRadius = 28.dp
+    val WidgetPanelCornerRadius = CornerExtraLarge
 
     /** Shape for widgets and cards shown in the widgets panel. */
     val WidgetPanelCardShape: Shape = RoundedCornerShape(WidgetPanelCornerRadius)
@@ -257,30 +304,6 @@ object DesignTokens {
 
     /** Spring stiffness for drag animations */
     val SpringStiffness = 300f
-
-    // ============================================================================
-    // EXPRESSIVE MOTION (Material 3 Expressive spatial springs)
-    // ============================================================================
-
-    /** Damping of the expressive fast spatial spring: small components (button shape morphs). */
-    const val ExpressiveFastSpatialDamping = 0.6f
-
-    /** Stiffness of the expressive fast spatial spring. */
-    const val ExpressiveFastSpatialStiffness = 800f
-
-    /** Damping of the expressive default spatial spring: partial-screen movement and rotation. */
-    const val ExpressiveDefaultSpatialDamping = 0.8f
-
-    /** Stiffness of the expressive default spatial spring. */
-    const val ExpressiveDefaultSpatialStiffness = 380f
-
-    /** Fast spatial spring for small shape changes, such as a pressed button squaring its corners. */
-    fun <T> expressiveFastSpatialSpring(): SpringSpec<T> =
-        spring(dampingRatio = ExpressiveFastSpatialDamping, stiffness = ExpressiveFastSpatialStiffness)
-
-    /** Default spatial spring for moves and rotations, such as a section chevron turning. */
-    fun <T> expressiveDefaultSpatialSpring(): SpringSpec<T> =
-        spring(dampingRatio = ExpressiveDefaultSpatialDamping, stiffness = ExpressiveDefaultSpatialStiffness)
 
     // ============================================================================
     // WALLPAPER BACKGROUND CONSTANTS

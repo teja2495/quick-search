@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,13 +14,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
@@ -33,15 +31,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.searchEngines.getDisplayNameResId
@@ -53,19 +48,19 @@ import com.tk.quicksearch.search.data.appShortcutRepository.isShortcutDisabled
 import com.tk.quicksearch.search.data.appShortcutRepository.isUserCreatedShortcut
 import com.tk.quicksearch.search.data.appShortcutRepository.shortcutDisplayName
 import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
-import com.tk.quicksearch.searchEngines.getDisplayName
 import com.tk.quicksearch.searchEngines.isSearchTargetShortcutPackageName
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
+import com.tk.quicksearch.shared.ui.theme.AppMotion
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 @Composable
 fun AppShortcutsSettingsSection(
@@ -357,7 +352,7 @@ val context = LocalContext.current
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         androidx.compose.foundation.layout.Box {
-                            TextButton(onClick = { isFilterMenuExpanded = true }) {
+                            AppTextButton(onClick = { isFilterMenuExpanded = true }) {
                                 Text(
                                     text = stringResource(selectedFilterOption.labelResId),
                                     color = MaterialTheme.colorScheme.primary,
@@ -477,7 +472,7 @@ val context = LocalContext.current
                     }
                 }
                 Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap)) {
-                    SettingsSegment(index = 0, count = if (isExpanded && rows.isNotEmpty()) rows.size + 1 else 1) {
+                    SegmentedTile(index = 0, count = if (isExpanded && rows.isNotEmpty()) rows.size + 1 else 1) {
                         AppShortcutCardHeader(
                             packageName = group.packageName,
                             appLabel = group.appLabel,
@@ -496,12 +491,12 @@ val context = LocalContext.current
                     }
                     AnimatedVisibility(
                         visible = isExpanded && rows.isNotEmpty(),
-                        enter = expandVertically(animationSpec = DesignTokens.expressiveDefaultSpatialSpring()),
-                        exit = shrinkVertically(animationSpec = DesignTokens.expressiveDefaultSpatialSpring()),
+                        enter = expandVertically(animationSpec = AppMotion.defaultSpatial()),
+                        exit = shrinkVertically(animationSpec = AppMotion.defaultSpatial()),
                     ) {
-                        SettingsSegmentGroup {
+                        SegmentedGroup {
                             rows.forEachIndexed { index, row ->
-                                SettingsSegment(index = index + 1, count = rows.size + 1) { row() }
+                                SegmentedTile(index = index + 1, count = rows.size + 1) { row() }
                             }
                         }
                     }

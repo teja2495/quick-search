@@ -17,7 +17,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -57,11 +56,11 @@ import com.tk.quicksearch.search.data.preferences.GlancePreferences
 import com.tk.quicksearch.search.data.preferences.UpcomingAlarmPreferences
 import com.tk.quicksearch.search.data.preferences.WidgetGlanceItemSettings
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
-import com.tk.quicksearch.settings.shared.SettingsTonalButton
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
-import com.tk.quicksearch.settings.shared.SettingsSegmentRowPadding
-import com.tk.quicksearch.settings.shared.SettingsSegmentToggleHorizontalPadding
+import com.tk.quicksearch.shared.ui.components.TonalButton
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContentPadding
+import com.tk.quicksearch.shared.ui.components.SegmentedTileToggleHorizontalPadding
 import com.tk.quicksearch.settings.shared.SettingsNestedCheckbox
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.permissions.PermissionHelper
@@ -74,6 +73,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.DateFormat
 import java.util.Date
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 /** One At a Glance toggle; [searchText] is what the page's search bar matches against. */
 private class GlanceToggle(
@@ -439,7 +439,7 @@ fun AtAGlanceSettingsSection(
                                 nestedCheckbox(GlanceItem.TOMORROW_ALARM, stringResource(R.string.settings_at_a_glance_tomorrow_alarm))
                             }
                             if (showHiddenAppsLink) {
-                                SettingsTonalButton(
+                                TonalButton(
                                     text = hiddenAlarmAppsLabel,
                                     icon = MaterialSymbols.VisibilityOff,
                                     onClick = { showHiddenAlarmAppsDialog = true },
@@ -534,14 +534,14 @@ fun AtAGlanceSettingsSection(
             // The page itself doesn't scroll: the tiles take the height left above the search bar
             // and scroll inside it, shrinking to fit when they don't fill it. Only the first and last
             // tiles round their outer corners, so a tile cut off at the edge stays square.
-            SettingsSegmentGroup(
+            SegmentedGroup(
                 modifier =
                     Modifier
                         .weight(1f, fill = false)
                         .verticalScroll(rememberScrollState()),
             ) {
                 visibleToggles.forEachIndexed { index, toggle ->
-                    SettingsSegment(index = index, count = visibleToggles.size) {
+                    SegmentedTile(index = index, count = visibleToggles.size) {
                         toggle.row(index == 0, index == visibleToggles.lastIndex)
                     }
                 }
@@ -568,7 +568,7 @@ fun AtAGlanceSettingsSection(
             title = { Text(stringResource(R.string.custom_info_delete_confirm_title, item.title)) },
             text = { Text(stringResource(R.string.custom_info_delete_confirm_message)) },
             confirmButton = {
-                TextButton(
+                AppTextButton(
                     onClick = {
                         CustomInfoScheduler.cancel(context, item.id)
                         customInfoRepository.delete(item.id)
@@ -580,7 +580,7 @@ fun AtAGlanceSettingsSection(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { itemToDelete = null }) {
+                AppTextButton(onClick = { itemToDelete = null }) {
                     Text(stringResource(R.string.dialog_cancel))
                 }
             },
@@ -653,13 +653,13 @@ private fun CustomInfoActions(
     Row(
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
-        SettingsTonalButton(
+        TonalButton(
             text = stringResource(R.string.settings_edit_label),
             icon = MaterialSymbols.Edit,
             onClick = onEdit,
             small = true,
         )
-        SettingsTonalButton(
+        TonalButton(
             text = stringResource(R.string.dialog_delete),
             icon = MaterialSymbols.Delete,
             onClick = onDelete,
@@ -680,9 +680,9 @@ private fun GlanceToggleExtras(content: @Composable () -> Unit) {
             Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = SettingsSegmentToggleHorizontalPadding,
-                    end = SettingsSegmentToggleHorizontalPadding,
-                    bottom = SettingsSegmentRowPadding,
+                    start = SegmentedTileToggleHorizontalPadding,
+                    end = SegmentedTileToggleHorizontalPadding,
+                    bottom = SegmentedTileContentPadding,
                 ),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
@@ -717,9 +717,9 @@ private fun HiddenAlarmAppsDialog(
         title = { Text(text = stringResource(R.string.settings_hidden_alarm_apps_title)) },
         text = {
             // Each hidden app is its own tile, matching the segmented settings lists.
-            SettingsSegmentGroup(modifier = Modifier.verticalScroll(rememberScrollState())) {
+            SegmentedGroup(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 apps.forEachIndexed { index, (packageName, label) ->
-                  SettingsSegment(index = index, count = apps.size) {
+                  SegmentedTile(index = index, count = apps.size) {
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(start = DesignTokens.SpacingLarge, end = DesignTokens.SpacingSmall, top = DesignTokens.SpacingSmall, bottom = DesignTokens.SpacingSmall),
                         verticalAlignment = Alignment.CenterVertically,
@@ -732,7 +732,7 @@ private fun HiddenAlarmAppsDialog(
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.weight(1f),
                         )
-                        SettingsTonalButton(
+                        TonalButton(
                             text = stringResource(R.string.action_include_generic),
                             icon = MaterialSymbols.Visibility,
                             onClick = { onUnhide(packageName) },
@@ -744,7 +744,7 @@ private fun HiddenAlarmAppsDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(text = stringResource(R.string.common_close))
             }
         },

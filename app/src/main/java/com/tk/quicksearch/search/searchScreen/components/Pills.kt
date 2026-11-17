@@ -23,15 +23,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.ZeroCornerSize
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.unit.Dp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -58,13 +52,15 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.ui.theme.LocalDeviceDynamicColorsActive
+import com.tk.quicksearch.shared.ui.theme.pressMorphButtonShape
+import com.tk.quicksearch.shared.ui.components.ConnectedButton
+import com.tk.quicksearch.shared.ui.components.ConnectedButtonRow
 
 private val QuickActionIconSize = 16.dp
 
 /** Space above the number keyboard operator row, inside its band. */
 internal val NumberKeyboardOperatorRowTopPadding = 9.dp
 private val QuickActionButtonHeight = 32.dp
-private val QuickActionPressedCorner = 8.dp
 private val QuickActionMinFontSize = 10.sp
 
 /** Container opacity of the search quick actions (50% transparent). */
@@ -88,18 +84,12 @@ private fun QuickActionButton(
     translucent: Boolean = true,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
-    val corner by animateDpAsState(
-        targetValue = if (pressed) QuickActionPressedCorner else QuickActionButtonHeight / 2,
-        animationSpec = DesignTokens.expressiveFastSpatialSpring(),
-        label = "quickActionCorner",
-    )
     val labelStyle = MaterialTheme.typography.labelLarge
     Surface(
         modifier = modifier.height(QuickActionButtonHeight),
         onClick = onClick,
         interactionSource = interactionSource,
-        shape = RoundedCornerShape(corner),
+        shape = pressMorphButtonShape(interactionSource, QuickActionButtonHeight, DesignTokens.ButtonPressedCornerSmall),
         color =
             MaterialTheme.colorScheme.secondaryContainer.let { container ->
                 if (translucent) container.copy(alpha = container.alpha * QuickActionTranslucentAlpha) else container
@@ -295,7 +285,7 @@ internal fun OpenKeyboardAction(
         } else {
             Color.Black
         }
-    val buttonColors = ConnectedButtonColors(container = contentColor.copy(alpha = ConnectedButtonTintAlpha), content = contentColor)
+    val buttonContainer = contentColor.copy(alpha = ConnectedButtonTintAlpha)
     // The strip ends at the navigation bar inset; carry its colour on down to the screen edge so it
     // reads as one surface behind the gesture bar instead of stopping short above it.
     val navigationBarBottom =
@@ -316,7 +306,7 @@ internal fun OpenKeyboardAction(
         color = backgroundColor,
         tonalElevation = DesignTokens.ElevationLevel0,
     ) {
-        Row(
+        ConnectedButtonRow(
             modifier =
                 Modifier
                     .fillMaxWidth()
@@ -328,15 +318,14 @@ internal fun OpenKeyboardAction(
                         end = DesignTokens.ContentHorizontalPadding,
                         bottom = DesignTokens.SpacingXLarge,
                     ),
-            horizontalArrangement = Arrangement.spacedBy(ConnectedButtonGap),
-            verticalAlignment = Alignment.CenterVertically,
         ) {
             if (showMic) {
-                ConnectedGroupButton(
+                ConnectedButton(
                     onClick = onVoiceClick,
-                    roundStart = true,
-                    roundEnd = false,
-                    colors = buttonColors,
+                    isStart = true,
+                    isEnd = false,
+                    containerColor = buttonContainer,
+                    contentColor = contentColor,
                     modifier = Modifier.width(VoiceButtonWidth),
                 ) {
                     Icon(
@@ -346,11 +335,12 @@ internal fun OpenKeyboardAction(
                     )
                 }
             }
-            ConnectedGroupButton(
+            ConnectedButton(
                 onClick = onClick,
-                roundStart = !showMic,
-                roundEnd = true,
-                colors = buttonColors,
+                isStart = !showMic,
+                isEnd = true,
+                containerColor = buttonContainer,
+                contentColor = contentColor,
                 modifier = Modifier.weight(1f),
             ) {
                 Icon(
@@ -369,58 +359,9 @@ internal fun OpenKeyboardAction(
     }
 }
 
-private data class ConnectedButtonColors(val container: Color, val content: Color)
 
 private const val ConnectedButtonTintAlpha = 0.1f
-private val ConnectedButtonGap = 2.dp
-private val ConnectedButtonHeight = 56.dp
 private val VoiceButtonWidth = 72.dp
-private val ConnectedOuterCorner = 28.dp
-private val ConnectedOuterCornerPressed = 16.dp
-private val ConnectedInnerCorner = 8.dp
-private val ConnectedInnerCornerPressed = 4.dp
-
-@Composable
-private fun ConnectedGroupButton(
-    onClick: () -> Unit,
-    roundStart: Boolean,
-    roundEnd: Boolean,
-    colors: ConnectedButtonColors,
-    modifier: Modifier = Modifier,
-    content: @Composable RowScope.() -> Unit,
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
-    val cornerSpec = DesignTokens.expressiveFastSpatialSpring<Dp>()
-    val outer by animateDpAsState(
-        targetValue = if (pressed) ConnectedOuterCornerPressed else ConnectedOuterCorner,
-        animationSpec = cornerSpec,
-        label = "connectedOuterCorner",
-    )
-    val inner by animateDpAsState(
-        targetValue = if (pressed) ConnectedInnerCornerPressed else ConnectedInnerCorner,
-        animationSpec = cornerSpec,
-        label = "connectedInnerCorner",
-    )
-    val start = if (roundStart) outer else inner
-    val end = if (roundEnd) outer else inner
-    Surface(
-        onClick = onClick,
-        modifier = modifier.height(ConnectedButtonHeight),
-        interactionSource = interactionSource,
-        shape = RoundedCornerShape(topStart = start, bottomStart = start, topEnd = end, bottomEnd = end),
-        color = colors.container,
-        contentColor = colors.content,
-        tonalElevation = DesignTokens.ElevationLevel0,
-    ) {
-        Row(
-            modifier = Modifier.fillMaxSize().padding(horizontal = DesignTokens.SpacingLarge),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-            content = content,
-        )
-    }
-}
 
 @Composable
 internal fun OverlayExpandPill(

@@ -28,6 +28,12 @@ import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
 
 private val multiSlashRegex = "/+".toRegex()
 
@@ -134,11 +140,11 @@ fun FileTypesSection(
         FileType.APKS,
         FileType.OTHER,
     )
-    SettingsSegmentGroup(
+    SegmentedGroup(
         modifier = modifier,
         title = if (showTitle) stringResource(R.string.settings_file_types_title) else null,
     ) {
-        SettingsSegmentToggleRow(
+        SegmentedToggleTile(
             title = stringResource(R.string.settings_file_previews_toggle),
             description = stringResource(R.string.settings_file_previews_description),
             checked = filePreviewsEnabled,
@@ -151,9 +157,9 @@ fun FileTypesSection(
 
     Spacer(modifier = Modifier.height(DesignTokens.SpacingMedium))
 
-    SettingsSegmentGroup {
+    SegmentedGroup {
         val count = orderedFileTypes.size + 2
-        SettingsSegmentToggleRow(
+        SegmentedToggleTile(
             title = stringResource(R.string.settings_folders_toggle),
             checked = showFolders,
             onCheckedChange = onToggleFolders,
@@ -162,7 +168,7 @@ fun FileTypesSection(
             count = count,
         )
         orderedFileTypes.forEachIndexed { index, fileType ->
-            SettingsSegmentToggleRow(
+            SegmentedToggleTile(
                 title = getFileTypeDisplayName(fileType),
                 checked = fileType in enabledFileTypes,
                 onCheckedChange = { onToggleFileType(fileType, it) },
@@ -171,7 +177,7 @@ fun FileTypesSection(
                 count = count,
             )
         }
-        SettingsSegmentToggleRow(
+        SegmentedToggleTile(
             title = stringResource(R.string.settings_system_files_toggle),
             checked = showSystemFiles,
             onCheckedChange = onToggleSystemFiles,
@@ -183,9 +189,9 @@ fun FileTypesSection(
 
     if (excludedExtensions.isNotEmpty()) {
         Spacer(modifier = Modifier.height(DesignTokens.SpacingMedium))
-        SettingsSegmentGroup {
-            SettingsSegment(index = 0, count = 1) {
-                SettingsSegmentContent {
+        SegmentedGroup {
+            SegmentedTile(index = 0, count = 1) {
+                SegmentedTileContent {
                     Text(
                         text = stringResource(R.string.settings_excluded_extensions_title),
                         style = MaterialTheme.typography.titleMedium,
@@ -244,9 +250,9 @@ fun FileTypesSection(
         )
     }
 
-    SettingsSegment(index = 0, count = 1) {
+    SegmentedTile(index = 0, count = 1) {
         Column {
-            SettingsSegmentContent {
+            SegmentedTileContent {
                 Text(
                     text = stringResource(R.string.settings_folder_filters_title),
                     style = MaterialTheme.typography.titleMedium,
@@ -297,11 +303,11 @@ private fun FolderFilterGroup(
 ) {
     val sortedPatterns = patterns.sortedBy(::patternDisplayPath)
     Column {
-        SettingsSegmentRow(
+        SegmentedTileRow(
             title = title,
             description = description,
             verticalAlignment = Alignment.CenterVertically,
-            leading = { SettingsIconBadge(icon = MaterialSymbols.Folder) },
+            leading = { TonalIconBadge(icon = MaterialSymbols.Folder) },
             trailing = {
                 FilledTonalIconButton(onClick = onAdd) {
                     Icon(
@@ -313,10 +319,10 @@ private fun FolderFilterGroup(
         )
         sortedPatterns.forEach { pattern ->
             val path = patternDisplayPath(pattern)
-            SettingsSegmentRow(
+            SegmentedTileRow(
                 title = path.substringAfterLast('/', path),
                 description = displayPathWithLeadingSlash(path),
-                leading = { SettingsIconBadge(icon = MaterialSymbols.Folder) },
+                leading = { TonalIconBadge(icon = MaterialSymbols.Folder) },
                 trailing = {
                     IconButton(onClick = { onRemove(pattern) }) {
                         Icon(

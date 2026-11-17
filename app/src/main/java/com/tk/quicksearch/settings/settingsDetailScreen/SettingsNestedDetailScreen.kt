@@ -44,7 +44,7 @@ import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.settings.appShortcutsSettings.AppShortcutSource
 import com.tk.quicksearch.settings.shared.SettingsCommand
 import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsCardItem
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenCallbacks
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
@@ -537,7 +537,7 @@ internal fun SettingsNestedDetailScreen(
                         }
 
                         SettingsDetailType.GEMINI_API_CONFIG -> {
-                            SettingsSegmentGroup(
+                            SegmentedGroup(
                                 modifier = Modifier.padding(bottom = DesignTokens.SpacingLarge),
                             ) {
                                 SettingsSegmentNavigationRow(

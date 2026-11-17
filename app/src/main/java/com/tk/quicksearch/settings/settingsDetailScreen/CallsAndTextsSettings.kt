@@ -40,12 +40,14 @@ import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.shared.permissions.PermissionSettingsDialog
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.settings.shared.*
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentContent
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
 
 // Constants for consistent spacing
 private object MessagingSpacing {
@@ -58,8 +60,6 @@ private object MessagingSpacing {
     val selectedBorderWidth = 2.dp
 }
 
-private const val MessagingSelectedAlpha = 0.2f
-private const val MessagingUnselectedAlpha = 0.08f
 
 private data class MessagingOption(
     val app: MessagingApp,
@@ -162,10 +162,10 @@ private fun DirectDialCard(
             }
         }
 
-    SettingsSegmentGroup(
+    SegmentedGroup(
         modifier = Modifier.fillMaxWidth(),
     ) {
-        SettingsSegmentToggleRow(
+        SegmentedToggleTile(
             title = stringResource(R.string.settings_direct_dial_title),
             description = stringResource(R.string.settings_direct_dial_desc),
             checked = directDialEnabled,
@@ -184,7 +184,7 @@ private fun DirectDialCard(
             index = 0,
             count = 2,
         )
-        SettingsSegmentToggleRow(
+        SegmentedToggleTile(
             title = stringResource(R.string.settings_number_search_title),
             description = stringResource(R.string.settings_number_search_desc),
             checked = numberSearchEnabled,
@@ -218,8 +218,8 @@ private fun DefaultMessagingAppCard(
 ) {
     if (messagingOptions.isEmpty()) return
 
-    SettingsSegment(index = 0, count = 1, modifier = modifier) {
-        SettingsSegmentContent(
+    SegmentedTile(index = 0, count = 1, modifier = modifier) {
+        SegmentedTileContent(
             verticalArrangement = Arrangement.spacedBy(MessagingSpacing.optionSpacing),
         ) {
             Text(
@@ -274,7 +274,7 @@ private fun MessagingOptionChip(
     // outline when selected, so brand icons stay legible on the fill.
     val borderColor = if (selected) AppColors.Accent else Color.Transparent
     val backgroundColor =
-        AppColors.Accent.copy(alpha = if (selected) MessagingSelectedAlpha else MessagingUnselectedAlpha)
+        if (selected) AppColors.AccentTintStrong else AppColors.AccentTintSubtle
 
     Column(
         modifier =

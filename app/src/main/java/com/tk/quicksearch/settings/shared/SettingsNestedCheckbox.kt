@@ -20,6 +20,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 /**
  * Sub-option of a settings row: a checkbox and its label on a small accent-tinted panel, so it reads
@@ -36,7 +37,7 @@ fun SettingsNestedCheckbox(
         modifier =
             modifier
                 .clip(NestedCheckboxShape)
-                .background(AppColors.Accent.copy(alpha = NestedCheckboxTintAlpha))
+                .background(AppColors.AccentTintSubtle)
                 .toggleable(value = checked, role = Role.Checkbox, onValueChange = onCheckedChange)
                 .padding(start = 8.dp, end = 12.dp, top = 6.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -64,5 +65,4 @@ fun SettingsNestedCheckbox(
     }
 }
 
-private val NestedCheckboxShape = RoundedCornerShape(16.dp)
-private const val NestedCheckboxTintAlpha = 0.08f
+private val NestedCheckboxShape = RoundedCornerShape(DesignTokens.CornerLarge)

@@ -11,10 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.verticalScroll
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +37,7 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 import com.tk.quicksearch.shared.ui.components.PreserveHostKeyboardStateEffect
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 /**
  * Main permissions screen that allows users to grant optional permissions for enhanced functionality.
@@ -246,12 +245,12 @@ private fun PermissionReminderDialog(
                     )
                 },
                 confirmButton = {
-                    TextButton(onClick = onContinue) {
+                    AppTextButton(onClick = onContinue) {
                         Text(stringResource(R.string.dialog_ok))
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = onDismiss) {
+                    AppTextButton(onClick = onDismiss) {
                         Text(stringResource(R.string.dialog_cancel))
                     }
                 },

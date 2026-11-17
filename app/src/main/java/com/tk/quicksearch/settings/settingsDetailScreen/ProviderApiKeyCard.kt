@@ -9,13 +9,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -29,8 +27,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentRowPadding
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContentPadding
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -39,6 +37,8 @@ import com.tk.quicksearch.tools.aiSearch.AiProviderBadge
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.tools.aiSearch.aiProviderDisplayName
 import kotlinx.coroutines.launch
+import com.tk.quicksearch.shared.ui.components.AppButton
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 /**
  * One AI provider's API key as a tile at [index] of [count]: the provider badge and name, and for
@@ -101,7 +101,7 @@ internal fun ApiKeyTile(
         }
     }
 
-    SettingsSegment(
+    SegmentedTile(
         index = index,
         count = count,
         onClick = if (!hasSavedKey && pendingKey.isEmpty() && !isSaving) ::pasteFromClipboard else null,
@@ -112,7 +112,7 @@ internal fun ApiKeyTile(
                     Modifier
                         .fillMaxWidth()
                         .heightIn(min = ApiKeyTileMinHeight)
-                        .padding(SettingsSegmentRowPadding),
+                        .padding(SegmentedTileContentPadding),
                 // With a description this is a three-line item, which Material 3 top-aligns.
                 verticalAlignment = if (description != null) Alignment.Top else Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
@@ -188,9 +188,9 @@ internal fun ApiKeyTile(
                     },
                     modifier =
                         Modifier.padding(
-                            start = SettingsSegmentRowPadding,
-                            end = SettingsSegmentRowPadding,
-                            bottom = SettingsSegmentRowPadding,
+                            start = SegmentedTileContentPadding,
+                            end = SegmentedTileContentPadding,
+                            bottom = SegmentedTileContentPadding,
                         ),
                 )
             }
@@ -213,10 +213,10 @@ internal fun ApiKeySaveActions(
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall, Alignment.End),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        TextButton(enabled = !isSaving && clearEnabled, onClick = onClear) {
+        AppTextButton(enabled = !isSaving && clearEnabled, onClick = onClear) {
             Text(text = stringResource(R.string.common_action_clear))
         }
-        Button(
+        AppButton(
             enabled = !isSaving && saveEnabled,
             onClick = onSave,
             colors =

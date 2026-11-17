@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -55,13 +54,13 @@ import com.tk.quicksearch.shared.util.AppLanguageManager
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderRegistry
 import com.tk.quicksearch.tools.aiSearch.LlmModelCatalogCache
-import com.tk.quicksearch.tools.aiSearch.LlmTextModel
 import com.tk.quicksearch.tools.aiSearch.supportsThinkingControl
 import java.util.Calendar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.AppButton
 
 class CustomInfoActivity : ComponentActivity() {
     @Suppress("DEPRECATION")
@@ -352,7 +351,7 @@ private fun CustomInfoEditor(
                 )
             }
             if (initialItem == null) {
-                Button(
+                AppButton(
                     onClick = { onSave(draft) },
                     enabled = canSave,
                     modifier = Modifier.fillMaxWidth().padding(DesignTokens.ContentHorizontalPadding).height(56.dp),

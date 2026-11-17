@@ -1,12 +1,12 @@
 package com.tk.quicksearch.onboarding.permissionScreen
 
-import com.tk.quicksearch.settings.shared.SettingsSwitch
+import com.tk.quicksearch.shared.ui.components.AppSwitch
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.tk.quicksearch.settings.shared.SettingsIconBadge
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentRow
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,6 +34,7 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
 import com.tk.quicksearch.widgetsPanel.widgetPanelEdgeFade
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
 
 data class PermissionCardItem(
     val title: String,
@@ -73,7 +74,7 @@ fun PermissionCard(
         ) {
             items.forEachIndexed { index, item ->
                 if (segmented) {
-                    SettingsSegment(index = index, count = items.size) {
+                    SegmentedTile(index = index, count = items.size) {
                         SegmentedPermissionItem(item, showIcon = showItemIcons)
                     }
                 } else {
@@ -184,7 +185,7 @@ fun PermissionItem(
                         .size(DesignTokens.IconSize),
             )
         } else {
-            SettingsSwitch(
+            AppSwitch(
                 checked = false,
                 onCheckedChange = { newValue ->
                     hapticToggle(view)()
@@ -223,11 +224,11 @@ private fun SegmentedPermissionItem(
             item.onToggleChange(true)
         }
     } else Modifier
-    SettingsSegmentRow(
+    SegmentedTileRow(
         title = item.title,
         description = item.description,
         modifier = interactionModifier,
-        leading = if (showIcon) ({ SettingsIconBadge(item.icon) }) else null,
+        leading = if (showIcon) ({ TonalIconBadge(item.icon) }) else null,
         trailing = {
             when {
                 item.isNavigationItem -> Icon(MaterialSymbols.ChevronRight, contentDescription = null)
@@ -237,7 +238,7 @@ private fun SegmentedPermissionItem(
                     tint = AppColors.Accent,
                     modifier = Modifier.size(DesignTokens.IconSize),
                 )
-                else -> SettingsSwitch(checked = false, onCheckedChange = null)
+                else -> AppSwitch(checked = false, onCheckedChange = null)
             }
         },
     )

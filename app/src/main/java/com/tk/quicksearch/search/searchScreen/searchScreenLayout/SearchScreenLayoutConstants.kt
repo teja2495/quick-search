@@ -14,7 +14,7 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 /** Custom shape that rounds only the top corners */
 val TopRoundedShape =
-    RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomStart = 0.dp, bottomEnd = 0.dp)
+    RoundedCornerShape(topStart = DesignTokens.CornerLarge, topEnd = DesignTokens.CornerLarge, bottomStart = 0.dp, bottomEnd = 0.dp)
 
 /**
  * Viewport of an expanded section (More tapped) in card layout: inset by [edgeBleed] to the card

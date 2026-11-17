@@ -18,7 +18,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -42,6 +41,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 private val ColorAreaHeight = 180.dp
 private val HueBarHeight = 28.dp
@@ -118,17 +118,17 @@ fun WidgetColorPickerDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm(selectedColor) }) {
+            AppTextButton(onClick = { onConfirm(selectedColor) }) {
                 Text(stringResource(R.string.dialog_save))
             }
         },
         dismissButton = {
             if (onReset == null) {
-                TextButton(onClick = onDismiss) {
+                AppTextButton(onClick = onDismiss) {
                     Text(stringResource(R.string.dialog_cancel))
                 }
             } else {
-                TextButton(onClick = onReset) {
+                AppTextButton(onClick = onReset) {
                     Text(stringResource(R.string.dialog_reset))
                 }
             }

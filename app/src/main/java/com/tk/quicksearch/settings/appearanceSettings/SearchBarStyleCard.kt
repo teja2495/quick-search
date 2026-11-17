@@ -45,11 +45,11 @@ import com.tk.quicksearch.searchEngines.inline.InsetSearchBarGeometry
 import com.tk.quicksearch.searchEngines.inline.SearchEngineIconsSection
 import com.tk.quicksearch.searchEngines.inline.insetCardGlow
 import com.tk.quicksearch.searchEngines.inline.rememberInsetCardStyle
-import com.tk.quicksearch.settings.shared.SettingsTonalButton
-import com.tk.quicksearch.settings.shared.SettingsChoice
-import com.tk.quicksearch.settings.shared.SettingsChoiceGroup
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.TonalButton
+import com.tk.quicksearch.shared.ui.components.ChoiceOption
+import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
@@ -108,8 +108,8 @@ fun SearchBarStyleCard(
                 cornerRadiusDp = cornerRadiusDp,
             ).let { if (fixedShape) it.withFixedShape() else it }
 
-    SettingsSegmentGroup(modifier = modifier) {
-      SettingsSegment(index = 0, count = 5) {
+    SegmentedGroup(modifier = modifier) {
+      SegmentedTile(index = 0, count = 5) {
         Column(
             modifier =
                 Modifier
@@ -234,7 +234,7 @@ fun SearchBarStyleCard(
 
         }
       }
-      SettingsSegment(index = 1, count = 5) {
+      SegmentedTile(index = 1, count = 5) {
                 SettingsToggleRow(
                     title = stringResource(R.string.settings_search_chrome_blur_title),
                     subtitle = stringResource(R.string.settings_search_chrome_blur_desc),
@@ -243,7 +243,7 @@ fun SearchBarStyleCard(
                     showDivider = false,
                 )
       }
-      SettingsSegment(index = 2, count = 5) {
+      SegmentedTile(index = 2, count = 5) {
                 SettingsToggleRow(
                     title = stringResource(R.string.settings_icon_title),
                     subtitle =
@@ -258,7 +258,7 @@ fun SearchBarStyleCard(
                     showDivider = false,
                 )
       }
-      SettingsSegment(index = 3, count = 5) {
+      SegmentedTile(index = 3, count = 5) {
                 SettingsToggleRow(
                     title = stringResource(R.string.settings_mic_icon_title),
                     subtitle = stringResource(R.string.settings_mic_icon_desc),
@@ -269,8 +269,8 @@ fun SearchBarStyleCard(
                     showDivider = false,
                 )
       }
-      SettingsSegment(index = 4, count = 5) {
-            SettingsTonalButton(
+      SegmentedTile(index = 4, count = 5) {
+            TonalButton(
                 text = stringResource(R.string.settings_launcher_icon_reset_default),
                 icon = MaterialSymbols.RestartAlt,
                 onClick = {
@@ -519,11 +519,11 @@ private fun ColorChoiceRow(
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurface,
         )
-        SettingsChoiceGroup(
+        ConnectedChoiceGroup(
             options =
                 listOf(
-                    SettingsChoice(false, defaultLabel),
-                    SettingsChoice(true, stringResource(R.string.common_custom), swatch = customArgb?.let { Color(it) }),
+                    ChoiceOption(false, defaultLabel),
+                    ChoiceOption(true, stringResource(R.string.common_custom), swatch = customArgb?.let { Color(it) }),
                 ),
             selected = customArgb != null,
             onSelect = { custom -> if (custom) onSelectCustom() else if (customArgb != null) onSelectDefault() },

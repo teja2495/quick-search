@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -33,12 +32,12 @@ import com.tk.quicksearch.search.core.CustomTool
 import com.tk.quicksearch.search.data.preferences.WeatherTemperatureUnit
 import com.tk.quicksearch.search.data.preferences.WeatherWindSpeedUnit
 import com.tk.quicksearch.settings.shared.ModelFeatureSettingsCard
-import com.tk.quicksearch.settings.shared.SettingsChoice
-import com.tk.quicksearch.settings.shared.SettingsChoiceGroup
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentContent
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
-import com.tk.quicksearch.settings.shared.SettingsSegmentRowPadding
+import com.tk.quicksearch.shared.ui.components.ChoiceOption
+import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContentPadding
 import com.tk.quicksearch.settings.shared.TavilyKeyState
 import com.tk.quicksearch.settings.shared.rememberTavilyKeyState
 import com.tk.quicksearch.settings.settingsDetailScreen.AdvancedPayloadSettingsSection
@@ -51,6 +50,7 @@ import com.tk.quicksearch.tools.aiSearch.LlmTextModel
 import com.tk.quicksearch.tools.aiSearch.modelSupportsGrounding
 import com.tk.quicksearch.tools.aiSearch.providerSupportsNativeSearch
 import com.tk.quicksearch.tools.aiSearch.supportsThinkingControl
+import com.tk.quicksearch.shared.ui.components.AppButton
 
 @Composable
 fun CustomToolEditorScreen(
@@ -198,13 +198,13 @@ fun CustomToolEditorScreen(
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         ) {
             if (showWebSearchWarning) {
-                SettingsSegment(
+                SegmentedTile(
                     index = 0,
                     count = 1,
                     containerColor = MaterialTheme.colorScheme.errorContainer,
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(SettingsSegmentRowPadding),
+                        modifier = Modifier.fillMaxWidth().padding(SegmentedTileContentPadding),
                         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                     ) {
                         Icon(
@@ -295,7 +295,7 @@ fun CustomToolEditorScreen(
                 .fillMaxWidth()
                 .padding(DesignTokens.ContentHorizontalPadding),
         ) {
-            Button(
+            AppButton(
                 colors = ButtonDefaults.buttonColors(containerColor = AppColors.Accent, contentColor = AppColors.OnAccent),
                 onClick = {
                     if (canSave) {
@@ -401,9 +401,9 @@ private fun CustomToolInputsCard(
                 }
             }
         }
-    SettingsSegmentGroup {
+    SegmentedGroup {
         rows.forEachIndexed { index, row ->
-            SettingsSegment(index = index, count = rows.size) { row() }
+            SegmentedTile(index = index, count = rows.size) { row() }
         }
     }
 }
@@ -413,17 +413,17 @@ private fun WeatherUnitSettingsSection(
     temperatureUnit: WeatherTemperatureUnit,
     onTemperatureUnitSelected: (WeatherTemperatureUnit) -> Unit,
 ) {
-    SettingsSegment(index = 0, count = 1) {
-        SettingsSegmentContent {
+    SegmentedTile(index = 0, count = 1) {
+        SegmentedTileContent {
             Text(
                 text = stringResource(R.string.weather_temperature_unit_label),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
             )
-            SettingsChoiceGroup(
+            ConnectedChoiceGroup(
                 options =
                     WeatherTemperatureUnit.entries.map { unit ->
-                        SettingsChoice(value = unit, label = stringResource(unit.labelRes))
+                        ChoiceOption(value = unit, label = stringResource(unit.labelRes))
                     },
                 selected = temperatureUnit,
                 onSelect = onTemperatureUnitSelected,

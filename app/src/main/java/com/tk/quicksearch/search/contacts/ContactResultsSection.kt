@@ -435,7 +435,7 @@ private fun ContactActionHintBubble(
 ) {
     val arrowHeight = 10.dp
     val arrowWidth = 28.dp
-    val cornerRadius = 16.dp
+    val cornerRadius = DesignTokens.CornerLarge
     val arrowInset =
         ContactUiConstants.ACTION_BUTTON_SIZE.dp * 0.5f + DesignTokens.SpacingSmall + 24.dp
     val backgroundColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)

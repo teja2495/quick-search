@@ -19,7 +19,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -38,9 +37,10 @@ import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnable
 import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
 import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
-import com.tk.quicksearch.settings.shared.settingsFloatingActionShape
+import com.tk.quicksearch.shared.ui.theme.floatingActionShape
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.LocalAppTheme
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 private const val EXPAND_ICON_SIZE = 18
 private val COMPACT_EXPAND_BUTTON_MIN_HEIGHT = 48.dp
@@ -98,7 +98,7 @@ internal fun ExpandButton(
         CompactExpandButton(onClick = onClick, modifier = modifier, textResId = textResId, icon = icon)
         return
     }
-    TextButton(
+    AppTextButton(
         onClick = onClick,
         modifier = modifier,
         contentPadding = PaddingValues(start = 12.dp, end = 16.dp),
@@ -153,7 +153,7 @@ internal fun CollapseButton(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val contentColor = MaterialTheme.colorScheme.primary
-    val shape = settingsFloatingActionShape(interactionSource)
+    val shape = floatingActionShape(interactionSource)
     Surface(
         onClick = onClick,
         // Frosted like the result cards it floats over, with their lighter frosted scrim.

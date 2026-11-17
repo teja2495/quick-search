@@ -1,8 +1,6 @@
 package com.tk.quicksearch.search.folders
 
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -27,10 +25,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.material3.ripple
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -77,6 +73,9 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.homeTextColor
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.util.hapticConfirm
+import com.tk.quicksearch.shared.ui.theme.AppMotion
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 private const val FolderPreviewSlotCount = 4
 // Four icons in a 2×2 grid whose corners just fit inside the round backdrop.
@@ -148,7 +147,7 @@ internal fun FolderGridItem(
     val showDraggedPresentation = isDragging || isLocalDragging
     val pressScale by animateFloatAsState(
         targetValue = if ((isPressed || isHeld) && !showDraggedPresentation && !isMergeTarget) AppGridPressedScale else 1f,
-        animationSpec = DesignTokens.expressiveFastSpatialSpring(),
+        animationSpec = AppMotion.fastSpatial(),
         label = "gridIconPressScale",
     )
     val tileScale by
@@ -159,13 +158,13 @@ internal fun FolderGridItem(
                                 isMergeTarget -> FolderMergeTargetScale
                                 else -> 1f
                             },
-                    animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+                    animationSpec = AppMotion.dragFeedback(),
                     label = "folderTileScale",
             )
     val dragAlpha by
             animateFloatAsState(
                     targetValue = if (showDraggedPresentation) DraggedPinnedAppAlpha else 1f,
-                    animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+                    animationSpec = AppMotion.dragFeedback(),
                     label = "folderTileDragAlpha",
             )
     val dragModifier =

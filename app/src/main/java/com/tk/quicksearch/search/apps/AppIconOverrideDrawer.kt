@@ -17,7 +17,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Icon
@@ -50,6 +49,7 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.AppButton
 
 @Composable
 fun AppIconOverrideDrawer(
@@ -186,7 +186,7 @@ fun AppIconOverrideDrawer(
                             color = MaterialTheme.colorScheme.onSurface,
                             textAlign = TextAlign.Center,
                         )
-                        Button(
+                        AppButton(
                             onClick = {
                                 onDismiss()
                                 IntentHelpers.openSearchUrl(
@@ -268,7 +268,7 @@ fun AppIconOverrideDrawer(
             }
 
             if (canResetToDefault) {
-                Button(
+                AppButton(
                     onClick = {
                         UserAppPreferences(context).setAppIconToSystemDefault(packageName)
                         invalidateAppIconCache()

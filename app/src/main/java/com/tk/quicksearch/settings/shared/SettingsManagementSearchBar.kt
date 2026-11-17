@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 @Composable
 fun SettingsManagementSearchBar(
@@ -52,7 +53,7 @@ fun SettingsManagementSearchBar(
                 .then(if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier)
                 .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
                 .let { m -> if (onFocusChange != null) m.onFocusChanged(onFocusChange) else m },
-        shape = RoundedCornerShape(28.dp),
+        shape = RoundedCornerShape(DesignTokens.CornerExtraLarge),
         singleLine = true,
         leadingIcon = {
             Icon(

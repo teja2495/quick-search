@@ -26,10 +26,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilledTonalIconButton
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsTonalButton
-import com.tk.quicksearch.settings.shared.SettingsFloatingActionHeight
-import com.tk.quicksearch.settings.shared.settingsFloatingActionShape
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.TonalButton
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.floatingActionShape
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -72,11 +72,11 @@ import com.tk.quicksearch.settings.appShortcutsSettings.shortcutMatchPriority
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
-import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import java.io.File
 import java.text.DateFormat
 import java.util.Date
 import java.util.Locale
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 private enum class AppSortOption(
     @StringRes val labelResId: Int,
@@ -294,7 +294,7 @@ fun AppManagementSettingsSection(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(modifier = Modifier.onSizeChanged { sortButtonWidthPx = it.width }) {
-                SettingsTonalButton(
+                TonalButton(
                     text = stringResource(
                         R.string.settings_app_sort_by_format,
                         stringResource(selectedSortOption.labelResId),
@@ -365,7 +365,7 @@ fun AppManagementSettingsSection(
                         verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
                         contentPadding = PaddingValues(
                             bottom = if (selectedCount > 0) {
-                                SettingsFloatingActionHeight + DesignTokens.Spacing48
+                                DesignTokens.FloatingActionHeight + DesignTokens.Spacing48
                             } else DesignTokens.SpacingSmall,
                         ),
                     ) {
@@ -376,12 +376,12 @@ fun AppManagementSettingsSection(
                             val appKey = app.launchCountKey()
                             val canUninstall = !app.isSystemApp
 
-                            SettingsSegment(
+                            SegmentedTile(
                                 index = index,
                                 count = sortedApps.size,
                                 onClick = { selectedAppForDetails = app },
                                 containerColor = if (appKey in selectedAppKeys) {
-                                    AppColors.Accent.copy(alpha = 0.14f)
+                                    AppColors.AccentTintTonal
                                         .compositeOver(AppColors.getSettingsCardContainerColor())
                                 } else AppColors.getSettingsCardContainerColor(),
                             ) {
@@ -438,8 +438,8 @@ fun AppManagementSettingsSection(
                         Modifier
                             .align(Alignment.BottomCenter)
                             .padding(DesignTokens.SpacingLarge)
-                            .height(SettingsFloatingActionHeight),
-                    shape = settingsFloatingActionShape(uninstallInteraction),
+                            .height(DesignTokens.FloatingActionHeight),
+                    shape = floatingActionShape(uninstallInteraction),
                     interactionSource = uninstallInteraction,
                     containerColor = MaterialTheme.colorScheme.error,
                     contentColor = MaterialTheme.colorScheme.onError,
@@ -658,12 +658,12 @@ private fun AppDetailsDialog(
             }
         },
         confirmButton = {
-            androidx.compose.material3.TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(text = stringResource(R.string.common_close))
             }
         },
         dismissButton = {
-            SettingsTonalButton(
+            TonalButton(
                 text = stringResource(R.string.action_app_info),
                 onClick = {
                     onDismiss()

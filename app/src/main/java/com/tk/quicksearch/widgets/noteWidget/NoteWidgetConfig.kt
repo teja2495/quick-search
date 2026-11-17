@@ -39,7 +39,7 @@ import com.tk.quicksearch.search.data.notes.NotesRoomStore
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.notes.NotesTextUtils
 import com.tk.quicksearch.settings.shared.SettingsIconBadge
-import com.tk.quicksearch.settings.shared.SettingsSegment
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.settings.shared.SettingsManagementSearchBar
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
@@ -48,6 +48,7 @@ import com.tk.quicksearch.widgets.utils.WidgetConfigConstants
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
 
 private const val PICKER_PREVIEW_LINES = 2
 private const val SELECTED_TINT_ALPHA = 0.14f
@@ -145,7 +146,7 @@ fun NoteWidgetPickerScreen(
                     ) {
                         itemsIndexed(items = filteredNotes, key = { _, note -> note.noteId }) { index, note ->
                             val selected = note.noteId == selectedNoteId
-                            SettingsSegment(
+                            SegmentedTile(
                                 index = index,
                                 count = filteredNotes.size,
                                 onClick = { onSelect(note) },
@@ -178,7 +179,7 @@ fun NoteWidgetSelectedNoteSection(
     onChangeNote: () -> Unit,
 ) {
     val note = rememberWidgetNote(noteId) ?: return
-    SettingsSegment(index = 0, count = 1, onClick = onChangeNote) {
+    SegmentedTile(index = 0, count = 1, onClick = onChangeNote) {
         NoteRow(
             note = note,
             trailingIcon = MaterialSymbols.ChevronRight,
@@ -198,7 +199,7 @@ private fun NoteRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
-        SettingsIconBadge(icon = MaterialSymbols.EditNote)
+        TonalIconBadge(icon = MaterialSymbols.EditNote)
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall),

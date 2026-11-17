@@ -23,6 +23,10 @@ import com.tk.quicksearch.tools.aiSearch.isWebSearchAvailable
 import com.tk.quicksearch.tools.aiSearch.modelSupportsGrounding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
 
 /** Whether a Tavily key is stored, with `Unknown` while the encrypted read is still in flight. */
 enum class TavilyKeyState {
@@ -108,13 +112,13 @@ fun ModelFeatureSettingsCard(
     val tileCount = 1 + (if (showThinking) 1 else 0) + (if (showGrounding) 1 else 0)
 
     // The model, then each on/off feature as its own switch tile, as Material 3 lists settings.
-    SettingsSegmentGroup(modifier = modifier) {
-        SettingsSegment(
+    SegmentedGroup(modifier = modifier) {
+        SegmentedTile(
             index = 0,
             count = tileCount,
             onClick = if (isLoadingModels) null else ({ showModelDialog = true }),
         ) {
-            SettingsSegmentRow(
+            SegmentedTileRow(
                 title = selectedModelLabel,
                 description = aiProviderDisplayName(selectedProviderId),
                 leading = { AiProviderBadge(providerId = selectedProviderId) },
@@ -128,7 +132,7 @@ fun ModelFeatureSettingsCard(
             )
         }
         if (showThinking) {
-            SettingsSegmentToggleRow(
+            SegmentedToggleTile(
                 title = thinkingLabel,
                 icon = MaterialSymbols.Lightbulb,
                 checked = thinkingEnabled,
@@ -138,7 +142,7 @@ fun ModelFeatureSettingsCard(
             )
         }
         if (showGrounding) {
-            SettingsSegmentToggleRow(
+            SegmentedToggleTile(
                 title = webSearchLabel,
                 icon = MaterialSymbols.Public,
                 checked = groundingEnabled,

@@ -27,10 +27,10 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardStyleOverrides
-import com.tk.quicksearch.search.searchScreen.shared.segmentShape
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 private const val SUGGESTION_ICON_SIZE = 36
 private const val SUGGESTION_ARROW_ICON_SIZE = 32
@@ -90,7 +90,7 @@ private fun WebSuggestionsCard(
         // large outer and small inner corners, instead of rows on one card split by dividers.
         Column(modifier = Modifier.fillMaxWidth()) {
             suggestions.forEachIndexed { index, suggestion ->
-                val shape = segmentShape(index, suggestions.size)
+                val shape = AppShapes.segment(index, suggestions.size)
                 SearchResultCard(
                     modifier =
                         Modifier

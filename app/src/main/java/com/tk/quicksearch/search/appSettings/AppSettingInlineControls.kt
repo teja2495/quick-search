@@ -28,8 +28,8 @@ import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.HomeTextColor
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.settings.appearanceSettings.FONT_SIZE_STEPS
-import com.tk.quicksearch.settings.shared.SettingsChoice
-import com.tk.quicksearch.settings.shared.SettingsChoiceGroup
+import com.tk.quicksearch.shared.ui.components.ChoiceOption
+import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.util.WallpaperUtils
@@ -212,15 +212,15 @@ private fun HomeTextColorInlineChips(controls: AppSettingInlineControls) {
                 ?: defaultColor
     }
     val selected = controls.homeTextColorOverride ?: wallpaperDefaultColor
-    SettingsChoiceGroup(
+    ConnectedChoiceGroup(
         options =
             listOf(
-                SettingsChoice(
+                ChoiceOption(
                     value = HomeTextColor.WHITE,
                     label = stringResource(R.string.widget_text_icon_color_white),
                     icon = MaterialSymbols.LightMode,
                 ),
-                SettingsChoice(
+                ChoiceOption(
                     value = HomeTextColor.BLACK,
                     label = stringResource(R.string.widget_text_icon_color_black),
                     icon = MaterialSymbols.DarkMode,
@@ -235,12 +235,12 @@ private fun HomeTextColorInlineChips(controls: AppSettingInlineControls) {
 /** Plain labels: the row shares its width with the trailing chevron, too narrow for three icons. */
 @Composable
 private fun ThemeModeInlineChips(controls: AppSettingInlineControls) {
-    SettingsChoiceGroup(
+    ConnectedChoiceGroup(
         options =
             listOf(
-                SettingsChoice(AppThemeMode.LIGHT, stringResource(R.string.common_theme_light)),
-                SettingsChoice(AppThemeMode.DARK, stringResource(R.string.common_theme_dark)),
-                SettingsChoice(AppThemeMode.SYSTEM, stringResource(R.string.common_theme_system)),
+                ChoiceOption(AppThemeMode.LIGHT, stringResource(R.string.common_theme_light)),
+                ChoiceOption(AppThemeMode.DARK, stringResource(R.string.common_theme_dark)),
+                ChoiceOption(AppThemeMode.SYSTEM, stringResource(R.string.common_theme_system)),
             ),
         selected = controls.appThemeMode,
         onSelect = { mode -> if (mode != controls.appThemeMode) controls.onAppThemeModeChange(mode) },

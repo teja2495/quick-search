@@ -19,7 +19,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -41,6 +40,9 @@ import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.other.OtherSearchItemId
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 private val DEFAULT_ICON_SIZE = DesignTokens.IconSize
 private val SECTION_SPACER_HEIGHT = 4.dp
@@ -179,7 +181,7 @@ private fun ExcludedItemsList(
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
     ) {
         itemsIndexed(allItems) { index, item ->
-            SettingsSegment(index = index, count = allItems.size) {
+            SegmentedTile(index = index, count = allItems.size) {
                 ExcludedItemRow(
                     item = item,
                     iconPackPackage = iconPackPackage,
@@ -196,14 +198,14 @@ private fun ExcludedItemRow(
     iconPackPackage: String?,
     onRemove: () -> Unit,
 ) {
-    SettingsSegmentRow(
+    SegmentedTileRow(
         title = item.displayName,
         description = stringResource(item.typeLabelRes),
         leading = {
             Box(
                 modifier = Modifier.size(DesignTokens.Spacing40)
                     .clip(CircleShape)
-                    .background(AppColors.Accent.copy(alpha = 0.14f)),
+                    .background(AppColors.AccentTintTonal),
                 contentAlignment = Alignment.Center,
             ) {
                 ExcludedItemIcon(item = item, iconPackPackage = iconPackPackage)
@@ -364,12 +366,12 @@ fun ClearAllConfirmationDialog(
             )
         },
         confirmButton = {
-            TextButton(onClick = onConfirm) {
+            AppTextButton(onClick = onConfirm) {
                 Text(stringResource(R.string.settings_action_clear_all))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.dialog_cancel)) }
+            AppTextButton(onClick = onDismiss) { Text(stringResource(R.string.dialog_cancel)) }
         },
     )
 }

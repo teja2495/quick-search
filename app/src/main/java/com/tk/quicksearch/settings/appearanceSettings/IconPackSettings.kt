@@ -1,6 +1,6 @@
 package com.tk.quicksearch.settings.appearanceSettings
 
-import com.tk.quicksearch.settings.shared.SettingsSwitch
+import com.tk.quicksearch.shared.ui.components.AppSwitch
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
@@ -15,14 +15,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +36,8 @@ import com.tk.quicksearch.search.core.IconPackInfo
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.components.AppButton
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 @Composable
 fun IconPackPickerDialog(
@@ -86,7 +86,7 @@ fun IconPackPickerDialog(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center,
                         )
-                        Button(
+                        AppButton(
                                 onClick = {
                                             onDismiss()
                                             onDownloadIconPacks()
@@ -135,12 +135,12 @@ fun IconPackPickerDialog(
                 }
             },
             confirmButton = {
-                TextButton(onClick = onDismiss) {
+                AppTextButton(onClick = onDismiss) {
                     Text(stringResource(R.string.dialog_done))
                 }
             },
             dismissButton = {
-                TextButton(
+                AppTextButton(
                         onClick = {
                             onResetAllIcons()
                             onDismiss()
@@ -178,7 +178,7 @@ private fun IconPackMaskToggleRow(
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f),
         )
-        SettingsSwitch(checked = enabled, onCheckedChange = null)
+        AppSwitch(checked = enabled, onCheckedChange = null)
     }
 }
 

@@ -26,8 +26,8 @@ import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.settings.settingsDetailScreen.MessagingSection
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
-import com.tk.quicksearch.settings.shared.SettingsSegmentToggleRow
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 
 /** Gets the icon for a file type. */
@@ -175,8 +175,8 @@ fun FinalSetupScreen(
             // Show file types section only if files permission is granted
             if (hasFilesPermission) {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    SettingsSegmentGroup(title = stringResource(R.string.settings_file_types_title)) {
-                        SettingsSegmentToggleRow(
+                    SegmentedGroup(title = stringResource(R.string.settings_file_types_title)) {
+                        SegmentedToggleTile(
                             title = stringResource(R.string.settings_folders_toggle),
                             icon = MaterialSymbols.Folder,
                             checked = uiState.showFolders,
@@ -188,10 +188,10 @@ fun FinalSetupScreen(
 
                     Spacer(modifier = Modifier.height(DesignTokens.SpacingMedium))
 
-                    SettingsSegmentGroup {
+                    SegmentedGroup {
                         val fileTypes = FileType.entries
                         fileTypes.forEachIndexed { index, fileType ->
-                            SettingsSegmentToggleRow(
+                            SegmentedToggleTile(
                                 title =
                                     stringResource(
                                         when (fileType) {

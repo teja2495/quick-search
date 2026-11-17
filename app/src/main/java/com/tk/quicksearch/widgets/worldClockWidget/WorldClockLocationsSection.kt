@@ -18,7 +18,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,12 +35,13 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.SettingsIconBadge
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 /** The widget's clocks in order, each of which can be renamed, moved left or removed, plus an Add row. */
 @Composable
@@ -54,9 +54,9 @@ internal fun WorldClockLocationsSection(
     var renamingIndex by rememberSaveable { mutableStateOf<Int?>(null) }
 
     val count = locations.size + 1
-    SettingsSegmentGroup(title = stringResource(R.string.widget_world_clock_locations)) {
+    SegmentedGroup(title = stringResource(R.string.widget_world_clock_locations)) {
         locations.forEachIndexed { index, location ->
-            SettingsSegment(index = index, count = count, onClick = { renamingIndex = index }) {
+            SegmentedTile(index = index, count = count, onClick = { renamingIndex = index }) {
                 LocationRow(
                     location = location,
                     canMoveUp = index > 0,
@@ -70,7 +70,7 @@ internal fun WorldClockLocationsSection(
                 )
             }
         }
-        SettingsSegment(index = locations.size, count = count, onClick = if (canAdd) onAddClick else null) {
+        SegmentedTile(index = locations.size, count = count, onClick = if (canAdd) onAddClick else null) {
             AddLocationRow(enabled = canAdd)
         }
     }
@@ -111,7 +111,7 @@ private fun LocationRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
-        SettingsIconBadge(icon = MaterialSymbols.Public)
+        TonalIconBadge(icon = MaterialSymbols.Public)
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = if (hasLabel) location.label else city,
@@ -224,7 +224,7 @@ private fun RenameLocationDialog(
             )
         },
         confirmButton = {
-            TextButton(
+            AppTextButton(
                 onClick = {
                     val name = text.trim()
                     onConfirm(
@@ -237,6 +237,6 @@ private fun RenameLocationDialog(
                 },
             ) { Text(stringResource(R.string.dialog_save)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.dialog_cancel)) } },
+        dismissButton = { AppTextButton(onClick = onDismiss) { Text(stringResource(R.string.dialog_cancel)) } },
     )
 }

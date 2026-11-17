@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.SettingsChoice
+import com.tk.quicksearch.shared.ui.components.ChoiceOption
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.widgets.utils.TextIconColorOverride
 import com.tk.quicksearch.widgets.utils.WidgetPreferences
@@ -116,8 +116,8 @@ private fun ColorChoiceSection(
         WidgetColorChoiceGroup(
             options =
                 listOf(
-                    SettingsChoice(FIRST_CHOICE, firstLabel, icon = firstIcon),
-                    SettingsChoice(SECOND_CHOICE, secondLabel, icon = secondIcon),
+                    ChoiceOption(FIRST_CHOICE, firstLabel, icon = firstIcon),
+                    ChoiceOption(SECOND_CHOICE, secondLabel, icon = secondIcon),
                 ),
             selected =
                 when {

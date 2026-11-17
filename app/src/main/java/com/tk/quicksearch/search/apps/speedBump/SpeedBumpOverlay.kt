@@ -24,7 +24,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -75,6 +74,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlin.math.sin
 import com.tk.quicksearch.shared.ui.components.PreserveHostKeyboardStateEffect
+import com.tk.quicksearch.shared.ui.components.AppButton
 
 private const val BreathCycleMillis = 3_400
 private const val TickMillis = 16L
@@ -92,7 +92,7 @@ private const val UsageSupportingAlpha = 0.55f
  * a single line still renders as an exact stadium; long locales that wrap to two lines settle
  * into a rounded card instead of a stadium with oversized semicircular ends.
  */
-private val UsagePillShape = RoundedCornerShape(20.dp)
+private val UsagePillShape = RoundedCornerShape(DesignTokens.CornerLargeIncreased)
 
 /** How far the gradient edge is pulled toward the theme's foreground colour. */
 private const val VignetteStrength = 0.10f
@@ -235,7 +235,7 @@ fun SpeedBumpOverlay(
                                 Modifier
                                     .size(IconSize)
                                     .scale(0.94f + 0.06f * breathAmount)
-                                    .clip(RoundedCornerShape(20.dp)),
+                                    .clip(RoundedCornerShape(DesignTokens.CornerLargeIncreased)),
                             contentScale = ContentScale.Fit,
                         )
                     }
@@ -316,7 +316,7 @@ fun SpeedBumpOverlay(
 
                 // Small but prominent: a filled pill rather than a bare text button, so the
                 // way out reads as a real action without competing with the breathing icon.
-                Button(
+                AppButton(
                     onClick = onCancel,
                     shape = DesignTokens.ShapeFull,
                     colors =

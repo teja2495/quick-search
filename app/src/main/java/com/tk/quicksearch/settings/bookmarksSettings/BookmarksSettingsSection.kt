@@ -24,7 +24,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -49,9 +48,8 @@ import com.tk.quicksearch.search.data.bookmarks.BookmarkRepository
 import com.tk.quicksearch.search.data.bookmarks.BookmarkUrls
 import com.tk.quicksearch.search.models.BookmarkInfo
 import com.tk.quicksearch.settings.appShortcutsSettings.shortcutMatchPriority
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentRow
-import com.tk.quicksearch.settings.shared.SettingsIconBadge
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.AppUndoSnackbarPopup
 import com.tk.quicksearch.shared.ui.components.rememberUndoSnackbarController
@@ -62,6 +60,8 @@ import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 private const val EXPORT_FILE_NAME = "bookmarks.html"
 
@@ -155,7 +155,7 @@ fun BookmarksSettingsSection(
         // With nothing saved, importing is the main way in, so it gets a card; otherwise it lives in
         // the header's menu.
         if (bookmarks.isEmpty()) {
-            SettingsSegment(
+            SegmentedTile(
                 index = 0,
                 count = 1,
                 modifier = Modifier.padding(bottom = DesignTokens.SpacingMedium),
@@ -165,7 +165,7 @@ fun BookmarksSettingsSection(
         }
         Column(modifier = Modifier.fillMaxWidth().weight(1f, fill = false)) {
             if (displayed.isEmpty()) {
-                SettingsSegment(index = 0, count = 1) {
+                SegmentedTile(index = 0, count = 1) {
                     Text(
                         text =
                             stringResource(
@@ -183,7 +183,7 @@ fun BookmarksSettingsSection(
                     verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
                 ) {
                     itemsIndexed(items = displayed, key = { _, bookmark -> bookmark.bookmarkId }) { index, bookmark ->
-                        SettingsSegment(index = index, count = displayed.size) {
+                        SegmentedTile(index = index, count = displayed.size) {
                             BookmarkManagementRow(
                                 bookmark = bookmark,
                                 onClick = { editorTarget = BookmarkEditorTarget.Existing(bookmark) },
@@ -213,7 +213,7 @@ fun BookmarksSettingsSection(
             title = { Text(stringResource(R.string.bookmarks_delete_all_title)) },
             text = { Text(stringResource(R.string.bookmarks_delete_all_message)) },
             confirmButton = {
-                TextButton(
+                AppTextButton(
                     onClick = {
                         showDeleteAllConfirm = false
                         scope.launch(Dispatchers.IO) { repository.deleteAll() }
@@ -223,7 +223,7 @@ fun BookmarksSettingsSection(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteAllConfirm = false }) {
+                AppTextButton(onClick = { showDeleteAllConfirm = false }) {
                     Text(text = stringResource(R.string.dialog_cancel))
                 }
             },
@@ -279,7 +279,7 @@ private fun BookmarkImportRow(
     isImporting: Boolean,
     onClick: () -> Unit,
 ) {
-    SettingsSegmentRow(
+    SegmentedTileRow(
         title = stringResource(R.string.bookmarks_import_title),
         description = stringResource(R.string.bookmarks_import_desc),
         modifier = Modifier.clickable(enabled = !isImporting, onClick = onClick),
@@ -292,7 +292,7 @@ private fun BookmarkImportRow(
                     )
                 }
             } else {
-                SettingsIconBadge(icon = MaterialSymbols.Download)
+                TonalIconBadge(icon = MaterialSymbols.Download)
             }
         },
         verticalAlignment = Alignment.Top,
@@ -316,7 +316,7 @@ private fun BookmarkManagementRow(
         Box(
             modifier = Modifier.size(DesignTokens.Spacing40)
                 .clip(CircleShape)
-                .background(AppColors.Accent.copy(alpha = 0.14f)),
+                .background(AppColors.AccentTintTonal),
             contentAlignment = Alignment.Center,
         ) {
             BookmarkFavicon(bookmark = bookmark, size = DesignTokens.IconSize)

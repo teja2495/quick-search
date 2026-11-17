@@ -15,10 +15,10 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.SettingsChoice
-import com.tk.quicksearch.settings.shared.SettingsChoiceGroup
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.ChoiceOption
+import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
 
@@ -36,8 +36,8 @@ fun SearchEngineAppearanceCard(
     val view = LocalView.current
 
     // One tile: the two display options are a single choice.
-    SettingsSegmentGroup(modifier = modifier) {
-      SettingsSegment(index = 0, count = 1) {
+    SegmentedGroup(modifier = modifier) {
+      SegmentedTile(index = 0, count = 1) {
         Column(
             modifier =
                 Modifier
@@ -146,11 +146,11 @@ private fun CompactRowCountPills(
     selectedRowCount: Int,
     onSelectRowCount: (Int) -> Unit,
 ) {
-    SettingsChoiceGroup(
+    ConnectedChoiceGroup(
         options =
             listOf(
-                SettingsChoice(1, stringResource(R.string.settings_compact_rows_one_row)),
-                SettingsChoice(2, stringResource(R.string.settings_compact_rows_two_rows)),
+                ChoiceOption(1, stringResource(R.string.settings_compact_rows_one_row)),
+                ChoiceOption(2, stringResource(R.string.settings_compact_rows_two_rows)),
             ),
         selected = if (selectedRowCount == 2) 2 else 1,
         onSelect = onSelectRowCount,

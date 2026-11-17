@@ -134,7 +134,7 @@ private fun CompactCheckChip(
         shape = DesignTokens.ShapeFull,
         colors =
             FilterChipDefaults.filterChipColors(
-                containerColor = AppColors.Accent.copy(alpha = 0.14f),
+                containerColor = AppColors.AccentTintTonal,
                 labelColor = MaterialTheme.colorScheme.onSurface,
                 selectedContainerColor = AppColors.Accent,
                 selectedLabelColor = AppColors.OnAccent,

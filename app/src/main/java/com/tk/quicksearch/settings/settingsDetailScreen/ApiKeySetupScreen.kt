@@ -39,15 +39,15 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
-import com.tk.quicksearch.settings.shared.SettingsChoice
-import com.tk.quicksearch.settings.shared.SettingsChoiceGroup
+import com.tk.quicksearch.shared.ui.components.ChoiceOption
+import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
 import com.tk.quicksearch.settings.shared.SettingsIconBadge
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentContent
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
-import com.tk.quicksearch.settings.shared.SettingsSegmentRow
-import com.tk.quicksearch.settings.shared.SettingsSegmentRowPadding
-import com.tk.quicksearch.settings.shared.SettingsTonalButton
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContentPadding
+import com.tk.quicksearch.shared.ui.components.TonalButton
 import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -60,6 +60,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
 
 /**
  * API key setup as Material 3 tiles: one group with a tile per provider (built-in, then custom)
@@ -116,7 +117,7 @@ fun ApiKeySetupScreen(
             )
         }
 
-        SettingsSegmentGroup {
+        SegmentedGroup {
             providers.forEachIndexed { index, providerId ->
                 ProviderApiKeyTile(
                     providerId = providerId,
@@ -169,11 +170,11 @@ private fun TavilyWebSearchSection() {
 
     val hasSavedKey = apiKeyLast4 != null
     val tileCount = if (hasSavedKey) 2 else 1
-    SettingsSegmentGroup {
+    SegmentedGroup {
         ApiKeyTile(
             title = stringResource(R.string.settings_tavily_title),
             description = stringResource(R.string.settings_tavily_desc),
-            leading = { SettingsIconBadge(icon = MaterialSymbols.Public) },
+            leading = { TonalIconBadge(icon = MaterialSymbols.Public) },
             savedLast4 = apiKeyLast4,
             isSaving = isSaving,
             onSave = ::saveApiKey,
@@ -182,12 +183,12 @@ private fun TavilyWebSearchSection() {
             count = tileCount,
         )
         if (hasSavedKey) {
-            SettingsSegment(index = 1, count = tileCount) {
-                SettingsSegmentContent {
-                    SettingsChoiceGroup(
+            SegmentedTile(index = 1, count = tileCount) {
+                SegmentedTileContent {
+                    ConnectedChoiceGroup(
                         options =
                             TavilyWebSearchMode.entries.map { option ->
-                                SettingsChoice(option, stringResource(option.labelResId()))
+                                ChoiceOption(option, stringResource(option.labelResId()))
                             },
                         selected = mode,
                         onSelect = { selected ->
@@ -254,12 +255,12 @@ private fun AddCustomProviderTile(
         }
     }
 
-    SettingsSegment(index = index, count = count, modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester)) {
+    SegmentedTile(index = index, count = count, modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester)) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            SettingsSegmentRow(
+            SegmentedTileRow(
                 title = stringResource(R.string.settings_add_custom_provider_title),
                 description = stringResource(R.string.settings_add_custom_provider_desc),
-                leading = { SettingsIconBadge(icon = MaterialSymbols.Add) },
+                leading = { TonalIconBadge(icon = MaterialSymbols.Add) },
                 trailing = {
                     Icon(
                         imageVector = MaterialSymbols.ExpandMore,
@@ -282,9 +283,9 @@ private fun AddCustomProviderTile(
                 Column(
                     modifier =
                         Modifier.fillMaxWidth().padding(
-                            start = SettingsSegmentRowPadding,
-                            end = SettingsSegmentRowPadding,
-                            bottom = SettingsSegmentRowPadding,
+                            start = SegmentedTileContentPadding,
+                            end = SegmentedTileContentPadding,
+                            bottom = SegmentedTileContentPadding,
                         ),
                     verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                 ) {
@@ -305,7 +306,7 @@ private fun AddCustomProviderTile(
                         colors = dialogTextFieldColors(),
                     )
                     if (apiKeyInput.isEmpty()) {
-                        SettingsTonalButton(
+                        TonalButton(
                             text = stringResource(R.string.settings_gemini_api_key_paste_hint),
                             icon = MaterialSymbols.Key,
                             enabled = !isSaving,

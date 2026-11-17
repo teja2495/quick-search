@@ -17,8 +17,8 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.HomeTextColor
-import com.tk.quicksearch.settings.shared.SettingsChoice
-import com.tk.quicksearch.settings.shared.SettingsChoiceGroup
+import com.tk.quicksearch.shared.ui.components.ChoiceOption
+import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.util.WallpaperUtils
 
@@ -65,15 +65,15 @@ fun HomeTextColorOptions(
                     )
                 }
             }
-            SettingsChoiceGroup(
+            ConnectedChoiceGroup(
                     options =
                             listOf(
-                                    SettingsChoice(
+                                    ChoiceOption(
                                             value = HomeTextColor.WHITE,
                                             label = stringResource(R.string.widget_text_icon_color_white),
                                             icon = MaterialSymbols.LightMode,
                                     ),
-                                    SettingsChoice(
+                                    ChoiceOption(
                                             value = HomeTextColor.BLACK,
                                             label = stringResource(R.string.widget_text_icon_color_black),
                                             icon = MaterialSymbols.DarkMode,

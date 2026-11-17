@@ -87,7 +87,7 @@ internal fun compactTopDividerColor(showWallpaperBackground: Boolean): Color =
     if (showWallpaperBackground) {
         AppColors.WallpaperDivider.copy(alpha = AppColors.WallpaperDivider.alpha * 0.5f)
     } else {
-        AppColors.Accent.copy(alpha = 0.11f)
+        AppColors.AccentTintLight
     }
 
 internal object SearchEngineSectionConstants {

@@ -11,7 +11,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,6 +30,8 @@ import com.tk.quicksearch.shared.time.ScheduleRepeat
 import com.tk.quicksearch.shared.time.ScheduleRepeatUnit
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.components.AppOutlinedButton
 
 private val repeatPresets: List<ScheduleRepeat?> =
     listOf(null) + ScheduleRepeatUnit.entries.map { ScheduleRepeat(1, it) }
@@ -53,10 +54,10 @@ internal fun ReminderRepeatField(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            OutlinedButton(
+            AppOutlinedButton(
                 onClick = { menuExpanded = true },
                 modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(DesignTokens.CornerMedium),
             ) {
                 Icon(
                     imageVector = MaterialSymbols.Repeat,

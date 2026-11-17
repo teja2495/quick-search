@@ -2,10 +2,10 @@ package com.tk.quicksearch.shared.permissions
 
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 @Composable
 fun PermissionSettingsDialog(
@@ -26,12 +26,12 @@ fun PermissionSettingsDialog(
             )
         },
         confirmButton = {
-            TextButton(onClick = onConfirm) {
+            AppTextButton(onClick = onConfirm) {
                 Text(text = stringResource(R.string.dialog_okay))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(text = stringResource(R.string.dialog_cancel))
             }
         },

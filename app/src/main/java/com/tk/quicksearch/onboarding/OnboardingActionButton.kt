@@ -7,11 +7,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,10 +24,11 @@ import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
-import com.tk.quicksearch.settings.shared.SettingsFloatingActionHeight
-import com.tk.quicksearch.settings.shared.settingsFloatingActionShape
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.floatingActionShape
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.components.AppButton
+import com.tk.quicksearch.shared.ui.components.AppOutlinedButton
 
 /**
  * Material 3 Expressive medium (56dp) button for onboarding actions: fully round at rest, squaring
@@ -65,7 +64,7 @@ fun OnboardingActionButton(
     val buttonModifier =
         modifier
             .fillMaxWidth()
-            .height(SettingsFloatingActionHeight)
+            .height(DesignTokens.FloatingActionHeight)
             .then(
                 if (welcomeMorph == null) {
                     Modifier
@@ -76,7 +75,7 @@ fun OnboardingActionButton(
                         .welcomeGlow()
                 },
             )
-    val shape = settingsFloatingActionShape(interactionSource)
+    val shape = floatingActionShape(interactionSource)
     val content: @Composable () -> Unit = {
         if (icon != null) {
             Icon(
@@ -93,7 +92,7 @@ fun OnboardingActionButton(
         )
     }
     if (isOutlined) {
-        OutlinedButton(
+        AppOutlinedButton(
             onClick = handleClick,
             enabled = enabled,
             modifier = buttonModifier,
@@ -107,7 +106,7 @@ fun OnboardingActionButton(
                 ),
         ) { content() }
     } else {
-        Button(
+        AppButton(
             onClick = handleClick,
             enabled = enabled,
             modifier = buttonModifier,

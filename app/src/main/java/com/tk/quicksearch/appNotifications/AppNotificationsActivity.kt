@@ -54,14 +54,13 @@ import com.tk.quicksearch.search.data.preferences.GlancePreferences
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.rememberAppLabel
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailHeader
-import com.tk.quicksearch.settings.shared.SettingsFloatingActionHeight
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
-import com.tk.quicksearch.settings.shared.settingsFloatingActionShape
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.theme.floatingActionShape
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
-import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.shared.util.AppLanguageManager
 import com.tk.quicksearch.shared.util.setSystemBarsDark
@@ -196,8 +195,8 @@ private fun AppNotificationsScreen(
                 modifier = Modifier.fillMaxWidth()
                     .padding(horizontal = DesignTokens.ContentHorizontalPadding)
                     .padding(bottom = DesignTokens.SpacingLarge)
-                    .height(SettingsFloatingActionHeight),
-                shape = settingsFloatingActionShape(addInteraction),
+                    .height(DesignTokens.FloatingActionHeight),
+                shape = floatingActionShape(addInteraction),
                 containerColor = AppColors.Accent,
                 contentColor = AppColors.OnAccent,
                 interactionSource = addInteraction,
@@ -228,7 +227,7 @@ private fun AppNotificationsScreen(
             )
 
             val sourceCount = filters.apps.size + 1
-            SettingsSegmentGroup {
+            SegmentedGroup {
                 SourceRow(
                     packageName = null,
                     title = stringResource(R.string.app_notifications_any_app),
@@ -313,7 +312,7 @@ private fun SourceRow(
     count: Int,
     onClick: () -> Unit,
     onRemove: (() -> Unit)? = null,
-) = SettingsSegment(index = index, count = count, onClick = onClick) {
+) = SegmentedTile(index = index, count = count, onClick = onClick) {
     Row(
         modifier = Modifier.fillMaxWidth()
             .padding(horizontal = DesignTokens.SpacingLarge, vertical = DesignTokens.SpacingLarge),
@@ -342,7 +341,7 @@ private fun SourceRow(
             FilledTonalIconButton(
                 onClick = onRemove,
                 colors = IconButtonDefaults.filledTonalIconButtonColors(
-                    containerColor = error.copy(alpha = RemoveButtonTonalAlpha),
+                    containerColor = error.copy(alpha = AppColors.TintTonalAlpha),
                     contentColor = error,
                 ),
             ) {
@@ -362,4 +361,3 @@ private fun SourceRow(
 }
 
 private val AddAppIconSize = 18.dp
-private const val RemoveButtonTonalAlpha = 0.14f

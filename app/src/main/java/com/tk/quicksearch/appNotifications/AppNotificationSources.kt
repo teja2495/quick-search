@@ -28,8 +28,8 @@ import com.tk.quicksearch.search.data.AppNotificationFilters
 import com.tk.quicksearch.search.data.GlanceNotificationsStore
 import com.tk.quicksearch.search.notificationHistory.NotificationHistoryStore
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.rememberAppLabel
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerAppIcon
@@ -103,9 +103,9 @@ internal fun AppNotificationRecentMatches(filters: AppNotificationFilters) {
             color = AppColors.Accent,
             modifier = Modifier.padding(horizontal = DesignTokens.SpacingLarge, vertical = DesignTokens.SpacingXSmall),
         )
-        SettingsSegmentGroup {
+        SegmentedGroup {
             if (matches.isEmpty()) {
-                SettingsSegment(index = 0, count = 1) {
+                SegmentedTile(index = 0, count = 1) {
                     Text(
                         text = stringResource(R.string.app_notifications_no_matches),
                         style = MaterialTheme.typography.bodyMedium,
@@ -115,7 +115,7 @@ internal fun AppNotificationRecentMatches(filters: AppNotificationFilters) {
                 }
             }
             matches.forEachIndexed { index, notification ->
-                SettingsSegment(index = index, count = matches.size) {
+                SegmentedTile(index = index, count = matches.size) {
                     RecentMatchRow(notification)
                 }
             }

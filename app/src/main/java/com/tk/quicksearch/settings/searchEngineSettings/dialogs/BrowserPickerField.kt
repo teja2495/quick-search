@@ -85,7 +85,7 @@ fun BrowserPickerField(
     val accentColor = AppColors.Accent
     val onSurface = MaterialTheme.colorScheme.onSurface
     val onSurfaceVariant = MaterialTheme.colorScheme.onSurfaceVariant
-    val shape = RoundedCornerShape(8.dp)
+    val shape = RoundedCornerShape(DesignTokens.CornerSmall)
     val expandedShape = RoundedCornerShape(
         topStart = 8.dp, topEnd = 8.dp,
         bottomStart = 0.dp, bottomEnd = 0.dp,

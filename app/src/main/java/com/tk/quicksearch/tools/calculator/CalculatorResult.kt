@@ -34,7 +34,6 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.heightIn
 import com.tk.quicksearch.tools.aiSearch.CalculatorAttributionRow
 import com.tk.quicksearch.search.searchScreen.shared.InformationCard
 import com.tk.quicksearch.search.searchScreen.shared.InformationCardCopyAction

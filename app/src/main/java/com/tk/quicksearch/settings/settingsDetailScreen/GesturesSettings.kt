@@ -17,7 +17,7 @@ import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction
 import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
 import com.tk.quicksearch.settings.shared.SettingsCardItem
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -67,7 +67,7 @@ fun GesturesSettingsSection(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
-        SettingsSegmentGroup(
+        SegmentedGroup(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.settings_home_gestures_title),
             description = stringResource(R.string.settings_home_gestures_desc),
@@ -131,7 +131,7 @@ fun GesturesSettingsSection(
             )
         }
 
-        SettingsSegmentGroup(
+        SegmentedGroup(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.settings_keyboard_gestures_title),
             description = stringResource(R.string.settings_keyboard_gestures_desc),

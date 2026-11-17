@@ -44,7 +44,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.settings.settingsScreen.SettingsBackupManager
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
-import com.tk.quicksearch.settings.shared.SettingsSegment
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -125,7 +125,7 @@ fun ImportSettingsScreen(
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.Center,
             ) {
-                SettingsSegment(index = 0, count = 1) {
+                SegmentedTile(index = 0, count = 1) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -146,7 +146,7 @@ fun ImportSettingsScreen(
                             color = when (screenState) {
                                 ImportScreenState.Success -> MaterialTheme.colorScheme.primaryContainer
                                 ImportScreenState.Error -> MaterialTheme.colorScheme.errorContainer
-                                else -> AppColors.Accent.copy(alpha = 0.12f)
+                                else -> AppColors.AccentTintLight
                             },
                             modifier = Modifier
                                 .size(88.dp)
@@ -270,7 +270,7 @@ fun ImportSettingsScreen(
                             CircularProgressIndicator(
                                 modifier = Modifier.size(48.dp),
                                 color = AppColors.Accent,
-                                trackColor = AppColors.Accent.copy(alpha = 0.12f),
+                                trackColor = AppColors.AccentTintLight,
                             )
                         }
                     }

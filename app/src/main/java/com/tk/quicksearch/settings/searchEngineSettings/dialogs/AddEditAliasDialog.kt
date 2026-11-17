@@ -10,7 +10,6 @@ import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,6 +31,7 @@ import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInpu
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 enum class AliasInfoType {
     SEARCH_TYPE,
@@ -195,7 +195,7 @@ fun AddEditAliasDialog(
             }
         },
         confirmButton = {
-            TextButton(
+            AppTextButton(
                 onClick = {
                     if (confirmEnabled) {
                         onSave(if (isEmptyInput) "" else editingCode.text)
@@ -209,7 +209,7 @@ fun AddEditAliasDialog(
             }
         },
         dismissButton = {
-            TextButton(
+            AppTextButton(
                 onClick = onDismiss,
                 colors = ButtonDefaults.textButtonColors(contentColor = AppColors.Accent),
             ) {

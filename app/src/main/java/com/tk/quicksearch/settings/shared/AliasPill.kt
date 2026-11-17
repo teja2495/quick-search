@@ -42,7 +42,7 @@ fun AliasPill(
     onClearClick: (() -> Unit)? = null,
 ) {
     val isSet = onClearClick != null
-    val containerColor = AppColors.Accent.copy(alpha = AliasChipTonalAlpha)
+    val containerColor = AppColors.AccentTintLight
     val labelColor = MaterialTheme.colorScheme.onSurface
     val content: @Composable () -> Unit = {
         Row(
@@ -112,4 +112,3 @@ fun AliasPill(
 private val AliasChipHeight = 24.dp
 private val AliasChipStartPadding = 6.dp
 private val AliasChipIconSize = 14.dp
-private const val AliasChipTonalAlpha = 0.12f

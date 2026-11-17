@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -31,7 +30,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -54,10 +52,9 @@ import com.tk.quicksearch.search.noted.notedSubtitle
 import com.tk.quicksearch.search.reminders.ReminderRelativeDateText
 import com.tk.quicksearch.search.reminders.reminderScheduleLabel
 import com.tk.quicksearch.settings.appShortcutsSettings.shortcutMatchPriority
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
-import com.tk.quicksearch.settings.shared.SettingsSegmentToggleRow
-import com.tk.quicksearch.settings.shared.SettingsIconBadge
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDivider
@@ -70,6 +67,8 @@ import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 private enum class ReminderFilterOption(val labelResId: Int) {
     ALL(R.string.settings_reminders_filter_all),
@@ -199,7 +198,7 @@ fun RemindersSettingsSection(
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     Column(modifier = modifier) {
         if (!hasPermissions && !permissionHintDismissed) {
-            SettingsSegment(
+            SegmentedTile(
                 index = 0,
                 count = 1,
                 modifier = Modifier.padding(bottom = DesignTokens.SectionTopPadding),
@@ -237,13 +236,13 @@ fun RemindersSettingsSection(
                 }
             }
         }
-        SettingsSegmentGroup(
+        SegmentedGroup(
             modifier =
                 Modifier.fillMaxWidth().padding(
                     bottom = if (normalizedQuery.isBlank()) DesignTokens.SpacingXSmall else DesignTokens.SpacingMedium,
                 ),
         ) {
-            SettingsSegmentToggleRow(
+            SegmentedToggleTile(
                 title = stringResource(R.string.settings_include_past_reminders_title),
                 description = stringResource(R.string.settings_include_past_reminders_desc),
                 checked = includePastReminders,
@@ -265,7 +264,7 @@ fun RemindersSettingsSection(
                             start = DesignTokens.SpacingXSmall,
                         ),
             ) {
-                TextButton(onClick = { isFilterMenuExpanded = true }) {
+                AppTextButton(onClick = { isFilterMenuExpanded = true }) {
                     Text(
                         text = stringResource(selectedFilterOption.labelResId),
                         color = AppColors.Accent,
@@ -296,7 +295,7 @@ fun RemindersSettingsSection(
         }
         Column(modifier = Modifier.fillMaxWidth()) {
             if (displayedReminders.isEmpty()) {
-                SettingsSegment(index = 0, count = 1) {
+                SegmentedTile(index = 0, count = 1) {
                     Box(
                         modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
                         contentAlignment = Alignment.Center,
@@ -315,7 +314,7 @@ fun RemindersSettingsSection(
                     verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
                 ) {
                     itemsIndexed(items = displayedReminders, key = { _, entry -> entry.key }) { index, entry ->
-                        SettingsSegment(index = index, count = displayedReminders.size) {
+                        SegmentedTile(index = index, count = displayedReminders.size) {
                             when (entry) {
                                 is ReminderEntry.Local -> {
                                     val reminder = entry.reminder
@@ -367,7 +366,7 @@ private fun ReminderManagementRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
-        SettingsIconBadge(icon = MaterialSymbols.Alarm)
+        TonalIconBadge(icon = MaterialSymbols.Alarm)
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = reminder.title,

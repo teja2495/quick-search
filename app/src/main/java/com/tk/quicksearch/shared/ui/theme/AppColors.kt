@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.unit.dp 
 import com.tk.quicksearch.search.core.AppTheme
 
@@ -28,6 +29,57 @@ object AppColors {
     val Accent: Color
         @Composable
         get() = MaterialTheme.colorScheme.primary
+
+    // Accent tints -------------------------------------------------------------------------
+    // Translucent accent fills for tonal surfaces (icon badges, tonal buttons, selected rows).
+    // They follow the accent through Material You, custom, wallpaper, and monochrome themes and
+    // stay readable over wallpaper and AMOLED, so use these instead of `Accent.copy(alpha = ...)`.
+
+    /** 5% accent: disabled tonal fields. */
+    val AccentTintFaint: Color
+        @Composable
+        get() = Accent.copy(alpha = TintFaintAlpha)
+
+    /** 8% accent: quiet panels and unselected chips and slots. */
+    val AccentTintSubtle: Color
+        @Composable
+        get() = Accent.copy(alpha = TintSubtleAlpha)
+
+    /** 12% accent: light fills such as alias chips and progress tracks. */
+    val AccentTintLight: Color
+        @Composable
+        get() = Accent.copy(alpha = TintLightAlpha)
+
+    /** 14% accent: the standard tonal container (icon badges, tonal buttons, selected rows). */
+    val AccentTintTonal: Color
+        @Composable
+        get() = Accent.copy(alpha = TintTonalAlpha)
+
+    /** 24% accent: strong selection (dragged tiles, selected chips, floating tonal actions). */
+    val AccentTintStrong: Color
+        @Composable
+        get() = Accent.copy(alpha = TintStrongAlpha)
+
+    /** 30% accent: emphasised selection over a busy surface. */
+    val AccentTintEmphasis: Color
+        @Composable
+        get() = Accent.copy(alpha = TintEmphasisAlpha)
+
+    /**
+     * Container of a secondary floating action beside an accent one (Search beside Add): the strong
+     * accent tint made opaque over a raised surface, since it floats over a list.
+     */
+    val FloatingTonalContainer: Color
+        @Composable
+        get() = AccentTintStrong.compositeOver(MaterialTheme.colorScheme.surfaceContainerHigh)
+
+    // Tint opacities, also for tonal fills of other roles (error, content colour).
+    const val TintFaintAlpha = 0.05f
+    const val TintSubtleAlpha = 0.08f
+    const val TintLightAlpha = 0.12f
+    const val TintTonalAlpha = 0.14f
+    const val TintStrongAlpha = 0.24f
+    const val TintEmphasisAlpha = 0.3f
 
     /** Color for content drawn on top of an accent-colored surface (maps to `onPrimary`). */
     val OnAccent: Color

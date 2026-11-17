@@ -8,12 +8,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +25,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.DirectDialOption
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.utils.PhoneNumberUtils
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 // ============================================================================
 // Phone Number Selection Dialog
@@ -109,7 +108,7 @@ fun PhoneNumberSelectionDialog(
             }
         },
         confirmButton = {
-            TextButton(
+            AppTextButton(
                 onClick = {
                     selectedNumber?.let { number ->
                         onPhoneNumberSelected(number, rememberChoice)
@@ -128,7 +127,7 @@ fun PhoneNumberSelectionDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(text = stringResource(R.string.dialog_cancel))
             }
         },
@@ -208,12 +207,12 @@ fun DirectDialChoiceDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = { onSelectOption(selectedOption, true) }) {
+            AppTextButton(onClick = { onSelectOption(selectedOption, true) }) {
                 Text(text = stringResource(R.string.dialog_ok))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(text = stringResource(R.string.dialog_cancel))
             }
         },

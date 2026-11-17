@@ -18,7 +18,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -53,6 +52,14 @@ import com.tk.quicksearch.shared.util.performHapticFeedbackSafely
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import com.tk.quicksearch.shared.ui.components.PreserveHostKeyboardStateEffect
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
+import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
+import com.tk.quicksearch.shared.ui.components.ChoiceOption
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 private val RecentQueriesDisplayCountOptions = listOf(1, 3, 5, 7, 10)
 
@@ -287,9 +294,9 @@ internal fun SearchOptionsCard(
             }
         }
     }
-    SettingsSegmentGroup(modifier = modifier) {
+    SegmentedGroup(modifier = modifier) {
         tiles.forEachIndexed { index, tile ->
-            SettingsSegment(index = index, count = tiles.size) { tile() }
+            SegmentedTile(index = index, count = tiles.size) { tile() }
         }
     }
 
@@ -363,14 +370,14 @@ private fun AppResultRowsSelector(
     selectedRowCount: Int,
     onSelectRowCount: (Int) -> Unit,
 ) {
-    SettingsSegmentContent {
+    SegmentedTileContent {
         Text(
             text = stringResource(R.string.settings_app_result_rows_title),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
         )
-        SettingsChoiceGroup(
-            options = listOf(1, 2).map { SettingsChoice(it, it.toString()) },
+        ConnectedChoiceGroup(
+            options = listOf(1, 2).map { ChoiceOption(it, it.toString()) },
             selected = selectedRowCount,
             onSelect = onSelectRowCount,
         )
@@ -379,7 +386,7 @@ private fun AppResultRowsSelector(
 
 @Composable
 private fun SearchOptionsNavigationRow(item: SettingsCardItem) {
-    SettingsSegmentRow(
+    SegmentedTileRow(
         title = item.title,
         description = item.description,
         leading = { SettingsIconBadge(item) },
@@ -525,7 +532,7 @@ internal fun PinnedNotificationItemsDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
                 ) {
-                    TextButton(onClick = onDismiss) {
+                    AppTextButton(onClick = onDismiss) {
                         Text(stringResource(R.string.common_close))
                     }
                 }
@@ -545,10 +552,10 @@ private fun AppSuggestionTabsPickerRow(
             buildAppSuggestionTabsSummary(enabledTabs, tabLabels)
         }
 
-    SettingsSegmentRow(
+    SegmentedTileRow(
         title = stringResource(R.string.app_suggestions_enabled_tabs_picker_hint),
         description = stringResource(R.string.settings_app_language_desc, enabledTabsSummary),
-        leading = { SettingsIconBadge(icon = MaterialSymbols.Reorder) },
+        leading = { TonalIconBadge(icon = MaterialSymbols.Reorder) },
         modifier = Modifier.clickable(onClick = onClick),
     )
 }

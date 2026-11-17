@@ -2,15 +2,12 @@ package com.tk.quicksearch.settings.appearanceSettings
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.getValue
@@ -47,13 +44,14 @@ import androidx.compose.ui.semantics.Role
 import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.LauncherAppIcon
-import com.tk.quicksearch.settings.shared.SettingsTonalButton
+import com.tk.quicksearch.shared.ui.components.TonalButton
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
+import com.tk.quicksearch.shared.ui.theme.pressMorphShape
 
 private object LauncherIconPickerSpacing {
     val optionSpacing = DesignTokens.ItemRowSpacing
@@ -65,16 +63,12 @@ private val LauncherIconPreviewSize = DesignTokens.Spacing48
 
 private const val IconsPerRow = 4
 
-private val LauncherIconTileCorner = 16.dp
-private val LauncherIconTileSelectedCorner = 28.dp
 private val LauncherIconTileRingWidth = 2.dp
 private val LauncherIconCheckSize = 20.dp
 private val LauncherIconCheckIconSize = 14.dp
 private val LauncherIconCheckInset = 6.dp
 
 // Same 14% accent tint as unselected choice buttons, so tiles read over wallpaper and AMOLED.
-private const val UnselectedTintAlpha = 0.14f
-private const val SelectedTintAlpha = 0.28f
 
 @Composable
 fun AppLauncherIconCard(
@@ -84,8 +78,8 @@ fun AppLauncherIconCard(
 ) {
     val tiles = launcherIconPickerTiles()
 
-    SettingsSegmentGroup(modifier = modifier) {
-      SettingsSegment(index = 0, count = 1) {
+    SegmentedGroup(modifier = modifier) {
+      SegmentedTile(index = 0, count = 1) {
         Column(
             modifier =
                 Modifier
@@ -133,7 +127,7 @@ fun AppLauncherIconCard(
                 }
             }
 
-            SettingsTonalButton(
+            TonalButton(
                 text = stringResource(R.string.settings_launcher_icon_reset_default),
                 icon = MaterialSymbols.RestartAlt,
                 onClick = { onSetLauncherAppIcon(LauncherAppIcon.DEFAULT) },
@@ -162,22 +156,22 @@ private fun LauncherIconOptionTile(
         }
     val view = LocalView.current
     val interactionSource = remember { MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
     // Material 3 Expressive selection: corners round further while pressed or selected.
-    val corner by animateDpAsState(
-        targetValue = if (selected || pressed) LauncherIconTileSelectedCorner else LauncherIconTileCorner,
-        animationSpec = DesignTokens.expressiveFastSpatialSpring(),
-        label = "launcherIconTileCorner",
-    )
+    val shape =
+        pressMorphShape(
+            interactionSource,
+            rest = DesignTokens.CornerLarge,
+            pressed = DesignTokens.CornerExtraLarge,
+            held = selected,
+        )
     val containerColor by animateColorAsState(
-        targetValue = AppColors.Accent.copy(alpha = if (selected) SelectedTintAlpha else UnselectedTintAlpha),
+        targetValue = if (selected) AppColors.AccentTintEmphasis else AppColors.AccentTintTonal,
         label = "launcherIconTileContainer",
     )
     val ringColor by animateColorAsState(
         targetValue = if (selected) AppColors.Accent else Color.Transparent,
         label = "launcherIconTileRing",
     )
-    val shape = RoundedCornerShape(corner)
 
     Box(
         modifier =

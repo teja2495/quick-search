@@ -37,10 +37,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import android.widget.Toast
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentContent
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
-import com.tk.quicksearch.settings.shared.SettingsSegmentToggleRow
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
 import com.tk.quicksearch.tools.aiSearch.LlmTextModel
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.settings.shared.ModelFeatureSettingsCard
@@ -204,8 +204,8 @@ fun AdvancedPayloadSettingsSection(
                 return true
         }
 
-        SettingsSegmentGroup {
-                SettingsSegmentToggleRow(
+        SegmentedGroup {
+                SegmentedToggleTile(
                         title = stringResource(R.string.settings_custom_provider_advanced_payload_title),
                         description =
                                 stringResource(R.string.settings_custom_provider_advanced_payload_desc),
@@ -227,8 +227,8 @@ fun AdvancedPayloadSettingsSection(
                 )
 
                 if (enabledInput) {
-                        SettingsSegment(index = 1, count = 2) {
-                                SettingsSegmentContent {
+                        SegmentedTile(index = 1, count = 2) {
+                                SegmentedTileContent {
                                         OutlinedTextField(
                                                 value = payloadInput,
                                                 onValueChange = { next ->

@@ -494,7 +494,7 @@ private fun CustomButtonSlotContent(
 ) {
     // Tonal slots, as in the expressive settings tiles: empty slots are a lighter accent tint.
     Surface(
-        color = AppColors.Accent.copy(alpha = if (action == null) EMPTY_SLOT_TINT_ALPHA else FILLED_SLOT_TINT_ALPHA),
+        color = if (action == null) AppColors.AccentTintSubtle else AppColors.AccentTintTonal,
         shape = shape,
         tonalElevation = 0.dp,
         shadowElevation = 0.dp,
@@ -540,6 +540,3 @@ private fun CustomButtonSlotContent(
         }
     }
 }
-
-private const val EMPTY_SLOT_TINT_ALPHA = 0.08f
-private const val FILLED_SLOT_TINT_ALPHA = 0.14f

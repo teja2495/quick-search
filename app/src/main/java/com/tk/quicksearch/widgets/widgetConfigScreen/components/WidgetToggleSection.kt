@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.SettingsSegmentToggleRow
+import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.widgets.utils.WidgetPreferences
 
@@ -19,7 +19,7 @@ fun WidgetToggleSection(
     onStateChange: (WidgetPreferences) -> Unit,
 ) {
     val context = LocalContext.current
-    SettingsSegmentToggleRow(
+    SegmentedToggleTile(
         title = stringResource(R.string.widget_toggle_show_label),
         icon = MaterialSymbols.Label,
         checked = state.showLabel,

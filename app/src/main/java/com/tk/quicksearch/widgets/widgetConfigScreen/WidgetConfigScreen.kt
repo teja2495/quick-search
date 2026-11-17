@@ -26,7 +26,7 @@ import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.notificationDots.NotificationDotsPermission
 import com.tk.quicksearch.search.core.SearchViewModel
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.widgets.atAGlanceWidget.AtAGlanceWidgetItemsSection
@@ -226,7 +226,7 @@ fun WidgetConfigScreen(
                             searchViewModel = searchViewModel,
                         )
                     }
-                    SettingsSegmentGroup {
+                    SegmentedGroup {
                         NoteWidgetBackgroundSection(
                             state = constrainedState,
                             index = 0,
@@ -241,7 +241,7 @@ fun WidgetConfigScreen(
                         )
                     }
                 } else if (isMediaControls) {
-                    SettingsSegmentGroup {
+                    SegmentedGroup {
                         MediaControlsThemeSection(
                             state = constrainedState,
                             index = 0,
@@ -273,7 +273,7 @@ fun WidgetConfigScreen(
                 }
                 if (widgetVariant == WidgetVariant.STANDARD) {
                     // The search bar's own options as one group of tiles.
-                    SettingsSegmentGroup {
+                    SegmentedGroup {
                         WidgetSearchIconSection(
                             state = constrainedState,
                             index = 0,

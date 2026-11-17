@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.searchScreen.AppThemeColors
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -122,7 +122,7 @@ fun WidgetThemeSection(
     val customBorderColor: Color? =
         if (state.borderColorOption == BorderColorOption.CUSTOM) Color(state.borderColor) else null
 
-    SettingsSegmentGroup {
+    SegmentedGroup {
         WidgetSettingTile(title = stringResource(R.string.settings_app_theme_title), index = 0, count = 2) {
             ThemeChoiceSegmentedButtonRow(
                 selectedTheme = if (state.backgroundColor == null) state.theme else null,
@@ -289,7 +289,7 @@ private fun ThemeColorOptionChip(
                         if (brush != null) {
                             Modifier.background(brush = brush)
                         } else {
-                            Modifier.background(color ?: AppColors.Accent.copy(alpha = 0.14f))
+                            Modifier.background(color ?: AppColors.AccentTintTonal)
                         },
                     )
                     .border(

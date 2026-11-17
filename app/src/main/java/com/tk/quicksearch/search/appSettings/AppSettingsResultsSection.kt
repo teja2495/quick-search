@@ -1,8 +1,8 @@
 package com.tk.quicksearch.search.appSettings
 
-import com.tk.quicksearch.settings.shared.SettingsChoice
-import com.tk.quicksearch.settings.shared.SettingsChoiceGroup
-import com.tk.quicksearch.settings.shared.SettingsSwitch
+import com.tk.quicksearch.shared.ui.components.ChoiceOption
+import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
+import com.tk.quicksearch.shared.ui.components.AppSwitch
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
 import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
 import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
@@ -336,11 +336,11 @@ internal fun AppSettingResultRow(
         }
 
         if (isAppsPerRowSetting) {
-            SettingsChoiceGroup(
+            ConnectedChoiceGroup(
                 options =
                     listOf(
-                        SettingsChoice(4, stringResource(R.string.settings_app_columns_4)),
-                        SettingsChoice(5, stringResource(R.string.settings_app_columns_5)),
+                        ChoiceOption(4, stringResource(R.string.settings_app_columns_4)),
+                        ChoiceOption(5, stringResource(R.string.settings_app_columns_5)),
                     ),
                 selected = if (appSettingPhoneAppGridColumns == 4) 4 else 5,
                 onSelect = { columns ->
@@ -377,7 +377,7 @@ internal fun AppSettingResultRow(
                     )
                 }
             }
-            SettingsSwitch(
+            AppSwitch(
                 checked = checked,
                 onCheckedChange = { enabled ->
                     hapticToggle(view)()
@@ -414,8 +414,8 @@ private fun AppResultRowsChips(
     selectedRowCount: Int,
     onSelectRowCount: (Int) -> Unit,
 ) {
-    SettingsChoiceGroup(
-        options = listOf(1, 2).map { rowCount -> SettingsChoice(rowCount, rowCount.toString()) },
+    ConnectedChoiceGroup(
+        options = listOf(1, 2).map { rowCount -> ChoiceOption(rowCount, rowCount.toString()) },
         selected = if (selectedRowCount == 2) 2 else 1,
         onSelect = { rowCount -> if (rowCount != selectedRowCount) onSelectRowCount(rowCount) },
         fillWidth = false,

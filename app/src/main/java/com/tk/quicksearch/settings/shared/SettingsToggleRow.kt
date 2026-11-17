@@ -36,6 +36,11 @@ import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContentPadding
+import com.tk.quicksearch.shared.ui.components.SegmentedTileToggleHorizontalPadding
+import com.tk.quicksearch.shared.ui.components.LocalInSegmentedTile
+import com.tk.quicksearch.shared.ui.components.AppSwitch
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
 
 data class SettingsToggleSliderDetails(
     val value: Float,
@@ -86,15 +91,15 @@ fun SettingsToggleRow(
     onTipBannerDismiss: (() -> Unit)? = null,
 ) {
     val view = LocalView.current
-    val segmented = LocalSettingsSegmented.current
+    val segmented = LocalInSegmentedTile.current
     // A tile has its own inset; the card defaults (24dp sides, first/last padding) apply only on a card.
     val horizontalPadding =
-        if (segmented && horizontalPadding == DesignTokens.SpacingXXLarge) SettingsSegmentToggleHorizontalPadding else horizontalPadding
+        if (segmented && horizontalPadding == DesignTokens.SpacingXXLarge) SegmentedTileToggleHorizontalPadding else horizontalPadding
     // Tiles share one height rhythm, so per-card spacing tweaks (extraVerticalPadding) don't apply.
     val topPadding =
-        if (segmented) SettingsSegmentRowPadding else DesignTokens.cardItemTopPadding(isFirstItem) + extraVerticalPadding
+        if (segmented) SegmentedTileContentPadding else DesignTokens.cardItemTopPadding(isFirstItem) + extraVerticalPadding
     val bottomPadding =
-        if (segmented) SettingsSegmentRowPadding else DesignTokens.cardItemBottomPadding(isLastItem) + extraVerticalPadding
+        if (segmented) SegmentedTileContentPadding else DesignTokens.cardItemBottomPadding(isLastItem) + extraVerticalPadding
     val onToggle: (Boolean) -> Unit = { newValue ->
         if (enabled) {
             hapticToggle(view)()
@@ -146,7 +151,7 @@ fun SettingsToggleRow(
         ) {
             leadingIcon?.let {
                 if (segmented) {
-                    SettingsIconBadge(icon = it)
+                    TonalIconBadge(icon = it)
                 } else {
                     Icon(
                         imageVector = it,
@@ -244,7 +249,7 @@ fun SettingsToggleRow(
                 }
             }
             if (showSwitch) {
-                SettingsSwitch(checked = checked, onCheckedChange = onToggle, enabled = enabled)
+                AppSwitch(checked = checked, onCheckedChange = onToggle, enabled = enabled)
             }
             trailingAction?.invoke()
         }

@@ -15,7 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.SettingsTonalButton
+import com.tk.quicksearch.shared.ui.components.TonalButton
 import com.tk.quicksearch.shared.ui.components.appPickerDrawerItemBackground
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
@@ -58,7 +58,7 @@ internal fun CustomWidgetCurrentActionCard(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f),
                 )
-                SettingsTonalButton(
+                TonalButton(
                     text = stringResource(R.string.dialog_reset),
                     onClick = onReset,
                     small = true,

@@ -55,6 +55,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.tk.quicksearch.R
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 
 /**
  * A bottom-anchored popup dialog with a header and scrollable dark content card.
@@ -154,7 +155,7 @@ fun AppBottomPopup(
                                     onDismiss()
                                 } else {
                                     coroutineScope.launch {
-                                        offsetY.animateTo(0f, DesignTokens.expressiveDefaultSpatialSpring())
+                                        offsetY.animateTo(0f, AppMotion.defaultSpatial())
                                     }
                                 }
                             },
@@ -171,7 +172,7 @@ fun AppBottomPopup(
                                 .then(
                                     if (animateSizeChanges) {
                                         Modifier.animateContentSize(
-                                            animationSpec = DesignTokens.expressiveDefaultSpatialSpring(),
+                                            animationSpec = AppMotion.defaultSpatial(),
                                             alignment = Alignment.BottomCenter,
                                         )
                                     } else {

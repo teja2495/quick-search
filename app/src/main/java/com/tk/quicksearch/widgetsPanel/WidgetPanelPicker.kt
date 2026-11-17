@@ -17,7 +17,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,16 +24,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,16 +44,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerSearch
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerMessage
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentRow
-import com.tk.quicksearch.settings.shared.SettingsIconBadge
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.platform.LocalContext
@@ -69,10 +63,12 @@ import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.utils.UserHandleUtils
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.theme.AppMotion
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
+import com.tk.quicksearch.shared.ui.components.AppButton
 
 private val WidgetPickerStageHeight = 176.dp
 
@@ -209,16 +205,16 @@ private fun QuickNotePickerRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    SettingsSegment(
+    SegmentedTile(
         index = 0,
         count = 1,
         modifier = modifier,
         onClick = onClick,
         containerColor = widgetPickerTileColor(),
     ) {
-        SettingsSegmentRow(
+        SegmentedTileRow(
             title = stringResource(R.string.notes_quick_note_title),
-            leading = { SettingsIconBadge(icon = MaterialSymbols.EditNote) },
+            leading = { TonalIconBadge(icon = MaterialSymbols.EditNote) },
             trailing = {
                 Icon(imageVector = MaterialSymbols.Add, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
             },
@@ -237,17 +233,17 @@ private fun WidgetPickerAppGroup(
 ) {
     val chevronRotation by animateFloatAsState(
         targetValue = if (isExpanded) 180f else 0f,
-        animationSpec = DesignTokens.expressiveDefaultSpatialSpring(),
+        animationSpec = AppMotion.defaultSpatial(),
         label = "widgetPickerChevronRotation",
     )
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap)) {
-        SettingsSegment(
+        SegmentedTile(
             index = 0,
             count = if (isExpanded) app.widgets.size + 1 else 1,
             onClick = onToggleExpanded,
             containerColor = widgetPickerTileColor(),
         ) {
-            SettingsSegmentRow(
+            SegmentedTileRow(
                 title = app.appLabel,
                 description = stringResource(R.string.widgets_picker_widget_count, app.widgets.size),
                 leading = {
@@ -269,12 +265,12 @@ private fun WidgetPickerAppGroup(
         }
         AnimatedVisibility(
             visible = isExpanded,
-            enter = expandVertically(animationSpec = DesignTokens.expressiveDefaultSpatialSpring()) + fadeIn(),
-            exit = shrinkVertically(animationSpec = DesignTokens.expressiveDefaultSpatialSpring()) + fadeOut(),
+            enter = expandVertically(animationSpec = AppMotion.defaultSpatial()) + fadeIn(),
+            exit = shrinkVertically(animationSpec = AppMotion.defaultSpatial()) + fadeOut(),
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap)) {
                 app.widgets.forEachIndexed { index, provider ->
-                    SettingsSegment(
+                    SegmentedTile(
                         index = index + 1,
                         count = app.widgets.size + 1,
                         onClick = { onSelectWidget(provider) },
@@ -402,7 +398,7 @@ private fun WidgetPickerRow(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Button(
+            AppButton(
                 onClick = onClick,
                 shape = DesignTokens.ShapeFull,
                 contentPadding = ButtonDefaults.ButtonWithIconContentPadding,

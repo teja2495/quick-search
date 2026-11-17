@@ -2,9 +2,7 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 
 import com.tk.quicksearch.notchGesture.NotchGestureSupport
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,13 +12,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow
-import com.tk.quicksearch.settings.shared.SettingsSegmentToggleRow
+import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.settings.shared.SettingsCardItem
 import com.tk.quicksearch.shared.util.isDefaultHomeApp
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 /**
  * Launch Options settings screen with default assistant and quick settings tile settings.
@@ -49,7 +48,7 @@ fun LaunchOptionsSettings(
             title = { Text(stringResource(R.string.settings_home_screen_widget_title)) },
             text = { Text(stringResource(R.string.settings_home_screen_widget_confirm_message)) },
             confirmButton = {
-                TextButton(onClick = {
+                AppTextButton(onClick = {
                     showWidgetConfirmDialog = false
                     onAddHomeScreenWidget()
                 }) {
@@ -57,7 +56,7 @@ fun LaunchOptionsSettings(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showWidgetConfirmDialog = false }) {
+                AppTextButton(onClick = { showWidgetConfirmDialog = false }) {
                     Text(stringResource(R.string.dialog_cancel))
                 }
             },
@@ -72,10 +71,10 @@ fun LaunchOptionsSettings(
             else -> true
         }
     }
-    SettingsSegmentGroup(modifier = modifier) {
+    SegmentedGroup(modifier = modifier) {
         options.forEachIndexed { index, option ->
             when (option) {
-                LaunchOption.VOICE -> SettingsSegmentToggleRow(
+                LaunchOption.VOICE -> SegmentedToggleTile(
                     title = stringResource(R.string.settings_assistant_voice_mode_title),
                     description = stringResource(R.string.settings_assistant_voice_mode_desc),
                     icon = MaterialSymbols.Mic,
@@ -84,7 +83,7 @@ fun LaunchOptionsSettings(
                     index = index,
                     count = options.size,
                 )
-                LaunchOption.NOTCH -> SettingsSegment(index = index, count = options.size) {
+                LaunchOption.NOTCH -> SegmentedTile(index = index, count = options.size) {
                     NotchLaunchOptionRow()
                 }
                 else -> {

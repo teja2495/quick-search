@@ -1,8 +1,5 @@
 package com.tk.quicksearch.shared.ui.components
 
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -63,6 +60,8 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.shared.ui.theme.pressMorphShape
 
 /** A compact icon-over-label tile shown in the Shortcuts and Actions grids. */
 data class ItemMenuTile(
@@ -303,12 +302,12 @@ internal fun ItemMenuTileButton(
     modifier: Modifier = Modifier,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
-    val corner by animateDpAsState(
-        targetValue = if (pressed) DesignTokens.SpacingSmall else DesignTokens.SpacingXLarge,
-        animationSpec = DesignTokens.expressiveFastSpatialSpring(),
-        label = "Action tile corners",
-    )
+    val tileShape =
+        pressMorphShape(
+            interactionSource,
+            rest = DesignTokens.CornerLargeIncreased,
+            pressed = DesignTokens.CornerSmall,
+        )
     val view = LocalView.current
     var showLongPressOption by remember { mutableStateOf(false) }
     var marqueeReplayKey by remember { mutableIntStateOf(0) }
@@ -317,7 +316,7 @@ internal fun ItemMenuTileButton(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(corner))
+                .clip(tileShape)
                 .background(MaterialTheme.colorScheme.surfaceContainerHighest)
                 .combinedClickable(
                     onClick = tile.onClick,
@@ -362,14 +361,7 @@ internal fun ItemMenuTileButton(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ItemMenuListRow(row: ItemMenuRow, first: Boolean, last: Boolean) {
-    val outer = DesignTokens.SegmentedListOuterCorner
-    val inner = DesignTokens.SegmentedListInnerCorner
-    val shape = RoundedCornerShape(
-        topStart = if (first) outer else inner,
-        topEnd = if (first) outer else inner,
-        bottomStart = if (last) outer else inner,
-        bottomEnd = if (last) outer else inner,
-    )
+    val shape = AppShapes.segment(first = first, last = last)
     val view = LocalView.current
     val contentColor =
         if (row.destructive) MaterialTheme.colorScheme.error else AppColors.DialogText

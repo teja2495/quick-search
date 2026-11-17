@@ -1,14 +1,11 @@
 package com.tk.quicksearch.tools.aiSearch
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
@@ -18,9 +15,10 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.components.TonalIconBadgeContainer
 
 /**
- * An AI provider's logo in a 40dp circular accent-tinted badge, matching `SettingsIconBadge` so it
+ * An AI provider's logo in a 40dp circular accent-tinted badge, matching `TonalIconBadge` so it
  * reads like other tile and list icons. Custom providers show a sparkle in the accent; Groq, whose
  * logo is a filled tile, fills the circle.
  */
@@ -52,14 +50,7 @@ fun AiProviderBadge(providerId: AiSearchLlmProviderId) {
         )
         return
     }
-    Box(
-        modifier =
-            Modifier
-                .size(AiProviderBadgeSize)
-                .clip(CircleShape)
-                .background(AppColors.Accent.copy(alpha = AiProviderBadgeAlpha)),
-        contentAlignment = Alignment.Center,
-    ) {
+    TonalIconBadgeContainer(size = AiProviderBadgeSize) {
         if (logoResId != null) {
             Image(
                 painter = painterResource(logoResId),
@@ -97,4 +88,3 @@ private val AiProviderBadgeSize = 40.dp
 private val AiProviderBadgeLogoSize = 22.dp
 
 // Matches SettingsIconBadge.
-private const val AiProviderBadgeAlpha = 0.14f

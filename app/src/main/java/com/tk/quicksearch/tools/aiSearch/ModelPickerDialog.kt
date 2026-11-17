@@ -25,7 +25,7 @@ import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRowSpacing
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerMessage
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerRow
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerSearch
-import com.tk.quicksearch.settings.shared.SettingsSwitch
+import com.tk.quicksearch.shared.ui.components.AppSwitch
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
@@ -135,7 +135,7 @@ fun ModelPickerDialog(
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         },
-                        trailing = { SettingsSwitch(checked = groundingEnabled, onCheckedChange = null) },
+                        trailing = { AppSwitch(checked = groundingEnabled, onCheckedChange = null) },
                     )
                 }
             } else {

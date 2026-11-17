@@ -17,7 +17,7 @@ import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
-import com.tk.quicksearch.settings.shared.SettingsSegmentGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsCardItem
 import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow
 import androidx.compose.foundation.clickable
@@ -25,12 +25,13 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.settings.shared.SettingsIconBadge
-import com.tk.quicksearch.settings.shared.SettingsSegmentRow
-import com.tk.quicksearch.settings.shared.SettingsSwitch
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
+import com.tk.quicksearch.shared.ui.components.AppSwitch
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.util.hapticToggle
 import com.tk.quicksearch.shared.permissions.LockScreenAccessibilityDisclosureDialog
 import com.tk.quicksearch.shared.permissions.shouldShowAccessibilityDisclosure
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
 
 /** Gestures page card for the system-wide notch taps; editing them needs the accessibility service. */
 @Composable
@@ -40,7 +41,7 @@ internal fun NotchGesturesCard(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    SettingsSegmentGroup(
+    SegmentedGroup(
         modifier = modifier,
         title = stringResource(R.string.settings_notch_gestures_title),
         description = stringResource(R.string.settings_notch_gestures_desc),
@@ -122,7 +123,7 @@ internal fun NotchLaunchOptionRow(modifier: Modifier = Modifier) {
     }
 
     val view = LocalView.current
-    SettingsSegmentRow(
+    SegmentedTileRow(
         title = stringResource(R.string.settings_notch_title),
         description = stringResource(
             if (isAccessibilityEnabled) R.string.settings_notch_launch_desc
@@ -147,9 +148,9 @@ internal fun NotchLaunchOptionRow(modifier: Modifier = Modifier) {
                 Modifier.clickable(onClick = requestAccessibility)
             },
         ),
-        leading = { SettingsIconBadge(MaterialSymbols.Swipe) },
+        leading = { TonalIconBadge(MaterialSymbols.Swipe) },
         trailing = {
-            SettingsSwitch(
+            AppSwitch(
                 checked = isAccessibilityEnabled && opensQuickSearch,
                 enabled = isAccessibilityEnabled,
                 onCheckedChange = null,

@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,6 +34,7 @@ import java.util.Currency
 import java.util.Locale
 import java.text.NumberFormat
 import java.math.RoundingMode
+import com.tk.quicksearch.shared.ui.components.AppTonalButton
 
 @Composable
 fun CurrencyConverterResult(
@@ -165,7 +165,7 @@ internal fun SearchOnGoogleButton(
         onClick: () -> Unit,
         modifier: Modifier = Modifier,
 ) {
-    FilledTonalButton(
+    AppTonalButton(
             onClick = onClick,
             modifier = modifier.height(40.dp),
             colors =

@@ -18,14 +18,15 @@ import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsRepository
-import com.tk.quicksearch.settings.shared.SettingsSegment
-import com.tk.quicksearch.settings.shared.SettingsSegmentRow
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
 import com.tk.quicksearch.settings.shared.SettingsIconBadge
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
 
 @Composable
 fun DeviceSettingsSettingsSection(
@@ -61,7 +62,7 @@ fun DeviceSettingsSettingsSection(
     ) {
         if (displayedSettings.isEmpty()) {
             item(key = "empty") {
-                SettingsSegment(index = 0, count = 1) {
+                SegmentedTile(index = 0, count = 1) {
                     Text(
                         text = stringResource(R.string.settings_device_settings_empty),
                         style = MaterialTheme.typography.bodyMedium,
@@ -72,11 +73,11 @@ fun DeviceSettingsSettingsSection(
             }
         } else {
             itemsIndexed(displayedSettings, key = { _, setting -> setting.id }) { index, setting ->
-                SettingsSegment(index = index, count = displayedSettings.size, onClick = { onSettingClick(setting) }) {
-                    SettingsSegmentRow(
+                SegmentedTile(index = index, count = displayedSettings.size, onClick = { onSettingClick(setting) }) {
+                    SegmentedTileRow(
                         title = setting.title,
                         description = setting.description?.takeIf { it.isNotBlank() },
-                        leading = { SettingsIconBadge(icon = MaterialSymbols.Settings) },
+                        leading = { TonalIconBadge(icon = MaterialSymbols.Settings) },
                     )
                 }
             }
