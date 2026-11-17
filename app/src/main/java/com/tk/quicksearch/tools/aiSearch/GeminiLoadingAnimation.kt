@@ -8,7 +8,6 @@ import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
@@ -28,7 +27,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -119,6 +118,7 @@ private fun MorphingShapeLoadingIndicator(
             label = "baseRotation",
         )
     val path = remember { android.graphics.Path() }
+    val composePath = remember(path) { path.asComposePath() }
 
     Canvas(modifier = modifier) {
         val currentStep = step.intValue
@@ -132,7 +132,7 @@ private fun MorphingShapeLoadingIndicator(
         rotate(rotation) {
             translate(left = (size.width - drawSize) / 2f, top = (size.height - drawSize) / 2f) {
                 scale(scale = drawSize, pivot = Offset.Zero) {
-                    drawPath(path = path.asComposePath(), color = color)
+                    drawPath(path = composePath, color = color)
                 }
             }
         }
@@ -182,18 +182,21 @@ private fun Modifier.shimmerLine(
     baseColor: Color,
     highlightColor: Color,
 ): Modifier =
-    drawBehind {
-        val lineProgress = shimmer.value - index * ShimmerStagger
+    drawWithCache {
         val band = max(size.width * 0.45f, 48.dp.toPx())
-        val center = -band + lineProgress * (size.width + band * 2f)
-        drawRoundRect(
-            brush =
-                Brush.linearGradient(
-                    colors = listOf(baseColor, highlightColor, baseColor),
-                    start = Offset(center - band, 0f),
-                    end = Offset(center + band, 0f),
-                    tileMode = TileMode.Clamp,
-                ),
-            cornerRadius = CornerRadius(size.height / 2f),
-        )
+        val brush =
+            Brush.linearGradient(
+                colors = listOf(baseColor, highlightColor, baseColor),
+                start = Offset(-band, 0f),
+                end = Offset(band, 0f),
+                tileMode = TileMode.Clamp,
+            )
+        val radius = CornerRadius(size.height / 2f)
+        onDrawBehind {
+            val lineProgress = shimmer.value - index * ShimmerStagger
+            val center = -band + lineProgress * (size.width + band * 2f)
+            translate(left = center) {
+                drawRoundRect(brush, topLeft = Offset(-center, 0f), size = size, cornerRadius = radius)
+            }
+        }
     }

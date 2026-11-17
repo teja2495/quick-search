@@ -4,11 +4,6 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,7 +39,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -466,19 +460,10 @@ fun SettingsVersionDisplay(
                     .background(tileColor, iconShape)
                     .then(identityModifier),
         ) {
-            // Slowly spinning scalloped backdrop behind the app icon.
-            val spin = rememberInfiniteTransition(label = "footerCookieSpin")
-            val rotation by spin.animateFloat(
-                initialValue = 0f,
-                targetValue = 360f,
-                animationSpec = infiniteRepeatable(tween(durationMillis = 24_000, easing = LinearEasing)),
-                label = "footerCookieRotation",
-            )
             Box(
                 modifier =
                     Modifier
                         .size(VersionFooterCookieSize)
-                        .graphicsLayer { rotationZ = rotation }
                         .background(MaterialTheme.colorScheme.secondaryContainer, AppShapes.cookie9),
             )
             if (appIcon != null) {

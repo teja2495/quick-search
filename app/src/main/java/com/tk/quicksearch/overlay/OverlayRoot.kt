@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -258,15 +257,6 @@ fun OverlayRoot(
                                 } else {
                                         0.dp
                                 }
-                        val overlayOperatorRowReservedHeight by animateDpAsState(
-                                targetValue = targetOperatorRowReservedHeight,
-                                animationSpec =
-                                        tween(
-                                                durationMillis = OVERLAY_CONTENT_RESIZE_ANIMATION_MS,
-                                                easing = LinearOutSlowInEasing,
-                                        ),
-                                label = "operatorRowReservedHeight",
-                        )
                         val topSafePadding = systemBarsPadding.calculateTopPadding()
                         val leftSafePadding = systemBarsPadding.calculateLeftPadding(layoutDirection)
                         val rightSafePadding =
@@ -281,7 +271,7 @@ fun OverlayRoot(
                                 (maxHeight -
                                                 overlayTopPadding -
                                                 bottomSafePadding -
-                                                overlayOperatorRowReservedHeight)
+                                                targetOperatorRowReservedHeight)
                                         .coerceAtLeast(
                                         0.dp
                                 )
@@ -436,13 +426,17 @@ fun OverlayRoot(
                                                                         },
                                                                 max = maxOverlayHeight,
                                                         )
-                                                        .animateContentSize(
-                                                                animationSpec =
-                                                                        tween(
-                                                                                durationMillis =
-                                                                                        OVERLAY_CONTENT_RESIZE_ANIMATION_MS,
-                                                                                easing = LinearOutSlowInEasing,
-                                                                        ),
+                                                        .then(
+                                                                if (pinnedGlanceOnly) {
+                                                                        Modifier.animateContentSize(
+                                                                                tween(
+                                                                                        durationMillis = OVERLAY_CONTENT_RESIZE_ANIMATION_MS,
+                                                                                        easing = LinearOutSlowInEasing,
+                                                                                ),
+                                                                        )
+                                                                } else {
+                                                                        Modifier
+                                                                },
                                                         )
                                                         .graphicsLayer {
                                                                 alpha = overlayEntryProgress

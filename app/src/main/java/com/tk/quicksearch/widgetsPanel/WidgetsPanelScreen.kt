@@ -115,6 +115,8 @@ import com.tk.quicksearch.shared.ui.theme.LocalImageBackgroundIsDark
 import com.tk.quicksearch.shared.ui.theme.homeTextColor
 import com.tk.quicksearch.shared.util.ImageAppearanceUtils
 import android.util.SizeF
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
 private const val WIDGET_PANEL_SWIPE_THRESHOLD_PX = 140f
@@ -193,12 +195,9 @@ fun WidgetsPanelScreen(
     val effectiveBackgroundSource =
         if (wallpaperState.usesMonoThemeFallback) BackgroundSource.THEME else uiState.backgroundSource
     val effectiveAppTheme = if (wallpaperState.usesMonoThemeFallback) AppTheme.MONOCHROME else uiState.appTheme
-    var isQuickNoteEnabled by remember(appContext) {
-        mutableStateOf(notesPreferences.isQuickNoteEnabled())
-    }
-
-    var widgets by remember { mutableStateOf(preferences.getWidgets()) }
-    var quickNoteWidget by remember { mutableStateOf(preferences.getQuickNoteWidget()) }
+    var isQuickNoteEnabled by remember(appContext) { mutableStateOf(false) }
+    var widgets by remember(appContext) { mutableStateOf(emptyList<PanelWidgetInfo>()) }
+    var quickNoteWidget by remember(appContext) { mutableStateOf<PanelWidgetInfo?>(null) }
     var isQuickNoteFocused by remember { mutableStateOf(false) }
     var editingWidgetId by remember { mutableStateOf<Int?>(null) }
     var showPicker by rememberSaveable { mutableStateOf(false) }
@@ -220,17 +219,6 @@ fun WidgetsPanelScreen(
         widgets = next
         preferences.setWidgets(next)
         HomePinnedWidgetsStore.publish(next)
-    }
-
-    // Looks the providers up off the main thread; the grid then reads them from the host's cache.
-    suspend fun discardInvalidRestoredWidgets() {
-        val checkedIds = widgets.mapTo(HashSet()) { it.appWidgetId }
-        val invalidIds = checkedIds - appWidgetHost.preloadProviderInfo(checkedIds)
-        val validWidgets = widgets.filterNot { it.appWidgetId in invalidIds }
-        if (validWidgets != widgets) {
-            persistWidgets(validWidgets)
-        }
-        restoredWidgetIdsValidated = true
     }
 
     fun pinWidgetToHome(widget: PanelWidgetInfo) {
@@ -300,8 +288,21 @@ fun WidgetsPanelScreen(
         showHostedWidgets = true
     }
 
-    LaunchedEffect(appWidgetManager) {
-        discardInvalidRestoredWidgets()
+    LaunchedEffect(appWidgetHost) {
+        val (storedWidgets, storedQuickNote, quickNoteEnabled) =
+            withContext(Dispatchers.IO) {
+                Triple(preferences.getWidgets(), preferences.getQuickNoteWidget(), notesPreferences.isQuickNoteEnabled())
+            }
+        // A restored ActivityResult can add a widget while this snapshot is loading.
+        if (widgets.isEmpty()) widgets = storedWidgets
+        val storedIds = storedWidgets.mapTo(HashSet()) { it.appWidgetId }
+        val invalidIds = storedIds - appWidgetHost.preloadProviderInfo(storedIds)
+        if (invalidIds.isNotEmpty()) {
+            persistWidgets(widgets.filterNot { it.appWidgetId in invalidIds })
+        }
+        quickNoteWidget = storedQuickNote
+        isQuickNoteEnabled = quickNoteEnabled
+        restoredWidgetIdsValidated = true
     }
 
     LaunchedEffect(appWidgetHost, panelScrollState) {
@@ -485,7 +486,7 @@ fun WidgetsPanelScreen(
                     ) {
                         val panelItems =
                             buildList {
-                                if (isQuickNoteEnabled) add(quickNoteWidget)
+                                if (isQuickNoteEnabled) quickNoteWidget?.let { add(it) }
                                 addAll(panelWidgets)
                             }
                         if (panelItems.isNotEmpty() && restoredWidgetIdsValidated) {
@@ -547,7 +548,7 @@ fun WidgetsPanelScreen(
                 }
             }
 
-            if (showPicker) {
+            if (showPicker && restoredWidgetIdsValidated) {
                 WidgetPickerSheet(
                     appWidgetManager = appWidgetManager,
                     showQuickNote = !isQuickNoteEnabled,

@@ -41,6 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
@@ -49,12 +50,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -70,6 +72,7 @@ import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.homeTextColor
+import kotlin.math.floor
 import kotlin.math.roundToInt
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.components.AppTonalButton
@@ -135,6 +138,26 @@ internal fun WidgetsPanelHeader(
                 }
             }
         }
+    }
+}
+
+private const val HostedWidgetOverscanRows = 2
+
+private class WidgetMovePreview {
+    private var widgetId: Int? = null
+    private var column = 0
+    private var row = 0
+
+    fun reset() {
+        widgetId = null
+    }
+
+    fun update(appWidgetId: Int, targetColumn: Int, targetRow: Int): Boolean {
+        if (widgetId == appWidgetId && column == targetColumn && row == targetRow) return false
+        widgetId = appWidgetId
+        column = targetColumn
+        row = targetRow
+        return true
     }
 }
 
@@ -214,15 +237,23 @@ internal fun WidgetPanelGrid(
 
         var liveLayout by remember { mutableStateOf<List<PanelWidgetInfo>?>(null) }
         val displayLayout = liveLayout ?: laidOut
+        val movePreview = remember(laidOut) { WidgetMovePreview() }
         var hostDragStart by remember { mutableStateOf<PanelWidgetInfo?>(null) }
         var quickNoteDragStart by remember { mutableStateOf<PanelWidgetInfo?>(null) }
         // Scroll offset captured when a host drag begins, so the drag target can compensate for any
         // auto-scroll and keep the widget under the finger (the host path works in screen coords).
         var scrollAtDragStart by remember { mutableIntStateOf(0) }
         // Window Y of the grid content box, used to locate the dragged widget for edge auto-scroll.
-        var gridTopPx by remember { mutableFloatStateOf(0f) }
+        var gridTopPx by remember { mutableFloatStateOf(Float.NaN) }
 
         val currentLaidOut by rememberUpdatedState(laidOut)
+
+        fun previewMove(appWidgetId: Int, column: Int, row: Int) {
+            if (movePreview.update(appWidgetId, column, row)) {
+                liveLayout = moveWidgetToCell(laidOut, appWidgetId, column, row)
+            }
+        }
+
         val currentGridUnitWidthPx by rememberUpdatedState(gridUnitWidthPx)
         val currentGridUnitHeightPx by rememberUpdatedState(gridUnitHeightPx)
         val currentOnPersist by rememberUpdatedState(onPersist)
@@ -238,19 +269,14 @@ internal fun WidgetPanelGrid(
             val nextRow =
                 ((start.row ?: 0) + (totalDragY / gridUnitHeightPx).roundToInt())
                     .coerceAtLeast(0)
-            liveLayout =
-                moveWidgetToCell(
-                    widgets = laidOut,
-                    appWidgetId = QUICK_NOTE_PANEL_WIDGET_ID,
-                    targetColumn = nextColumn,
-                    targetRow = nextRow,
-                )
+            previewMove(QUICK_NOTE_PANEL_WIDGET_ID, nextColumn, nextRow)
         }
 
         SideEffect {
             appWidgetHost.onWidgetLongPress = { id ->
                 val widget = currentLaidOut.firstOrNull { it.appWidgetId == id }
                 if (widget != null) {
+                    movePreview.reset()
                     hostDragStart = widget
                     scrollAtDragStart = panelScrollState.value
                     currentOnSetEditing(id)
@@ -269,19 +295,14 @@ internal fun WidgetPanelGrid(
                     val nextRow =
                         ((start.row ?: 0) + ((dy + scrollDelta) / currentGridUnitHeightPx).roundToInt())
                             .coerceAtLeast(0)
-                    liveLayout =
-                        moveWidgetToCell(
-                            widgets = currentLaidOut,
-                            appWidgetId = id,
-                            targetColumn = nextColumn,
-                            targetRow = nextRow,
-                        )
+                    previewMove(id, nextColumn, nextRow)
                 }
             }
             appWidgetHost.onWidgetDragEnd = { _ ->
                 val final = liveLayout
                 liveLayout = null
                 hostDragStart = null
+                movePreview.reset()
                 if (final != null && final != currentLaidOut) currentOnPersist(final)
             }
             appWidgetHost.onWidgetTouch = { widgetId -> currentOnWidgetTouch(widgetId) }
@@ -300,7 +321,7 @@ internal fun WidgetPanelGrid(
             while (true) {
                 withFrameNanos {}
                 val viewportHeight = currentViewportHeightPx
-                if (viewportHeight <= 0) continue
+                if (viewportHeight <= 0 || gridTopPx.isNaN()) continue
                 val draggedId = currentEditingWidgetId ?: continue
                 val dragged =
                     currentDisplayLayout.firstOrNull { it.appWidgetId == draggedId } ?: continue
@@ -327,6 +348,23 @@ internal fun WidgetPanelGrid(
             }
         }
 
+        val hostedRows by remember(gridUnitHeightPx) {
+            // All slots keep their geometry. Scroll changes only invalidate this reader when
+            // the buffered row range changes.
+            derivedStateOf(structuralEqualityPolicy()) {
+                if (currentViewportHeightPx <= 0 || gridTopPx.isNaN()) {
+                    IntRange.EMPTY
+                } else {
+                    val topRow = floor((currentViewportTopPx - gridTopPx) / gridUnitHeightPx).toInt()
+                    val bottomRow =
+                        floor(
+                            (currentViewportTopPx + currentViewportHeightPx - gridTopPx) / gridUnitHeightPx,
+                        ).toInt()
+                    (topRow - HostedWidgetOverscanRows)..(bottomRow + HostedWidgetOverscanRows)
+                }
+            }
+        }
+
         val rows =
             displayLayout.maxOfOrNull { widget ->
                 (widget.row ?: 0) + (widget.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN)
@@ -346,18 +384,24 @@ internal fun WidgetPanelGrid(
                     .fillMaxWidth()
                     .height(animatedPanelHeight)
                     .onGloballyPositioned { coordinates ->
-                        gridTopPx = coordinates.positionInWindow().y
+                        gridTopPx = coordinates.localToWindow(Offset.Zero).y
                     },
         ) {
+            val mountedRows = if (showHostedWidgets) hostedRows else IntRange.EMPTY
             displayLayout.forEach { widget ->
                 key(widget.appWidgetId) {
+                    val isEditing = editingWidgetId == widget.appWidgetId
+                    val firstRow = widget.row ?: 0
+                    val lastRow = firstRow + (widget.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN) - 1
+                    val isNearViewport =
+                        !mountedRows.isEmpty() && firstRow <= mountedRows.last && lastRow >= mountedRows.first
                     WidgetPanelGridItem(
                         widget = widget,
-                        showHostedWidget = showHostedWidgets,
+                        showHostedWidget = showHostedWidgets && (isNearViewport || isEditing),
                         appWidgetManager = appWidgetManager,
                         appWidgetHost = appWidgetHost,
                         hasWidgetContent = widgetContentAvailable[widget.appWidgetId] == true,
-                        isEditing = editingWidgetId == widget.appWidgetId,
+                        isEditing = isEditing,
                         cellWidth = cellWidth,
                         rowHeight = rowHeight,
                         gap = gap,
@@ -365,13 +409,7 @@ internal fun WidgetPanelGrid(
                         gridUnitHeightPx = gridUnitHeightPx,
                         spec = specs[widget.appWidgetId],
                         onMovePreview = { targetColumn, targetRow ->
-                            liveLayout =
-                                moveWidgetToCell(
-                                    widgets = laidOut,
-                                    appWidgetId = widget.appWidgetId,
-                                    targetColumn = targetColumn,
-                                    targetRow = targetRow,
-                                )
+                            previewMove(widget.appWidgetId, targetColumn, targetRow)
                         },
                         onResizePreview = { resize ->
                             liveLayout =
@@ -385,12 +423,14 @@ internal fun WidgetPanelGrid(
                         onInteractionEnd = {
                             val final = liveLayout
                             liveLayout = null
+                            movePreview.reset()
                             if (final != null && final != laidOut) onPersist(final)
                         },
                         onRemove = { onRemoveWidget(widget) },
                         onConfigure = { intent -> onConfigureWidget(widget, intent) },
                         onPinToHome = { onPinWidgetToHome(widget) },
                         onQuickNoteDragStart = {
+                            movePreview.reset()
                             quickNoteDragStart = widget
                             onSetEditingWidgetId(widget.appWidgetId)
                         },
@@ -401,6 +441,7 @@ internal fun WidgetPanelGrid(
                             val final = liveLayout
                             liveLayout = null
                             quickNoteDragStart = null
+                            movePreview.reset()
                             if (final != null && final != laidOut) onPersist(final)
                         },
                         onQuickNoteFocusChanged = onQuickNoteFocusChanged,

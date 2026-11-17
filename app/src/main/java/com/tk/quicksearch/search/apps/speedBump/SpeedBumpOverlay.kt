@@ -1,14 +1,9 @@
 package com.tk.quicksearch.search.apps.speedBump
 
+import android.os.SystemClock
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.shared.ui.components.AppButtonSize
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -34,18 +29,18 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.produceState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
@@ -73,14 +68,15 @@ import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.sin
 import com.tk.quicksearch.shared.ui.components.PreserveHostKeyboardStateEffect
 import com.tk.quicksearch.shared.ui.components.AppButton
 
 private const val BreathCycleMillis = 3_400
-private const val TickMillis = 16L
 private val IconSize = 96.dp
 private val RingSize = 156.dp
 
@@ -121,10 +117,9 @@ fun SpeedBumpOverlay(
     val lifecycleOwner = LocalLifecycleOwner.current
     // The host drops the pending launch on configuration change, so this only needs to
     // survive recomposition.
-    val startedAtMillis by remember(appInfo.packageName) {
-        mutableLongStateOf(System.currentTimeMillis())
-    }
-    var progress by remember { mutableFloatStateOf(0f) }
+    val deadline = remember(appInfo.packageName) { SystemClock.elapsedRealtime() + SpeedBump.DELAY_MILLIS }
+    val progress = remember(deadline) { mutableFloatStateOf(0f) }
+    val breathAmount = remember(deadline) { mutableFloatStateOf(0.5f) }
     val todayUsage by produceState<TodayAppUsage?>(
         initialValue = null,
         key1 = appInfo.packageName,
@@ -145,29 +140,30 @@ fun SpeedBumpOverlay(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    LaunchedEffect(appInfo.packageName) {
-        while (true) {
-            val elapsed = System.currentTimeMillis() - startedAtMillis
-            progress = (elapsed.toFloat() / SpeedBump.DELAY_MILLIS).coerceIn(0f, 1f)
-            if (progress >= 1f) break
-            delay(TickMillis)
+    LaunchedEffect(deadline) {
+        coroutineScope {
+            val motionScale = coroutineContext[MotionDurationScale]
+            val frames = launch {
+                while (true) {
+                    withFrameNanos { }
+                    val remaining = (deadline - SystemClock.elapsedRealtime()).coerceIn(0, SpeedBump.DELAY_MILLIS)
+                    val elapsed = SpeedBump.DELAY_MILLIS - remaining
+                    progress.floatValue = elapsed.toFloat() / SpeedBump.DELAY_MILLIS
+                    val scale = motionScale?.scaleFactor ?: 1f
+                    breathAmount.floatValue =
+                        if (scale > 0f) {
+                            (sin(elapsed / (BreathCycleMillis * scale) * 2f * Math.PI.toFloat()) + 1f) / 2f
+                        } else {
+                            0.5f
+                        }
+                }
+            }
+            // Launch timing stays independent of the frame clock and system animation scale.
+            delay((deadline - SystemClock.elapsedRealtime()).coerceAtLeast(0))
+            frames.cancel()
         }
         currentOnOpen()
     }
-
-    val breath = rememberInfiniteTransition(label = "speedBumpBreath")
-    val breathPhase by breath.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(durationMillis = BreathCycleMillis, easing = LinearEasing),
-                repeatMode = RepeatMode.Restart,
-            ),
-        label = "speedBumpBreathPhase",
-    )
-    // Sine keeps the inhale and exhale symmetric, with no visible seam when the cycle wraps.
-    val breathAmount = (sin(breathPhase * 2f * Math.PI.toFloat()) + 1f) / 2f
 
     val iconResult =
         rememberAppIcon(
@@ -225,8 +221,8 @@ fun SpeedBumpOverlay(
 
                 Box(contentAlignment = Alignment.Center) {
                     BreathingRing(
-                        progress = progress,
-                        breathAmount = breathAmount,
+                        progress = { progress.floatValue },
+                        breathAmount = { breathAmount.floatValue },
                         ringColor = MaterialTheme.colorScheme.primary,
                         trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.TintLightAlpha),
                     )
@@ -237,7 +233,11 @@ fun SpeedBumpOverlay(
                             modifier =
                                 Modifier
                                     .size(IconSize)
-                                    .scale(0.94f + 0.06f * breathAmount)
+                                    .graphicsLayer {
+                                        val iconScale = 0.94f + 0.06f * breathAmount.floatValue
+                                        scaleX = iconScale
+                                        scaleY = iconScale
+                                    }
                                     .clip(AppShapes.largeIncreased),
                             contentScale = ContentScale.Fit,
                         )
@@ -388,13 +388,18 @@ private fun formatUsageDuration(durationMillis: Long): String {
 
 @Composable
 private fun BreathingRing(
-    progress: Float,
-    breathAmount: Float,
+    progress: () -> Float,
+    breathAmount: () -> Float,
     ringColor: Color,
     trackColor: Color,
 ) {
     androidx.compose.foundation.Canvas(
-        modifier = Modifier.size(RingSize).scale(0.9f + 0.1f * breathAmount),
+        modifier =
+            Modifier.size(RingSize).graphicsLayer {
+                val ringScale = 0.9f + 0.1f * breathAmount()
+                scaleX = ringScale
+                scaleY = ringScale
+            },
     ) {
         val stroke = Stroke(width = 4.dp.toPx())
         val inset = stroke.width / 2f
@@ -409,9 +414,9 @@ private fun BreathingRing(
             style = stroke,
         )
         drawArc(
-            color = ringColor.copy(alpha = 0.6f + 0.4f * breathAmount),
+            color = ringColor.copy(alpha = 0.6f + 0.4f * breathAmount()),
             startAngle = -90f,
-            sweepAngle = 360f * progress,
+            sweepAngle = 360f * progress(),
             useCenter = false,
             topLeft = Offset(inset, inset),
             size = arcSize,
