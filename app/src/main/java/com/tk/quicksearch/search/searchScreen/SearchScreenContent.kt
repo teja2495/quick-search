@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.searchScreen
 
 import com.tk.quicksearch.onboarding.welcomeMorphHoldsKeyboard
+import com.tk.quicksearch.onboarding.welcomeMorphRunning
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -307,7 +308,7 @@ internal fun SearchScreenContent(
                     !isPhysicalKeyboardConnected &&
                     canShowOpenKeyboardPill &&
                     hasClosedStartupKeyboardAfterLaunch &&
-                    !isSearchHistoryExpanded
+                    !isSearchHistoryExpanded && !welcomeMorphRunning()
 
     LaunchedEffect(shouldShowOpenKeyboardAction) {
         if (!shouldShowOpenKeyboardAction) {

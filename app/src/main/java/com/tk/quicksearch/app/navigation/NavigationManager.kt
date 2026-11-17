@@ -176,8 +176,50 @@ fun MainContent(
         LocalWelcomeMorph provides welcomeMorph,
         LocalWelcomeBackdropReport provides welcomeMorph.hostBackdropReport,
     ) {
+    // Built from the import step on, hidden under the setup pages, so finishing setup only reveals it.
+    SearchSurfaceLayer(
+        composed = currentScreen != AppScreen.Permissions,
+        visible = currentScreen == AppScreen.Main,
+        welcomeMorph = welcomeMorph,
+    ) {
+        NavigationContent(
+            destination = destination,
+            onDestinationChange = {
+                if (destination == RootDestination.Search && it != RootDestination.Search) {
+                    searchViewModel.setSearchLeftForInAppPage(true)
+                }
+                destination = it
+            },
+            settingsDetailType = settingsDetailType,
+            previousSettingsDetailType = previousSettingsDetailType,
+            onSettingsDetailTypeChange = {
+                val currentDetailType = settingsDetailType
+                val isReturningToPreviousPage =
+                    currentDetailType != null &&
+                        it == currentDetailType.resolveBackDestination(previousSettingsDetailType)
+                previousSettingsDetailType =
+                    when {
+                        it == null -> null
+                        isReturningToPreviousPage -> previousSettingsDetailType
+                        else -> currentDetailType
+                    }
+                settingsDetailType = it
+            },
+            onSettingsDetailTypeChangeFromSearch = {
+                previousSettingsDetailType = null
+                settingsDetailType = it
+            },
+            pendingSettingsImportUri = pendingSettingsImportUri,
+            onPendingSettingsImportUriConsumed = { pendingSettingsImportUri = null },
+            viewModel = searchViewModel,
+            onSearchBackPressed = onSearchBackPressed,
+            returnToOverlay = returnToOverlay,
+            onFinishActivity = onFinishActivity,
+        )
+    }
     AnimatedContent(
         targetState = currentScreen,
+        modifier = Modifier.fillMaxSize(),
         transitionSpec = { appScreenTransform(welcomeMorph) },
         label = "ScreenTransition",
     ) { targetScreen ->
@@ -365,42 +407,7 @@ fun MainContent(
                 }
             }
 
-            AppScreen.Main -> {
-                NavigationContent(
-                    destination = destination,
-                    onDestinationChange = {
-                        if (destination == RootDestination.Search && it != RootDestination.Search) {
-                            searchViewModel.setSearchLeftForInAppPage(true)
-                        }
-                        destination = it
-                    },
-                    settingsDetailType = settingsDetailType,
-                    previousSettingsDetailType = previousSettingsDetailType,
-                    onSettingsDetailTypeChange = {
-                        val currentDetailType = settingsDetailType
-                        val isReturningToPreviousPage =
-                            currentDetailType != null &&
-                                it == currentDetailType.resolveBackDestination(previousSettingsDetailType)
-                        previousSettingsDetailType =
-                            when {
-                                it == null -> null
-                                isReturningToPreviousPage -> previousSettingsDetailType
-                                else -> currentDetailType
-                            }
-                        settingsDetailType = it
-                    },
-                    onSettingsDetailTypeChangeFromSearch = {
-                        previousSettingsDetailType = null
-                        settingsDetailType = it
-                    },
-                    pendingSettingsImportUri = pendingSettingsImportUri,
-                    onPendingSettingsImportUriConsumed = { pendingSettingsImportUri = null },
-                    viewModel = searchViewModel,
-                    onSearchBackPressed = onSearchBackPressed,
-                    returnToOverlay = returnToOverlay,
-                    onFinishActivity = onFinishActivity,
-                )
-            }
+            AppScreen.Main -> Box(Modifier.fillMaxSize()) // The search screen lives in SearchSurfaceLayer.
         }
         }
     }

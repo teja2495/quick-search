@@ -3,7 +3,6 @@ package com.tk.quicksearch.onboarding
 import android.os.SystemClock
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -21,8 +20,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -33,23 +33,19 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -78,32 +74,21 @@ internal const val WelcomeMorphSlowMotion = 1f
 
 private const val PressMs = 200
 
-/** A beat on the finished bar before it sets off. */
-private const val PushPauseMs = 80
-private const val PushMs = 680
-
-/**
- * The wallpaper fades in this much faster than the page's see-through background fades out, so it
- * stays hidden until the slide yet the reveal never dips through the window colour.
- */
-private const val WallpaperLead = 1.6f
+/** The setup page's background fades this much faster than the rise, so the search content shows early. */
+private const val CurtainLead = 1.6f
 
 /** The wallpaper settles from this slight zoom as it is revealed. */
 private const val WallpaperStartScale = 1.06f
 
-/** Real time for a wallpaper that arrived late to finish its own fade-in (see SearchScreenBackground). */
-private const val BackdropFadeMs = 450L
-
-/** How far above the predicted landing line pushed content has fully faded. */
+/** How far above the top exit line pushed content has fully faded. */
 private val PushFadeDistance = 140.dp
 private val PredictedTopGap = DesignTokens.SpacingSmall
 
-/** Short glide from the predicted landing spot onto the real search bar. */
-private const val CorrectionMs = 260
-private const val RevealAtTravel = 0.4f
-private const val RevealMs = 520
-private val RevealFeather = 180.dp
-private val RevealLift = 28.dp
+/** The bar's rise from the setup button onto the real search bar, carrying the search content with it. */
+private const val TravelMs = 640
+
+/** Share of the rise over which the search content fades in, hiding its first raw frames. */
+private const val ContentFadeTravel = 0.3f
 private const val HandoffMs = 140
 private const val GlowFadeMs = 500
 
@@ -111,15 +96,12 @@ private const val GlowFadeMs = 500
 private const val GlowHoldMs = 3000L
 private const val PressedScale = 0.95f
 private val BarCorner = DesignTokens.Spacing28
-private const val TargetWaitMs = 1500L
 
-/** Real time for the search screen's first frames to settle while the bar rests at the top. */
-private const val SettleMs = 150L
+/** Real-time cap on waiting for the search bar's first layout before the rise starts anyway. */
+private const val TargetWaitMs = 300L
 
-/** Real-time cap on waiting for steady frames, so a slow device still sees the reveal. */
-private const val SteadyFramesMaxWaitMs = 700L
-private const val SteadyFrameCount = 6
-private const val SteadyFrameNanos = 20_000_000L
+/** How long the setup page must stay on screen, above the search screen, while everything rises. */
+internal val WelcomeExitHoldMs: Int get() = (TargetWaitMs + scaled(TravelMs)).toInt()
 
 /** Material 3 emphasized easing: a quick launch that settles gently, for the bar's long glide. */
 private val TravelEasing = CubicBezierEasing(0.2f, 0f, 0f, 1f)
@@ -137,12 +119,12 @@ enum class WelcomeMorphPhase { Idle, Exiting, Landing, Glowing }
 /**
  * First-run welcome, in four beats:
  * 1. The glowing button that finishes setup ([welcomeGlow]) dips under the tap.
- * 2. It glides up to where the search bar will sit, turning into a search bar on the way and
- *    pushing the setup content ahead of it ([welcomePagePush]); each element fades as it nears the top ([welcomeExitItem]).
- * 3. In step with that glide, the page's own background ([welcomeBackgroundFade]) turns into the
- *    search screen's wallpaper underneath ([WelcomeMorphBackdrop]).
- * 4. The page switches to the search screen, the bar settles onto the real one
- *    ([welcomeMorphTarget]), and apps and sections appear below it ([welcomeContentReveal]).
+ * 2. At once the page switches to the search screen, which sits under the setup page until the end.
+ * 3. In one motion the button rises onto the real search bar ([welcomeMorphTarget]), turning into
+ *    one on the way; the setup content slides up off the screen ([welcomePagePush]), each element
+ *    fading as it nears the top ([welcomeExitItem]); the page's background ([welcomeBackgroundFade])
+ *    fades to the wallpaper underneath; and the apps and sections ride up under the bar
+ *    ([welcomeContentReveal]).
  * The keyboard waits for the landing ([welcomeMorphHoldsKeyboard]). [WelcomeMorphOverlay] drives
  * the sequence and draws the travelling bar and its glow.
  */
@@ -156,6 +138,9 @@ class WelcomeMorphState {
 
     /** Where the bar heads before the search screen exists. */
     internal var predicted: Rect? = null
+
+    /** Just under the status bar: setup content fades out as it slides up past this line. */
+    internal var exitLine: Float? = null
 
     /** The search bar's bounds when the last welcome finished, so a replay aims exactly. */
     internal var landedTarget: Rect? = null
@@ -185,7 +170,10 @@ class WelcomeMorphState {
     internal var backdropAlpha by mutableFloatStateOf(1f)
     internal var push by mutableFloatStateOf(0f)
     internal var travel by mutableFloatStateOf(0f)
-    internal var contentReveal by mutableFloatStateOf(0f)
+
+    /** The search content's layout, inside and outside its rise, to find the bar without that shift. */
+    internal var contentInner: LayoutCoordinates? = null
+    internal var contentOuterTopLeft: Offset? = null
     internal var handoff by mutableFloatStateOf(0f)
     internal var glow by mutableFloatStateOf(1f)
 
@@ -205,8 +193,6 @@ class WelcomeMorphState {
         originTextStyle = textStyle
         navigate = onNavigate
         resetProgress()
-        // Bounds reported since the last run may be from the search screen sliding away; wait for fresh ones.
-        target = null
         backdropReady = false
         overlayBackdropReadyAt = null
         phase = WelcomeMorphPhase.Exiting
@@ -214,7 +200,6 @@ class WelcomeMorphState {
 
     internal fun finishLanding() {
         if (target != null) landedTarget = target
-        contentReveal = 1f
         curtain = 0f
         phase = WelcomeMorphPhase.Glowing
     }
@@ -222,16 +207,25 @@ class WelcomeMorphState {
     /** The bar's bounds in window coordinates right now. */
     internal fun barRect(): Rect? {
         val origin = origin ?: return null
-        val pushed = lerpRect(origin, predicted ?: origin, push)
-        val target = target ?: return pushed
-        return lerpRect(pushed, target, travel)
+        return lerpRect(origin, target ?: predicted ?: origin, travel)
     }
 
-    /** How far the bar has pushed the setup page up, in px (zero or negative). */
-    internal fun pushShift(): Float {
-        if (phase != WelcomeMorphPhase.Exiting) return 0f
+    /** How far the search content sits below its resting place, riding just under the bar. */
+    internal fun contentShift(): Float {
+        if (phase != WelcomeMorphPhase.Landing) return 0f
         val origin = origin ?: return 0f
-        return ((predicted ?: origin).top - origin.top) * push
+        val target = target ?: return 0f
+        return (origin.top - target.top) * (1f - travel)
+    }
+
+    /**
+     * How far the setup page has slid up, in px (zero or negative). It always leaves through the
+     * top, whichever way the bar travels: far enough that everything above the button is gone.
+     */
+    internal fun pushShift(): Float {
+        if (phase != WelcomeMorphPhase.Landing) return 0f
+        val origin = origin ?: return 0f
+        return -origin.bottom * push
     }
 
     private fun resetProgress() {
@@ -241,7 +235,6 @@ class WelcomeMorphState {
         backdropAlpha = 1f
         push = 0f
         travel = 0f
-        contentReveal = 0f
         handoff = 0f
         glow = 1f
     }
@@ -257,14 +250,31 @@ val LocalWelcomeExit = staticCompositionLocalOf<WelcomeMorphState?> { null }
 fun Modifier.welcomePagePush(): Modifier =
     composed {
         val state = LocalWelcomeExit.current ?: return@composed Modifier
-        Modifier.graphicsLayer { translationY = state.pushShift() }
+        val pushed = remember { BooleanArray(1) }
+        Modifier.graphicsLayer {
+            translationY = state.pushShift()
+            alpha = if (pushedAway(state, pushed)) 0f else 1f
+        }
     }
+
+/**
+ * True once this page was pushed and the welcome has moved on (finished or skipped), so a page
+ * still held on screen during its exit never pops back over the search screen.
+ */
+private fun pushedAway(
+    state: WelcomeMorphState,
+    pushed: BooleanArray,
+): Boolean {
+    if (state.phase == WelcomeMorphPhase.Landing) pushed[0] = true
+    return pushed[0] && state.phase != WelcomeMorphPhase.Landing
+}
 
 /** Fades an onboarding page's own background out while the search wallpaper fades in behind it. */
 fun Modifier.welcomeBackgroundFade(): Modifier =
     composed {
         val state = LocalWelcomeExit.current ?: return@composed Modifier
-        Modifier.graphicsLayer { alpha = 1f - state.curtain }
+        val pushed = remember { BooleanArray(1) }
+        Modifier.graphicsLayer { alpha = if (pushedAway(state, pushed)) 0f else 1f - state.curtain }
     }
 
 /** Fades this element out as the push carries it up to the bar's landing line. */
@@ -279,7 +289,7 @@ fun Modifier.welcomeExitItem(): Modifier =
                 restBottom = it.positionInWindow().y + it.size.height - state.pushShift()
             }.graphicsLayer {
                 val shift = state.pushShift()
-                val line = state.predicted?.top
+                val line = state.exitLine
                 alpha =
                     if (shift >= 0f || line == null || restBottom.isNaN()) {
                         1f
@@ -289,17 +299,22 @@ fun Modifier.welcomeExitItem(): Modifier =
             }
     }
 
-/** True while the welcome is running and the search field should not raise the keyboard yet. */
+/** True while the search screen is built ahead of time under the setup pages, not yet shown. */
+val LocalSearchSurfaceHidden = compositionLocalOf { false }
+
+/** True while the search screen is still hidden and its field should not raise the keyboard yet. */
 @Composable
 fun welcomeMorphHoldsKeyboard(): Boolean {
-    val state = LocalWelcomeMorph.current ?: return false
-    // Released the moment the bar lands, so the keyboard rises alongside the content reveal.
-    val landed by remember(state) { derivedStateOf { state.travel >= 1f } }
-    return when (state.phase) {
-        WelcomeMorphPhase.Exiting -> true
-        WelcomeMorphPhase.Landing -> !landed
-        else -> false
-    }
+    if (LocalSearchSurfaceHidden.current) return true
+    // Released on the tap, so the keyboard rises together with the bar and the content.
+    return LocalWelcomeMorph.current?.phase == WelcomeMorphPhase.Exiting
+}
+
+/** True while the welcome animates, when the keyboard is on its way and needs no "Open Keyboard" pill. */
+@Composable
+fun welcomeMorphRunning(): Boolean {
+    val phase = LocalWelcomeMorph.current?.phase
+    return phase == WelcomeMorphPhase.Exiting || phase == WelcomeMorphPhase.Landing
 }
 
 /** Where a page backdrop reports whether its wallpaper image is drawn; null outside the welcome. */
@@ -311,38 +326,21 @@ fun ReportWelcomeBackdropReady(ready: Boolean) {
     SideEffect { report(ready) }
 }
 
-/** Hides the search screen's content (not its backdrop) until the travelling bar has landed. */
+/** Carries the search screen's content (not its backdrop) up with the travelling bar as it lands. */
 fun Modifier.welcomeContentReveal(): Modifier =
     composed {
         val state = LocalWelcomeMorph.current ?: return@composed Modifier
-        val featherPx = with(LocalDensity.current) { RevealFeather.toPx() }
-        val liftPx = with(LocalDensity.current) { RevealLift.toPx() }
-        var layerTop by remember { mutableFloatStateOf(0f) }
-        fun progress(): Float =
-            if (state.phase == WelcomeMorphPhase.Landing) FastOutSlowInEasing.transform(state.contentReveal) else 1f
         Modifier
-            .onGloballyPositioned { layerTop = it.positionInWindow().y }
+            .onGloballyPositioned { state.contentOuterTopLeft = it.positionInWindow() }
             .graphicsLayer {
-                val p = progress()
-                // Offscreen so the reveal mask below cuts this layer only, not the wallpaper.
-                compositingStrategy = if (p < 1f) CompositingStrategy.Offscreen else CompositingStrategy.Auto
-                translationY = liftPx * (1f - p)
-            }.drawWithContent {
-                val p = progress()
-                if (p >= 1f) {
-                    drawContent()
-                    return@drawWithContent
-                }
-                if (p <= 0f) return@drawWithContent
-                // A soft edge sweeps down from the landed bar, so sections cascade in top to bottom.
-                val start = ((state.target?.bottom ?: layerTop) - layerTop).coerceIn(0f, size.height)
-                val edge = lerp(start, size.height + featherPx, p)
-                drawContent()
-                drawRect(
-                    brush = Brush.verticalGradient(listOf(Color.Black, Color.Transparent), edge - featherPx, edge),
-                    blendMode = BlendMode.DstIn,
-                )
-            }
+                translationY = state.contentShift()
+                alpha =
+                    if (state.phase == WelcomeMorphPhase.Landing) {
+                        FastOutSlowInEasing.transform((state.travel / ContentFadeTravel).coerceIn(0f, 1f))
+                    } else {
+                        1f
+                    }
+            }.onGloballyPositioned { state.contentInner = it }
     }
 
 /** Reports the search bar as the landing spot and keeps it hidden until the travelling bar hands off. */
@@ -353,11 +351,19 @@ fun Modifier.welcomeMorphTarget(
     composed {
         val state = LocalWelcomeMorph.current ?: return@composed Modifier
         val cornerPx = with(LocalDensity.current) { cornerRadius.toPx() }
+        // Tracked all along, so a search screen built ahead of time is aimed at from the first frame.
+        DisposableEffect(state) { onDispose { state.target = null } }
         Modifier
             .onGloballyPositioned {
-                // Only while the welcome runs: other moves (like the screen sliding away) would skew it.
-                if (!state.isActive) return@onGloballyPositioned
-                state.target = it.boundsInWindow()
+                // Measured against the content's unshifted place, so its rise never moves the aim.
+                val inner = state.contentInner?.takeIf { c -> c.isAttached }
+                val outer = state.contentOuterTopLeft
+                state.target =
+                    if (inner != null && outer != null) {
+                        inner.localBoundingBoxOf(it, clipBounds = false).translate(outer)
+                    } else {
+                        it.boundsInWindow()
+                    }
                 state.targetCornerPx = cornerPx
                 state.targetColor = containerColor
             }.graphicsLayer {
@@ -381,7 +387,7 @@ fun WelcomeMorphBackdrop(
     Box(
         modifier =
             Modifier.fillMaxSize().graphicsLayer {
-                alpha = state.backdropAlpha * (state.curtain * WallpaperLead).coerceAtMost(1f)
+                alpha = state.backdropAlpha * state.curtain
                 val scale = lerp(WallpaperStartScale, 1f, state.curtain)
                 scaleX = scale
                 scaleY = scale
@@ -413,31 +419,13 @@ fun WelcomeMorphOverlay(
     LaunchedEffect(phase) {
         if (phase != WelcomeMorphPhase.Exiting) return@LaunchedEffect
         val origin = state.origin
+        state.exitLine = safeTopPx + predictedGapPx
         state.predicted =
             state.landedTarget ?: origin?.let {
                 val top = safeTopPx + predictedGapPx
                 Rect(it.left, top, it.right, top + it.height)
             }
-        coroutineScope {
-            launch {
-                animate(1f, PressedScale, animationSpec = tween(scaled(PressMs) / 2)) { v, _ -> state.press = v }
-                animate(PressedScale, 1f, animationSpec = tween(scaled(PressMs) / 2)) { v, _ -> state.press = v }
-            }
-        }
-        // The wallpaper loads under the page while the button morphs; the slide waits for it to be
-        // drawn and done with its own fade-in, so the background can turn into it as the bar rises.
-        val readyAt =
-            withTimeoutOrNull((TargetWaitMs * WelcomeMorphSlowMotion).toLong()) {
-                snapshotFlow { state.overlayBackdropReadyAt }.first { it != null }
-            }
-        val wallpaperSettledAt = (readyAt ?: 0L) + BackdropFadeMs
-        delay(maxOf(scaled(PushPauseMs).toLong(), wallpaperSettledAt - SystemClock.uptimeMillis()))
-        animate(0f, 1f, animationSpec = tween(scaled(PushMs), easing = TravelEasing)) { v, _ ->
-            state.push = v
-            // The button becomes the search bar, and the page's background the wallpaper, as it rises.
-            state.morph = v
-            state.curtain = v
-        }
+        // Straight to the search screen: it composes under the setup page while everything rises.
         state.phase = WelcomeMorphPhase.Landing
         state.navigate?.invoke()
         state.navigate = null
@@ -446,30 +434,23 @@ fun WelcomeMorphOverlay(
     val landing = phase == WelcomeMorphPhase.Landing && onSearchScreen
     LaunchedEffect(landing) {
         if (!landing) return@LaunchedEffect
-        withTimeoutOrNull((TargetWaitMs * WelcomeMorphSlowMotion).toLong()) {
-            snapshotFlow { state.target != null && state.backdropReady }.first { it }
-        }
-        // The search screen's first load (icons, sections) can cost a few long frames; let them pass
-        // while the bar rests at the top so the reveal itself never stalls.
-        delay(SettleMs)
-        awaitSteadyFrames()
-        // The search screen now draws the same wallpaper above the welcome copy.
-        state.backdropAlpha = 0f
-        if (state.target != null) {
-            coroutineScope {
-                launch {
-                    animate(0f, 1f, animationSpec = tween(scaled(CorrectionMs), easing = TravelEasing)) { v, _ ->
-                        state.travel = v
-                    }
-                    // The real bar is visible from here; fade the travelling copy off it.
-                    animate(0f, 1f, animationSpec = tween(scaled(HandoffMs))) { v, _ -> state.handoff = v }
-                }
-                snapshotFlow { state.travel >= RevealAtTravel }.first { it }
-                animate(0f, 1f, animationSpec = tween(scaled(RevealMs), easing = LinearEasing)) { v, _ ->
-                    state.contentReveal = v
-                }
+        coroutineScope {
+            launch {
+                animate(1f, PressedScale, animationSpec = tween(scaled(PressMs) / 2)) { v, _ -> state.press = v }
+                animate(PressedScale, 1f, animationSpec = tween(scaled(PressMs) / 2)) { v, _ -> state.press = v }
+            }
+            // The search bar reports itself on the search screen's first layout.
+            withTimeoutOrNull(TargetWaitMs) { snapshotFlow { state.target }.first { it != null } }
+            state.target?.let { state.predicted = it }
+            animate(0f, 1f, animationSpec = tween(scaled(TravelMs), easing = TravelEasing)) { v, _ ->
+                state.travel = v
+                state.push = v
+                state.morph = v
+                state.curtain = (v * CurtainLead).coerceAtMost(1f)
             }
         }
+        // The real bar is visible from here; fade the travelling copy off it.
+        animate(0f, 1f, animationSpec = tween(scaled(HandoffMs))) { v, _ -> state.handoff = v }
         state.finishLanding()
         currentOnFinished()
     }
@@ -603,19 +584,6 @@ private fun TravellingSearchBar(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-        }
-    }
-}
-
-/** Suspends until [SteadyFrameCount] frames in a row arrive on time, or [SteadyFramesMaxWaitMs] passes. */
-private suspend fun awaitSteadyFrames() {
-    withTimeoutOrNull(SteadyFramesMaxWaitMs) {
-        var last = withFrameNanos { it }
-        var steady = 0
-        while (steady < SteadyFrameCount) {
-            val now = withFrameNanos { it }
-            steady = if (now - last < SteadyFrameNanos) steady + 1 else 0
-            last = now
         }
     }
 }
