@@ -11,14 +11,12 @@ import android.widget.ImageView
 import android.widget.RemoteViews
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,20 +24,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -47,42 +39,48 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextOverflow
+import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
+import com.tk.quicksearch.shared.ui.components.AppPickerDrawerSearch
+import com.tk.quicksearch.shared.ui.components.AppPickerDrawerMessage
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.utils.UserHandleUtils
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.theme.AppMotion
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
+import com.tk.quicksearch.shared.ui.components.AppButton
+
+private val WidgetPickerStageHeight = 176.dp
+
+/** Tile tone that stays visible on the drawer's `surfaceContainerHigh` sheet. */
+@Composable
+private fun widgetPickerTileColor() = MaterialTheme.colorScheme.surfaceContainerHighest
 
 private const val WIDGET_PREVIEW_FALLBACK_SIZE_PX = 96
 private const val MAX_WIDGET_PREVIEW_DIMENSION_PX = 1024
 private const val MAX_WIDGET_PREVIEW_PIXELS = 1_048_576
 private val WIDGET_PANEL_GRID_ROW_HEIGHT_DP = 80f
 private val WIDGET_PANEL_GRID_GAP_DP = 8f
-private val WidgetPickerHeight = 720.dp
-private const val WIDGET_PICKER_EXPAND_DURATION_MS = 220
 
 private data class WidgetPickerApp(
     val packageName: String,
@@ -104,7 +102,7 @@ internal fun WidgetPickerSheet(
 ) {
     val context = LocalContext.current
     val packageManager = context.packageManager
-    var query by rememberSaveable { mutableStateOf("") }
+    var query by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue("")) }
     val apps by produceState<List<WidgetPickerApp>?>(initialValue = null, appWidgetManager, packageManager) {
         value =
             withContext(Dispatchers.Default) {
@@ -144,7 +142,7 @@ internal fun WidgetPickerSheet(
     val filteredApps =
         remember(apps, query) {
             val loadedApps = apps.orEmpty()
-            val normalizedQuery = query.trim().lowercase()
+            val normalizedQuery = query.text.trim().lowercase()
             if (normalizedQuery.isBlank()) {
                 loadedApps
             } else {
@@ -152,145 +150,53 @@ internal fun WidgetPickerSheet(
             }
         }
     var expandedApps by rememberSaveable { mutableStateOf(setOf<String>()) }
-    val blockSheetDragFromListScroll =
-        remember {
-            object : NestedScrollConnection {
-                override fun onPostScroll(
-                    consumed: Offset,
-                    available: Offset,
-                    source: NestedScrollSource,
-                ): Offset = if (available.y < 0f) available else Offset.Zero
-
-                override suspend fun onPostFling(
-                    consumed: Velocity,
-                    available: Velocity,
-                ): Velocity = if (available.y < 0f) available else Velocity.Zero
-            }
-        }
-
-    Box(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.24f)),
+    AppPickerDrawer(
+        title = stringResource(R.string.widgets_picker_title),
+        onDismiss = onDismiss,
+        search = AppPickerDrawerSearch(
+            query = query,
+            onQueryChange = { query = it },
+            placeholder = stringResource(R.string.common_search),
+        ),
     ) {
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .clickable(onClick = onDismiss),
-        )
-
-        Surface(
-            modifier =
-                Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth(),
-            shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
-            color = AppColors.getDialogContainerColor(),
-        ) {
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(WidgetPickerHeight)
-                        .padding(top = DesignTokens.SpacingMedium)
-                        .padding(horizontal = DesignTokens.ContentHorizontalPadding)
-                        .padding(bottom = DesignTokens.SpacingLarge),
+        if (apps == null) {
+            WidgetPickerLoading()
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             ) {
-                Box(
-                    modifier =
-                        Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .size(width = 32.dp, height = 4.dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-                                shape = CircleShape,
-                            ),
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = stringResource(R.string.widgets_picker_title),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.weight(1f),
-                    )
-                    IconButton(onClick = onDismiss, modifier = Modifier.size(40.dp)) {
-                        Icon(
-                            imageVector = MaterialSymbols.Close,
-                            contentDescription = stringResource(R.string.common_close),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
+                if (showQuickNote) {
+                    item(key = "quick_note") { QuickNotePickerRow(onClick = onAddQuickNote) }
                 }
-                if (apps == null) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .heightIn(min = 280.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = stringResource(R.string.widgets_picker_loading),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                } else {
-                    WidgetPickerSearchField(
-                        query = query,
-                        onQueryChange = { query = it },
-                        modifier = Modifier.fillMaxWidth(),
+                items(filteredApps, key = { it.key }) { app ->
+                    WidgetPickerAppGroup(
+                        app = app,
+                        isExpanded = app.key in expandedApps,
+                        onToggleExpanded = {
+                            expandedApps = if (app.key in expandedApps) expandedApps - app.key else expandedApps + app.key
+                        },
+                        packageManager = packageManager,
+                        onSelectWidget = onSelectWidget,
                     )
-
-                    LazyColumn(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .nestedScroll(blockSheetDragFromListScroll),
-                        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-                    ) {
-                        if (showQuickNote) {
-                            item(key = "quick_note") {
-                                QuickNotePickerRow(onClick = onAddQuickNote)
-                            }
-                        }
-                        items(filteredApps, key = { it.key }) { app ->
-                            WidgetPickerAppGroup(
-                                app = app,
-                                isExpanded = expandedApps.contains(app.key),
-                                onToggleExpanded = {
-                                    expandedApps =
-                                        if (expandedApps.contains(app.key)) {
-                                            expandedApps - app.key
-                                        } else {
-                                            expandedApps + app.key
-                                        }
-                                },
-                                packageManager = packageManager,
-                                onSelectWidget = onSelectWidget,
-                            )
-                        }
-                        if (filteredApps.isEmpty()) {
-                            item {
-                                Text(
-                                    text = stringResource(R.string.widgets_picker_empty),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(DesignTokens.SpacingLarge),
-                                )
-                            }
-                        }
-                    }
+                }
+                if (filteredApps.isEmpty()) {
+                    item { AppPickerDrawerMessage(text = stringResource(R.string.widgets_picker_empty)) }
                 }
             }
         }
+    }
+}
+
+/** Fills the drawer's list area so the message sits in its vertical center. */
+@Composable
+private fun WidgetPickerLoading() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text(
+            text = stringResource(R.string.widgets_picker_loading),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
@@ -299,84 +205,20 @@ private fun QuickNotePickerRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        shape = DesignTokens.ExtraLargeCardShape,
-        color = AppColors.getSettingsCardContainerColor(),
-    ) {
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .clickable(onClick = onClick)
-                    .padding(DesignTokens.SpacingLarge),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-        ) {
-            Icon(
-                imageVector = MaterialSymbols.EditNote,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(DesignTokens.LargeIconSize),
-            )
-            Text(
-                text = stringResource(R.string.notes_quick_note_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
-    }
-}
-
-@Composable
-private fun WidgetPickerSearchField(
-    query: String,
-    onQueryChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
+    SegmentedTile(
+        index = 0,
+        count = 1,
         modifier = modifier,
-        shape = DesignTokens.ShapeXXLarge,
-        color = AppColors.getSettingsCardContainerColor(),
+        onClick = onClick,
+        containerColor = widgetPickerTileColor(),
     ) {
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = DesignTokens.SpacingLarge,
-                        vertical = DesignTokens.SpacingMedium,
-                    ),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-        ) {
-            Icon(
-                imageVector = MaterialSymbols.Search,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            BasicTextField(
-                value = query,
-                onValueChange = onQueryChange,
-                modifier = Modifier.weight(1f),
-                singleLine = true,
-                textStyle =
-                    MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.onSurface,
-                    ),
-                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                decorationBox = { inner ->
-                    if (query.isBlank()) {
-                        Text(
-                            text = stringResource(R.string.common_search),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                    inner()
-                },
-            )
-        }
+        SegmentedTileRow(
+            title = stringResource(R.string.notes_quick_note_title),
+            leading = { TonalIconBadge(icon = MaterialSymbols.EditNote) },
+            trailing = {
+                Icon(imageVector = MaterialSymbols.Add, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            },
+        )
     }
 }
 
@@ -391,75 +233,50 @@ private fun WidgetPickerAppGroup(
 ) {
     val chevronRotation by animateFloatAsState(
         targetValue = if (isExpanded) 180f else 0f,
-        animationSpec = tween(WIDGET_PICKER_EXPAND_DURATION_MS),
+        animationSpec = AppMotion.defaultSpatial(),
         label = "widgetPickerChevronRotation",
     )
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        shape = DesignTokens.ExtraLargeCardShape,
-        color = AppColors.getSettingsCardContainerColor(),
-    ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .clickable(onClick = onToggleExpanded)
-                        .padding(DesignTokens.SpacingLarge),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-            ) {
-                DrawableImage(
-                    drawable = app.icon,
-                    contentDescription = null,
-                    modifier =
-                        Modifier
-                            .size(DesignTokens.LargeIconSize)
-                            .clip(CircleShape),
-                )
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = app.appLabel,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap)) {
+        SegmentedTile(
+            index = 0,
+            count = if (isExpanded) app.widgets.size + 1 else 1,
+            onClick = onToggleExpanded,
+            containerColor = widgetPickerTileColor(),
+        ) {
+            SegmentedTileRow(
+                title = app.appLabel,
+                description = stringResource(R.string.widgets_picker_widget_count, app.widgets.size),
+                leading = {
+                    DrawableImage(
+                        drawable = app.icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(DesignTokens.Spacing40).clip(CircleShape),
                     )
-                    Text(
-                        text =
-                            stringResource(
-                                R.string.widgets_picker_widget_count,
-                                app.widgets.size,
-                            ),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                },
+                trailing = {
+                    Icon(
+                        imageVector = MaterialSymbols.ExpandMore,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.rotate(chevronRotation),
                     )
-                }
-                Icon(
-                    imageVector = MaterialSymbols.ExpandMore,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.rotate(chevronRotation),
-                )
-            }
-
-            AnimatedVisibility(
-                visible = isExpanded,
-                enter =
-                    expandVertically(animationSpec = tween(WIDGET_PICKER_EXPAND_DURATION_MS)) +
-                        fadeIn(animationSpec = tween(WIDGET_PICKER_EXPAND_DURATION_MS)),
-                exit =
-                    shrinkVertically(animationSpec = tween(WIDGET_PICKER_EXPAND_DURATION_MS)) +
-                        fadeOut(animationSpec = tween(WIDGET_PICKER_EXPAND_DURATION_MS)),
-            ) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    app.widgets.forEachIndexed { index, provider ->
-                        if (index > 0) {
-                            HorizontalDivider(color = AppColors.SettingsDivider)
-                        }
-                        WidgetPickerRow(
-                            provider = provider,
-                            packageManager = packageManager,
-                            onClick = { onSelectWidget(provider) },
-                        )
+                },
+            )
+        }
+        AnimatedVisibility(
+            visible = isExpanded,
+            enter = expandVertically(animationSpec = AppMotion.defaultSpatial()) + fadeIn(),
+            exit = shrinkVertically(animationSpec = AppMotion.defaultSpatial()) + fadeOut(),
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap)) {
+                app.widgets.forEachIndexed { index, provider ->
+                    SegmentedTile(
+                        index = index + 1,
+                        count = app.widgets.size + 1,
+                        onClick = { onSelectWidget(provider) },
+                        containerColor = widgetPickerTileColor(),
+                    ) {
+                        WidgetPickerRow(provider, packageManager, onClick = { onSelectWidget(provider) })
                     }
                 }
             }
@@ -512,78 +329,77 @@ private fun WidgetPickerRow(
         modifier =
             modifier
                 .fillMaxWidth()
-                .clickable(onClick = onClick)
-                .padding(DesignTokens.SpacingLarge),
+                .padding(DesignTokens.SpacingSmall),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
     ) {
-        Surface(
-            modifier = Modifier.fillMaxWidth().heightIn(min = 92.dp),
-            shape = DesignTokens.ShapeMedium,
-            color = Color.Transparent,
+        Box(
+            modifier = Modifier.fillMaxWidth().height(WidgetPickerStageHeight),
+            contentAlignment = Alignment.Center,
         ) {
-            Box(contentAlignment = Alignment.Center) {
-                when {
-                    previewImage != null -> {
-                        DrawableImage(
-                            drawable = previewImage,
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize().padding(DesignTokens.SpacingSmall),
-                        )
-                    }
-                    previewLayoutRes != 0 -> {
-                        WidgetRemoteViewsPreview(
-                            packageName = provider.provider.packageName,
-                            layoutRes = previewLayoutRes,
-                            fallbackIcon = widgetIcon,
-                            modifier = Modifier.fillMaxSize().padding(DesignTokens.SpacingSmall),
-                        )
-                    }
-                    widgetIcon != null -> {
-                        DrawableImage(
-                            drawable = widgetIcon,
-                            contentDescription = null,
-                            modifier = Modifier.size(56.dp),
-                        )
-                    }
-                    else -> {
-                        Text(
-                            text = stringResource(R.string.widgets_picker_preview_unavailable),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(DesignTokens.SpacingSmall),
-                        )
-                    }
+            when {
+                previewImage != null -> {
+                    DrawableImage(
+                        drawable = previewImage,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize().padding(DesignTokens.SpacingLarge),
+                    )
+                }
+                previewLayoutRes != 0 -> {
+                    WidgetRemoteViewsPreview(
+                        packageName = provider.provider.packageName,
+                        layoutRes = previewLayoutRes,
+                        fallbackIcon = widgetIcon,
+                        modifier = Modifier.fillMaxSize().padding(DesignTokens.SpacingLarge),
+                    )
+                }
+                widgetIcon != null -> {
+                    DrawableImage(
+                        drawable = widgetIcon,
+                        contentDescription = null,
+                        modifier = Modifier.size(56.dp),
+                    )
+                }
+                else -> {
+                    Text(
+                        text = stringResource(R.string.widgets_picker_preview_unavailable),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(DesignTokens.SpacingSmall),
+                    )
                 }
             }
         }
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = provider.loadLabel(packageManager).orEmpty(),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-            )
-            Text(
-                text =
-                    stringResource(
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(start = DesignTokens.SpacingSmall, bottom = DesignTokens.SpacingXSmall),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
+            ) {
+                Text(
+                    text = provider.loadLabel(packageManager).orEmpty(),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    text = stringResource(
                         R.string.widgets_picker_widget_grid_size,
                         initialGridSize.first,
                         initialGridSize.second,
                     ),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                AssistChip(
-                    onClick = onClick,
-                    label = { Text(stringResource(R.string.common_action_add)) },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+            }
+            AppButton(onClick = onClick, icon = MaterialSymbols.Add) {
+                Text(text = stringResource(R.string.common_action_add))
             }
         }
     }

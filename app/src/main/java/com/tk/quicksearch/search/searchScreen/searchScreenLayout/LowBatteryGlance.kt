@@ -306,13 +306,13 @@ internal fun LowBatteryRow(glance: LowBatteryGlance) {
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     fontWeight = if (glance.isCritical) FontWeight.SemiBold else null,
                     color = if (glance.isCritical) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
@@ -321,7 +321,7 @@ internal fun LowBatteryRow(glance: LowBatteryGlance) {
                     Modifier
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.error)
-                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                        .padding(horizontal = 10.dp, vertical = DesignTokens.SpacingXSmall),
             ) {
                 Text(
                     text = percentLabel,

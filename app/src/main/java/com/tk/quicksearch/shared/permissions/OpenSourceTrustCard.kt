@@ -1,5 +1,6 @@
 package com.tk.quicksearch.shared.permissions
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -32,10 +33,10 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
-private const val SOURCE_CODE_URL = "https://github.com/teja2495/quick-search"
+internal const val SOURCE_CODE_URL = "https://github.com/teja2495/quick-search"
 
-private val TrustGreenDark = Color(0xFF4ADE80)
-private val TrustGreenLight = Color(0xFF15803D)
+internal val TrustGreenDark = Color(0xFF4ADE80)
+internal val TrustGreenLight = Color(0xFF15803D)
 
 /**
  * Reassurance card shown under the permissions subtitle, linking to the public source code
@@ -46,7 +47,7 @@ fun OpenSourceTrustCard(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
     val accent = if (isDark) TrustGreenDark else TrustGreenLight
-    val shape = RoundedCornerShape(DesignTokens.SpacingXLarge)
+    val shape = AppShapes.largeIncreased
 
     val openSource = {
         runCatching {

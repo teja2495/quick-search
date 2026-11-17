@@ -114,6 +114,9 @@
     <string name="action_open_folder">फोल्डर खोलें</string>
     <string name="action_open_keyboard">कीबोर्ड खोलें</string>
     <string name="action_open_settings">सेटिंग्स खोलें</string>
+    <string name="keyboard_shortcut_open_top_result">शीर्ष परिणाम खोलें या खोजें</string>
+    <string name="keyboard_shortcut_previous_result">पिछला परिणाम चुनें</string>
+    <string name="keyboard_shortcut_next_result">अगला परिणाम चुनें</string>
     <string name="settings_gestures_title">जेस्चर</string>
     <string name="settings_gestures_desc">स्वाइप क्रियाओं को कस्टमाइज़ करें</string>
     <string name="settings_gesture_swipe_right">दाएँ स्वाइप करें</string>
@@ -826,6 +829,8 @@
     <string name="settings_unified_pinned_items_desc">पिन किए गए आइटम को होम स्क्रीन पर एक एकीकृत सूची के रूप में दिखाएं।</string>
     <string name="settings_show_status_bar_title">स्टेटस बार दिखाएं</string>
     <string name="settings_show_status_bar_desc">स्क्रीन के ऊपर Android स्टेटस बार दिखाएं।</string>
+    <string name="settings_search_chrome_blur_title">धुंधली पृष्ठभूमि</string>
+    <string name="settings_search_chrome_blur_desc">सर्च बार के पीछे की चीज़ें धुंधली करें।</string>
     <string name="settings_pinned_sections_order_title">पिन किए गए सेक्शन का क्रम</string>
     <string name="settings_pinned_sections_order_desc">होम पर पिन किए गए सेक्शन का क्रम बदलें</string>
     <string name="settings_pinned_sections_order_dialog_info">होम पर पिन किए गए सेक्शन का क्रम बदलने के लिए दबाकर रखें और खींचें।</string>
@@ -1062,9 +1067,8 @@
     <string name="settings_backup_import_warning_title">सेटिंग्स इम्पोर्ट करें?</string>
     <string name="settings_backup_restore_desc">अपनी ऐप सेटिंग्स एक्सपोर्ट या इम्पोर्ट करें</string>
     <string name="settings_backup_restore_title">बैकअप और रिस्टोर</string>
-    <string name="settings_feedback_developer_desc">निर्माता: %1$s</string>
     <string name="settings_feedback_developer_name">Teja Karlapudi</string>
-    <string name="settings_feedback_developer_title">%1$s v%2$s</string>
+    <string name="settings_feedback_developer_made_by">निर्माता</string>
     <string name="settings_feedback_github_desc">इस प्रोजेक्ट का स्रोत कोड GitHub पर देखें</string>
     <string name="settings_feedback_github_title">डेवलपमेंट</string>
     <string name="settings_feedback_rate_desc">अगर आपको यह ऐप उपयोगी लगता है तो 5 स्टार रेटिंग दें 🙏</string>
@@ -1250,7 +1254,7 @@
     <string name="permissions_calling_desc">डायलर खोले बिना आपके कॉन्टैक्ट्स को सीधे कॉल करने के लिए आवश्यक।</string>
     <string name="settings_notifications_permission_title">पोस्ट नोटिफ़िकेशन</string>
     <string name="permissions_notifications_desc">रिमाइंडर सूचनाओं और खोज परिणामों को सूचना पैनल में पिन करने के लिए आवश्यक</string>
-    <string name="permissions_notification_access_desc">सूचना बिंदु और सूचना इतिहास सुविधाएं चालू करने के लिए आवश्यक</string>
+    <string name="permissions_notification_access_desc">सूचना बिंदु, सूचना इतिहास और एक नज़र में की उपयोगी सुविधाएं चालू करने के लिए आवश्यक।</string>
     <string name="permissions_accessibility_lock_screen_title">सुलभता</string>
     <string name="permissions_accessibility_lock_screen_desc">जेस्चर, फ़्लोटिंग बटन और SpeedBump सक्षम करता है।</string>
     <string name="permissions_contacts_desc">आपके कॉन्टैक्ट्स खोजने के लिए आवश्यक।</string>
@@ -1265,6 +1269,10 @@
     <string name="permissions_open_source_desc">देखें कि इन अनुमतियों का उपयोग कैसे किया जाता है।</string>
     <string name="permissions_open_source_action">कोड देखने के लिए टैप करें।</string>
     <string name="permissions_screen_optional_emphasis">वैकल्पिक</string>
+    <string name="permissions_trust_optional">हर अनुमति वैकल्पिक है</string>
+    <string name="permissions_trust_on_device">आपका डेटा डिवाइस पर ही रहता है</string>
+    <string name="permissions_trust_open_source">पूरी तरह ओपन सोर्स</string>
+    <string name="permissions_trust_view_code">कोड देखें</string>
     <string name="permissions_usage_desc">सुझावों में हाल ही में उपयोग किए गए ऐप्स दिखाने के लिए आवश्यक।</string>
     <string name="setup_action_next">आगे</string>
     <string name="setup_action_skip_permissions">अनुमतियों के बिना जारी रखें</string>
@@ -1385,10 +1393,11 @@
     <string name="tasker_not_installed">Tasker इंस्टॉल नहीं है</string>
     <string name="tasker_broadcast_failed">Tasker ब्रॉडकास्ट नहीं भेजा जा सका</string>
     <string name="settings_more_apps_from_developer_title">डेवलपर के और ऐप्स</string>
+    <string name="settings_github_label">GitHub</string>
     <string name="icon_picker_no_icon_packs">ऐप आइकन बदलने के लिए कोई आइकन पैक इंस्टॉल नहीं है।</string>
     <string name="icon_picker_download_icon_packs">डाउनलोड करें</string>
     <string name="app_menu_usage_today">आज %1$s इस्तेमाल किया · %2$s बार खोला</string>
-    <string name="app_menu_version">v%1$s</string>
+    <string name="app_menu_version">संस्करण %1$s</string>
     <plurals name="app_menu_opened_count"><item quantity="one">%d बार</item><item quantity="other">%d बार</item></plurals>
     <plurals name="app_menu_usage_hours"><item quantity="one">%d घंटा</item><item quantity="other">%d घंटे</item></plurals>
     <plurals name="app_menu_usage_minutes"><item quantity="one">%d मिनट</item><item quantity="other">%d मिनट</item></plurals>

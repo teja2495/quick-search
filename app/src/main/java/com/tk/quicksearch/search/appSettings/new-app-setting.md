@@ -33,7 +33,7 @@ throws otherwise.
 
 ## 3) Register the row
 
-In `AppSettingsRepository.loadSettings()`, call `addNavigation(...)` or `addToggle(...)`:
+In `AppSettingsRepository.loadSettings()` (pages) or `AppSettingsToggleCatalog.kt` (toggles and inline controls), call `addNavigation(...)` or `addToggle(...)`:
 
 - `id`: stable and unique. Never rename an existing one; it keys recent-tap ranking.
 - `titleRes`, optional `descriptionRes`.

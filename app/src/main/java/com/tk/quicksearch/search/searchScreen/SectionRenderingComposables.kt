@@ -35,6 +35,9 @@ import com.tk.quicksearch.shared.ui.theme.homeTextColor
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.AtAGlanceCardShell
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.AtAGlanceTitle
 import com.tk.quicksearch.app.startup.StartupTrace
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.compactBottomDivider
+import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
+import androidx.compose.foundation.layout.Box
 import kotlinx.coroutines.delay
 
 // ============================================================================
@@ -189,61 +192,71 @@ private fun renderAppsSection(
                 onNotNowClick = appsParams.onUpdateNotNowClick,
             )
         }
-        AppGridView(
-            apps = appsParams.apps,
-            allApps = appsParams.allApps,
-            pinnedAndRecentApps = appsParams.pinnedAndRecentApps,
-            pinnedApps = appsParams.pinnedApps,
-            newOrUpdatedApps = appsParams.newOrUpdatedApps,
-            mostUsedApps = appsParams.mostUsedApps,
-            appShortcuts = appsParams.appShortcuts,
-            isSearching = appsParams.isSearching,
-            hasUsagePermission = appsParams.hasUsagePermission,
-            selectedSuggestionTab = appsParams.selectedSuggestionTab,
-            enabledSuggestionTabs = appsParams.enabledSuggestionTabs,
-            onSuggestionTabSelected = appsParams.onSuggestionTabSelected,
-            hasAppResults = appsParams.hasAppResults,
-            showAllAppsButton = appsParams.showAllAppsButton,
-            onAppClick = appsParams.onAppClick,
-            onAppShortcutClick = appsParams.onAppShortcutClick,
-            onAppInfoClick = appsParams.onAppInfoClick,
-            onUninstallClick = appsParams.onUninstallClick,
-            onHideApp = appsParams.onHideApp,
-            onDisableAppShortcut = appsParams.onDisableAppShortcut,
-            onPinApp = appsParams.onPinApp,
-            onUnpinApp = appsParams.onUnpinApp,
-            onReorderPinnedApps = appsParams.onReorderPinnedApps,
-            onNicknameClick = appsParams.onNicknameClick,
-            onTriggerClick = appsParams.onTriggerClick,
-            onOpenInSplitScreen = appsParams.onOpenInSplitScreen,
-            getAppNickname = appsParams.getAppNickname,
-            getAppTrigger = appsParams.getAppTrigger,
-            pinnedPackageNames = appsParams.pinnedPackageNames,
-            disabledShortcutIds = appsParams.disabledAppShortcutIds,
-            rowCount = appsParams.rowCount,
-            phoneColumnOverride = appsParams.phoneColumnOverride,
-            appIconSizeStep = appsParams.appIconSizeStep,
-            iconPackPackage = appsParams.iconPackPackage,
-            appIconShape = appsParams.appIconShape,
-            themedIconsEnabled = appsParams.themedIconsEnabled,
-            showAppLabels = appsParams.showAppLabels,
-            oneHandedMode = appsParams.oneHandedMode,
-            isInitializing = appsParams.isInitializing,
-            startupPhase = appsParams.startupPhase,
-            isOverlayPresentation = appsParams.isOverlayPresentation,
-            predictedTarget = appsParams.predictedTarget,
-            suppressTopResultIndicator = appsParams.suppressTopResultIndicator,
-            showWallpaperBackground = appsParams.showWallpaperBackground,
-            notificationDotsEnabled = appsParams.notificationDotsEnabled,
-            onGridAppeared = appsParams.onGridAppeared,
-            suppressSuggestionsEnterAnimation = appsParams.suppressSuggestionsEnterAnimation,
-            pinnedGridShortcuts = appsParams.pinnedGridAppShortcuts,
-            pinnedAppGridOrder = appsParams.pinnedAppGridOrder,
-            onReorderPinnedAppGrid = appsParams.onReorderPinnedAppGrid,
-            pinnedGridShortcutActions = appsParams.pinnedGridShortcutActions,
-            appFolders = appsParams.appFolders,
-            folderActions = appsParams.appFolderActions,
-        )
+        // Flat layout: the grid gets the same edge-to-edge divider below it as every other home item.
+        Box(
+            modifier =
+                if (LocalSearchCardLayoutEnabled.current) {
+                    Modifier
+                } else {
+                    Modifier.fillMaxWidth().compactBottomDivider(appsParams.showWallpaperBackground)
+                },
+        ) {
+            AppGridView(
+                apps = appsParams.apps,
+                allApps = appsParams.allApps,
+                pinnedAndRecentApps = appsParams.pinnedAndRecentApps,
+                pinnedApps = appsParams.pinnedApps,
+                newOrUpdatedApps = appsParams.newOrUpdatedApps,
+                mostUsedApps = appsParams.mostUsedApps,
+                appShortcuts = appsParams.appShortcuts,
+                isSearching = appsParams.isSearching,
+                hasUsagePermission = appsParams.hasUsagePermission,
+                selectedSuggestionTab = appsParams.selectedSuggestionTab,
+                enabledSuggestionTabs = appsParams.enabledSuggestionTabs,
+                onSuggestionTabSelected = appsParams.onSuggestionTabSelected,
+                hasAppResults = appsParams.hasAppResults,
+                showAllAppsButton = appsParams.showAllAppsButton,
+                onAppClick = appsParams.onAppClick,
+                onAppShortcutClick = appsParams.onAppShortcutClick,
+                onAppInfoClick = appsParams.onAppInfoClick,
+                onUninstallClick = appsParams.onUninstallClick,
+                onHideApp = appsParams.onHideApp,
+                onDisableAppShortcut = appsParams.onDisableAppShortcut,
+                onPinApp = appsParams.onPinApp,
+                onUnpinApp = appsParams.onUnpinApp,
+                onReorderPinnedApps = appsParams.onReorderPinnedApps,
+                onNicknameClick = appsParams.onNicknameClick,
+                onTriggerClick = appsParams.onTriggerClick,
+                onOpenInSplitScreen = appsParams.onOpenInSplitScreen,
+                getAppNickname = appsParams.getAppNickname,
+                getAppTrigger = appsParams.getAppTrigger,
+                pinnedPackageNames = appsParams.pinnedPackageNames,
+                disabledShortcutIds = appsParams.disabledAppShortcutIds,
+                rowCount = appsParams.rowCount,
+                phoneColumnOverride = appsParams.phoneColumnOverride,
+                appIconSizeStep = appsParams.appIconSizeStep,
+                iconPackPackage = appsParams.iconPackPackage,
+                appIconShape = appsParams.appIconShape,
+                themedIconsEnabled = appsParams.themedIconsEnabled,
+                showAppLabels = appsParams.showAppLabels,
+                oneHandedMode = appsParams.oneHandedMode,
+                isInitializing = appsParams.isInitializing,
+                startupPhase = appsParams.startupPhase,
+                isOverlayPresentation = appsParams.isOverlayPresentation,
+                predictedTarget = appsParams.predictedTarget,
+                suppressTopResultIndicator = appsParams.suppressTopResultIndicator,
+                showWallpaperBackground = appsParams.showWallpaperBackground,
+                notificationDotsEnabled = appsParams.notificationDotsEnabled,
+                onGridAppeared = appsParams.onGridAppeared,
+                suppressSuggestionsEnterAnimation = appsParams.suppressSuggestionsEnterAnimation,
+                pinnedGridShortcuts = appsParams.pinnedGridAppShortcuts,
+                pinnedAppGridOrder = appsParams.pinnedAppGridOrder,
+                onReorderPinnedAppGrid = appsParams.onReorderPinnedAppGrid,
+                pinnedGridShortcutActions = appsParams.pinnedGridShortcutActions,
+                appFolders = appsParams.appFolders,
+                folderActions = appsParams.appFolderActions,
+            )
+        }
         if (!renderPromptCardsFirst && shouldShowUpdateCard) {
             UpdateQuickSearchCard(
                 showWallpaperBackground = appsParams.showWallpaperBackground,
@@ -389,7 +402,7 @@ private fun renderCalendarSection(
         if (!context.hideHomeSectionTitleRows) {
             AtAGlanceTitle(calendarParams.showWallpaperBackground)
         }
-        AtAGlanceCardShell(showWallpaperBackground = calendarParams.showWallpaperBackground) {
+        AtAGlanceCardShell(showWallpaperBackground = calendarParams.showWallpaperBackground, segmented = true) {
             atAGlanceContent(false, false)
         }
     }

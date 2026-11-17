@@ -115,6 +115,9 @@
     <string name="action_open_folder">فتح المجلد</string>
     <string name="action_open_keyboard">فتح لوحة المفاتيح</string>
     <string name="action_open_settings">فتح الإعدادات</string>
+    <string name="keyboard_shortcut_open_top_result">فتح أفضل نتيجة أو البحث</string>
+    <string name="keyboard_shortcut_previous_result">تحديد النتيجة السابقة</string>
+    <string name="keyboard_shortcut_next_result">تحديد النتيجة التالية</string>
     <string name="settings_gestures_title">الإيماءات</string>
     <string name="settings_gestures_desc">تخصيص إجراءات السحب</string>
     <string name="settings_gesture_swipe_right">السحب لليمين</string>
@@ -827,6 +830,8 @@
     <string name="settings_unified_pinned_items_desc">عرض العناصر المثبتة كقائمة موحدة واحدة في الشاشة الرئيسية.</string>
     <string name="settings_show_status_bar_title">إظهار شريط الحالة</string>
     <string name="settings_show_status_bar_desc">إظهار شريط حالة Android أعلى الشاشة.</string>
+    <string name="settings_search_chrome_blur_title">خلفية ضبابية</string>
+    <string name="settings_search_chrome_blur_desc">تمويه ما خلف شريط البحث.</string>
     <string name="settings_pinned_sections_order_title">ترتيب الأقسام المثبتة</string>
     <string name="settings_pinned_sections_order_desc">إعادة ترتيب الأقسام المثبتة في الشاشة الرئيسية</string>
     <string name="settings_pinned_sections_order_dialog_info">اضغط مطولًا واسحب لتغيير ترتيب الأقسام المثبتة في الشاشة الرئيسية.</string>
@@ -1063,9 +1068,8 @@
     <string name="settings_backup_import_warning_title">استيراد الإعدادات؟</string>
     <string name="settings_backup_restore_desc">تصدير أو استيراد إعدادات التطبيق</string>
     <string name="settings_backup_restore_title">النسخ الاحتياطي والاستعادة</string>
-    <string name="settings_feedback_developer_desc">تطوير %1$s</string>
     <string name="settings_feedback_developer_name">Teja Karlapudi</string>
-    <string name="settings_feedback_developer_title">%1$s v%2$s</string>
+    <string name="settings_feedback_developer_made_by">تطوير</string>
     <string name="settings_feedback_github_desc">عرض الكود المصدري للمشروع على GitHub</string>
     <string name="settings_feedback_github_title">المساهمة والتطوير</string>
     <string name="settings_feedback_rate_desc">اترك تقييم 5 نجوم إذا وجدت هذا التطبيق مفيداً 🙏</string>
@@ -1251,7 +1255,7 @@
     <string name="permissions_calling_desc">مطلوب للاتصال بجهات الاتصال الخاصة بك مباشرة دون فتح لوحة الاتصال.</string>
     <string name="settings_notifications_permission_title">نشر الإشعارات</string>
     <string name="permissions_notifications_desc">مطلوب لإشعارات التذكيرات ولتثبيت نتائج البحث في لوحة الإشعارات</string>
-    <string name="permissions_notification_access_desc">مطلوب لتفعيل نقاط الإشعارات وميزة سجل الإشعارات</string>
+    <string name="permissions_notification_access_desc">مطلوب لتفعيل نقاط الإشعارات وسجل الإشعارات وميزات نظرة سريعة المفيدة.</string>
     <string name="permissions_accessibility_lock_screen_title">إمكانية الوصول</string>
     <string name="permissions_accessibility_lock_screen_desc">لتفعيل الإيماءات والزر العائم وSpeedBump.</string>
     <string name="permissions_contacts_desc">مطلوب للبحث في جهات الاتصال الخاصة بك.</string>
@@ -1266,6 +1270,10 @@
     <string name="permissions_open_source_desc">اطّلع بالضبط على كيفية استخدام هذه الأذونات.</string>
     <string name="permissions_open_source_action">انقر لعرض الكود.</string>
     <string name="permissions_screen_optional_emphasis">اختيارية</string>
+    <string name="permissions_trust_optional">كل الأذونات اختيارية</string>
+    <string name="permissions_trust_on_device">تبقى بياناتك على الجهاز</string>
+    <string name="permissions_trust_open_source">مفتوح المصدر بالكامل</string>
+    <string name="permissions_trust_view_code">عرض الكود</string>
     <string name="permissions_usage_desc">مطلوب لعرض تطبيقاتك المستخدمة مؤخراً في قسم الاقتراحات.</string>
     <string name="setup_action_next">التالي</string>
     <string name="setup_action_skip_permissions">المتابعة بدون أذونات</string>
@@ -1387,10 +1395,11 @@
     <string name="tasker_not_installed">Tasker غير مثبت</string>
     <string name="tasker_broadcast_failed">تعذر إرسال بث Tasker</string>
     <string name="settings_more_apps_from_developer_title">المزيد من التطبيقات من المطور</string>
+    <string name="settings_github_label">GitHub</string>
     <string name="icon_picker_no_icon_packs">لا توجد حزم أيقونات مثبتة لتغيير أيقونة التطبيق.</string>
     <string name="icon_picker_download_icon_packs">تنزيل</string>
     <string name="app_menu_usage_today">%1$s اليوم · فُتح %2$s</string>
-    <string name="app_menu_version">v%1$s</string>
+    <string name="app_menu_version">الإصدار %1$s</string>
     <plurals name="app_menu_opened_count"><item quantity="one">مرة واحدة</item><item quantity="other">%d مرات</item></plurals>
     <plurals name="app_menu_usage_hours"><item quantity="one">ساعة واحدة</item><item quantity="other">%d س</item></plurals>
     <plurals name="app_menu_usage_minutes"><item quantity="one">دقيقة واحدة</item><item quantity="other">%d د</item></plurals>

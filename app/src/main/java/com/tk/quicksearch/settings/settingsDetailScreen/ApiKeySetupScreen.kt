@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
@@ -10,70 +11,62 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.ui.res.painterResource
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.SettingsCard
-import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
+import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
+import com.tk.quicksearch.shared.ui.components.ChoiceOption
+import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
+import com.tk.quicksearch.settings.shared.SettingsIconBadge
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContentPadding
+import com.tk.quicksearch.shared.ui.components.TonalButton
 import com.tk.quicksearch.shared.ui.components.TipBanner
+import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.util.readText
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
-import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.tools.aiSearch.TavilyWebSearchMode
+import com.tk.quicksearch.settings.searchEngineSettings.dialogs.ExpandScrollDelayMillis
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import androidx.compose.ui.platform.LocalClipboard
-import com.tk.quicksearch.shared.util.readText
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
 
-private val CardContentVerticalPadding = DesignTokens.CardVerticalPadding + DesignTokens.SpacingSmall
-
+/**
+ * API key setup as Material 3 tiles: one group with a tile per provider (built-in, then custom)
+ * ending in Add Custom Provider, then a Tavily group for web search.
+ */
 @Composable
 fun ApiKeySetupScreen(
     apiKeyLast4ByProvider: Map<AiSearchLlmProviderId, String>,
@@ -92,6 +85,9 @@ fun ApiKeySetupScreen(
             )
         }
     }
+    // Includes custom providers restored from a backup without their API key.
+    val providers = (AiSearchLlmProviderId.entries + customProviderBaseUrlByProvider.keys).distinct()
+    val tileCount = providers.size + 1
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -101,6 +97,7 @@ fun ApiKeySetupScreen(
             text = stringResource(R.string.settings_api_key_setup_desc),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = DesignTokens.SpacingLarge),
         )
 
         if (apiKeyLast4ByProvider.isEmpty()) {
@@ -121,31 +118,25 @@ fun ApiKeySetupScreen(
             )
         }
 
-        AiSearchLlmProviderId.entries.forEach { providerId ->
-            ProviderApiKeyCard(
-                providerId = providerId,
-                apiKeyLast4 = apiKeyLast4ByProvider[providerId],
-                configuredBaseUrl = customProviderBaseUrlByProvider[providerId],
-                isSavingApiKey = isSavingApiKey,
-                onSetApiKey = onSetApiKey,
+        SegmentedGroup {
+            providers.forEachIndexed { index, providerId ->
+                ProviderApiKeyTile(
+                    providerId = providerId,
+                    apiKeyLast4 = apiKeyLast4ByProvider[providerId],
+                    configuredBaseUrl = customProviderBaseUrlByProvider[providerId],
+                    isSavingApiKey = isSavingApiKey,
+                    onSetApiKey = onSetApiKey,
+                    index = index,
+                    count = tileCount,
+                )
+            }
+            AddCustomProviderTile(
+                isSaving = isSavingApiKey,
+                onSave = onAddCustomProvider,
+                index = providers.size,
+                count = tileCount,
             )
         }
-
-        // Includes custom providers restored from a backup without their API key.
-        customProviderBaseUrlByProvider.keys.forEach { providerId ->
-            ProviderApiKeyCard(
-                providerId = providerId,
-                apiKeyLast4 = apiKeyLast4ByProvider[providerId],
-                configuredBaseUrl = customProviderBaseUrlByProvider[providerId],
-                isSavingApiKey = isSavingApiKey,
-                onSetApiKey = onSetApiKey,
-            )
-        }
-
-        AddCustomProviderCard(
-            isSaving = isSavingApiKey,
-            onSave = onAddCustomProvider,
-        )
 
         TavilyWebSearchSection()
     }
@@ -178,206 +169,40 @@ private fun TavilyWebSearchSection() {
         }
     }
 
-    TavilyApiKeyCard(
-        apiKeyLast4 = apiKeyLast4,
-        isSaving = isSaving,
-        mode = mode,
-        onSaveApiKey = ::saveApiKey,
-        onModeChange = { selected ->
-            mode = selected
-            coroutineScope.launch(Dispatchers.IO) { preferences.setTavilyWebSearchMode(selected) }
-        },
-    )
-}
-
-@Composable
-private fun TavilyApiKeyCard(
-    apiKeyLast4: String?,
-    isSaving: Boolean,
-    mode: TavilyWebSearchMode,
-    onSaveApiKey: (String?) -> Unit,
-    onModeChange: (TavilyWebSearchMode) -> Unit,
-) {
-    val clipboard = LocalClipboard.current
-    val clipboardScope = rememberCoroutineScope()
-    var apiKeyInput by remember { mutableStateOf("") }
-    val trimmedKey = apiKeyInput.trim()
     val hasSavedKey = apiKeyLast4 != null
-
-    fun pasteFromClipboard() {
-        clipboardScope.launch {
-            apiKeyInput =
-                clipboard
-                    .readText()
-                    ?.trim()
-                    ?.takeIf { it.isNotEmpty() }
-                    .orEmpty()
-        }
-    }
-
-    SettingsCard(modifier = Modifier.fillMaxWidth()) {
-        Column(
-            modifier =
-                Modifier.fillMaxWidth()
-                    .padding(
-                        horizontal = DesignTokens.CardHorizontalPadding,
-                        vertical = DesignTokens.CardVerticalPadding,
-                    ),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
-                ) {
-                    Text(
-                        text = stringResource(R.string.settings_tavily_title),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Text(
-                        text =
-                            if (hasSavedKey) {
-                                stringResource(R.string.settings_api_key_saved_last4, apiKeyLast4.orEmpty())
-                            } else {
-                                stringResource(R.string.settings_tavily_desc)
+    val tileCount = if (hasSavedKey) 2 else 1
+    SegmentedGroup {
+        ApiKeyTile(
+            title = stringResource(R.string.settings_tavily_title),
+            description = stringResource(R.string.settings_tavily_desc),
+            leading = { TonalIconBadge(icon = MaterialSymbols.Public) },
+            savedLast4 = apiKeyLast4,
+            isSaving = isSaving,
+            onSave = ::saveApiKey,
+            onDelete = { saveApiKey(null) },
+            index = 0,
+            count = tileCount,
+        )
+        if (hasSavedKey) {
+            SegmentedTile(index = 1, count = tileCount) {
+                SegmentedTileContent {
+                    ConnectedChoiceGroup(
+                        options =
+                            TavilyWebSearchMode.entries.map { option ->
+                                ChoiceOption(option, stringResource(option.labelResId()))
                             },
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-
-                if (hasSavedKey) {
-                    IconButton(
-                        enabled = !isSaving,
-                        onClick = {
-                            apiKeyInput = ""
-                            onSaveApiKey(null)
-                        },
-                    ) {
-                        Icon(
-                            imageVector = MaterialSymbols.Delete,
-                            contentDescription = stringResource(R.string.settings_gemini_api_key_reset),
-                            tint = MaterialTheme.colorScheme.error,
-                        )
-                    }
-                }
-            }
-
-            if (hasSavedKey) {
-                TavilyModeSelector(mode = mode, onModeChange = onModeChange)
-            } else {
-                OutlinedTextField(
-                    value = apiKeyInput,
-                    onValueChange = {},
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .pointerInput(apiKeyInput) {
-                                detectTapGestures {
-                                    if (apiKeyInput.isEmpty()) {
-                                        pasteFromClipboard()
-                                    } else {
-                                        apiKeyInput = ""
-                                    }
+                        selected = mode,
+                        onSelect = { selected ->
+                            if (selected != mode) {
+                                mode = selected
+                                coroutineScope.launch(Dispatchers.IO) {
+                                    preferences.setTavilyWebSearchMode(selected)
                                 }
-                            },
-                    leadingIcon =
-                        if (apiKeyInput.isEmpty()) {
-                            {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.Center,
-                                ) {
-                                    TextButton(
-                                        enabled = !isSaving,
-                                        onClick = { pasteFromClipboard() },
-                                        modifier = Modifier.wrapContentWidth(),
-                                    ) {
-                                        Text(text = stringResource(R.string.settings_gemini_api_key_paste_hint))
-                                    }
-                                }
+                                Toast.makeText(context, selected.descriptionResId(), Toast.LENGTH_SHORT).show()
                             }
-                        } else {
-                            null
                         },
-                    shape = DesignTokens.ShapeXXLarge,
-                    colors =
-                        dialogTextFieldColors(
-                            unfocusedIndicatorColor =
-                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                        ),
-                    singleLine = true,
-                    readOnly = true,
-                )
-
-                if (trimmedKey.isNotEmpty()) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        TextButton(
-                            enabled = !isSaving,
-                            onClick = { apiKeyInput = "" },
-                        ) {
-                            Text(text = stringResource(R.string.common_action_clear))
-                        }
-                        Button(
-                            enabled = !isSaving,
-                            onClick = {
-                                onSaveApiKey(trimmedKey)
-                                apiKeyInput = ""
-                            },
-                        ) {
-                            Text(
-                                text =
-                                    if (isSaving) {
-                                        stringResource(R.string.settings_gemini_api_key_saving)
-                                    } else {
-                                        stringResource(R.string.dialog_save)
-                                    },
-                            )
-                        }
-                    }
+                    )
                 }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TavilyModeSelector(
-    mode: TavilyWebSearchMode,
-    onModeChange: (TavilyWebSearchMode) -> Unit,
-) {
-    val context = LocalContext.current
-    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-        TavilyWebSearchMode.entries.forEachIndexed { index, option ->
-            SegmentedButton(
-                selected = option == mode,
-                onClick = {
-                    if (option != mode) {
-                        onModeChange(option)
-                        Toast.makeText(context, option.descriptionResId(), Toast.LENGTH_SHORT).show()
-                    }
-                },
-                shape =
-                    SegmentedButtonDefaults.itemShape(
-                        index = index,
-                        count = TavilyWebSearchMode.entries.size,
-                    ),
-            ) {
-                Text(
-                    text = stringResource(option.labelResId()),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
             }
         }
     }
@@ -395,10 +220,16 @@ private fun TavilyWebSearchMode.descriptionResId(): Int =
         TavilyWebSearchMode.WHEN_MODEL_UNSUPPORTED -> R.string.settings_tavily_mode_when_unsupported_desc
     }
 
+/**
+ * The last provider tile: tapping its header expands fields for an OpenAI-compatible base URL and
+ * a pasted API key.
+ */
 @Composable
-private fun AddCustomProviderCard(
+private fun AddCustomProviderTile(
     isSaving: Boolean,
     onSave: (baseUrl: String, apiKey: String) -> Unit,
+    index: Int,
+    count: Int,
 ) {
     val clipboard = LocalClipboard.current
     val clipboardScope = rememberCoroutineScope()
@@ -409,47 +240,29 @@ private fun AddCustomProviderCard(
         targetValue = if (isExpanded) 180f else 0f,
         label = "customProviderChevronRotation",
     )
-    val canSave =
-        baseUrlInput.trim().isNotBlank() &&
-            apiKeyInput.trim().isNotBlank()
+    val canSave = baseUrlInput.trim().isNotBlank() && apiKeyInput.trim().isNotBlank()
 
     fun pasteKeyFromClipboard() {
         clipboardScope.launch {
-            apiKeyInput =
-                clipboard
-                    .readText()
-                    ?.trim()
-                    ?.takeIf { it.isNotEmpty() }
-                    .orEmpty()
+            apiKeyInput = clipboard.readText()?.trim().orEmpty()
         }
     }
 
-    SettingsCard(modifier = Modifier.fillMaxWidth()) {
-        Column(
-            modifier =
-                Modifier.fillMaxWidth()
-                    .padding(
-                        horizontal = DesignTokens.CardHorizontalPadding,
-                        vertical = CardContentVerticalPadding,
-                    ),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().clickable { isExpanded = !isExpanded },
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(R.string.settings_add_custom_provider_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Text(
-                        text = stringResource(R.string.settings_add_custom_provider_desc),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                IconButton(onClick = { isExpanded = !isExpanded }) {
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    LaunchedEffect(isExpanded) {
+        if (isExpanded) {
+            delay(ExpandScrollDelayMillis)
+            bringIntoViewRequester.bringIntoView()
+        }
+    }
+
+    SegmentedTile(index = index, count = count, modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester)) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            SegmentedTileRow(
+                title = stringResource(R.string.settings_add_custom_provider_title),
+                description = stringResource(R.string.settings_add_custom_provider_desc),
+                leading = { TonalIconBadge(icon = MaterialSymbols.Add) },
+                trailing = {
                     Icon(
                         imageVector = MaterialSymbols.ExpandMore,
                         contentDescription =
@@ -459,20 +272,27 @@ private fun AddCustomProviderCard(
                         modifier = Modifier.rotate(chevronRotation),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                }
-            }
+                },
+                modifier = Modifier.clickable { isExpanded = !isExpanded },
+            )
             AnimatedVisibility(
                 visible = isExpanded,
                 enter = expandVertically() + fadeIn(),
                 exit = shrinkVertically() + fadeOut(),
             ) {
+                // The header row's padding already sits above, so only the sides and bottom pad here.
                 Column(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier =
+                        Modifier.fillMaxWidth().padding(
+                            start = SegmentedTileContentPadding,
+                            end = SegmentedTileContentPadding,
+                            bottom = SegmentedTileContentPadding,
+                        ),
                     verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                 ) {
                     Text(
                         text = stringResource(R.string.settings_custom_provider_base_url_hint),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     OutlinedTextField(
@@ -482,87 +302,47 @@ private fun AddCustomProviderCard(
                         label = {
                             Text(text = stringResource(R.string.settings_custom_provider_base_url_input_label))
                         },
-                        placeholder = {
-                            Text(text = stringResource(R.string.settings_custom_provider_base_url_input_label))
-                        },
                         singleLine = true,
+                        shape = AppShapes.large,
                         colors = dialogTextFieldColors(),
                     )
-                    OutlinedTextField(
-                        value = apiKeyInput,
-                        onValueChange = {},
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .pointerInput(apiKeyInput) {
-                                    detectTapGestures {
-                                        if (apiKeyInput.isEmpty()) {
-                                            pasteKeyFromClipboard()
-                                        } else {
-                                            apiKeyInput = ""
-                                        }
-                                    }
-                                },
-                        leadingIcon =
-                            if (apiKeyInput.isEmpty()) {
-                                {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.Center,
-                                    ) {
-                                        TextButton(
-                                            enabled = !isSaving,
-                                            onClick = { pasteKeyFromClipboard() },
-                                            modifier = Modifier.wrapContentWidth(),
-                                        ) {
-                                            Text(text = stringResource(R.string.settings_gemini_api_key_paste_hint))
-                                        }
-                                    }
+                    if (apiKeyInput.isEmpty()) {
+                        TonalButton(
+                            text = stringResource(R.string.settings_gemini_api_key_paste_hint),
+                            icon = MaterialSymbols.Key,
+                            enabled = !isSaving,
+                            onClick = ::pasteKeyFromClipboard,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    } else {
+                        OutlinedTextField(
+                            value = apiKeyInput,
+                            onValueChange = {},
+                            readOnly = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            leadingIcon = { Icon(imageVector = MaterialSymbols.Key, contentDescription = null) },
+                            trailingIcon = {
+                                IconButton(onClick = { apiKeyInput = "" }) {
+                                    Icon(
+                                        imageVector = MaterialSymbols.Close,
+                                        contentDescription = stringResource(R.string.common_action_clear),
+                                    )
                                 }
-                            } else {
-                                null
                             },
-                        singleLine = true,
-                        readOnly = true,
-                        colors =
-                            dialogTextFieldColors(
-                                unfocusedIndicatorColor =
-                                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                            ),
-                    )
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        TextButton(
-                            enabled = !isSaving && (baseUrlInput.isNotBlank() || apiKeyInput.isNotBlank()),
-                            onClick = {
-                                baseUrlInput = ""
-                                apiKeyInput = ""
-                            },
-                        ) {
-                            Text(text = stringResource(R.string.common_action_clear))
-                        }
-                        Button(
-                            enabled = !isSaving && canSave,
-                            onClick = {
-                                onSave(
-                                    baseUrlInput.trim(),
-                                    apiKeyInput.trim(),
-                                )
-                            },
-                        ) {
-                            Text(
-                                text =
-                                    if (isSaving) {
-                                        stringResource(R.string.settings_gemini_api_key_saving)
-                                    } else {
-                                        stringResource(R.string.dialog_save)
-                                    },
-                            )
-                        }
+                            shape = AppShapes.large,
+                            colors = dialogTextFieldColors(),
+                        )
                     }
+                    ApiKeySaveActions(
+                        isSaving = isSaving,
+                        saveEnabled = canSave,
+                        clearEnabled = baseUrlInput.isNotBlank() || apiKeyInput.isNotBlank(),
+                        onClear = {
+                            baseUrlInput = ""
+                            apiKeyInput = ""
+                        },
+                        onSave = { onSave(baseUrlInput.trim(), apiKeyInput.trim()) },
+                    )
                 }
             }
         }

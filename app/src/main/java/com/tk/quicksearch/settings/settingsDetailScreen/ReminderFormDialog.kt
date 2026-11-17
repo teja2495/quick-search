@@ -1,53 +1,32 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
-import android.provider.CalendarContract
 import android.text.format.DateFormat
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -55,34 +34,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.calendar.calendarRecurrenceLabel
-import com.tk.quicksearch.search.calendar.calendarRelativeDateLabel
-import com.tk.quicksearch.search.calendar.formatCalendarEventDate
-import com.tk.quicksearch.search.data.CalendarRepository
-import com.tk.quicksearch.search.data.preferences.CalendarPreferences
-import com.tk.quicksearch.search.models.CalendarEventInfo
-import com.tk.quicksearch.settings.appShortcutsSettings.shortcutMatchPriority
-import com.tk.quicksearch.settings.shared.SettingsCard
-import com.tk.quicksearch.settings.shared.SettingsCardItem
-import com.tk.quicksearch.settings.shared.SettingsManagementSearchBar
-import com.tk.quicksearch.settings.shared.SettingsNavigationRow
-import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -90,8 +51,8 @@ import java.time.ZoneId
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.PickerFieldButton
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 internal data class FormDateTimeSuggestion(
     val dateTimeMillis: Long,
@@ -171,12 +132,12 @@ internal fun ReminderFormDialog(
             DatePickerDialog(
                 onDismissRequest = { showDatePicker = false },
                 confirmButton = {
-                    TextButton(onClick = { dateOrTimeChosen = true; showDatePicker = false }) {
+                    AppTextButton(onClick = { dateOrTimeChosen = true; showDatePicker = false }) {
                         Text(stringResource(R.string.dialog_save))
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showDatePicker = false }) {
+                    AppTextButton(onClick = { showDatePicker = false }) {
                         Text(stringResource(R.string.dialog_cancel))
                     }
                 },
@@ -189,7 +150,7 @@ internal fun ReminderFormDialog(
             AppAlertDialog(
                 onDismissRequest = { showTimePicker = false },
                 confirmButton = {
-                    TextButton(onClick = {
+                    AppTextButton(onClick = {
                         hasTime = true
                         dateOrTimeChosen = true
                         showTimePicker = false
@@ -198,7 +159,7 @@ internal fun ReminderFormDialog(
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showTimePicker = false }) {
+                    AppTextButton(onClick = { showTimePicker = false }) {
                         Text(stringResource(R.string.dialog_cancel))
                     }
                 },
@@ -260,79 +221,51 @@ internal fun ReminderFormDialog(
                             modifier = Modifier.fillMaxWidth().focusRequester(titleFocusRequester),
                         )
 
-                        OutlinedButton(
-                            onClick = { showDatePicker = true },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                        ) {
-                            Icon(
-                                imageVector = MaterialSymbols.CalendarMonth,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp),
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Text(
-                                text = if (selectedDateMillis != null) {
+                        PickerFieldButton(
+                            icon = MaterialSymbols.CalendarMonth,
+                            value =
+                                if (selectedDateMillis != null) {
                                     formatPickedDate(selectedDateMillis)
                                 } else {
                                     stringResource(R.string.calendar_create_event_select_date)
                                 },
-                                modifier = Modifier.weight(1f),
-                            )
-                        }
+                            onClick = { showDatePicker = true },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
 
                         if (hasTime) {
-                            OutlinedButton(
-                                onClick = { showTimePicker = true },
+                            Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Icon(
-                                    imageVector = MaterialSymbols.Schedule,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(18.dp),
-                                )
-                                Spacer(Modifier.width(8.dp))
-                                Text(
-                                    text = formatPickedTime(timePickerState.hour, timePickerState.minute),
+                                PickerFieldButton(
+                                    icon = MaterialSymbols.Schedule,
+                                    value = formatPickedTime(timePickerState.hour, timePickerState.minute),
+                                    onClick = { showTimePicker = true },
                                     modifier = Modifier.weight(1f),
                                 )
-                                IconButton(
-                                    onClick = { hasTime = false },
-                                    modifier = Modifier.size(24.dp),
-                                ) {
+                                IconButton(onClick = { hasTime = false }) {
                                     Icon(
                                         imageVector = MaterialSymbols.Close,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(16.dp),
+                                        contentDescription = stringResource(R.string.common_action_clear),
                                     )
                                 }
                             }
                         } else {
-                            OutlinedButton(
+                            PickerFieldButton(
+                                icon = MaterialSymbols.Schedule,
+                                value = stringResource(R.string.common_time),
                                 onClick = { showTimePicker = true },
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp),
-                            ) {
-                                Icon(
-                                    imageVector = MaterialSymbols.Schedule,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(18.dp),
-                                )
-                                Spacer(Modifier.width(8.dp))
-                                Text(
-                                    text = stringResource(R.string.common_time),
-                                    modifier = Modifier.weight(1f),
-                                )
-                            }
+                            )
                         }
                         belowTime()
                     }
                 },
                 confirmButton = {
-                    Button(
+                    AppTextButton(
                         onClick = {
-                            val utcDateMillis = selectedDateMillis ?: return@Button
+                            val utcDateMillis = selectedDateMillis ?: return@AppTextButton
                             val localDayMillis = utcMidnightToLocalMidnight(utcDateMillis)
                             val dateTimeMillis = if (hasTime) {
                                 localDayMillis +
@@ -344,16 +277,12 @@ internal fun ReminderFormDialog(
                             onConfirm(reminderTitle.trim(), dateTimeMillis, !hasTime)
                         },
                         enabled = canSave,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (canSave) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-                            contentColor = if (canSave) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-                        ),
                     ) {
                         Text(stringResource(confirmResId))
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = onDismiss) {
+                    AppTextButton(onClick = onDismiss) {
                         Text(stringResource(R.string.dialog_cancel))
                     }
                 },

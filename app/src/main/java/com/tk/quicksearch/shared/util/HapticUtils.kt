@@ -53,3 +53,32 @@ fun hapticStrong(view: View): () -> Unit =
             HapticFeedbackConstantsCompat.LONG_PRESS,
         )
     }
+
+/**
+ * Feedback for a switch flipping, distinct for on and off (Android 14+ has dedicated patterns;
+ * older versions fall back to a light click).
+ */
+fun hapticToggleState(
+    view: View,
+    checked: Boolean,
+) {
+    performHapticFeedbackSafely(
+        view,
+        if (checked) HapticFeedbackConstantsCompat.TOGGLE_ON else HapticFeedbackConstantsCompat.TOGGLE_OFF,
+    )
+}
+
+/** Feedback for a drag crossing the point where releasing would commit (or crossing back). */
+fun hapticGestureThreshold(
+    view: View,
+    activated: Boolean,
+) {
+    performHapticFeedbackSafely(
+        view,
+        if (activated) {
+            HapticFeedbackConstantsCompat.GESTURE_THRESHOLD_ACTIVATE
+        } else {
+            HapticFeedbackConstantsCompat.GESTURE_THRESHOLD_DEACTIVATE
+        },
+    )
+}

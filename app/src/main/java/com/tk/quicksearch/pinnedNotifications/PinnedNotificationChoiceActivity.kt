@@ -1,5 +1,7 @@
 package com.tk.quicksearch.pinnedNotifications
 
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -16,7 +18,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +36,7 @@ import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
 import com.tk.quicksearch.shared.util.lockPortraitOrientationOnPhones
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 class PinnedNotificationChoiceActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,7 +61,7 @@ class PinnedNotificationChoiceActivity : ComponentActivity() {
                     onDismissRequest = ::finish,
                     title = { Text(stringResource(R.string.pin_notification_dialog_title)) },
                     text = {
-                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall)) {
                             PinModeRow(
                                 label = stringResource(R.string.pin_notification_with_other_items),
                                 selected = selectedMode == PinnedNotifications.PinMode.WITH_OTHER_ITEMS,
@@ -75,11 +77,7 @@ class PinnedNotificationChoiceActivity : ComponentActivity() {
                         }
                     },
                     confirmButton = {
-                        TextButton(
-                            colors =
-                                ButtonDefaults.textButtonColors(
-                                    contentColor = MaterialTheme.colorScheme.primary,
-                                ),
+                        AppTextButton(
                             onClick = {
                                 PinnedNotifications.pin(this, action, selectedMode)
                                 finish()
@@ -89,7 +87,7 @@ class PinnedNotificationChoiceActivity : ComponentActivity() {
                         }
                     },
                     dismissButton = {
-                        TextButton(onClick = ::finish) {
+                        AppTextButton(onClick = ::finish) {
                             Text(stringResource(R.string.dialog_cancel))
                         }
                     },
@@ -115,7 +113,7 @@ private fun PinModeRow(
     onClick: () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val selectedBackgroundColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+    val selectedBackgroundColor = MaterialTheme.colorScheme.primary.copy(alpha = AppColors.TintLightAlpha)
     val horizontalBackgroundExtension = 12.dp
     val backgroundCornerRadius = 14.dp
     Row(
@@ -141,14 +139,14 @@ private fun PinModeRow(
                     indication = null,
                     onClick = onClick,
                 )
-                .padding(vertical = 12.dp),
+                .padding(vertical = DesignTokens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         RadioButton(selected = selected, onClick = null)
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(start = 8.dp),
+            modifier = Modifier.padding(start = DesignTokens.SpacingSmall),
         )
     }
 }

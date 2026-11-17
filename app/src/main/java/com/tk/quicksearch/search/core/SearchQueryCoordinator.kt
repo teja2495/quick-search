@@ -614,6 +614,12 @@ internal class SearchQueryCoordinator(
                 detectedTarget == null &&
                 !showingTool &&
                 !shouldSkipAppSearchDueToAlias
+        // Keep showing the previous suggestions while the next request is in flight.
+        val willFetchWebSuggestions =
+            !showingTool &&
+                trimmedQuery.length >= 2 &&
+                webSuggestionHandler.isEnabled &&
+                (detectedTarget != null || (detectedAliasSearchSection == null && !shouldSkipAppSearchDueToAlias))
         updateUiState { state ->
             state.copy(
                 query = newQuery,
@@ -629,7 +635,7 @@ internal class SearchQueryCoordinator(
                         state.searchResults
                     },
                 calculatorState = calculatorResult,
-                webSuggestions = emptyList(),
+                webSuggestions = if (willFetchWebSuggestions) state.webSuggestions else emptyList(),
                 webSuggestionsLoading = false,
                 isAppSearchInProgress = shouldRunAppSearch,
                 isSecondarySearchInProgress =

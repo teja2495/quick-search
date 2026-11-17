@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.widget.Toast
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
@@ -38,6 +37,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.tk.quicksearch.R
+import com.tk.quicksearch.app.navigation.SettingsPageBackHandler
+import com.tk.quicksearch.shared.ui.components.predictiveBackPreview
+import com.tk.quicksearch.shared.ui.components.rememberPredictiveBackPreviewState
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.SearchUiState
@@ -56,6 +58,7 @@ import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenState
 import com.tk.quicksearch.settings.shared.isAppSettingToggleEnabled
 import com.tk.quicksearch.settings.shared.settingsContentWidth
+import com.tk.quicksearch.settings.shared.settingsScrollClip
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -127,7 +130,13 @@ internal fun SettingsDetailLevel1Screen(
         } else {
             callbacks.onBack
         }
-    BackHandler(onBack = onBackAction)
+    val backPreview = rememberPredictiveBackPreviewState()
+    // Closing an open license entry keeps this page, so it gets no page-level preview.
+    SettingsPageBackHandler(
+        previewState = backPreview,
+        preview = !(detailType == SettingsDetailType.OPEN_SOURCE_LICENSES && selectedOpenSourceLicense != null),
+        onBack = onBackAction,
+    )
     val hasExcludedItems =
         state.suggestionExcludedApps.isNotEmpty() ||
             state.resultExcludedApps.isNotEmpty() ||
@@ -146,7 +155,7 @@ internal fun SettingsDetailLevel1Screen(
         overlayThemeIntensity = state.overlayThemeIntensity,
         deviceThemeEnabled = effectiveDeviceThemeEnabled,
         amoledThemeEnabled = state.amoledThemeEnabled,
-        modifier = modifier,
+        modifier = modifier.predictiveBackPreview(backPreview),
     ) {
     MonoThemeWrapper(
         applyMono = shouldForceMonochromeTheme,
@@ -187,12 +196,10 @@ internal fun SettingsDetailLevel1Screen(
                         .settingsContentWidth()
                         .fillMaxHeight()
                         .align(Alignment.CenterHorizontally)
+                        .padding(horizontal = DesignTokens.ContentHorizontalPadding)
+                        .settingsScrollClip()
                         .verticalScroll(scrollState)
-                        .padding(
-                            start = DesignTokens.ContentHorizontalPadding,
-                            end = DesignTokens.ContentHorizontalPadding,
-                            bottom = DesignTokens.SectionTopPadding,
-                        ),
+                        .padding(bottom = DesignTokens.SectionTopPadding),
             ) {
                 when (detailType) {
                     SettingsDetailType.SEARCH_ENGINES -> {
@@ -310,8 +317,8 @@ internal fun SettingsDetailLevel1Screen(
                     }
 
                     SettingsDetailType.APPEARANCE -> {
-                        val hasEnabledSearchEngines =
-                            state.searchEngineOrder.any { target ->
+                        val enabledSearchEngines =
+                            state.searchEngineOrder.filter { target ->
                                 target.getId() !in state.disabledSearchEngines
                             }
 
@@ -372,6 +379,15 @@ internal fun SettingsDetailLevel1Screen(
                                 callbacks.onApplySettingsCommand(
                                     SettingsCommand.Toggle(
                                         key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.SHOW_STATUS_BAR,
+                                        enabled = enabled,
+                                    ),
+                                )
+                            },
+                            searchChromeBlurEnabled = state.searchChromeBlurEnabled,
+                            onToggleSearchChromeBlur = { enabled ->
+                                callbacks.onApplySettingsCommand(
+                                    SettingsCommand.Toggle(
+                                        key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.SEARCH_CHROME_BLUR,
                                         enabled = enabled,
                                     ),
                                 )
@@ -445,7 +461,7 @@ internal fun SettingsDetailLevel1Screen(
                             onRequestWallpaperPermission = callbacks.onRequestWallpaperPermission,
                             isSearchEngineCompactMode = state.isSearchEngineCompactMode,
                             searchEngineCompactRowCount = state.searchEngineCompactRowCount,
-                            hasEnabledSearchEngines = hasEnabledSearchEngines,
+                            enabledSearchEngines = enabledSearchEngines,
                             onToggleSearchEngineCompactMode = { enabled ->
                                 callbacks.onApplySettingsCommand(
                                     SettingsCommand.Toggle(

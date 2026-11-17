@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -72,7 +73,7 @@ internal fun SearchPageBackdrop(
             if (state.isInitializing && effectiveBackgroundSource != BackgroundSource.THEME) {
                 STARTUP_BACKGROUND_TRANSITION_DURATION_MS
             } else {
-                DesignTokens.WallpaperFadeInDuration + 120
+                AppMotion.DurationMedium + 120
             },
         fallbackBackgroundAlpha =
             if (!state.deviceThemeEnabled && effectiveBackgroundSource == BackgroundSource.THEME) {
@@ -86,6 +87,7 @@ internal fun SearchPageBackdrop(
         appTheme = if (useMonoThemeFallback) AppTheme.MONOCHROME else state.appTheme,
         overlayThemeIntensity = state.overlayThemeIntensity,
         amoledThemeEnabled = state.amoledThemeEnabled,
+        publishFrostedCards = true,
         modifier = modifier,
     )
 }

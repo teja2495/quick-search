@@ -17,10 +17,9 @@ import com.tk.quicksearch.search.data.preferences.ReminderPreferences
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.settings.searchEngineSettings.dialogs.AddEditAliasDialog
 import com.tk.quicksearch.settings.shared.AliasPill
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 /**
@@ -37,7 +36,7 @@ internal fun NotedIntegrationSettingCard(modifier: Modifier = Modifier) {
     var alias by remember { mutableStateOf(NotedQuickNoteAlias.get(context)) }
     var showAliasDialog by remember { mutableStateOf(false) }
 
-    SettingsCard(modifier = modifier.fillMaxWidth()) {
+    SegmentedTile(index = 0, count = 1, modifier = modifier.fillMaxWidth()) {
         SettingsToggleRow(
             title = stringResource(R.string.noted_integration_title),
             checked = enabled,
@@ -104,7 +103,6 @@ private fun NotedQuickNoteAliasPill(
     if (alias.isNotBlank()) {
         AliasPill(
             text = AnnotatedString(alias),
-            textColor = AppColors.LinkColor,
             leadingIcon = MaterialSymbols.Bolt,
             onClick = onEdit,
             onClearClick = onClear,
@@ -113,8 +111,6 @@ private fun NotedQuickNoteAliasPill(
     } else {
         AliasPill(
             text = AnnotatedString(stringResource(R.string.settings_add_alias)),
-            textColor = AppColors.LinkColor,
-            showBackground = false,
             leadingIcon = MaterialSymbols.Bolt,
             onClick = onEdit,
             modifier = modifier,

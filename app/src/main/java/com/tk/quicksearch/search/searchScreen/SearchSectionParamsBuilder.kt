@@ -204,6 +204,7 @@ internal fun buildSectionParams(
                         message = message,
                         actionLabel = actionLabel,
                         onActionClick = onActionClick,
+                        showWallpaperBackground = state.showWallpaperBackground,
                     )
                 },
                 showWallpaperBackground = state.showWallpaperBackground,
@@ -453,6 +454,7 @@ internal fun buildSectionParams(
                         message = message,
                         actionLabel = actionLabel,
                         onActionClick = onActionClick,
+                        showWallpaperBackground = state.showWallpaperBackground,
                     )
                 },
                 showWallpaperBackground = state.showWallpaperBackground,
@@ -634,6 +636,7 @@ internal fun buildSectionParams(
                         message = message,
                         actionLabel = actionLabel,
                         onActionClick = onActionClick,
+                        showWallpaperBackground = state.showWallpaperBackground,
                     )
                 },
                 showWallpaperBackground = state.showWallpaperBackground,

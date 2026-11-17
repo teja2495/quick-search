@@ -1,5 +1,6 @@
 package com.tk.quicksearch.shared.ui.components
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -16,7 +17,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -42,7 +42,6 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
  * @param icon Optional leading icon to display before the text
  * @param onContentClick Optional click handler for the content area (for plain text)
  * @param onContentLongClick Optional long-press handler for the content area
- * @param onTextClick Optional click handler for annotated text (receives click offset)
  * @param onDismiss Callback when the dismiss button is clicked
  * @param actionIcon Optional trailing action icon
  * @param actionContentDescription Content description for the trailing action icon
@@ -58,7 +57,6 @@ fun TipBanner(
     icon: ImageVector? = null,
     onContentClick: (() -> Unit)? = null,
     onContentLongClick: (() -> Unit)? = null,
-    onTextClick: ((Int) -> Unit)? = null,
     onDismiss: (() -> Unit)? = null,
     actionIcon: ImageVector? = null,
     actionContentDescription: String? = null,
@@ -72,20 +70,20 @@ fun TipBanner(
         modifier = modifier.fillMaxWidth()
             .border(
                 width = 1.dp,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
-                shape = DesignTokens.ShapeXXLarge,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = AppColors.ContentFaintAlpha),
+                shape = AppShapes.extraLarge,
             ),
         colors =
             CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = AppColors.TintSubtleAlpha),
             ),
-        shape = DesignTokens.ShapeXXLarge,
+        shape = AppShapes.extraLarge,
     ) {
         Row(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                    .padding(horizontal = DesignTokens.SpacingLarge, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (icon != null) {
@@ -120,18 +118,12 @@ fun TipBanner(
                 }
 
             if (annotatedText != null) {
-                @Suppress("DEPRECATION")
-                ClickableText(
+                // Links are styled spans; the content area's own click handles taps on them.
+                Text(
                     text = annotatedText,
-                    style = textStyle.copy(color = MaterialTheme.colorScheme.onSurface),
+                    style = textStyle,
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier = contentModifier,
-                    onClick = { offset ->
-                        if (onContentClick != null) {
-                            onContentClick()
-                        } else {
-                            onTextClick?.invoke(offset)
-                        }
-                    },
                 )
             } else if (text != null) {
                 Text(

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.content.ClipData
 import android.content.ClipDescription
 import android.content.ClipboardManager
@@ -91,7 +92,7 @@ internal fun OtpCodeRow(
     GlanceStatusRow(
         icon = { NotificationAppIcon(otp.packageName) },
         title = "$source • $age",
-        titleStyle = MaterialTheme.typography.bodySmall,
+        titleStyle = MaterialTheme.typography.bodyMedium,
         titleMaxLines = GlanceTextMaxLines,
         onClick = { openNotificationTarget(context, otp.packageName, otp.contentIntent) },
         onDismiss = onDismiss,
@@ -100,7 +101,7 @@ internal fun OtpCodeRow(
             Row(
                 modifier =
                     Modifier
-                        .clip(RoundedCornerShape(8.dp))
+                        .clip(AppShapes.small)
                         .clickable(role = Role.Button) { copied = copySensitiveText(context, copyLabel, otp.code) },
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                 verticalAlignment = Alignment.CenterVertically,

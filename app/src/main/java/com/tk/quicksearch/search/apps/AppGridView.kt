@@ -1,17 +1,8 @@
 package com.tk.quicksearch.search.apps
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,7 +18,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.notificationDots.NotificationDotsPermission
@@ -40,8 +30,6 @@ import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
-import com.tk.quicksearch.search.searchScreen.HomeHorizontalSwipe
-import com.tk.quicksearch.search.searchScreen.LocalHomeHorizontalSwipeHandler
 import com.tk.quicksearch.search.searchScreen.components.AllAppsPill
 import com.tk.quicksearch.shared.util.getAppGridColumns
 import com.tk.quicksearch.search.folders.AppFolder
@@ -118,7 +106,6 @@ fun AppGridView(
             NotificationDotsPermission.requestRebind(context)
         }
     }
-    val onHomeHorizontalSwipe = LocalHomeHorizontalSwipeHandler.current
     val pinnedTitle = stringResource(R.string.app_suggestions_tab_pinned)
     val recentsTitle = stringResource(R.string.app_suggestions_tab_recent)
     val newUpdatedTitle = stringResource(R.string.app_suggestions_tab_new_updated)
@@ -423,33 +410,16 @@ fun AppGridView(
     // position throughout so nothing slides. Search results appear immediately without animation.
     val initialSuggestionsAlpha = if (suppressSuggestionsEnterAnimation) 1f else 0f
     val suggestionsAlpha = remember { Animatable(initialSuggestionsAlpha) }
+    val suggestionTabTypes = remember(suggestionTabs) { suggestionTabs.map { it.type } }
+    val tabPagerState =
+            rememberSuggestionTabPagerState(
+                    selectedSuggestionTabItem?.type,
+                    suggestionTabTypes,
+                    onSuggestionTabSelected,
+            )
     val tabSwipeModifier =
-            if (suggestionTabs.size > 1) {
-                Modifier.pointerInput(suggestionTabs, selectedSuggestionTabIndex, onHomeHorizontalSwipe) {
-                    var dragAmount = 0f
-                    detectHorizontalDragGestures(
-                            onDragStart = { dragAmount = 0f },
-                            onHorizontalDrag = { _, dragDelta ->
-                                dragAmount += dragDelta
-                            },
-                            onDragEnd = {
-                                when {
-                                    dragAmount > SuggestionTabSwipeThresholdPx &&
-                                            selectedSuggestionTabIndex > 0 ->
-                                            selectSuggestionTab(selectedSuggestionTabIndex - 1)
-                                    dragAmount > SuggestionTabSwipeThresholdPx ->
-                                            onHomeHorizontalSwipe(HomeHorizontalSwipe.RIGHT)
-                                    dragAmount < -SuggestionTabSwipeThresholdPx &&
-                                            selectedSuggestionTabIndex < suggestionTabs.lastIndex ->
-                                            selectSuggestionTab(selectedSuggestionTabIndex + 1)
-                                    dragAmount < -SuggestionTabSwipeThresholdPx ->
-                                            onHomeHorizontalSwipe(HomeHorizontalSwipe.LEFT)
-                                }
-                                dragAmount = 0f
-                            },
-                            onDragCancel = { dragAmount = 0f },
-                    )
-                }
+            if (suggestionTabs.size > 1 && !isSearching && tabPagerState != null) {
+                Modifier.suggestionTabSwipe(tabPagerState, suggestionTabTypes)
             } else {
                 Modifier
             }
@@ -494,40 +464,21 @@ fun AppGridView(
                     verticalArrangement = Arrangement.spacedBy(AppGridRowSpacing),
             ) {
                 if (suggestionTabs.size > 1) {
-                    AppSuggestionTabStrip(
-                            tabs = suggestionTabs,
-                            selectedIndex = selectedSuggestionTabIndex,
-                            onSelectedIndexChange = ::selectSuggestionTab,
-                    )
+                    if (tabPagerState != null && !isSearching) {
+                        PagerTabStrip(tabPagerState, suggestionTabs, ::selectSuggestionTab)
+                    } else {
+                        AppSuggestionTabStrip(
+                                tabs = suggestionTabs,
+                                selectedIndex = selectedSuggestionTabIndex,
+                                onSelectedIndexChange = ::selectSuggestionTab,
+                        )
+                    }
                 }
                 if (suggestionTabs.size > 1 && !isSearching) {
-                    AnimatedContent(
-                            targetState = requireNotNull(selectedSuggestionTabItem),
-                            contentKey = { it.type },
-                            transitionSpec = {
-                                val movingForward = targetState.type.ordinal > initialState.type.ordinal
-                                val stiffness = Spring.StiffnessMediumLow
-                                if (movingForward) {
-                                    slideInHorizontally(
-                                            initialOffsetX = { TabSlideOffsetPx },
-                                            animationSpec = spring(stiffness = stiffness),
-                                    ) + fadeIn() togetherWith
-                                            slideOutHorizontally(
-                                                    targetOffsetX = { -TabSlideOffsetPx },
-                                                    animationSpec = spring(stiffness = stiffness),
-                                            ) + fadeOut()
-                                } else {
-                                    slideInHorizontally(
-                                            initialOffsetX = { -TabSlideOffsetPx },
-                                            animationSpec = spring(stiffness = stiffness),
-                                    ) + fadeIn() togetherWith
-                                            slideOutHorizontally(
-                                                    targetOffsetX = { TabSlideOffsetPx },
-                                                    animationSpec = spring(stiffness = stiffness),
-                                            ) + fadeOut()
-                                }
-                            },
-                            label = "appSuggestionTabSlide",
+                    SuggestionTabPager(
+                            state = requireNotNull(tabPagerState),
+                            tabs = suggestionTabs,
+                            tabType = { it.type },
                     ) { selectedTab ->
                         val tabGridEntries =
                                 gridEntriesFor(

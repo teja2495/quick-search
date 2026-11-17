@@ -136,7 +136,7 @@ internal fun AppNotificationRow(
         belowText = {
             Text(
                 text = "$appLabel • $age",
-                style = MaterialTheme.typography.labelSmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

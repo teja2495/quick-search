@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -23,6 +22,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
@@ -30,12 +33,16 @@ import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
 import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
 import com.tk.quicksearch.search.apps.rememberAppIcon
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.tools.tasker.TaskerIntentTool
 import com.tk.quicksearch.tools.tasker.TaskerIntegration
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
+import com.tk.quicksearch.shared.ui.components.AppButton
 
 @Composable
 fun TaskerIntegrationScreen(
@@ -58,14 +65,8 @@ fun TaskerIntegrationScreen(
         modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
-        SettingsCard(modifier = Modifier.fillMaxWidth()) {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(
-                    horizontal = DesignTokens.CardHorizontalPadding,
-                    vertical = DesignTokens.CardVerticalPadding,
-                ),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-            ) {
+        SegmentedTile(index = 0, count = 1) {
+            SegmentedTileContent {
                 Text(
                     stringResource(R.string.tasker_add_intent_title),
                     style = MaterialTheme.typography.titleMedium,
@@ -107,7 +108,7 @@ fun TaskerIntegrationScreen(
                     singleLine = true,
                     colors = dialogTextFieldColors(),
                 )
-                Button(
+                AppButton(
                     onClick = {
                         onAdd(normalizedAlias, name.trim(), action.trim())
                         alias = ""
@@ -122,57 +123,63 @@ fun TaskerIntegrationScreen(
             }
         }
 
-        tools.forEach { tool ->
-            SettingsCard(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(
-                        horizontal = DesignTokens.CardHorizontalPadding,
-                        vertical = DesignTokens.CardVerticalPadding,
-                    ),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-                ) {
-                    if (taskerIcon != null) {
-                        Image(
-                            bitmap = taskerIcon,
-                            contentDescription = null,
-                            modifier = Modifier.size(DesignTokens.IconSizeSmall),
-                            contentScale = ContentScale.Fit,
-                        )
-                    } else {
-                        Icon(
-                            MaterialSymbols.Bolt,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(DesignTokens.IconSizeSmall),
-                        )
-                    }
-                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall)) {
-                        Text(
-                            tool.name,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                        Text(
-                            stringResource(R.string.tasker_saved_alias, existingAliases[tool.id].orEmpty()),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        Text(
-                            tool.broadcastAction,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                    IconButton(onClick = { onDelete(tool.id) }) {
-                        Icon(
-                            MaterialSymbols.Delete,
-                            contentDescription = stringResource(R.string.tasker_delete_intent),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+        if (tools.isNotEmpty()) {
+            Spacer(Modifier.height(DesignTokens.SpacingSmall))
+        }
+        SegmentedGroup {
+            tools.forEachIndexed { index, tool ->
+                SegmentedTile(index = index, count = tools.size) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(
+                            start = DesignTokens.SpacingLarge,
+                            end = DesignTokens.SpacingXSmall,
+                            top = DesignTokens.SpacingLarge,
+                            bottom = DesignTokens.SpacingLarge,
+                        ),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
+                    ) {
+                        if (taskerIcon != null) {
+                            Box(modifier = Modifier.size(TaskerLeadingSlotSize), contentAlignment = Alignment.Center) {
+                                Image(
+                                    bitmap = taskerIcon,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(DesignTokens.IconSize),
+                                    contentScale = ContentScale.Fit,
+                                )
+                            }
+                        } else {
+                            TonalIconBadge(icon = MaterialSymbols.Bolt)
+                        }
+                        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall)) {
+                            Text(
+                                tool.name,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            Text(
+                                stringResource(R.string.tasker_saved_alias, existingAliases[tool.id].orEmpty()),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Text(
+                                tool.broadcastAction,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        IconButton(onClick = { onDelete(tool.id) }) {
+                            Icon(
+                                MaterialSymbols.Delete,
+                                contentDescription = stringResource(R.string.tasker_delete_intent),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
                 }
             }
         }
     }
 }
+
+private val TaskerLeadingSlotSize = 40.dp

@@ -5,58 +5,43 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.ContactsContract
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.common.AddToHomeHandler
 import com.tk.quicksearch.search.contacts.components.ContactActionButton
-import com.tk.quicksearch.search.contacts.components.ContactAvatar
 import com.tk.quicksearch.search.contacts.components.ContactMethodIcon
 import com.tk.quicksearch.search.contacts.components.getActionButtonLabel
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.ContactMethodMimeTypes
-import com.tk.quicksearch.search.utils.PhoneNumberUtils
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
+import com.tk.quicksearch.shared.ui.components.AppDropdownMenuItem
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenuDefaults
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.util.PackageConstants.WHATSAPP_BUSINESS_PACKAGE
-import com.tk.quicksearch.shared.util.PackageConstants.WHATSAPP_PACKAGE
-import com.tk.quicksearch.shared.ui.components.AppBottomPopup
 import com.tk.quicksearch.shared.util.hapticConfirm
 import com.tk.quicksearch.shared.util.cachedDefaultHomeAppStatus
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -67,6 +52,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.basicMarquee
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 @Composable
 @OptIn(ExperimentalFoundationApi::class)
@@ -84,8 +70,12 @@ internal fun RemainingMethodsList(
         { _, _, _ -> },
 ) {
     val view = LocalView.current
-    Column(modifier = Modifier.fillMaxWidth()) {
-        methods.forEach { method ->
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
+    ) {
+        methods.forEachIndexed { index, method ->
+            val shape = AppShapes.segment(index, methods.size)
             val action = contactMethodToCardAction(method, selectedPhoneNumber)
             val actionDisplayName = methodShortcutLabel(LocalContext.current, method)
             val hasLongPressMenu =
@@ -106,9 +96,11 @@ internal fun RemainingMethodsList(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .heightIn(min = 48.dp)
-                            .clip(DesignTokens.ShapeSmall)
+                            .heightIn(min = DesignTokens.ItemMenuRowHeight)
+                            .clip(shape)
+                            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
                             .combinedClickable(
+                                role = Role.Button,
                                 onClick = { onMethodClick(method) },
                                 onLongClick =
                                     onLongClick?.let { onLongClick ->
@@ -117,7 +109,10 @@ internal fun RemainingMethodsList(
                                             onLongClick()
                                         }
                                     },
-                            ).padding(vertical = DesignTokens.SpacingSmall),
+                            ).padding(
+                                horizontal = DesignTokens.SpacingLarge,
+                                vertical = DesignTokens.SpacingSmall,
+                            ),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
                 ) {
@@ -296,9 +291,9 @@ private fun ContactActionLongPressMenu(
         containerColor = AppDropdownMenuDefaults.itemMenuContainerColor,
     ) {
         if (!isDefaultLauncher) {
-            DropdownMenuItem(
-                text = { Text(text = stringResource(R.string.action_add_to_home)) },
-                leadingIcon = { Icon(imageVector = MaterialSymbols.Home, contentDescription = null) },
+            AppDropdownMenuItem(
+                text = stringResource(R.string.action_add_to_home),
+                icon = MaterialSymbols.Home,
                 onClick = {
                     onDismissRequest()
                     addToHomeHandler.addContactActionToHome(
@@ -310,23 +305,12 @@ private fun ContactActionLongPressMenu(
             )
         }
         if (showTriggerAction) {
-            if (!isDefaultLauncher) {
-                HorizontalDivider()
-            }
-            DropdownMenuItem(
-                text = {
-                    Text(
-                        text =
-                            stringResource(
-                                if (hasTrigger) {
-                                    R.string.action_edit_trigger
-                                } else {
-                                    R.string.action_add_trigger
-                                },
-                            ),
-                    )
-                },
-                leadingIcon = { Icon(imageVector = MaterialSymbols.Bolt, contentDescription = null) },
+            AppDropdownMenuItem(
+                text = stringResource(
+                    if (hasTrigger) R.string.action_edit_trigger else R.string.action_add_trigger,
+                ),
+                icon = MaterialSymbols.Bolt,
+                iconTint = if (hasTrigger) AppColors.ItemMenuActiveIconTint else null,
                 onClick = {
                     onDismissRequest()
                     onContactActionTriggerClick(contact, action, actionDisplayName)

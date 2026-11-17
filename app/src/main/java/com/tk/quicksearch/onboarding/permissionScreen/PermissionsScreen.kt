@@ -1,10 +1,10 @@
 package com.tk.quicksearch.onboarding.permissionScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,13 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,25 +21,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import com.tk.quicksearch.onboarding.OnboardingBottomActionButton
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.onboarding.OnboardingHeader
 import com.tk.quicksearch.search.core.AppTheme
-import com.tk.quicksearch.shared.permissions.OpenSourceTrustCard
 import com.tk.quicksearch.shared.permissions.PermissionCardStates
 import com.tk.quicksearch.shared.permissions.PermissionCardTexts
 import com.tk.quicksearch.shared.permissions.PermissionsCardSection
-import com.tk.quicksearch.shared.permissions.permissionsScreenSubtitle
+import com.tk.quicksearch.shared.permissions.PermissionsTrustPoints
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 import com.tk.quicksearch.shared.ui.components.PreserveHostKeyboardStateEffect
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 /**
  * Main permissions screen that allows users to grant optional permissions for enhanced functionality.
@@ -66,7 +60,7 @@ fun PermissionsScreen(
 
     val hasAnyGrantedPermission =
         with(permissionStates) {
-            listOf(usage, contacts, files, calendar)
+            listOf(usage, contacts, files, calendar, notificationAccess)
                 .any { it.isGranted }
         }
 
@@ -89,27 +83,22 @@ fun PermissionsScreen(
             title = stringResource(R.string.settings_permissions_title),
             currentStep = currentStep,
             totalSteps = totalSteps,
-            topPadding = DesignTokens.SpacingXXLarge,
+            topPadding = DesignTokens.SpacingMedium,
         )
 
-        Text(
-            text = permissionsScreenSubtitle(),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Start,
-            modifier = Modifier.padding(top = DesignTokens.SpacingSmall),
+        PermissionsTrustPoints(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = DesignTokens.SpacingSmall),
         )
 
-        Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
-
-        OpenSourceTrustCard(modifier = Modifier.fillMaxWidth())
-
-        Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
+        Spacer(modifier = Modifier.height(DesignTokens.SpacingXXLarge))
 
         Column(
             modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Top,
         ) {
             PermissionsCardSection(
                 texts =
@@ -145,26 +134,31 @@ fun PermissionsScreen(
                 showCallingPermission = false,
                 showNotificationsPermission = false,
                 showAccessibilityPermission = false,
-                showNotificationAccessPermission = false,
+                showNotificationAccessPermission = true,
                 showBackgroundUsage = false,
+                segmented = true,
+                showItemIcons = false,
                 cardContainer = { cardModifier, content ->
-                    SettingsCard(modifier = cardModifier) {
-                        content()
-                    }
+                    Column(modifier = cardModifier.clip(AppShapes.extraLarge)) { content() }
                 },
                 onStatesChanged = { permissionStates = it },
             )
         }
 
-        Spacer(modifier = Modifier.height(DesignTokens.OnboardingCompactSpacing))
+        Spacer(modifier = Modifier.height(DesignTokens.SpacingXXLarge))
 
-        Button(
+        OnboardingBottomActionButton(
+            text =
+                stringResource(
+                    if (hasAnyGrantedPermission) R.string.setup_action_next else R.string.setup_action_skip_permissions,
+                ),
             onClick = {
                 val hasUngrantedPermissions =
                     !permissionStates.usage.isGranted ||
                         !permissionStates.contacts.isGranted ||
                         !permissionStates.files.isGranted ||
-                        !permissionStates.calendar.isGranted
+                        !permissionStates.calendar.isGranted ||
+                        !permissionStates.notificationAccess.isGranted
 
                 if (hasUngrantedPermissions) {
                     showPermissionReminderDialog = true
@@ -172,26 +166,7 @@ fun PermissionsScreen(
                     onPermissionsComplete()
                 }
             },
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = DesignTokens.OnboardingButtonOuterHorizontalPadding),
-            shape = RoundedCornerShape(DesignTokens.OnboardingButtonCornerRadius),
-            contentPadding =
-                PaddingValues(
-                    horizontal = DesignTokens.OnboardingButtonHorizontalPadding,
-                    vertical = DesignTokens.OnboardingButtonVerticalPadding,
-                ),
-        ) {
-            Text(
-                text =
-                    stringResource(
-                        if (hasAnyGrantedPermission) R.string.setup_action_next else R.string.setup_action_skip_permissions,
-                    ),
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium,
-            )
-        }
+        )
 
         Spacer(modifier = Modifier.height(DesignTokens.SpacingXLarge))
     }
@@ -204,6 +179,7 @@ fun PermissionsScreen(
             contactsPermissionState = permissionStates.contacts,
             filesPermissionState = permissionStates.files,
             calendarPermissionState = permissionStates.calendar,
+            notificationAccessPermissionState = permissionStates.notificationAccess,
             onDismiss = { showPermissionReminderDialog = false },
             onContinue = {
                 showPermissionReminderDialog = false
@@ -222,6 +198,7 @@ private fun PermissionReminderDialog(
     contactsPermissionState: PermissionState,
     filesPermissionState: PermissionState,
     calendarPermissionState: PermissionState,
+    notificationAccessPermissionState: PermissionState,
     onDismiss: () -> Unit,
     onContinue: () -> Unit,
 ) {
@@ -231,6 +208,9 @@ private fun PermissionReminderDialog(
             stringResource(R.string.contacts_action_button_contacts).takeIf { !contactsPermissionState.isGranted },
             stringResource(R.string.permissions_files_title).takeIf { !filesPermissionState.isGranted },
             stringResource(R.string.settings_calendar_permission_title).takeIf { !calendarPermissionState.isGranted },
+            stringResource(R.string.settings_shortcut_notification_listener).takeIf {
+                !notificationAccessPermissionState.isGranted
+            },
         ).joinToString(", ")
 
     PreserveHostKeyboardStateEffect()
@@ -254,10 +234,7 @@ private fun PermissionReminderDialog(
             AppAlertDialog(
                 onDismissRequest = onDismiss,
                 title = {
-                    Text(
-                        text = stringResource(R.string.permissions_reminder_dialog_title),
-                        style = MaterialTheme.typography.titleLarge,
-                    )
+                    Text(text = stringResource(R.string.permissions_reminder_dialog_title))
                 },
                 text = {
                     Text(
@@ -266,17 +243,15 @@ private fun PermissionReminderDialog(
                                 R.string.permissions_reminder_dialog_message,
                                 permissionsList,
                             ),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 },
                 confirmButton = {
-                    Button(onClick = onContinue) {
+                    AppTextButton(onClick = onContinue) {
                         Text(stringResource(R.string.dialog_ok))
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = onDismiss) {
+                    AppTextButton(onClick = onDismiss) {
                         Text(stringResource(R.string.dialog_cancel))
                     }
                 },

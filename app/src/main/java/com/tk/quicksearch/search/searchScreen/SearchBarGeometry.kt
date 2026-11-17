@@ -40,9 +40,8 @@ internal fun rememberSearchBarGeometry(
     isOverlayPresentation: Boolean,
 ): SearchBarGeometry {
     val density = LocalDensity.current
-    // With the bottom search bar, the compact engine strip becomes a rounded container attached to
-    // the top of the search bar instead of a full-bleed band behind it. It tucks behind the bar so
-    // the two read as one shape.
+    // With the bottom search bar, compact engines turn into a rounded card that the bar sits at the
+    // top of, with the engine row below it, instead of a full-bleed band above the bar.
     val useInsetEngineStrip =
             showBottomSearchBar &&
                     state.isSearchEngineCompactMode &&
@@ -51,8 +50,8 @@ internal fun rememberSearchBarGeometry(
                     state.detectedShortcutTarget == null &&
                     state.detectedAliasSearchSection == null
 
-    // The strip paints the card behind a transparent bar, so it has to reach past the bar's bottom
-    // edge; falling short would draw its own outline inside the bar. The derived overlap assumes a
+    // The engine row paints the card behind a transparent bar, so it has to reach up past the bar's
+    // top edge; falling short would draw the card's top edge inside the bar. The derived overlap assumes a
     // default-height field, so track the measured height and keep whichever is taller.
     var measuredSearchBarHeight by remember { mutableStateOf(0.dp) }
     val insetEngineStripOverlap = InsetSearchBarGeometry.overlapFor(measuredSearchBarHeight)
@@ -78,8 +77,8 @@ internal fun rememberSearchBarGeometry(
 
     val searchFieldModifier =
             if (useInsetEngineStrip) {
-                // Inset on every side by the same amount so the bar sits centred inside the card
-                // the strip paints; the strip reaches down by exactly these spacings plus the bar.
+                // Inset from the card's edges; the card reaches up by exactly these spacings plus
+                // the bar.
                 Modifier.padding(
                         start =
                                 InsetSearchBarGeometry.barHorizontalInset(
@@ -115,7 +114,7 @@ internal fun rememberSearchBarGeometry(
                                     DesignTokens.SpacingMedium
                                 } else {
                                     DesignTokens.SpacingXSmall
-                                }) + DesignTokens.SpacingXXSmall,
+                                }) + DesignTokens.SpacingXSmall,
                 )
             }
 

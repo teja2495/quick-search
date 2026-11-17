@@ -26,12 +26,14 @@ import com.tk.quicksearch.search.core.IconPackInfo
 import com.tk.quicksearch.search.core.LauncherAppIcon
 import com.tk.quicksearch.search.core.SearchBarStyle
 import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.data.preferences.BasePreferences
 import com.tk.quicksearch.search.data.preferences.SwipeGestureAction
 import com.tk.quicksearch.settings.settingsDetailScreen.PriorityReorderDialog
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsCardItem
 import com.tk.quicksearch.settings.shared.SettingsNavigationRow
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
@@ -57,6 +59,8 @@ fun AppearanceSettingsSection(
         onTogglePinnedAppShortcutsInAppGrid: (Boolean) -> Unit,
         showStatusBar: Boolean,
         onToggleShowStatusBar: (Boolean) -> Unit,
+        searchChromeBlurEnabled: Boolean,
+        onToggleSearchChromeBlur: (Boolean) -> Unit,
         settingsIconEnabled: Boolean,
         onToggleSettingsIcon: (Boolean) -> Unit,
         wallpaperBackgroundAlpha: Float,
@@ -83,7 +87,7 @@ fun AppearanceSettingsSection(
         onRequestWallpaperPermission: () -> Unit,
         isSearchEngineCompactMode: Boolean,
         searchEngineCompactRowCount: Int,
-        hasEnabledSearchEngines: Boolean,
+        enabledSearchEngines: List<SearchTarget>,
         onToggleSearchEngineCompactMode: (Boolean) -> Unit,
         onSetSearchEngineCompactRowCount: (Int) -> Unit,
         selectedIconPackPackage: String?,
@@ -173,7 +177,7 @@ fun AppearanceSettingsSection(
                 compactLayoutEnabled = compactLayoutEnabled,
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
 
         AppThemeCard(
                 selectedTheme = appTheme,
@@ -193,7 +197,7 @@ fun AppearanceSettingsSection(
                 onAmoledThemeToggle = onAmoledThemeToggle,
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
 
         WallpaperCard(
                 wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
@@ -215,7 +219,7 @@ fun AppearanceSettingsSection(
                 deviceThemeEnabled = deviceThemeEnabled,
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
 
         // Alternate launcher icons are adaptive icons (mipmap-anydpi-v26 only).
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -224,7 +228,7 @@ fun AppearanceSettingsSection(
                     onSetLauncherAppIcon = onSetLauncherAppIcon,
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
         }
 
         SearchBarStyleCard(
@@ -234,11 +238,18 @@ fun AppearanceSettingsSection(
                 settingsIconEnabled = settingsIconEnabled,
                 settingsIconRequired = settingsIconRequired,
                 onToggleSettingsIcon = onToggleSettingsIcon,
+                searchChromeBlurEnabled = searchChromeBlurEnabled,
+                onToggleSearchChromeBlur = onToggleSearchChromeBlur,
+                fixedShape = SearchBarStyle.hasFixedShape(bottomSearchBarEnabled, isSearchEngineCompactMode),
+                enabledSearchEngines = enabledSearchEngines,
+                searchEngineCompactRowCount = searchEngineCompactRowCount,
+                appIconShape = appIconShape,
+                iconPackPackage = selectedIconPackPackage,
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
 
-        if (hasEnabledSearchEngines) {
+        if (enabledSearchEngines.isNotEmpty()) {
             SearchEngineAppearanceCard(
                     isSearchEngineCompactMode = isSearchEngineCompactMode,
                     onToggleSearchEngineCompactMode = onToggleSearchEngineCompactMode,
@@ -246,57 +257,44 @@ fun AppearanceSettingsSection(
                     onSetCompactRowCount = onSetSearchEngineCompactRowCount,
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
         }
 
-        SettingsCard(modifier = Modifier.fillMaxWidth()) {
-            Column {
-                SettingsToggleRow(
-                        title = stringResource(R.string.settings_layout_option_bottom_title),
-                        subtitle = stringResource(R.string.settings_layout_option_bottom_desc),
-                        checked = oneHandedMode,
-                        onCheckedChange = onToggleOneHandedMode,
-                        isFirstItem = true,
-                        extraVerticalPadding = 8.dp,
-                )
-                SettingsToggleRow(
-                        title = stringResource(R.string.settings_bottom_searchbar_title),
-                        subtitle = stringResource(R.string.settings_bottom_searchbar_desc),
-                        checked = bottomSearchBarEnabled,
-                        onCheckedChange = onToggleBottomSearchBar,
-                        extraVerticalPadding = 8.dp,
-                )
-                SettingsToggleRow(
-                        title = stringResource(R.string.settings_compact_layout_title),
-                        subtitle = stringResource(R.string.settings_compact_layout_desc),
-                        checked = compactLayoutEnabled,
-                        onCheckedChange = onToggleCompactLayout,
-                        extraVerticalPadding = 8.dp,
-                )
-                SettingsToggleRow(
-                        title = stringResource(R.string.settings_show_status_bar_title),
-                        subtitle = stringResource(R.string.settings_show_status_bar_desc),
-                        checked = showStatusBar,
-                        onCheckedChange = onToggleShowStatusBar,
-                        extraVerticalPadding = 8.dp,
-                        showDivider = false,
-                )
+        SegmentedGroup {
+            val layoutToggles =
+                    listOf(
+                            Triple(R.string.settings_layout_option_bottom_title, R.string.settings_layout_option_bottom_desc, oneHandedMode to onToggleOneHandedMode),
+                            Triple(R.string.settings_bottom_searchbar_title, R.string.settings_bottom_searchbar_desc, bottomSearchBarEnabled to onToggleBottomSearchBar),
+                            Triple(R.string.settings_compact_layout_title, R.string.settings_compact_layout_desc, compactLayoutEnabled to onToggleCompactLayout),
+                            Triple(R.string.settings_show_status_bar_title, R.string.settings_show_status_bar_desc, showStatusBar to onToggleShowStatusBar),
+                    )
+            layoutToggles.forEachIndexed { index, (titleRes, descRes, toggle) ->
+                SegmentedTile(index = index, count = layoutToggles.size) {
+                    SettingsToggleRow(
+                            title = stringResource(titleRes),
+                            subtitle = stringResource(descRes),
+                            checked = toggle.first,
+                            onCheckedChange = toggle.second,
+                    )
+                }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
 
-        SettingsCard(modifier = Modifier.fillMaxWidth()) {
-            Column {
+        SegmentedGroup {
+            val pinnedCount = if (unifiedPinnedItemsEnabled) 2 else 3
+            var index = 0
+            SegmentedTile(index = index++, count = pinnedCount) {
                 SettingsToggleRow(
                         title = stringResource(R.string.settings_unified_pinned_items_title),
                         subtitle = stringResource(R.string.settings_unified_pinned_items_desc),
                         checked = unifiedPinnedItemsEnabled,
                         onCheckedChange = onToggleUnifiedPinnedItems,
-                        isFirstItem = true,
-                        extraVerticalPadding = 8.dp,
                 )
-                if (!unifiedPinnedItemsEnabled) {
+            }
+            if (!unifiedPinnedItemsEnabled) {
+                SegmentedTile(index = index++, count = pinnedCount) {
                     SettingsNavigationRow(
                             item =
                                     SettingsCardItem(
@@ -306,25 +304,23 @@ fun AppearanceSettingsSection(
                                     ),
                             contentPadding =
                                     PaddingValues(
-                                            horizontal = DesignTokens.SpacingXXLarge,
-                                            vertical = DesignTokens.CardVerticalPadding + 8.dp,
+                                            horizontal = DesignTokens.SpacingXLarge,
+                                            vertical = DesignTokens.SpacingLarge,
                                     ),
                     )
-                    HorizontalDivider(color = AppColors.SettingsDivider)
                 }
+            }
+            SegmentedTile(index = index, count = pinnedCount) {
                 SettingsToggleRow(
                         title = stringResource(R.string.settings_pinned_app_shortcuts_in_app_grid_title),
                         subtitle = stringResource(R.string.settings_pinned_app_shortcuts_in_app_grid_desc),
                         checked = pinnedAppShortcutsInAppGrid,
                         onCheckedChange = onTogglePinnedAppShortcutsInAppGrid,
-                        extraVerticalPadding = 8.dp,
-                        showDivider = false,
                 )
             }
         }
 
-
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
 
         AppIconCard(
                 showAppLabels = showAppLabels,

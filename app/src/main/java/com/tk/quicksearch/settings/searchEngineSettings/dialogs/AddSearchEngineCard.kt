@@ -4,7 +4,15 @@ import android.graphics.BitmapFactory
 import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,11 +23,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,10 +34,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
@@ -52,6 +62,9 @@ import com.tk.quicksearch.searchEngines.IN_APP_BROWSER_PACKAGE
 import com.tk.quicksearch.searchEngines.loadCustomIconAsBase64
 import com.tk.quicksearch.searchEngines.validateCustomSearchTemplate
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContentPadding
+import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.withoutWhitespaces
@@ -61,6 +74,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.withLink
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
+import com.tk.quicksearch.shared.ui.components.AppButton
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 @Composable
 fun AddSearchEngineCard(
@@ -183,211 +199,255 @@ private fun AddSearchEngineForm(
         }
 
     val scrollState = rememberScrollState()
+    var isExpanded by rememberSaveable { mutableStateOf(requestInitialFocus) }
+    val chevronRotation by animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
+        label = "addSearchEngineChevronRotation",
+    )
+    val headerAlignmentBias by animateFloatAsState(
+        targetValue = if (isExpanded) -1f else 0f,
+        label = "addSearchEngineHeaderAlignment",
+    )
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    // Once the form has expanded, scroll so the whole card is on screen.
+    LaunchedEffect(isExpanded) {
+        if (isExpanded && !requestInitialFocus) {
+            delay(ExpandScrollDelayMillis)
+            bringIntoViewRequester.bringIntoView()
+        }
+    }
 
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().bringIntoViewRequester(bringIntoViewRequester),
     ) {
-        val formContentModifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = DesignTokens.ContentHorizontalPadding,
-                    vertical = DesignTokens.SpacingLarge,
+        // Collapsed by default like Add Custom Provider: a header tile that expands the form.
+        SegmentedTileRow(
+            title = stringResource(R.string.settings_add_search_engine_button),
+            // The URL instructions show under the title only while the form is open.
+            description = stringResource(R.string.settings_add_search_engine_dialog_message),
+            descriptionVisible = isExpanded,
+            // Glides from centered to top-aligned as the description grows in.
+            verticalAlignment = BiasAlignment.Vertical(headerAlignmentBias),
+            leading = { TonalIconBadge(icon = MaterialSymbols.Add) },
+            trailing = {
+                Icon(
+                    imageVector = MaterialSymbols.ExpandMore,
+                    contentDescription =
+                        stringResource(if (isExpanded) R.string.desc_collapse else R.string.desc_expand),
+                    modifier = Modifier.rotate(chevronRotation),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-
-        Column(
-            modifier =
-                if (requestInitialFocus) {
-                    formContentModifier.verticalScroll(scrollState)
-                } else {
-                    formContentModifier
-                },
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
+            },
+            modifier = Modifier.clickable { isExpanded = !isExpanded },
+        )
+        AnimatedVisibility(
+            visible = isExpanded,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut(),
         ) {
-            Text(
-                text = stringResource(R.string.settings_add_search_engine_button),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-
-            if (validTemplate != null) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    EditableIcon(
-                        iconBitmap = iconBitmap,
-                        contentDescription = trimmedName,
-                        modifier = Modifier.offset(y = (-2).dp),
-                        onClick = { pickIconLauncher.launch(arrayOf("image/*")) },
-                    )
-                    if (isEditingName) {
-                        OutlinedTextField(
-                            value = nameInput,
-                            onValueChange = { nameInput = it },
-                            modifier =
-                                Modifier
-                                    .weight(1f)
-                                    .focusRequester(nameFocusRequester),
-                            label = {
-                                Text(text = stringResource(R.string.settings_app_sort_name))
-                            },
-                            singleLine = true,
-                            maxLines = 1,
-                            isError = !isNameValid,
-                            colors = dialogTextFieldColors(),
+            Column(modifier = Modifier.fillMaxWidth()) {
+                // The header row's padding already sits above, so only the sides and bottom pad here.
+                val formContentModifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            start = SegmentedTileContentPadding,
+                            end = SegmentedTileContentPadding,
+                            bottom = SegmentedTileContentPadding,
                         )
-                    } else {
-                        Text(
-                            text = nameInput.text,
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier =
-                                Modifier
-                                    .weight(1f)
-                                    .offset(y = (-2).dp)
-                                    .clickable { isEditingName = true },
+
+                Column(
+                    modifier =
+                        if (requestInitialFocus) {
+                            formContentModifier.verticalScroll(scrollState)
+                        } else {
+                            formContentModifier
+                        },
+                    verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
+                ) {
+                    if (validTemplate != null) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            EditableIcon(
+                                iconBitmap = iconBitmap,
+                                contentDescription = trimmedName,
+                                modifier = Modifier.offset(y = (-2).dp),
+                                onClick = { pickIconLauncher.launch(arrayOf("image/*")) },
+                            )
+                            if (isEditingName) {
+                                TextField(
+                                    value = nameInput,
+                                    onValueChange = { nameInput = it },
+                                    modifier =
+                                        Modifier
+                                            .weight(1f)
+                                            .focusRequester(nameFocusRequester),
+                                    label = {
+                                        Text(text = stringResource(R.string.settings_app_sort_name))
+                                    },
+                                    singleLine = true,
+                                    maxLines = 1,
+                                    isError = !isNameValid,
+                                    colors = dialogTextFieldColors(),
+                                )
+                            } else {
+                                Text(
+                                    text = nameInput.text,
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier =
+                                        Modifier
+                                            .weight(1f)
+                                            .offset(y = (-2).dp)
+                                            .clickable { isEditingName = true },
+                                )
+                            }
+                        }
+                    }
+
+                    TextField(
+                        value = urlInput,
+                        onValueChange = { newValue -> urlInput = newValue.withoutWhitespaces() },
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .focusRequester(focusRequester),
+                        singleLine = true,
+                        maxLines = 1,
+                        isError = showValidationError,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions =
+                            KeyboardActions(
+                                onDone = {
+                                    if (canSave) {
+                                        onSave(trimmedName, validTemplate, iconBase64.orEmpty(), selectedBrowserPackage)
+                                        resetForm()
+                                        onCancel?.invoke()
+                                        isExpanded = false
+                                    }
+                                },
+                            ),
+                        label = { Text(text = stringResource(R.string.settings_app_shortcuts_url_label)) },
+                        supportingText =
+                            if (showValidationError) {
+                                {
+                                    when (validation.reason) {
+                                        CustomSearchTemplateValidation.Reason.EMPTY -> {
+                                            Text(
+                                                text = stringResource(R.string.settings_add_search_engine_error_required),
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.error,
+                                            )
+                                        }
+
+                                        CustomSearchTemplateValidation.Reason.MISSING_QUERY_PLACEHOLDER -> {
+                                            val fullMessage = stringResource(R.string.settings_add_search_engine_error_placeholder)
+                                            val messageText =
+                                                buildAnnotatedString {
+                                                    val placeholderStart = fullMessage.indexOf(CUSTOM_QUERY_PLACEHOLDER)
+                                                    if (placeholderStart < 0) {
+                                                        append(fullMessage)
+                                                        return@buildAnnotatedString
+                                                    }
+                                                    val placeholderEnd = placeholderStart + CUSTOM_QUERY_PLACEHOLDER.length
+                                                    append(fullMessage.substring(0, placeholderStart))
+                                                    val placeholderLink =
+                                                        LinkAnnotation.Clickable(tag = CUSTOM_QUERY_PLACEHOLDER) {
+                                                            val appendedText = "${urlInput.text}$CUSTOM_QUERY_PLACEHOLDER"
+                                                            urlInput =
+                                                                TextFieldValue(
+                                                                    text = appendedText,
+                                                                    selection = TextRange(appendedText.length),
+                                                                )
+                                                        }
+                                                    withLink(placeholderLink) {
+                                                        withStyle(
+                                                            style =
+                                                                SpanStyle(
+                                                                    color = AppColors.LinkColor,
+                                                                ),
+                                                        ) {
+                                                            append(CUSTOM_QUERY_PLACEHOLDER)
+                                                        }
+                                                    }
+                                                    append(fullMessage.substring(placeholderEnd))
+                                                }
+                                            Text(
+                                                text = messageText,
+                                                style =
+                                                    MaterialTheme.typography.bodySmall.copy(
+                                                        color = MaterialTheme.colorScheme.error,
+                                                    ),
+                                            )
+                                        }
+
+                                        CustomSearchTemplateValidation.Reason.MULTIPLE_QUERY_PLACEHOLDERS -> {
+                                            Text(
+                                                text =
+                                                    stringResource(
+                                                        R.string.settings_add_search_engine_error_multiple_placeholders,
+                                                    ),
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.error,
+                                            )
+                                        }
+                                    }
+                                }
+                            } else {
+                                null
+                            },
+                        colors = dialogTextFieldColors(),
+                    )
+
+                    if (validTemplate != null) {
+                        BrowserPickerField(
+                            availableBrowsers = availableBrowsers,
+                            selectedPackage = selectedBrowserPackage,
+                            onSelect = { selectedBrowserPackage = it },
+                            onExpand = { coroutineScope.launch { scrollState.animateScrollTo(Int.MAX_VALUE) } },
                         )
                     }
                 }
-            } else {
-                Text(
-                    text = stringResource(R.string.settings_add_search_engine_dialog_message),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-            }
 
-            TextField(
-                value = urlInput,
-                onValueChange = { newValue -> urlInput = newValue.withoutWhitespaces() },
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester),
-                singleLine = true,
-                maxLines = 1,
-                isError = showValidationError,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions =
-                    KeyboardActions(
-                        onDone = {
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = SegmentedTileContentPadding,
+                                end = SegmentedTileContentPadding,
+                                bottom = SegmentedTileContentPadding,
+                            ),
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall, Alignment.End),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    AppTextButton(
+                        onClick = { resetForm() },
+                        enabled = urlInput.text.isNotEmpty(),
+                    ) {
+                        Text(text = stringResource(R.string.common_action_clear))
+                    }
+                    AppButton(
+                        onClick = {
                             if (canSave) {
                                 onSave(trimmedName, validTemplate, iconBase64.orEmpty(), selectedBrowserPackage)
                                 resetForm()
                                 onCancel?.invoke()
+                                isExpanded = false
                             }
                         },
-                    ),
-                colors = dialogTextFieldColors(),
-            )
-
-            when {
-                showValidationError -> {
-                    when (validation.reason) {
-                        CustomSearchTemplateValidation.Reason.EMPTY -> {
-                            Text(
-                                text = stringResource(R.string.settings_add_search_engine_error_required),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.error,
-                            )
-                        }
-
-                        CustomSearchTemplateValidation.Reason.MISSING_QUERY_PLACEHOLDER -> {
-                            val fullMessage = stringResource(R.string.settings_add_search_engine_error_placeholder)
-                            val messageText =
-                                buildAnnotatedString {
-                                    val placeholderStart = fullMessage.indexOf(CUSTOM_QUERY_PLACEHOLDER)
-                                    if (placeholderStart < 0) {
-                                        append(fullMessage)
-                                        return@buildAnnotatedString
-                                    }
-                                    val placeholderEnd = placeholderStart + CUSTOM_QUERY_PLACEHOLDER.length
-                                    append(fullMessage.substring(0, placeholderStart))
-                                    val placeholderLink =
-                                        LinkAnnotation.Clickable(tag = CUSTOM_QUERY_PLACEHOLDER) {
-                                            val appendedText = "${urlInput.text}$CUSTOM_QUERY_PLACEHOLDER"
-                                            urlInput =
-                                                TextFieldValue(
-                                                    text = appendedText,
-                                                    selection = TextRange(appendedText.length),
-                                                )
-                                        }
-                                    withLink(placeholderLink) {
-                                        withStyle(
-                                            style =
-                                                SpanStyle(
-                                                    color = AppColors.LinkColor,
-                                                ),
-                                        ) {
-                                            append(CUSTOM_QUERY_PLACEHOLDER)
-                                        }
-                                    }
-                                    append(fullMessage.substring(placeholderEnd))
-                                }
-                            Text(
-                                text = messageText,
-                                style =
-                                    MaterialTheme.typography.bodySmall.copy(
-                                        color = MaterialTheme.colorScheme.error,
-                                    ),
-                            )
-                        }
-
-                        CustomSearchTemplateValidation.Reason.MULTIPLE_QUERY_PLACEHOLDERS -> {
-                            Text(
-                                text =
-                                    stringResource(
-                                        R.string.settings_add_search_engine_error_multiple_placeholders,
-                                    ),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.error,
-                            )
-                        }
+                        enabled = canSave,
+                    ) {
+                        Text(text = stringResource(R.string.dialog_save))
                     }
                 }
             }
-
-            if (validTemplate != null) {
-                BrowserPickerField(
-                    availableBrowsers = availableBrowsers,
-                    selectedPackage = selectedBrowserPackage,
-                    onSelect = { selectedBrowserPackage = it },
-                    onExpand = { coroutineScope.launch { scrollState.animateScrollTo(Int.MAX_VALUE) } },
-                )
-            }
         }
-
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = DesignTokens.ContentHorizontalPadding,
-                        vertical = DesignTokens.SpacingMedium,
-                    ),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            TextButton(
-                onClick = { resetForm() },
-            ) {
-                Text(text = stringResource(R.string.common_action_clear))
-            }
-            Button(
-                onClick = {
-                    if (canSave) {
-                        onSave(trimmedName, validTemplate, iconBase64.orEmpty(), selectedBrowserPackage)
-                        resetForm()
-                        onCancel?.invoke()
-                    }
-                },
-                enabled = canSave,
-            ) {
-                Text(text = stringResource(R.string.dialog_save))
-            }
-        }
-
     }
 }
+
+/** Lets the expand animation finish before scrolling the opened card into view. */
+internal const val ExpandScrollDelayMillis = 300L

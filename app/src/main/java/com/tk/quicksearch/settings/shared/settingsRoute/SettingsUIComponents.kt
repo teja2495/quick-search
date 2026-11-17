@@ -1,9 +1,7 @@
 package com.tk.quicksearch.settings.shared.settingsRoute
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,9 +14,9 @@ import com.tk.quicksearch.search.core.SearchSectionUiMetadataRegistry
 import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
 import com.tk.quicksearch.settings.searchEngineSettings.AliasDisplayType
 import com.tk.quicksearch.settings.searchEngineSettings.AliasCodeDisplay
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsNavigationToggleRow
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 @Composable
@@ -70,24 +68,24 @@ fun SectionSettingsSection(
         )
     }
 
-    SettingsCard(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            sectionOrder.forEachIndexed { index, section ->
-                val isSectionEnabled = section !in disabledSections
-                val isAppsRow = section == SearchSection.APPS
-                val isAppShortcutsRow = section == SearchSection.APP_SHORTCUTS
-                val isContactsRow = section == SearchSection.CONTACTS
-                val isFilesRow = section == SearchSection.FILES
-                val isDeviceSettingsRow = section == SearchSection.SETTINGS
-                val isCalendarRow = section == SearchSection.CALENDAR
-                val isNotesRow = section == SearchSection.NOTES
-                val isRemindersRow = section == SearchSection.REMINDERS
-                val isBookmarksRow = section == SearchSection.BOOKMARKS
-                val isAppSettingsRow = section == SearchSection.APP_SETTINGS
-                val showAliasForSection = section !in sectionsWithHiddenAlias
-                val aliasTargetId = SearchSectionUiMetadataRegistry.metadataFor(section).aliasTargetId
-                val metadata = getSectionMetadata(section)
+    SegmentedGroup(modifier = Modifier.fillMaxWidth()) {
+        sectionOrder.forEachIndexed { index, section ->
+            val isSectionEnabled = section !in disabledSections
+            val isAppsRow = section == SearchSection.APPS
+            val isAppShortcutsRow = section == SearchSection.APP_SHORTCUTS
+            val isContactsRow = section == SearchSection.CONTACTS
+            val isFilesRow = section == SearchSection.FILES
+            val isDeviceSettingsRow = section == SearchSection.SETTINGS
+            val isCalendarRow = section == SearchSection.CALENDAR
+            val isNotesRow = section == SearchSection.NOTES
+            val isRemindersRow = section == SearchSection.REMINDERS
+            val isBookmarksRow = section == SearchSection.BOOKMARKS
+            val isAppSettingsRow = section == SearchSection.APP_SETTINGS
+            val showAliasForSection = section !in sectionsWithHiddenAlias
+            val aliasTargetId = SearchSectionUiMetadataRegistry.metadataFor(section).aliasTargetId
+            val metadata = getSectionMetadata(section)
 
+            SegmentedTile(index = index, count = sectionOrder.size) {
                 SettingsNavigationToggleRow(
                     title = metadata.name,
                     checked = isSectionEnabled,
@@ -152,17 +150,13 @@ fun SectionSettingsSection(
                                     },
                                     conflictErrorMessage = stringResource(R.string.dialog_edit_alias_error_prefix),
                                     aliasDisplayType = AliasDisplayType.SEARCH_TYPE,
-                                    modifier = Modifier.padding(top = 4.dp),
+                                    modifier = Modifier.padding(top = DesignTokens.SpacingXSmall),
                                 )
                             }
                         } else {
                             null
                         },
                 )
-
-                if (index != sectionOrder.lastIndex) {
-                    HorizontalDivider(color = AppColors.SettingsDivider)
-                }
             }
         }
     }

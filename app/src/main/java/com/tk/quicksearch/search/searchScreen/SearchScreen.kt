@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen
 
+import com.tk.quicksearch.onboarding.welcomeContentReveal
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.background
@@ -13,8 +14,6 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
-import com.tk.quicksearch.search.searchScreen.shared.CardlessTrailingEdge
-import com.tk.quicksearch.search.searchScreen.shared.LocalCardlessTrailingEdge
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.widgetsPanel.HomeWidgetEditGuard
 import com.tk.quicksearch.widgetsPanel.LocalHomeWidgetEditGuard
@@ -422,7 +421,6 @@ fun SearchScreen(
         LocalHomeWidgetEditGuard provides homeWidgetEditGuard,
         LocalSearchCardLayoutEnabled provides state.cardLayoutEnabled,
         com.tk.quicksearch.search.searchScreen.searchScreenLayout.LocalGlanceIconPackPackage provides state.selectedIconPackPackage,
-        LocalCardlessTrailingEdge provides remember { CardlessTrailingEdge() },
         com.tk.quicksearch.search.bookmarks.LocalBookmarksSectionParams provides stateResult.sectionParams.bookmarksParams,
         com.tk.quicksearch.search.noted.LocalNotedSectionParams provides stateResult.sectionParams.notedParams,
     ) {
@@ -443,7 +441,7 @@ fun SearchScreen(
                 if (isOverlayPresentation) {
                     Modifier.fillMaxWidth()
                 } else {
-                    Modifier.fillMaxSize()
+                    Modifier.fillMaxSize().welcomeContentReveal()
                 },
             state = stateResult.effectiveStateForCards,
             renderingState = stateResult.renderingState,

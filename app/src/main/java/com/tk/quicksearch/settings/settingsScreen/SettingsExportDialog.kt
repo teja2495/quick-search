@@ -1,23 +1,30 @@
 package com.tk.quicksearch.settings.settingsScreen
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.SettingsCheckboxRow
-import com.tk.quicksearch.shared.ui.components.AppAlertDialog
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
+import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
+import com.tk.quicksearch.shared.ui.components.AppButton
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 @Composable
 fun SettingsExportDialog(
@@ -26,161 +33,89 @@ fun SettingsExportDialog(
     onDismiss: () -> Unit,
     onExport: () -> Unit,
 ) {
-    AppAlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(text = stringResource(R.string.settings_backup_export_selection_title))
+    val options = buildList {
+        add(ExportOption(R.string.settings_gesture_settings, MaterialSymbols.Tune, true, enabled = false))
+        if (selectionState.showPinnedItemsOption) add(ExportOption(
+            R.string.settings_backup_export_option_pinned_items_title, MaterialSymbols.PushPin,
+            selectionState.includePinnedItems,
+        ) { onSelectionStateChange(selectionState.copy(includePinnedItems = it)) })
+        if (selectionState.showNotesOption) add(ExportOption(
+            R.string.section_notes, MaterialSymbols.Description, selectionState.includeNotes,
+        ) { onSelectionStateChange(selectionState.copy(includeNotes = it)) })
+        if (selectionState.showCalendarEventsOption) add(ExportOption(
+            R.string.section_calendar, MaterialSymbols.CalendarMonth, selectionState.includeCalendarEvents,
+        ) { onSelectionStateChange(selectionState.copy(includeCalendarEvents = it)) })
+        if (selectionState.showRemindersOption) add(ExportOption(
+            R.string.section_reminders, MaterialSymbols.NotificationsActive, selectionState.includeReminders,
+        ) { onSelectionStateChange(selectionState.copy(includeReminders = it)) })
+        if (selectionState.showBookmarksOption) add(ExportOption(
+            R.string.section_bookmarks, MaterialSymbols.Bookmark, selectionState.includeBookmarks,
+        ) { onSelectionStateChange(selectionState.copy(includeBookmarks = it)) })
+        if (selectionState.showSearchHistoryOption) add(ExportOption(
+            R.string.recent_queries_toggle_title, MaterialSymbols.History, selectionState.includeSearchHistory,
+        ) { onSelectionStateChange(selectionState.copy(includeSearchHistory = it)) })
+        if (selectionState.showApiKeysOption) add(ExportOption(
+            R.string.settings_backup_export_option_api_keys, MaterialSymbols.Key, selectionState.includeApiKeys,
+        ) { onSelectionStateChange(selectionState.copy(includeApiKeys = it)) })
+    }
+    AppPickerDrawer(
+        title = stringResource(R.string.settings_backup_export_selection_title),
+        onDismiss = onDismiss,
+        footer = {
+            AppButton(onClick = onExport, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.settings_backup_export_button))
+            }
+            AppTextButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.dialog_cancel))
+            }
         },
-        text = {
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState()),
-            ) {
-                // Settings are always exported; shown checked and locked so users know they're included.
-                SettingsCheckboxRow(
-                    title = stringResource(R.string.settings_gesture_settings),
-                    description = "",
-                    checked = true,
-                    onCheckedChange = {},
-                    icon = MaterialSymbols.Tune,
-                    isLastItem =
-                        !selectionState.showPinnedItemsOption &&
-                            !selectionState.showNotesOption &&
-                            !selectionState.showCalendarEventsOption &&
-                            !selectionState.showSearchHistoryOption &&
-                                !selectionState.showApiKeysOption,
-                    enabled = false,
-                    checkboxColors =
-                        CheckboxDefaults.colors(
-                            MaterialTheme.colorScheme.onSurfaceVariant,
-                            MaterialTheme.colorScheme.onSurfaceVariant,
-                            MaterialTheme.colorScheme.surface,
-                            MaterialTheme.colorScheme.onSurfaceVariant,
-                            MaterialTheme.colorScheme.onSurfaceVariant,
-                            MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
+        ) {
+            SegmentedGroup {
+                options.forEachIndexed { index, option ->
+                    SegmentedTile(index = index, count = options.size) {
+                        SegmentedTileRow(
+                            title = stringResource(option.titleRes),
+                            modifier = Modifier.toggleable(
+                                value = option.checked,
+                                enabled = option.enabled,
+                                role = Role.Checkbox,
+                                onValueChange = option.onCheckedChange,
+                            ),
+                            leading = { TonalIconBadge(option.icon) },
+                            trailing = {
+                                Checkbox(
+                                    checked = option.checked,
+                                    enabled = option.enabled,
+                                    onCheckedChange = null,
+                                )
+                            },
+                        )
+                    }
+                }
+            }
+            if (selectionState.showApiKeysOption && selectionState.includeApiKeys) {
+                Text(
+                    text = stringResource(R.string.settings_backup_export_api_key_warning_message),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(horizontal = DesignTokens.SpacingLarge),
                 )
-                if (selectionState.showPinnedItemsOption) {
-                    SettingsCheckboxRow(
-                        title = stringResource(R.string.settings_backup_export_option_pinned_items_title),
-                        description = "",
-                        checked = selectionState.includePinnedItems,
-                        onCheckedChange = {
-                            onSelectionStateChange(selectionState.copy(includePinnedItems = it))
-                        },
-                        icon = MaterialSymbols.PushPin,
-                        isLastItem =
-                            !selectionState.showNotesOption &&
-                                !selectionState.showCalendarEventsOption &&
-                                !selectionState.showRemindersOption &&
-                                !selectionState.showBookmarksOption &&
-                                !selectionState.showSearchHistoryOption &&
-                                !selectionState.showApiKeysOption,
-                    )
-                }
-                if (selectionState.showNotesOption) {
-                    SettingsCheckboxRow(
-                        title = stringResource(R.string.section_notes),
-                        description = "",
-                        checked = selectionState.includeNotes,
-                        onCheckedChange = {
-                            onSelectionStateChange(selectionState.copy(includeNotes = it))
-                        },
-                        icon = MaterialSymbols.Description,
-                        isLastItem =
-                            !selectionState.showCalendarEventsOption && !selectionState.showRemindersOption &&
-                                !selectionState.showBookmarksOption && !selectionState.showSearchHistoryOption &&
-                                !selectionState.showApiKeysOption,
-                    )
-                }
-                if (selectionState.showCalendarEventsOption) {
-                    SettingsCheckboxRow(
-                        title = stringResource(R.string.section_calendar),
-                        description = "",
-                        checked = selectionState.includeCalendarEvents,
-                        onCheckedChange = {
-                            onSelectionStateChange(selectionState.copy(includeCalendarEvents = it))
-                        },
-                        icon = MaterialSymbols.CalendarMonth,
-                        isLastItem =
-                            !selectionState.showRemindersOption && !selectionState.showBookmarksOption &&
-                                !selectionState.showSearchHistoryOption &&
-                                !selectionState.showApiKeysOption,
-                    )
-                }
-                if (selectionState.showRemindersOption) {
-                    SettingsCheckboxRow(
-                        title = stringResource(R.string.section_reminders),
-                        description = "",
-                        checked = selectionState.includeReminders,
-                        onCheckedChange = {
-                            onSelectionStateChange(selectionState.copy(includeReminders = it))
-                        },
-                        icon = MaterialSymbols.NotificationsActive,
-                        isLastItem = !selectionState.showBookmarksOption && !selectionState.showSearchHistoryOption &&
-                                !selectionState.showApiKeysOption,
-                    )
-                }
-                if (selectionState.showBookmarksOption) {
-                    SettingsCheckboxRow(
-                        title = stringResource(R.string.section_bookmarks),
-                        description = "",
-                        checked = selectionState.includeBookmarks,
-                        onCheckedChange = {
-                            onSelectionStateChange(selectionState.copy(includeBookmarks = it))
-                        },
-                        icon = MaterialSymbols.Bookmark,
-                        isLastItem = !selectionState.showSearchHistoryOption && !selectionState.showApiKeysOption,
-                    )
-                }
-                if (selectionState.showSearchHistoryOption) {
-                    SettingsCheckboxRow(
-                        title = stringResource(R.string.recent_queries_toggle_title),
-                        description = "",
-                        checked = selectionState.includeSearchHistory,
-                        onCheckedChange = {
-                            onSelectionStateChange(selectionState.copy(includeSearchHistory = it))
-                        },
-                        icon = MaterialSymbols.History,
-                        isLastItem = !selectionState.showApiKeysOption,
-                    )
-                }
-                if (selectionState.showApiKeysOption) {
-                    SettingsCheckboxRow(
-                        title = stringResource(R.string.settings_backup_export_option_api_keys),
-                        description = "",
-                        checked = selectionState.includeApiKeys,
-                        onCheckedChange = {
-                            onSelectionStateChange(selectionState.copy(includeApiKeys = it))
-                        },
-                        icon = MaterialSymbols.Key,
-                        isLastItem = true,
-                    )
-                }
-                if (selectionState.showApiKeysOption && selectionState.includeApiKeys) {
-                    Text(
-                        text = stringResource(R.string.settings_backup_export_api_key_warning_message),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(top = DesignTokens.SpacingMedium),
-                    )
-                }
             }
-        },
-        confirmButton = {
-            Button(onClick = onExport) {
-                Text(text = stringResource(R.string.settings_backup_export_button))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.dialog_cancel))
-            }
-        },
-    )
+        }
+    }
 }
+
+private data class ExportOption(
+    val titleRes: Int,
+    val icon: ImageVector,
+    val checked: Boolean,
+    val enabled: Boolean = true,
+    val onCheckedChange: (Boolean) -> Unit = {},
+)
 
 data class ExportSelectionState(
     val includePinnedItems: Boolean = true,

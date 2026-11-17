@@ -1,7 +1,12 @@
 package com.tk.quicksearch.search.searchScreen
 
-import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.graphics.Color
+import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardStyleOverrides
+import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -32,14 +37,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.appSettings.AppSettingResult
 import com.tk.quicksearch.search.appSettings.AppSettingResultRow
 import com.tk.quicksearch.search.appShortcuts.AppShortcutRow
-import com.tk.quicksearch.search.appShortcuts.AppShortcutSearchPolicy
 import com.tk.quicksearch.search.apps.AppGridView
 import com.tk.quicksearch.search.apps.AppItemDropdownMenu
-import com.tk.quicksearch.search.apps.AppSearchInitials
-import com.tk.quicksearch.search.apps.AppSearchPolicy
 import com.tk.quicksearch.search.apps.notificationDots.AppNotificationDot
 import com.tk.quicksearch.search.apps.notificationDots.hasNotificationDot
 import com.tk.quicksearch.search.apps.notificationDots.rememberNotificationDotKeys
@@ -48,26 +49,15 @@ import com.tk.quicksearch.search.calendar.CalendarEventRow
 import com.tk.quicksearch.search.common.AddToHomeHandler
 import com.tk.quicksearch.search.contacts.components.ContactResultRow
 import com.tk.quicksearch.search.contacts.models.ContactButtonAction
-import com.tk.quicksearch.search.core.SearchSection
-import com.tk.quicksearch.search.core.SectionRenderContext
 import com.tk.quicksearch.search.core.SectionRenderParams
-import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.appShortcutRepository.isShortcutDisabled
-import com.tk.quicksearch.search.data.appShortcutRepository.shortcutDisplayName
 import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
-import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.deviceSettings.SettingResultRow
 import com.tk.quicksearch.search.files.FileResultRow
 import com.tk.quicksearch.search.models.AppInfo
-import com.tk.quicksearch.search.models.CalendarEventInfo
-import com.tk.quicksearch.search.models.ReminderInfo
 import com.tk.quicksearch.search.reminders.ReminderRow
 import com.tk.quicksearch.search.bookmarks.BookmarkRow
 import com.tk.quicksearch.search.bookmarks.LocalBookmarksSectionParams
-import com.tk.quicksearch.search.models.ContactInfo
-import com.tk.quicksearch.search.models.DeviceFile
-import com.tk.quicksearch.search.models.NoteInfo
-import com.tk.quicksearch.search.models.SecondaryRankingSignal
 import com.tk.quicksearch.search.notes.NoteRow
 import com.tk.quicksearch.search.other.OtherSearchItemId
 import com.tk.quicksearch.search.other.OtherSearchItemAction
@@ -80,16 +70,13 @@ import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContaine
 import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentPadding
 import com.tk.quicksearch.search.searchScreen.components.resultRowVerticalPadding
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
-import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
 import com.tk.quicksearch.search.searchScreen.shared.LocalCardlessStackSpacing
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
-import com.tk.quicksearch.search.utils.SearchRankingUtils
-import com.tk.quicksearch.search.utils.SearchQueryContext
-import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 @Composable
 internal fun TopMatchesSection(
@@ -110,10 +97,14 @@ internal fun TopMatchesSection(
     val cardLayoutEnabled = LocalSearchCardLayoutEnabled.current
     val highlightedMatch = selectedMatchIndex?.let(matches::getOrNull) ?: matches.firstOrNull()
     val displayedMatches = if (reverseOrder) matches.asReversed() else matches
+    // With cards on, consecutive result rows form one segmented group: tiles 2dp apart with large
+    // outer and small inner corners. The app grid and Screen Time card stay separate cards.
+    val segmented = cardLayoutEnabled
+    val segmentPositions = remember(displayedMatches) { topMatchSegmentPositions(displayedMatches) }
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
+        verticalArrangement = if (segmented) Arrangement.Top else Arrangement.spacedBy(DesignTokens.SpacingXSmall),
     ) {
         // Bottom-aligned results can stack Top Matches under the app grid, which ends without a
         // divider. Flat cards above already end in one, so only the grid needs this.
@@ -125,9 +116,18 @@ internal fun TopMatchesSection(
         }
 
         CompositionLocalProvider(LocalCardlessStackSpacing provides DesignTokens.SpacingXSmall) {
-            displayedMatches.forEach { item ->
+            displayedMatches.forEachIndexed { index, item ->
                 key(item.stableKey()) {
                     val isTopPredicted = showTopResultIndicator && item == highlightedMatch
+                    val segment = segmentPositions[index]
+                    val topGap =
+                        when {
+                            !segmented -> 0.dp
+                            index == 0 -> if (showHeader) DesignTokens.SpacingXSmall else 0.dp
+                            segment != null && segment.first > 0 -> DesignTokens.SegmentedListGap
+                            else -> DesignTokens.SpacingXSmall
+                        }
+                    if (topGap > 0.dp) Spacer(modifier = Modifier.height(topGap))
                     if (item is TopMatchItem.AppGrid) {
                         // Flat rows end in a divider; keep the icons as far off it as the regular app
                         // grid sits below the section above it (half the results stack spacing).
@@ -178,22 +178,35 @@ internal fun TopMatchesSection(
                                 )
                         }
                     } else {
+                        val rowShape =
+                            if (segmented && segment != null) {
+                                AppShapes.segment(segment.first, segment.second)
+                            } else {
+                                SearchResultCardDefaults.shape
+                            }
                         SearchResultCard(
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
                                     .predictedSubmitHighlight(
                                         isPredicted = isTopPredicted,
-                                        shape = SearchResultCardDefaults.shape,
+                                        shape = rowShape,
                                         opaqueCardTopResultBorder = true,
                                     ),
                             showWallpaperBackground = showWallpaperBackground,
+                            styleOverrides =
+                                if (segmented) {
+                                    // Tiles are set apart by their gap, so they drop the wallpaper outline.
+                                    SearchResultCardStyleOverrides(shape = rowShape, border = NoSegmentBorder)
+                                } else {
+                                    SearchResultCardStyleOverrides()
+                                },
                         ) {
                             Column(
                                 modifier =
                                     Modifier.padding(
                                         horizontal = DesignTokens.SpacingLarge,
-                                        vertical = 4.dp,
+                                        vertical = DesignTokens.SpacingXSmall,
                                     ),
                             ) {
                                 TopMatchRow(
@@ -210,13 +223,36 @@ internal fun TopMatchesSection(
     }
 }
 
+private val NoSegmentBorder = BorderStroke(0.dp, Color.Transparent)
+
+/**
+ * Position of each match within its run of consecutive result rows as (index, count), or null for
+ * the app grid and other cards, which aren't part of a segmented group.
+ */
+private fun topMatchSegmentPositions(matches: List<TopMatchItem>): List<Pair<Int, Int>?> {
+    fun isRow(item: TopMatchItem) = item !is TopMatchItem.AppGrid && item !is TopMatchItem.Other
+    val positions = MutableList<Pair<Int, Int>?>(matches.size) { null }
+    var start = 0
+    while (start < matches.size) {
+        if (!isRow(matches[start])) {
+            start++
+            continue
+        }
+        var end = start
+        while (end + 1 < matches.size && isRow(matches[end + 1])) end++
+        val count = end - start + 1
+        for (i in start..end) positions[i] = (i - start) to count
+        start = end + 1
+    }
+    return positions
+}
+
 /** Full-width divider between Top Matches and the regular results (card layout off). */
 @Composable
 private fun TopMatchesBoundaryDivider(showWallpaperBackground: Boolean, modifier: Modifier = Modifier) {
     HorizontalDivider(
         modifier = Modifier.compactEdgeToEdge().then(modifier),
-        color = LocalOverlayDividerColor.current
-            ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant,
+        color = SearchResultCardDefaults.dividerColor(showWallpaperBackground),
     )
 }
 
@@ -236,7 +272,7 @@ private fun TopMatchesHeader() {
         Icon(
             imageVector = MaterialSymbols.AutoAwesome,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.92f),
+            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.ContentNearOpaqueAlpha),
             modifier = Modifier.size(14.dp),
         )
         Text(
@@ -571,7 +607,7 @@ private fun TopMatchAppRow(
                     )
                     .topPredictedRowContentPadding()
                     .padding(vertical = resultRowVerticalPadding(12.dp)),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
@@ -595,7 +631,7 @@ private fun TopMatchAppRow(
 
             Text(
                 text = rememberQueryHighlightedText(app.appName),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

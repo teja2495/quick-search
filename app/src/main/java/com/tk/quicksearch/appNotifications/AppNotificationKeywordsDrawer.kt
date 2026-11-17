@@ -1,5 +1,6 @@
 package com.tk.quicksearch.appNotifications
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -149,7 +150,7 @@ private fun WantAllPillButton(
 ) {
     Surface(
         onClick = onClick,
-        shape = DesignTokens.ShapeFull,
+        shape = AppShapes.full,
         color = MaterialTheme.colorScheme.primary,
         contentColor = MaterialTheme.colorScheme.onPrimary,
     ) {

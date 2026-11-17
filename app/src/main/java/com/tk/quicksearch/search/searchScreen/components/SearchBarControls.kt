@@ -2,8 +2,6 @@ package com.tk.quicksearch.search.searchScreen.components
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
@@ -49,7 +47,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -327,30 +324,25 @@ internal fun SearchBarTrailingIcon(
             showSettings -> SearchBarTrailingAction.Settings
             else -> SearchBarTrailingAction.None
         }
-    // A subtle cross-fade with a slight scale and turn, so clear and mic/settings swap smoothly.
+    // The old icon shrinks away, then the new one grows in from the same spot.
     AnimatedContent(
         targetState = action,
         transitionSpec = {
             (
-                fadeIn(tween(TrailingIconSwapDurationMs, delayMillis = TrailingIconSwapDurationMs / 3)) +
+                fadeIn(tween(TrailingIconGrowMs, delayMillis = TrailingIconShrinkMs)) +
                     scaleIn(
-                        tween(TrailingIconSwapDurationMs, easing = FastOutSlowInEasing),
-                        initialScale = TrailingIconSwapScale,
+                        tween(TrailingIconGrowMs, delayMillis = TrailingIconShrinkMs, easing = FastOutSlowInEasing),
+                        initialScale = 0f,
                     )
             ).togetherWith(
-                fadeOut(tween(TrailingIconSwapDurationMs / 2)) +
-                    scaleOut(tween(TrailingIconSwapDurationMs / 2), targetScale = TrailingIconSwapScale),
+                fadeOut(tween(TrailingIconShrinkMs)) +
+                    scaleOut(tween(TrailingIconShrinkMs, easing = FastOutSlowInEasing), targetScale = 0f),
             ).using(SizeTransform(clip = false))
         },
         contentAlignment = Alignment.Center,
         modifier = Modifier.padding(end = DesignTokens.SpacingXSmall),
         label = "SearchBarTrailingIcon",
     ) { target ->
-        val rotation by transition.animateFloat(
-            transitionSpec = { tween(TrailingIconSwapDurationMs, easing = FastOutSlowInEasing) },
-            label = "SearchBarTrailingIconRotation",
-        ) { state -> if (state == EnterExitState.Visible) 0f else TrailingIconSwapRotation }
-        val iconModifier = Modifier.graphicsLayer { rotationZ = rotation }
         when (target) {
             SearchBarTrailingAction.Clear ->
                 IconButton(onClick = onClear) {
@@ -358,7 +350,6 @@ internal fun SearchBarTrailingIcon(
                         imageVector = MaterialSymbols.Close,
                         contentDescription = stringResource(R.string.desc_clear_search),
                         tint = accentColor,
-                        modifier = iconModifier,
                     )
                 }
 
@@ -368,7 +359,6 @@ internal fun SearchBarTrailingIcon(
                         imageVector = MaterialSymbols.Mic,
                         contentDescription = stringResource(R.string.desc_voice_search_icon),
                         tint = iconColor,
-                        modifier = iconModifier,
                     )
                 }
 
@@ -394,7 +384,6 @@ internal fun SearchBarTrailingIcon(
                         imageVector = MaterialSymbols.Settings,
                         contentDescription = stringResource(R.string.desc_open_settings),
                         tint = iconColor,
-                        modifier = iconModifier,
                     )
                 }
             }
@@ -404,9 +393,8 @@ internal fun SearchBarTrailingIcon(
     }
 }
 
-private const val TrailingIconSwapDurationMs = 220
-private const val TrailingIconSwapScale = 0.6f
-private const val TrailingIconSwapRotation = -45f
+private const val TrailingIconShrinkMs = 140
+private const val TrailingIconGrowMs = 180
 
 @Composable
 internal fun androidx.compose.foundation.layout.BoxScope.SearchBarAliasMorphText(

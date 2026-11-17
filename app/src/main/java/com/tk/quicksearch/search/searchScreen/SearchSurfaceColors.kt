@@ -4,9 +4,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.luminance
 import com.tk.quicksearch.search.core.SearchUiState
-import com.tk.quicksearch.search.searchScreen.appThemeActionColor
-import com.tk.quicksearch.search.searchScreen.appThemeDividerColor
-import com.tk.quicksearch.search.searchScreen.appThemeResultCardColor
 import com.tk.quicksearch.search.searchScreen.isAmoledSurfaceTheme
 import com.tk.quicksearch.search.searchScreen.resolveSearchColorTheme
 
@@ -20,7 +17,6 @@ internal data class SearchSurfaceColors(
 
 @Composable
 internal fun rememberSearchSurfaceColors(state: SearchUiState): SearchSurfaceColors {
-    val useOverlayThemeTints = !state.deviceThemeEnabled && state.backgroundSource == com.tk.quicksearch.search.core.BackgroundSource.THEME
     val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
     val amoledSurfacesActive =
             isAmoledSurfaceTheme(
@@ -42,42 +38,12 @@ internal fun rememberSearchSurfaceColors(state: SearchUiState): SearchSurfaceCol
                         amoledThemeEnabled = state.amoledThemeEnabled,
                 )
             }
-    val overlayCardColor =
-            if (useOverlayThemeTints) {
-                appThemeResultCardColor(
-                        theme = state.appTheme,
-                        isDarkMode = isDarkMode,
-                        intensity = state.overlayThemeIntensity,
-                        amoledThemeEnabled = state.amoledThemeEnabled,
-                )
-            } else {
-                null
-            }
-    val overlayDividerTint =
-            if (useOverlayThemeTints) {
-                appThemeDividerColor(
-                        theme = state.appTheme,
-                        isDarkMode = isDarkMode,
-                        intensity = state.overlayThemeIntensity,
-                )
-            } else {
-                null
-            }
-    val overlayActionTint =
-            if (useOverlayThemeTints) {
-                appThemeActionColor(
-                        theme = state.appTheme,
-                        isDarkMode = isDarkMode,
-                        intensity = state.overlayThemeIntensity,
-                )
-            } else {
-                null
-            }
+    val overlayThemeTints = overlayThemeTints(state, isDarkMode)
     return SearchSurfaceColors(
         amoledSurfacesActive,
         searchColorTheme,
-        overlayCardColor,
-        overlayDividerTint,
-        overlayActionTint,
+        overlayThemeTints.cardColor,
+        overlayThemeTints.dividerTint,
+        overlayThemeTints.actionTint,
     )
 }

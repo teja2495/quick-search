@@ -28,7 +28,6 @@ import com.tk.quicksearch.searchEngines.*
 import com.tk.quicksearch.search.searchScreen.ExpandedSection
 import com.tk.quicksearch.search.searchScreen.hasAnySearchResults
 import com.tk.quicksearch.search.searchScreen.renderSection
-import com.tk.quicksearch.search.searchScreen.shared.reportCardlessTrailingEdge
 import com.tk.quicksearch.search.searchScreen.rememberSettledRegularSearchRenderingState
 import com.tk.quicksearch.search.searchScreen.rememberSettledTopMatches
 import com.tk.quicksearch.search.searchScreen.rememberTopMatches
@@ -47,9 +46,6 @@ import com.tk.quicksearch.search.searchScreen.components.SectionPermissionResult
 import com.tk.quicksearch.search.other.OtherSearchItemActionHandler
 import com.tk.quicksearch.search.other.OtherSearchItemRegistry
 import com.tk.quicksearch.R
-import com.tk.quicksearch.widgetsPanel.HomeWidgetStack
-import com.tk.quicksearch.widgetsPanel.rememberHomePinnedWidgets
-import com.tk.quicksearch.widgetsPanel.rememberHomeWidgetHost
 
 /** Unified content layout that handles both one-handed mode and top-aligned layouts. */
 @Composable
@@ -158,7 +154,7 @@ fun ContentLayout(
     // Home sections reserve their full height as soon as their data arrives and only fade in, so
     // nothing above them reflows while the rest of the agenda is still loading.
     var suggestionsAppGridHasAppeared by remember { mutableStateOf(false) }
-    val appearedHomeContentKeys = remember { mutableSetOf<String>() }
+    val appearedHomeContentKeys = rememberHomeAppearedContentKeys()
     val effectiveAppsParams = appsParams.copy(
         predictedTarget = predictedTarget,
         onGridAppeared = {
@@ -645,7 +641,7 @@ fun ContentLayout(
                 }
             if (
                 skipItemlessHomeSections &&
-                section.supportsPinnedHomeCollapse() &&
+                section != SearchSection.APPS &&
                 !homePinnedSectionHasItems(section, sectionContext)
             ) {
                 return
@@ -748,53 +744,26 @@ fun ContentLayout(
             topMatches = displayedTopMatches,
             rendersAppsSection = rendersAppsSection,
         )
-    val contentModifier = modifier.padding(bottom = bottomGap).reportCardlessTrailingEdge()
+    val contentModifier =
+        modifier.padding(bottom = bottomGap).reversedListTopDivider(isReversed, effectiveShowWallpaperBackground)
 
-    val homeWidgets = rememberHomePinnedWidgets(enabled = !isOverlayPresentation)
-    // The container only depends on whether any widget is pinned, so typing a query keeps the same
-    // layout tree instead of rebuilding every section.
-    val homeWidgetHost = if (homeWidgets.isNotEmpty()) rememberHomeWidgetHost() else null
-    val showHomeWidgets =
-        !hasQuery &&
-            !hideResults &&
-            !isSectionAliasMode &&
-            !isExpanded &&
-            !hideOtherContent &&
-            !hidePinnedAndAppsWhenSearchHistoryExpanded &&
-            !isHomeCalendarExpanded
-
-    if (homeWidgetHost != null) {
-        HomeWidgetStack(
-            layoutOrder = finalLayoutOrder,
-            isReversed = isReversed,
-            widgets = homeWidgets,
-            showWidgets = showHomeWidgets,
-            host = homeWidgetHost,
-            spacing = 14.dp,
-            isScrollInProgress = isScrollInProgress,
-            modifier = contentModifier,
-            leadingContent = {
-                if (showTopMatchesSection && !isReversed) renderTopMatches()
-            },
-            trailingContent = {
-                renderDeferredSearchHistory()
-                if (showTopMatchesSection && isReversed) renderTopMatches()
-            },
-            itemContent = { itemType -> renderLayoutItem(itemType) },
-        )
-        return
-    }
-
-    Column(modifier = contentModifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        if (showTopMatchesSection && !isReversed) {
-            renderTopMatches()
-        }
-        finalLayoutOrder.forEach { itemType -> renderLayoutItem(itemType) }
-
-        renderDeferredSearchHistory()
-
-        if (showTopMatchesSection && isReversed) {
-            renderTopMatches()
-        }
-    }
+    ContentLayoutColumn(
+        layoutOrder = finalLayoutOrder,
+        isReversed = isReversed,
+        showTopMatchesSection = showTopMatchesSection,
+        showHomeWidgets =
+            !hasQuery &&
+                !hideResults &&
+                !isSectionAliasMode &&
+                !isExpanded &&
+                !hideOtherContent &&
+                !hidePinnedAndAppsWhenSearchHistoryExpanded &&
+                !isHomeCalendarExpanded,
+        isOverlayPresentation = isOverlayPresentation,
+        isScrollInProgress = isScrollInProgress,
+        modifier = contentModifier,
+        topMatches = { renderTopMatches() },
+        deferredSearchHistory = { renderDeferredSearchHistory() },
+        item = { itemType -> renderLayoutItem(itemType) },
+    )
 }

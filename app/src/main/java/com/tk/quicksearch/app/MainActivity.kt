@@ -1,7 +1,7 @@
 package com.tk.quicksearch.app
 
+import com.tk.quicksearch.search.searchScreen.setContentWithFrostedCards
 import com.tk.quicksearch.search.apps.appLock.AppLockGate
-import android.app.SearchManager
 import android.content.ComponentCallbacks2
 import android.content.Context
 import android.content.Intent
@@ -13,9 +13,10 @@ import android.view.WindowManager
 import android.graphics.PixelFormat
 import android.os.Trace
 import android.view.KeyEvent
+import android.view.KeyboardShortcutGroup
+import android.view.Menu
 import androidx.fragment.app.FragmentActivity
 import androidx.activity.SystemBarStyle
-import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -164,6 +165,13 @@ open class MainActivity : FragmentActivity() {
             UiSurfaceMemoryManager.onSurfaceCreated()
             isActivityInstanceTracked = true
             window.setBackgroundDrawable(null)
+            if (this !is HomeActivity) {
+                // Clearing the background leaves the window OPAQUE, and the renderer fixes its
+                // opacity when the window attaches, ignoring later setFormat calls. Choose
+                // TRANSLUCENT now so frames are cleared once the System wallpaper backdrop makes
+                // the root transparent; otherwise moving content leaves ghosted copies behind.
+                window.setFormat(PixelFormat.TRANSLUCENT)
+            }
 
             // Disable activity opening animation for instant appearance
             @Suppress("DEPRECATION")
@@ -275,7 +283,20 @@ open class MainActivity : FragmentActivity() {
             finish()
             return true
         }
+        if (event.isOpenSettingsShortcut()) {
+            navigationRequest.value = NavigationRequest(destination = RootDestination.Settings)
+            return true
+        }
         return super.dispatchKeyEvent(event)
+    }
+
+    override fun onProvideKeyboardShortcuts(
+        data: MutableList<KeyboardShortcutGroup>,
+        menu: Menu?,
+        deviceId: Int,
+    ) {
+        super.onProvideKeyboardShortcuts(data, menu, deviceId)
+        data.add(quickSearchKeyboardShortcuts(this, includeOpenSettings = true))
     }
 
     private fun initializePreferences() {
@@ -317,7 +338,7 @@ open class MainActivity : FragmentActivity() {
                 startVoiceSearch =
                     startVoiceForAssistant || startVoiceFromShortcut || startVoiceFromWidget,
                 micAction = micAction,
-                initialQuery = extractTextFromIntent(intent),
+                initialQuery = extractQueryFromIntent(intent),
             )
             finish()
             return true
@@ -330,7 +351,7 @@ open class MainActivity : FragmentActivity() {
     }
 
     private fun setupContent() {
-        setContent {
+        setContentWithFrostedCards {
             val rootStateFlow =
                 remember {
                     searchViewModel.uiState.map(MainRootState::from).distinctUntilChanged()
@@ -487,9 +508,8 @@ open class MainActivity : FragmentActivity() {
         val isShowingWallpaper = window.attributes.flags and flag != 0
         if (showWallpaper == isShowingWallpaper) return
         if (showWallpaper) {
-            // onCreate clears the window background, which leaves the surface OPAQUE. An opaque
-            // surface is never cleared between frames, so the transparent root would keep stale
-            // frames on screen (ghosted copies of moving content) and hide the wallpaper.
+            // onCreate already picked TRANSLUCENT so the renderer clears frames; keep the
+            // surface format in step in case anything reset it.
             window.setFormat(PixelFormat.TRANSLUCENT)
             window.addFlags(flag)
         } else {
@@ -514,42 +534,6 @@ open class MainActivity : FragmentActivity() {
                     appTaskId == taskId
                 }
         appTask?.setExcludeFromRecents(!showInRecents)
-    }
-
-    private fun extractTextFromIntent(intent: Intent?): String? {
-        if (intent == null) return null
-
-        val queryFromCommonExtras =
-            listOf(
-                    SearchManager.QUERY,
-                    Intent.EXTRA_TEXT,
-                    "query",
-                    "q",
-                    "text",
-                )
-                .asSequence()
-                // Callers put the query under any of these keys with any type, so read it untyped.
-                .mapNotNull { key ->
-                    @Suppress("DEPRECATION")
-                    intent.extras?.get(key)?.toString()?.trim()
-                }
-                .firstOrNull { it.isNotBlank() }
-
-        return when (intent.action) {
-            Intent.ACTION_PROCESS_TEXT ->
-                intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)?.toString()?.trim()
-                    ?.takeIf { it.isNotBlank() }
-            Intent.ACTION_SEND ->
-                if (intent.type == "text/plain")
-                    intent.getStringExtra(Intent.EXTRA_TEXT)?.trim()?.takeIf { it.isNotBlank() }
-                else null
-            Intent.ACTION_SEARCH,
-            Intent.ACTION_WEB_SEARCH,
-            Intent.ACTION_VIEW,
-            Intent.ACTION_MAIN,
-            -> queryFromCommonExtras
-            else -> null
-        }
     }
 
     private fun handleIntent(intent: Intent?) {
@@ -595,7 +579,7 @@ open class MainActivity : FragmentActivity() {
             }
         }
 
-        val incomingText = extractTextFromIntent(intent)
+        val incomingText = extractQueryFromIntent(intent)
         if (incomingText != null) {
             searchViewModel.onQueryChange(incomingText)
         }

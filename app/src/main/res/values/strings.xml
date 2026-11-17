@@ -114,6 +114,9 @@
     <string name="action_open_folder">Open Folder</string>
     <string name="action_open_keyboard">Open Keyboard</string>
     <string name="action_open_settings">Open settings</string>
+    <string name="keyboard_shortcut_open_top_result">Open top result or search</string>
+    <string name="keyboard_shortcut_previous_result">Select previous result</string>
+    <string name="keyboard_shortcut_next_result">Select next result</string>
     <string name="settings_gestures_title">Gestures</string>
     <string name="settings_gestures_desc">Customize swipe actions</string>
     <string name="settings_gesture_swipe_right">Swipe Right</string>
@@ -727,6 +730,7 @@
     <string name="settings_all_quick_search_features">Features List</string>
     <string name="settings_all_quick_search_features_desc">View the complete list of features and capabilities</string>
     <string name="settings_more_apps_from_developer_title">More Apps from the Developer</string>
+    <string name="settings_github_label">GitHub</string>
     <string name="settings_app_settings_desc">Search for Quick Search settings</string>
     <string name="settings_features_load_failed">Unable to load feature documentation.</string>
     <string name="settings_features_export">Download and share features</string>
@@ -836,6 +840,8 @@
     <string name="settings_unified_pinned_items_desc">Show pinned items as one unified list in home.</string>
     <string name="settings_show_status_bar_title">Show Status Bar</string>
     <string name="settings_show_status_bar_desc">Show the Android status bar at the top of the screen.</string>
+    <string name="settings_search_chrome_blur_title">Blurred Background</string>
+    <string name="settings_search_chrome_blur_desc">Blur what’s behind the search bar.</string>
     <string name="settings_pinned_sections_order_title">Pinned Sections Order</string>
     <string name="settings_pinned_sections_order_desc">Reorder pinned sections on home</string>
     <string name="settings_pinned_sections_order_dialog_info">Hold and drag to change the order of pinned sections on home.</string>
@@ -845,7 +851,7 @@
     <string name="settings_more_options_title">More Options</string>
     <string name="settings_overlay_assistant_setup_now">Setup Now</string>
     <string name="settings_overlay_assistant_tip">Tip: Set this app as your digital assistant to open the overlay from anywhere.</string>
-    <string name="settings_overlay_mode_desc">Search bar opens as an overlay on top of other apps</string>
+    <string name="settings_overlay_mode_desc">Search bar opens as an overlay over other apps</string>
     <string name="settings_overlay_mode_desc_launcher_blocked">Unavailable while Quick Search is your default launcher</string>
     <string name="settings_overlay_mode_title">Overlay Mode</string>
     <string name="settings_overlay_source_add_custom">Add custom image</string>
@@ -1080,9 +1086,8 @@
     <string name="settings_backup_import_warning_title">Import settings?</string>
     <string name="settings_backup_restore_desc">Export or import your app settings</string>
     <string name="settings_backup_restore_title">Backup &amp; Restore</string>
-    <string name="settings_feedback_developer_desc">Made by %1$s</string>
     <string name="settings_feedback_developer_name">Teja Karlapudi</string>
-    <string name="settings_feedback_developer_title">%1$s v%2$s</string>
+    <string name="settings_feedback_developer_made_by">Made by</string>
     <string name="settings_feedback_github_desc">View this project\'s source code on GitHub</string>
     <string name="settings_feedback_github_title">Development</string>
     <string name="settings_feedback_rate_desc">Leave a 5 star rating if you find this app useful 🙏</string>
@@ -1270,7 +1275,7 @@
     <string name="permissions_calling_desc">Needed to call your contacts directly without opening the dialer.</string>
     <string name="settings_notifications_permission_title">Post Notifications</string>
     <string name="permissions_notifications_desc">Needed for reminder notifications and to pin search results to notification panel</string>
-    <string name="permissions_notification_access_desc">Needed to enable notification dots and notification history features</string>
+    <string name="permissions_notification_access_desc">Needed to enable notification dots, notification history, and useful At a Glance features.</string>
     <string name="permissions_accessibility_lock_screen_title">Accessibility</string>
     <string name="permissions_accessibility_lock_screen_desc">Enables gestures, floating button, and SpeedBump.</string>
     <string name="permissions_contacts_desc">Needed to search your contacts.</string>
@@ -1285,6 +1290,10 @@
     <string name="permissions_open_source_desc">See exactly how these permissions are used.</string>
     <string name="permissions_open_source_action">Tap to view code.</string>
     <string name="permissions_screen_optional_emphasis">optional</string>
+    <string name="permissions_trust_optional">Every permission is optional</string>
+    <string name="permissions_trust_on_device">Your data stays on the device</string>
+    <string name="permissions_trust_open_source">Fully open source</string>
+    <string name="permissions_trust_view_code">View Code</string>
     <string name="permissions_usage_desc">Needed to show your recently used apps in suggestions.</string>
     <string name="setup_action_next">Next</string>
     <string name="setup_action_skip_permissions">Continue without permissions</string>
@@ -1400,7 +1409,7 @@
     <string name="tasker_not_installed">Tasker is not installed</string>
     <string name="tasker_broadcast_failed">Could not send the Tasker broadcast</string>
     <string name="app_menu_usage_today">Used for %1$s today · %2$s</string>
-    <string name="app_menu_version">v%1$s</string>
+    <string name="app_menu_version">Version %1$s</string>
     <plurals name="app_menu_opened_count"><item quantity="one">%d open</item><item quantity="other">%d opens</item></plurals>
     <plurals name="app_menu_usage_hours"><item quantity="one">%d hr</item><item quantity="other">%d hr</item></plurals>
     <plurals name="app_menu_usage_minutes"><item quantity="one">%d min</item><item quantity="other">%d min</item></plurals>

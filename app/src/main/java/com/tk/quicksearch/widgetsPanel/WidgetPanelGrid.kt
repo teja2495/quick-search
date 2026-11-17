@@ -1,61 +1,44 @@
 package com.tk.quicksearch.widgetsPanel
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.shared.ui.components.AppButtonTone
 import android.app.Activity
 import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
-import android.content.res.Configuration
-import android.os.Build
-import android.os.Bundle
-import android.view.WindowManager
-import android.view.ViewGroup
-import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.scrollBy
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -63,50 +46,33 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
-import android.widget.Toast
-import androidx.core.os.bundleOf
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.core.AppTheme
-import com.tk.quicksearch.search.core.BackgroundSource
-import com.tk.quicksearch.search.core.SearchUiState
-import com.tk.quicksearch.search.data.preferences.NotesPreferences
-import com.tk.quicksearch.search.searchScreen.searchRoute.SearchScreenWallpaperLogic
-import com.tk.quicksearch.settings.shared.SettingsScreenBackground
+import com.tk.quicksearch.search.searchScreen.LocalFrostedCardSource
+import com.tk.quicksearch.search.searchScreen.frostedCardBackground
+import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.theme.LocalHomeTextColorOverride
-import com.tk.quicksearch.shared.ui.theme.LocalImageBackgroundIsDark
 import com.tk.quicksearch.shared.ui.theme.homeTextColor
-import com.tk.quicksearch.shared.util.ImageAppearanceUtils
-import android.util.SizeF
 import kotlin.math.roundToInt
+import com.tk.quicksearch.shared.ui.theme.AppMotion
+import com.tk.quicksearch.shared.ui.components.AppTonalButton
 
 internal tailrec fun Context.findActivity(): Activity? =
     when (this) {
@@ -121,41 +87,59 @@ internal fun WidgetsPanelHeader(
     onAddWidget: () -> Unit,
     onExitEditMode: () -> Unit,
 ) {
-    val mutedColor = homeTextColor().copy(alpha = 0.7f)
+    val foreground = homeTextColor()
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().padding(vertical = DesignTokens.SpacingSmall),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = stringResource(R.string.widgets_panel_title),
-            style = MaterialTheme.typography.titleMedium,
-            color = mutedColor,
+            style = MaterialTheme.typography.headlineSmall,
+            color = foreground,
             modifier = Modifier.weight(1f),
         )
-        if (inEditMode) {
-            TextButton(
-                onClick = onExitEditMode,
-                colors = ButtonDefaults.textButtonColors(contentColor = homeTextColor()),
-            ) {
-                Text(
-                    text = stringResource(R.string.dialog_done),
-                    style = MaterialTheme.typography.labelLarge,
-                )
-            }
-        } else {
-            IconButton(
-                onClick = onAddWidget,
-                colors = IconButtonDefaults.iconButtonColors(contentColor = mutedColor),
-            ) {
-                Icon(
-                    imageVector = MaterialSymbols.Add,
-                    contentDescription = stringResource(R.string.common_action_add),
-                    modifier = Modifier.size(22.dp),
-                )
+        // Swap the add button for Done with a fade and springy scale instead of a hard cut.
+        AnimatedContent(
+            targetState = inEditMode,
+            transitionSpec = {
+                (fadeIn(tween(HEADER_ACTION_FADE_MS)) +
+                    scaleIn(initialScale = HEADER_ACTION_INITIAL_SCALE, animationSpec = AppMotion.fastSpatial()))
+                    .togetherWith(fadeOut(tween(HEADER_ACTION_FADE_MS)))
+                    .using(SizeTransform(clip = false))
+            },
+            contentAlignment = Alignment.CenterEnd,
+            label = "widgetPanelHeaderAction",
+        ) { editing ->
+            if (editing) {
+                AppTonalButton(
+                    onClick = onExitEditMode,
+                    tone = AppButtonTone.Custom(foreground),
+                    icon = MaterialSymbols.Check,
+                ) {
+                    Text(text = stringResource(R.string.dialog_done))
+                }
+            } else {
+                FilledTonalIconButton(
+                    onClick = onAddWidget,
+                    modifier = Modifier.size(DesignTokens.Spacing40),
+                    colors = IconButtonDefaults.filledTonalIconButtonColors(
+                        containerColor = foreground.copy(alpha = AppColors.TintLightAlpha),
+                        contentColor = foreground,
+                    ),
+                ) {
+                    Icon(
+                        imageVector = MaterialSymbols.Add,
+                        contentDescription = stringResource(R.string.common_action_add),
+                        modifier = Modifier.size(DesignTokens.IconSize),
+                    )
+                }
             }
         }
     }
 }
+
+private const val HEADER_ACTION_FADE_MS = 150
+private const val HEADER_ACTION_INITIAL_SCALE = 0.85f
 
 @Composable
 internal fun WidgetPanelGrid(
@@ -469,7 +453,8 @@ private fun BoxScope.WidgetPanelGridItem(
     val animatedHeight by
         animateDpAsState(targetValue = height, animationSpec = WidgetLayoutMotion, label = "widgetHeight")
     val editScale by animateFloatAsState(
-        targetValue = if (isEditing) 1.02f else 1f,
+        targetValue = if (isEditing) WIDGET_EDIT_LIFT_SCALE else 1f,
+        animationSpec = AppMotion.defaultSpatial(),
         label = "widgetEditScale",
     )
 
@@ -526,8 +511,8 @@ private fun BoxScope.WidgetPanelGridItem(
             providerInfo = providerInfo,
             appWidgetManager = appWidgetManager,
             appWidgetHost = appWidgetHost,
-            width = animatedWidth,
-            height = animatedHeight,
+            width = width,
+            height = height,
             columnSpan = columnSpan,
             rowSpan = rowSpan,
             modifier = Modifier.fillMaxSize(),
@@ -540,9 +525,18 @@ private fun BoxScope.WidgetPanelGridItem(
                 modifier =
                     Modifier
                         .fillMaxSize()
+                        .frostedCardBackground(AppShapes.widgetPanelCard)
                         .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            shape = DesignTokens.WidgetPanelCardShape,
+                            color =
+                                if (LocalFrostedCardSource.current?.isActive == true) {
+                                    SearchResultCardDefaults.containerColor(
+                                        showWallpaperBackground = true,
+                                        overlayContainerColor = null,
+                                    )
+                                } else {
+                                    MaterialTheme.colorScheme.surfaceVariant
+                                },
+                            shape = AppShapes.widgetPanelCard,
                         ),
                 contentAlignment = Alignment.Center,
             ) {
@@ -554,7 +548,7 @@ private fun BoxScope.WidgetPanelGridItem(
             }
         }
 
-        if (isEditing) {
+        AnimatedWidgetEditOverlay(visible = isEditing) {
             WidgetEditOverlay(
                 column = column,
                 row = row,

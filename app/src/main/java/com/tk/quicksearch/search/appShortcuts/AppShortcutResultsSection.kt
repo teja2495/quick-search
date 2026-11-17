@@ -1,5 +1,11 @@
 package com.tk.quicksearch.search.appShortcuts
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
+import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
+import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
+import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
+import com.tk.quicksearch.search.searchScreen.shared.ResultRowDivider
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
 import com.tk.quicksearch.search.apps.appLock.AppLockGate
 import android.content.Intent
@@ -142,6 +148,7 @@ fun AppShortcutResultsSection(
                         fillExpandedHeight = fillExpandedHeight,
                         showWallpaperBackground = showWallpaperBackground,
                         overlayCardColor = overlayCardColor,
+                    segmented = true,
                 ) { contentModifier, cardState ->
                         val displayShortcuts =
                                 if (cardState.displayAsExpanded) {
@@ -222,9 +229,14 @@ private fun AppShortcutsCardContent(
         bottomContentPadding: Dp,
         showPinnedItemMenu: Boolean,
 ) {
+        val segmentCount = displayShortcuts.size + if (shouldShowExpandButton) 1 else 0
+        val segmented = segmentedRowsActive()
         Column(
                 modifier =
-                        Modifier.padding(horizontal = DesignTokens.SpacingMedium, vertical = 4.dp)
+                        Modifier.padding(
+                                horizontal = resultRowsContainerPadding(DesignTokens.SpacingMedium),
+                                vertical = resultRowsContainerPadding(4.dp),
+                        )
                                 .padding(bottom = bottomContentPadding),
         ) {
                 displayShortcuts.forEachIndexed { index, shortcut ->
@@ -234,6 +246,7 @@ private fun AppShortcutsCardContent(
                                         predictedShortcutId != null && shortcutId == predictedShortcutId
                                 val showPredictedOnRow =
                                         isPredictedShortcut && !useCardLevelPrediction
+                                ResultSegment(index = index, count = segmentCount) {
                                 AppShortcutRow(
                                         shortcut = shortcut,
                                         isPinned = pinnedShortcutIds.contains(shortcutId),
@@ -254,17 +267,16 @@ private fun AppShortcutsCardContent(
                                         isPredicted = showPredictedOnRow,
                                         showPinnedItemMenu = showPinnedItemMenu,
                                 )
+                                }
                                 if (index < displayShortcuts.lastIndex && !showPredictedOnRow) {
-                                        HorizontalDivider(
-                                                modifier = Modifier.compactEdgeToEdge().fillMaxWidth(),
-                                                color = overlayDividerColor
-                                                                ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant,
-                                        )
+                                        ResultRowDivider(showWallpaperBackground, color = overlayDividerColor)
                                 }
                         }
                 }
 
-                if (shouldShowExpandButton) {
+                if (shouldShowExpandButton && segmented) {
+                        ExpandButtonSegment(index = segmentCount - 1, count = segmentCount, onClick = onExpandClick, textResId = R.string.action_expand_more_shortcuts)
+                } else if (shouldShowExpandButton) {
                         ExpandButtonDivider(showWallpaperBackground)
                         ExpandButton(
                                 onClick = onExpandClick,
@@ -340,7 +352,7 @@ internal fun AppShortcutRow(
                                 )
                                 .topPredictedRowContentPadding()
                                 .padding(vertical = resultRowVerticalPadding(12.dp)),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                 verticalAlignment = Alignment.CenterVertically,
         ) {
                 val leadingIconStartPadding =
@@ -374,7 +386,7 @@ internal fun AppShortcutRow(
                                 }
                         Text(
                                 text = rememberQueryHighlightedText(displayName),
-                                style = MaterialTheme.typography.bodyMedium,
+                                style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
@@ -382,7 +394,7 @@ internal fun AppShortcutRow(
                         if (!secondaryText.isNullOrBlank()) {
                                 Text(
                                         text = rememberQueryHighlightedText(secondaryText),
-                                        style = MaterialTheme.typography.bodySmall,
+                                        style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis,
@@ -708,7 +720,7 @@ private fun AppShortcutDropdownMenu(
                                         Image(
                                                 bitmap = bitmap,
                                                 contentDescription = displayName,
-                                                modifier = Modifier.size(40.dp).clip(RoundedCornerShape(10.dp)),
+                                                modifier = Modifier.size(40.dp).clip(AppShapes.iconTile),
                                                 contentScale = ContentScale.Fit,
                                         )
                                 }

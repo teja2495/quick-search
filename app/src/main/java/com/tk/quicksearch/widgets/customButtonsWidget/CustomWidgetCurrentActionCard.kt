@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgets.customButtonsWidget
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,6 +16,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.ui.components.TonalButton
+import com.tk.quicksearch.shared.ui.components.appPickerDrawerItemBackground
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 /** The action already assigned in a picker, with a pill Reset button that clears it. */
@@ -27,8 +30,8 @@ internal fun CustomWidgetCurrentActionCard(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = DesignTokens.ShapeLarge,
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        shape = AppShapes.extraLarge,
+        color = appPickerDrawerItemBackground(selected = true),
     ) {
         Column(
             modifier = Modifier.padding(horizontal = DesignTokens.SpacingLarge, vertical = DesignTokens.SpacingMedium),
@@ -41,7 +44,7 @@ internal fun CustomWidgetCurrentActionCard(
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             ) {
                 CustomWidgetButtonIcon(
                     action = action,
@@ -56,18 +59,11 @@ internal fun CustomWidgetCurrentActionCard(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f),
                 )
-                Surface(
+                TonalButton(
+                    text = stringResource(R.string.dialog_reset),
                     onClick = onReset,
-                    shape = DesignTokens.ShapeFull,
-                    color = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                ) {
-                    Text(
-                        text = stringResource(R.string.dialog_reset),
-                        style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                    )
-                }
+                    small = true,
+                )
             }
         }
     }

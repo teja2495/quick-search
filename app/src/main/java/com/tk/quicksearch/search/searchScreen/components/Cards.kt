@@ -8,9 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -22,10 +19,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
-import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.components.AppButton
 
 @Composable
 internal fun PermissionDisabledCard(
@@ -33,15 +29,11 @@ internal fun PermissionDisabledCard(
     message: String,
     actionLabel: String,
     onActionClick: () -> Unit,
+    showWallpaperBackground: Boolean,
 ) {
-    Card(
+    SearchResultCard(
         modifier = Modifier.fillMaxWidth(),
-        colors =
-            CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-            ),
-        elevation = AppColors.getCardElevation(false),
-        shape = SearchResultCardDefaults.shape,
+        showWallpaperBackground = showWallpaperBackground,
     ) {
         Column(
             modifier =
@@ -61,7 +53,7 @@ internal fun PermissionDisabledCard(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Button(onClick = onActionClick, modifier = Modifier.align(Alignment.End)) {
+            AppButton(onClick = onActionClick, modifier = Modifier.align(Alignment.End)) {
                 Text(text = actionLabel)
             }
         }
@@ -73,15 +65,11 @@ internal fun UsagePermissionCard(
     modifier: Modifier = Modifier,
     onRequestPermission: () -> Unit,
     onDismiss: () -> Unit,
+    showWallpaperBackground: Boolean,
 ) {
-    Card(
+    SearchResultCard(
         modifier = modifier,
-        colors =
-            CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            ),
-        elevation = AppColors.getCardElevation(false),
-        shape = SearchResultCardDefaults.shape,
+        showWallpaperBackground = showWallpaperBackground,
     ) {
         Column(
             modifier = Modifier.padding(DesignTokens.SpacingXLarge),
@@ -116,7 +104,7 @@ internal fun UsagePermissionCard(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Button(
+            AppButton(
                 onClick = onRequestPermission,
                 modifier = Modifier.align(Alignment.End),
             ) { Text(text = stringResource(R.string.action_open_settings)) }

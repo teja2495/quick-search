@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -39,25 +41,26 @@ import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.shared.permissions.PermissionSettingsDialog
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.settings.shared.*
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
 
 // Constants for consistent spacing
 private object MessagingSpacing {
-    val cardHorizontalPadding = DesignTokens.CardHorizontalPadding
-    val cardTopPadding = DesignTokens.CardTopPadding
-    val cardBottomPadding = DesignTokens.CardBottomPadding
     val optionSpacing = DesignTokens.ItemRowSpacing
     val messagingTitleBottomPadding = DesignTokens.SectionTitleBottomPadding
     val chipVerticalPadding = DesignTokens.ChipVerticalPadding
     val chipHorizontalPadding = DesignTokens.ChipHorizontalPadding
     val chipIconSpacing = DesignTokens.ChipIconSpacing
     val iconSize = DesignTokens.LargeIconSize
-    val borderWidth = DesignTokens.BorderWidth
+    val selectedBorderWidth = 2.dp
 }
+
 
 private data class MessagingOption(
     val app: MessagingApp,
@@ -160,12 +163,12 @@ private fun DirectDialCard(
             }
         }
 
-    SettingsCard(
+    SegmentedGroup(
         modifier = Modifier.fillMaxWidth(),
     ) {
-        SettingsToggleRow(
+        SegmentedToggleTile(
             title = stringResource(R.string.settings_direct_dial_title),
-            subtitle = stringResource(R.string.settings_direct_dial_desc),
+            description = stringResource(R.string.settings_direct_dial_desc),
             checked = directDialEnabled,
             onCheckedChange = { newValue ->
                 if (newValue) {
@@ -178,16 +181,18 @@ private fun DirectDialCard(
                     onToggleDirectDial(false)
                 }
             },
-            isFirstItem = true,
-            isLastItem = false,
+            icon = MaterialSymbols.Call,
+            index = 0,
+            count = 2,
         )
-        SettingsToggleRow(
+        SegmentedToggleTile(
             title = stringResource(R.string.settings_number_search_title),
-            subtitle = stringResource(R.string.settings_number_search_desc),
+            description = stringResource(R.string.settings_number_search_desc),
             checked = numberSearchEnabled,
             onCheckedChange = onToggleNumberSearch,
-            isFirstItem = false,
-            isLastItem = true,
+            icon = MaterialSymbols.Search,
+            index = 1,
+            count = 2,
         )
     }
 
@@ -214,19 +219,8 @@ private fun DefaultMessagingAppCard(
 ) {
     if (messagingOptions.isEmpty()) return
 
-    SettingsCard(
-        modifier = modifier.fillMaxWidth(),
-    ) {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        start = MessagingSpacing.cardHorizontalPadding,
-                        end = MessagingSpacing.cardHorizontalPadding,
-                        top = MessagingSpacing.cardTopPadding,
-                        bottom = MessagingSpacing.cardBottomPadding,
-                    ),
+    SegmentedTile(index = 0, count = 1, modifier = modifier) {
+        SegmentedTileContent(
             verticalArrangement = Arrangement.spacedBy(MessagingSpacing.optionSpacing),
         ) {
             Text(
@@ -277,24 +271,21 @@ private fun MessagingOptionChip(
     modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
-    val borderColor =
-        if (selected) {
-            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
-        } else {
-            AppColors.SettingsDivider
-        }
+    // Tonal options like the settings choice group: a light accent tint, stronger with an accent
+    // outline when selected, so brand icons stay legible on the fill.
+    val borderColor = if (selected) AppColors.Accent else Color.Transparent
     val backgroundColor =
-        if (selected) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f) else Color.Transparent
+        if (selected) AppColors.AccentTintStrong else AppColors.AccentTintSubtle
 
     Column(
         modifier =
             modifier
-                .clip(MaterialTheme.shapes.large)
+                .clip(AppShapes.large)
                 .background(backgroundColor)
                 .border(
-                    width = MessagingSpacing.borderWidth,
+                    width = MessagingSpacing.selectedBorderWidth,
                     color = borderColor,
-                    shape = MaterialTheme.shapes.large,
+                    shape = AppShapes.large,
                 ).selectable(
                     selected = selected,
                     onClick = {

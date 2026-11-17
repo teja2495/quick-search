@@ -2,6 +2,7 @@ package com.tk.quicksearch.search.webSuggestions
 
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,15 +19,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
+import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardStyleOverrides
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 
 private const val SUGGESTION_ICON_SIZE = 36
 private const val SUGGESTION_ARROW_ICON_SIZE = 32
@@ -81,6 +85,39 @@ private fun WebSuggestionsCard(
     val iconColor =
         if (showWallpaperBackground) AppColors.WallpaperTextSecondary else MaterialTheme.colorScheme.onSurfaceVariant
 
+    if (LocalSearchCardLayoutEnabled.current) {
+        // Material 3 Expressive segmented list: each suggestion is its own tile, 2dp apart, with
+        // large outer and small inner corners, instead of rows on one card split by dividers.
+        Column(modifier = Modifier.fillMaxWidth()) {
+            suggestions.forEachIndexed { index, suggestion ->
+                val shape = AppShapes.segment(index, suggestions.size)
+                SearchResultCard(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(top = if (index > 0) DesignTokens.SegmentedListGap else 0.dp),
+                    showWallpaperBackground = showWallpaperBackground,
+                    styleOverrides =
+                        SearchResultCardStyleOverrides(
+                            shape = shape,
+                            border = BorderStroke(0.dp, Color.Transparent),
+                        ),
+                ) {
+                    WebSuggestionItem(
+                        suggestion = suggestion,
+                        onClick = { onSuggestionClick(suggestion) },
+                        textColor = textColor,
+                        iconColor = iconColor,
+                        modifier = Modifier.fillMaxWidth(),
+                        isShortcutDetected = isShortcutDetected,
+                        shape = shape,
+                    )
+                }
+            }
+        }
+        return
+    }
+
     SearchResultCard(
         modifier = Modifier.fillMaxWidth(),
         showWallpaperBackground = showWallpaperBackground,
@@ -98,15 +135,7 @@ private fun WebSuggestionsCard(
 
                 if (index < suggestions.size - 1) {
                     HorizontalDivider(
-                        modifier =
-                            if (LocalSearchCardLayoutEnabled.current) {
-                                Modifier.padding(
-                                    start = SUGGESTION_ICON_START_PADDING.dp,
-                                    end = SUGGESTION_TEXT_END_PADDING.dp,
-                                )
-                            } else {
-                                Modifier.compactEdgeToEdge()
-                            },
+                        modifier = Modifier.compactEdgeToEdge(),
                         color = dividerColor,
                     )
                 }
@@ -123,11 +152,12 @@ private fun WebSuggestionItem(
     iconColor: Color,
     modifier: Modifier = Modifier,
     isShortcutDetected: Boolean = false,
+    shape: Shape = AppShapes.card,
 ) {
     Row(
         modifier =
             modifier
-                .clip(DesignTokens.CardShape)
+                .clip(shape)
                 .clickable(onClick = onClick)
                 .padding(
                     start = SUGGESTION_ICON_START_PADDING.dp,
@@ -158,7 +188,7 @@ private fun WebSuggestionItem(
 
         Text(
             text = suggestion,
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodyLarge,
             color = textColor,
             maxLines = Int.MAX_VALUE,
             overflow = TextOverflow.Clip,

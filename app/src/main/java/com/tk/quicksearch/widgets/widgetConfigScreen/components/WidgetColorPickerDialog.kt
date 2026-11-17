@@ -1,5 +1,7 @@
 package com.tk.quicksearch.widgets.widgetConfigScreen.components
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -18,7 +20,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -42,6 +43,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 private val ColorAreaHeight = 180.dp
 private val HueBarHeight = 28.dp
@@ -118,17 +120,17 @@ fun WidgetColorPickerDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm(selectedColor) }) {
+            AppTextButton(onClick = { onConfirm(selectedColor) }) {
                 Text(stringResource(R.string.dialog_save))
             }
         },
         dismissButton = {
             if (onReset == null) {
-                TextButton(onClick = onDismiss) {
+                AppTextButton(onClick = onDismiss) {
                     Text(stringResource(R.string.dialog_cancel))
                 }
             } else {
-                TextButton(onClick = onReset) {
+                AppTextButton(onClick = onReset) {
                     Text(stringResource(R.string.dialog_reset))
                 }
             }
@@ -155,7 +157,7 @@ private fun SaturationBrightnessPicker(
             Modifier
                 .fillMaxWidth()
                 .height(ColorAreaHeight)
-                .clip(MaterialTheme.shapes.medium)
+                .clip(AppShapes.medium)
                 .pointerInput(Unit) {
                     awaitEachGesture {
                         val down = awaitFirstDown()
@@ -185,7 +187,7 @@ private fun SaturationBrightnessPicker(
                         .coerceIn(9.dp.toPx(), size.height - 9.dp.toPx()),
             )
         drawCircle(
-            color = Color.Black.copy(alpha = 0.65f),
+            color = Color.Black.copy(alpha = AppColors.ContentSecondaryAlpha),
             radius = 9.dp.toPx(),
             center = indicatorCenter,
             style = Stroke(width = 4.dp.toPx()),
@@ -247,7 +249,7 @@ private fun HuePicker(
             ((hue / 360f) * size.width)
                 .coerceIn(3.dp.toPx(), size.width - 3.dp.toPx())
         drawLine(
-            color = Color.Black.copy(alpha = 0.65f),
+            color = Color.Black.copy(alpha = AppColors.ContentSecondaryAlpha),
             start = Offset(indicatorX, 3.dp.toPx()),
             end = Offset(indicatorX, size.height - 3.dp.toPx()),
             strokeWidth = 6.dp.toPx(),

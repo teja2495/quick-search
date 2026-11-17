@@ -1,5 +1,6 @@
 package com.tk.quicksearch.tools.aiTools
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -46,7 +48,7 @@ fun DictionaryResult(
             usedModelId = null,
             copyText = copyText,
             toolAttribution =
-                    ToolAttribution(MaterialSymbols.MenuBook, R.string.dictionary_toggle_title)
+                    ToolAttribution(MaterialSymbols.MenuBookOutlined, R.string.dictionary_toggle_title)
                             .takeIf { dictionaryState.status == DictionaryStatus.Success },
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
@@ -94,7 +96,7 @@ private fun DictionaryEntryContent(dictionaryState: DictionaryState) {
     val word = dictionaryState.word.orEmpty().capitalizeFirstCharacter()
     Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
     ) {
         Text(
                 text = word,
@@ -102,8 +104,9 @@ private fun DictionaryEntryContent(dictionaryState: DictionaryState) {
                 color = MaterialTheme.colorScheme.onSurface,
         )
         HorizontalDivider(
-                modifier = Modifier.padding(vertical = DesignTokens.SpacingXXSmall),
-                color = MaterialTheme.colorScheme.outlineVariant,
+                modifier = Modifier.padding(vertical = DesignTokens.SpacingXSmall),
+                thickness = 0.5.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = AppColors.ContentFaintAlpha),
         )
         Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium)) {
             dictionaryState.senses.forEach { sense -> DictionarySenseContent(sense) }
@@ -114,7 +117,7 @@ private fun DictionaryEntryContent(dictionaryState: DictionaryState) {
 @Composable
 private fun DictionarySenseContent(sense: DictionarySense) {
     val numbered = sense.definitions.size > 1
-    Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall)) {
+    Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall)) {
         if (sense.partOfSpeech.isNotBlank()) {
             Text(
                     text = sense.partOfSpeech,

@@ -5,6 +5,7 @@ import android.provider.ContactsContract
 import android.provider.OpenableColumns
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,7 +37,9 @@ import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.data.appShortcutRepository.AppShortcutCache
 import com.tk.quicksearch.search.data.preferences.NicknamePreferences
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsRepository
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -172,9 +175,9 @@ fun NicknameItemsScreen(
             modifier = Modifier.padding(bottom = DesignTokens.SectionDescriptionBottomPadding),
         )
 
-        SettingsCard(modifier = Modifier.fillMaxWidth()) {
-            Column {
-                allItems.forEachIndexed { index, item ->
+        SegmentedGroup {
+            allItems.forEachIndexed { index, item ->
+                SegmentedTile(index = index, count = allItems.size) {
                     NicknameItemRow(
                         item = item,
                         onRemove = {
@@ -191,9 +194,6 @@ fun NicknameItemsScreen(
                             onAfterRemove()
                         },
                     )
-                    if (index < allItems.lastIndex) {
-                        HorizontalDivider(color = AppColors.SettingsDivider)
-                    }
                 }
             }
         }
@@ -205,51 +205,30 @@ private fun NicknameItemRow(
     item: NicknameItem,
     onRemove: () -> Unit,
 ) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = DesignTokens.CardHorizontalPadding,
-                    vertical = DesignTokens.CardVerticalPadding,
-                ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Row(
-            modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            NicknameItemIcon(item = item)
-
-            Column(modifier = Modifier.padding(vertical = 2.dp)) {
-                Text(
-                    text = item.nickname,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = Int.MAX_VALUE,
-                    overflow = TextOverflow.Visible,
-                )
-                if (item.itemName.isNotBlank()) {
-                    Text(
-                        text = item.itemName,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+    SegmentedTileRow(
+        title = item.nickname,
+        description = item.itemName.takeIf { it.isNotBlank() },
+        leading = {
+            Box(
+                modifier = Modifier.size(NicknameLeadingSlotSize),
+                contentAlignment = Alignment.Center,
+            ) {
+                NicknameItemIcon(item = item)
             }
-        }
-
-        IconButton(onClick = onRemove) {
-            Icon(
-                imageVector = MaterialSymbols.Close,
-                contentDescription = stringResource(R.string.action_remove),
-                tint = MaterialTheme.colorScheme.primary,
-            )
-        }
-    }
+        },
+        trailing = {
+            IconButton(onClick = onRemove) {
+                Icon(
+                    imageVector = MaterialSymbols.Close,
+                    contentDescription = stringResource(R.string.action_remove),
+                    tint = AppColors.Accent,
+                )
+            }
+        },
+    )
 }
+
+private val NicknameLeadingSlotSize = 40.dp
 
 @Composable
 private fun NicknameItemIcon(item: NicknameItem) {

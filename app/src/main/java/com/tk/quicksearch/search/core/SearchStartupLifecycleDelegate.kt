@@ -64,6 +64,7 @@ internal data class SearchStartupPreferencesSnapshot(
     val themedIconsEnabled: Boolean,
     val deviceThemeEnabled: Boolean,
     val amoledThemeEnabled: Boolean,
+    val searchChromeBlurEnabled: Boolean,
     val maskUnsupportedIconPackIcons: Boolean,
     val customImageUri: String?,
 )
@@ -95,6 +96,7 @@ internal data class SearchLoadedPreferencesSnapshot(
     val themedIconsEnabled: Boolean,
     val deviceThemeEnabled: Boolean,
     val amoledThemeEnabled: Boolean,
+    val searchChromeBlurEnabled: Boolean,
     val maskUnsupportedIconPackIcons: Boolean,
     val backgroundSource: BackgroundSource,
     val wallpaperBackgroundAlpha: Float,

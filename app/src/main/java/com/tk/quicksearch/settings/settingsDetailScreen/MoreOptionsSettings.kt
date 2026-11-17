@@ -18,9 +18,9 @@ import com.tk.quicksearch.search.apps.speedBump.SpeedBumpAccessibilityDisclosure
 import com.tk.quicksearch.search.apps.speedBump.SpeedBumpOutsideQuickSearchToggleState
 import com.tk.quicksearch.search.apps.speedBump.rememberSpeedBumpOutsideQuickSearchToggleState
 import com.tk.quicksearch.search.noted.NotedIntegrationSettingCard
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsCommand
-import com.tk.quicksearch.settings.shared.SettingsToggleRow
+import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.isDefaultHomeApp
@@ -143,7 +143,7 @@ fun MoreOptionsSettings(
             }
 
     Column(modifier = modifier.fillMaxWidth()) {
-        MoreOptionsToggleCard(
+        MoreOptionsToggleGroup(
             items = appToggleItems,
             isDefaultLauncher = isDefaultLauncher,
             isToggleEnabled = isMoreOptionEnabled,
@@ -152,7 +152,7 @@ fun MoreOptionsSettings(
             speedBumpToggle = speedBumpToggle,
         )
         Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
-        MoreOptionsToggleCard(
+        MoreOptionsToggleGroup(
             items = otherToggleItems,
             isDefaultLauncher = isDefaultLauncher,
             isToggleEnabled = isMoreOptionEnabled,
@@ -167,7 +167,7 @@ fun MoreOptionsSettings(
 }
 
 @Composable
-private fun MoreOptionsToggleCard(
+private fun MoreOptionsToggleGroup(
     items: List<ToggleItem>,
     isDefaultLauncher: Boolean,
     isToggleEnabled: (AppSettingsToggleKey) -> Boolean,
@@ -175,44 +175,42 @@ private fun MoreOptionsToggleCard(
     onNotificationDotsCheckedChange: (Boolean) -> Unit,
     speedBumpToggle: SpeedBumpOutsideQuickSearchToggleState,
 ) {
-    SettingsCard(
+    SegmentedGroup(
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Column {
-            items.forEachIndexed { index, item ->
-                val isItemEnabled = if (item.key == AppSettingsToggleKey.AUTO_CLOSE_OVERLAY) !isDefaultLauncher else true
-                val itemSubtitle = when {
-                    item.key == AppSettingsToggleKey.AUTO_CLOSE_OVERLAY && isDefaultLauncher ->
-                        stringResource(R.string.settings_overlay_mode_desc_launcher_blocked)
-                    item.key == AppSettingsToggleKey.SPEED_BUMP_OUTSIDE_QUICK_SEARCH &&
-                        !speedBumpToggle.hasAccessibility ->
-                        stringResource(R.string.settings_notch_accessibility_needed)
-                    else -> stringResource(item.subtitleRes)
-                }
-                SettingsToggleRow(
-                    title = stringResource(item.titleRes),
-                    subtitle = itemSubtitle,
-                    checked = isToggleEnabled(item.key),
-                    enabled = isItemEnabled,
-                    onCheckedChange = { enabled ->
-                        if (item.key == AppSettingsToggleKey.NOTIFICATION_DOTS) {
-                            onNotificationDotsCheckedChange(enabled)
-                        } else if (item.key == AppSettingsToggleKey.SPEED_BUMP_OUTSIDE_QUICK_SEARCH) {
-                            speedBumpToggle.setEnabled(enabled)
-                        } else {
-                            onApplySettingsCommand(
-                                SettingsCommand.Toggle(
-                                    key = item.key,
-                                    enabled = enabled,
-                                ),
-                            )
-                        }
-                    },
-                    leadingIcon = item.leadingIcon,
-                    isFirstItem = index == 0,
-                    isLastItem = index == items.lastIndex,
-                )
+        items.forEachIndexed { index, item ->
+            val isItemEnabled = if (item.key == AppSettingsToggleKey.AUTO_CLOSE_OVERLAY) !isDefaultLauncher else true
+            val itemSubtitle = when {
+                item.key == AppSettingsToggleKey.AUTO_CLOSE_OVERLAY && isDefaultLauncher ->
+                    stringResource(R.string.settings_overlay_mode_desc_launcher_blocked)
+                item.key == AppSettingsToggleKey.SPEED_BUMP_OUTSIDE_QUICK_SEARCH &&
+                    !speedBumpToggle.hasAccessibility ->
+                    stringResource(R.string.settings_notch_accessibility_needed)
+                else -> stringResource(item.subtitleRes)
             }
+            SegmentedToggleTile(
+                title = stringResource(item.titleRes),
+                description = itemSubtitle,
+                checked = isToggleEnabled(item.key),
+                enabled = isItemEnabled,
+                onCheckedChange = { enabled ->
+                    if (item.key == AppSettingsToggleKey.NOTIFICATION_DOTS) {
+                        onNotificationDotsCheckedChange(enabled)
+                    } else if (item.key == AppSettingsToggleKey.SPEED_BUMP_OUTSIDE_QUICK_SEARCH) {
+                        speedBumpToggle.setEnabled(enabled)
+                    } else {
+                        onApplySettingsCommand(
+                            SettingsCommand.Toggle(
+                                key = item.key,
+                                enabled = enabled,
+                            ),
+                        )
+                    }
+                },
+                icon = item.leadingIcon,
+                index = index,
+                count = items.size,
+            )
         }
     }
 }

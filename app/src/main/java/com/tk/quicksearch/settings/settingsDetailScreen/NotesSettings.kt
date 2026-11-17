@@ -1,11 +1,11 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,32 +14,28 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import java.util.Locale
@@ -47,18 +43,17 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.NotesRepository
-import com.tk.quicksearch.search.data.preferences.NotesPreferences
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.notes.NotesTextUtils
-import com.tk.quicksearch.settings.shared.SettingsCard
-import com.tk.quicksearch.settings.shared.SettingsNavigationToggleRow
-import com.tk.quicksearch.settings.shared.SettingsManagementSearchBar
-import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.settings.shared.SettingsIconBadge
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.floatingActionShape
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-
-private val NotesSettingsBarCornerShape = RoundedCornerShape(28.dp)
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
 
 @Composable
 fun NotesSettingsBottomBar(
@@ -71,37 +66,25 @@ fun NotesSettingsBottomBar(
     onDeleteSelected: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val searchFocusRequester = remember { FocusRequester() }
-    var isSearchExpanded by remember { mutableStateOf(false) }
-
-    LaunchedEffect(multiSelectActive) {
-        if (multiSelectActive) {
-            isSearchExpanded = false
-        }
-    }
-
-    LaunchedEffect(isSearchExpanded) {
-        if (isSearchExpanded) {
-            searchFocusRequester.requestFocus()
-        }
-    }
-
-    Row(
-        modifier =
-            modifier
+    if (multiSelectActive) {
+        val deleteEnabled = selectedNoteCount > 0
+        val interactionSource = remember { MutableInteractionSource() }
+        Row(
+            modifier = modifier
                 .fillMaxWidth()
                 .imePadding()
-                .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        if (multiSelectActive) {
-            val deleteEnabled = selectedNoteCount > 0
+                .padding(
+                    horizontal = DesignTokens.SpacingLarge,
+                    vertical = DesignTokens.SpacingMedium,
+                ),
+        ) {
             ExtendedFloatingActionButton(
                 onClick = { if (deleteEnabled) onDeleteSelected() },
                 expanded = true,
-                modifier = Modifier.fillMaxWidth().alpha(if (deleteEnabled) 1f else 0.38f),
-                shape = NotesSettingsBarCornerShape,
+                modifier = Modifier.fillMaxWidth().height(DesignTokens.FloatingActionHeight)
+                    .alpha(if (deleteEnabled) 1f else 0.38f),
+                shape = floatingActionShape(interactionSource),
+                interactionSource = interactionSource,
                 containerColor = MaterialTheme.colorScheme.error,
                 contentColor = MaterialTheme.colorScheme.onError,
                 text = { Text(text = stringResource(R.string.dialog_delete)) },
@@ -109,63 +92,20 @@ fun NotesSettingsBottomBar(
                     Icon(
                         imageVector = MaterialSymbols.Delete,
                         contentDescription = stringResource(R.string.notes_delete_note_desc),
-                        modifier = Modifier.size(18.dp),
-                    )
-                },
-            )
-        } else if (isSearchExpanded) {
-            SettingsManagementSearchBar(
-                query = query,
-                onQueryChange = onQueryChange,
-                onClear = onClear,
-                modifier = Modifier.weight(1f),
-                applyDefaultPadding = false,
-                applyImePadding = false,
-                fillMaxWidth = false,
-                focusRequester = searchFocusRequester,
-            )
-            FloatingActionButton(
-                onClick = onNewNote,
-                modifier = Modifier.size(48.dp),
-                shape = NotesSettingsBarCornerShape,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-            ) {
-                Icon(
-                    imageVector = MaterialSymbols.Add,
-                    contentDescription = stringResource(R.string.notes_create_note_cta),
-                    modifier = Modifier.size(24.dp),
-                )
-            }
-        } else {
-            FloatingActionButton(
-                onClick = { isSearchExpanded = true },
-                modifier = Modifier.size(48.dp),
-                shape = NotesSettingsBarCornerShape,
-            ) {
-                Icon(
-                    imageVector = MaterialSymbols.Search,
-                    contentDescription = stringResource(R.string.common_search),
-                    modifier = Modifier.size(22.dp),
-                )
-            }
-            ExtendedFloatingActionButton(
-                onClick = onNewNote,
-                expanded = true,
-                modifier = Modifier.weight(1f),
-                shape = NotesSettingsBarCornerShape,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                text = { Text(text = stringResource(R.string.notes_create_note_cta)) },
-                icon = {
-                    Icon(
-                        imageVector = MaterialSymbols.Add,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp),
+                        modifier = Modifier.size(DesignTokens.IconSizeSmall),
                     )
                 },
             )
         }
+    } else {
+        CalendarEventsBottomBar(
+            query = query,
+            onQueryChange = onQueryChange,
+            onClear = onClear,
+            onNewEvent = onNewNote,
+            newItemLabelResId = R.string.notes_create_note_cta,
+            modifier = modifier,
+        )
     }
 }
 
@@ -186,8 +126,6 @@ fun NotesSettingsSection(
     val normalizedSearchQuery =
         remember(searchQuery, locale) { searchQuery.trim().lowercase(locale) }
     val repository = remember(context) { NotesRepository(context) }
-    val notesPreferences = remember(context) { NotesPreferences(context) }
-    var quickNoteEnabled by remember { mutableStateOf(notesPreferences.isQuickNoteEnabled()) }
     var refreshToken by remember { mutableLongStateOf(0L) }
     val notes by produceState(initialValue = emptyList<NoteInfo>(), refreshToken, notesRefreshSignal) {
         value = withContext(Dispatchers.IO) { repository.getAllNotes() }
@@ -220,44 +158,29 @@ fun NotesSettingsSection(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
-        SettingsCard(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-        ) {
-            quickNote?.let { note ->
-                SettingsNavigationToggleRow(
+        quickNote?.let { note ->
+            SegmentedTile(index = 0, count = 1, onClick = { onOpenNoteEditor(note.noteId) }) {
+                SegmentedTileRow(
                     title = stringResource(R.string.notes_quick_note_title),
-                    subtitle = stringResource(R.string.notes_quick_note_toggle_desc),
-                    checked = quickNoteEnabled,
-                    onCheckedChange = { enabled ->
-                        quickNoteEnabled = enabled
-                        notesPreferences.setQuickNoteEnabled(enabled)
-                    },
-                    leadingIcon = MaterialSymbols.EditNote,
-                    onRowClick = { onOpenNoteEditor(note.noteId) },
+                    leading = { TonalIconBadge(icon = MaterialSymbols.EditNote) },
                 )
             }
         }
 
         if (filteredNotes.isNotEmpty() || normalizedSearchQuery.isNotBlank()) {
-            SettingsCard(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-            ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 if (filteredNotes.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = stringResource(R.string.widget_custom_buttons_no_results),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                    SegmentedTile(index = 0, count = 1) {
+                        Box(
+                            modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = stringResource(R.string.widget_custom_buttons_no_results),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
                 } else {
                     NotesList(
@@ -286,24 +209,32 @@ private fun NotesList(
     onToggleNoteSelected: (Long) -> Unit,
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
-        contentPadding = PaddingValues(bottom = 8.dp),
+        modifier = Modifier.fillMaxWidth().wrapContentHeight().clip(AppShapes.extraLarge),
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
     ) {
         itemsIndexed(
             items = notes,
             key = { _, note -> note.noteId },
         ) { index, note ->
-            NoteListRow(
-                note = note,
-                isPinned = repository.isPinned(note.noteId),
-                selectionMode = multiSelectActive,
-                isSelected = selectedNoteIds.contains(note.noteId),
-                onOpen = { onOpenNoteEditor(note.noteId) },
-                onLongPress = { onEnterMultiSelect(note.noteId) },
-                onToggleSelected = { onToggleNoteSelected(note.noteId) },
-            )
-            if (index < notes.lastIndex) {
-                HorizontalDivider(color = AppColors.SettingsDivider)
+            val selected = multiSelectActive && note.noteId in selectedNoteIds
+            SegmentedTile(
+                index = index,
+                count = notes.size,
+                containerColor = if (selected) {
+                    AppColors.AccentTintTonal.compositeOver(AppColors.getSettingsCardContainerColor())
+                } else {
+                    AppColors.getSettingsCardContainerColor()
+                },
+            ) {
+                NoteListRow(
+                    note = note,
+                    isPinned = repository.isPinned(note.noteId),
+                    selectionMode = multiSelectActive,
+                    isSelected = selectedNoteIds.contains(note.noteId),
+                    onOpen = { onOpenNoteEditor(note.noteId) },
+                    onLongPress = { onEnterMultiSelect(note.noteId) },
+                    onToggleSelected = { onToggleNoteSelected(note.noteId) },
+                )
             }
         }
     }
@@ -332,21 +263,23 @@ private fun NoteListRow(
                 .fillMaxWidth()
                 .then(contentModifier)
                 .padding(
-                    horizontal = DesignTokens.CardHorizontalPadding,
-                    vertical = DesignTokens.CardVerticalPadding,
+                    horizontal = DesignTokens.SpacingLarge,
+                    vertical = DesignTokens.SpacingLarge,
                 ),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
         if (selectionMode) {
             Checkbox(
                 checked = isSelected,
                 onCheckedChange = { onToggleSelected() },
             )
+        } else {
+            TonalIconBadge(icon = MaterialSymbols.EditNote)
         }
         androidx.compose.foundation.layout.Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
         ) {
             val preview = NotesTextUtils.firstLinesPreview(note.markdownContent)
             val subtitle =
@@ -364,7 +297,7 @@ private fun NoteListRow(
             )
             Text(
                 text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,

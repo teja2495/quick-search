@@ -115,6 +115,9 @@
     <string name="action_open_folder">Otwórz folder</string>
     <string name="action_open_keyboard">Otwórz klawiaturę</string>
     <string name="action_open_settings">Otwórz ustawienia</string>
+    <string name="keyboard_shortcut_open_top_result">Otwórz najlepszy wynik lub wyszukaj</string>
+    <string name="keyboard_shortcut_previous_result">Wybierz poprzedni wynik</string>
+    <string name="keyboard_shortcut_next_result">Wybierz następny wynik</string>
     <string name="settings_gestures_title">Gesty</string>
     <string name="settings_gestures_desc">Dostosuj gesty przesunięcia</string>
     <string name="settings_gesture_swipe_right">Przesunięcie w prawo</string>
@@ -747,6 +750,7 @@
     <string name="settings_all_quick_search_features">Lista funkcji</string>
     <string name="settings_all_quick_search_features_desc">Wyświetl pełną listę funkcji i możliwości</string>
     <string name="settings_more_apps_from_developer_title">Więcej aplikacji od dewelopera</string>
+    <string name="settings_github_label">GitHub</string>
     <string name="settings_app_settings_desc">Szukaj w ustawieniach Quick Search</string>
     <string name="settings_features_load_failed">Nie udało się załadować dokumentacji funkcji.</string>
     <string name="settings_features_export">Pobierz i udostępnij funkcje</string>
@@ -856,6 +860,8 @@
     <string name="settings_unified_pinned_items_desc">Pokazuj przypięte elementy jako jedną ujednoliconą listę na ekranie głównym.</string>
     <string name="settings_show_status_bar_title">Pokaż pasek stanu</string>
     <string name="settings_show_status_bar_desc">Pokazuj pasek stanu Androida u góry ekranu.</string>
+    <string name="settings_search_chrome_blur_title">Rozmyte tło</string>
+    <string name="settings_search_chrome_blur_desc">Rozmywaj to, co jest za paskiem wyszukiwania.</string>
     <string name="settings_pinned_sections_order_title">Kolejność przypiętych sekcji</string>
     <string name="settings_pinned_sections_order_desc">Zmień kolejność przypiętych sekcji na ekranie głównym</string>
     <string name="settings_pinned_sections_order_dialog_info">Przytrzymaj i przeciągnij, aby zmienić kolejność przypiętych sekcji na ekranie głównym.</string>
@@ -1099,9 +1105,8 @@ www.google.com/search?q={{query}}</string>
     <string name="settings_backup_import_warning_title">Zaimportować ustawienia?</string>
     <string name="settings_backup_restore_desc">Eksportuj lub importuj ustawienia aplikacji</string>
     <string name="settings_backup_restore_title">Kopia zapasowa i przywracanie</string>
-    <string name="settings_feedback_developer_desc">Stworzone przez: %1$s</string>
     <string name="settings_feedback_developer_name">Teja Karlapudi</string>
-    <string name="settings_feedback_developer_title">%1$s v%2$s</string>
+    <string name="settings_feedback_developer_made_by">Stworzone przez</string>
     <string name="settings_feedback_github_desc">Zobacz kod źródłowy projektu na GitHubie</string>
     <string name="settings_feedback_github_title">Rozwój projektu</string>
     <string name="settings_feedback_rate_desc">Wystaw ocenę 5 gwiazdek, jeśli ta aplikacja jest dla Ciebie przydatna 🙏</string>
@@ -1289,7 +1294,7 @@ www.google.com/search?q={{query}}</string>
     <string name="permissions_calling_desc">Wymagane do dzwonienia do kontaktów bezpośrednio bez otwierania dialera.</string>
     <string name="settings_notifications_permission_title">Wysyłanie powiadomień</string>
     <string name="permissions_notifications_desc">Wymagane do powiadomień o przypomnieniach i przypinania wyników wyszukiwania w panelu powiadomień</string>
-    <string name="permissions_notification_access_desc">Wymagane do włączenia kropek powiadomień i historii powiadomień</string>
+    <string name="permissions_notification_access_desc">Wymagane do włączenia kropek powiadomień, historii powiadomień i przydatnych funkcji W skrócie.</string>
     <string name="permissions_accessibility_lock_screen_title">Ułatwienia dostępu</string>
     <string name="permissions_accessibility_lock_screen_desc">Włącza gesty, pływający przycisk i SpeedBump.</string>
     <string name="permissions_contacts_desc">Wymagane do wyszukiwania kontaktów.</string>
@@ -1304,6 +1309,10 @@ www.google.com/search?q={{query}}</string>
     <string name="permissions_open_source_desc">Zobacz dokładnie, jak używane są te uprawnienia.</string>
     <string name="permissions_open_source_action">Dotknij, aby zobaczyć kod.</string>
     <string name="permissions_screen_optional_emphasis">opcjonalne</string>
+    <string name="permissions_trust_optional">Każde uprawnienie jest opcjonalne</string>
+    <string name="permissions_trust_on_device">Twoje dane zostają na urządzeniu</string>
+    <string name="permissions_trust_open_source">W pełni otwarte źródło</string>
+    <string name="permissions_trust_view_code">Zobacz kod</string>
     <string name="permissions_usage_desc">Wymagane do pokazywania ostatnio używanych aplikacji w sugestiach.</string>
     <string name="setup_action_next">Dalej</string>
     <string name="setup_action_skip_permissions">Kontynuuj bez uprawnień</string>
@@ -1421,7 +1430,7 @@ www.google.com/search?q={{query}}</string>
     <string name="tasker_not_installed">Tasker nie jest zainstalowany</string>
     <string name="tasker_broadcast_failed">Nie udało się wysłać komunikatu rozgłoszeniowego Taskera</string>
     <string name="app_menu_usage_today">Czas użycia dzisiaj: %1$s · %2$s</string>
-    <string name="app_menu_version">v%1$s</string>
+    <string name="app_menu_version">Wersja %1$s</string>
     <plurals name="app_menu_opened_count"><item quantity="one">%d otwarcie</item><item quantity="few">%d otwarcia</item><item quantity="many">%d otwarć</item><item quantity="other">%d otwarcia</item></plurals>
     <plurals name="app_menu_usage_hours"><item quantity="one">%d godz.</item><item quantity="few">%d godz.</item><item quantity="many">%d godz.</item><item quantity="other">%d godz.</item></plurals>
     <plurals name="app_menu_usage_minutes"><item quantity="one">%d min</item><item quantity="few">%d min</item><item quantity="many">%d min</item><item quantity="other">%d min</item></plurals>

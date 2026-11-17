@@ -149,6 +149,7 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.graphics.shapes)
     implementation(libs.androidx.glance.appwidget)
     implementation(libs.androidx.profileinstaller)
     implementation(libs.material.color.utilities)

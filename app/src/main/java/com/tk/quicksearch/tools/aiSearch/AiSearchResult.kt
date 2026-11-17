@@ -1,5 +1,7 @@
 package com.tk.quicksearch.tools.aiSearch
 
+import com.tk.quicksearch.shared.ui.components.AppButtonSize
+import com.tk.quicksearch.shared.ui.components.AppButtonTone
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import com.tk.quicksearch.shared.util.FeedbackUtils
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.shared.util.PhoneEmailLinkifiedText
+import com.tk.quicksearch.shared.ui.components.AppTonalButton
 
 /** Composable that displays AI search results with loading, success, and error states. */
 @Composable
@@ -162,23 +164,15 @@ private fun QuickSearchHelpContactButton(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    FilledTonalButton(
+    AppTonalButton(
         onClick = {
             FeedbackUtils.launchFeedbackEmail(context, QuickSearchHelp.stripAlias(question))
         },
-        modifier = modifier.height(32.dp),
-        colors =
-            ButtonDefaults.filledTonalButtonColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f),
-            ),
-        contentPadding = PaddingValues(horizontal = DesignTokens.SpacingMedium, vertical = 0.dp),
+        modifier = modifier.height(DesignTokens.ButtonHeightExtraSmall),
+        tone = AppButtonTone.Secondary,
+        size = AppButtonSize.ExtraSmall,
+        icon = MaterialSymbols.MailOutline,
     ) {
-        Icon(
-            imageVector = MaterialSymbols.MailOutline,
-            contentDescription = null,
-            modifier = Modifier.size(16.dp),
-        )
-        Spacer(modifier = Modifier.width(6.dp))
         Text(
             text = stringResource(R.string.quick_search_help_contact_developer),
             style = MaterialTheme.typography.labelMedium,

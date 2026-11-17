@@ -21,6 +21,7 @@ import com.tk.quicksearch.search.core.SearchEnginesVisibility
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.searchEngines.inline.SearchEngineIconsSection
+import com.tk.quicksearch.searchEngines.inline.rememberInsetCardStyle
 
 private const val ONE_HANDED_COMPACT_ENGINES_REFLOW_DURATION_MS = 280
 private const val ONE_HANDED_COMPACT_ENGINES_FADE_IN_DURATION_MS = 180
@@ -44,6 +45,7 @@ internal fun AnimatedSearchEngineStrip(
     insetEngineStripFullBleedFraction: Float,
     searchEnginesModifier: Modifier,
 ) {
+    val insetCardStyle = rememberInsetCardStyle(state.searchBarStyle, state.showWallpaperBackground)
                         AnimatedContent(
                             targetState = state.searchEnginesState,
                             modifier = Modifier.fillMaxWidth().then(bottomBarSwipeModifier),
@@ -140,6 +142,7 @@ internal fun AnimatedSearchEngineStrip(
                                         useInsetContainer = useInsetEngineStrip,
                                         insetOverlap = insetEngineStripOverlap,
                                         insetFullBleedFraction = insetEngineStripFullBleedFraction,
+                                        insetCardStyle = insetCardStyle,
                                 )
                             },
                             fullContent = {
@@ -198,6 +201,7 @@ internal fun AnimatedSearchEngineStrip(
                                             useInsetContainer = useInsetEngineStrip,
                                             insetOverlap = insetEngineStripOverlap,
                                             insetFullBleedFraction = insetEngineStripFullBleedFraction,
+                                            insetCardStyle = insetCardStyle,
                                     )
                                 } else {
                                     // Add padding when search engines are hidden to prevent keyboard from

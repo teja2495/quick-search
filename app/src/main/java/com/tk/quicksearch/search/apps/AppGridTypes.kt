@@ -17,13 +17,10 @@ import com.tk.quicksearch.search.folders.ResolvedAppFolder
 import com.tk.quicksearch.search.folders.shortcutGridKey
 
 internal const val ROW_COUNT = 2
-internal const val TabSlideOffsetPx = 64
 internal const val SuggestionsEnterDurationMillis = 320
-internal const val SuggestionTabInactiveAlpha = 0.34f
-internal const val SuggestionTabSwipeThresholdPx = 48f
 internal val AppGridRowSpacing = DesignTokens.SpacingXSmall
 internal val AppGridWidthRoundingSlack = 1.dp
-internal val RegularAppIconSize = DesignTokens.IconSizeXLarge - DesignTokens.SpacingXXSmall
+internal val RegularAppIconSize = DesignTokens.IconSizeXLarge - DesignTokens.SpacingXSmall
 internal val OverlayAppIconSurfaceSize = 52.dp
 internal val OverlayAppIconSize = 36.dp
 internal val TopResultIndicatorTopPadding = 0.dp
@@ -35,6 +32,7 @@ internal const val LightWallpaperAppIconShadowSpotAlpha = 0.45f
 internal const val ThemedMonochromeGlyphScale = 1.42f
 internal const val UnsupportedThemedIconGlyphScale = 0.62f
 internal const val UnsupportedThemedIconGlyphAlpha = 0.72f
+internal const val AppGridPressedScale = 0.94f
 internal const val DraggedPinnedAppScale = 1.08f
 internal const val DraggedPinnedAppAlpha = 0.92f
 internal const val MergeSourcePinnedAppScale = 0.92f
@@ -51,7 +49,7 @@ internal val MergeableReorderRestSlop = 12.dp
 internal const val FolderMergeEnterZoneFraction = 0.65f
 internal const val FolderMergeStayZoneFraction = 0.8f
 internal val AllAppsDialogIconSurfaceSize = DesignTokens.AppIconSize
-internal val AllAppsDialogRowSpacing = DesignTokens.SpacingXXSmall
+internal val AllAppsDialogRowSpacing = DesignTokens.SpacingXSmall
 internal const val AllAppsDialogIconPrefetchParallelism = 4
 
 internal enum class AppIconDisplayMode {

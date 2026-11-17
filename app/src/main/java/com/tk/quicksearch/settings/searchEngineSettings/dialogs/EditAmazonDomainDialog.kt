@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.searchEngineSettings.dialogs
 
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -7,10 +8,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.searchEngines.*
 import kotlinx.coroutines.delay
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 /**
  * Dialog for editing Amazon domain.
@@ -87,7 +87,7 @@ fun EditAmazonDomainDialog(
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             ) {
                 Text(
                     text = stringResource(R.string.dialog_edit_amazon_domain_message),
@@ -141,7 +141,7 @@ fun EditAmazonDomainDialog(
             }
         },
         confirmButton = {
-            Button(
+            AppTextButton(
                 onClick = {
                     if (isValid) {
                         val domainToSave =
@@ -160,7 +160,7 @@ fun EditAmazonDomainDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(text = stringResource(R.string.dialog_cancel))
             }
         },

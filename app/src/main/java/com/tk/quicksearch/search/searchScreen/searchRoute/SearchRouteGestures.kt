@@ -23,7 +23,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.util.hapticGestureThreshold
 import com.tk.quicksearch.app.navigation.LocalPageSwipeController
 import com.tk.quicksearch.app.navigation.RootDestination
 import com.tk.quicksearch.app.navigation.detectPageSwipe
@@ -301,6 +303,7 @@ internal fun rememberRouteGestures(
             onSwipeDown = { performTwoFingerSwipe(twoFingerSwipeDown) },
         )
     val pageSwipeController = LocalPageSwipeController.current
+    val view = LocalView.current
     val latestHomeSwipe by rememberUpdatedState(handleHomeHorizontalSwipe)
     val swipeNavigationModifier =
         twoFingerSwipeModifier.pointerInput(isDefaultLauncher, isLauncherSwipeRightEnabled, swipeActions, customSwipeActions, uiState.query, pageSwipeController) {
@@ -323,6 +326,7 @@ internal fun rememberRouteGestures(
                         if (direction > 0) HomeHorizontalSwipe.RIGHT else HomeHorizontalSwipe.LEFT,
                     )
                 },
+                onThresholdCrossed = { hapticGestureThreshold(view, it) },
             )
         }
     val shouldAutoCloseSearchSurface =

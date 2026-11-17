@@ -114,6 +114,9 @@
 <string name="action_open_folder">Ouvrir le dossier</string>
 <string name="action_open_keyboard">Ouvrir le clavier</string>
 <string name="action_open_settings">Ouvrir les paramètres</string>
+<string name="keyboard_shortcut_open_top_result">Ouvrir le premier résultat ou rechercher</string>
+<string name="keyboard_shortcut_previous_result">Sélectionner le résultat précédent</string>
+<string name="keyboard_shortcut_next_result">Sélectionner le résultat suivant</string>
 <string name="settings_gestures_title">Gestes</string>
 <string name="settings_gestures_desc">Personnaliser les actions de balayage</string>
 <string name="settings_gesture_swipe_right">Balayer vers la droite</string>
@@ -826,6 +829,8 @@
 <string name="settings_unified_pinned_items_desc">Afficher les éléments épinglés sous forme de liste unifiée sur l\'écran d\'accueil.</string>
 <string name="settings_show_status_bar_title">Afficher la barre d’état</string>
 <string name="settings_show_status_bar_desc">Afficher la barre d’état Android en haut de l’écran.</string>
+<string name="settings_search_chrome_blur_title">Arrière-plan flou</string>
+<string name="settings_search_chrome_blur_desc">Flouter ce qui se trouve derrière la barre de recherche.</string>
     <string name="settings_pinned_sections_order_title">Ordre des sections épinglées</string>
     <string name="settings_pinned_sections_order_desc">Réorganiser les sections épinglées sur l\'accueil</string>
     <string name="settings_pinned_sections_order_dialog_info">Appuyez longuement et faites glisser pour modifier l\'ordre des sections épinglées sur l\'accueil.</string>
@@ -1062,9 +1067,8 @@
 <string name="settings_backup_import_warning_title">Importer les paramètres ?</string>
 <string name="settings_backup_restore_desc">Exporter ou importer les paramètres de votre application</string>
 <string name="settings_backup_restore_title">Sauvegarde &amp; Restauration</string>
-<string name="settings_feedback_developer_desc">Développé par %1$s</string>
 <string name="settings_feedback_developer_name">Teja Karlapudi</string>
-<string name="settings_feedback_developer_title">%1$s v%2$s</string>
+<string name="settings_feedback_developer_made_by">Développé par</string>
 <string name="settings_feedback_github_desc">Voir le code source de ce projet sur GitHub</string>
 <string name="settings_feedback_github_title">Développement</string>
 <string name="settings_feedback_rate_desc">Laissez une note de 5 étoiles si vous trouvez cette application utile 🙏</string>
@@ -1250,7 +1254,7 @@
 <string name="permissions_calling_desc">Requis pour appeler vos contacts directement sans ouvrir le clavier numérique.</string>
 <string name="settings_notifications_permission_title">Publier des notifications</string>
     <string name="permissions_notifications_desc">Requis pour les notifications de rappels et pour épingler des résultats de recherche dans le volet des notifications</string>
-    <string name="permissions_notification_access_desc">Requis pour activer les pastilles de notification et l\'historique des notifications</string>
+    <string name="permissions_notification_access_desc">Requis pour activer les pastilles de notification, l\'historique des notifications et des fonctionnalités utiles d\'En un coup d\'œil.</string>
 <string name="permissions_accessibility_lock_screen_title">Accessibilité</string>
 <string name="permissions_accessibility_lock_screen_desc">Active les gestes, le bouton flottant et SpeedBump.</string>
 <string name="permissions_contacts_desc">Requis pour rechercher vos contacts.</string>
@@ -1265,6 +1269,10 @@
 <string name="permissions_open_source_desc">Voyez exactement comment ces autorisations sont utilisées.</string>
 <string name="permissions_open_source_action">Appuyez pour voir le code.</string>
 <string name="permissions_screen_optional_emphasis">facultatives</string>
+<string name="permissions_trust_optional">Chaque autorisation est facultative</string>
+<string name="permissions_trust_on_device">Vos données restent sur l\'appareil</string>
+<string name="permissions_trust_open_source">Entièrement open source</string>
+<string name="permissions_trust_view_code">Voir le code</string>
 <string name="permissions_usage_desc">Requis pour afficher vos applications récemment utilisées dans les suggestions.</string>
 <string name="setup_action_next">Suivant</string>
 <string name="setup_action_skip_permissions">Continuer sans autorisations</string>
@@ -1385,10 +1393,11 @@
     <string name="tasker_not_installed">Tasker n\'est pas installé</string>
     <string name="tasker_broadcast_failed">Impossible d\'envoyer la diffusion Tasker</string>
     <string name="settings_more_apps_from_developer_title">Plus d’applications du développeur</string>
+    <string name="settings_github_label">GitHub</string>
 <string name="icon_picker_no_icon_packs">Aucun pack d\'icônes n\'est installé pour modifier l\'icône de l\'application.</string>
     <string name="icon_picker_download_icon_packs">Télécharger</string>
     <string name="app_menu_usage_today">%1$s aujourd’hui · Ouverte %2$s</string>
-    <string name="app_menu_version">v%1$s</string>
+    <string name="app_menu_version">Version %1$s</string>
     <plurals name="app_menu_opened_count"><item quantity="one">%d fois</item><item quantity="other">%d fois</item></plurals>
     <plurals name="app_menu_usage_hours"><item quantity="one">%d h</item><item quantity="other">%d h</item></plurals>
     <plurals name="app_menu_usage_minutes"><item quantity="one">%d min</item><item quantity="other">%d min</item></plurals>

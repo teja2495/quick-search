@@ -1,5 +1,6 @@
 package com.tk.quicksearch.customInfo
 
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,14 +9,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,7 +32,7 @@ import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 private const val MAX_REPEAT_INTERVAL = 999
 
@@ -89,8 +88,8 @@ internal fun CustomInfoRepeatRow(
             onRowClick = { menuExpanded = true },
             showSwitch = false,
             leadingIcon = MaterialSymbols.Repeat,
-            titleTextStyle = MaterialTheme.typography.bodyLarge,
-            horizontalPadding = DesignTokens.CardHorizontalPadding,
+            isFirstItem = true,
+            isLastItem = true,
             trailingAction = { CustomInfoRowChevron() },
         )
         AppDropdownMenu(
@@ -148,7 +147,7 @@ internal fun CustomRepeatDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.common_custom)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)) {
                 OutlinedTextField(
                     value = intervalText,
                     onValueChange = { value -> intervalText = value.filter(Char::isDigit).take(3) },
@@ -174,7 +173,7 @@ internal fun CustomRepeatDialog(
             }
         },
         confirmButton = {
-            Button(
+            AppTextButton(
                 onClick = { interval?.let { onConfirm(CustomInfoRepeat(unit, it)) } },
                 enabled = interval != null,
             ) {
@@ -182,7 +181,7 @@ internal fun CustomRepeatDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.dialog_cancel)) }
+            AppTextButton(onClick = onDismiss) { Text(stringResource(R.string.dialog_cancel)) }
         },
     )
 }

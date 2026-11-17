@@ -1,5 +1,11 @@
 package com.tk.quicksearch.search.bookmarks
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
+import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
+import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
+import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
+import com.tk.quicksearch.search.searchScreen.shared.ResultRowDivider
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -87,6 +93,7 @@ fun BookmarksResultsSection(
     val shouldUseInternalScroll = isExpanded && allowInternalScroll
 
     ExpandableResultsCard(
+        segmented = true,
         resultCount = bookmarks.size,
         hasAdditionalResults = bookmarks.size > collapsed.size,
         isExpanded = isExpanded,
@@ -106,34 +113,34 @@ fun BookmarksResultsSection(
                     if (shouldUseInternalScroll) Modifier.verticalScroll(scrollState) else Modifier,
                 ),
         ) {
+            val segmentCount = displayed.size + if (cardState.shouldShowExpandButton) 1 else 0
+            val segmented = segmentedRowsActive()
             Column(
                 modifier =
                     Modifier.fillMaxWidth()
-                        .padding(horizontal = DesignTokens.SpacingMedium, vertical = 4.dp),
+                        .padding(
+                        horizontal = resultRowsContainerPadding(DesignTokens.SpacingMedium),
+                        vertical = resultRowsContainerPadding(4.dp),
+                    ),
             ) {
                 displayed.forEachIndexed { index, bookmark ->
                     key(bookmark.bookmarkId) {
+                        ResultSegment(index = index, count = segmentCount) {
                         BookmarkRow(
                             bookmark = bookmark,
                             onClick = params.onBookmarkClick,
                             isPredicted = false,
                         )
+                        }
                         if (index < displayed.lastIndex) {
-                            HorizontalDivider(
-                                modifier = Modifier.compactEdgeToEdge().fillMaxWidth(),
-                                color =
-                                    overlayDividerColor
-                                        ?: if (params.showWallpaperBackground) {
-                                            AppColors.WallpaperDivider
-                                        } else {
-                                            MaterialTheme.colorScheme.outlineVariant
-                                        },
-                            )
+                            ResultRowDivider(params.showWallpaperBackground, color = overlayDividerColor)
                         }
                     }
                 }
 
-                if (cardState.shouldShowExpandButton) {
+                if (cardState.shouldShowExpandButton && segmented) {
+                    ExpandButtonSegment(index = segmentCount - 1, count = segmentCount, onClick = params.onExpandClick, textResId = R.string.action_expand_more_bookmarks)
+                } else if (cardState.shouldShowExpandButton) {
                     ExpandButtonDivider(params.showWallpaperBackground)
                     ExpandButton(
                         onClick = params.onExpandClick,
@@ -164,7 +171,7 @@ internal fun BookmarkRow(
                 }
                 .topPredictedRowContentPadding()
                 .padding(vertical = resultRowVerticalPadding(12.dp)),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         BookmarkFavicon(bookmark = bookmark, modifier = Modifier.padding(start = 7.dp))
@@ -174,14 +181,14 @@ internal fun BookmarkRow(
         ) {
             Text(
                 text = rememberQueryHighlightedText(bookmark.name),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
                 text = remember(bookmark.url) { BookmarkUrls.displayHost(bookmark.url) },
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -217,7 +224,7 @@ fun BookmarkFavicon(
             Image(
                 bitmap = bitmap,
                 contentDescription = null,
-                modifier = Modifier.size(size).clip(RoundedCornerShape(6.dp)),
+                modifier = Modifier.size(size).clip(AppShapes.favicon),
             )
         } else {
             Icon(

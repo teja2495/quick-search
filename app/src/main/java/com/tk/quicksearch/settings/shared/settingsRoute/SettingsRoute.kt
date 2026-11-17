@@ -56,6 +56,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.util.hapticGestureThreshold
 import com.tk.quicksearch.app.navigation.openDefaultAssistantSettings
 import com.tk.quicksearch.app.navigation.openDefaultLauncherSettings
 import com.tk.quicksearch.search.core.*
@@ -411,6 +412,7 @@ fun SettingsRoute(
 
     val resolvedState = state.copy(hasWallpaperPermission = wallpaperPermissionController.hasWallpaperPermission)
     val pageSwipeController = LocalPageSwipeController.current
+    val view = LocalView.current
     val latestOnBack by rememberUpdatedState(onBack)
     val swipeNavigationModifier =
         Modifier.pointerInput(pageSwipeController) {
@@ -419,6 +421,7 @@ fun SettingsRoute(
                 thresholdPx = SETTINGS_BACK_SWIPE_THRESHOLD_PX,
                 targetFor = { direction -> RootDestination.Search.takeIf { direction > 0 } },
                 onSwipe = { direction -> if (direction > 0) latestOnBack() },
+                onThresholdCrossed = { hapticGestureThreshold(view, it) },
             )
         }
 

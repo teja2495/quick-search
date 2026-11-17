@@ -1,11 +1,9 @@
 package com.tk.quicksearch.widgets.atAGlanceWidget
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -23,20 +21,19 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.AppNotificationFilters
 import com.tk.quicksearch.settings.settingsDetailScreen.AtAGlanceSettingsSection
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow
+import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
 import com.tk.quicksearch.settings.shared.SettingsCardItem
 import com.tk.quicksearch.settings.shared.ProvideSettingsColors
-import com.tk.quicksearch.settings.shared.SettingsNavigationRow
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
-import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.components.AppBottomSheet
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.widgets.utils.WidgetPreferences
 
 /**
- * The At a Glance widget's At a Glance Items row and its empty-date toggle, in one card. The row opens the
+ * The At a Glance widget's At a Glance Items row and its empty-date toggle, as two tiles. The row opens the
  * At a Glance toggles in a drawer, so they read as this widget's own rather than the app's settings page;
  * changes save with the widget.
  */
@@ -47,8 +44,8 @@ fun AtAGlanceWidgetItemsSection(
     searchViewModel: SearchViewModel,
 ) {
     var showDrawer by rememberSaveable { mutableStateOf(false) }
-    SettingsCard(modifier = Modifier.fillMaxWidth()) {
-        SettingsNavigationRow(
+    SegmentedGroup {
+        SettingsSegmentNavigationRow(
             item =
                 SettingsCardItem(
                     title = stringResource(R.string.widget_at_a_glance_items_title),
@@ -56,19 +53,17 @@ fun AtAGlanceWidgetItemsSection(
                     icon = MaterialSymbols.Today,
                     actionOnPress = { showDrawer = true },
                 ),
-            contentPadding =
-                PaddingValues(
-                    horizontal = DesignTokens.SpacingXXLarge,
-                    vertical = DesignTokens.SpacingLarge,
-                ),
+            index = 0,
+            count = 2,
         )
-        HorizontalDivider(color = AppColors.SettingsDivider)
         // Whether the widget shows today's date or stays blank when there are no items.
-        SettingsToggleRow(
+        SegmentedToggleTile(
             title = stringResource(R.string.widget_toggle_show_empty_date),
+            icon = MaterialSymbols.Event,
             checked = state.showEmptyDate,
             onCheckedChange = { onStateChange(state.copy(showEmptyDate = it)) },
-            isLastItem = true,
+            index = 1,
+            count = 2,
         )
     }
     if (showDrawer) {

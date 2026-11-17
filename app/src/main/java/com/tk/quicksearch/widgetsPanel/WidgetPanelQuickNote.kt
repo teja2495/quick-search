@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgetsPanel
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -38,6 +38,9 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.notes.NotesTextUtils
+import com.tk.quicksearch.search.searchScreen.LocalFrostedCardSource
+import com.tk.quicksearch.search.searchScreen.frostedCardBackground
+import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.Dispatchers
@@ -127,18 +130,27 @@ internal fun CompactQuickNoteWidget(
         }
     }
 
+    // Over a frosted wallpaper the note matches search result cards: frost behind a lighter scrim.
+    val isFrosted = LocalFrostedCardSource.current?.isActive == true
     Surface(
-        modifier = surfaceModifier,
-        shape = DesignTokens.WidgetPanelCardShape,
+        modifier = surfaceModifier.frostedCardBackground(AppShapes.widgetPanelCard),
+        shape = AppShapes.widgetPanelCard,
         color =
-            AppColors.getSettingsCardContainerColor().let { containerColor ->
-                containerColor.copy(alpha = max(containerColor.alpha, QUICK_NOTE_MINIMUM_CONTAINER_ALPHA))
+            if (isFrosted) {
+                SearchResultCardDefaults.containerColor(
+                    showWallpaperBackground = true,
+                    overlayContainerColor = null,
+                )
+            } else {
+                AppColors.getSettingsCardContainerColor().let { containerColor ->
+                    containerColor.copy(alpha = max(containerColor.alpha, QUICK_NOTE_MINIMUM_CONTAINER_ALPHA))
+                }
             },
     ) {
         Column(
             modifier =
                 (if (fitContentHeight) Modifier.fillMaxWidth() else Modifier.fillMaxSize())
-                    .padding(DesignTokens.CardHorizontalPadding),
+                    .padding(DesignTokens.SpacingLarge),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
         ) {
             Box(
@@ -165,7 +177,6 @@ internal fun CompactQuickNoteWidget(
                     color = MaterialTheme.colorScheme.onSurface,
                 )
             }
-            HorizontalDivider(color = AppColors.SettingsDivider)
             BasicTextField(
                 value = bodyInput,
                 onValueChange = {
@@ -202,8 +213,10 @@ internal fun CompactQuickNoteWidget(
                         Text(
                             text = stringResource(R.string.notes_body_hint),
                             style = MaterialTheme.typography.bodyLarge,
+                            // Dimmed: the card is darker than a standard surface over the wallpaper,
+                            // so full onSurfaceVariant reads almost as bright as typed text.
                             color =
-                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = AppColors.ContentSecondaryAlpha),
                         )
                     }
                     inner()

@@ -2,8 +2,6 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,13 +21,15 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.data.preferences.FloatingButtonConfig
 import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
-import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.settings.shared.SettingsCardItem
-import com.tk.quicksearch.settings.shared.SettingsNavigationRow
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.settings.shared.SettingsToggleSliderDetails
 import com.tk.quicksearch.shared.permissions.LockScreenAccessibilityDisclosureDialog
 import com.tk.quicksearch.shared.permissions.shouldShowAccessibilityDisclosure
+import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlin.math.roundToInt
 
@@ -89,99 +89,94 @@ fun FloatingButtonSettingsSection(modifier: Modifier = Modifier) {
         )
     }
 
+    val showAccessibilityRow = config.enabled && !isAccessibilityEnabled
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
-        SettingsCard(modifier = Modifier.fillMaxWidth()) {
-            SettingsToggleRow(
-                title = stringResource(R.string.settings_floating_button_title),
-                subtitle = stringResource(R.string.settings_floating_button_desc),
-                checked = config.enabled,
-                onCheckedChange = { enabled ->
-                    preferences.setFloatingButtonEnabled(enabled)
-                    config = config.copy(enabled = enabled)
-                    if (enabled && !LockScreenAccessibilityService.isEnabled(context)) {
-                        requestAccessibility()
-                    }
-                },
-                isFirstItem = true,
-                isLastItem = !(config.enabled && !isAccessibilityEnabled),
-            )
-            if (config.enabled && !isAccessibilityEnabled) {
-                SettingsNavigationRow(
+        val enableCount = if (showAccessibilityRow) 2 else 1
+        SegmentedGroup {
+            SegmentedTile(index = 0, count = enableCount) {
+                SettingsToggleRow(
+                    title = stringResource(R.string.settings_floating_button_title),
+                    subtitle = stringResource(R.string.settings_floating_button_desc),
+                    checked = config.enabled,
+                    onCheckedChange = { enabled ->
+                        preferences.setFloatingButtonEnabled(enabled)
+                        config = config.copy(enabled = enabled)
+                        if (enabled && !LockScreenAccessibilityService.isEnabled(context)) {
+                            requestAccessibility()
+                        }
+                    },
+                    leadingIcon = MaterialSymbols.Search,
+                    isFirstItem = true,
+                    isLastItem = true,
+                )
+            }
+            if (showAccessibilityRow) {
+                SettingsSegmentNavigationRow(
                     item =
                         SettingsCardItem(
                             title = stringResource(R.string.permissions_accessibility_lock_screen_title),
                             description =
                                 stringResource(R.string.settings_gesture_lock_screen_requires_accessibility),
+                            icon = MaterialSymbols.Lock,
                             actionOnPress = ::requestAccessibility,
                         ),
-                    contentPadding =
-                        PaddingValues(
-                            horizontal = DesignTokens.SpacingXXLarge,
-                            vertical = DesignTokens.SpacingLarge,
-                        ),
+                    index = 1,
+                    count = enableCount,
                 )
             }
         }
 
         if (config.enabled && isAccessibilityEnabled) {
-            SettingsCard(modifier = Modifier.fillMaxWidth()) {
+            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium)) {
                 Text(
                     text = stringResource(R.string.settings_floating_button_move_hint),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier =
-                        Modifier.padding(
-                            start = DesignTokens.SpacingXXLarge,
-                            end = DesignTokens.SpacingXXLarge,
-                            top = DesignTokens.cardItemTopPadding(isFirstItem = true),
-                        ),
+                    modifier = Modifier.padding(horizontal = DesignTokens.SpacingLarge),
                 )
-                SettingsToggleRow(
-                    title = stringResource(R.string.settings_edge_gesture_size),
-                    checked = false,
-                    onCheckedChange = {},
-                    showSwitch = false,
-                    showDivider = false,
-                    sliderDetails =
-                        SettingsToggleSliderDetails(
-                            value = config.sizeDp.toFloat(),
-                            onValueChange = { value ->
-                                val sizeDp = (value / SizeStepDp).roundToInt() * SizeStepDp
-                                if (sizeDp != config.sizeDp) {
-                                    preferences.setFloatingButtonSizeDp(sizeDp)
-                                    config = config.copy(sizeDp = sizeDp)
-                                }
-                            },
-                            valueRange =
-                                FloatingButtonConfig.MIN_SIZE_DP.toFloat()..FloatingButtonConfig.MAX_SIZE_DP.toFloat(),
-                            steps =
-                                (FloatingButtonConfig.MAX_SIZE_DP - FloatingButtonConfig.MIN_SIZE_DP) / SizeStepDp - 1,
-                            valueLabel = "${config.sizeDp} dp",
-                            valueLabelWidth = DesignTokens.SpacingXXLarge * 2,
-                        ),
-                )
-                SettingsToggleRow(
-                    title = stringResource(R.string.settings_floating_button_opacity),
-                    checked = false,
-                    onCheckedChange = {},
-                    showSwitch = false,
-                    isLastItem = true,
-                    showDivider = false,
-                    sliderDetails =
-                        SettingsToggleSliderDetails(
-                            value = config.opacity,
-                            onValueChange = { value ->
-                                preferences.setFloatingButtonOpacity(value)
-                                config = config.copy(opacity = value)
-                            },
-                            valueRange = FloatingButtonConfig.MIN_OPACITY..FloatingButtonConfig.MAX_OPACITY,
-                            valueLabel = "${(config.opacity * 100).roundToInt()}%",
-                            valueLabelWidth = DesignTokens.SpacingXXLarge * 2,
-                        ),
-                )
+                SegmentedGroup {
+                    SettingsSliderTile(
+                        title = stringResource(R.string.settings_edge_gesture_size),
+                        index = 0,
+                        count = 2,
+                        details =
+                            SettingsToggleSliderDetails(
+                                value = config.sizeDp.toFloat(),
+                                onValueChange = { value ->
+                                    val sizeDp = (value / SizeStepDp).roundToInt() * SizeStepDp
+                                    if (sizeDp != config.sizeDp) {
+                                        preferences.setFloatingButtonSizeDp(sizeDp)
+                                        config = config.copy(sizeDp = sizeDp)
+                                    }
+                                },
+                                valueRange =
+                                    FloatingButtonConfig.MIN_SIZE_DP.toFloat()..FloatingButtonConfig.MAX_SIZE_DP.toFloat(),
+                                steps =
+                                    (FloatingButtonConfig.MAX_SIZE_DP - FloatingButtonConfig.MIN_SIZE_DP) / SizeStepDp - 1,
+                                valueLabel = "${config.sizeDp} dp",
+                                valueLabelWidth = DesignTokens.SpacingXXLarge * 2,
+                            ),
+                    )
+                    SettingsSliderTile(
+                        title = stringResource(R.string.settings_floating_button_opacity),
+                        index = 1,
+                        count = 2,
+                        details =
+                            SettingsToggleSliderDetails(
+                                value = config.opacity,
+                                onValueChange = { value ->
+                                    preferences.setFloatingButtonOpacity(value)
+                                    config = config.copy(opacity = value)
+                                },
+                                valueRange = FloatingButtonConfig.MIN_OPACITY..FloatingButtonConfig.MAX_OPACITY,
+                                valueLabel = "${(config.opacity * 100).roundToInt()}%",
+                                valueLabelWidth = DesignTokens.SpacingXXLarge * 2,
+                            ),
+                    )
+                }
             }
         }
     }

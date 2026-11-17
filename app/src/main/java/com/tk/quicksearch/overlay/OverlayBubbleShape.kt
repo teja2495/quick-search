@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 /** Height of the bubble's arrow; content below it has to be padded by this much. */
 internal val OverlayBubbleArrowHeight = 12.dp
@@ -24,7 +25,7 @@ private val OverlayBubbleArrowWidth = 24.dp
  */
 internal class OverlayBubbleShape(
     private val arrowCenterX: Float?,
-    private val cornerRadius: Dp = 28.dp,
+    private val cornerRadius: Dp = DesignTokens.CornerExtraLarge,
 ) : Shape {
     override fun createOutline(
         size: Size,

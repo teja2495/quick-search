@@ -1,14 +1,14 @@
 package com.tk.quicksearch.settings.shared
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
@@ -16,8 +16,9 @@ import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
 import com.tk.quicksearch.settings.searchEngineSettings.AliasDisplayType
 import com.tk.quicksearch.settings.searchEngineSettings.AliasCodeDisplay
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
 
 data class ToolToggleCardModel(
     val title: String,
@@ -42,16 +43,18 @@ fun ToolToggleRows(
     modifier: Modifier = Modifier,
     scrollState: ScrollState? = null,
 ) {
-    SettingsCard(
-        modifier = modifier.fillMaxWidth(),
+    // With a [scrollState], the tiles scroll inside the group; give [modifier] a bounded height.
+    // The group is clipped to the outer corners so tiles scrolling past its edge stay rounded.
+    SegmentedGroup(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .clip(AppShapes.segmentGroup)
+                .then(if (scrollState != null) Modifier.verticalScroll(scrollState) else Modifier),
     ) {
-        // With a [scrollState], the rows scroll inside the card; give [modifier] a bounded height.
-        Column(modifier = if (scrollState != null) Modifier.verticalScroll(scrollState) else Modifier) {
-            tools.forEachIndexed { index, tool ->
+        tools.forEachIndexed { index, tool ->
+            SegmentedTile(index = index, count = tools.size) {
                 ToolToggleRow(tool = tool)
-                if (index != tools.lastIndex) {
-                    HorizontalDivider(color = AppColors.SettingsDivider)
-                }
             }
         }
     }
@@ -91,7 +94,7 @@ fun ToolToggleRow(
                         aliasDisplayType = AliasDisplayType.TOOL,
                         allowClearAction = tool.allowAliasClear,
                         allowEmptyAlias = tool.allowAliasClear,
-                        modifier = Modifier.padding(top = DesignTokens.SpacingSmall),
+                        modifier = Modifier.padding(top = DesignTokens.SpacingXSmall),
                     )
                 }
             } else {

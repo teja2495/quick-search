@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchScreen
 
+import com.tk.quicksearch.onboarding.welcomeMorphHoldsKeyboard
+import com.tk.quicksearch.onboarding.welcomeMorphRunning
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -34,6 +36,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AiSearchStatus
+import com.tk.quicksearch.search.core.SearchBarStyle
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchUiState
@@ -283,6 +286,12 @@ internal fun SearchScreenContent(
     val shouldShowNumberKeyboardOperators =
             isImeVisible && (manuallySwitchedToNumberKeyboard || isCalculatorMode)
     val showBottomSearchBar = showSearchField && state.bottomSearchBarEnabled
+    val barStyle =
+            if (SearchBarStyle.hasFixedShape(state.bottomSearchBarEnabled, state.isSearchEngineCompactMode)) {
+                state.searchBarStyle.withFixedShape()
+            } else {
+                state.searchBarStyle
+            }
     val surfaceColors = rememberSearchSurfaceColors(state)
     val amoledSurfacesActive = surfaceColors.amoledSurfacesActive
     val searchColorTheme = surfaceColors.searchColorTheme
@@ -299,7 +308,7 @@ internal fun SearchScreenContent(
                     !isPhysicalKeyboardConnected &&
                     canShowOpenKeyboardPill &&
                     hasClosedStartupKeyboardAfterLaunch &&
-                    !isSearchHistoryExpanded
+                    !isSearchHistoryExpanded && !welcomeMorphRunning()
 
     LaunchedEffect(shouldShowOpenKeyboardAction) {
         if (!shouldShowOpenKeyboardAction) {
@@ -476,31 +485,7 @@ internal fun SearchScreenContent(
         )
     }
 
-    var lastTriggeredQuery by remember { mutableStateOf<String?>(null) }
-    LaunchedEffect(
-        state.query,
-        state.allApps,
-        renderingState.displayApps,
-        state.allAppShortcuts,
-        renderingState.appShortcutResults,
-        renderingState.contactResults,
-        state.pinnedContacts,
-        renderingState.fileResults,
-        state.pinnedFiles,
-        renderingState.settingResults,
-        state.allDeviceSettings,
-        renderingState.calendarEvents,
-        renderingState.noteResults,
-        state.pinnedNotes,
-        triggerWords,
-    ) {
-        if (state.query == lastTriggeredQuery) return@LaunchedEffect
-        lastTriggeredQuery = null
-        if (state.query.isBlank()) return@LaunchedEffect
-        if (openMatchingTrigger(state.query)) {
-            lastTriggeredQuery = state.query
-        }
-    }
+    AutoOpenMatchingTrigger(state, renderingState, triggerWords, openMatchingTrigger)
 
     val searchBarGeometry = rememberSearchBarGeometry(
         state = state,
@@ -544,7 +529,7 @@ internal fun SearchScreenContent(
                 placeholderText = searchHintText,
                 showWelcomeAnimation = state.showSearchBarWelcomeAnimation,
                 showWallpaperBackground = state.showWallpaperBackground,
-                autoFocusOnStart = state.openKeyboardOnLaunch,
+                autoFocusOnStart = state.openKeyboardOnLaunch && !welcomeMorphHoldsKeyboard(),
                 releaseFocusOnLeave = !isOverlayPresentation && state.clearQueryOnLaunch,
                 restoreKeyboardOnEnter = !isOverlayPresentation && state.restoreSearchKeyboard,
                 onRestoreKeyboardHandled = onRestoreSearchKeyboardHandled,
@@ -561,8 +546,9 @@ internal fun SearchScreenContent(
                 focusRequester = searchFocusRequester,
                 forceRestingOutline = showBottomSearchBar,
                 transparentBackground = useInsetEngineStrip,
-                cornerRadius = state.searchBarStyle.cornerRadius(),
-                searchBarStyle = state.searchBarStyle,
+                cornerRadius = barStyle.cornerRadius(),
+                // Inside the compact engine card the card carries the outline, not the bar.
+                searchBarStyle = if (useInsetEngineStrip) barStyle.copy(borderWidthDp = 0f) else barStyle,
                 modifier = searchFieldModifier,
                 onMoveTopResultSelectionUp = { moveSelectedTopMatch(-1) },
                 onMoveTopResultSelectionDown = { moveSelectedTopMatch(1) },
@@ -638,6 +624,7 @@ internal fun SearchScreenContent(
         LocalAmoledThemeActive provides amoledSurfacesActive,
         LocalSearchResultQuery provides state.query.trim(),
         LocalInsetCardBackdrop provides searchBarGeometry.insetCardBackdrop,
+        LocalSearchChromeBlurEnabled provides state.searchChromeBlurEnabled,
         com.tk.quicksearch.tools.calculator.LocalCalculatorResultQueryHandler provides onQueryChanged,
     ) {
     Column(modifier = contentModifier, verticalArrangement = Arrangement.Top) {
@@ -659,7 +646,7 @@ internal fun SearchScreenContent(
                                         Modifier.weight(1f)
                                     }
                             if (showSearchField && showBottomSearchBar) {
-                                base.padding(top = DesignTokens.SpacingXXSmall)
+                                base.padding(top = DesignTokens.SpacingXSmall)
                             } else {
                                 base
                             }

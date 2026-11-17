@@ -129,7 +129,7 @@ internal fun CustomInfoRow(
             belowText = {
                 MarkdownText(
                     markdown = item.answer,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             },

@@ -4,15 +4,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -36,7 +33,6 @@ import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.NoteInfo
-import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.search.searchScreen.dialogs.AppShortcutIconEditDialog
 import com.tk.quicksearch.search.searchScreen.dialogs.NicknameDialogState
 import com.tk.quicksearch.search.searchScreen.dialogs.TriggerDialogState
@@ -47,6 +43,7 @@ import com.tk.quicksearch.settings.appShortcutsSettings.EditCustomShortcutDialog
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.tools.aiSearch.ModelPickerDialog
 import kotlinx.coroutines.delay
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 @Composable
 internal fun SearchScreenDialogLogic(
@@ -161,7 +158,7 @@ internal fun SearchScreenDialogLogic(
                 )
             },
             confirmButton = {
-                Button(
+                AppTextButton(
                     onClick = {
                         val trimmed = personalContextInput.text.trim()
                         onSetPersonalContext(trimmed.takeIf { it.isNotEmpty() })
@@ -172,7 +169,7 @@ internal fun SearchScreenDialogLogic(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { setShowPersonalContextDialog(false) }) {
+                AppTextButton(onClick = { setShowPersonalContextDialog(false) }) {
                     Text(text = stringResource(R.string.dialog_cancel))
                 }
             },

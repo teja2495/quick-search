@@ -2,8 +2,6 @@ package com.tk.quicksearch.onboarding
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,25 +10,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.ui.draw.scale
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
-import androidx.compose.ui.graphics.Color
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppTheme
@@ -40,7 +26,8 @@ import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.settings.settingsDetailScreen.MessagingSection
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 
 /** Gets the icon for a file type. */
@@ -89,6 +76,8 @@ fun FinalSetupScreen(
             title = stringResource(R.string.setup_final_title),
             currentStep = currentStep,
             totalSteps = totalSteps,
+            topPadding = DesignTokens.SpacingMedium,
+            modifier = Modifier.welcomeExitItem(),
         )
 
         Spacer(modifier = Modifier.height(DesignTokens.OnboardingCompactSpacing))
@@ -186,213 +175,40 @@ fun FinalSetupScreen(
             // Show file types section only if files permission is granted
             if (hasFilesPermission) {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text =
-                            stringResource(
-                                R.string.settings_file_types_title,
-                            ),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(bottom = DesignTokens.SpacingMedium),
-                    )
-
-                    // Folders toggle
-                    SettingsCard(modifier = Modifier.fillMaxWidth()) {
-                        Row(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .padding(
-                                        horizontal = DesignTokens.SpacingLarge,
-                                        vertical = DesignTokens.SpacingMedium,
-                                    ),
-                            horizontalArrangement =
-                                Arrangement.SpaceBetween,
-                            verticalAlignment =
-                                Alignment.CenterVertically,
-                        ) {
-                            Row(
-                                modifier = Modifier.weight(1f),
-                                verticalAlignment =
-                                    Alignment.CenterVertically,
-                                horizontalArrangement =
-                                    Arrangement.spacedBy(DesignTokens.SpacingMedium),
-                            ) {
-                                Icon(
-                                    imageVector =
-                                        MaterialSymbols.Folder,
-                                    contentDescription = null,
-                                    tint =
-                                        MaterialTheme
-                                            .colorScheme
-                                            .onSurfaceVariant,
-                                    modifier =
-                                        Modifier.size(DesignTokens.IconSize),
-                                )
-                                Text(
-                                    text =
-                                        stringResource(
-                                            R.string
-                                                .settings_folders_toggle,
-                                        ),
-                                    style =
-                                        MaterialTheme
-                                            .typography
-                                            .bodyLarge,
-                                    color =
-                                        MaterialTheme
-                                            .colorScheme
-                                            .onSurface,
-                                )
-                            }
-                            Switch(
-                                checked = uiState.showFolders,
-                                onCheckedChange = { enabled ->
-                                    viewModel.setShowFolders(
-                                        enabled,
-                                    )
-                                },
-                                modifier = Modifier.scale(0.85f),
-                                colors = SwitchDefaults.colors(uncheckedTrackColor = Color.Transparent),
-                            )
-                        }
+                    SegmentedGroup(title = stringResource(R.string.settings_file_types_title)) {
+                        SegmentedToggleTile(
+                            title = stringResource(R.string.settings_folders_toggle),
+                            icon = MaterialSymbols.Folder,
+                            checked = uiState.showFolders,
+                            onCheckedChange = { enabled -> viewModel.setShowFolders(enabled) },
+                            index = 0,
+                            count = 1,
+                        )
                     }
 
                     Spacer(modifier = Modifier.height(DesignTokens.SpacingMedium))
 
-                    SettingsCard(modifier = Modifier.fillMaxWidth()) {
-                        Column {
-                            val fileTypes = FileType.values()
-                            val lastIndex = fileTypes.lastIndex
-
-                            fileTypes.forEachIndexed { index, fileType ->
-                                Row(
-                                    modifier =
-                                        Modifier
-                                            .fillMaxWidth()
-                                            .padding(
-                                                horizontal =
-                                                    DesignTokens.SpacingLarge,
-                                                vertical =
-                                                    DesignTokens.SpacingMedium,
-                                            ),
-                                    horizontalArrangement =
-                                        Arrangement
-                                            .SpaceBetween,
-                                    verticalAlignment =
-                                        Alignment
-                                            .CenterVertically,
-                                ) {
-                                    Row(
-                                        modifier =
-                                            Modifier.weight(
-                                                1f,
-                                            ),
-                                        verticalAlignment =
-                                            Alignment
-                                                .CenterVertically,
-                                        horizontalArrangement =
-                                            Arrangement
-                                                .spacedBy(
-                                                    DesignTokens.SpacingMedium,
-                                                ),
-                                    ) {
-                                        Icon(
-                                            imageVector =
-                                                getFileTypeIcon(
-                                                    fileType,
-                                                ),
-                                            contentDescription =
-                                            null,
-                                            tint =
-                                                MaterialTheme
-                                                    .colorScheme
-                                                    .onSurfaceVariant,
-                                            modifier =
-                                                Modifier.size(
-                                                    DesignTokens.IconSize,
-                                                ),
-                                        )
-                                        Text(
-                                            text =
-                                                when (fileType) {
-                                                    FileType.DOCUMENTS -> {
-                                                        stringResource(
-                                                            R.string
-                                                                .file_type_documents,
-                                                        )
-                                                    }
-
-                                                    FileType.PICTURES -> {
-                                                        stringResource(
-                                                            R.string
-                                                                .file_type_pictures,
-                                                        )
-                                                    }
-
-                                                    FileType.VIDEOS -> {
-                                                        stringResource(
-                                                            R.string
-                                                                .file_type_videos,
-                                                        )
-                                                    }
-
-                                                    FileType.AUDIO -> {
-                                                        stringResource(
-                                                            R.string
-                                                                .file_type_audio,
-                                                        )
-                                                    }
-
-                                                    FileType.APKS -> {
-                                                        stringResource(
-                                                            R.string
-                                                                .file_type_apks,
-                                                        )
-                                                    }
-
-                                                    FileType.OTHER -> {
-                                                        stringResource(
-                                                            R.string
-                                                                .contact_method_fallback_label,
-                                                        )
-                                                    }
-                                                },
-                                            style =
-                                                MaterialTheme
-                                                    .typography
-                                                    .bodyLarge,
-                                            color =
-                                                MaterialTheme
-                                                    .colorScheme
-                                                    .onSurface,
-                                        )
-                                    }
-                                    Switch(
-                                        checked =
-                                            fileType in
-                                                uiState.enabledFileTypes,
-                                        onCheckedChange = { enabled ->
-                                            viewModel
-                                                .setFileTypeEnabled(
-                                                    fileType,
-                                                    enabled,
-                                                )
+                    SegmentedGroup {
+                        val fileTypes = FileType.entries
+                        fileTypes.forEachIndexed { index, fileType ->
+                            SegmentedToggleTile(
+                                title =
+                                    stringResource(
+                                        when (fileType) {
+                                            FileType.DOCUMENTS -> R.string.file_type_documents
+                                            FileType.PICTURES -> R.string.file_type_pictures
+                                            FileType.VIDEOS -> R.string.file_type_videos
+                                            FileType.AUDIO -> R.string.file_type_audio
+                                            FileType.APKS -> R.string.file_type_apks
+                                            FileType.OTHER -> R.string.contact_method_fallback_label
                                         },
-                                        modifier = Modifier.scale(0.85f),
-                                        colors = SwitchDefaults.colors(uncheckedTrackColor = Color.Transparent),
-                                    )
-                                }
-
-                                if (index < lastIndex) {
-                                    HorizontalDivider(
-                                        color =
-                                            MaterialTheme
-                                                .colorScheme
-                                                .outlineVariant,
-                                    )
-                                }
-                            }
+                                    ),
+                                icon = getFileTypeIcon(fileType),
+                                checked = fileType in uiState.enabledFileTypes,
+                                onCheckedChange = { enabled -> viewModel.setFileTypeEnabled(fileType, enabled) },
+                                index = index,
+                                count = fileTypes.size,
+                            )
                         }
                     }
                 }
@@ -403,24 +219,11 @@ fun FinalSetupScreen(
 
         Spacer(modifier = Modifier.height(DesignTokens.OnboardingSectionSpacing))
 
-        Button(
+        OnboardingBottomActionButton(
+            text = stringResource(R.string.setup_action_start),
             onClick = onContinue,
-            modifier =
-                Modifier.fillMaxWidth()
-                    .padding(horizontal = DesignTokens.OnboardingButtonOuterHorizontalPadding),
-            shape = RoundedCornerShape(DesignTokens.OnboardingButtonCornerRadius),
-            contentPadding =
-                PaddingValues(
-                    horizontal = DesignTokens.OnboardingButtonHorizontalPadding,
-                    vertical = DesignTokens.OnboardingButtonVerticalPadding,
-                ),
-        ) {
-            Text(
-                text = stringResource(R.string.setup_action_start),
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium,
-            )
-        }
+            finishesSetup = true,
+        )
 
         Spacer(modifier = Modifier.height(DesignTokens.OnboardingSectionSpacing))
     }

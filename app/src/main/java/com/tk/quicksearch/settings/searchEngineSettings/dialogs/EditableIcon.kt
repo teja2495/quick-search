@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.searchEngineSettings.dialogs
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -36,7 +37,7 @@ fun EditableIcon(
                 .border(
                     width = 1.25.dp,
                     color = AppColors.SettingsDivider,
-                    shape = RoundedCornerShape(14.dp),
+                    shape = AppShapes.iconFrame,
                 ).clickable { onClick() },
     ) {
         Box(

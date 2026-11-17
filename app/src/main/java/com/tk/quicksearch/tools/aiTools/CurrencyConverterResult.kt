@@ -1,5 +1,7 @@
 package com.tk.quicksearch.tools.aiTools
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.components.AppButtonTone
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,7 +14,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,6 +36,7 @@ import java.util.Currency
 import java.util.Locale
 import java.text.NumberFormat
 import java.math.RoundingMode
+import com.tk.quicksearch.shared.ui.components.AppTonalButton
 
 @Composable
 fun CurrencyConverterResult(
@@ -118,7 +120,7 @@ fun CurrencyConverterResult(
                                                         .align(Alignment.BottomCenter),
                                         textAlign = TextAlign.Center,
                                         style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = AppColors.ContentMutedAlpha),
                                 )
                             }
                         }
@@ -165,14 +167,11 @@ internal fun SearchOnGoogleButton(
         onClick: () -> Unit,
         modifier: Modifier = Modifier,
 ) {
-    FilledTonalButton(
+    AppTonalButton(
             onClick = onClick,
-            modifier = modifier.height(40.dp),
-            colors =
-                    ButtonDefaults.filledTonalButtonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f),
-                    ),
-            contentPadding = PaddingValues(horizontal = DesignTokens.SpacingLarge, vertical = 0.dp),
+            modifier = modifier.height(DesignTokens.ButtonHeightSmall),
+            tone = AppButtonTone.Secondary,
+            contentPadding = PaddingValues(horizontal = DesignTokens.SpacingLarge),
     ) {
         Icon(
                 painter = painterResource(R.drawable.google),

@@ -1,8 +1,9 @@
 package com.tk.quicksearch.search.appSettings
 
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,6 +30,9 @@ import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.HomeTextColor
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.settings.appearanceSettings.FONT_SIZE_STEPS
+import com.tk.quicksearch.shared.ui.components.ChoiceOption
+import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
+import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.hapticToggle
@@ -170,7 +174,7 @@ internal fun InlineSliderRow(
     label: String,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        modifier = Modifier.fillMaxWidth().padding(top = DesignTokens.SpacingSmall),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
@@ -181,7 +185,7 @@ internal fun InlineSliderRow(
             steps = steps,
             colors =
                 SliderDefaults.colors(
-                    inactiveTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.16f),
+                    inactiveTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.TintTonalAlpha),
                     inactiveTickColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 ),
             modifier = Modifier.weight(1f).height(36.dp),
@@ -210,50 +214,38 @@ private fun HomeTextColorInlineChips(controls: AppSettingInlineControls) {
                 ?: defaultColor
     }
     val selected = controls.homeTextColorOverride ?: wallpaperDefaultColor
-    InlineChipRow {
-        AppSettingChoiceChip(
-            label = stringResource(R.string.widget_text_icon_color_white),
-            selected = selected == HomeTextColor.WHITE,
-            onClick = { controls.onHomeTextColorChange(HomeTextColor.WHITE) },
-            compact = true,
-            modifier = Modifier.weight(1f),
-        )
-        AppSettingChoiceChip(
-            label = stringResource(R.string.widget_text_icon_color_black),
-            selected = selected == HomeTextColor.BLACK,
-            onClick = { controls.onHomeTextColorChange(HomeTextColor.BLACK) },
-            compact = true,
-            modifier = Modifier.weight(1f),
-        )
-    }
+    ConnectedChoiceGroup(
+        options =
+            listOf(
+                ChoiceOption(
+                    value = HomeTextColor.WHITE,
+                    label = stringResource(R.string.widget_text_icon_color_white),
+                    icon = MaterialSymbols.LightMode,
+                ),
+                ChoiceOption(
+                    value = HomeTextColor.BLACK,
+                    label = stringResource(R.string.widget_text_icon_color_black),
+                    icon = MaterialSymbols.DarkMode,
+                ),
+            ),
+        selected = selected,
+        onSelect = { color -> if (color != selected) controls.onHomeTextColorChange(color) },
+        modifier = Modifier.padding(top = DesignTokens.SpacingSmall),
+    )
 }
 
+/** Plain labels: the row shares its width with the trailing chevron, too narrow for three icons. */
 @Composable
 private fun ThemeModeInlineChips(controls: AppSettingInlineControls) {
-    InlineChipRow {
-        listOf(
-            AppThemeMode.LIGHT to R.string.common_theme_light,
-            AppThemeMode.DARK to R.string.common_theme_dark,
-            AppThemeMode.SYSTEM to R.string.common_theme_system,
-        ).forEach { (mode, labelRes) ->
-            AppSettingChoiceChip(
-                label = stringResource(labelRes),
-                selected = controls.appThemeMode == mode,
-                onClick = { controls.onAppThemeModeChange(mode) },
-                compact = true,
-                modifier = Modifier.weight(1f),
-            )
-        }
-    }
-}
-
-/** One line of equal-width compact chips. */
-@Composable
-private fun InlineChipRow(content: @Composable RowScope.() -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        content()
-    }
+    ConnectedChoiceGroup(
+        options =
+            listOf(
+                ChoiceOption(AppThemeMode.LIGHT, stringResource(R.string.common_theme_light)),
+                ChoiceOption(AppThemeMode.DARK, stringResource(R.string.common_theme_dark)),
+                ChoiceOption(AppThemeMode.SYSTEM, stringResource(R.string.common_theme_system)),
+            ),
+        selected = controls.appThemeMode,
+        onSelect = { mode -> if (mode != controls.appThemeMode) controls.onAppThemeModeChange(mode) },
+        modifier = Modifier.padding(top = DesignTokens.SpacingSmall),
+    )
 }

@@ -8,13 +8,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
@@ -22,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -31,14 +29,19 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.util.hapticToggle
+import com.tk.quicksearch.shared.util.hapticToggleState
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContentPadding
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.LocalInSegmentedTile
+import com.tk.quicksearch.shared.ui.components.AppSwitch
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
 
 /**
  * A settings row with a leading icon, title/subtitle text, an optional navigation arrow,
  * and a toggle switch. Matches the visual style of search result type toggle rows.
  *
  * When [onRowClick] is provided, a chevron and vertical divider appear between the
- * navigation area and the toggle switch.
+ * navigation area and the toggle switch. Inside a [SegmentedTile] it takes the tile layout.
  */
 @Composable
 fun SettingsNavigationToggleRow(
@@ -58,6 +61,8 @@ fun SettingsNavigationToggleRow(
     val view = LocalView.current
     val rowInteractionSource = remember { MutableInteractionSource() }
     val rowIndication = LocalIndication.current
+    // In a segmented tile: tonal icon badge, tile padding, and bodyMedium supporting text.
+    val segmented = LocalInSegmentedTile.current
 
     Row(
         modifier =
@@ -75,11 +80,15 @@ fun SettingsNavigationToggleRow(
                         rowModifier
                     }
                 }
-                .padding(
-                    start = DesignTokens.CardHorizontalPadding,
-                    end = DesignTokens.CardHorizontalPadding,
-                    top = DesignTokens.CardVerticalPadding,
-                    bottom = DesignTokens.CardVerticalPadding,
+                .then(
+                    if (segmented) {
+                        Modifier.heightIn(min = SettingsNavigationToggleTileMinHeight).padding(SegmentedTileContentPadding)
+                    } else {
+                        Modifier.padding(
+                            horizontal = DesignTokens.CardHorizontalPadding,
+                            vertical = DesignTokens.CardVerticalPadding,
+                        )
+                    },
                 ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
@@ -87,21 +96,25 @@ fun SettingsNavigationToggleRow(
         Row(
             modifier = Modifier.weight(1f),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
+            horizontalArrangement = Arrangement.spacedBy(if (segmented) SegmentedTileContentPadding else DesignTokens.ItemRowSpacing),
         ) {
             leadingIcon?.let {
-                Icon(
-                    imageVector = it,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(DesignTokens.IconSize),
-                )
+                if (segmented) {
+                    TonalIconBadge(icon = it)
+                } else {
+                    Icon(
+                        imageVector = it,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(DesignTokens.IconSize),
+                    )
+                }
             }
 
             Column(modifier = Modifier.weight(1f)) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                 ) {
                     Text(
                         text = title,
@@ -116,9 +129,9 @@ fun SettingsNavigationToggleRow(
                 if (!subtitle.isNullOrBlank()) {
                     Text(
                         text = subtitle,
-                        style = MaterialTheme.typography.bodySmall,
+                        style = if (segmented) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = 4.dp),
+                        modifier = Modifier.padding(top = if (segmented) DesignTokens.SpacingXSmall / 2 else 4.dp),
                     )
                 }
 
@@ -139,25 +152,21 @@ fun SettingsNavigationToggleRow(
                 VerticalDivider(
                     modifier = Modifier
                         .height(24.dp)
-                        .padding(horizontal = 8.dp),
+                        .padding(horizontal = DesignTokens.SpacingSmall),
                     color = AppColors.SettingsDivider,
                 )
             }
         }
 
-        Switch(
+        AppSwitch(
             checked = checked,
             onCheckedChange = { enabled ->
-                hapticToggle(view)()
+                hapticToggleState(view, enabled)
                 onCheckedChange(enabled)
             },
             enabled = enabled,
-            modifier = Modifier.scale(0.85f),
-            colors = SwitchDefaults.colors(
-                uncheckedTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-                uncheckedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-                uncheckedThumbColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-            ),
         )
     }
 }
+
+private val SettingsNavigationToggleTileMinHeight = 72.dp

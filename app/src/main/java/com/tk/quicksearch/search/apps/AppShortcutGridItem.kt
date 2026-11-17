@@ -1,8 +1,7 @@
 package com.tk.quicksearch.search.apps
 
-import androidx.compose.animation.core.Spring
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
@@ -18,10 +17,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,8 +44,12 @@ import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.data.preferences.ResultTrigger
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.homeTextColor
 import com.tk.quicksearch.shared.util.hapticConfirm
 import java.util.Locale
+import com.tk.quicksearch.shared.ui.theme.AppMotion
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 private const val ShortcutAppBadgeScale = 0.42f
 private const val ShortcutBadgeOffsetScale = 0.2f
@@ -116,7 +120,15 @@ internal fun AppShortcutGridItem(
             ).bitmap
     var showOptions by remember { mutableStateOf(false) }
     var isLocalDragging by remember { mutableStateOf(false) }
+    var isHeld by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
     val showDraggedPresentation = isDragging || isLocalDragging
+    val pressScale by animateFloatAsState(
+        targetValue = if ((isPressed || isHeld) && !showDraggedPresentation && !isMergeTarget) AppGridPressedScale else 1f,
+        animationSpec = AppMotion.fastSpatial(),
+        label = "gridIconPressScale",
+    )
     val dragScale by animateFloatAsState(
             targetValue =
                     when {
@@ -124,7 +136,7 @@ internal fun AppShortcutGridItem(
                         showDraggedPresentation -> DraggedPinnedAppScale
                         else -> 1f
                     },
-            animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+            animationSpec = AppMotion.dragFeedback(),
             label = "pinnedShortcutDragScale",
     )
     val dragAlpha by animateFloatAsState(
@@ -134,7 +146,7 @@ internal fun AppShortcutGridItem(
                         showDraggedPresentation -> DraggedPinnedAppAlpha
                         else -> 1f
                     },
-            animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+            animationSpec = AppMotion.dragFeedback(),
             label = "pinnedShortcutDragAlpha",
     )
     val dragModifier =
@@ -146,7 +158,10 @@ internal fun AppShortcutGridItem(
                     onPinnedDragStart = onPinnedDragStart,
                     onPinnedDrag = onPinnedDrag,
                     onPinnedDragEnd = onPinnedDragEnd,
-                    onHoldChange = onHoldChange,
+                    onHoldChange = { held ->
+                        isHeld = held
+                        onHoldChange?.invoke(held)
+                    },
             )
     val isDraggable = onPinnedDragStart != null && onPinnedDrag != null && onPinnedDragEnd != null
     val clickModifier =
@@ -154,6 +169,8 @@ internal fun AppShortcutGridItem(
                 Modifier
             } else {
                 Modifier.combinedClickable(
+                        interactionSource = interactionSource,
+                        indication = ripple(color = homeTextColor()),
                         onClick = {
                             if (!showOptions) {
                                 hapticConfirm(view)()
@@ -197,9 +214,13 @@ internal fun AppShortcutGridItem(
             Box(
                     modifier =
                             Modifier.requiredSize(iconSurfaceSize)
-                                    .clip(DesignTokens.ShapeLarge)
+                                    .clip(AppShapes.large)
                                     .then(dragModifier)
-                                    .then(clickModifier),
+                                    .then(clickModifier)
+                                    .graphicsLayer {
+                                        scaleX = pressScale
+                                        scaleY = pressScale
+                                    },
                     contentAlignment = Alignment.Center,
             ) {
                 if (isMergeTarget) {

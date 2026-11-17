@@ -1,5 +1,6 @@
 package com.tk.quicksearch.shared.ui.components
 
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
@@ -59,6 +60,8 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.shared.ui.theme.pressMorphShape
 
 /** A compact icon-over-label tile shown in the Shortcuts and Actions grids. */
 data class ItemMenuTile(
@@ -136,28 +139,29 @@ fun ItemMenuPopup(
     footer: List<ItemMenuRow> = emptyList(),
     caption: (@Composable () -> Unit)? = null,
 ) {
-    val dialogBackground = AppColors.DialogBackground
+    val dialogBackground = MaterialTheme.colorScheme.surfaceContainerLow
     AppBottomPopup(
         onDismiss = onDismiss,
         title = title,
         leadingContent = leadingContent,
         containerColor = dialogBackground,
         contentCardColor = dialogBackground,
-        // Matches the popup's 24dp top padding so the header sits evenly between the edge and the menu.
-        contentSpacing = DesignTokens.SpacingXXLarge,
+        // Keep the header and action groups on the same spacing rhythm as contact actions.
+        contentSpacing = DesignTokens.SpacingSmall,
         headerSpacing = DesignTokens.SpacingMedium,
+        headerTopPadding = DesignTokens.SpacingSmall,
         contentTopPadding = 0.dp,
         // The popup's own bottom padding already separates the last item from the edge.
         contentBottomPadding = 0.dp,
         // Lets the tiles and rows use more of the popup's width.
-        contentHorizontalPadding = 4.dp,
+        contentHorizontalPadding = 0.dp,
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             val showGridTitles = shortcuts.isNotEmpty() && actions.isNotEmpty()
             if (shortcuts.isNotEmpty()) {
                 if (showGridTitles) ItemMenuSectionTitle(shortcutsTitle)
                 ItemMenuTileGrid(tiles = shortcuts)
-                if (actions.isNotEmpty()) Spacer(Modifier.height(DesignTokens.SpacingLarge))
+                if (actions.isNotEmpty()) Spacer(Modifier.height(DesignTokens.SpacingSmall))
             }
             if (actions.isNotEmpty()) {
                 if (showGridTitles) ItemMenuSectionTitle(actionsTitle)
@@ -166,7 +170,7 @@ fun ItemMenuPopup(
             val hasGrids = shortcuts.isNotEmpty() || actions.isNotEmpty()
             val visibleButtonRows = buttonRows.filter { it.isNotEmpty() }
             if (visibleButtonRows.isNotEmpty()) {
-                if (hasGrids) Spacer(Modifier.height(DesignTokens.SpacingMedium))
+                if (hasGrids) Spacer(Modifier.height(DesignTokens.SpacingSmall))
                 Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)) {
                     visibleButtonRows.forEach { buttons -> ItemMenuButtonRow(buttons) }
                 }
@@ -175,12 +179,16 @@ fun ItemMenuPopup(
                 if (visibleButtonRows.isNotEmpty()) {
                     Spacer(Modifier.height(DesignTokens.SpacingSmall))
                 } else if (hasGrids) {
-                    Spacer(Modifier.height(DesignTokens.SpacingMedium))
+                    Spacer(Modifier.height(DesignTokens.SpacingSmall))
                 }
-                rows.forEach { row -> ItemMenuListRow(row) }
+                Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap)) {
+                    rows.forEachIndexed { index, row ->
+                        ItemMenuListRow(row, index == 0, index == rows.lastIndex)
+                    }
+                }
             }
             if (footer.isNotEmpty()) {
-                Spacer(Modifier.height(DesignTokens.SpacingMedium))
+                Spacer(Modifier.height(DesignTokens.SpacingSmall))
                 ItemMenuButtonRow(footer)
             }
             if (caption != null) {
@@ -257,9 +265,12 @@ private fun resolveLongClick(
 private fun ItemMenuSectionTitle(text: String) {
     Text(
         text = text,
-        style = MaterialTheme.typography.labelMedium,
+        style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(bottom = DesignTokens.SpacingSmall),
+        modifier = Modifier.padding(
+            start = DesignTokens.SpacingLarge,
+            bottom = DesignTokens.SpacingSmall,
+        ),
     )
 }
 
@@ -290,6 +301,13 @@ internal fun ItemMenuTileButton(
     tile: ItemMenuTile,
     modifier: Modifier = Modifier,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val tileShape =
+        pressMorphShape(
+            interactionSource,
+            rest = DesignTokens.CornerLargeIncreased,
+            pressed = DesignTokens.CornerSmall,
+        )
     val view = LocalView.current
     var showLongPressOption by remember { mutableStateOf(false) }
     var marqueeReplayKey by remember { mutableIntStateOf(0) }
@@ -298,10 +316,13 @@ internal fun ItemMenuTileButton(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(DesignTokens.ShapeSmall)
-                .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f))
+                .clip(tileShape)
+                .background(MaterialTheme.colorScheme.surfaceContainerHighest)
                 .combinedClickable(
                     onClick = tile.onClick,
+                    role = Role.Button,
+                    interactionSource = interactionSource,
+                    indication = LocalIndication.current,
                     onLongClick = onLongClick?.let { onLongClick ->
                         {
                             hapticConfirm(view)()
@@ -339,7 +360,8 @@ internal fun ItemMenuTileButton(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun ItemMenuListRow(row: ItemMenuRow) {
+private fun ItemMenuListRow(row: ItemMenuRow, first: Boolean, last: Boolean) {
+    val shape = AppShapes.segment(first = first, last = last)
     val view = LocalView.current
     val contentColor =
         if (row.destructive) MaterialTheme.colorScheme.error else AppColors.DialogText
@@ -350,9 +372,11 @@ private fun ItemMenuListRow(row: ItemMenuRow) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 48.dp)
-                .clip(DesignTokens.ShapeSmall)
+                .heightIn(min = DesignTokens.ItemMenuRowHeight)
+                .clip(shape)
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
                 .combinedClickable(
+                    role = Role.Button,
                     onClick = row.onClick,
                     onLongClick = onLongClick?.let { onLongClick ->
                         {
@@ -362,7 +386,7 @@ private fun ItemMenuListRow(row: ItemMenuRow) {
                         }
                     },
                 )
-                .padding(vertical = DesignTokens.SpacingSmall),
+                .padding(horizontal = DesignTokens.SpacingLarge, vertical = DesignTokens.SpacingSmall),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
         ) {
@@ -428,13 +452,8 @@ private fun ItemMenuButton(
 ) {
     val view = LocalView.current
     val contentColor =
-        if (button.destructive) MaterialTheme.colorScheme.error else AppColors.DialogText
-    val containerColor =
-        if (button.destructive) {
-            MaterialTheme.colorScheme.error.copy(alpha = 0.12f)
-        } else {
-            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)
-        }
+        if (button.destructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+    val containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
     var marqueeReplayKey by remember { mutableIntStateOf(0) }
     val longHoldInteractionSource = remember { MutableInteractionSource() }
     val longHoldIndication = LocalIndication.current
@@ -490,8 +509,8 @@ private fun ItemMenuButton(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 48.dp)
-                .clip(DesignTokens.ShapeSmall)
+                .heightIn(min = DesignTokens.ItemMenuRowHeight)
+                .clip(AppShapes.full)
                 .background(containerColor)
                 .then(clickModifier)
                 .then(if (button.iconOnly) Modifier.semantics { contentDescription = button.label } else Modifier)

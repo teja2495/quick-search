@@ -1,8 +1,12 @@
 package com.tk.quicksearch.settings.shared
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.isLandscape
 import com.tk.quicksearch.shared.util.isTablet
 
@@ -20,3 +24,12 @@ fun Modifier.settingsContentWidth(): Modifier =
     } else {
         fillMaxWidth()
     }
+
+private val SettingsScrollViewportShape = AppShapes.segmentGroup
+
+/**
+ * Clips a settings scroll viewport to the settings card corner radius so cards scrolling past
+ * the top or bottom edge follow the same rounded outline. Apply after the horizontal content
+ * padding and before any scroll modifier.
+ */
+fun Modifier.settingsScrollClip(): Modifier = clip(SettingsScrollViewportShape)

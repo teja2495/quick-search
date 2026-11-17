@@ -1,5 +1,6 @@
 package com.tk.quicksearch.searchEngines.inline
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
@@ -56,15 +57,15 @@ fun SearchEngineIconItem(
             elevation = 8.dp,
             shape = CircleShape,
             clip = false,
-            ambientColor = Color.Black.copy(alpha = 0.3f),
-            spotColor = Color.Black.copy(alpha = 0.5f),
+            ambientColor = Color.Black.copy(alpha = AppColors.TintEmphasisAlpha),
+            spotColor = Color.Black.copy(alpha = AppColors.ContentMutedAlpha),
         )
     } else {
         Modifier
     }
     val highlightExtraWidth = 8.dp
     val highlightExtraHeight = 12.dp
-    val highlightShape = RoundedCornerShape(18.dp)
+    val highlightShape = AppShapes.engineHighlight
     val highlightBackgroundColor = AppColors.InlineEngineHighlightBackground
     val highlightBorderColor = AppColors.InlineEngineHighlightBorder
     Box(

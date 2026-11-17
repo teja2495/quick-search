@@ -114,6 +114,9 @@
     <string name="action_open_folder">ఫోల్డర్ తెరువు</string>
     <string name="action_open_keyboard">కీబోర్డ్ తెరువు</string>
     <string name="action_open_settings">సెట్టింగ్‌లను తెరువు</string>
+    <string name="keyboard_shortcut_open_top_result">అగ్ర ఫలితాన్ని తెరవండి లేదా వెతకండి</string>
+    <string name="keyboard_shortcut_previous_result">మునుపటి ఫలితాన్ని ఎంచుకోండి</string>
+    <string name="keyboard_shortcut_next_result">తదుపరి ఫలితాన్ని ఎంచుకోండి</string>
     <string name="settings_gestures_title">హావభావాలు</string>
     <string name="settings_gestures_desc">స్వైప్ చర్యలను అనుకూలీకరించండి</string>
     <string name="settings_gesture_swipe_right">కుడికి స్వైప్ చేయండి</string>
@@ -826,6 +829,8 @@
     <string name="settings_unified_pinned_items_desc">పిన్ చేసిన అంశాలను హోమ్ స్క్రీన్‌లో ఒకే ఏకీకృత జాబితాగా చూపించు.</string>
     <string name="settings_show_status_bar_title">స్టేటస్ బార్ చూపించు</string>
     <string name="settings_show_status_bar_desc">స్క్రీన్ పైభాగంలో Android స్టేటస్ బార్‌ను చూపించు.</string>
+    <string name="settings_search_chrome_blur_title">బ్లర్ నేపథ్యం</string>
+    <string name="settings_search_chrome_blur_desc">సెర్చ్ బార్ వెనుక ఉన్నదాన్ని బ్లర్ చేయండి.</string>
     <string name="settings_pinned_sections_order_title">పిన్ చేసిన విభాగాల క్రమం</string>
     <string name="settings_pinned_sections_order_desc">హోమ్‌లో పిన్ చేసిన విభాగాల క్రమాన్ని మార్చండి</string>
     <string name="settings_pinned_sections_order_dialog_info">హోమ్‌లో పిన్ చేసిన విభాగాల క్రమాన్ని మార్చడానికి నొక్కి పట్టుకుని లాగండి.</string>
@@ -1062,9 +1067,8 @@
     <string name="settings_backup_import_warning_title">సెట్టింగ్‌లను దిగుమతి చేయాలా?</string>
     <string name="settings_backup_restore_desc">మీ యాప్ సెట్టింగ్‌లను ఎగుమతి లేదా దిగుమతి చేసుకోండి</string>
     <string name="settings_backup_restore_title">బ్యాకప్ &amp; పునరుద్ధరణ</string>
-    <string name="settings_feedback_developer_desc">%1$s ద్వారా రూపొందించబడింది</string>
     <string name="settings_feedback_developer_name">తేజ కర్లపూడి</string>
-    <string name="settings_feedback_developer_title">%1$s v%2$s</string>
+    <string name="settings_feedback_developer_made_by">రూపొందించినవారు</string>
     <string name="settings_feedback_github_desc">GitHub లో ఈ ప్రాజెక్ట్ యొక్క సోర్స్ కోడ్‌ను వీక్షించండి</string>
     <string name="settings_feedback_github_title">డెవలప్‌మెంట్</string>
     <string name="settings_feedback_rate_desc">ఈ యాప్ మీకు ఉపయోగకరంగా అనిపిస్తే 5 స్టార్ రేటింగ్ ఇవ్వండి 🙏</string>
@@ -1250,7 +1254,7 @@
     <string name="permissions_calling_desc">డయలర్ తెరవకుండానే మీ పరిచయాలకు నేరుగా కాల్ చేయడానికి అవసరం.</string>
     <string name="settings_notifications_permission_title">పోస్ట్ నోటిఫికేషన్‌లు</string>
     <string name="permissions_notifications_desc">రిమైండర్ నోటిఫికేషన్‌ల కోసం మరియు శోధన ఫలితాలను నోటిఫికేషన్ ప్యానెల్‌లో పిన్ చేయడానికి అవసరం</string>
-    <string name="permissions_notification_access_desc">నోటిఫికేషన్ డాట్‌లు మరియు నోటిఫికేషన్ చరిత్ర ఫీచర్‌లను ప్రారంభించడానికి అవసరం</string>
+    <string name="permissions_notification_access_desc">నోటిఫికేషన్ డాట్‌లు, నోటిఫికేషన్ చరిత్ర మరియు ఉపయోగకరమైన ఒక్క చూపులో ఫీచర్‌లను ప్రారంభించడానికి అవసరం.</string>
     <string name="permissions_accessibility_lock_screen_title">యాక్సెసిబిలిటీ</string>
     <string name="permissions_accessibility_lock_screen_desc">హావభావాలు, ఫ్లోటింగ్ బటన్ మరియు SpeedBumpను ప్రారంభిస్తుంది.</string>
     <string name="permissions_contacts_desc">మీ పరిచయాలను శోధించడానికి అవసరం.</string>
@@ -1265,6 +1269,10 @@
     <string name="permissions_open_source_desc">ఈ అనుమతులు ఎలా ఉపయోగించబడుతున్నాయో చూడండి.</string>
     <string name="permissions_open_source_action">కోడ్ చూడటానికి నొక్కండి.</string>
     <string name="permissions_screen_optional_emphasis">ఐచ్ఛికం</string>
+    <string name="permissions_trust_optional">ప్రతి అనుమతి ఐచ్ఛికం</string>
+    <string name="permissions_trust_on_device">మీ డేటా పరికరంలోనే ఉంటుంది</string>
+    <string name="permissions_trust_open_source">పూర్తిగా ఓపెన్ సోర్స్</string>
+    <string name="permissions_trust_view_code">కోడ్ చూడండి</string>
     <string name="permissions_usage_desc">మీరు ఇటీవల ఉపయోగించిన యాప్‌లను సూచనలలో చూపించడానికి అవసరం.</string>
     <string name="setup_action_next">తదుపరి</string>
     <string name="setup_action_skip_permissions">అనుమతులు లేకుండా కొనసాగించు</string>
@@ -1385,10 +1393,11 @@
     <string name="tasker_not_installed">Tasker ఇన్‌స్టాల్ చేయబడలేదు</string>
     <string name="tasker_broadcast_failed">Tasker బ్రాడ్‌కాస్ట్‌ను పంపలేకపోయాము</string>
     <string name="settings_more_apps_from_developer_title">డెవలపర్ నుండి మరిన్ని యాప్‌లు</string>
+    <string name="settings_github_label">GitHub</string>
     <string name="icon_picker_no_icon_packs">యాప్ ఐకాన్‌ను మార్చడానికి ఐకాన్ ప్యాక్‌లు ఏవీ ఇన్‌స్టాల్ చేయబడలేదు.</string>
     <string name="icon_picker_download_icon_packs">డౌన్‌లోడ్ చేయండి</string>
     <string name="app_menu_usage_today">ఈరోజు %1$s ఉపయోగించారు · %2$s సార్లు తెరిచారు</string>
-    <string name="app_menu_version">v%1$s</string>
+    <string name="app_menu_version">వెర్షన్ %1$s</string>
     <plurals name="app_menu_opened_count"><item quantity="one">%d సారి</item><item quantity="other">%d సార్లు</item></plurals>
     <plurals name="app_menu_usage_hours"><item quantity="one">%d గం.</item><item quantity="other">%d గం.</item></plurals>
     <plurals name="app_menu_usage_minutes"><item quantity="one">%d ని.</item><item quantity="other">%d ని.</item></plurals>

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgets.utils
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -122,7 +123,7 @@ fun WidgetPreviewCard(
             Modifier
                 .fillMaxWidth()
                 .height(previewBarHeight + (PREVIEW_WALLPAPER_VERTICAL_PADDING * 2))
-                .clip(DesignTokens.ShapeLarge)
+                .clip(AppShapes.large)
                 .then(
                     wallpaperBitmap?.let { bitmap ->
                         Modifier.paint(

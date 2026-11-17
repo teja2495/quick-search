@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.contacts.dialogs
 
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,12 +9,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +26,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.DirectDialOption
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.utils.PhoneNumberUtils
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 // ============================================================================
 // Phone Number Selection Dialog
@@ -50,7 +50,7 @@ fun PhoneNumberSelectionDialog(
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             ) {
                 Text(
                     text =
@@ -62,7 +62,7 @@ fun PhoneNumberSelectionDialog(
                     color = MaterialTheme.colorScheme.onSurface,
                 )
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(DesignTokens.SpacingXSmall))
 
                 // List of phone numbers
                 contactInfo.phoneNumbers.forEach { number ->
@@ -72,7 +72,7 @@ fun PhoneNumberSelectionDialog(
                                 .fillMaxWidth()
                                 .clickable { selectedNumber = number },
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                     ) {
                         RadioButton(
                             selected = selectedNumber == number,
@@ -87,13 +87,13 @@ fun PhoneNumberSelectionDialog(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(DesignTokens.SpacingSmall))
 
                 // Remember choice checkbox
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                 ) {
                     Checkbox(
                         checked = rememberChoice,
@@ -109,7 +109,7 @@ fun PhoneNumberSelectionDialog(
             }
         },
         confirmButton = {
-            Button(
+            AppTextButton(
                 onClick = {
                     selectedNumber?.let { number ->
                         onPhoneNumberSelected(number, rememberChoice)
@@ -128,7 +128,7 @@ fun PhoneNumberSelectionDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(text = stringResource(R.string.dialog_cancel))
             }
         },
@@ -152,9 +152,9 @@ fun DirectDialChoiceDialog(
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium)) {
                     DirectDialOption.values().forEach { option ->
                         val title =
                             when (option) {
@@ -173,7 +173,7 @@ fun DirectDialChoiceDialog(
                                     .fillMaxWidth()
                                     .clickable { selectedOption = option },
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                         ) {
                             RadioButton(
                                 selected = selectedOption == option,
@@ -198,7 +198,7 @@ fun DirectDialChoiceDialog(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(DesignTokens.SpacingSmall))
 
                 Text(
                     text = stringResource(R.string.dialog_direct_dial_change_later),
@@ -208,12 +208,12 @@ fun DirectDialChoiceDialog(
             }
         },
         confirmButton = {
-            Button(onClick = { onSelectOption(selectedOption, true) }) {
+            AppTextButton(onClick = { onSelectOption(selectedOption, true) }) {
                 Text(text = stringResource(R.string.dialog_ok))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(text = stringResource(R.string.dialog_cancel))
             }
         },

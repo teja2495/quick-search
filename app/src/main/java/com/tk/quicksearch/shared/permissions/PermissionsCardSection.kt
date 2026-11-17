@@ -29,6 +29,7 @@ import com.tk.quicksearch.search.data.CalendarRepository
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
 import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
+import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 data class PermissionCardTexts(
@@ -72,6 +73,8 @@ fun PermissionsCardSection(
     modifier: Modifier = Modifier,
     itemContentPadding: PaddingValues = PaddingValues(DesignTokens.SpacingXLarge),
     internalScrollEnabled: Boolean = false,
+    segmented: Boolean = false,
+    showItemIcons: Boolean = true,
     showCalendarPermission: Boolean = true,
     showCallingPermission: Boolean = true,
     showNotificationsPermission: Boolean = true,
@@ -348,6 +351,7 @@ fun PermissionsCardSection(
             add(
                 PermissionCardItem(
                     title = texts.usageTitle,
+                    icon = MaterialSymbols.History,
                     description = texts.usageDescription,
                     permissionState = usagePermissionState,
                     isMandatory = false,
@@ -364,6 +368,7 @@ fun PermissionsCardSection(
             add(
                 PermissionCardItem(
                     title = texts.contactsTitle,
+                    icon = MaterialSymbols.Contacts,
                     description = texts.contactsDescription,
                     permissionState = contactsPermissionState,
                     isMandatory = false,
@@ -383,6 +388,7 @@ fun PermissionsCardSection(
             add(
                 PermissionCardItem(
                     title = texts.filesTitle,
+                    icon = MaterialSymbols.Folder,
                     description = texts.filesDescription,
                     permissionState = filesPermissionState,
                     isMandatory = false,
@@ -405,6 +411,7 @@ fun PermissionsCardSection(
                 add(
                     PermissionCardItem(
                         title = texts.calendarTitle,
+                        icon = MaterialSymbols.CalendarMonth,
                         description = texts.calendarDescription,
                         permissionState = calendarPermissionState,
                         isMandatory = false,
@@ -426,6 +433,7 @@ fun PermissionsCardSection(
                 add(
                     PermissionCardItem(
                         title = texts.accessibilityTitle,
+                        icon = MaterialSymbols.AdminPanelSettings,
                         description = texts.accessibilityDescription,
                         permissionState = accessibilityPermissionState,
                         isMandatory = false,
@@ -448,6 +456,7 @@ fun PermissionsCardSection(
                 add(
                     PermissionCardItem(
                         title = texts.callingTitle,
+                        icon = MaterialSymbols.Call,
                         description = texts.callingDescription,
                         permissionState = callingPermissionState,
                         isMandatory = false,
@@ -469,6 +478,7 @@ fun PermissionsCardSection(
                 add(
                     PermissionCardItem(
                         title = texts.notificationsTitle,
+                        icon = MaterialSymbols.Notifications,
                         description = texts.notificationsDescription,
                         permissionState = notificationsPermissionState,
                         isMandatory = false,
@@ -499,6 +509,7 @@ fun PermissionsCardSection(
                 add(
                     PermissionCardItem(
                         title = texts.exactAlarmsTitle,
+                        icon = MaterialSymbols.Alarm,
                         description = texts.exactAlarmsDescription,
                         permissionState = exactAlarmsPermissionState,
                         isMandatory = false,
@@ -519,6 +530,7 @@ fun PermissionsCardSection(
                 add(
                     PermissionCardItem(
                         title = texts.notificationAccessTitle,
+                        icon = MaterialSymbols.NotificationsActive,
                         description = texts.notificationAccessDescription,
                         permissionState = notificationAccessPermissionState,
                         isMandatory = false,
@@ -535,6 +547,7 @@ fun PermissionsCardSection(
                 add(
                     PermissionCardItem(
                         title = texts.backgroundUsageTitle,
+                        icon = MaterialSymbols.BatteryFull,
                         description = texts.backgroundUsageDescription,
                         permissionState = PermissionState.initial(),
                         isMandatory = false,
@@ -554,6 +567,8 @@ fun PermissionsCardSection(
         cardContainer = cardContainer,
         itemContentPadding = itemContentPadding,
         internalScrollEnabled = internalScrollEnabled,
+        segmented = segmented,
+        showItemIcons = showItemIcons,
     )
 
     if (showAccessibilityDisclosure) {

@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.addOutline
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.layer.GraphicsLayer
@@ -36,6 +37,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.MaterialTheme
+import com.tk.quicksearch.shared.ui.theme.LocalAmoledThemeActive
+import com.tk.quicksearch.shared.ui.theme.FrostedResultCardScrimFactor
 
 /** Blur applied to results showing through the bottom chrome surfaces. */
 private val InsetCardBackdropBlurRadius = 20.dp
@@ -113,6 +117,12 @@ internal val LocalInsetCardBackdrop = staticCompositionLocalOf<InsetCardBackdrop
  * the results stay untouched. The main search bar opts in wherever it sits.
  */
 internal val LocalInsetCardBackdropTargetsEnabled = staticCompositionLocalOf { false }
+
+/**
+ * Appearance setting: when off (the default) the search bar and bottom chrome are solid, with no
+ * frosted wallpaper or blurred results behind them. Result cards keep their own frost either way.
+ */
+internal val LocalSearchChromeBlurEnabled = staticCompositionLocalOf { false }
 
 @Composable
 internal fun rememberInsetCardBackdrop(): InsetCardBackdrop = remember { InsetCardBackdrop() }
@@ -238,24 +248,34 @@ internal fun Modifier.insetCardBackdropSource(backdrop: InsetCardBackdrop): Modi
  */
 @Composable
 internal fun Modifier.insetCardBackdrop(enabled: Boolean, shape: Shape, anywhere: Boolean = false): Modifier {
+    if (!LocalSearchChromeBlurEnabled.current) return this
     val backdrop = LocalInsetCardBackdrop.current
-    val active =
-        enabled && backdrop != null && backdrop.blurSupported &&
-            (anywhere || LocalInsetCardBackdropTargetsEnabled.current)
-    return if (active) insetCardBackdropTarget(backdrop, shape) else this
+    val eligible = enabled && (anywhere || LocalInsetCardBackdropTargetsEnabled.current)
+    // Frosted wallpaper first, so the blurred results draw over it and the surface color on top.
+    val frosted = if (eligible) frostedCardBackground(shape) else this
+    val active = eligible && backdrop != null && backdrop.blurSupported
+    return if (active) frosted.insetCardBackdropTarget(backdrop, shape) else frosted
 }
 
-/** Surface colour, made translucent while it draws the blurred results behind it. */
+/**
+ * Surface colour, made translucent while it draws the blurred results behind it. Over a frosted
+ * wallpaper it takes the result cards' lighter scrim ([FrostedResultCardScrimFactor]) so the
+ * chrome shows the same blur as the cards. With chrome blur off it is made opaque instead.
+ */
 @Composable
 internal fun insetCardBackground(enabled: Boolean, color: Color, anywhere: Boolean = false): Color {
-    val backdrop = LocalInsetCardBackdrop.current ?: return color
-    val active =
-        enabled && backdrop.blurSupported && (anywhere || LocalInsetCardBackdropTargetsEnabled.current)
-    return if (active) {
-        color.copy(alpha = color.alpha.coerceAtMost(InsetCardBlurredBackgroundMaxAlpha))
-    } else {
-        color
+    if (!enabled) return color
+    val eligible = anywhere || LocalInsetCardBackdropTargetsEnabled.current
+    if (!LocalSearchChromeBlurEnabled.current) {
+        return if (eligible && color.alpha > 0f && color.alpha < 1f) solidChromeColor(color) else color
     }
+    val frosted = eligible && LocalFrostedCardSource.current?.isActive == true
+    val backdrop = LocalInsetCardBackdrop.current
+    val blurred = eligible && backdrop != null && backdrop.blurSupported
+    var alpha = color.alpha
+    if (blurred) alpha = alpha.coerceAtMost(InsetCardBlurredBackgroundMaxAlpha)
+    if (frosted) alpha = minOf(alpha, color.alpha * FrostedResultCardScrimFactor)
+    return if (alpha == color.alpha) color else color.copy(alpha = alpha)
 }
 
 @Composable
@@ -303,4 +323,11 @@ private fun Modifier.insetCardBackdropTarget(
                 }
             }
         }
+}
+
+/** [color] flattened onto the theme's container surface (black for AMOLED) so nothing shows through. */
+@Composable
+private fun solidChromeColor(color: Color): Color {
+    val base = if (LocalAmoledThemeActive.current) Color.Black else MaterialTheme.colorScheme.surfaceContainer
+    return color.compositeOver(base)
 }

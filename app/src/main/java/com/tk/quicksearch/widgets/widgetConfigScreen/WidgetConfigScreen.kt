@@ -18,7 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.notificationDots.NotificationDotsPermission
 import com.tk.quicksearch.search.core.SearchViewModel
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.widgets.atAGlanceWidget.AtAGlanceWidgetItemsSection
@@ -47,6 +47,7 @@ import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetMicIconSec
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetInternalPaddingSection
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetIconSizeSection
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetSearchIconSection
+import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetSaveButton
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetSlidersSection
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetTextSizeSection
 import com.tk.quicksearch.widgets.widgetConfigScreen.components.WidgetTextIconColorSection
@@ -121,22 +122,11 @@ fun WidgetConfigScreen(
                             ),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Button(
-                        onClick = onApply,
+                    WidgetSaveButton(
+                        text = stringResource(saveLabelResId),
                         enabled = isSaveEnabled,
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .height(
-                                    WidgetConfigConstants
-                                        .BOTTOM_BUTTON_HEIGHT,
-                                ),
-                    ) {
-                        Text(
-                            text = stringResource(saveLabelResId),
-                            style = MaterialTheme.typography.labelLarge,
-                        )
-                    }
+                        onClick = onApply,
+                    )
                 }
             }
         },
@@ -236,17 +226,35 @@ fun WidgetConfigScreen(
                             searchViewModel = searchViewModel,
                         )
                     }
-                    NoteWidgetBackgroundSection(state = constrainedState, onStateChange = onConstrainedStateChange)
-                    NoteWidgetTextColorSection(state = constrainedState, onStateChange = onConstrainedStateChange)
+                    SegmentedGroup {
+                        NoteWidgetBackgroundSection(
+                            state = constrainedState,
+                            index = 0,
+                            count = 2,
+                            onStateChange = onConstrainedStateChange,
+                        )
+                        NoteWidgetTextColorSection(
+                            state = constrainedState,
+                            index = 1,
+                            count = 2,
+                            onStateChange = onConstrainedStateChange,
+                        )
+                    }
                 } else if (isMediaControls) {
-                    MediaControlsThemeSection(
-                        state = constrainedState,
-                        onStateChange = onConstrainedStateChange,
-                    )
-                    MediaControlsTextColorSection(
-                        state = constrainedState,
-                        onStateChange = onConstrainedStateChange,
-                    )
+                    SegmentedGroup {
+                        MediaControlsThemeSection(
+                            state = constrainedState,
+                            index = 0,
+                            count = 2,
+                            onStateChange = onConstrainedStateChange,
+                        )
+                        MediaControlsTextColorSection(
+                            state = constrainedState,
+                            index = 1,
+                            count = 2,
+                            onStateChange = onConstrainedStateChange,
+                        )
+                    }
                 } else {
                     WidgetThemeSection(
                         state = constrainedState,
@@ -264,24 +272,40 @@ fun WidgetConfigScreen(
                     WidgetTextSizeSection(state = constrainedState, onStateChange = onConstrainedStateChange)
                 }
                 if (widgetVariant == WidgetVariant.STANDARD) {
-                    WidgetSearchIconSection(
-                        state = constrainedState,
-                        onStateChange = onConstrainedStateChange,
-                    )
-                    WidgetMicIconSection(state = constrainedState, onStateChange = onConstrainedStateChange)
-                    WidgetToggleSection(
-                        state = constrainedState,
-                        hasCustomButtons = constrainedState.hasCustomButtons,
-                        onStateChange = onConstrainedStateChange,
-                    )
-                    WidgetTextIconColorSection(
-                        state = constrainedState,
-                        onStateChange = onConstrainedStateChange,
-                    )
-                    WidgetIconSizeSection(
-                        state = constrainedState,
-                        onStateChange = onConstrainedStateChange,
-                    )
+                    // The search bar's own options as one group of tiles.
+                    SegmentedGroup {
+                        WidgetSearchIconSection(
+                            state = constrainedState,
+                            index = 0,
+                            count = STANDARD_SEARCH_BAR_TILES,
+                            onStateChange = onConstrainedStateChange,
+                        )
+                        WidgetMicIconSection(
+                            state = constrainedState,
+                            index = 1,
+                            count = STANDARD_SEARCH_BAR_TILES,
+                            onStateChange = onConstrainedStateChange,
+                        )
+                        WidgetToggleSection(
+                            state = constrainedState,
+                            hasCustomButtons = constrainedState.hasCustomButtons,
+                            index = 2,
+                            count = STANDARD_SEARCH_BAR_TILES,
+                            onStateChange = onConstrainedStateChange,
+                        )
+                        WidgetTextIconColorSection(
+                            state = constrainedState,
+                            index = 3,
+                            count = STANDARD_SEARCH_BAR_TILES,
+                            onStateChange = onConstrainedStateChange,
+                        )
+                        WidgetIconSizeSection(
+                            state = constrainedState,
+                            index = 4,
+                            count = STANDARD_SEARCH_BAR_TILES,
+                            onStateChange = onConstrainedStateChange,
+                        )
+                    }
                 }
                 if (!isMediaControls && !isNote && !isAtAGlance) {
                     WidgetInternalPaddingSection(
@@ -293,3 +317,5 @@ fun WidgetConfigScreen(
         }
     }
 }
+
+private const val STANDARD_SEARCH_BAR_TILES = 5

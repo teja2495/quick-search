@@ -1,12 +1,14 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppButtonTone
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ButtonDefaults
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,7 +18,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -29,7 +30,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -57,14 +57,16 @@ import com.tk.quicksearch.search.data.preferences.GlancePreferences
 import com.tk.quicksearch.search.data.preferences.UpcomingAlarmPreferences
 import com.tk.quicksearch.search.data.preferences.WidgetGlanceItemSettings
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
-import com.tk.quicksearch.settings.shared.SettingsCard
-import com.tk.quicksearch.settings.shared.AliasPill
+import com.tk.quicksearch.shared.ui.components.TonalButton
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContentPadding
+import com.tk.quicksearch.shared.ui.components.SegmentedTileToggleHorizontalPadding
 import com.tk.quicksearch.settings.shared.SettingsNestedCheckbox
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.widgets.atAGlanceWidget.AtAGlanceWidgetUpdater
 import kotlinx.coroutines.Dispatchers
@@ -72,6 +74,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.DateFormat
 import java.util.Date
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 /** One At a Glance toggle; [searchText] is what the page's search bar matches against. */
 private class GlanceToggle(
@@ -230,7 +233,7 @@ fun AtAGlanceSettingsSection(
     val notificationCheckedChanges =
         NOTIFICATION_ITEMS.associateWith { item -> rememberNotificationDotsCheckedChange { setShown(item, it) } }
 
-    /** A toggle that needs notification access; its description gives way to the permission hint. */
+    /** A toggle that needs notification access; turning it on without access asks for it first. */
     fun notificationToggle(
         item: GlanceItem,
         title: String,
@@ -242,32 +245,30 @@ fun AtAGlanceSettingsSection(
             subtitle = if (hasNotificationAccess) description else needsPermissionText,
             checked = isShown(item) && hasNotificationAccess,
             onCheckedChange = onCheckedChange,
-            enabled = hasNotificationAccess,
-            onDisabledClick = { onCheckedChange(true) },
             isFirstItem = isFirst,
             isLastItem = isLast,
         )
     }
 
-    /** A toggle that needs a runtime permission tracked by [gate]. */
+    /** A toggle that needs a runtime permission tracked by [gate]; turning it on without it requests it. */
     fun permissionToggle(
         item: GlanceItem,
         title: String,
         description: String,
         gate: PermissionGate,
-        subtitleContent: (@Composable () -> Unit)? = null,
+        extras: (@Composable () -> Unit)? = null,
     ) = GlanceToggle("$title $description") { isFirst, isLast ->
-        SettingsToggleRow(
-            title = title,
-            subtitle = if (gate.hasAccess) description else needsPermissionText,
-            subtitleContent = subtitleContent?.takeIf { gate.hasAccess && isShown(item) },
-            checked = isShown(item) && gate.hasAccess,
-            onCheckedChange = { setShown(item, it) },
-            enabled = gate.hasAccess,
-            onDisabledClick = gate.request,
-            isFirstItem = isFirst,
-            isLastItem = isLast,
-        )
+        Column {
+            SettingsToggleRow(
+                title = title,
+                subtitle = if (gate.hasAccess) description else needsPermissionText,
+                checked = isShown(item) && gate.hasAccess,
+                onCheckedChange = { checked -> if (checked && !gate.hasAccess) gate.request() else setShown(item, checked) },
+                isFirstItem = isFirst,
+                isLastItem = isLast,
+            )
+            if (extras != null && gate.hasAccess && isShown(item)) GlanceToggleExtras { extras() }
+        }
     }
 
     /** A toggle with no permission requirement. */
@@ -275,17 +276,19 @@ fun AtAGlanceSettingsSection(
         item: GlanceItem,
         title: String,
         description: String,
-        subtitleContent: (@Composable () -> Unit)? = null,
+        extras: (@Composable () -> Unit)? = null,
     ) = GlanceToggle("$title $description") { isFirst, isLast ->
-        SettingsToggleRow(
-            title = title,
-            subtitle = description,
-            subtitleContent = subtitleContent?.takeIf { isShown(item) },
-            checked = isShown(item),
-            onCheckedChange = { setShown(item, it) },
-            isFirstItem = isFirst,
-            isLastItem = isLast,
-        )
+        Column {
+            SettingsToggleRow(
+                title = title,
+                subtitle = description,
+                checked = isShown(item),
+                onCheckedChange = { setShown(item, it) },
+                isFirstItem = isFirst,
+                isLastItem = isLast,
+            )
+            if (extras != null && isShown(item)) GlanceToggleExtras { extras() }
+        }
     }
 
     /** A nested checkbox under a toggle for [item]. */
@@ -297,7 +300,7 @@ fun AtAGlanceSettingsSection(
         label = label,
         checked = isShown(item),
         onCheckedChange = { setShown(item, it) },
-        modifier = Modifier.padding(top = DesignTokens.SpacingXSmall),
+        modifier = Modifier.fillMaxWidth(),
     )
 
     val alarmsTitle = stringResource(R.string.settings_at_a_glance_alarms_title)
@@ -315,13 +318,17 @@ fun AtAGlanceSettingsSection(
             customInfoRepeatLabel(item.repeat),
         ).joinToString(" · ").ifBlank { null }
         GlanceToggle("${item.title} ${scheduleText.orEmpty()}") { isFirst, isLast ->
-            SettingsToggleRow(
-                title = item.title,
-                subtitle = scheduleText,
-                checked = settings.isCustomInfoShown(item),
-                onCheckedChange = { enabled -> settings.setCustomInfoShown(item, enabled) },
-                subtitleContent = if (isWidget) null else {
-                    {
+            Column {
+                SettingsToggleRow(
+                    title = item.title,
+                    subtitle = scheduleText,
+                    checked = settings.isCustomInfoShown(item),
+                    onCheckedChange = { enabled -> settings.setCustomInfoShown(item, enabled) },
+                    isFirstItem = isFirst,
+                    isLastItem = isLast,
+                )
+                if (!isWidget) {
+                    GlanceToggleExtras {
                         CustomInfoActions(
                             onEdit = {
                                 context.startActivity(
@@ -337,10 +344,8 @@ fun AtAGlanceSettingsSection(
                             onDelete = { itemToDelete = item },
                         )
                     }
-                },
-                isFirstItem = isFirst,
-                isLastItem = isLast,
-            )
+                }
+            }
         }
     }
     val appNotificationsToggle =
@@ -371,7 +376,7 @@ fun AtAGlanceSettingsSection(
                 title = stringResource(R.string.section_calendar),
                 description = stringResource(R.string.settings_at_a_glance_events_desc),
                 gate = calendarGate,
-                subtitleContent = {
+                extras = {
                     nestedCheckbox(GlanceItem.TOMORROW_EVENTS, stringResource(R.string.settings_at_a_glance_tomorrow_events))
                 },
             ),
@@ -419,27 +424,32 @@ fun AtAGlanceSettingsSection(
             GlanceToggle("$alarmsTitle $alarmsDescription") { isFirst, isLast ->
                 // Hidden alarm apps are shared with the home card, so a widget doesn't offer them.
                 val showHiddenAppsLink = !isWidget && hiddenAlarmPackages.isNotEmpty()
-                SettingsToggleRow(
-                    title = alarmsTitle,
-                    subtitle = if (showHiddenAppsLink) null else alarmsDescription,
-                    subtitleContent = {
-                        if (showHiddenAppsLink) {
-                            Text(
-                                text = hiddenAlarmAppsLabel,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.clickable { showHiddenAlarmAppsDialog = true },
-                            )
+                val alarmsOn = isShown(GlanceItem.UPCOMING_ALARM)
+                Column {
+                    SettingsToggleRow(
+                        title = alarmsTitle,
+                        subtitle = alarmsDescription,
+                        checked = alarmsOn,
+                        onCheckedChange = { setShown(GlanceItem.UPCOMING_ALARM, it) },
+                        isFirstItem = isFirst,
+                        isLastItem = isLast,
+                    )
+                    if (alarmsOn || showHiddenAppsLink) {
+                        GlanceToggleExtras {
+                            if (alarmsOn) {
+                                nestedCheckbox(GlanceItem.TOMORROW_ALARM, stringResource(R.string.settings_at_a_glance_tomorrow_alarm))
+                            }
+                            if (showHiddenAppsLink) {
+                                TonalButton(
+                                    text = hiddenAlarmAppsLabel,
+                                    icon = MaterialSymbols.VisibilityOff,
+                                    onClick = { showHiddenAlarmAppsDialog = true },
+                                    small = true,
+                                )
+                            }
                         }
-                        if (isShown(GlanceItem.UPCOMING_ALARM)) {
-                            nestedCheckbox(GlanceItem.TOMORROW_ALARM, stringResource(R.string.settings_at_a_glance_tomorrow_alarm))
-                        }
-                    },
-                    checked = isShown(GlanceItem.UPCOMING_ALARM),
-                    onCheckedChange = { setShown(GlanceItem.UPCOMING_ALARM, it) },
-                    isFirstItem = isFirst,
-                    isLastItem = isLast,
-                )
+                    }
+                }
             },
             notificationToggle(
                 item = GlanceItem.WEATHER,
@@ -460,7 +470,7 @@ fun AtAGlanceSettingsSection(
                 item = GlanceItem.REMINDERS,
                 title = stringResource(R.string.section_reminders),
                 description = stringResource(R.string.settings_upcoming_reminders_desc),
-                subtitleContent = {
+                extras = {
                     nestedCheckbox(GlanceItem.TOMORROW_REMINDERS, stringResource(R.string.settings_at_a_glance_tomorrow_reminders))
                 },
             ),
@@ -522,11 +532,17 @@ fun AtAGlanceSettingsSection(
                 modifier = Modifier.fillMaxWidth().padding(vertical = DesignTokens.SpacingLarge),
             )
         } else {
-            // The page itself doesn't scroll: the card takes the height left above the search bar
-            // and scrolls its rows inside, shrinking to fit when they don't fill it.
-            SettingsCard(modifier = Modifier.fillMaxWidth().weight(1f, fill = false)) {
-                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                    visibleToggles.forEachIndexed { index, toggle ->
+            // The page itself doesn't scroll: the tiles take the height left above the search bar
+            // and scroll inside it, shrinking to fit when they don't fill it. Only the first and last
+            // tiles round their outer corners, so a tile cut off at the edge stays square.
+            SegmentedGroup(
+                modifier =
+                    Modifier
+                        .weight(1f, fill = false)
+                        .verticalScroll(rememberScrollState()),
+            ) {
+                visibleToggles.forEachIndexed { index, toggle ->
+                    SegmentedTile(index = index, count = visibleToggles.size) {
                         toggle.row(index == 0, index == visibleToggles.lastIndex)
                     }
                 }
@@ -548,19 +564,24 @@ fun AtAGlanceSettingsSection(
     itemToDelete?.let { item ->
         AppAlertDialog(
             onDismissRequest = { itemToDelete = null },
+            icon = { Icon(MaterialSymbols.Delete, contentDescription = null) },
+            iconContentColor = MaterialTheme.colorScheme.error,
             title = { Text(stringResource(R.string.custom_info_delete_confirm_title, item.title)) },
             text = { Text(stringResource(R.string.custom_info_delete_confirm_message)) },
             confirmButton = {
-                TextButton(onClick = {
-                    CustomInfoScheduler.cancel(context, item.id)
-                    customInfoRepository.delete(item.id)
-                    itemToDelete = null
-                }) {
+                AppTextButton(
+                    onClick = {
+                        CustomInfoScheduler.cancel(context, item.id)
+                        customInfoRepository.delete(item.id)
+                        itemToDelete = null
+                    },
+                    tone = AppButtonTone.Error,
+                ) {
                     Text(stringResource(R.string.dialog_delete))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { itemToDelete = null }) {
+                AppTextButton(onClick = { itemToDelete = null }) {
                     Text(stringResource(R.string.dialog_cancel))
                 }
             },
@@ -624,28 +645,49 @@ fun AtAGlanceSettingsBottomBar(
     }
 }
 
-/** Edit and Delete pills under a Custom Info toggle. */
+/** Edit and Delete tonal buttons under a Custom Info toggle. */
 @Composable
 private fun CustomInfoActions(
     onEdit: () -> Unit,
     onDelete: () -> Unit,
 ) {
     Row(
-        modifier = Modifier.padding(top = DesignTokens.SpacingXSmall),
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
-        AliasPill(
-            text = AnnotatedString(stringResource(R.string.settings_edit_label)),
-            textColor = AppColors.LinkColor,
-            leadingIcon = MaterialSymbols.Edit,
+        TonalButton(
+            text = stringResource(R.string.settings_edit_label),
+            icon = MaterialSymbols.Edit,
             onClick = onEdit,
+            small = true,
         )
-        AliasPill(
-            text = AnnotatedString(stringResource(R.string.dialog_delete)),
-            textColor = MaterialTheme.colorScheme.error,
-            leadingIcon = MaterialSymbols.Delete,
+        TonalButton(
+            text = stringResource(R.string.dialog_delete),
+            icon = MaterialSymbols.Delete,
             onClick = onDelete,
+            tone = AppButtonTone.Error,
+            small = true,
         )
+    }
+}
+
+/**
+ * Sub-options under a toggle row in its tile, at the tile's full width below the title, so the
+ * switch stays beside the title instead of centering on the whole block.
+ */
+@Composable
+private fun GlanceToggleExtras(content: @Composable () -> Unit) {
+    Column(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = SegmentedTileToggleHorizontalPadding,
+                    end = SegmentedTileToggleHorizontalPadding,
+                    bottom = SegmentedTileContentPadding,
+                ),
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+    ) {
+        content()
     }
 }
 
@@ -672,13 +714,17 @@ private fun HiddenAlarmAppsDialog(
 
     AppAlertDialog(
         onDismissRequest = onDismiss,
+        icon = { Icon(MaterialSymbols.VisibilityOff, contentDescription = null) },
         title = { Text(text = stringResource(R.string.settings_hidden_alarm_apps_title)) },
         text = {
-            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                apps.forEach { (packageName, label) ->
+            // Each hidden app is its own tile, matching the segmented settings lists.
+            SegmentedGroup(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                apps.forEachIndexed { index, (packageName, label) ->
+                  SegmentedTile(index = index, count = apps.size) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().padding(start = DesignTokens.SpacingLarge, end = DesignTokens.SpacingSmall, top = DesignTokens.SpacingSmall, bottom = DesignTokens.SpacingSmall),
                         verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                     ) {
                         Text(
                             text = label,
@@ -687,15 +733,19 @@ private fun HiddenAlarmAppsDialog(
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.weight(1f),
                         )
-                        TextButton(onClick = { onUnhide(packageName) }) {
-                            Text(text = stringResource(R.string.action_include_generic))
-                        }
+                        TonalButton(
+                            text = stringResource(R.string.action_include_generic),
+                            icon = MaterialSymbols.Visibility,
+                            onClick = { onUnhide(packageName) },
+                            small = true,
+                        )
                     }
+                  }
                 }
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(text = stringResource(R.string.common_close))
             }
         },

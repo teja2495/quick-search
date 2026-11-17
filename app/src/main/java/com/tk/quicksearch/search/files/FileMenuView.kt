@@ -16,7 +16,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -51,6 +50,7 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.cachedDefaultHomeAppStatus
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
 import java.util.concurrent.TimeUnit
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 private data class FileMenuItem(
         val textResId: Int,
@@ -165,7 +165,7 @@ fun FileInfoDialog(
                     }
                     HorizontalDivider(
                             modifier = Modifier.padding(vertical = DesignTokens.SpacingLarge),
-                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = AppColors.ContentMutedAlpha),
                     )
                     Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge)) {
                         Row {
@@ -210,7 +210,7 @@ fun FileInfoDialog(
                 }
             },
             confirmButton = {
-                TextButton(onClick = onDismiss) {
+                AppTextButton(onClick = onDismiss) {
                     Text(text = stringResource(R.string.dialog_okay))
                 }
             },

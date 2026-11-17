@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.other
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -117,7 +118,7 @@ internal fun ScreenTimeResultCard(
                                 stringResource(R.string.other_screen_time_today_title),
                             ),
                         style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.ContentHighAlpha),
                         maxLines = 2,
                     )
                     when (state) {
@@ -138,7 +139,7 @@ internal fun ScreenTimeResultCard(
                 if (state is ScreenTimeState.Available && state.topApps.isNotEmpty()) {
                     VerticalDivider(
                         modifier = Modifier.height(100.dp),
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.TintLightAlpha),
                     )
                     Column(
                         modifier = Modifier.weight(1.15f),
@@ -250,7 +251,7 @@ private fun ScreenTimeAppUsageRow(
             Text(
                 text = formatScreenTime(app.durationMillis, minimumOneMinute = true),
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.62f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = AppColors.ContentSecondaryAlpha),
                 maxLines = 1,
             )
         }

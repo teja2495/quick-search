@@ -1,5 +1,11 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.shared.ui.theme.floatingActionShape
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -31,7 +37,6 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -53,6 +58,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalConfiguration
@@ -82,14 +88,14 @@ import com.tk.quicksearch.search.data.CalendarRepository
 import com.tk.quicksearch.search.data.preferences.CalendarPreferences
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.settings.appShortcutsSettings.shortcutMatchPriority
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow
+import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
+import com.tk.quicksearch.settings.shared.SettingsIconBadge
 import com.tk.quicksearch.settings.shared.SettingsCardItem
 import com.tk.quicksearch.settings.shared.SettingsManagementSearchBar
-import com.tk.quicksearch.settings.shared.SettingsNavigationRow
-import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
-import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.ZoneId
@@ -98,6 +104,7 @@ import java.util.Date
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
 
 private data class CalendarEventGroup(
     val eventId: Long,
@@ -111,7 +118,7 @@ private data class CalendarAppTarget(
     val label: String,
 )
 
-internal val CalendarSettingsBarCornerShape = RoundedCornerShape(28.dp)
+internal val CalendarSettingsBarCornerShape = AppShapes.extraLarge
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -234,78 +241,67 @@ fun CalendarEventsSettingsSection(
 
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     Column(modifier = modifier) {
-        SettingsCard(
-            modifier = Modifier.fillMaxWidth().padding(bottom = DesignTokens.SectionTopPadding),
+        SegmentedGroup(
+            modifier = Modifier.padding(bottom = DesignTokens.SectionTopPadding),
         ) {
-            SettingsNavigationRow(
-                item =
-                    SettingsCardItem(
-                        title = stringResource(R.string.settings_calendar_default_title),
-                        description =
-                            stringResource(
-                                R.string.settings_app_language_desc,
-                                defaultCalendarLabel,
-                            ),
-                        actionOnPress = { showDefaultCalendarDialog = true },
-                    ),
-                contentPadding =
-                    PaddingValues(
-                        horizontal = DesignTokens.CardHorizontalPadding,
-                        vertical = DesignTokens.CardVerticalPadding,
-                    ),
+            SettingsSegmentNavigationRow(
+                item = SettingsCardItem(
+                    title = stringResource(R.string.settings_calendar_default_title),
+                    description = stringResource(R.string.settings_app_language_desc, defaultCalendarLabel),
+                    icon = MaterialSymbols.CalendarMonth,
+                    actionOnPress = { showDefaultCalendarDialog = true },
+                ),
+                index = 0,
+                count = 2,
             )
-            HorizontalDivider(color = AppColors.SettingsDivider)
-            SettingsToggleRow(
+            SegmentedToggleTile(
                 title = stringResource(R.string.settings_calendar_include_past_events_title),
-                subtitle = stringResource(R.string.settings_calendar_include_past_events_desc),
+                description = stringResource(R.string.settings_calendar_include_past_events_desc),
                 checked = includePastEvents,
                 onCheckedChange = { enabled ->
                     includePastEvents = enabled
                     calendarPreferences.setIncludePastEvents(enabled)
                 },
-                isFirstItem = false,
-                isLastItem = true,
+                icon = MaterialSymbols.History,
+                index = 1,
+                count = 2,
             )
         }
-        SettingsCard(
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            if (!hasPermission) {
+        if (!hasPermission || sortedEventGroups.isEmpty()) {
+            SegmentedTile(index = 0, count = 1) {
                 Box(
                     modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = stringResource(R.string.calendar_section_permission_subtitle),
+                        text = stringResource(
+                            if (!hasPermission) R.string.calendar_section_permission_subtitle
+                            else R.string.settings_calendar_events_empty,
+                        ),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-            } else if (sortedEventGroups.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = stringResource(R.string.settings_calendar_events_empty),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            } else {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxWidth().heightIn(max = screenHeight),
-                ) {
-                    itemsIndexed(
-                        items = sortedEventGroups,
-                        key = { _, eventGroup -> eventGroup.eventId },
-                    ) { index, eventGroup ->
-                        val recurrenceLabel =
-                            calendarRecurrenceLabel(
-                                recurrenceRule = eventGroup.nearestInstance.recurrenceRule,
-                                instanceCount = eventGroup.instances.size,
-                            )
+            }
+        } else {
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = screenHeight)
+                    .clip(AppShapes.extraLarge),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
+            ) {
+                itemsIndexed(
+                    items = sortedEventGroups,
+                    key = { _, eventGroup -> eventGroup.eventId },
+                ) { index, eventGroup ->
+                    val recurrenceLabel =
+                        calendarRecurrenceLabel(
+                            recurrenceRule = eventGroup.nearestInstance.recurrenceRule,
+                            instanceCount = eventGroup.instances.size,
+                        )
+                    SegmentedTile(index = index, count = sortedEventGroups.size) {
                         CalendarEventManagementRow(
                             title = eventGroup.title,
                             dateLabel = formatCalendarEventDate(eventGroup.nearestInstance),
@@ -331,9 +327,6 @@ fun CalendarEventsSettingsSection(
                                 }
                             },
                         )
-                        if (index < sortedEventGroups.lastIndex) {
-                            HorizontalDivider(color = AppColors.SettingsDivider)
-                        }
                     }
                 }
             }
@@ -459,6 +452,9 @@ fun CalendarEventsBottomBar(
 ) {
     val searchFocusRequester = remember { FocusRequester() }
     var isSearchExpanded by remember { mutableStateOf(false) }
+    val searchInteraction = remember { MutableInteractionSource() }
+    val newItemInteraction = remember { MutableInteractionSource() }
+    val newItemShape = floatingActionShape(newItemInteraction)
 
     LaunchedEffect(isSearchExpanded) {
         if (isSearchExpanded) {
@@ -470,9 +466,9 @@ fun CalendarEventsBottomBar(
         modifier = modifier
             .fillMaxWidth()
             .imePadding()
-            .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+            .padding(start = DesignTokens.SpacingLarge, end = DesignTokens.SpacingLarge, bottom = DesignTokens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = if (showNewItem) Arrangement.spacedBy(12.dp) else Arrangement.End,
+        horizontalArrangement = if (showNewItem) Arrangement.spacedBy(DesignTokens.SpacingMedium) else Arrangement.End,
     ) {
         if (isSearchExpanded) {
             SettingsManagementSearchBar(
@@ -488,10 +484,11 @@ fun CalendarEventsBottomBar(
             if (showNewItem) {
                 FloatingActionButton(
                     onClick = onNewEvent,
-                    modifier = Modifier.size(48.dp),
-                    shape = CalendarSettingsBarCornerShape,
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(DesignTokens.FloatingActionHeight),
+                    shape = newItemShape,
+                    containerColor = AppColors.Accent,
+                    contentColor = AppColors.OnAccent,
+                    interactionSource = newItemInteraction,
                 ) {
                     Icon(
                         imageVector = MaterialSymbols.Add,
@@ -501,10 +498,14 @@ fun CalendarEventsBottomBar(
                 }
             }
         } else {
+            // Same height and round shape as the new-item button beside it, in the accent's tonal tint.
             FloatingActionButton(
                 onClick = { isSearchExpanded = true },
-                modifier = Modifier.size(48.dp),
-                shape = CalendarSettingsBarCornerShape,
+                modifier = Modifier.size(DesignTokens.FloatingActionHeight),
+                shape = floatingActionShape(searchInteraction),
+                containerColor = AppColors.FloatingTonalContainer,
+                contentColor = AppColors.Accent,
+                interactionSource = searchInteraction,
             ) {
                 Icon(
                     imageVector = MaterialSymbols.Search,
@@ -516,10 +517,11 @@ fun CalendarEventsBottomBar(
                 ExtendedFloatingActionButton(
                     onClick = onNewEvent,
                     expanded = true,
-                    modifier = Modifier.weight(1f),
-                    shape = CalendarSettingsBarCornerShape,
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.weight(1f).height(DesignTokens.FloatingActionHeight),
+                    shape = newItemShape,
+                    containerColor = AppColors.Accent,
+                    contentColor = AppColors.OnAccent,
+                    interactionSource = newItemInteraction,
                     text = { Text(text = stringResource(newItemLabelResId)) },
                     icon = {
                         Icon(
@@ -559,30 +561,23 @@ private fun CalendarEventManagementRow(
                     .alpha(if (isHidden) 0.45f else if (isPast) 0.65f else 1f)
                     .combinedClickable(onClick = onClick, onLongClick = { showMenu = true })
                     .padding(
-                        horizontal = DesignTokens.CardHorizontalPadding,
-                        vertical = DesignTokens.CardVerticalPadding,
+                        horizontal = DesignTokens.SpacingLarge,
+                        vertical = DesignTokens.SpacingLarge,
                     ),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
         ) {
-            Icon(
-                imageVector = MaterialSymbols.CalendarMonth,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(DesignTokens.IconSize),
-            )
+            TonalIconBadge(icon = MaterialSymbols.CalendarMonth)
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = dateLabel,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -590,7 +585,7 @@ private fun CalendarEventManagementRow(
                 recurrenceLabel?.let { recurrence ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
                     ) {
                         Icon(
                             imageVector = MaterialSymbols.Repeat,
@@ -600,7 +595,7 @@ private fun CalendarEventManagementRow(
                         )
                         Text(
                             text = recurrence,
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -609,7 +604,7 @@ private fun CalendarEventManagementRow(
                 }
                 Text(
                     text = relativeLabel,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,

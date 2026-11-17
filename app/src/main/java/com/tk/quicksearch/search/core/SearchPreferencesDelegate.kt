@@ -50,6 +50,7 @@ internal interface SearchPreferencesStateAccess {
     var themedIconsEnabled: Boolean
     var deviceThemeEnabled: Boolean
     var amoledThemeEnabled: Boolean
+    var searchChromeBlurEnabled: Boolean
     var maskUnsupportedIconPackIcons: Boolean
     var wallpaperBackgroundAlpha: Float
     var wallpaperBlurRadius: Float
@@ -723,6 +724,15 @@ internal class SearchPreferencesDelegate(
             userPreferences.setAmoledThemeEnabled(enabled)
             stateAccess.amoledThemeEnabled = enabled
             updateConfigState { it.copy(amoledThemeEnabled = enabled) }
+        }
+    }
+
+    fun setSearchChromeBlurEnabled(enabled: Boolean) {
+        scope.launch(Dispatchers.IO) {
+            if (stateAccess.searchChromeBlurEnabled == enabled) return@launch
+            userPreferences.setSearchChromeBlurEnabled(enabled)
+            stateAccess.searchChromeBlurEnabled = enabled
+            updateConfigState { it.copy(searchChromeBlurEnabled = enabled) }
         }
     }
 

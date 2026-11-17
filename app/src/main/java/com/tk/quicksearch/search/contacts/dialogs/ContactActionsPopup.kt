@@ -1,10 +1,12 @@
 package com.tk.quicksearch.search.contacts.dialogs
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.content.ContentUris
 import android.content.Intent
 import android.net.Uri
 import android.provider.ContactsContract
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -66,6 +68,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.ui.platform.LocalClipboard
@@ -219,7 +222,7 @@ internal fun ContactActionsPopup(
             ""
         }
 
-    val dialogBackground = AppColors.DialogBackground
+    val dialogBackground = MaterialTheme.colorScheme.surfaceContainerLow
     val numberSwipeThresholdPx = with(LocalDensity.current) { NUMBER_SWIPE_THRESHOLD.toPx() }
     val switchNumberOnSwipe =
         if (reorderedPhoneNumbers.size > 1) {
@@ -249,13 +252,16 @@ internal fun ContactActionsPopup(
         onDismiss = onDismiss,
         // Swiping left or right anywhere on the popup switches between the contact's numbers.
         modifier = switchNumberOnSwipe,
+        animateSizeChanges = true,
         containerColor = dialogBackground,
         contentCardColor = dialogBackground,
         contentSpacing = DesignTokens.SpacingSmall,
         headerSpacing = DesignTokens.SpacingMedium,
+        headerTopPadding = DesignTokens.SpacingLarge,
+        shape = AppShapes.stacked(top = DesignTokens.CornerLargeIncreased, bottom = DesignTokens.CornerExtraLarge),
         contentTopPadding = 0.dp,
         contentBottomPadding = 0.dp,
-        contentHorizontalPadding = 4.dp,
+        contentHorizontalPadding = 0.dp,
         leadingContent =
             if (state is ContactActionsPopupState.ContactActions) {
                 {
@@ -263,7 +269,7 @@ internal fun ContactActionsPopup(
                         photoUri = state.contactInfo.photoUri,
                         displayName = state.contactInfo.displayName,
                         onClick = { state.onAvatarClick(state.contactInfo) },
-                        modifier = Modifier.size(40.dp),
+                        modifier = Modifier.size(DesignTokens.Spacing48),
                     )
                 }
             } else {
@@ -294,7 +300,11 @@ internal fun ContactActionsPopup(
         aboveCardContent = {
             selectedPhoneNumber?.let { phoneNumber ->
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(AppShapes.extraLarge)
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                        .padding(DesignTokens.SpacingXSmall),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -303,7 +313,7 @@ internal fun ContactActionsPopup(
                             onClick = {
                                 selectedPhoneIndex = (selectedPhoneIndex - 1).coerceAtLeast(0)
                             },
-                            modifier = Modifier.size(32.dp),
+                            modifier = Modifier.size(DesignTokens.Spacing48),
                         ) {
                             Icon(
                                 imageVector = MaterialSymbols.ChevronLeft,
@@ -313,14 +323,25 @@ internal fun ContactActionsPopup(
                             )
                         }
                     } else {
-                        Spacer(modifier = Modifier.size(32.dp))
+                        Spacer(modifier = Modifier.size(DesignTokens.Spacing48))
                     }
 
+                    @OptIn(ExperimentalFoundationApi::class)
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .heightIn(min = DesignTokens.Spacing48)
+                            .combinedClickable(
+                                indication = null,
+                                interactionSource = remember { MutableInteractionSource() },
+                                onClick = {},
+                                onLongClick = {
+                                    clipboardScope.launch { clipboard.writeText(phoneNumber) }
+                                },
+                            )
+                            .wrapContentHeight(Alignment.CenterVertically),
                     ) {
-                        @OptIn(ExperimentalFoundationApi::class)
                         Text(
                             text = PhoneNumberUtils.formatPhoneNumberForDisplay(phoneNumber),
                             style = MaterialTheme.typography.titleMedium,
@@ -328,15 +349,6 @@ internal fun ContactActionsPopup(
                             textAlign = TextAlign.Center,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            modifier =
-                                Modifier.combinedClickable(
-                                    indication = null,
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    onClick = {},
-                                    onLongClick = {
-                                        clipboardScope.launch { clipboard.writeText(phoneNumber) }
-                                    },
-                                ),
                         )
                         selectedPhoneNumberLabel?.takeIf { it.isNotBlank() }?.let { label ->
                             Text(
@@ -360,7 +372,7 @@ internal fun ContactActionsPopup(
                                         reorderedPhoneNumbers.size - 1,
                                     )
                             },
-                            modifier = Modifier.size(32.dp),
+                            modifier = Modifier.size(DesignTokens.Spacing48),
                         ) {
                             Icon(
                                 imageVector = MaterialSymbols.ChevronRight,
@@ -370,7 +382,7 @@ internal fun ContactActionsPopup(
                             )
                         }
                     } else {
-                        Spacer(modifier = Modifier.size(32.dp))
+                        Spacer(modifier = Modifier.size(DesignTokens.Spacing48))
                     }
                 }
             }
@@ -378,7 +390,7 @@ internal fun ContactActionsPopup(
         maxInnerCardHeight = maxInnerCardHeight,
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(bottom = DesignTokens.SpacingLarge),
+            modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
         ) {
         when (state) {

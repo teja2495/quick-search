@@ -1,13 +1,9 @@
 package com.tk.quicksearch.widgets.widgetConfigScreen.components
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
-import com.tk.quicksearch.widgets.utils.WidgetConfigConstants
 import com.tk.quicksearch.widgets.utils.WidgetPreferences
 import kotlin.math.roundToInt
 
@@ -19,13 +15,7 @@ fun WidgetInternalPaddingSection(
     state: WidgetPreferences,
     onStateChange: (WidgetPreferences) -> Unit,
 ) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.SLIDER_ROW_SPACING),
-    ) {
-        Text(
-            text = stringResource(R.string.widget_slider_internal_padding),
-            style = MaterialTheme.typography.titleSmall,
-        )
+    WidgetSettingTile(title = stringResource(R.string.widget_slider_internal_padding)) {
         SliderRow(
             label = stringResource(R.string.widget_slider_internal_padding_horizontal),
             value = toInvertedPercent(state.internalHorizontalPaddingDp, HORIZONTAL_PADDING_MAX_DP),
@@ -33,7 +23,7 @@ fun WidgetInternalPaddingSection(
             steps = 100,
             showTicks = false,
             valueFormatter = { "${it.roundToInt()}%" },
-            labelTextStyle = MaterialTheme.typography.bodySmall,
+            labelTextStyle = MaterialTheme.typography.bodyMedium,
             labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
             onValueChange = { value ->
                 onStateChange(
@@ -50,7 +40,7 @@ fun WidgetInternalPaddingSection(
             steps = 200,
             showTicks = false,
             valueFormatter = { formatSignedPercent(it) },
-            labelTextStyle = MaterialTheme.typography.bodySmall,
+            labelTextStyle = MaterialTheme.typography.bodyMedium,
             labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
             onValueChange = { value ->
                 onStateChange(

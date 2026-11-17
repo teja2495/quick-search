@@ -114,6 +114,9 @@
     <string name="action_open_folder">Ordner öffnen</string>
     <string name="action_open_keyboard">Tastatur öffnen</string>
     <string name="action_open_settings">Einstellungen öffnen</string>
+    <string name="keyboard_shortcut_open_top_result">Top-Ergebnis öffnen oder suchen</string>
+    <string name="keyboard_shortcut_previous_result">Vorheriges Ergebnis auswählen</string>
+    <string name="keyboard_shortcut_next_result">Nächstes Ergebnis auswählen</string>
     <string name="settings_gestures_title">Gesten</string>
     <string name="settings_gestures_desc">Wischgesten anpassen</string>
     <string name="settings_gesture_swipe_right">Nach rechts wischen</string>
@@ -826,6 +829,8 @@
     <string name="settings_unified_pinned_items_desc">Angeheftete Elemente als eine vereinheitlichte Liste auf dem Startbildschirm anzeigen.</string>
     <string name="settings_show_status_bar_title">Statusleiste anzeigen</string>
     <string name="settings_show_status_bar_desc">Die Android-Statusleiste oben auf dem Bildschirm anzeigen.</string>
+    <string name="settings_search_chrome_blur_title">Weichgezeichneter Hintergrund</string>
+    <string name="settings_search_chrome_blur_desc">Den Bereich hinter der Suchleiste weichzeichnen.</string>
     <string name="settings_pinned_sections_order_title">Reihenfolge angehefteter Bereiche</string>
     <string name="settings_pinned_sections_order_desc">Angeheftete Bereiche auf dem Startbildschirm neu anordnen</string>
     <string name="settings_pinned_sections_order_dialog_info">Gedrückt halten und ziehen, um die Reihenfolge der angehefteten Bereiche auf dem Startbildschirm zu ändern.</string>
@@ -1062,9 +1067,8 @@
     <string name="settings_backup_import_warning_title">Einstellungen importieren?</string>
     <string name="settings_backup_restore_desc">App-Einstellungen exportieren oder importieren</string>
     <string name="settings_backup_restore_title">Sichern &amp; Wiederherstellen</string>
-    <string name="settings_feedback_developer_desc">Entwickelt von %1$s</string>
     <string name="settings_feedback_developer_name">Teja Karlapudi</string>
-    <string name="settings_feedback_developer_title">%1$s v%2$s</string>
+    <string name="settings_feedback_developer_made_by">Entwickelt von</string>
     <string name="settings_feedback_github_desc">Quellcode dieses Projekts auf GitHub anzeigen</string>
     <string name="settings_feedback_github_title">Entwicklung</string>
     <string name="settings_feedback_rate_desc">Hinterlasse eine 5-Sterne-Bewertung, wenn du die App nützlich findest 🙏</string>
@@ -1250,7 +1254,7 @@
     <string name="permissions_calling_desc">Erforderlich, um Kontakte direkt anzurufen, ohne die Telefon-App zu öffnen.</string>
     <string name="settings_notifications_permission_title">Benachrichtigungen senden</string>
     <string name="permissions_notifications_desc">Erforderlich für Erinnerungsbenachrichtigungen und um Suchergebnisse im Benachrichtigungsfeld anzuheften</string>
-    <string name="permissions_notification_access_desc">Erforderlich für Benachrichtigungspunkte und den Benachrichtigungsverlauf</string>
+    <string name="permissions_notification_access_desc">Erforderlich für Benachrichtigungspunkte, den Benachrichtigungsverlauf und nützliche Auf-einen-Blick-Funktionen.</string>
     <string name="permissions_accessibility_lock_screen_title">Bedienungshilfen</string>
     <string name="permissions_accessibility_lock_screen_desc">Aktiviert Gesten, die schwebende Schaltfläche und SpeedBump.</string>
     <string name="permissions_contacts_desc">Erforderlich, um Kontakte zu durchsuchen.</string>
@@ -1265,6 +1269,10 @@
     <string name="permissions_open_source_desc">Sieh genau, wie diese Berechtigungen verwendet werden.</string>
     <string name="permissions_open_source_action">Tippe, um den Code anzusehen.</string>
     <string name="permissions_screen_optional_emphasis">optional</string>
+    <string name="permissions_trust_optional">Jede Berechtigung ist optional</string>
+    <string name="permissions_trust_on_device">Deine Daten bleiben auf dem Gerät</string>
+    <string name="permissions_trust_open_source">Vollständig Open Source</string>
+    <string name="permissions_trust_view_code">Code ansehen</string>
     <string name="permissions_usage_desc">Erforderlich, um zuletzt verwendete Apps in Vorschlägen anzuzeigen.</string>
     <string name="setup_action_next">Weiter</string>
     <string name="setup_action_skip_permissions">Ohne Berechtigungen fortfahren</string>
@@ -1385,10 +1393,11 @@
     <string name="tasker_not_installed">Tasker ist nicht installiert</string>
     <string name="tasker_broadcast_failed">Der Tasker-Broadcast konnte nicht gesendet werden</string>
     <string name="settings_more_apps_from_developer_title">Weitere Apps vom Entwickler</string>
+    <string name="settings_github_label">GitHub</string>
     <string name="icon_picker_no_icon_packs">Es sind keine Icon-Packs installiert, um das App-Symbol zu ändern.</string>
     <string name="icon_picker_download_icon_packs">Herunterladen</string>
     <string name="app_menu_usage_today">Heute %1$s genutzt · %2$s geöffnet</string>
-    <string name="app_menu_version">v%1$s</string>
+    <string name="app_menu_version">Version %1$s</string>
     <plurals name="app_menu_opened_count"><item quantity="one">%d Mal</item><item quantity="other">%d Mal</item></plurals>
     <plurals name="app_menu_usage_hours"><item quantity="one">%d Std.</item><item quantity="other">%d Std.</item></plurals>
     <plurals name="app_menu_usage_minutes"><item quantity="one">%d Min.</item><item quantity="other">%d Min.</item></plurals>

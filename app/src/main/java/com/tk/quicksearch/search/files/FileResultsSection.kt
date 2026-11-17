@@ -1,5 +1,11 @@
 package com.tk.quicksearch.search.files
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.search.searchScreen.shared.ResultRowDivider
+import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
+import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
+import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
+import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
 import android.os.Build
 import android.os.SystemClock
@@ -47,7 +53,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
@@ -70,7 +76,6 @@ import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentP
 import com.tk.quicksearch.search.searchScreen.components.resultRowVerticalPadding
 import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlightedText
 import com.tk.quicksearch.search.utils.FileUtils
-import com.tk.quicksearch.shared.ui.components.AppPill
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -245,6 +250,7 @@ private fun FilesResultCard(
                 fillExpandedHeight = fillExpandedHeight,
                 showWallpaperBackground = showWallpaperBackground,
                 overlayCardColor = overlayCardColor,
+                segmented = true,
         ) { contentModifier, cardState ->
             val displayFiles =
                     if (cardState.displayAsExpanded) {
@@ -316,15 +322,17 @@ private fun FileCardContent(
         bottomContentPadding: Dp,
         showPinnedItemMenu: Boolean,
 ) {
+    val segmentCount = displayFiles.size + if (shouldShowExpandButton) 1 else 0
+    val segmented = segmentedRowsActive()
     if (useLazyList) {
         LazyColumn(
                 modifier = modifier,
                 state = lazyListState,
                 contentPadding =
                         PaddingValues(
-                                start = DesignTokens.SpacingMedium,
-                                top = FILE_CARD_CONTENT_VERTICAL_PADDING,
-                                end = DesignTokens.SpacingMedium,
+                                start = resultRowsContainerPadding(DesignTokens.SpacingMedium),
+                                top = resultRowsContainerPadding(FILE_CARD_CONTENT_VERTICAL_PADDING),
+                                end = resultRowsContainerPadding(DesignTokens.SpacingMedium),
                                 bottom = bottomContentPadding,
                         ),
         ) {
@@ -336,6 +344,7 @@ private fun FileCardContent(
                         predictedFileUri != null &&
                                 file.uri.toString() == predictedFileUri
                 val showPredictedOnRow = isPredictedFile && !useCardLevelPrediction
+                ResultSegment(index = index, count = segmentCount) {
                 FileResultRow(
                         deviceFile = file,
                         onClick = onFileClick,
@@ -352,15 +361,17 @@ private fun FileCardContent(
                         isPredicted = showPredictedOnRow,
                         showPinnedItemMenu = showPinnedItemMenu,
                 )
+                }
                 if (index != displayFiles.lastIndex && !showPredictedOnRow) {
-                    HorizontalDivider(
-                            modifier = Modifier.compactEdgeToEdge().fillMaxWidth(),
-                            color = overlayDividerColor ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant,
-                    )
+                    ResultRowDivider(showWallpaperBackground, color = overlayDividerColor)
                 }
             }
 
-            if (shouldShowExpandButton) {
+            if (shouldShowExpandButton && segmented) {
+                item {
+                    ExpandButtonSegment(index = segmentCount - 1, count = segmentCount, onClick = onExpandClick)
+                }
+            } else if (shouldShowExpandButton) {
                 item {
                     ExpandButtonDivider(showWallpaperBackground)
                 }
@@ -386,8 +397,8 @@ private fun FileCardContent(
                 modifier =
                         modifier
                                 .padding(
-                                        horizontal = DesignTokens.SpacingMedium,
-                                        vertical = FILE_CARD_CONTENT_VERTICAL_PADDING,
+                                        horizontal = resultRowsContainerPadding(DesignTokens.SpacingMedium),
+                                        vertical = resultRowsContainerPadding(FILE_CARD_CONTENT_VERTICAL_PADDING),
                                 )
                                 .padding(bottom = bottomContentPadding)
         ) {
@@ -396,6 +407,7 @@ private fun FileCardContent(
                         predictedFileUri != null &&
                                 file.uri.toString() == predictedFileUri
                 val showPredictedOnRow = isPredictedFile && !useCardLevelPrediction
+                ResultSegment(index = index, count = segmentCount) {
                 FileResultRow(
                         deviceFile = file,
                         onClick = onFileClick,
@@ -412,15 +424,15 @@ private fun FileCardContent(
                         isPredicted = showPredictedOnRow,
                         showPinnedItemMenu = showPinnedItemMenu,
                 )
+                }
                 if (index != displayFiles.lastIndex && !showPredictedOnRow) {
-                    HorizontalDivider(
-                            modifier = Modifier.compactEdgeToEdge().fillMaxWidth(),
-                            color = overlayDividerColor ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant,
-                    )
+                    ResultRowDivider(showWallpaperBackground, color = overlayDividerColor)
                 }
             }
 
-            if (shouldShowExpandButton) {
+            if (shouldShowExpandButton && segmented) {
+                ExpandButtonSegment(index = segmentCount - 1, count = segmentCount, onClick = onExpandClick)
+            } else if (shouldShowExpandButton) {
                 ExpandButtonDivider(showWallpaperBackground)
                 val cardLayoutEnabled = LocalSearchCardLayoutEnabled.current
                 ExpandButton(
@@ -429,7 +441,7 @@ private fun FileCardContent(
                                 Modifier.align(Alignment.CenterHorizontally)
                                         .compactExpandButtonSize(cardLayoutEnabled),
                 )
-                if (cardLayoutEnabled) Spacer(modifier = Modifier.height(8.dp))
+                if (cardLayoutEnabled) Spacer(modifier = Modifier.height(DesignTokens.SpacingSmall))
             }
         }
     }
@@ -553,7 +565,7 @@ internal fun FileResultThumbnailOrIcon(
                         contentDescription = null,
                         modifier =
                                 Modifier.size(THUMBNAIL_SIZE_DP.dp)
-                                        .clip(DesignTokens.CardShape)
+                                        .clip(AppShapes.card)
                                         .alpha(thumbnailAlpha.value),
                         contentScale = ContentScale.Crop,
                 )
@@ -646,7 +658,7 @@ internal fun FileResultRow(
                                                         },
                                 )
                                 .topPredictedRowContentPadding()
-                                .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingLarge)),
+                                .padding(vertical = resultRowVerticalPadding(DesignTokens.SpacingMedium)),
         ) {
             Row(
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
@@ -668,11 +680,10 @@ internal fun FileResultRow(
                                                     deviceFile.displayName,
                                             ),
                                     ),
-                            style =
-                                    MaterialTheme.typography.bodyMedium.copy(
-                                            fontWeight = FontWeight.SemiBold,
-                                    ),
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.86f),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
                     )
                     val sdCardLabel = stringResource(R.string.file_path_sd_card)
                     val folderLabel =
@@ -683,22 +694,15 @@ internal fun FileResultRow(
                                 )
                             }
                     if (extension != null || folderLabel != null) {
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Row(
-                                horizontalArrangement =
-                                        Arrangement.spacedBy(DesignTokens.SpacingSmall),
-                                verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            extension?.let { AppPill(text = it.uppercase(), compact = true) }
-                            folderLabel?.let {
-                                AppPill(
-                                        text = it,
-                                        leadingIcon = MaterialSymbols.Folder,
-                                        compact = true,
-                                        modifier = Modifier.weight(1f, fill = false),
-                                )
-                            }
-                        }
+                        Spacer(modifier = Modifier.height(DesignTokens.SpacingXSmall / 2))
+                        Text(
+                                text = listOfNotNull(extension?.uppercase(), folderLabel)
+                                        .joinToString(" · "),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                        )
                     }
                 }
 
@@ -713,7 +717,7 @@ internal fun FileResultRow(
                                                 R.string.action_file_info
                                             },
                                     ),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(18.dp),
                     )
                 }

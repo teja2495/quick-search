@@ -3,10 +3,8 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 import com.tk.quicksearch.reminders.ReminderEditorRequests
 import androidx.compose.runtime.collectAsState
 import com.tk.quicksearch.search.notificationHistory.NotificationHistoryAccess
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,37 +33,32 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.app.navigation.SettingsPageBackHandler
+import com.tk.quicksearch.shared.ui.components.predictiveBackPreview
+import com.tk.quicksearch.shared.ui.components.rememberPredictiveBackPreviewState
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.deviceSettings.NOTIFICATION_HISTORY_SETTING_ID
 import com.tk.quicksearch.settings.tasker.TaskerIntegrationScreen
 import com.tk.quicksearch.search.data.appShortcutRepository.StaticShortcut
-import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.settings.appShortcutsSettings.AppShortcutSource
-import com.tk.quicksearch.settings.shared.SettingsCommand
-import com.tk.quicksearch.settings.shared.SettingsCard
-import com.tk.quicksearch.settings.shared.SettingsCardItem
-import com.tk.quicksearch.settings.shared.SettingsNavigationRow
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenCallbacks
 import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenState
 import com.tk.quicksearch.settings.shared.SettingsManagementSearchBar
 import com.tk.quicksearch.settings.shared.settingsContentWidth
+import com.tk.quicksearch.settings.shared.settingsScrollClip
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.settings.NoteDeleteConfirmationDialog
 import com.tk.quicksearch.settings.NotesBulkDeleteConfirmationDialog
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
-import com.tk.quicksearch.tools.aiSearch.supportsThinkingControl
 import com.tk.quicksearch.settings.bookmarksSettings.BookmarksHeaderMenu
 import com.tk.quicksearch.settings.bookmarksSettings.BookmarksSettingsSection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-private val ConfigureApiKeyCardVerticalPadding =
-    DesignTokens.CardVerticalPadding + DesignTokens.SpacingSmall
-
 @Composable
 internal fun SettingsNestedDetailScreen(
     modifier: Modifier = Modifier,
@@ -170,8 +163,11 @@ internal fun SettingsNestedDetailScreen(
         }
     }
 
-    BackHandler {
-        if (detailType == SettingsDetailType.NOTES && notesMultiSelectActive) {
+    val backPreview = rememberPredictiveBackPreviewState()
+    val backExitsMultiSelect = detailType == SettingsDetailType.NOTES && notesMultiSelectActive
+    // Leaving multi-select keeps the notes page, so only a real exit previews the page leaving.
+    SettingsPageBackHandler(backPreview, preview = !backExitsMultiSelect) {
+        if (backExitsMultiSelect) {
             notesMultiSelectActive = false
             notesSelectedIds = emptySet()
         } else {
@@ -183,7 +179,7 @@ internal fun SettingsNestedDetailScreen(
         overlayThemeIntensity = state.overlayThemeIntensity,
         deviceThemeEnabled = state.deviceThemeEnabled,
         amoledThemeEnabled = state.amoledThemeEnabled,
-        modifier = modifier,
+        modifier = modifier.predictiveBackPreview(backPreview),
     ) {
     Box(
         modifier =
@@ -283,7 +279,8 @@ internal fun SettingsNestedDetailScreen(
                                 start = DesignTokens.ContentHorizontalPadding,
                                 end = DesignTokens.ContentHorizontalPadding,
                                 bottom = 96.dp,
-                            ),
+                            )
+                            .settingsScrollClip(),
                 )
             } else if (detailType == SettingsDetailType.APP_SHORTCUTS) {
                 AppShortcutsDetailContent(
@@ -315,7 +312,8 @@ internal fun SettingsNestedDetailScreen(
                             start = DesignTokens.ContentHorizontalPadding,
                             end = DesignTokens.ContentHorizontalPadding,
                             bottom = DesignTokens.SectionTopPadding,
-                        ),
+                        )
+                        .settingsScrollClip(),
                 )
             } else if (detailType == SettingsDetailType.CUSTOM_TOOL_EDITOR) {
                 CustomToolEditorDetailContent(state, callbacks, context)
@@ -331,7 +329,8 @@ internal fun SettingsNestedDetailScreen(
                                 start = DesignTokens.ContentHorizontalPadding,
                                 end = DesignTokens.ContentHorizontalPadding,
                                 bottom = 96.dp,
-                            ),
+                            )
+                            .settingsScrollClip(),
                 )
             } else if (detailType == SettingsDetailType.BOOKMARKS) {
                 BookmarksSettingsSection(
@@ -339,7 +338,22 @@ internal fun SettingsNestedDetailScreen(
                     availableBrowsers = state.searchEngineOrder.filterIsInstance<SearchTarget.Browser>().map { it.app },
                     addRequest = bookmarksAddRequest,
                     modifier = Modifier.settingsContentWidth().fillMaxHeight().align(Alignment.CenterHorizontally)
-                        .padding(start = DesignTokens.ContentHorizontalPadding, end = DesignTokens.ContentHorizontalPadding, bottom = 96.dp),
+                        .padding(start = DesignTokens.ContentHorizontalPadding, end = DesignTokens.ContentHorizontalPadding, bottom = 96.dp).settingsScrollClip(),
+                )
+            } else if (detailType == SettingsDetailType.DEVICE_SETTINGS) {
+                DeviceSettingsSettingsSection(
+                    modifier = Modifier.settingsContentWidth().fillMaxHeight().align(Alignment.CenterHorizontally)
+                        .padding(start = DesignTokens.ContentHorizontalPadding, end = DesignTokens.ContentHorizontalPadding, bottom = DesignTokens.SectionTopPadding).settingsScrollClip(),
+                    settings = state.allDeviceSettings,
+                    onSettingClick = { setting ->
+                        if (setting.id == NOTIFICATION_HISTORY_SETTING_ID) {
+                            onNavigateToDetail(
+                                SettingsDetailType.NOTIFICATION_HISTORY,
+                            )
+                        } else {
+                            callbacks.onLaunchDeviceSetting(setting)
+                        }
+                    },
                 )
             } else if (detailType == SettingsDetailType.CALENDAR_EVENTS) {
                 CalendarEventsSettingsSection(
@@ -348,7 +362,7 @@ internal fun SettingsNestedDetailScreen(
                     onHideEvent = callbacks.onHideCalendarEvent,
                     onUnhideEvent = callbacks.onUnhideCalendarEvent,
                     modifier = Modifier.settingsContentWidth().fillMaxHeight().align(Alignment.CenterHorizontally)
-                        .padding(start = DesignTokens.ContentHorizontalPadding, end = DesignTokens.ContentHorizontalPadding, bottom = 96.dp),
+                        .padding(start = DesignTokens.ContentHorizontalPadding, end = DesignTokens.ContentHorizontalPadding, bottom = 96.dp).settingsScrollClip(),
                 )
             } else if (detailType == SettingsDetailType.NOTIFICATION_HISTORY) {
                 NotificationHistorySettingsSection(
@@ -364,7 +378,8 @@ internal fun SettingsNestedDetailScreen(
                                 start = DesignTokens.ContentHorizontalPadding,
                                 end = DesignTokens.ContentHorizontalPadding,
                                 bottom = 96.dp,
-                            ),
+                            )
+                            .settingsScrollClip(),
                 )
             } else if (detailType == SettingsDetailType.NOTES) {
                 NotesSettingsSection(
@@ -397,7 +412,8 @@ internal fun SettingsNestedDetailScreen(
                                 start = DesignTokens.ContentHorizontalPadding,
                                 end = DesignTokens.ContentHorizontalPadding,
                                 bottom = 96.dp,
-                            ),
+                            )
+                            .settingsScrollClip(),
                 )
             } else if (detailType == SettingsDetailType.NOTE_EDITOR) {
                 NoteEditor(
@@ -413,7 +429,8 @@ internal fun SettingsNestedDetailScreen(
                             .padding(
                                 start = DesignTokens.ContentHorizontalPadding,
                                 end = DesignTokens.ContentHorizontalPadding,
-                            ),
+                            )
+                            .settingsScrollClip(),
                 )
             } else {
                 Column(
@@ -422,10 +439,10 @@ internal fun SettingsNestedDetailScreen(
                             .settingsContentWidth()
                             .fillMaxHeight()
                             .align(androidx.compose.ui.Alignment.CenterHorizontally)
-                            .then(if (detailType == SettingsDetailType.AT_A_GLANCE) Modifier else Modifier.verticalScroll(scrollState))
+                            .padding(horizontal = DesignTokens.ContentHorizontalPadding)
+                            .settingsScrollClip()
+                            .then(if (detailType in setOf(SettingsDetailType.AT_A_GLANCE, SettingsDetailType.TRIGGERS, SettingsDetailType.EXCLUDED_ITEMS)) Modifier else Modifier.verticalScroll(scrollState))
                             .padding(
-                                start = DesignTokens.ContentHorizontalPadding,
-                                end = DesignTokens.ContentHorizontalPadding,
                                 bottom =
                                     when (detailType) {
                                         SettingsDetailType.APP_SHORTCUTS -> 96.dp
@@ -434,211 +451,15 @@ internal fun SettingsNestedDetailScreen(
                                     },
                             ),
                 ) {
-                    when (detailType) {
-                        SettingsDetailType.EXCLUDED_ITEMS -> {
-                            ExcludedItemScreen(
-                                suggestionExcludedApps = state.suggestionExcludedApps,
-                                resultExcludedApps = state.resultExcludedApps,
-                                excludedContacts = state.excludedContacts,
-                                excludedFiles = state.excludedFiles,
-                                excludedFileExtensions = state.excludedFileExtensions,
-                                excludedSettings = state.excludedSettings,
-                                excludedAppShortcuts = state.excludedAppShortcuts,
-                                onRemoveSuggestionExcludedApp = callbacks.onRemoveSuggestionExcludedApp,
-                                onRemoveResultExcludedApp = callbacks.onRemoveResultExcludedApp,
-                                onRemoveExcludedContact = callbacks.onRemoveExcludedContact,
-                                onRemoveExcludedFile = callbacks.onRemoveExcludedFile,
-                                onRemoveExcludedFileExtension = callbacks.onRemoveExcludedFileExtension,
-                                onRemoveExcludedSetting = callbacks.onRemoveExcludedSetting,
-                                onRemoveExcludedAppShortcut = callbacks.onRemoveExcludedAppShortcut,
-                                excludedOtherItems = state.excludedOtherItems,
-                                onRemoveExcludedOtherItem = callbacks.onRemoveExcludedOtherItem,
-                                showTitle = false,
-                                iconPackPackage = state.selectedIconPackPackage,
-                            )
-                        }
-
-                        SettingsDetailType.APP_SHORTCUTS -> Unit
-                        SettingsDetailType.DEVICE_SETTINGS -> {
-                            DeviceSettingsSettingsSection(
-                                settings = state.allDeviceSettings,
-                                onSettingClick = { setting ->
-                                    if (setting.id == NOTIFICATION_HISTORY_SETTING_ID) {
-                                        onNavigateToDetail(
-                                            SettingsDetailType.NOTIFICATION_HISTORY,
-                                        )
-                                    } else {
-                                        callbacks.onLaunchDeviceSetting(setting)
-                                    }
-                                },
-                            )
-                        }
-
-                        SettingsDetailType.CALLS_TEXTS -> {
-                            CallsTextsSettingsSection(
-                                primaryContactButton = state.primaryContactButton,
-                                secondaryContactButton = state.secondaryContactButton,
-                                onSetPrimaryContactButton = callbacks.onSetPrimaryContactButton,
-                                onSetSecondaryContactButton = callbacks.onSetSecondaryContactButton,
-                                directDialEnabled = state.directDialEnabled,
-                                onToggleDirectDial = callbacks.onToggleDirectDial,
-                                numberSearchEnabled = state.numberSearchEnabled,
-                                onToggleNumberSearch = callbacks.onToggleNumberSearch,
-                                hasCallPermission = PermissionHelper.checkCallPermission(context),
-                                contactsSectionEnabled = true,
-                                isWhatsAppInstalled = state.isWhatsAppInstalled,
-                                isWhatsAppBusinessInstalled = state.isWhatsAppBusinessInstalled,
-                                isTelegramInstalled = state.isTelegramInstalled,
-                                isSignalInstalled = state.isSignalInstalled,
-                                isGoogleMeetInstalled = state.isGoogleMeetInstalled,
-                                modifier = Modifier,
-                            )
-                        }
-
-                        SettingsDetailType.FILES -> {
-                            FileTypesSection(
-                                enabledFileTypes = state.enabledFileTypes,
-                                onToggleFileType = callbacks.onToggleFileType,
-                                showFolders = state.showFolders,
-                                onToggleFolders = { enabled ->
-                                    callbacks.onApplySettingsCommand(
-                                        SettingsCommand.Toggle(
-                                            key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.SHOW_FOLDERS,
-                                            enabled = enabled,
-                                        ),
-                                    )
-                                },
-                                filePreviewsEnabled = state.filePreviewsEnabled,
-                                onToggleFilePreviews = callbacks.onToggleFilePreviews,
-                                showSystemFiles = state.showSystemFiles,
-                                onToggleSystemFiles = { enabled ->
-                                    callbacks.onApplySettingsCommand(
-                                        SettingsCommand.Toggle(
-                                            key = com.tk.quicksearch.search.appSettings.AppSettingsToggleKey.SHOW_SYSTEM_FILES,
-                                            enabled = enabled,
-                                        ),
-                                    )
-                                },
-                                folderWhitelistPatterns = state.folderWhitelistPatterns,
-                                onSetFolderWhitelistPatterns = callbacks.onSetFolderWhitelistPatterns,
-                                folderBlacklistPatterns = state.folderBlacklistPatterns,
-                                onSetFolderBlacklistPatterns = callbacks.onSetFolderBlacklistPatterns,
-                                excludedExtensions = state.excludedFileExtensions,
-                                onRemoveExcludedExtension = callbacks.onRemoveExcludedFileExtension,
-                                showTitle = false,
-                                modifier = Modifier,
-                            )
-                        }
-
-                        SettingsDetailType.GEMINI_API_CONFIG -> {
-                            SettingsCard(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = DesignTokens.SpacingLarge),
-                            ) {
-                                SettingsNavigationRow(
-                                    item =
-                                        SettingsCardItem(
-                                            title = stringResource(R.string.settings_configure_api_key_title),
-                                            description = stringResource(R.string.settings_api_key_setup_nav_desc),
-                                            iconResId = R.drawable.direct_search,
-                                            actionOnPress = {
-                                                onNavigateToDetail(SettingsDetailType.API_KEY_SETUP)
-                                            },
-                                        ),
-                                    contentPadding = PaddingValues(
-                                        horizontal = DesignTokens.CardHorizontalPadding,
-                                        vertical = ConfigureApiKeyCardVerticalPadding,
-                                    ),
-                                )
-                            }
-
-                            if (state.hasApiKey) {
-                                AiProviderSettingsSection(
-                                    personalContext = state.personalContext,
-                                    aiSearchLlmProviderId = state.aiSearchLlmProviderId,
-                                    activeLlmModel = state.activeLlmModel,
-                                    activeLlmGroundingEnabled = state.activeLlmGroundingEnabled,
-                                    activeLlmThinkingEnabled = state.activeLlmThinkingEnabled,
-                                    activeLlmAvailableModels = state.activeLlmAvailableModels,
-                                    availableLlmModelsByProvider = state.availableLlmModelsByProvider,
-                                    apiKeyLast4ByProvider = state.llmApiKeyLast4ByProvider,
-                                    customAdvancedPayloadByProvider =
-                                        state.customLlmAdvancedPayloadByProvider,
-                                    onSetPersonalContext = callbacks.onSetPersonalContext,
-                                    onSetActiveLlmModel = callbacks.onSetActiveLlmModel,
-                                    onSetLlmModel = callbacks.onSetLlmModel,
-                                    onSetCustomAdvancedPayload =
-                                        callbacks.onSetCustomLlmAdvancedPayload,
-                                    onSetActiveLlmGroundingEnabled = callbacks.onSetActiveLlmGroundingEnabled,
-                                    onSetActiveLlmThinkingEnabled = callbacks.onSetActiveLlmThinkingEnabled,
-                                    onRefreshAvailableLlmModels = callbacks.onRefreshAvailableLlmModels,
-                                    showThinkingCheckbox =
-                                        supportsThinkingControl(
-                                            state.aiSearchLlmProviderId,
-                                            state.activeLlmModel,
-                                        ),
-                                    onRequestScrollToBottom = {
-                                        coroutineScope.launch {
-                                            scrollState.scrollTo(scrollState.maxValue)
-                                        }
-                                    },
-                                    modifier = Modifier.fillMaxWidth(),
-                                )
-                            }
-                        }
-
-                        SettingsDetailType.API_KEY_SETUP -> {
-                            ApiKeySetupScreen(
-                                apiKeyLast4ByProvider = state.llmApiKeyLast4ByProvider,
-                                customProviderBaseUrlByProvider = state.customLlmBaseUrlByProvider,
-                                isSavingApiKey = state.isSavingLlmApiKey,
-                                onSetApiKey = callbacks.onSetLlmApiKey,
-                                onAddCustomProvider = callbacks.onAddCustomLlmProvider,
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                        }
-
-                        SettingsDetailType.TOOLS -> Unit
-
-                        SettingsDetailType.NICKNAMES -> {
-                            NicknameItemsScreen(
-                                modifier = Modifier.fillMaxWidth(),
-                                onAfterRemove = onNicknameRemoved,
-                            )
-                        }
-
-                        SettingsDetailType.TRIGGERS -> {
-                            TriggerItemsScreen(modifier = Modifier.fillMaxWidth())
-                        }
-
-                        SettingsDetailType.GESTURES -> {
-                            GesturesSettingsSection(modifier = Modifier.fillMaxWidth())
-                        }
-
-                        SettingsDetailType.AT_A_GLANCE -> {
-                            AtAGlanceSettingsSection(modifier = Modifier.fillMaxWidth().weight(1f), searchQuery = atAGlanceSearchQuery)
-                        }
-
-                        SettingsDetailType.EDGE_GESTURE -> {
-                            EdgeGestureSettingsSection(modifier = Modifier.fillMaxWidth())
-                        }
-
-                        SettingsDetailType.FLOATING_BUTTON -> {
-                            FloatingButtonSettingsSection(modifier = Modifier.fillMaxWidth())
-                        }
-
-                        SettingsDetailType.UNIT_CONVERTER_INFO -> {
-                            UnitConverterInfoSection(modifier = Modifier.fillMaxWidth())
-                        }
-
-                        SettingsDetailType.DATE_CALCULATOR_INFO -> {
-                            DateCalculatorInfoSection(modifier = Modifier.fillMaxWidth())
-                        }
-
-                        else -> Unit
-                    }
+                    SettingsNestedDetailBody(
+                        state = state,
+                        callbacks = callbacks,
+                        detailType = detailType,
+                        scrollState = scrollState,
+                        atAGlanceSearchQuery = atAGlanceSearchQuery,
+                        onNavigateToDetail = onNavigateToDetail,
+                        onNicknameRemoved = onNicknameRemoved,
+                    )
                 }
             }
         }
@@ -649,7 +470,7 @@ internal fun SettingsNestedDetailScreen(
                 modifier =
                     Modifier
                         .align(androidx.compose.ui.Alignment.BottomEnd)
-                        .padding(16.dp),
+                        .padding(DesignTokens.SpacingLarge),
                 containerColor = MaterialTheme.colorScheme.error,
                 contentColor = MaterialTheme.colorScheme.onError,
             ) {

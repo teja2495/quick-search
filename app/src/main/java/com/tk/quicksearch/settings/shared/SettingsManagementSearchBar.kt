@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.shared
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
@@ -22,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 @Composable
 fun SettingsManagementSearchBar(
@@ -44,7 +46,7 @@ fun SettingsManagementSearchBar(
                 .then(if (applyImePadding) Modifier.imePadding() else Modifier)
                 .then(
                     if (applyDefaultPadding) {
-                        Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
+                        Modifier.padding(start = DesignTokens.SpacingLarge, end = DesignTokens.SpacingLarge, bottom = DesignTokens.SpacingMedium)
                     } else {
                         Modifier
                     },
@@ -52,7 +54,7 @@ fun SettingsManagementSearchBar(
                 .then(if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier)
                 .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
                 .let { m -> if (onFocusChange != null) m.onFocusChanged(onFocusChange) else m },
-        shape = RoundedCornerShape(28.dp),
+        shape = AppShapes.extraLarge,
         singleLine = true,
         leadingIcon = {
             Icon(

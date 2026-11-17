@@ -115,6 +115,9 @@
     <string name="action_open_folder">フォルダを開く</string>
     <string name="action_open_keyboard">キーボードを開く</string>
     <string name="action_open_settings">設定を開く</string>
+    <string name="keyboard_shortcut_open_top_result">トップの結果を開くか検索</string>
+    <string name="keyboard_shortcut_previous_result">前の結果を選択</string>
+    <string name="keyboard_shortcut_next_result">次の結果を選択</string>
     <string name="settings_gestures_title">ジェスチャー</string>
     <string name="settings_gestures_desc">スワイプ操作をカスタマイズ</string>
     <string name="settings_gesture_swipe_right">右にスワイプ</string>
@@ -724,6 +727,7 @@
     <string name="settings_all_quick_search_features">機能一覧</string>
     <string name="settings_all_quick_search_features_desc">すべての機能と性能の一覧を表示</string>
     <string name="settings_more_apps_from_developer_title">開発者のその他のアプリ</string>
+    <string name="settings_github_label">GitHub</string>
     <string name="settings_app_settings_desc">Quick Searchの設定を検索</string>
     <string name="settings_features_load_failed">機能の説明を読み込めませんでした。</string>
     <string name="settings_features_export">機能をダウンロードして共有</string>
@@ -833,6 +837,8 @@
     <string name="settings_unified_pinned_items_desc">ホーム画面に固定アイテムを1つの統合リストとして表示します。</string>
     <string name="settings_show_status_bar_title">ステータスバーを表示</string>
     <string name="settings_show_status_bar_desc">画面上部に Android のステータスバーを表示します。</string>
+    <string name="settings_search_chrome_blur_title">ぼかし背景</string>
+    <string name="settings_search_chrome_blur_desc">検索バーの背後をぼかします。</string>
     <string name="settings_pinned_sections_order_title">固定セクションの順序</string>
     <string name="settings_pinned_sections_order_desc">ホームの固定セクションを並べ替えます</string>
     <string name="settings_pinned_sections_order_dialog_info">長押ししてドラッグすると、ホームの固定セクションの順序を変更できます。</string>
@@ -1070,9 +1076,8 @@ www.google.com/search?q={{query}}</string>
     <string name="settings_backup_import_warning_title">設定をインポートしますか？</string>
     <string name="settings_backup_restore_desc">アプリ設定のエクスポートまたはインポート</string>
     <string name="settings_backup_restore_title">バックアップと復元</string>
-    <string name="settings_feedback_developer_desc">制作者: %1$s</string>
     <string name="settings_feedback_developer_name">Teja Karlapudi</string>
-    <string name="settings_feedback_developer_title">%1$s v%2$s</string>
+    <string name="settings_feedback_developer_made_by">制作者</string>
     <string name="settings_feedback_github_desc">GitHubでこのプロジェクトのソースコードを表示</string>
     <string name="settings_feedback_github_title">開発</string>
     <string name="settings_feedback_rate_desc">このアプリが役に立った場合は、ぜひ星5つの評価をお願いします 🙏</string>
@@ -1260,7 +1265,7 @@ www.google.com/search?q={{query}}</string>
     <string name="permissions_calling_desc">ダイヤラーを開かずに連絡先に直接電話をかけるために必要です。</string>
     <string name="settings_notifications_permission_title">通知の送信</string>
     <string name="permissions_notifications_desc">リマインダーの通知と、検索結果を通知パネルに固定するために必要です。</string>
-    <string name="permissions_notification_access_desc">通知ドットと通知履歴機能を有効にするために必要です</string>
+    <string name="permissions_notification_access_desc">通知ドット、通知履歴、便利な「ひと目で確認」機能を有効にするために必要です。</string>
     <string name="permissions_accessibility_lock_screen_title">ユーザー補助</string>
     <string name="permissions_accessibility_lock_screen_desc">ジェスチャー、フローティングボタン、SpeedBump を有効にします。</string>
     <string name="permissions_contacts_desc">連絡先を検索するために必要です。</string>
@@ -1275,6 +1280,10 @@ www.google.com/search?q={{query}}</string>
     <string name="permissions_open_source_desc">これらの権限がどのように使われているかを確認できます。</string>
     <string name="permissions_open_source_action">タップしてコードを見る。</string>
     <string name="permissions_screen_optional_emphasis">任意</string>
+    <string name="permissions_trust_optional">すべての権限は任意です</string>
+    <string name="permissions_trust_on_device">データは端末から出ません</string>
+    <string name="permissions_trust_open_source">完全オープンソース</string>
+    <string name="permissions_trust_view_code">コードを見る</string>
     <string name="permissions_usage_desc">候補に最近使用したアプリを表示するために必要です。</string>
     <string name="setup_action_next">次へ</string>
     <string name="setup_action_skip_permissions">権限なしで続行</string>
@@ -1392,7 +1401,7 @@ www.google.com/search?q={{query}}</string>
     <string name="tasker_not_installed">Tasker がインストールされていません</string>
     <string name="tasker_broadcast_failed">Tasker ブロードキャストを送信できませんでした</string>
     <string name="app_menu_usage_today">本日 %1$s使用 · %2$s</string>
-    <string name="app_menu_version">v%1$s</string>
+    <string name="app_menu_version">バージョン %1$s</string>
     <plurals name="app_menu_opened_count"><item quantity="one">%d回起動</item><item quantity="other">%d回起動</item></plurals>
     <plurals name="app_menu_usage_hours"><item quantity="one">%d時間</item><item quantity="other">%d時間</item></plurals>
     <plurals name="app_menu_usage_minutes"><item quantity="one">%d分</item><item quantity="other">%d分</item></plurals>

@@ -1,5 +1,17 @@
 package com.tk.quicksearch.settings.appearanceSettings
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ripple
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,7 +28,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -33,14 +44,17 @@ import androidx.compose.ui.semantics.Role
 import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.LauncherAppIcon
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.shared.ui.components.TonalButton
+import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
+import com.tk.quicksearch.shared.ui.theme.pressMorphShape
 
 private object LauncherIconPickerSpacing {
     val optionSpacing = DesignTokens.ItemRowSpacing
-    val borderWidth = DesignTokens.BorderWidth
     val tilePaddingHorizontal = DesignTokens.ChipHorizontalPadding
     val tilePaddingVertical = DesignTokens.ChipVerticalPadding
 }
@@ -48,6 +62,13 @@ private object LauncherIconPickerSpacing {
 private val LauncherIconPreviewSize = DesignTokens.Spacing48
 
 private const val IconsPerRow = 4
+
+private val LauncherIconTileRingWidth = 2.dp
+private val LauncherIconCheckSize = 20.dp
+private val LauncherIconCheckIconSize = 14.dp
+private val LauncherIconCheckInset = 6.dp
+
+// Same 14% accent tint as unselected choice buttons, so tiles read over wallpaper and AMOLED.
 
 @Composable
 fun AppLauncherIconCard(
@@ -57,7 +78,8 @@ fun AppLauncherIconCard(
 ) {
     val tiles = launcherIconPickerTiles()
 
-    SettingsCard(modifier = modifier.fillMaxWidth()) {
+    SegmentedGroup(modifier = modifier) {
+      SegmentedTile(index = 0, count = 1) {
         Column(
             modifier =
                 Modifier
@@ -72,7 +94,7 @@ fun AppLauncherIconCard(
                 text = stringResource(R.string.settings_launcher_icon_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding),
+                modifier = Modifier.padding(bottom = DesignTokens.SpacingXSmall),
             )
 
             Column(
@@ -105,14 +127,15 @@ fun AppLauncherIconCard(
                 }
             }
 
-            TextButton(
+            TonalButton(
+                text = stringResource(R.string.settings_launcher_icon_reset_default),
+                icon = MaterialSymbols.RestartAlt,
                 onClick = { onSetLauncherAppIcon(LauncherAppIcon.DEFAULT) },
                 enabled = launcherAppIcon != LauncherAppIcon.DEFAULT,
                 modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(text = stringResource(R.string.settings_launcher_icon_reset_default))
-            }
+            )
         }
+      }
     }
 }
 
@@ -132,51 +155,82 @@ private fun LauncherIconOptionTile(
             BitmapPainter(drawable.toBitmap(width = sizePx, height = sizePx).asImageBitmap())
         }
     val view = LocalView.current
-    val borderColor =
-        if (selected) {
-            MaterialTheme.colorScheme.primary
-        } else {
-            AppColors.SettingsDivider
-        }
-    val backgroundColor =
-        if (selected) {
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-        } else {
-            Color.Transparent
-        }
+    val interactionSource = remember { MutableInteractionSource() }
+    // Material 3 Expressive selection: corners round further while pressed or selected.
+    val shape =
+        pressMorphShape(
+            interactionSource,
+            rest = DesignTokens.CornerLarge,
+            pressed = DesignTokens.CornerExtraLarge,
+            held = selected,
+        )
+    val containerColor by animateColorAsState(
+        targetValue = if (selected) AppColors.AccentTintEmphasis else AppColors.AccentTintTonal,
+        label = "launcherIconTileContainer",
+    )
+    val ringColor by animateColorAsState(
+        targetValue = if (selected) AppColors.Accent else Color.Transparent,
+        label = "launcherIconTileRing",
+    )
 
-    Column(
+    Box(
         modifier =
             modifier
-                .clip(MaterialTheme.shapes.large)
-                .background(color = backgroundColor, shape = MaterialTheme.shapes.large)
-                .border(
-                    width = LauncherIconPickerSpacing.borderWidth,
-                    color = borderColor,
-                    shape = MaterialTheme.shapes.large,
-                )
+                .clip(shape)
+                .background(color = containerColor, shape = shape)
+                .border(width = LauncherIconTileRingWidth, color = ringColor, shape = shape)
                 .selectable(
                     selected = selected,
+                    interactionSource = interactionSource,
+                    indication = ripple(),
                     onClick = {
                         hapticConfirm(view)()
                         onClick()
                     },
                     role = Role.RadioButton,
-                )
-                .padding(
-                    vertical = LauncherIconPickerSpacing.tilePaddingVertical,
-                    horizontal = LauncherIconPickerSpacing.tilePaddingHorizontal,
                 ),
-        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        if (painter != null) {
-            Image(
-                painter = painter,
-                contentDescription = null,
-                modifier = Modifier.size(LauncherIconPreviewSize).clip(CircleShape),
-            )
-        } else {
-            Spacer(modifier = Modifier.size(LauncherIconPreviewSize))
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        vertical = LauncherIconPickerSpacing.tilePaddingVertical,
+                        horizontal = LauncherIconPickerSpacing.tilePaddingHorizontal,
+                    ),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (painter != null) {
+                Image(
+                    painter = painter,
+                    contentDescription = null,
+                    modifier = Modifier.size(LauncherIconPreviewSize).clip(CircleShape),
+                )
+            } else {
+                Spacer(modifier = Modifier.size(LauncherIconPreviewSize))
+            }
+        }
+        AnimatedVisibility(
+            visible = selected,
+            enter = scaleIn() + fadeIn(),
+            exit = scaleOut() + fadeOut(),
+            modifier = Modifier.align(Alignment.TopEnd).padding(LauncherIconCheckInset),
+        ) {
+            Box(
+                modifier =
+                    Modifier
+                        .size(LauncherIconCheckSize)
+                        .clip(CircleShape)
+                        .background(AppColors.Accent),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = MaterialSymbols.Check,
+                    contentDescription = null,
+                    tint = AppColors.OnAccent,
+                    modifier = Modifier.size(LauncherIconCheckIconSize),
+                )
+            }
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.apps.appLock.AppLockGate
 import android.content.Context
 import android.widget.Toast
@@ -40,7 +42,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.TextButton
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
@@ -59,7 +60,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -81,20 +81,19 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.SettingsNavigationRow
 import com.tk.quicksearch.settings.shared.SettingsCardItem
-import androidx.compose.foundation.layout.PaddingValues
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.notificationHistory.NotificationHistoryAccess
 import com.tk.quicksearch.search.notificationHistory.NotificationHistoryEntry
 import com.tk.quicksearch.search.notificationHistory.NotificationHistoryStore
-import com.tk.quicksearch.settings.shared.SettingsCard
-import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import java.util.Date
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 /**
  * Lists the notifications captured while notification listener access was granted, filtered by the
@@ -182,29 +181,24 @@ fun NotificationHistorySettingsSection(
 
     Column(modifier = modifier) {
         if (accessGranted == false) {
-            SettingsCard(modifier = Modifier.fillMaxWidth()) {
-                SettingsNavigationRow(
-                    item =
-                        SettingsCardItem(
-                            title = stringResource(R.string.permission_required_title),
-                            description = stringResource(R.string.notification_history_permission_desc),
-                            icon = MaterialSymbols.NotificationsActive,
-                            actionOnPress = { NotificationHistoryAccess.openSettings(context) },
-                        ),
-                    contentPadding =
-                        PaddingValues(
-                            horizontal = DesignTokens.CardHorizontalPadding,
-                            vertical = DesignTokens.CardVerticalPadding,
-                        ),
-                )
-            }
+            SettingsSegmentNavigationRow(
+                item =
+                    SettingsCardItem(
+                        title = stringResource(R.string.permission_required_title),
+                        description = stringResource(R.string.notification_history_permission_desc),
+                        icon = MaterialSymbols.NotificationsActive,
+                        actionOnPress = { NotificationHistoryAccess.openSettings(context) },
+                    ),
+                index = 0,
+                count = 1,
+            )
             return@Column
         }
         // Access state is unknown until the first check completes; avoid flashing either state.
         if (accessGranted == null || loadedEntries == null) return@Column
 
-        SettingsCard(modifier = Modifier.fillMaxWidth()) {
-            if (filteredEntries.isEmpty()) {
+        if (filteredEntries.isEmpty()) {
+            SegmentedTile(index = 0, count = 1) {
                 Box(
                     modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
                     contentAlignment = Alignment.Center,
@@ -222,21 +216,25 @@ fun NotificationHistorySettingsSection(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-            } else {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxWidth().heightIn(max = screenHeight),
-                ) {
-                    itemsIndexed(
-                        items = filteredEntries,
-                        // Unique per row (matches the database's unique index), so removals animate.
-                        key = { _, entry -> "${entry.key}|${entry.title}|${entry.text}" },
-                    ) { index, entry ->
-                        val appLabel = appLabels[entry.packageName] ?: entry.packageName
-                        Column(modifier = Modifier.animateItem()) {
-                            SwipeToDeleteContainer(
-                                onDelete = { NotificationHistoryStore.remove(context, entry) },
-                            ) {
+            }
+        } else {
+            LazyColumn(
+                state = listState,
+                modifier =
+                    Modifier.fillMaxWidth().heightIn(max = screenHeight).clip(AppShapes.extraLarge),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
+            ) {
+                itemsIndexed(
+                    items = filteredEntries,
+                    // Unique per row (matches the database's unique index), so removals animate.
+                    key = { _, entry -> "${entry.key}|${entry.title}|${entry.text}" },
+                ) { index, entry ->
+                    val appLabel = appLabels[entry.packageName] ?: entry.packageName
+                    Column(modifier = Modifier.animateItem()) {
+                        SwipeToDeleteContainer(
+                            onDelete = { NotificationHistoryStore.remove(context, entry) },
+                        ) {
+                            SegmentedTile(index = index, count = filteredEntries.size) {
                                 NotificationHistoryRow(
                                     entry = entry,
                                     appLabel = appLabel,
@@ -260,9 +258,6 @@ fun NotificationHistorySettingsSection(
                                         )
                                     },
                                 )
-                            }
-                            if (index < filteredEntries.lastIndex) {
-                                HorizontalDivider(color = AppColors.SettingsDivider)
                             }
                         }
                     }
@@ -521,7 +516,7 @@ private fun NotificationHistoryAppFilterDialog(
                 )
             },
             confirmButton = {
-                TextButton(
+                AppTextButton(
                     onClick = {
                         showClearAllConfirmation = false
                         onClearAll()
@@ -534,7 +529,7 @@ private fun NotificationHistoryAppFilterDialog(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showClearAllConfirmation = false }) {
+                AppTextButton(onClick = { showClearAllConfirmation = false }) {
                     Text(text = stringResource(R.string.dialog_cancel))
                 }
             },
@@ -561,7 +556,7 @@ private fun NotificationHistoryAppFilterDialog(
                     Surface(
                         onClick = { showClearAllConfirmation = true },
                         shape = CircleShape,
-                        color = MaterialTheme.colorScheme.error.copy(alpha = 0.12f),
+                        color = MaterialTheme.colorScheme.error.copy(alpha = AppColors.TintLightAlpha),
                         contentColor = MaterialTheme.colorScheme.error,
                     ) {
                         Icon(
@@ -605,7 +600,7 @@ private fun NotificationHistoryAppFilterDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(text = stringResource(R.string.dialog_done))
             }
         },
@@ -624,7 +619,7 @@ private fun NotificationHistoryAppFilterItem(
     Column(
         modifier =
             Modifier.fillMaxWidth()
-                .clip(RoundedCornerShape(DesignTokens.SpacingMedium))
+                .clip(AppShapes.medium)
                 .toggleable(value = checked, role = Role.Checkbox, onValueChange = { onClick() })
                 .padding(vertical = DesignTokens.SpacingXSmall),
         horizontalAlignment = Alignment.CenterHorizontally,

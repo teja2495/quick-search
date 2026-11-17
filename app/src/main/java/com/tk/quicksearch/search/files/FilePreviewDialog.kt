@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.files
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -30,7 +31,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalIconButton
@@ -76,6 +76,7 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.AppButton
 
 private val PREVIEW_CORNER_RADIUS = 16.dp
 private val DIALOG_MAX_WIDTH = 640.dp
@@ -111,7 +112,7 @@ fun FilePreviewDialog(
                 .padding(horizontal = DesignTokens.SpacingLarge)
                 // PDFs wrap to the page's aspect ratio; images keep a fixed viewport
                 .then(if (isPdf) Modifier.heightIn(max = dialogHeight) else Modifier.height(dialogHeight)),
-            shape = DesignTokens.ShapeXLarge,
+            shape = AppShapes.extraLarge,
             color = AppColors.DialogBackground,
         ) {
             Column(
@@ -194,19 +195,13 @@ private fun FilePreviewActions(
                 modifier = Modifier.size(ACTION_ICON_SIZE),
             )
         }
-        Button(
+        AppButton(
             onClick = onOpen,
             modifier = Modifier
                 .weight(1f)
                 .height(ACTION_BUTTON_HEIGHT),
-            contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+            icon = MaterialSymbols.OpenInNew,
         ) {
-            Icon(
-                imageVector = MaterialSymbols.OpenInNew,
-                contentDescription = null,
-                modifier = Modifier.size(ACTION_ICON_SIZE),
-            )
-            Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
             Text(
                 text = stringResource(R.string.action_open),
                 style = MaterialTheme.typography.labelLarge,
@@ -360,7 +355,7 @@ private fun PdfPreview(
                             .align(Alignment.BottomCenter)
                             .padding(DesignTokens.SpacingMedium)
                             .clip(RoundedCornerShape(PREVIEW_CORNER_RADIUS))
-                            .background(MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.8f))
+                            .background(MaterialTheme.colorScheme.inverseSurface.copy(alpha = AppColors.ContentStrongAlpha))
                             .padding(horizontal = DesignTokens.SpacingMedium, vertical = DesignTokens.SpacingXSmall),
                     )
                 }

@@ -13,8 +13,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
+import com.tk.quicksearch.search.searchScreen.shared.LocalSegmentedRowsStyle
+import com.tk.quicksearch.search.searchScreen.shared.SegmentedRowsStyle
+import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
+import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
+import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
@@ -34,9 +40,7 @@ import com.tk.quicksearch.reminders.ReminderEditorRequests
 import com.tk.quicksearch.search.appSettings.AppSettingsDestination
 import com.tk.quicksearch.search.appSettings.LocalOpenAppSettingDestination
 import com.tk.quicksearch.search.models.ContactInfo
-import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 /**
@@ -67,7 +71,11 @@ internal class AtAGlanceItems(
 private class RetainedAtAGlanceItems {
     var lastShown: List<AtAGlanceItem> = emptyList()
     var visibility: MutableTransitionState<Boolean>? = null
+    var hasShownRows = false
 }
+
+private const val AT_A_GLANCE_CARD_APPEARED_KEY = "at-a-glance-card"
+private const val AT_A_GLANCE_ROW_APPEARED_KEY_PREFIX = "at-a-glance-row-"
 
 /**
  * Keeps [live]'s last rows around while the card collapses after its last row goes. While
@@ -79,8 +87,17 @@ private fun rememberRetainedAtAGlanceItems(
     live: List<AtAGlanceItem>,
 ): AtAGlanceItems {
     val holder = remember { RetainedAtAGlanceItems() }
-    val visibility =
+    val appearedKeys = rememberHomeAppearedContentKeys()
+    var visibility =
         holder.visibility?.takeIf { enabled } ?: MutableTransitionState(live.isNotEmpty()).also { holder.visibility = it }
+    // The glance sources reload from empty whenever Home is rebuilt (returning from Widgets or
+    // Settings). A card that already appeared earlier in this activity comes back without its entrance.
+    if (enabled && live.isNotEmpty() && !holder.hasShownRows) {
+        holder.hasShownRows = true
+        if (!appearedKeys.add(AT_A_GLANCE_CARD_APPEARED_KEY) && !visibility.targetState) {
+            visibility = MutableTransitionState(true).also { holder.visibility = it }
+        }
+    }
     if (!enabled) holder.visibility = null
     if (live.isNotEmpty()) holder.lastShown = live
     // Reading the transition state here recomposes once the card has finished collapsing.
@@ -225,15 +242,10 @@ internal fun rememberAtAGlanceItems(
     return rememberRetainedAtAGlanceItems(enabled, (if (reversed) groups.asReversed() else groups).flatten())
 }
 
-@Composable
-internal fun atAGlanceDividerColor(showWallpaperBackground: Boolean) =
-    LocalOverlayDividerColor.current
-        ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant
-
 /** The icon pack At a Glance app icons are drawn with, so they match the app grid. */
 internal val LocalGlanceIconPackPackage = staticCompositionLocalOf<String?> { null }
 
-/** Renders [items] separated by dividers, optionally with a divider before or after the group. */
+/** Renders animated glance rows as segments, or with dividers in Compact Layout. */
 @Composable
 internal fun AtAGlanceRows(
     items: List<AtAGlanceItem>,
@@ -241,11 +253,12 @@ internal fun AtAGlanceRows(
     dividerBefore: Boolean = false,
     dividerAfter: Boolean = false,
 ) {
-    val dividerColor = atAGlanceDividerColor(showWallpaperBackground)
+    val dividerColor = SearchResultCardDefaults.dividerColor(showWallpaperBackground)
+    val segmented = segmentedRowsActive()
     val rows = rememberAnimatedGlanceRows(items)
     if (rows.isEmpty()) return
     Column(modifier = Modifier.fillMaxWidth()) {
-        if (dividerBefore) HorizontalDivider(modifier = Modifier.compactEdgeToEdge(), color = dividerColor)
+        if (dividerBefore && !segmented) HorizontalDivider(modifier = Modifier.compactEdgeToEdge(), color = dividerColor)
         rows.forEachIndexed { index, row ->
             key(row.item.key) {
                 AnimatedVisibility(
@@ -253,14 +266,21 @@ internal fun AtAGlanceRows(
                     enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
                     exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
                 ) {
-                    Column {
-                        if (index > 0) HorizontalDivider(modifier = Modifier.compactEdgeToEdge(), color = dividerColor)
-                        row.item.content()
+                    ResultSegment(
+                        index = index + if (dividerBefore) 1 else 0,
+                        count = rows.size + (if (dividerBefore) 1 else 0) + (if (dividerAfter) 1 else 0),
+                    ) {
+                        Column {
+                            if (index > 0 && !segmented) {
+                                HorizontalDivider(modifier = Modifier.compactEdgeToEdge(), color = dividerColor)
+                            }
+                            row.item.content()
+                        }
                     }
                 }
             }
         }
-        if (dividerAfter) HorizontalDivider(modifier = Modifier.compactEdgeToEdge(), color = dividerColor)
+        if (dividerAfter && !segmented) HorizontalDivider(modifier = Modifier.compactEdgeToEdge(), color = dividerColor)
     }
 }
 
@@ -273,6 +293,7 @@ private class AnimatedGlanceRow(
 private class AnimatedGlanceRows {
     var rows: List<AnimatedGlanceRow> = emptyList()
     var initialized = false
+    val seenKeys = mutableSetOf<String>()
 }
 
 /**
@@ -283,11 +304,18 @@ private class AnimatedGlanceRows {
 @Composable
 private fun rememberAnimatedGlanceRows(items: List<AtAGlanceItem>): List<AnimatedGlanceRow> {
     val holder = remember { AnimatedGlanceRows() }
+    val appearedKeys = rememberHomeAppearedContentKeys()
     val previous = holder.rows.associateBy { it.item.key }
     fun rowFor(item: AtAGlanceItem): AnimatedGlanceRow {
         val visibility =
-            previous[item.key]?.visibility
-                ?: MutableTransitionState(!holder.initialized).apply { targetState = true }
+            previous[item.key]?.visibility ?: run {
+                // A row that already appeared in this activity, now reloading after a page switch,
+                // shows at once; one that arrives while this group is on screen still grows in.
+                val firstInThisGroup = holder.seenKeys.add(item.key)
+                val appearedBefore = !appearedKeys.add(AT_A_GLANCE_ROW_APPEARED_KEY_PREFIX + item.key)
+                MutableTransitionState(!holder.initialized || (firstInThisGroup && appearedBefore))
+                    .apply { targetState = true }
+            }
         return AnimatedGlanceRow(item, visibility)
     }
     val currentIndex = items.withIndex().associate { (index, item) -> item.key to index }
@@ -340,8 +368,16 @@ internal fun AtAGlanceTitle(showWallpaperBackground: Boolean) {
 @Composable
 internal fun AtAGlanceCardShell(
     showWallpaperBackground: Boolean,
+    segmented: Boolean = false,
     content: @Composable () -> Unit,
 ) {
+    if (segmented && LocalSearchCardLayoutEnabled.current) {
+        val containerColor = SearchResultCardDefaults.containerColor(showWallpaperBackground)
+        CompositionLocalProvider(LocalSegmentedRowsStyle provides SegmentedRowsStyle(containerColor)) {
+            Column(modifier = Modifier.fillMaxWidth()) { content() }
+        }
+        return
+    }
     SearchResultCard(
         modifier = Modifier.fillMaxWidth(),
         showWallpaperBackground = showWallpaperBackground,
@@ -349,7 +385,7 @@ internal fun AtAGlanceCardShell(
         Column(
             modifier =
                 Modifier.fillMaxWidth()
-                    .padding(horizontal = DesignTokens.SpacingMedium, vertical = 4.dp),
+                    .padding(horizontal = DesignTokens.SpacingMedium, vertical = DesignTokens.SpacingXSmall),
         ) {
             content()
         }
@@ -375,7 +411,7 @@ internal fun AtAGlanceCard(
         // Matches the spacing of the home column the title and card sit in.
         Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
             if (showTitle) AtAGlanceTitle(showWallpaperBackground)
-            AtAGlanceCardShell(showWallpaperBackground = showWallpaperBackground) {
+            AtAGlanceCardShell(showWallpaperBackground = showWallpaperBackground, segmented = true) {
                 AtAGlanceRows(items = items, showWallpaperBackground = showWallpaperBackground)
             }
         }

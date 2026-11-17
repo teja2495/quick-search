@@ -1,40 +1,28 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
-import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.border
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.ui.draw.clip
+import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
 import com.tk.quicksearch.settings.shared.settingsRoute.SectionSettingsSection
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenCallbacks
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -42,44 +30,27 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.core.view.HapticFeedbackConstantsCompat
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.preferences.NicknamePreferences
 import com.tk.quicksearch.search.data.preferences.TriggerPreferences
 import com.tk.quicksearch.search.core.AppSuggestionTabType
 import com.tk.quicksearch.search.core.ItemPriorityConfig
 import com.tk.quicksearch.search.core.SearchSection
-import com.tk.quicksearch.search.core.SearchSectionUiMetadataRegistry
-import com.tk.quicksearch.search.models.SecondaryRankingSignal
-import com.tk.quicksearch.pinnedNotifications.PinnedNotifications
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
-import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonType
 import com.tk.quicksearch.settings.shared.*
-import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
-import com.tk.quicksearch.shared.ui.components.AppAlertDialog
-import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
-import com.tk.quicksearch.shared.util.performHapticFeedbackSafely
-import sh.calvin.reorderable.ReorderableColumn
-import sh.calvin.reorderable.ReorderableItem
-import sh.calvin.reorderable.rememberReorderableLazyListState
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
+import com.tk.quicksearch.shared.ui.components.AppTonalButton
 
 @Composable
 internal fun AppSuggestionTabsDialog(
@@ -98,37 +69,37 @@ internal fun AppSuggestionTabsDialog(
             )
         }
 
-    AppAlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(text = stringResource(R.string.app_suggestions_tabs_dialog_title)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall)) {
-                Text(
-                    text = stringResource(R.string.app_suggestions_tabs_dialog_message),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+    AppPickerDrawer(
+        title = stringResource(R.string.app_suggestions_tabs_dialog_title),
+        onDismiss = onDismiss,
+        header = {
+            Text(
+                text = stringResource(R.string.app_suggestions_tabs_dialog_message),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+    ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth().clip(AppShapes.extraLarge),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
+        ) {
+            itemsIndexed(configurableTabs, key = { _, tab -> tab.first.name }) { index, (tab, title) ->
+                SegmentedToggleTile(
+                    title = title,
+                    checked = tab in enabledTabs,
+                    onCheckedChange = { onTabEnabledChange(tab, it) },
+                    icon = when (tab) {
+                        AppSuggestionTabType.RECENTS -> MaterialSymbols.History
+                        AppSuggestionTabType.NEW_UPDATED -> MaterialSymbols.Refresh
+                        else -> MaterialSymbols.Apps
+                    },
+                    index = index,
+                    count = configurableTabs.size,
                 )
-                configurableTabs.forEachIndexed { index, (tab, title) ->
-                    if (index > 0) {
-                        HorizontalDivider(color = AppColors.SettingsDivider)
-                    }
-                    val isEnabled = tab in enabledTabs
-                    AppSuggestionTabCheckboxItem(
-                        title = title,
-                        subtitle = null,
-                        checked = isEnabled,
-                        onCheckedChange = { enabled -> onTabEnabledChange(tab, enabled) },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
             }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.dialog_done))
-            }
-        },
-    )
+        }
+    }
 }
 
 @Composable
@@ -159,46 +130,6 @@ internal fun buildAppSuggestionTabsSummary(
 }
 
 @Composable
-private fun AppSuggestionTabCheckboxItem(
-    title: String,
-    subtitle: String?,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier =
-            modifier
-                .clickable { onCheckedChange(!checked) }
-                .padding(
-                    vertical = DesignTokens.SpacingXSmall,
-                ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-    ) {
-        Checkbox(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            modifier = Modifier.scale(0.82f),
-        )
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            subtitle?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
-    }
-}
-
-@Composable
 private fun TopMatchesCard(
     topMatchesEnabled: Boolean,
     onTopMatchesToggle: (Boolean) -> Unit,
@@ -220,35 +151,30 @@ private fun TopMatchesCard(
             }
         }
 
-    SettingsCard(modifier = modifier.fillMaxWidth()) {
-        Column {
-            SettingsToggleRow(
-                title = stringResource(R.string.top_matches_title),
-                subtitle = stringResource(R.string.top_matches_toggle_desc),
-                checked = topMatchesEnabled,
-                onCheckedChange = onTopMatchesToggle,
-                leadingIcon = MaterialSymbols.AutoAwesome,
-                enabled = !isLocked,
-                isFirstItem = true,
-                isLastItem = !topMatchesEnabled,
+    val tileCount = if (topMatchesEnabled) 3 else 1
+    SegmentedGroup(modifier = modifier) {
+        SegmentedToggleTile(
+            title = stringResource(R.string.top_matches_title),
+            description = stringResource(R.string.top_matches_toggle_desc),
+            checked = topMatchesEnabled,
+            onCheckedChange = onTopMatchesToggle,
+            icon = MaterialSymbols.AutoAwesome,
+            enabled = !isLocked,
+            index = 0,
+            count = tileCount,
+        )
+        if (topMatchesEnabled) {
+            SettingsSegmentNavigationRow(
+                item = SettingsCardItem(
+                    title = stringResource(R.string.top_matches_priority_title),
+                    description = stringResource(R.string.top_matches_priority_desc),
+                    icon = MaterialSymbols.Reorder,
+                    actionOnPress = { showPriorityDialog = true },
+                ),
+                index = 1,
+                count = tileCount,
             )
-
-            if (topMatchesEnabled) {
-                SettingsNavigationRow(
-                    item =
-                        SettingsCardItem(
-                            title = stringResource(R.string.top_matches_priority_title),
-                            description = stringResource(R.string.top_matches_priority_desc),
-                            icon = MaterialSymbols.Reorder,
-                            actionOnPress = { showPriorityDialog = true },
-                        ),
-                    contentPadding =
-                        PaddingValues(
-                            horizontal = DesignTokens.SpacingXXLarge,
-                            vertical = DesignTokens.SpacingLarge,
-                        ),
-                )
-                HorizontalDivider(color = AppColors.SettingsDivider)
+            SegmentedTile(index = 2, count = tileCount) {
                 TopMatchesLimitSlider(
                     selectedLimit = topMatchesLimit,
                     onLimitSelected = onTopMatchesLimitChange,
@@ -307,132 +233,6 @@ private fun TopMatchesLimitSlider(
     )
 }
 
-/**
- * Drag-to-reorder dialog for search sections. Per-section enable switches are shown only when
- * [onItemEnabledChange] is provided.
- */
-@Composable
-internal fun PriorityReorderDialog(
-    items: List<SearchSection>,
-    onItemsChange: (List<SearchSection>) -> Unit,
-    onDismiss: () -> Unit,
-    disabledSections: Set<SearchSection> = emptySet(),
-    onItemEnabledChange: ((SearchSection, Boolean) -> Unit)? = null,
-    titleRes: Int = R.string.top_matches_priority_title,
-    infoRes: Int = R.string.top_matches_priority_dialog_info,
-) {
-    val view = LocalView.current
-    AppAlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(text = stringResource(titleRes)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)) {
-                Text(
-                    text = stringResource(infoRes),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                ReorderableColumn(
-                    list = items,
-                    onSettle = { fromIndex, toIndex ->
-                        if (fromIndex != toIndex) {
-                            val newOrder =
-                                items.toMutableList().apply {
-                                    add(toIndex, removeAt(fromIndex))
-                                }
-                            onItemsChange(newOrder)
-                        }
-                    },
-                    onMove = {
-                        performHapticFeedbackSafely(
-                            view,
-                            HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK,
-                        )
-                    },
-                ) { index, item, isDragging ->
-                    ReorderableItem {
-                        if (index > 0) {
-                            HorizontalDivider(color = AppColors.SettingsDivider)
-                        }
-                        Surface(
-                            color = if (isDragging) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
-                            modifier = Modifier.fillMaxWidth(),
-                        ) {
-                            Row(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .longPressDraggableHandle(
-                                            onDragStarted = {
-                                                performHapticFeedbackSafely(
-                                                    view,
-                                                    HapticFeedbackConstantsCompat.GESTURE_START,
-                                                )
-                                            },
-                                            onDragStopped = {
-                                                performHapticFeedbackSafely(
-                                                    view,
-                                                    HapticFeedbackConstantsCompat.GESTURE_END,
-                                                )
-                                            },
-                                        )
-                                        .padding(
-                                            vertical =
-                                                if (onItemEnabledChange != null) {
-                                                    DesignTokens.SpacingXSmall
-                                                } else {
-                                                    DesignTokens.SpacingMedium
-                                                },
-                                            horizontal = DesignTokens.SpacingSmall,
-                                        ),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-                            ) {
-                                Icon(
-                                    imageVector = MaterialSymbols.DragHandle,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                                Text(
-                                    text =
-                                        stringResource(
-                                            SearchSectionUiMetadataRegistry
-                                                .metadataFor(item)
-                                                .sectionLabelRes,
-                                        ),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.weight(1f),
-                                )
-                                if (onItemEnabledChange != null) Switch(
-                                    modifier = Modifier.scale(0.7f),
-                                    checked = item !in disabledSections,
-                                    onCheckedChange = { enabled ->
-                                        if (!enabled && items.count { it !in disabledSections } <= 1 && item !in disabledSections) {
-                                            Toast.makeText(
-                                                view.context,
-                                                view.context.getString(R.string.settings_sections_at_least_one_required),
-                                                Toast.LENGTH_SHORT,
-                                            ).show()
-                                        } else {
-                                            onItemEnabledChange(item, enabled)
-                                        }
-                                    },
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.common_close))
-            }
-        },
-    )
-}
-
 @Composable
 private fun LaunchOptionsCard(
     onRefreshApps: (Boolean) -> Unit,
@@ -442,7 +242,7 @@ private fun LaunchOptionsCard(
     hasFilePermission: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    SettingsCard(modifier = modifier.fillMaxWidth()) {
+    SegmentedTile(index = 0, count = 1, modifier = modifier) {
         Column(
             modifier = Modifier.padding(
                 horizontal = DesignTokens.SpacingXXLarge,
@@ -452,12 +252,12 @@ private fun LaunchOptionsCard(
         ) {
             Text(
                 text = stringResource(R.string.settings_refresh_data_title),
-                style = MaterialTheme.typography.titleSmall,
+                style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
             )
             Text(
                 text = stringResource(R.string.settings_refresh_data_note),
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Row(
@@ -466,10 +266,9 @@ private fun LaunchOptionsCard(
                     .height(IntrinsicSize.Max),
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
             ) {
-                OutlinedButton(
+                AppTonalButton(
                     onClick = { onRefreshApps(true) },
                     modifier = Modifier.weight(1f).fillMaxHeight(),
-                    shape = DesignTokens.ShapeMedium,
                     contentPadding = PaddingValues(
                         horizontal = DesignTokens.SpacingSmall,
                         vertical = DesignTokens.SpacingMedium,
@@ -477,7 +276,7 @@ private fun LaunchOptionsCard(
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall),
+                        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
                     ) {
                         Icon(
                             imageVector = MaterialSymbols.Apps,
@@ -486,16 +285,15 @@ private fun LaunchOptionsCard(
                         )
                         Text(
                             text = stringResource(R.string.section_apps),
-                            style = MaterialTheme.typography.labelSmall,
+                            style = MaterialTheme.typography.labelLarge,
                             textAlign = TextAlign.Center,
                         )
                     }
                 }
                 if (hasContactPermission) {
-                    OutlinedButton(
+                    AppTonalButton(
                         onClick = { onRefreshContacts(true) },
                         modifier = Modifier.weight(1f).fillMaxHeight(),
-                        shape = DesignTokens.ShapeMedium,
                         contentPadding = PaddingValues(
                             horizontal = DesignTokens.SpacingSmall,
                             vertical = DesignTokens.SpacingMedium,
@@ -503,7 +301,7 @@ private fun LaunchOptionsCard(
                     ) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall),
+                            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
                         ) {
                             Icon(
                                 imageVector = MaterialSymbols.Contacts,
@@ -512,17 +310,16 @@ private fun LaunchOptionsCard(
                             )
                             Text(
                                 text = stringResource(R.string.contacts_action_button_contacts),
-                                style = MaterialTheme.typography.labelSmall,
+                                style = MaterialTheme.typography.labelLarge,
                                 textAlign = TextAlign.Center,
                             )
                         }
                     }
                 }
                 if (hasFilePermission) {
-                    OutlinedButton(
+                    AppTonalButton(
                         onClick = { onRefreshFiles(true) },
                         modifier = Modifier.weight(1f).fillMaxHeight(),
-                        shape = DesignTokens.ShapeMedium,
                         contentPadding = PaddingValues(
                             horizontal = DesignTokens.SpacingSmall,
                             vertical = DesignTokens.SpacingMedium,
@@ -530,7 +327,7 @@ private fun LaunchOptionsCard(
                     ) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall),
+                            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
                         ) {
                             Icon(
                                 imageVector = MaterialSymbols.InsertDriveFile,
@@ -539,7 +336,7 @@ private fun LaunchOptionsCard(
                             )
                             Text(
                                 text = stringResource(R.string.section_files),
-                                style = MaterialTheme.typography.labelSmall,
+                                style = MaterialTheme.typography.labelLarge,
                                 textAlign = TextAlign.Center,
                             )
                         }

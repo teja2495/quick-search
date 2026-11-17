@@ -1,36 +1,52 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.Alignment
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import android.widget.Toast
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.SettingsToggleRow
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
 import com.tk.quicksearch.tools.aiSearch.LlmTextModel
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.settings.shared.ModelFeatureSettingsCard
-import com.tk.quicksearch.shared.ui.components.CardTextField
+import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
+import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import org.json.JSONObject
@@ -127,33 +143,17 @@ fun AiProviderSettingsSection(
                                         }
                                 ),
                 ) {
-                        SettingsCard(modifier = Modifier.fillMaxWidth()) {
-                                CardTextField(
-                                        value = personalContextInput,
-                                        onValueChange = {
-                                                personalContextInput = it
-                                                val trimmed = it.trim()
-                                                onSetPersonalContext(
-                                                        trimmed.takeIf { value -> value.isNotEmpty() }
-                                                )
-                                        },
-                                        label = stringResource(R.string.settings_direct_search_personal_context),
-                                        placeholder =
-                                                stringResource(
-                                                        R.string.settings_direct_search_personal_context_hint
-                                                ),
-                                        enabled = supportsInstructions,
-                                        minLines = 3,
-                                        maxLines = 8,
-                                        modifier =
-                                                Modifier.fillMaxWidth()
-                                                        .heightIn(min = 120.dp)
-                                                        .padding(
-                                                                horizontal = DesignTokens.SpacingSmall,
-                                                                vertical = DesignTokens.SpacingXSmall,
-                                                        ),
-                                )
-                        }
+                        PersonalContextCard(
+                                value = personalContextInput,
+                                onValueChange = {
+                                        personalContextInput = it
+                                        val trimmed = it.trim()
+                                        onSetPersonalContext(
+                                                trimmed.takeIf { value -> value.isNotEmpty() }
+                                        )
+                                },
+                                enabled = supportsInstructions,
+                        )
                 }
 
                 if (aiSearchLlmProviderId.isCustom) {
@@ -205,94 +205,170 @@ fun AdvancedPayloadSettingsSection(
                 return true
         }
 
-        SettingsCard(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-                ) {
-                        SettingsToggleRow(
-                                title = stringResource(R.string.settings_custom_provider_advanced_payload_title),
-                                subtitle =
-                                        stringResource(
-                                                R.string.settings_custom_provider_advanced_payload_desc
-                                        ),
-                                checked = enabledInput,
-                                onCheckedChange = { checked ->
-                                        enabledInput = checked
-                                        if (checked) {
-                                                val trimmed = payloadInput.trim()
-                                                if (trimmed.isNotBlank()) {
-                                                        saveIfValid(trimmed, true)
-                                                }
-                                        } else {
-                                                saveIfValid(payloadInput, false)
+        SegmentedGroup {
+                SegmentedToggleTile(
+                        title = stringResource(R.string.settings_custom_provider_advanced_payload_title),
+                        description =
+                                stringResource(R.string.settings_custom_provider_advanced_payload_desc),
+                        icon = MaterialSymbols.Tune,
+                        checked = enabledInput,
+                        onCheckedChange = { checked ->
+                                enabledInput = checked
+                                if (checked) {
+                                        val trimmed = payloadInput.trim()
+                                        if (trimmed.isNotBlank()) {
+                                                saveIfValid(trimmed, true)
                                         }
-                                },
-                                isFirstItem = true,
-                                isLastItem = !enabledInput,
-                                showDivider = false,
-                        )
+                                } else {
+                                        saveIfValid(payloadInput, false)
+                                }
+                        },
+                        index = 0,
+                        count = if (enabledInput) 2 else 1,
+                )
 
-                        if (enabledInput) {
-                                OutlinedTextField(
-                                        value = payloadInput,
-                                        onValueChange = { next ->
-                                                payloadInput = next
-                                                saveIfValid(next, true)
-                                        },
-                                        modifier =
-                                                Modifier
-                                                        .fillMaxWidth()
-                                                        .height(160.dp)
-                                                        .padding(
-                                                                start = DesignTokens.CardHorizontalPadding,
-                                                                end = DesignTokens.CardHorizontalPadding,
-                                                                bottom = DesignTokens.CardVerticalPadding,
-                                                        ),
-                                        placeholder = {
-                                                Text(
-                                                        text =
-                                                                stringResource(
-                                                                        R.string
-                                                                                .settings_custom_provider_advanced_payload_hint
-                                                                ),
-                                                        style = MaterialTheme.typography.bodyMedium,
-                                                )
-                                        },
-                                        supportingText =
-                                                if (hasJsonError) {
-                                                        {
-                                                                Text(
-                                                                        text =
-                                                                                stringResource(
-                                                                                        R.string
-                                                                                                .settings_custom_provider_advanced_payload_error
-                                                                                )
-                                                                )
-                                                        }
-                                                } else {
-                                                        null
+                if (enabledInput) {
+                        SegmentedTile(index = 1, count = 2) {
+                                SegmentedTileContent {
+                                        OutlinedTextField(
+                                                value = payloadInput,
+                                                onValueChange = { next ->
+                                                        payloadInput = next
+                                                        saveIfValid(next, true)
                                                 },
-                                        isError = hasJsonError,
-                                        shape = MaterialTheme.shapes.extraLarge,
-                                        colors =
-                                                TextFieldDefaults.colors(
-                                                        focusedContainerColor = AppColors.getSettingsCardContainerColor(),
-                                                        unfocusedContainerColor = AppColors.getSettingsCardContainerColor(),
-                                                        disabledContainerColor = AppColors.getSettingsCardContainerColor(),
-                                                        focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
-                                                        unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
-                                                        disabledIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
-                                                        errorIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
-                                                ),
-                                        singleLine = false,
-                                        minLines = 4,
-                                        maxLines = 8,
-                                )
+                                                modifier = Modifier.fillMaxWidth().height(160.dp),
+                                                placeholder = {
+                                                        Text(
+                                                                text =
+                                                                        stringResource(
+                                                                                R.string
+                                                                                        .settings_custom_provider_advanced_payload_hint
+                                                                        ),
+                                                                style = MaterialTheme.typography.bodyMedium,
+                                                        )
+                                                },
+                                                supportingText =
+                                                        if (hasJsonError) {
+                                                                {
+                                                                        Text(
+                                                                                text =
+                                                                                        stringResource(
+                                                                                                R.string
+                                                                                                        .settings_custom_provider_advanced_payload_error
+                                                                                        )
+                                                                        )
+                                                                }
+                                                        } else {
+                                                                null
+                                                        },
+                                                isError = hasJsonError,
+                                                shape = AppShapes.large,
+                                                colors = dialogTextFieldColors(),
+                                                singleLine = false,
+                                                minLines = 4,
+                                                maxLines = 8,
+                                        )
+                                }
                         }
                 }
         }
 }
+
+/** Laid out like the Home quick note card, in the settings card color: a title over a borderless field. */
+@Composable
+private fun PersonalContextCard(
+        value: String,
+        onValueChange: (String) -> Unit,
+        enabled: Boolean,
+) {
+        val textAlpha = if (enabled) 1f else DisabledContentAlpha
+        // Focusable only after a touch lands on it, so initial or restored focus never parks a
+        // caret here when the screen opens; it locks again once focus leaves.
+        var focusUnlockedByTouch by remember { mutableStateOf(false) }
+        var isFieldFocused by remember { mutableStateOf(false) }
+        val focusManager = LocalFocusManager.current
+        val density = LocalDensity.current
+        val imeInsets = WindowInsets.ime
+        val isImeVisible by remember(imeInsets, density) {
+                derivedStateOf { imeInsets.getBottom(density) > 0 }
+        }
+        // Closing the keyboard (back gesture, IME hide button) ends editing so no caret lingers.
+        // Wait for the keyboard to show first, so a fresh tap isn't cleared before it opens.
+        var imeShownWhileFocused by remember { mutableStateOf(false) }
+        LaunchedEffect(isFieldFocused, isImeVisible) {
+                if (!isFieldFocused) {
+                        imeShownWhileFocused = false
+                } else if (isImeVisible) {
+                        imeShownWhileFocused = true
+                } else if (imeShownWhileFocused) {
+                        focusManager.clearFocus()
+                }
+        }
+        Surface(
+                modifier = Modifier.fillMaxWidth().heightIn(min = PersonalContextCardMinHeight),
+                shape = AppShapes.widgetPanelCard,
+                color = AppColors.getSettingsCardContainerColor(),
+        ) {
+                Column(
+                        modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
+                        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+                ) {
+                        Text(
+                                text = stringResource(R.string.settings_direct_search_personal_context),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = textAlpha),
+                        )
+                        BasicTextField(
+                                value = value,
+                                onValueChange = onValueChange,
+                                enabled = enabled,
+                                modifier =
+                                        Modifier.fillMaxWidth()
+                                                .pointerInput(Unit) {
+                                                        awaitEachGesture {
+                                                                awaitFirstDown(
+                                                                        requireUnconsumed = false,
+                                                                        pass = PointerEventPass.Initial,
+                                                                )
+                                                                focusUnlockedByTouch = true
+                                                        }
+                                                }
+                                                .focusProperties { canFocus = focusUnlockedByTouch }
+                                                .onFocusChanged { state ->
+                                                        isFieldFocused = state.isFocused
+                                                        if (!state.isFocused) focusUnlockedByTouch = false
+                                                },
+                                minLines = 3,
+                                maxLines = 8,
+                                textStyle =
+                                        MaterialTheme.typography.bodyLarge.copy(
+                                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = textAlpha),
+                                        ),
+                                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                                decorationBox = { inner ->
+                                        if (value.isEmpty()) {
+                                                Text(
+                                                        text =
+                                                                stringResource(
+                                                                        R.string.settings_direct_search_personal_context_hint
+                                                                ),
+                                                        style = MaterialTheme.typography.bodyLarge,
+                                                        // Dimmed to match the quick note's hint.
+                                                        color =
+                                                                MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                                                        alpha = 0.6f * textAlpha,
+                                                                ),
+                                                )
+                                        }
+                                        inner()
+                                },
+                        )
+                }
+        }
+}
+
+private val PersonalContextCardMinHeight = 164.dp
+private const val DisabledContentAlpha = 0.38f
 
 private fun isValidJsonObject(value: String): Boolean =
         runCatching { JSONObject(value) }.isSuccess

@@ -1,8 +1,5 @@
 package com.tk.quicksearch.shared.ui.theme
 
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
 /**
@@ -13,12 +10,6 @@ object DesignTokens {
     // ============================================================================
     // UNIVERSAL SPACING SCALE (Material 3 - 4dp Grid)
     // ============================================================================
-
-    /**
-     * Extra extra small spacing - 4dp (Aligned to 4dp grid) Use for: Minimal text spacing, very
-     * tight layouts
-     */
-    val SpacingXXSmall = 4.dp
 
     /** Extra small spacing - 4dp Use for: Small gaps between icons and text, minimal padding */
     val SpacingXSmall = 4.dp
@@ -101,7 +92,7 @@ object DesignTokens {
     val ItemRowSpacing = SpacingMedium // 12.dp
 
     /** Spacing between columns of text */
-    val TextColumnSpacing = SpacingXXSmall // 4.dp (Updated from 2dp to match grid)
+    val TextColumnSpacing = SpacingXSmall // 4.dp (Updated from 2dp to match grid)
 
     /** Spacing between text button icon and text */
     val TextButtonIconSpacing = SpacingXSmall // 4.dp
@@ -150,63 +141,117 @@ object DesignTokens {
     val DraggableItemHeight = 60.dp
 
     // ============================================================================
-    // SHAPES (Material 3 Scale)
+    // CORNERS (Material 3 corner scale)
     // ============================================================================
+    // Every corner radius in the app comes from this scale or a role token below it. Shapes are
+    // built only in [AppShapes]; a new design language changes the values here, not at call sites.
 
-    /** Extra Small shape - 4dp Use for: Autocomplete menu, very small containers */
-    val ShapeExtraSmall: Shape = RoundedCornerShape(4.dp)
+    /** No rounding. */
+    val CornerNone = 0.dp
 
-    /** Small shape - 8dp Use for: Chips, Dialogs, Small FAB */
-    val ShapeSmall: Shape = RoundedCornerShape(8.dp)
+    /** Extra small corner - 4dp. */
+    val CornerExtraSmall = 4.dp
 
-    /** Medium shape - 12dp Use for: Cards, Small FAB */
-    val ShapeMedium: Shape = RoundedCornerShape(12.dp)
+    /** Small corner - 8dp. */
+    val CornerSmall = 8.dp
 
-    /** Large shape - 16dp Use for: Large FAB, Extended FAB, Navigation drawers */
-    val ShapeLarge: Shape = RoundedCornerShape(16.dp)
+    /** Medium corner - 12dp. */
+    val CornerMedium = 12.dp
 
-    /** Extra large shape - 28dp Use for: Large Dialogs, Large Cards */
-    val ShapeXLarge: Shape = RoundedCornerShape(28.dp)
+    /** Large corner - 16dp. */
+    val CornerLarge = 16.dp
 
-    /**
-     * Extra extra large shape - 28dp (Circle-like for search bar height) Use for: Search bar,
-     * Round buttons
-     */
-    val ShapeXXLarge: Shape = RoundedCornerShape(28.dp)
+    /** Large increased corner - 20dp (Material 3 Expressive). */
+    val CornerLargeIncreased = 20.dp
 
-    /** Full circle shape */
-    val ShapeFull: Shape = CircleShape
+    /** Extra large corner - 28dp. */
+    val CornerExtraLarge = 28.dp
 
-    /** Standard card shape Usage: Mapped to ShapeMedium (12dp) for M3 consistency (was 16dp) */
-    val CardShape: Shape = ShapeMedium
+    /** Corner of small icon tiles inside rows. */
+    val CornerIconTile = 10.dp
 
-    /** Extra large card shape for main cards Usage: Mapped to ShapeXLarge (28dp) */
-    val ExtraLargeCardShape: Shape = ShapeXLarge
+    /** Corner of editable icon frames. */
+    val CornerIconFrame = 14.dp
 
-    /**
-     * Corner shape for search result surfaces: history, web suggestions, expandable section
-     * cards, engine cards, calculator/direct-search cards. Alias of [ExtraLargeCardShape]; change
-     * here to retune all search cards together.
-     */
-    val SearchResultCardShape: Shape = ExtraLargeCardShape
+    /** Corner of website favicons. */
+    val CornerFavicon = 6.dp
+
+    /** Corner of the selected search engine highlight. */
+    val CornerEngineHighlight = 18.dp
+
+    /** Corner of single-line inline text inputs. */
+    val CornerInlineInput = 24.dp
+
+    // ============================================================================
+    // PRESS MORPH (Material 3 Expressive shape change on press)
+    // ============================================================================
+    // Read through [AppShapes] helpers (pressMorphShape, connectedButtonShape, segment shapes).
+
+    /** Corner a fully round extra-small/small button (32-40dp) squares to while pressed. */
+    val ButtonPressedCornerSmall = CornerSmall
+
+    /** Corner a fully round medium button (48-56dp) squares to while pressed. */
+    val ButtonPressedCornerMedium = CornerLarge
+
+    /** Inner corner a pressed segmented tile rounds to. */
+    val SegmentPressedInnerCorner = CornerLarge
+
+    /** Extra-small button height (Material 3 Expressive XS): compact actions beside text. */
+    val ButtonHeightExtraSmall = 32.dp
+
+    /** Small button height (Material 3 Expressive S): the default button. */
+    val ButtonHeightSmall = 40.dp
+
+    /** Icon size in an extra-small button. */
+    val ButtonIconSizeExtraSmall = 16.dp
+
+    /** Icon size in a small button. */
+    val ButtonIconSizeSmall = 18.dp
+
+    /** Minimum height of a full-size tonal action inside a settings tile. */
+    val TonalSettingsButtonHeight = 48.dp
+
+    /** Height of floating actions (bottom bars of settings pages, onboarding, save buttons). */
+    val FloatingActionHeight = 56.dp
+
+    /** Gap between the buttons of a connected button group. */
+    val ConnectedGroupGap = 2.dp
+
+    /** Corners between neighbouring buttons of a connected button group. */
+    val ConnectedGroupInnerCorner = CornerSmall
+
+    /** Inner corners of a pressed button in a connected button group. */
+    val ConnectedGroupPressedInnerCorner = CornerExtraSmall
+
+    /** Maximum width of floating action popups on tablets and landscape windows. */
+    val ItemMenuMaxWidth = 640.dp
+
+    /** Minimum height of an action row, including its touch target. */
+    val ItemMenuRowHeight = 56.dp
+
+    /** Outer corners of a segmented result list (first and last tile): the result card radius. */
+    val SegmentedListOuterCorner = CornerExtraLarge
+
+    /** Corners between neighbouring tiles of a segmented result list. */
+    val SegmentedListInnerCorner = CornerExtraSmall
+
+    /** Gap between tiles of a segmented result list. */
+    val SegmentedListGap = 2.dp
+
+    /** Side inset inside a segmented tile (what the card used to pad its rows by). */
+    val SegmentedListTileHorizontalPadding = SpacingMedium
+
+    /** Top and bottom inset inside a segmented tile. */
+    val SegmentedListTileVerticalPadding = SpacingXSmall
 
     /** Corner radius for widgets and cards shown in the widgets panel. */
-    val WidgetPanelCornerRadius = 20.dp
-
-    /** Shape for widgets and cards shown in the widgets panel. */
-    val WidgetPanelCardShape: Shape = RoundedCornerShape(WidgetPanelCornerRadius)
+    val WidgetPanelCornerRadius = CornerExtraLarge
 
     /**
      * Mix factor for [androidx.compose.material3.MaterialTheme.colorScheme] `primary` into the
      * neutral top-result highlight (wallpaper-aware white/black and elevated cards).
      */
     const val PredictedSubmitHighlightAccentBlend = 0.4f
-
-    /**
-     * Button corner radius - 24dp Note: M3 buttons often use full circle height (e.g. 40dp
-     * height -> 20dp radius). 24dp radius suitable for 48dp height buttons.
-     */
-    val ButtonCornerRadius = 24.dp
 
     // ============================================================================
     // ELEVATION (Material 3)
@@ -223,39 +268,12 @@ object DesignTokens {
     // DRAG AND DROP
     // ============================================================================
 
-    /** Drag threshold for reordering */
-    val DragThreshold = 0.5f
-
     /** Drag alpha for visual feedback */
     val DragAlpha = 0.8f
-
-    /** Spring damping ratio for drag animations */
-    val SpringDampingRatio = 0.8f
-
-    /** Spring stiffness for drag animations */
-    val SpringStiffness = 300f
 
     // ============================================================================
     // WALLPAPER BACKGROUND CONSTANTS
     // ============================================================================
-
-    /** Standard animation duration for wallpaper background fade-in */
-    val WallpaperFadeInDuration = 300
-
-    /** Standard animation duration for short transitions (e.g. height changes) */
-    val AnimationDurationShort = 200
-
-    /** Standard animation duration for medium transitions (e.g. entry/exit fade) */
-    val AnimationDurationMedium = 300
-
-    /** Long animation duration for welcome/promo effects */
-    const val AnimationDurationLong = 4000
-
-    /** Micro-hold duration used between animation phases */
-    const val AnimationDurationMicro = 50
-
-    /** Fast fade duration for glow and border cool-down effects */
-    const val AnimationDurationFast = 500
 
     /** Luminance threshold for determining dark mode (0.5f = 50% luminance) */
     val DarkModeLuminanceThreshold = 0.5f
@@ -285,20 +303,11 @@ object DesignTokens {
     /** Insets applied to full-width onboarding CTA buttons */
     val OnboardingButtonOuterHorizontalPadding = SpacingSmall
 
-    /** Internal horizontal padding for onboarding CTA buttons */
-    val OnboardingButtonHorizontalPadding = SpacingXXLarge
-
-    /** Internal vertical padding for onboarding CTA buttons */
-    val OnboardingButtonVerticalPadding = SpacingLarge
-
-    /** Corner radius for onboarding CTA buttons */
-    val OnboardingButtonCornerRadius = ButtonCornerRadius
-
     /** Corner radius for permission cards in onboarding */
     val OnboardingPermissionCardCornerRadius = SpacingXLarge
 
-    /** Height of the onboarding permission-card viewport before its remaining rows scroll */
-    val OnboardingPermissionCardViewportHeight = 500.dp
+    /** Max height of the onboarding permission list: four rows plus a faded half-row peek that signals scrolling */
+    val OnboardingPermissionCardViewportHeight = 480.dp
 
     /** Backdrop blur radius used by full-screen onboarding dialogs */
     val OnboardingDialogBlurRadius = SpacingXLarge

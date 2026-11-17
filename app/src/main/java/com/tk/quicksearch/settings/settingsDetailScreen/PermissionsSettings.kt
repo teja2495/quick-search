@@ -14,8 +14,6 @@ import com.tk.quicksearch.shared.permissions.OpenSourceTrustCard
 import com.tk.quicksearch.shared.permissions.PermissionCardTexts
 import com.tk.quicksearch.shared.permissions.PermissionsCardSection
 import com.tk.quicksearch.shared.permissions.permissionsScreenSubtitle
-import com.tk.quicksearch.settings.shared.*
-import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.isDefaultDigitalAssistant
 import com.tk.quicksearch.shared.util.isDefaultHomeApp
@@ -76,6 +74,7 @@ fun PermissionsSettings(
                     backgroundUsageDescription = stringResource(R.string.permissions_background_usage_desc),
                 ),
             modifier = Modifier.fillMaxWidth(),
+            segmented = true,
             showCalendarPermission = true,
             showCallingPermission = true,
             showNotificationsPermission = true,
@@ -86,9 +85,7 @@ fun PermissionsSettings(
             onRequestCalendarPermission = onRequestCalendarPermission,
             onRequestCallPermission = onRequestCallPermission,
             cardContainer = { cardModifier, content ->
-                SettingsCard(modifier = cardModifier) {
-                    content()
-                }
+                Column(modifier = cardModifier) { content() }
             },
         )
     }

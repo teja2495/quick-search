@@ -4,6 +4,7 @@ import com.tk.quicksearch.search.searchScreen.LocalInsetCardBackdrop
 import com.tk.quicksearch.search.searchScreen.contentBottomInset
 import com.tk.quicksearch.search.searchScreen.contentTopInset
 import com.tk.quicksearch.search.searchScreen.resultsClipShape
+import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
@@ -66,9 +67,7 @@ import com.tk.quicksearch.search.searchScreen.CalendarSectionParams
 import com.tk.quicksearch.search.searchScreen.NotesSectionParams
 import com.tk.quicksearch.search.searchScreen.RemindersSectionParams
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
-import com.tk.quicksearch.search.searchScreen.appThemeResultCardColor
-import com.tk.quicksearch.search.searchScreen.appThemeDividerColor
-import com.tk.quicksearch.search.searchScreen.appThemeActionColor
+import com.tk.quicksearch.search.searchScreen.overlayThemeTints
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayActionColor
@@ -175,7 +174,7 @@ fun SearchContentArea(
     val aliasExpandedSectionBottomInset = 12.dp
     // Result cards need breathing room so they do not touch the bar/engine strip.
     val resultCardBottomGap =
-        if (alignResultsToBottom && hasQuery) DesignTokens.SpacingMedium - DesignTokens.SpacingXXSmall else 0.dp
+        if (alignResultsToBottom && hasQuery) DesignTokens.SpacingMedium - DesignTokens.SpacingXSmall else 0.dp
     val expandedCardExtraReduction = 20.dp
     // Compute "no results" state once - shared by both places that need it.
     val shouldShowNoResults = computeShouldShowNoResults(state)
@@ -188,41 +187,13 @@ fun SearchContentArea(
                 !aiSearchState.activeQuery.isNullOrBlank() && aiSearchState.canRetry &&
                 renderingState.expandedSection == ExpandedSection.NONE
     val isSectionAliasMode = state.detectedAliasSearchSection != null
-    val useOverlayThemeTints = !state.deviceThemeEnabled && state.backgroundSource == BackgroundSource.THEME
     val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
     val edgeFadeHeight = if (isDarkMode) 32.dp else 16.dp
     val edgeFadeMinAlpha = if (isDarkMode) 0f else 0.4f
-    val overlayCardColor =
-        if (useOverlayThemeTints) {
-            appThemeResultCardColor(
-                theme = state.appTheme,
-                isDarkMode = isDarkMode,
-                intensity = state.overlayThemeIntensity,
-                amoledThemeEnabled = state.amoledThemeEnabled,
-            )
-        } else {
-            null
-        }
-    val overlayDividerTint =
-        if (useOverlayThemeTints) {
-            appThemeDividerColor(
-                theme = state.appTheme,
-                isDarkMode = isDarkMode,
-                intensity = state.overlayThemeIntensity,
-            )
-        } else {
-            null
-        }
-    val overlayActionTint =
-        if (useOverlayThemeTints) {
-            appThemeActionColor(
-                theme = state.appTheme,
-                isDarkMode = isDarkMode,
-                intensity = state.overlayThemeIntensity,
-            )
-        } else {
-            null
-        }
+    val overlayThemeTints = overlayThemeTints(state, isDarkMode)
+    val overlayCardColor = overlayThemeTints.cardColor
+    val overlayDividerTint = overlayThemeTints.dividerTint
+    val overlayActionTint = overlayThemeTints.actionTint
     val keyboardGesturesEnabled = scrollState.maxValue == 0
     val launcherOverscrollUpEnabled =
         keyboardGesturesEnabled &&
@@ -491,6 +462,8 @@ fun SearchContentArea(
                     Modifier
                 }
 
+            val roundExpandedViewport = LocalSearchCardLayoutEnabled.current &&
+                (renderingState.expandedSection != ExpandedSection.NONE || isSearchHistoryExpanded)
             Box {
                 Column(
                     modifier =
@@ -498,6 +471,13 @@ fun SearchContentArea(
                             .edgeBleed(edgeBleed).fillMaxWidth()
                             .then(expansionTransitionModifier).then(heightModifier)
                             .clip(LocalInsetCardBackdrop.current.resultsClipShape(TopRoundedShape, edgeBleed))
+                            .then(
+                                if (roundExpandedViewport) {
+                                    Modifier.clip(ExpandedResultsViewportShape(edgeBleed, LocalInsetCardBackdrop.current?.topTarget == null))
+                                } else {
+                                    Modifier
+                                },
+                            )
                             .then(edgeFadeModifier)
                             .then(
                                 if (!hasQuery) {
@@ -541,7 +521,7 @@ fun SearchContentArea(
                                                 } else if (alignResultsToBottom) {
                                                     // The app grid reads fine tucked against the search
                                                     // bar; ContentLayout adds resultCardBottomGap under a card.
-                                                    DesignTokens.SpacingXXSmall
+                                                    DesignTokens.SpacingXSmall
                                                 } else {
                                                     DesignTokens
                                                         .SpacingMedium

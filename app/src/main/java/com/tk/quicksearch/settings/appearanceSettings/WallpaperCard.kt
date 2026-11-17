@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.TextAutoSize
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -67,7 +66,11 @@ import com.tk.quicksearch.search.core.AccentColorMode
 import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.AppTheme
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.shared.ui.components.ChoiceOption
+import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.shared.permissions.PermissionHelper
@@ -200,23 +203,19 @@ fun WallpaperCard(
         }
     }
 
-    SettingsCard(
-            modifier = modifier.fillMaxWidth(),
-    ) {
-        Column(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
+    SegmentedGroup(modifier = modifier) {
+      SegmentedTile(index = 0, count = 2) {
+        SegmentedTileContent {
             Text(
                     text = stringResource(R.string.settings_wallpaper_card_title),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(start = 4.dp, end = 4.dp, bottom = 4.dp),
+                    modifier = Modifier.padding(start = DesignTokens.SpacingXSmall, end = DesignTokens.SpacingXSmall, bottom = DesignTokens.SpacingXSmall),
             )
 
             Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
             ) {
                 if (!shouldHideSystemWallpaperSource) {
                     OverlaySourceBox(
@@ -248,7 +247,7 @@ fun WallpaperCard(
                         if (!canDisplaySystemWallpaper) {
                             Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
                             ) {
                                 Icon(
                                         imageVector = MaterialSymbols.Info,
@@ -270,7 +269,7 @@ fun WallpaperCard(
                             }
                         } else if (isLiveWallpaperUnsupported) {
                             Row(
-                                    modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
+                                    modifier = Modifier.fillMaxSize().padding(horizontal = DesignTokens.SpacingSmall),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement =
                                             Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
@@ -389,64 +388,65 @@ fun WallpaperCard(
                                 )
                             }
                         }
-                        Box(
-                                modifier =
-                                        Modifier.align(Alignment.TopEnd)
-                                                .padding(6.dp)
-                                                .size(20.dp)
-                                                .clip(CircleShape)
-                                                .background(AppColors.CustomImageEditButtonBackground)
-                                                .clickable {
-                                                    hapticToggle(view)()
-                                                    if (isCustomSourceSelected) {
-                                                        onSetBackgroundSource(
-                                                                if (
-                                                                        canDisplaySystemWallpaper &&
-                                                                                !isLiveWallpaperUnsupported &&
-                                                                                !shouldHideSystemWallpaperSource
-                                                                ) {
-                                                                    BackgroundSource.SYSTEM_WALLPAPER
-                                                                } else {
-                                                                    BackgroundSource.THEME
-                                                                },
-                                                        )
-                                                    }
-                                                    onRemoveCustomImage()
-                                                },
-                                contentAlignment = Alignment.Center,
+                        Row(
+                                modifier = Modifier.align(Alignment.TopEnd).padding(6.dp),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
                         ) {
-                            Icon(
-                                    imageVector = MaterialSymbols.Close,
-                                    contentDescription =
-                                            stringResource(
-                                                    R.string.settings_overlay_source_remove_custom
-                                            ),
-                                    tint = AppColors.CustomImageEditButtonIcon,
-                                    modifier = Modifier.size(12.dp),
-                            )
-                        }
-                        Box(
-                                modifier =
-                                        Modifier.align(Alignment.BottomEnd)
-                                                .padding(6.dp)
-                                                .size(20.dp)
-                                                .clip(CircleShape)
-                                                .background(AppColors.CustomImageEditButtonBackground)
-                                                .clickable {
-                                                    hapticToggle(view)()
-                                                    onPickCustomImage()
-                                                },
-                                contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(
-                                    imageVector = MaterialSymbols.Edit,
-                                    contentDescription =
-                                            stringResource(
-                                                    R.string.settings_overlay_source_edit_custom
-                                            ),
-                                    tint = AppColors.CustomImageEditButtonIcon,
-                                    modifier = Modifier.size(12.dp),
-                            )
+                            Box(
+                                    modifier =
+                                            Modifier.size(20.dp)
+                                                    .clip(CircleShape)
+                                                    .background(AppColors.CustomImageEditButtonBackground)
+                                                    .clickable {
+                                                        hapticToggle(view)()
+                                                        onPickCustomImage()
+                                                    },
+                                    contentAlignment = Alignment.Center,
+                            ) {
+                                Icon(
+                                        imageVector = MaterialSymbols.Edit,
+                                        contentDescription =
+                                                stringResource(
+                                                        R.string.settings_overlay_source_edit_custom
+                                                ),
+                                        tint = AppColors.CustomImageEditButtonIcon,
+                                        modifier = Modifier.size(12.dp),
+                                )
+                            }
+                            Box(
+                                    modifier =
+                                            Modifier.size(20.dp)
+                                                    .clip(CircleShape)
+                                                    .background(AppColors.CustomImageEditButtonBackground)
+                                                    .clickable {
+                                                        hapticToggle(view)()
+                                                        if (isCustomSourceSelected) {
+                                                            onSetBackgroundSource(
+                                                                    if (
+                                                                            canDisplaySystemWallpaper &&
+                                                                                    !isLiveWallpaperUnsupported &&
+                                                                                    !shouldHideSystemWallpaperSource
+                                                                    ) {
+                                                                        BackgroundSource.SYSTEM_WALLPAPER
+                                                                    } else {
+                                                                        BackgroundSource.THEME
+                                                                    },
+                                                            )
+                                                        }
+                                                        onRemoveCustomImage()
+                                                    },
+                                    contentAlignment = Alignment.Center,
+                            ) {
+                                Icon(
+                                        imageVector = MaterialSymbols.Close,
+                                        contentDescription =
+                                                stringResource(
+                                                        R.string.settings_overlay_source_remove_custom
+                                                ),
+                                        tint = AppColors.CustomImageEditButtonIcon,
+                                        modifier = Modifier.size(12.dp),
+                                )
+                            }
                         }
                     } else {
                         Icon(
@@ -460,15 +460,15 @@ fun WallpaperCard(
             }
 
             if (isWallpaperSourceSelected || isCustomSourceSelected) {
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(DesignTokens.SpacingXSmall))
                 Text(
                         text = stringResource(R.string.settings_wallpaper_transparency_label),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
                 )
                 Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
                 ) {
                     Slider(
                             value = wallpaperAlphaDisplayValue,
@@ -496,12 +496,12 @@ fun WallpaperCard(
                 if (wallpaperPixelEffectsAvailable) {
                     Text(
                             text = stringResource(R.string.settings_wallpaper_blur_label),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onSurface,
                     )
                     Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
                     ) {
                         Slider(
                                 value = wallpaperBlurRadius,
@@ -532,66 +532,59 @@ fun WallpaperCard(
                 }
 
             }
-
+        }
+      }
+      SegmentedTile(index = 1, count = 2) {
+        SegmentedTileContent {
             Column(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = DesignTokens.SpacingSmall),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = DesignTokens.SpacingXSmall),
                     verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
             ) {
                 Text(
                         text = stringResource(R.string.settings_wallpaper_accent_title),
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                 )
                 if (wallpaperPixelEffectsAvailable) {
                     Text(
                             text = stringResource(R.string.settings_wallpaper_accent_desc),
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                Row(
-                        modifier = Modifier.fillMaxWidth().selectableGroup(),
-                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-                        verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    AppModeOption(
-                            label = stringResource(R.string.settings_accent_color_none),
-                            icon = MaterialSymbols.Block,
-                            selected = accentColorMode == AccentColorMode.NONE,
-                            onClick = { selectAccentMode(AccentColorMode.NONE) },
-                            iconLabelSpacing = DesignTokens.SpacingSmall,
-                            compactLabel = true,
-                            modifier = Modifier.weight(1f),
-                    )
-                    if (wallpaperPixelEffectsAvailable) {
-                        AppModeOption(
-                                label = stringResource(R.string.settings_accent_color_from_wallpaper),
-                                icon = MaterialSymbols.Image,
-                                selected = accentColorMode == AccentColorMode.FROM_WALLPAPER,
-                                onClick = { selectAccentMode(AccentColorMode.FROM_WALLPAPER) },
-                                iconLabelSpacing = DesignTokens.SpacingSmall,
-                                compactLabel = true,
-                                modifier = Modifier.weight(1f),
-                        )
-                    }
-                    AppModeOption(
-                            label = stringResource(R.string.common_custom),
-                            icon = MaterialSymbols.Palette,
-                            selected = accentColorMode == AccentColorMode.CUSTOM,
-                            onClick = { selectAccentMode(AccentColorMode.CUSTOM) },
-                            iconLabelSpacing = DesignTokens.SpacingSmall,
-                            compactLabel = true,
-                            swatchColor =
-                                    if (accentColorMode == AccentColorMode.CUSTOM) {
-                                        Color(customAccentColorArgb)
-                                    } else {
-                                        null
-                                    },
-                            modifier = Modifier.weight(1f),
-                    )
-                }
+                ConnectedChoiceGroup(
+                        options =
+                                listOfNotNull(
+                                        ChoiceOption(
+                                                AccentColorMode.NONE,
+                                                stringResource(R.string.settings_accent_color_none),
+                                        ),
+                                        if (wallpaperPixelEffectsAvailable) {
+                                            ChoiceOption(
+                                                    AccentColorMode.FROM_WALLPAPER,
+                                                    stringResource(R.string.settings_accent_color_from_wallpaper),
+                                            )
+                                        } else {
+                                            null
+                                        },
+                                        ChoiceOption(
+                                                value = AccentColorMode.CUSTOM,
+                                                label = stringResource(R.string.common_custom),
+                                                swatch =
+                                                        if (accentColorMode == AccentColorMode.CUSTOM) {
+                                                            Color(customAccentColorArgb)
+                                                        } else {
+                                                            null
+                                                        },
+                                        ),
+                                ),
+                        selected = accentColorMode,
+                        onSelect = selectAccentMode,
+                        haptic = false,
+                )
             }
         }
+      }
     }
 
     if (showCustomAccentPicker) {

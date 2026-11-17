@@ -1,5 +1,6 @@
 package com.tk.quicksearch.shared.ui.components
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -131,7 +132,7 @@ private fun DragHandle() {
         modifier = Modifier
             .padding(vertical = 12.dp)
             .size(width = 32.dp, height = 4.dp)
-            .clip(RoundedCornerShape(2.dp))
-            .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f))
+            .clip(AppShapes.full)
+            .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = AppColors.ContentFaintAlpha))
     )
 }

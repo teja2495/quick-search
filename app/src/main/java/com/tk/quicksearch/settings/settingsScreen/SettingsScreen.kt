@@ -1,72 +1,40 @@
 package com.tk.quicksearch.settings.settingsScreen
 
+import com.tk.quicksearch.settings.shared.settingsScrollClip
 import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
-import android.content.ActivityNotFoundException
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenCallbacks as SharedSettingsScreenCallbacks
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenState as SharedSettingsScreenState
 import android.net.Uri
-import android.widget.Toast
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.verticalScroll
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
-import androidx.compose.material3.ButtonDefaults
-import com.tk.quicksearch.settings.shared.SettingsCard
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.app.navigation.PageBackHandler
 import com.tk.quicksearch.search.searchScreen.dialogs.ReleaseNotesDrawer
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.settings.shared.*
-import com.tk.quicksearch.shared.featureFlags.FeatureFlag
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.permissions.LockScreenAccessibilityDisclosureDialog
 import com.tk.quicksearch.shared.ui.components.TipBanner
@@ -74,12 +42,13 @@ import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.AppLanguageManager
-import com.tk.quicksearch.shared.util.AppLanguageOption
-import com.tk.quicksearch.shared.util.FeedbackUtils
 import com.tk.quicksearch.shared.util.isDefaultHomeApp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 /**
  * Retrieves the app version name from the package manager.
@@ -125,7 +94,7 @@ fun SettingsScreen(
     scrollState: androidx.compose.foundation.ScrollState =
         androidx.compose.foundation.rememberScrollState(),
 ) {
-    BackHandler(onBack = callbacks.onBack)
+    PageBackHandler(onBack = callbacks.onBack)
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     FeatureFlags.initialize(context)
@@ -178,8 +147,9 @@ fun SettingsScreen(
                     .settingsContentWidth()
                     .fillMaxHeight()
                     .align(Alignment.CenterHorizontally)
-                    .verticalScroll(scrollState)
-                    .padding(horizontal = DesignTokens.ContentHorizontalPadding),
+                    .padding(horizontal = DesignTokens.ContentHorizontalPadding)
+                    .settingsScrollClip()
+                    .verticalScroll(scrollState),
         ) {
             if (shouldShowSettingsSearchTip) {
                 TipBanner(
@@ -190,38 +160,23 @@ fun SettingsScreen(
             }
 
             val isOverlayModeBlockedByLauncher = context.isDefaultHomeApp()
-            SettingsCard(
-                modifier =
-                    Modifier
-                        .alpha(if (isOverlayModeBlockedByLauncher) 0.72f else 1f)
-                        .fillMaxWidth()
-                        .padding(bottom = DesignTokens.SectionTopPadding),
-            ) {
-                val overlayModeSubtitleRes =
-                    if (isOverlayModeBlockedByLauncher) {
-                        R.string.settings_overlay_mode_desc_launcher_blocked
-                    } else {
-                        R.string.settings_overlay_mode_desc
-                    }
-                Column {
-                    SettingsToggleRow(
-                        title = stringResource(R.string.settings_overlay_mode_title),
-                        subtitleContent = {
-                            Text(
-                                text = stringResource(overlayModeSubtitleRes),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        },
-                        checked = state.overlayModeEnabled,
-                        enabled = !isOverlayModeBlockedByLauncher,
-                        onCheckedChange = callbacks.onToggleOverlayMode,
-                        leadingIcon = MaterialSymbols.Layers,
-                        isFirstItem = true,
-                        isLastItem = true,
-                        showDivider = false,
-                    )
+            val overlayModeSubtitleRes =
+                if (isOverlayModeBlockedByLauncher) {
+                    R.string.settings_overlay_mode_desc_launcher_blocked
+                } else {
+                    R.string.settings_overlay_mode_desc
                 }
+            SegmentedGroup(modifier = Modifier.padding(bottom = DesignTokens.SectionTopPadding)) {
+                SegmentedToggleTile(
+                    title = stringResource(R.string.settings_overlay_mode_title),
+                    description = stringResource(overlayModeSubtitleRes),
+                    icon = MaterialSymbols.Layers,
+                    checked = state.overlayModeEnabled,
+                    enabled = !isOverlayModeBlockedByLauncher,
+                    onCheckedChange = callbacks.onToggleOverlayMode,
+                    index = 0,
+                    count = 1,
+                )
             }
 
             if (state.overlayModeEnabled && !state.hasSeenOverlayAssistantTip) {
@@ -343,120 +298,64 @@ fun SettingsScreen(
                     )
                 }
 
-            SettingsCard(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = DesignTokens.SectionTopPadding),
-            ) {
-                Column {
-                    navigationItems.forEachIndexed { index, item ->
-                        SettingsNavigationRow(
-                            item = item,
-                            contentPadding =
-                                PaddingValues(
-                                    horizontal = DesignTokens.SpacingXXLarge,
-                                    vertical = DesignTokens.SpacingLarge,
-                                ),
-                        )
-
-                        if (index < navigationItems.lastIndex) {
-                            HorizontalDivider(
-                                color = AppColors.SettingsDivider,
-                            )
-                        }
-                    }
+            SegmentedGroup(modifier = Modifier.padding(bottom = DesignTokens.SectionTopPadding)) {
+                navigationItems.forEachIndexed { index, item ->
+                    SettingsSegmentNavigationRow(item = item, index = index, count = navigationItems.size)
                 }
             }
 
-            SettingsCard(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = DesignTokens.SectionTopPadding),
-            ) {
-                Column {
-                    SettingsNavigationRow(
-                        item =
-                            SettingsCardItem(
-                                title = stringResource(R.string.settings_launch_options_title),
-                                description = stringResource(R.string.settings_launch_options_desc),
-                                icon = MaterialSymbols.RocketLaunch,
-                                actionOnPress = {
-                                    onNavigateToDetail(SettingsDetailType.LAUNCH_OPTIONS)
-                                },
-                            ),
-                        contentPadding =
-                            PaddingValues(
-                                horizontal = DesignTokens.SpacingXXLarge,
-                                vertical = DesignTokens.SpacingLarge,
-                            ),
-                    )
-
-                    HorizontalDivider(
-                        color = AppColors.SettingsDivider,
-                    )
-
-                    SettingsNavigationRow(
-                        item =
-                            SettingsCardItem(
-                                title = stringResource(R.string.settings_permissions_title),
-                                description = stringResource(R.string.settings_permissions_desc),
-                                icon = MaterialSymbols.AdminPanelSettings,
-                                actionOnPress = {
-                                    onNavigateToDetail(SettingsDetailType.PERMISSIONS)
-                                },
-                            ),
-                        contentPadding =
-                            PaddingValues(
-                                horizontal = DesignTokens.SpacingXXLarge,
-                                vertical = DesignTokens.SpacingLarge,
-                            ),
-                    )
-
-                    HorizontalDivider(
-                        color = AppColors.SettingsDivider,
-                    )
-
-                    SettingsNavigationRow(
-                        item =
-                            SettingsCardItem(
-                                title = stringResource(R.string.settings_app_language_title),
-                                description =
-                                    stringResource(
-                                        R.string.settings_app_language_desc,
-                                        selectedLanguageLabel,
-                                    ),
-                                icon = MaterialSymbols.Translate,
-                                actionOnPress = {
-                                    showLanguageDialog = true
-                                },
-                            ),
-                        contentPadding =
-                            PaddingValues(
-                                horizontal = DesignTokens.SpacingXXLarge,
-                                vertical = DesignTokens.SpacingLarge,
-                            ),
-                    )
-
-                    HorizontalDivider(
-                        color = AppColors.SettingsDivider,
-                    )
-
-                    BackupRestoreRow(
-                        onImportClick = {
-                            showImportWarningDialog = true
+            val systemItems =
+                listOf(
+                    SettingsCardItem(
+                        title = stringResource(R.string.settings_launch_options_title),
+                        description = stringResource(R.string.settings_launch_options_desc),
+                        icon = MaterialSymbols.RocketLaunch,
+                        actionOnPress = {
+                            onNavigateToDetail(SettingsDetailType.LAUNCH_OPTIONS)
                         },
-                        onExportClick = {
-                            coroutineScope.launch {
-                                // API keys live in encrypted storage; keep keystore work off the main thread.
-                                exportSelectionState =
-                                    withContext(Dispatchers.IO) { loadExportSelectionState(context) }
-                                showExportSelectionDialog = true
-                            }
+                    ),
+                    SettingsCardItem(
+                        title = stringResource(R.string.settings_permissions_title),
+                        description = stringResource(R.string.settings_permissions_desc),
+                        icon = MaterialSymbols.AdminPanelSettings,
+                        actionOnPress = {
+                            onNavigateToDetail(SettingsDetailType.PERMISSIONS)
                         },
-                    )
+                    ),
+                    SettingsCardItem(
+                        title = stringResource(R.string.settings_app_language_title),
+                        description =
+                            stringResource(
+                                R.string.settings_app_language_desc,
+                                selectedLanguageLabel,
+                            ),
+                        icon = MaterialSymbols.Translate,
+                        actionOnPress = {
+                            showLanguageDialog = true
+                        },
+                    ),
+                )
+            // The backup tile closes this group.
+            val systemCount = systemItems.size + 1
+            SegmentedGroup(modifier = Modifier.padding(bottom = DesignTokens.SectionTopPadding)) {
+                systemItems.forEachIndexed { index, item ->
+                    SettingsSegmentNavigationRow(item = item, index = index, count = systemCount)
                 }
+                BackupRestoreRow(
+                    index = systemCount - 1,
+                    count = systemCount,
+                    onImportClick = {
+                        showImportWarningDialog = true
+                    },
+                    onExportClick = {
+                        coroutineScope.launch {
+                            // API keys live in encrypted storage; keep keystore work off the main thread.
+                            exportSelectionState =
+                                withContext(Dispatchers.IO) { loadExportSelectionState(context) }
+                            showExportSelectionDialog = true
+                        }
+                    },
+                )
             }
 
             SettingsMoreOptions(
@@ -466,7 +365,7 @@ fun SettingsScreen(
             )
 
             SettingsVersionDisplay(
-                modifier = Modifier.padding(top = DesignTokens.Spacing40, bottom = 60.dp),
+                modifier = Modifier.padding(top = DesignTokens.SectionTopPadding, bottom = 60.dp),
                 onFeatureFlagsChanged = onSettingsImported,
             )
         }
@@ -506,7 +405,7 @@ fun SettingsScreen(
                 Text(text = stringResource(R.string.settings_backup_import_warning_message))
             },
             confirmButton = {
-                TextButton(
+                AppTextButton(
                     onClick = {
                         showImportWarningDialog = false
                         val externalUri = pendingImportSourceUri
@@ -527,7 +426,7 @@ fun SettingsScreen(
                 }
             },
             dismissButton = {
-                TextButton(
+                AppTextButton(
                     onClick = {
                         showImportWarningDialog = false
                         pendingImportSourceUri = null

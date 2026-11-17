@@ -188,6 +188,7 @@ internal interface SearchViewModelPreferencesApi {
     fun setDeviceThemeEnabled(enabled: Boolean) = preferencesApiDelegate.setDeviceThemeEnabled(enabled)
 
     fun setAmoledThemeEnabled(enabled: Boolean) = preferencesApiDelegate.setAmoledThemeEnabled(enabled)
+    fun setSearchChromeBlurEnabled(enabled: Boolean) = preferencesApiDelegate.setSearchChromeBlurEnabled(enabled)
 
     fun setSearchEngineAliasSuffixEnabled(enabled: Boolean) =
         preferencesApiDelegate.setSearchEngineAliasSuffixEnabled(enabled)
@@ -482,6 +483,7 @@ class SearchViewModelPreferencesApiDelegate internal constructor(
     fun setDeviceThemeEnabled(enabled: Boolean) = preferencesDelegate.setDeviceThemeEnabled(enabled)
 
     fun setAmoledThemeEnabled(enabled: Boolean) = preferencesDelegate.setAmoledThemeEnabled(enabled)
+    fun setSearchChromeBlurEnabled(enabled: Boolean) = preferencesDelegate.setSearchChromeBlurEnabled(enabled)
 
     fun setSearchEngineAliasSuffixEnabled(enabled: Boolean) =
         preferencesDelegate.setSearchEngineAliasSuffixEnabled(enabled)

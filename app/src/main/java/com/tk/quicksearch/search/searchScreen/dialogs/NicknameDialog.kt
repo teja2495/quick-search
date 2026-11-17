@@ -1,18 +1,17 @@
 package com.tk.quicksearch.search.searchScreen.dialogs
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.dialogTextFieldColors
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,10 +26,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.utils.NicknameUtils
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import kotlinx.coroutines.delay
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 @Composable
 fun NicknameDialog(
@@ -84,7 +85,7 @@ fun NicknameDialog(
                     color = MaterialTheme.colorScheme.onSurface,
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
 
                 OutlinedTextField(
                     value = nicknameText,
@@ -92,6 +93,7 @@ fun NicknameDialog(
                     label = { Text(stringResource(R.string.common_nickname)) },
                     modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                     singleLine = true,
+                    shape = AppShapes.large,
                     trailingIcon = {
                         if (nicknameText.text.isNotEmpty()) {
                             IconButton(onClick = { nicknameText = TextFieldValue("") }) {
@@ -109,12 +111,12 @@ fun NicknameDialog(
             }
         },
         confirmButton = {
-            Button(
+            AppTextButton(
                 onClick = { onSave(NicknameUtils.normalizeInput(nicknameText.text)) },
             ) { Text(text = stringResource(R.string.dialog_save)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(text = stringResource(R.string.dialog_cancel))
             }
         },

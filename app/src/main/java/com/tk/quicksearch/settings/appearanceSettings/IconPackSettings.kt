@@ -1,34 +1,33 @@
 package com.tk.quicksearch.settings.appearanceSettings
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.shared.ui.components.AppButtonTone
+import com.tk.quicksearch.shared.ui.components.AppSwitch
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
@@ -39,6 +38,8 @@ import com.tk.quicksearch.search.core.IconPackInfo
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.components.AppButton
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 @Composable
 fun IconPackPickerDialog(
@@ -73,7 +74,7 @@ fun IconPackPickerDialog(
                                 if (availableIconPacks.isEmpty()) {
                                     Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
                                 } else {
-                                    Arrangement.spacedBy(12.dp)
+                                    Arrangement.spacedBy(DesignTokens.SpacingMedium)
                                 },
                 ) {
                     if (availableIconPacks.isEmpty()) {
@@ -87,7 +88,7 @@ fun IconPackPickerDialog(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center,
                         )
-                        Button(
+                        AppButton(
                                 onClick = {
                                             onDismiss()
                                             onDownloadIconPacks()
@@ -102,7 +103,6 @@ fun IconPackPickerDialog(
                                         Modifier.fillMaxWidth()
                                                 .heightIn(max = 320.dp)
                                                 .verticalScroll(rememberScrollState()),
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             IconPackOptionRow(
                                     label =
@@ -114,7 +114,6 @@ fun IconPackPickerDialog(
                                     onClick = { onSelect(null) },
                             )
                             availableIconPacks.forEach { pack ->
-                                HorizontalDivider(color = AppColors.SettingsDivider)
                                 IconPackOptionRow(
                                         label = pack.label,
                                         packageName = pack.packageName,
@@ -133,20 +132,17 @@ fun IconPackPickerDialog(
                 }
             },
             confirmButton = {
-                TextButton(onClick = onDismiss) {
+                AppTextButton(onClick = onDismiss) {
                     Text(stringResource(R.string.dialog_done))
                 }
             },
             dismissButton = {
-                TextButton(
+                AppTextButton(
                         onClick = {
                             onResetAllIcons()
                             onDismiss()
                         },
-                        colors =
-                                ButtonDefaults.textButtonColors(
-                                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                ),
+                        tone = AppButtonTone.Neutral,
                 ) {
                     Text(stringResource(R.string.settings_icon_pack_reset_all_icons))
                 }
@@ -154,6 +150,7 @@ fun IconPackPickerDialog(
     )
 }
 
+/** Whether to mask icons the pack lacks: a row that toggles as a whole, with the expressive switch. */
 @Composable
 private fun IconPackMaskToggleRow(
         enabled: Boolean,
@@ -162,41 +159,24 @@ private fun IconPackMaskToggleRow(
     Row(
             modifier =
                     Modifier.fillMaxWidth()
-                            .clip(DesignTokens.ShapeLarge)
-                            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f))
-                            .clickable { onEnabledChange(!enabled) }
-                            .padding(
-                                    start = DesignTokens.SpacingLarge,
-                                    end = DesignTokens.SpacingSmall,
-                                    top = DesignTokens.SpacingMedium,
-                                    bottom = DesignTokens.SpacingMedium,
-                            ),
+                            .heightIn(min = IconPackRowMinHeight)
+                            .clip(IconPackRowShape)
+                            .toggleable(value = enabled, role = Role.Switch, onValueChange = onEnabledChange)
+                            .padding(horizontal = DesignTokens.SpacingSmall),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
     ) {
         Text(
                 text = stringResource(R.string.settings_icon_pack_mask_unsupported_icons),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f),
         )
-        Switch(
-                checked = enabled,
-                onCheckedChange = onEnabledChange,
-                modifier = Modifier.scale(0.7f),
-                colors =
-                        SwitchDefaults.colors(
-                                uncheckedTrackColor =
-                                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-                                uncheckedBorderColor =
-                                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-                                uncheckedThumbColor =
-                                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-                        ),
-        )
+        AppSwitch(checked = enabled, onCheckedChange = null)
     }
 }
 
+/** One icon pack as a Material 3 single-choice row: radio, pack icon, and name. */
 @Composable
 private fun IconPackOptionRow(
         label: String,
@@ -207,23 +187,31 @@ private fun IconPackOptionRow(
     val iconBitmap = packageName?.let { rememberAppIcon(packageName = it).bitmap }
     Row(
             modifier =
-                    Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 6.dp),
-            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    Modifier.fillMaxWidth()
+                            .heightIn(min = IconPackRowMinHeight)
+                            .clip(IconPackRowShape)
+                            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
+                            .padding(horizontal = DesignTokens.SpacingSmall),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
         RadioButton(
                 selected = selected,
-                onClick = onClick,
-                modifier = Modifier.offset(x = (-4).dp),
+                onClick = null,
+                colors =
+                        RadioButtonDefaults.colors(
+                                selectedColor = AppColors.Accent,
+                                unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        ),
         )
         if (iconBitmap != null) {
-            Image(bitmap = iconBitmap, contentDescription = null, modifier = Modifier.size(24.dp))
+            Image(bitmap = iconBitmap, contentDescription = null, modifier = Modifier.size(IconPackIconSize))
         } else {
             Icon(
                     imageVector = MaterialSymbols.Android,
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(IconPackIconSize),
+                    tint = AppColors.Accent,
             )
         }
         Text(
@@ -236,3 +224,7 @@ private fun IconPackOptionRow(
         )
     }
 }
+
+private val IconPackRowMinHeight = 56.dp
+private val IconPackRowShape = AppShapes.medium
+private val IconPackIconSize = 32.dp

@@ -156,6 +156,7 @@ internal fun SearchViewModel.applySettingsCommand(command: SettingsCommand) {
                 AppSettingsToggleKey.THEMED_ICONS -> setThemedIconsEnabled(command.enabled)
                 AppSettingsToggleKey.DEVICE_THEME -> setDeviceThemeEnabled(command.enabled)
                 AppSettingsToggleKey.AMOLED_THEME -> setAmoledThemeEnabled(command.enabled)
+                AppSettingsToggleKey.SEARCH_CHROME_BLUR -> setSearchChromeBlurEnabled(command.enabled)
                 AppSettingsToggleKey.USE_SYSTEM_FONT -> setUseSystemFont(command.enabled)
                 AppSettingsToggleKey.CURRENCY_CONVERTER -> setCurrencyConverterEnabled(command.enabled)
                 AppSettingsToggleKey.WORLD_CLOCK -> setWorldClockEnabled(command.enabled)
@@ -268,6 +269,7 @@ internal fun SearchUiState.isAppSettingToggleEnabled(toggleKey: AppSettingsToggl
         AppSettingsToggleKey.THEMED_ICONS -> themedIconsEnabled
         AppSettingsToggleKey.DEVICE_THEME -> deviceThemeEnabled
         AppSettingsToggleKey.AMOLED_THEME -> amoledThemeEnabled
+        AppSettingsToggleKey.SEARCH_CHROME_BLUR -> searchChromeBlurEnabled
         AppSettingsToggleKey.USE_SYSTEM_FONT -> useSystemFont
         AppSettingsToggleKey.CURRENCY_CONVERTER -> currencyConverterEnabled
         // AI-backed tools read as off without an API key, matching the Tools settings page.

@@ -1,5 +1,7 @@
 package com.tk.quicksearch.widgetsPanel
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
@@ -15,6 +17,13 @@ import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterExitState
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.Spring
@@ -29,6 +38,8 @@ import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -75,6 +86,7 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
@@ -109,6 +121,7 @@ import com.tk.quicksearch.shared.ui.theme.homeTextColor
 import com.tk.quicksearch.shared.util.ImageAppearanceUtils
 import android.util.SizeF
 import kotlin.math.roundToInt
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 
 @Composable
 internal fun BoxScope.QuickNotePanelGridItem(
@@ -146,6 +159,11 @@ internal fun BoxScope.QuickNotePanelGridItem(
         )
     var totalDragX by remember { mutableFloatStateOf(0f) }
     var totalDragY by remember { mutableFloatStateOf(0f) }
+    val editScale by animateFloatAsState(
+        targetValue = if (isEditing) WIDGET_EDIT_LIFT_SCALE else 1f,
+        animationSpec = AppMotion.defaultSpatial(),
+        label = "quickNoteEditScale",
+    )
 
     Box(
         modifier =
@@ -157,7 +175,11 @@ internal fun BoxScope.QuickNotePanelGridItem(
                         y = with(density) { animatedY.roundToPx() },
                     )
                 }
-                .zIndex(if (isEditing) 1f else 0f),
+                .zIndex(if (isEditing) 1f else 0f)
+                .graphicsLayer {
+                    scaleX = editScale
+                    scaleY = editScale
+                },
     ) {
         CompactQuickNoteWidget(
             modifier = Modifier.fillMaxSize(),
@@ -174,7 +196,7 @@ internal fun BoxScope.QuickNotePanelGridItem(
             },
             onDragEnd = onDragEnd,
         )
-        if (isEditing) {
+        AnimatedWidgetEditOverlay(visible = isEditing) {
             QuickNoteEditOverlay(
                 column = column,
                 row = row,
@@ -189,6 +211,68 @@ internal fun BoxScope.QuickNotePanelGridItem(
         }
     }
 }
+
+/**
+ * Shows a widget's edit overlay (border, handles, action buttons) with a quick fade and a springy
+ * scale-in when the widget enters edit mode, instead of popping in.
+ *
+ * The fade uses [CompositingStrategy.ModulateAlpha]: AnimatedVisibility's own fade draws through an
+ * offscreen buffer the size of the widget, which cuts off the badges and handles that overhang its
+ * edges until the fade finishes.
+ */
+@Composable
+internal fun BoxScope.AnimatedWidgetEditOverlay(
+    visible: Boolean,
+    content: @Composable BoxScope.() -> Unit,
+) {
+    AnimatedVisibility(
+        visible = visible,
+        modifier = Modifier.matchParentSize(),
+        enter = EnterTransition.None,
+        exit = ExitTransition.None,
+    ) {
+        val alpha by
+            transition.animateFloat(
+                transitionSpec = {
+                    if (targetState == EnterExitState.Visible) {
+                        tween(WIDGET_EDIT_OVERLAY_FADE_IN_MS)
+                    } else {
+                        tween(WIDGET_EDIT_OVERLAY_FADE_OUT_MS)
+                    }
+                },
+                label = "widgetEditOverlayAlpha",
+            ) { state -> if (state == EnterExitState.Visible) 1f else 0f }
+        val scale by
+            transition.animateFloat(
+                transitionSpec = {
+                    if (targetState == EnterExitState.Visible) {
+                        AppMotion.fastSpatial()
+                    } else {
+                        snap()
+                    }
+                },
+                label = "widgetEditOverlayScale",
+            ) { state -> if (state == EnterExitState.PreEnter) WIDGET_EDIT_OVERLAY_INITIAL_SCALE else 1f }
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        this.alpha = alpha
+                        scaleX = scale
+                        scaleY = scale
+                        compositingStrategy = CompositingStrategy.ModulateAlpha
+                    },
+            content = content,
+        )
+    }
+}
+
+/** Slight lift applied to the widget being edited. */
+internal const val WIDGET_EDIT_LIFT_SCALE = 1.02f
+private const val WIDGET_EDIT_OVERLAY_INITIAL_SCALE = 0.94f
+private const val WIDGET_EDIT_OVERLAY_FADE_IN_MS = 150
+private const val WIDGET_EDIT_OVERLAY_FADE_OUT_MS = 100
 
 @Composable
 internal fun BoxScope.QuickNoteEditOverlay(
@@ -276,26 +360,40 @@ internal fun HostedWidget(
             )
         }
 
-    AndroidView(
-        factory = { ctx ->
-            appWidgetHost.createView(ctx, appWidgetId, providerInfo).apply {
-                setAppWidget(appWidgetId, providerInfo)
-                layoutParams = ViewGroup.LayoutParams(widthPx, heightPx)
-                appWidgetManager.updateAppWidgetOptions(appWidgetId, displayOptions)
-                // displayOptions already carries OPTION_APPWIDGET_SIZES; this overload keeps the host
-                // view's padding handling unchanged.
-                @Suppress("DEPRECATION")
-                updateAppWidgetSize(displayOptions, widthDp, heightDp, widthDp, heightDp)
-            }
-        },
-        update = { hostView ->
-            hostView.layoutParams = ViewGroup.LayoutParams(widthPx, heightPx)
-            appWidgetManager.updateAppWidgetOptions(appWidgetId, displayOptions)
-            @Suppress("DEPRECATION")
-            hostView.updateAppWidgetSize(displayOptions, widthDp, heightDp, widthDp, heightDp)
-        },
-        modifier = modifier,
-    )
+    // Lay the widget out at its target grid size, not the animated frame size: a per-frame size
+    // re-measures the RemoteViews and re-sends options every frame, making providers like
+    // Calendar rebuild mid-resize. The container clips while its frame animates to the target.
+    // AndroidView.update also runs for unrelated recompositions (focus, editing, content updates).
+    // Re-sending options there asks the provider to rebuild its RemoteViews again.
+    val appliedOptions = remember(appWidgetId, appWidgetHost) { arrayOfNulls<Bundle>(1) }
+    Box(modifier = modifier.clipToBounds()) {
+        AndroidView(
+            factory = { ctx ->
+                // createView already binds the id/provider and loads the system's cached RemoteViews.
+                appWidgetHost.createView(ctx, appWidgetId, providerInfo).apply {
+                    layoutParams = ViewGroup.LayoutParams(widthPx, heightPx)
+                }
+            },
+            update = { hostView ->
+                if (hostView.layoutParams.width != widthPx || hostView.layoutParams.height != heightPx) {
+                    hostView.layoutParams = ViewGroup.LayoutParams(widthPx, heightPx)
+                }
+                if (appliedOptions[0] !== displayOptions) {
+                    val currentOptions = appWidgetManager.getAppWidgetOptions(appWidgetId)
+                    if (!widgetOptionsMatch(currentOptions.asWidgetOptionValues(), displayOptions.asWidgetOptionValues())) {
+                        // The bundle already contains exact bounds and responsive sizes. Calling the
+                        // legacy updateAppWidgetSize afterward clears SIZES and triggers another update.
+                        appWidgetManager.updateAppWidgetOptions(appWidgetId, displayOptions)
+                    }
+                    appliedOptions[0] = displayOptions
+                }
+            },
+            modifier =
+                Modifier
+                    .wrapContentSize(align = Alignment.TopStart, unbounded = true)
+                    .size(width = width, height = height),
+        )
+    }
 }
 
 @Composable
@@ -449,8 +547,8 @@ internal fun BoxScope.WidgetEditBorder() {
                 .matchParentSize()
                 .border(
                     width = WidgetEditBorderWidth,
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
-                    shape = DesignTokens.WidgetPanelCardShape,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = AppColors.ContentSecondaryAlpha),
+                    shape = AppShapes.widgetPanelCard,
                 ),
     )
 }
@@ -590,3 +688,6 @@ internal fun EdgeResizeHandle(
         )
     }
 }
+
+@Suppress("DEPRECATION")
+private fun Bundle.asWidgetOptionValues(): Map<String, Any?> = keySet().associateWith { get(it) }

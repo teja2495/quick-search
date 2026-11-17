@@ -180,6 +180,12 @@ internal class SearchViewModelPreferencesStateAccess(
             state.amoledThemeEnabled = value
         }
 
+    override var searchChromeBlurEnabled: Boolean
+        get() = state.searchChromeBlurEnabled
+        set(value) {
+            state.searchChromeBlurEnabled = value
+        }
+
     override var maskUnsupportedIconPackIcons: Boolean
         get() = state.maskUnsupportedIconPackIcons
         set(value) {

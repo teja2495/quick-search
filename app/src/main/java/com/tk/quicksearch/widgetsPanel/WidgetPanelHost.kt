@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgetsPanel
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetProviderInfo
@@ -21,7 +22,7 @@ import kotlin.math.abs
 
 private const val WIDGET_EDIT_LONG_PRESS_CONFIRMATION_MS = 100L
 
-// Matches DesignTokens.WidgetPanelCardShape used by the Quick Note card.
+// Matches AppShapes.widgetPanelCard used by the Quick Note card.
 private val widgetCornerRadiusDp = DesignTokens.WidgetPanelCornerRadius.value
 
 /**

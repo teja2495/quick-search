@@ -3,22 +3,15 @@ package com.tk.quicksearch.tools.calculator
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import kotlinx.coroutines.delay
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
@@ -41,19 +34,15 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.heightIn
 import com.tk.quicksearch.tools.aiSearch.CalculatorAttributionRow
-import com.tk.quicksearch.tools.aiSearch.compactAttributionCardBottomPadding
-import com.tk.quicksearch.tools.aiSearch.compactAttributionTopPadding
+import com.tk.quicksearch.search.searchScreen.shared.InformationCard
+import com.tk.quicksearch.search.searchScreen.shared.InformationCardCopyAction
+import com.tk.quicksearch.search.searchScreen.shared.InformationCardFooter
+import com.tk.quicksearch.search.searchScreen.shared.InformationCardFooterAction
 
 private val unitResultRegex = Regex("^([+-]?(?:\\d+(?:\\.\\d+)?|\\.\\d+))(?:\\s+(.+))?$")
 private val dateNumberRegex = Regex("(\\d+)")
-private const val COPY_CONFIRMATION_MILLIS = 1500L
-private const val ACTION_CHIP_BACKGROUND_ALPHA = 0.08f
-private val ACTION_CHIP_ICON_SIZE = 14.dp
-private val ACTION_CHIP_VERTICAL_PADDING = 6.dp
-// 48dp chip touch target plus the bottom inset and a small gap above it.
-private val ACTION_ROW_RESERVED_HEIGHT = 56.dp
+private val EMPTY_CARD_MIN_HEIGHT = 175.dp
 
 /** Replaces the search query; provided by the search screen so the calculator can reuse its result. */
 internal val LocalCalculatorResultQueryHandler = staticCompositionLocalOf<((String) -> Unit)?> { null }
@@ -99,22 +88,6 @@ fun CalculatorResult(
     @Suppress("DEPRECATION")
     val clipboardManager = LocalClipboardManager.current
     val copyText = timeResultLabel ?: absoluteDateLabel ?: dateDiffLabel ?: dateLabel ?: result
-    var showCopyConfirmation by remember { mutableStateOf(false) }
-    val onCopy: (() -> Unit)? =
-            if (copyText != null) {
-                {
-                    clipboardManager.setText(AnnotatedString(copyText))
-                    showCopyConfirmation = true
-                }
-            } else {
-                null
-            }
-    LaunchedEffect(showCopyConfirmation) {
-        if (showCopyConfirmation) {
-            delay(COPY_CONFIRMATION_MILLIS)
-            showCopyConfirmation = false
-        }
-    }
     val queryHandler = LocalCalculatorResultQueryHandler.current
     val onUseResult: (() -> Unit)? =
             if (calculatorState.toolType == SearchToolType.CALCULATOR &&
@@ -125,140 +98,52 @@ fun CalculatorResult(
                 null
             }
 
-    Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+    // With a result the card sizes to its content; the fixed minimum only pads empty states.
+    val cardMinHeight = if (copyText != null) 0.dp else EMPTY_CARD_MIN_HEIGHT
+    InformationCard(
+            modifier =
+                    Modifier.fillMaxWidth()
+                            .heightIn(min = cardMinHeight)
+                            .combinedClickable(
+                                    onClick = {},
+                                    onLongClick =
+                                            copyText?.let { text ->
+                                                { clipboardManager.setText(AnnotatedString(text)) }
+                                            },
+                            ),
+            showWallpaperBackground = showWallpaperBackground,
     ) {
-        // With the action chips the card sizes to its content; the fixed minimum only pads empty states.
-        val cardMinHeight = if (onCopy != null) 0.dp else 175.dp
-        androidx.compose.foundation.layout.Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-        ) {
-            com.tk.quicksearch.search.searchScreen.shared.InformationCard(
-                    modifier =
-                            Modifier.fillMaxWidth()
-                                    .heightIn(min = cardMinHeight)
-                                    .combinedClickable(
-                                            onClick = {},
-                                            onLongClick = onCopy,
-                                    )
-                                    // The chips sit closer to the card edge than text content does.
-                                    .padding(
-                                            bottom =
-                                                    compactAttributionCardBottomPadding(
-                                                            if (onCopy != null) DesignTokens.SpacingSmall
-                                                            else DesignTokens.SpacingXSmall,
-                                                    ),
-                                    ),
-                    showWallpaperBackground = showWallpaperBackground,
-            ) {
-                Box(modifier = Modifier.fillMaxWidth().heightIn(min = cardMinHeight)) {
-                    Column(
-                            modifier =
-                                    Modifier.align(Alignment.CenterStart)
-                                            .padding(
-                                                    start = DesignTokens.SpacingLarge,
-                                                    end = DesignTokens.SpacingLarge,
-                                                    top = DesignTokens.SpacingLarge,
-                                                    bottom =
-                                                            if (onCopy != null) ACTION_ROW_RESERVED_HEIGHT
-                                                            else DesignTokens.SpacingLarge,
-                                            ),
-                    ) {
-                        CalculatorResultContent(
-                                calculatorState = calculatorState,
-                                result = result,
-                                dateLabel = dateLabel,
-                                absoluteDateLabel = absoluteDateLabel,
-                                dateDiffLabel = dateDiffLabel,
-                                timeResultLabel = timeResultLabel,
-                                timeContextLabel = timeContextLabel,
-                                timeResultLabel2 = timeResultLabel2,
-                                isTimeAbsoluteResult = isTimeAbsoluteResult,
-                                dayOfWeek = dayOfWeek,
-                                showInvalidExpression = showInvalidExpression,
-                        )
-                    }
-                    if (onCopy != null) {
-                        CalculatorResultActions(
-                                // Chips carry their own 48dp touch-target slack below them.
-                                modifier =
-                                        Modifier.align(Alignment.BottomStart)
-                                                .padding(
-                                                        start = DesignTokens.SpacingLarge,
-                                                        bottom = DesignTokens.SpacingXSmall,
-                                                ),
-                                showCopyConfirmation = showCopyConfirmation,
-                                onCopy = onCopy,
-                                onUseResult = onUseResult,
-                        )
-                    }
-                }
-            }
-        }
-
-        CalculatorAttributionRow(
-                modifier = Modifier.fillMaxWidth().padding(top = compactAttributionTopPadding()),
-                toolType = calculatorState.toolType,
-        )
-    }
-}
-
-@Composable
-private fun CalculatorResultActions(
-        modifier: Modifier,
-        showCopyConfirmation: Boolean,
-        onCopy: () -> Unit,
-        onUseResult: (() -> Unit)?,
-) {
-    Row(
-            modifier = modifier,
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-    ) {
-        CalculatorActionChip(
-                icon = if (showCopyConfirmation) MaterialSymbols.Check else MaterialSymbols.ContentCopy,
-                label = stringResource(R.string.calculator_copy_result),
-                onClick = onCopy,
-        )
-        if (onUseResult != null) {
-            CalculatorActionChip(
-                    icon = MaterialSymbols.NorthWest,
-                    label = stringResource(R.string.calculator_use_result),
-                    onClick = onUseResult,
+        // In the fixed-height empty state, the spacers centre the body above the footer.
+        Spacer(modifier = Modifier.weight(1f))
+        Box(modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge)) {
+            CalculatorResultContent(
+                    calculatorState = calculatorState,
+                    result = result,
+                    dateLabel = dateLabel,
+                    absoluteDateLabel = absoluteDateLabel,
+                    dateDiffLabel = dateDiffLabel,
+                    timeResultLabel = timeResultLabel,
+                    timeContextLabel = timeContextLabel,
+                    timeResultLabel2 = timeResultLabel2,
+                    isTimeAbsoluteResult = isTimeAbsoluteResult,
+                    dayOfWeek = dayOfWeek,
+                    showInvalidExpression = showInvalidExpression,
             )
         }
-    }
-}
-
-@Composable
-private fun CalculatorActionChip(
-        icon: ImageVector,
-        label: String,
-        onClick: () -> Unit,
-) {
-    Surface(
-            onClick = onClick,
-            shape = DesignTokens.ShapeFull,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = ACTION_CHIP_BACKGROUND_ALPHA),
-            contentColor = MaterialTheme.colorScheme.onSurface,
-    ) {
-        Row(
-                modifier =
-                        Modifier.padding(
-                                horizontal = DesignTokens.SpacingMedium,
-                                vertical = ACTION_CHIP_VERTICAL_PADDING,
-                        ),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
-        ) {
-            Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    modifier = Modifier.size(ACTION_CHIP_ICON_SIZE),
-            )
-            Text(text = label, style = MaterialTheme.typography.labelMedium)
-        }
+        Spacer(modifier = Modifier.weight(1f))
+        InformationCardFooter(
+                source = { CalculatorAttributionRow(toolType = calculatorState.toolType) },
+                actions = {
+                    if (copyText != null) InformationCardCopyAction(text = copyText)
+                    if (onUseResult != null) {
+                        InformationCardFooterAction(
+                                icon = MaterialSymbols.NorthWest,
+                                label = stringResource(R.string.calculator_use_result),
+                                onClick = onUseResult,
+                        )
+                    }
+                },
+        )
     }
 }
 
@@ -396,7 +281,7 @@ private fun UnitConverterResultText(result: String) {
     val value = match?.groupValues?.getOrNull(1) ?: result
     val unit = match?.groupValues?.getOrNull(2).orEmpty()
     val valueTextStyle = MaterialTheme.typography.displayMedium
-    val unitTextStyle = MaterialTheme.typography.bodyMedium
+    val unitTextStyle = MaterialTheme.typography.titleMedium
 
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val density = LocalDensity.current
@@ -439,13 +324,13 @@ private fun UnitConverterResultText(result: String) {
         } else {
             Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
             ) {
                 Text(
                         text = value,
                         style = valueTextStyle,
                         color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.alignByBaseline(),
                 )
                 if (unit.isNotBlank()) {
                     Text(
@@ -453,7 +338,7 @@ private fun UnitConverterResultText(result: String) {
                             style = unitTextStyle,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
-                            modifier = Modifier.offset(y = 10.dp),
+                            modifier = Modifier.alignByBaseline(),
                     )
                 }
             }

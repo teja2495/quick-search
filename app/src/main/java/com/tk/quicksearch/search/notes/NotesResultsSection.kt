@@ -1,6 +1,10 @@
 package com.tk.quicksearch.search.notes
 
-import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
+import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
+import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
+import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
+import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
+import com.tk.quicksearch.search.searchScreen.shared.ResultRowDivider
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,7 +21,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -51,10 +54,10 @@ import com.tk.quicksearch.search.searchScreen.components.rememberQueryHighlighte
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
 import com.tk.quicksearch.shared.util.hapticConfirm
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 @Composable
 fun NotesResultsSection(
@@ -97,6 +100,7 @@ fun NotesResultsSection(
         fillExpandedHeight = fillExpandedHeight,
         showWallpaperBackground = showWallpaperBackground,
         overlayCardColor = overlayCardColor,
+        segmented = true,
     ) { contentModifier, cardState ->
         val displayNotes =
             if (cardState.displayAsExpanded) {
@@ -114,9 +118,14 @@ fun NotesResultsSection(
                     },
                 ),
         ) {
+            val segmentCount = displayNotes.size + if (cardState.shouldShowExpandButton) 1 else 0
+            val segmented = segmentedRowsActive()
             Column(
                 modifier =
-                    Modifier.padding(horizontal = DesignTokens.SpacingMedium, vertical = 4.dp)
+                    Modifier.padding(
+                        horizontal = resultRowsContainerPadding(DesignTokens.SpacingMedium),
+                        vertical = resultRowsContainerPadding(4.dp),
+                    )
                         .padding(
                             bottom =
                                 if (cardState.shouldFillExpandedHeight) {
@@ -130,6 +139,7 @@ fun NotesResultsSection(
                     key(note.noteId) {
                         val isPredicted = predictedNoteId != null && predictedNoteId == note.noteId
                         val showPredictedOnRow = isPredicted && !useCardLevelPrediction
+                        ResultSegment(index = index, count = segmentCount) {
                         NoteRow(
                             note = note,
                             isPinned = pinnedNoteIds.contains(note.noteId),
@@ -142,22 +152,16 @@ fun NotesResultsSection(
                             isPredicted = showPredictedOnRow,
                             showPinnedItemMenu = showPinnedItemMenu,
                         )
+                        }
                         if (index < displayNotes.lastIndex && !showPredictedOnRow) {
-                            HorizontalDivider(
-                                modifier = Modifier.compactEdgeToEdge().fillMaxWidth(),
-                                color =
-                                    overlayDividerColor
-                                        ?: if (showWallpaperBackground) {
-                                            AppColors.WallpaperDivider
-                                        } else {
-                                            MaterialTheme.colorScheme.outlineVariant
-                                        },
-                            )
+                            ResultRowDivider(showWallpaperBackground, color = overlayDividerColor)
                         }
                     }
                 }
 
-                if (cardState.shouldShowExpandButton) {
+                if (cardState.shouldShowExpandButton && segmented) {
+                    ExpandButtonSegment(index = segmentCount - 1, count = segmentCount, onClick = onExpandClick, textResId = R.string.action_expand_more_notes)
+                } else if (cardState.shouldShowExpandButton) {
                     ExpandButtonDivider(showWallpaperBackground)
                     ExpandButton(
                         onClick = onExpandClick,
@@ -227,7 +231,7 @@ internal fun NoteRow(
                     )
                     .topPredictedRowContentPadding()
                     .padding(vertical = resultRowVerticalPadding(12.dp)),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             verticalAlignment = Alignment.Top,
         ) {
             Icon(
@@ -238,18 +242,18 @@ internal fun NoteRow(
             )
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
             ) {
                 Text(
                     text = rememberQueryHighlightedText(title, query),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = rememberQueryHighlightedText(subtitle, query),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = if (matchingPreview != null) 5 else 3,
                     overflow = TextOverflow.Ellipsis,
@@ -386,7 +390,7 @@ internal fun NoteRow(
                     Text(text = stringResource(R.string.notes_delete_confirm_message))
                 },
                 confirmButton = {
-                    TextButton(
+                    AppTextButton(
                         onClick = {
                             showDeleteConfirm = false
                             onDelete(note)
@@ -396,7 +400,7 @@ internal fun NoteRow(
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showDeleteConfirm = false }) {
+                    AppTextButton(onClick = { showDeleteConfirm = false }) {
                         Text(text = stringResource(R.string.dialog_cancel))
                     }
                 },

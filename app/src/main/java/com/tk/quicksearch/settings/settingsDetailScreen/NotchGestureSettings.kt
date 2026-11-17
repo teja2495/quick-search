@@ -1,8 +1,5 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -20,14 +17,21 @@ import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.data.preferences.HomeSwipeGestureAction
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.searchScreen.LockScreenAccessibilityService
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsCardItem
-import com.tk.quicksearch.settings.shared.SettingsNavigationRow
-import com.tk.quicksearch.settings.shared.SettingsToggleRow
+import com.tk.quicksearch.settings.shared.SettingsSegmentNavigationRow
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.semantics.Role
+import com.tk.quicksearch.settings.shared.SettingsIconBadge
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
+import com.tk.quicksearch.shared.ui.components.AppSwitch
+import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
+import com.tk.quicksearch.shared.util.hapticToggle
 import com.tk.quicksearch.shared.permissions.LockScreenAccessibilityDisclosureDialog
 import com.tk.quicksearch.shared.permissions.shouldShowAccessibilityDisclosure
-import com.tk.quicksearch.shared.ui.theme.AppColors
-import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
 
 /** Gestures page card for the system-wide notch taps; editing them needs the accessibility service. */
 @Composable
@@ -37,42 +41,37 @@ internal fun NotchGesturesCard(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    SettingsCard(
+    SegmentedGroup(
         modifier = modifier,
         title = stringResource(R.string.settings_notch_gestures_title),
         description = stringResource(R.string.settings_notch_gestures_desc),
     ) {
-        Column {
-            listOf(
-                HomeGesture.NOTCH_SINGLE_TAP,
-                HomeGesture.NOTCH_DOUBLE_TAP,
-                HomeGesture.NOTCH_LONG_PRESS,
-            ).forEachIndexed { index, gesture ->
-                if (index > 0) HorizontalDivider(color = AppColors.SettingsDivider)
-                SettingsNavigationRow(
-                    item =
-                        SettingsCardItem(
-                            title = stringResource(gesture.titleResId),
-                            icon = gesture.icon(),
-                            description =
-                                if (state.isLockScreenAccessibilityEnabled) {
-                                    homeGestureDescription(
-                                        state.homeActions.getValue(gesture),
-                                        state.homeCustomActions[gesture],
-                                        state.homeAliasTargets[gesture],
-                                        searchState,
-                                    )
-                                } else {
-                                    stringResource(R.string.settings_notch_accessibility_needed)
-                                },
-                            actionOnPress = { state.openNotchGesture(gesture, context) },
-                        ),
-                    contentPadding = PaddingValues(
-                        horizontal = DesignTokens.CardHorizontalPadding,
-                        vertical = DesignTokens.CardVerticalPadding,
+        listOf(
+            HomeGesture.NOTCH_SINGLE_TAP,
+            HomeGesture.NOTCH_DOUBLE_TAP,
+            HomeGesture.NOTCH_LONG_PRESS,
+        ).forEachIndexed { index, gesture ->
+            SettingsSegmentNavigationRow(
+                item =
+                    SettingsCardItem(
+                        title = stringResource(gesture.titleResId),
+                        icon = gesture.icon(),
+                        description =
+                            if (state.isLockScreenAccessibilityEnabled) {
+                                homeGestureDescription(
+                                    state.homeActions.getValue(gesture),
+                                    state.homeCustomActions[gesture],
+                                    state.homeAliasTargets[gesture],
+                                    searchState,
+                                )
+                            } else {
+                                stringResource(R.string.settings_notch_accessibility_needed)
+                            },
+                        actionOnPress = { state.openNotchGesture(gesture, context) },
                     ),
-                )
-            }
+                index = index,
+                count = 3,
+            )
         }
     }
 }
@@ -123,29 +122,39 @@ internal fun NotchLaunchOptionRow(modifier: Modifier = Modifier) {
         )
     }
 
-    SettingsToggleRow(
+    val view = LocalView.current
+    SegmentedTileRow(
         title = stringResource(R.string.settings_notch_title),
-        subtitle =
-            stringResource(
-                if (isAccessibilityEnabled) {
-                    R.string.settings_notch_launch_desc
-                } else {
-                    R.string.settings_notch_accessibility_needed
-                },
-            ),
-        checked = isAccessibilityEnabled && opensQuickSearch,
-        enabled = isAccessibilityEnabled,
-        onDisabledClick = requestAccessibility,
-        onCheckedChange = { enabled ->
-            preferences.setNotchSingleTapAction(
-                if (enabled) HomeSwipeGestureAction.OPEN_QUICK_SEARCH else HomeSwipeGestureAction.NONE,
+        description = stringResource(
+            if (isAccessibilityEnabled) R.string.settings_notch_launch_desc
+            else R.string.settings_notch_accessibility_needed,
+        ),
+        modifier = modifier.then(
+            if (isAccessibilityEnabled) {
+                Modifier.toggleable(
+                    value = opensQuickSearch,
+                    role = Role.Switch,
+                    onValueChange = { enabled ->
+                        hapticToggle(view)()
+                        preferences.setNotchSingleTapAction(
+                            if (enabled) HomeSwipeGestureAction.OPEN_QUICK_SEARCH else HomeSwipeGestureAction.NONE,
+                        )
+                        preferences.setNotchSingleTapCustomAction(null)
+                        preferences.setNotchSingleTapAliasTarget(null)
+                        opensQuickSearch = enabled
+                    },
+                )
+            } else {
+                Modifier.clickable(onClick = requestAccessibility)
+            },
+        ),
+        leading = { TonalIconBadge(MaterialSymbols.Swipe) },
+        trailing = {
+            AppSwitch(
+                checked = isAccessibilityEnabled && opensQuickSearch,
+                enabled = isAccessibilityEnabled,
+                onCheckedChange = null,
             )
-            preferences.setNotchSingleTapCustomAction(null)
-            preferences.setNotchSingleTapAliasTarget(null)
-            opensQuickSearch = enabled
         },
-        isLastItem = true,
-        showDivider = false,
-        modifier = modifier,
     )
 }

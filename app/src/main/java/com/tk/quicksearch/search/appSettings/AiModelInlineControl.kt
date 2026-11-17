@@ -1,29 +1,27 @@
 package com.tk.quicksearch.search.appSettings
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.aiProviderDisplayName
+import com.tk.quicksearch.tools.aiSearch.aiProviderDisplayName
 import com.tk.quicksearch.settings.shared.rememberTavilyKeyState
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
@@ -87,8 +85,8 @@ internal fun AiModelInlineContent(state: AiModelInlineState) {
         )
     if (!showThinking && !showWebSearch) return
     Row(
-        modifier = Modifier.padding(top = 10.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(top = DesignTokens.SpacingXSmall),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
         if (showThinking) {
             CompactCheckChip(
@@ -107,7 +105,7 @@ internal fun AiModelInlineContent(state: AiModelInlineState) {
     }
 }
 
-/** Content-width checkbox chip, small enough to sit under a result row's subtitle. */
+/** Material 3 filter chip for an on/off model feature, small enough to sit under a result row's subtitle. */
 @Composable
 private fun CompactCheckChip(
     label: String,
@@ -115,30 +113,34 @@ private fun CompactCheckChip(
     onCheckedChange: (Boolean) -> Unit,
 ) {
     val view = LocalView.current
-    Row(
-        modifier =
-            Modifier
-                .clip(DesignTokens.ShapeFull)
-                .background(AppSettingChipStyle.containerColor(checked))
-                .border(AppSettingChipStyle.border(checked), DesignTokens.ShapeFull).toggleable(value = checked, role = Role.Checkbox) { value ->
-                    hapticToggle(view)()
-                    onCheckedChange(value)
-                }.padding(horizontal = 12.dp, vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        if (checked) {
-            Icon(
-                imageVector = MaterialSymbols.Check,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(16.dp),
-            )
-        }
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = AppSettingChipStyle.labelColor(checked),
-        )
-    }
+    FilterChip(
+        selected = checked,
+        onClick = {
+            hapticToggle(view)()
+            onCheckedChange(!checked)
+        },
+        label = { Text(label) },
+        leadingIcon =
+            if (checked) {
+                {
+                    Icon(
+                        imageVector = MaterialSymbols.Check,
+                        contentDescription = null,
+                        modifier = Modifier.size(FilterChipDefaults.IconSize),
+                    )
+                }
+            } else {
+                null
+            },
+        shape = AppShapes.full,
+        colors =
+            FilterChipDefaults.filterChipColors(
+                containerColor = AppColors.AccentTintTonal,
+                labelColor = MaterialTheme.colorScheme.onSurface,
+                selectedContainerColor = AppColors.Accent,
+                selectedLabelColor = AppColors.OnAccent,
+                selectedLeadingIconColor = AppColors.OnAccent,
+            ),
+        border = null,
+    )
 }

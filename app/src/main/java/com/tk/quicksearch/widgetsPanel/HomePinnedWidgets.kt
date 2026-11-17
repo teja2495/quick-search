@@ -438,14 +438,14 @@ internal fun HomePinnedWidgetItem(
                     providerInfo = providerInfo,
                     appWidgetManager = appWidgetManager,
                     appWidgetHost = appWidgetHost,
-                    width = animatedWidth,
-                    height = animatedHeight,
+                    width = width,
+                    height = height,
                     columnSpan = home.columnSpan,
                     rowSpan = home.rowSpan,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
-            if (isEditing) {
+            AnimatedWidgetEditOverlay(visible = isEditing) {
                 HomeWidgetEditOverlay(
                     column = home.column,
                     columnSpan = home.columnSpan,

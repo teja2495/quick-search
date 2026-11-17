@@ -1,5 +1,12 @@
 package com.tk.quicksearch.onboarding.permissionScreen
 
+import com.tk.quicksearch.shared.ui.components.AppSwitch
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.tk.quicksearch.settings.shared.SettingsIconBadge
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,14 +18,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -30,12 +33,15 @@ import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
+import com.tk.quicksearch.widgetsPanel.widgetPanelEdgeFade
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
 
 data class PermissionCardItem(
     val title: String,
     val description: String,
     val permissionState: PermissionState,
     val isMandatory: Boolean,
+    val icon: ImageVector = MaterialSymbols.Settings,
     val onToggleChange: (Boolean) -> Unit,
     val isNavigationItem: Boolean = false,
     val onNavigationClick: () -> Unit = {},
@@ -50,30 +56,43 @@ fun PermissionCard(
     modifier: Modifier = Modifier,
     itemContentPadding: PaddingValues = PaddingValues(DesignTokens.SpacingXLarge),
     internalScrollEnabled: Boolean = false,
+    segmented: Boolean = false,
+    showItemIcons: Boolean = true,
 ) {
     cardContainer(modifier) {
+        val scrollState = rememberScrollState()
         Column(
             modifier =
                 if (internalScrollEnabled) {
-                    Modifier.verticalScroll(rememberScrollState())
+                    Modifier
+                        .widgetPanelEdgeFade(scrollState)
+                        .verticalScroll(scrollState)
                 } else {
                     Modifier
                 },
+            verticalArrangement = Arrangement.spacedBy(if (segmented) DesignTokens.SegmentedListGap else 0.dp),
         ) {
             items.forEachIndexed { index, item ->
-                PermissionItem(
-                    title = item.title,
-                    description = item.description,
-                    permissionState = item.permissionState,
-                    isMandatory = item.isMandatory,
-                    onToggleChange = item.onToggleChange,
-                    isNavigationItem = item.isNavigationItem,
-                    onNavigationClick = item.onNavigationClick,
-                    onGrantedClick = item.onGrantedClick,
-                    contentPadding = itemContentPadding,
-                )
+                if (segmented) {
+                    SegmentedTile(index = index, count = items.size) {
+                        SegmentedPermissionItem(item, showIcon = showItemIcons)
+                    }
+                } else {
+                    PermissionItem(
+                        title = item.title,
+                        description = item.description,
+                        permissionState = item.permissionState,
+                        isMandatory = item.isMandatory,
+                        onToggleChange = item.onToggleChange,
+                        isNavigationItem = item.isNavigationItem,
+                        onNavigationClick = item.onNavigationClick,
+                        onGrantedClick = item.onGrantedClick,
+                        contentPadding = itemContentPadding,
+                    )
 
-                if (index < items.lastIndex) {
+                }
+
+                if (!segmented && index < items.lastIndex) {
                     HorizontalDivider(
                         modifier = Modifier.padding(horizontal = DesignTokens.SpacingXLarge),
                         thickness = DesignTokens.DividerThickness,
@@ -166,7 +185,7 @@ fun PermissionItem(
                         .size(DesignTokens.IconSize),
             )
         } else {
-            Switch(
+            AppSwitch(
                 checked = false,
                 onCheckedChange = { newValue ->
                     hapticToggle(view)()
@@ -178,9 +197,49 @@ fun PermissionItem(
                         onToggleChange(false)
                     }
                 },
-                modifier = Modifier.scale(0.85f).padding(start = DesignTokens.SpacingLarge),
-                colors = SwitchDefaults.colors(uncheckedTrackColor = Color.Transparent),
+                modifier = Modifier.padding(start = DesignTokens.SpacingLarge),
             )
         }
     }
+}
+
+/** Settings-only presentation; onboarding retains its existing permission layout. */
+@Composable
+private fun SegmentedPermissionItem(
+    item: PermissionCardItem,
+    showIcon: Boolean,
+) {
+    val view = LocalView.current
+    val granted = item.permissionState.isGranted
+    val onClick = when {
+        item.isNavigationItem -> item.onNavigationClick
+        granted -> item.onGrantedClick
+        else -> null
+    }
+    val interactionModifier = if (onClick != null) {
+        Modifier.clickable(onClick = onClick)
+    } else if (!granted) {
+        Modifier.toggleable(value = false, role = Role.Switch) {
+            hapticToggle(view)()
+            item.onToggleChange(true)
+        }
+    } else Modifier
+    SegmentedTileRow(
+        title = item.title,
+        description = item.description,
+        modifier = interactionModifier,
+        leading = if (showIcon) ({ TonalIconBadge(item.icon) }) else null,
+        trailing = {
+            when {
+                item.isNavigationItem -> Icon(MaterialSymbols.ChevronRight, contentDescription = null)
+                granted -> Icon(
+                    MaterialSymbols.CheckCircle,
+                    contentDescription = stringResource(R.string.permissions_granted),
+                    tint = AppColors.Accent,
+                    modifier = Modifier.size(DesignTokens.IconSize),
+                )
+                else -> AppSwitch(checked = false, onCheckedChange = null)
+            }
+        },
+    )
 }

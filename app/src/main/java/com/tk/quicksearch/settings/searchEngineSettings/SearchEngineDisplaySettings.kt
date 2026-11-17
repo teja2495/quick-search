@@ -1,26 +1,24 @@
 package com.tk.quicksearch.settings.searchEngineSettings
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.SettingsCard
-import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.components.ChoiceOption
+import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
 
@@ -37,11 +35,9 @@ fun SearchEngineAppearanceCard(
 ) {
     val view = LocalView.current
 
-    SettingsCard(
-        modifier =
-            modifier
-                .fillMaxWidth(),
-    ) {
+    // One tile: the two display options are a single choice.
+    SegmentedGroup(modifier = modifier) {
+      SegmentedTile(index = 0, count = 1) {
         Column(
             modifier =
                 Modifier
@@ -55,7 +51,7 @@ fun SearchEngineAppearanceCard(
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier =
                     Modifier.padding(
-                        start = DesignTokens.SpacingXXLarge,
+                        start = DesignTokens.SpacingXLarge,
                         top = DesignTokens.SpacingSmall,
                         end = DesignTokens.SpacingLarge,
                     ),
@@ -93,6 +89,7 @@ fun SearchEngineAppearanceCard(
                 )
             }
         }
+      }
     }
 }
 
@@ -110,7 +107,7 @@ private fun SearchEngineDisplayOption(
                 .fillMaxWidth()
                 .clickable(onClick = onClick)
                 .padding(
-                    start = DesignTokens.SpacingXXLarge,
+                    start = DesignTokens.SpacingXLarge,
                     end = DesignTokens.SpacingLarge,
                     top = DesignTokens.SpacingMedium,
                     bottom = DesignTokens.SpacingMedium,
@@ -128,12 +125,12 @@ private fun SearchEngineDisplayOption(
             Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall)) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     text = description,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
@@ -149,46 +146,15 @@ private fun CompactRowCountPills(
     selectedRowCount: Int,
     onSelectRowCount: (Int) -> Unit,
 ) {
-    val oneRowSelected = selectedRowCount != 2
-    val twoRowsSelected = selectedRowCount == 2
-
-    Row(
+    ConnectedChoiceGroup(
+        options =
+            listOf(
+                ChoiceOption(1, stringResource(R.string.settings_compact_rows_one_row)),
+                ChoiceOption(2, stringResource(R.string.settings_compact_rows_two_rows)),
+            ),
+        selected = if (selectedRowCount == 2) 2 else 1,
+        onSelect = onSelectRowCount,
+        fillWidth = false,
         modifier = Modifier.padding(start = DesignTokens.IconSizeXLarge),
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        AssistChip(
-            onClick = { onSelectRowCount(1) },
-            label = { Text(stringResource(R.string.settings_compact_rows_one_row)) },
-            shape = DesignTokens.ShapeFull,
-            border =
-                BorderStroke(
-                    if (oneRowSelected) 1.5.dp else 1.dp,
-                    if (oneRowSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else AppColors.SettingsDivider,
-                ),
-            colors =
-                AssistChipDefaults.assistChipColors(
-                    containerColor = Color.Transparent,
-                    labelColor =
-                        if (oneRowSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                ),
-        )
-
-        AssistChip(
-            onClick = { onSelectRowCount(2) },
-            label = { Text(stringResource(R.string.settings_compact_rows_two_rows)) },
-            shape = DesignTokens.ShapeFull,
-            border =
-                BorderStroke(
-                    if (twoRowsSelected) 1.5.dp else 1.dp,
-                    if (twoRowsSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else AppColors.SettingsDivider,
-                ),
-            colors =
-                AssistChipDefaults.assistChipColors(
-                    containerColor = Color.Transparent,
-                    labelColor =
-                        if (twoRowsSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                ),
-        )
-    }
+    )
 }

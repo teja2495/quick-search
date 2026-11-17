@@ -66,6 +66,7 @@ class StartupPreferencesFacade(
             val themedIconsEnabled: Boolean = true,
             val deviceThemeEnabled: Boolean = false,
             val amoledThemeEnabled: Boolean = false,
+            val searchChromeBlurEnabled: Boolean = false,
             val accentColorMode: AccentColorMode = AccentColorMode.FROM_WALLPAPER,
             val customAccentColorArgb: Int =
                     com.tk.quicksearch.search.data.preferences.UiPreferences.DEFAULT_CUSTOM_ACCENT_COLOR_ARGB,
@@ -472,6 +473,13 @@ class StartupPreferencesFacade(
                         allPrefs[
                                 com.tk.quicksearch.search.data.preferences.UiPreferences
                                         .KEY_AMOLED_THEME_ENABLED,
+                        ] as?
+                                Boolean
+                                ?: false,
+                searchChromeBlurEnabled =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.UiPreferences
+                                        .KEY_SEARCH_CHROME_BLUR_ENABLED,
                         ] as?
                                 Boolean
                                 ?: false,

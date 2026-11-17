@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -26,10 +27,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.graphicsLayer
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import java.util.Locale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
@@ -46,11 +45,12 @@ import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnable
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
 import com.tk.quicksearch.search.searchScreen.shared.LocalCardlessStackSpacing
 import com.tk.quicksearch.search.searchScreen.shared.EdgeDistances
-import com.tk.quicksearch.search.searchScreen.shared.cardlessDividerColor
+import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.search.searchScreen.shared.leftOr
 import com.tk.quicksearch.search.searchScreen.shared.rightOr
 import com.tk.quicksearch.search.searchScreen.shared.trackEdgeDistances
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 
 /**
  * Side inset for a collapsed pinned-section header. Flat cards bleed [DesignTokens.SpacingSmall]
@@ -68,12 +68,13 @@ internal fun collapsedPinnedHeaderInset(): Dp =
 private val CompactHeaderCentering = 1.dp
 
 /**
- * Draws a flat header row's divider across the full screen width (the results column bleeds to the
- * edges, see [compactEdgeBleed]), half the stack spacing below the row like flat card dividers.
+ * Draws a divider across the full screen width (the results column bleeds to the edges, see
+ * [compactEdgeBleed]), half the stack spacing below this node like flat card dividers. Used under
+ * flat header rows and the app grid.
  */
 @Composable
-private fun Modifier.compactHeaderDivider(showWallpaperBackground: Boolean): Modifier {
-    val dividerColor = cardlessDividerColor(showWallpaperBackground)
+internal fun Modifier.compactBottomDivider(showWallpaperBackground: Boolean): Modifier {
+    val dividerColor = SearchResultCardDefaults.dividerColor(showWallpaperBackground)
     val below = LocalCardlessStackSpacing.current / 2
     val edges = remember { EdgeDistances() }
     return trackEdgeDistances(edges).drawWithContent {
@@ -86,14 +87,30 @@ private fun Modifier.compactHeaderDivider(showWallpaperBackground: Boolean): Mod
     }
 }
 
-/** Flat header titles: small, letter-spaced caps. */
+/**
+ * Counterpart of [compactBottomDivider] for the open top end of a bottom-anchored ([isReversed])
+ * flat list: pads this node down by half the stack spacing and draws a full-width divider above its
+ * content, so the topmost item is closed off like the last one in a top-down list.
+ */
 @Composable
-private fun compactHeaderTitleStyle(): TextStyle =
-    MaterialTheme.typography.labelSmall.copy(letterSpacing = 1.2.sp)
+internal fun Modifier.reversedListTopDivider(isReversed: Boolean, showWallpaperBackground: Boolean): Modifier {
+    if (!isReversed || LocalSearchCardLayoutEnabled.current) return this
+    val dividerColor = SearchResultCardDefaults.dividerColor(showWallpaperBackground)
+    val above = LocalCardlessStackSpacing.current / 2
+    val edges = remember { EdgeDistances() }
+    return trackEdgeDistances(edges)
+        .drawWithContent {
+            drawContent()
+            val left = edges.leftOr(0).toFloat()
+            val right = edges.rightOr(0).toFloat()
+            val stroke = DesignTokens.BorderWidth.toPx()
+            drawLine(dividerColor, Offset(-left, stroke / 2), Offset(size.width + right, stroke / 2), strokeWidth = stroke)
+        }.padding(top = above)
+}
 
 /**
  * Title row of a home section: optional leading icon, title, and an expand chevron when
- * [isExpanded] is set. With the card layout off it becomes a flat row with a small caps title and a
+ * [isExpanded] is set. With the card layout off it becomes a flat row with a
  * divider below it, sized like the rows it heads.
  */
 @Composable
@@ -110,7 +127,7 @@ internal fun HomeSectionHeaderRow(
             .fillMaxWidth()
             .then(
                 if (compactHeader) {
-                    Modifier.compactHeaderDivider(showWallpaperBackground)
+                    Modifier.compactBottomDivider(showWallpaperBackground)
                 } else {
                     Modifier
                 },
@@ -118,8 +135,8 @@ internal fun HomeSectionHeaderRow(
             .padding(
                 start = DesignTokens.SpacingLarge,
                 end = DesignTokens.SpacingLarge,
-                top = if (compactHeader) DesignTokens.SpacingXSmall - CompactHeaderCentering else DesignTokens.SpacingXXSmall,
-                bottom = if (compactHeader) DesignTokens.SpacingXSmall + CompactHeaderCentering else DesignTokens.SpacingXXSmall,
+                top = if (compactHeader) DesignTokens.SpacingXSmall - CompactHeaderCentering else DesignTokens.SpacingXSmall,
+                bottom = if (compactHeader) DesignTokens.SpacingXSmall + CompactHeaderCentering else DesignTokens.SpacingXSmall,
             ),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -137,22 +154,34 @@ internal fun HomeSectionHeaderRow(
                 )
             }
             Text(
-                text = if (compactHeader) title.uppercase(Locale.getDefault()) else title,
-                style = if (compactHeader) compactHeaderTitleStyle() else MaterialTheme.typography.titleSmall,
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
                 color = homeTextColor(),
             )
         }
         if (isExpanded != null) {
-            Icon(
-                imageVector = if (isExpanded) MaterialSymbols.ExpandLess else MaterialSymbols.ExpandMore,
-                contentDescription = stringResource(
-                    if (isExpanded) R.string.desc_collapse else R.string.desc_expand,
-                ),
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(DesignTokens.IconSizeSmall),
-            )
+            HomeSectionExpandIndicator(isExpanded = isExpanded)
         }
     }
+}
+
+/**
+ * Expand/collapse affordance of a home section header: one chevron that turns on the expressive default
+ * spatial spring.
+ */
+@Composable
+private fun HomeSectionExpandIndicator(isExpanded: Boolean) {
+    val rotation by animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
+        animationSpec = AppMotion.defaultSpatial(),
+        label = "homeSectionChevron",
+    )
+    Icon(
+        imageVector = MaterialSymbols.ExpandMore,
+        contentDescription = stringResource(if (isExpanded) R.string.desc_collapse else R.string.desc_expand),
+        tint = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.size(DesignTokens.IconSizeSmall).graphicsLayer { rotationZ = rotation },
+    )
 }
 
 /**
@@ -194,7 +223,7 @@ internal fun HomeSectionCollapsibleContent(
 ) {
     // Flat headers draw their divider in this gap, so it matches the spacing between home items.
     val headerGap =
-        if (LocalSearchCardLayoutEnabled.current) DesignTokens.SpacingXXSmall else HomeSectionContentSpacing
+        if (LocalSearchCardLayoutEnabled.current) DesignTokens.SpacingXSmall else HomeSectionContentSpacing
     AnimatedVisibility(
         visible = visible,
         enter = expandVertically(),
@@ -329,5 +358,9 @@ internal fun homePinnedSectionHasItems(
                 sectionContext.shouldRenderBookmarks && sectionContext.bookmarksList.isNotEmpty()
             // Noted items appear only in Top matches.
             SearchSection.NOTED -> false
-            SearchSection.APPS, SearchSection.APP_SETTINGS -> true
+            SearchSection.APP_SETTINGS ->
+                sectionContext.shouldRenderAppSettings &&
+                    !sectionContext.isDeviceSettingsExpanded &&
+                    sectionContext.appSettingsList.isNotEmpty()
+            SearchSection.APPS -> true
         }

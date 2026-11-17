@@ -12,7 +12,6 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,6 +37,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 /** Builds the export dialog's initial selection. Reads encrypted storage, so call off the main thread. */
 internal fun loadExportSelectionState(context: Context): ExportSelectionState {
@@ -255,7 +255,7 @@ fun SettingsBackupFlow(
                 title = { Text(text = stringResource(R.string.settings_backup_import_warning_title)) },
                 text = { Text(text = stringResource(R.string.settings_backup_import_warning_message)) },
                 confirmButton = {
-                    TextButton(
+                    AppTextButton(
                         onClick = {
                             onRequestHandled()
                             importLauncher.launch(arrayOf("*/*"))
@@ -265,7 +265,7 @@ fun SettingsBackupFlow(
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = onRequestHandled) {
+                    AppTextButton(onClick = onRequestHandled) {
                         Text(text = stringResource(R.string.dialog_cancel))
                     }
                 },

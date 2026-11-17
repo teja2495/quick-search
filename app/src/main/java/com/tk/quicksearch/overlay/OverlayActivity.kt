@@ -1,14 +1,17 @@
 package com.tk.quicksearch.overlay
 
+import com.tk.quicksearch.search.searchScreen.setContentWithFrostedCards
 import com.tk.quicksearch.search.apps.appLock.AppLockGate
 import android.content.ComponentCallbacks2
 import android.content.Context
 import android.os.Bundle
 import android.os.Trace
 import android.view.KeyEvent
+import com.tk.quicksearch.app.quickSearchKeyboardShortcuts
+import android.view.KeyboardShortcutGroup
+import android.view.Menu
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.SystemBarStyle
-import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
@@ -171,6 +174,15 @@ class OverlayActivity : FragmentActivity() {
         return super.dispatchKeyEvent(event)
     }
 
+    override fun onProvideKeyboardShortcuts(
+        data: MutableList<KeyboardShortcutGroup>,
+        menu: Menu?,
+        deviceId: Int,
+    ) {
+        super.onProvideKeyboardShortcuts(data, menu, deviceId)
+        data.add(quickSearchKeyboardShortcuts(this, includeOpenSettings = false))
+    }
+
     override fun finish() {
         super.finish()
         @Suppress("DEPRECATION")
@@ -182,7 +194,7 @@ class OverlayActivity : FragmentActivity() {
     }
 
     private fun renderOverlayContent() {
-        setContent {
+        setContentWithFrostedCards {
             val uiState by searchViewModel.uiState.collectAsStateWithLifecycle()
             val context = LocalContext.current
             val isSystemDarkTheme = isSystemInDarkTheme()

@@ -1,36 +1,33 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
-import androidx.compose.foundation.clickable
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsRepository
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
+import com.tk.quicksearch.settings.shared.SettingsIconBadge
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.TonalIconBadge
 
 @Composable
 fun DeviceSettingsSettingsSection(
@@ -60,65 +57,29 @@ fun DeviceSettingsSettingsSection(
         settings.ifEmpty { fallbackSettings }
     }
 
-    if (displayedSettings.isEmpty()) {
-        Text(
-            text = stringResource(R.string.settings_device_settings_empty),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = modifier.padding(vertical = 24.dp),
-        )
-        return
-    }
-
-    SettingsCard(
-        modifier = modifier.fillMaxWidth(),
+    LazyColumn(
+        modifier = modifier.fillMaxWidth().clip(AppShapes.extraLarge),
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            displayedSettings.forEachIndexed { index, setting ->
-                Row(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .clickable { onSettingClick(setting) }
-                            .padding(PaddingValues(horizontal = 24.dp, vertical = 16.dp)),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    Icon(
-                        imageVector = MaterialSymbols.Settings,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(24.dp),
-                    )
-
-                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text(
-                            text = setting.title,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        setting.description?.takeIf { it.isNotBlank() }?.let { description ->
-                            Text(
-                                text = description,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        }
-                    }
-
-                    Icon(
-                        imageVector = MaterialSymbols.ChevronRight,
-                        contentDescription = stringResource(R.string.desc_navigate_forward),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        if (displayedSettings.isEmpty()) {
+            item(key = "empty") {
+                SegmentedTile(index = 0, count = 1) {
+                    Text(
+                        text = stringResource(R.string.settings_device_settings_empty),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(DesignTokens.SpacingLarge),
                     )
                 }
-
-                if (index != displayedSettings.lastIndex) {
-                    HorizontalDivider(color = AppColors.SettingsDivider)
+            }
+        } else {
+            itemsIndexed(displayedSettings, key = { _, setting -> setting.id }) { index, setting ->
+                SegmentedTile(index = index, count = displayedSettings.size, onClick = { onSettingClick(setting) }) {
+                    SegmentedTileRow(
+                        title = setting.title,
+                        description = setting.description?.takeIf { it.isNotBlank() },
+                        leading = { TonalIconBadge(icon = MaterialSymbols.Settings) },
+                    )
                 }
             }
         }

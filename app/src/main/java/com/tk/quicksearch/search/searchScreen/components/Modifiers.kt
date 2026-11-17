@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
@@ -49,7 +51,7 @@ internal fun rememberPredictedSubmitIndicatorAlpha(isPredicted: Boolean): State<
 
 internal fun Modifier.predictedSubmitHighlight(
     isPredicted: Boolean,
-    shape: Shape = DesignTokens.CardShape,
+    shape: Shape = AppShapes.card,
     opaqueCardTopResultBorder: Boolean = false,
 ): Modifier =
     composed {
@@ -102,7 +104,7 @@ internal fun Modifier.predictedSubmitHighlight(
 
 internal fun Modifier.predictedSubmitCardBorder(
     isPredicted: Boolean,
-    shape: Shape = DesignTokens.CardShape,
+    shape: Shape = AppShapes.card,
 ): Modifier =
     composed {
         val indicatorTransition = updateTransition(targetState = isPredicted, label = "predictedSubmitCardBorder")
@@ -130,10 +132,10 @@ internal fun Modifier.predictedSubmitCardBorder(
             when (imageBackgroundIsDark) {
                 true ->
                     lerp(Color.White, primary, DesignTokens.PredictedSubmitHighlightAccentBlend)
-                        .copy(alpha = 0.24f)
+                        .copy(alpha = AppColors.TintStrongAlpha)
                 false ->
                     lerp(Color.Black, primary, DesignTokens.PredictedSubmitHighlightAccentBlend)
-                        .copy(alpha = 0.24f)
+                        .copy(alpha = AppColors.TintStrongAlpha)
                 null -> primary
             }
 

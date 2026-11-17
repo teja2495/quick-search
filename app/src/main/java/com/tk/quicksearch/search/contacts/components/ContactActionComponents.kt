@@ -1,48 +1,32 @@
 package com.tk.quicksearch.search.contacts.components
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.basicMarquee
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.ContactMethodMimeTypes
+import com.tk.quicksearch.shared.ui.components.ItemMenuTile
+import com.tk.quicksearch.shared.ui.components.ItemMenuTileButton
 import com.tk.quicksearch.shared.ui.components.AppVoiceCallIcon
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.util.hapticConfirm
 
 // ============================================================================
 // Contact Action Button (Messaging App Style)
 // ============================================================================
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun ContactActionButton(
     method: ContactMethod,
@@ -81,44 +65,22 @@ internal fun ContactActionButton(
 
             is ContactMethod.ViewInContactsApp -> AppColors.ActionView
         }
-    val view = LocalView.current
-
-    // Matches the tiles in the shared item long-press menu.
-    Column(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .clip(DesignTokens.ShapeSmall)
-                .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f))
-                .combinedClickable(
-                    onClick = onClick,
-                    onLongClick =
-                        onLongClick?.let { onLongClick ->
-                            {
-                                hapticConfirm(view)()
-                                onLongClick()
-                            }
-                        },
-                ).padding(vertical = DesignTokens.SpacingMedium, horizontal = DesignTokens.SpacingXSmall),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        ContactMethodIcon(
-            method = method,
-            usePhoneIconForCallActions = usePhoneIconForCallActions,
-            tintOverride = iconColor,
-            iconSize = 24.dp,
-        )
-        Text(
-            text = getActionButtonLabel(method),
-            style = MaterialTheme.typography.labelMedium,
-            color = AppColors.DialogText,
-            textAlign = TextAlign.Center,
-            maxLines = 1,
-            overflow = TextOverflow.Clip,
-            modifier = Modifier.basicMarquee(),
-        )
-    }
+    ItemMenuTileButton(
+        tile = ItemMenuTile(
+            label = getActionButtonLabel(method),
+            icon = {
+                ContactMethodIcon(
+                    method = method,
+                    usePhoneIconForCallActions = usePhoneIconForCallActions,
+                    tintOverride = iconColor,
+                    iconSize = DesignTokens.IconSize,
+                )
+            },
+            onClick = onClick,
+            onLongClick = onLongClick,
+        ),
+        modifier = modifier,
+    )
 }
 
 @Composable

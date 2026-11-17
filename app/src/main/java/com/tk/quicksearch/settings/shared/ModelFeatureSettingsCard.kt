@@ -1,49 +1,32 @@
 package com.tk.quicksearch.settings.shared
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.tools.aiSearch.AiProviderBadge
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
+import com.tk.quicksearch.tools.aiSearch.aiProviderDisplayName
 import com.tk.quicksearch.tools.aiSearch.ModelPickerDialog
 import com.tk.quicksearch.tools.aiSearch.LlmTextModel
 import com.tk.quicksearch.tools.aiSearch.isWebSearchAvailable
 import com.tk.quicksearch.tools.aiSearch.modelSupportsGrounding
-import com.tk.quicksearch.tools.aiSearch.openCodeLogoRes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.components.SegmentedToggleTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileRow
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
 
 /** Whether a Tavily key is stored, with `Unknown` while the encrypted read is still in flight. */
 enum class TavilyKeyState {
@@ -123,74 +106,51 @@ fun ModelFeatureSettingsCard(
             hasTavilyKey = tavilyKeyState.isPresent,
         )
 
-    SettingsCard(modifier = modifier.fillMaxWidth()) {
-        Column(
-            modifier =
-                Modifier.padding(
-                    horizontal = DesignTokens.CardHorizontalPadding,
-                    vertical = DesignTokens.CardVerticalPadding,
-                ),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            Row(
-                modifier =
-                    Modifier.fillMaxWidth()
-                        .clip(DesignTokens.ShapeMedium)
-                        .clickable(enabled = !isLoadingModels) { showModelDialog = true }
-                        .padding(vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                ProviderIconTile(providerId = selectedProviderId)
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(2.dp),
-                ) {
-                    Text(
-                        text = selectedModelLabel,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Text(
-                        text = aiProviderDisplayName(selectedProviderId),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                Icon(
-                    imageVector = MaterialSymbols.UnfoldMore,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+    val showFeatures = !isLoadingModels && selectedModel != null
+    val showThinking = showFeatures && showThinkingCheckbox
+    val showGrounding = showFeatures && showGroundingCheckbox && webSearchAvailable
+    val tileCount = 1 + (if (showThinking) 1 else 0) + (if (showGrounding) 1 else 0)
 
-            val showGroundingChip = showGroundingCheckbox && webSearchAvailable
-            if (!isLoadingModels && selectedModel != null && (showThinkingCheckbox || showGroundingChip)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    if (showThinkingCheckbox) {
-                        ModelFeatureChip(
-                            label = thinkingLabel,
-                            selected = thinkingEnabled,
-                            onSelectedChange = onThinkingChange,
-                            modifier = Modifier.weight(1f),
-                        )
-                    }
-                    if (showGroundingChip) {
-                        ModelFeatureChip(
-                            label = webSearchLabel,
-                            selected = groundingEnabled,
-                            onSelectedChange = onGroundingChange,
-                            enabled = groundingCheckboxEnabled,
-                            modifier = Modifier.weight(1f),
-                        )
-                    }
-                }
-            }
+    // The model, then each on/off feature as its own switch tile, as Material 3 lists settings.
+    SegmentedGroup(modifier = modifier) {
+        SegmentedTile(
+            index = 0,
+            count = tileCount,
+            onClick = if (isLoadingModels) null else ({ showModelDialog = true }),
+        ) {
+            SegmentedTileRow(
+                title = selectedModelLabel,
+                description = aiProviderDisplayName(selectedProviderId),
+                leading = { AiProviderBadge(providerId = selectedProviderId) },
+                trailing = {
+                    Icon(
+                        imageVector = MaterialSymbols.UnfoldMore,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                },
+            )
+        }
+        if (showThinking) {
+            SegmentedToggleTile(
+                title = thinkingLabel,
+                icon = MaterialSymbols.Lightbulb,
+                checked = thinkingEnabled,
+                onCheckedChange = onThinkingChange,
+                index = 1,
+                count = tileCount,
+            )
+        }
+        if (showGrounding) {
+            SegmentedToggleTile(
+                title = webSearchLabel,
+                icon = MaterialSymbols.Public,
+                checked = groundingEnabled,
+                onCheckedChange = onGroundingChange,
+                index = tileCount - 1,
+                count = tileCount,
+                enabled = groundingCheckboxEnabled,
+            )
         }
     }
 
@@ -215,115 +175,4 @@ fun ModelFeatureSettingsCard(
             configuredProviderIds = configuredProviderIds,
         )
     }
-}
-
-@Composable
-private fun ProviderIconTile(providerId: AiSearchLlmProviderId) {
-    val logoResId =
-        when (providerId) {
-            AiSearchLlmProviderId.GEMINI -> R.drawable.ic_gemini_sparkle_search_engine
-            AiSearchLlmProviderId.OPENAI -> R.drawable.chatgpt
-            AiSearchLlmProviderId.ANTHROPIC -> R.drawable.claude
-            AiSearchLlmProviderId.META -> R.drawable.meta_logo
-            AiSearchLlmProviderId.GROQ -> R.drawable.groq_logo
-            AiSearchLlmProviderId.OPENCODE -> openCodeLogoRes(MaterialTheme.colorScheme.onSurface)
-            else -> null
-        }
-    // The OpenAI mark is single-color white, so tint it to stay visible in light themes.
-    val logoColorFilter =
-        if (providerId == AiSearchLlmProviderId.OPENAI) {
-            ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
-        } else {
-            null
-        }
-    Box(
-        modifier =
-            Modifier.size(40.dp)
-                .clip(DesignTokens.ShapeMedium)
-                .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)),
-        contentAlignment = Alignment.Center,
-    ) {
-        if (logoResId != null) {
-            Image(
-                painter = painterResource(logoResId),
-                contentDescription = null,
-                colorFilter = logoColorFilter,
-                modifier = Modifier.size(22.dp),
-            )
-        } else {
-            Icon(
-                imageVector = MaterialSymbols.AutoAwesome,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(22.dp),
-            )
-        }
-    }
-}
-
-/** Short provider name shown under the selected model. */
-@Composable
-fun aiProviderDisplayName(providerId: AiSearchLlmProviderId): String =
-    stringResource(
-        when (providerId) {
-            AiSearchLlmProviderId.GEMINI -> R.string.search_engine_gemini
-            AiSearchLlmProviderId.OPENAI -> R.string.settings_ai_provider_openai
-            AiSearchLlmProviderId.ANTHROPIC -> R.string.search_engine_claude
-            AiSearchLlmProviderId.GROQ -> R.string.settings_ai_provider_groq
-            AiSearchLlmProviderId.META -> R.string.settings_ai_provider_meta
-            AiSearchLlmProviderId.OPENCODE -> R.string.settings_ai_provider_opencode
-            else -> R.string.common_custom
-        },
-    )
-
-@Composable
-private fun ModelFeatureChip(
-    label: String,
-    selected: Boolean,
-    onSelectedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-) {
-    FilterChip(
-        selected = selected,
-        onClick = { onSelectedChange(!selected) },
-        modifier = modifier,
-        label = {
-            Text(
-                text = label,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-            )
-        },
-        enabled = enabled,
-        shape = DesignTokens.ShapeFull,
-        colors =
-            FilterChipDefaults.filterChipColors(
-                containerColor = Color.Transparent,
-                labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                selectedLabelColor = MaterialTheme.colorScheme.onSurface,
-                selectedLeadingIconColor = MaterialTheme.colorScheme.primary,
-            ),
-        border =
-            FilterChipDefaults.filterChipBorder(
-                enabled = enabled,
-                selected = selected,
-                borderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f),
-                selectedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
-                selectedBorderWidth = 1.dp,
-            ),
-        leadingIcon =
-            if (selected) {
-                {
-                    Icon(
-                        imageVector = MaterialSymbols.Check,
-                        contentDescription = null,
-                        modifier = Modifier.size(FilterChipDefaults.IconSize),
-                    )
-                }
-            } else {
-                null
-            },
-    )
 }

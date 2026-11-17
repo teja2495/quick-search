@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.shared.ui.components.AppButtonSize
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -14,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,7 +31,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
@@ -41,6 +41,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.components.AppButton
 
 /**
  * Full-screen overlay for search engine onboarding. Uses a gradient scrim that fades towards the
@@ -63,7 +64,7 @@ internal fun SearchEngineOnboardingOverlay(
     ) {
         val boxModifier =
                 if (isOverlayPresentation) {
-                    Modifier.fillMaxSize().clip(DesignTokens.ExtraLargeCardShape)
+                    Modifier.fillMaxSize().clip(AppShapes.extraLarge)
                 } else {
                     Modifier.fillMaxSize()
                 }
@@ -273,15 +274,10 @@ private fun OnboardingContent(
                         lineHeight = MaterialTheme.typography.bodySmall.lineHeight * 1.3f,
                 )
                 if (showStartSearchingButton) {
-                    Button(
+                    AppButton(
                         onClick = onDismiss,
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(DesignTokens.OnboardingButtonCornerRadius),
-                        contentPadding =
-                            PaddingValues(
-                                horizontal = DesignTokens.OnboardingButtonHorizontalPadding,
-                                vertical = DesignTokens.OnboardingButtonVerticalPadding,
-                            ),
+                        size = AppButtonSize.Medium,
                     ) {
                         Text(
                             text = stringResource(R.string.setup_action_start),

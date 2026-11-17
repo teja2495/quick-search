@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,16 +21,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.AppNotificationFilters
 import com.tk.quicksearch.search.data.GlanceNotificationsStore
 import com.tk.quicksearch.search.notificationHistory.NotificationHistoryStore
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.rememberAppLabel
-import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedGroup
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawer
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerAppIcon
 import com.tk.quicksearch.shared.ui.components.AppPickerDrawerMessage
@@ -45,7 +44,6 @@ private const val RECENT_MATCH_WINDOW_MS = 7 * DateUtils.DAY_IN_MILLIS
 private const val MAX_RECENT_MATCHES = 5
 
 /** Keeps the card from shrinking to a sliver when nothing matched. */
-private val RECENT_MATCHES_MIN_HEIGHT = 200.dp
 
 /** A notification seen lately, from the shade or from notification history. */
 private class RecentNotification(
@@ -98,55 +96,73 @@ internal fun AppNotificationRecentMatches(filters: AppNotificationFilters) {
             .filter { it.postTime >= since && filters.matches(it.packageName, it.searchText) }
             .take(MAX_RECENT_MATCHES)
     }
-    SettingsCard(modifier = Modifier.fillMaxWidth().heightIn(min = RECENT_MATCHES_MIN_HEIGHT)) {
-        Column(
-            modifier = Modifier.padding(DesignTokens.SpacingLarge),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-        ) {
-            Text(
-                text = stringResource(R.string.app_notifications_recent_matches),
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(vertical = DesignTokens.SpacingXSmall),
-            )
+    Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)) {
+        Text(
+            text = stringResource(R.string.app_notifications_recent_matches),
+            style = MaterialTheme.typography.titleSmall,
+            color = AppColors.Accent,
+            modifier = Modifier.padding(horizontal = DesignTokens.SpacingLarge, vertical = DesignTokens.SpacingXSmall),
+        )
+        SegmentedGroup {
             if (matches.isEmpty()) {
-                Text(
-                    text = stringResource(R.string.app_notifications_no_matches),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            matches.forEach { notification ->
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-                    verticalAlignment = Alignment.Top,
-                ) {
-                    AppPickerDrawerAppIcon(notification.packageName)
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = notification.title ?: rememberAppLabel(notification.packageName),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        notification.text?.let {
-                            Text(
-                                text = it,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        }
-                    }
+                SegmentedTile(index = 0, count = 1) {
                     Text(
-                        text = notificationAge(notification.postTime),
-                        style = MaterialTheme.typography.labelSmall,
+                        text = stringResource(R.string.app_notifications_no_matches),
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(DesignTokens.SpacingLarge),
                     )
                 }
+            }
+            matches.forEachIndexed { index, notification ->
+                SegmentedTile(index = index, count = matches.size) {
+                    RecentMatchRow(notification)
+                }
+            }
+        }
+    }
+}
+
+/** One matched notification: app icon, title with its age, and the first line of its text. */
+@Composable
+private fun RecentMatchRow(notification: RecentNotification) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(DesignTokens.SpacingLarge),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        AppPickerDrawerAppIcon(notification.packageName)
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall / 2),
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = notification.title ?: rememberAppLabel(notification.packageName),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
+                )
+                Text(
+                    text = notificationAge(notification.postTime),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                )
+            }
+            notification.text?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
         }
     }

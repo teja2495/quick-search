@@ -1,5 +1,6 @@
 package com.tk.quicksearch.searchEngines.inline
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -48,7 +49,7 @@ private const val LABELED_ENGINE_MAX_COUNT = 2
 private val LABELED_ICON_SIZE = 18.dp
 private val ICON_ONLY_ICON_SIZE = 22.dp
 private val DIVIDER_HEIGHT = 16.dp
-private val HIGHLIGHT_SHAPE = RoundedCornerShape(18.dp)
+private val HIGHLIGHT_SHAPE = AppShapes.engineHighlight
 private val HIGHLIGHT_HORIZONTAL_INSET = DesignTokens.SpacingXSmall
 private val HIGHLIGHT_EXTRA_HEIGHT = 12.dp
 

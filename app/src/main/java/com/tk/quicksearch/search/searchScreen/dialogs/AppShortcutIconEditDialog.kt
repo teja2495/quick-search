@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.dialogs
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.graphics.BitmapFactory
 import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -17,12 +19,10 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,6 +53,7 @@ import com.tk.quicksearch.searchEngines.loadCustomIconAsBase64
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import java.util.Locale
+import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 private val PreviewIconBoxSize = DesignTokens.AppIconSize + DesignTokens.SpacingMedium
 
@@ -92,7 +93,7 @@ internal fun AppShortcutIconEditDialog(
         onDismissRequest = onDismiss,
         icon = {
             Surface(
-                shape = DesignTokens.ShapeLarge,
+                shape = AppShapes.large,
                 color = MaterialTheme.colorScheme.primaryContainer,
                 tonalElevation = DesignTokens.ElevationLevel0,
                 modifier = Modifier.size(DesignTokens.IconSizeXLarge),
@@ -123,12 +124,12 @@ internal fun AppShortcutIconEditDialog(
                 )
                 Surface(
                     onClick = { pickIconLauncher.launch(arrayOf("image/*")) },
-                    shape = DesignTokens.SearchResultCardShape,
-                    color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.55f),
+                    shape = AppShapes.resultCard,
+                    color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = AppColors.ContentMutedAlpha),
                     border =
                         BorderStroke(
                             DesignTokens.BorderWidth,
-                            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.9f),
+                            MaterialTheme.colorScheme.outlineVariant.copy(alpha = AppColors.ContentNearOpaqueAlpha),
                         ),
                     tonalElevation = DesignTokens.ElevationLevel0,
                     modifier =
@@ -163,7 +164,7 @@ internal fun AppShortcutIconEditDialog(
                     }
                 }
                 if (iconBase64 != null) {
-                    TextButton(
+                    AppTextButton(
                         onClick = { iconBase64 = null },
                         modifier = Modifier.fillMaxWidth(),
                     ) {
@@ -186,12 +187,12 @@ internal fun AppShortcutIconEditDialog(
             }
         },
         confirmButton = {
-            Button(onClick = { onSave(iconBase64) }) {
+            AppTextButton(onClick = { onSave(iconBase64) }) {
                 Text(text = stringResource(R.string.dialog_save))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            AppTextButton(onClick = onDismiss) {
                 Text(text = stringResource(R.string.dialog_cancel))
             }
         },

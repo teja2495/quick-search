@@ -1,12 +1,17 @@
 package com.tk.quicksearch.app.navigation
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.horizontalDrag
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,8 +28,12 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputScope
+import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.addPointerInputChange
 import androidx.compose.ui.platform.LocalDensity
@@ -32,9 +41,11 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 /**
  * Root page switcher for Home / Widgets panel / Settings.
@@ -183,7 +194,7 @@ class PageSwipeController internal constructor(
         val navigationTween: AnimationSpec<Float> =
             tween(NAVIGATION_ANIMATION_DURATION_MS, easing = FastOutSlowInEasing)
         val releaseSpring: AnimationSpec<Float> =
-            spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)
+            AppMotion.settle()
     }
 }
 
@@ -244,6 +255,39 @@ internal fun PageSwipeHost(
     }
 }
 
+/**
+ * Back from a root page to [target], driven by the predictive back gesture: [target] peeks in as
+ * the gesture progresses (the same slide a page swipe uses), then a commit finishes the slide and
+ * runs [onBack]. Without a live [LocalPageSwipeController] (e.g. overlay) it is a plain handler.
+ */
+@Composable
+internal fun PageBackHandler(
+    target: RootDestination = RootDestination.Search,
+    enabled: Boolean = true,
+    onBack: () -> Unit,
+) {
+    val controller = LocalPageSwipeController.current
+    val latestOnBack by rememberUpdatedState(onBack)
+    if (controller == null) {
+        BackHandler(enabled = enabled) { latestOnBack() }
+        return
+    }
+    PredictiveBackHandler(enabled = enabled) { events ->
+        val fingerDirection = if (target.ordinal > controller.settled.ordinal) -1 else 1
+        val live = controller.beginDrag(target, fingerDirection)
+        try {
+            events.collect { event -> if (live) controller.dragTo(event.progress * BACK_PEEK_FRACTION) }
+            if (live) controller.release(commit = true, velocity = 0f) { latestOnBack() } else latestOnBack()
+        } catch (cancelled: CancellationException) {
+            if (live) controller.release(commit = false, velocity = 0f)
+            throw cancelled
+        }
+    }
+}
+
+/** How much of the previous page a full back gesture reveals before the user commits. */
+private const val BACK_PEEK_FRACTION = 0.3f
+
 /** Null when the host cannot reveal pages live (e.g. overlay), so gestures navigate on release. */
 val LocalPageSwipeController = staticCompositionLocalOf<PageSwipeController?> { null }
 
@@ -258,25 +302,29 @@ private const val MIN_FLING_DISTANCE_FRACTION = 0.25f
  * page tracks the finger and release settles by velocity: a flick forward commits, a flick back
  * returns, a slow release commits past [thresholdPx]. [onSwipe] runs once a navigation commits.
  * Otherwise [onSwipe] runs on release once the drag passes [thresholdPx].
+ * [onThresholdCrossed] fires each time a live drag moves past [thresholdPx] or back short of it.
  */
 internal suspend fun PointerInputScope.detectPageSwipe(
     controller: PageSwipeController?,
     thresholdPx: Float,
     targetFor: (direction: Int) -> RootDestination?,
     onSwipe: (direction: Int) -> Unit,
+    onThresholdCrossed: (pastThreshold: Boolean) -> Unit = {},
 ) {
     val velocityTracker = VelocityTracker()
     val flingVelocityPx = FLING_VELOCITY.toPx()
     var total = 0f
     var locked = 0
     var live = false
+    var pastThreshold = false
     try {
-        detectHorizontalDragGestures(
+        detectHorizontalDominantDrag(
             onDragStart = {
                 velocityTracker.resetTracking()
                 total = 0f
                 locked = 0
                 live = false
+                pastThreshold = false
             },
             onHorizontalDrag = { change, amount ->
                 velocityTracker.addPointerInputChange(change)
@@ -288,6 +336,11 @@ internal suspend fun PointerInputScope.detectPageSwipe(
                 }
                 if (live && size.width > 0) {
                     controller?.dragTo(locked * total / size.width)
+                }
+                // Only a page that is tracking the finger can be pulled back short of the threshold.
+                if (live && (locked * total >= thresholdPx) != pastThreshold) {
+                    pastThreshold = !pastThreshold
+                    onThresholdCrossed(pastThreshold)
                 }
             },
             onDragEnd = {
@@ -322,4 +375,40 @@ internal suspend fun PointerInputScope.detectPageSwipe(
         // The pointer input can be cancelled mid-drag (restart/disposal); never leave a page half-revealed.
         if (live) controller?.release(commit = false, velocity = 0f)
     }
+}
+
+/**
+ * Like `detectHorizontalDragGestures`, but a gesture whose touch-slop movement is mostly vertical
+ * is ignored entirely. Otherwise a vertical swipe that drifts sideways would start revealing the
+ * neighbouring page (composing Search and flashing its restored keyboard over the widgets panel).
+ */
+private suspend fun PointerInputScope.detectHorizontalDominantDrag(
+    onDragStart: () -> Unit,
+    onHorizontalDrag: (change: PointerInputChange, dragAmount: Float) -> Unit,
+    onDragEnd: () -> Unit,
+    onDragCancel: () -> Unit,
+) = awaitEachGesture {
+    val down = awaitFirstDown(requireUnconsumed = false)
+    val touchSlop = viewConfiguration.touchSlop
+    var moved = Offset.Zero
+    val start: PointerInputChange
+    while (true) {
+        val change = awaitPointerEvent().changes.firstOrNull { it.id == down.id } ?: return@awaitEachGesture
+        if (change.changedToUpIgnoreConsumed() || change.isConsumed) return@awaitEachGesture
+        moved += change.positionChange()
+        if (moved.getDistance() >= touchSlop) {
+            if (abs(moved.x) <= abs(moved.y)) return@awaitEachGesture
+            start = change
+            break
+        }
+    }
+    onDragStart()
+    start.consume()
+    onHorizontalDrag(start, moved.x)
+    val completed =
+        horizontalDrag(down.id) { change ->
+            onHorizontalDrag(change, change.positionChange().x)
+            change.consume()
+        }
+    if (completed) onDragEnd() else onDragCancel()
 }

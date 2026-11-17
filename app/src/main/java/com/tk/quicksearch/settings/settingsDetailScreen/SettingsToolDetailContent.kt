@@ -59,6 +59,7 @@ import com.tk.quicksearch.settings.shared.SettingsScreenBackground
 import com.tk.quicksearch.settings.shared.settingsRoute.SettingsScreenState
 import com.tk.quicksearch.settings.shared.SettingsManagementSearchBar
 import com.tk.quicksearch.settings.shared.settingsContentWidth
+import com.tk.quicksearch.settings.shared.settingsScrollClip
 import com.tk.quicksearch.settings.appShortcutsSettings.AppShortcutsSettingsSection
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -92,7 +93,8 @@ internal fun ColumnScope.ToolsDetailContent(
                                                 start = DesignTokens.ContentHorizontalPadding,
                                                 end = DesignTokens.ContentHorizontalPadding,
                                                 bottom = DesignTokens.SectionTopPadding,
-                                        ),
+                                        )
+                                        .settingsScrollClip(),
                 ) {
                     ToolsSettingsSection(
                             toolStates =

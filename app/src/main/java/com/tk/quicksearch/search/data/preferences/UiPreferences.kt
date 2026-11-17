@@ -420,6 +420,7 @@ class UiPreferences(context: Context) : UiPreferencesFeatures(context) {
         const val KEY_THEMED_ICONS_ENABLED = "themed_icons_enabled"
         const val KEY_DEVICE_THEME_ENABLED = "device_theme_enabled"
         const val KEY_AMOLED_THEME_ENABLED = "amoled_theme_enabled"
+        const val KEY_SEARCH_CHROME_BLUR_ENABLED = "search_chrome_blur_enabled"
         const val KEY_WALLPAPER_ACCENT_ENABLED = "wallpaper_accent_enabled"
         const val KEY_ACCENT_COLOR_MODE = "accent_color_mode"
         const val KEY_CUSTOM_ACCENT_COLOR_ARGB = "custom_accent_color_argb"
@@ -524,9 +525,9 @@ class UiPreferences(context: Context) : UiPreferencesFeatures(context) {
         const val KEY_RECENT_QUERIES_ENABLED = "recent_queries_enabled"
 
         const val DEFAULT_WALLPAPER_BACKGROUND_ALPHA = 0.5f
-        const val DEFAULT_WALLPAPER_BLUR_RADIUS = 20f
+        const val DEFAULT_WALLPAPER_BLUR_RADIUS = 0f
         const val DEFAULT_WALLPAPER_BACKGROUND_ALPHA_LIGHT = 0.10f
-        const val DEFAULT_WALLPAPER_BLUR_RADIUS_LIGHT = 4.8f
+        const val DEFAULT_WALLPAPER_BLUR_RADIUS_LIGHT = 0f
         const val DEFAULT_APP_THEME = "MONOCHROME"
         const val DEFAULT_OVERLAY_THEME_INTENSITY = 0.5f
         const val DEFAULT_FONT_SCALE_MULTIPLIER = 1f

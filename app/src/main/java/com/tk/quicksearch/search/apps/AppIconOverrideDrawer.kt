@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.apps
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.app.Application
 import android.content.pm.PackageManager
 import android.os.Build
@@ -17,7 +18,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Icon
@@ -50,6 +50,7 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.AppButton
 
 @Composable
 fun AppIconOverrideDrawer(
@@ -124,7 +125,7 @@ fun AppIconOverrideDrawer(
                         singleLine = true,
                         leadingIcon = { Icon(MaterialSymbols.Search, contentDescription = null) },
                         placeholder = { Text(stringResource(R.string.icon_picker_search)) },
-                        shape = RoundedCornerShape(32.dp),
+                        shape = AppShapes.full,
                         colors =
                             TextFieldDefaults.colors(
                                 focusedContainerColor = iconContainerColor,
@@ -186,7 +187,7 @@ fun AppIconOverrideDrawer(
                             color = MaterialTheme.colorScheme.onSurface,
                             textAlign = TextAlign.Center,
                         )
-                        Button(
+                        AppButton(
                             onClick = {
                                 onDismiss()
                                 IntentHelpers.openSearchUrl(
@@ -268,7 +269,7 @@ fun AppIconOverrideDrawer(
             }
 
             if (canResetToDefault) {
-                Button(
+                AppButton(
                     onClick = {
                         UserAppPreferences(context).setAppIconToSystemDefault(packageName)
                         invalidateAppIconCache()

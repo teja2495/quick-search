@@ -1,11 +1,13 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -16,6 +18,8 @@ import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
+import com.tk.quicksearch.search.searchScreen.shared.LocalSegmentedRowsStyle
+import com.tk.quicksearch.search.searchScreen.shared.SegmentedRowsStyle
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 internal data class ExpandableResultsCardState(
@@ -40,6 +44,7 @@ internal fun ExpandableResultsCard(
     fillExpandedHeight: Boolean,
     showWallpaperBackground: Boolean,
     overlayCardColor: Color?,
+    segmented: Boolean = false,
     content: @Composable (Modifier, ExpandableResultsCardState) -> Unit,
 ) {
     val displayAsExpanded = isExpanded || showAllResults
@@ -52,6 +57,8 @@ internal fun ExpandableResultsCard(
             shouldFillExpandedHeight = fillExpandedHeight && isExpanded && hasScrollableContent,
         )
 
+    val cardLayoutEnabled = LocalSearchCardLayoutEnabled.current
+    val cardShape = SearchResultCardDefaults.shape
     val contentModifier =
         if (isExpanded && constrainExpandedHeight) {
             Modifier.fillMaxWidth()
@@ -59,6 +66,9 @@ internal fun ExpandableResultsCard(
                     min = if (state.shouldFillExpandedHeight) expandedCardMaxHeight else 0.dp,
                     max = expandedCardMaxHeight,
                 )
+                // The expanded rows scroll inside this viewport; round it like the card so rows
+                // passing its top and bottom edges follow the card corners instead of a square cut.
+                .then(if (cardLayoutEnabled) Modifier.clip(cardShape) else Modifier)
         } else {
             Modifier.fillMaxWidth()
         }
@@ -69,9 +79,21 @@ internal fun ExpandableResultsCard(
             .animateContentSize()
             .predictedSubmitHighlight(
                 isPredicted = isTopPredicted,
-                shape = SearchResultCardDefaults.shape,
+                shape = cardShape,
                 opaqueCardTopResultBorder = true,
             )
+
+    if (segmented && cardLayoutEnabled) {
+        // Rows draw their own tiles (ResultSegment); the card itself is only the group.
+        val containerColor =
+            SearchResultCardDefaults.containerColor(showWallpaperBackground, overlayCardColor)
+        CompositionLocalProvider(LocalSegmentedRowsStyle provides SegmentedRowsStyle(containerColor)) {
+            Column(modifier = cardModifier) {
+                content(contentModifier, state)
+            }
+        }
+        return
+    }
 
     SearchResultCard(
         modifier = cardModifier,
@@ -89,7 +111,7 @@ internal fun ExpandableResultsCard(
 @Composable
 internal fun topResultIndicator(isTopPredicted: Boolean): Shape =
     if (isTopPredicted) {
-        DesignTokens.ShapeLarge
+        AppShapes.large
     } else {
         SearchResultCardDefaults.shape
     }

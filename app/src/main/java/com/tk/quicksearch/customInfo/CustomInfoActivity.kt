@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -23,7 +22,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -39,6 +37,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.tk.quicksearch.shared.ui.components.PredictiveBackSlideHandler
+import com.tk.quicksearch.shared.ui.components.predictiveBackSlide
+import com.tk.quicksearch.shared.ui.components.rememberPredictiveBackSlideState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -55,19 +56,27 @@ import com.tk.quicksearch.shared.util.AppLanguageManager
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderId
 import com.tk.quicksearch.tools.aiSearch.AiSearchLlmProviderRegistry
 import com.tk.quicksearch.tools.aiSearch.LlmModelCatalogCache
-import com.tk.quicksearch.tools.aiSearch.LlmTextModel
 import com.tk.quicksearch.tools.aiSearch.supportsThinkingControl
 import java.util.Calendar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.components.AppButton
 
 class CustomInfoActivity : ComponentActivity() {
+    /** Set when the back gesture has already slid the page away, so closing adds no animation. */
+    private var closedByBackGesture = false
+
+    /** Every way out (header back, back key, back gesture) ends here. */
     @Suppress("DEPRECATION")
-    private fun finishWithSlide() {
-        finish()
-        overridePendingTransition(R.anim.custom_info_slide_in_left, R.anim.custom_info_slide_out_right)
+    override fun finish() {
+        super.finish()
+        if (closedByBackGesture) {
+            overridePendingTransition(0, 0)
+        } else {
+            overridePendingTransition(R.anim.custom_info_slide_in_left, R.anim.custom_info_slide_out_right)
+        }
     }
 
     override fun attachBaseContext(newBase: Context) {
@@ -81,9 +90,6 @@ class CustomInfoActivity : ComponentActivity() {
             navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
         )
         super.onCreate(savedInstanceState)
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() = finishWithSlide()
-        })
         val preferences = UserAppPreferences(applicationContext)
         val repository = CustomInfoRepository(applicationContext)
         val editingItem = intent.getIntExtra(EXTRA_ITEM_ID, 0).takeIf { it > 0 }?.let(repository::get)
@@ -114,14 +120,19 @@ class CustomInfoActivity : ComponentActivity() {
                 customAccentColorArgb = preferences.getCustomAccentColorArgb(),
                 deviceThemeEnabled = preferences.isDeviceThemeEnabled(),
             ) {
+                val backSlide = rememberPredictiveBackSlideState()
+                PredictiveBackSlideHandler(backSlide) {
+                    closedByBackGesture = true
+                    finish()
+                }
                 SettingsScreenBackground(
                     appTheme = preferences.getAppTheme(),
                     overlayThemeIntensity = preferences.getOverlayThemeIntensity(),
                     deviceThemeEnabled = preferences.isDeviceThemeEnabled(),
                     amoledThemeEnabled = preferences.isAmoledThemeEnabled(),
-                    modifier = Modifier.background(MaterialTheme.colorScheme.background),
+                    modifier = Modifier.predictiveBackSlide(backSlide).background(MaterialTheme.colorScheme.background),
                 ) {
-                    CustomInfoEditor(preferences, initialItem = editingItem, onBack = ::finishWithSlide) { item ->
+                    CustomInfoEditor(preferences, initialItem = editingItem, onBack = ::finish) { item ->
                         val stored = if (editingItem == null) {
                             repository.add(item)
                         } else {
@@ -131,7 +142,7 @@ class CustomInfoActivity : ComponentActivity() {
                         }
                         stored?.let { CustomInfoScheduler.schedule(applicationContext, it) }
                         // Existing items save as they're edited, so only a new item closes the editor.
-                        if (editingItem == null) finishWithSlide()
+                        if (editingItem == null) finish()
                     }
                 }
             }
@@ -352,7 +363,7 @@ private fun CustomInfoEditor(
                 )
             }
             if (initialItem == null) {
-                Button(
+                AppButton(
                     onClick = { onSave(draft) },
                     enabled = canSave,
                     modifier = Modifier.fillMaxWidth().padding(DesignTokens.ContentHorizontalPadding).height(56.dp),

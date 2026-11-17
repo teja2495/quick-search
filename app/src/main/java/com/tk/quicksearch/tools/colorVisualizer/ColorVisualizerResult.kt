@@ -1,5 +1,6 @@
 package com.tk.quicksearch.tools.colorVisualizer
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -47,7 +48,7 @@ fun ColorVisualizerResult(
             modifier =
                 Modifier.fillMaxWidth().padding(
                     start = DesignTokens.SpacingLarge,
-                    top = DesignTokens.SpacingMedium,
+                    top = DesignTokens.SpacingLarge,
                     end = DesignTokens.SpacingLarge,
                     bottom = DesignTokens.SpacingLarge,
                 ),
@@ -68,14 +69,14 @@ fun ColorVisualizerResult(
                     text = calculatorState.result.orEmpty(),
                     modifier = Modifier.fillMaxWidth(),
                     style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center,
                 )
                 androidx.compose.foundation.layout.Box(
                     modifier =
                         Modifier.fillMaxWidth()
                             .height(112.dp)
-                            .background(color, DesignTokens.ShapeLarge),
+                            .background(color, AppShapes.medium),
                 )
             }
         }

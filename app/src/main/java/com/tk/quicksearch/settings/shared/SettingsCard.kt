@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.shared
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.padding
@@ -31,7 +32,7 @@ fun SettingsCard(
                 containerColor = AppColors.getSettingsCardContainerColor(),
             ),
         elevation = AppColors.getCardElevation(false),
-        shape = MaterialTheme.shapes.extraLarge,
+        shape = AppShapes.extraLarge,
     ) {
         if (title != null) {
             SettingsCardHeader(title = title, description = description)

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgets.worldClockWidget
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -95,7 +96,7 @@ fun WorldClockWidgetPreview(
                 .fillMaxWidth()
                 // Explicit height: paint() without intrinsic sizing expands to the max constraints.
                 .height(size.height * scale + PreviewWallpaperPadding * 2)
-                .clip(DesignTokens.ShapeLarge)
+                .clip(AppShapes.large)
                 .then(
                     wallpaperBitmap?.let { bitmap ->
                         Modifier.paint(

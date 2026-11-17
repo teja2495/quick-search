@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchHistory
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
 import androidx.activity.compose.BackHandler
@@ -66,8 +68,6 @@ import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.NoteInfo
 import com.tk.quicksearch.search.notes.NotesTextUtils
 import com.tk.quicksearch.search.data.appShortcutRepository.SearchTargetShortcutMode
-import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
-import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.search.searchScreen.components.CollapseButton
 import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
@@ -76,7 +76,6 @@ import com.tk.quicksearch.searchEngines.SearchTargetQueryShortcutActivity
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 @Composable
@@ -116,8 +115,7 @@ internal fun RecentSearchItemRow(
 ) {
     var showRemoveMenu by remember { mutableStateOf(false) }
     val dividerColor =
-        overlayDividerColor
-            ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant
+        SearchResultCardDefaults.dividerColor(showWallpaperBackground, overlayDividerColor)
 
     Box(modifier = Modifier.fillMaxWidth()) {
         when (item) {
@@ -275,23 +273,27 @@ internal fun RecentSearchItemRow(
     }
 }
 
+@Composable
 private fun contactRowPadding(): PaddingValues =
     PaddingValues(
-        horizontal = DesignTokens.SpacingMedium,
+        horizontal = historyRowHorizontalPadding(DesignTokens.SpacingMedium),
         vertical = DesignTokens.SpacingXSmall,
     )
 
-private fun fileRowPadding(): PaddingValues = PaddingValues(horizontal = DesignTokens.SpacingMedium)
+@Composable
+private fun fileRowPadding(): PaddingValues = PaddingValues(horizontal = historyRowHorizontalPadding(DesignTokens.SpacingMedium))
 
+@Composable
 private fun appShortcutRowPadding(): PaddingValues =
     PaddingValues(
-        horizontal = DesignTokens.SpacingMedium,
+        horizontal = historyRowHorizontalPadding(DesignTokens.SpacingMedium),
         vertical = SHORTCUT_VERTICAL_PADDING.dp,
     )
 
+@Composable
 private fun settingsRowPadding(): PaddingValues =
     PaddingValues(
-        horizontal = SETTINGS_HORIZONTAL_PADDING.dp,
+        horizontal = historyRowHorizontalPadding(SETTINGS_HORIZONTAL_PADDING.dp),
         vertical = SETTINGS_VERTICAL_PADDING.dp,
     )
 
@@ -326,14 +328,14 @@ private fun RecentNoteRow(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .clip(DesignTokens.CardShape)
+                .clip(AppShapes.card)
                 .combinedClickable(
                     interactionSource = interactionSource,
                     indication = null,
                     onClick = onClick,
                     onLongClick = onLongPress,
                 ).padding(
-                    horizontal = DesignTokens.SpacingMedium,
+                    horizontal = historyRowHorizontalPadding(DesignTokens.SpacingMedium),
                     vertical = QUERY_ROW_VERTICAL_PADDING.dp,
                 ),
         verticalAlignment = Alignment.CenterVertically,
@@ -354,14 +356,14 @@ private fun RecentNoteRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 color = textColor,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
                 text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = iconColor,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
