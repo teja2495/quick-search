@@ -9,7 +9,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.ImageBitmap
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -233,16 +237,23 @@ fun SearchTargetIcon(
         }
 
         is SearchTarget.Custom -> {
-            val faviconBitmap =
-                remember(target.custom.faviconBase64) {
-                    val encoded = target.custom.faviconBase64 ?: return@remember null
-                    val bytes = runCatching { Base64.decode(encoded, Base64.DEFAULT) }.getOrNull()
-                        ?: return@remember null
-                    BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
+            val encoded = target.custom.faviconBase64
+            // Key the state as well as the producer so an edited engine never flashes its old icon.
+            val faviconBitmap by androidx.compose.runtime.key(encoded) {
+                produceState<ImageBitmap?>(initialValue = null, key1 = encoded) {
+                    value = withContext(Dispatchers.IO) {
+                        encoded?.let {
+                            runCatching {
+                                val bytes = Base64.decode(it, Base64.DEFAULT)
+                                BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
+                            }.getOrNull()
+                        }
+                    }
                 }
+            }
             if (faviconBitmap != null) {
                 Image(
-                    bitmap = faviconBitmap,
+                    bitmap = requireNotNull(faviconBitmap),
                     contentDescription = target.custom.name,
                     modifier =
                         modifier

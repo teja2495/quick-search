@@ -83,7 +83,6 @@ internal object StartupSurfaceSnapshotJson {
     private const val KEY_CUSTOM_ID = "id"
     private const val KEY_CUSTOM_NAME = "name"
     private const val KEY_CUSTOM_URL_TEMPLATE = "urlTemplate"
-    private const val KEY_CUSTOM_FAVICON_BASE64 = "faviconBase64"
     private const val KEY_CUSTOM_BROWSER_PACKAGE = "browserPackage"
 
     private const val KEY_APP_NAME = "appName"
@@ -259,7 +258,6 @@ internal object StartupSurfaceSnapshotJson {
                     put(KEY_CUSTOM_ID, custom.id)
                     put(KEY_CUSTOM_NAME, custom.name)
                     put(KEY_CUSTOM_URL_TEMPLATE, custom.urlTemplate)
-                    custom.faviconBase64?.let { put(KEY_CUSTOM_FAVICON_BASE64, it) }
                     custom.browserPackage?.let { put(KEY_CUSTOM_BROWSER_PACKAGE, it) }
                 }
             }
@@ -300,8 +298,7 @@ internal object StartupSurfaceSnapshotJson {
                         id = id,
                         name = name,
                         urlTemplate = urlTemplate,
-                        faviconBase64 =
-                            optString(KEY_CUSTOM_FAVICON_BASE64).takeIf { it.isNotBlank() },
+                        faviconBase64 = null,
                         browserPackage =
                             optString(KEY_CUSTOM_BROWSER_PACKAGE).takeIf { it.isNotBlank() },
                     ),

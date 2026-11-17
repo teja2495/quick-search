@@ -137,12 +137,22 @@ private object AppIconCache {
             }
         }
 
+    // Full keys include global and per-package epochs, profile, and rendering options.
+    private val misses = LruCache<String, Boolean>(256)
+
+    fun isKnownMiss(cacheKey: String): Boolean = misses.get(cacheKey) == true
+
+    fun recordMiss(cacheKey: String) {
+        misses.put(cacheKey, true)
+    }
+
     fun get(cacheKey: String): AppIconEntry? = cache.get(cacheKey)
 
     fun put(
         cacheKey: String,
         entry: AppIconEntry,
     ) {
+        misses.remove(cacheKey)
         cache.put(cacheKey, entry)
     }
 
@@ -152,6 +162,7 @@ private object AppIconCache {
 
     fun clear() {
         cache.evictAll()
+        misses.evictAll()
     }
 
     private fun imageBitmapByteCount(bitmap: ImageBitmap): Long =
@@ -279,6 +290,11 @@ fun rememberAppIcon(
                 return@produceState
             }
 
+            if (AppIconCache.isKnownMiss(cacheKey)) {
+                value = AppIconResult(null, false)
+                return@produceState
+            }
+
             val entry =
                 withContext(Dispatchers.IO) {
                     loadAppIconEntry(
@@ -292,12 +308,15 @@ fun rememberAppIcon(
                         forceCircularMask = request.forceCircularMask,
                         includeArchived = request.includeArchived,
                         includeMonochrome = includeMonochrome,
+                        onMissingPackage = { AppIconCache.recordMiss(cacheKey) },
                     )
                 }
 
             if (entry != null) {
                 AppIconCache.put(cacheKey, entry)
                 value = entry.toResult()
+            } else {
+                value = AppIconResult(null, false)
             }
         }
 
@@ -325,6 +344,7 @@ private fun loadAppIconEntry(
     forceCircularMask: Boolean,
     includeArchived: Boolean = true,
     includeMonochrome: Boolean = false,
+    onMissingPackage: (() -> Unit)? = null,
 ): AppIconEntry? {
     val iconPackBitmap =
         iconOverride?.takeUnless { it.useSystemDefault }?.let { override ->
@@ -380,6 +400,7 @@ private fun loadAppIconEntry(
                 forceCircularMask = forceCircularMask,
                 includeArchived = includeArchived,
                 includeMonochrome = includeMonochrome,
+                onMissingPackage = onMissingPackage,
             )
     }
 }
@@ -453,6 +474,7 @@ private fun loadSystemAppIcon(
     forceCircularMask: Boolean,
     includeArchived: Boolean,
     includeMonochrome: Boolean,
+    onMissingPackage: (() -> Unit)? = null,
 ): AppIconEntry? =
     runCatching {
         // Prefer the launcher activity's icon: apps with switchable icons (Telegram, Reddit,
@@ -477,6 +499,10 @@ private fun loadSystemAppIcon(
         } else {
             val bitmap = drawable.toBoundedBitmap(targetSize).asImageBitmap()
             AppIconEntry(bitmap, isLegacy = Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+        }
+    }.onFailure { error ->
+        if (error is android.content.pm.PackageManager.NameNotFoundException) {
+            onMissingPackage?.invoke()
         }
     }.getOrNull()
 

@@ -11,7 +11,12 @@ class StartupSurfaceStore(
     fun loadSnapshot(): StartupSurfaceSnapshot? =
         StartupSurfaceSnapshotJson.fromJson(prefs.getString(KEY_SNAPSHOT_JSON, null))
 
+    @Synchronized
     fun saveSnapshot(snapshot: StartupSurfaceSnapshot) {
+        val previousJson = prefs.getString(KEY_SNAPSHOT_JSON, null)
+        val previousTimestamp = StartupSurfaceSnapshotJson.fromJson(previousJson)?.createdAtMillis
+        val comparable = snapshot.copy(createdAtMillis = previousTimestamp ?: snapshot.createdAtMillis)
+        if (StartupSurfaceSnapshotJson.toJson(comparable) == previousJson) return
         prefs.edit().putString(KEY_SNAPSHOT_JSON, StartupSurfaceSnapshotJson.toJson(snapshot)).apply()
     }
 

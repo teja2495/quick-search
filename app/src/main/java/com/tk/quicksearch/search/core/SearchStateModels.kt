@@ -161,6 +161,7 @@ data class SearchPermissionState(
 data class SearchFeatureState(
         // Search engine targets & configuration
         val searchTargetsOrder: List<SearchTarget> = emptyList(),
+        val defaultBrowserPackage: String? = null,
         val disabledSearchTargetIds: Set<String> = emptySet(),
         val isSearchEngineCompactMode: Boolean = false,
         val searchEngineCompactRowCount: Int = 1,

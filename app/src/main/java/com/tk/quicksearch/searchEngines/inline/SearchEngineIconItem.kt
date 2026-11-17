@@ -31,7 +31,7 @@ import com.tk.quicksearch.shared.util.hapticConfirm
  * Composable for displaying a single search engine icon item.
  *
  * @param engine The search engine to display
- * @param query The search query to pass when clicked
+ * @param query Supplies the current search query when clicked
  * @param iconSize The size of the icon
  * @param itemWidth The width of the clickable area
  * @param onSearchEngineClick Callback when the engine is clicked
@@ -39,7 +39,7 @@ import com.tk.quicksearch.shared.util.hapticConfirm
 @Composable
 fun SearchEngineIconItem(
     engine: SearchTarget,
-    query: String,
+    query: () -> String,
     iconSize: Dp,
     itemWidth: Dp,
     onSearchEngineClick: (String, SearchTarget) -> Unit,
@@ -105,7 +105,7 @@ fun SearchEngineIconItem(
                 .combinedClickable(
                     onClick = {
                         hapticConfirm(view)()
-                        onSearchEngineClick(query, engine)
+                        onSearchEngineClick(query(), engine)
                     },
                     onLongClick = onSearchEngineLongPress,
                 ),

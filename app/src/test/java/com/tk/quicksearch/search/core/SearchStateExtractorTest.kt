@@ -65,6 +65,7 @@ class SearchStateExtractorTest {
         val features =
             SearchFeatureState(
                 searchTargetsOrder = listOf(SearchTarget.Engine(SearchEngine.KAGI)),
+                defaultBrowserPackage = "com.browser",
                 disabledSearchTargetIds = setOf(SearchEngine.GOOGLE.name),
                 searchEngineCompactRowCount = 2,
                 amazonDomain = "amazon.co.uk",

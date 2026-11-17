@@ -42,6 +42,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -472,6 +473,8 @@ private fun ScrollableEngineIcons(
     appIconShape: AppIconShape,
     iconPackPackage: String?,
 ) {
+    val currentQuery = rememberUpdatedState(query)
+    val queryProvider = remember { { currentQuery.value } }
     enabledEngines.singleOrNull()?.let { engine ->
         SingleEngineLabel(
             engine = engine,
@@ -483,7 +486,7 @@ private fun ScrollableEngineIcons(
     }
     if (enabledEngines.size <= EVENLY_SPACED_ENGINE_MAX_COUNT) {
         EvenlySpacedEngineRow(
-            query = query,
+            query = queryProvider,
             enabledEngines = enabledEngines,
             onSearchEngineClick = onSearchEngineClick,
             onSearchEngineLongPress = onSearchEngineLongPress,
@@ -539,7 +542,7 @@ private fun ScrollableEngineIcons(
                         column.top?.let { topEngine ->
                             SearchEngineIconItem(
                                 engine = topEngine,
-                                query = query,
+                                query = queryProvider,
                                 iconSize = SearchEngineSectionConstants.ICON_SIZE,
                                 itemWidth = itemWidthDp,
                                 onSearchEngineClick = onSearchEngineClick,
@@ -554,7 +557,7 @@ private fun ScrollableEngineIcons(
                         column.bottom?.let { bottomEngine ->
                             SearchEngineIconItem(
                                 engine = bottomEngine,
-                                query = query,
+                                query = queryProvider,
                                 iconSize = SearchEngineSectionConstants.ICON_SIZE,
                                 itemWidth = itemWidthDp,
                                 onSearchEngineClick = onSearchEngineClick,
@@ -585,7 +588,7 @@ private fun ScrollableEngineIcons(
                 ) { engine ->
                     SearchEngineIconItem(
                         engine = engine,
-                        query = query,
+                        query = queryProvider,
                         iconSize = SearchEngineSectionConstants.ICON_SIZE,
                         itemWidth = itemWidthDp,
                         onSearchEngineClick = onSearchEngineClick,

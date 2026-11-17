@@ -25,6 +25,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.tk.quicksearch.app.PinnedShortcutRequests
@@ -264,6 +265,8 @@ internal class SearchStartupLifecycleDelegate(
             scope.launch(Dispatchers.IO) { aliasHandler.refreshTaskerInstalled() }
         }
 
+        scope.launch(Dispatchers.IO) { searchEngineManager.refreshDefaultBrowserPackage() }
+
         val now = System.currentTimeMillis()
         if (startupComplete && now - stateAccess.lastBrowserTargetRefreshMs >= BROWSER_REFRESH_INTERVAL_MS) {
             stateAccess.lastBrowserTargetRefreshMs = now
@@ -469,6 +472,10 @@ internal class SearchStartupLifecycleDelegate(
             if (hasCachedApps) {
                 publishCurrentStartupAppSuggestions()
             }
+            val hasApiKey = userPreferences.hasAnyLlmApiKey()
+            val enginesInitialization = async(Dispatchers.IO) {
+                searchEngineManager.ensureInitialized(hasApiKey)
+            }
             if (reconcileAppsInBackground) {
                 packageRefreshJob?.cancel()
                 packageRefreshJob = launch(startupDispatcher) { loadApps() }
@@ -490,8 +497,7 @@ internal class SearchStartupLifecycleDelegate(
             val packageNames = appSearchManager.cachedApps.map { it.packageName }.toSet()
             val messagingInfo = getMessagingAppInfo(packageNames)
 
-            val hasApiKey = userPreferences.hasAnyLlmApiKey()
-            searchEngineManager.ensureInitialized(hasApiKey)
+            enginesInitialization.await()
             aiSearchHandler.initializeForStartup(hasApiKey)
             val shortcutsState = aliasHandler.getInitialState()
             val customTools = normalizeCustomToolModels(userPreferences.getCustomTools())
@@ -501,6 +507,7 @@ internal class SearchStartupLifecycleDelegate(
             updateFeatureState { state ->
                 state.copy(
                     searchTargetsOrder = searchEngineManager.searchTargetsOrder,
+                    defaultBrowserPackage = searchEngineManager.defaultBrowserPackage,
                     disabledSearchTargetIds = searchEngineManager.disabledSearchTargetIds,
                     shortcutsEnabled = shortcutsState.shortcutsEnabled,
                     shortcutCodes = shortcutsState.shortcutCodes,

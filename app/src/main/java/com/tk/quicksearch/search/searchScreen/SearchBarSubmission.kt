@@ -9,7 +9,6 @@ import com.tk.quicksearch.search.core.SectionRenderParams
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.isLikelyWebUrl
 import com.tk.quicksearch.searchEngines.defaultBrowserTarget
-import com.tk.quicksearch.searchEngines.resolveDefaultBrowserPackage
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 
@@ -130,7 +129,7 @@ internal fun submitSearchBarAction(
                     }
 
                     if (isUrlQuery && trimmedQuery.isNotBlank()) {
-                        val defaultBrowserPackage = resolveDefaultBrowserPackage(context)
+                        val defaultBrowserPackage = state.defaultBrowserPackage
                         val browserTarget =
                                 defaultBrowserTarget(state.searchTargetsOrder, defaultBrowserPackage)
                         if (browserTarget != null) {

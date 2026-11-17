@@ -62,6 +62,7 @@ internal fun SearchStartupLifecycleDelegate.onSettingsImported(
                 updateFeatureState { state ->
                     state.copy(
                         searchTargetsOrder = searchEngineManager.searchTargetsOrder,
+                        defaultBrowserPackage = searchEngineManager.defaultBrowserPackage,
                         disabledSearchTargetIds = searchEngineManager.disabledSearchTargetIds,
                         isSearchEngineCompactMode = searchEngineManager.isSearchEngineCompactMode,
                         searchEngineCompactRowCount = searchEngineManager.searchEngineCompactRowCount,

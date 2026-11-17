@@ -59,7 +59,7 @@ private val HIGHLIGHT_EXTRA_HEIGHT = 12.dp
  */
 @Composable
 internal fun EvenlySpacedEngineRow(
-    query: String,
+    query: () -> String,
     enabledEngines: List<SearchTarget>,
     onSearchEngineClick: (String, SearchTarget) -> Unit,
     onSearchEngineLongPress: () -> Unit,
@@ -133,7 +133,7 @@ internal fun SingleEngineLabel(
 @Composable
 private fun EvenlySpacedEngineItem(
     engine: SearchTarget,
-    query: String,
+    query: () -> String,
     onSearchEngineClick: (String, SearchTarget) -> Unit,
     onSearchEngineLongPress: () -> Unit,
     isPredicted: Boolean,
@@ -179,7 +179,7 @@ private fun EvenlySpacedEngineItem(
                 ).combinedClickable(
                     onClick = {
                         hapticConfirm(view)()
-                        onSearchEngineClick(query, engine)
+                        onSearchEngineClick(query(), engine)
                     },
                     onLongClick = onSearchEngineLongPress,
                 ),

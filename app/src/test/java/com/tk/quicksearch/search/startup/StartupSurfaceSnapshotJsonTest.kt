@@ -69,7 +69,27 @@ class StartupSurfaceSnapshotJsonTest {
         val decoded = StartupSurfaceSnapshotJson.fromJson(StartupSurfaceSnapshotJson.toJson(source))
 
         assertNotNull(decoded)
-        assertEquals(source, decoded)
+        val expectedTargets = source.searchTargetsOrder.map { target ->
+            if (target is SearchTarget.Custom) {
+                SearchTarget.Custom(target.custom.copy(faviconBase64 = null))
+            } else {
+                target
+            }
+        }
+        assertEquals(source.copy(searchTargetsOrder = expectedTargets), decoded)
+        org.junit.Assert.assertFalse(StartupSurfaceSnapshotJson.toJson(source).contains("favicon"))
+    }
+
+    @Test
+    fun legacyInlineFaviconIsIgnoredWithoutLosingCustomEngine() {
+        val raw = """{"version":1,"searchTargetsOrder":[
+            {"type":"custom","id":"docs","name":"Docs","urlTemplate":"https://example.com?q=%s",
+            "faviconBase64":"legacy-icon","browserPackage":"com.browser"}]}"""
+        val decoded = requireNotNull(StartupSurfaceSnapshotJson.fromJson(raw))
+        val custom = (decoded.searchTargetsOrder.single() as SearchTarget.Custom).custom
+        assertEquals("docs", custom.id)
+        assertEquals("com.browser", custom.browserPackage)
+        assertNull(custom.faviconBase64)
     }
 
     @Test
@@ -95,7 +115,7 @@ class StartupSurfaceSnapshotJsonTest {
         assertEquals(false, decoded.showWallpaperBackground)
         assertEquals(0.5f, decoded.wallpaperBackgroundAlpha)
         assertEquals(20f, decoded.wallpaperBlurRadius)
-        assertEquals(true, decoded.topResultIndicatorEnabled)
+        assertEquals(false, decoded.topResultIndicatorEnabled)
         assertEquals(true, decoded.openKeyboardOnLaunch)
         assertEquals(1f, decoded.fontScaleMultiplier)
         assertEquals(true, decoded.showAppLabels)

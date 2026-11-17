@@ -239,6 +239,7 @@ data class SearchUiState(
         val isStartupCoreSurfaceReady: Boolean = false,
         // Search engine configuration
         val searchTargetsOrder: List<SearchTarget> = emptyList(),
+        val defaultBrowserPackage: String? = null,
         val disabledSearchTargetIds: Set<String> = emptySet(),
         val isSearchEngineCompactMode: Boolean = false,
         val searchEngineCompactRowCount: Int = 1,
@@ -544,6 +545,7 @@ fun SearchUiState(
                 isGoogleMeetInstalled = permissions.isGoogleMeetInstalled,
                 // ── SearchFeatureState ────────────────────────────────────────────
                 searchTargetsOrder = features.searchTargetsOrder,
+                defaultBrowserPackage = features.defaultBrowserPackage,
                 disabledSearchTargetIds = features.disabledSearchTargetIds,
                 isSearchEngineCompactMode = features.isSearchEngineCompactMode,
                 searchEngineCompactRowCount = features.searchEngineCompactRowCount,

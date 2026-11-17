@@ -229,12 +229,12 @@ fun ContentLayout(
             state.searchTargetsOrder,
             state.disabledSearchTargetIds,
             isUrlQuery,
-            context,
+            state.defaultBrowserPackage,
         ) {
             if (isUrlQuery) {
                 orderedBrowserTargets(
                     targets = state.searchTargetsOrder,
-                    defaultBrowserPackage = resolveDefaultBrowserPackage(context),
+                    defaultBrowserPackage = state.defaultBrowserPackage,
                 )
             } else {
                 state.searchTargetsOrder.filter { it.getId() !in state.disabledSearchTargetIds }

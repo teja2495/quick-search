@@ -105,6 +105,7 @@ internal object SearchStateExtractor {
     fun extractFeatureState(s: SearchUiState) =
         SearchFeatureState(
             searchTargetsOrder = s.searchTargetsOrder,
+            defaultBrowserPackage = s.defaultBrowserPackage,
             disabledSearchTargetIds = s.disabledSearchTargetIds,
             isSearchEngineCompactMode = s.isSearchEngineCompactMode,
             searchEngineCompactRowCount = s.searchEngineCompactRowCount,

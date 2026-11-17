@@ -2,12 +2,10 @@ package com.tk.quicksearch.search.searchScreen
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
 import com.tk.quicksearch.search.core.AiSearchStatus
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.isLikelyWebUrl
-import com.tk.quicksearch.searchEngines.resolveDefaultBrowserPackage
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
 import com.tk.quicksearch.search.other.OtherSearchItemRegistry
 
@@ -38,7 +36,6 @@ internal fun rememberPredictedSearchTargetState(
     showDictionary: Boolean,
     showWeather: Boolean,
 ): PredictedSearchTargetState {
-    val context = LocalContext.current
     val shouldShowPredictedHighlight = isImeVisible
     val isNonSubmittableSuggestionsTab = appsParams.isNonSubmittableSuggestionsTab()
     val firstSubmittableGridApp =
@@ -65,6 +62,7 @@ internal fun rememberPredictedSearchTargetState(
                     renderingState.appSettingResults,
                     state.detectedShortcutTarget,
                     state.searchTargetsOrder,
+                    state.defaultBrowserPackage,
                     enabledTargets,
             ) {
                 if (!shouldShowPredictedHighlight) {
@@ -72,7 +70,7 @@ internal fun rememberPredictedSearchTargetState(
                 } else {
                     val defaultBrowserPackage =
                             if (isLikelyWebUrl(state.query.trim())) {
-                                resolveDefaultBrowserPackage(context)
+                                state.defaultBrowserPackage
                             } else {
                                 null
                             }
