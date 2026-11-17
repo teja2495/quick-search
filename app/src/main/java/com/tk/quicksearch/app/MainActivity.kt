@@ -164,6 +164,13 @@ open class MainActivity : FragmentActivity() {
             UiSurfaceMemoryManager.onSurfaceCreated()
             isActivityInstanceTracked = true
             window.setBackgroundDrawable(null)
+            if (this !is HomeActivity) {
+                // Clearing the background leaves the window OPAQUE, and the renderer fixes its
+                // opacity when the window attaches, ignoring later setFormat calls. Choose
+                // TRANSLUCENT now so frames are cleared once the System wallpaper backdrop makes
+                // the root transparent; otherwise moving content leaves ghosted copies behind.
+                window.setFormat(PixelFormat.TRANSLUCENT)
+            }
 
             // Disable activity opening animation for instant appearance
             @Suppress("DEPRECATION")
@@ -487,9 +494,8 @@ open class MainActivity : FragmentActivity() {
         val isShowingWallpaper = window.attributes.flags and flag != 0
         if (showWallpaper == isShowingWallpaper) return
         if (showWallpaper) {
-            // onCreate clears the window background, which leaves the surface OPAQUE. An opaque
-            // surface is never cleared between frames, so the transparent root would keep stale
-            // frames on screen (ghosted copies of moving content) and hide the wallpaper.
+            // onCreate already picked TRANSLUCENT so the renderer clears frames; keep the
+            // surface format in step in case anything reset it.
             window.setFormat(PixelFormat.TRANSLUCENT)
             window.addFlags(flag)
         } else {
