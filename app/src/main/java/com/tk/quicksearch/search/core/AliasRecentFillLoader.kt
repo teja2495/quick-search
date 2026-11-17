@@ -4,6 +4,7 @@ import com.tk.quicksearch.search.appSettings.AppSettingsSearchHandler
 import com.tk.quicksearch.search.appShortcuts.AppShortcutSearchHandler
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
+import com.tk.quicksearch.search.data.withQueryCancellation
 import com.tk.quicksearch.search.data.NotesRepository
 import com.tk.quicksearch.search.data.appShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
@@ -69,7 +70,7 @@ internal class AliasRecentFillLoader(
         }
     }
 
-    private fun fileFill(
+    private suspend fun fileFill(
         shownKeys: Set<String>,
         limit: Int,
         fileTypeFilter: FileType?,
@@ -86,12 +87,14 @@ internal class AliasRecentFillLoader(
                 showFolders = config.showFolders,
                 showSystemFiles = config.showSystemFiles,
             )
-        return fileRepository
-            .getRecentFiles(limit) { file ->
+        // A filtered scan can walk most of MediaStore; stop it when a newer refresh replaces it.
+        return withQueryCancellation { cancellationSignal ->
+            fileRepository.getRecentFiles(limit, cancellationSignal) { file ->
                 file.uri.toString() !in hiddenUris &&
                     matchesFileType(file, fileTypeFilter) &&
                     isVisible(file)
-            }.map { RecentSearchItem.File(RecentSearchEntry.File(it.uri.toString()), it) }
+            }
+        }.map { RecentSearchItem.File(RecentSearchEntry.File(it.uri.toString()), it) }
     }
 
     private suspend fun settingFill(

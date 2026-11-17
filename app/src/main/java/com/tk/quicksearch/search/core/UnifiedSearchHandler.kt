@@ -20,9 +20,9 @@ import com.tk.quicksearch.search.files.FileExtensionQuery
 import com.tk.quicksearch.search.appSettings.APP_SETTINGS_RESULT_LIMIT
 import com.tk.quicksearch.search.appShortcuts.APP_SHORTCUT_RESULT_LIMIT
 import com.tk.quicksearch.search.deviceSettings.DEVICE_SETTINGS_RESULT_LIMIT
+import com.tk.quicksearch.search.files.FileSearchAlgorithm
 import com.tk.quicksearch.search.files.FileSearchHandler
 import com.tk.quicksearch.search.files.FileSearchPolicy
-import com.tk.quicksearch.search.files.FolderPathPatternMatcher
 import com.tk.quicksearch.search.fuzzy.FuzzySearchPolicyResolver
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
@@ -34,9 +34,7 @@ import com.tk.quicksearch.search.data.ReminderRepository
 import com.tk.quicksearch.search.data.bookmarks.BookmarkRepository
 import com.tk.quicksearch.search.models.BookmarkInfo
 import com.tk.quicksearch.search.utils.DefaultSearchMatcher
-import com.tk.quicksearch.search.utils.FileClassifier
 import com.tk.quicksearch.search.utils.FuzzyMatcher
-import com.tk.quicksearch.search.utils.FileUtils
 import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 import com.tk.quicksearch.search.utils.SearchQueryContext
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
@@ -667,42 +665,21 @@ class UnifiedSearchHandler(
                         nicknameMatchingUris.filterNot { displayNameMatchedUris.contains(it) }
                 val limitedNicknameOnlyUris =
                         nicknameOnlyUris.take(nicknameOnlyFileUriHydrationLimit)
-                val pathMatcher =
-                        FolderPathPatternMatcher.createPathMatcher(
-                                whitelistPatterns = folderWhitelistPatterns,
-                                blacklistPatterns = folderBlacklistPatterns,
+                // The same visibility rules as display-name matches.
+                val isVisible =
+                        FileSearchAlgorithm.visibilityPredicate(
+                                enabledFileTypes = enabledFileTypes,
+                                excludedFileUris = excludedFileUris,
+                                excludedFileExtensions = excludedFileExtensions,
+                                folderWhitelistPatterns = folderWhitelistPatterns,
+                                folderBlacklistPatterns = folderBlacklistPatterns,
+                                showFolders = showFolders,
+                                showSystemFiles = showSystemFiles,
                         )
 
                 return if (limitedNicknameOnlyUris.isNotEmpty()) {
                         fileRepository.getFilesByUris(limitedNicknameOnlyUris.toSet()).filter { file ->
-                                val isSystem =
-                                        FileClassifier.isSystemFolder(file) ||
-                                                FileClassifier.isSystemFile(file)
-                                if (file.isDirectory) {
-                                        if (!showFolders) return@filter false
-                                } else {
-                                        val fileType =
-                                                com.tk.quicksearch.search.models.FileTypeUtils
-                                                        .getFileType(file)
-                                        if (fileType !in enabledFileTypes) return@filter false
-                                        if (fileType == FileType.OTHER && isSystem) return@filter false
-                                }
-
-                                if (isSystem && !showSystemFiles) return@filter false
-
-                                val isHidden = file.displayName.startsWith(".")
-                                if (isHidden && !showSystemFiles) return@filter false
-
-                                if (!showSystemFiles && FileClassifier.isInTrashFolder(file))
-                                        return@filter false
-
-                                !excludedFileUris.contains(file.uri.toString()) &&
-                                        pathMatcher(file) &&
-                                        !FileUtils.isFileExtensionExcluded(
-                                                file.displayName,
-                                                excludedFileExtensions,
-                                        ) &&
-                                        file.displayName.contains(".")
+                                isVisible(file) && file.displayName.contains(".")
                         }
                 } else {
                         emptyList()

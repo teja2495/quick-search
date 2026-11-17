@@ -138,8 +138,14 @@ class OverlayActivity : FragmentActivity() {
         LockScreenAccessibilityService.onAppSurfacePaused()
     }
 
+    override fun onStart() {
+        super.onStart()
+        UiSurfaceMemoryManager.onSurfaceStarted()
+    }
+
     override fun onStop() {
         super.onStop()
+        UiSurfaceMemoryManager.onSurfaceStopped()
         searchViewModel.handleOnStop()
     }
 

@@ -148,14 +148,8 @@ class FileSearchHandler(
                 exactCandidates
             }
 
-        // Pre-fetch nicknames for all candidates so search() can apply them during
-        // ranking — avoids a second pass in UnifiedSearchHandler for display-name matches.
-        val fileNicknames =
-            allFiles.associate { file ->
-                file.uri.toString() to userPreferences.getFileNickname(file.uri.toString())
-            }
-
         if (includeFuzzyCandidates) {
+            // Ranking (including nicknames) happens once in UnifiedResultRanker.
             return FileSearchAlgorithm.filterCandidates(
                 fullList = allFiles,
                 query = whitespaceNormalized,
@@ -169,6 +163,13 @@ class FileSearchHandler(
                 extensionQuery = extensionQuery,
             )
         }
+
+        // Pre-fetch nicknames for all candidates so search() can apply them during
+        // ranking — avoids a second pass in UnifiedSearchHandler for display-name matches.
+        val fileNicknames =
+            allFiles.associate { file ->
+                file.uri.toString() to userPreferences.getFileNickname(file.uri.toString())
+            }
 
         return FileSearchAlgorithm.search(
             fullList = allFiles,

@@ -22,6 +22,7 @@ object UiSurfaceMemoryManager {
     private const val IDLE_CLEAR_DELAY_MILLIS = 60_000L
 
     private val activeSurfaceCount = AtomicInteger(0)
+    private val visibleSurfaceCount = AtomicInteger(0)
     private val mainHandler by lazy { Handler(Looper.getMainLooper()) }
     private val clearWhenIdle =
         Runnable {
@@ -45,6 +46,19 @@ object UiSurfaceMemoryManager {
             mainHandler.removeCallbacks(clearWhenIdle)
             mainHandler.postDelayed(clearWhenIdle, IDLE_CLEAR_DELAY_MILLIS)
         }
+    }
+
+    /** Paired with [onSurfaceStopped]; background work such as index rebuilds runs only while visible. */
+    fun onSurfaceStarted() {
+        if (visibleSurfaceCount.incrementAndGet() == 1) {
+            FileNameIndex.onSurfaceVisibilityChanged(visible = true)
+        }
+    }
+
+    fun onSurfaceStopped() {
+        val remainingCount =
+            visibleSurfaceCount.updateAndGet { count -> (count - 1).coerceAtLeast(0) }
+        if (remainingCount == 0) FileNameIndex.onSurfaceVisibilityChanged(visible = false)
     }
 
     fun clearMemoryCaches(releaseSearchIndexes: Boolean = true) {

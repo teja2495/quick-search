@@ -22,8 +22,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
 class FileSearchRepository(
-    private val context: Context,
+    context: Context,
 ) {
+    // Application context: the name index keeps this resolver in a static, so an Activity's would leak.
+    private val context: Context = context.applicationContext
     private val contentResolver = context.contentResolver
     private val recentFilesByUri = buildRecentFilesCache()
     private val isLowRamDevice by lazy {
@@ -46,6 +48,10 @@ class FileSearchRepository(
         private const val SQL_SPACE = "' '"
         private const val SQL_UNDERSCORE = "'_'"
         private const val RECENT_FILES_SNAPSHOT_MAX_AGE_MILLIS = 30_000L
+
+        // The largest fuzzy candidate limit for files. Fetched once so the limit growing with the
+        // query length (175, 275, 500) reuses one snapshot instead of rescanning MediaStore.
+        private const val RECENT_FILES_SNAPSHOT_FETCH_SIZE = 500
 
         private val FILE_PROJECTION = buildFileProjection()
 
@@ -87,6 +93,8 @@ class FileSearchRepository(
         if (!hasPermission()) return false
         synchronized(this) { recentFilesSnapshotAtMillis = 0L }
         FileNameIndex.invalidate()
+        // Start the rebuild now so the next search waits less; it still never sees the old index.
+        if (!isLowRamDevice) FileNameIndex.prewarm(contentResolver, getFilesContentUri())
 
         val projection = arrayOf(MediaStore.Files.FileColumns._ID)
         return runCatching {
@@ -297,6 +305,13 @@ class FileSearchRepository(
         limit: Int,
         cancellationSignal: CancellationSignal? = null,
         include: (DeviceFile) -> Boolean = { true },
+    ): List<DeviceFile> = queryRecentFiles(limit, cancellationSignal, cacheResults = true, include)
+
+    private fun queryRecentFiles(
+        limit: Int,
+        cancellationSignal: CancellationSignal?,
+        cacheResults: Boolean,
+        include: (DeviceFile) -> Boolean = { true },
     ): List<DeviceFile> {
         if (limit <= 0 || !hasPermission()) return emptyList()
 
@@ -321,7 +336,7 @@ class FileSearchRepository(
                 }
             }
 
-        cacheFiles(results)
+        if (cacheResults) cacheFiles(results)
         return results
     }
 
@@ -339,13 +354,16 @@ class FileSearchRepository(
                 return recentFilesSnapshot.take(limit)
             }
         }
-        val files = getRecentFiles(limit, cancellationSignal)
+        val fetchLimit = if (isLowRamDevice) limit else maxOf(limit, RECENT_FILES_SNAPSHOT_FETCH_SIZE)
+        // Fuzzy candidates are mostly discarded, so keep them out of the URI cache that pinned and
+        // recent files rely on.
+        val files = queryRecentFiles(fetchLimit, cancellationSignal, cacheResults = false)
         synchronized(this) {
             recentFilesSnapshot = files
-            recentFilesSnapshotLimit = limit
+            recentFilesSnapshotLimit = fetchLimit
             recentFilesSnapshotAtMillis = now
         }
-        return files
+        return files.take(limit)
     }
 
     /** Matches names in memory, then reads full rows for matched ids; null falls back to a provider scan. */

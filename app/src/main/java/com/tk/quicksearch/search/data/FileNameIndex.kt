@@ -93,7 +93,19 @@ internal class FileNameIndex(
                 Thread(runnable, "FileNameIndexLoad").apply { isDaemon = true }
             }
         }
-        private val rebuildAfterChange = Runnable { startLoadIfNeeded(rebuildStale = true) }
+        // MediaStore changes only rebuild while a UI surface is visible; a hidden process just
+        // marks the index stale and the next search (or the surface returning) rebuilds it.
+        private val rebuildAfterChange =
+            Runnable {
+                val requestedBySearch = isRebuildRequestedBySearch.getAndSet(false)
+                if (isSurfaceVisible || requestedBySearch) startLoadIfNeeded(rebuildStale = true)
+            }
+        private val isRebuildRequestedBySearch = AtomicBoolean(false)
+
+        // Holds no snapshot, so a pending timer never keeps an old index reachable.
+        private val releaseExpired = Runnable { releaseIfExpired() }
+
+        @Volatile private var isSurfaceVisible = false
 
         @Volatile private var cached: Cached? = null
         @Volatile private var loadContentResolver: ContentResolver? = null
@@ -119,7 +131,10 @@ internal class FileNameIndex(
             loadFilesUri = filesUri
             ensureObserverRegistered(contentResolver, filesUri)
             usableOrNull()?.let { snapshot ->
-                if (snapshot.changeGeneration != changeGeneration.get()) scheduleRebuildAfterChange()
+                if (snapshot.changeGeneration != changeGeneration.get()) {
+                    isRebuildRequestedBySearch.set(true)
+                    scheduleRebuildAfterChange()
+                }
                 return snapshot.index
             }
             val load = startLoadIfNeeded(rebuildStale = false) ?: return usableOrNull()?.index
@@ -142,7 +157,32 @@ internal class FileNameIndex(
 
         /** Drops the index; the next file search rebuilds it. */
         fun release() {
+            mainHandler.removeCallbacks(releaseExpired)
             cached = null
+        }
+
+        /**
+         * Starts loading the index in the background without waiting, e.g. right after an explicit
+         * reload so the next search finds it ready sooner.
+         */
+        fun prewarm(
+            contentResolver: ContentResolver,
+            filesUri: Uri,
+        ) {
+            loadContentResolver = contentResolver
+            loadFilesUri = filesUri
+            if (usableOrNull() == null) startLoadIfNeeded(rebuildStale = false)
+        }
+
+        /**
+         * Called when the first UI surface becomes visible or the last one is hidden. Becoming visible
+         * refreshes an index that went stale while hidden, so it is current before the user types.
+         */
+        fun onSurfaceVisibilityChanged(visible: Boolean) {
+            isSurfaceVisible = visible
+            if (!visible) return
+            val snapshot = usableOrNull() ?: return
+            if (snapshot.changeGeneration != changeGeneration.get()) startLoadIfNeeded(rebuildStale = true)
         }
 
         /**
@@ -174,18 +214,27 @@ internal class FileNameIndex(
             SnapshotLoadLog.loaded("File name index", index?.ids?.size ?: -1, startElapsed)
             val snapshot = Cached(index, SystemClock.elapsedRealtime(), generation)
             cached = snapshot
-            scheduleRelease(snapshot)
+            scheduleRelease()
             // Changes during the scan may be missing from it; pick them up with one more rebuild.
             if (generation != changeGeneration.get()) scheduleRebuildAfterChange()
             return index
         }
 
-        // A stale index is never reused, so free it when it expires rather than at the next search.
-        private fun scheduleRelease(snapshot: Cached) {
-            mainHandler.postDelayed(
-                { if (cached === snapshot) cached = null },
-                MAX_AGE_MILLIS,
-            )
+        // An expired index is never reused, so free it when it expires rather than at the next
+        // search. One timer for the newest snapshot; replaced indexes become collectable at once.
+        private fun scheduleRelease() {
+            mainHandler.removeCallbacks(releaseExpired)
+            mainHandler.postDelayed(releaseExpired, MAX_AGE_MILLIS)
+        }
+
+        private fun releaseIfExpired() {
+            val snapshot = cached ?: return
+            val age = SystemClock.elapsedRealtime() - snapshot.loadedAtElapsedMillis
+            if (age in 0 until MAX_AGE_MILLIS) {
+                mainHandler.postDelayed(releaseExpired, MAX_AGE_MILLIS - age)
+            } else if (cached === snapshot) {
+                cached = null
+            }
         }
 
         private fun scheduleRebuildAfterChange() {

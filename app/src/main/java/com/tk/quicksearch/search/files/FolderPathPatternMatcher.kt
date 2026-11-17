@@ -20,6 +20,8 @@ object FolderPathPatternMatcher {
     ): (DeviceFile) -> Boolean {
         val normalizedWhitelist = normalizePathPatterns(whitelistPatterns)
         val normalizedBlacklist = normalizePathPatterns(blacklistPatterns)
+        // No folder filters (the common case): skip building a path string for every file.
+        if (normalizedWhitelist.isEmpty() && normalizedBlacklist.isEmpty()) return { true }
 
         return { file ->
             val candidatePath = buildCandidatePath(file)
