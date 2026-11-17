@@ -65,7 +65,7 @@ class UnifiedSearchHandler(
                 // Contacts, files, and calendar query content providers, so alias mode keeps a ceiling.
                 private const val ALIAS_RESULT_LIMIT = 500
                 private const val LOW_RAM_ALIAS_RESULT_LIMIT = 150
-                // Settings, app settings, and shortcuts are small in-memory catalogs; alias mode shows every match.
+                // Settings, app settings, shortcuts, and bookmarks are in-memory catalogs; alias mode shows every match.
                 private const val ALIAS_CATALOG_RESULT_LIMIT = 1_000
         }
 
@@ -519,7 +519,12 @@ class UnifiedSearchHandler(
                                                                 shouldSearch = canSearchBookmarks,
                                                                 search = {
                                                                         SectionSearchResultPayload.Bookmarks(
-                                                                                bookmarkRepository.search(trimmedQuery),
+                                                                                bookmarkRepository.search(
+                                                                                        trimmedQuery,
+                                                                                        resultLimit =
+                                                                                                if (aliasSection == SearchSection.BOOKMARKS) ALIAS_CATALOG_RESULT_LIMIT
+                                                                                                else BookmarkRepository.SEARCH_RESULT_LIMIT,
+                                                                                ),
                                                                         )
                                                                 },
                                                                 applyResult = { payload ->

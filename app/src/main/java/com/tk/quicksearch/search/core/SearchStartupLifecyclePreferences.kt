@@ -54,6 +54,8 @@ internal fun SearchStartupLifecycleDelegate.onSettingsImported(
             val activeLlmAvailableModels = aiSearchHandler.getAvailableModels()
             val hasApiKey = userPreferences.hasAnyLlmApiKey()
             val customTools = normalizeCustomToolModels(userPreferences.getCustomTools())
+            // Rebuilds the searchable app-settings catalog (string lookups) off the main thread.
+            loadAppSettings()
 
             withContext(Dispatchers.Main) {
                 applyStartupPreferences(startupPrefs)
@@ -105,7 +107,6 @@ internal fun SearchStartupLifecycleDelegate.onSettingsImported(
                     )
                 }
                 handleOnResume()
-                loadAppSettings()
                 updateUiState { applyVisibilityStates(it) }
                 onAfterSettingsImportMain()
             }

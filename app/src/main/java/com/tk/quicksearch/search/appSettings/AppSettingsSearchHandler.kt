@@ -18,7 +18,7 @@ class AppSettingsSearchHandler(
     private val userPreferences: UserAppPreferences,
     private val isLowRamDevice: Boolean = false,
 ) {
-    private var availableSettings: List<AppSettingResult> = emptyList()
+    @Volatile private var availableSettings: List<AppSettingResult> = emptyList()
     private val searchTextCache = SearchTextCache()
     private val searchMatcher = CachedSearchMatcher(searchTextCache)
 
@@ -82,69 +82,64 @@ class AppSettingsSearchHandler(
             .buildRecencyIndex(emptyList(), userPreferences.getRecentResultOpenCounts())
             .appSettingOpenCounts
 
+    /**
+     * Settings that apply to the current configuration. Each visibility flag is read at most once
+     * per call, and only when a row it governs is present, instead of once per catalog row.
+     */
     private fun getVisibleSettings(): List<AppSettingResult> {
+        val hideExcludedItems by lazy(LazyThreadSafetyMode.NONE) { !hasExcludedItems() }
+        val hideNicknames by lazy(LazyThreadSafetyMode.NONE) { !userPreferences.hasAnyNicknameItems() }
+        val hideTriggers by lazy(LazyThreadSafetyMode.NONE) { !userPreferences.hasAnyTriggerItems() }
+        val hidePinnedNotificationItems by lazy(LazyThreadSafetyMode.NONE) {
+            !repository.hasPinnedNotificationItems()
+        }
+        val hideTopResultIndicator by lazy(LazyThreadSafetyMode.NONE) {
+            userPreferences.isPhysicalKeyboardConnected() ||
+                !userPreferences.isOpenTopResultUsingKeyboardEnabled()
+        }
+        val hidePinnedSectionsOrder by lazy(LazyThreadSafetyMode.NONE) {
+            userPreferences.isUnifiedPinnedItemsEnabled()
+        }
+        val hideTopMatchesOptions by lazy(LazyThreadSafetyMode.NONE) { !userPreferences.isTopMatchesEnabled() }
+        val hideAppSuggestionTabs by lazy(LazyThreadSafetyMode.NONE) {
+            !userPreferences.areAppSuggestionsEnabled()
+        }
+        // AI provider settings (model, personal context) only exist once a key is set up.
+        val hideAiProvider by lazy(LazyThreadSafetyMode.NONE) { !userPreferences.hasConfiguredAiProviderHint() }
+        val hideAppResultRows by lazy(LazyThreadSafetyMode.NONE) {
+            SearchSection.APPS.name in userPreferences.getDisabledSections()
+        }
+        // Android archives apps starting with Android 15.
+        val hideArchivedApps =
+            android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM
+        val hideAmoledTheme by lazy(LazyThreadSafetyMode.NONE) {
+            userPreferences.getAppTheme() != com.tk.quicksearch.search.core.AppTheme.MONOCHROME ||
+                userPreferences.getAppThemeMode() != com.tk.quicksearch.search.core.AppThemeMode.DARK ||
+                userPreferences.isDeviceThemeEnabled() ||
+                userPreferences.getBackgroundSource() != com.tk.quicksearch.search.core.BackgroundSource.THEME
+        }
         return availableSettings.filter { setting ->
-            val shouldHideExcludedItems =
-                !hasExcludedItems() && setting.destination == EXCLUDED_ITEMS
-            val shouldHideNicknames =
-                !userPreferences.hasAnyNicknameItems() && setting.destination == NICKNAMES
-            val shouldHideTriggers =
-                !userPreferences.hasAnyTriggerItems() && setting.destination == TRIGGERS
-            val shouldHidePinnedNotificationItems =
-                setting.destination == AppSettingsDestination.PINNED_NOTIFICATION_ITEMS &&
-                    !repository.hasPinnedNotificationItems()
-            val shouldHideTopResultIndicator =
-                setting.toggleKey == AppSettingsToggleKey.TOP_RESULT_INDICATOR &&
-                    (userPreferences.isPhysicalKeyboardConnected() ||
-                        !userPreferences.isOpenTopResultUsingKeyboardEnabled())
-            val shouldHidePinnedSectionsOrder =
-                setting.id == PINNED_SECTIONS_ORDER_SETTING_ID &&
-                    userPreferences.isUnifiedPinnedItemsEnabled()
-            val shouldHideTopMatchesOptions =
-                (setting.destination == AppSettingsDestination.TOP_MATCHES_PRIORITY ||
-                    setting.id == TOP_MATCHES_COUNT_SETTING_ID) &&
-                    !userPreferences.isTopMatchesEnabled()
-            val shouldHideAppSuggestionTabs =
-                setting.destination == AppSettingsDestination.APP_SUGGESTION_TABS &&
-                    !userPreferences.areAppSuggestionsEnabled()
-            // AI provider settings (model, personal context) only exist once a key is set up.
-            val shouldHideAiProvider =
-                (setting.destination == AppSettingsDestination.GEMINI_API ||
-                    setting.destination == AppSettingsDestination.AI_MODEL) &&
-                    !userPreferences.hasConfiguredAiProviderHint()
-            val shouldHideFuzzySearch =
-                setting.toggleKey == AppSettingsToggleKey.FUZZY_SEARCH &&
-                    isLowRamDevice
-            val shouldHideAppResultRows =
-                setting.toggleKey == AppSettingsToggleKey.APP_RESULT_ROWS &&
-                    SearchSection.APPS.name in userPreferences.getDisabledSections()
-            // Android archives apps starting with Android 15.
-            val shouldHideArchivedApps =
-                setting.toggleKey == AppSettingsToggleKey.INCLUDE_ARCHIVED_APPS_IN_SEARCH &&
-                    android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM
-            val shouldHideAmoledTheme =
-                setting.toggleKey == AppSettingsToggleKey.AMOLED_THEME &&
-                    (
-                        userPreferences.getAppTheme() != com.tk.quicksearch.search.core.AppTheme.MONOCHROME ||
-                            userPreferences.getAppThemeMode() !=
-                                com.tk.quicksearch.search.core.AppThemeMode.DARK ||
-                            userPreferences.isDeviceThemeEnabled() ||
-                            userPreferences.getBackgroundSource() !=
-                                com.tk.quicksearch.search.core.BackgroundSource.THEME
-                    )
-            !shouldHideExcludedItems &&
-                !shouldHideNicknames &&
-                !shouldHideTriggers &&
-                !shouldHidePinnedNotificationItems &&
-                !shouldHideTopResultIndicator &&
-                !shouldHidePinnedSectionsOrder &&
-                !shouldHideTopMatchesOptions &&
-                !shouldHideAiProvider &&
-                !shouldHideAppSuggestionTabs &&
-                !shouldHideFuzzySearch &&
-                !shouldHideAppResultRows &&
-                !shouldHideArchivedApps &&
-                !shouldHideAmoledTheme
+            val hidden =
+                when {
+                    setting.destination == EXCLUDED_ITEMS && hideExcludedItems -> true
+                    setting.destination == NICKNAMES && hideNicknames -> true
+                    setting.destination == TRIGGERS && hideTriggers -> true
+                    setting.destination == AppSettingsDestination.PINNED_NOTIFICATION_ITEMS &&
+                        hidePinnedNotificationItems -> true
+                    setting.toggleKey == AppSettingsToggleKey.TOP_RESULT_INDICATOR && hideTopResultIndicator -> true
+                    setting.id == PINNED_SECTIONS_ORDER_SETTING_ID && hidePinnedSectionsOrder -> true
+                    (setting.destination == AppSettingsDestination.TOP_MATCHES_PRIORITY ||
+                        setting.id == TOP_MATCHES_COUNT_SETTING_ID) && hideTopMatchesOptions -> true
+                    setting.destination == AppSettingsDestination.APP_SUGGESTION_TABS && hideAppSuggestionTabs -> true
+                    (setting.destination == AppSettingsDestination.GEMINI_API ||
+                        setting.destination == AppSettingsDestination.AI_MODEL) && hideAiProvider -> true
+                    setting.toggleKey == AppSettingsToggleKey.FUZZY_SEARCH && isLowRamDevice -> true
+                    setting.toggleKey == AppSettingsToggleKey.APP_RESULT_ROWS && hideAppResultRows -> true
+                    setting.toggleKey == AppSettingsToggleKey.INCLUDE_ARCHIVED_APPS_IN_SEARCH && hideArchivedApps -> true
+                    setting.toggleKey == AppSettingsToggleKey.AMOLED_THEME && hideAmoledTheme -> true
+                    else -> false
+                }
+            !hidden
         }
     }
 

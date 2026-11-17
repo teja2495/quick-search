@@ -41,13 +41,21 @@ internal fun rememberAppSettingToggleChecked(uiState: SearchUiState): (AppSettin
     val hasNotificationAccess =
         remember(context, refreshKey) { NotificationDotsPermission.hasNotificationListenerAccess(context) }
     val appNotificationsChecked = rememberAppNotificationsConfig()?.enabled == true && hasNotificationAccess
-    val speedBumpToggle = rememberSpeedBumpOutsideQuickSearchToggleState()
-    return { setting ->
-        when (val toggleKey = setting.toggleKey) {
-            null -> false
-            AppSettingsToggleKey.APP_NOTIFICATIONS -> appNotificationsChecked
-            AppSettingsToggleKey.SPEED_BUMP_OUTSIDE_QUICK_SEARCH -> speedBumpToggle.isOn
-            else -> uiState.isAppSettingToggleEnabled(toggleKey)
+    val speedBumpOn = rememberSpeedBumpOutsideQuickSearchToggleState().isOn
+    // Keyed on the toggle values rather than the whole state, so the lambda (and the result rows
+    // that take it) stays the same while unrelated state, such as other sections' results, changes.
+    val toggleStates =
+        remember(uiState) {
+            AppSettingsToggleKey.entries.associateWith { uiState.isAppSettingToggleEnabled(it) }
+        }
+    return remember(toggleStates, appNotificationsChecked, speedBumpOn) {
+        { setting ->
+            when (val toggleKey = setting.toggleKey) {
+                null -> false
+                AppSettingsToggleKey.APP_NOTIFICATIONS -> appNotificationsChecked
+                AppSettingsToggleKey.SPEED_BUMP_OUTSIDE_QUICK_SEARCH -> speedBumpOn
+                else -> toggleStates[toggleKey] == true
+            }
         }
     }
 }

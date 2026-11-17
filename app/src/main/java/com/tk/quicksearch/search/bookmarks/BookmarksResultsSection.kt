@@ -205,17 +205,24 @@ fun BookmarkFavicon(
     size: Dp = 24.dp,
 ) {
     val context = LocalContext.current
+    val faviconStore = remember(context) { BookmarkFaviconStore(context) }
+    // An icon already decoded shows on the first frame, without the globe or a dispatcher hop.
+    val cachedFavicon =
+        remember(bookmark.bookmarkId, bookmark.faviconVersion) {
+            faviconStore.cachedBitmap(bookmark.bookmarkId, bookmark.faviconVersion)?.asImageBitmap()
+        }
     val favicon by
-        produceState<ImageBitmap?>(null, bookmark.bookmarkId, bookmark.faviconVersion) {
+        produceState<ImageBitmap?>(cachedFavicon, bookmark.bookmarkId, bookmark.faviconVersion) {
             value =
-                if (!bookmark.hasFavicon) {
-                    null
-                } else {
-                    withContext(Dispatchers.IO) {
-                        BookmarkFaviconStore(context)
-                            .loadBitmap(bookmark.bookmarkId, bookmark.faviconVersion)
-                            ?.asImageBitmap()
-                    }
+                when {
+                    !bookmark.hasFavicon -> null
+                    cachedFavicon != null -> cachedFavicon
+                    else ->
+                        withContext(Dispatchers.IO) {
+                            faviconStore
+                                .loadBitmap(bookmark.bookmarkId, bookmark.faviconVersion)
+                                ?.asImageBitmap()
+                        }
                 }
         }
     Box(modifier = modifier.size(size), contentAlignment = Alignment.Center) {

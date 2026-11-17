@@ -4,6 +4,7 @@ import android.os.Handler
 import android.os.Looper
 import com.tk.quicksearch.search.apps.clearAppIconMemoryCache
 import com.tk.quicksearch.search.data.appShortcutRepository.clearShortcutIconMemoryCache
+import com.tk.quicksearch.search.data.bookmarks.clearBookmarkFaviconMemoryCache
 import com.tk.quicksearch.search.files.clearFileThumbnailMemoryCache
 import com.tk.quicksearch.settings.appShortcutsSettings.clearShortcutSourceIconMemoryCache
 import com.tk.quicksearch.search.apps.IconPackManager
@@ -71,6 +72,7 @@ object UiSurfaceMemoryManager {
         clearShortcutIconMemoryCache()
         clearFileThumbnailMemoryCache()
         clearShortcutSourceIconMemoryCache()
+        clearBookmarkFaviconMemoryCache()
         IconPackManager.clearAllCaches()
         ContactImageCache.clear()
         if (releaseSearchIndexes) {

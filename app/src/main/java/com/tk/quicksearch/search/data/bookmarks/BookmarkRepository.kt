@@ -3,15 +3,18 @@ package com.tk.quicksearch.search.data.bookmarks
 import android.content.Context
 import com.tk.quicksearch.search.data.preferences.BookmarkPreferences
 import com.tk.quicksearch.search.models.BookmarkInfo
+import com.tk.quicksearch.search.utils.PreparedSearchText
 import com.tk.quicksearch.search.utils.SearchRankingUtils
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import com.tk.quicksearch.searchEngines.IN_APP_BROWSER_PACKAGE
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -68,31 +71,38 @@ class BookmarkRepository(context: Context) {
             if (bookmark.hasFavicon) faviconStore.readBase64(bookmark.bookmarkId) else null
         }
 
-    fun getById(bookmarkId: Long): BookmarkInfo? = ensureLoaded().firstOrNull { it.bookmarkId == bookmarkId }
+    fun getById(bookmarkId: Long): BookmarkInfo? = indexOf(ensureLoaded()).byId[bookmarkId]
 
     fun hasBookmarks(): Boolean = ensureLoaded().isNotEmpty()
 
-    fun search(query: String): List<BookmarkInfo> {
+    /**
+     * Bookmarks whose name or host matches [query], best match first, at most [resultLimit]. Names
+     * and hosts are normalized once per bookmark list rather than on every keystroke.
+     */
+    fun search(
+        query: String,
+        resultLimit: Int = Int.MAX_VALUE,
+    ): List<BookmarkInfo> {
         val normalizedQuery = SearchTextNormalizer.normalizeForSearch(query.trim())
-        if (normalizedQuery.isBlank()) return emptyList()
+        if (normalizedQuery.isBlank() || resultLimit <= 0) return emptyList()
         val tokens = normalizedQuery.split(' ').filter { it.isNotBlank() }
-        return ensureLoaded()
-            .mapNotNull { bookmark ->
-                val namePriority = SearchRankingUtils.calculateMatchPriority(bookmark.name, normalizedQuery, tokens)
+        val compactQuery = SearchTextNormalizer.compactForSearch(normalizedQuery)
+        return indexOf(ensureLoaded())
+            .searchEntries
+            .mapNotNull { entry ->
+                val namePriority =
+                    SearchRankingUtils.calculateMatchPriority(entry.name, normalizedQuery, tokens, compactQuery)
                 val hostPriority =
-                    SearchRankingUtils.calculateMatchPriority(
-                        BookmarkUrls.displayHost(bookmark.url),
-                        normalizedQuery,
-                        tokens,
-                    )
+                    SearchRankingUtils.calculateMatchPriority(entry.host, normalizedQuery, tokens, compactQuery)
                 val priority = minOf(namePriority, hostPriority)
-                if (SearchRankingUtils.isOtherMatch(priority)) null else bookmark to priority
+                if (SearchRankingUtils.isOtherMatch(priority)) null else entry to priority
             }
             .sortedWith(
-                compareBy<Pair<BookmarkInfo, Int>> { it.second }
-                    .thenBy { it.first.name.lowercase(Locale.getDefault()) },
+                compareBy<Pair<BookmarkSearchEntry, Int>> { it.second }
+                    .thenBy { it.first.sortName },
             )
-            .map { it.first }
+            .take(resultLimit)
+            .map { it.first.bookmark }
     }
 
     /**
@@ -168,6 +178,7 @@ class BookmarkRepository(context: Context) {
     }
 
     fun delete(bookmarkId: Long) {
+        pendingFaviconVersions.remove(bookmarkId)
         onDatabaseThread { dao.delete(bookmarkId) }
         faviconStore.delete(bookmarkId)
         mutate { list -> list.filterNot { it.bookmarkId == bookmarkId } }
@@ -196,6 +207,7 @@ class BookmarkRepository(context: Context) {
 
     /** Removes every bookmark and its saved icon. */
     fun deleteAll() {
+        pendingFaviconVersions.clear()
         onDatabaseThread { dao.deleteAll() }
         faviconStore.deleteAll()
         mutate { emptyList() }
@@ -256,6 +268,7 @@ class BookmarkRepository(context: Context) {
     fun replaceFromBackup(bookmarks: List<BookmarkInfo>) {
         val restored =
             bookmarks.filter { BookmarkUrls.isWebUrl(it.url) }.map { it.copy(faviconVersion = 0L) }
+        pendingFaviconVersions.clear()
         onDatabaseThread { dao.replaceAll(restored.map(BookmarkInfo::toEntity)) }
         faviconStore.deleteAll()
         synchronized(stateLock) {
@@ -271,23 +284,25 @@ class BookmarkRepository(context: Context) {
     }
 
     private fun fetchFaviconsInBackground(bookmarks: List<BookmarkInfo>) {
-        bookmarks
-            .filter { !it.hasFavicon && faviconFetchesInFlight.add(it.bookmarkId) }
-            .forEach { bookmark ->
-                faviconFetchesState.update { it + bookmark.bookmarkId }
-                faviconScope.launch {
-                    try {
-                        faviconFetchPermits.withPermit {
-                            if (faviconStore.fetchAndSave(bookmark.bookmarkId, bookmark.url)) {
-                                onFaviconSaved(bookmark.bookmarkId, bookmark.url)
-                            }
+        val toFetch = bookmarks.filter { !it.hasFavicon && faviconFetchesInFlight.add(it.bookmarkId) }
+        if (toFetch.isEmpty()) return
+        val ids = toFetch.mapTo(HashSet()) { it.bookmarkId }
+        faviconFetchesState.update { it + ids }
+        toFetch.forEach { bookmark ->
+            faviconScope.launch {
+                try {
+                    faviconFetchPermits.withPermit {
+                        if (faviconStore.fetchAndSave(bookmark.bookmarkId, bookmark.url)) {
+                            onFaviconSaved(bookmark.bookmarkId, bookmark.url)
                         }
-                    } finally {
-                        faviconFetchesInFlight.remove(bookmark.bookmarkId)
-                        faviconFetchesState.update { it - bookmark.bookmarkId }
                     }
+                } finally {
+                    faviconFetchesInFlight.remove(bookmark.bookmarkId)
+                    finishedFaviconFetches.add(bookmark.bookmarkId)
+                    scheduleFaviconPublish()
                 }
             }
+        }
     }
 
     private fun onFaviconSaved(bookmarkId: Long, fetchedUrl: String) {
@@ -299,10 +314,43 @@ class BookmarkRepository(context: Context) {
         }
         val version = System.currentTimeMillis()
         onDatabaseThread { dao.setFaviconVersion(bookmarkId, version) }
-        mutate { list ->
-            list.map { if (it.bookmarkId == bookmarkId) it.copy(faviconVersion = version) else it }
+        pendingFaviconVersions[bookmarkId] = PendingFavicon(url = fetchedUrl, version = version)
+    }
+
+    /** Publishes finished favicon fetches together, so a large import re-sorts and emits a few times, not once per icon. */
+    private fun scheduleFaviconPublish() {
+        if (!faviconPublishScheduled.compareAndSet(false, true)) return
+        faviconScope.launch {
+            delay(FAVICON_PUBLISH_DELAY_MILLIS)
+            publishFaviconUpdates()
         }
     }
+
+    private fun publishFaviconUpdates() {
+        faviconPublishScheduled.set(false)
+        val updates = HashMap<Long, PendingFavicon>()
+        pendingFaviconVersions.keys.toList().forEach { id ->
+            pendingFaviconVersions.remove(id)?.let { updates[id] = it }
+        }
+        if (updates.isNotEmpty()) {
+            mutate { list ->
+                list.map { bookmark ->
+                    // Skip bookmarks pointed elsewhere since their icon was saved.
+                    val update = updates[bookmark.bookmarkId]?.takeIf { it.url == bookmark.url }
+                    if (update == null) bookmark else bookmark.copy(faviconVersion = update.version)
+                }
+            }
+        }
+        val finished = HashSet<Long>()
+        finishedFaviconFetches.toList().forEach { id -> if (finishedFaviconFetches.remove(id)) finished.add(id) }
+        // A bookmark fetched again meanwhile stays marked until that fetch finishes.
+        finished.removeAll(faviconFetchesInFlight)
+        if (finished.isNotEmpty()) faviconFetchesState.update { it - finished }
+    }
+
+    private fun indexOf(bookmarks: List<BookmarkInfo>): BookmarkIndex =
+        bookmarkIndex?.takeIf { it.source === bookmarks }
+            ?: BookmarkIndex(bookmarks).also { bookmarkIndex = it }
 
     private fun ensureLoaded(): List<BookmarkInfo> {
         if (isLoaded) return bookmarksState.value
@@ -331,23 +379,61 @@ class BookmarkRepository(context: Context) {
             databaseExecutor.submit<T>(block).get()
         }
 
-    private companion object {
-        const val DB_THREAD_PREFIX = "bookmarks-store"
-        const val MAX_PARALLEL_FAVICON_FETCHES = 4
+    private class PendingFavicon(
+        val url: String,
+        val version: Long,
+    )
 
-        val stateLock = Any()
-        val bookmarksState = MutableStateFlow<List<BookmarkInfo>>(emptyList())
-        val defaultBrowserState = MutableStateFlow<String?>(null)
+    private class BookmarkSearchEntry(
+        val bookmark: BookmarkInfo,
+        val name: PreparedSearchText,
+        val host: PreparedSearchText,
+        val sortName: String,
+    )
 
-        @Volatile var isLoaded = false
+    /** Lookups derived from one published bookmark list, built on first use. */
+    private class BookmarkIndex(
+        val source: List<BookmarkInfo>,
+    ) {
+        val byId: Map<Long, BookmarkInfo> by lazy { source.associateBy { it.bookmarkId } }
+        val searchEntries: List<BookmarkSearchEntry> by lazy {
+            source.map { bookmark ->
+                BookmarkSearchEntry(
+                    bookmark = bookmark,
+                    name = SearchTextNormalizer.prepareForSearch(bookmark.name),
+                    host = SearchTextNormalizer.prepareForSearch(BookmarkUrls.displayHost(bookmark.url)),
+                    sortName = bookmark.name.lowercase(Locale.getDefault()),
+                )
+            }
+        }
+    }
 
-        val databaseExecutor =
+    companion object {
+        /** Bookmarks shown in regular search; alias searches pass a higher limit. */
+        const val SEARCH_RESULT_LIMIT = 25
+
+        private const val DB_THREAD_PREFIX = "bookmarks-store"
+        private const val MAX_PARALLEL_FAVICON_FETCHES = 4
+        private const val FAVICON_PUBLISH_DELAY_MILLIS = 250L
+
+        private val stateLock = Any()
+        private val bookmarksState = MutableStateFlow<List<BookmarkInfo>>(emptyList())
+        private val defaultBrowserState = MutableStateFlow<String?>(null)
+
+        @Volatile private var isLoaded = false
+
+        @Volatile private var bookmarkIndex: BookmarkIndex? = null
+
+        private val databaseExecutor =
             Executors.newSingleThreadExecutor { runnable ->
                 Thread(runnable, "$DB_THREAD_PREFIX-1").apply { isDaemon = true }
             }
-        val faviconScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-        val faviconFetchPermits = Semaphore(MAX_PARALLEL_FAVICON_FETCHES)
-        val faviconFetchesInFlight: MutableSet<Long> = ConcurrentHashMap.newKeySet()
-        val faviconFetchesState = MutableStateFlow<Set<Long>>(emptySet())
+        private val faviconScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        private val faviconFetchPermits = Semaphore(MAX_PARALLEL_FAVICON_FETCHES)
+        private val faviconFetchesInFlight: MutableSet<Long> = ConcurrentHashMap.newKeySet()
+        private val faviconFetchesState = MutableStateFlow<Set<Long>>(emptySet())
+        private val pendingFaviconVersions = ConcurrentHashMap<Long, PendingFavicon>()
+        private val finishedFaviconFetches: MutableSet<Long> = ConcurrentHashMap.newKeySet()
+        private val faviconPublishScheduled = AtomicBoolean(false)
     }
 }

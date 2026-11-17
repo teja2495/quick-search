@@ -61,6 +61,10 @@ class BookmarkFaviconStore(context: Context) {
         memoryCache.evictAll()
     }
 
+    /** The favicon if it is already decoded in memory; safe on the main thread. */
+    fun cachedBitmap(bookmarkId: Long, faviconVersion: Long): Bitmap? =
+        if (faviconVersion <= 0L) null else memoryCache.get(cacheKey(bookmarkId, faviconVersion))
+
     /** Decodes a stored favicon. Call off the main thread. */
     fun loadBitmap(bookmarkId: Long, faviconVersion: Long): Bitmap? {
         if (faviconVersion <= 0L) return null
@@ -147,14 +151,19 @@ class BookmarkFaviconStore(context: Context) {
         val linkTagRegex = Regex("<link\\b[^>]*>", RegexOption.IGNORE_CASE)
 
         fun cacheKey(bookmarkId: Long, faviconVersion: Long) = "$bookmarkId:$faviconVersion"
-
-        private val memoryCache =
-            object : LruCache<String, Bitmap>(4 * 1024 * 1024) {
-                override fun sizeOf(key: String, value: Bitmap): Int = value.byteCount
-
-                fun evictBookmark(bookmarkId: Long) {
-                    snapshot().keys.filter { it.startsWith("$bookmarkId:") }.forEach { remove(it) }
-                }
-            }
     }
+}
+
+private val memoryCache =
+    object : LruCache<String, Bitmap>(4 * 1024 * 1024) {
+        override fun sizeOf(key: String, value: Bitmap): Int = value.byteCount
+
+        fun evictBookmark(bookmarkId: Long) {
+            snapshot().keys.filter { it.startsWith("$bookmarkId:") }.forEach { remove(it) }
+        }
+    }
+
+/** Drops decoded favicons; rows already showing one keep their bitmap. Route through UiSurfaceMemoryManager. */
+fun clearBookmarkFaviconMemoryCache() {
+    memoryCache.evictAll()
 }

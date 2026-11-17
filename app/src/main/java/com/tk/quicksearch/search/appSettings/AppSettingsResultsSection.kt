@@ -32,6 +32,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Alignment
@@ -156,6 +157,7 @@ fun AppSettingsResultsSection(
                     ),
             ) {
                 displayRows.forEachIndexed { index, setting ->
+                    key(setting.id) {
                     val showPredictedOnRow =
                         predictedAppSettingId == setting.id && !useCardLevelPrediction
 
@@ -177,6 +179,7 @@ fun AppSettingsResultsSection(
 
                     if (index != displayRows.lastIndex && !showPredictedOnRow) {
                         ResultRowDivider(showWallpaperBackground, color = overlayDividerColor)
+                    }
                     }
                 }
 
