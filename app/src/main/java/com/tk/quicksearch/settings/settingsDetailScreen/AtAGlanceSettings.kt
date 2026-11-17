@@ -64,6 +64,7 @@ import com.tk.quicksearch.shared.ui.components.SegmentedTileContentPadding
 import com.tk.quicksearch.shared.ui.components.SegmentedTileToggleHorizontalPadding
 import com.tk.quicksearch.settings.shared.SettingsNestedCheckbox
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
+import com.tk.quicksearch.settings.shared.settingsScrollClip
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.shared.ui.components.AppAlertDialog
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -535,11 +536,13 @@ fun AtAGlanceSettingsSection(
             // The page itself doesn't scroll: the tiles take the height left above the search bar
             // and scroll inside it, shrinking to fit when they don't fill it. Only the first and last
             // tiles round their outer corners, so a tile cut off at the edge stays square.
+            val tilesScrollState = rememberScrollState()
             SegmentedGroup(
                 modifier =
                     Modifier
                         .weight(1f, fill = false)
-                        .verticalScroll(rememberScrollState()),
+                        .settingsScrollClip(tilesScrollState)
+                        .verticalScroll(tilesScrollState),
             ) {
                 visibleToggles.forEachIndexed { index, toggle ->
                     SegmentedTile(index = index, count = visibleToggles.size) {

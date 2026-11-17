@@ -197,7 +197,7 @@ internal fun SettingsDetailLevel1Screen(
                         .fillMaxHeight()
                         .align(Alignment.CenterHorizontally)
                         .padding(horizontal = DesignTokens.ContentHorizontalPadding)
-                        .settingsScrollClip()
+                        .settingsScrollClip(scrollState)
                         .verticalScroll(scrollState)
                         .padding(bottom = DesignTokens.SectionTopPadding),
             ) {

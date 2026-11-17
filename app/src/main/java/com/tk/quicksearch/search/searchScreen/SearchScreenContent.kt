@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -49,6 +50,8 @@ import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnable
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SearchContentArea
 import com.tk.quicksearch.search.searchScreen.components.LocalSearchResultQuery
+import com.tk.quicksearch.search.searchScreen.components.LocalOpenKeyboardPillMemory
+import com.tk.quicksearch.search.searchScreen.components.LocalSearchReturningFromInAppPage
 import com.tk.quicksearch.shared.ui.theme.LocalAmoledThemeActive
 import com.tk.quicksearch.shared.ui.theme.LocalSearchColorTheme
 import com.tk.quicksearch.shared.util.rememberPhysicalKeyboardConnected
@@ -165,10 +168,17 @@ internal fun SearchScreenContent(
     val keyboardController = LocalSoftwareKeyboardController.current
     val density = LocalDensity.current
     val isPhysicalKeyboardConnected = rememberPhysicalKeyboardConnected()
-    val openKeyboardOnLaunchOnStartup = remember { state.openKeyboardOnLaunch }
+    // Returning from Settings/Widgets rebuilds this screen but skips launch auto-focus, so the
+    // startup keyboard gating must not wait for a keyboard that will never open.
+    val returningFromInAppPage = LocalSearchReturningFromInAppPage.current
+    val openKeyboardOnLaunchOnStartup = remember { state.openKeyboardOnLaunch && !returningFromInAppPage }
     var canShowOpenKeyboardPill by
             remember(isOverlayPresentation) { mutableStateOf(!isOverlayPresentation && !openKeyboardOnLaunchOnStartup) }
-    var delayedOpenKeyboardActionVisible by remember { mutableStateOf(false) }
+    val openKeyboardPillMemory = LocalOpenKeyboardPillMemory.current
+    // Already on screen before switching pages: show it again as-is, without the enter animation.
+    var delayedOpenKeyboardActionVisible by remember {
+        mutableStateOf(returningFromInAppPage && openKeyboardPillMemory.visibleWhenLeft)
+    }
     var hideOpenKeyboardActionInstantly by remember { mutableStateOf(false) }
     var hasSeenStartupKeyboardVisible by
             remember(isOverlayPresentation) { mutableStateOf(false) }
@@ -308,6 +318,7 @@ internal fun SearchScreenContent(
                     !isPhysicalKeyboardConnected &&
                     canShowOpenKeyboardPill &&
                     hasClosedStartupKeyboardAfterLaunch &&
+                    !state.restoreSearchKeyboard &&
                     !isSearchHistoryExpanded && !welcomeMorphRunning()
 
     LaunchedEffect(shouldShowOpenKeyboardAction) {
@@ -315,11 +326,15 @@ internal fun SearchScreenContent(
             delayedOpenKeyboardActionVisible = false
             return@LaunchedEffect
         }
+        if (delayedOpenKeyboardActionVisible) return@LaunchedEffect
 
         hideOpenKeyboardActionInstantly = false
         delayedOpenKeyboardActionVisible = false
         delay(OPEN_KEYBOARD_ACTION_APPEAR_DELAY_MS)
         delayedOpenKeyboardActionVisible = true
+    }
+    SideEffect {
+        openKeyboardPillMemory.visibleWhenLeft = shouldShowOpenKeyboardAction && delayedOpenKeyboardActionVisible
     }
     val keyboardSwitchText =
             if (isToolMode) {

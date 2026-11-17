@@ -148,7 +148,7 @@ fun SettingsScreen(
                     .fillMaxHeight()
                     .align(Alignment.CenterHorizontally)
                     .padding(horizontal = DesignTokens.ContentHorizontalPadding)
-                    .settingsScrollClip()
+                    .settingsScrollClip(scrollState)
                     .verticalScroll(scrollState),
         ) {
             if (shouldShowSettingsSearchTip) {

@@ -47,7 +47,9 @@ import com.tk.quicksearch.onboarding.permissionScreen.PermissionsScreen
 import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchViewModel
+import com.tk.quicksearch.search.searchScreen.components.LocalOpenKeyboardPillMemory
 import com.tk.quicksearch.search.searchScreen.components.LocalSearchReturningFromInAppPage
+import com.tk.quicksearch.search.searchScreen.components.OpenKeyboardPillMemory
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.search.data.userAppPreferences.UserAppPreferences
 import com.tk.quicksearch.search.searchScreen.LocalSharedPageWallpaper
@@ -477,6 +479,7 @@ private fun NavigationContent(
     }
     // Outlives the Search page, which is disposed while Widgets or Settings is shown.
     val homeAppearedContentKeys = remember { mutableSetOf<String>() }
+    val openKeyboardPillMemory = remember { OpenKeyboardPillMemory() }
     val settingsPageData = remember { SettingsPageData() }
     Box(modifier = Modifier.fillMaxSize()) {
         // Keep the backdrop warm across Settings unless the system requests memory.
@@ -570,7 +573,10 @@ private fun NavigationContent(
                         LaunchedEffect(pageSettled) {
                             if (pageSettled) viewModel.setSearchLeftForInAppPage(false)
                         }
-                        CompositionLocalProvider(LocalSearchReturningFromInAppPage provides returningFromInAppPage) {
+                        CompositionLocalProvider(
+                            LocalSearchReturningFromInAppPage provides returningFromInAppPage,
+                            LocalOpenKeyboardPillMemory provides openKeyboardPillMemory,
+                        ) {
                             SearchRoute(
                                 viewModel = viewModel,
                                 onCloseAppRequest = onFinishActivity,

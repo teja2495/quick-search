@@ -192,7 +192,7 @@ fun CustomToolEditorScreen(
                 .fillMaxWidth()
                 .weight(1f)
                 .padding(horizontal = DesignTokens.ContentHorizontalPadding)
-                .settingsScrollClip()
+                .settingsScrollClip(scrollState)
                 .verticalScroll(scrollState)
                 .padding(bottom = DesignTokens.SpacingLarge),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),

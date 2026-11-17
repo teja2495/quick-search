@@ -440,8 +440,8 @@ internal fun SettingsNestedDetailScreen(
                             .fillMaxHeight()
                             .align(androidx.compose.ui.Alignment.CenterHorizontally)
                             .padding(horizontal = DesignTokens.ContentHorizontalPadding)
-                            .settingsScrollClip()
-                            .then(if (detailType in setOf(SettingsDetailType.AT_A_GLANCE, SettingsDetailType.TRIGGERS, SettingsDetailType.EXCLUDED_ITEMS)) Modifier else Modifier.verticalScroll(scrollState))
+                            // These pages keep a fixed header and scroll (and clip) only their list.
+                            .then(if (detailType in setOf(SettingsDetailType.AT_A_GLANCE, SettingsDetailType.TRIGGERS, SettingsDetailType.EXCLUDED_ITEMS)) Modifier else Modifier.settingsScrollClip(scrollState).verticalScroll(scrollState))
                             .padding(
                                 bottom =
                                     when (detailType) {

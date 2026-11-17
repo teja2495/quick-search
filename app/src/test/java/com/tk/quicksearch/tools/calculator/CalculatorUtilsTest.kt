@@ -73,6 +73,15 @@ class CalculatorUtilsTest {
     }
 
     @Test
+    fun `evaluates percent operator inside expressions`() {
+        assertTrue(CalculatorUtils.isMathExpression("100-10%"))
+        assertEquals("90", CalculatorUtils.evaluateExpression("100-10%"))
+        assertEquals("110", CalculatorUtils.evaluateExpression("100 + 10%"))
+        assertEquals("20", CalculatorUtils.evaluateExpression("200*10%"))
+        assertEquals("10", CalculatorUtils.evaluateExpression("(50+50)*10%"))
+    }
+
+    @Test
     fun `returns null for invalid expressions`() {
         assertNull(CalculatorUtils.evaluateExpression("1/0"))
         assertNull(CalculatorUtils.evaluateExpression("(1+2"))

@@ -68,15 +68,16 @@ import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.AppMotion
 import com.tk.quicksearch.shared.ui.components.TonalIconBadge
 import com.tk.quicksearch.shared.ui.components.AppButton
 
 private val WidgetPickerStageHeight = 176.dp
 
-/** Tile tone that stays visible on the drawer's `surfaceContainerHigh` sheet. */
+/** Same accent tint as the drawer's search field, so tiles follow the app's accent and theme. */
 @Composable
-private fun widgetPickerTileColor() = MaterialTheme.colorScheme.surfaceContainerHighest
+private fun widgetPickerTileColor() = AppColors.AccentTintSubtle
 
 private const val WIDGET_PREVIEW_FALLBACK_SIZE_PX = 96
 private const val MAX_WIDGET_PREVIEW_DIMENSION_PX = 1024
@@ -503,7 +504,7 @@ private fun BitmapImage(
 ) {
     if (bitmap == null) {
         Box(
-            modifier = modifier.background(MaterialTheme.colorScheme.surfaceVariant),
+            modifier = modifier.background(AppColors.AccentTintFaint),
         )
     } else {
         val painter = remember(bitmap) { BitmapPainter(bitmap) }

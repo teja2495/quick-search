@@ -40,6 +40,9 @@ object CalculatorUtils {
 
         if (!hasOperator) return false
 
+        // A lone percent ("50%") is not a calculation.
+        if (trimmed.none { it in "+-*/×÷·()" }) return false
+
         // Check if it contains mostly valid math characters
         // Allow: digits, spaces, operators, brackets, decimal points
         val validChars =
@@ -55,7 +58,8 @@ object CalculatorUtils {
                     char == ' ' ||
                     char == '×' || // multiplication symbol
                     char == '÷' || // division symbol
-                    char == '·' // middle dot for multiplication
+                    char == '·' || // middle dot for multiplication
+                    char == '%' // percent
             }
 
         return validChars && trimmed.length >= 2
@@ -108,7 +112,7 @@ object CalculatorUtils {
 
     /**
      * Evaluates a cleaned math expression using recursive descent parsing.
-     * Handles: +, -, *, /, (), and decimal numbers.
+     * Handles: +, -, *, /, %, (), and decimal numbers.
      */
     private fun evaluate(expression: String): Double {
         var index = 0
@@ -159,18 +163,35 @@ object CalculatorUtils {
             }
         }
 
+        // True when the last parsed term was a bare percent literal (e.g. the "10%" in "100 - 10%").
+        var lastTermWasPercent = false
+
+        fun parsePercentFactor(): Double {
+            var value = parseFactor()
+            var hasPercent = false
+            while (index < expression.length && expression[index] == '%') {
+                index++
+                value /= 100.0
+                hasPercent = true
+            }
+            lastTermWasPercent = hasPercent
+            return value
+        }
+
         fun parseTerm(): Double {
-            var result = parseFactor()
+            var result = parsePercentFactor()
             while (index < expression.length) {
                 when (expression[index]) {
                     '*' -> {
                         index++
-                        result *= parseFactor()
+                        result *= parsePercentFactor()
+                        lastTermWasPercent = false
                     }
 
                     '/' -> {
                         index++
-                        val divisor = parseFactor()
+                        val divisor = parsePercentFactor()
+                        lastTermWasPercent = false
                         if (divisor == 0.0) throw ArithmeticException("Division by zero")
                         result /= divisor
                     }
@@ -185,16 +206,19 @@ object CalculatorUtils {
 
         parseExpression = {
             var result = parseTerm()
+            lastTermWasPercent = false
             while (index < expression.length) {
                 when (expression[index]) {
                     '+' -> {
                         index++
-                        result += parseTerm()
+                        val term = parseTerm()
+                        result += if (lastTermWasPercent) result * term else term
                     }
 
                     '-' -> {
                         index++
-                        result -= parseTerm()
+                        val term = parseTerm()
+                        result -= if (lastTermWasPercent) result * term else term
                     }
 
                     else -> {

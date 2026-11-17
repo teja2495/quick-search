@@ -27,6 +27,7 @@ import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.shared.ui.components.ChoiceOption
 import com.tk.quicksearch.shared.ui.components.ConnectedChoiceGroup
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
+import com.tk.quicksearch.shared.ui.components.SegmentedTileContent
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.settings.shared.SettingsToggleSliderDetails
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
@@ -173,26 +174,13 @@ private fun AppColumnsSelector(
         selectedColumns: Int,
         onSelectColumns: (Int) -> Unit,
 ) {
-    Row(
-            modifier =
-                    Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                    start = DesignTokens.SpacingXLarge,
-                                    top = DesignTokens.SpacingLarge,
-                                    end = DesignTokens.SpacingXLarge,
-                                    bottom = DesignTokens.SpacingLarge,
-                            ),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                    text = stringResource(R.string.settings_app_columns_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
+    // Same layout as the App Result Rows setting: title above full-width, equal choices.
+    SegmentedTileContent {
+        Text(
+                text = stringResource(R.string.settings_app_columns_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+        )
         ConnectedChoiceGroup(
                 options =
                         listOf(
@@ -201,7 +189,6 @@ private fun AppColumnsSelector(
                         ),
                 selected = if (selectedColumns == 4) 4 else 5,
                 onSelect = onSelectColumns,
-                fillWidth = false,
         )
     }
 }

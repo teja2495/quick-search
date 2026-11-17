@@ -303,6 +303,13 @@ internal fun isSearchBarAliasActive(
 /** True while search is rebuilt after returning from Settings or Widgets; skips launch auto-focus. */
 internal val LocalSearchReturningFromInAppPage = staticCompositionLocalOf { false }
 
+/** Outlives the Search page so the Open Keyboard pill returns from Settings/Widgets without re-animating. */
+internal class OpenKeyboardPillMemory {
+    var visibleWhenLeft = false
+}
+
+internal val LocalOpenKeyboardPillMemory = staticCompositionLocalOf { OpenKeyboardPillMemory() }
+
 private enum class SearchBarTrailingAction { Clear, Mic, Settings, None }
 
 @OptIn(ExperimentalFoundationApi::class)
