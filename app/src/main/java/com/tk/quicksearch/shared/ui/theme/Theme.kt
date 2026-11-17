@@ -22,6 +22,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
@@ -302,62 +303,58 @@ fun QuickSearchTheme(
                 }
         }
 
+    val accentBaseColorArgb = if (useCustomAccent) customAccentColorArgb else imageAppearance?.accentColorArgb
     val imageAccentSlots =
-        when {
-            useCustomAccent ->
-                resolveImageAccentSlots(
-                    baseColorArgb = customAccentColorArgb,
-                    useDarkTheme = useDarkTheme,
-                )
-            else ->
-                imageAppearance?.let { appearance ->
-                    resolveImageAccentSlots(
-                        baseColorArgb = appearance.accentColorArgb,
-                        useDarkTheme = useDarkTheme,
-                    )
-                }
+        remember(accentBaseColorArgb, useDarkTheme) {
+            accentBaseColorArgb?.let { resolveImageAccentSlots(baseColorArgb = it, useDarkTheme = useDarkTheme) }
         }
 
+    // Remembered so a recomposition with unchanged inputs (every resume bumps the wallpaper
+    // version) keeps the same ColorScheme instance. A new instance recomposes every color reader in
+    // the app, which lands on the first frame of the keyboard animation when the app opens.
+    val configuration = LocalConfiguration.current
     val colorScheme =
-        if (useDeviceDynamicColors) {
-            val dynamicScheme =
+        remember(useDeviceDynamicColors, useDarkTheme, imageAccentSlots, appTheme, configuration) {
+            if (useDeviceDynamicColors) {
+                val dynamicScheme =
+                    if (useDarkTheme) {
+                        dynamicDarkColorScheme(context)
+                    } else {
+                        dynamicLightColorScheme(context)
+                    }
+                val baseTextScheme = if (useDarkTheme) DarkColorScheme else LightColorScheme
+                dynamicScheme.copy(
+                    onBackground = baseTextScheme.onBackground,
+                    onSurface = baseTextScheme.onSurface,
+                    onSurfaceVariant = baseTextScheme.onSurfaceVariant,
+                )
+            } else if (imageAccentSlots != null) {
                 if (useDarkTheme) {
-                    dynamicDarkColorScheme(context)
+                    withImageAccent(DarkColorScheme, imageAccentSlots)
                 } else {
-                    dynamicLightColorScheme(context)
+                    withImageAccent(LightColorScheme, imageAccentSlots)
                 }
-            val baseTextScheme = if (useDarkTheme) DarkColorScheme else LightColorScheme
-            dynamicScheme.copy(
-                onBackground = baseTextScheme.onBackground,
-                onSurface = baseTextScheme.onSurface,
-                onSurfaceVariant = baseTextScheme.onSurfaceVariant,
-            )
-        } else if (imageAccentSlots != null) {
-            if (useDarkTheme) {
-                withImageAccent(DarkColorScheme, imageAccentSlots)
             } else {
-                withImageAccent(LightColorScheme, imageAccentSlots)
-            }
-        } else {
-            val accent = accentForTheme(appTheme)
-            if (useDarkTheme) {
-                DarkColorScheme.copy(
-                    primary = accent.darkPrimary,
-                    onPrimary = accent.darkOnPrimary,
-                    primaryContainer = accent.darkPrimaryContainer,
-                    onPrimaryContainer = accent.darkOnPrimaryContainer,
-                    secondaryContainer = accent.darkSecondaryContainer,
-                    onSecondaryContainer = accent.darkOnSecondaryContainer,
-                )
-            } else {
-                LightColorScheme.copy(
-                    primary = accent.lightPrimary,
-                    onPrimary = accent.lightOnPrimary,
-                    primaryContainer = accent.lightPrimaryContainer,
-                    onPrimaryContainer = accent.lightOnPrimaryContainer,
-                    secondaryContainer = accent.lightSecondaryContainer,
-                    onSecondaryContainer = accent.lightOnSecondaryContainer,
-                )
+                val accent = accentForTheme(appTheme)
+                if (useDarkTheme) {
+                    DarkColorScheme.copy(
+                        primary = accent.darkPrimary,
+                        onPrimary = accent.darkOnPrimary,
+                        primaryContainer = accent.darkPrimaryContainer,
+                        onPrimaryContainer = accent.darkOnPrimaryContainer,
+                        secondaryContainer = accent.darkSecondaryContainer,
+                        onSecondaryContainer = accent.darkOnSecondaryContainer,
+                    )
+                } else {
+                    LightColorScheme.copy(
+                        primary = accent.lightPrimary,
+                        onPrimary = accent.lightOnPrimary,
+                        primaryContainer = accent.lightPrimaryContainer,
+                        onPrimaryContainer = accent.lightOnPrimaryContainer,
+                        secondaryContainer = accent.lightSecondaryContainer,
+                        onSecondaryContainer = accent.lightOnSecondaryContainer,
+                    )
+                }
             }
         }
     val appPalette =

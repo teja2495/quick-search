@@ -29,7 +29,7 @@ internal fun AnimatedSearchEngineStrip(
     showOnlyToolActionInCompactSection: Boolean,
     useInsetEngineStrip: Boolean,
     insetEngineStripOverlap: androidx.compose.ui.unit.Dp,
-    insetEngineStripFullBleedFraction: Float,
+    insetEngineStripFullBleedFraction: () -> Float,
     searchEnginesModifier: Modifier,
 ) {
     val insetCardStyle = rememberInsetCardStyle(state.searchBarStyle, state.showWallpaperBackground)

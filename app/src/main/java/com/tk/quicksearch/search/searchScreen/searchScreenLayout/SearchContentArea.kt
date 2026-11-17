@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import com.tk.quicksearch.search.searchScreen.rememberImeSettledHeight
 import com.tk.quicksearch.search.searchScreen.LocalInsetCardBackdrop
 import com.tk.quicksearch.search.searchScreen.contentBottomInset
 import com.tk.quicksearch.search.searchScreen.contentTopInset
@@ -132,6 +133,8 @@ fun SearchContentArea(
     onLauncherOverscrollDown: () -> Unit = {},
     onHomeDoubleTap: () -> Unit = {},
     selectedTopMatchIndex: Int? = null,
+    /** True while the bottom chrome animates its height; card heights hold until it settles. */
+    isBottomChromeAnimating: () -> Boolean = { false },
 ) {
     val currentOnHomeDoubleTap by rememberUpdatedState(onHomeDoubleTap)
     val useOneHandedMode =
@@ -295,6 +298,9 @@ fun SearchContentArea(
                         onTabSelected = { searchHistorySelectedTab = it },
                     ),
         ) {
+            // Card heights follow the area's settled height, so the keyboard sliding in or out (or
+            // the bottom chrome resizing with it) does not recompose the results on every frame.
+            val settledMaxHeight = rememberImeSettledHeight(maxHeight, holdWhile = isBottomChromeAnimating)
             val bottomOverlayInset = LocalInsetCardBackdrop.current?.contentBottomInset() ?: 0.dp
             val topOverlayInset = LocalInsetCardBackdrop.current?.contentTopInset() ?: 0.dp
             val footerBottomPadding = 28.dp + bottomOverlayInset
@@ -523,11 +529,11 @@ fun SearchContentArea(
                                     if (isOverlayPresentation) {
                                         0.dp
                                     } else {
-                                        this@BoxWithConstraints.maxHeight - bottomOverlayInset - topOverlayInset
+                                        settledMaxHeight - bottomOverlayInset - topOverlayInset
                                     },
                                 expandedCardMaxHeight =
                                     (
-                                        this@BoxWithConstraints.maxHeight - topOverlayInset - bottomOverlayInset -
+                                        settledMaxHeight - topOverlayInset - bottomOverlayInset -
                                             if (isSectionAliasMode) {
                                                 aliasExpandedSectionBottomInset
                                             } else {

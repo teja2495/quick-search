@@ -12,8 +12,14 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 
 /**
  * Safe-drawing padding that follows the keyboard without relayout. The content is padded for the
@@ -40,4 +46,25 @@ internal fun Modifier.safeDrawingPaddingWithImeSlide(enabled: Boolean): Modifier
         .windowInsetsPadding(bars.union(imeTarget))
         // Children still use imePadding(); consume the live insets so they don't pad twice.
         .consumeWindowInsets(WindowInsets.safeDrawing)
+}
+
+/**
+ * [height] held at its value from when the current keyboard animation (or [holdWhile]) started
+ * until it ends.
+ * Composition that sizes itself from a height that shrinks with the keyboard (such as
+ * BoxWithConstraints content) then stays skippable for the whole slide and updates once it settles,
+ * instead of recomposing on every animation frame.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+internal fun rememberImeSettledHeight(height: Dp, holdWhile: () -> Boolean = { false }): Dp {
+    val density = LocalDensity.current
+    val ime = WindowInsets.ime
+    val imeTarget = WindowInsets.imeAnimationTarget
+    val currentHoldWhile by rememberUpdatedState(holdWhile)
+    val isHolding by remember(ime, imeTarget, density) {
+        derivedStateOf { ime.getBottom(density) != imeTarget.getBottom(density) || currentHoldWhile() }
+    }
+    val heldHeight = remember(isHolding) { height }
+    return if (isHolding) heldHeight else height
 }

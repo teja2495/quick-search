@@ -712,7 +712,9 @@ internal fun AppGrid(
                                     modifier = tileModifier,
                                     appInfo = app,
                                     shortcuts = appShortcuts,
-                                    appActions = createAppActions(app),
+                                    // Remembered per app: a fresh AppActions holds new lambdas, so it never
+                                    // compares equal and every tile would recompose with the grid.
+                                    appActions = remember(app, createAppActions) { createAppActions(app) },
                                     appState = createAppState(app),
                                     iconPackPackage = iconPackPackage,
                                     isPredicted = app.launchCountKey() == predictedAppKey,

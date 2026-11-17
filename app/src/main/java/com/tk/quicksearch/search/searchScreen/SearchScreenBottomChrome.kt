@@ -11,11 +11,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.material3.Surface
@@ -59,7 +60,7 @@ internal fun SearchScreenBottomChrome(
     onAiFollowUpSubmit: (String) -> Unit,
     useInsetEngineStrip: Boolean,
     insetEngineStripOverlap: androidx.compose.ui.unit.Dp,
-    insetEngineStripFullBleedFraction: Float,
+    insetEngineStripFullBleedFraction: () -> Float,
     searchEnginesModifier: Modifier,
     bottomBarSwipeModifier: Modifier,
     enabledTargets: List<SearchTarget>,
@@ -339,9 +340,21 @@ internal fun SearchScreenBottomChrome(
                         expandedSection == ExpandedSection.NONE &&
                                 operatorsVisible &&
                                 !numberOperatorsInInsetCard
-                val gapFraction =
-                        if (showsStandaloneNumberKeyboardPills) 0f else insetEngineStripFullBleedFraction
-                Spacer(modifier = Modifier.height(DesignTokens.SpacingSmall * (1f - gapFraction)))
+                // Sized in layout so the full-bleed animation does not recompose this chrome.
+                Spacer(
+                        modifier =
+                                Modifier.layout { measurable, constraints ->
+                                    val gapFraction =
+                                            if (showsStandaloneNumberKeyboardPills) 0f else insetEngineStripFullBleedFraction()
+                                    val height =
+                                            constraints.constrainHeight(
+                                                    (DesignTokens.SpacingSmall * (1f - gapFraction)).roundToPx(),
+                                            )
+                                    val placeable =
+                                            measurable.measure(constraints.copy(minHeight = height, maxHeight = height))
+                                    layout(placeable.width, height) { placeable.place(0, 0) }
+                                },
+                )
             }
 
             Box(modifier = Modifier.fillMaxWidth().extendToScreenEdges()) {

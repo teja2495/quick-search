@@ -16,7 +16,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.zIndex
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.constrainWidth
+import androidx.compose.ui.unit.offset
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.core.SearchUiState
@@ -26,7 +29,10 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 internal data class SearchBarGeometry(
     val useInsetEngineStrip: Boolean,
     val insetEngineStripOverlap: androidx.compose.ui.unit.Dp,
-    val insetEngineStripFullBleedFraction: Float,
+    /** Read only in layout or draw, or by the inset card itself, so it does not recompose the screen. */
+    val insetEngineStripFullBleedFraction: () -> Float,
+    /** True while the inset card is between resting and full bleed, which resizes the bottom chrome. */
+    val isInsetEngineStripAnimating: () -> Boolean,
     val searchFieldModifier: Modifier,
     val insetCardBackdrop: InsetCardBackdrop,
 )
@@ -63,7 +69,7 @@ internal fun rememberSearchBarGeometry(
     // has no gesture handle to clear, so its card always spans the overlay's full width.
     @OptIn(ExperimentalLayoutApi::class)
     val isImeOpeningOrOpen = WindowInsets.imeAnimationTarget.getBottom(density) > 0
-    val insetEngineStripFullBleedFraction by
+    val insetEngineStripFullBleedFractionState =
             animateFloatAsState(
                     targetValue =
                             if (useInsetEngineStrip && (isOverlayPresentation || isImeOpeningOrOpen)) {
@@ -79,15 +85,17 @@ internal fun rememberSearchBarGeometry(
             if (useInsetEngineStrip) {
                 // Inset from the card's edges; the card reaches up by exactly these spacings plus
                 // the bar.
-                Modifier.padding(
-                        start =
-                                InsetSearchBarGeometry.barHorizontalInset(
-                                        insetEngineStripFullBleedFraction,
-                                ),
-                        end =
-                                InsetSearchBarGeometry.barHorizontalInset(
-                                        insetEngineStripFullBleedFraction,
-                                ),
+                // Horizontal inset applied in layout: it follows the full-bleed animation every frame.
+                Modifier.layout { measurable, constraints ->
+                    val inset =
+                            InsetSearchBarGeometry.barHorizontalInset(
+                                    insetEngineStripFullBleedFractionState.value,
+                            ).roundToPx()
+                    val placeable = measurable.measure(constraints.offset(horizontal = -inset * 2))
+                    layout(constraints.constrainWidth(placeable.width + inset * 2), placeable.height) {
+                        placeable.place(inset, 0)
+                    }
+                }.padding(
                         top = InsetSearchBarGeometry.BarTopSpacing,
                         bottom = InsetSearchBarGeometry.BarBottomSpacing,
                 ).onSizeChanged { size ->
@@ -121,7 +129,10 @@ internal fun rememberSearchBarGeometry(
     return SearchBarGeometry(
         useInsetEngineStrip,
         insetEngineStripOverlap,
-        insetEngineStripFullBleedFraction,
+        remember(insetEngineStripFullBleedFractionState) { { insetEngineStripFullBleedFractionState.value } },
+        remember(insetEngineStripFullBleedFractionState) {
+            { insetEngineStripFullBleedFractionState.value.let { it > 0f && it < 1f } }
+        },
         searchFieldModifier,
         rememberInsetCardBackdrop(),
     )

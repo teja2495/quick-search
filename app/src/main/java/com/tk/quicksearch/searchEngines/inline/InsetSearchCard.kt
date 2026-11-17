@@ -235,10 +235,12 @@ internal fun Modifier.insetCardGlow(color: Color, shape: Shape): Modifier =
 internal fun InsetSearchCard(
     style: InsetCardStyle,
     overlap: Dp,
-    fullBleedFraction: Float,
+    fullBleedFraction: () -> Float,
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    // Read here, not by the caller, so the full-bleed animation only recomposes this card.
+    val fullBleedFraction = fullBleedFraction()
     val shape = style.shape(fullBleedFraction)
     Surface(
         modifier =

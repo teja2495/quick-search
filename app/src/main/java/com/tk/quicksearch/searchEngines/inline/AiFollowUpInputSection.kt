@@ -90,7 +90,7 @@ internal fun AiFollowUpInputSection(
     modifier: Modifier = Modifier,
     useInsetContainer: Boolean = false,
     insetOverlap: Dp = SearchEngineSectionConstants.INSET_CONTAINER_OVERLAP,
-    insetFullBleedFraction: Float = 0f,
+    insetFullBleedFraction: () -> Float = { 0f },
     insetCardStyle: InsetCardStyle? = null,
 ) {
     val focusRequester = remember { FocusRequester() }

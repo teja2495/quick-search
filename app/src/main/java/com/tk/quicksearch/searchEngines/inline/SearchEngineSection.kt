@@ -163,7 +163,7 @@ fun SearchEngineIconsSection(
     showOnlyToolAction: Boolean = false,
     useInsetContainer: Boolean = false,
     insetOverlap: Dp = SearchEngineSectionConstants.INSET_CONTAINER_OVERLAP,
-    insetFullBleedFraction: Float = 0f,
+    insetFullBleedFraction: () -> Float = { 0f },
     insetCardStyle: InsetCardStyle? = null,
 ) {
     val hasToolAction = toolActionLabel != null && onToolActionClick != null

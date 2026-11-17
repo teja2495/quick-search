@@ -467,6 +467,33 @@ internal fun buildSectionParams(
                 app.hasLaunchIntent && !suggestionExcludedKeys.contains(app.launchCountKey())
             }
         }
+    // Kept out of appsParams so rebuilding it (any of its many keys changing) does not hand every
+    // app tile new callbacks, which recomposes the whole grid.
+    val onAppNicknameClick: (AppInfo) -> Unit =
+        remember(onUpdateNicknameDialogState, getAppNickname) {
+            { app ->
+                onUpdateNicknameDialogState(
+                    NicknameDialogState.App(
+                        app = app,
+                        currentNickname =
+                            getAppNickname(app.launchCountKey()),
+                        itemName = app.appName,
+                    ),
+                )
+            }
+        }
+    val onAppTriggerClick: (AppInfo) -> Unit =
+        remember(onUpdateTriggerDialogState, getAppTrigger) {
+            { app ->
+                onUpdateTriggerDialogState(
+                    TriggerDialogState.App(
+                        app = app,
+                        currentTrigger = getAppTrigger(app.launchCountKey()),
+                        itemName = app.appName,
+                    ),
+                )
+            }
+        }
     val appsParams =
         remember(
             derivedState.displayApps, derivedState.pinnedAndRecentApps, state.pinnedApps,
@@ -517,25 +544,8 @@ internal fun buildSectionParams(
                 onPinApp = onPinApp,
                 onUnpinApp = onUnpinApp,
                 onReorderPinnedApps = onReorderPinnedApps,
-                onNicknameClick = { app ->
-                    onUpdateNicknameDialogState(
-                        NicknameDialogState.App(
-                            app = app,
-                            currentNickname =
-                                getAppNickname(app.launchCountKey()),
-                            itemName = app.appName,
-                        ),
-                    )
-                },
-                onTriggerClick = { app ->
-                    onUpdateTriggerDialogState(
-                        TriggerDialogState.App(
-                            app = app,
-                            currentTrigger = getAppTrigger(app.launchCountKey()),
-                            itemName = app.appName,
-                        ),
-                    )
-                },
+                onNicknameClick = onAppNicknameClick,
+                onTriggerClick = onAppTriggerClick,
                 getAppNickname = getAppNickname,
                 getAppTrigger = getAppTrigger,
                 rowCount = derivedState.visibleRowCount,
