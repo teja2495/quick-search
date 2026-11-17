@@ -230,6 +230,8 @@ internal fun WidgetPanelGrid(
 
         val laidOut =
             remember(widgets, specs) { resolveWidgetGridLayout(widgets, specs) }
+        // Snapshot at entry: once shown, a kept view is attached and no longer reported as kept.
+        val keptViewIds = remember(appWidgetHost) { appWidgetHost.keptViewIds() }
 
         LaunchedEffect(laidOut) {
             if (laidOut != widgets) onPersist(laidOut)
@@ -387,17 +389,19 @@ internal fun WidgetPanelGrid(
                         gridTopPx = coordinates.localToWindow(Offset.Zero).y
                     },
         ) {
-            val mountedRows = if (showHostedWidgets) hostedRows else IntRange.EMPTY
             displayLayout.forEach { widget ->
                 key(widget.appWidgetId) {
                     val isEditing = editingWidgetId == widget.appWidgetId
                     val firstRow = widget.row ?: 0
                     val lastRow = firstRow + (widget.rowSpan ?: WIDGET_PANEL_DEFAULT_ROW_SPAN) - 1
                     val isNearViewport =
-                        !mountedRows.isEmpty() && firstRow <= mountedRows.last && lastRow >= mountedRows.first
+                        !hostedRows.isEmpty() && firstRow <= hostedRows.last && lastRow >= hostedRows.first
+                    // Views kept from an earlier entry are already inflated, so they show during the
+                    // slide; only new views wait for the page to settle.
+                    val canHost = showHostedWidgets || widget.appWidgetId in keptViewIds
                     WidgetPanelGridItem(
                         widget = widget,
-                        showHostedWidget = showHostedWidgets && (isNearViewport || isEditing),
+                        showHostedWidget = canHost && (isNearViewport || isEditing),
                         appWidgetManager = appWidgetManager,
                         appWidgetHost = appWidgetHost,
                         hasWidgetContent = widgetContentAvailable[widget.appWidgetId] == true,

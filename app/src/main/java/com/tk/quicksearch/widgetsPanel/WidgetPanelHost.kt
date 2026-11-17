@@ -15,6 +15,8 @@ import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.widget.RemoteViews
+import androidx.compose.runtime.snapshots.SnapshotStateMap
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -48,8 +50,12 @@ internal class WidgetPanelHost(
         null
     var onWidgetDragEnd: ((appWidgetId: Int) -> Unit)? = null
     var onWidgetTouch: ((appWidgetId: Int) -> Boolean)? = null
-    /** Reports whether a provider has supplied content for a hosted widget yet. */
-    var onWidgetContentChanged: ((appWidgetId: Int, hasContent: Boolean) -> Unit)? = null
+
+    /**
+     * Whether each widget's provider has supplied content yet. Kept with the views, so a surface
+     * that shows its kept views again does not flash a loading placeholder over them.
+     */
+    val widgetContentAvailable: SnapshotStateMap<Int, Boolean> = mutableStateMapOf()
 
     /**
      * Provider for whether the surrounding scroll container is currently scrolling/flinging.
@@ -110,6 +116,10 @@ internal class WidgetPanelHost(
         return createView(context, appWidgetId, info)
     }
 
+    /** Ids of widgets whose kept view can be shown again without fetching and inflating it. */
+    fun keptViewIds(): Set<Int> =
+        viewsById.filterValues { !it.isAttachedToWindow }.keys.toSet()
+
     /** Drops kept views of widgets that are no longer shown by this surface. */
     fun retainViews(appWidgetIds: Set<Int>) {
         val iterator = viewsById.entries.iterator()
@@ -125,6 +135,7 @@ internal class WidgetPanelHost(
     override fun deleteAppWidgetId(appWidgetId: Int) {
         super.deleteAppWidgetId(appWidgetId)
         providerInfoCache.remove(appWidgetId)
+        widgetContentAvailable.remove(appWidgetId)
         viewsById.remove(appWidgetId)?.let { view -> if (!view.isAttachedToWindow) view.releaseCallbacks() }
     }
 
@@ -139,7 +150,7 @@ internal class WidgetPanelHost(
             view.onDragMove = { dx, dy -> onWidgetDragMove?.invoke(appWidgetId, dx, dy) }
             view.onDragEnd = { onWidgetDragEnd?.invoke(appWidgetId) }
             view.onTouchStarted = { onWidgetTouch?.invoke(appWidgetId) ?: false }
-            view.onContentChanged = { hasContent -> onWidgetContentChanged?.invoke(appWidgetId, hasContent) }
+            view.onContentChanged = { hasContent -> widgetContentAvailable[appWidgetId] = hasContent }
             view.isScrollInProgressProvider = { isScrollInProgressProvider() }
             view.onDetached = {
                 if (liveViews.remove(view)) MemoryDiagnostics.widgetViewsReleased(1)
@@ -235,6 +246,19 @@ internal class WidgetPanelHost(
         }
     }
 
+    /**
+     * Called when the surface showing this host is disposed but the host is kept for its next
+     * showing: stops updates and drops the surface's callbacks, keeping the widget views.
+     */
+    fun detachSurface() {
+        onWidgetLongPress = null
+        onWidgetDragMove = null
+        onWidgetDragEnd = null
+        onWidgetTouch = null
+        isScrollInProgressProvider = { false }
+        setSuspended(true)
+    }
+
     fun release() {
         val releasedViewCount = liveViews.size
         liveViews.toList().forEach { it.releaseCallbacks() }
@@ -242,12 +266,12 @@ internal class WidgetPanelHost(
         viewsById.values.forEach { it.releaseCallbacks() }
         viewsById.clear()
         providerInfoCache.clear()
+        widgetContentAvailable.clear()
         isLifecycleStarted = false
         onWidgetLongPress = null
         onWidgetDragMove = null
         onWidgetDragEnd = null
         onWidgetTouch = null
-        onWidgetContentChanged = null
         isScrollInProgressProvider = { false }
         pauseListening()
         clearViews()

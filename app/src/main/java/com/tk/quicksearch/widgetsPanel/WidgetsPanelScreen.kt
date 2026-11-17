@@ -67,7 +67,6 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -159,10 +158,28 @@ internal enum class ResizeEdge(
     End(1, 0, Alignment.CenterEnd, isHorizontalAxis = true),
 }
 
+/**
+ * Widget host for the panel page. Owned above the page so the hosted widget views (and whether
+ * each has content) outlive the page between entries, instead of every entry inflating them again
+ * behind a loading placeholder.
+ */
 @Composable
-fun WidgetsPanelScreen(
+internal fun rememberWidgetsPanelHost(): WidgetPanelHost {
+    val appContext = LocalContext.current.applicationContext
+    val host = remember(appContext) {
+        WidgetPanelHost(appContext, QUICK_SEARCH_WIDGET_HOST_ID).apply { setSuspended(true) }
+    }
+    DisposableEffect(host) {
+        onDispose { host.release() }
+    }
+    return host
+}
+
+@Composable
+internal fun WidgetsPanelScreen(
     onNavigateToSearch: () -> Unit,
     uiState: SearchUiState,
+    appWidgetHost: WidgetPanelHost,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -173,7 +190,6 @@ fun WidgetsPanelScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val pageSettled = LocalRootPageSettled.current
     val appWidgetManager = remember(appContext) { AppWidgetManager.getInstance(appContext) }
-    val appWidgetHost = remember(appContext) { WidgetPanelHost(appContext, QUICK_SEARCH_WIDGET_HOST_ID) }
     val preferences = remember(appContext) { WidgetsPanelPreferences(appContext) }
     val notesPreferences = remember(appContext) { NotesPreferences(appContext) }
     val sharedWallpaper = LocalSharedPageWallpaper.current
@@ -203,7 +219,6 @@ fun WidgetsPanelScreen(
     // restore the corresponding system-owned app-widget IDs. Keep those obsolete records from
     // reserving invisible cells ahead of widgets added on this device.
     var restoredWidgetIdsValidated by remember { mutableStateOf(false) }
-    val widgetContentAvailable = remember { mutableStateMapOf<Int, Boolean>() }
     // Keep the panel slide independent of third-party RemoteViews inflation.
     var showHostedWidgets by remember { mutableStateOf(false) }
     val panelScrollState = rememberScrollState()
@@ -268,14 +283,12 @@ fun WidgetsPanelScreen(
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     DisposableEffect(appWidgetHost, lifecycle) {
         appWidgetHost.isScrollInProgressProvider = { panelScrollState.isScrollInProgress }
-        appWidgetHost.onWidgetContentChanged = { appWidgetId, hasContent ->
-            widgetContentAvailable[appWidgetId] = hasContent
-        }
         appWidgetHost.setSuspended(!showHostedWidgets)
         val stopFollowingLifecycle = appWidgetHost.listenWhileStarted(lifecycle)
         onDispose {
             stopFollowingLifecycle()
-            appWidgetHost.release()
+            // The host outlives this page so its widget views are shown again on the next entry.
+            appWidgetHost.detachSurface()
         }
     }
 
@@ -495,7 +508,7 @@ fun WidgetsPanelScreen(
                                 showHostedWidgets = showHostedWidgets,
                                 appWidgetManager = appWidgetManager,
                                 appWidgetHost = appWidgetHost,
-                                widgetContentAvailable = widgetContentAvailable,
+                                widgetContentAvailable = appWidgetHost.widgetContentAvailable,
                                 editingWidgetId = editingWidgetId,
                                 density = density,
                                 panelScrollState = panelScrollState,

@@ -69,6 +69,7 @@ import com.tk.quicksearch.settings.shared.settingsRoute.SettingsRoute
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.shared.util.FeedbackUtils
 import com.tk.quicksearch.widgetsPanel.WidgetsPanelScreen
+import com.tk.quicksearch.widgetsPanel.rememberWidgetsPanelHost
 import com.tk.quicksearch.shared.ui.components.LocalSegmentedItemModifier
 import com.tk.quicksearch.onboarding.welcomeExitItem
 
@@ -481,6 +482,7 @@ private fun NavigationContent(
     val homeAppearedContentKeys = remember { mutableSetOf<String>() }
     val openKeyboardPillMemory = remember { OpenKeyboardPillMemory() }
     val settingsPageData = remember { SettingsPageData() }
+    val widgetsPanelHost = rememberWidgetsPanelHost()
     Box(modifier = Modifier.fillMaxSize()) {
         // Keep the backdrop warm across Settings unless the system requests memory.
         val wallpaper = rememberSharedPageWallpaper(
@@ -517,6 +519,7 @@ private fun NavigationContent(
                         WidgetsPanelScreen(
                             onNavigateToSearch = navigateToSearch,
                             uiState = uiState,
+                            appWidgetHost = widgetsPanelHost,
                         )
                     }
 
