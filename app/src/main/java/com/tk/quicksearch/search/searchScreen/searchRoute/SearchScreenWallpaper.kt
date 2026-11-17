@@ -63,12 +63,17 @@ internal fun SearchScreenWallpaperLogic(
     val canShowSystemWallpaperBackdrop =
         !isOverlayPresentation &&
             (context as? MainActivity)?.canShowSystemWallpaperBackdrop == true
+    // Only Home's opaque window shows nothing but the wallpaper behind it. MainActivity's window is
+    // translucent: left transparent, it also shows the app underneath (another launcher), at least
+    // during its opening transition. There the wallpaper is drawn from a bitmap when readable, and
+    // the system wallpaper behind the window is only the fallback when it isn't.
+    val systemWallpaperIsOnlyContentBehind = canShowSystemWallpaperBackdrop && context is HomeActivity
     // Without blur Android composites the same wallpaper behind the window, so the bitmap is only
     // read for its colors and a thumbnail is enough. Blurred wallpapers are drawn from a bitmap
     // scaled to what the blur leaves visible.
     val usesUnblurredSystemBackdrop =
         allowUnblurredSystemBackdrop &&
-            canShowSystemWallpaperBackdrop &&
+            systemWallpaperIsOnlyContentBehind &&
             state.backgroundSource == BackgroundSource.SYSTEM_WALLPAPER &&
             state.wallpaperBlurRadius <= 0f
     val wallpaperDivisor =
@@ -285,9 +290,6 @@ internal fun SearchScreenWallpaperLogic(
                     sourceWallpaperState.value.loadResult != WallpaperUtils.WallpaperLoadResult.Unavailable))
     // While the blurred bitmap loads, Android already draws the system wallpaper behind this window,
     // so show it (sharp) instead of a solid fallback; the blurred image then fades in over it.
-    // Only Home's opaque window shows nothing but the wallpaper behind it. MainActivity's window is
-    // translucent, so leaving it transparent would also show the app underneath (another launcher).
-    val systemWallpaperIsOnlyContentBehind = canShowSystemWallpaperBackdrop && context is HomeActivity
     val isLoadingBlurredSystemWallpaper =
         allowUnblurredSystemBackdrop &&
             systemWallpaperIsOnlyContentBehind &&
