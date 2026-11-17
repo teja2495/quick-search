@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.searchEngineSettings
 
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.MaterialTheme
@@ -96,7 +97,7 @@ internal fun AliasCodeDisplay(
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
     ) {
         if (isCustomEngine) {
             Text(

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.shared.ui.components
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -69,20 +70,20 @@ fun TipBanner(
         modifier = modifier.fillMaxWidth()
             .border(
                 width = 1.dp,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
-                shape = DesignTokens.ShapeXXLarge,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = AppColors.ContentFaintAlpha),
+                shape = AppShapes.extraLarge,
             ),
         colors =
             CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = AppColors.TintSubtleAlpha),
             ),
-        shape = DesignTokens.ShapeXXLarge,
+        shape = AppShapes.extraLarge,
     ) {
         Row(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                    .padding(horizontal = DesignTokens.SpacingLarge, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (icon != null) {

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgets.widgetConfigScreen.components
 
+import com.tk.quicksearch.shared.ui.components.AppButtonSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -49,7 +50,7 @@ fun WidgetSettingTile(
     SegmentedTile(index = index, count = count, modifier = modifier) {
         SegmentedTileContent {
             if (title != null || description != null) {
-                Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall / 2)) {
+                Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall / 2)) {
                     if (title != null) {
                         Text(
                             text = title,
@@ -133,18 +134,11 @@ fun WidgetSaveButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
     AppButton(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier.fillMaxWidth().height(DesignTokens.FloatingActionHeight),
-        shape = floatingActionShape(interactionSource),
-        interactionSource = interactionSource,
-        colors =
-            ButtonDefaults.buttonColors(
-                containerColor = AppColors.Accent,
-                contentColor = AppColors.OnAccent,
-            ),
+        modifier = modifier.fillMaxWidth(),
+        size = AppButtonSize.Medium,
     ) {
         Text(text = text, style = MaterialTheme.typography.labelLarge)
     }

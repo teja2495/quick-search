@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.shared
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -73,9 +74,9 @@ object SearchResultCardDefaults {
         @Composable
         get() =
             if (LocalSearchCardLayoutEnabled.current) {
-                DesignTokens.SearchResultCardShape
+                AppShapes.resultCard
             } else {
-                DesignTokens.ShapeMedium
+                AppShapes.medium
             }
 
     /** Subtle border shown when wallpaper/custom image is active in dark mode. */

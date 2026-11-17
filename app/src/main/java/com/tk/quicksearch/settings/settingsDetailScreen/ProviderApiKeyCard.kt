@@ -120,7 +120,7 @@ internal fun ApiKeyTile(
                 leading()
                 Column(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall / 2),
+                    verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall / 2),
                 ) {
                     Text(
                         text = title,
@@ -219,11 +219,6 @@ internal fun ApiKeySaveActions(
         AppButton(
             enabled = !isSaving && saveEnabled,
             onClick = onSave,
-            colors =
-                ButtonDefaults.buttonColors(
-                    containerColor = AppColors.Accent,
-                    contentColor = AppColors.OnAccent,
-                ),
         ) {
             Text(
                 text =

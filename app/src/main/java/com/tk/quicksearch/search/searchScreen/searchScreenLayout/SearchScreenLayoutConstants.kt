@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.RoundRect
@@ -14,7 +15,7 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 /** Custom shape that rounds only the top corners */
 val TopRoundedShape =
-    RoundedCornerShape(topStart = DesignTokens.CornerLarge, topEnd = DesignTokens.CornerLarge, bottomStart = 0.dp, bottomEnd = 0.dp)
+    AppShapes.stacked(top = DesignTokens.CornerLarge, bottom = DesignTokens.CornerNone)
 
 /**
  * Viewport of an expanded section (More tapped) in card layout: inset by [edgeBleed] to the card

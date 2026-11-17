@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.apps.appLock.AppLockGate
 import android.media.MediaMetadata
 import android.media.session.MediaController
@@ -360,7 +361,7 @@ internal fun NowPlayingRow(
         Box(
             modifier =
                 Modifier
-                    .clip(RoundedCornerShape(DesignTokens.SpacingSmall))
+                    .clip(AppShapes.small)
                     .clickable(onClick = glance.open),
         ) {
             NowPlayingAlbumArt(glance)
@@ -588,14 +589,14 @@ private fun NowPlayingAlbumArt(glance: NowPlayingGlance) {
             modifier =
                 Modifier
                     .size(NowPlayingAlbumArtSize)
-                    .clip(RoundedCornerShape(DesignTokens.SpacingSmall)),
+                    .clip(AppShapes.small),
         )
     } else {
         Box(
             modifier =
                 Modifier
                     .size(NowPlayingAlbumArtSize)
-                    .clip(RoundedCornerShape(DesignTokens.SpacingSmall))
+                    .clip(AppShapes.small)
                     .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center,
         ) {

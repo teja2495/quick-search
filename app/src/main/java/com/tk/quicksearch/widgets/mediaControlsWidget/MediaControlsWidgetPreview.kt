@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgets.mediaControlsWidget
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.media.MediaMetadata
 import android.media.session.MediaController
 import android.media.session.PlaybackState
@@ -80,7 +81,7 @@ fun MediaControlsWidgetPreview(
                 .fillMaxWidth()
                 // Explicit height: paint() without intrinsic sizing expands to the max constraints.
                 .height(MediaControlsWidgetDimens.HEIGHT_DP.dp * PreviewScale + PreviewWallpaperPadding * 2)
-                .clip(DesignTokens.ShapeLarge)
+                .clip(AppShapes.large)
                 .then(
                     wallpaperBitmap?.let { bitmap ->
                         Modifier.paint(

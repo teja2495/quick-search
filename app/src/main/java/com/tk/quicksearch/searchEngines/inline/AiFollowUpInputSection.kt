@@ -1,5 +1,6 @@
 package com.tk.quicksearch.searchEngines.inline
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.searchScreen.insetCardBackdrop
 import com.tk.quicksearch.search.searchScreen.insetCardBackground
 import androidx.compose.animation.AnimatedVisibility
@@ -131,9 +132,7 @@ internal fun AiFollowUpInputSection(
                 }
             },
             singleLine = true,
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(
-                SearchEngineSectionConstants.TOOL_BUTTON_CORNER_RADIUS,
-            ),
+            shape = AppShapes.inlineInput,
             colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Transparent),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
             keyboardActions = KeyboardActions(onSend = { submit() }),

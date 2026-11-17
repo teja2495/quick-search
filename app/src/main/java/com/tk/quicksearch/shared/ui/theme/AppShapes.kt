@@ -1,14 +1,24 @@
 package com.tk.quicksearch.shared.ui.theme
 
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.toRect
+import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * Shape builders for every component. Components ask here for their shape instead of assembling
@@ -16,7 +26,22 @@ import androidx.compose.ui.unit.Dp
  * place. Values come from the corner tokens in [DesignTokens].
  */
 object AppShapes {
-    /** The Material shape scale handed to `MaterialTheme`, built from the corner tokens. */
+    // Every token-based shape in the app comes from here. Call sites never build
+    // RoundedCornerShape from tokens; only user-configured or animated radii (widget border
+    // radius, search bar style, predictive-back preview) construct shapes directly.
+
+    // Corner scale -------------------------------------------------------------------------
+
+    val none: RoundedCornerShape = RoundedCornerShape(DesignTokens.CornerNone)
+    val extraSmall: RoundedCornerShape = RoundedCornerShape(DesignTokens.CornerExtraSmall)
+    val small: RoundedCornerShape = RoundedCornerShape(DesignTokens.CornerSmall)
+    val medium: RoundedCornerShape = RoundedCornerShape(DesignTokens.CornerMedium)
+    val large: RoundedCornerShape = RoundedCornerShape(DesignTokens.CornerLarge)
+    val largeIncreased: RoundedCornerShape = RoundedCornerShape(DesignTokens.CornerLargeIncreased)
+    val extraLarge: RoundedCornerShape = RoundedCornerShape(DesignTokens.CornerExtraLarge)
+    val full: RoundedCornerShape = CircleShape
+
+    /** The Material shape scale handed to `MaterialTheme`, so stock components match. */
     val material: Shapes =
         Shapes(
             extraSmall = RoundedCornerShape(DesignTokens.CornerExtraSmall),
@@ -26,11 +51,51 @@ object AppShapes {
             extraLarge = RoundedCornerShape(DesignTokens.CornerExtraLarge),
         )
 
-    /** Nine-lobed scalloped shape for decorative badges (Material 3 Expressive "Cookie 9"). */
-    val cookie9: Shape = CookieShape(lobes = 9)
+    // Roles ---------------------------------------------------------------------------------
 
-    /** Four-leaf clover shape for decorative badges (Material 3 Expressive "Clover 4"). */
-    val clover4: Shape = CookieShape(lobes = 4, depth = 0.22f)
+    /** Standard card. */
+    val card: RoundedCornerShape = medium
+
+    /** Search result surfaces: history, suggestions, section cards, engine and tool cards. */
+    val resultCard: RoundedCornerShape = extraLarge
+
+    /** Widgets and cards in the widgets panel. */
+    val widgetPanelCard: RoundedCornerShape = RoundedCornerShape(DesignTokens.WidgetPanelCornerRadius)
+
+    /** Outline of a whole segmented group (its outer corners). */
+    val segmentGroup: RoundedCornerShape = RoundedCornerShape(DesignTokens.SegmentedListOuterCorner)
+
+    /** Small app/shortcut icon tiles clipped inside rows. */
+    val iconTile: RoundedCornerShape = RoundedCornerShape(DesignTokens.CornerIconTile)
+
+    /** Editable icon frames (custom engine and bookmark icons). */
+    val iconFrame: RoundedCornerShape = RoundedCornerShape(DesignTokens.CornerIconFrame)
+
+    /** Website favicons. */
+    val favicon: RoundedCornerShape = RoundedCornerShape(DesignTokens.CornerFavicon)
+
+    /** Highlight behind the selected search engine icon. */
+    val engineHighlight: RoundedCornerShape = RoundedCornerShape(DesignTokens.CornerEngineHighlight)
+
+    /** Single-line inline text inputs (AI follow-up). */
+    val inlineInput: RoundedCornerShape = RoundedCornerShape(DesignTokens.CornerInlineInput)
+
+    /** Outlined input fields and picker fields. */
+    val field: RoundedCornerShape = RoundedCornerShape(DesignTokens.CornerMedium)
+
+    /** Nine-sided cookie for decorative badges (Material 3 Expressive "Cookie 9"). */
+    val cookie9: Shape = PolygonShape(AppPolygons.cookie9)
+
+    /** Four-sided cookie for decorative badges (Material 3 Expressive "Cookie 4"). */
+    val cookie4: Shape = PolygonShape(AppPolygons.cookie4)
+
+    /** Shape with each corner set separately, for bento layouts. Corners follow reading order. */
+    fun corners(
+        topStart: Dp,
+        topEnd: Dp,
+        bottomEnd: Dp,
+        bottomStart: Dp,
+    ): RoundedCornerShape = RoundedCornerShape(topStart, topEnd, bottomEnd, bottomStart)
 
     /** A shape with [top] corners above and [bottom] corners below: a tile in a vertical stack. */
     fun stacked(top: Dp, bottom: Dp): RoundedCornerShape =
@@ -102,6 +167,41 @@ fun pressMorphButtonShape(
     height: Dp,
     pressed: Dp = DesignTokens.ButtonPressedCornerMedium,
 ): RoundedCornerShape = pressMorphShape(interactionSource, rest = height / 2, pressed = pressed)
+
+/**
+ * Pill that stays fully round at any height and squares to [pressed] corners while pressed: the
+ * shape of every button in `AppButtons.kt`.
+ */
+@Composable
+fun pressMorphPillShape(
+    interactionSource: InteractionSource,
+    pressed: Dp,
+): Shape {
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val progress by animateFloatAsState(
+        targetValue = if (isPressed) 1f else 0f,
+        animationSpec = AppMotion.fastSpatial(),
+        label = "pressedPill",
+    )
+    return remember(progress, pressed) { PillMorphShape(progress, pressed) }
+}
+
+/** Fully round at [progress] 0, [pressed] corners at 1. */
+private class PillMorphShape(
+    private val progress: Float,
+    private val pressed: Dp,
+) : Shape {
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline {
+        val full = minOf(size.width, size.height) / 2f
+        val target = with(density) { pressed.toPx() }.coerceAtMost(full)
+        val radius = (full + (target - full) * progress).coerceIn(0f, full)
+        return Outline.Rounded(RoundRect(size.toRect(), CornerRadius(radius)))
+    }
+}
 
 /**
  * Floating action (bottom bars, onboarding, save, collapse): fully round at rest, squaring while

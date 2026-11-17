@@ -1,5 +1,6 @@
 package com.tk.quicksearch.onboarding
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -138,7 +139,7 @@ fun ImportSettingsScreen(
                         // Icon circle
                         val iconAlpha by animateFloatAsState(
                             targetValue = if (screenState == ImportScreenState.Importing) 0.38f else 1f,
-                            animationSpec = tween(DesignTokens.AnimationDurationMedium),
+                            animationSpec = tween(AppMotion.DurationMedium),
                             label = "iconAlpha",
                         )
                         Surface(
@@ -156,8 +157,8 @@ fun ImportSettingsScreen(
                                 AnimatedContent(
                                     targetState = screenState,
                                     transitionSpec = {
-                                        fadeIn(tween(DesignTokens.AnimationDurationShort)) togetherWith
-                                            fadeOut(tween(DesignTokens.AnimationDurationShort))
+                                        fadeIn(tween(AppMotion.DurationShort)) togetherWith
+                                            fadeOut(tween(AppMotion.DurationShort))
                                     },
                                     label = "iconContent",
                                 ) { state ->
@@ -185,8 +186,8 @@ fun ImportSettingsScreen(
                         AnimatedContent(
                             targetState = screenState,
                             transitionSpec = {
-                                fadeIn(tween(DesignTokens.AnimationDurationMedium)) togetherWith
-                                    fadeOut(tween(DesignTokens.AnimationDurationShort))
+                                fadeIn(tween(AppMotion.DurationMedium)) togetherWith
+                                    fadeOut(tween(AppMotion.DurationShort))
                             },
                             label = "textContent",
                         ) { state ->
@@ -239,8 +240,8 @@ fun ImportSettingsScreen(
                         // Otherwise, "Import Settings" opens the system file picker.
                         AnimatedVisibility(
                             visible = screenState == ImportScreenState.Idle || screenState == ImportScreenState.Error,
-                            enter = fadeIn(tween(DesignTokens.AnimationDurationShort)),
-                            exit = fadeOut(tween(DesignTokens.AnimationDurationShort)),
+                            enter = fadeIn(tween(AppMotion.DurationShort)),
+                            exit = fadeOut(tween(AppMotion.DurationShort)),
                         ) {
                             OnboardingActionButton(
                                 text = stringResource(
@@ -264,8 +265,8 @@ fun ImportSettingsScreen(
                         // Progress indicator — visible only while importing
                         AnimatedVisibility(
                             visible = screenState == ImportScreenState.Importing,
-                            enter = fadeIn(tween(DesignTokens.AnimationDurationShort)),
-                            exit = fadeOut(tween(DesignTokens.AnimationDurationShort)),
+                            enter = fadeIn(tween(AppMotion.DurationShort)),
+                            exit = fadeOut(tween(AppMotion.DurationShort)),
                         ) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(48.dp),
@@ -284,8 +285,8 @@ fun ImportSettingsScreen(
             AnimatedContent(
                 targetState = isImported,
                 transitionSpec = {
-                    fadeIn(tween(DesignTokens.AnimationDurationMedium)) togetherWith
-                        fadeOut(tween(DesignTokens.AnimationDurationShort))
+                    fadeIn(tween(AppMotion.DurationMedium)) togetherWith
+                        fadeOut(tween(AppMotion.DurationShort))
                 },
                 label = "bottomAction",
             ) { imported ->

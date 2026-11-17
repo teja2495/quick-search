@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -310,7 +311,7 @@ fun RemindersSettingsSection(
             } else {
                 LazyColumn(
                     state = listState,
-                    modifier = Modifier.fillMaxWidth().heightIn(max = screenHeight).clip(DesignTokens.ShapeXXLarge),
+                    modifier = Modifier.fillMaxWidth().heightIn(max = screenHeight).clip(AppShapes.extraLarge),
                     verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
                 ) {
                     itemsIndexed(items = displayedReminders, key = { _, entry -> entry.key }) { index, entry ->

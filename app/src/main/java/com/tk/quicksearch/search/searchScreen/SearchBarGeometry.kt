@@ -114,7 +114,7 @@ internal fun rememberSearchBarGeometry(
                                     DesignTokens.SpacingMedium
                                 } else {
                                     DesignTokens.SpacingXSmall
-                                }) + DesignTokens.SpacingXXSmall,
+                                }) + DesignTokens.SpacingXSmall,
                 )
             }
 

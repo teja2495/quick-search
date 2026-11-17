@@ -1,5 +1,6 @@
 package com.tk.quicksearch.shared.ui.components
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -52,7 +53,7 @@ fun AppDropdownMenu(
         onDismissRequest = onDismissRequest,
         modifier = modifier,
         offset = offset,
-        shape = DesignTokens.ShapeXLarge,
+        shape = AppShapes.extraLarge,
         tonalElevation = DesignTokens.ElevationLevel0,
         shadowElevation = DesignTokens.ElevationLevel2,
         properties = PopupProperties(focusable = focusable),
@@ -118,7 +119,7 @@ fun AppDropdownMenuItem(
         modifier = modifier
             .padding(horizontal = DesignTokens.SpacingXSmall)
             .heightIn(min = DesignTokens.ItemMenuRowHeight)
-            .clip(DesignTokens.ShapeLarge),
+            .clip(AppShapes.large),
         leadingIcon =
             icon?.let {
                 {

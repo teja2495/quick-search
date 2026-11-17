@@ -398,20 +398,8 @@ private fun WidgetPickerRow(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            AppButton(
-                onClick = onClick,
-                shape = DesignTokens.ShapeFull,
-                contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
-            ) {
-                Icon(
-                    imageVector = MaterialSymbols.Add,
-                    contentDescription = null,
-                    modifier = Modifier.size(ButtonDefaults.IconSize),
-                )
-                Text(
-                    text = stringResource(R.string.common_action_add),
-                    modifier = Modifier.padding(start = ButtonDefaults.IconSpacing),
-                )
+            AppButton(onClick = onClick, icon = MaterialSymbols.Add) {
+                Text(text = stringResource(R.string.common_action_add))
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.shared
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -48,7 +49,7 @@ fun ToolToggleRows(
         modifier =
             modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(DesignTokens.SegmentedListOuterCorner))
+                .clip(AppShapes.segmentGroup)
                 .then(if (scrollState != null) Modifier.verticalScroll(scrollState) else Modifier),
     ) {
         tools.forEachIndexed { index, tool ->

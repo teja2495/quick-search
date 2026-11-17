@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
@@ -110,7 +111,7 @@ private fun SectionMenuGrid(
                 .padding(horizontal = SectionMenuScreenMargin)
                 .widthIn(max = SectionMenuMaxWidth)
                 .fillMaxWidth()
-                .clip(MaterialTheme.shapes.extraLarge)
+                .clip(AppShapes.extraLarge)
                 .background(AppColors.DialogBackground)
                 .padding(
                     start = DesignTokens.SpacingMedium,

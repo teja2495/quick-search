@@ -1,5 +1,8 @@
 package com.tk.quicksearch.search.apps.speedBump
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.shared.ui.components.AppButtonSize
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -92,7 +95,7 @@ private const val UsageSupportingAlpha = 0.55f
  * a single line still renders as an exact stadium; long locales that wrap to two lines settle
  * into a rounded card instead of a stadium with oversized semicircular ends.
  */
-private val UsagePillShape = RoundedCornerShape(DesignTokens.CornerLargeIncreased)
+private val UsagePillShape = AppShapes.largeIncreased
 
 /** How far the gradient edge is pulled toward the theme's foreground colour. */
 private const val VignetteStrength = 0.10f
@@ -225,7 +228,7 @@ fun SpeedBumpOverlay(
                         progress = progress,
                         breathAmount = breathAmount,
                         ringColor = MaterialTheme.colorScheme.primary,
-                        trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f),
+                        trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.TintLightAlpha),
                     )
                     iconResult.bitmap?.let { bitmap ->
                         Image(
@@ -235,7 +238,7 @@ fun SpeedBumpOverlay(
                                 Modifier
                                     .size(IconSize)
                                     .scale(0.94f + 0.06f * breathAmount)
-                                    .clip(RoundedCornerShape(DesignTokens.CornerLargeIncreased)),
+                                    .clip(AppShapes.largeIncreased),
                             contentScale = ContentScale.Fit,
                         )
                     }
@@ -276,7 +279,7 @@ fun SpeedBumpOverlay(
                                     .border(
                                         width = 1.dp,
                                         color =
-                                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f),
+                                            MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.TintLightAlpha),
                                         shape = UsagePillShape,
                                     )
                                     .padding(
@@ -318,17 +321,7 @@ fun SpeedBumpOverlay(
                 // way out reads as a real action without competing with the breathing icon.
                 AppButton(
                     onClick = onCancel,
-                    shape = DesignTokens.ShapeFull,
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary,
-                        ),
-                    contentPadding =
-                        PaddingValues(
-                            horizontal = DesignTokens.SpacingHuge,
-                            vertical = DesignTokens.SpacingLarge,
-                        ),
+                    size = AppButtonSize.Medium,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(

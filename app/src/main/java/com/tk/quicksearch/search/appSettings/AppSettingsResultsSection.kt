@@ -268,7 +268,7 @@ internal fun AppSettingResultRow(
 
     Row(
         modifier = rowModifier,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
@@ -299,7 +299,7 @@ internal fun AppSettingResultRow(
                     ),
                 style = MaterialTheme.typography.bodyLarge,
                 color = if (isBlockedByLauncher) {
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.ContentMutedAlpha)
                 } else {
                     MaterialTheme.colorScheme.onSurface
                 },
@@ -311,7 +311,7 @@ internal fun AppSettingResultRow(
                     text = rememberQueryHighlightedText(description),
                     style = MaterialTheme.typography.bodyMedium,
                     color = if (isBlockedByLauncher) {
-                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = AppColors.ContentSecondaryAlpha)
                     } else {
                         MaterialTheme.colorScheme.onSurfaceVariant
                     },
@@ -372,7 +372,7 @@ internal fun AppSettingResultRow(
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     VerticalDivider(
-                        modifier = Modifier.height(24.dp).padding(start = 8.dp),
+                        modifier = Modifier.height(24.dp).padding(start = DesignTokens.SpacingSmall),
                         color = MaterialTheme.colorScheme.outlineVariant,
                     )
                 }
@@ -389,10 +389,10 @@ internal fun AppSettingResultRow(
                 colors = SwitchDefaults.colors(
                     uncheckedTrackColor = Color.Transparent,
                     disabledUncheckedTrackColor = Color.Transparent,
-                    disabledUncheckedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.24f),
-                    disabledUncheckedThumbColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.24f),
-                    disabledCheckedTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-                    disabledCheckedThumbColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                    disabledUncheckedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.TintStrongAlpha),
+                    disabledUncheckedThumbColor = MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.TintStrongAlpha),
+                    disabledCheckedTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.TintLightAlpha),
+                    disabledCheckedThumbColor = MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.DisabledContentAlpha),
                 ),
             )
         } else {

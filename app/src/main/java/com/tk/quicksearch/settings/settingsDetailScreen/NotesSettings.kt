@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -208,7 +209,7 @@ private fun NotesList(
     onToggleNoteSelected: (Long) -> Unit,
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxWidth().wrapContentHeight().clip(DesignTokens.ShapeXXLarge),
+        modifier = Modifier.fillMaxWidth().wrapContentHeight().clip(AppShapes.extraLarge),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
     ) {
         itemsIndexed(
@@ -278,7 +279,7 @@ private fun NoteListRow(
         }
         androidx.compose.foundation.layout.Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
         ) {
             val preview = NotesTextUtils.firstLinesPreview(note.markdownContent)
             val subtitle =

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.apps
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.tk.quicksearch.search.apps.swipeGestures.appSwipeGestures
 import androidx.compose.animation.core.animateFloatAsState
@@ -194,7 +195,7 @@ internal fun AppGridItem(
                                         alpha =
                                                 TopResultIndicatorBackgroundAlpha * indicatorAlpha,
                                 ),
-                        shape = DesignTokens.ShapeLarge,
+                        shape = AppShapes.large,
                     )
                     .padding(
                         top = TopResultIndicatorTopPadding,

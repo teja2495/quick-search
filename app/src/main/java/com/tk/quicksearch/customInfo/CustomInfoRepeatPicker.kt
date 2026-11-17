@@ -1,5 +1,6 @@
 package com.tk.quicksearch.customInfo
 
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -146,7 +147,7 @@ internal fun CustomRepeatDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.common_custom)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)) {
                 OutlinedTextField(
                     value = intervalText,
                     onValueChange = { value -> intervalText = value.filter(Char::isDigit).take(3) },

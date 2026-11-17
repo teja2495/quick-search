@@ -89,7 +89,7 @@ fun DeviceSettingsResultsSection(
 
         Column(
                 modifier = modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
         ) {
                 val hasPredictedRow =
                         predictedSettingId != null &&
@@ -245,7 +245,7 @@ internal fun SettingResultRow(
                                 )
                                 .topPredictedRowContentPadding()
                                 .padding(vertical = resultRowVerticalPadding(12.dp)),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                 verticalAlignment = Alignment.CenterVertically,
         ) {
                 Icon(

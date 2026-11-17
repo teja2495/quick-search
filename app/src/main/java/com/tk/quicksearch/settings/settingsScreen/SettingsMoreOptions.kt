@@ -64,7 +64,7 @@ import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.shared.ui.components.SegmentedGroup
 import com.tk.quicksearch.shared.ui.components.SegmentedTile
 import com.tk.quicksearch.shared.ui.components.TonalIconBadge
-import com.tk.quicksearch.shared.ui.components.ConnectedButton
+import com.tk.quicksearch.shared.ui.components.ConnectedButtonRowScope
 import com.tk.quicksearch.shared.ui.components.ConnectedButtonRow
 
 /**
@@ -202,8 +202,12 @@ fun SettingsMoreOptions(
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
-                ConnectedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                    BackupButton(
+                ConnectedButtonRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    height = BackupButtonHeight,
+                    pressMorph = false,
+                ) {
+                    backupButton(
                         text = stringResource(R.string.search_engine_google_play),
                         icon = {
                             Icon(
@@ -214,10 +218,8 @@ fun SettingsMoreOptions(
                             )
                         },
                         onClick = onOpenDeveloperGooglePlay,
-                        isStart = true,
-                        modifier = Modifier.weight(1f),
                     )
-                    BackupButton(
+                    backupButton(
                         text = stringResource(R.string.settings_github_label),
                         icon = {
                             Icon(
@@ -227,8 +229,6 @@ fun SettingsMoreOptions(
                             )
                         },
                         onClick = onOpenDeveloperGitHub,
-                        isStart = false,
-                        modifier = Modifier.weight(1f),
                     )
                 }
             }
@@ -289,20 +289,20 @@ internal fun BackupRestoreRow(
                     )
                 }
             }
-            ConnectedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                BackupButton(
+            ConnectedButtonRow(
+                modifier = Modifier.fillMaxWidth(),
+                height = BackupButtonHeight,
+                pressMorph = false,
+            ) {
+                backupButton(
                     text = stringResource(R.string.settings_backup_import_button),
                     icon = { BackupButtonIcon(MaterialSymbols.Download) },
                     onClick = onImportClick,
-                    isStart = true,
-                    modifier = Modifier.weight(1f),
                 )
-                BackupButton(
+                backupButton(
                     text = stringResource(R.string.settings_backup_export_button),
                     icon = { BackupButtonIcon(MaterialSymbols.Upload) },
                     onClick = onExportClick,
-                    isStart = false,
-                    modifier = Modifier.weight(1f),
                 )
             }
         }
@@ -318,24 +318,13 @@ private fun BackupButtonIcon(icon: androidx.compose.ui.graphics.vector.ImageVect
     )
 }
 
-@Composable
-private fun BackupButton(
+/** A button of a backup/links row: [icon] then a single-line [text]. */
+private fun ConnectedButtonRowScope.backupButton(
     text: String,
     icon: @Composable () -> Unit,
     onClick: () -> Unit,
-    isStart: Boolean,
-    modifier: Modifier = Modifier,
 ) {
-    ConnectedButton(
-        onClick = onClick,
-        isStart = isStart,
-        isEnd = !isStart,
-        containerColor = AppColors.AccentTintTonal,
-        contentColor = AppColors.Accent,
-        modifier = modifier,
-        height = BackupButtonHeight,
-        pressMorph = false,
-    ) {
+    button(onClick = onClick) {
         icon()
         Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
         Text(text = text, maxLines = 1)
@@ -459,9 +448,9 @@ fun SettingsVersionDisplay(
     val inner = DesignTokens.SegmentedListInnerCorner
     val gap = DesignTokens.SegmentedListGap
     val tileColor = AppColors.getSettingsCardContainerColor()
-    val iconShape = RoundedCornerShape(topStart = outer, bottomStart = outer, topEnd = inner, bottomEnd = inner)
-    val nameShape = RoundedCornerShape(topStart = inner, topEnd = outer, bottomStart = inner, bottomEnd = inner)
-    val creditShape = RoundedCornerShape(topStart = inner, topEnd = inner, bottomStart = inner, bottomEnd = outer)
+    val iconShape = AppShapes.connected(start = outer, end = inner)
+    val nameShape = AppShapes.corners(topStart = inner, topEnd = outer, bottomEnd = inner, bottomStart = inner)
+    val creditShape = AppShapes.corners(topStart = inner, topEnd = inner, bottomEnd = outer, bottomStart = inner)
     Row(
         modifier = modifier.fillMaxWidth().height(IntrinsicSize.Min),
         horizontalArrangement = Arrangement.spacedBy(gap),
@@ -566,7 +555,7 @@ fun SettingsVersionDisplay(
                     modifier =
                         Modifier
                             .size(40.dp)
-                            .background(MaterialTheme.colorScheme.secondaryContainer, AppShapes.clover4),
+                            .background(MaterialTheme.colorScheme.secondaryContainer, AppShapes.cookie4),
                 ) {
                     Icon(
                         imageVector = MaterialSymbols.OpenInNew,

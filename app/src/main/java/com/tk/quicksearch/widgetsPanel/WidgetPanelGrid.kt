@@ -1,5 +1,8 @@
 package com.tk.quicksearch.widgetsPanel
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.shared.ui.components.AppButtonTone
 import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Context
@@ -110,14 +113,9 @@ internal fun WidgetsPanelHeader(
             if (editing) {
                 AppTonalButton(
                     onClick = onExitEditMode,
-                    shape = DesignTokens.ShapeFull,
-                    colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = foreground.copy(alpha = 0.12f),
-                        contentColor = foreground,
-                    ),
+                    tone = AppButtonTone.Custom(foreground),
+                    icon = MaterialSymbols.Check,
                 ) {
-                    Icon(imageVector = MaterialSymbols.Check, contentDescription = null, modifier = Modifier.size(DesignTokens.IconSizeSmall))
-                    Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
                     Text(text = stringResource(R.string.dialog_done))
                 }
             } else {
@@ -125,7 +123,7 @@ internal fun WidgetsPanelHeader(
                     onClick = onAddWidget,
                     modifier = Modifier.size(DesignTokens.Spacing40),
                     colors = IconButtonDefaults.filledTonalIconButtonColors(
-                        containerColor = foreground.copy(alpha = 0.12f),
+                        containerColor = foreground.copy(alpha = AppColors.TintLightAlpha),
                         contentColor = foreground,
                     ),
                 ) {
@@ -527,7 +525,7 @@ private fun BoxScope.WidgetPanelGridItem(
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .frostedCardBackground(DesignTokens.WidgetPanelCardShape)
+                        .frostedCardBackground(AppShapes.widgetPanelCard)
                         .background(
                             color =
                                 if (LocalFrostedCardSource.current?.isActive == true) {
@@ -538,7 +536,7 @@ private fun BoxScope.WidgetPanelGridItem(
                                 } else {
                                     MaterialTheme.colorScheme.surfaceVariant
                                 },
-                            shape = DesignTokens.WidgetPanelCardShape,
+                            shape = AppShapes.widgetPanelCard,
                         ),
                 contentAlignment = Alignment.Center,
             ) {

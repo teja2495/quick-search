@@ -134,17 +134,17 @@ fun AppIconCard(
                         modifier =
                                 Modifier.fillMaxWidth()
                                         .padding(
-                                                start = 20.dp,
-                                                top = 16.dp,
-                                                end = 20.dp,
-                                                bottom = 16.dp,
+                                                start = DesignTokens.SpacingXLarge,
+                                                top = DesignTokens.SpacingLarge,
+                                                end = DesignTokens.SpacingXLarge,
+                                                bottom = DesignTokens.SpacingLarge,
                                         ),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(
                             modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
                     ) {
                         Text(
                                 text = iconPackTitle,
@@ -161,7 +161,7 @@ fun AppIconCard(
                             imageVector = MaterialSymbols.ChevronRight,
                             contentDescription = stringResource(R.string.desc_navigate_forward),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(start = 8.dp),
+                            modifier = Modifier.padding(start = DesignTokens.SpacingSmall),
                     )
                 }
         }

@@ -296,7 +296,6 @@ fun CustomToolEditorScreen(
                 .padding(DesignTokens.ContentHorizontalPadding),
         ) {
             AppButton(
-                colors = ButtonDefaults.buttonColors(containerColor = AppColors.Accent, contentColor = AppColors.OnAccent),
                 onClick = {
                     if (canSave) {
                         onSave(

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.dialogs
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -114,7 +115,7 @@ fun TriggerDialog(
                     color = MaterialTheme.colorScheme.onSurface,
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
 
                 OutlinedTextField(
                     value = triggerText,
@@ -129,7 +130,7 @@ fun TriggerDialog(
                     label = { Text(stringResource(R.string.dialog_trigger_hint)) },
                     modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                     singleLine = true,
-                    shape = DesignTokens.ShapeLarge,
+                    shape = AppShapes.large,
                     trailingIcon = {
                         if (triggerText.text.isNotEmpty()) {
                             IconButton(onClick = { triggerText = TextFieldValue("") }) {
@@ -145,7 +146,7 @@ fun TriggerDialog(
                     isError = hasConflict,
                 )
                 if (hasConflict) {
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(DesignTokens.SpacingSmall))
                     Text(
                         text =
                             if (hasAliasConflict) {
@@ -159,7 +160,7 @@ fun TriggerDialog(
                 }
 
                 Row(
-                    modifier = Modifier.padding(top = 12.dp),
+                    modifier = Modifier.padding(top = DesignTokens.SpacingMedium),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Checkbox(

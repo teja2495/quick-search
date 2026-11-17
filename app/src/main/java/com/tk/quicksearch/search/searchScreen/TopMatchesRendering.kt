@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -205,7 +206,7 @@ internal fun TopMatchesSection(
                                 modifier =
                                     Modifier.padding(
                                         horizontal = DesignTokens.SpacingLarge,
-                                        vertical = 4.dp,
+                                        vertical = DesignTokens.SpacingXSmall,
                                     ),
                             ) {
                                 TopMatchRow(
@@ -271,7 +272,7 @@ private fun TopMatchesHeader() {
         Icon(
             imageVector = MaterialSymbols.AutoAwesome,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.92f),
+            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.ContentNearOpaqueAlpha),
             modifier = Modifier.size(14.dp),
         )
         Text(
@@ -606,7 +607,7 @@ private fun TopMatchAppRow(
                     )
                     .topPredictedRowContentPadding()
                     .padding(vertical = resultRowVerticalPadding(12.dp)),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(

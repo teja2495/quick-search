@@ -188,9 +188,9 @@ fun AppSwitch(
 @Composable
 fun appSwitchColors(): SwitchColors =
     SwitchDefaults.colors(
-        uncheckedTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-        uncheckedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-        uncheckedThumbColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+        uncheckedTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.TintLightAlpha),
+        uncheckedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.DisabledContentAlpha),
+        uncheckedThumbColor = MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.DisabledContentAlpha),
     )
 
 /** Check icon in a switch thumb while on, the Material 3 Expressive switch. */
@@ -238,7 +238,7 @@ fun SegmentedTileRow(
         leading?.invoke()
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall / 2),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall / 2),
         ) {
             Text(
                 text = title,

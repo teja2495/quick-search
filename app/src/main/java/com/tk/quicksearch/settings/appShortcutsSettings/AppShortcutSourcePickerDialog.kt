@@ -98,7 +98,7 @@ private fun ShortcutSourceGridItem(
         modifier =
             modifier
                 .clickable(onClick = onClick)
-                .padding(vertical = DesignTokens.SpacingSmall, horizontal = 4.dp),
+                .padding(vertical = DesignTokens.SpacingSmall, horizontal = DesignTokens.SpacingXSmall),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
     ) {

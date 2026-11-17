@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.files
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -111,7 +112,7 @@ fun FilePreviewDialog(
                 .padding(horizontal = DesignTokens.SpacingLarge)
                 // PDFs wrap to the page's aspect ratio; images keep a fixed viewport
                 .then(if (isPdf) Modifier.heightIn(max = dialogHeight) else Modifier.height(dialogHeight)),
-            shape = DesignTokens.ShapeXLarge,
+            shape = AppShapes.extraLarge,
             color = AppColors.DialogBackground,
         ) {
             Column(
@@ -199,14 +200,8 @@ private fun FilePreviewActions(
             modifier = Modifier
                 .weight(1f)
                 .height(ACTION_BUTTON_HEIGHT),
-            contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+            icon = MaterialSymbols.OpenInNew,
         ) {
-            Icon(
-                imageVector = MaterialSymbols.OpenInNew,
-                contentDescription = null,
-                modifier = Modifier.size(ACTION_ICON_SIZE),
-            )
-            Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
             Text(
                 text = stringResource(R.string.action_open),
                 style = MaterialTheme.typography.labelLarge,
@@ -360,7 +355,7 @@ private fun PdfPreview(
                             .align(Alignment.BottomCenter)
                             .padding(DesignTokens.SpacingMedium)
                             .clip(RoundedCornerShape(PREVIEW_CORNER_RADIUS))
-                            .background(MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.8f))
+                            .background(MaterialTheme.colorScheme.inverseSurface.copy(alpha = AppColors.ContentStrongAlpha))
                             .padding(horizontal = DesignTokens.SpacingMedium, vertical = DesignTokens.SpacingXSmall),
                     )
                 }

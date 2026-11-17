@@ -176,7 +176,7 @@ fun SettingsToggleRow(
                             if (enabled) {
                                 MaterialTheme.colorScheme.onSurface
                             } else {
-                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.ContentMutedAlpha)
                             },
                     )
                 }
@@ -190,7 +190,7 @@ fun SettingsToggleRow(
                                 if (enabled) {
                                     MaterialTheme.colorScheme.onSurfaceVariant
                                 } else {
-                                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = AppColors.ContentSecondaryAlpha)
                                 },
                         )
                     }
@@ -223,7 +223,7 @@ fun SettingsToggleRow(
                                 if (enabled) {
                                     MaterialTheme.colorScheme.onSurfaceVariant
                                 } else {
-                                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = AppColors.ContentSecondaryAlpha)
                                 },
                         )
                     }
@@ -243,7 +243,7 @@ fun SettingsToggleRow(
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     VerticalDivider(
-                        modifier = Modifier.height(24.dp).padding(horizontal = 8.dp),
+                        modifier = Modifier.height(24.dp).padding(horizontal = DesignTokens.SpacingSmall),
                         color = AppColors.SettingsDivider,
                     )
                 }

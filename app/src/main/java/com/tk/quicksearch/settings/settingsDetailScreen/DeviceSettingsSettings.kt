@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -57,7 +58,7 @@ fun DeviceSettingsSettingsSection(
     }
 
     LazyColumn(
-        modifier = modifier.fillMaxWidth().clip(DesignTokens.ShapeXXLarge),
+        modifier = modifier.fillMaxWidth().clip(AppShapes.extraLarge),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
     ) {
         if (displayedSettings.isEmpty()) {

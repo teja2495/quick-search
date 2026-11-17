@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgets.customButtonsWidget
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Base64
@@ -238,16 +239,16 @@ private fun CustomButtonsRow(
         } else {
             WidgetConfigConstants.CUSTOM_BUTTON_ICON_SIZE
         }
-    val slotShape = RoundedCornerShape(if (compactMode) 12.dp else 16.dp)
+    val slotShape = if (compactMode) AppShapes.medium else AppShapes.large
     if (compactMode) {
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
         ) {
             actions.chunked(3).forEachIndexed { rowIndex, rowActions ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     rowActions.forEachIndexed { columnIndex, action ->
@@ -518,7 +519,7 @@ private fun CustomButtonSlotContent(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                    modifier = Modifier.padding(horizontal = 4.dp),
+                    modifier = Modifier.padding(horizontal = DesignTokens.SpacingXSmall),
                 )
             } else {
                 CustomWidgetButtonIcon(
@@ -534,7 +535,7 @@ private fun CustomButtonSlotContent(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                    modifier = Modifier.padding(horizontal = 4.dp),
+                    modifier = Modifier.padding(horizontal = DesignTokens.SpacingXSmall),
                 )
             }
         }

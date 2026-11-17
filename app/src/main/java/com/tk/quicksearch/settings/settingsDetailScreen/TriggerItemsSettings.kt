@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.provider.ContactsContract
 import android.provider.OpenableColumns
 import androidx.compose.foundation.Image
@@ -163,7 +164,7 @@ fun TriggerItemsScreen(
         )
 
         LazyColumn(
-            modifier = Modifier.fillMaxWidth().weight(1f).clip(DesignTokens.ShapeXXLarge),
+            modifier = Modifier.fillMaxWidth().weight(1f).clip(AppShapes.extraLarge),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
         ) {
             itemsIndexed(allItems) { index, item ->

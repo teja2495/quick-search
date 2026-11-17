@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.bookmarks
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
 import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
 import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
@@ -170,7 +171,7 @@ internal fun BookmarkRow(
                 }
                 .topPredictedRowContentPadding()
                 .padding(vertical = resultRowVerticalPadding(12.dp)),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         BookmarkFavicon(bookmark = bookmark, modifier = Modifier.padding(start = 7.dp))
@@ -223,7 +224,7 @@ fun BookmarkFavicon(
             Image(
                 bitmap = bitmap,
                 contentDescription = null,
-                modifier = Modifier.size(size).clip(RoundedCornerShape(6.dp)),
+                modifier = Modifier.size(size).clip(AppShapes.favicon),
             )
         } else {
             Icon(

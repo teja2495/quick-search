@@ -31,7 +31,7 @@ import com.tk.quicksearch.shared.time.ScheduleRepeatUnit
 import com.tk.quicksearch.shared.ui.components.AppDropdownMenu
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.components.AppOutlinedButton
+import com.tk.quicksearch.shared.ui.components.PickerFieldButton
 
 private val repeatPresets: List<ScheduleRepeat?> =
     listOf(null) + ScheduleRepeatUnit.entries.map { ScheduleRepeat(1, it) }
@@ -54,23 +54,13 @@ internal fun ReminderRepeatField(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            AppOutlinedButton(
+            PickerFieldButton(
+                icon = MaterialSymbols.Repeat,
+                value = repeat?.let { ReminderRepeat.label(resources, it) }
+                    ?: stringResource(R.string.custom_info_repeat_never),
                 onClick = { menuExpanded = true },
                 modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(DesignTokens.CornerMedium),
-            ) {
-                Icon(
-                    imageVector = MaterialSymbols.Repeat,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                )
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    text = repeat?.let { ReminderRepeat.label(resources, it) }
-                        ?: stringResource(R.string.custom_info_repeat_never),
-                    modifier = Modifier.weight(1f),
-                )
-            }
+            )
             if (repeat != null) {
                 IconButton(onClick = { onRepeatChange(null) }) {
                     Icon(

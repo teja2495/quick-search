@@ -110,7 +110,7 @@ internal fun MissedCallsRow(
             }
             if (hasAppChips) {
                 Row(
-                    modifier = Modifier.padding(start = 24.dp + DesignTokens.SpacingMedium, top = DesignTokens.SpacingXSmall),
+                    modifier = Modifier.padding(start = DesignTokens.SpacingXXLarge + DesignTokens.SpacingMedium, top = DesignTokens.SpacingXSmall),
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                 ) {
                     // Without the 48dp minimum touch target, which pads the chips with empty space above and below.
@@ -177,7 +177,7 @@ private fun MissedCallAppChip(
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
         Row(
-            modifier = Modifier.padding(start = 8.dp, end = 12.dp, top = 5.dp, bottom = 5.dp),
+            modifier = Modifier.padding(start = DesignTokens.SpacingSmall, end = DesignTokens.SpacingMedium, top = 5.dp, bottom = 5.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {

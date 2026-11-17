@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.apps
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.foundation.layout.Box
@@ -52,7 +53,7 @@ internal fun AppSuggestionTabStrip(
     ) {
         tabs.forEachIndexed { index, tab ->
             val labelColor by animateColorAsState(
-                targetValue = if (index == selected) foreground else foreground.copy(alpha = 0.50f),
+                targetValue = if (index == selected) foreground else foreground.copy(alpha = AppColors.ContentMutedAlpha),
                 label = "suggestionTabText",
             )
             Tab(
@@ -65,7 +66,7 @@ internal fun AppSuggestionTabStrip(
                 },
                 modifier = Modifier.heightIn(min = SuggestionTabHeight),
                 selectedContentColor = foreground,
-                unselectedContentColor = foreground.copy(alpha = 0.50f),
+                unselectedContentColor = foreground.copy(alpha = AppColors.ContentMutedAlpha),
             ) {
                 Box(
                     modifier = Modifier.heightIn(min = SuggestionTabHeight)

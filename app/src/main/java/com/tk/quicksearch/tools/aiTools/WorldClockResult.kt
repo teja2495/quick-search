@@ -82,7 +82,7 @@ fun WorldClockResult(
                                                 Modifier.padding(top = DesignTokens.SpacingSmall)
                                                         .fillMaxWidth(),
                                         verticalArrangement =
-                                                Arrangement.spacedBy(DesignTokens.SpacingXXSmall),
+                                                Arrangement.spacedBy(DesignTokens.SpacingXSmall),
                                 ) {
                                     placeLabel.takeIf { it.isNotBlank() }?.let { place ->
                                         Text(

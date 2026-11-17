@@ -25,9 +25,10 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.ui.theme.floatingActionShape
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.components.AppButton
+import com.tk.quicksearch.shared.ui.components.AppButtonSize
+import com.tk.quicksearch.shared.ui.components.AppButtonTone
 import com.tk.quicksearch.shared.ui.components.AppOutlinedButton
 
 /**
@@ -64,7 +65,6 @@ fun OnboardingActionButton(
     val buttonModifier =
         modifier
             .fillMaxWidth()
-            .height(DesignTokens.FloatingActionHeight)
             .then(
                 if (welcomeMorph == null) {
                     Modifier
@@ -75,16 +75,7 @@ fun OnboardingActionButton(
                         .welcomeGlow()
                 },
             )
-    val shape = floatingActionShape(interactionSource)
     val content: @Composable () -> Unit = {
-        if (icon != null) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(DesignTokens.IconSize),
-            )
-            Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
-        }
         Text(
             text = text,
             style = labelStyle,
@@ -96,27 +87,21 @@ fun OnboardingActionButton(
             onClick = handleClick,
             enabled = enabled,
             modifier = buttonModifier,
-            shape = shape,
-            interactionSource = interactionSource,
+            tone = AppButtonTone.Neutral,
+            size = AppButtonSize.Medium,
+            icon = icon,
             // The welcome glow is this button's border.
-            border = if (welcomeMorph != null) null else ButtonDefaults.outlinedButtonBorder(enabled),
-            colors =
-                ButtonDefaults.outlinedButtonColors(
-                    contentColor = contentColor,
-                ),
+            showBorder = welcomeMorph == null,
+            interactionSource = interactionSource,
         ) { content() }
     } else {
         AppButton(
             onClick = handleClick,
             enabled = enabled,
             modifier = buttonModifier,
-            shape = shape,
+            size = AppButtonSize.Medium,
+            icon = icon,
             interactionSource = interactionSource,
-            colors =
-                ButtonDefaults.buttonColors(
-                    containerColor = containerColor,
-                    contentColor = contentColor,
-                ),
         ) { content() }
     }
 }

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -101,7 +103,7 @@ internal fun ExpandButton(
     AppTextButton(
         onClick = onClick,
         modifier = modifier,
-        contentPadding = PaddingValues(start = 12.dp, end = 16.dp),
+        contentPadding = ButtonDefaults.TextButtonWithIconContentPadding,
     ) {
         ExpandCollapseButtonContent(
             text = stringResource(textResId),
@@ -167,7 +169,7 @@ internal fun CollapseButton(
             text = stringResource(R.string.desc_collapse),
             icon = MaterialSymbols.ExpandLess,
             contentColor = contentColor,
-            modifier = Modifier.padding(start = 16.dp, end = 20.dp),
+            modifier = Modifier.padding(start = DesignTokens.SpacingLarge, end = DesignTokens.SpacingXLarge),
         )
     }
 }
@@ -191,7 +193,7 @@ private fun ExpandCollapseButtonContent(
             tint = contentColor,
             modifier = Modifier.size(EXPAND_ICON_SIZE.dp),
         )
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
         Text(
             text = text,
             style = monochromeAwareStyle(MaterialTheme.typography.labelLarge),

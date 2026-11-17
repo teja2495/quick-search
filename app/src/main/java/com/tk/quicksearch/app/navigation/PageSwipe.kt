@@ -1,5 +1,6 @@
 package com.tk.quicksearch.app.navigation
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.core.AnimationSpec
@@ -193,7 +194,7 @@ class PageSwipeController internal constructor(
         val navigationTween: AnimationSpec<Float> =
             tween(NAVIGATION_ANIMATION_DURATION_MS, easing = FastOutSlowInEasing)
         val releaseSpring: AnimationSpec<Float> =
-            spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow)
+            AppMotion.settle()
     }
 }
 

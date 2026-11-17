@@ -165,7 +165,7 @@ fun FileInfoDialog(
                     }
                     HorizontalDivider(
                             modifier = Modifier.padding(vertical = DesignTokens.SpacingLarge),
-                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = AppColors.ContentMutedAlpha),
                     )
                     Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge)) {
                         Row {

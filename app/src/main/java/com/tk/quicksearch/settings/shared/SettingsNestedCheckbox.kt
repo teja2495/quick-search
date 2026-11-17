@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.shared
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -39,16 +40,16 @@ fun SettingsNestedCheckbox(
                 .clip(NestedCheckboxShape)
                 .background(AppColors.AccentTintSubtle)
                 .toggleable(value = checked, role = Role.Checkbox, onValueChange = onCheckedChange)
-                .padding(start = 8.dp, end = 12.dp, top = 6.dp, bottom = 6.dp),
+                .padding(start = DesignTokens.SpacingSmall, end = DesignTokens.SpacingMedium, top = 6.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
         // The panel is the touch target, so the checkbox drops its own 48dp inset.
         CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
             Checkbox(
                 checked = checked,
                 onCheckedChange = null,
-                modifier = Modifier.padding(4.dp),
+                modifier = Modifier.padding(DesignTokens.SpacingXSmall),
                 colors =
                     CheckboxDefaults.colors(
                         checkedColor = AppColors.Accent,
@@ -65,4 +66,4 @@ fun SettingsNestedCheckbox(
     }
 }
 
-private val NestedCheckboxShape = RoundedCornerShape(DesignTokens.CornerLarge)
+private val NestedCheckboxShape = AppShapes.large

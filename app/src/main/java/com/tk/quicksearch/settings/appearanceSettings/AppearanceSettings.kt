@@ -177,7 +177,7 @@ fun AppearanceSettingsSection(
                 compactLayoutEnabled = compactLayoutEnabled,
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
 
         AppThemeCard(
                 selectedTheme = appTheme,
@@ -197,7 +197,7 @@ fun AppearanceSettingsSection(
                 onAmoledThemeToggle = onAmoledThemeToggle,
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
 
         WallpaperCard(
                 wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
@@ -219,7 +219,7 @@ fun AppearanceSettingsSection(
                 deviceThemeEnabled = deviceThemeEnabled,
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
 
         // Alternate launcher icons are adaptive icons (mipmap-anydpi-v26 only).
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -228,7 +228,7 @@ fun AppearanceSettingsSection(
                     onSetLauncherAppIcon = onSetLauncherAppIcon,
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
         }
 
         SearchBarStyleCard(
@@ -247,7 +247,7 @@ fun AppearanceSettingsSection(
                 iconPackPackage = selectedIconPackPackage,
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
 
         if (enabledSearchEngines.isNotEmpty()) {
             SearchEngineAppearanceCard(
@@ -257,7 +257,7 @@ fun AppearanceSettingsSection(
                     onSetCompactRowCount = onSetSearchEngineCompactRowCount,
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
         }
 
         SegmentedGroup {
@@ -280,7 +280,7 @@ fun AppearanceSettingsSection(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
 
         SegmentedGroup {
             val pinnedCount = if (unifiedPinnedItemsEnabled) 2 else 3
@@ -320,7 +320,7 @@ fun AppearanceSettingsSection(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
 
         AppIconCard(
                 showAppLabels = showAppLabels,

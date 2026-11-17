@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.appShortcutsSettings
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.graphics.BitmapFactory
 import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -275,7 +276,7 @@ fun AddAppDeepLinkDialog(
         onDismissRequest = onDismiss,
         title = { Text(text = stringResource(R.string.settings_app_shortcuts_add_deep_link_dialog_title)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium)) {
                 Text(
                     text = stringResource(R.string.settings_app_shortcuts_add_deep_link_dialog_message),
                     style = MaterialTheme.typography.bodyMedium,
@@ -283,13 +284,13 @@ fun AddAppDeepLinkDialog(
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                 ) {
                     Box(
                         modifier =
                             Modifier
                                 .size(50.dp)
-                                .clip(MaterialTheme.shapes.medium)
+                                .clip(AppShapes.medium)
                                 .clickable { pickIconLauncher.launch(arrayOf("image/*")) },
                         contentAlignment = Alignment.Center,
                     ) {
@@ -421,7 +422,7 @@ fun AddSearchTargetShortcutDialog(
         onDismissRequest = onDismiss,
         title = { Text(text = stringResource(titleResId, targetLabel)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium)) {
                 OutlinedTextField(
                     value = shortcutName,
                     onValueChange = { shortcutName = it },

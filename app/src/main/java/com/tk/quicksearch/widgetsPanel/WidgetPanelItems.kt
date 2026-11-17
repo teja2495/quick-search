@@ -1,5 +1,7 @@
 package com.tk.quicksearch.widgetsPanel
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
@@ -545,8 +547,8 @@ internal fun BoxScope.WidgetEditBorder() {
                 .matchParentSize()
                 .border(
                     width = WidgetEditBorderWidth,
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
-                    shape = DesignTokens.WidgetPanelCardShape,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = AppColors.ContentSecondaryAlpha),
+                    shape = AppShapes.widgetPanelCard,
                 ),
     )
 }

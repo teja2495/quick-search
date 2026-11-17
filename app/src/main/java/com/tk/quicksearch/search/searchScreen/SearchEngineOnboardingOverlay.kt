@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.shared.ui.components.AppButtonSize
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -62,7 +64,7 @@ internal fun SearchEngineOnboardingOverlay(
     ) {
         val boxModifier =
                 if (isOverlayPresentation) {
-                    Modifier.fillMaxSize().clip(DesignTokens.ExtraLargeCardShape)
+                    Modifier.fillMaxSize().clip(AppShapes.extraLarge)
                 } else {
                     Modifier.fillMaxSize()
                 }
@@ -275,12 +277,7 @@ private fun OnboardingContent(
                     AppButton(
                         onClick = onDismiss,
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(DesignTokens.OnboardingButtonCornerRadius),
-                        contentPadding =
-                            PaddingValues(
-                                horizontal = DesignTokens.OnboardingButtonHorizontalPadding,
-                                vertical = DesignTokens.OnboardingButtonVerticalPadding,
-                            ),
+                        size = AppButtonSize.Medium,
                     ) {
                         Text(
                             text = stringResource(R.string.setup_action_start),

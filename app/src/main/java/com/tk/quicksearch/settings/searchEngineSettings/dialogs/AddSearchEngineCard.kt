@@ -268,7 +268,7 @@ private fun AddSearchEngineForm(
                     if (validTemplate != null) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             EditableIcon(
@@ -427,7 +427,6 @@ private fun AddSearchEngineForm(
                     AppTextButton(
                         onClick = { resetForm() },
                         enabled = urlInput.text.isNotEmpty(),
-                        colors = ButtonDefaults.textButtonColors(contentColor = AppColors.Accent),
                     ) {
                         Text(text = stringResource(R.string.common_action_clear))
                     }
@@ -441,11 +440,6 @@ private fun AddSearchEngineForm(
                             }
                         },
                         enabled = canSave,
-                        colors =
-                            ButtonDefaults.buttonColors(
-                                containerColor = AppColors.Accent,
-                                contentColor = AppColors.OnAccent,
-                            ),
                     ) {
                         Text(text = stringResource(R.string.dialog_save))
                     }

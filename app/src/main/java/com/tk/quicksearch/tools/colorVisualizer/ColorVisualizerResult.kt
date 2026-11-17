@@ -1,5 +1,6 @@
 package com.tk.quicksearch.tools.colorVisualizer
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -75,7 +76,7 @@ fun ColorVisualizerResult(
                     modifier =
                         Modifier.fillMaxWidth()
                             .height(112.dp)
-                            .background(color, DesignTokens.ShapeMedium),
+                            .background(color, AppShapes.medium),
                 )
             }
         }

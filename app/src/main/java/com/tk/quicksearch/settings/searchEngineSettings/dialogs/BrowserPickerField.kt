@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.searchEngineSettings.dialogs
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -75,7 +77,7 @@ fun BrowserPickerField(
     var expanded by remember { mutableStateOf(false) }
     val chevronAngle by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
-        animationSpec = tween(durationMillis = DesignTokens.AnimationDurationShort),
+        animationSpec = tween(durationMillis = AppMotion.DurationShort),
         label = "chevron",
     )
 
@@ -85,11 +87,9 @@ fun BrowserPickerField(
     val accentColor = AppColors.Accent
     val onSurface = MaterialTheme.colorScheme.onSurface
     val onSurfaceVariant = MaterialTheme.colorScheme.onSurfaceVariant
-    val shape = RoundedCornerShape(DesignTokens.CornerSmall)
-    val expandedShape = RoundedCornerShape(
-        topStart = 8.dp, topEnd = 8.dp,
-        bottomStart = 0.dp, bottomEnd = 0.dp,
-    )
+    val shape = AppShapes.small
+    val expandedShape = AppShapes.stacked(top = DesignTokens.CornerSmall, bottom = DesignTokens.CornerNone)
+    val listShape = AppShapes.stacked(top = DesignTokens.CornerNone, bottom = DesignTokens.CornerSmall)
 
     Column(modifier = modifier.fillMaxWidth()) {
         // ── Selector row ─────────────────────────────────────────────────────
@@ -99,16 +99,16 @@ fun BrowserPickerField(
                 .clip(if (expanded) expandedShape else shape)
                 .border(
                     width = if (expanded) 1.dp else 0.5.dp,
-                    color = if (expanded) accentColor else accentColor.copy(alpha = 0.3f),
+                    color = if (expanded) accentColor else accentColor.copy(alpha = AppColors.TintEmphasisAlpha),
                     shape = if (expanded) expandedShape else shape,
                 )
                 .clickable {
                     expanded = !expanded
                     if (expanded) onExpand()
                 }
-                .padding(horizontal = 12.dp, vertical = 10.dp),
+                .padding(horizontal = DesignTokens.SpacingMedium, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
         ) {
             Icon(
                 imageVector = MaterialSymbols.Language,
@@ -141,27 +141,19 @@ fun BrowserPickerField(
         // ── Dropdown list ─────────────────────────────────────────────────────
         AnimatedVisibility(
             visible = expanded,
-            enter = expandVertically(tween(DesignTokens.AnimationDurationShort)) + fadeIn(tween(DesignTokens.AnimationDurationShort)),
-            exit = shrinkVertically(tween(DesignTokens.AnimationDurationShort)) + fadeOut(tween(DesignTokens.AnimationDurationShort)),
+            enter = expandVertically(tween(AppMotion.DurationShort)) + fadeIn(tween(AppMotion.DurationShort)),
+            exit = shrinkVertically(tween(AppMotion.DurationShort)) + fadeOut(tween(AppMotion.DurationShort)),
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(max = 200.dp)
-                    .clip(
-                        RoundedCornerShape(
-                            topStart = 0.dp, topEnd = 0.dp,
-                            bottomStart = 8.dp, bottomEnd = 8.dp,
-                        )
-                    )
-                    .background(accentColor.copy(alpha = 0.06f))
+                    .clip(listShape)
+                    .background(accentColor.copy(alpha = AppColors.TintFaintAlpha))
                     .border(
                         width = 1.dp,
-                        color = accentColor.copy(alpha = 0.3f),
-                        shape = RoundedCornerShape(
-                            topStart = 0.dp, topEnd = 0.dp,
-                            bottomStart = 8.dp, bottomEnd = 8.dp,
-                        ),
+                        color = accentColor.copy(alpha = AppColors.TintEmphasisAlpha),
+                        shape = listShape,
                     )
                     .verticalScroll(rememberScrollState()),
             ) {
@@ -177,7 +169,7 @@ fun BrowserPickerField(
 
                 browserOptions.forEach { browser ->
                     HorizontalDivider(
-                        color = accentColor.copy(alpha = 0.12f),
+                        color = accentColor.copy(alpha = AppColors.TintLightAlpha),
                         thickness = DesignTokens.DividerThickness,
                     )
                     BrowserOptionRow(
@@ -207,19 +199,19 @@ private fun BrowserOptionRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .background(if (isSelected) accentColor.copy(alpha = 0.10f) else Color.Transparent)
-            .padding(horizontal = 12.dp, vertical = 10.dp),
+            .background(if (isSelected) accentColor.copy(alpha = AppColors.TintLightAlpha) else Color.Transparent)
+            .padding(horizontal = DesignTokens.SpacingMedium, vertical = 10.dp),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
         ) {
             Box(
                 modifier = Modifier
                     .size(6.dp)
                     .clip(CircleShape)
                     .background(
-                        if (isSelected) accentColor else accentColor.copy(alpha = 0.25f)
+                        if (isSelected) accentColor else accentColor.copy(alpha = AppColors.TintStrongAlpha)
                     ),
             )
             Text(

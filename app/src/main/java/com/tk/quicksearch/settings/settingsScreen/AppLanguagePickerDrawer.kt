@@ -95,7 +95,7 @@ private fun LanguageTile(
     ) {
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
         ) {
             Text(
                 text = option.label,
@@ -132,7 +132,7 @@ private fun languageTileHeight(): Dp {
                 .sp
                 .toDp()
         }
-    return textHeight + DesignTokens.SpacingXXSmall + DesignTokens.SpacingMedium * 2
+    return textHeight + DesignTokens.SpacingXSmall + DesignTokens.SpacingMedium * 2
 }
 
 private fun deviceLanguageLabel(): String? {

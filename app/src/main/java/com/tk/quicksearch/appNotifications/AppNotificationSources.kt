@@ -134,7 +134,7 @@ private fun RecentMatchRow(notification: RecentNotification) {
         AppPickerDrawerAppIcon(notification.packageName)
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall / 2),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall / 2),
         ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),

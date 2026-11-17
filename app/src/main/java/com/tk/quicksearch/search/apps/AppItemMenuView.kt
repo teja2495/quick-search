@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.apps
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.text.style.TextAlign
@@ -464,7 +465,7 @@ fun AppItemDropdownMenu(
                         contentDescription = appInfo.appName,
                         modifier = Modifier
                             .size(40.dp)
-                            .clip(RoundedCornerShape(10.dp)),
+                            .clip(AppShapes.iconTile),
                         contentScale = ContentScale.Fit,
                     )
                 }
@@ -529,7 +530,7 @@ fun AppItemDropdownMenu(
 @Composable
 private fun AppPackageCaption(packageName: String, versionName: String?) {
     val style = MaterialTheme.typography.labelSmall
-    val color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+    val color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = AppColors.ContentHighAlpha)
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -544,7 +545,7 @@ private fun AppPackageCaption(packageName: String, versionName: String?) {
                 maxLines = 1,
                 modifier = Modifier
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f))
+                    .background(MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.TintFaintAlpha))
                     .padding(horizontal = DesignTokens.SpacingSmall, vertical = 2.dp),
             )
         }
@@ -573,7 +574,7 @@ private fun AppSwipeActionDropdown(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                    .padding(horizontal = DesignTokens.SpacingMedium, vertical = DesignTokens.SpacingSmall),
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 Text(
@@ -583,7 +584,7 @@ private fun AppSwipeActionDropdown(
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                 ) {
                     CustomWidgetButtonIcon(
                         action = action,
@@ -601,8 +602,8 @@ private fun AppSwipeActionDropdown(
                 }
             }
             HorizontalDivider(
-                modifier = Modifier.padding(vertical = 8.dp),
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                modifier = Modifier.padding(vertical = DesignTokens.SpacingSmall),
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = AppColors.ContentFaintAlpha),
             )
             DropdownMenuItem(
                 text = { Text(text = stringResource(R.string.action_remove)) },

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.shared.permissions
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.border
@@ -75,7 +76,7 @@ private fun TrustPointLine(
         modifier =
             modifier
                 .fillMaxWidth()
-                .clip(DesignTokens.ShapeSmall)
+                .clip(AppShapes.small)
                 .then(
                     if (onClick != null) {
                         Modifier.clickable(role = Role.Button, onClick = onClick)
@@ -110,8 +111,8 @@ private fun ViewCodePill() {
                 .border(
                     width = DesignTokens.BorderWidth,
                     color = MaterialTheme.colorScheme.outlineVariant,
-                    shape = DesignTokens.ShapeFull,
-                ).padding(horizontal = DesignTokens.SpacingMedium, vertical = DesignTokens.SpacingXXSmall / 2),
+                    shape = AppShapes.full,
+                ).padding(horizontal = DesignTokens.SpacingMedium, vertical = DesignTokens.SpacingXSmall / 2),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
     ) {
@@ -124,7 +125,7 @@ private fun ViewCodePill() {
             imageVector = MaterialSymbols.OpenInNew,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(DesignTokens.SpacingMedium + DesignTokens.SpacingXXSmall / 2),
+            modifier = Modifier.size(DesignTokens.SpacingMedium + DesignTokens.SpacingXSmall / 2),
         )
     }
 }

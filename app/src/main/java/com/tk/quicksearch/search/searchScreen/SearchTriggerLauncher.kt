@@ -1,5 +1,11 @@
 package com.tk.quicksearch.search.searchScreen
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
 import kotlinx.coroutines.launch
@@ -138,4 +144,42 @@ internal fun openMatchingSearchTrigger(
     }
 
     return openMatchingTrigger(query)
+}
+
+/**
+ * Opens the result whose trigger word matches the query, once per query: re-checks as results load
+ * but does not fire again for the same query after it opened something.
+ */
+@Composable
+internal fun AutoOpenMatchingTrigger(
+    state: SearchUiState,
+    renderingState: SectionRenderingState,
+    triggerWords: Collection<String>,
+    openMatchingTrigger: (String) -> Boolean,
+) {
+    var lastTriggeredQuery by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(
+        state.query,
+        state.allApps,
+        renderingState.displayApps,
+        state.allAppShortcuts,
+        renderingState.appShortcutResults,
+        renderingState.contactResults,
+        state.pinnedContacts,
+        renderingState.fileResults,
+        state.pinnedFiles,
+        renderingState.settingResults,
+        state.allDeviceSettings,
+        renderingState.calendarEvents,
+        renderingState.noteResults,
+        state.pinnedNotes,
+        triggerWords,
+    ) {
+        if (state.query == lastTriggeredQuery) return@LaunchedEffect
+        lastTriggeredQuery = null
+        if (state.query.isBlank()) return@LaunchedEffect
+        if (openMatchingTrigger(state.query)) {
+            lastTriggeredQuery = state.query
+        }
+    }
 }

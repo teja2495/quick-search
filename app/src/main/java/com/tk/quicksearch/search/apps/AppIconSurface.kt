@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.apps
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -148,7 +150,7 @@ internal fun AppIconSurface(
             modifier = Modifier.requiredSize(appIconSurfaceSize).then(gestureModifier),
             color = Color.Transparent,
             tonalElevation = 0.dp,
-            shape = DesignTokens.ShapeLarge,
+            shape = AppShapes.large,
     ) {
         val clickModifier =
                 if (!clickGesturesEnabled) {
@@ -270,14 +272,14 @@ internal fun AppIconSurface(
                                 iconHasProfileBadge -> Modifier
                                 appIconShape == AppIconShape.CIRCLE ->
                                         Modifier.clip(CircleShape)
-                                iconIsLegacy -> Modifier.clip(DesignTokens.ShapeLarge)
+                                iconIsLegacy -> Modifier.clip(AppShapes.large)
                                 else -> Modifier
                             }
                     val bitmapShadowShape =
                             when {
                                 appIconShape == AppIconShape.CIRCLE -> CircleShape
-                                iconIsLegacy -> DesignTokens.ShapeLarge
-                                else -> DesignTokens.ShapeLarge
+                                iconIsLegacy -> AppShapes.large
+                                else -> AppShapes.large
                             }
                     Image(
                             bitmap = iconBitmap,
@@ -316,7 +318,7 @@ internal fun AppIconSurface(
                         if (appIconShape == AppIconShape.CIRCLE) {
                             CircleShape
                         } else {
-                            DesignTokens.ShapeLarge
+                            AppShapes.large
                         }
                 Box(
                         modifier =
@@ -324,9 +326,9 @@ internal fun AppIconSurface(
                                         .clip(placeholderShape)
                                         .background(
                                                 if (showWallpaperBackground) {
-                                                    colorScheme.surface.copy(alpha = 0.28f)
+                                                    colorScheme.surface.copy(alpha = AppColors.TintStrongAlpha)
                                                 } else {
-                                                    colorScheme.surfaceVariant.copy(alpha = 0.7f)
+                                                    colorScheme.surfaceVariant.copy(alpha = AppColors.ContentHighAlpha)
                                                 },
                                         ),
                 )
@@ -340,7 +342,7 @@ internal fun AppIconSurface(
                                         .align(Alignment.TopEnd)
                                         .padding(top = pinnedIndicatorInset, end = pinnedIndicatorInset)
                                         .size(12.dp),
-                        tint = colorScheme.onSurfaceVariant.copy(alpha = 0.65f),
+                        tint = colorScheme.onSurfaceVariant.copy(alpha = AppColors.ContentSecondaryAlpha),
                 )
             }
             AppNotificationDot(

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -80,7 +81,7 @@ internal fun AppSuggestionTabsDialog(
         },
     ) {
         LazyColumn(
-            modifier = Modifier.fillMaxWidth().clip(DesignTokens.ShapeXXLarge),
+            modifier = Modifier.fillMaxWidth().clip(AppShapes.extraLarge),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
         ) {
             itemsIndexed(configurableTabs, key = { _, tab -> tab.first.name }) { index, (tab, title) ->
@@ -268,11 +269,6 @@ private fun LaunchOptionsCard(
                 AppTonalButton(
                     onClick = { onRefreshApps(true) },
                     modifier = Modifier.weight(1f).fillMaxHeight(),
-                    shape = DesignTokens.ShapeFull,
-                    colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = AppColors.AccentTintTonal,
-                        contentColor = AppColors.Accent,
-                    ),
                     contentPadding = PaddingValues(
                         horizontal = DesignTokens.SpacingSmall,
                         vertical = DesignTokens.SpacingMedium,
@@ -280,7 +276,7 @@ private fun LaunchOptionsCard(
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall),
+                        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
                     ) {
                         Icon(
                             imageVector = MaterialSymbols.Apps,
@@ -298,11 +294,6 @@ private fun LaunchOptionsCard(
                     AppTonalButton(
                         onClick = { onRefreshContacts(true) },
                         modifier = Modifier.weight(1f).fillMaxHeight(),
-                        shape = DesignTokens.ShapeFull,
-                        colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = AppColors.AccentTintTonal,
-                            contentColor = AppColors.Accent,
-                        ),
                         contentPadding = PaddingValues(
                             horizontal = DesignTokens.SpacingSmall,
                             vertical = DesignTokens.SpacingMedium,
@@ -310,7 +301,7 @@ private fun LaunchOptionsCard(
                     ) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall),
+                            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
                         ) {
                             Icon(
                                 imageVector = MaterialSymbols.Contacts,
@@ -329,11 +320,6 @@ private fun LaunchOptionsCard(
                     AppTonalButton(
                         onClick = { onRefreshFiles(true) },
                         modifier = Modifier.weight(1f).fillMaxHeight(),
-                        shape = DesignTokens.ShapeFull,
-                        colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = AppColors.AccentTintTonal,
-                            contentColor = AppColors.Accent,
-                        ),
                         contentPadding = PaddingValues(
                             horizontal = DesignTokens.SpacingSmall,
                             vertical = DesignTokens.SpacingMedium,
@@ -341,7 +327,7 @@ private fun LaunchOptionsCard(
                     ) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall),
+                            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
                         ) {
                             Icon(
                                 imageVector = MaterialSymbols.InsertDriveFile,

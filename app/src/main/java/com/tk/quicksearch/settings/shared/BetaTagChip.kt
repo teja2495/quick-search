@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.shared
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -27,8 +28,8 @@ internal fun BetaTagChip(
             modifier
                 .background(
                     color = MaterialTheme.colorScheme.tertiaryContainer,
-                    shape = DesignTokens.ShapeFull,
-                ).padding(horizontal = 8.dp, vertical = 2.dp),
+                    shape = AppShapes.full,
+                ).padding(horizontal = DesignTokens.SpacingSmall, vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(

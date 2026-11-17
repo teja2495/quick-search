@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgetsPanel
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
@@ -132,8 +133,8 @@ internal fun CompactQuickNoteWidget(
     // Over a frosted wallpaper the note matches search result cards: frost behind a lighter scrim.
     val isFrosted = LocalFrostedCardSource.current?.isActive == true
     Surface(
-        modifier = surfaceModifier.frostedCardBackground(DesignTokens.WidgetPanelCardShape),
-        shape = DesignTokens.WidgetPanelCardShape,
+        modifier = surfaceModifier.frostedCardBackground(AppShapes.widgetPanelCard),
+        shape = AppShapes.widgetPanelCard,
         color =
             if (isFrosted) {
                 SearchResultCardDefaults.containerColor(
@@ -215,7 +216,7 @@ internal fun CompactQuickNoteWidget(
                             // Dimmed: the card is darker than a standard surface over the wallpaper,
                             // so full onSurfaceVariant reads almost as bright as typed text.
                             color =
-                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = AppColors.ContentSecondaryAlpha),
                         )
                     }
                     inner()

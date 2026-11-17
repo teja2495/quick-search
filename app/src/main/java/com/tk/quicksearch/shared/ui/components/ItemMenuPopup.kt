@@ -510,7 +510,7 @@ private fun ItemMenuButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = DesignTokens.ItemMenuRowHeight)
-                .clip(DesignTokens.ShapeFull)
+                .clip(AppShapes.full)
                 .background(containerColor)
                 .then(clickModifier)
                 .then(if (button.iconOnly) Modifier.semantics { contentDescription = button.label } else Modifier)

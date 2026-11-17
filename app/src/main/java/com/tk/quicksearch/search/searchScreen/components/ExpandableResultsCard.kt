@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -110,7 +111,7 @@ internal fun ExpandableResultsCard(
 @Composable
 internal fun topResultIndicator(isTopPredicted: Boolean): Shape =
     if (isTopPredicted) {
-        DesignTokens.ShapeLarge
+        AppShapes.large
     } else {
         SearchResultCardDefaults.shape
     }

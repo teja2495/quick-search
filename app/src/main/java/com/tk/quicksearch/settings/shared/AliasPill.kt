@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.shared
 
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -54,7 +56,7 @@ fun AliasPill(
                         end = if (isSet) 4.dp else 8.dp,
                     ),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
         ) {
             leadingIcon?.let { icon ->
                 Icon(
@@ -94,14 +96,14 @@ fun AliasPill(
             Surface(
                 onClick = onClick,
                 modifier = modifier,
-                shape = MaterialTheme.shapes.small,
+                shape = AppShapes.small,
                 color = containerColor,
                 content = content,
             )
         } else {
             Surface(
                 modifier = modifier,
-                shape = MaterialTheme.shapes.small,
+                shape = AppShapes.small,
                 color = containerColor,
                 content = content,
             )

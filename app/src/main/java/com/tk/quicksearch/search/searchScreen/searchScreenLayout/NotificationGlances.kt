@@ -498,7 +498,7 @@ internal fun ProgressNotificationRow(notification: ProgressNotification) {
         belowText = {
             LinearProgressIndicator(
                 progress = { fraction },
-                modifier = Modifier.fillMaxWidth().padding(top = 4.dp, end = 4.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = DesignTokens.SpacingXSmall, end = DesignTokens.SpacingXSmall),
             )
         },
     )

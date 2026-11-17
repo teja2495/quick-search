@@ -204,7 +204,7 @@ internal fun ReminderRow(
                 )
                 .topPredictedRowContentPadding()
                 .padding(vertical = resultRowVerticalPadding(12.dp)),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (notedItem != null) {
@@ -316,7 +316,7 @@ internal fun ReminderRow(
 fun ReminderRelativeDateText(reminder: ReminderInfo) {
     val isOverdue = reminder.isOverdue()
     Row(
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (reminder.isDone) ReminderDoneIcon()
@@ -332,7 +332,7 @@ fun ReminderRelativeDateText(reminder: ReminderInfo) {
 }
 
 @Composable
-fun reminderOverdueColor(): Color = MaterialTheme.colorScheme.error.copy(alpha = 0.85f)
+fun reminderOverdueColor(): Color = MaterialTheme.colorScheme.error.copy(alpha = AppColors.ContentStrongAlpha)
 
 /** Matches calendar events: "In 2 hours" for timed reminders, "Tomorrow" for time-less ones. */
 @Composable

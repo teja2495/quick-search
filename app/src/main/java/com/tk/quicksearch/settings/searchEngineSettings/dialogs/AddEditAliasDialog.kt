@@ -203,7 +203,6 @@ fun AddEditAliasDialog(
                     }
                 },
                 enabled = confirmEnabled,
-                colors = ButtonDefaults.textButtonColors(contentColor = AppColors.Accent),
             ) {
                 Text(text = stringResource(R.string.dialog_save))
             }
@@ -211,7 +210,6 @@ fun AddEditAliasDialog(
         dismissButton = {
             AppTextButton(
                 onClick = onDismiss,
-                colors = ButtonDefaults.textButtonColors(contentColor = AppColors.Accent),
             ) {
                 Text(text = stringResource(R.string.dialog_cancel))
             }

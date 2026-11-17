@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.dialogs
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
@@ -102,13 +103,13 @@ internal fun ReleaseNotesDrawer(
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
         ) {
             ReleaseNotesBulletList(bulletPoints = bulletPoints)
 
             HorizontalDivider(
-                modifier = Modifier.padding(top = 8.dp),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+                modifier = Modifier.padding(top = DesignTokens.SpacingSmall),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.TintLightAlpha),
             )
 
             ReleaseNotesExpanderRow(
@@ -123,7 +124,7 @@ internal fun ReleaseNotesDrawer(
                     when {
                         isLoadingHistory ->
                             Row(
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+                                modifier = Modifier.fillMaxWidth().padding(vertical = DesignTokens.SpacingMedium),
                                 horizontalArrangement = Arrangement.Center,
                             ) {
                                 CircularProgressIndicator(
@@ -137,7 +138,7 @@ internal fun ReleaseNotesDrawer(
                                 text = stringResource(R.string.release_notes_previous_versions_unavailable),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(vertical = 12.dp),
+                                modifier = Modifier.padding(vertical = DesignTokens.SpacingMedium),
                             )
 
                         else ->
@@ -157,7 +158,7 @@ internal fun ReleaseNotesDrawer(
                                     AnimatedVisibility(visible = isExpanded) {
                                         ReleaseNotesBulletList(
                                             bulletPoints = parseReleaseNotesBulletPoints(release.markdown),
-                                            modifier = Modifier.padding(start = 8.dp, top = 4.dp, bottom = 8.dp),
+                                            modifier = Modifier.padding(start = DesignTokens.SpacingSmall, top = DesignTokens.SpacingXSmall, bottom = DesignTokens.SpacingSmall),
                                         )
                                     }
                                 }
@@ -178,7 +179,7 @@ internal fun ReleaseNotesDrawer(
             }
 
             Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = DesignTokens.SpacingSmall),
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -202,11 +203,11 @@ private fun ReleaseNotesBulletList(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
         bulletPoints.forEach { point ->
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                 verticalAlignment = Alignment.Top,
             ) {
                 Text(
@@ -239,7 +240,7 @@ private fun ReleaseNotesExpanderRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(DesignTokens.CornerSmall))
+            .clip(AppShapes.small)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -272,7 +273,7 @@ private fun ReleaseNotesNavigationRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(DesignTokens.CornerSmall))
+            .clip(AppShapes.small)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,

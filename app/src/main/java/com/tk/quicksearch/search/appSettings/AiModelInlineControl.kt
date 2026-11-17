@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.appSettings
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
@@ -84,8 +85,8 @@ internal fun AiModelInlineContent(state: AiModelInlineState) {
         )
     if (!showThinking && !showWebSearch) return
     Row(
-        modifier = Modifier.padding(top = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(top = DesignTokens.SpacingXSmall),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
         if (showThinking) {
             CompactCheckChip(
@@ -131,7 +132,7 @@ private fun CompactCheckChip(
             } else {
                 null
             },
-        shape = DesignTokens.ShapeFull,
+        shape = AppShapes.full,
         colors =
             FilterChipDefaults.filterChipColors(
                 containerColor = AppColors.AccentTintTonal,

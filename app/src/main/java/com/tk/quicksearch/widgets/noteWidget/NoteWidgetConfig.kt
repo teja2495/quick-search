@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgets.noteWidget
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -141,7 +142,7 @@ fun NoteWidgetPickerScreen(
                 else ->
                     // fill = false lets a short list wrap instead of stretching.
                     LazyColumn(
-                        modifier = Modifier.fillMaxWidth().weight(1f, fill = false).clip(DesignTokens.ShapeXXLarge),
+                        modifier = Modifier.fillMaxWidth().weight(1f, fill = false).clip(AppShapes.extraLarge),
                         verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
                     ) {
                         itemsIndexed(items = filteredNotes, key = { _, note -> note.noteId }) { index, note ->
@@ -202,7 +203,7 @@ private fun NoteRow(
         TonalIconBadge(icon = MaterialSymbols.EditNote)
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
         ) {
             Text(
                 text = note.title.ifBlank { stringResource(R.string.notes_untitled) },

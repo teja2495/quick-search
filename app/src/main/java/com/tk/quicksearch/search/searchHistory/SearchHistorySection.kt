@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchHistory
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -497,7 +498,7 @@ private fun ClearAllHistoryConfirmationDialog(
             AppTextButton(onClick = onConfirm) {
                 Text(
                     text = stringResource(R.string.action_clear_all_history),
-                    color = MaterialTheme.colorScheme.error.copy(alpha = 0.82f),
+                    color = MaterialTheme.colorScheme.error.copy(alpha = AppColors.ContentStrongAlpha),
                 )
             }
         },
@@ -522,7 +523,7 @@ private fun ClearAllHistoryRow(
             Modifier
                 .fillMaxWidth()
                 .heightIn(min = (QUERY_ROW_ICON_SIZE + QUERY_ROW_VERTICAL_PADDING * 2).dp)
-                .clip(DesignTokens.CardShape)
+                .clip(AppShapes.card)
                 .combinedClickable(
                     interactionSource = interactionSource,
                     indication = null,
@@ -565,7 +566,7 @@ internal fun RecentQueryRow(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .clip(DesignTokens.CardShape)
+                .clip(AppShapes.card)
                 .combinedClickable(
                     interactionSource = interactionSource,
                     indication = null,

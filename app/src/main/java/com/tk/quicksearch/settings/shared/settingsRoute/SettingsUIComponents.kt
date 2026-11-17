@@ -150,7 +150,7 @@ fun SectionSettingsSection(
                                     },
                                     conflictErrorMessage = stringResource(R.string.dialog_edit_alias_error_prefix),
                                     aliasDisplayType = AliasDisplayType.SEARCH_TYPE,
-                                    modifier = Modifier.padding(top = 4.dp),
+                                    modifier = Modifier.padding(top = DesignTokens.SpacingXSmall),
                                 )
                             }
                         } else {

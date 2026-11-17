@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 // Re-export all components from their respective files for backward compatibility
 
 import androidx.compose.animation.AnimatedVisibility
@@ -24,13 +25,13 @@ import com.tk.quicksearch.search.searchScreen.components.predictedSubmitCardBord
 // Modifiers
 internal fun Modifier.predictedSubmitHighlight(
     isPredicted: Boolean,
-    shape: Shape = DesignTokens.CardShape,
+    shape: Shape = AppShapes.card,
     opaqueCardTopResultBorder: Boolean = false,
 ): Modifier = componentsPredictedSubmitHighlight(isPredicted, shape, opaqueCardTopResultBorder)
 
 internal fun Modifier.predictedSubmitCardBorder(
     isPredicted: Boolean,
-    shape: Shape = DesignTokens.CardShape,
+    shape: Shape = AppShapes.card,
 ): Modifier = componentsPredictedSubmitCardBorder(isPredicted, shape)
 
 // Cards

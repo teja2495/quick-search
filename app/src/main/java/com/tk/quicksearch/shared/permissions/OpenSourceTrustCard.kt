@@ -1,5 +1,6 @@
 package com.tk.quicksearch.shared.permissions
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -46,7 +47,7 @@ fun OpenSourceTrustCard(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
     val accent = if (isDark) TrustGreenDark else TrustGreenLight
-    val shape = RoundedCornerShape(DesignTokens.SpacingXLarge)
+    val shape = AppShapes.largeIncreased
 
     val openSource = {
         runCatching {

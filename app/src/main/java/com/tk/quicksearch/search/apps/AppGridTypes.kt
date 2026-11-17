@@ -20,7 +20,7 @@ internal const val ROW_COUNT = 2
 internal const val SuggestionsEnterDurationMillis = 320
 internal val AppGridRowSpacing = DesignTokens.SpacingXSmall
 internal val AppGridWidthRoundingSlack = 1.dp
-internal val RegularAppIconSize = DesignTokens.IconSizeXLarge - DesignTokens.SpacingXXSmall
+internal val RegularAppIconSize = DesignTokens.IconSizeXLarge - DesignTokens.SpacingXSmall
 internal val OverlayAppIconSurfaceSize = 52.dp
 internal val OverlayAppIconSize = 36.dp
 internal val TopResultIndicatorTopPadding = 0.dp
@@ -49,7 +49,7 @@ internal val MergeableReorderRestSlop = 12.dp
 internal const val FolderMergeEnterZoneFraction = 0.65f
 internal const val FolderMergeStayZoneFraction = 0.8f
 internal val AllAppsDialogIconSurfaceSize = DesignTokens.AppIconSize
-internal val AllAppsDialogRowSpacing = DesignTokens.SpacingXXSmall
+internal val AllAppsDialogRowSpacing = DesignTokens.SpacingXSmall
 internal const val AllAppsDialogIconPrefetchParallelism = 4
 
 internal enum class AppIconDisplayMode {

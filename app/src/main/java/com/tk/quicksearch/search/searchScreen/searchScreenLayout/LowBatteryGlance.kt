@@ -321,7 +321,7 @@ internal fun LowBatteryRow(glance: LowBatteryGlance) {
                     Modifier
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.error)
-                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                        .padding(horizontal = 10.dp, vertical = DesignTokens.SpacingXSmall),
             ) {
                 Text(
                     text = percentLabel,

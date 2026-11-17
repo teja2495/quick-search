@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.components.AppButtonTone
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ButtonDefaults
 import android.Manifest
@@ -574,7 +575,7 @@ fun AtAGlanceSettingsSection(
                         customInfoRepository.delete(item.id)
                         itemToDelete = null
                     },
-                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                    tone = AppButtonTone.Error,
                 ) {
                     Text(stringResource(R.string.dialog_delete))
                 }
@@ -663,7 +664,7 @@ private fun CustomInfoActions(
             text = stringResource(R.string.dialog_delete),
             icon = MaterialSymbols.Delete,
             onClick = onDelete,
-            contentColor = MaterialTheme.colorScheme.error,
+            tone = AppButtonTone.Error,
             small = true,
         )
     }

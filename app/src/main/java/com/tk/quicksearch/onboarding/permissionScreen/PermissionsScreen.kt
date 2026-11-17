@@ -1,5 +1,6 @@
 package com.tk.quicksearch.onboarding.permissionScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
@@ -138,7 +139,7 @@ fun PermissionsScreen(
                 segmented = true,
                 showItemIcons = false,
                 cardContainer = { cardModifier, content ->
-                    Column(modifier = cardModifier.clip(DesignTokens.ShapeXXLarge)) { content() }
+                    Column(modifier = cardModifier.clip(AppShapes.extraLarge)) { content() }
                 },
                 onStatesChanged = { permissionStates = it },
             )

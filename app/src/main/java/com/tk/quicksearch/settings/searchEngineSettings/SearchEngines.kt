@@ -156,7 +156,7 @@ fun SearchEngines(
     )
 
     if (!showAiSearchAtTop && onToggleSearchEngineAliasSuffixEnabled != null) {
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(DesignTokens.SpacingLarge))
         SearchEngineAliasSuffixCard(
             enabled = isSearchEngineAliasSuffixEnabled,
             onToggle = onToggleSearchEngineAliasSuffixEnabled,
@@ -177,7 +177,7 @@ private fun SearchEngineAliasSuffixCard(
     SegmentedTile(
         index = 0,
         count = 1,
-        modifier = Modifier.padding(bottom = 12.dp),
+        modifier = Modifier.padding(bottom = DesignTokens.SpacingMedium),
     ) {
         Column {
             SettingsToggleRow(

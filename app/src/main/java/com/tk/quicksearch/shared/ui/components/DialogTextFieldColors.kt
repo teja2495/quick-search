@@ -36,7 +36,7 @@ fun dialogTextFieldColors(
         focusedContainerColor = AppColors.AccentTintTonal,
         unfocusedContainerColor = AppColors.AccentTintSubtle,
         disabledContainerColor = AppColors.AccentTintFaint,
-        errorContainerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.22f),
+        errorContainerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = AppColors.TintStrongAlpha),
         focusedIndicatorColor = AppColors.Accent,
         unfocusedIndicatorColor = unfocusedIndicatorColor,
         focusedLabelColor = AppColors.Accent,
@@ -53,8 +53,8 @@ fun cardTextFieldColors(): TextFieldColors =
         focusedIndicatorColor = Color.Transparent,
         unfocusedIndicatorColor = Color.Transparent,
         disabledIndicatorColor = Color.Transparent,
-        focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+        focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = AppColors.ContentMutedAlpha),
+        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = AppColors.ContentMutedAlpha),
     )
 
 /**

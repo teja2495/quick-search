@@ -1,5 +1,8 @@
 package com.tk.quicksearch.shared.ui.components
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.shared.ui.components.AppButtonTone
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -234,7 +237,7 @@ private fun UndoSnackbar(
     val actionColor = MaterialTheme.colorScheme.primaryContainer
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = DesignTokens.ShapeSmall,
+        shape = AppShapes.small,
         color = containerColor,
         contentColor = contentColor,
         shadowElevation = 6.dp,
@@ -242,7 +245,7 @@ private fun UndoSnackbar(
         Row(
             modifier = Modifier
                 .heightIn(min = 48.dp)
-                .padding(start = 16.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
+                .padding(start = DesignTokens.SpacingLarge, end = 6.dp, top = 6.dp, bottom = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
@@ -255,7 +258,7 @@ private fun UndoSnackbar(
                 )
             }
             Column(
-                modifier = Modifier.weight(1f).padding(vertical = 4.dp),
+                modifier = Modifier.weight(1f).padding(vertical = DesignTokens.SpacingXSmall),
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 Text(
@@ -268,15 +271,14 @@ private fun UndoSnackbar(
                     Text(
                         text = text,
                         style = MaterialTheme.typography.bodySmall,
-                        color = contentColor.copy(alpha = 0.8f),
+                        color = contentColor.copy(alpha = AppColors.ContentStrongAlpha),
                     )
                 }
             }
             actionLabel?.let { label ->
                 AppTextButton(
                     onClick = onAction,
-                    colors = ButtonDefaults.textButtonColors(contentColor = actionColor),
-                    contentPadding = PaddingValues(horizontal = 14.dp),
+                    tone = AppButtonTone.Custom(actionColor),
                 ) {
                     Text(text = label, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
                 }

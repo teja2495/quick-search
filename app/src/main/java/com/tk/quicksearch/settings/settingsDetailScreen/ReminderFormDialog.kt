@@ -51,7 +51,7 @@ import java.time.ZoneId
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import com.tk.quicksearch.shared.ui.components.AppOutlinedButton
+import com.tk.quicksearch.shared.ui.components.PickerFieldButton
 import com.tk.quicksearch.shared.ui.components.AppTextButton
 
 internal data class FormDateTimeSuggestion(
@@ -221,48 +221,29 @@ internal fun ReminderFormDialog(
                             modifier = Modifier.fillMaxWidth().focusRequester(titleFocusRequester),
                         )
 
-                        AppOutlinedButton(
-                            onClick = { showDatePicker = true },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(DesignTokens.CornerMedium),
-                        ) {
-                            Icon(
-                                imageVector = MaterialSymbols.CalendarMonth,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp),
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Text(
-                                text = if (selectedDateMillis != null) {
+                        PickerFieldButton(
+                            icon = MaterialSymbols.CalendarMonth,
+                            value =
+                                if (selectedDateMillis != null) {
                                     formatPickedDate(selectedDateMillis)
                                 } else {
                                     stringResource(R.string.calendar_create_event_select_date)
                                 },
-                                modifier = Modifier.weight(1f),
-                            )
-                        }
+                            onClick = { showDatePicker = true },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
 
                         if (hasTime) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                AppOutlinedButton(
+                                PickerFieldButton(
+                                    icon = MaterialSymbols.Schedule,
+                                    value = formatPickedTime(timePickerState.hour, timePickerState.minute),
                                     onClick = { showTimePicker = true },
                                     modifier = Modifier.weight(1f),
-                                    shape = RoundedCornerShape(DesignTokens.CornerMedium),
-                                ) {
-                                    Icon(
-                                        imageVector = MaterialSymbols.Schedule,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(18.dp),
-                                    )
-                                    Spacer(Modifier.width(8.dp))
-                                    Text(
-                                        text = formatPickedTime(timePickerState.hour, timePickerState.minute),
-                                        modifier = Modifier.weight(1f),
-                                    )
-                                }
+                                )
                                 IconButton(onClick = { hasTime = false }) {
                                     Icon(
                                         imageVector = MaterialSymbols.Close,
@@ -271,22 +252,12 @@ internal fun ReminderFormDialog(
                                 }
                             }
                         } else {
-                            AppOutlinedButton(
+                            PickerFieldButton(
+                                icon = MaterialSymbols.Schedule,
+                                value = stringResource(R.string.common_time),
                                 onClick = { showTimePicker = true },
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(DesignTokens.CornerMedium),
-                            ) {
-                                Icon(
-                                    imageVector = MaterialSymbols.Schedule,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(18.dp),
-                                )
-                                Spacer(Modifier.width(8.dp))
-                                Text(
-                                    text = stringResource(R.string.common_time),
-                                    modifier = Modifier.weight(1f),
-                                )
-                            }
+                            )
                         }
                         belowTime()
                     }
@@ -306,10 +277,6 @@ internal fun ReminderFormDialog(
                             onConfirm(reminderTitle.trim(), dateTimeMillis, !hasTime)
                         },
                         enabled = canSave,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (canSave) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-                            contentColor = if (canSave) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-                        ),
                     ) {
                         Text(stringResource(confirmResId))
                     }

@@ -1,5 +1,7 @@
 package com.tk.quicksearch.overlay
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.searchScreen.LocalPinnedGlanceOnly
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -402,7 +404,7 @@ fun OverlayRoot(
                                 if (pinnedGlanceOnly) {
                                         remember(bubbleArrowCenterX) { OverlayBubbleShape(bubbleArrowCenterX) }
                                 } else {
-                                        DesignTokens.ExtraLargeCardShape
+                                        AppShapes.extraLarge
                                 }
                         Box(
                                 modifier =
@@ -490,7 +492,7 @@ fun OverlayRoot(
                                                         uiState.wallpaperBackgroundAlpha,
                                                 wallpaperBlurRadius = uiState.wallpaperBlurRadius,
                                                 backgroundTransitionDurationMillis =
-                                                        DesignTokens.WallpaperFadeInDuration + 220,
+                                                        AppMotion.DurationMedium + 220,
                                                 animateBlurRadius = false,
                                                 fallbackBackgroundAlpha = fallbackAlpha,
                                                 useGradientFallback =

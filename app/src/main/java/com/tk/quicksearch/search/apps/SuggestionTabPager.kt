@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.apps
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.spring
@@ -182,13 +183,8 @@ internal class SuggestionTabPagerState(
                     initialValue = offset,
                     targetValue = 0f,
                     initialVelocity = velocity,
-                    animationSpec =
-                        spring(
-                            dampingRatio = Spring.DampingRatioNoBouncy,
-                            stiffness = Spring.StiffnessMediumLow,
-                            // Ends at half a pixel instead of creeping on for sub-pixel frames.
-                            visibilityThreshold = SettleVisibilityThresholdPx,
-                        ),
+                    // Ends at half a pixel instead of creeping on for sub-pixel frames.
+                    animationSpec = AppMotion.settle(visibilityThreshold = SettleVisibilityThresholdPx),
                 ) { value, _ -> offsetState.floatValue = value }
                 peer = null
                 reportDisplayed()

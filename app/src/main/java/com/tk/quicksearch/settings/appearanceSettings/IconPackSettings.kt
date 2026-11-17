@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.appearanceSettings
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
+import com.tk.quicksearch.shared.ui.components.AppButtonTone
 import com.tk.quicksearch.shared.ui.components.AppSwitch
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.selection.selectable
@@ -72,7 +74,7 @@ fun IconPackPickerDialog(
                                 if (availableIconPacks.isEmpty()) {
                                     Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
                                 } else {
-                                    Arrangement.spacedBy(12.dp)
+                                    Arrangement.spacedBy(DesignTokens.SpacingMedium)
                                 },
                 ) {
                     if (availableIconPacks.isEmpty()) {
@@ -92,11 +94,6 @@ fun IconPackPickerDialog(
                                             onDownloadIconPacks()
                                         },
                                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                                colors =
-                                        ButtonDefaults.buttonColors(
-                                                containerColor = AppColors.Accent,
-                                                contentColor = AppColors.OnAccent,
-                                        ),
                         ) {
                             Text(stringResource(R.string.icon_picker_download_icon_packs))
                         }
@@ -145,10 +142,7 @@ fun IconPackPickerDialog(
                             onResetAllIcons()
                             onDismiss()
                         },
-                        colors =
-                                ButtonDefaults.textButtonColors(
-                                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                ),
+                        tone = AppButtonTone.Neutral,
                 ) {
                     Text(stringResource(R.string.settings_icon_pack_reset_all_icons))
                 }
@@ -232,5 +226,5 @@ private fun IconPackOptionRow(
 }
 
 private val IconPackRowMinHeight = 56.dp
-private val IconPackRowShape = RoundedCornerShape(DesignTokens.SpacingMedium)
+private val IconPackRowShape = AppShapes.medium
 private val IconPackIconSize = 32.dp

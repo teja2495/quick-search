@@ -259,7 +259,7 @@ private fun FolderColorSwatch(
                                 )
                                 .border(
                                         width = 1.dp,
-                                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                                        color = MaterialTheme.colorScheme.outline.copy(alpha = AppColors.ContentMutedAlpha),
                                         shape = CircleShape,
                                 ),
         )

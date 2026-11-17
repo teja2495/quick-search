@@ -1,5 +1,7 @@
 package com.tk.quicksearch.widgets.widgetConfigScreen.components
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -155,7 +157,7 @@ private fun SaturationBrightnessPicker(
             Modifier
                 .fillMaxWidth()
                 .height(ColorAreaHeight)
-                .clip(MaterialTheme.shapes.medium)
+                .clip(AppShapes.medium)
                 .pointerInput(Unit) {
                     awaitEachGesture {
                         val down = awaitFirstDown()
@@ -185,7 +187,7 @@ private fun SaturationBrightnessPicker(
                         .coerceIn(9.dp.toPx(), size.height - 9.dp.toPx()),
             )
         drawCircle(
-            color = Color.Black.copy(alpha = 0.65f),
+            color = Color.Black.copy(alpha = AppColors.ContentSecondaryAlpha),
             radius = 9.dp.toPx(),
             center = indicatorCenter,
             style = Stroke(width = 4.dp.toPx()),
@@ -247,7 +249,7 @@ private fun HuePicker(
             ((hue / 360f) * size.width)
                 .coerceIn(3.dp.toPx(), size.width - 3.dp.toPx())
         drawLine(
-            color = Color.Black.copy(alpha = 0.65f),
+            color = Color.Black.copy(alpha = AppColors.ContentSecondaryAlpha),
             start = Offset(indicatorX, 3.dp.toPx()),
             end = Offset(indicatorX, size.height - 3.dp.toPx()),
             strokeWidth = 6.dp.toPx(),

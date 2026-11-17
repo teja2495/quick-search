@@ -1,5 +1,6 @@
 package com.tk.quicksearch.searchEngines.compact
 
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -78,7 +79,7 @@ fun NoResultsSearchEngineCards(
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
         // When reversed (results at bottom), show customize card at the top
         if (isReversed && shouldShowCustomizeCard) {

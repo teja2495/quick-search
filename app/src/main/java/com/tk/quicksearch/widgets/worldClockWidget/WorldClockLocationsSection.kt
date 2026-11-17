@@ -107,7 +107,7 @@ private fun LocationRow(
             Modifier
                 .fillMaxWidth()
                 .heightIn(min = LocationRowMinHeight)
-                .padding(start = DesignTokens.SpacingLarge, top = 8.dp, bottom = 8.dp, end = 4.dp),
+                .padding(start = DesignTokens.SpacingLarge, top = DesignTokens.SpacingSmall, bottom = DesignTokens.SpacingSmall, end = DesignTokens.SpacingXSmall),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
@@ -156,7 +156,7 @@ private fun LocationRow(
 
 @Composable
 private fun AddLocationRow(enabled: Boolean) {
-    val color = if (enabled) AppColors.Accent else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+    val color = if (enabled) AppColors.Accent else MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.DisabledContentAlpha)
     Row(
         modifier =
             Modifier
@@ -171,7 +171,7 @@ private fun AddLocationRow(enabled: Boolean) {
                 Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(color.copy(alpha = 0.14f)),
+                    .background(color.copy(alpha = AppColors.TintTonalAlpha)),
             contentAlignment = Alignment.Center,
         ) {
             Icon(

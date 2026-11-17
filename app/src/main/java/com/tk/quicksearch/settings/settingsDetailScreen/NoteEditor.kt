@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.Manifest
 import android.app.Activity
 import android.content.Context
@@ -428,7 +429,7 @@ fun NoteEditor(
                     .fillMaxWidth()
                     .padding(top = if (hideTopBar) DesignTokens.SpacingLarge else 0.dp)
                     .padding(bottom = DesignTokens.CardBottomPadding),
-            shape = MaterialTheme.shapes.extraLarge,
+            shape = AppShapes.extraLarge,
             color = AppColors.getSettingsCardContainerColor(),
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -545,7 +546,7 @@ fun NoteEditor(
                             .align(Alignment.CenterEnd)
                             .fillMaxHeight()
                             .padding(end = DesignTokens.SpacingXSmall)
-                            .width(DesignTokens.SpacingXXSmall),
+                            .width(DesignTokens.SpacingXSmall),
                 )
             }
         }
@@ -576,8 +577,8 @@ private fun NoteEditorScrollIndicator(
         label = "noteScrollIndicator",
     )
     if (alpha <= 0.01f) return
-    val trackColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.22f)
-    val thumbColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.55f)
+    val trackColor = MaterialTheme.colorScheme.outline.copy(alpha = AppColors.TintStrongAlpha)
+    val thumbColor = MaterialTheme.colorScheme.outline.copy(alpha = AppColors.ContentMutedAlpha)
     Canvas(
         modifier =
             modifier.graphicsLayer {

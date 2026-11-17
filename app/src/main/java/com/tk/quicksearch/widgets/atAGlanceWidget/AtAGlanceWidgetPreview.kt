@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgets.atAGlanceWidget
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -65,7 +66,7 @@ fun AtAGlanceWidgetPreview(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .clip(DesignTokens.ShapeLarge),
+                .clip(AppShapes.large),
         contentAlignment = Alignment.Center,
     ) {
         // Drawn behind at the card's size, so the preview is only as tall as its rows.

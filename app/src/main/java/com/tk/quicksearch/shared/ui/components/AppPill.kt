@@ -1,5 +1,6 @@
 package com.tk.quicksearch.shared.ui.components
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -28,7 +29,7 @@ fun AppPill(
 ) {
     Surface(
         modifier = modifier,
-        shape = DesignTokens.ShapeFull,
+        shape = AppShapes.full,
         color = AppColors.KeyboardPillBackground,
         tonalElevation = DesignTokens.ElevationLevel0,
     ) {

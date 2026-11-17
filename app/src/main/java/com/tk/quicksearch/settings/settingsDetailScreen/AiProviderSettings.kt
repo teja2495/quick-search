@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -261,7 +262,7 @@ fun AdvancedPayloadSettingsSection(
                                                                 null
                                                         },
                                                 isError = hasJsonError,
-                                                shape = MaterialTheme.shapes.large,
+                                                shape = AppShapes.large,
                                                 colors = dialogTextFieldColors(),
                                                 singleLine = false,
                                                 minLines = 4,
@@ -305,7 +306,7 @@ private fun PersonalContextCard(
         }
         Surface(
                 modifier = Modifier.fillMaxWidth().heightIn(min = PersonalContextCardMinHeight),
-                shape = DesignTokens.WidgetPanelCardShape,
+                shape = AppShapes.widgetPanelCard,
                 color = AppColors.getSettingsCardContainerColor(),
         ) {
                 Column(

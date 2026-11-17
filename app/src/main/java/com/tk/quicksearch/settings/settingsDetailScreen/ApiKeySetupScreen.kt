@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
@@ -302,7 +303,7 @@ private fun AddCustomProviderTile(
                             Text(text = stringResource(R.string.settings_custom_provider_base_url_input_label))
                         },
                         singleLine = true,
-                        shape = MaterialTheme.shapes.large,
+                        shape = AppShapes.large,
                         colors = dialogTextFieldColors(),
                     )
                     if (apiKeyInput.isEmpty()) {
@@ -328,7 +329,7 @@ private fun AddCustomProviderTile(
                                     )
                                 }
                             },
-                            shape = MaterialTheme.shapes.large,
+                            shape = AppShapes.large,
                             colors = dialogTextFieldColors(),
                         )
                     }

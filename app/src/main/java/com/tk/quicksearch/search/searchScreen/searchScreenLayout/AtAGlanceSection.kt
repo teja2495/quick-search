@@ -385,7 +385,7 @@ internal fun AtAGlanceCardShell(
         Column(
             modifier =
                 Modifier.fillMaxWidth()
-                    .padding(horizontal = DesignTokens.SpacingMedium, vertical = 4.dp),
+                    .padding(horizontal = DesignTokens.SpacingMedium, vertical = DesignTokens.SpacingXSmall),
         ) {
             content()
         }

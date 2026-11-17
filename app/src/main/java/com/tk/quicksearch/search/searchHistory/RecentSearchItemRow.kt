@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchHistory
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.search.searchScreen.shared.LocalSearchCardLayoutEnabled
 import com.tk.quicksearch.search.searchScreen.shared.compactEdgeToEdge
@@ -327,7 +328,7 @@ private fun RecentNoteRow(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .clip(DesignTokens.CardShape)
+                .clip(AppShapes.card)
                 .combinedClickable(
                     interactionSource = interactionSource,
                     indication = null,

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.apps
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -213,7 +214,7 @@ internal fun AppShortcutGridItem(
             Box(
                     modifier =
                             Modifier.requiredSize(iconSurfaceSize)
-                                    .clip(DesignTokens.ShapeLarge)
+                                    .clip(AppShapes.large)
                                     .then(dragModifier)
                                     .then(clickModifier)
                                     .graphicsLayer {

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.apps
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -95,7 +96,7 @@ internal fun LazyGridVerticalScrollbar(
                     if (isDragging) {
                         MaterialTheme.colorScheme.primary
                     } else {
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f)
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.ContentMutedAlpha)
                     },
             label = "thumbColor",
     )

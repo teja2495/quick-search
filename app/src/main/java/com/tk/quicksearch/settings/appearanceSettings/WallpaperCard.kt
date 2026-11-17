@@ -210,12 +210,12 @@ fun WallpaperCard(
                     text = stringResource(R.string.settings_wallpaper_card_title),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(start = 4.dp, end = 4.dp, bottom = 4.dp),
+                    modifier = Modifier.padding(start = DesignTokens.SpacingXSmall, end = DesignTokens.SpacingXSmall, bottom = DesignTokens.SpacingXSmall),
             )
 
             Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
             ) {
                 if (!shouldHideSystemWallpaperSource) {
                     OverlaySourceBox(
@@ -247,7 +247,7 @@ fun WallpaperCard(
                         if (!canDisplaySystemWallpaper) {
                             Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
                             ) {
                                 Icon(
                                         imageVector = MaterialSymbols.Info,
@@ -269,7 +269,7 @@ fun WallpaperCard(
                             }
                         } else if (isLiveWallpaperUnsupported) {
                             Row(
-                                    modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
+                                    modifier = Modifier.fillMaxSize().padding(horizontal = DesignTokens.SpacingSmall),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement =
                                             Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
@@ -460,7 +460,7 @@ fun WallpaperCard(
             }
 
             if (isWallpaperSourceSelected || isCustomSourceSelected) {
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(DesignTokens.SpacingXSmall))
                 Text(
                         text = stringResource(R.string.settings_wallpaper_transparency_label),
                         style = MaterialTheme.typography.titleSmall,
@@ -468,7 +468,7 @@ fun WallpaperCard(
                 )
                 Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
                 ) {
                     Slider(
                             value = wallpaperAlphaDisplayValue,
@@ -501,7 +501,7 @@ fun WallpaperCard(
                     )
                     Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
                     ) {
                         Slider(
                                 value = wallpaperBlurRadius,

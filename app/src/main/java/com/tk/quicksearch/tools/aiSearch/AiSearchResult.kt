@@ -1,5 +1,7 @@
 package com.tk.quicksearch.tools.aiSearch
 
+import com.tk.quicksearch.shared.ui.components.AppButtonSize
+import com.tk.quicksearch.shared.ui.components.AppButtonTone
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -166,19 +168,11 @@ private fun QuickSearchHelpContactButton(
         onClick = {
             FeedbackUtils.launchFeedbackEmail(context, QuickSearchHelp.stripAlias(question))
         },
-        modifier = modifier.height(32.dp),
-        colors =
-            ButtonDefaults.filledTonalButtonColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f),
-            ),
-        contentPadding = PaddingValues(horizontal = DesignTokens.SpacingMedium, vertical = 0.dp),
+        modifier = modifier.height(DesignTokens.ButtonHeightExtraSmall),
+        tone = AppButtonTone.Secondary,
+        size = AppButtonSize.ExtraSmall,
+        icon = MaterialSymbols.MailOutline,
     ) {
-        Icon(
-            imageVector = MaterialSymbols.MailOutline,
-            contentDescription = null,
-            modifier = Modifier.size(16.dp),
-        )
-        Spacer(modifier = Modifier.width(6.dp))
         Text(
             text = stringResource(R.string.quick_search_help_contact_developer),
             style = MaterialTheme.typography.labelMedium,

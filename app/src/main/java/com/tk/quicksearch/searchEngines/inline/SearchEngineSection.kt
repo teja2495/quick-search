@@ -1,5 +1,6 @@
 package com.tk.quicksearch.searchEngines.inline
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.MutableTransitionState
@@ -104,7 +105,6 @@ internal object SearchEngineSectionConstants {
     val VERTICAL_PADDING = SearchTargetConstants.VERTICAL_PADDING
     val SEARCH_ICON_SPACING = SearchTargetConstants.SEARCH_ICON_SPACING
     val TOOL_ICON_TEXT_SPACING = DesignTokens.SpacingSmall
-    val TOOL_BUTTON_CORNER_RADIUS = 24.dp
     val TOOL_BUTTON_HORIZONTAL_PADDING = DesignTokens.SpacingLarge
     val TOOL_BUTTON_VERTICAL_PADDING = DesignTokens.SpacingMedium
 
@@ -188,7 +188,7 @@ fun SearchEngineIconsSection(
                 modifier =
                     modifier.extendToScreenEdges().padding(
                         horizontal = DesignTokens.SpacingXLarge,
-                        vertical = 8.dp,
+                        vertical = DesignTokens.SpacingSmall,
                     ),
             ) {
                 SearchEngineCard(
@@ -387,7 +387,7 @@ private fun CompactToolActionContent(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Surface(
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(SearchEngineSectionConstants.TOOL_BUTTON_CORNER_RADIUS),
+            shape = AppShapes.inlineInput,
             color = AppColors.InlineEngineHighlightBackground,
             border = BorderStroke(DesignTokens.BorderWidth, AppColors.InlineEngineHighlightBorder),
             modifier =

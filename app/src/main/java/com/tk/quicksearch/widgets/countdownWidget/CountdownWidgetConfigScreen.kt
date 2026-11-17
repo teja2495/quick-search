@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgets.countdownWidget
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -150,7 +151,7 @@ fun CountdownWidgetConfigScreen(
                             },
                             label = { Text(stringResource(R.string.notes_title_hint)) },
                             singleLine = true,
-                            shape = DesignTokens.ShapeLarge,
+                            shape = AppShapes.large,
                             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                             modifier = Modifier.fillMaxWidth(),
                         )

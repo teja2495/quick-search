@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.folders
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
@@ -232,7 +233,7 @@ internal fun FolderGridItem(
                                         scaleX = tileScale * pressScale
                                         scaleY = tileScale * pressScale
                                     }
-                                    .clip(DesignTokens.ShapeLarge)
+                                    .clip(AppShapes.large)
                                     .swipeGestures(folder.folder.gridKey)
                                     .then(dragModifier)
                                     .then(clickModifier)

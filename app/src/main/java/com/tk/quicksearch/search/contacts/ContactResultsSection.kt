@@ -416,14 +416,14 @@ private fun ContactList(
                             if (cardLayoutEnabled) {
                                 Modifier
                                     .height(ContactUiConstants.EXPAND_BUTTON_HEIGHT.dp)
-                                    .padding(top = DesignTokens.SpacingXXSmall)
+                                    .padding(top = DesignTokens.SpacingXSmall)
                             } else {
                                 Modifier
                             },
                         ),
                 textResId = R.string.action_expand_more_contacts,
             )
-            if (cardLayoutEnabled) Spacer(modifier = Modifier.height(8.dp))
+            if (cardLayoutEnabled) Spacer(modifier = Modifier.height(DesignTokens.SpacingSmall))
         }
     }
 }
@@ -438,8 +438,8 @@ private fun ContactActionHintBubble(
     val cornerRadius = DesignTokens.CornerLarge
     val arrowInset =
         ContactUiConstants.ACTION_BUTTON_SIZE.dp * 0.5f + DesignTokens.SpacingSmall + 24.dp
-    val backgroundColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
-    val borderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+    val backgroundColor = MaterialTheme.colorScheme.primary.copy(alpha = AppColors.TintSubtleAlpha)
+    val borderColor = MaterialTheme.colorScheme.primary.copy(alpha = AppColors.ContentFaintAlpha)
 
     Box(
         modifier =
@@ -574,7 +574,7 @@ private fun ContactActionHintBubble(
                 color = MaterialTheme.colorScheme.onSurface,
                 lineHeight = MaterialTheme.typography.bodySmall.lineHeight * 1.2f,
                 modifier =
-                    Modifier.align(Alignment.CenterStart).padding(end = 28.dp),
+                    Modifier.align(Alignment.CenterStart).padding(end = DesignTokens.Spacing28),
             )
             IconButton(
                 onClick = onDismiss,

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -421,7 +422,7 @@ internal fun PinnedNotificationItemsDialog(
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             modifier = Modifier.fillMaxWidth().height(screenHeight * 0.65f),
-            shape = MaterialTheme.shapes.extraLarge,
+            shape = AppShapes.extraLarge,
             color = AppColors.DialogBackground,
         ) {
             Column(

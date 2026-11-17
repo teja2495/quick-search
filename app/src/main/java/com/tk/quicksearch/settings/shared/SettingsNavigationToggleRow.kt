@@ -114,7 +114,7 @@ fun SettingsNavigationToggleRow(
             Column(modifier = Modifier.weight(1f)) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                 ) {
                     Text(
                         text = title,
@@ -131,7 +131,7 @@ fun SettingsNavigationToggleRow(
                         text = subtitle,
                         style = if (segmented) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = if (segmented) DesignTokens.SpacingXXSmall / 2 else 4.dp),
+                        modifier = Modifier.padding(top = if (segmented) DesignTokens.SpacingXSmall / 2 else 4.dp),
                     )
                 }
 
@@ -152,7 +152,7 @@ fun SettingsNavigationToggleRow(
                 VerticalDivider(
                     modifier = Modifier
                         .height(24.dp)
-                        .padding(horizontal = 8.dp),
+                        .padding(horizontal = DesignTokens.SpacingSmall),
                     color = AppColors.SettingsDivider,
                 )
             }

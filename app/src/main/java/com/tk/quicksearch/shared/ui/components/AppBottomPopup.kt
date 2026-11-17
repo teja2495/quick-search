@@ -1,5 +1,6 @@
 package com.tk.quicksearch.shared.ui.components
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.clickable
@@ -105,7 +106,7 @@ fun AppBottomPopup(
     contentScrollable: Boolean = true,
     bottomOverlay: (@Composable BoxScope.() -> Unit)? = null,
     showCloseButton: Boolean = true,
-    shape: Shape = MaterialTheme.shapes.extraLarge,
+    shape: Shape = AppShapes.extraLarge,
     animateSizeChanges: Boolean = false,
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -231,7 +232,7 @@ fun AppBottomPopup(
                                     },
                                 ),
                             colors = CardDefaults.cardColors(containerColor = contentCardColor),
-                            shape = MaterialTheme.shapes.large,
+                            shape = AppShapes.large,
                         ) {
                             if (fixedTopContent == null) {
                                 val scrollState = rememberScrollState()
@@ -249,7 +250,7 @@ fun AppBottomPopup(
                                                 end = contentHorizontalPadding,
                                                 bottom = contentBottomPadding,
                                             ),
-                                    verticalArrangement = Arrangement.spacedBy(20.dp),
+                                    verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXLarge),
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     content = content,
                                 )
@@ -266,10 +267,10 @@ fun AppBottomPopup(
                                             Modifier
                                                 .fillMaxWidth()
                                                 .padding(
-                                                    start = 16.dp,
-                                                    top = 20.dp,
-                                                    end = 16.dp,
-                                                    bottom = 12.dp,
+                                                    start = DesignTokens.SpacingLarge,
+                                                    top = DesignTokens.SpacingXLarge,
+                                                    end = DesignTokens.SpacingLarge,
+                                                    bottom = DesignTokens.SpacingMedium,
                                                 ),
                                         horizontalAlignment = Alignment.CenterHorizontally,
                                     ) {
@@ -289,12 +290,12 @@ fun AppBottomPopup(
                                                     else Modifier,
                                                 )
                                                 .padding(
-                                                    start = 16.dp,
-                                                    top = 12.dp,
-                                                    end = 16.dp,
+                                                    start = DesignTokens.SpacingLarge,
+                                                    top = DesignTokens.SpacingMedium,
+                                                    end = DesignTokens.SpacingLarge,
                                                     bottom = contentBottomPadding,
                                                 ),
-                                        verticalArrangement = Arrangement.spacedBy(20.dp),
+                                        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXLarge),
                                         horizontalAlignment = Alignment.CenterHorizontally,
                                         content = content,
                                     )

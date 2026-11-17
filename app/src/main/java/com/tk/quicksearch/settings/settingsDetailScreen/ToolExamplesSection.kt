@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -81,7 +82,7 @@ private fun ToolExampleChip(text: String) {
             Modifier
                 .background(
                     MaterialTheme.colorScheme.onSurface.copy(alpha = ToolExampleChipFillAlpha),
-                    MaterialTheme.shapes.small,
+                    AppShapes.small,
                 )
                 .padding(horizontal = 10.dp, vertical = 6.dp),
     )

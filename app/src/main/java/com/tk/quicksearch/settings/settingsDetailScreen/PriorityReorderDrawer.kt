@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -68,7 +69,7 @@ internal fun PriorityReorderDialog(
     ) {
         LazyColumn(
             state = listState,
-            modifier = Modifier.fillMaxWidth().clip(DesignTokens.ShapeXXLarge),
+            modifier = Modifier.fillMaxWidth().clip(AppShapes.extraLarge),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
         ) {
             itemsIndexed(orderedItems, key = { _, section -> section.name }) { index, section ->

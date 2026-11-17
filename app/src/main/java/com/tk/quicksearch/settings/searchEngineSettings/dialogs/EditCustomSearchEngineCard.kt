@@ -163,7 +163,7 @@ fun EditCustomSearchEngineDialog(
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     EditableIcon(

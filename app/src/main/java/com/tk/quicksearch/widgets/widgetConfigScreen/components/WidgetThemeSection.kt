@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgets.widgetConfigScreen.components
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -144,7 +145,7 @@ fun WidgetThemeSection(
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
             ) {
                 themeOptions.forEach { option ->
                     ThemeColorOptionChip(
@@ -284,7 +285,7 @@ private fun ThemeColorOptionChip(
                 Modifier
                     .fillMaxWidth()
                     .height(48.dp)
-                    .clip(DesignTokens.ShapeLarge)
+                    .clip(AppShapes.large)
                     .then(
                         if (brush != null) {
                             Modifier.background(brush = brush)
@@ -295,7 +296,7 @@ private fun ThemeColorOptionChip(
                     .border(
                         width = if (selected) 2.dp else 1.dp,
                         color = if (selected) AppColors.Accent else MaterialTheme.colorScheme.outlineVariant,
-                        shape = DesignTokens.ShapeLarge,
+                        shape = AppShapes.large,
                     ).clickable(onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {

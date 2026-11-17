@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.appearanceSettings
 
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -101,9 +102,9 @@ private fun FontSizeSlider(
     var sliderValue by remember(committedIndex) { mutableFloatStateOf(committedIndex.toFloat()) }
     val activeIndex = sliderValue.roundToInt().coerceIn(0, FONT_SIZE_STEPS.lastIndex)
 
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall)) {
         Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = DesignTokens.SpacingXSmall),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -120,9 +121,9 @@ private fun FontSizeSlider(
         }
 
         Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = DesignTokens.SpacingXSmall),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         ) {
             Text(
                     text = "A",

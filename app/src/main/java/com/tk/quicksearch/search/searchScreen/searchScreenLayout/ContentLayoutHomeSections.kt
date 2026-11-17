@@ -135,8 +135,8 @@ internal fun HomeSectionHeaderRow(
             .padding(
                 start = DesignTokens.SpacingLarge,
                 end = DesignTokens.SpacingLarge,
-                top = if (compactHeader) DesignTokens.SpacingXSmall - CompactHeaderCentering else DesignTokens.SpacingXXSmall,
-                bottom = if (compactHeader) DesignTokens.SpacingXSmall + CompactHeaderCentering else DesignTokens.SpacingXXSmall,
+                top = if (compactHeader) DesignTokens.SpacingXSmall - CompactHeaderCentering else DesignTokens.SpacingXSmall,
+                bottom = if (compactHeader) DesignTokens.SpacingXSmall + CompactHeaderCentering else DesignTokens.SpacingXSmall,
             ),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -223,7 +223,7 @@ internal fun HomeSectionCollapsibleContent(
 ) {
     // Flat headers draw their divider in this gap, so it matches the spacing between home items.
     val headerGap =
-        if (LocalSearchCardLayoutEnabled.current) DesignTokens.SpacingXXSmall else HomeSectionContentSpacing
+        if (LocalSearchCardLayoutEnabled.current) DesignTokens.SpacingXSmall else HomeSectionContentSpacing
     AnimatedVisibility(
         visible = visible,
         enter = expandVertically(),

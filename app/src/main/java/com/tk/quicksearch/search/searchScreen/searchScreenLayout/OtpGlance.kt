@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.content.ClipData
 import android.content.ClipDescription
 import android.content.ClipboardManager
@@ -100,7 +101,7 @@ internal fun OtpCodeRow(
             Row(
                 modifier =
                     Modifier
-                        .clip(RoundedCornerShape(DesignTokens.CornerSmall))
+                        .clip(AppShapes.small)
                         .clickable(role = Role.Button) { copied = copySensitiveText(context, copyLabel, otp.code) },
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                 verticalAlignment = Alignment.CenterVertically,

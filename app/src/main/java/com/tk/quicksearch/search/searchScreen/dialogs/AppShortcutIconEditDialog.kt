@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.dialogs
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.graphics.BitmapFactory
 import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -91,7 +93,7 @@ internal fun AppShortcutIconEditDialog(
         onDismissRequest = onDismiss,
         icon = {
             Surface(
-                shape = DesignTokens.ShapeLarge,
+                shape = AppShapes.large,
                 color = MaterialTheme.colorScheme.primaryContainer,
                 tonalElevation = DesignTokens.ElevationLevel0,
                 modifier = Modifier.size(DesignTokens.IconSizeXLarge),
@@ -122,12 +124,12 @@ internal fun AppShortcutIconEditDialog(
                 )
                 Surface(
                     onClick = { pickIconLauncher.launch(arrayOf("image/*")) },
-                    shape = DesignTokens.SearchResultCardShape,
-                    color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.55f),
+                    shape = AppShapes.resultCard,
+                    color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = AppColors.ContentMutedAlpha),
                     border =
                         BorderStroke(
                             DesignTokens.BorderWidth,
-                            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.9f),
+                            MaterialTheme.colorScheme.outlineVariant.copy(alpha = AppColors.ContentNearOpaqueAlpha),
                         ),
                     tonalElevation = DesignTokens.ElevationLevel0,
                     modifier =

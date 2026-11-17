@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import com.tk.quicksearch.shared.ui.components.AppButtonTone
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.ui.graphics.RectangleShape
 import com.tk.quicksearch.search.searchScreen.insetCardBackdrop
 import com.tk.quicksearch.search.searchScreen.insetCardBackground
@@ -53,7 +55,6 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 import com.tk.quicksearch.shared.ui.theme.LocalDeviceDynamicColorsActive
 import com.tk.quicksearch.shared.ui.theme.pressMorphButtonShape
-import com.tk.quicksearch.shared.ui.components.ConnectedButton
 import com.tk.quicksearch.shared.ui.components.ConnectedButtonRow
 
 private val QuickActionIconSize = 16.dp
@@ -285,7 +286,6 @@ internal fun OpenKeyboardAction(
         } else {
             Color.Black
         }
-    val buttonContainer = contentColor.copy(alpha = ConnectedButtonTintAlpha)
     // The strip ends at the navigation bar inset; carry its colour on down to the screen edge so it
     // reads as one surface behind the gesture bar instead of stopping short above it.
     val navigationBarBottom =
@@ -318,16 +318,10 @@ internal fun OpenKeyboardAction(
                         end = DesignTokens.ContentHorizontalPadding,
                         bottom = DesignTokens.SpacingXLarge,
                     ),
+            tone = AppButtonTone.Custom(contentColor),
         ) {
             if (showMic) {
-                ConnectedButton(
-                    onClick = onVoiceClick,
-                    isStart = true,
-                    isEnd = false,
-                    containerColor = buttonContainer,
-                    contentColor = contentColor,
-                    modifier = Modifier.width(VoiceButtonWidth),
-                ) {
+                button(onClick = onVoiceClick, width = VoiceButtonWidth) {
                     Icon(
                         imageVector = MaterialSymbols.Mic,
                         contentDescription = stringResource(R.string.desc_voice_search_icon),
@@ -335,14 +329,7 @@ internal fun OpenKeyboardAction(
                     )
                 }
             }
-            ConnectedButton(
-                onClick = onClick,
-                isStart = !showMic,
-                isEnd = true,
-                containerColor = buttonContainer,
-                contentColor = contentColor,
-                modifier = Modifier.weight(1f),
-            ) {
+            button(onClick = onClick) {
                 Icon(
                     imageVector = MaterialSymbols.Keyboard,
                     contentDescription = null,
@@ -360,7 +347,6 @@ internal fun OpenKeyboardAction(
 }
 
 
-private const val ConnectedButtonTintAlpha = 0.1f
 private val VoiceButtonWidth = 72.dp
 
 @Composable
@@ -371,7 +357,7 @@ internal fun OverlayExpandPill(
 ) {
     Surface(
         modifier = modifier.clickable(onClick = onClick),
-        shape = DesignTokens.ShapeFull,
+        shape = AppShapes.full,
         color = AppColors.OverlayMedium,
         tonalElevation = DesignTokens.ElevationLevel0,
     ) {
@@ -456,7 +442,7 @@ internal fun NumberKeyboardOperatorPills(
                 Surface(
                     modifier =
                         Modifier.weight(1f).clickable { onOperatorClick(operator) },
-                    shape = DesignTokens.ShapeFull,
+                    shape = AppShapes.full,
                     color = operatorChipColor,
                     border = BorderStroke(DesignTokens.KeyboardPillBorderStrokeWidth, operatorChipBorderColor),
                     tonalElevation = DesignTokens.ElevationLevel0,

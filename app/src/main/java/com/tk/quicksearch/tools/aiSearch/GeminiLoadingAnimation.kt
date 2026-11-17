@@ -1,5 +1,7 @@
 package com.tk.quicksearch.tools.aiSearch
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -38,13 +40,10 @@ import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.unit.dp
-import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
-import androidx.graphics.shapes.circle
-import androidx.graphics.shapes.pill
-import androidx.graphics.shapes.star
 import androidx.graphics.shapes.toPath
+import com.tk.quicksearch.shared.ui.theme.AppPolygons
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.max
@@ -61,9 +60,9 @@ fun GeminiLoadingAnimation(
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
 ) {
     Row(
-        modifier = modifier.fillMaxWidth().padding(vertical = 12.dp),
+        modifier = modifier.fillMaxWidth().padding(vertical = DesignTokens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
         MorphingShapeLoadingIndicator(
             color = primaryColor,
@@ -82,39 +81,7 @@ private const val FullRotationMillis = 4666
 private const val RotationPerMorph = 90f
 
 private val LoadingShapes: List<RoundedPolygon> by lazy {
-    listOf(
-        // Soft burst
-        RoundedPolygon.star(
-            numVerticesPerRadius = 10,
-            innerRadius = 0.82f,
-            rounding = CornerRounding(0.12f),
-            innerRounding = CornerRounding(0.12f),
-        ),
-        // 9-sided cookie
-        RoundedPolygon.star(
-            numVerticesPerRadius = 9,
-            innerRadius = 0.8f,
-            rounding = CornerRounding(0.3f),
-        ),
-        // Pentagon
-        RoundedPolygon(numVertices = 5, rounding = CornerRounding(0.3f)),
-        // Pill
-        RoundedPolygon.pill(width = 1.6f, height = 1f),
-        // Sunny
-        RoundedPolygon.star(
-            numVerticesPerRadius = 8,
-            innerRadius = 0.8f,
-            rounding = CornerRounding(0.15f),
-        ),
-        // 4-sided cookie
-        RoundedPolygon.star(
-            numVerticesPerRadius = 4,
-            innerRadius = 0.62f,
-            rounding = CornerRounding(0.42f),
-        ),
-        // Oval
-        RoundedPolygon.circle(numVertices = 8),
-    ).map { it.normalized() }
+    with(AppPolygons) { listOf(softBurst, cookie9, pentagon, pill, sunny, cookie4, oval) }
 }
 
 private val LoadingMorphs: List<Morph> by lazy {
@@ -134,7 +101,7 @@ private fun MorphingShapeLoadingIndicator(
         while (true) {
             launch {
                 morphProgress.snapTo(0f)
-                morphProgress.animateTo(1f, spring(dampingRatio = 0.6f, stiffness = 200f))
+                morphProgress.animateTo(1f, AppMotion.loadingMorph())
             }
             delay(MorphIntervalMillis)
             step.intValue += 1

@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.components
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.searchScreen.insetCardBackdrop
 import com.tk.quicksearch.search.searchScreen.insetCardBackground
 import com.tk.quicksearch.onboarding.LocalWelcomeMorph
@@ -101,11 +103,11 @@ private const val PlaceholderHintTransitionDurationMs = 700
 private const val PlaceholderHintTransitionDelayMs = 120
 internal const val LightSearchBarShadowAmbientAlpha = 0.38f
 internal const val LightSearchBarShadowSpotAlpha = 0.62f
-/** Resting radius of the standalone bar, matching [DesignTokens.ShapeXXLarge]. */
+/** Resting radius of the standalone bar, matching [AppShapes.extraLarge]. */
 private val DefaultSearchBarCornerRadius = DesignTokens.Spacing28
 
 private val AliasMorphHorizontalTravel = DesignTokens.Spacing28
-private val AliasMorphVerticalTravel = DesignTokens.SpacingXXSmall
+private val AliasMorphVerticalTravel = DesignTokens.SpacingXSmall
 
 
 
@@ -418,57 +420,12 @@ internal fun PersistentSearchBar(
         onRestoreKeyboardHandled()
     }
 
-    // Welcome animation: the gradient scans across the border once, ending on its white tail,
-    // then the glow fades out while the resting border fades in. The first-run morph replaces it.
-    val playBorderSweep = showWelcomeAnimation && LocalWelcomeMorph.current?.isActive != true
-    val animationProgress = remember { Animatable(0f) }
-
-    val glowAlpha = remember { Animatable(0f) }
-    val borderAlpha =
-        remember {
-            Animatable(
-                if (playBorderSweep) 0f else 1f,
-            )
-        }
-
-    LaunchedEffect(playBorderSweep, query.isEmpty()) {
-        if (playBorderSweep) {
-            glowAlpha.snapTo(1f)
-            borderAlpha.snapTo(0f)
-            animationProgress.snapTo(0f)
-
-            animationProgress.animateTo(
-                targetValue = 1f,
-                animationSpec = tween(DesignTokens.AnimationDurationLong, easing = LinearEasing),
-            )
-
-            // The white end of the gradient holds the glow; the border is not snapped to opaque here.
-            delay(DesignTokens.AnimationDurationMicro.toLong())
-
-            launch {
-                glowAlpha.animateTo(
-                    targetValue = 0f,
-                    animationSpec = tween(DesignTokens.AnimationDurationFast, easing = LinearOutSlowInEasing),
-                )
-            }
-            launch {
-                borderAlpha.animateTo(
-                    targetValue = 1f,
-                    animationSpec = tween(DesignTokens.AnimationDurationFast, easing = LinearOutSlowInEasing),
-                )
-            }
-
-            delay(DesignTokens.AnimationDurationFast.toLong())
-            onWelcomeAnimationCompleted?.invoke()
-        } else if (query.isEmpty()) {
-            borderAlpha.snapTo(1f)
-        } else {
-            borderAlpha.animateTo(
-                targetValue = 1f,
-                animationSpec = tween(durationMillis = DesignTokens.AnimationDurationFast, easing = LinearOutSlowInEasing)
-            )
-        }
-    }
+    val borderSweep =
+        rememberSearchBarBorderSweep(
+            play = showWelcomeAnimation && LocalWelcomeMorph.current?.isActive != true,
+            queryIsEmpty = query.isEmpty(),
+            onCompleted = onWelcomeAnimationCompleted,
+        )
     // Palettes are centralized in AppColors to keep color tokens out of feature files.
     val activeColors = AppColors.SearchFieldGooglePalette
     val aliasMorphHorizontalTravelPx = with(density) { AliasMorphHorizontalTravel.toPx() }
@@ -499,7 +456,7 @@ internal fun PersistentSearchBar(
                     }
                 }
                 .drawBehind {
-                    val alpha = glowAlpha.value
+                    val alpha = borderSweep.glowAlpha
                     if (alpha > 0f) {
                         val strokeWidth = DesignTokens.SearchFieldBorderWidth.toPx()
                         val cornerRadiusVal = cornerRadius.toPx()
@@ -508,7 +465,7 @@ internal fun PersistentSearchBar(
 
                         // Slides the brush left so the border ends on the gradient's white tail.
                         val xOffset =
-                            -(animationProgress.value * size.width * DesignTokens.SearchFieldGradientTravelMultiplier)
+                            -(borderSweep.progress * size.width * DesignTokens.SearchFieldGradientTravelMultiplier)
 
                         val brush =
                             Brush.linearGradient(
@@ -558,7 +515,7 @@ internal fun PersistentSearchBar(
                             width = searchBarStyle.borderWidth(),
                             color =
                                 restingBorderColor.copy(
-                                    alpha = (borderAlpha.value * restingBorderColor.alpha).coerceIn(0f, 1f),
+                                    alpha = (borderSweep.borderAlpha * restingBorderColor.alpha).coerceIn(0f, 1f),
                                 ),
                             shape = barShape,
                         )

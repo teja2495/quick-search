@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.bookmarksSettings
 
+import com.tk.quicksearch.shared.ui.theme.AppMotion
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.graphics.BitmapFactory
 import android.util.Base64
 import androidx.activity.compose.BackHandler
@@ -151,7 +153,7 @@ internal fun BookmarkEditorSheet(
             targetState = page,
             transitionSpec = {
                 val forward = targetState == BookmarkEditorPage.Browsers
-                val duration = DesignTokens.AnimationDurationShort
+                val duration = AppMotion.DurationShort
                 (slideInHorizontally(tween(duration)) { if (forward) it / 4 else -it / 4 } + fadeIn(tween(duration)))
                     .togetherWith(
                         slideOutHorizontally(tween(duration)) { if (forward) -it / 4 else it / 4 } +
@@ -242,7 +244,7 @@ private fun BookmarkEditorForm(
                     .weight(1f, fill = false)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = DesignTokens.ContentHorizontalPadding),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         ) {
             BookmarkIconPicker(
                 bookmark = bookmark,
@@ -294,11 +296,6 @@ private fun BookmarkEditorForm(
                     .fillMaxWidth()
                     .padding(horizontal = DesignTokens.ContentHorizontalPadding)
                     .padding(top = DesignTokens.SpacingSmall),
-            colors =
-                ButtonDefaults.buttonColors(
-                    containerColor = AppColors.Accent,
-                    contentColor = AppColors.OnAccent,
-                ),
         ) {
             Text(
                 text =
@@ -342,7 +339,7 @@ private fun BookmarkIconPicker(
                     Image(
                         bitmap = pickedBitmap,
                         contentDescription = null,
-                        modifier = Modifier.size(48.dp).clip(RoundedCornerShape(10.dp)),
+                        modifier = Modifier.size(48.dp).clip(AppShapes.iconTile),
                         contentScale = ContentScale.Fit,
                     )
                 bookmark != null -> BookmarkFavicon(bookmark = bookmark, size = 48.dp)

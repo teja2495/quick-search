@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.contacts.dialogs
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.content.ContentUris
 import android.content.Intent
 import android.net.Uri
@@ -257,12 +258,7 @@ internal fun ContactActionsPopup(
         contentSpacing = DesignTokens.SpacingSmall,
         headerSpacing = DesignTokens.SpacingMedium,
         headerTopPadding = DesignTokens.SpacingLarge,
-        shape = RoundedCornerShape(
-            topStart = DesignTokens.SpacingXLarge,
-            topEnd = DesignTokens.SpacingXLarge,
-            bottomStart = DesignTokens.Spacing28,
-            bottomEnd = DesignTokens.Spacing28,
-        ),
+        shape = AppShapes.stacked(top = DesignTokens.CornerLargeIncreased, bottom = DesignTokens.CornerExtraLarge),
         contentTopPadding = 0.dp,
         contentBottomPadding = 0.dp,
         contentHorizontalPadding = 0.dp,
@@ -306,7 +302,7 @@ internal fun ContactActionsPopup(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(DesignTokens.ShapeXLarge)
+                        .clip(AppShapes.extraLarge)
                         .background(MaterialTheme.colorScheme.surfaceContainerHigh)
                         .padding(DesignTokens.SpacingXSmall),
                     horizontalArrangement = Arrangement.Center,

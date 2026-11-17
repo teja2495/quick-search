@@ -103,7 +103,7 @@ object InsetSearchBarGeometry {
     val BarTopSpacing = DesignTokens.SpacingSmall
 
     /** Gap between the bottom of the bar and the divider above the engine row. */
-    val BarBottomSpacing = DesignTokens.SpacingXXSmall
+    val BarBottomSpacing = DesignTokens.SpacingXSmall
 
     val ContainerOverlap = overlapFor(BarHeight)
 

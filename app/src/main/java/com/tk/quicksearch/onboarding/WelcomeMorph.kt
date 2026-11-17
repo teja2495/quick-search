@@ -547,7 +547,7 @@ private fun TravellingSearchBar(
                 Text(
                     text = stringResource(R.string.search_hint),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = barContentColor.copy(alpha = 0.7f),
+                    color = barContentColor.copy(alpha = AppColors.ContentHighAlpha),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )

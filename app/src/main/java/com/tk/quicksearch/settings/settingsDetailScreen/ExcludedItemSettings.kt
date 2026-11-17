@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
@@ -177,7 +178,7 @@ private fun ExcludedItemsList(
     onRemoveItem: (ExcludedItem) -> Unit,
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize().clip(DesignTokens.ShapeXXLarge),
+        modifier = Modifier.fillMaxSize().clip(AppShapes.extraLarge),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
     ) {
         itemsIndexed(allItems) { index, item ->

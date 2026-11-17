@@ -155,7 +155,7 @@ internal fun GlanceStatusRow(
                         Modifier
                             .clip(CircleShape)
                             .background(pillColors.container)
-                            .padding(horizontal = 10.dp, vertical = 4.dp),
+                            .padding(horizontal = 10.dp, vertical = DesignTokens.SpacingXSmall),
                     contentAlignment = Alignment.Center,
                 ) {
                     if (pillWidthText != null) {
@@ -218,7 +218,7 @@ internal fun GlanceActionChip(
         border = if (colors == null) BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant) else null,
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            modifier = Modifier.padding(horizontal = DesignTokens.SpacingMedium, vertical = 6.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {

@@ -152,7 +152,7 @@ private fun WebSuggestionItem(
     iconColor: Color,
     modifier: Modifier = Modifier,
     isShortcutDetected: Boolean = false,
-    shape: Shape = DesignTokens.CardShape,
+    shape: Shape = AppShapes.card,
 ) {
     Row(
         modifier =

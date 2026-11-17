@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.apps
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.app.Application
 import android.content.pm.PackageManager
 import android.os.Build
@@ -124,7 +125,7 @@ fun AppIconOverrideDrawer(
                         singleLine = true,
                         leadingIcon = { Icon(MaterialSymbols.Search, contentDescription = null) },
                         placeholder = { Text(stringResource(R.string.icon_picker_search)) },
-                        shape = RoundedCornerShape(32.dp),
+                        shape = AppShapes.full,
                         colors =
                             TextFieldDefaults.colors(
                                 focusedContainerColor = iconContainerColor,

@@ -485,31 +485,7 @@ internal fun SearchScreenContent(
         )
     }
 
-    var lastTriggeredQuery by remember { mutableStateOf<String?>(null) }
-    LaunchedEffect(
-        state.query,
-        state.allApps,
-        renderingState.displayApps,
-        state.allAppShortcuts,
-        renderingState.appShortcutResults,
-        renderingState.contactResults,
-        state.pinnedContacts,
-        renderingState.fileResults,
-        state.pinnedFiles,
-        renderingState.settingResults,
-        state.allDeviceSettings,
-        renderingState.calendarEvents,
-        renderingState.noteResults,
-        state.pinnedNotes,
-        triggerWords,
-    ) {
-        if (state.query == lastTriggeredQuery) return@LaunchedEffect
-        lastTriggeredQuery = null
-        if (state.query.isBlank()) return@LaunchedEffect
-        if (openMatchingTrigger(state.query)) {
-            lastTriggeredQuery = state.query
-        }
-    }
+    AutoOpenMatchingTrigger(state, renderingState, triggerWords, openMatchingTrigger)
 
     val searchBarGeometry = rememberSearchBarGeometry(
         state = state,
@@ -670,7 +646,7 @@ internal fun SearchScreenContent(
                                         Modifier.weight(1f)
                                     }
                             if (showSearchField && showBottomSearchBar) {
-                                base.padding(top = DesignTokens.SpacingXXSmall)
+                                base.padding(top = DesignTokens.SpacingXSmall)
                             } else {
                                 base
                             }

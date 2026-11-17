@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.files
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -57,7 +58,7 @@ internal fun FileTypeFilterChips(
                 selected = selected,
                 onClick = { if (!selected) onFileTypeSelected(chip.fileType) },
                 label = { Text(text = stringResource(chip.labelRes)) },
-                shape = DesignTokens.ShapeFull,
+                shape = AppShapes.full,
                 border =
                     FilterChipDefaults.filterChipBorder(
                         enabled = true,

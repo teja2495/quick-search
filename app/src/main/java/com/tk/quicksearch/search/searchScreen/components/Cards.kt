@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -19,12 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
-import com.tk.quicksearch.search.searchScreen.frostedCardBackground
 import com.tk.quicksearch.search.searchScreen.shared.SearchResultCard
-import com.tk.quicksearch.search.searchScreen.shared.SearchResultCardDefaults
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.components.AppButton
 
@@ -36,16 +31,9 @@ internal fun PermissionDisabledCard(
     onActionClick: () -> Unit,
     showWallpaperBackground: Boolean,
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth().frostedCardBackground(SearchResultCardDefaults.shape),
-        colors =
-            SearchResultCardDefaults.colors(
-                showWallpaperBackground = showWallpaperBackground,
-                overlayContainerColor = LocalOverlayResultCardColor.current,
-            ),
-        border = SearchResultCardDefaults.border(showWallpaperBackground),
-        elevation = AppColors.getCardElevation(showWallpaperBackground),
-        shape = SearchResultCardDefaults.shape,
+    SearchResultCard(
+        modifier = Modifier.fillMaxWidth(),
+        showWallpaperBackground = showWallpaperBackground,
     ) {
         Column(
             modifier =
@@ -79,16 +67,9 @@ internal fun UsagePermissionCard(
     onDismiss: () -> Unit,
     showWallpaperBackground: Boolean,
 ) {
-    Card(
-        modifier = modifier.frostedCardBackground(SearchResultCardDefaults.shape),
-        colors =
-            SearchResultCardDefaults.colors(
-                showWallpaperBackground = showWallpaperBackground,
-                overlayContainerColor = LocalOverlayResultCardColor.current,
-            ),
-        border = SearchResultCardDefaults.border(showWallpaperBackground),
-        elevation = AppColors.getCardElevation(showWallpaperBackground),
-        shape = SearchResultCardDefaults.shape,
+    SearchResultCard(
+        modifier = modifier,
+        showWallpaperBackground = showWallpaperBackground,
     ) {
         Column(
             modifier = Modifier.padding(DesignTokens.SpacingXLarge),

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.shared.ui.theme.floatingActionShape
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -117,7 +118,7 @@ private data class CalendarAppTarget(
     val label: String,
 )
 
-internal val CalendarSettingsBarCornerShape = RoundedCornerShape(DesignTokens.CornerExtraLarge)
+internal val CalendarSettingsBarCornerShape = AppShapes.extraLarge
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -288,7 +289,7 @@ fun CalendarEventsSettingsSection(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(max = screenHeight)
-                    .clip(DesignTokens.ShapeXXLarge),
+                    .clip(AppShapes.extraLarge),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
             ) {
                 itemsIndexed(
@@ -465,9 +466,9 @@ fun CalendarEventsBottomBar(
         modifier = modifier
             .fillMaxWidth()
             .imePadding()
-            .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+            .padding(start = DesignTokens.SpacingLarge, end = DesignTokens.SpacingLarge, bottom = DesignTokens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = if (showNewItem) Arrangement.spacedBy(12.dp) else Arrangement.End,
+        horizontalArrangement = if (showNewItem) Arrangement.spacedBy(DesignTokens.SpacingMedium) else Arrangement.End,
     ) {
         if (isSearchExpanded) {
             SettingsManagementSearchBar(
@@ -584,7 +585,7 @@ private fun CalendarEventManagementRow(
                 recurrenceLabel?.let { recurrence ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
                     ) {
                         Icon(
                             imageVector = MaterialSymbols.Repeat,

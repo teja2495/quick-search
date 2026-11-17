@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.appShortcutsSettings
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.shared.ui.components.AppSwitch
 import android.graphics.BitmapFactory
 import android.util.Base64
@@ -141,16 +142,16 @@ fun EditCustomShortcutDialog(
             }
         },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium)) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                 ) {
                     Box(
                         modifier =
                             Modifier
                                 .size(50.dp)
-                                .clip(MaterialTheme.shapes.medium)
+                                .clip(AppShapes.medium)
                                 .clickable { pickIconLauncher.launch(arrayOf("image/*")) },
                         contentAlignment = Alignment.Center,
                     ) {

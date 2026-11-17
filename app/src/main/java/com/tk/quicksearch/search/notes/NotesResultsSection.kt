@@ -231,7 +231,7 @@ internal fun NoteRow(
                     )
                     .topPredictedRowContentPadding()
                     .padding(vertical = resultRowVerticalPadding(12.dp)),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             verticalAlignment = Alignment.Top,
         ) {
             Icon(
@@ -242,7 +242,7 @@ internal fun NoteRow(
             )
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
             ) {
                 Text(
                     text = rememberQueryHighlightedText(title, query),

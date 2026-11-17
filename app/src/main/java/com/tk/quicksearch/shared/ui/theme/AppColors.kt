@@ -81,6 +81,36 @@ object AppColors {
     const val TintStrongAlpha = 0.24f
     const val TintEmphasisAlpha = 0.3f
 
+    // Content and state opacities. Every alpha applied to a theme color outside this file comes
+    // from the tint scale above or this scale, so a new design language retunes them here.
+
+    /** Disabled content (Material state layer). */
+    const val DisabledContentAlpha = 0.38f
+
+    /** Disabled container (Material state layer). */
+    const val DisabledContainerAlpha = 0.12f
+
+    /** Faint content: hints, inactive decorations. */
+    const val ContentFaintAlpha = 0.4f
+
+    /** Muted content: placeholders, tertiary text. */
+    const val ContentMutedAlpha = 0.5f
+
+    /** Secondary content: supporting text on tinted or wallpaper surfaces. */
+    const val ContentSecondaryAlpha = 0.6f
+
+    /** High-emphasis translucent content. */
+    const val ContentHighAlpha = 0.7f
+
+    /** Strong translucent content and scrims. */
+    const val ContentStrongAlpha = 0.8f
+
+    /** Nearly opaque content and scrims. */
+    const val ContentNearOpaqueAlpha = 0.9f
+
+    /** Alpha of the secondary container behind a secondary tonal button, so it sits softly on result cards. */
+    const val SecondaryTonalContainerAlpha = 0.6f
+
     /** Color for content drawn on top of an accent-colored surface (maps to `onPrimary`). */
     val OnAccent: Color
         @Composable

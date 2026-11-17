@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.files
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.searchScreen.shared.ResultRowDivider
 import com.tk.quicksearch.search.searchScreen.shared.ResultSegment
 import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
@@ -440,7 +441,7 @@ private fun FileCardContent(
                                 Modifier.align(Alignment.CenterHorizontally)
                                         .compactExpandButtonSize(cardLayoutEnabled),
                 )
-                if (cardLayoutEnabled) Spacer(modifier = Modifier.height(8.dp))
+                if (cardLayoutEnabled) Spacer(modifier = Modifier.height(DesignTokens.SpacingSmall))
             }
         }
     }
@@ -564,7 +565,7 @@ internal fun FileResultThumbnailOrIcon(
                         contentDescription = null,
                         modifier =
                                 Modifier.size(THUMBNAIL_SIZE_DP.dp)
-                                        .clip(DesignTokens.CardShape)
+                                        .clip(AppShapes.card)
                                         .alpha(thumbnailAlpha.value),
                         contentScale = ContentScale.Crop,
                 )

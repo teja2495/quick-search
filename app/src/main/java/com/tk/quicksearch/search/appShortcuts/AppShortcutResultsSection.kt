@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.appShortcuts
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.searchScreen.components.ExpandButtonSegment
 import com.tk.quicksearch.search.searchScreen.shared.segmentedRowsActive
 import com.tk.quicksearch.search.searchScreen.shared.resultRowsContainerPadding
@@ -351,7 +352,7 @@ internal fun AppShortcutRow(
                                 )
                                 .topPredictedRowContentPadding()
                                 .padding(vertical = resultRowVerticalPadding(12.dp)),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                 verticalAlignment = Alignment.CenterVertically,
         ) {
                 val leadingIconStartPadding =
@@ -719,7 +720,7 @@ private fun AppShortcutDropdownMenu(
                                         Image(
                                                 bitmap = bitmap,
                                                 contentDescription = displayName,
-                                                modifier = Modifier.size(40.dp).clip(RoundedCornerShape(10.dp)),
+                                                modifier = Modifier.size(40.dp).clip(AppShapes.iconTile),
                                                 contentScale = ContentScale.Fit,
                                         )
                                 }

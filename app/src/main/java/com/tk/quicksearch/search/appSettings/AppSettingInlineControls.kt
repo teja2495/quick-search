@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.appSettings
 
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -172,7 +174,7 @@ internal fun InlineSliderRow(
     label: String,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        modifier = Modifier.fillMaxWidth().padding(top = DesignTokens.SpacingSmall),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
@@ -183,7 +185,7 @@ internal fun InlineSliderRow(
             steps = steps,
             colors =
                 SliderDefaults.colors(
-                    inactiveTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.16f),
+                    inactiveTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = AppColors.TintTonalAlpha),
                     inactiveTickColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 ),
             modifier = Modifier.weight(1f).height(36.dp),
@@ -228,7 +230,7 @@ private fun HomeTextColorInlineChips(controls: AppSettingInlineControls) {
             ),
         selected = selected,
         onSelect = { color -> if (color != selected) controls.onHomeTextColorChange(color) },
-        modifier = Modifier.padding(top = 8.dp),
+        modifier = Modifier.padding(top = DesignTokens.SpacingSmall),
     )
 }
 
@@ -244,6 +246,6 @@ private fun ThemeModeInlineChips(controls: AppSettingInlineControls) {
             ),
         selected = controls.appThemeMode,
         onSelect = { mode -> if (mode != controls.appThemeMode) controls.onAppThemeModeChange(mode) },
-        modifier = Modifier.padding(top = 8.dp),
+        modifier = Modifier.padding(top = DesignTokens.SpacingSmall),
     )
 }

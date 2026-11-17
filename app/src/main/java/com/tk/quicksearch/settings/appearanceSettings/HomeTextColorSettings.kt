@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.appearanceSettings
 
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -47,21 +48,21 @@ fun HomeTextColorOptions(
     val effectiveSelectedColor = selectedColor ?: wallpaperDefaultColor
     Column(
             modifier = modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
     ) {
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
                         text = stringResource(homeTextColorTitleRes(compactLayoutEnabled)),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(horizontal = 4.dp),
+                        modifier = Modifier.padding(horizontal = DesignTokens.SpacingXSmall),
                 )
                 if (!compactLayoutEnabled) {
                     Text(
                             text = stringResource(R.string.settings_home_text_color_desc),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(horizontal = 4.dp),
+                            modifier = Modifier.padding(horizontal = DesignTokens.SpacingXSmall),
                     )
                 }
             }

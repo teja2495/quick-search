@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import com.tk.quicksearch.search.apps.appLock.AppLockGate
 import android.content.Context
 import android.widget.Toast
@@ -219,7 +221,7 @@ fun NotificationHistorySettingsSection(
             LazyColumn(
                 state = listState,
                 modifier =
-                    Modifier.fillMaxWidth().heightIn(max = screenHeight).clip(DesignTokens.ShapeXXLarge),
+                    Modifier.fillMaxWidth().heightIn(max = screenHeight).clip(AppShapes.extraLarge),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
             ) {
                 itemsIndexed(
@@ -554,7 +556,7 @@ private fun NotificationHistoryAppFilterDialog(
                     Surface(
                         onClick = { showClearAllConfirmation = true },
                         shape = CircleShape,
-                        color = MaterialTheme.colorScheme.error.copy(alpha = 0.12f),
+                        color = MaterialTheme.colorScheme.error.copy(alpha = AppColors.TintLightAlpha),
                         contentColor = MaterialTheme.colorScheme.error,
                     ) {
                         Icon(
@@ -617,7 +619,7 @@ private fun NotificationHistoryAppFilterItem(
     Column(
         modifier =
             Modifier.fillMaxWidth()
-                .clip(RoundedCornerShape(DesignTokens.SpacingMedium))
+                .clip(AppShapes.medium)
                 .toggleable(value = checked, role = Role.Checkbox, onValueChange = { onClick() })
                 .padding(vertical = DesignTokens.SpacingXSmall),
         horizontalAlignment = Alignment.CenterHorizontally,

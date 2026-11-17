@@ -46,9 +46,6 @@ import com.tk.quicksearch.search.searchScreen.components.SectionPermissionResult
 import com.tk.quicksearch.search.other.OtherSearchItemActionHandler
 import com.tk.quicksearch.search.other.OtherSearchItemRegistry
 import com.tk.quicksearch.R
-import com.tk.quicksearch.widgetsPanel.HomeWidgetStack
-import com.tk.quicksearch.widgetsPanel.rememberHomePinnedWidgets
-import com.tk.quicksearch.widgetsPanel.rememberHomeWidgetHost
 
 /** Unified content layout that handles both one-handed mode and top-aligned layouts. */
 @Composable
@@ -750,51 +747,23 @@ fun ContentLayout(
     val contentModifier =
         modifier.padding(bottom = bottomGap).reversedListTopDivider(isReversed, effectiveShowWallpaperBackground)
 
-    val homeWidgets = rememberHomePinnedWidgets(enabled = !isOverlayPresentation)
-    // The container only depends on whether any widget is pinned, so typing a query keeps the same
-    // layout tree instead of rebuilding every section.
-    val homeWidgetHost = if (homeWidgets.isNotEmpty()) rememberHomeWidgetHost() else null
-    val showHomeWidgets =
-        !hasQuery &&
-            !hideResults &&
-            !isSectionAliasMode &&
-            !isExpanded &&
-            !hideOtherContent &&
-            !hidePinnedAndAppsWhenSearchHistoryExpanded &&
-            !isHomeCalendarExpanded
-
-    if (homeWidgetHost != null) {
-        HomeWidgetStack(
-            layoutOrder = finalLayoutOrder,
-            isReversed = isReversed,
-            widgets = homeWidgets,
-            showWidgets = showHomeWidgets,
-            host = homeWidgetHost,
-            spacing = 14.dp,
-            isScrollInProgress = isScrollInProgress,
-            modifier = contentModifier,
-            leadingContent = {
-                if (showTopMatchesSection && !isReversed) renderTopMatches()
-            },
-            trailingContent = {
-                renderDeferredSearchHistory()
-                if (showTopMatchesSection && isReversed) renderTopMatches()
-            },
-            itemContent = { itemType -> renderLayoutItem(itemType) },
-        )
-        return
-    }
-
-    Column(modifier = contentModifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        if (showTopMatchesSection && !isReversed) {
-            renderTopMatches()
-        }
-        finalLayoutOrder.forEach { itemType -> renderLayoutItem(itemType) }
-
-        renderDeferredSearchHistory()
-
-        if (showTopMatchesSection && isReversed) {
-            renderTopMatches()
-        }
-    }
+    ContentLayoutColumn(
+        layoutOrder = finalLayoutOrder,
+        isReversed = isReversed,
+        showTopMatchesSection = showTopMatchesSection,
+        showHomeWidgets =
+            !hasQuery &&
+                !hideResults &&
+                !isSectionAliasMode &&
+                !isExpanded &&
+                !hideOtherContent &&
+                !hidePinnedAndAppsWhenSearchHistoryExpanded &&
+                !isHomeCalendarExpanded,
+        isOverlayPresentation = isOverlayPresentation,
+        isScrollInProgress = isScrollInProgress,
+        modifier = contentModifier,
+        topMatches = { renderTopMatches() },
+        deferredSearchHistory = { renderDeferredSearchHistory() },
+        item = { itemType -> renderLayoutItem(itemType) },
+    )
 }

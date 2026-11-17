@@ -283,7 +283,7 @@ fun SearchEngineListCard(
                                 start = SegmentedTileContentPadding,
                                 top = if (enabledEngines.isNotEmpty()) 24.dp else 0.dp,
                                 end = SegmentedTileContentPadding,
-                                bottom = 8.dp,
+                                bottom = DesignTokens.SpacingSmall,
                             ).then(disabledHeaderModifier),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -304,7 +304,7 @@ fun SearchEngineListCard(
             } else {
                 Box(
                     modifier =
-                        Modifier.padding(top = if (enabledEngines.isNotEmpty()) 24.dp else 0.dp, bottom = 8.dp),
+                        Modifier.padding(top = if (enabledEngines.isNotEmpty()) 24.dp else 0.dp, bottom = DesignTokens.SpacingSmall),
                 ) {
                     SegmentedTile(
                         index = 0,
@@ -394,7 +394,7 @@ fun SearchEngineListCard(
             SegmentedTile(
                 index = 0,
                 count = 1,
-                modifier = Modifier.padding(top = 24.dp, bottom = 24.dp),
+                modifier = Modifier.padding(top = DesignTokens.SpacingXXLarge, bottom = DesignTokens.SpacingXXLarge),
             ) {
                 AddSearchEngineCard(
                     availableBrowsers = availableBrowsers,
@@ -590,7 +590,7 @@ private fun AmazonDomainLink(
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
     ) {
         Text(
             text = stringResource(R.string.settings_amazon_domain_label),

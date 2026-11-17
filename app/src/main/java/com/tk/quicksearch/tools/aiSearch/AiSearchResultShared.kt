@@ -1,5 +1,6 @@
 package com.tk.quicksearch.tools.aiSearch
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.foundation.Image
@@ -235,7 +236,7 @@ internal fun AiProviderAttributionRow(
                 modifier
                         .offset(x = -DesignTokens.SpacingXSmall)
                         .heightIn(min = 48.dp)
-                        .clip(RoundedCornerShape(DesignTokens.SpacingSmall))
+                        .clip(AppShapes.small)
                         .combinedClickable(
                                 onClick = onClick,
                                 onLongClick = onLongClick,
@@ -281,7 +282,7 @@ internal fun AiProviderAttributionRow(
             }
             AiSearchLlmProviderId.META -> {
                 Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
                         verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Image(

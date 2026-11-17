@@ -1,5 +1,6 @@
 package com.tk.quicksearch.shared.ui.components
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -51,7 +52,7 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
  * @param autoFocus Focuses the field and opens the keyboard once the drawer has opened. Use it
  *   when the list is empty until the user types.
  * @param onSubmit Turns the field into an entry field: it shows an add icon instead of the search
- *   icon, uses [DesignTokens.ShapeLarge] corners instead of a pill, and the keyboard's Done key
+ *   icon, uses [AppShapes.large] corners instead of a pill, and the keyboard's Done key
  *   submits the typed text.
  */
 class AppPickerDrawerSearch(
@@ -180,7 +181,7 @@ private fun AppPickerDrawerSearchField(
         value = search.query,
         onValueChange = search.onQueryChange,
         modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
-        shape = if (search.onSubmit != null) DesignTokens.ShapeLarge else DesignTokens.ShapeFull,
+        shape = if (search.onSubmit != null) AppShapes.large else AppShapes.full,
         leadingIcon = {
             if (search.onSubmit != null) {
                 Icon(imageVector = MaterialSymbols.Add, contentDescription = null)
@@ -262,7 +263,7 @@ fun AppPickerDrawerRow(
         leading?.invoke()
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXXSmall),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
         ) {
             Text(
                 text = title,
@@ -310,7 +311,7 @@ fun AppPickerDrawerSelectedCheck() {
 /** Leading icon for an [AppPickerDrawerRow] option that has no app icon of its own. */
 @Composable
 fun AppPickerDrawerIconBadge(icon: ImageVector) {
-    TonalIconBadgeContainer(size = AppPickerDrawerLeadingSize, shape = DesignTokens.ShapeSmall) {
+    TonalIconBadgeContainer(size = AppPickerDrawerLeadingSize, shape = AppShapes.small) {
         Icon(
             imageVector = icon,
             contentDescription = null,
@@ -364,7 +365,7 @@ val AppPickerDrawerLeadingSize = 32.dp
 /** Space between rows of an [AppPickerDrawer] list: `Arrangement.spacedBy(AppPickerDrawerRowSpacing)`. */
 val AppPickerDrawerRowSpacing = 2.dp
 
-val AppPickerDrawerRowShape = RoundedCornerShape(DesignTokens.CornerLarge)
+val AppPickerDrawerRowShape = AppShapes.large
 private val SELECTED_CHECK_SIZE = 24.dp
 private val ICON_BADGE_ICON_SIZE = 18.dp
 

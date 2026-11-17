@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widgets.customButtonsWidget
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,7 +30,7 @@ internal fun CustomWidgetCurrentActionCard(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = DesignTokens.ShapeXXLarge,
+        shape = AppShapes.extraLarge,
         color = appPickerDrawerItemBackground(selected = true),
     ) {
         Column(
@@ -43,7 +44,7 @@ internal fun CustomWidgetCurrentActionCard(
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             ) {
                 CustomWidgetButtonIcon(
                     action = action,

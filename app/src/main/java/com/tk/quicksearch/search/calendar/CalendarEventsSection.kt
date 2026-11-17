@@ -297,7 +297,7 @@ internal fun CalendarEventRow(
                 )
                 .topPredictedRowContentPadding()
                 .padding(vertical = resultRowVerticalPadding(12.dp)),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(

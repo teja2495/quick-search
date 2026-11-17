@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -279,12 +280,12 @@ private fun MessagingOptionChip(
     Column(
         modifier =
             modifier
-                .clip(DesignTokens.ShapeLarge)
+                .clip(AppShapes.large)
                 .background(backgroundColor)
                 .border(
                     width = MessagingSpacing.selectedBorderWidth,
                     color = borderColor,
-                    shape = DesignTokens.ShapeLarge,
+                    shape = AppShapes.large,
                 ).selectable(
                     selected = selected,
                     onClick = {

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.appearanceSettings
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.graphics.PixelFormat
 import android.graphics.PorterDuff
 import android.os.Build
@@ -167,7 +168,7 @@ fun AppThemeCard(
                     text = stringResource(R.string.settings_app_theme_title),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(start = 4.dp, end = 4.dp, bottom = 4.dp),
+                    modifier = Modifier.padding(start = DesignTokens.SpacingXSmall, end = DesignTokens.SpacingXSmall, bottom = DesignTokens.SpacingXSmall),
             )
                     ConnectedChoiceGroup(
                             options =
@@ -185,7 +186,7 @@ fun AppThemeCard(
             SegmentedTileContent {
                     Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
                     ) {
                         themeOptions.forEach { option ->
                             val selectedThemeForDisplay =
@@ -221,7 +222,7 @@ fun AppThemeCard(
                                         modifier =
                                                 Modifier.fillMaxWidth()
                                                         .height(44.dp)
-                                                        .clip(MaterialTheme.shapes.medium)
+                                                        .clip(AppShapes.medium)
                                                         .background(
                                                                 Brush.linearGradient(
                                                                         colors =
@@ -248,7 +249,7 @@ fun AppThemeCard(
                                                         .border(
                                                                 width = DesignTokens.BorderWidth,
                                                                 color = AppColors.SettingsDivider,
-                                                                shape = MaterialTheme.shapes.medium,
+                                                                shape = AppShapes.medium,
                                                         ),
                                         contentAlignment = Alignment.Center,
                                 ) {
@@ -289,7 +290,7 @@ fun AppThemeCard(
                         Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                         ) {
                             Icon(
                                     imageVector = MaterialSymbols.LightMode,
@@ -390,7 +391,7 @@ internal fun OverlaySourceBox(
                 modifier =
                         Modifier.fillMaxWidth()
                                 .height(52.dp)
-                                .clip(MaterialTheme.shapes.medium)
+                                .clip(AppShapes.medium)
                                 .background(Color.Transparent)
                                 .clickable(onClick = onClick)
                                 .then(
@@ -405,7 +406,7 @@ internal fun OverlaySourceBox(
                                             Modifier.border(
                                                     width = DesignTokens.BorderWidth,
                                                     color = AppColors.SettingsDivider,
-                                                    shape = MaterialTheme.shapes.medium,
+                                                    shape = AppShapes.medium,
                                             )
                                         } else {
                                             Modifier
@@ -438,7 +439,7 @@ internal fun OverlaySourceBox(
                         if (enabled) {
                             MaterialTheme.colorScheme.onSurfaceVariant
                         } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = AppColors.ContentHighAlpha)
                         },
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

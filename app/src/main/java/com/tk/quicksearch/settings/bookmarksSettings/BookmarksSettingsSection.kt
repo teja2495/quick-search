@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.bookmarksSettings
 
+import com.tk.quicksearch.shared.ui.theme.AppShapes
 import android.content.Context
 import android.net.Uri
 import android.widget.Toast
@@ -179,7 +180,7 @@ fun BookmarksSettingsSection(
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier.fillMaxWidth().heightIn(max = screenHeight).clip(DesignTokens.ShapeXXLarge),
+                    modifier = Modifier.fillMaxWidth().heightIn(max = screenHeight).clip(AppShapes.extraLarge),
                     verticalArrangement = Arrangement.spacedBy(DesignTokens.SegmentedListGap),
                 ) {
                     itemsIndexed(items = displayed, key = { _, bookmark -> bookmark.bookmarkId }) { index, bookmark ->
