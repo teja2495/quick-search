@@ -9,7 +9,6 @@ import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.content.res.Resources
-import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.Log
@@ -131,13 +130,15 @@ object IconPackManager {
      * Loads an app icon bitmap from the specified icon pack, or null if unavailable.
      * [loadBaseIcon] overrides the app's own icon used by the pack's masked fallback; work profile
      * callers pass the work profile icon so apps not installed in the personal profile still work.
-     * Caller must invoke this on a background thread.
+     * [maxSize] caps the rendered size in pixels so callers that show small icons don't rasterize
+     * full-size pack drawables first. Caller must invoke this on a background thread.
      */
     fun loadIconBitmap(
         context: Context,
         iconPackPackage: String,
         targetPackage: String,
         loadBaseIcon: (() -> Drawable?)? = null,
+        maxSize: Int = MAX_ICON_BITMAP_SIZE,
     ): ImageBitmap? {
         val resources = getIconPackResources(context, iconPackPackage) ?: return null
         val renderData = loadAppFilterRenderData(iconPackPackage, resources)
@@ -145,7 +146,7 @@ object IconPackManager {
 
         if (!drawableName.isNullOrBlank()) {
             val drawable = loadDrawable(resources, iconPackPackage, drawableName) ?: return null
-            return drawable.toBitmapSafely()
+            return drawable.toBitmapSafely(maxSize)
         }
 
         val shouldMaskUnsupportedIcons =
@@ -159,6 +160,7 @@ object IconPackManager {
             targetPackage = targetPackage,
             renderData = renderData,
             loadBaseIcon = loadBaseIcon,
+            maxSize = maxSize,
         )
     }
 
@@ -189,14 +191,15 @@ object IconPackManager {
         return loadDrawable(resources, iconPackPackage, drawableName) != null
     }
 
-    /** Loads one explicitly selected drawable from an icon pack. */
+    /** Loads one explicitly selected drawable from an icon pack, at most [maxSize] pixels per side. */
     fun loadDrawableBitmap(
         context: Context,
         iconPackPackage: String,
         drawableName: String,
+        maxSize: Int = MAX_ICON_BITMAP_SIZE,
     ): ImageBitmap? {
         val resources = getIconPackResources(context, iconPackPackage) ?: return null
-        return loadDrawable(resources, iconPackPackage, drawableName)?.toBitmapSafely()
+        return loadDrawable(resources, iconPackPackage, drawableName)?.toBitmapSafely(maxSize)
     }
 
     fun clearAllCaches() {
@@ -505,6 +508,7 @@ object IconPackManager {
         targetPackage: String,
         renderData: IconPackRenderData,
         loadBaseIcon: (() -> Drawable?)?,
+        maxSize: Int,
     ): ImageBitmap? {
         if (
             renderData.backDrawables.isEmpty() &&
@@ -535,7 +539,9 @@ object IconPackManager {
 
         if (backDrawable == null && maskDrawable == null && overlayDrawable == null) return null
 
-        val targetSize = resolveTargetSize(appDrawable, backDrawable, maskDrawable, overlayDrawable)
+        val targetSize =
+            resolveTargetSize(appDrawable, backDrawable, maskDrawable, overlayDrawable)
+                .coerceAtMost(maxSize.coerceAtLeast(1))
         val output = Bitmap.createBitmap(targetSize, targetSize, Bitmap.Config.ARGB_8888)
         val outputCanvas = Canvas(output)
 
@@ -641,21 +647,34 @@ internal fun mergeIconPackDrawables(
         }.sortedBy { it.drawableName }
 }
 
-private fun Drawable.toBitmapSafely(): ImageBitmap? =
+private fun Drawable.toBitmapSafely(maxSize: Int = MAX_ICON_BITMAP_SIZE): ImageBitmap? =
     runCatching {
+        val sizeLimit = maxSize.coerceIn(1, MAX_ICON_BITMAP_SIZE)
         when (this) {
-            is BitmapDrawable -> bitmap?.toStableImageBitmap()
-            else -> if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O && this is AdaptiveIconDrawable) {
-                toBitmap().toStableImageBitmap()
-            } else {
-                toBitmap().toStableImageBitmap()
+            is BitmapDrawable -> bitmap?.toStableImageBitmap(sizeLimit)
+            else -> {
+                // Vector and adaptive drawables are drawn straight at the capped size, so a large
+                // intrinsic size never allocates a full-size bitmap just to be scaled down.
+                val width = intrinsicWidth
+                val height = intrinsicHeight
+                val rendered =
+                    if (width > 0 && height > 0 && maxOf(width, height) > sizeLimit) {
+                        val scale = sizeLimit.toFloat() / maxOf(width, height)
+                        toBitmap(
+                            (width * scale).toInt().coerceAtLeast(1),
+                            (height * scale).toInt().coerceAtLeast(1),
+                        )
+                    } else {
+                        toBitmap()
+                    }
+                rendered.toStableImageBitmap(sizeLimit)
             }
         }
     }.getOrNull()
 
-private fun Bitmap.toStableImageBitmap(): ImageBitmap? {
+private fun Bitmap.toStableImageBitmap(maxSize: Int = MAX_ICON_BITMAP_SIZE): ImageBitmap? {
     if (isRecycled || width <= 0 || height <= 0) return null
-    val scale = minOf(1f, MAX_ICON_BITMAP_SIZE.toFloat() / maxOf(width, height))
+    val scale = minOf(1f, maxSize.toFloat() / maxOf(width, height))
     val boundedBitmap =
         if (scale < 1f) {
             Bitmap.createScaledBitmap(

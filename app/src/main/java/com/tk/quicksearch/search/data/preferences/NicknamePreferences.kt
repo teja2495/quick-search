@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.data.preferences
 
 import android.content.Context
+import android.content.SharedPreferences
 import com.tk.quicksearch.search.utils.NicknameUtils
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import java.util.concurrent.ConcurrentHashMap
@@ -24,6 +25,7 @@ class NicknamePreferences(
     }
 
     fun reloadCaches() {
+        AppNicknameCache.invalidate()
         appShortcutNicknameCache.clear()
         contactNicknameCache.clear()
         fileNicknameCache.clear()
@@ -72,8 +74,9 @@ class NicknamePreferences(
 
     // App nicknames are keyed by AppInfo.launchCountKey(): the package name, plus ":<userId>" for
     // cloned and work-profile apps.
-    fun getAppNickname(appKey: String): String? =
-        customizationStore.getString("${BasePreferences.KEY_NICKNAME_APP_PREFIX}$appKey")
+    // Rows read this during composition, so it is served from a process-wide map rather than
+    // two SharedPreferences lookups per app.
+    fun getAppNickname(appKey: String): String? = AppNicknameCache.get(customizationStore)[appKey]
 
     fun setAppNickname(
         appKey: String,
@@ -81,25 +84,14 @@ class NicknamePreferences(
     ) {
         val key = "${BasePreferences.KEY_NICKNAME_APP_PREFIX}$appKey"
         customizationStore.putString(key, NicknameUtils.normalizeInput(nickname))
+        // apply() has already updated the in-memory preferences, so the next read reloads the write.
+        AppNicknameCache.invalidate()
     }
 
     /** Every nickname, trigger and alias entry, for detecting whether any of them changed. */
     fun getSearchCustomizationSnapshot(): Map<String, *> = customizationStore.snapshot()
 
-    fun getAllAppNicknames(): Map<String, String> {
-        val allPrefs = customizationStore.snapshot()
-        val nicknames = mutableMapOf<String, String>()
-        for ((key, value) in allPrefs) {
-            if (key.startsWith(BasePreferences.KEY_NICKNAME_APP_PREFIX) &&
-                !key.startsWith(BasePreferences.KEY_NICKNAME_APP_SHORTCUT_PREFIX) &&
-                value is String
-            ) {
-                val appKey = key.removePrefix(BasePreferences.KEY_NICKNAME_APP_PREFIX)
-                nicknames[appKey] = value
-            }
-        }
-        return nicknames
-    }
+    fun getAllAppNicknames(): Map<String, String> = readAppNicknames(customizationStore.snapshot())
 
     fun getAppShortcutNickname(shortcutId: String): String? = appShortcutNicknameCache[shortcutId]
 
@@ -268,22 +260,91 @@ class NicknamePreferences(
         nickname: String,
         normalizedQuery: String,
         compactQuery: String,
-    ): Boolean {
-        if (!NicknameUtils.hasMultiple(nickname)) {
-            return aliasMatchesQuery(nickname, normalizedQuery, compactQuery)
+    ): Boolean =
+        normalizedAliases(nickname).any { alias ->
+            alias.normalized.contains(normalizedQuery) || alias.compact.contains(compactQuery)
         }
-        return NicknameUtils.split(nickname).any { alias ->
-            aliasMatchesQuery(alias, normalizedQuery, compactQuery)
+
+    private class NormalizedAlias(
+        val normalized: String,
+        val compact: String,
+    )
+
+    /**
+     * Process-wide app nickname map. Any write invalidates it: [setAppNickname] directly, and other
+     * writers (backup restore, clears) through a listener on the store, so the next read reloads
+     * from preferences instead of serving a stale value.
+     */
+    private object AppNicknameCache {
+        private val lock = Any()
+
+        @Volatile
+        private var nicknames: Map<String, String>? = null
+
+        @Volatile
+        private var source: Any? = null
+
+        // Held strongly here: SharedPreferences keeps its listeners only weakly.
+        private var listener: SharedPreferences.OnSharedPreferenceChangeListener? = null
+
+        fun get(store: SearchCustomizationStore): Map<String, String> {
+            val current = nicknames
+            if (current != null && source === store.preferencesIdentity) return current
+            return synchronized(lock) {
+                val identity = store.preferencesIdentity
+                nicknames?.takeIf { source === identity }
+                    ?: readAppNicknames(store.snapshot()).also { loaded ->
+                        if (source !== identity) {
+                            // Only differs from the first instance when the preferences object was
+                            // replaced (a new Application in tests); listen to the live one.
+                            val changeListener =
+                                SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                                    if (key == null || isAppNicknameKey(key)) invalidate()
+                                }
+                            listener = changeListener
+                            store.registerChangeListener(changeListener)
+                            source = identity
+                        }
+                        nicknames = loaded
+                    }
+            }
+        }
+
+        fun invalidate() {
+            synchronized(lock) { nicknames = null }
         }
     }
 
-    private fun aliasMatchesQuery(
-        alias: String,
-        normalizedQuery: String,
-        compactQuery: String,
-    ): Boolean {
-        val normalizedAlias = SearchTextNormalizer.normalizeForSearch(alias)
-        return normalizedAlias.contains(normalizedQuery) ||
-            SearchTextNormalizer.removeSearchWhitespace(normalizedAlias).contains(compactQuery)
+    private companion object {
+        private const val MAX_NORMALIZED_ALIAS_CACHE_SIZE = 2_048
+        private val normalizedAliasCache = ConcurrentHashMap<String, List<NormalizedAlias>>()
+
+        fun isAppNicknameKey(key: String): Boolean =
+            key.startsWith(BasePreferences.KEY_NICKNAME_APP_PREFIX) &&
+                !key.startsWith(BasePreferences.KEY_NICKNAME_APP_SHORTCUT_PREFIX)
+
+        fun readAppNicknames(allPrefs: Map<String, *>): Map<String, String> {
+            val nicknames = mutableMapOf<String, String>()
+            for ((key, value) in allPrefs) {
+                if (isAppNicknameKey(key) && value is String) {
+                    nicknames[key.removePrefix(BasePreferences.KEY_NICKNAME_APP_PREFIX)] = value
+                }
+            }
+            return nicknames
+        }
+
+        /** Normalizing is pure, so each saved nickname is normalized once instead of per query. */
+        fun normalizedAliases(nickname: String): List<NormalizedAlias> =
+            normalizedAliasCache[nickname] ?: run {
+                val aliases = if (NicknameUtils.hasMultiple(nickname)) NicknameUtils.split(nickname) else listOf(nickname)
+                val normalized =
+                    aliases.map { alias ->
+                        val normalizedAlias = SearchTextNormalizer.normalizeForSearch(alias)
+                        NormalizedAlias(normalizedAlias, SearchTextNormalizer.removeSearchWhitespace(normalizedAlias))
+                    }
+                if (normalizedAliasCache.size >= MAX_NORMALIZED_ALIAS_CACHE_SIZE) normalizedAliasCache.clear()
+                normalizedAliasCache[nickname] = normalized
+                normalized
+            }
     }
 }

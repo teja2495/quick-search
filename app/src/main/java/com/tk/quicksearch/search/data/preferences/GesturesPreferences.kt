@@ -262,5 +262,17 @@ class GesturesPreferences(
         private const val KEY_NOTCH_LONG_PRESS_ALIAS_TARGET = "${NOTCH_KEY_PREFIX}long_press_alias_target"
 
         fun isNotchGestureKey(key: String?): Boolean = key?.startsWith(NOTCH_KEY_PREFIX) == true
+
+        private val ROUTE_GESTURE_KEY_PREFIXES =
+            listOf("swipe_", "home_swipe_", "home_double_tap_", "home_two_finger_swipe_")
+
+        /**
+         * True for keys the search route's swipe, double-tap, and two-finger gestures read, and for a
+         * null key (sent when the file is cleared), so listeners can skip unrelated preference writes.
+         */
+        fun isRouteGestureKey(key: String?): Boolean =
+            key == null ||
+                key == BasePreferences.KEY_LAUNCHER_SWIPE_RIGHT_ENABLED ||
+                ROUTE_GESTURE_KEY_PREFIXES.any(key::startsWith)
     }
 }

@@ -21,6 +21,9 @@ internal class SearchCustomizationStore(context: Context) {
         ensureMigrated()
     }
 
+    /** The backing preferences instance, so process-wide caches can tell when it was replaced. */
+    val preferencesIdentity: Any get() = indexedPrefs
+
     fun snapshot(): Map<String, *> = indexedPrefs.all.filterKeys { it != KEY_SCHEMA_VERSION }
 
     fun registerChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) {

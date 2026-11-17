@@ -20,9 +20,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +44,8 @@ import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
@@ -52,10 +54,10 @@ fun NicknameItemsScreen(
     onAfterRemove: () -> Unit = {},
 ) {
     val context = LocalContext.current
-    var refreshSignal by remember { mutableIntStateOf(0) }
+    val scope = rememberCoroutineScope()
     var allItems by remember { mutableStateOf<List<NicknameItem>>(emptyList()) }
 
-    LaunchedEffect(refreshSignal) {
+    LaunchedEffect(Unit) {
         val items = withContext(Dispatchers.IO) {
             val prefs = NicknamePreferences(context)
             val pm = context.packageManager
@@ -99,20 +101,17 @@ fun NicknameItemsScreen(
                         ?: try { pm.getApplicationInfo(shortcutId.substringBefore(':'), 0).loadLabel(pm).toString() } catch (e: Exception) { shortcutId.substringBefore(':') }
                     add(NicknameItem.AppShortcut(shortcutId = shortcutId, nickname = nickname, itemName = shortcutName, iconBase64 = shortcut?.iconBase64))
                 }
-                prefs.getAllContactNicknames().forEach { (contactId, nickname) ->
-                    val contactName = try {
-                        context.contentResolver.query(
-                            ContactsContract.Contacts.CONTENT_URI,
-                            arrayOf(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY),
-                            "${ContactsContract.Contacts._ID} = ?",
-                            arrayOf(contactId.toString()),
-                            null,
-                        )?.use { cursor ->
-                            if (cursor.moveToFirst()) cursor.getString(0) else null
-                        }
-                    } catch (e: Exception) {
-                        null
-                    } ?: contactId.toString()
+                val contactNicknames = prefs.getAllContactNicknames()
+                val contactNames =
+                    queryNamesById(
+                        context = context,
+                        uri = ContactsContract.Contacts.CONTENT_URI,
+                        idColumn = ContactsContract.Contacts._ID,
+                        nameColumn = ContactsContract.Contacts.DISPLAY_NAME_PRIMARY,
+                        ids = contactNicknames.keys,
+                    )
+                contactNicknames.forEach { (contactId, nickname) ->
+                    val contactName = contactNames[contactId] ?: contactId.toString()
                     add(NicknameItem.Contact(contactId = contactId, nickname = nickname, itemName = contactName))
                 }
                 prefs.getAllFileNicknames().forEach { (uri, nickname) ->
@@ -133,20 +132,17 @@ fun NicknameItemsScreen(
                     val settingName = settingsById[settingId]?.title ?: settingId
                     add(NicknameItem.Setting(settingId = settingId, nickname = nickname, itemName = settingName))
                 }
-                prefs.getAllCalendarEventNicknames().forEach { (eventId, nickname) ->
-                    val eventTitle = try {
-                        context.contentResolver.query(
-                            CalendarContract.Events.CONTENT_URI,
-                            arrayOf(CalendarContract.Events.TITLE),
-                            "${CalendarContract.Events._ID} = ?",
-                            arrayOf(eventId.toString()),
-                            null,
-                        )?.use { cursor ->
-                            if (cursor.moveToFirst()) cursor.getString(0) else null
-                        }
-                    } catch (e: Exception) {
-                        null
-                    } ?: eventId.toString()
+                val eventNicknames = prefs.getAllCalendarEventNicknames()
+                val eventTitles =
+                    queryNamesById(
+                        context = context,
+                        uri = CalendarContract.Events.CONTENT_URI,
+                        idColumn = CalendarContract.Events._ID,
+                        nameColumn = CalendarContract.Events.TITLE,
+                        ids = eventNicknames.keys,
+                    )
+                eventNicknames.forEach { (eventId, nickname) ->
+                    val eventTitle = eventTitles[eventId] ?: eventId.toString()
                     add(NicknameItem.CalendarEvent(eventId = eventId, nickname = nickname, itemName = eventTitle))
                 }
             }.sortedBy { it.nickname.lowercase() }
@@ -181,17 +177,25 @@ fun NicknameItemsScreen(
                     NicknameItemRow(
                         item = item,
                         onRemove = {
-                            val prefs = NicknamePreferences(context)
-                            when (item) {
-                                is NicknameItem.App -> prefs.setAppNickname(item.appKey, null)
-                                is NicknameItem.AppShortcut -> prefs.setAppShortcutNickname(item.shortcutId, null)
-                                is NicknameItem.Contact -> prefs.setContactNickname(item.contactId, null)
-                                is NicknameItem.File -> prefs.setFileNickname(item.uri, null)
-                                is NicknameItem.Setting -> prefs.setSettingNickname(item.settingId, null)
-                                is NicknameItem.CalendarEvent -> prefs.setCalendarEventNickname(item.eventId, null)
+                            // Drop the row right away; the other rows are unchanged, so there is no
+                            // need to query contacts, files, and events again.
+                            allItems = allItems.filterNot { it === item }
+                            // NonCancellable: leaving the screen right after tapping must not skip
+                            // the write or the cache reload in onAfterRemove.
+                            scope.launch(NonCancellable) {
+                                withContext(Dispatchers.IO) {
+                                    val prefs = NicknamePreferences(context)
+                                    when (item) {
+                                        is NicknameItem.App -> prefs.setAppNickname(item.appKey, null)
+                                        is NicknameItem.AppShortcut -> prefs.setAppShortcutNickname(item.shortcutId, null)
+                                        is NicknameItem.Contact -> prefs.setContactNickname(item.contactId, null)
+                                        is NicknameItem.File -> prefs.setFileNickname(item.uri, null)
+                                        is NicknameItem.Setting -> prefs.setSettingNickname(item.settingId, null)
+                                        is NicknameItem.CalendarEvent -> prefs.setCalendarEventNickname(item.eventId, null)
+                                    }
+                                }
+                                onAfterRemove()
                             }
-                            refreshSignal++
-                            onAfterRemove()
                         },
                     )
                 }
@@ -356,4 +360,40 @@ private sealed class NicknameItem {
         override val nickname: String,
         override val itemName: String,
     ) : NicknameItem()
+}
+
+private const val NAME_QUERY_BATCH_SIZE = 500
+
+/**
+ * Looks up display names for [ids] with one `IN (...)` query per batch instead of one query per
+ * row. Ids that fail to load are left out, so callers fall back to the id as before.
+ */
+private fun queryNamesById(
+    context: android.content.Context,
+    uri: android.net.Uri,
+    idColumn: String,
+    nameColumn: String,
+    ids: Collection<Long>,
+): Map<Long, String> {
+    if (ids.isEmpty()) return emptyMap()
+    val names = HashMap<Long, String>(ids.size)
+    ids.chunked(NAME_QUERY_BATCH_SIZE).forEach { batch ->
+        try {
+            context.contentResolver.query(
+                uri,
+                arrayOf(idColumn, nameColumn),
+                "$idColumn IN (${batch.joinToString(",") { "?" }})",
+                batch.map(Long::toString).toTypedArray(),
+                null,
+            )?.use { cursor ->
+                while (cursor.moveToNext()) {
+                    val name = cursor.getString(1) ?: continue
+                    names[cursor.getLong(0)] = name
+                }
+            }
+        } catch (e: Exception) {
+            // Missing permission or provider failure: those rows show their ids, as before.
+        }
+    }
+    return names
 }

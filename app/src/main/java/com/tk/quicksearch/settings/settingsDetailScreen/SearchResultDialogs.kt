@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -36,6 +37,8 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.tk.quicksearch.search.data.preferences.NicknamePreferences
 import com.tk.quicksearch.search.data.preferences.TriggerPreferences
 import com.tk.quicksearch.search.core.AppSuggestionTabType
@@ -372,26 +375,15 @@ fun SearchResultsSettingsSection(
 ) {
     val context = LocalView.current.context
 
-    val hasNicknames =
-        NicknamePreferences(context).run {
-            getAllAppNicknames().isNotEmpty() ||
-                getAllAppShortcutNicknames().isNotEmpty() ||
-                getAllContactNicknames().isNotEmpty() ||
-                getAllFileNicknames().isNotEmpty() ||
-                getAllSettingNicknames().isNotEmpty() ||
-                getAllCalendarEventNicknames().isNotEmpty()
+    // Read once when the section is shown, then off the main thread whenever the settings state
+    // changes, instead of re-reading every nickname and trigger map on each recomposition.
+    val initialCustomizationFlags = remember(context) { readSearchCustomizationFlags(context) }
+    val customizationFlags by
+        produceState(initialValue = initialCustomizationFlags, context, state) {
+            value = withContext(Dispatchers.IO) { readSearchCustomizationFlags(context) }
         }
-
-    val hasTriggers =
-        TriggerPreferences(context).run {
-            getAllAppTriggers().isNotEmpty() ||
-                getAllAppShortcutTriggers().isNotEmpty() ||
-                getAllContactTriggers().isNotEmpty() ||
-                getAllContactActionTriggers().isNotEmpty() ||
-                getAllFileTriggers().isNotEmpty() ||
-                getAllSettingTriggers().isNotEmpty() ||
-                getAllNoteTriggers().isNotEmpty()
-        }
+    val hasNicknames = customizationFlags.first
+    val hasTriggers = customizationFlags.second
 
     val hasExcludedItems =
         state.suggestionExcludedApps.isNotEmpty() ||
@@ -585,4 +577,28 @@ fun SearchResultsSettingsSection(
             modifier = Modifier.padding(top = DesignTokens.SpacingLarge),
         )
     }
+}
+
+/** Whether any nickname (first) and any trigger (second) is saved. Reads preferences; call sparingly. */
+private fun readSearchCustomizationFlags(context: android.content.Context): Pair<Boolean, Boolean> {
+    val hasNicknames =
+        NicknamePreferences(context).run {
+            getAllAppNicknames().isNotEmpty() ||
+                getAllAppShortcutNicknames().isNotEmpty() ||
+                getAllContactNicknames().isNotEmpty() ||
+                getAllFileNicknames().isNotEmpty() ||
+                getAllSettingNicknames().isNotEmpty() ||
+                getAllCalendarEventNicknames().isNotEmpty()
+        }
+    val hasTriggers =
+        TriggerPreferences(context).run {
+            getAllAppTriggers().isNotEmpty() ||
+                getAllAppShortcutTriggers().isNotEmpty() ||
+                getAllContactTriggers().isNotEmpty() ||
+                getAllContactActionTriggers().isNotEmpty() ||
+                getAllFileTriggers().isNotEmpty() ||
+                getAllSettingTriggers().isNotEmpty() ||
+                getAllNoteTriggers().isNotEmpty()
+        }
+    return hasNicknames to hasTriggers
 }

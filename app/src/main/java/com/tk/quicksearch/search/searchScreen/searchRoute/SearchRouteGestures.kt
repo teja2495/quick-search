@@ -175,7 +175,10 @@ internal fun rememberRouteGestures(
                 com.tk.quicksearch.search.data.preferences.BasePreferences.PREFS_NAME,
                 Context.MODE_PRIVATE,
             )
-        val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
+        val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (!com.tk.quicksearch.search.data.preferences.GesturesPreferences.isRouteGestureKey(key)) {
+                return@OnSharedPreferenceChangeListener
+            }
             swipeActions =
                 listOf(
                     gesturePreferences.getSwipeRightAction(),
@@ -215,12 +218,11 @@ internal fun rememberRouteGestures(
                 homeSwipeDownAction = gesturePreferences.getHomeSwipeDownAction(isDefaultLauncher)
                 // Clear the lock action only when the user turned the service off. A service that is
                 // on but not running yet (or stopped by Android) must not wipe the user's choice.
-                val isLockScreenTurnedOff =
-                    !LockScreenAccessibilityService.isEnabled(context) &&
-                        !LockScreenAccessibilityService.isTurnedOnInSettings(context)
+                // Check the saved action first so the accessibility lookups only run when it matters.
                 if (
-                    isLockScreenTurnedOff &&
-                    gesturePreferences.getHomeDoubleTapAction() == HomeSwipeGestureAction.LOCK_SCREEN
+                    gesturePreferences.getHomeDoubleTapAction() == HomeSwipeGestureAction.LOCK_SCREEN &&
+                    !LockScreenAccessibilityService.isEnabled(context) &&
+                    !LockScreenAccessibilityService.isTurnedOnInSettings(context)
                 ) {
                     gesturePreferences.setHomeDoubleTapAction(HomeSwipeGestureAction.NONE)
                 }
@@ -306,7 +308,7 @@ internal fun rememberRouteGestures(
     val view = LocalView.current
     val latestHomeSwipe by rememberUpdatedState(handleHomeHorizontalSwipe)
     val swipeNavigationModifier =
-        twoFingerSwipeModifier.pointerInput(isDefaultLauncher, isLauncherSwipeRightEnabled, swipeActions, customSwipeActions, uiState.query, pageSwipeController) {
+        twoFingerSwipeModifier.pointerInput(isDefaultLauncher, isLauncherSwipeRightEnabled, swipeActions, customSwipeActions, pageSwipeController) {
             detectPageSwipe(
                 controller = pageSwipeController,
                 thresholdPx = SWIPE_NAVIGATION_THRESHOLD_PX,
