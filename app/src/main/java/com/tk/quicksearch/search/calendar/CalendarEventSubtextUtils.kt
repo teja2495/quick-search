@@ -4,6 +4,7 @@ import android.content.res.Resources
 import android.text.format.DateFormat
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
@@ -95,7 +96,8 @@ fun formatCalendarEventDate(event: CalendarEventInfo): String {
     val context = LocalContext.current
     val locale = Locale.getDefault()
     val date = Date(event.startMillis)
-    val dateText = SimpleDateFormat("EEE, MMM d", locale).format(date)
+    val dateFormat = remember(locale) { SimpleDateFormat("EEE, MMM d", locale) }
+    val dateText = dateFormat.format(date)
     return if (event.allDay) {
         dateText
     } else {

@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.provider.CalendarContract
+import android.util.Log
 import androidx.core.content.ContextCompat
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.utils.SearchRankingUtils
@@ -33,6 +34,9 @@ class CalendarRepository(
                 CalendarContract.Instances.END,
                 CalendarContract.Instances.ALL_DAY,
             )
+
+        // Instances expose the event's RRULE, which saves a second Events query per read.
+        private val INSTANCE_PROJECTION_WITH_RRULE = INSTANCE_PROJECTION + CalendarContract.Instances.RRULE
         private val EVENT_RECURRENCE_PROJECTION =
             arrayOf(
                 CalendarContract.Events._ID,
@@ -45,7 +49,22 @@ class CalendarRepository(
         private const val MILLIS_PER_YEAR = 1000L * 60L * 60L * 24L * 365L
         internal const val TIMED_EVENT_HIDE_DELAY_MILLIS = 15L * 60L * 1000L
 
+        // Without past events, search reads from a day before today: all-day instances are stored
+        // at UTC midnight, which can fall before local midnight.
+        private const val SEARCH_WINDOW_PAST_MARGIN_MILLIS = 24L * 60L * 60L * 1000L
+
+        // getEventsByIds first reads this near window; only events without an upcoming instance in
+        // it need the multi-year window.
+        private const val NEAR_WINDOW_FUTURE_MILLIS = 31L * 24L * 60L * 60L * 1000L
+        private const val NEAR_WINDOW_PAST_MILLIS = 24L * 60L * 60L * 1000L
+        private const val NEAR_WINDOW_RESOLVED_MARGIN_MILLIS = 24L * 60L * 60L * 1000L
+
+        private const val TAG = "CalendarRepository"
+        private val WHITESPACE_REGEX = "\\s+".toRegex()
+
         private val isCalendarObserverRegistered = AtomicBoolean(false)
+
+        @Volatile private var instancesRruleColumnSupported = true
     }
 
     fun hasPermission(): Boolean =
@@ -66,19 +85,28 @@ class CalendarRepository(
         val todayStartMillis = startOfTodayMillis()
         val nearestInstanceAnchorMillis = if (includePastEvents) now else todayStartMillis
         // Candidates don't depend on the query, so typing reuses one provider read.
+        val searchRows = getSearchRows(todayStartMillis, includePastEvents)
         val candidates =
             nearestEventsAroundNow(
-                rows = getSearchRows(todayStartMillis),
+                instancesByEvent = searchRows.instancesByEvent,
                 now = now,
                 limit = MAX_EVENT_SEARCH_CANDIDATES,
                 nearestInstanceAnchorMillis = nearestInstanceAnchorMillis,
             )
+        val queryTokens = normalizedQuery.split(WHITESPACE_REGEX).filter { it.isNotBlank() }
+        val compactQuery = SearchTextNormalizer.compactForSearch(normalizedQuery)
 
         return candidates
             .asSequence()
             .filter { event -> includePastEvents || event.startMillis >= todayStartMillis }
             .mapNotNull { event ->
-                val priority = SearchRankingUtils.calculateMatchPriority(event.title, normalizedQuery)
+                val priority =
+                    SearchRankingUtils.calculateMatchPriority(
+                        text = searchRows.titleTexts.prepare(event.title),
+                        normalizedQuery = normalizedQuery,
+                        queryTokens = queryTokens,
+                        compactQuery = compactQuery,
+                    )
                 if (SearchRankingUtils.isOtherMatch(priority)) {
                     null
                 } else {
@@ -96,18 +124,34 @@ class CalendarRepository(
             .toList()
     }
 
-    private fun getSearchRows(todayStartMillis: Long): List<CalendarEventInfo> {
+    private fun getSearchRows(
+        todayStartMillis: Long,
+        includePastEvents: Boolean,
+    ): CalendarSearchRowsCache.Entry {
         ensureCalendarObserverRegistered()
-        return CalendarSearchRowsCache.get(todayStartMillis) {
+        return CalendarSearchRowsCache.get(searchRowsKey(todayStartMillis, includePastEvents)) {
             val now = System.currentTimeMillis()
+            // Read oldest first under a row cap, so past instances that search would drop must not
+            // use up the cap before today's and upcoming ones.
+            val windowStart =
+                if (includePastEvents) {
+                    now - (MILLIS_PER_YEAR * PAST_WINDOW_YEARS)
+                } else {
+                    todayStartMillis - SEARCH_WINDOW_PAST_MARGIN_MILLIS
+                }
             queryInstancesInWindow(
-                windowStart = now - (MILLIS_PER_YEAR * PAST_WINDOW_YEARS),
+                windowStart = windowStart,
                 windowEnd = now + (MILLIS_PER_YEAR * FUTURE_WINDOW_YEARS),
                 limit = MAX_EVENT_SEARCH_CANDIDATES * 8,
                 eventIds = null,
             )
         }
     }
+
+    private fun searchRowsKey(
+        todayStartMillis: Long,
+        includePastEvents: Boolean,
+    ) = CalendarSearchRowsCache.Key(todayStartMillis, includePastEvents)
 
     private fun ensureCalendarObserverRegistered() {
         if (!isCalendarObserverRegistered.compareAndSet(false, true)) return
@@ -127,6 +171,7 @@ class CalendarRepository(
             }.isSuccess
         // Without an observer the TTL alone bounds staleness; retry registration next search.
         if (!registered) isCalendarObserverRegistered.set(false)
+        CalendarSearchRowsCache.isObserverRegistered = registered
     }
 
     private fun startOfTodayMillis(): Long =
@@ -138,10 +183,66 @@ class CalendarRepository(
                 set(java.util.Calendar.MILLISECOND, 0)
             }.timeInMillis
 
+    /**
+     * Each event's instance nearest now: its next one, or its latest when none is upcoming. Events
+     * with an upcoming instance in the next month resolve from a short window; only the rest read
+     * the multi-year window.
+     */
     fun getEventsByIds(ids: Set<Long>): List<CalendarEventInfo> {
         if (ids.isEmpty() || !hasPermission()) return emptyList()
         val now = System.currentTimeMillis()
-        return queryEventsAroundNow(now = now, limit = ids.size, eventIds = ids)
+        val nearRows =
+            queryInstancesInWindow(
+                windowStart = now - NEAR_WINDOW_PAST_MILLIS,
+                windowEnd = now + NEAR_WINDOW_FUTURE_MILLIS,
+                limit = ids.size,
+                eventIds = ids,
+            )
+        val resolved =
+            resolvedUpcomingInstances(
+                instancesByEvent = nearRows.groupBy { it.eventId },
+                anchorMillis = now,
+                resolvedBeforeMillis = now + NEAR_WINDOW_FUTURE_MILLIS - NEAR_WINDOW_RESOLVED_MARGIN_MILLIS,
+            )
+        val missingIds = ids - resolved.keys
+        val farRows =
+            if (missingIds.isEmpty()) {
+                emptyList()
+            } else {
+                queryInstancesInWindow(
+                    windowStart = now - (MILLIS_PER_YEAR * PAST_WINDOW_YEARS),
+                    windowEnd = now + (MILLIS_PER_YEAR * FUTURE_WINDOW_YEARS),
+                    limit = missingIds.size,
+                    eventIds = missingIds,
+                )
+            }
+        val selected = resolved.values + selectNearestInstancePerEvent(farRows.groupBy { it.eventId }, now).values
+        return sortByDistanceToNow(selected, now).take(ids.size)
+    }
+
+    /**
+     * [getEventsByIds] for search, which reuses the cached search rows when they hold an event's
+     * upcoming instance and reads the provider only for the rest.
+     */
+    fun getEventsByIdsForSearch(
+        ids: Set<Long>,
+        includePastEvents: Boolean,
+    ): List<CalendarEventInfo> {
+        if (ids.isEmpty() || !hasPermission()) return emptyList()
+        val now = System.currentTimeMillis()
+        val cachedRows = CalendarSearchRowsCache.peek(searchRowsKey(startOfTodayMillis(), includePastEvents))
+        // Cached rows are a prefix of the window in start order, so an event's upcoming instance
+        // found there is its next one.
+        val fromCache =
+            cachedRows?.let { entry ->
+                resolvedUpcomingInstances(
+                    instancesByEvent = ids.mapNotNull { id -> entry.instancesByEvent[id]?.let { id to it } }.toMap(),
+                    anchorMillis = now,
+                    resolvedBeforeMillis = Long.MAX_VALUE,
+                )
+            }.orEmpty()
+        val missingIds = ids - fromCache.keys
+        return fromCache.values.toList() + getEventsByIds(missingIds)
     }
 
     fun getUpcomingEventsSortedAscending(limit: Int): List<CalendarEventInfo> {
@@ -198,7 +299,7 @@ class CalendarRepository(
         return queryEventInstancesAroundNow(now = System.currentTimeMillis(), limit = limit)
     }
 
-    fun getEventRecurrenceRules(eventIds: Set<Long>): Map<Long, String?> {
+    private fun getEventRecurrenceRules(eventIds: Set<Long>): Map<Long, String?> {
         if (eventIds.isEmpty() || !hasPermission()) return emptyMap()
 
         val selection =
@@ -232,41 +333,31 @@ class CalendarRepository(
         return recurrenceByEventId
     }
 
-    private fun queryEventsAroundNow(
-        now: Long,
-        limit: Int,
-        eventIds: Set<Long>? = null,
-        nearestInstanceAnchorMillis: Long = now,
-    ): List<CalendarEventInfo> {
-        if (limit <= 0) return emptyList()
-
-        val windowStart = now - (MILLIS_PER_YEAR * PAST_WINDOW_YEARS)
-        val windowEnd = now + (MILLIS_PER_YEAR * FUTURE_WINDOW_YEARS)
-        val rows = queryInstancesInWindow(windowStart, windowEnd, limit * 8, eventIds)
-        return nearestEventsAroundNow(rows, now, limit, nearestInstanceAnchorMillis)
-    }
-
     private fun nearestEventsAroundNow(
-        rows: List<CalendarEventInfo>,
+        instancesByEvent: Map<Long, List<CalendarEventInfo>>,
         now: Long,
         limit: Int,
         nearestInstanceAnchorMillis: Long,
     ): List<CalendarEventInfo> {
-        if (rows.isEmpty()) return emptyList()
+        if (instancesByEvent.isEmpty()) return emptyList()
 
         val nearestInstances =
             selectNearestInstancePerEvent(
-                instances = rows,
+                instancesByEvent = instancesByEvent,
                 anchorMillis = nearestInstanceAnchorMillis,
             )
-        return nearestInstances.values
-            .sortedWith(
-                compareBy<CalendarEventInfo> { eventDistanceToNow(it.startMillis, now) }
-                    .thenByDescending { it.startMillis >= now }
-                    .thenBy { it.startMillis },
-            )
-            .take(limit)
+        return sortByDistanceToNow(nearestInstances.values, now).take(limit)
     }
+
+    private fun sortByDistanceToNow(
+        events: Collection<CalendarEventInfo>,
+        now: Long,
+    ): List<CalendarEventInfo> =
+        events.sortedWith(
+            compareBy<CalendarEventInfo> { eventDistanceToNow(it.startMillis, now) }
+                .thenByDescending { it.startMillis >= now }
+                .thenBy { it.startMillis },
+        )
 
     private fun queryEventInstancesAroundNow(
         now: Long,
@@ -302,65 +393,98 @@ class CalendarRepository(
                 }
             }
 
-        val rows = mutableListOf<CalendarEventInfo>()
-        contentResolver
-            .query(
-                uri,
-                INSTANCE_PROJECTION,
-                selection,
-                null,
-                "${CalendarContract.Instances.BEGIN} ASC",
-            )
-            ?.use { cursor ->
-                val idIndex = cursor.getColumnIndexOrThrow(CalendarContract.Instances.EVENT_ID)
-                val titleIndex = cursor.getColumnIndexOrThrow(CalendarContract.Instances.TITLE)
-                val beginIndex = cursor.getColumnIndexOrThrow(CalendarContract.Instances.BEGIN)
-                val endIndex = cursor.getColumnIndexOrThrow(CalendarContract.Instances.END)
-                val allDayIndex = cursor.getColumnIndexOrThrow(CalendarContract.Instances.ALL_DAY)
-                val rawLimit = if (eventIds.isNullOrEmpty()) limit else Int.MAX_VALUE
-
-                while (cursor.moveToNext() && rows.size < rawLimit) {
-                    val id = cursor.getLong(idIndex)
-                    val title = cursor.getString(titleIndex)?.trim().orEmpty()
-                    val rawStartMillis = cursor.getLong(beginIndex)
-                    val rawEndMillis = cursor.getLong(endIndex)
-                    val allDay = cursor.getInt(allDayIndex) == 1
-                    // Android Calendar stores all-day event timestamps as UTC midnight.
-                    // Normalize to local midnight so date formatting and filtering work correctly
-                    // regardless of the device timezone.
-                    val startMillis = if (allDay) utcMidnightToLocalMidnight(rawStartMillis) else rawStartMillis
-                    val endMillis = if (allDay) utcMidnightToLocalMidnight(rawEndMillis) else rawEndMillis
-
-                    if (title.isNotBlank()) {
-                        rows.add(
-                            CalendarEventInfo(
-                                eventId = id,
-                                title = title,
-                                startMillis = startMillis,
-                                endMillis = endMillis,
-                                allDay = allDay,
-                            ),
-                        )
-                    }
+        val rawLimit = if (eventIds.isNullOrEmpty()) limit else Int.MAX_VALUE
+        if (instancesRruleColumnSupported) {
+            val rows =
+                try {
+                    readInstances(uri, INSTANCE_PROJECTION_WITH_RRULE, selection, rawLimit)
+                } catch (e: SecurityException) {
+                    throw e
+                } catch (e: RuntimeException) {
+                    // A provider without the column: use the separate Events query from now on.
+                    Log.w(TAG, "Instances query with RRULE failed; reading recurrence separately", e)
+                    instancesRruleColumnSupported = false
+                    null
                 }
-            }
+            if (rows != null) return rows
+        }
 
+        val rows = readInstances(uri, INSTANCE_PROJECTION, selection, rawLimit) ?: return emptyList()
         if (rows.isEmpty()) return emptyList()
 
         val recurrenceByEventId = getEventRecurrenceRules(rows.map { it.eventId }.toSet())
         return rows.map { event -> event.copy(recurrenceRule = recurrenceByEventId[event.eventId]) }
     }
 
-    private fun selectNearestInstancePerEvent(
-        instances: List<CalendarEventInfo>,
-        anchorMillis: Long,
-    ): Map<Long, CalendarEventInfo> =
-        instances.groupBy { it.eventId }
-            .mapValues { (_, candidates) ->
-                val nearestFuture =
-                    candidates.filter { it.startMillis >= anchorMillis }.minByOrNull { it.startMillis }
-                nearestFuture ?: candidates.maxByOrNull { it.startMillis } ?: candidates.first()
+    /**
+     * Reads instance rows, with each event's recurrence rule when [projection] has the RRULE column.
+     * Returns null when the projection asks for RRULE and the cursor lacks it.
+     */
+    private fun readInstances(
+        uri: Uri,
+        projection: Array<String>,
+        selection: String?,
+        rawLimit: Int,
+    ): List<CalendarEventInfo>? {
+        val wantsRrule = CalendarContract.Instances.RRULE in projection
+        val rows = mutableListOf<CalendarEventInfo>()
+        // Instances of one event share their title and rule; keep one copy of each string.
+        val sharedStrings = HashMap<String, String>()
+        val cursor =
+            contentResolver.query(
+                uri,
+                projection,
+                selection,
+                null,
+                "${CalendarContract.Instances.BEGIN} ASC",
+            ) ?: return rows
+        cursor.use {
+            val idIndex = cursor.getColumnIndexOrThrow(CalendarContract.Instances.EVENT_ID)
+            val titleIndex = cursor.getColumnIndexOrThrow(CalendarContract.Instances.TITLE)
+            val beginIndex = cursor.getColumnIndexOrThrow(CalendarContract.Instances.BEGIN)
+            val endIndex = cursor.getColumnIndexOrThrow(CalendarContract.Instances.END)
+            val allDayIndex = cursor.getColumnIndexOrThrow(CalendarContract.Instances.ALL_DAY)
+            val rruleIndex = if (wantsRrule) cursor.getColumnIndex(CalendarContract.Instances.RRULE) else -1
+            if (wantsRrule && rruleIndex < 0) {
+                instancesRruleColumnSupported = false
+                return null
             }
+
+            while (cursor.moveToNext() && rows.size < rawLimit) {
+                val id = cursor.getLong(idIndex)
+                val title = cursor.getString(titleIndex)?.trim().orEmpty()
+                val rawStartMillis = cursor.getLong(beginIndex)
+                val rawEndMillis = cursor.getLong(endIndex)
+                val allDay = cursor.getInt(allDayIndex) == 1
+                // Android Calendar stores all-day event timestamps as UTC midnight.
+                // Normalize to local midnight so date formatting and filtering work correctly
+                // regardless of the device timezone.
+                val startMillis = if (allDay) utcMidnightToLocalMidnight(rawStartMillis) else rawStartMillis
+                val endMillis = if (allDay) utcMidnightToLocalMidnight(rawEndMillis) else rawEndMillis
+
+                if (title.isNotBlank()) {
+                    val recurrenceRule =
+                        if (rruleIndex >= 0) {
+                            cursor.getString(rruleIndex)?.trim()?.takeIf(String::isNotBlank)
+                        } else {
+                            null
+                        }
+                    rows.add(
+                        CalendarEventInfo(
+                            eventId = id,
+                            title = sharedStrings.getOrPut(title) { title },
+                            startMillis = startMillis,
+                            endMillis = endMillis,
+                            allDay = allDay,
+                            recurrenceRule = recurrenceRule?.let { rule -> sharedStrings.getOrPut(rule) { rule } },
+                        ),
+                    )
+                }
+            }
+        }
+        return rows
+    }
+
 
     private fun eventDistanceToNow(
         startMillis: Long,
@@ -397,3 +521,32 @@ internal fun shouldShowTodayEvent(
     if (event.startMillis >= startOfTomorrow) return false
     return event.startMillis >= startOfDay || event.endMillis > startOfDay
 }
+
+/** Each event's instance nearest [anchorMillis]: its first at or after it, else its latest. */
+internal fun selectNearestInstancePerEvent(
+    instancesByEvent: Map<Long, List<CalendarEventInfo>>,
+    anchorMillis: Long,
+): Map<Long, CalendarEventInfo> =
+    instancesByEvent
+        .filterValues { it.isNotEmpty() }
+        .mapValues { (_, candidates) ->
+            val nearestFuture =
+                candidates.filter { it.startMillis >= anchorMillis }.minByOrNull { it.startMillis }
+            nearestFuture ?: candidates.maxByOrNull { it.startMillis } ?: candidates.first()
+        }
+
+/**
+ * Each event's first instance at or after [anchorMillis] that starts before [resolvedBeforeMillis];
+ * events without one are left out, for the caller to read from a wider window.
+ */
+internal fun resolvedUpcomingInstances(
+    instancesByEvent: Map<Long, List<CalendarEventInfo>>,
+    anchorMillis: Long,
+    resolvedBeforeMillis: Long,
+): Map<Long, CalendarEventInfo> =
+    buildMap {
+        instancesByEvent.forEach { (eventId, instances) ->
+            val next = instances.filter { it.startMillis >= anchorMillis }.minByOrNull { it.startMillis }
+            if (next != null && next.startMillis < resolvedBeforeMillis) put(eventId, next)
+        }
+    }

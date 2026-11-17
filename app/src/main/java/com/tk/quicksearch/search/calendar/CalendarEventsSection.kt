@@ -127,7 +127,9 @@ fun CalendarEventsSection(
             ?: events
     }
     val lifecycleOwner = LocalLifecycleOwner.current
-    val nowMillis by produceState(initialValue = System.currentTimeMillis()) {
+    // Only the Home card filters by the current time; search results don't need the ticker.
+    val nowMillis by produceState(initialValue = System.currentTimeMillis(), isHomeScreenMode) {
+        if (!isHomeScreenMode) return@produceState
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             while (true) {
                 value = System.currentTimeMillis()

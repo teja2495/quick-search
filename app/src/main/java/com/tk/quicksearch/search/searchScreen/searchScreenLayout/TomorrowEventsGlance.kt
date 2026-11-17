@@ -63,14 +63,18 @@ internal fun rememberTomorrowEventsGlance(enabled: Boolean): TomorrowEventsGlanc
         while (true) {
             val now = LocalDateTime.now()
             events =
-                if (
-                    enabled &&
-                    now.hour >= TOMORROW_EVENTS_START_HOUR &&
-                    calendarPreferences.getShowTodayEvents() &&
-                    glancePreferences.isShowTomorrowEventsEnabled() &&
-                    repository.hasPermission()
-                ) {
-                    withContext(Dispatchers.IO) { loadTomorrowGlanceEvents(repository, calendarPreferences) }
+                if (enabled && now.hour >= TOMORROW_EVENTS_START_HOUR) {
+                    withContext(Dispatchers.IO) {
+                        if (
+                            calendarPreferences.getShowTodayEvents() &&
+                            glancePreferences.isShowTomorrowEventsEnabled() &&
+                            repository.hasPermission()
+                        ) {
+                            loadTomorrowGlanceEvents(repository, calendarPreferences)
+                        } else {
+                            emptyList()
+                        }
+                    }
                 } else {
                     emptyList()
                 }

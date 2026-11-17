@@ -377,7 +377,8 @@ internal class SearchStartupLifecycleDelegate(
             }
 
             if (hasCalendar && refreshCalendarData) {
-                loadPinnedAndExcludedCalendarEvents()
+                // This can run on main from onResume; the load reads the calendar provider.
+                scope.launch(Dispatchers.IO) { loadPinnedAndExcludedCalendarEvents() }
             }
 
             sectionManager.refreshDisabledSections()

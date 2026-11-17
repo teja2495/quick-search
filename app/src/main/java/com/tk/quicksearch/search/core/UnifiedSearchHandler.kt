@@ -705,7 +705,10 @@ class UnifiedSearchHandler(
                         nicknameMatchingEventIds.filterNot { displayNameMatchedIds.contains(it) }
 
                 return if (nicknameOnlyIds.isNotEmpty()) {
-                        calendarRepository.getEventsByIds(nicknameOnlyIds.filter { it > 0L }.toSet())
+                        calendarRepository.getEventsByIdsForSearch(
+                                ids = nicknameOnlyIds.filter { it > 0L }.toSet(),
+                                includePastEvents = calendarPreferences.getIncludePastEvents(),
+                        )
                 } else {
                         emptyList()
                 }

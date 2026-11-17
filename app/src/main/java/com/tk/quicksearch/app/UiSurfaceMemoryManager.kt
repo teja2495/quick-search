@@ -52,13 +52,17 @@ object UiSurfaceMemoryManager {
     fun onSurfaceStarted() {
         if (visibleSurfaceCount.incrementAndGet() == 1) {
             FileNameIndex.onSurfaceVisibilityChanged(visible = true)
+            CalendarSearchRowsCache.onSurfaceVisibilityChanged(visible = true)
         }
     }
 
     fun onSurfaceStopped() {
         val remainingCount =
             visibleSurfaceCount.updateAndGet { count -> (count - 1).coerceAtLeast(0) }
-        if (remainingCount == 0) FileNameIndex.onSurfaceVisibilityChanged(visible = false)
+        if (remainingCount == 0) {
+            FileNameIndex.onSurfaceVisibilityChanged(visible = false)
+            CalendarSearchRowsCache.onSurfaceVisibilityChanged(visible = false)
+        }
     }
 
     fun clearMemoryCaches(releaseSearchIndexes: Boolean = true) {
