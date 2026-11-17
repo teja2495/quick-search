@@ -269,9 +269,10 @@ class AppSearchManager(
         noMatchPrefix = prefix
     }
 
-    fun availableApps(): List<AppInfo> {
+    fun availableApps(
+        hidden: Set<String> = userPreferences.getSuggestionHiddenPackages(),
+    ): List<AppInfo> {
         if (cachedApps.isEmpty()) return emptyList()
-        val hidden = userPreferences.getSuggestionHiddenPackages()
         return cachedApps.filterNot { app ->
             hidden.contains(app.launchCountKey()) ||
                 hidden.contains(app.packageName) ||
@@ -293,10 +294,13 @@ class AppSearchManager(
         }
     }
 
-    fun computePinnedApps(exclusion: Set<String>): List<AppInfo> {
-        val pinnedPackages = userPreferences.getPinnedPackages()
+    fun computePinnedApps(
+        exclusion: Set<String>,
+        pinnedPackages: Set<String> = userPreferences.getPinnedPackages(),
+        pinnedOrder: () -> Map<String, Int> = ::readPinnedOrder,
+    ): List<AppInfo> {
         if (cachedApps.isEmpty() || pinnedPackages.isEmpty()) return emptyList()
-        val pinnedOrder = userPreferences.getPinnedPackageOrder().withIndex().associate { it.value to it.index }
+        val pinnedOrder = pinnedOrder()
 
         return cachedApps
             .asSequence()
@@ -313,6 +317,9 @@ class AppSearchManager(
             )
             .toList()
     }
+
+    fun readPinnedOrder(): Map<String, Int> =
+        userPreferences.getPinnedPackageOrder().withIndex().associate { it.value to it.index }
 
     private var cachedAppNicknames: Map<String, String> = emptyMap()
 
@@ -341,10 +348,12 @@ class AppSearchManager(
             preparedAppData = preparedAppSearchData,
         )
 
+    /** Query-path variant; runs off the main thread, so it may build missing prepared data. */
     fun deriveMatches(
         queryContext: SearchQueryContext,
         source: List<AppInfo>,
         limit: Int,
+        ensureActive: () -> Unit = {},
     ): List<AppInfo> =
         AppSearchAlgorithm.findMatches(
             queryContext = queryContext,
@@ -354,11 +363,26 @@ class AppSearchManager(
             appNicknames = cachedAppNicknames,
             secondaryRankingSignal = userPreferences.getSecondaryRankingSignal(),
             matcher = searchMatcher,
-            preparedAppData = preparedAppSearchData,
+            preparedAppData = preparedAppSearchDataForQuery(),
+            ensureActive = ensureActive,
         )
+
+    /**
+     * Until the background rebuild after [initCache] lands, build the prepared data once here
+     * instead of letting every keystroke recompute initials and abbreviations for every app.
+     */
+    private fun preparedAppSearchDataForQuery(): Map<String, PreparedAppSearchData> {
+        val current = preparedAppSearchData
+        val apps = cachedApps
+        if (current.isNotEmpty() || apps.isEmpty()) return current
+        val prepared = apps.associate { app -> app.launchCountKey() to PreparedAppSearchData.from(app) }
+        if (cachedApps === apps && preparedAppSearchData.isEmpty()) preparedAppSearchData = prepared
+        return prepared
+    }
 
     private fun rebuildPreparedAppSearchData(apps: List<AppInfo>) {
         searchTextCache.clear()
+        fuzzySearchStrategy.clearCaches()
         apps.forEach { app ->
             searchTextCache.prepare(app.appName)
             app.searchAliases.forEach(searchTextCache::prepare)

@@ -40,6 +40,9 @@ internal class SearchDerivedStateDelegate(
     @Volatile
     private var searchableAppsSnapshotVersion: Long = -1L
 
+    @Volatile
+    private var lastCustomizationSnapshot: Map<String, *>? = null
+
     private val appSearchManager get() = handlersProvider().appSearchManager
     private val iconPackHandler get() = handlersProvider().iconPackHandler
     private val messagingHandler get() = handlersProvider().messagingHandler
@@ -98,17 +101,23 @@ internal class SearchDerivedStateDelegate(
         isLoading: Boolean? = null,
     ) {
         val startedAtElapsedMs = SystemClock.elapsedRealtime()
-        appSearchManager.refreshNicknames()
+        // Nicknames, triggers and aliases all live in the search customization store. Only a
+        // change there should invalidate the UI's nickname/trigger lookups, which re-keys every row.
+        val customizationSnapshot = userPreferences.getSearchCustomizationSnapshot()
+        val customizationChanged = customizationSnapshot != lastCustomizationSnapshot
+        lastCustomizationSnapshot = customizationSnapshot
+        if (customizationChanged) appSearchManager.refreshNicknames()
 
         val catalogVersionAtRead = appSearchManager.catalogVersion
         val apps = appSearchManager.cachedApps
-        val visibleAppList = appSearchManager.availableApps()
         val hasUsagePermission = permissionStateProvider().hasUsagePermission
         val suggestionsEnabled = configStateProvider().appSuggestionsEnabled
 
         val suggestionHiddenPackages = userPreferences.getSuggestionHiddenPackages()
         val resultHiddenPackages = userPreferences.getResultHiddenPackages()
         val pinnedPackages = userPreferences.getPinnedPackages()
+        val pinnedOrder by lazy(LazyThreadSafetyMode.NONE) { appSearchManager.readPinnedOrder() }
+        val visibleAppList = appSearchManager.availableApps(suggestionHiddenPackages)
 
         if (suggestionsEnabled && !hasUsagePermission && userPreferences.getRecentAppLaunches().isEmpty()) {
             val initialRecents =
@@ -120,12 +129,18 @@ internal class SearchDerivedStateDelegate(
         }
 
         // Pinned apps stay on the home screen even when app suggestions are turned off.
-        val pinnedAppsForSuggestions = appSearchManager.computePinnedApps(emptySet())
+        val pinnedAppsForSuggestions =
+            appSearchManager.computePinnedApps(
+                exclusion = emptySet(),
+                pinnedPackages = pinnedPackages,
+                pinnedOrder = { pinnedOrder },
+            )
         val pinnedAppsForResults =
             computePinnedApps(
                 apps = apps,
                 pinnedPackages = pinnedPackages,
                 exclusion = resultHiddenPackages,
+                pinnedOrder = { pinnedOrder },
             )
         val suggestedRecents =
             if (suggestionsEnabled) {
@@ -215,7 +230,8 @@ internal class SearchDerivedStateDelegate(
                 resultExcludedApps = resultHiddenAppList,
                 indexedAppCount = visibleAppList.size,
                 cacheLastUpdatedMillis = lastUpdated ?: state.cacheLastUpdatedMillis,
-                nicknameUpdateVersion = state.nicknameUpdateVersion + 1,
+                nicknameUpdateVersion =
+                    if (customizationChanged) state.nicknameUpdateVersion + 1 else state.nicknameUpdateVersion,
             )
         }
         if (isLoading != null) {
@@ -469,9 +485,10 @@ internal class SearchDerivedStateDelegate(
         apps: List<AppInfo>,
         pinnedPackages: Set<String>,
         exclusion: Set<String>,
+        pinnedOrder: () -> Map<String, Int> = appSearchManager::readPinnedOrder,
     ): List<AppInfo> {
         if (apps.isEmpty() || pinnedPackages.isEmpty()) return emptyList()
-        val pinnedOrder = userPreferences.getPinnedPackageOrder().withIndex().associate { it.value to it.index }
+        val pinnedOrder = pinnedOrder()
 
         return apps
             .asSequence()

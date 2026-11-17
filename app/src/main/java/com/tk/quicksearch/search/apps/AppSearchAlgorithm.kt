@@ -55,6 +55,7 @@ object AppSearchAlgorithm {
         secondaryRankingSignal: SecondaryRankingSignal,
         matcher: SearchMatcher = DefaultSearchMatcher,
         preparedAppData: Map<String, PreparedAppSearchData> = emptyMap(),
+        ensureActive: () -> Unit = {},
     ): List<AppInfo> {
         if (queryContext.normalizedQuery.isBlank()) return emptyList()
 
@@ -78,6 +79,8 @@ object AppSearchAlgorithm {
             source
                 .asSequence()
                 .mapNotNull { app ->
+                    // A newer keystroke cancels this search; stop instead of finishing the scan.
+                    ensureActive()
                     calculateAppMatch(
                         app = app,
                         queryContext = queryContext,
@@ -88,6 +91,7 @@ object AppSearchAlgorithm {
                         matcher = matcher,
                         preparedAppData =
                             preparedAppData[app.launchCountKey()] ?: PreparedAppSearchData.from(app),
+                        hasFuzzyBudget = { fuzzyCandidatesScored < fuzzyCandidateLimit },
                         canScoreFuzzyCandidate = {
                             if (fuzzyCandidatesScored >= fuzzyCandidateLimit) {
                                 false
@@ -130,6 +134,7 @@ object AppSearchAlgorithm {
         appNicknames: Map<String, String>,
         matcher: SearchMatcher,
         preparedAppData: PreparedAppSearchData,
+        hasFuzzyBudget: () -> Boolean,
         canScoreFuzzyCandidate: () -> Boolean,
     ): AppMatch? {
         // Archived apps keep their nickname, but it only matches again once they're restored.
@@ -162,27 +167,16 @@ object AppSearchAlgorithm {
             return AppMatch(app, priority, 0, false, app.appName.lowercase(Locale.getDefault()))
         }
 
-        if (
-            !fuzzySearchStrategy.isTypoEligibleCandidate(
-                preparedQuery = preparedFuzzyQuery,
-                appName = app.appName,
-                searchAliases = app.searchAliases,
-                nickname = nickname,
-                initials = initials,
-            )
-        ) {
-            return null
-        }
-
-        if (!canScoreFuzzyCandidate()) return null
+        // Once the fuzzy budget is spent no further candidate can score, so skip the typo checks.
+        if (!hasFuzzyBudget()) return null
 
         val match =
-            fuzzySearchStrategy.scoreEligibleCandidate(
+            fuzzySearchStrategy.scoreTypoCandidate(
                 preparedQuery = preparedFuzzyQuery,
                 app = app,
-                searchAliases = app.searchAliases,
                 nickname = nickname,
                 initials = initials,
+                canScore = canScoreFuzzyCandidate,
             )
 
         return match?.let {

@@ -30,6 +30,10 @@ object AppNameSubsequence {
         private val entries = ConcurrentHashMap<String, Target>()
 
         fun prepare(text: String): Target = entries.computeIfAbsent(text, AppNameSubsequence::prepare)
+
+        fun clear() {
+            entries.clear()
+        }
     }
 
     fun prepare(text: String): Target {

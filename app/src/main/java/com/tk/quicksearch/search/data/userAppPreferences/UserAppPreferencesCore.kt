@@ -647,6 +647,8 @@ open class UserAppPreferencesCore(protected val context: Context) {
 
     fun getAllAppNicknames(): Map<String, String> = nicknamePreferences.getAllAppNicknames()
 
+    fun getSearchCustomizationSnapshot(): Map<String, *> = nicknamePreferences.getSearchCustomizationSnapshot()
+
     fun getAppNickname(appKey: String): String? =
             nicknamePreferences.getAppNickname(appKey)
 

@@ -82,6 +82,7 @@ class AppCache(
         currentUserHandleId: Int,
         commitSynchronously: Boolean = false,
     ) {
+        AppCatalogLoadCoalescer.onCatalogChanged()
         val appKey = change.appKey(currentUserHandleId)
         val removedAppKeys = getRemovedAppKeys().toMutableSet()
         if (appKey != null) {
@@ -106,6 +107,7 @@ class AppCache(
 
     internal fun recordUnavailableApps(apps: List<AppInfo>) {
         if (apps.isEmpty()) return
+        AppCatalogLoadCoalescer.onCatalogChanged()
 
         val removedAppKeys = getRemovedAppKeys().toMutableSet()
         removedAppKeys.addAll(apps.map { it.launchCountKey() })
@@ -126,9 +128,25 @@ class AppCache(
         prefs.getStringSet(KEY_REMOVED_APP_KEYS, emptySet()).orEmpty().toSet()
 
     fun clearCache() {
+        AppCatalogLoadCoalescer.onCatalogChanged()
         prefs.edit().clear().apply()
-        cacheFile.delete()
-        tempCacheFile.delete()
+        synchronized(FILE_LOCK) {
+            cacheFile.delete()
+            tempCacheFile.delete()
+            lastPersistedApps = null
+        }
+    }
+
+    /**
+     * Whether [apps] equals what the cache file currently holds, without re-reading the file when
+     * this process already knows its content.
+     */
+    internal fun matchesPersistedApps(apps: List<AppInfo>): Boolean {
+        val persisted = lastPersistedApps ?: run {
+            loadCachedAppsFromFile()
+            lastPersistedApps
+        }
+        return persisted == apps
     }
 
     private fun loadCachedAppsFromFile(): List<AppInfo>? {
@@ -148,6 +166,8 @@ class AppCache(
                 // but must be reconciled in the background before it is used for app search.
                 if (version < CACHE_FILE_VERSION) {
                     prefs.edit().putBoolean(KEY_CATALOG_INVALIDATED, true).apply()
+                } else {
+                    lastPersistedApps = apps
                 }
                 apps
             }
@@ -156,27 +176,38 @@ class AppCache(
         }.getOrNull()
     }
 
-    private fun saveAppsToFile(apps: List<AppInfo>) {
-        if (apps.isEmpty()) {
-            cacheFile.delete()
-            tempCacheFile.delete()
-            return
-        }
+    // Each surface's ViewModel owns an AppCache over the same file, so writes are serialized
+    // process-wide to keep two writers from interleaving on the shared temp file.
+    private fun saveAppsToFile(apps: List<AppInfo>) =
+        synchronized(FILE_LOCK) {
+            if (apps.isEmpty()) {
+                cacheFile.delete()
+                tempCacheFile.delete()
+                lastPersistedApps = null
+                return@synchronized
+            }
 
-        DataOutputStream(BufferedOutputStream(tempCacheFile.outputStream())).use { output ->
-            output.writeInt(CACHE_FILE_VERSION)
-            output.writeInt(apps.size)
-            apps.forEach { app -> output.writeAppInfo(app) }
-        }
+            lastPersistedApps = null
+            DataOutputStream(BufferedOutputStream(tempCacheFile.outputStream())).use { output ->
+                output.writeInt(CACHE_FILE_VERSION)
+                output.writeInt(apps.size)
+                apps.forEach { app -> output.writeAppInfo(app) }
+            }
 
-        if (!tempCacheFile.renameTo(cacheFile)) {
-            tempCacheFile.copyTo(cacheFile, overwrite = true)
-            tempCacheFile.delete()
+            if (!tempCacheFile.renameTo(cacheFile)) {
+                tempCacheFile.copyTo(cacheFile, overwrite = true)
+                tempCacheFile.delete()
+            }
+            lastPersistedApps = apps
         }
-    }
 
     companion object {
         private const val TAG = "AppCache"
+        private val FILE_LOCK = Any()
+
+        /** Content of the cache file as last read or written by this process (current version only). */
+        @Volatile
+        private var lastPersistedApps: List<AppInfo>? = null
         private const val PREFS_NAME = "app_cache"
         private const val KEY_APP_LIST = "app_list"
         private const val KEY_LAST_UPDATE = "last_update"

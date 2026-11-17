@@ -1,5 +1,8 @@
 package com.tk.quicksearch.search.core
 
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.job
+import kotlinx.coroutines.currentCoroutineContext
 import android.os.SystemClock
 import com.tk.quicksearch.search.apps.AppSearchPerformanceLogger
 import com.tk.quicksearch.search.files.FileExtensionQuery
@@ -688,10 +691,12 @@ internal class SearchQueryCoordinator(
                     val computationStartedAtElapsedMs = SystemClock.elapsedRealtime()
                     val appsSnapshot = getSearchableAppsSnapshot()
                     val gridLimit = getGridItemCount()
+                    val searchJob = currentCoroutineContext().job
                     val results = appSearchManager.deriveMatches(
                         queryContext,
                         appsSnapshot,
                         gridLimit,
+                        ensureActive = searchJob::ensureActive,
                     )
                     val computationElapsedMs = SystemClock.elapsedRealtime() - computationStartedAtElapsedMs
                     AppSearchPerformanceLogger.logTiming(

@@ -279,6 +279,25 @@ object FuzzyMatcher {
         return false
     }
 
+    /** The tokens [hasTokenWithinEditDistance] compares, for callers that reuse them across checks. */
+    fun editDistanceTokens(text: String): List<String> = tokenizeUnique(text).ordered
+
+    /** [hasTokenWithinEditDistance] over tokens already produced by [editDistanceTokens]. */
+    fun hasTokenWithinEditDistance(
+        queryTokens: List<String>,
+        targetTokens: List<String>,
+        maxDistance: Int,
+    ): Boolean {
+        if (queryTokens.isEmpty() || targetTokens.isEmpty()) return false
+        for (queryToken in queryTokens) {
+            for (targetToken in targetTokens) {
+                if (kotlin.math.abs(queryToken.length - targetToken.length) > maxDistance) continue
+                if (levenshteinDistance(queryToken, targetToken) <= maxDistance) return true
+            }
+        }
+        return false
+    }
+
     private fun levenshteinDistance(
         first: String,
         second: String,

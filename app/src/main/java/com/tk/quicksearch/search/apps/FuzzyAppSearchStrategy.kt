@@ -14,12 +14,18 @@ import com.tk.quicksearch.search.utils.PreparedSearchText
 import com.tk.quicksearch.search.utils.SearchTextCache
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import com.tk.quicksearch.search.utils.SearchQueryContext
+import java.util.concurrent.ConcurrentHashMap
 
 data class PreparedAppFuzzyQuery(
     val query: String,
     val normalizedQuery: PreparedSearchText,
     val policy: FuzzySearchPolicy,
-)
+) {
+    /** Query tokens for the typo-distance check, computed once per query instead of per app. */
+    internal val editDistanceTokens: List<String> by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        FuzzyMatcher.editDistanceTokens(normalizedQuery.normalized)
+    }
+}
 
 /**
  * Fuzzy search strategy specifically for app search.
@@ -32,6 +38,13 @@ class FuzzyAppSearchStrategy(
     private val textCache: SearchTextCache = SearchTextCache(),
 ) : BaseFuzzySearchStrategy<AppInfo>() {
     private val subsequenceCache = AppNameSubsequence.Cache()
+    private val editDistanceTokenCache = ConcurrentHashMap<String, List<String>>()
+
+    /** Drops cached per-name data, e.g. for apps that are no longer installed. */
+    internal fun clearCaches() {
+        subsequenceCache.clear()
+        editDistanceTokenCache.clear()
+    }
 
     /**
      * Finds fuzzy matches for apps based on the query.
@@ -130,6 +143,31 @@ class FuzzyAppSearchStrategy(
             appName,
             alternateNames,
         ) || computeSubsequenceScore(preparedQuery, appName, searchAliases, nickname) > 0
+    }
+
+    /**
+     * Same result as [isTypoEligibleCandidate] followed by [scoreEligibleCandidate], but builds the
+     * alternate names and the subsequence score once. [canScore] runs only for eligible candidates.
+     */
+    internal fun scoreTypoCandidate(
+        preparedQuery: PreparedAppFuzzyQuery,
+        app: AppInfo,
+        nickname: String?,
+        initials: List<String>,
+        canScore: () -> Boolean,
+    ): FuzzySearchStrategy.Match<AppInfo>? {
+        if (!preparedQuery.policy.enabled) return null
+        val alternateNames = buildAlternateNames(app.searchAliases, nickname, initials)
+        var subsequenceScore = -1
+        if (!isWithinTypoTolerance(preparedQuery, app.appName, alternateNames)) {
+            subsequenceScore = computeSubsequenceScore(preparedQuery, app.appName, app.searchAliases, nickname)
+            if (subsequenceScore <= 0) return null
+        }
+        if (!canScore()) return null
+        if (subsequenceScore < 0) {
+            subsequenceScore = computeSubsequenceScore(preparedQuery, app.appName, app.searchAliases, nickname)
+        }
+        return scoreEligibleCandidate(preparedQuery, app, alternateNames, subsequenceScore)
     }
 
     internal fun scoreEligibleCandidate(
@@ -237,12 +275,11 @@ class FuzzyAppSearchStrategy(
         val query = preparedQuery.query
         val policy = preparedQuery.policy
         if (query.length < policy.minimumQueryLength) return true
-        val normalizedQuery = preparedQuery.normalizedQuery.normalized
-        val normalizedAppName = textCache.prepare(appName).normalized
+        val queryTokens = preparedQuery.editDistanceTokens
         if (
             FuzzyMatcher.hasTokenWithinEditDistance(
-                normalizedQuery,
-                normalizedAppName,
+                queryTokens,
+                editDistanceTokensFor(appName),
                 policy.maximumEditDistance,
             )
         ) {
@@ -250,12 +287,17 @@ class FuzzyAppSearchStrategy(
         }
         return alternateNames?.let {
             FuzzyMatcher.hasTokenWithinEditDistance(
-                normalizedQuery,
-                textCache.prepare(it).normalized,
+                queryTokens,
+                editDistanceTokensFor(it),
                 policy.maximumEditDistance,
             )
         } ?: false
     }
+
+    private fun editDistanceTokensFor(text: String): List<String> =
+        editDistanceTokenCache.computeIfAbsent(text) {
+            FuzzyMatcher.editDistanceTokens(textCache.prepare(it).normalized)
+        }
 
     private fun appPolicyFor(query: String): FuzzySearchPolicy =
         FuzzySearchPolicyResolver.effectivePolicy(

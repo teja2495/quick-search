@@ -219,14 +219,13 @@ fun rememberAppIcon(
     val cachedInitial = AppIconCache.get(cacheKey)
     // Toggling themed icons switches cache keys; the other variant keeps the icon on screen
     // instead of a placeholder, and already holds everything the non-themed variant needs.
-    val alternateKey = cacheKeyFor(!includeMonochrome)
+    // Only a cache miss needs the other variant, so a cached icon builds a single key per recomposition.
+    val alternateKey = if (cachedInitial == null) cacheKeyFor(!includeMonochrome) else null
     val alternateEntry =
-        if (cachedInitial == null) {
-            AppIconCache.get(alternateKey)?.let { entry ->
+        alternateKey?.let { key ->
+            AppIconCache.get(key)?.let { entry ->
                 if (includeMonochrome) entry else entry.copy(monochromeData = null)
             }
-        } else {
-            null
         }
 
     val iconState =
@@ -249,7 +248,7 @@ fun rememberAppIcon(
 
             if (!includeMonochrome && alternateEntry != null) {
                 AppIconCache.put(cacheKey, alternateEntry)
-                AppIconCache.remove(alternateKey)
+                alternateKey?.let(AppIconCache::remove)
                 value = alternateEntry.toResult()
                 return@produceState
             }

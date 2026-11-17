@@ -83,6 +83,9 @@ class NicknamePreferences(
         customizationStore.putString(key, NicknameUtils.normalizeInput(nickname))
     }
 
+    /** Every nickname, trigger and alias entry, for detecting whether any of them changed. */
+    fun getSearchCustomizationSnapshot(): Map<String, *> = customizationStore.snapshot()
+
     fun getAllAppNicknames(): Map<String, String> {
         val allPrefs = customizationStore.snapshot()
         val nicknames = mutableMapOf<String, String>()

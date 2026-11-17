@@ -8,6 +8,7 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager.ApplicationInfoFlags
 import android.content.pm.LauncherActivityInfo
@@ -100,16 +101,31 @@ class AppsRepository(
     fun isAppCatalogInvalidated(): Boolean =
         appCatalogInvalidated || appCache.isCatalogInvalidated()
 
-    internal fun startPackageChangeMonitoring(onCatalogInvalidated: (AppCatalogChange) -> Unit) {
+    /**
+     * @param onCatalogInvalidated receives each change and whether it repeats the previous one.
+     * The package receiver and the LauncherApps callback both report most events, so a repeat
+     * only needs the debounced refresh rescheduled, not its per-event work done again.
+     */
+    internal fun startPackageChangeMonitoring(
+        onCatalogInvalidated: (change: AppCatalogChange, isRepeat: Boolean) -> Unit,
+    ) {
         if (packageChangeReceiver != null || launcherAppsCallback != null) return
+        // Both sources deliver on the main thread, so these need no synchronization.
+        var lastChange: AppCatalogChange? = null
+        var lastChangeAtElapsedMs = 0L
         fun invalidate(change: AppCatalogChange) {
             if (!change.requiresCatalogReconciliation) return
             // Private Space package names must not be written to the catalog's change log.
             val changedUser = change.userHandleId?.let(UserHandleUtils::of)
             if (changedUser != null && PrivateSpaceProfile.isPrivateProfile(context, changedUser)) return
+            val nowElapsedMs = SystemClock.elapsedRealtime()
+            val isRepeat =
+                change == lastChange && nowElapsedMs - lastChangeAtElapsedMs < DUPLICATE_PACKAGE_EVENT_WINDOW_MS
+            lastChange = change
+            lastChangeAtElapsedMs = nowElapsedMs
             appCatalogInvalidated = true
-            appCache.recordCatalogChange(change, currentUserHandleId)
-            onCatalogInvalidated(change)
+            if (!isRepeat) appCache.recordCatalogChange(change, currentUserHandleId)
+            onCatalogInvalidated(change, isRepeat)
         }
 
         // LauncherApps callbacks are not available on every device/profile combination. A
@@ -250,6 +266,22 @@ class AppsRepository(
         includeArchivedApps: Boolean = true,
         launchCounts: Map<String, Int> = emptyMap(),
     ): List<AppInfo> {
+        val sortedApps =
+            AppCatalogLoadCoalescer.load(
+                AppCatalogLoadCoalescer.LoadKey(includeNonLaunchableApps, includeArchivedApps, launchCounts),
+            ) {
+                buildLaunchableApps(includeNonLaunchableApps, includeArchivedApps, launchCounts)
+            }
+        appCatalogInvalidated = false
+        appCache.clearCatalogInvalidation()
+        return sortedApps
+    }
+
+    private fun buildLaunchableApps(
+        includeNonLaunchableApps: Boolean,
+        includeArchivedApps: Boolean,
+        launchCounts: Map<String, Int>,
+    ): List<AppInfo> {
         val startedAtElapsedMs = SystemClock.elapsedRealtime()
         val usageMap = queryUsageStatsMap()
         if (usageMap.isNotEmpty()) usageRefreshTracker.markFullRefresh(startedAtElapsedMs, System.currentTimeMillis())
@@ -287,7 +319,7 @@ class AppsRepository(
         // never written back into the cache or returned to the UI.
         val removedAppKeys = appCache.removedAppKeys()
         val sortedApps = filterRemovedApps(apps.sortedWith(AppInfoComparator), removedAppKeys)
-        if (appCache.loadCachedApps() != sortedApps || removedAppKeys.isNotEmpty()) {
+        if (removedAppKeys.isNotEmpty() || !appCache.matchesPersistedApps(sortedApps)) {
             appCache.saveApps(sortedApps)
         }
         AppSearchPerformanceLogger.logTiming(
@@ -304,8 +336,6 @@ class AppsRepository(
                 "launchable=${launchableApps.size} nonLaunchable=${nonLaunchableApps.size} " +
                 "removed=${removedAppKeys.size}"
         }
-        appCatalogInvalidated = false
-        appCache.clearCatalogInvalidation()
         return sortedApps
     }
 
@@ -469,22 +499,14 @@ class AppsRepository(
         val lastUsedTime = stats?.lastTimeUsed ?: 0L
         val totalTimeInForeground = stats?.totalTimeInForeground ?: 0L
         val launchCount = resolveLaunchCount(stats, launchCounts[launchCountKey] ?: 0)
-        val firstInstallTime = info.firstInstallTime
-        val lastUpdateTime = getLastUpdateTime(packageName)
+        val packageTimes = readPackageTimes(packageName)
+        // LauncherActivityInfo can still resolve the install time for a package that is only
+        // installed in another profile, where the current user's lookup fails.
+        val firstInstallTime = packageTimes?.firstInstallTime ?: info.firstInstallTime
+        val lastUpdateTime = packageTimes?.lastUpdateTime ?: 0L
         val appInfo = info.applicationInfo
         val isSystemApp = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
-        val activityInfo =
-            runCatching {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    packageManager.getActivityInfo(
-                        info.componentName,
-                        PackageManager.ComponentInfoFlags.of(0),
-                    )
-                } else {
-                    @Suppress("DEPRECATION")
-                    packageManager.getActivityInfo(info.componentName, 0)
-                }
-            }.getOrNull()
+        val activityInfo = resolveActivityInfoForAliases(info)
 
         return AppInfo(
             appName = label,
@@ -525,8 +547,9 @@ class AppsRepository(
         val stats = usageMap[packageName]
         val lastUsedTime = stats?.lastTimeUsed ?: 0L
         val totalTimeInForeground = stats?.totalTimeInForeground ?: 0L
-        val firstInstallTime = getFirstInstallTime(packageName)
-        val lastUpdateTime = getLastUpdateTime(packageName)
+        val packageTimes = readPackageTimes(packageName)
+        val firstInstallTime = packageTimes?.firstInstallTime ?: 0L
+        val lastUpdateTime = packageTimes?.lastUpdateTime ?: 0L
         val isSystemApp =
             (
                 resolveInfo.activityInfo.applicationInfo.flags
@@ -581,8 +604,9 @@ class AppsRepository(
         val lastUsedTime = stats?.lastTimeUsed ?: 0L
         val totalTimeInForeground = stats?.totalTimeInForeground ?: 0L
         val launchCount = resolveLaunchCount(stats, launchCounts[packageName] ?: 0)
-        val firstInstallTime = getFirstInstallTime(packageName)
-        val lastUpdateTime = getLastUpdateTime(packageName)
+        val packageTimes = readPackageTimes(packageName)
+        val firstInstallTime = packageTimes?.firstInstallTime ?: 0L
+        val lastUpdateTime = packageTimes?.lastUpdateTime ?: 0L
         val isSystemApp = (applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
 
         return AppInfo(
@@ -713,36 +737,41 @@ class AppsRepository(
         }.getOrDefault(emptyMap())
     }
 
-    private fun getFirstInstallTime(packageName: String): Long =
-        runCatching {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                packageManager
-                    .getPackageInfo(
-                        packageName,
-                        PackageManager.PackageInfoFlags.of(0),
-                    ).firstInstallTime
-            } else {
-                @Suppress("DEPRECATION")
-                packageManager.getPackageInfo(packageName, 0).firstInstallTime
-            }
-        }.getOrDefault(0L)
+    private class PackageTimes(
+        val firstInstallTime: Long,
+        val lastUpdateTime: Long,
+    )
 
-    private fun getLastUpdateTime(packageName: String): Long =
+    /** Reads both install timestamps with a single PackageManager call. */
+    private fun readPackageTimes(packageName: String): PackageTimes? =
         runCatching {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                packageManager
-                    .getPackageInfo(
-                        packageName,
-                        PackageManager.PackageInfoFlags.of(0),
-                    ).lastUpdateTime
-            } else {
-                @Suppress("DEPRECATION")
-                packageManager.getPackageInfo(packageName, 0).lastUpdateTime
-            }
-        }.getOrDefault(getFirstInstallTime(packageName))
+            val packageInfo =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    packageManager.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
+                } else {
+                    @Suppress("DEPRECATION")
+                    packageManager.getPackageInfo(packageName, 0)
+                }
+            PackageTimes(packageInfo.firstInstallTime, packageInfo.lastUpdateTime)
+        }.getOrNull()
+
+    /**
+     * The activity's own label resources only matter for aliases. On Android 12+ LauncherActivityInfo
+     * already carries them; on older versions the extra lookup can only add an alias on a
+     * non-English device, because an activity's non-localized label is already its display label.
+     */
+    private fun resolveActivityInfoForAliases(info: LauncherActivityInfo): ActivityInfo? {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) return info.activityInfo
+        if (isCurrentLocaleEnglish()) return null
+        return runCatching {
+            @Suppress("DEPRECATION")
+            packageManager.getActivityInfo(info.componentName, 0)
+        }.getOrNull()
+    }
 
     companion object {
         private const val MAX_SEARCH_ALIASES = 2
+        private const val DUPLICATE_PACKAGE_EVENT_WINDOW_MS = 1_000L
 
         private val AppLaunchCountGetter by lazy(LazyThreadSafetyMode.PUBLICATION) {
             runCatching { UsageStats::class.java.getMethod("getAppLaunchCount") }.getOrNull()

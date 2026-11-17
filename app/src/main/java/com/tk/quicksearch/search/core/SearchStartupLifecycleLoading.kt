@@ -34,20 +34,24 @@ import android.os.SystemClock
 private const val PACKAGE_REFRESH_DEBOUNCE_MS = 400L
 
 internal fun SearchStartupLifecycleDelegate.startPackageChangeMonitoring() {
-        repository.startPackageChangeMonitoring { change ->
-            change.packageName?.let { packageName ->
-                if (change.isRemoval) {
-                    if (appShortcutSearchHandler.removeUnavailablePackage(packageName)) {
-                        refreshAppShortcutsState()
+        repository.startPackageChangeMonitoring { change, isRepeat ->
+            if (!isRepeat) {
+                change.packageName?.let { packageName ->
+                    if (change.isRemoval) {
+                        if (appShortcutSearchHandler.removeUnavailablePackage(packageName)) {
+                            refreshAppShortcutsState()
+                        }
+                    } else {
+                        appShortcutSearchHandler.markPackageAvailable(packageName)
+                        invalidateAppIcon(packageName)
                     }
-                } else {
-                    appShortcutSearchHandler.markPackageAvailable(packageName)
-                    invalidateAppIcon(packageName)
                 }
-            }
 
-            if (change.isRemoval) {
-                appSearchManager.removeUnavailableApp(change)
+                if (change.isRemoval) {
+                    // Package callbacks arrive on the main thread; removing the app refreshes all
+                    // derived state, so do it on the catalog's own single-thread dispatcher.
+                    scope.launch(startupDispatcher) { appSearchManager.removeUnavailableApp(change) }
+                }
             }
 
             packageRefreshJob?.cancel()
