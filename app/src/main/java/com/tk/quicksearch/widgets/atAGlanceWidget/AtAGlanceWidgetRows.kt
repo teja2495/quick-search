@@ -31,6 +31,7 @@ import com.tk.quicksearch.search.data.preferences.GlanceItemSettings
 import com.tk.quicksearch.search.data.preferences.GlancePreferences
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ReminderInfo
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.MIN_VISIBLE_PROGRESS
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.englishOrdinal
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.timerActionIcon
 import com.tk.quicksearch.shared.ui.icons.MaterialSymbols
@@ -221,6 +222,7 @@ internal class AtAGlanceWidgetRowLoader(
         pill: String? = null,
         footer: String? = null,
         progress: Float? = null,
+        progressFlag: Boolean = false,
         trailing: List<AtAGlanceWidgetButton> = emptyList(),
         dismissAtTop: Boolean = false,
     ) = AtAGlanceWidgetRow(
@@ -236,6 +238,7 @@ internal class AtAGlanceWidgetRowLoader(
         pill = pill?.let { AtAGlanceWidgetPill(it) },
         footer = footer,
         progress = progress,
+        progressFlag = progressFlag,
         trailing = trailing,
         dismissAtTop = dismissAtTop,
     )
@@ -552,9 +555,18 @@ internal class AtAGlanceWidgetRowLoader(
                 key = notification.key,
                 packageName = notification.packageName,
                 title = notification.title ?: appLabel,
-                subtitle = notification.text ?: appLabel.takeIf { notification.title != null },
-                pill = fraction?.let { percentFormat.format(it.toDouble()) } ?: notification.shortCriticalText,
-                progress = fraction,
+                subtitle =
+                    if (notification.isNavigation) {
+                        notification.subText ?: notification.text
+                    } else {
+                        notification.text ?: notification.subText
+                    } ?: appLabel.takeIf { notification.title != null },
+                // Navigation shows the distance to the next turn; its bar is the trip, not a percentage.
+                pill =
+                    fraction?.takeUnless { notification.isNavigation }?.let { percentFormat.format(it.toDouble()) }
+                        ?: notification.shortCriticalText,
+                progress = fraction?.takeIf { it >= MIN_VISIBLE_PROGRESS },
+                progressFlag = notification.isNavigation,
             )
         } +
             finished.map { notification ->

@@ -115,8 +115,17 @@ internal fun AtAGlanceWidgetRowContent(
             Pill(pill, colors, textScale)
         }
         if (row.trailing.isNotEmpty()) {
-            row.trailing.forEach { button ->
-                Spacer(modifier = GlanceModifier.width(AtAGlanceWidgetDimens.BUTTON_SPACING))
+            row.trailing.forEachIndexed { index, button ->
+                // A wider gap after the pill keeps a value like a call's duration clear of its button.
+                val gap =
+                    if (index == 0 && row.pill != null && button.style == AtAGlanceWidgetButtonStyle.HANG_UP) {
+                        16.dp
+                    } else if (index == 0 && row.pill != null) {
+                        AtAGlanceWidgetDimens.ICON_TEXT_SPACING
+                    } else {
+                        AtAGlanceWidgetDimens.BUTTON_SPACING
+                    }
+                Spacer(modifier = GlanceModifier.width(gap))
                 RowButton(context, row, button, colors, textScale)
             }
         }
@@ -212,12 +221,26 @@ private fun RowText(
     }
     row.progress?.let { progress ->
         TextGap()
-        LinearProgressIndicator(
-            progress = progress,
-            modifier = GlanceModifier.fillMaxWidth().padding(top = 4.dp, end = 4.dp),
-            color = colors.title,
-            backgroundColor = colors.progressTrack,
-        )
+        if (row.progressFlag) {
+            Row(modifier = GlanceModifier.fillMaxWidth().padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                LinearProgressIndicator(
+                    progress = progress,
+                    modifier = GlanceModifier.defaultWeight().height(AtAGlanceWidgetDimens.PROGRESS_HEIGHT),
+                    color = colors.title,
+                    backgroundColor = colors.progressTrack,
+                )
+                Spacer(modifier = GlanceModifier.width(4.dp))
+                VectorImage(context, MaterialSymbols.Flag, colors.title, 16.dp)
+            }
+        } else {
+            Spacer(modifier = GlanceModifier.height(4.dp))
+            LinearProgressIndicator(
+                progress = progress,
+                modifier = GlanceModifier.fillMaxWidth().height(AtAGlanceWidgetDimens.PROGRESS_HEIGHT).padding(end = 4.dp),
+                color = colors.title,
+                backgroundColor = colors.progressTrack,
+            )
+        }
     }
     if (row.chips.isNotEmpty()) {
         Spacer(modifier = GlanceModifier.height(AtAGlanceWidgetDimens.CHIP_TOP_SPACING))

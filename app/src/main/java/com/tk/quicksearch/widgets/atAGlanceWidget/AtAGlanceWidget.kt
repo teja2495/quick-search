@@ -69,6 +69,9 @@ internal object AtAGlanceWidgetDimens {
     val TEXT_SPACING = 2.dp
     val BUTTON_SPACING = 8.dp
     val CHIP_TOP_SPACING = 6.dp
+
+    /** Thicker than home's 4dp bar so it reads at widget size, but well under the unsized default. */
+    val PROGRESS_HEIGHT = 8.dp
     val HORIZONTAL_PADDING = 16.dp
     val LIST_VERTICAL_PADDING = 4.dp
     val ROW_VERTICAL_PADDING = 12.dp

@@ -15,11 +15,15 @@ internal data class ProgressNotification(
     val packageName: String,
     val title: String?,
     val text: String?,
+    /** The line beside the app name, such as a navigation's "Arrive 6:18 PM". */
+    val subText: String?,
     val progress: Int,
     /** 0 when the notification is a Live Update without a progress bar. */
     val progressMax: Int,
     /** A Live Update's short status for its status bar chip, such as "3 min". */
     val shortCriticalText: String?,
+    /** Turn-by-turn navigation, whose bar is the trip so far rather than a task's percentage. */
+    val isNavigation: Boolean,
     val postTime: Long,
     val contentIntent: PendingIntent?,
 )
@@ -151,23 +155,28 @@ internal class ProgressNotificationTracker {
         if (extras.getBoolean(Notification.EXTRA_PROGRESS_INDETERMINATE)) return null
         val max = extras.getInt(Notification.EXTRA_PROGRESS_MAX, 0).coerceAtLeast(0)
         if (max == 0 && !isBarlessLiveUpdate()) return null
+        val isNavigation = notification.category == Notification.CATEGORY_NAVIGATION
         return ProgressNotification(
             key = key,
             packageName = packageName,
             title = extras.getCharSequence(Notification.EXTRA_TITLE)?.toString()?.takeIf { it.isNotBlank() },
             text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()?.takeIf { it.isNotBlank() },
+            subText = text(Notification.EXTRA_SUB_TEXT),
             progress = extras.getInt(Notification.EXTRA_PROGRESS, 0).coerceIn(0, max),
             progressMax = max,
-            shortCriticalText =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
-                    notification.shortCriticalText?.trim()?.takeIf(String::isNotEmpty)
-                } else {
-                    null
-                },
+            shortCriticalText = shortCriticalText() ?: text(SAMSUNG_PRIMARY_INFO).takeIf { isNavigation },
+            isNavigation = isNavigation,
             postTime = postTime,
             contentIntent = notification.contentIntent,
         )
     }
+
+    private fun StatusBarNotification.shortCriticalText(): String? =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+            notification.shortCriticalText?.trim()?.takeIf(String::isNotEmpty)
+        } else {
+            null
+        }
 
     /** A Live Update without a progress bar; ongoing calls have their own At a Glance row. */
     private fun StatusBarNotification.isBarlessLiveUpdate(): Boolean {
@@ -180,6 +189,12 @@ internal class ProgressNotificationTracker {
 
     private companion object {
         const val CALL_STYLE_TEMPLATE = "android.app.Notification\$CallStyle"
+
+        /**
+         * One UI's status chip text, such as Maps' distance to the next turn, which Maps leaves out of
+         * [Notification.shortCriticalText].
+         */
+        const val SAMSUNG_PRIMARY_INFO = "android.ongoingActivityNoti.primaryInfo"
 
         /** How long after a progress notification disappears a new one from its app counts as its finish. */
         const val FINISH_GRACE_MILLIS = 5_000L

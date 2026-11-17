@@ -478,6 +478,9 @@ internal fun WeatherRow(
     )
 }
 
+/** Below this a progress bar would be an empty track, so the row leaves it out. */
+internal const val MIN_VISIBLE_PROGRESS = 0.01f
+
 @Composable
 internal fun ProgressNotificationRow(notification: ProgressNotification) {
     val context = LocalContext.current
@@ -496,13 +499,17 @@ internal fun ProgressNotificationRow(notification: ProgressNotification) {
         )
         return
     }
+    if (notification.isNavigation) {
+        NavigationProgressRow(notification, appLabel)
+        return
+    }
     val fraction = notification.progress.toFloat() / notification.progressMax
     val percentLabel = remember(fraction) { NumberFormat.getPercentInstance().format(fraction.toDouble()) }
     val fullLabel = remember { NumberFormat.getPercentInstance().format(1.0) }
     GlanceStatusRow(
         icon = { NotificationAppIcon(notification.packageName) },
         title = notification.title ?: appLabel,
-        subtitle = notification.text ?: appLabel.takeIf { notification.title != null },
+        subtitle = notification.text ?: notification.subText ?: appLabel.takeIf { notification.title != null },
         titleMaxLines = GlanceTextMaxLines,
         pillText = percentLabel,
         pillWidthText = fullLabel,
@@ -510,10 +517,54 @@ internal fun ProgressNotificationRow(notification: ProgressNotification) {
             openNotificationTarget(context, notification.packageName, notification.contentIntent)
         },
         belowText = {
+            if (fraction < MIN_VISIBLE_PROGRESS) return@GlanceStatusRow
             LinearProgressIndicator(
                 progress = { fraction },
                 modifier = Modifier.fillMaxWidth().padding(top = DesignTokens.SpacingXSmall, end = DesignTokens.SpacingXSmall),
             )
+        },
+    )
+}
+
+/**
+ * Turn-by-turn navigation: the next instruction, the arrival time, the distance to the next turn and
+ * the trip so far as a bar ending at a destination flag, rather than a task's percentage.
+ */
+@Composable
+private fun NavigationProgressRow(
+    notification: ProgressNotification,
+    appLabel: String,
+) {
+    val context = LocalContext.current
+    val fraction = notification.progress.toFloat() / notification.progressMax
+    GlanceStatusRow(
+        icon = { NotificationAppIcon(notification.packageName) },
+        title = notification.title ?: appLabel,
+        subtitle = notification.subText ?: notification.text ?: appLabel.takeIf { notification.title != null },
+        titleMaxLines = GlanceTextMaxLines,
+        pillText = notification.shortCriticalText,
+        onClick = {
+            openNotificationTarget(context, notification.packageName, notification.contentIntent)
+        },
+        belowText = {
+            if (fraction < MIN_VISIBLE_PROGRESS) return@GlanceStatusRow
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = DesignTokens.SpacingXSmall),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
+            ) {
+                LinearProgressIndicator(
+                    progress = { fraction },
+                    modifier = Modifier.weight(1f),
+                    drawStopIndicator = {},
+                )
+                Icon(
+                    imageVector = MaterialSymbols.Flag,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(16.dp),
+                )
+            }
         },
     )
 }

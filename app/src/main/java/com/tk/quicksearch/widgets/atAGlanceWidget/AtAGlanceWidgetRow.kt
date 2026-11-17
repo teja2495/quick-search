@@ -186,6 +186,8 @@ internal data class AtAGlanceWidgetRow(
     val footer: String? = null,
     /** Draws a progress bar below the text, from 0 to 1. */
     val progress: Float? = null,
+    /** Ends the progress bar with a destination flag, like a navigation's trip. */
+    val progressFlag: Boolean = false,
     /** Buttons below the text, like a missed call's app chips. */
     val chips: List<AtAGlanceWidgetButton> = emptyList(),
     /** Buttons between the text and the close button. */
